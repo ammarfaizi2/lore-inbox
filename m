@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275494AbTHSGiK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275507AbTHSGiJ
+	id S275386AbTHSGlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275533AbTHSGkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:38:09 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:14318 "EHLO
+	Tue, 19 Aug 2003 02:40:42 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:4736 "EHLO
 	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S275494AbTHSGe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:34:58 -0400
-Date: Tue, 19 Aug 2003 16:36:05 +1000
+	id S275386AbTHSGgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 02:36:18 -0400
+Date: Tue, 19 Aug 2003 16:37:27 +1000
 From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/10] 2.6.0-t3: struct C99 initialiser conversion
-Message-ID: <20030819063605.GJ643@zip.com.au>
+Subject: [PATCH 6/10] 2.6.0-t3: struct C99 initialiser conversion
+Message-ID: <20030819063727.GL643@zip.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Rgf3q3z9SdmXC6oT"
+Content-Type: multipart/mixed; boundary="VACxsDaSTfeluoxK"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
 Organisation: Furball Inc.
@@ -23,1471 +23,953 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Rgf3q3z9SdmXC6oT
+--VACxsDaSTfeluoxK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-linux/arch/sh patch
+linux/drivers/ patch
 
 -- 
 "How can I not love the Americans? They helped me with a flat tire the
 other day," he said.
 	- http://tinyurl.com/h6fo
 
---Rgf3q3z9SdmXC6oT
+--VACxsDaSTfeluoxK
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.6.0-t3.c99.arch.sh.patch"
+Content-Disposition: attachment; filename="2.6.0-t3.c99.drivers.patch"
 
-diff -aur linux.backup/arch/sh/boards/adx/mach.c linux/arch/sh/boards/adx/mach.c
---- linux.backup/arch/sh/boards/adx/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/adx/mach.c	Sat Aug 16 15:45:00 2003
-@@ -24,41 +24,41 @@
+diff -aur linux.backup/drivers/char/lcd.c linux/drivers/char/lcd.c
+--- linux.backup/drivers/char/lcd.c	Mon Jul 21 23:34:54 2003
++++ linux/drivers/char/lcd.c	Sat Aug 16 15:45:01 2003
+@@ -551,9 +551,9 @@
   */
  
- struct sh_machine_vector mv_adx __initmv = {
--	mv_nr_irqs:		48,
-+	.mv_nr_irqs		= 48,
- 
--	mv_inb:			adx_inb,
--	mv_inw:			adx_inw,
--	mv_inl:			adx_inl,
--	mv_outb:		adx_outb,
--	mv_outw:		adx_outw,
--	mv_outl:		adx_outl,
--
--	mv_inb_p:		adx_inb_p,
--	mv_inw_p:		adx_inw,
--	mv_inl_p:		adx_inl,
--	mv_outb_p:		adx_outb_p,
--	mv_outw_p:		adx_outw,
--	mv_outl_p:		adx_outl,
--
--	mv_insb:		adx_insb,
--	mv_insw:		adx_insw,
--	mv_insl:		adx_insl,
--	mv_outsb:		adx_outsb,
--	mv_outsw:		adx_outsw,
--	mv_outsl:		adx_outsl,
--
--	mv_readb:		adx_readb,
--	mv_readw:		adx_readw,
--	mv_readl:		adx_readl,
--	mv_writeb:		adx_writeb,
--	mv_writew:		adx_writew,
--	mv_writel:		adx_writel,
-+	.mv_inb			= adx_inb,
-+	.mv_inw			= adx_inw,
-+	.mv_inl			= adx_inl,
-+	.mv_outb		= adx_outb,
-+	.mv_outw		= adx_outw,
-+	.mv_outl		= adx_outl,
-+
-+	.mv_inb_p		= adx_inb_p,
-+	.mv_inw_p		= adx_inw,
-+	.mv_inl_p		= adx_inl,
-+	.mv_outb_p		= adx_outb_p,
-+	.mv_outw_p		= adx_outw,
-+	.mv_outl_p		= adx_outl,
-+
-+	.mv_insb		= adx_insb,
-+	.mv_insw		= adx_insw,
-+	.mv_insl		= adx_insl,
-+	.mv_outsb		= adx_outsb,
-+	.mv_outsw		= adx_outsw,
-+	.mv_outsl		= adx_outsl,
-+
-+	.mv_readb		= adx_readb,
-+	.mv_readw		= adx_readw,
-+	.mv_readl		= adx_readl,
-+	.mv_writeb		= adx_writeb,
-+	.mv_writew		= adx_writew,
-+	.mv_writel		= adx_writel,
- 
--	mv_ioremap:		adx_ioremap,
--	mv_iounmap:		adx_iounmap,
-+	.mv_ioremap		= adx_ioremap,
-+	.mv_iounmap		= adx_iounmap,
- 
--	mv_isa_port2addr:	adx_isa_port2addr,
-+	.mv_isa_port2addr	= adx_isa_port2addr,
- 
--	mv_init_irq:		init_adx_IRQ,
-+	.mv_init_irq		= init_adx_IRQ,
+ static struct file_operations lcd_fops = {
+-	read:		lcd_read,
+-	ioctl:		lcd_ioctl,
+-	open:		lcd_open,
++	.read		= lcd_read,
++	.ioctl		= lcd_ioctl,
++	.open		= lcd_open,
  };
- ALIAS_MV(adx)
-diff -aur linux.backup/arch/sh/boards/bigsur/mach.c linux/arch/sh/boards/bigsur/mach.c
---- linux.backup/arch/sh/boards/bigsur/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/bigsur/mach.c	Sat Aug 16 18:11:31 2003
-@@ -28,44 +28,44 @@
- extern void init_bigsur_IRQ(void);
  
- struct sh_machine_vector mv_bigsur __initmv = {
--	mv_nr_irqs:		NR_IRQS,     // Defined in <asm/irq.h>
--	mv_inb:			bigsur_inb,
--	mv_inw:			bigsur_inw,
--	mv_inl:			bigsur_inl,
--	mv_outb:		bigsur_outb,
--	mv_outw:		bigsur_outw,
--	mv_outl:		bigsur_outl,
--
--	mv_inb_p:		bigsur_inb_p,
--	mv_inw_p:		bigsur_inw,
--	mv_inl_p:		bigsur_inl,
--	mv_outb_p:		bigsur_outb_p,
--	mv_outw_p:		bigsur_outw,
--	mv_outl_p:		bigsur_outl,
--
--	mv_insb:		bigsur_insb,
--	mv_insw:		bigsur_insw,
--	mv_insl:		bigsur_insl,
--	mv_outsb:		bigsur_outsb,
--	mv_outsw:		bigsur_outsw,
--	mv_outsl:		bigsur_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_nr_irqs		= NR_IRQS,     // Defined in <asm/irq.h>
-+	.mv_inb			= bigsur_inb,
-+	.mv_inw			= bigsur_inw,
-+	.mv_inl			= bigsur_inl,
-+	.mv_outb		= bigsur_outb,
-+	.mv_outw		= bigsur_outw,
-+	.mv_outl		= bigsur_outl,
-+
-+	.mv_inb_p		= bigsur_inb_p,
-+	.mv_inw_p		= bigsur_inw,
-+	.mv_inl_p		= bigsur_inl,
-+	.mv_outb_p		= bigsur_outb_p,
-+	.mv_outw_p		= bigsur_outw,
-+	.mv_outl_p		= bigsur_outl,
-+
-+	.mv_insb		= bigsur_insb,
-+	.mv_insw		= bigsur_insw,
-+	.mv_insl		= bigsur_insl,
-+	.mv_outsb		= bigsur_outsb,
-+	.mv_outsw		= bigsur_outsw,
-+	.mv_outsl		= bigsur_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
+ static struct miscdevice lcd_dev=
+diff -aur linux.backup/drivers/i2c/i2c-keywest.c linux/drivers/i2c/i2c-keywest.c
+--- linux.backup/drivers/i2c/i2c-keywest.c	Sat Aug 16 15:02:44 2003
++++ linux/drivers/i2c/i2c-keywest.c	Sat Aug 16 18:15:45 2003
+@@ -409,11 +409,11 @@
  
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
+ /* For now, we only handle combined mode (smbus) */
+ static struct i2c_algorithm keywest_algorithm = {
+-	name:		"Keywest i2c",
+-	id:		I2C_ALGO_SMBUS,
+-	smbus_xfer:	keywest_smbus_xfer,
+-	master_xfer:	keywest_xfer,
+-	functionality:	keywest_func,
++	.name		= "Keywest i2c",
++	.id		= I2C_ALGO_SMBUS,
++	.smbus_xfer	= keywest_smbus_xfer,
++	.master_xfer	= keywest_xfer,
++	.functionality	= keywest_func,
+ };
  
--	mv_isa_port2addr:	bigsur_isa_port2addr,
--	mv_irq_demux:       bigsur_irq_demux,
-+	.mv_isa_port2addr	= bigsur_isa_port2addr,
-+	.mv_irq_demux       = bigsur_irq_demux,
  
--	mv_init_irq:		init_bigsur_IRQ,
-+	.mv_init_irq		= init_bigsur_IRQ,
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_bigsur,
-+	.mv_heartbeat		= heartbeat_bigsur,
+diff -aur linux.backup/drivers/media/common/saa7146_video.c linux/drivers/media/common/saa7146_video.c
+--- linux.backup/drivers/media/common/saa7146_video.c	Sat Aug 16 15:02:45 2003
++++ linux/drivers/media/common/saa7146_video.c	Sat Aug 16 18:16:29 2003
+@@ -359,41 +359,41 @@
+ 
+ static struct v4l2_queryctrl controls[] = {
+ 	{
+-		id:            V4L2_CID_BRIGHTNESS,
+-		name:          "Brightness",
+-		minimum:       0,
+-		maximum:       255,
+-		step:          1,
+-		default_value: 128,
+-		type:          V4L2_CTRL_TYPE_INTEGER,
++		.id            = V4L2_CID_BRIGHTNESS,
++		.name          = "Brightness",
++		.minimum       = 0,
++		.maximum       = 255,
++		.step          = 1,
++		.default_value = 128,
++		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 	},{
+-		id:            V4L2_CID_CONTRAST,
+-		name:          "Contrast",
+-		minimum:       0,
+-		maximum:       127,
+-		step:          1,
+-		default_value: 64,
+-		type:          V4L2_CTRL_TYPE_INTEGER,
++		.id            = V4L2_CID_CONTRAST,
++		.name          = "Contrast",
++		.minimum       = 0,
++		.maximum       = 127,
++		.step          = 1,
++		.default_value = 64,
++		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 	},{
+-		id:            V4L2_CID_SATURATION,
+-		name:          "Saturation",
+-		minimum:       0,
+-		maximum:       127,
+-		step:          1,
+-		default_value: 64,
+-		type:          V4L2_CTRL_TYPE_INTEGER,
++		.id            = V4L2_CID_SATURATION,
++		.name          = "Saturation",
++		.minimum       = 0,
++		.maximum       = 127,
++		.step          = 1,
++		.default_value = 64,
++		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 	},{
+-		id:            V4L2_CID_VFLIP,
+-		name:          "Vertical flip",
+-		minimum:       0,
+-		maximum:       1,
+-		type:          V4L2_CTRL_TYPE_BOOLEAN,
++		.id            = V4L2_CID_VFLIP,
++		.name          = "Vertical flip",
++		.minimum       = 0,
++		.maximum       = 1,
++		.type          = V4L2_CTRL_TYPE_BOOLEAN,
+ 	},{
+-		id:            V4L2_CID_HFLIP,
+-		name:          "Horizontal flip",
+-		minimum:       0,
+-		maximum:       1,
+-		type:          V4L2_CTRL_TYPE_BOOLEAN,
++		.id            = V4L2_CID_HFLIP,
++		.name          = "Horizontal flip",
++		.minimum       = 0,
++		.maximum       = 1,
++		.type          = V4L2_CTRL_TYPE_BOOLEAN,
+ 	},
+ };
+ static int NUM_CONTROLS = sizeof(controls)/sizeof(struct v4l2_queryctrl);
+diff -aur linux.backup/drivers/media/dvb/frontends/grundig_29504-401.c linux/drivers/media/dvb/frontends/grundig_29504-401.c
+--- linux.backup/drivers/media/dvb/frontends/grundig_29504-401.c	Sat Aug 16 15:02:19 2003
++++ linux/drivers/media/dvb/frontends/grundig_29504-401.c	Sun Aug 17 00:37:54 2003
+@@ -37,15 +37,15 @@
+ 
+ 
+ struct dvb_frontend_info grundig_29504_401_info = {
+-	name: "Grundig 29504-401",
+-	type: FE_OFDM,
+-/*	frequency_min: ???,*/
+-/*	frequency_max: ???,*/
+-	frequency_stepsize: 166666,
+-/*      frequency_tolerance: ???,*/
+-/*      symbol_rate_tolerance: ???,*/
+-	notifier_delay: 0,
+-	caps: FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 | 
++	.name = "Grundig 29504-401",
++	.type = FE_OFDM,
++/*	.frequency_min = ???,*/
++/*	.frequency_max = ???,*/
++	.frequency_stepsize = 166666,
++/*      .frequency_tolerance = ???,*/
++/*      .symbol_rate_tolerance = ???,*/
++	.notifier_delay = 0,
++	.caps = FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 | 
+ 	      FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 |
+ 	      FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 |
+ 	      FE_CAN_MUTE_TS /*| FE_CAN_CLEAN_SETUP*/
+diff -aur linux.backup/drivers/media/dvb/frontends/ves1820.c linux/drivers/media/dvb/frontends/ves1820.c
+--- linux.backup/drivers/media/dvb/frontends/ves1820.c	Sat Aug 16 15:02:19 2003
++++ linux/drivers/media/dvb/frontends/ves1820.c	Sat Aug 16 18:18:40 2003
+@@ -81,9 +81,9 @@
+ 	.symbol_rate_min = (XIN/2)/64,     /* SACLK/64 == (XIN/2)/64 */
+ 	.symbol_rate_max = (XIN/2)/4,      /* SACLK/4 */
+ #if 0
+-	frequency_tolerance: ???,
+-	symbol_rate_tolerance: ???,  /* ppm */  /* == 8% (spec p. 5) */
+-	notifier_delay: ?,
++	.frequency_tolerance = ???,
++	.symbol_rate_tolerance = ???,  /* ppm */  /* == 8% (spec p. 5) */
++	.notifier_delay = ?,
  #endif
+ 	.caps = FE_CAN_QAM_16 | FE_CAN_QAM_32 | FE_CAN_QAM_64 |
+ 		FE_CAN_QAM_128 | FE_CAN_QAM_256 | 
+diff -aur linux.backup/drivers/media/dvb/ttusb-dec/dec2000_frontend.c linux/drivers/media/dvb/ttusb-dec/dec2000_frontend.c
+--- linux.backup/drivers/media/dvb/ttusb-dec/dec2000_frontend.c	Sat Aug 16 15:02:20 2003
++++ linux/drivers/media/dvb/ttusb-dec/dec2000_frontend.c	Sat Aug 16 18:19:17 2003
+@@ -30,12 +30,12 @@
+ #define dprintk	if (debug) printk
  
+ static struct dvb_frontend_info dec2000_frontend_info = {
+-	name:			"TechnoTrend/Hauppauge DEC-2000-t Frontend",
+-	type:			FE_OFDM,
+-	frequency_min:		51000000,
+-	frequency_max:		858000000,
+-	frequency_stepsize:	62500,
+-	caps:	FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
++	.name			= "TechnoTrend/Hauppauge DEC-2000-t Frontend",
++	.type			= FE_OFDM,
++	.frequency_min		= 51000000,
++	.frequency_max		= 858000000,
++	.frequency_stepsize	= 62500,
++	.caps =	FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
+ 		FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
+ 		FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
+ 		FE_CAN_TRANSMISSION_MODE_AUTO | FE_CAN_GUARD_INTERVAL_AUTO |
+diff -aur linux.backup/drivers/media/dvb/ttusb-dec/ttusb_dec.c linux/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+--- linux.backup/drivers/media/dvb/ttusb-dec/ttusb_dec.c	Sat Aug 16 15:02:45 2003
++++ linux/drivers/media/dvb/ttusb-dec/ttusb_dec.c	Sat Aug 16 15:45:01 2003
+@@ -1003,10 +1003,10 @@
  };
-diff -aur linux.backup/arch/sh/boards/cat68701/mach.c linux/arch/sh/boards/cat68701/mach.c
---- linux.backup/arch/sh/boards/cat68701/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/cat68701/mach.c	Sat Aug 16 15:45:00 2003
-@@ -23,44 +23,44 @@
+ 
+ static struct usb_driver ttusb_dec_driver = {
+-      name:		DRIVER_NAME,
+-      probe:		ttusb_dec_probe,
+-      disconnect:	ttusb_dec_disconnect,
+-      id_table:		ttusb_dec_table,
++      .name		= DRIVER_NAME,
++      .probe		= ttusb_dec_probe,
++      .disconnect	= ttusb_dec_disconnect,
++      .id_table		= ttusb_dec_table,
+ };
+ 
+ static int __init ttusb_dec_init(void)
+diff -aur linux.backup/drivers/media/video/bttv-cards.c linux/drivers/media/video/bttv-cards.c
+--- linux.backup/drivers/media/video/bttv-cards.c	Sat Aug 16 15:02:45 2003
++++ linux/drivers/media/video/bttv-cards.c	Sat Aug 16 15:45:00 2003
+@@ -1298,7 +1298,7 @@
+ },{
+         .name           = "Powercolor MTV878/ MTV878R/ MTV878F",
+         .video_inputs   = 3,
+-        audio_inputs:   2, 
++        .audio_inputs   = 2,
+ 	.tuner		= 0,
+         .svhs           = 2,
+         .gpiomask       = 0x1C800F,  // Bit0-2: Audio select, 8-12:remote control 14:remote valid 15:remote reset
+@@ -1338,7 +1338,7 @@
+ },{
+         .name           = "Jetway TV/Capture JW-TV878-FBK, Kworld KW-TV878RF",
+         .video_inputs   = 4,
+-        audio_inputs:   3, 
++        .audio_inputs   = 3,
+         .tuner          = 0,
+         .svhs           = 2,
+         .gpiomask       = 7,
+diff -aur linux.backup/drivers/mtd/devices/blkmtd.c linux/drivers/mtd/devices/blkmtd.c
+--- linux.backup/drivers/mtd/devices/blkmtd.c	Sat Aug 16 15:02:47 2003
++++ linux/drivers/mtd/devices/blkmtd.c	Sat Aug 16 15:45:01 2003
+@@ -289,8 +289,8 @@
+ 
+                     
+ static struct address_space_operations blkmtd_aops = {
+-  writepage:     blkmtd_writepage,
+-  readpage:      NULL,
++  .writepage     = blkmtd_writepage,
++  .readpage      = NULL,
+ }; 
+ 
+ 
+diff -aur linux.backup/drivers/mtd/maps/ceiva.c linux/drivers/mtd/maps/ceiva.c
+--- linux.backup/drivers/mtd/maps/ceiva.c	Thu Jun 26 23:47:35 2003
++++ linux/drivers/mtd/maps/ceiva.c	Sat Aug 16 18:20:47 2003
+@@ -64,23 +64,23 @@
+ 
+ static struct mtd_partition ceiva_partitions[] = {
+ 	{
+-		name: "Ceiva BOOT partition",
+-		size:   BOOT_PARTITION_SIZE_KiB*1024,
+-		offset: 0,
++		.name = "Ceiva BOOT partition",
++		.size   = BOOT_PARTITION_SIZE_KiB*1024,
++		.offset = 0,
+ 
+ 	},{
+-		name: "Ceiva parameters partition",
+-		size:   PARAMS_PARTITION_SIZE_KiB*1024,
+-		offset: (16 + 8) * 1024,
++		.name = "Ceiva parameters partition",
++		.size   = PARAMS_PARTITION_SIZE_KiB*1024,
++		.offset = (16 + 8) * 1024,
+ 	},{
+-		name: "Ceiva kernel partition",
+-		size: (KERNEL_PARTITION_SIZE_KiB)*1024,
+-		offset: 0x20000,
++		.name = "Ceiva kernel partition",
++		.size = (KERNEL_PARTITION_SIZE_KiB)*1024,
++		.offset = 0x20000,
+ 
+ 	},{
+-		name: "Ceiva root filesystem partition",
+-		offset: MTDPART_OFS_APPEND,
+-		size: (ROOT_PARTITION_SIZE_KiB)*1024,
++		.name = "Ceiva root filesystem partition",
++		.offset = MTDPART_OFS_APPEND,
++		.size = (ROOT_PARTITION_SIZE_KiB)*1024,
+ 	}
+ };
+ #endif
+diff -aur linux.backup/drivers/mtd/nand/autcpu12.c linux/drivers/mtd/nand/autcpu12.c
+--- linux.backup/drivers/mtd/nand/autcpu12.c	Mon Jul 21 23:34:57 2003
++++ linux/drivers/mtd/nand/autcpu12.c	Sat Aug 16 18:23:03 2003
+@@ -73,39 +73,39 @@
+ extern struct nand_oobinfo jffs2_oobinfo;
+ 
+ static struct mtd_partition partition_info16k[] = {
+-	{ name: "AUTCPU12 flash partition 1",
+-	  offset:  0,
+-	  size:    8 * SZ_1M },
+-	{ name: "AUTCPU12 flash partition 2",
+-	  offset:  8 * SZ_1M,
+-	  size:    8 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 1",
++	  .offset  = 0,
++	  .size =    8 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 2",
++	  .offset =  8 * SZ_1M,
++	  .size =    8 * SZ_1M },
+ };
+ 
+ static struct mtd_partition partition_info32k[] = {
+-	{ name: "AUTCPU12 flash partition 1",
+-	  offset:  0,
+-	  size:    8 * SZ_1M },
+-	{ name: "AUTCPU12 flash partition 2",
+-	  offset:  8 * SZ_1M,
+-	  size:   24 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 1",
++	  .offset  = 0,
++	  .size =    8 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 2",
++	  .offset =  8 * SZ_1M,
++	  .size =   24 * SZ_1M },
+ };
+ 
+ static struct mtd_partition partition_info64k[] = {
+-	{ name: "AUTCPU12 flash partition 1",
+-	  offset:  0,
+-	  size:   16 * SZ_1M },
+-	{ name: "AUTCPU12 flash partition 2",
+-	  offset: 16 * SZ_1M,
+-	  size:   48 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 1",
++	  .offset  = 0,
++	  .size =   16 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 2",
++	  .offset = 16 * SZ_1M,
++	  .size =   48 * SZ_1M },
+ };
+ 
+ static struct mtd_partition partition_info128k[] = {
+-	{ name: "AUTCPU12 flash partition 1",
+-	  offset:  0,
+-	  size:   16 * SZ_1M },
+-	{ name: "AUTCPU12 flash partition 2",
+-	  offset: 16 * SZ_1M,
+-	  size:   112 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 1",
++	  .offset  = 0,
++	  .size =   16 * SZ_1M },
++	{ .name = "AUTCPU12 flash partition 2",
++	  .offset = 16 * SZ_1M,
++	  .size =   112 * SZ_1M },
+ };
+ 
+ #define NUM_PARTITIONS16K 2
+diff -aur linux.backup/drivers/mtd/nand/edb7312.c linux/drivers/mtd/nand/edb7312.c
+--- linux.backup/drivers/mtd/nand/edb7312.c	Thu Jun 26 23:47:35 2003
++++ linux/drivers/mtd/nand/edb7312.c	Sat Aug 16 23:42:41 2003
+@@ -71,9 +71,9 @@
+  * Define static partitions for flash device
   */
- 
- struct sh_machine_vector mv_cat68701 __initmv = {
--	mv_nr_irqs:		32,
--	mv_inb:			cat68701_inb,
--	mv_inw:			cat68701_inw,
--	mv_inl:			cat68701_inl,
--	mv_outb:		cat68701_outb,
--	mv_outw:		cat68701_outw,
--	mv_outl:		cat68701_outl,
--
--	mv_inb_p:		cat68701_inb_p,
--	mv_inw_p:		cat68701_inw,
--	mv_inl_p:		cat68701_inl,
--	mv_outb_p:		cat68701_outb_p,
--	mv_outw_p:		cat68701_outw,
--	mv_outl_p:		cat68701_outl,
--
--	mv_insb:		cat68701_insb,
--	mv_insw:		cat68701_insw,
--	mv_insl:		cat68701_insl,
--	mv_outsb:		cat68701_outsb,
--	mv_outsw:		cat68701_outsw,
--	mv_outsl:		cat68701_outsl,
--
--	mv_readb:		cat68701_readb,
--	mv_readw:		cat68701_readw,
--	mv_readl:		cat68701_readl,
--	mv_writeb:		cat68701_writeb,
--	mv_writew:		cat68701_writew,
--	mv_writel:		cat68701_writel,
-+	.mv_nr_irqs		= 32,
-+	.mv_inb			= cat68701_inb,
-+	.mv_inw			= cat68701_inw,
-+	.mv_inl			= cat68701_inl,
-+	.mv_outb		= cat68701_outb,
-+	.mv_outw		= cat68701_outw,
-+	.mv_outl		= cat68701_outl,
-+
-+	.mv_inb_p		= cat68701_inb_p,
-+	.mv_inw_p		= cat68701_inw,
-+	.mv_inl_p		= cat68701_inl,
-+	.mv_outb_p		= cat68701_outb_p,
-+	.mv_outw_p		= cat68701_outw,
-+	.mv_outl_p		= cat68701_outl,
-+
-+	.mv_insb		= cat68701_insb,
-+	.mv_insw		= cat68701_insw,
-+	.mv_insl		= cat68701_insl,
-+	.mv_outsb		= cat68701_outsb,
-+	.mv_outsw		= cat68701_outsw,
-+	.mv_outsl		= cat68701_outsl,
-+
-+	.mv_readb		= cat68701_readb,
-+	.mv_readw		= cat68701_readw,
-+	.mv_readl		= cat68701_readl,
-+	.mv_writeb		= cat68701_writeb,
-+	.mv_writew		= cat68701_writew,
-+	.mv_writel		= cat68701_writel,
- 
--	mv_ioremap:		cat68701_ioremap,
--	mv_iounmap:		cat68701_iounmap,
-+	.mv_ioremap		= cat68701_ioremap,
-+	.mv_iounmap		= cat68701_iounmap,
- 
--	mv_isa_port2addr:	cat68701_isa_port2addr,
--	mv_irq_demux:           cat68701_irq_demux,
-+	.mv_isa_port2addr	= cat68701_isa_port2addr,
-+	.mv_irq_demux           = cat68701_irq_demux,
- 
--	mv_init_irq:		init_cat68701_IRQ,
-+	.mv_init_irq		= init_cat68701_IRQ,
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_cat68701,
-+	.mv_heartbeat		= heartbeat_cat68701,
- #endif
+ static struct mtd_partition partition_info[] = {
+-	{ name: "EP7312 Nand Flash",
+-		  offset: 0,
+-		  size: 8*1024*1024 }
++	{ .name = "EP7312 Nand Flash",
++		  .offset = 0,
++		  .size = 8*1024*1024 }
  };
- ALIAS_MV(cat68701)
-diff -aur linux.backup/arch/sh/boards/cqreek/mach.c linux/arch/sh/boards/cqreek/mach.c
---- linux.backup/arch/sh/boards/cqreek/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/cqreek/mach.c	Sat Aug 16 15:45:00 2003
-@@ -21,46 +21,46 @@
+ #define NUM_PARTITIONS 1
  
- struct sh_machine_vector mv_cqreek __initmv = {
- #if defined(CONFIG_CPU_SH4)
--	mv_nr_irqs:		48,
-+	.mv_nr_irqs		= 48,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7708)
--	mv_nr_irqs:		32,
-+	.mv_nr_irqs		= 32,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7709)
--	mv_nr_irqs:		61,
-+	.mv_nr_irqs		= 61,
- #endif
- 
--	mv_inb:			generic_inb,
--	mv_inw:			generic_inw,
--	mv_inl:			generic_inl,
--	mv_outb:		generic_outb,
--	mv_outw:		generic_outw,
--	mv_outl:		generic_outl,
--
--	mv_inb_p:		generic_inb_p,
--	mv_inw_p:		generic_inw_p,
--	mv_inl_p:		generic_inl_p,
--	mv_outb_p:		generic_outb_p,
--	mv_outw_p:		generic_outw_p,
--	mv_outl_p:		generic_outl_p,
--
--	mv_insb:		generic_insb,
--	mv_insw:		generic_insw,
--	mv_insl:		generic_insl,
--	mv_outsb:		generic_outsb,
--	mv_outsw:		generic_outsw,
--	mv_outsl:		generic_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= generic_inb,
-+	.mv_inw			= generic_inw,
-+	.mv_inl			= generic_inl,
-+	.mv_outb		= generic_outb,
-+	.mv_outw		= generic_outw,
-+	.mv_outl		= generic_outl,
-+
-+	.mv_inb_p		= generic_inb_p,
-+	.mv_inw_p		= generic_inw_p,
-+	.mv_inl_p		= generic_inl_p,
-+	.mv_outb_p		= generic_outb_p,
-+	.mv_outw_p		= generic_outw_p,
-+	.mv_outl_p		= generic_outl_p,
-+
-+	.mv_insb		= generic_insb,
-+	.mv_insw		= generic_insw,
-+	.mv_insl		= generic_insl,
-+	.mv_outsb		= generic_outsb,
-+	.mv_outsw		= generic_outsw,
-+	.mv_outsl		= generic_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--	mv_init_irq:		init_cqreek_IRQ,
-+	.mv_init_irq		= init_cqreek_IRQ,
- 
--	mv_isa_port2addr:	cqreek_port2addr,
-+	.mv_isa_port2addr	= cqreek_port2addr,
- 
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
- };
- ALIAS_MV(cqreek)
-diff -aur linux.backup/arch/sh/boards/dmida/mach.c linux/arch/sh/boards/dmida/mach.c
---- linux.backup/arch/sh/boards/dmida/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/dmida/mach.c	Sat Aug 16 15:45:00 2003
-@@ -30,42 +30,42 @@
-  */
- 
- struct sh_machine_vector mv_dmida __initmv = {
--	mv_name:		"DMIDA",
-+	.mv_name		= "DMIDA",
- 
--	mv_nr_irqs:		HD64465_IRQ_BASE+HD64465_IRQ_NUM,
-+	.mv_nr_irqs		= HD64465_IRQ_BASE+HD64465_IRQ_NUM,
- 
--	mv_inb:			hd64465_inb,
--	mv_inw:			hd64465_inw,
--	mv_inl:			hd64465_inl,
--	mv_outb:		hd64465_outb,
--	mv_outw:		hd64465_outw,
--	mv_outl:		hd64465_outl,
--
--	mv_inb_p:		hd64465_inb_p,
--	mv_inw_p:		hd64465_inw,
--	mv_inl_p:		hd64465_inl,
--	mv_outb_p:		hd64465_outb_p,
--	mv_outw_p:		hd64465_outw,
--	mv_outl_p:		hd64465_outl,
--
--	mv_insb:		hd64465_insb,
--	mv_insw:		hd64465_insw,
--	mv_insl:		hd64465_insl,
--	mv_outsb:		hd64465_outsb,
--	mv_outsw:		hd64465_outsw,
--	mv_outsl:		hd64465_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= hd64465_inb,
-+	.mv_inw			= hd64465_inw,
-+	.mv_inl			= hd64465_inl,
-+	.mv_outb		= hd64465_outb,
-+	.mv_outw		= hd64465_outw,
-+	.mv_outl		= hd64465_outl,
-+
-+	.mv_inb_p		= hd64465_inb_p,
-+	.mv_inw_p		= hd64465_inw,
-+	.mv_inl_p		= hd64465_inl,
-+	.mv_outb_p		= hd64465_outb_p,
-+	.mv_outw_p		= hd64465_outw,
-+	.mv_outl_p		= hd64465_outl,
-+
-+	.mv_insb		= hd64465_insb,
-+	.mv_insw		= hd64465_insw,
-+	.mv_insl		= hd64465_insl,
-+	.mv_outsb		= hd64465_outsb,
-+	.mv_outsw		= hd64465_outsw,
-+	.mv_outsl		= hd64465_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--	mv_irq_demux:		hd64465_irq_demux,
-+	.mv_irq_demux		= hd64465_irq_demux,
- 
--	mv_rtc_gettimeofday:	sh_rtc_gettimeofday,
--	mv_rtc_settimeofday:	sh_rtc_settimeofday,
-+	.mv_rtc_gettimeofday	= sh_rtc_gettimeofday,
-+	.mv_rtc_settimeofday	= sh_rtc_settimeofday,
- };
- ALIAS_MV(dmida)
- 
-diff -aur linux.backup/arch/sh/boards/dreamcast/irq.c linux/arch/sh/boards/dreamcast/irq.c
---- linux.backup/arch/sh/boards/dreamcast/irq.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/dreamcast/irq.c	Sat Aug 16 18:12:52 2003
-@@ -110,13 +110,13 @@
+diff -aur linux.backup/drivers/net/amd8111e.c linux/drivers/net/amd8111e.c
+--- linux.backup/drivers/net/amd8111e.c	Sat Aug 16 15:02:48 2003
++++ linux/drivers/net/amd8111e.c	Sat Aug 16 23:45:23 2003
+@@ -1940,12 +1940,12 @@
  }
  
- struct hw_interrupt_type systemasic_int = {
--        typename:       "System ASIC",
--        startup:        startup_systemasic_irq,
--        shutdown:       shutdown_systemasic_irq,
--        enable:         enable_systemasic_irq,
--        disable:        disable_systemasic_irq,
--        ack:            ack_systemasic_irq,
--        end:            end_systemasic_irq,
-+        .typename       = "System ASIC",
-+        .startup        = startup_systemasic_irq,
-+        .shutdown       = shutdown_systemasic_irq,
-+        .enable         = enable_systemasic_irq,
-+        .disable        = disable_systemasic_irq,
-+        .ack            = ack_systemasic_irq,
-+        .end            = end_systemasic_irq,
+ static struct pci_driver amd8111e_driver = {
+-	name:		MODULE_NAME,
+-	id_table:	amd8111e_pci_tbl,
+-	probe:		amd8111e_probe_one,
+-	remove:		__devexit_p(amd8111e_remove_one),
+-	suspend:	amd8111e_suspend,
+-	resume:		amd8111e_resume
++	.name		= MODULE_NAME,
++	.id_table	= amd8111e_pci_tbl,
++	.probe		= amd8111e_probe_one,
++	.remove		= __devexit_p(amd8111e_remove_one),
++	.suspend	= amd8111e_suspend,
++	.resume		= amd8111e_resume
  };
  
- /*
-diff -aur linux.backup/arch/sh/boards/dreamcast/mach.c linux/arch/sh/boards/dreamcast/mach.c
---- linux.backup/arch/sh/boards/dreamcast/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/dreamcast/mach.c	Sat Aug 16 15:45:00 2003
-@@ -21,40 +21,40 @@
-  */
- 
- struct sh_machine_vector mv_dreamcast __initmv = {
--	mv_nr_irqs:		NR_IRQS,
-+	.mv_nr_irqs		= NR_IRQS,
- 
--	mv_inb:			generic_inb,
--	mv_inw:			generic_inw,
--	mv_inl:			generic_inl,
--	mv_outb:		generic_outb,
--	mv_outw:		generic_outw,
--	mv_outl:		generic_outl,
--
--	mv_inb_p:		generic_inb_p,
--	mv_inw_p:		generic_inw,
--	mv_inl_p:		generic_inl,
--	mv_outb_p:		generic_outb_p,
--	mv_outw_p:		generic_outw,
--	mv_outl_p:		generic_outl,
--
--	mv_insb:		generic_insb,
--	mv_insw:		generic_insw,
--	mv_insl:		generic_insl,
--	mv_outsb:		generic_outsb,
--	mv_outsw:		generic_outsw,
--	mv_outsl:		generic_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= generic_inb,
-+	.mv_inw			= generic_inw,
-+	.mv_inl			= generic_inl,
-+	.mv_outb		= generic_outb,
-+	.mv_outw		= generic_outw,
-+	.mv_outl		= generic_outl,
-+
-+	.mv_inb_p		= generic_inb_p,
-+	.mv_inw_p		= generic_inw,
-+	.mv_inl_p		= generic_inl,
-+	.mv_outb_p		= generic_outb_p,
-+	.mv_outw_p		= generic_outw,
-+	.mv_outl_p		= generic_outl,
-+
-+	.mv_insb		= generic_insb,
-+	.mv_insw		= generic_insw,
-+	.mv_insl		= generic_insl,
-+	.mv_outsb		= generic_outsb,
-+	.mv_outsw		= generic_outsw,
-+	.mv_outsl		= generic_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
- 
--	mv_isa_port2addr:	dreamcast_isa_port2addr,
--	mv_irq_demux:		systemasic_irq_demux,
-+	.mv_isa_port2addr	= dreamcast_isa_port2addr,
-+	.mv_irq_demux		= systemasic_irq_demux,
- };
- ALIAS_MV(dreamcast)
-diff -aur linux.backup/arch/sh/boards/ec3104/irq.c linux/arch/sh/boards/ec3104/irq.c
---- linux.backup/arch/sh/boards/ec3104/irq.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/ec3104/irq.c	Sat Aug 16 15:45:00 2003
-@@ -169,13 +169,13 @@
+ static int __init amd8111e_init(void)
+diff -aur linux.backup/drivers/net/arm/ether00.c linux/drivers/net/arm/ether00.c
+--- linux.backup/drivers/net/arm/ether00.c	Sat Aug 16 15:02:48 2003
++++ linux/drivers/net/arm/ether00.c	Sat Aug 16 15:45:00 2003
+@@ -991,9 +991,9 @@
  }
  
- static struct hw_interrupt_type ec3104_int = {
--        typename:       "EC3104",
--        enable:         enable_ec3104_irq,
--        disable:        disable_ec3104_irq,
--        ack:            mask_and_ack_ec3104_irq,
--        end:            end_ec3104_irq,
--        startup:        startup_ec3104_irq,
--        shutdown:       shutdown_ec3104_irq,
-+        .typename       = "EC3104",
-+        .enable         = enable_ec3104_irq,
-+        .disable        = disable_ec3104_irq,
-+        .ack            = mask_and_ack_ec3104_irq,
-+        .end            = end_ec3104_irq,
-+        .startup        = startup_ec3104_irq,
-+        .shutdown       = shutdown_ec3104_irq,
+ static struct pld_hotswap_ops ether00_pldhs_ops={
+-	name: ETHER00_NAME,
+-	add_device: ether00_add_device,
+-	remove_devices: ether00_remove_devices,
++	.name = ETHER00_NAME,
++	.add_device = ether00_add_device,
++	.remove_devices = ether00_remove_devices,
  };
  
- /* Yuck.  the _demux API is ugly */
-diff -aur linux.backup/arch/sh/boards/ec3104/mach.c linux/arch/sh/boards/ec3104/mach.c
---- linux.backup/arch/sh/boards/ec3104/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/ec3104/mach.c	Sat Aug 16 15:45:00 2003
-@@ -28,42 +28,42 @@
+ 
+diff -aur linux.backup/drivers/net/irda/via-ircc.c linux/drivers/net/irda/via-ircc.c
+--- linux.backup/drivers/net/irda/via-ircc.c	Sat Aug 16 15:02:49 2003
++++ linux/drivers/net/irda/via-ircc.c	Sat Aug 16 15:45:00 2003
+@@ -134,10 +134,10 @@
+ 
+ 
+ static struct pci_driver via_driver = {
+-	name:		VIA_MODULE_NAME,
+-	id_table:	via_pci_tbl,
+-	probe:		via_init_one,
+-	remove:		via_remove_one,
++	.name		= VIA_MODULE_NAME,
++	.id_table	= via_pci_tbl,
++	.probe		= via_init_one,
++	.remove		= via_remove_one,
+ };
+ 
+ 
+diff -aur linux.backup/drivers/net/sungem_phy.c linux/drivers/net/sungem_phy.c
+--- linux.backup/drivers/net/sungem_phy.c	Thu Jun 26 23:46:36 2003
++++ linux/drivers/net/sungem_phy.c	Sat Aug 16 23:49:13 2003
+@@ -634,116 +634,116 @@
+ 
+ /* Broadcom BCM 5201 */
+ static struct mii_phy_ops bcm5201_phy_ops = {
+-	init:		bcm5201_init,
+-	suspend:	bcm5201_suspend,
+-	setup_aneg:	genmii_setup_aneg,
+-	setup_forced:	genmii_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	genmii_read_link,
++	.init		= bcm5201_init,
++	.suspend	= bcm5201_suspend,
++	.setup_aneg	= genmii_setup_aneg,
++	.setup_forced	= genmii_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= genmii_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5201_phy_def = {
+-	phy_id:		0x00406210,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5201",
+-	features:	MII_BASIC_FEATURES,
+-	magic_aneg:	0,
+-	ops:		&bcm5201_phy_ops
++	.phy_id		= 0x00406210,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5201",
++	.features	= MII_BASIC_FEATURES,
++	.magic_aneg	= 0,
++	.ops		= &bcm5201_phy_ops
+ };
+ 
+ /* Broadcom BCM 5221 */
+ static struct mii_phy_ops bcm5221_phy_ops = {
+-	suspend:	bcm5201_suspend,
+-	init:		bcm5221_init,
+-	setup_aneg:	genmii_setup_aneg,
+-	setup_forced:	genmii_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	genmii_read_link,
++	.suspend	= bcm5201_suspend,
++	.init		= bcm5221_init,
++	.setup_aneg	= genmii_setup_aneg,
++	.setup_forced	= genmii_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= genmii_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5221_phy_def = {
+-	phy_id:		0x004061e0,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5221",
+-	features:	MII_BASIC_FEATURES,
+-	magic_aneg:	0,
+-	ops:		&bcm5221_phy_ops
++	.phy_id		= 0x004061e0,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5221",
++	.features	= MII_BASIC_FEATURES,
++	.magic_aneg	= 0,
++	.ops		= &bcm5221_phy_ops
+ };
+ 
+ /* Broadcom BCM 5400 */
+ static struct mii_phy_ops bcm5400_phy_ops = {
+-	init:		bcm5400_init,
+-	suspend:	bcm5400_suspend,
+-	setup_aneg:	bcm54xx_setup_aneg,
+-	setup_forced:	bcm54xx_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	bcm54xx_read_link,
++	.init		= bcm5400_init,
++	.suspend	= bcm5400_suspend,
++	.setup_aneg	= bcm54xx_setup_aneg,
++	.setup_forced	= bcm54xx_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= bcm54xx_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5400_phy_def = {
+-	phy_id:		0x00206040,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5400",
+-	features:	MII_GBIT_FEATURES,
+-	magic_aneg:	1,
+-	ops:		&bcm5400_phy_ops
++	.phy_id		= 0x00206040,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5400",
++	.features	= MII_GBIT_FEATURES,
++	.magic_aneg	= 1,
++	.ops		= &bcm5400_phy_ops
+ };
+ 
+ /* Broadcom BCM 5401 */
+ static struct mii_phy_ops bcm5401_phy_ops = {
+-	init:		bcm5401_init,
+-	suspend:	bcm5401_suspend,
+-	setup_aneg:	bcm54xx_setup_aneg,
+-	setup_forced:	bcm54xx_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	bcm54xx_read_link,
++	.init		= bcm5401_init,
++	.suspend	= bcm5401_suspend,
++	.setup_aneg	= bcm54xx_setup_aneg,
++	.setup_forced	= bcm54xx_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= bcm54xx_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5401_phy_def = {
+-	phy_id:		0x00206050,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5401",
+-	features:	MII_GBIT_FEATURES,
+-	magic_aneg:	1,
+-	ops:		&bcm5401_phy_ops
++	.phy_id		= 0x00206050,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5401",
++	.features	= MII_GBIT_FEATURES,
++	.magic_aneg	= 1,
++	.ops		= &bcm5401_phy_ops
+ };
+ 
+ /* Broadcom BCM 5411 */
+ static struct mii_phy_ops bcm5411_phy_ops = {
+-	init:		bcm5411_init,
+-	suspend:	bcm5411_suspend,
+-	setup_aneg:	bcm54xx_setup_aneg,
+-	setup_forced:	bcm54xx_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	bcm54xx_read_link,
++	.init		= bcm5411_init,
++	.suspend	= bcm5411_suspend,
++	.setup_aneg	= bcm54xx_setup_aneg,
++	.setup_forced	= bcm54xx_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= bcm54xx_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5411_phy_def = {
+-	phy_id:		0x00206070,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5411",
+-	features:	MII_GBIT_FEATURES,
+-	magic_aneg:	1,
+-	ops:		&bcm5411_phy_ops
++	.phy_id		= 0x00206070,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5411",
++	.features	= MII_GBIT_FEATURES,
++	.magic_aneg	= 1,
++	.ops		= &bcm5411_phy_ops
+ };
+ 
+ /* Broadcom BCM 5421 */
+ static struct mii_phy_ops bcm5421_phy_ops = {
+-	init:		bcm5421_init,
+-	suspend:	bcm5411_suspend,
+-	setup_aneg:	bcm54xx_setup_aneg,
+-	setup_forced:	bcm54xx_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	bcm54xx_read_link,
++	.init		= bcm5421_init,
++	.suspend	= bcm5411_suspend,
++	.setup_aneg	= bcm54xx_setup_aneg,
++	.setup_forced	= bcm54xx_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= bcm54xx_read_link,
+ };
+ 
+ static struct mii_phy_def bcm5421_phy_def = {
+-	phy_id:		0x002060e0,
+-	phy_id_mask:	0xfffffff0,
+-	name:		"BCM5421",
+-	features:	MII_GBIT_FEATURES,
+-	magic_aneg:	1,
+-	ops:		&bcm5421_phy_ops
++	.phy_id		= 0x002060e0,
++	.phy_id_mask	= 0xfffffff0,
++	.name		= "BCM5421",
++	.features	= MII_GBIT_FEATURES,
++	.magic_aneg	= 1,
++	.ops		= &bcm5421_phy_ops
+ };
+ 
+ /* Marvell 88E1101 (Apple seem to deal with 2 different revs,
+@@ -751,36 +751,36 @@
+  * would be useful here) --BenH.
   */
- 
- struct sh_machine_vector mv_ec3104 __initmv = {
--	mv_name:		"EC3104",
-+	.mv_name		= "EC3104",
- 
--	mv_nr_irqs:		96,
-+	.mv_nr_irqs		= 96,
- 
--	mv_inb:			ec3104_inb,
--	mv_inw:			ec3104_inw,
--	mv_inl:			ec3104_inl,
--	mv_outb:		ec3104_outb,
--	mv_outw:		ec3104_outw,
--	mv_outl:		ec3104_outl,
--
--	mv_inb_p:		generic_inb_p,
--	mv_inw_p:		generic_inw,
--	mv_inl_p:		generic_inl,
--	mv_outb_p:		generic_outb_p,
--	mv_outw_p:		generic_outw,
--	mv_outl_p:		generic_outl,
--
--	mv_insb:		generic_insb,
--	mv_insw:		generic_insw,
--	mv_insl:		generic_insl,
--	mv_outsb:		generic_outsb,
--	mv_outsw:		generic_outsw,
--	mv_outsl:		generic_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= ec3104_inb,
-+	.mv_inw			= ec3104_inw,
-+	.mv_inl			= ec3104_inl,
-+	.mv_outb		= ec3104_outb,
-+	.mv_outw		= ec3104_outw,
-+	.mv_outl		= ec3104_outl,
-+
-+	.mv_inb_p		= generic_inb_p,
-+	.mv_inw_p		= generic_inw,
-+	.mv_inl_p		= generic_inl,
-+	.mv_outb_p		= generic_outb_p,
-+	.mv_outw_p		= generic_outw,
-+	.mv_outl_p		= generic_outl,
-+
-+	.mv_insb		= generic_insb,
-+	.mv_insw		= generic_insw,
-+	.mv_insl		= generic_insl,
-+	.mv_outsb		= generic_outsb,
-+	.mv_outsw		= generic_outsw,
-+	.mv_outsl		= generic_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--	mv_irq_demux:		ec3104_irq_demux,
-+	.mv_irq_demux		= ec3104_irq_demux,
- 
--	mv_rtc_gettimeofday:	sh_rtc_gettimeofday,
--	mv_rtc_settimeofday:	sh_rtc_settimeofday,
-+	.mv_rtc_gettimeofday	= sh_rtc_gettimeofday,
-+	.mv_rtc_settimeofday	= sh_rtc_settimeofday,
+ static struct mii_phy_ops marvell_phy_ops = {
+-	setup_aneg:	marvell_setup_aneg,
+-	setup_forced:	marvell_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	marvell_read_link
++	.setup_aneg	= marvell_setup_aneg,
++	.setup_forced	= marvell_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= marvell_read_link
  };
  
- ALIAS_MV(ec3104)
-diff -aur linux.backup/arch/sh/boards/harp/mach.c linux/arch/sh/boards/harp/mach.c
---- linux.backup/arch/sh/boards/harp/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/harp/mach.c	Sat Aug 16 18:13:06 2003
-@@ -26,46 +26,46 @@
-  */
- 
- struct sh_machine_vector mv_harp __initmv = {
--	mv_nr_irqs:		89 + HD64465_IRQ_NUM,
-+	.mv_nr_irqs		= 89 + HD64465_IRQ_NUM,
- 
--	mv_inb:			hd64465_inb,
--	mv_inw:			hd64465_inw,
--	mv_inl:			hd64465_inl,
--	mv_outb:		hd64465_outb,
--	mv_outw:		hd64465_outw,
--	mv_outl:		hd64465_outl,
--
--	mv_inb_p:		hd64465_inb_p,
--	mv_inw_p:		hd64465_inw,
--	mv_inl_p:		hd64465_inl,
--	mv_outb_p:		hd64465_outb_p,
--	mv_outw_p:		hd64465_outw,
--	mv_outl_p:		hd64465_outl,
--
--	mv_insb:		hd64465_insb,
--	mv_insw:		hd64465_insw,
--	mv_insl:		hd64465_insl,
--	mv_outsb:		hd64465_outsb,
--	mv_outsw:		hd64465_outsw,
--	mv_outsl:		hd64465_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= hd64465_inb,
-+	.mv_inw			= hd64465_inw,
-+	.mv_inl			= hd64465_inl,
-+	.mv_outb		= hd64465_outb,
-+	.mv_outw		= hd64465_outw,
-+	.mv_outl		= hd64465_outl,
-+
-+	.mv_inb_p		= hd64465_inb_p,
-+	.mv_inw_p		= hd64465_inw,
-+	.mv_inl_p		= hd64465_inl,
-+	.mv_outb_p		= hd64465_outb_p,
-+	.mv_outw_p		= hd64465_outw,
-+	.mv_outl_p		= hd64465_outl,
-+
-+	.mv_insb		= hd64465_insb,
-+	.mv_insw		= hd64465_insw,
-+	.mv_insl		= hd64465_insl,
-+	.mv_outsb		= hd64465_outsb,
-+	.mv_outsw		= hd64465_outsw,
-+	.mv_outsl		= hd64465_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--        mv_ioremap:             generic_ioremap,
--        mv_iounmap:             generic_iounmap,
-+        .mv_ioremap             = generic_ioremap,
-+        .mv_iounmap             = generic_iounmap,
-  
--        mv_isa_port2addr:       hd64465_isa_port2addr,
-+        .mv_isa_port2addr       = hd64465_isa_port2addr,
- 
- #ifdef CONFIG_PCI
--	mv_init_irq:		init_harp_irq,
-+	.mv_init_irq		= init_harp_irq,
- #endif
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_harp,
-+	.mv_heartbeat		= heartbeat_harp,
- #endif
+ static struct mii_phy_def marvell_phy_def = {
+-	phy_id:		0x01410c00,
+-	phy_id_mask:	0xffffff00,
+-	name:		"Marvell 88E1101",
+-	features:	MII_GBIT_FEATURES,
+-	magic_aneg:	1,
+-	ops:		&marvell_phy_ops
++	.phy_id		= 0x01410c00,
++	.phy_id_mask	= 0xffffff00,
++	.name		= "Marvell 88E1101",
++	.features	= MII_GBIT_FEATURES,
++	.magic_aneg	= 1,
++	.ops		= &marvell_phy_ops
  };
  
-diff -aur linux.backup/arch/sh/boards/hp6xx/hp620/mach.c linux/arch/sh/boards/hp6xx/hp620/mach.c
---- linux.backup/arch/sh/boards/hp6xx/hp620/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/hp6xx/hp620/mach.c	Sat Aug 16 15:45:00 2003
-@@ -24,41 +24,41 @@
-  */
- 
- struct sh_machine_vector mv_hp620 __initmv = {
--        mv_name:                "hp620",
-+        .mv_name                = "hp620",
- 
--        mv_nr_irqs:             HD64461_IRQBASE+HD64461_IRQ_NUM,
-+        .mv_nr_irqs             = HD64461_IRQBASE+HD64461_IRQ_NUM,
- 
--        mv_inb:                 hd64461_inb,
--        mv_inw:                 hd64461_inw,
--        mv_inl:                 hd64461_inl,
--        mv_outb:                hd64461_outb,
--        mv_outw:                hd64461_outw,
--        mv_outl:                hd64461_outl,
--
--        mv_inb_p:               hd64461_inb_p,
--        mv_inw_p:               hd64461_inw,
--        mv_inl_p:               hd64461_inl,
--        mv_outb_p:              hd64461_outb_p,
--        mv_outw_p:              hd64461_outw,
--        mv_outl_p:              hd64461_outl,
--
--        mv_insb:                hd64461_insb,
--        mv_insw:                hd64461_insw,
--        mv_insl:                hd64461_insl,
--        mv_outsb:               hd64461_outsb,
--        mv_outsw:               hd64461_outsw,
--        mv_outsl:               hd64461_outsl,
--
--        mv_readb:               generic_readb,
--        mv_readw:               generic_readw,
--        mv_readl:               generic_readl,
--        mv_writeb:              generic_writeb,
--        mv_writew:              generic_writew,
--        mv_writel:              generic_writel,
-+        .mv_inb                 = hd64461_inb,
-+        .mv_inw                 = hd64461_inw,
-+        .mv_inl                 = hd64461_inl,
-+        .mv_outb                = hd64461_outb,
-+        .mv_outw                = hd64461_outw,
-+        .mv_outl                = hd64461_outl,
-+
-+        .mv_inb_p               = hd64461_inb_p,
-+        .mv_inw_p               = hd64461_inw,
-+        .mv_inl_p               = hd64461_inl,
-+        .mv_outb_p              = hd64461_outb_p,
-+        .mv_outw_p              = hd64461_outw,
-+        .mv_outl_p              = hd64461_outl,
-+
-+        .mv_insb                = hd64461_insb,
-+        .mv_insw                = hd64461_insw,
-+        .mv_insl                = hd64461_insl,
-+        .mv_outsb               = hd64461_outsb,
-+        .mv_outsw               = hd64461_outsw,
-+        .mv_outsl               = hd64461_outsl,
-+
-+        .mv_readb               = generic_readb,
-+        .mv_readw               = generic_readw,
-+        .mv_readl               = generic_readl,
-+        .mv_writeb              = generic_writeb,
-+        .mv_writew              = generic_writew,
-+        .mv_writel              = generic_writel,
- 
--        mv_irq_demux:           hd64461_irq_demux,
-+        .mv_irq_demux           = hd64461_irq_demux,
- 
--        mv_rtc_gettimeofday:    sh_rtc_gettimeofday,
--        mv_rtc_settimeofday:    sh_rtc_settimeofday,
-+        .mv_rtc_gettimeofday    = sh_rtc_gettimeofday,
-+        .mv_rtc_settimeofday    = sh_rtc_settimeofday,
- };
- ALIAS_MV(hp620)
-diff -aur linux.backup/arch/sh/boards/hp6xx/hp680/mach.c linux/arch/sh/boards/hp6xx/hp680/mach.c
---- linux.backup/arch/sh/boards/hp6xx/hp680/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/hp6xx/hp680/mach.c	Sat Aug 16 15:45:00 2003
-@@ -20,41 +20,41 @@
- #include <asm/irq.h>
- 
- struct sh_machine_vector mv_hp680 __initmv = {
--        mv_name:                "hp680",
-+        .mv_name                = "hp680",
- 
--        mv_nr_irqs:             HD64461_IRQBASE+HD64461_IRQ_NUM,
-+        .mv_nr_irqs             = HD64461_IRQBASE+HD64461_IRQ_NUM,
- 
--        mv_inb:                 hd64461_inb,
--        mv_inw:                 hd64461_inw,
--        mv_inl:                 hd64461_inl,
--        mv_outb:                hd64461_outb,
--        mv_outw:                hd64461_outw,
--        mv_outl:                hd64461_outl,
--
--        mv_inb_p:               hd64461_inb_p,
--        mv_inw_p:               hd64461_inw,
--        mv_inl_p:               hd64461_inl,
--        mv_outb_p:              hd64461_outb_p,
--        mv_outw_p:              hd64461_outw,
--        mv_outl_p:              hd64461_outl,
--
--        mv_insb:                hd64461_insb,
--        mv_insw:                hd64461_insw,
--        mv_insl:                hd64461_insl,
--        mv_outsb:               hd64461_outsb,
--        mv_outsw:               hd64461_outsw,
--        mv_outsl:               hd64461_outsl,
--
--        mv_readb:               generic_readb,
--        mv_readw:               generic_readw,
--        mv_readl:               generic_readl,
--        mv_writeb:              generic_writeb,
--        mv_writew:              generic_writew,
--        mv_writel:              generic_writel,
-+        .mv_inb                 = hd64461_inb,
-+        .mv_inw                 = hd64461_inw,
-+        .mv_inl                 = hd64461_inl,
-+        .mv_outb                = hd64461_outb,
-+        .mv_outw                = hd64461_outw,
-+        .mv_outl                = hd64461_outl,
-+
-+        .mv_inb_p               = hd64461_inb_p,
-+        .mv_inw_p               = hd64461_inw,
-+        .mv_inl_p               = hd64461_inl,
-+        .mv_outb_p              = hd64461_outb_p,
-+        .mv_outw_p              = hd64461_outw,
-+        .mv_outl_p              = hd64461_outl,
-+
-+        .mv_insb                = hd64461_insb,
-+        .mv_insw                = hd64461_insw,
-+        .mv_insl                = hd64461_insl,
-+        .mv_outsb               = hd64461_outsb,
-+        .mv_outsw               = hd64461_outsw,
-+        .mv_outsl               = hd64461_outsl,
-+
-+        .mv_readb               = generic_readb,
-+        .mv_readw               = generic_readw,
-+        .mv_readl               = generic_readl,
-+        .mv_writeb              = generic_writeb,
-+        .mv_writew              = generic_writew,
-+        .mv_writel              = generic_writel,
- 
--        mv_irq_demux:           hd64461_irq_demux,
-+        .mv_irq_demux           = hd64461_irq_demux,
- 
--        mv_rtc_gettimeofday:    sh_rtc_gettimeofday,
--        mv_rtc_settimeofday:    sh_rtc_settimeofday,
-+        .mv_rtc_gettimeofday    = sh_rtc_gettimeofday,
-+        .mv_rtc_settimeofday    = sh_rtc_settimeofday,
- };
- ALIAS_MV(hp680)
-diff -aur linux.backup/arch/sh/boards/hp6xx/hp690/mach.c linux/arch/sh/boards/hp6xx/hp690/mach.c
---- linux.backup/arch/sh/boards/hp6xx/hp690/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/hp6xx/hp690/mach.c	Sat Aug 16 15:45:00 2003
-@@ -20,41 +20,41 @@
- #include <asm/irq.h>
- 
- struct sh_machine_vector mv_hp690 __initmv = {
--        mv_name:                "hp690",
-+        .mv_name                = "hp690",
- 
--        mv_nr_irqs:             HD64461_IRQBASE+HD64461_IRQ_NUM,
-+        .mv_nr_irqs             = HD64461_IRQBASE+HD64461_IRQ_NUM,
- 
--        mv_inb:                 hd64461_inb,
--        mv_inw:                 hd64461_inw,
--        mv_inl:                 hd64461_inl,
--        mv_outb:                hd64461_outb,
--        mv_outw:                hd64461_outw,
--        mv_outl:                hd64461_outl,
--
--        mv_inb_p:               hd64461_inb_p,
--        mv_inw_p:               hd64461_inw,
--        mv_inl_p:               hd64461_inl,
--        mv_outb_p:              hd64461_outb_p,
--        mv_outw_p:              hd64461_outw,
--        mv_outl_p:              hd64461_outl,
--
--        mv_insb:                hd64461_insb,
--        mv_insw:                hd64461_insw,
--        mv_insl:                hd64461_insl,
--        mv_outsb:               hd64461_outsb,
--        mv_outsw:               hd64461_outsw,
--        mv_outsl:               hd64461_outsl,
--
--        mv_readb:               generic_readb,
--        mv_readw:               generic_readw,
--        mv_readl:               generic_readl,
--        mv_writeb:              generic_writeb,
--        mv_writew:              generic_writew,
--        mv_writel:              generic_writel,
-+        .mv_inb                 = hd64461_inb,
-+        .mv_inw                 = hd64461_inw,
-+        .mv_inl                 = hd64461_inl,
-+        .mv_outb                = hd64461_outb,
-+        .mv_outw                = hd64461_outw,
-+        .mv_outl                = hd64461_outl,
-+
-+        .mv_inb_p               = hd64461_inb_p,
-+        .mv_inw_p               = hd64461_inw,
-+        .mv_inl_p               = hd64461_inl,
-+        .mv_outb_p              = hd64461_outb_p,
-+        .mv_outw_p              = hd64461_outw,
-+        .mv_outl_p              = hd64461_outl,
-+
-+        .mv_insb                = hd64461_insb,
-+        .mv_insw                = hd64461_insw,
-+        .mv_insl                = hd64461_insl,
-+        .mv_outsb               = hd64461_outsb,
-+        .mv_outsw               = hd64461_outsw,
-+        .mv_outsl               = hd64461_outsl,
-+
-+        .mv_readb               = generic_readb,
-+        .mv_readw               = generic_readw,
-+        .mv_readl               = generic_readl,
-+        .mv_writeb              = generic_writeb,
-+        .mv_writew              = generic_writew,
-+        .mv_writel              = generic_writel,
- 
--        mv_irq_demux:           hd64461_irq_demux,
-+        .mv_irq_demux           = hd64461_irq_demux,
- 
--        mv_rtc_gettimeofday:    sh_rtc_gettimeofday,
--        mv_rtc_settimeofday:    sh_rtc_settimeofday,
-+        .mv_rtc_gettimeofday    = sh_rtc_gettimeofday,
-+        .mv_rtc_settimeofday    = sh_rtc_settimeofday,
- };
- ALIAS_MV(hp690)
-diff -aur linux.backup/arch/sh/boards/overdrive/mach.c linux/arch/sh/boards/overdrive/mach.c
---- linux.backup/arch/sh/boards/overdrive/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/overdrive/mach.c	Sat Aug 16 15:45:00 2003
-@@ -28,46 +28,46 @@
-  */
- 
- struct sh_machine_vector mv_od __initmv = {
--	mv_nr_irqs:		48,
-+	.mv_nr_irqs		= 48,
- 
--	mv_inb:			od_inb,
--	mv_inw:			od_inw,
--	mv_inl:			od_inl,
--	mv_outb:		od_outb,
--	mv_outw:		od_outw,
--	mv_outl:		od_outl,
--
--	mv_inb_p:		od_inb_p,
--	mv_inw_p:		od_inw_p,
--	mv_inl_p:		od_inl_p,
--	mv_outb_p:		od_outb_p,
--	mv_outw_p:		od_outw_p,
--	mv_outl_p:		od_outl_p,
--
--	mv_insb:		od_insb,
--	mv_insw:		od_insw,
--	mv_insl:		od_insl,
--	mv_outsb:		od_outsb,
--	mv_outsw:		od_outsw,
--	mv_outsl:		od_outsl,
--
--	mv_readb:		generic_readb,
--	mv_readw:		generic_readw,
--	mv_readl:		generic_readl,
--	mv_writeb:		generic_writeb,
--	mv_writew:		generic_writew,
--	mv_writel:		generic_writel,
-+	.mv_inb			= od_inb,
-+	.mv_inw			= od_inw,
-+	.mv_inl			= od_inl,
-+	.mv_outb		= od_outb,
-+	.mv_outw		= od_outw,
-+	.mv_outl		= od_outl,
-+
-+	.mv_inb_p		= od_inb_p,
-+	.mv_inw_p		= od_inw_p,
-+	.mv_inl_p		= od_inl_p,
-+	.mv_outb_p		= od_outb_p,
-+	.mv_outw_p		= od_outw_p,
-+	.mv_outl_p		= od_outl_p,
-+
-+	.mv_insb		= od_insb,
-+	.mv_insw		= od_insw,
-+	.mv_insl		= od_insl,
-+	.mv_outsb		= od_outsb,
-+	.mv_outsw		= od_outsw,
-+	.mv_outsl		= od_outsl,
-+
-+	.mv_readb		= generic_readb,
-+	.mv_readw		= generic_readw,
-+	.mv_readl		= generic_readl,
-+	.mv_writeb		= generic_writeb,
-+	.mv_writew		= generic_writew,
-+	.mv_writel		= generic_writel,
- 
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
- 
--	mv_isa_port2addr:	generic_isa_port2addr,
-+	.mv_isa_port2addr	= generic_isa_port2addr,
- 
- #ifdef CONFIG_PCI
--	mv_init_irq:		init_overdrive_irq,
-+	.mv_init_irq		= init_overdrive_irq,
- #endif
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_od,
-+	.mv_heartbeat		= heartbeat_od,
- #endif
+ /* Generic implementation for most 10/100 PHYs */
+ static struct mii_phy_ops generic_phy_ops = {
+-	setup_aneg:	genmii_setup_aneg,
+-	setup_forced:	genmii_setup_forced,
+-	poll_link:	genmii_poll_link,
+-	read_link:	genmii_read_link
++	.setup_aneg	= genmii_setup_aneg,
++	.setup_forced	= genmii_setup_forced,
++	.poll_link	= genmii_poll_link,
++	.read_link	= genmii_read_link
  };
  
-diff -aur linux.backup/arch/sh/boards/saturn/irq.c linux/arch/sh/boards/saturn/irq.c
---- linux.backup/arch/sh/boards/saturn/irq.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/saturn/irq.c	Sat Aug 16 15:45:00 2003
-@@ -102,13 +102,13 @@
- }
- 
- static struct hw_interrupt_type saturn_int = {
--	typename:	"Saturn",
--	enable:		enable_saturn_irq,
--	disable:	disable_saturn_irq,
--	ack:		mask_and_ack_saturn_irq,
--	end:		end_saturn_irq,
--	startup:	startup_saturn_irq,
--	shutdown:	shutdown_saturn_irq,
-+	.typename	= "Saturn",
-+	.enable		= enable_saturn_irq,
-+	.disable	= disable_saturn_irq,
-+	.ack		= mask_and_ack_saturn_irq,
-+	.end		= end_saturn_irq,
-+	.startup	= startup_saturn_irq,
-+	.shutdown	= shutdown_saturn_irq,
+ static struct mii_phy_def genmii_phy_def = {
+-	phy_id:		0x00000000,
+-	phy_id_mask:	0x00000000,
+-	name:		"Generic MII",
+-	features:	MII_BASIC_FEATURES,
+-	magic_aneg:	0,
+-	ops:		&generic_phy_ops
++	.phy_id		= 0x00000000,
++	.phy_id_mask	= 0x00000000,
++	.name		= "Generic MII",
++	.features	= MII_BASIC_FEATURES,
++	.magic_aneg	= 0,
++	.ops		= &generic_phy_ops
  };
  
- int saturn_irq_demux(int irq_nr)
-diff -aur linux.backup/arch/sh/boards/saturn/mach.c linux/arch/sh/boards/saturn/mach.c
---- linux.backup/arch/sh/boards/saturn/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/saturn/mach.c	Sat Aug 16 18:14:01 2003
-@@ -18,41 +18,41 @@
-  * The Machine Vector
-  */
- struct sh_machine_vector mv_saturn __initmv = {
--        mv_nr_irqs:             80,	/* Fix this later */
-+        .mv_nr_irqs             = 80,	/* Fix this later */
- 
--        mv_inb:                 generic_inb,
--        mv_inw:                 generic_inw,
--        mv_inl:                 generic_inl,
--        mv_outb:                generic_outb,
--        mv_outw:                generic_outw,
--        mv_outl:                generic_outl,
--
--        mv_inb_p:               generic_inb_p,
--        mv_inw_p:               generic_inw_p,
--        mv_inl_p:               generic_inl_p,
--        mv_outb_p:              generic_outb_p,
--        mv_outw_p:              generic_outw_p,
--        mv_outl_p:              generic_outl_p,
--
--        mv_insb:                generic_insb,
--        mv_insw:                generic_insw,
--        mv_insl:                generic_insl,
--        mv_outsb:               generic_outsb,
--        mv_outsw:               generic_outsw,
--        mv_outsl:               generic_outsl,
--
--        mv_readb:               generic_readb,
--        mv_readw:               generic_readw,
--        mv_readl:               generic_readl,
--        mv_writeb:              generic_writeb,
--        mv_writew:              generic_writew,
--        mv_writel:              generic_writel,
-+        .mv_inb                 = generic_inb,
-+        .mv_inw                 = generic_inw,
-+        .mv_inl                 = generic_inl,
-+        .mv_outb                = generic_outb,
-+        .mv_outw                = generic_outw,
-+        .mv_outl                = generic_outl,
-+
-+        .mv_inb_p               = generic_inb_p,
-+        .mv_inw_p               = generic_inw_p,
-+        .mv_inl_p               = generic_inl_p,
-+        .mv_outb_p              = generic_outb_p,
-+        .mv_outw_p              = generic_outw_p,
-+        .mv_outl_p              = generic_outl_p,
-+
-+        .mv_insb                = generic_insb,
-+        .mv_insw                = generic_insw,
-+        .mv_insl                = generic_insl,
-+        .mv_outsb               = generic_outsb,
-+        .mv_outsw               = generic_outsw,
-+        .mv_outsl               = generic_outsl,
-+
-+        .mv_readb               = generic_readb,
-+        .mv_readw               = generic_readw,
-+        .mv_readl               = generic_readl,
-+        .mv_writeb              = generic_writeb,
-+        .mv_writew              = generic_writew,
-+        .mv_writel              = generic_writel,
- 
--        mv_isa_port2addr:       saturn_isa_port2addr,
--	mv_irq_demux:		saturn_irq_demux,
-+        .mv_isa_port2addr       = saturn_isa_port2addr,
-+	.mv_irq_demux		= saturn_irq_demux,
- 
--        mv_ioremap:             saturn_ioremap,
--        mv_iounmap:             saturn_iounmap,
-+        .mv_ioremap             = saturn_ioremap,
-+        .mv_iounmap             = saturn_iounmap,
+ static struct mii_phy_def* mii_phy_table[] = {
+diff -aur linux.backup/drivers/s390/net/qeth.c linux/drivers/s390/net/qeth.c
+--- linux.backup/drivers/s390/net/qeth.c	Sat Aug 16 15:02:22 2003
++++ linux/drivers/s390/net/qeth.c	Sat Aug 16 23:52:37 2003
+@@ -9765,19 +9765,19 @@
  };
  
- ALIAS_MV(saturn)
-diff -aur linux.backup/arch/sh/boards/se/770x/mach.c linux/arch/sh/boards/se/770x/mach.c
---- linux.backup/arch/sh/boards/se/770x/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/se/770x/mach.c	Sat Aug 16 15:45:00 2003
-@@ -28,49 +28,49 @@
+ static struct file_operations qeth_procfile_fops = {
+-	ioctl:qeth_procfile_ioctl,
+-	read:qeth_procfile_read,
+-	open:qeth_procfile_open,
+-	release:qeth_procfile_release,
++	.ioctl = qeth_procfile_ioctl,
++	.read = qeth_procfile_read,
++	.open = qeth_procfile_open,
++	.release = qeth_procfile_release,
+ };
  
- struct sh_machine_vector mv_se __initmv = {
- #if defined(CONFIG_CPU_SH4)
--	mv_nr_irqs:		48,
-+	.mv_nr_irqs		= 48,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7708)
--	mv_nr_irqs:		32,
-+	.mv_nr_irqs		= 32,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7709)
--	mv_nr_irqs:		61,
-+	.mv_nr_irqs		= 61,
+ static struct proc_dir_entry *qeth_proc_file;
+ 
+ static struct file_operations qeth_ipato_procfile_fops = {
+-	read:qeth_procfile_read,	/* same as above! */
+-	write:qeth_ipato_procfile_write,
+-	open:qeth_ipato_procfile_open,
+-	release:qeth_procfile_release	/* same as above! */
++	.read = qeth_procfile_read,	/* same as above! */
++	.write = qeth_ipato_procfile_write,
++	.open = qeth_ipato_procfile_open,
++	.release = qeth_procfile_release	/* same as above! */
+ };
+ 
+ static struct proc_dir_entry *qeth_ipato_proc_file;
+diff -aur linux.backup/drivers/scsi/aic7xxx/aic79xx_osm_pci.c linux/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+--- linux.backup/drivers/scsi/aic7xxx/aic79xx_osm_pci.c	Thu Jun 26 23:48:40 2003
++++ linux/drivers/scsi/aic7xxx/aic79xx_osm_pci.c	Sat Aug 16 23:52:54 2003
+@@ -72,10 +72,10 @@
+ MODULE_DEVICE_TABLE(pci, ahd_linux_pci_id_table);
+ 
+ struct pci_driver aic79xx_pci_driver = {
+-	name:		"aic79xx",
+-	probe:		ahd_linux_pci_dev_probe,
+-	remove:		ahd_linux_pci_dev_remove,
+-	id_table:	ahd_linux_pci_id_table
++	.name		= "aic79xx",
++	.probe		= ahd_linux_pci_dev_probe,
++	.remove		= ahd_linux_pci_dev_remove,
++	.id_table	= ahd_linux_pci_id_table
+ };
+ 
+ static void
+diff -aur linux.backup/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c linux/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+--- linux.backup/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	Thu Jun 26 23:47:40 2003
++++ linux/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	Sat Aug 16 23:53:12 2003
+@@ -75,10 +75,10 @@
+ MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
+ 
+ struct pci_driver aic7xxx_pci_driver = {
+-	name:		"aic7xxx",
+-	probe:		ahc_linux_pci_dev_probe,
+-	remove:		ahc_linux_pci_dev_remove,
+-	id_table:	ahc_linux_pci_id_table
++	.name		= "aic7xxx",
++	.probe		= ahc_linux_pci_dev_probe,
++	.remove		= ahc_linux_pci_dev_remove,
++	.id_table	= ahc_linux_pci_id_table
+ };
+ 
+ static void
+diff -aur linux.backup/drivers/usb/host/hc_sl811_rh.c linux/drivers/usb/host/hc_sl811_rh.c
+--- linux.backup/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 15:02:54 2003
++++ linux/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 23:57:09 2003
+@@ -329,7 +329,7 @@
+ 	switch (bmRType_bReq) {
+ 		/* Request Destination:
+ 		   without flags: Device, 
+-		   RH_INTERFACE: interface, 
++		   RH_INTERFACE: interface,
+ 		   RH_ENDPOINT: endpoint,
+ 		   RH_CLASS means HUB here, 
+ 		   RH_OTHER | RH_CLASS  almost ever means HUB_PORT here 
+diff -aur linux.backup/drivers/video/68328fb.c linux/drivers/video/68328fb.c
+--- linux.backup/drivers/video/68328fb.c	Tue Dec 10 15:18:53 2002
++++ linux/drivers/video/68328fb.c	Sat Aug 16 23:58:20 2003
+@@ -401,12 +401,12 @@
+                                               ((1<<(width))-1)) : 0))
+ 
+ static struct fb_ops mc68328_fb_ops = {
+-	.owner:		THIS_MODULE,
+-	.fb_setcolreg:	mc68328fb_setcolreg,
+-	.fb_fillrect:	cfbfillrect,
+-	.fb_copyarea:	cfbcopyarea,
+-	.fb_imageblit:	cfbimgblt,
+-	.fb_cursor:	softcursor,
++	.owner		= THIS_MODULE,
++	.fb_setcolreg	= mc68328fb_setcolreg,
++	.fb_fillrect	= cfbfillrect,
++	.fb_copyarea	= cfbcopyarea,
++	.fb_imageblit	= cfbimgblt,
++	.fb_cursor	= softcursor,
+ };
+ 
+ 
+diff -aur linux.backup/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
+--- linux.backup/drivers/video/riva/fbdev.c	Sat Aug 16 15:02:55 2003
++++ linux/drivers/video/riva/fbdev.c	Sat Aug 16 23:59:34 2003
+@@ -297,34 +297,34 @@
  #endif
  
--	mv_inb:			se_inb,
--	mv_inw:			se_inw,
--	mv_inl:			se_inl,
--	mv_outb:		se_outb,
--	mv_outw:		se_outw,
--	mv_outl:		se_outl,
--
--	mv_inb_p:		se_inb_p,
--	mv_inw_p:		se_inw,
--	mv_inl_p:		se_inl,
--	mv_outb_p:		se_outb_p,
--	mv_outw_p:		se_outw,
--	mv_outl_p:		se_outl,
--
--	mv_insb:		se_insb,
--	mv_insw:		se_insw,
--	mv_insl:		se_insl,
--	mv_outsb:		se_outsb,
--	mv_outsw:		se_outsw,
--	mv_outsl:		se_outsl,
--
--	mv_readb:		se_readb,
--	mv_readw:		se_readw,
--	mv_readl:		se_readl,
--	mv_writeb:		se_writeb,
--	mv_writew:		se_writew,
--	mv_writel:		se_writel,
-+	.mv_inb			= se_inb,
-+	.mv_inw			= se_inw,
-+	.mv_inl			= se_inl,
-+	.mv_outb		= se_outb,
-+	.mv_outw		= se_outw,
-+	.mv_outl		= se_outl,
-+
-+	.mv_inb_p		= se_inb_p,
-+	.mv_inw_p		= se_inw,
-+	.mv_inl_p		= se_inl,
-+	.mv_outb_p		= se_outb_p,
-+	.mv_outw_p		= se_outw,
-+	.mv_outl_p		= se_outl,
-+
-+	.mv_insb		= se_insb,
-+	.mv_insw		= se_insw,
-+	.mv_insl		= se_insl,
-+	.mv_outsb		= se_outsb,
-+	.mv_outsw		= se_outsw,
-+	.mv_outsl		= se_outsl,
-+
-+	.mv_readb		= se_readb,
-+	.mv_readw		= se_readw,
-+	.mv_readl		= se_readl,
-+	.mv_writeb		= se_writeb,
-+	.mv_writew		= se_writew,
-+	.mv_writel		= se_writel,
+ static struct fb_fix_screeninfo rivafb_fix = {
+-	id:		"nVidia",
+-	type:		FB_TYPE_PACKED_PIXELS,
+-	xpanstep:	1,
+-	ypanstep:	1,
++	.id		= "nVidia",
++	.type		= FB_TYPE_PACKED_PIXELS,
++	.xpanstep	= 1,
++	.ypanstep	= 1,
+ };
  
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
+ static struct fb_var_screeninfo rivafb_default_var = {
+-	xres:		640,
+-	yres:		480,
+-	xres_virtual:	640,
+-	yres_virtual:	480,
+-	bits_per_pixel:	8,
+-	red:		{0, 8, 0},
+-	green:		{0, 8, 0},
+-	blue:		{0, 8, 0},
+-	transp:		{0, 0, 0},
+-	activate:	FB_ACTIVATE_NOW,
+-	height:		-1,
+-	width:		-1,
+-	accel_flags:	FB_ACCELF_TEXT,
+-	pixclock:	39721,
+-	left_margin:	40,
+-	right_margin:	24,
+-	upper_margin:	32,
+-	lower_margin:	11,
+-	hsync_len:	96,
+-	vsync_len:	2,
+-	vmode:		FB_VMODE_NONINTERLACED
++	.xres		= 640,
++	.yres		= 480,
++	.xres_virtual	= 640,
++	.yres_virtual	= 480,
++	.bits_per_pixel	= 8,
++	.red		= {0, 8, 0},
++	.green		= {0, 8, 0},
++	.blue		= {0, 8, 0},
++	.transp		= {0, 0, 0},
++	.activate	= FB_ACTIVATE_NOW,
++	.height		= -1,
++	.width		= -1,
++	.accel_flags	= FB_ACCELF_TEXT,
++	.pixclock	= 39721,
++	.left_margin	= 40,
++	.right_margin	= 24,
++	.upper_margin	= 32,
++	.lower_margin	= 11,
++	.hsync_len	= 96,
++	.vsync_len	= 2,
++	.vmode		= FB_VMODE_NONINTERLACED
+ };
  
--	mv_isa_port2addr:	se_isa_port2addr,
-+	.mv_isa_port2addr	= se_isa_port2addr,
+ /* from GGI */
+@@ -1977,10 +1977,10 @@
+ #endif /* !MODULE */
  
--	mv_init_irq:		init_se_IRQ,
-+	.mv_init_irq		= init_se_IRQ,
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_se,
-+	.mv_heartbeat		= heartbeat_se,
+ static struct pci_driver rivafb_driver = {
+-	name:		"rivafb",
+-	id_table:	rivafb_pci_tbl,
+-	probe:		rivafb_probe,
+-	remove:		__exit_p(rivafb_remove),
++	.name		= "rivafb",
++	.id_table	= rivafb_pci_tbl,
++	.probe		= rivafb_probe,
++	.remove		= __exit_p(rivafb_remove),
+ };
+ 
+ 
+diff -aur linux.backup/drivers/video/sis/sis_accel.c linux/drivers/video/sis/sis_accel.c
+--- linux.backup/drivers/video/sis/sis_accel.c	Tue Mar 25 10:54:08 2003
++++ linux/drivers/video/sis/sis_accel.c	Sun Aug 17 00:02:32 2003
+@@ -591,38 +591,38 @@
+ 
+ #ifdef FBCON_HAS_CFB8
+ struct display_switch fbcon_sis8 = {
+-	setup:			fbcon_cfb8_setup,
+-	bmove:			fbcon_sis_bmove,
+-	clear:			fbcon_sis_clear8,
+-	putc:			fbcon_cfb8_putc,
+-	putcs:			fbcon_cfb8_putcs,
+-	revc:			fbcon_cfb8_revc,
+-	clear_margins:		fbcon_cfb8_clear_margins,
+-	fontwidthmask:		FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
++	.setup			= fbcon_cfb8_setup,
++	.bmove			= fbcon_sis_bmove,
++	.clear			= fbcon_sis_clear8,
++	.putc			= fbcon_cfb8_putc,
++	.putcs			= fbcon_cfb8_putcs,
++	.revc			= fbcon_cfb8_revc,
++	.clear_margins		= fbcon_cfb8_clear_margins,
++	.fontwidthmask		= FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
+ };
  #endif
+ #ifdef FBCON_HAS_CFB16
+ struct display_switch fbcon_sis16 = {
+-	setup:			fbcon_cfb16_setup,
+-	bmove:			fbcon_sis_bmove,
+-	clear:			fbcon_sis_clear16,
+-	putc:			fbcon_cfb16_putc,
+-	putcs:			fbcon_cfb16_putcs,
+-	revc:			fbcon_sis_revc,
+-	clear_margins:		fbcon_cfb16_clear_margins,
+-	fontwidthmask:		FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
++	.setup			= fbcon_cfb16_setup,
++	.bmove			= fbcon_sis_bmove,
++	.clear			= fbcon_sis_clear16,
++	.putc			= fbcon_cfb16_putc,
++	.putcs			= fbcon_cfb16_putcs,
++	.revc			= fbcon_sis_revc,
++	.clear_margins		= fbcon_cfb16_clear_margins,
++	.fontwidthmask		= FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
  };
- ALIAS_MV(se)
-diff -aur linux.backup/arch/sh/boards/se/7751/mach.c linux/arch/sh/boards/se/7751/mach.c
---- linux.backup/arch/sh/boards/se/7751/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/se/7751/mach.c	Sat Aug 16 15:45:00 2003
-@@ -26,44 +26,44 @@
-  */
- 
- struct sh_machine_vector mv_7751se __initmv = {
--	mv_nr_irqs:		72,
-+	.mv_nr_irqs		= 72,
- 
--	mv_inb:			sh7751se_inb,
--	mv_inw:			sh7751se_inw,
--	mv_inl:			sh7751se_inl,
--	mv_outb:		sh7751se_outb,
--	mv_outw:		sh7751se_outw,
--	mv_outl:		sh7751se_outl,
--
--	mv_inb_p:		sh7751se_inb_p,
--	mv_inw_p:		sh7751se_inw,
--	mv_inl_p:		sh7751se_inl,
--	mv_outb_p:		sh7751se_outb_p,
--	mv_outw_p:		sh7751se_outw,
--	mv_outl_p:		sh7751se_outl,
--
--	mv_insb:		sh7751se_insb,
--	mv_insw:		sh7751se_insw,
--	mv_insl:		sh7751se_insl,
--	mv_outsb:		sh7751se_outsb,
--	mv_outsw:		sh7751se_outsw,
--	mv_outsl:		sh7751se_outsl,
--
--	mv_readb:		sh7751se_readb,
--	mv_readw:		sh7751se_readw,
--	mv_readl:		sh7751se_readl,
--	mv_writeb:		sh7751se_writeb,
--	mv_writew:		sh7751se_writew,
--	mv_writel:		sh7751se_writel,
-+	.mv_inb			= sh7751se_inb,
-+	.mv_inw			= sh7751se_inw,
-+	.mv_inl			= sh7751se_inl,
-+	.mv_outb		= sh7751se_outb,
-+	.mv_outw		= sh7751se_outw,
-+	.mv_outl		= sh7751se_outl,
-+
-+	.mv_inb_p		= sh7751se_inb_p,
-+	.mv_inw_p		= sh7751se_inw,
-+	.mv_inl_p		= sh7751se_inl,
-+	.mv_outb_p		= sh7751se_outb_p,
-+	.mv_outw_p		= sh7751se_outw,
-+	.mv_outl_p		= sh7751se_outl,
-+
-+	.mv_insb		= sh7751se_insb,
-+	.mv_insw		= sh7751se_insw,
-+	.mv_insl		= sh7751se_insl,
-+	.mv_outsb		= sh7751se_outsb,
-+	.mv_outsw		= sh7751se_outsw,
-+	.mv_outsl		= sh7751se_outsl,
-+
-+	.mv_readb		= sh7751se_readb,
-+	.mv_readw		= sh7751se_readw,
-+	.mv_readl		= sh7751se_readl,
-+	.mv_writeb		= sh7751se_writeb,
-+	.mv_writew		= sh7751se_writew,
-+	.mv_writel		= sh7751se_writel,
- 
--	mv_ioremap:		generic_ioremap,
--	mv_iounmap:		generic_iounmap,
-+	.mv_ioremap		= generic_ioremap,
-+	.mv_iounmap		= generic_iounmap,
- 
--	mv_isa_port2addr:	sh7751se_isa_port2addr,
-+	.mv_isa_port2addr	= sh7751se_isa_port2addr,
- 
--	mv_init_irq:		init_7751se_IRQ,
-+	.mv_init_irq		= init_7751se_IRQ,
- #ifdef CONFIG_HEARTBEAT
--	mv_heartbeat:		heartbeat_7751se,
-+	.mv_heartbeat		= heartbeat_7751se,
  #endif
+ #ifdef FBCON_HAS_CFB32
+ struct display_switch fbcon_sis32 = {
+-	setup:			fbcon_cfb32_setup,
+-	bmove:			fbcon_sis_bmove,
+-	clear:			fbcon_sis_clear32,
+-	putc:			fbcon_cfb32_putc,
+-	putcs:			fbcon_cfb32_putcs,
+-	revc:			fbcon_sis_revc,
+-	clear_margins:		fbcon_cfb32_clear_margins,
+-	fontwidthmask:		FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
++	.setup			= fbcon_cfb32_setup,
++	.bmove			= fbcon_sis_bmove,
++	.clear			= fbcon_sis_clear32,
++	.putc			= fbcon_cfb32_putc,
++	.putcs			= fbcon_cfb32_putcs,
++	.revc			= fbcon_sis_revc,
++	.clear_margins		= fbcon_cfb32_clear_margins,
++	.fontwidthmask		= FONTWIDTH(4)|FONTWIDTH(8)|FONTWIDTH(12)|FONTWIDTH(16)
  };
- ALIAS_MV(7751se)
-diff -aur linux.backup/arch/sh/boards/sh2000/mach.c linux/arch/sh/boards/sh2000/mach.c
---- linux.backup/arch/sh/boards/sh2000/mach.c	Mon Jul 21 23:34:54 2003
-+++ linux/arch/sh/boards/sh2000/mach.c	Sat Aug 16 15:45:00 2003
-@@ -19,39 +19,39 @@
-  */
- 
- struct sh_machine_vector mv_sh2000 __initmv = {
--        mv_nr_irqs:             80,
-+        .mv_nr_irqs             = 80,
- 
--        mv_inb:                 generic_inb,
--        mv_inw:                 generic_inw,
--        mv_inl:                 generic_inl,
--        mv_outb:                generic_outb,
--        mv_outw:                generic_outw,
--        mv_outl:                generic_outl,
--
--        mv_inb_p:               generic_inb_p,
--        mv_inw_p:               generic_inw_p,
--        mv_inl_p:               generic_inl_p,
--        mv_outb_p:              generic_outb_p,
--        mv_outw_p:              generic_outw_p,
--        mv_outl_p:              generic_outl_p,
--
--        mv_insb:                generic_insb,
--        mv_insw:                generic_insw,
--        mv_insl:                generic_insl,
--        mv_outsb:               generic_outsb,
--        mv_outsw:               generic_outsw,
--        mv_outsl:               generic_outsl,
--
--        mv_readb:               generic_readb,
--        mv_readw:               generic_readw,
--        mv_readl:               generic_readl,
--        mv_writeb:              generic_writeb,
--        mv_writew:              generic_writew,
--        mv_writel:              generic_writel,
-+        .mv_inb                 = generic_inb,
-+        .mv_inw                 = generic_inw,
-+        .mv_inl                 = generic_inl,
-+        .mv_outb                = generic_outb,
-+        .mv_outw                = generic_outw,
-+        .mv_outl                = generic_outl,
-+
-+        .mv_inb_p               = generic_inb_p,
-+        .mv_inw_p               = generic_inw_p,
-+        .mv_inl_p               = generic_inl_p,
-+        .mv_outb_p              = generic_outb_p,
-+        .mv_outw_p              = generic_outw_p,
-+        .mv_outl_p              = generic_outl_p,
-+
-+        .mv_insb                = generic_insb,
-+        .mv_insw                = generic_insw,
-+        .mv_insl                = generic_insl,
-+        .mv_outsb               = generic_outsb,
-+        .mv_outsw               = generic_outsw,
-+        .mv_outsl               = generic_outsl,
-+
-+        .mv_readb               = generic_readb,
-+        .mv_readw               = generic_readw,
-+        .mv_readl               = generic_readl,
-+        .mv_writeb              = generic_writeb,
-+        .mv_writew              = generic_writew,
-+        .mv_writel              = generic_writel,
- 
--        mv_isa_port2addr:       sh2000_isa_port2addr,
-+        .mv_isa_port2addr       = sh2000_isa_port2addr,
- 
--        mv_ioremap:             generic_ioremap,
--        mv_iounmap:             generic_iounmap,
-+        .mv_ioremap             = generic_ioremap,
-+        .mv_iounmap             = generic_iounmap,
- };
- ALIAS_MV(sh2000)
-diff -aur linux.backup/arch/sh/boards/unknown/mach.c linux/arch/sh/boards/unknown/mach.c
---- linux.backup/arch/sh/boards/unknown/mach.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/boards/unknown/mach.c	Sat Aug 16 15:45:00 2003
-@@ -24,44 +24,44 @@
- 
- struct sh_machine_vector mv_unknown __initmv = {
- #if defined(CONFIG_CPU_SH4)
--	mv_nr_irqs:		48,
-+	.mv_nr_irqs		= 48,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7708)
--	mv_nr_irqs:		32,
-+	.mv_nr_irqs		= 32,
- #elif defined(CONFIG_CPU_SUBTYPE_SH7709)
--	mv_nr_irqs:		61,
-+	.mv_nr_irqs		= 61,
  #endif
  
--	mv_inb:			unknown_inb,
--	mv_inw:			unknown_inw,
--	mv_inl:			unknown_inl,
--	mv_outb:		unknown_outb,
--	mv_outw:		unknown_outw,
--	mv_outl:		unknown_outl,
--
--	mv_inb_p:		unknown_inb_p,
--	mv_inw_p:		unknown_inw_p,
--	mv_inl_p:		unknown_inl_p,
--	mv_outb_p:		unknown_outb_p,
--	mv_outw_p:		unknown_outw_p,
--	mv_outl_p:		unknown_outl_p,
--
--	mv_insb:		unknown_insb,
--	mv_insw:		unknown_insw,
--	mv_insl:		unknown_insl,
--	mv_outsb:		unknown_outsb,
--	mv_outsw:		unknown_outsw,
--	mv_outsl:		unknown_outsl,
--
--	mv_readb:		unknown_readb,
--	mv_readw:		unknown_readw,
--	mv_readl:		unknown_readl,
--	mv_writeb:		unknown_writeb,
--	mv_writew:		unknown_writew,
--	mv_writel:		unknown_writel,
-+	.mv_inb			= unknown_inb,
-+	.mv_inw			= unknown_inw,
-+	.mv_inl			= unknown_inl,
-+	.mv_outb		= unknown_outb,
-+	.mv_outw		= unknown_outw,
-+	.mv_outl		= unknown_outl,
-+
-+	.mv_inb_p		= unknown_inb_p,
-+	.mv_inw_p		= unknown_inw_p,
-+	.mv_inl_p		= unknown_inl_p,
-+	.mv_outb_p		= unknown_outb_p,
-+	.mv_outw_p		= unknown_outw_p,
-+	.mv_outl_p		= unknown_outl_p,
-+
-+	.mv_insb		= unknown_insb,
-+	.mv_insw		= unknown_insw,
-+	.mv_insl		= unknown_insl,
-+	.mv_outsb		= unknown_outsb,
-+	.mv_outsw		= unknown_outsw,
-+	.mv_outsl		= unknown_outsl,
-+
-+	.mv_readb		= unknown_readb,
-+	.mv_readw		= unknown_readw,
-+	.mv_readl		= unknown_readl,
-+	.mv_writeb		= unknown_writeb,
-+	.mv_writew		= unknown_writew,
-+	.mv_writel		= unknown_writel,
+diff -aur linux.backup/drivers/video/sis/sis_main.c linux/drivers/video/sis/sis_main.c
+--- linux.backup/drivers/video/sis/sis_main.c	Thu Jun 26 23:47:47 2003
++++ linux/drivers/video/sis/sis_main.c	Sat Aug 16 15:45:01 2003
+@@ -2033,17 +2033,17 @@
  
--	mv_ioremap:		unknown_ioremap,
--	mv_iounmap:		unknown_iounmap,
-+	.mv_ioremap		= unknown_ioremap,
-+	.mv_iounmap		= unknown_iounmap,
- 
--	mv_isa_port2addr:	unknown_isa_port2addr,
-+	.mv_isa_port2addr	= unknown_isa_port2addr,
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ static struct fb_ops sisfb_ops = {
+-	owner:		THIS_MODULE,
+-	fb_get_fix:	sisfb_get_fix,
+-	fb_get_var:	sisfb_get_var,
+-	fb_set_var:	sisfb_set_var,
+-	fb_get_cmap:	sisfb_get_cmap,
+-	fb_set_cmap:	sisfb_set_cmap,
++	.owner		= THIS_MODULE,
++	.fb_get_fix	= sisfb_get_fix,
++	.fb_get_var	= sisfb_get_var,
++	.fb_set_var	= sisfb_set_var,
++	.fb_get_cmap	= sisfb_get_cmap,
++	.fb_set_cmap	= sisfb_set_cmap,
+ #ifdef SISFB_PAN
+-        fb_pan_display:	sisfb_pan_display,
++        .fb_pan_display	= sisfb_pan_display,
+ #endif
+-	fb_ioctl:	sisfb_ioctl,
+-	fb_mmap:	sisfb_mmap,
++	.fb_ioctl	= sisfb_ioctl,
++	.fb_mmap	= sisfb_mmap,
  };
- ALIAS_MV(unknown)
-diff -aur linux.backup/arch/sh/cchips/hd6446x/hd64465/setup.c linux/arch/sh/cchips/hd6446x/hd64465/setup.c
---- linux.backup/arch/sh/cchips/hd6446x/hd64465/setup.c	Thu Jun 26 23:47:25 2003
-+++ linux/arch/sh/cchips/hd6446x/hd64465/setup.c	Sat Aug 16 18:14:54 2003
-@@ -89,13 +89,13 @@
- 
- 
- static struct hw_interrupt_type hd64465_irq_type = {
--	typename:	"HD64465-IRQ",
--	startup:	startup_hd64465_irq,
--	shutdown:	shutdown_hd64465_irq,
--	enable:		enable_hd64465_irq,
--	disable:	disable_hd64465_irq,
--	ack:		mask_and_ack_hd64465,
--	end:		end_hd64465_irq
-+	.typename	= "HD64465-IRQ",
-+	.startup	= startup_hd64465_irq,
-+	.shutdown	= shutdown_hd64465_irq,
-+	.enable		= enable_hd64465_irq,
-+	.disable	= disable_hd64465_irq,
-+	.ack		= mask_and_ack_hd64465,
-+	.end		= end_hd64465_irq
- };
- 
+ #endif
  
 
---Rgf3q3z9SdmXC6oT--
+--VACxsDaSTfeluoxK--

@@ -1,152 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUKSX0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbUKSXaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUKSX0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 18:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUKSX0O
+	id S261698AbUKSXaS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 18:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbUKSX1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 18:26:14 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:4807 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261638AbUKSXXi (ORCPT
+	Fri, 19 Nov 2004 18:27:55 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:6855 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261652AbUKSXZS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 18:23:38 -0500
+	Fri, 19 Nov 2004 18:25:18 -0500
 To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
 cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
        Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Ian.Pratt@cl.cam.ac.uk
-Subject: [5/7] Xen VMM patch set : split free_irq into teardown_irq
+       davem@redhat.com
+Subject: [6/7] Xen VMM patch set : add alloc_skb_from_cache
 In-reply-to: Your message of "Fri, 19 Nov 2004 23:16:33 GMT."
              <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> 
-Date: Fri, 19 Nov 2004 23:23:37 +0000
+Date: Fri, 19 Nov 2004 23:25:07 +0000
 From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CVI6L-0004bz-00@mta1.cl.cam.ac.uk>
+Message-Id: <E1CVI7o-0004cT-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch moves the `unregister the irqaction' part of free_irq into
-a new function teardown_irq, leaving only the mapping from dev_id to
-irqaction and freeing the irqaction in free_irq.  free_irq
-calls teardown_irq to unregister the irqaction.  This is similar
-to how setup_irq and request_irq work for registering irq's.
-We need teardown_irq to allow us to unregister irq's which were
-registered early during boot when memory management wasn't ready
-yet, i.e. irq's which were registered using setup_irq and use a static
-irqaction which cannot be kfree'd.
+This patch adds a new alloc_skb_from_cache function. This serves two
+purposes: firstly, we like to allocate skb's with page-sized data
+fragements as this means we can do zero-copy transfer of network
+buffers between guest operating systems. Secondly, it enables us to
+have a cache of pages that have been used for network buffers that we
+can be more lax about scrubbing when they change VM ownership (since
+they could be sniffed on the wire).
 
 Signed-off-by: ian.pratt@cl.cam.ac.uk
 
 ---
-diff -Nurp pristine-linux-2.6.10-rc2/include/linux/irq.h tmp-linux-2.6.10-rc2-xen.patch/include/linux/irq.h
---- pristine-linux-2.6.10-rc2/include/linux/irq.h	2004-11-15 01:28:57.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/include/linux/irq.h	2004-11-19 14:00:39.000000000 +0000
-@@ -73,6 +73,7 @@ extern irq_desc_t irq_desc [NR_IRQS];
- #include <asm/hw_irq.h> /* the arch dependent stuff */
- 
- extern int setup_irq(unsigned int irq, struct irqaction * new);
-+extern int teardown_irq(unsigned int irq, struct irqaction * old);
- 
- #ifdef CONFIG_GENERIC_HARDIRQS
- extern cpumask_t irq_affinity[NR_IRQS];
-diff -Nurp pristine-linux-2.6.10-rc2/kernel/irq/manage.c tmp-linux-2.6.10-rc2-xen.patch/kernel/irq/manage.c
---- pristine-linux-2.6.10-rc2/kernel/irq/manage.c	2004-11-15 01:27:20.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/kernel/irq/manage.c	2004-11-19 14:00:30.000000000 +0000
-@@ -215,28 +215,18 @@ int setup_irq(unsigned int irq, struct i
- 	return 0;
+diff -Nurp pristine-linux-2.6.10-rc2/net/core/skbuff.c tmp-linux-2.6.10-rc2-xen.patch/net/core/skbuff.c
+--- pristine-linux-2.6.10-rc2/net/core/skbuff.c	2004-11-15 01:28:14.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/net/core/skbuff.c	2004-11-19 16:42:55.000000000 +0000
+@@ -163,6 +163,59 @@ nodata:
+ 	goto out;
  }
  
--/**
-- *	free_irq - free an interrupt
-- *	@irq: Interrupt line to free
-- *	@dev_id: Device identity to free
-- *
-- *	Remove an interrupt handler. The handler is removed and if the
-- *	interrupt line is no longer in use by any driver it is disabled.
-- *	On a shared IRQ the caller must ensure the interrupt is disabled
-- *	on the card it drives before calling this function. The function
-- *	does not return until any executing interrupts for this IRQ
-- *	have completed.
-- *
-- *	This function must not be called from interrupt context.
-+/*
-+ * Internal function to unregister an irqaction - typically used to
-+ * deallocate special interrupts that are part of the architecture.
-  */
--void free_irq(unsigned int irq, void *dev_id)
-+int teardown_irq(unsigned int irq, struct irqaction * old)
- {
- 	struct irq_desc *desc;
- 	struct irqaction **p;
- 	unsigned long flags;
- 
- 	if (irq >= NR_IRQS)
--		return;
-+		return -ENOENT;
- 
- 	desc = irq_desc + irq;
- 	spin_lock_irqsave(&desc->lock,flags);
-@@ -248,7 +238,7 @@ void free_irq(unsigned int irq, void *de
- 			struct irqaction **pp = p;
- 
- 			p = &action->next;
--			if (action->dev_id != dev_id)
-+			if (action != old)
- 				continue;
- 
- 			/* Found it - now remove it from the list of entries */
-@@ -265,13 +255,52 @@ void free_irq(unsigned int irq, void *de
- 
- 			/* Make sure it's not being used on another CPU */
- 			synchronize_irq(irq);
--			kfree(action);
--			return;
-+			return 0;
- 		}
--		printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
-+		printk(KERN_ERR "Trying to teardown free IRQ%d\n",irq);
- 		spin_unlock_irqrestore(&desc->lock,flags);
-+		return -ENOENT;
-+	}
++/**
++ *	alloc_skb_from_cache	-	allocate a network buffer
++ *	@cp: kmem_cache from which to allocate the data area
++ *	     (object size must be big enough for @size bytes + skb overheads)
++ *	@size: size to allocate
++ *	@gfp_mask: allocation mask
++ *
++ *	Allocate a new &sk_buff. The returned buffer has no headroom and a
++ *	tail room of size bytes. The object has a reference count of one.
++ *	The return is the buffer. On a failure the return is %NULL.
++ *
++ *	Buffers may only be allocated from interrupts using a @gfp_mask of
++ *	%GFP_ATOMIC.
++ */
++struct sk_buff *alloc_skb_from_cache(kmem_cache_t *cp,
++				     unsigned int size, int gfp_mask)
++{
++	struct sk_buff *skb;
++	u8 *data;
++
++	/* Get the HEAD */
++	skb = kmem_cache_alloc(skbuff_head_cache,
++			       gfp_mask & ~__GFP_DMA);
++	if (!skb)
++		goto out;
++
++	/* Get the DATA. */
++	size = SKB_DATA_ALIGN(size);
++	data = kmem_cache_alloc(cp, gfp_mask);
++	if (!data)
++		goto nodata;
++
++	memset(skb, 0, offsetof(struct sk_buff, truesize));
++	skb->truesize = size + sizeof(struct sk_buff);
++	atomic_set(&skb->users, 1);
++	skb->head = data;
++	skb->data = data;
++	skb->tail = data;
++	skb->end  = data + size;
++
++	atomic_set(&(skb_shinfo(skb)->dataref), 1);
++	skb_shinfo(skb)->nr_frags  = 0;
++	skb_shinfo(skb)->tso_size = 0;
++	skb_shinfo(skb)->tso_segs = 0;
++	skb_shinfo(skb)->frag_list = NULL;
++out:
++	return skb;
++nodata:
++	kmem_cache_free(skbuff_head_cache, skb);
++	skb = NULL;
++	goto out;
 +}
 +
-+/**
-+ *	free_irq - free an interrupt
-+ *	@irq: Interrupt line to free
-+ *	@dev_id: Device identity to free
-+ *
-+ *	Remove an interrupt handler. The handler is removed and if the
-+ *	interrupt line is no longer in use by any driver it is disabled.
-+ *	On a shared IRQ the caller must ensure the interrupt is disabled
-+ *	on the card it drives before calling this function. The function
-+ *	does not return until any executing interrupts for this IRQ
-+ *	have completed.
-+ *
-+ *	This function must not be called from interrupt context.
-+ */
-+void free_irq(unsigned int irq, void *dev_id)
-+{
-+	struct irq_desc *desc;
-+	struct irqaction *action;
-+	unsigned long flags;
-+
-+	if (irq >= NR_IRQS)
-+		return;
-+
-+	desc = irq_desc + irq;
-+	spin_lock_irqsave(&desc->lock,flags);
-+	for (action = desc->action; action != NULL; action = action->next) {
-+		if (action->dev_id != dev_id)
-+			continue;
-+
-+		spin_unlock_irqrestore(&desc->lock,flags);
-+
-+		if (teardown_irq(irq, action) == 0)
-+			kfree(action);
- 		return;
- 	}
-+	printk(KERN_ERR "Trying to free free IRQ%d\n",irq);
-+	spin_unlock_irqrestore(&desc->lock,flags);
-+	return;
- }
  
- EXPORT_SYMBOL(free_irq);
+ static void skb_drop_fraglist(struct sk_buff *skb)
+ {
+diff -Nurp pristine-linux-2.6.10-rc2/include/linux/skbuff.h tmp-linux-2.6.10-rc2-xen.patch/include/linux/skbuff.h
+--- pristine-linux-2.6.10-rc2/include/linux/skbuff.h	2004-11-15 01:29:01.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/include/linux/skbuff.h	2004-11-18 19:58:13.000000000 +0000
+@@ -292,6 +292,8 @@ struct sk_buff {
+ 
+ extern void	       __kfree_skb(struct sk_buff *skb);
+ extern struct sk_buff *alloc_skb(unsigned int size, int priority);
++extern struct sk_buff *alloc_skb_from_cache(kmem_cache_t *cp,
++					    unsigned int size, int priority);
+ extern void	       kfree_skbmem(struct sk_buff *skb);
+ extern struct sk_buff *skb_clone(struct sk_buff *skb, int priority);
+ extern struct sk_buff *skb_copy(const struct sk_buff *skb, int priority);
+@@ -935,6 +937,7 @@ static inline void __skb_queue_purge(str
+  *
+  *	%NULL is returned in there is no free memory.
+  */
++#ifndef CONFIG_HAVE_ARCH_DEV_ALLOC_SKB
+ static inline struct sk_buff *__dev_alloc_skb(unsigned int length,
+ 					      int gfp_mask)
+ {
+@@ -943,6 +946,9 @@ static inline struct sk_buff *__dev_allo
+ 		skb_reserve(skb, 16);
+ 	return skb;
+ }
++#else
++extern struct sk_buff *__dev_alloc_skb(unsigned int length, int gfp_mask);
++#endif
+ 
+ /**
+  *	dev_alloc_skb - allocate an skbuff for sending
 

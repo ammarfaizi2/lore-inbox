@@ -1,102 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270503AbTGSFsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 01:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270498AbTGSFsG
+	id S270497AbTGSFpg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 01:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270498AbTGSFpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 01:48:06 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:62477 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S270503AbTGSFsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 01:48:01 -0400
-Date: Sat, 19 Jul 2003 08:02:27 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: "Michel Eyckmans \(MCE\)" <mce@pi.be>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1 + matroxfb = unuusable VC
-Message-ID: <20030719060227.GA5227@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <200307182239.h6IMdhM6008840@jebril.pi.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307182239.h6IMdhM6008840@jebril.pi.be>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+	Sat, 19 Jul 2003 01:45:36 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:41092 "EHLO
+	VL-MO-MR004.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S270497AbTGSFpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 01:45:34 -0400
+Date: Sat, 19 Jul 2003 01:59:10 -0400
+From: Simon Boulet <simon.boulet@divahost.net>
+Subject: Re: 2.6.0-test1+ Alsa + Intel 82801CA/CAM AC'97 Audio OOPS
+In-reply-to: <"from Valdis.Kletnieks"@vt.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030719055910.GA482@i2650>
+MIME-version: 1.0
+X-Mailer: Balsa 2.0.12
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20030719021012.GA919@i2650>
+ <200307190446.h6J4k5bF004659@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michel Eyckmans (MCE) <mce@pi.be>
-Date: Sat, Jul 19, 2003 at 12:39:43AM +0200
-> 
-> Greetz,
-> 
-> I'm using (or rather: trying to use) matroxfb on 2.6.0-test1 (2.5.72 had 
-> the same problems) and am seeing the following:
-> 
->  - The initial boot console works fine, but all other consoles have 
->    scrolling problems. The area to the right of any scrolled text is 
->    most often coloured white, whereas it should be black. When using vi, 
->    it's even worse: white rectangles all over the place.
-> 
->  - Right after switching from X to a text console, the fill color is not
->    white, but sort of a folded ghost image of part of my X display;
-> 
->  - Scrolling is not continuous: keep <enter> pushed down, and every so 
->    often a jump of about 1/3 of the hight of the screen occurs, combined
->    with a few lines that do use the correct black background;
-> 
->  - Backspacing only works when the cursor is positioned at the end of the 
->    command line. Anywhere else the positions to the right of the cursor 
->    are not repainted.
-> 
-> I'm using these settings: video=matroxfb:vesa:0x11A,fh:92k,fv:160"
-> 
-I can't say that I see any of that.
+Excellant work Valdis. My OSS (non-ALSA) is fine now under 2.6.0-test1.
 
-I'm using a G450 (AGP) on a KT400 chipset, XP-2600 cpu.
+Indeed I have CONFIG_X86_SPEEDSTEP_ICH defined.
 
-This is my kernel boot line:
+Thank you
 
-kernel /boot/vmlinuz-260test1ac2 root=/dev/hda1 video=matroxfb:xres:1600,yres:1280,depth:16,pixclock:4116,left:304,right:64,upper:46,lower:1,hslen:192,vslen:3,fv:85 hdb=scsi apm=power-off ide0=ata66
+Simon
 
-Consoles, X, Xv for watching videos in X - it all works fine.
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_RAW_DRIVER=y
-
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_SUN12x22=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-
-This works for me.
-
-Kind regards,
-Jurriaan
--- 
-management n.
-1. Corporate power elites distinguished primarily by their distance from
-actual productive work and their chronic failure to manage (see also suit).
-Spoken derisively, as in "Management decided that ...". 2. Mythically, a
-vast bureaucracy responsible for all the world's minor irritations.
-Hackers' satirical public notices are often signed `The Mgt'; this derives
-from the "Illuminatus" novels (see the Bibliography in Appendix C).
-Debian (Unstable) GNU/Linux 2.5.75 4112 bogomips load av: 1.59 2.09 1.47
+On 2003.07.19 00:46, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 18 Jul 2003 22:10:12 EDT, Simon Boulet
+> <simon.boulet@divahost.net>  said:
+> 
+> > Also, the OSS (non-ALSA) Intel ICH (i8xx) loads correctly but the
+> sound
+> > output is  slow (rate or clocking problem?). My sound was fine under
+> 
+> > 2.4.21.
+> >
+> 
+> > i810_audio: only 48Khz playback available.
+> 
+> > i810_audio: setting clocking to 64937
+> 
+> I was having problems with i810_audio clocking as well.  It turned out
+> to be
+> the Intel Speedstep support, of all things.  *IF* your kernel
+> includes:
+> 
+> CONFIG_X86_SPEEDSTEP_ICH=y
+> 
+> it was possible to end up with a broken value for loops_per_jiffie.
+> I've
+> attached a patch that fixes the bug and does a few cleanups...
+> 
+> If you don't have the SpeedStep support in your kernel, then your
+> problem is elsewhere... Good luck... ;)
+> 
+> /Valdis
+> 
+> --- arch/i386/kernel/cpu/cpufreq/speedstep-ich.c.linus	2003-
+> 07-03
+> 23:31:43.000000000 -0400
+> +++ arch/i386/kernel/cpu/cpufreq/speedstep-ich.c	2003-07-04
+> 09:57:07.981299808 -0400
+> @@ -77,15 +77,17 @@
+>  	u8			value;
+>  	unsigned long		flags;
+>  	struct cpufreq_freqs	freqs;
+> +	int			newfreq;
+> 
+>  	if (!speedstep_chipset_dev || (state > 0x1))
+>  		return;
+> 
+>  	freqs.old = speedstep_get_processor_frequency
+> (speedstep_processor);
+> -	freqs.new = speedstep_freqs[SPEEDSTEP_LOW].frequency;
+> +	freqs.new = speedstep_freqs[state].frequency;
+>  	freqs.cpu = 0; /* speedstep.c is UP only driver */
+>  	 
+> -	if (notify)
+> +	/* make sure we've initialized before calling notify */
+> +	if (notify && (freqs.new != 0))
+>  		cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
+> 
+>  	/* get PMBASE */
+> @@ -136,13 +138,16 @@
+> 
+>  	dprintk(KERN_DEBUG "cpufreq: read at pmbase 0x%x + 0x50
+> returned 0x%x\n", pmbase, value);
+> 
+> +	/* freqs.new may not be set yet - need local copy */
+> +	newfreq = speedstep_get_processor_frequency
+> (speedstep_processor);
+>  	if (state == (value & 0x1)) {
+> -		dprintk (KERN_INFO "cpufreq: change to %u MHz
+> succeeded\n", (freqs.new / 1000));
+> +		dprintk (KERN_INFO "cpufreq: change to %u MHz
+> succeeded\n", (newfreq / 1000));
+>  	} else {
+>  		printk (KERN_ERR "cpufreq: change failed - I/O
+> error\n");
+>  	}
+> 
+> -	if (notify)
+> +	/* Make sure we're initialized before calling notify */
+> +	if (notify && (freqs.new != 0))
+>  		cpufreq_notify_transition(&freqs,
+> CPUFREQ_POSTCHANGE);
+> 
+>  	return;
+> @@ -295,7 +300,7 @@
+>  		return -EIO;
+> 
+>  	dprintk(KERN_INFO "cpufreq: currently at %s speed setting -
+> %i MHz\n",
+> -		(speed == speedstep_low_freq) ? "low" : "high",
+> +		(speed == speedstep_freqs[SPEEDSTEP_LOW].frequency) ?
+> "low" : "high",
+>  		(speed / 1000));
+> 
+>  	/* cpuinfo and default policy values */
+> 

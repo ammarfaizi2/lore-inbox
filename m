@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136264AbRD0XrV>; Fri, 27 Apr 2001 19:47:21 -0400
+	id <S136272AbRD1AOv>; Fri, 27 Apr 2001 20:14:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136263AbRD0XrM>; Fri, 27 Apr 2001 19:47:12 -0400
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:13518 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S136264AbRD0XrA>; Fri, 27 Apr 2001 19:47:00 -0400
-Message-ID: <3AEA04EA.95B53094@bigfoot.com>
-Date: Fri, 27 Apr 2001 16:46:50 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-intel-smp-ide i686)
+	id <S136275AbRD1AOm>; Fri, 27 Apr 2001 20:14:42 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:10507 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S136272AbRD1AOh>; Fri, 27 Apr 2001 20:14:37 -0400
+Message-ID: <3AEA0C52.FA7CE1F1@chromium.com>
+Date: Fri, 27 Apr 2001 17:18:26 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-CC: andre@linux-ide.org
-Subject: [PATCH] hpt366.c, *bad_ata66_4 additions (2.2.19 + 
- ide.2.2.19.04092001.patch)
-In-Reply-To: <20010426131846.A29148@tetsuo.applianceware.com> <3AE9AC84.B0D8682A@sun.com>
+CC: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: X15 alpha release: as fast as TUX but in user space
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(2.2.19 + ide.2.2.19.04092001.patch)
+Dear All,
 
---- drivers/block/hpt366.c      Fri Apr 20 14:23:54 2001
-+++ drivers/block/hpt366.new.c  Fri Apr 27 16:30:13 2001
-@@ -56,8 +56,11 @@
- 
- const char *bad_ata66_4[] = {
-        "IBM-DTLA-307075",
-+       "IBM-DTLA-307060",
-        "IBM-DTLA-307045",
-        "IBM-DTLA-307030",
-+       "IBM-DTLA-307020",
-+       "IBM-DTLA-307015",
-        "WDC AC310200R",
-        NULL
- };
+I'd like to announce the first release of X15 Alpha 1, a _user space_
+web server that is as fast as TUX.
 
-Can we assume the rest of the Deskstar 75GXP family has the same problems?
+On my Dell 4400 with 2G of RAM and 2 933MHz PIII and NetGear 2Gbit NICs
+I achieve about 2500 SpecWeb99 connections, with both X15 and
+TUX (actually X15 is sligtly faster, some 20 connections more... ;)
 
-hdg: IBM-DTLA-307020, 19623MB w/1916kB Cache, CHS=39870/16/63, UDMA(66)
-hdh: IBM-DTLA-307020, 19623MB w/1916kB Cache, CHS=39870/16/63, UDMA(66)
+Given the limitations of my experimental setup I'd like to ask if some
+of you could help me testing my software on some higher end machines.
+I'm interested to see what happens on 4-8 processors in terms of
+scalability etc.
 
-http://www.storage.ibm.com/hardsoft/diskdrdl/desk/ds75gxp.htm
+You can download X15 Alpha 1 from here:
+http://www.chromium.com/X15-Alpha-1.tgz
 
-Deskstar 75GXP      Interface     Capacity (GB)   RPM
-  DTLA-307015       Ultra ATA/100       15.36      7200
-  DTLA-307020       Ultra ATA/100       20.57      7200
-  DTLA-307030       Ultra ATA/100       30.73      7200
-  DTLA-307045       Ultra ATA/100       46.11      7200
-  DTLA-307060       Ultra ATA/100       61.49      7200
-  DTLA-307075       Ultra ATA/100       76.86      7200
+The the README file in the tarball should contain sufficient information
+to run the thing, I also included a support module for running the
+SpecWeb benchmark.
 
-rgds,
-tim.
---
+TIA, ciao,
+
+ - Fabio
+
+

@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbTLSM0p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 07:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTLSM0o
+	id S262765AbTLSMZB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 07:25:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTLSMZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 07:26:44 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:42205 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262787AbTLSMZo
+	Fri, 19 Dec 2003 07:25:01 -0500
+Received: from mx1.net.titech.ac.jp ([131.112.125.25]:63495 "HELO
+	mx1.net.titech.ac.jp") by vger.kernel.org with SMTP id S262765AbTLSMY7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 07:25:44 -0500
-Date: Fri, 19 Dec 2003 13:26:28 +0100
-From: Arnaud Fontaine <arnaud@andesi.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.23
-Message-ID: <20031219122628.GA26418@scrappy>
-References: <20031218085621.GA8283@scrappy> <Pine.LNX.4.44.0312180946550.4547-100000@logos.cnet> <20031218130601.GA11274@scrappy> <20031218190809.GB6438@matchmail.com>
+	Fri, 19 Dec 2003 07:24:59 -0500
+Date: Fri, 19 Dec 2003 21:24:56 +0900 (JST)
+Message-Id: <20031219.212456.74735601.ryutaroh@it.ss.titech.ac.jp>
+To: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH] cannot input bar with JP106 keyboards
+From: ryutaroh@it.ss.titech.ac.jp
+X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
-In-Reply-To: <20031218190809.GB6438@matchmail.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 18, 2003 at 11:08:09AM -0800, Mike Fedyk wrote:
-> > Hello,
-> >=20
-> > Before install Debian GNU/Linux Woody on this box, i have ran memtest
-> > with a bootable media and have no error after 13 pass. But i have added
-> > memory after. It comes from an other PC running perfectly with this. So
-> > i think it could come from the memory but if you want i can launch
-> > memtest again this night ;).
->=20
-> There is a difference between memtest and memtest86.  memtest86 tests all=
- of
-> your memory, and memtest can only test the userspace memory it can lock.
-
 Hello,
 
-So i'll test memtest86 on my box this afternoon. I tell you if i find a
-problem with the memory. Thank you for your explanations.
+I found a problem in drivers/input/keyboard/atkbd.c in Linux 2.6.0.
 
-Arnaud Fontaine
+We cannot input | (bar) with the JP 106 keyboards (the standard Japanese
+keyboards). This is because the scancode 0x7d (125) is translated to
+the keycode 0xb7 (183). The scancode 0x7d corresponds to | (bar) on
+the JP 106 keyboard. In Linux 2.4.23, the scancode 0x7d (125) is
+translated to the keycode 0x7c (124). Scancodes and keycodes can be
+displayed by showkey(1).
 
---=20
-Arnaud Fontaine <arnaud@andesi.org> - http://www.andesi.org/
-GnuPG Public Key available on pgp.mit.edu
-Fingerprint: D792 B8A5 A567 B001 C342 2613 BDF2 A220 5E36 19D3
+The following patch makes the translation rule the same as that in
+Linux 2.4.23. We also have to update drivers/char/keyboard.c in order
+to get correct scancode.
 
---
-You have the capacity to learn from mistakes.  You'll learn a lot today.
+If you send comments, please send them to
+ryutaroh@it.ss.titech.ac.jp. I don't subscribe LKML.
 
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Best regards,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Ryutaroh Matsumoto, Ph.D., Research Associate
+Department of Communications and Integrated Systems
+Tokyo Institute of Technology, 152-8552 Japan
+Web page: http://www.rmatsumoto.org/research.html
 
-iD4DBQE/4u50vfKiIF42GdMRAqkzAJj3cmxht8CNgWImuZEq0ZuGAdlvAJ0aeA9z
-KvdmyINQSd+LUxWQFRKXpQ==
-=2/sk
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
+--- linux-2.6.0/drivers/input/keyboard/atkbd.c.org	2003-12-18 11:59:19.000000000 +0900
++++ linux-2.6.0/drivers/input/keyboard/atkbd.c	2003-12-19 15:36:52.000000000 +0900
+@@ -54,7 +54,7 @@
+ 	 91, 49, 48, 35, 34, 21,  7,  0,  0,  0, 50, 36, 22,  8,  9,  0,
+ 	  0, 51, 37, 23, 24, 11, 10,  0,  0, 52, 53, 38, 39, 25, 12,  0,
+ 	122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
+-	 85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
++	 85, 86, 90, 91, 92, 93, 14, 94, 95, 79,124, 75, 71,121,  0,123,
+ 	 82, 83, 80, 76, 77, 72,  1, 69, 87, 78, 81, 74, 55, 73, 70, 99,
+ 	  0,  0,  0, 65, 99,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+ 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+--- linux-2.6.0/drivers/char/keyboard.c.org	2003-12-18 11:58:46.000000000 +0900
++++ linux-2.6.0/drivers/char/keyboard.c	2003-12-19 17:09:07.000000000 +0900
+@@ -943,7 +943,7 @@
+ 	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+ 	 80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
+ 	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+-	367,288,302,304,350, 92,334,512,116,377,109,111,373,347,348,349,
++	367,288,302,304,350, 92,334,512,116,377,109,111,125,347,348,349,
+ 	360, 93, 94, 95, 98,376,100,101,321,316,354,286,289,102,351,355,
+ 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
+ 	291,108,381,281,290,272,292,305,280, 99,112,257,258,359,270,114,

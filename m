@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288260AbSAHTgM>; Tue, 8 Jan 2002 14:36:12 -0500
+	id <S288272AbSAHTow>; Tue, 8 Jan 2002 14:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288267AbSAHTgE>; Tue, 8 Jan 2002 14:36:04 -0500
-Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:11426 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S288260AbSAHTfx>;
-	Tue, 8 Jan 2002 14:35:53 -0500
-Date: Tue, 8 Jan 2002 14:36:05 -0500
-Subject: Re: CONFIG_HIMEM instability?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v480)
-Cc: Tony Hoyle <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
-To: Stephan von Krawczynski <skraw@ithnet.com>
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <20020108184544.62505ea2.skraw@ithnet.com>
-Message-Id: <F523269E-046E-11D6-8467-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.480)
+	id <S288273AbSAHTon>; Tue, 8 Jan 2002 14:44:43 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:25216 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288272AbSAHTo0>; Tue, 8 Jan 2002 14:44:26 -0500
+Date: Tue, 8 Jan 2002 14:45:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Anthony DeRobertis <asd@suespammers.org>
+cc: jtv <jtv@xs4all.nl>, Jacques Gelinas <jack@solucorp.qc.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Whizzy New Feature: Paged segmented memory
+In-Reply-To: <A7567F5E-046E-11D6-8467-00039355CFA6@suespammers.org>
+Message-ID: <Pine.LNX.3.95.1020108143658.2809A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 8 Jan 2002, Anthony DeRobertis wrote:
 
-On Tuesday, January 8, 2002, at 12:45 PM, Stephan von Krawczynski wrote:
+> 
+> On Tuesday, January 8, 2002, at 09:14 AM, Richard B. Johnson wrote:
+> 
+> > At least with Intel ix8*, even though one can create a discriptor for
+> > a (backwards) stack, you would have a hard time using it. 
+> > 'Push' op-codes
+> > decrement the stack-pointer and 'pop' increments it regardless of
+> > the characteristics of the stack-selector.
+> 
+> You'd have to do it manually, without those instructions. That's 
+> what you get for using a CISC architecture from who-knows-when.
+> 
+> I'd guess most RISC architectures don't have this problem.
+> 
 
-Mozilla's since around 0.9.2 have been stable for me. Some leak 
-resources faster than others, but that seems to be improving 
-generally.
+Yes, and you can choose any one of a zillion registers to address
+your "stack" although there are some de-facto standards, not enforced
+by the hardware.  But this all comes with trade-offs discussed from
+about all perspectives in the past, context-switches come to mind.
+Using Intel, with the proper call-frame on the stack, `iret` switches
+context. Setting the proper call-frame and saved register values is
+easy because there are so few registers!
 
-Odd that your mozilla isn't quite so stable. I have mine running 
-for days on end without issues, other than leaks.
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

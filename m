@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271240AbTHLX7f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 19:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271239AbTHLX7f
+	id S271225AbTHMAOf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbTHMAOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 19:59:35 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:41862 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S271245AbTHLX7d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 19:59:33 -0400
-Date: Wed, 13 Aug 2003 01:58:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Add hint on sysrq on some keyboards
-Message-ID: <20030812235848.GD306@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Tue, 12 Aug 2003 20:14:35 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:23409 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S271225AbTHMAOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 20:14:32 -0400
+Date: Tue, 12 Aug 2003 17:14:36 -0700
+From: Ken Savage <kens1835@shaw.ca>
+Subject: Re: High CPU load with kswapd and heavy disk I/O
+In-reply-to: <3F397CED.6060006@vgertech.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200308121714.36993.kens1835@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5
+References: <200308121136.11979.kens1835@shaw.ca>
+ <200308121323.49081.kens1835@shaw.ca> <3F397CED.6060006@vgertech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue August 12 2003 16:49, Nuno Silva wrote:
 
-This trick is maybe nontrivial... and it is needed on many
-machines. Please apply,
-							Pavel
+> My guess is that this is the cause. LOWMEM pressure because of very
+> large directories... Relating to this, linux-2.6.0-test3-mm1 has Ingo's
+> 4G/4G memory split. Can you try this kernel, enable 4G/4G feature, and
+> report back?
 
---- /usr/src/tmp/linux/Documentation/sysrq.txt	2003-03-27 10:39:46.000000000 +0100
-+++ /usr/src/linux/Documentation/sysrq.txt	2003-08-13 00:55:53.000000000 +0200
-@@ -22,7 +22,10 @@
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- On x86   - You press the key combo 'ALT-SysRq-<command key>'. Note - Some
-            keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
--           also known as the 'Print Screen' key.
-+           also known as the 'Print Screen' key. Also some keyboards can not
-+	   handle so many keys being pressed at the same time, so you might
-+	   have better luck with "press Alt", "press SysRq", "release Alt",
-+	   "press <command key>", release everything.
- 
- On SPARC - You press 'ALT-STOP-<command key>', I believe.
- 
+Something about the 2.6 (and the rmap patched 2.4) kernels causes
+lockouts on the server -- for reasons OTHER than kswapd.  The server
+running the delete-old-files process runs hundreds of other CPU and disk
+I/O intensive processes/threads, and it doesn't look like 2.6 is yet able
+to handle the load.  Unfortunately, the server is a production environment
+machine at a remote site, so lockouts/reboots/kernel panics are baaaad :(
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I've seen other mentions of kswapd/kupdated problems in 2.4.xx, but
+few mentions of solutions.  Have people just learned to avoid the
+situations that trigger the mad thrashes?
+
+Ken

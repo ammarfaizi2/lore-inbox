@@ -1,57 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTJFNmm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJFNmm
+	id S262068AbTJFNmX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTJFNmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:42:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14230 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262076AbTJFNmh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:42:37 -0400
-Date: Mon, 6 Oct 2003 15:42:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Cciss-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] release_region in cciss block driver
-Message-ID: <20031006134225.GA972@suse.de>
-References: <3F816DE5.8060009@terra.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F816DE5.8060009@terra.com.br>
+	Mon, 6 Oct 2003 09:42:23 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:60299 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262068AbTJFNmR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:42:17 -0400
+Message-ID: <3F817204.7090708@terra.com.br>
+Date: Mon, 06 Oct 2003 10:45:40 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: model@cecmow.enet.dec.com, vadim@rbrf.ru, vadim@ipsun.ras.ru,
+       Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  Using possibly corrupted structures in sjcd CDROM driver
+Content-Type: multipart/mixed;
+ boundary="------------070909060700060807040009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06 2003, Felipe W Damasio wrote:
-> 	Hi Andrew,
-> 
-> 	Patch against 2.6.0-test6.
-> 
-> 	Release a previous requested region if we're about the fail the 
-> 	board initialization. Found by smatch.
-> 
-> 	Please review and consider applying,
-> 
-> 	Thanks.
-> 
-> Felipe
+This is a multi-part message in MIME format.
+--------------070909060700060807040009
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> --- linux-2.6.0-test6/drivers/block/cciss.c.orig	2003-10-06 10:18:01.000000000 -0300
-> +++ linux-2.6.0-test6/drivers/block/cciss.c	2003-10-06 10:25:04.000000000 -0300
-> @@ -2185,6 +2185,7 @@
->  		schedule_timeout(HZ / 10); /* wait 100ms */
->  	}
->  	if (scratchpad != CCISS_FIRMWARE_READY) {
-> +		release_io_mem (c);
->  		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
->  		return -1;
->  	}
+	Hi Andrew/Vadim,
 
-Please at least try and follow the local style when you make changes.
+	Patch against 2.6.0-test6.
 
--- 
-Jens Axboe
+	Check the return of copy_from_user in a few places to not use buggy 
+structures if copy_from_user != 0. Found by smatch.
+
+	Please consider applying,
+
+	Thanks.
+
+Felipe
+
+--------------070909060700060807040009
+Content-Type: text/plain;
+ name="sjcd-corruption.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sjcd-corruption.patch"
+
+--- linux-2.6.0-test6/drivers/cdrom/sjcd.c.orig	2003-10-06 10:35:54.000000000 -0300
++++ linux-2.6.0-test6/drivers/cdrom/sjcd.c	2003-10-06 10:38:43.000000000 -0300
+@@ -842,8 +842,9 @@
+ 					    CDROM_AUDIO_NO_STATUS;
+ 				}
+ 
+-				copy_from_user(&sjcd_msf, (void *) arg,
+-					       sizeof(sjcd_msf));
++				if (copy_from_user(&sjcd_msf, (void *) arg,
++					       sizeof(sjcd_msf)))
++					return (-EFAULT);
+ 
+ 				sjcd_playing.start.min =
+ 				    bin2bcd(sjcd_msf.cdmsf_min0);
+@@ -893,9 +894,9 @@
+ 					 sizeof(toc_entry))) == 0) {
+ 				struct sjcd_hw_disk_info *tp;
+ 
+-				copy_from_user(&toc_entry, (void *) arg,
+-					       sizeof(toc_entry));
+-
++				if (copy_from_user(&toc_entry, (void *) arg,
++					       sizeof(toc_entry)))
++					return (-EFAULT);
+ 				if (toc_entry.cdte_track == CDROM_LEADOUT)
+ 					tp = &sjcd_table_of_contents[0];
+ 				else if (toc_entry.cdte_track <
+@@ -948,8 +949,10 @@
+ 					 sizeof(subchnl))) == 0) {
+ 				struct sjcd_hw_qinfo q_info;
+ 
+-				copy_from_user(&subchnl, (void *) arg,
+-					       sizeof(subchnl));
++				if (copy_from_user(&subchnl, (void *) arg,
++					       sizeof(subchnl)))
++					return (-EFAULT);
++
+ 				if (sjcd_get_q_info(&q_info) < 0)
+ 					return (-EIO);
+ 
+@@ -1005,8 +1008,9 @@
+ 					 sizeof(vol_ctrl))) == 0) {
+ 				unsigned char dummy[4];
+ 
+-				copy_from_user(&vol_ctrl, (void *) arg,
+-					       sizeof(vol_ctrl));
++				if (copy_from_user(&vol_ctrl, (void *) arg,
++					       sizeof(vol_ctrl)))
++					return (-EFAULT);
+ 				sjcd_send_4_cmd(SCMD_SET_VOLUME,
+ 						vol_ctrl.channel0, 0xFF,
+ 						vol_ctrl.channel1, 0xFF);
+
+--------------070909060700060807040009--
 

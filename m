@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313698AbSDHRCS>; Mon, 8 Apr 2002 13:02:18 -0400
+	id <S313705AbSDHRMa>; Mon, 8 Apr 2002 13:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313704AbSDHRCR>; Mon, 8 Apr 2002 13:02:17 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:14556 "EHLO lazy")
-	by vger.kernel.org with ESMTP id <S313698AbSDHRCP>;
-	Mon, 8 Apr 2002 13:02:15 -0400
-Date: Mon, 8 Apr 2002 10:35:15 -0500 (CDT)
-From: Manoj Iyer <manjo@austin.ibm.com>
-X-X-Sender: <manjo@lazy>
-To: kernelmailinglist <linux-kernel@vger.kernel.org>
-cc: <torvalds@transmeta.com>, ltp <ltp-list@lists.sourceforge.net>
-Subject: [ANNOUNCE] Linux Test Project (LTP)  - April 2002 Release.
-Message-ID: <Pine.LNX.4.33.0204081029440.6167-100000@lazy>
+	id <S313706AbSDHRM3>; Mon, 8 Apr 2002 13:12:29 -0400
+Received: from dns.vamo.orbitel.bg ([195.24.63.30]:1664 "EHLO
+	idi.vamo.orbitel.bg") by vger.kernel.org with ESMTP
+	id <S313705AbSDHRM3>; Mon, 8 Apr 2002 13:12:29 -0400
+Message-ID: <3CB1CF4D.794AAFFE@vamo.orbitel.bg>
+Date: Mon, 08 Apr 2002 20:11:42 +0300
+From: Ivan Ivanov <ivandi@vamo.orbitel.bg>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan Kara <jack@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2 quota bug in 2.4.18
+In-Reply-To: <3CA8A379.EA510E15@vamo.orbitel.bg> <20020408144431.GB23734@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Kara wrote:
 
-The Linux Test Project test suite LTP-20020408.tgz has been released.
-We are also announcing our improved, user friendly website
-http://ltp.sourceforge.net. Thanks to Lisa Sarabia, Jennifer Jobst for
-website design and implementation and Shadi Alagheband for the website
-logo. Visit our website to download the latest version of the test suite,
-and, for information on test results on pre release, release candidate
-and stable releases of the kernel. There is also a list of test cases that are
-expected to fail, please find the list at
-http://ltp.sourceforge.net/expected-errors.php
+> > on ext2 filesystem chown/chgroup doesn't change quota
+> > ext3 is OK
+>   Kernel version, quota utils version, etc...?
+>
+>                                                 Honza
 
-The highlights of this release are:
-- LTP Automation scripts that are intended to completely automate the
-updating, running, and reporting of an LTP test run.  The scripts and
-related documentation can be found under ltp/tools/ in the tar-zip file.
-- IPV6 port and new features added to NetPIPE, an opensource protocol
-independent network performance tool.
-- More patches from Andi, Andreas and Ihno that fix test case related
-problems on 64 bit platform, and removes compile time warning messages.
+kernel 2.4.18
+quota 2.00 and 3.04
 
-We encourage the community to post results, patches or new tests on our
-mailing list and use the CVS bug tracking facility to report problems that
-you might encounter with the test suite.
+also
+kernel 2.4.18 with 50_quota-patch-2.4.15-2.4.16 + dquot_deadlock.diff
+
+ext3 works fine
+
+-----
+Ivan
 
 
-Change Log
-~~~~~~~~~~
-* New Additions
-  - Scripts to automate LTP test suite execution.   ( William Jay Huie )
-  - IPV6 port of NetPIPE, network stress tool.      ( Robert Williamson )
-
-* Fixes
-  - Numerous 64-bit updates, remove warnings
-    and errors.                                     ( Andi Kleen )
-  - 64-bit patches to memory and IPC tests.         ( Ihno Krumreich )
-  - 64-bit IA64 port related patches.               ( Jacky Malcles )
-  - patches to remove warnings and bugs.            ( Andreas Jaeger )
-  - mmstress bug: deletes /dev/zero.                ( Sachin Vyas )
-  - sem02: make test remove semids it created.      ( Robert Williamson )
-  - Report missing groups and users in IDcheck.sh   ( Robert Williamson )
-  - expected error modified in mprotect and
-    msync tests.                                    ( Paul Larson )
-  - make testcases work without a controlling tty.  ( Paul Larson )
-
-CVS Bugs closed.
-~~~~~~~~~~~~~~~~
- #536483 sem02 does not clean up /tmp directory   (Robert Willamson
-
---
-Manoj Iyer
-
-*******************************************************************************
-		The greatest risk is not taking one.
-*******************************************************************************
 

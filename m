@@ -1,60 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTEWUtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 16:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTEWUtp
+	id S264189AbTEWU6T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 16:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTEWU6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 16:49:45 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.30]:55465 "EHLO
-	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S264186AbTEWUto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 16:49:44 -0400
-From: Brouard Nicolas <brouard@ined.fr>
-Reply-To: brouard@ined.fr
-To: mikpe@csd.uu.se
-Subject: Re: "Latitude with broken BIOS" ?
-Date: Fri, 23 May 2003 23:04:11 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200305231055.14872.brouard@ined.fr> <16077.58300.246307.48856@gargle.gargle.HOWL>
-In-Reply-To: <16077.58300.246307.48856@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 23 May 2003 16:58:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51206 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264189AbTEWU6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 16:58:14 -0400
+Date: Fri, 23 May 2003 22:11:13 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org, ak@suse.de,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: /proc/kcore - how to fix it
+Message-ID: <20030523221113.C4584@flint.arm.linux.org.uk>
+Mail-Followup-To: "Luck, Tony" <tony.luck@intel.com>,
+	linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org, ak@suse.de,
+	David Mosberger <davidm@napali.hpl.hp.com>,
+	Andrew Morton <akpm@digeo.com>
+References: <DD755978BA8283409FB0087C39132BD101B00E04@fmsmsx404.fm.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305232304.15333.brouard@ined.fr>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <DD755978BA8283409FB0087C39132BD101B00E04@fmsmsx404.fm.intel.com>; from tony.luck@intel.com on Fri, May 23, 2003 at 12:13:04PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes acpi=off solved the APM problem.
-I am able to suspend my laptop again!
-In Mandrake Control Center, in the Lilo parameter options the acpi=off or 
-acpi=on is prepared! There is a second option which can be set: "noapic". 
-There is no other option.
-But by default, it was acpi=on and apic.
+On Fri, May 23, 2003 at 12:13:04PM -0700, Luck, Tony wrote:
+> Not a lot of replies to this on the list, but I did notice
+> that the lse-tech IRC discussion mentioned me by name, saying
+> that I had a proposal for a fix ... and Andrew has stuck my
+> name against this in the must-fix list for 2.6.  So, not wanting
+> to be the person who is holding up 2.6 ... here's what I am
+> proposing.
 
-Thanks  a lot!
-Nicolas Brouard
-Le Vendredi 23 Mai 2003 11:02, mikpe@csd.uu.se a écrit :
-> Brouard Nicolas writes:
->  > I am not well aware of what APIC is but I was running Mandrake 8.2 on my
->  > Linux partition of a Dell Pentium III latitude 550 MHz and I don't
->  > remember such a dmesg message. But when I upgraded to Mandrake 9.1 here
->  > it is. The problem I have is that I can't have any suspend mode any more
->  > neither battery indicators and /etc/rc.d/init.d/apm start claims that
->  > apm is no more in the kernel. Is it linked to that APIC problem and this
->  > BIOS problem, why did it work earlier? Do you think that if I found a
->  > new bios from Dell it will help?
->
-> The "$machine with broken BIOS detected, refusing to enable the local APIC"
-> message only affects the local APIC and the few services using it like the
-> NMI watchdog and some performance measurement/profiling tools.
-> It has no impact on whether APM works or not.
->
-> Possibly Mandrake 9.1 detects ACPI (not APIC) which would disable APM.
-> Try booting with "noacpi" or "acpi=off" or whatever the option is called.
+This is what I currently have hacked into kcore.c which works (but
+*will* break for non-ARM stuff.)
+
+I suspect the easiest thing may be to arrange for the discontig direct
+mapped memory blocks to appear on the vmlist and then remove the special
+case for the direct mapped RAM.  I don't see why architecture support
+needs to come into the picture really.
+
+I don't believe any races here are that important (except of course
+ensuring that we produce consistent data for a particular read() and
+not oopsing the kernel) - take a moment to think where the information
+/proc/kcore provides ends up and realise that as soon as it hits
+userspace, you can't rely on it.  eg, Today, if you're using it and
+you insert a module, the structure of the file changes, and gdb's
+idea of offsets of data into the "core" becomes invalid.
+
+--- orig/fs/proc/kcore.c	Sat Nov  2 18:58:18 2002
++++ linux/fs/proc/kcore.c	Mon May 19 23:30:41 2003
+@@ -99,7 +99,13 @@
+ }
+ #else /* CONFIG_KCORE_AOUT */
+ 
++#define KCORE_BASE	(PAGE_OFFSET - 0x01000000)
++#define in_vmlist_region(x) (((x) >= KCORE_BASE && (x) < PAGE_OFFSET) || ((x) >= VMALLOC_START && (x) < VMALLOC_END))
++
++#ifndef KCORE_BASE
+ #define	KCORE_BASE	PAGE_OFFSET
++#define in_vmlist_region(x) ((x) >= VMALLOC_START && (x) < VMALLOC_END)
++#endif
+ 
+ #define roundup(x, y)  ((((x)+((y)-1))/(y))*(y))
+ 
+@@ -394,7 +400,7 @@
+ 		tsz = buflen;
+ 		
+ 	while (buflen) {
+-		if ((start >= VMALLOC_START) && (start < VMALLOC_END)) {
++		if (in_vmlist_region(start)) {
+ 			char * elf_buf;
+ 			struct vm_struct *m;
+ 			unsigned long curstart = start;
+
 
 -- 
-Nicolas Brouard
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

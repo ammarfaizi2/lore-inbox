@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSK0Ds5>; Tue, 26 Nov 2002 22:48:57 -0500
+	id <S261518AbSK0D4D>; Tue, 26 Nov 2002 22:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSK0Ds5>; Tue, 26 Nov 2002 22:48:57 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:62710 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261529AbSK0Dsz>;
-	Tue, 26 Nov 2002 22:48:55 -0500
-Date: Wed, 27 Nov 2002 14:55:32 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "sean darcy" <seandarcy@hotmail.com>
-Message-Id: <20021127145532.0398175c.sfr@canb.auug.org.au>
-In-Reply-To: <F2708IgEO3YnDKvLVFD000016ca@hotmail.com>
-References: <F2708IgEO3YnDKvLVFD000016ca@hotmail.com>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S261529AbSK0D4D>; Tue, 26 Nov 2002 22:56:03 -0500
+Received: from mnh-1-27.mv.com ([207.22.10.59]:44292 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261518AbSK0D4C>;
+	Tue, 26 Nov 2002 22:56:02 -0500
+Message-Id: <200211270406.XAA04379@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: uml-patch-2.5.49-1 
+In-Reply-To: Your message of "26 Nov 2002 18:29:15 PST."
+             <as1alr$1bs$1@cesium.transmeta.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: modutils for both redhat kernels and 2.5.x
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Nov 2002 23:06:50 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hpa@zytor.com said:
+> Access control, ability to work in a chroot, ...
 
-On Tue, 26 Nov 2002 22:22:22 -0500 "sean darcy" <seandarcy@hotmail.com> wrote:
->
-> OK.OK So there's no way to boot both.
-> 
-> FWIW, modutils-2.4.21-4 works fine with built 2.4.19 and 2.4.20-rc3 kernels. 
-> While modprobe -c does give errors, all the rh scripts seem to work fine.
-> 
-> AND, rh's position on all this:
-> 
-> "You need *entirely different* modutils, not just a new modutils. We 
-> probably
-> won't be looking into this until the new 2.5 module loader is actually 
-> finished" Bugzilla 78508
-> 
-> So if you want to try 2.5 kernels, make your own 2.4.x, you can't use the rh 
-> kernels.
+Point.
 
-Rusty has available a source RPM just for this situation.
+> For major/minor, this is presumably a misc device (major 10) or, if
+> you don't need module support, a kernel core device (major 1), and
+> write to device@lanana.org to have a minor number assigned. 
 
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-4.src.rpm
+If you think that this would be better as a misc device than a proc entry,
+then I can certainly go along with that.
 
-Download this, build the rpm and install it and you will have both the new
-and old available to you ...
+				Jeff
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/

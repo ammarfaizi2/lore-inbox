@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316681AbSGHAbG>; Sun, 7 Jul 2002 20:31:06 -0400
+	id <S316682AbSGHAi7>; Sun, 7 Jul 2002 20:38:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316682AbSGHAbF>; Sun, 7 Jul 2002 20:31:05 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:19686 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S316681AbSGHAbE>; Sun, 7 Jul 2002 20:31:04 -0400
-Date: Mon, 8 Jul 2002 01:31:42 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Werner Almesberger <wa@almesberger.net>, Bill Davidsen <davidsen@tmr.com>,
-       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-Message-ID: <20020708013141.A13387@kushida.apsleyroad.org>
-References: <20020702133658.I2295@almesberger.net> <20020704035012.O2295@almesberger.net> <20020707220933.B11999@kushida.apsleyroad.org> <200207072341.22896.oliver@neukum.name>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207072341.22896.oliver@neukum.name>; from oliver@neukum.name on Sun, Jul 07, 2002 at 11:41:22PM +0200
+	id <S316683AbSGHAi6>; Sun, 7 Jul 2002 20:38:58 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:11757 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316682AbSGHAi5>;
+	Sun, 7 Jul 2002 20:38:57 -0400
+Message-ID: <3D28DF9E.20907@us.ibm.com>
+Date: Sun, 07 Jul 2002 17:41:02 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: Greg KH <gregkh@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from driverfs
+References: <Pine.LNX.4.33.0207051043120.8496-100000@geena.pdx.osdl.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> How do you find CPU's that are about to execute module code ?
+Patrick Mochel wrote:
+>>>I see no reason to hold the BKL in your situation.  I replaced it with 
+>>>i_sem in some places and just plain removed it in others.  I believe 
+>>>that you get all of the protection that you need from dcache_lock in 
+>>>the dentry insert and activate.  Can you prove me wrong?
+>>
+>>No, and I'm not about to try very hard. It appears that the place you 
+>>removed it should be fine. In driverfs_unlink, you replace it with i_sem. 
+>>ramfs, which driverfs mimmicks, doesn't hold any lock during unlink. It 
+>>seems it could be removed altogether. 
 > 
-> IMHO you need to do this freeze trick before you check the module
-> usage count.
 > 
-> [..]
-> > Another possibility would be the RCU thing: execute the module's exit
-> > function, but keep the module's memory allocated until some safe
-> > scheduling point later, when you are sure that no CPU can possibly be
-> > running the module.
+> Actually, taking i_sem is completely wrong. Look at vfs_unlink() in 
+> fs/namei.c:
 > 
-> But what do you do if that CPU increases the module usage count?
+>         down(&dentry->d_inode->i_sem);
+>         if (d_mountpoint(dentry))
+>                 error = -EBUSY;
+>         else {
+>                 error = dir->i_op->unlink(dir, dentry);
+>                 if (!error)
+>                         d_delete(dentry);
+>         }
+>         up(&dentry->d_inode->i_sem);
+> 
+> Then, in driverfs_unlink:
+> 
+> 	struct inode *inode = dentry->d_inode;
+> 
+> 	down(&inode->i_sem);    
+> 
+> 
+> You didn't test this on file removal did you? A good way to verify that 
+> you have most of your bases covered is to plug/unplug a USB device a few 
+> times. I learned that one from Greg, and it's caught several bugs.
 
-Those are the cases where I said this does not help.
-You basically need:
+I need to get some USB devices that work in Linux!
 
-      (a) to catch the exiting case properly
-      (b) to catch entry points
+> Anyway, I say that the lock can be removed altogether. Ditto for mknod as 
+> well.
 
-Catching the entry points is what the current `try_inc_mod_count' code
-does.  I can't think of another way to do that.
+I agree.  It looks like vfs_unlink() provides all of the protection 
+that is needed.  No BKL, no more i_sem uses.  I'm asking Al Viro about 
+driverfs_get_inode().  It looks like it will be safe and correct to 
+use i_sem there, but stay tuned, it may not be necessary at all.
 
--- Jamie
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

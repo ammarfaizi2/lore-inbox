@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280569AbRKUVHf>; Wed, 21 Nov 2001 16:07:35 -0500
+	id <S281980AbRKUVIz>; Wed, 21 Nov 2001 16:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281979AbRKUVH0>; Wed, 21 Nov 2001 16:07:26 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:60935 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S280569AbRKUVHQ>; Wed, 21 Nov 2001 16:07:16 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Asm style
-Date: Wed, 21 Nov 2001 23:07:03 +0000
-X-Mailer: KMail [version 1.2]
+	id <S281979AbRKUVIp>; Wed, 21 Nov 2001 16:08:45 -0500
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:49164 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S281978AbRKUVIc>;
+	Wed, 21 Nov 2001 16:08:32 -0500
+Date: Wed, 21 Nov 2001 22:07:57 +0100 (CET)
+From: Peter Svensson <petersv@psv.nu>
+To: <berthiaume_wayne@emc.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Multicast Broadcast
+In-Reply-To: <93F527C91A6ED411AFE10050040665D00241AB03@corpusmx1.us.dg.com>
+Message-ID: <Pine.LNX.4.33.0111212206000.1086-100000@cheetah.psv.nu>
 MIME-Version: 1.0
-Message-Id: <01112123070300.05447@manta>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using GCC 3.0.1 and seeing "multi-line literals are deprecated".
-Since a patch is necessary for that (and someone submitted it already)
-I'd like to hear from big kernel guys what asm statement style to use:
-	asm(
-"		cmd	r,r\n"
-"lbl:		cmd	r,r\n"
-"		cmd	r,r\n"
-		: spec
-		: spec
-	);
-[variable width for labels? I don't like it] or
-	asm(
-	"	cmd	r,r\n"
-	"lbl:	cmd	r,r\n"
-	"	cmd	r,r\n"
-		: spec
-		: spec
-	);
-[better. But \n's are ugly] or
-#define NL "\n"
-	asm(
-	"	cmd	r,r" NL
-	"lbl:	cmd	r,r" NL
-	"	cmd	r,r" NL
-		: spec
-		: spec
-	);
-[I like this: \n doesn't interfere with args]
-or what?
+On Wed, 21 Nov 2001 berthiaume_wayne@emc.com wrote:
+
+> 	I have a cluster that I wish to be able to perform a multicast
+> broadcast over two backbones, primary and secondary, simultaneously. The two
+> eth's are bound to the same VIP. When I perform the broadcast, it only goes
+> out on eth0. 
+
+I think you need multicast routing for that to work the way you want it 
+to. Flooding multicast traffic between network segments is normally the 
+task for multicast routers since you need a routing protocol to prevent 
+loops etc. If you send the data on both packets a multicast router 
+connected to the two networks would forward a copy each way resulting in 
+two packets on both segments.
+
+Peter
 --
-vda
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
+
+

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSFGBtC>; Thu, 6 Jun 2002 21:49:02 -0400
+	id <S316342AbSFGBz0>; Thu, 6 Jun 2002 21:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316598AbSFGBtB>; Thu, 6 Jun 2002 21:49:01 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:21720 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S316594AbSFGBtA>; Thu, 6 Jun 2002 21:49:00 -0400
-Message-ID: <000d01c20dc5$7a5b08e0$66aca8c0@kpfhome>
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: kbuild-2.5 on 2.4.19-pre10-ac2 build error when modular support turned off
-Date: Thu, 6 Jun 2002 18:48:53 -0700
+	id <S316595AbSFGBzZ>; Thu, 6 Jun 2002 21:55:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48648 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316342AbSFGBzY>;
+	Thu, 6 Jun 2002 21:55:24 -0400
+Message-ID: <3D001363.BDEBD682@zip.com.au>
+Date: Thu, 06 Jun 2002 18:58:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa1
+In-Reply-To: <20020607003413.GH1004@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a kernel built and working fine with module support turned on, only a
-single driver (ide-floppy) compiled as a module. I then did "make -f
-Makefile-2.5 menuconfig" and turned off loadable module support, kmod and
-double-checked that ide-floppy changed to built-in (it did).
+Andrea Arcangeli wrote:
+> 
+> ...
+> Only in 2.4.19pre10aa1: 90_ext3-commit-interval-1
+> 
+>         Avoid laptops to waste energy despite kupdate interval is set
+>         to 2 hours with ext3. kjournald has no right to choose
+>         "how frequently" we should look for old transactions, that's
+>         an user problem. journaling doesn't enforce how much old data
+>         we can lose after a 'reboot -f', it only enforces that the
+>         metadata or even the data will be coherent after an hard reboot.
 
-I then did "make -f Makefile-2.5 -j2 installable", and kbuild rebuilt very
-little, and the final link died with failed references to "request_module".
-It appears that kbuild did not rebuild the entire kernel, even though would
-have been necessary.
+Yes, that'll work OK.   It's a wild implementation though.  Why not
+just add
 
-Did I miss something?
+int bdflush_min(void)
+{
+	return bdf_prm.b_un.interval;
+}
+EXPORT_SYMBOL(bdflush_min);
 
+to fs/buffer.c?
+
+(You forgot to export bdf_prm, btw).
+
+-

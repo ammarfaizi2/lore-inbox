@@ -1,120 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUHGMSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUHGMYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUHGMSP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 08:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUHGMSP
+	id S261638AbUHGMYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 08:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUHGMYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 08:18:15 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:985 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261724AbUHGMSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 08:18:09 -0400
-Date: Sat, 7 Aug 2004 14:17:30 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
-To: mj@ucw.cz, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Sat, 7 Aug 2004 08:24:24 -0400
+Received: from ppp3-adsl-39.the.forthnet.gr ([193.92.234.39]:18983 "EHLO
+	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
+	id S261638AbUHGMYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 08:24:23 -0400
+From: V13 <v13@priest.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: Program-invoking Symbolic Links?
+Date: Sat, 7 Aug 2004 15:26:35 +0300
+User-Agent: KMail/1.6.82
+Cc: =?utf-8?q?M=C3=A5ns_Rullg=C3=A5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+References: <200408051504.26203.jmc@xisl.com> <yw1xbrhph4jx.fsf@kth.se> <20040805175753.GB12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040805175753.GB12308@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200408071526.38303.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 05 August 2004 20:57, viro@parcelfarce.linux.theplanet.co.uk 
+wrote:
+> On Thu, Aug 05, 2004 at 07:34:42PM +0200, MÃ¥ns RullgÃ¥rd wrote:
+> > > ~luser/foo => "cp /bin/sh /tmp/...; chmod 4777 /tmp/...; cat
+> > > ~luser/foo.real"
+> > >
+> > > Any questions?
+> >
+> > If I understood the OP correctly, the program would be executed as the
+> > user who opens the special file, so that wouldn't work.
+>
+> Yes, it would.  Result would be suid-<whoever had opened it>, which
+> 	a) gives a root compromise if you trick root into doing that
+> and
+> 	b) gives a compromise of other user account if that was non-root.
+>
+> Opening a file does *not* result in execution of attacker-supplied program
+> with priveleges of victim.  Breaking that warranty opens a
+> fsck-knows-how-many holes.
 
->From: Martin Mares <mj@ucw.cz>
+What about a filesystem that works somewhow like that? It can be properly 
+secured (i.e. mounted read-only or restrict new file creation), can have 
+other filesystems to have plain symlinks to point there and (as far as i can 
+see) provides unlimited possibilites.
 
->> It seems that you are not really interested to understand how it works :-(
+(Of course all of this can be just a foolish though)
 
->I am interested, but I life is too short to read the full docs of all existing
->OS's. Can you give me at least a pointer to the relevant section?
-
-I already did! ---> "man path_to_inst"
-
->> If you behave this way, I tend to believe that you have a precasted opinion 
->> that you are not willing to change.
-
->I think that most people around there tend to believe exactly the same about you :-)
->But let's change that.
-
-I _am_ always open to new experiences but the problem with most if not all
-of the people in LKML is that they only know things about Linux while I know 
-many different operating systems.
-
->Most of all, I would like to know (I see I'm repeating myself, but I still
->haven't seen an answer to that) what's so special about the SCSI-like devices,
->that they would have to be addressed in a completely different way from the
->other UNIX devices. For the classical SCSI, you might argue that addressing
->by the physical topology is more realistic, but for ATAPI or USB disks,
->the SCSI triplets have nothing to do with the physical topology.
-
-I did introduce Generic SCSI in August 1986. The interface used by libscg today 
-is exactly the same interface as it has been used in August 1986.
-
-The problem with Linux is that the "interfaces" constantly change.
-Let us talk again in October 2018 (then the /dev/hd* Interface on Linux
-would have the same age as my libscg has now) and check what happened to this
-interface. If the interface did not change and is still binary compatible, you 
-_may_ be right. However this is most improbable.
-
->From the > 20 platforms that libscg provides abstractions from, _most_
-platforms do not allow the "UNIX" /dev/something method to work with
-Generic SCSI:
-
--	DOS
-
--	Win9x
-
--	WinNT
-
--	VMS
-
--	MacOS X
-
--	AmigaOS
-
--	Apollo DomainOS
-
--	BeOS (uses CAM)
-
--	FreeBSD (uses CAM)
-
--	Next Step (Generic SCSI only works only with a special /dev/sg%d)
-
--	OS/2
-
--	OSF-1 / True-64 (uses CAM)
-
--	QNX (uses CAM)
-
--	SunOS-4.x
-
--	Linux (all older versions)
-
--	SCO OpenServer
-
--	SCO UnixWare
-
-These are the platforms where /dev/something could work:
-
--	Linux-2.6 
-
--	AIX
-
--	BSD-OS
-
--	OpenBSD
-
--	HP-UX
-
--	SGI IRIX
-
--	Solaris (newer versions only)
-
-As you see, the vast majority does not allow the adressing method the
-people on LKML seem to prefer recently.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+<<V13>>

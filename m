@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUHJJJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUHJJLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUHJJJE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUHJJIk
+	id S263024AbUHJJLx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUHJJJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:08:40 -0400
-Received: from holomorphy.com ([207.189.100.168]:23015 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263640AbUHJJGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:06:51 -0400
-Date: Tue, 10 Aug 2004 02:06:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810090633.GL11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080206.GF11200@holomorphy.com> <20040810083018.GA27270@elte.hu> <20040810085639.GJ11200@holomorphy.com> <20040810090051.GA28403@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810090051.GA28403@elte.hu>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 05:09:21 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:14981 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263024AbUHJJIm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:08:42 -0400
+Message-ID: <41189098.4000400@free.fr>
+Date: Tue, 10 Aug 2004 11:08:40 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040808 Debian/1.7.2-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.8-rc4-mm1 : radeon_monitor.c broken vs CONFIG_FB_MODE_HELPERS
+ + Hard freeze
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III <wli@holomorphy.com> wrote:
->> Actually, what I just narrowed it down to was *only* the printk change
->> fixes it.
+I tried 2.6.8-rc4-mm1 on my ASUS L3800C laptop (radeon 7500), defined 
+CONFIG_FB_MODE_HELPERS and I have got a hard freeze when starting X and 
+framebuffer console with a lot of yellow dot on the bottom screen. 
+Suddently I hear the fan meaning the machine is dead
 
-On Tue, Aug 10, 2004 at 11:00:51AM +0200, Ingo Molnar wrote:
-> when i've seen such things on x86 it was usually some race with
-> interrupts on the other CPU. Where do all the ia64 interrupts go to
-> during bootup?
-> the other possibility is messed up completion logic - some stuff is
-> still on this CPU's kernel stack and the printk delays its
-> corruption/destruction.
+Trying to compile without CONFIG_FB_MODE_HELPERS set do not work because
+drivers/video/aty/radeon_monitor.c unconditionnaly uses "vesa_modes" 
+variable that depends on CONFIG_FB_MODE_HELPERS.
 
-printk() seems to only have a few possible effects. I just tried mdelay()
-for the delay effect and not much appears to have happened. I'll probably
-try fiddling with schedule(), yield(), and local_irq_enable() and so on
-next. Your advice is very much like what I have in mind for possibilities,
-except I consider the messed up completion logic ruled out since backing
-out the completion removal part of the printk() "fix"  didn't break it.
+Defining vesa_modes unconditionnaly as it was previously does not help : 
+machine freeze. Trying the pci=routeirq (as per 2.6.8-rc3-mm2)  make the 
+machine to freeze immediately without even displaying something.
+
+Due to compilation errors in 2.6.8-rc3-mm2, I did'nt tried it. 
+2.6.8-rc3-mm1 was the best kernel even on this machine.
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
 
--- wli
+

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289376AbSBJJTC>; Sun, 10 Feb 2002 04:19:02 -0500
+	id <S289455AbSBJJxs>; Sun, 10 Feb 2002 04:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289385AbSBJJSw>; Sun, 10 Feb 2002 04:18:52 -0500
-Received: from [62.14.192.20] ([62.14.192.20]:16903 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S289376AbSBJJSk>;
-	Sun, 10 Feb 2002 04:18:40 -0500
-Date: Sat, 9 Feb 2002 22:13:15 +0100 (CET)
-From: Pau Aliagas <linuxnow@wanadoo.es>
-X-X-Sender: pau@pau.intranet.ct
-To: David Lang <david.lang@digitalinsight.com>
-cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
-In-Reply-To: <Pine.LNX.4.44.0202091305510.25220-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.44.0202092211330.17916-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289367AbSBJJxi>; Sun, 10 Feb 2002 04:53:38 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58895 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289366AbSBJJxU>; Sun, 10 Feb 2002 04:53:20 -0500
+Date: Sun, 10 Feb 2002 09:53:12 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tom Lord <lord@regexps.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a new arch feature "for Linus"
+Message-ID: <20020210095312.A12674@flint.arm.linux.org.uk>
+In-Reply-To: <200202100913.BAA29987@morrowfield.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202100913.BAA29987@morrowfield.home>; from lord@regexps.com on Sun, Feb 10, 2002 at 01:13:15AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Feb 2002, David Lang wrote:
+On Sun, Feb 10, 2002 at 01:13:15AM -0800, Tom Lord wrote:
+> Not really only for Linus, but inspired by a feature he requested 
+> of Bitkeeper on this list a few weeks ago.
+> 
+> The command is:
+> 
+> 	  % arch touched-files-prereqs REVISION
 
-> I just set this up between a couple machines at work and one thing we
-> ended up doing to get it to work was to generate a key without a
-> passphrase on it to use for syncing, otherwise the ssh on the machine
-> inititing the connection wanted a password to start the connection. you
-> also need to do the stuff mentioned for the receiving end so that it
-> doesn't ask for a password.
+'arch' really isn't a good choice of command name:
 
-That's ok if you can't type the password as in batch jobs.
+$ which arch
+/bin/arch
+$ man arch
 
-Pau
+ARCH(1)             Linux Programmer's Manual             ARCH(1)
+
+NAME
+       arch - print machine architecture
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

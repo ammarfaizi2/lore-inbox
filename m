@@ -1,238 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUIOSkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUIOSnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUIOSkd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUIOSkd
+	id S267285AbUIOSnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUIOSnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:40:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:63173 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267251AbUIOSkL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:40:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Adam Jones <adam@yggdrasl.demon.co.uk>
-Subject: [PATCH][2.6.8.1] MSR fallback support for powernow-k7
-Date: Wed, 15 Sep 2004 19:24:54 +0100
-Message-ID: <m0em12-lqe.ln1@yggdrasl.demon.co.uk>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: yggdrasl.demon.co.uk
+	Wed, 15 Sep 2004 14:43:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:46039 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267285AbUIOSlj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 14:41:39 -0400
+Subject: [PATCH] hvc_console fix to protect hvc_write against ldisc write
+	after hvc_close
+From: Ryan Arnold <rsa@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-VkaQlwfzNrVkb4I9FaRh"
+Organization: IBM
+Message-Id: <1095273835.3294.278.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 15 Sep 2004 13:43:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NB: This is not aimed at a mainline merge - I'd have no objections,
-but Dave Jones is working on a similar idea, and I'd trust his code
-over mine any day...  This is more by way of a stop-gap, posted in
-case anyone out there might find it useful.
 
+--=-VkaQlwfzNrVkb4I9FaRh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This patch adds support for reading the model-specific registers
-of K7 mobile processors when building the CPU frequency tables
-if the BIOS fails to provide any useful information.  Typically
-it will result in two power states being available - the BIOS
-boot speed and the CPU's maximum rated speed.
+Andrew,
 
-This is primarily of use to anyone running an Athlon XP-M in a
-desktop motherboard, since any laptop worth the money should
-already work properly.
+Due to the tty ldisc code not stopping write operations against a driver
+even after a tty has been closed I added a mechanism to hvc_console in
+my previous patch to prevent this by nulling out the tty->driver_data in
+hvc_close() but I forgot to check tty->driver_data in hvc_write(). 
+Anton Blanchard got several oops'es from hvc_write() accessing NULL as
+if it were a pointer to an hvc_struct usually stored in
+tty->driver_data.
 
-I've been running it on my main desktop machine for a couple of
-weeks now (Athlon XP-M 2600+ in an Epox 8KHA+/VIA KT266A board)
-and have had no problems so far.  That said, this feature has
-the theoretical potential to *fry your hardware*.  Be warned.
+So this patch checks tty->driver_data in hvc_write() before it is used. 
+Hopefully once Alan Cox's patch is checked in ldisc writes won't
+continue to happen after tty closes.
 
+Anton Blanchard has tested this patch and is unable to reproduce the
+oops with it applied.
 
-Three parameters are added to the powernow-k7 module:
+Changelog:
+drivers/char/hvc_console.c
+-Added comment to hvc_close() to explain the reason for NULLing
+tty->driver_data.
+-Added check to hvc_write() to verify that tty->driver_data is valid
+(NOT NULL) which would be the case if the write operation was invoked
+after a tty close was initiated on the tty.
 
-msr_force: Set to 1 to enable MSR fallback mode.
+Thanks,
 
-msr_force_latency: Set the state transition latency in microseconds.
-The default is 200us, which should work on most systems, and the
-minimum is 100us.  If you experience hangs on state changes, you
-might want to increase this value.
+Ryan S. Arnold
+IBM Linux Technology Center
 
-msr_force_voltage_scaling: Set to 1 to enable CPU core voltage
-scaling.  This is off by default, since the voltage regulators
-on desktop boards may not like changing voltage on the fly.
+--=-VkaQlwfzNrVkb4I9FaRh
+Content-Disposition: attachment; filename=hvc_console_write.patch
+Content-Type: text/x-patch; name=hvc_console_write.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-
-Recommended usage:
-
-Since enabling voltage scaling could be a bad idea, it's probably
-safest to set your CPU core voltage high enough to support the
-fastest speed at which the processor is going to run.  Set the
-multiplier in the BIOS to the speed you want for the low-power mode,
-since the module will work out the fastest speed quite happily.
-
-
-I intend to maintain an up-to-date version of this patch at
-http://www.yggdrasl.demon.co.uk/code/ until such time as something
-better-written comes along (which I hope will be soon :) .
-
-
-Sincere thanks to Dave Jones for all his help and advice in
-getting this working.
-
-
-Signed-off-by: Adam Jones <adam@yggdrasl.demon.co.uk>
-
---- linux-2.6.8.1/arch/i386/kernel/cpu/cpufreq/powernow-k7.c.orig	2004-08-23 22:09:54.730011446 +0100
-+++ linux-2.6.8.1/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2004-08-24 18:27:07.975895358 +0100
-@@ -97,6 +97,9 @@ static int fid_codes[32] = {
-  */
+Signed-off-by: Ryan S. Arnold <rsa@us.ibm.com>
+--- linux-2.6.9-rc1/drivers/char/hvc_console.c	Fri Sep 10 15:14:57 2004
++++ hvc_console_working_linux-2.6.9-rc1/drivers/char/hvc_console.c	Mon Sep 13 10:29:53 2004
+@@ -265,6 +265,11 @@
+ 		 */
+ 		tty_wait_until_sent(tty, HVC_CLOSE_WAIT);
  
- static int acpi_force;
-+static int msr_force;
-+static int msr_force_latency;
-+static int msr_force_voltage_scaling;
++		/*
++		 * Since the line disc doesn't block writes during tty close
++		 * operations we'll set driver_data to NULL and then make sure
++		 * to check tty->driver_data for NULL in hvc_write().
++		 */
+ 		tty->driver_data = NULL;
  
- static struct cpufreq_frequency_table *powernow_table;
+ 		if (irq != NO_IRQ)
+@@ -418,6 +423,10 @@
+ 	struct hvc_struct *hp = tty->driver_data;
+ 	int written;
  
-@@ -414,6 +417,116 @@ static int powernow_acpi_init(void)
- }
- #endif
- 
-+static int powernow_decode_msr (union msr_fidvidstatus *fidvidstatus)
-+{
-+	unsigned int i;
-+	unsigned int add_initial, add_max;
++	/* This write was probably executed during a tty close. */
++	if (!hp)
++		return -EPIPE;
 +
-+	/* FIXME: Is there a way to determine a safe value here
-+         *        in the absence of any hints from the BIOS? */
-+	if (msr_force_latency > 0) {
-+		if (msr_force_latency < 100) {
-+			printk (KERN_INFO PFX "Settling time passed as %d microseconds."
-+				"Should be at least 100. Correcting.\n", msr_force_latency);
-+			msr_force_latency = 100;
-+		}
-+		latency = msr_force_latency;
-+	} else {
-+		latency = 200;
-+	}
-+	dprintk (KERN_INFO PFX "Settling Time: %d microseconds.\n", latency);
-+
-+	/* We have three possible settings - initial, current
-+         * and maximum. */
-+	number_scales = 3;
-+
-+	/* Whatever the BIOS set up initially must work... */
-+	if (fidvidstatus->bits.CFID != fidvidstatus->bits.SFID) {
-+		dprintk (KERN_INFO PFX "Current frequency differs from initial BIOS setting.\n");
-+		add_initial = 1;
-+	} else {
-+		add_initial = 0;
-+	}
-+
-+	/* If the CPU-reported maximum is different to our current
-+	 * setting, we want to make it available. */
-+	if ((fidvidstatus->bits.CFID != fidvidstatus->bits.MFID) &&
-+		(fidvidstatus->bits.MFID != fidvidstatus->bits.SFID)) {
-+
-+		dprintk (KERN_INFO PFX "Current frequency differs from CPU reported maximum.\n");
-+		add_max = 1;
-+	} else {
-+		add_max = 0;
-+	}
-+
-+	powernow_table = kmalloc((sizeof(struct cpufreq_frequency_table) * (number_scales + 1)), GFP_KERNEL);
-+	if (!powernow_table)
-+		return -ENOMEM;
-+	memset(powernow_table, 0, (sizeof(struct cpufreq_frequency_table) * (number_scales + 1)));
-+
-+	for (i = 0; i < number_scales; i++) {
-+		unsigned int speed, valid;
-+		u8 fid, vid;
-+
-+		switch (i) {
-+		case 0:
-+			/* Current settings */
-+			fid = fidvidstatus->bits.CFID;
-+			vid = fidvidstatus->bits.CVID;
-+			valid = 1;
-+			break;
-+		case 1:
-+			/* BIOS initial settings */
-+			fid = fidvidstatus->bits.SFID;
-+			vid = fidvidstatus->bits.SVID;
-+			valid = add_initial;
-+			break;
-+		case 2:
-+			/* CPU-reported maximum settings */
-+			fid = fidvidstatus->bits.MFID;
-+			vid = fidvidstatus->bits.MVID;
-+			valid = add_max;
-+			break;
-+		default:
-+			vid = 0;
-+			fid = 0;
-+			valid = 0;
-+		}
-+
-+		if (valid) {
-+			/* Add to frequency table */
-+			speed = fsb * fid_codes[fid] / 10;
-+
-+			/* Do not scale voltages unless forced,
-+			 * since it could be dangerous. */
-+			if (!msr_force_voltage_scaling) {
-+				vid = fidvidstatus->bits.CVID;
-+			}
-+
-+			dprintk (KERN_INFO PFX "   FID: 0x%x (%d.%dx [%dMHz])\t", fid, fid_codes[fid] / 10, fid_codes[fid] % 10, speed/1000);
-+			dprintk ("VID: 0x%x (%d.%03dV)\n", vid,	mobile_vid_table[vid]/1000, mobile_vid_table[vid]%1000);
-+
-+			powernow_table[i].frequency = speed;
-+			powernow_table[i].index = fid; /* lower 8 bits */
-+			powernow_table[i].index |= (vid << 8); /* upper 8 bits */
-+			if (speed < minimum_speed)
-+				minimum_speed = speed;
-+			if (speed > maximum_speed)
-+				maximum_speed = speed;
-+		} else {
-+			/* Add a dummy entry and carry on */
-+			powernow_table[i].frequency = CPUFREQ_ENTRY_INVALID;
-+			powernow_table[i].index = 0;
-+		}
-+	}
-+
-+	/* Terminate frequency list */
-+	powernow_table[number_scales].frequency = CPUFREQ_TABLE_END;
-+	powernow_table[number_scales].index = 0;
-+
-+	return 0;
-+}
-+
- static int powernow_decode_bios (int maxfid, int startvid)
- {
- 	struct psb_s *psb;
-@@ -620,6 +733,11 @@ static int __init powernow_cpu_init (str
- 		}
- 	}
- 
-+	if (result && msr_force) {
-+		printk (KERN_INFO PFX "Building frequency table from MSR info.\n");
-+		result = powernow_decode_msr(&fidvidstatus);
-+	}
-+
- 	if (result)
- 		return result;
- 
-@@ -681,6 +799,12 @@ static void __exit powernow_exit (void)
- 
- module_param(acpi_force,  int, 0444);
- MODULE_PARM_DESC(acpi_force, "Force ACPI to be used");
-+module_param(msr_force,  int, 0444);
-+MODULE_PARM_DESC(msr_force, "Force fallback to CPU MSR info");
-+module_param(msr_force_latency,  int, 0444);
-+MODULE_PARM_DESC(msr_force_latency, "Set state transition latency in microseconds (default 200us)");
-+module_param(msr_force_voltage_scaling,  int, 0444);
-+MODULE_PARM_DESC(msr_force_voltage_scaling, "Enable CPU core voltage scaling");
- 
- MODULE_AUTHOR ("Dave Jones <davej@codemonkey.org.uk>");
- MODULE_DESCRIPTION ("Powernow driver for AMD K7 processors.");
+ 	if (from_user)
+ 		written = __hvc_write_user(hp, buf, count);
+ 	else
 
-
--- 
-Adam Jones (adam@yggdrasl.demon.co.uk)(http://www.yggdrasl.demon.co.uk/)
-PGP public key: http://www.yggdrasl.demon.co.uk/pubkey.asc
+--=-VkaQlwfzNrVkb4I9FaRh--
 

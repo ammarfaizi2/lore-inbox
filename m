@@ -1,104 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTKIXQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 18:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTKIXQq
+	id S261152AbTKIXJr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 18:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTKIXJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 18:16:46 -0500
-Received: from mta02.alltel.net ([166.102.165.144]:55784 "EHLO
-	mta02-srv.alltel.net") by vger.kernel.org with ESMTP
-	id S261168AbTKIXQn (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 18:16:43 -0500
-Date: Sun, 9 Nov 2003 18:16:24 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: Linux-kernel@vger.kernel.org
-Subject: slab corruption in test9 (NFS related?)
-Message-ID: <Pine.LNX.4.58.0311091815460.872@morpheus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Nov 2003 18:09:47 -0500
+Received: from [62.67.222.139] ([62.67.222.139]:49039 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S261152AbTKIXJq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 18:09:46 -0500
+Date: Mon, 10 Nov 2003 00:09:40 +0100
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
+Message-ID: <20031109230940.GA14063%konsti@ludenkalle.de>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031109011205.GA21914%konsti@ludenkalle.de> <20031109023625.GA15392@win.tue.nl> <20031109034940.GA8532@zappa.doom> <20031109115857.GA15484@win.tue.nl> <3FAE2EC1.6080307@stesmi.com> <20031109221546.GA11520%konsti@ludenkalle.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031109221546.GA11520%konsti@ludenkalle.de>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i-ja.1
+X-Spam-Score: 3.2
+X-Spam-Report: Spam detection software, running on the system "kermit", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	admin@mail.ku-gbr.de for details.
+	Content preview:  Hi again! The suggested printk code is added no but I
+	see no difference: http://www.ludenkalle.de/printk.log [...] 
+	Content analysis details:   (3.2 points, 10.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.5 RCVD_IN_NJABL_DIALUP   RBL: NJABL: dialup sender did non-local SMTP
+	[145.254.143.166 listed in dnsbl.njabl.org]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[Dynamic/Residential IP range listed by]
+	[easynet.nl DynaBlock - <http://dynablock.easynet.nl/errors.html>]
+	0.1 RCVD_IN_NJABL          RBL: Received via a relay in dnsbl.njabl.org
+	[145.254.143.166 listed in dnsbl.njabl.org]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forwarding to LKML as per Neil Brown.
+Hi again!
+
+The suggested printk code is added no but I see no difference:
+
+http://www.ludenkalle.de/printk.log
 
 
----------- Forwarded message ----------
-Date: Sun, 9 Nov 2003 17:21:47 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, neilb@cse.unsw.edu.au
-Subject: nfsd caused slab corruption in test9
-
-Hello. I'm not quite sure whom to send this to, so my appologizes if you
-aren't the right people.
-
-Two linux boxes, both running Debian Testing, both x86 with 2.6.0-test9.
-The nfs client was running the nhfsstone stress test against an ext3 NFS
-exported share. After about an hour (I forgot it was running), the console on the
-server woke up and spit this out:
+Regards, Konsti
 
 
-Slab corruption: start=c9df6bcc, expend=c9df6c8b, problemat=c9df6bcc
-Last user: [<c017f87e>](d_callback+0x1e/0x40)
-Data: 6A**********************************************************************************************************************************************************************************************A5
-Next: 71 F0 2C .7E F8 17 C0 A5 C2 0F 17 00 00 00 00 08 00 00 00 3C 4B 24 1D 00 00 00 00 0A 00 00 00 slab error in check_poison_obj(): cache
-`dentry_cache': object was modified after freeing Call Trace:
- [<c0143653>] check_poison_obj+0xf3/0x180
- [<c0181d19>] d_alloc+0x19/0x360
- [<c01457da>] kmem_cache_alloc+0x13a/0x180
- [<c0181d19>] d_alloc+0x19/0x360
- [<c0174a3e>] cached_lookup+0x5e/0x80
- [<c0175ebb>] __lookup_hash+0x5b/0xa0
- [<c0175f10>] lookup_hash+0x10/0x20
- [<c0175f75>] lookup_one_len+0x55/0x80
- [<c01e7d05>] nfsd_lookup+0xa5/0x5e0
- [<c01f020b>] nfsd3_proc_lookup+0x8b/0x100
- [<c01e5147>] nfsd_dispatch+0xc7/0x1a0
- [<c0313a7f>] svc_process+0x49f/0x640
- [<c01e4c47>] nfsd+0x307/0x740
- [<c01e4940>] nfsd+0x0/0x740
- [<c0107429>] kernel_thread_helper+0x5/0x1c
-
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_DEBUG_SPINLOCK=y
-# CONFIG_DEBUG_PAGEALLOC is not set
-# CONFIG_DEBUG_INFO is not set
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-
-Linux version 2.6.0-test9 (root@morpheus) (gcc version 3.3.2 20030908
-(Debian prerelease)) #2 Sat Oct 25 19:33:41 EDT 2003
-
-
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      implemented
-e2fsprogs              1.35-WIP
-nfs-utils              1.0.5
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.12
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0
-
-
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
-
+-- 
+2.6.0-test6-mm4
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 5:54, 1 user

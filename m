@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129882AbRBPJg3>; Fri, 16 Feb 2001 04:36:29 -0500
+	id <S130029AbRBPJkJ>; Fri, 16 Feb 2001 04:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129887AbRBPJgT>; Fri, 16 Feb 2001 04:36:19 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:6060 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129882AbRBPJgL>; Fri, 16 Feb 2001 04:36:11 -0500
-Date: Fri, 16 Feb 2001 09:36:10 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <3A8CF261.59FAC3E5@idb.hist.no>
-Message-ID: <Pine.SOL.4.21.0102160933051.26108-100000@orange.csi.cam.ac.uk>
+	id <S129981AbRBPJkA>; Fri, 16 Feb 2001 04:40:00 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53262 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129608AbRBPJju>; Fri, 16 Feb 2001 04:39:50 -0500
+Subject: Re: IDE DMA Problems...system hangs
+To: jsidhu@arraycomm.com (Jasmeet Sidhu)
+Date: Fri, 16 Feb 2001 09:40:22 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.2.1.2.20010215153520.02498628@pop.arraycomm.com> from "Jasmeet Sidhu" at Feb 15, 2001 03:38:16 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ThNI-0002dB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Helge Hafting wrote:
+> I tried the new patches (2.4.1-ac13) and it seemed very stable.  After 
+> moving about 50GB of data to the raid5, the system crashed.  here is the 
+> syslog... (the system had been up for about 20 hours)
 
-> They are wrong about linux stifling innovation, there is plenty of
-> innovation in linux itself.
+Ok so better but not perfect
 
-Indeed. If Linux did nothing new, what do they have to fear?!
+> Feb 15 01:54:01 bertha kernel: hdg: timeout waiting for DMA
+> <SYSTEM FROZEN>
 
-> On the other hand:
-> ''I can't imagine something that could be worse than this 
-> for the software business and the intellectual-property business.''
+hdg is a promise card ?
 
-Linux IS (part of) the software business, though! That's like saying
-Walmart is bad for shops - it is bad for OTHER, COMPETING shops.
-
-> Sure.  Linux *is* bad for the IP business.  Open source outcompetes it!
-
-Eh? Linux IS intellectual property! OK, those in the OSS community are
-rather less litigious AFAICS, which is bad for IP *lawyers* - in much the
-same way antibiotics are "bad" for diseases...
-
-> I see no problem with that though.  And those who want to get
-> paid for computing work?  No problem.  There is always support.
-
-Hrm. Getting paid to write code is preferable, IMHO...
-
-
-James.
+Alan
 

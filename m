@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUKEWI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUKEWJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbUKEWI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 17:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKEWI6
+	id S261231AbUKEWJc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 17:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKEWJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 17:08:58 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:8714 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S261222AbUKEWIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 17:08:51 -0500
-X-BrightmailFiltered: true
-Message-Id: <200411052208.ATT88180@mira-sjc5-e.cisco.com>
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Grzegorz Kulewski'" <kangur@polcom.net>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Chris Wedgwood'" <cw@f00f.org>, "'Andries Brouwer'" <aebr@win.tue.nl>,
-       "'Adam Heath'" <doogie@debian.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Timothy Miller'" <miller@techsource.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: support of older compilers
-Date: Fri, 5 Nov 2004 14:08:45 -0800
-Organization: Cisco Systems
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+	Fri, 5 Nov 2004 17:09:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42719 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261225AbUKEWIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 17:08:52 -0500
+Date: Fri, 5 Nov 2004 14:08:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Grzegorz Kulewski <kangur@polcom.net>
+cc: Chris Wedgwood <cw@f00f.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Adam Heath <doogie@debian.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
 In-Reply-To: <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Thread-Index: AcTDgx7pY6B1GLCKRkamDZmNLdwzygAAJuZA
+Message-ID: <Pine.LNX.4.58.0411051406200.2223@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least in 2.4.17 I couldn't loopback mount an (ext2) image from tmpfs and
-had to use ramfs. Has this been fixed?
 
-> > The kernel does do more these days than it did in '95. But 
-> 6 times more? I
-> > dunno..
+
+On Fri, 5 Nov 2004, Grzegorz Kulewski wrote:
 > 
-> Can't we remove ramfs for a good start? Everyone should use 
-> tmpfs instead 
-> and some stupid distributions (I will not tell their names) 
-> try to mount 
-> ramfs on /dev (udev) and that leads to very stupid panic if you will 
-> write for example:
-> 
-> dd if=/dev/evms/sda5 of=/dev/sda17 bs=1024
-> 
-> instead of "of=/dev/evms/sda17".
-> 
-> Explanation (if anybody needs one):
-> Kernel can't create more partition devices than 15 for SCSI 
-> and SATA disks 
-> because of lack of minor numbers. So I am using evms to create these 
-> devices. So I should use /dev/evms/sda* for these partitions. 
-> And if I 
-> will not remember to do so then I will get oom panic very 
-> shortly because 
-> ramfs is not limited (in contrary to tmpfs).
-> 
-> And this kind of stupid mistake can happen. It happened to me 
-> 3 times in a 
-> row before I started to debug what is wrong with this kernel.
-> 
-> [BTW. Does somebody know how to tell the kernel that I do not want 
-> /dev/sda[0-9]* files (but I do want /dev/hda files) created 
-> == I do not 
-> want kernel partition driver to touch this particular device?]
-> 
-> And using ramfs for anything else can easily lead to similar 
-> problems. So 
-> I think we do not need ramfs. Am I wrong? [I understand that 
-> removing it 
+> And using ramfs for anything else can easily lead to similar problems. So 
+> I think we do not need ramfs. Am I wrong? [I understand that removing it 
 > will not remove much code.]
-> 
-> 
-> Thanks,
-> 
-> Grzegorz Kulewski
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+ramfs is very useful as a minimal filesystem for showing what the VFS
+interfaces are, and also (I believe) used in embedded environments, where
+it's simply the smallest possible thing, and swap isn't available anyway.
+
+You can just disable it if you don't want it..
+
+		Linus

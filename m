@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263285AbSIPWtx>; Mon, 16 Sep 2002 18:49:53 -0400
+	id <S263254AbSIPWsJ>; Mon, 16 Sep 2002 18:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263298AbSIPWtx>; Mon, 16 Sep 2002 18:49:53 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2688 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S263285AbSIPWtv>; Mon, 16 Sep 2002 18:49:51 -0400
-Date: Mon, 16 Sep 2002 16:54:48 -0600
-Message-Id: <200209162254.g8GMsmG00784@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] NFS in 2.4.20-pre6+ stalls
+	id <S263285AbSIPWsI>; Mon, 16 Sep 2002 18:48:08 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:14322 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263254AbSIPWsH>; Mon, 16 Sep 2002 18:48:07 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020916.142931.126209536.davem@redhat.com> 
+References: <20020916.142931.126209536.davem@redhat.com>  <20020916.125211.82482173.davem@redhat.com> <Pine.LNX.4.44.0209161528140.13850-100000@gp.staff.osogrande.com> 
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, todd-lkml@osogrande.com, hadi@cyberus.ca,
+       tcw@tempest.prismnet.com, netdev@oss.sgi.com, pfeather@cs.unm.edu
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 16 Sep 2002 23:53:00 +0100
+Message-ID: <12116.1032216780@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Just noticed this with 2.4.20-pre6 (and -pre7): NFS write
-sometimes (usually) stalls for minutes at a time. This problem wasn't
-there on 2.4.19. I've noticed this when writing a files around 1 MiB
-or so (some a bit larger, some a bit smaller). It makes NFS almost
-unusable. I've appended the kernel logs which come, at no extra
-charge, with the problem. On the server, I see partial files (integral
-number of wsize= blocks) during the stall. Eventually, the client
-seems to recover and the rest of the file is written. The writing
-application is in TASK_INTERRUPTIBLE state.
 
-				Regards,
+davem@redhat.com said:
+>    new system calls into the networking code
+> The system calls would go into the VFS, sys_receivefile is not
+> networking specific in any way shape or form. 
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
-===============================================================================
-nfs: task 125 can't get a request slot
-nfs: task 126 can't get a request slot
-nfs: task 127 can't get a request slot
-nfs: task 128 can't get a request slot
-nfs: task 129 can't get a request slot
-nfs: task 130 can't get a request slot
-nfs: task 131 can't get a request slot
-nfs: task 132 can't get a request slot
-nfs: task 133 can't get a request slot
-nfs: task 134 can't get a request slot
-nfs: task 135 can't get a request slot
-nfs: task 136 can't get a request slot
-nfs: task 137 can't get a request slot
-nfs: task 138 can't get a request slot
-nfs: task 139 can't get a request slot
-nfs: task 140 can't get a request slot
-nfs: task 141 can't get a request slot
-nfs: task 142 can't get a request slot
-nfs: task 143 can't get a request slot
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
-nfs: server fileserver OK
+Er, surely the same goes for sys_sendfile? Why have a new system call 
+rather than just swapping the 'in' and 'out' fds?
+
+--
+dwmw2
+
+

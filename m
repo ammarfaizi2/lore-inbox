@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267473AbUHTThO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUHTTim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267473AbUHTThO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHTThO
+	id S267553AbUHTTim (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268667AbUHTTim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:37:14 -0400
-Received: from 251041.vserver.de ([62.75.251.41]:40909 "EHLO 251041.vserver.de")
-	by vger.kernel.org with ESMTP id S268667AbUHTTgh (ORCPT
+	Fri, 20 Aug 2004 15:38:42 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:15803 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267553AbUHTTid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:36:37 -0400
-Date: Fri, 20 Aug 2004 13:35:20 -0600
-From: martin rumori <lists@rumori.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Jackit-devel] Re: problems with volunteer preempt patch WAS: little NPTL SCHED_FIFO test program
-Message-ID: <20040820193520.GA3129@amadora.tejo>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Lee Revell <rlrevell@joe-job.com>,
-	jackit-devel <jackit-devel@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200408180100.04955.pnambic@unu.nu> <20040818023546.03e79fc4@mango.fruits.de> <1092794828.813.49.camel@krustophenia.net> <20040818050708.54a27a7e@mango.fruits.de> <pan.2004.08.19.23.33.47.308243@gmx.de> <1092987523.10063.62.camel@krustophenia.net> <20040820092042.GA2496@amadora.tejo> <1092994979.10063.80.camel@krustophenia.net> <20040820175351.GA2302@amadora.tejo> <20040820183559.GD21956@elte.hu>
+	Fri, 20 Aug 2004 15:38:33 -0400
+Date: Fri, 20 Aug 2004 14:36:35 -0500
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: kernbench on 512p
+Message-ID: <20040820193635.GA4161@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <200408191216.33667.jbarnes@engr.sgi.com> <253460000.1092939952@flay> <200408191711.04776.jbarnes@engr.sgi.com> <200408191724.04422.jbarnes@engr.sgi.com> <270470000.1092952599@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040820183559.GD21956@elte.hu>
-User-Agent: Mutt/1.5.6+20040803i
+In-Reply-To: <270470000.1092952599@flay>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 08:35:59PM +0200, Ingo Molnar wrote:
-> > i am wondering especially about the ACPI messages, as ACPI is
-> > completely switched off now.
+On Thu, Aug 19, 2004 at 02:56:39PM -0700, Martin J. Bligh wrote:
+> --On Thursday, August 19, 2004 17:24:04 -0400 Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 > 
-> is ACPI switched off in the .config too?
-
-basically yes, but there is one strange thing:
-
-#
-# Power management options (ACPI, APM)
-#
-# CONFIG_PM is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BOOT=y
-
-i don't know where to find the last option in the config programs
-(menuconfig, xconfig).  if i comment it manually, it'll get
-uncommented as soon as the next make command is issued, regardless
-whether make xconfig again, make oldconfig, or make.  it gets reverted
-to the above shown state.
-
-i figured out that in stock 2.6.8.1 and 2.6.7-cko5 this option is
-enabled, too, (even with the rest of acpi disabled and apm enabled)
-maybe i can't see the messages at boot time since they are going to
-fast.
-
-> > maybe latency.o is not included when linking without
-> > CONFIG_PREEMPT_TIMING?
+> > On Thursday, August 19, 2004 5:11 pm, Jesse Barnes wrote:
+> >> The output is attached (my mailer insists on wrapping it if I inline it). 
+> >> I used 'lockstat -w'.
+> > 
+> > The highlights:
+> > 
+> >  nw   spin   rjct  lock & function
+> > 19.0% 81.0%    0%  dcache_lock
+> >  3.3% 96.7%    0%    d_alloc+0x270
+> >  2.7% 97.3%    0%    d_delete+0x40
+> > 18.3% 81.7%    0%    d_instantiate+0x90
+> >  4.7% 95.3%    0%    d_move+0x60
+> > 34.6% 65.4%    0%    d_rehash+0xe0
+> > 19.1% 80.9%    0%    dput+0x40
+> > 10.5% 89.5%    0%    link_path_walk+0xef0
+> >    0%  100%    0%    sys_getcwd+0x210
+> > 
+> > 41.4% 58.6%    0%  rcu_state
+> > 61.3% 38.7%    0%    __rcu_process_callbacks+0x260
+> > 41.4% 58.6%    0%    rcu_check_quiescent_state+0xf0
+> > 
+> > So it looks like the dcache lock is the biggest problem on this system with 
+> > this load.  And although the rcu stuff has improved tremendously for this 
+> > system, it's still highly contended.
 > 
-> right. We dont want to link it in so i've added a NOP define for
-> __trace() to sched.h. This fix will show up in -P6.
+> Hmmm. dcache_lock is known-fucked, though I'm suprised at d_rehash
+> (file deletion)?
+> 
 
-great, many thanks.
+The thing which is hurting most is dput(), almost 90% of the dcache_lock 
+aquistion is there.
 
-bests,
+(deleted few columns)
 
-martin
+ 23.8% 67.3%     9955785 32.7% 67.3%    0%  dcache_lock
+ 0.06% 70.5%       17068 29.5% 70.5%    0%    d_alloc+0x270
+ 0.02% 25.4%       15340 74.6% 25.4%    0%    d_delete+0x40
+ 0.06% 65.9%       30485 34.1% 65.9%    0%    d_instantiate+0x90
+ 0.06% 78.0%        4461 22.0% 78.0%    0%    d_move+0x60
+ 0.00%    0%           2  100%    0%    0%    d_path+0x120
+ 0.04% 52.5%       17068 47.5% 52.5%    0%    d_rehash+0xe0
+ 0.00% 26.7%          15 73.3% 26.7%    0%    d_splice_alias+0xc0
+ 0.00% 20.0%           5 80.0% 20.0%    0%    dentry_unhash+0x70
+ 0.00%    0%           4  100%    0%    0%    dentry_unhash+0xc0
+ 23.5% 67.5%     9827270 32.5% 67.5%    0%    dput+0x40
+ 0.09% 62.3%       36875 37.7% 62.3%    0%    link_path_walk+0xef0
+ 0.00% 0.24%        5068 99.8% 0.24%    0%    link_path_walk+0x1cc0
+ 0.00% 33.3%           3 66.7% 33.3%    0%    proc_pid_unhash+0x50
+ 0.00%  7.1%          14 92.9%  7.1%    0%    prune_dcache+0x50
+ 0.00%    0%         167  100%    0%    0%    prune_dcache+0x3d0
+ 0.00%    0%          21  100%    0%    0%    select_parent+0x40
+ 0.00% 24.2%        1919 75.8% 24.2%    0%    sys_getcwd+0x210
+
+
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 6781896

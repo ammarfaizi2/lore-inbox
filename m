@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbUL3FIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbUL3FfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbUL3FIc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 00:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbUL3FIc
+	id S261543AbUL3FfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 00:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbUL3FfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 00:08:32 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:16350 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261542AbUL3FHk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 00:07:40 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 29 Dec 2004 21:07:36 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
- <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
-  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
-  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
- <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
- <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Dec 2004 00:35:15 -0500
+Received: from lakermmtao01.cox.net ([68.230.240.38]:25749 "EHLO
+	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S261543AbUL3FfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 00:35:08 -0500
+In-Reply-To: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+References: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
+Date: Thu, 30 Dec 2004 00:35:06 -0500
+To: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Dec 2004, Linus Torvalds wrote:
+On Dec 28, 2004, at 23:47, Tetsuo Handa wrote:
+> It seems to me that every program calls capable(CAP_SYS_ADMIN),
 
-> On Wed, 29 Dec 2004, Linus Torvalds wrote:
-> > 
-> > .. no, I see what's up. System call returns _are_ special for 
-> > single-stepping. I'll think about it..
-> 
-> Ok, I think I know what's up.
-> 
-> It's literally the bogus fake signal that do_syscall_trace() sends. I 
-> think the TIF_SINGLESTEP case in do_syscall_trace() should only do the 
-> ptrace_notify() and return..
+Umm, the program has nothing to do with this.  Programs themselves have 
+no
+access to the kernel function "capable".  Probably something in the 
+kernel, perhaps
+triggered by libc or maybe just suid checks, is checking for 
+CAP_SYS_ADMIN. It's
+harmless and irrelevant, why do you care?
 
-I think same. My test simply let the function processing to let thru and 
-reach the fake signal sending point.
+> +       if (cap == CAP_SYS_ADMIN) {
+> +               static pid_t last_pid = 0;
+> +               if (current->pid != last_pid) {
+> +                       printk("euid=%d uid=%d %s %s\n", 
+> current->euid, current->uid, cap_raised(current->cap_effective, 
+> CAP_SYS_ADMIN) ? "true" : "fa
+> lse", current->comm);
+> +                       last_pid = current->pid;
+> +               }
+> +       }
 
+Yes, whenever anything on the computer, including the kernel, checks if 
+a program
+has a capability bit set, it will print out whether or not it does in 
+the dmesg.  Why
+does that matter?
 
-- Davide
+> I can't understand why every program checks for CAP_SYS_ADMIN .
+Programs aren't, the kernel is, for whatever reason.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

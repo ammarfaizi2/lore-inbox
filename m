@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIBHhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUIBHos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267767AbUIBHhX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 03:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUIBHhX
+	id S267777AbUIBHos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 03:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUIBHos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 03:37:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43925 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267785AbUIBHhS (ORCPT
+	Thu, 2 Sep 2004 03:44:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:3745 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267777AbUIBHoq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 03:37:18 -0400
-Date: Thu, 2 Sep 2004 00:36:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hans Reiser <reiser@namesys.com>
-cc: David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-In-Reply-To: <4136C876.5010806@namesys.com>
-Message-ID: <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org>
- <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
- <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
- <4136C876.5010806@namesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 03:44:46 -0400
+Date: Thu, 2 Sep 2004 09:46:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
+Message-ID: <20040902074604.GA21144@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <1094108653.11364.26.camel@krustophenia.net> <20040902071525.GA19925@elte.hu> <1094110289.11364.32.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094110289.11364.32.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-On Thu, 2 Sep 2004, Hans Reiser wrote:
-> Linus Torvalds wrote:
-> >
-> >. Doing transactions on one file is 
-> >only the beginning - you'll find people who want transactions across file 
-> >boundaries etc.
->
-> Yup, that's what reiser4 is aiming at and where things get exciting for 
-> version control systems and the like.  We are just missing the api code 
-> for it at the moment, all the infrastructure is there, and the api is in 
-> progress in sys_reiser4.
+> > these all seem to be single-packet processing latencies - it would be
+> > quite hard to make those codepaths preemptible.
+> 
+> I suspected as much, these are not a problem.  The large latencies
+> from reading the /proc filesystem are a bit worrisome (trace1.txt), I
+> will report these again if they still happen with Q8.
 
-But _my_ point is, no user program is going to take _advantage_ of
-anything that only one filesystem on one system offers.
+conntrack's ct_seq ops indeed seems to have latency problems - the quick
+workaround is to disable conntrack.
 
-So there's no point.
+The reason for the latency is that ct_seq_start() does a read_lock() on
+ip_conntrack_lock and only ct_seq_stop() releases it - possibly
+milliseconds later. But the whole conntrack /proc code is quite flawed:
 
-It's much saner (from _any_ app standpoint) to roll their own database in 
-user space - that way it just works.
+        READ_LOCK(&ip_conntrack_lock);
 
-In other words, nobody is really ever going to take advantage of this. 
-This is _not_ how technical advanncement happens. The way you get people 
-to take advantage of something is to have a nice gradual ramp-up, not a 
-sudden new feature that they can't realistically use.
+        if (*pos >= ip_conntrack_htable_size)
+                return NULL;
 
-So before you do transactions in the filesystem, you have to be able to do 
-them in user space - and then make the filesystem version be _compatible_ 
-with that user space library. That way you can get people to use the 
-library ("hey, it works anywhere") and then you can get them to use your 
-filesystem ("hey, if you use our super-duper filesystem, you can do what 
-you are already doing five times faster").
+        bucket = kmalloc(sizeof(unsigned int), GFP_KERNEL);
+        if (!bucket) {
+                return ERR_PTR(-ENOMEM);
+        }
+        *bucket = *pos;
+        return bucket;
 
-See? You're starting at the wrong end. Give me a portable interface to use 
-_first_. Then do transactions in the filesystem.
+#1: we kmalloc(GFP_KERNEL) with a spinlock held and softirqs off - ouch!
 
-(Now, as an academic exercise and as a learnign experience and prototyping 
-work it migt make sense to do the filesystem first. But then you have to 
-really _consider_ it a prototype, and realize that to make it useful you'd 
-still have to do the user thing before you can "sell" people on the idea).
+#2: why does it do the kmalloc() anyway? It could store the position in
+    the seq pointer just fine. No need to alloc an integer pointer to
+    store the value in ...
 
-		Linus
+#3: to fix the latency, ct_seq_show() could take the ip_conntrack_lock 
+    and could check the current index against ip_conntrack_htable_size. 
+    There's not much point in making this non-preemptible, there's 
+    a 4K granularity anyway.
+
+Rusty, what's going on in this code?
+
+	Ingo

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269699AbUJAFYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269698AbUJAFan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269699AbUJAFYy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 01:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUJAFYx
+	id S269698AbUJAFan (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 01:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269701AbUJAFan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 01:24:53 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:43793 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S269699AbUJAFYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 01:24:51 -0400
-Date: Fri, 1 Oct 2004 07:21:46 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Andreas Haumer <andreas@xss.co.at>
-Cc: arjanv@redhat.com, "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
-       Christoph Hellwig <hch@infradead.org>, mikem@beardog.cca.cpqcorp.net,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org,
-       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
-Subject: Re: patch so cciss stats are collected in /proc/stat
-Message-ID: <20041001052146.GD721@alpha.home.local>
-References: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net> <1096476186.2786.45.camel@laptop.fenrus.com> <415AE9CF.40008@xss.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 01:30:43 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:52135 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269698AbUJAFal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 01:30:41 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc2-mm4
+Date: Fri, 1 Oct 2004 00:30:39 -0500
+User-Agent: KMail/1.6.2
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org>
+In-Reply-To: <20040930170505.6536197c.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <415AE9CF.40008@xss.co.at>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410010030.39826.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 06:58:55PM +0200, Andreas Haumer wrote:
-> The majority of _our_ customers are using 2.4.x kernels
-> (x beeing in the range from 19 to 28pre3) and it looks like
-> it will stay that for quite a while...
+On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
+> > One other question. Isn't /dev/input/mice supposed to be a multiplexor
+> > for mice ? I think I remember some time when I could have both a PS2 and
+> > a USB mouse connected and X pointer followed both. Now if I boot with the
+> > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
+> > and plug it after boot, both work; usb mouse works fine, and PS2 just
+> > jumps half screen each time I move it, and with big delays.
+> > 
+> 
 
-I second this. The only one of our customers who tried 2.6 went back to
-2.4 because of poor network performance, scheduling problems and stability
-issues.
+I bet it's USB legacy emulation topic again. Try loading USB modules first
+and then psmouse, should help.
 
-> PS: I know this is somewhat off topic, but I just want to raise
-> my voice if I get the impression kernel developers forget about
-> the "real world outside". I will shut up in a moment! Thank you!
+Vojtech, what is the status of USB handoff patches. I have seen several
+variants and so far heard only success stories from people using them. Can
+we have them in kernel proper?
 
-Very true. You just have to read any 2.6 changelog to understand that
-it *is* a development kernel ! The difference between 2.5 and 2.6 is
-that the test platform now is larger and includes production systems.
-
-Willy
-
+-- 
+Dmitry

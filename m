@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVAKBkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVAKBIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVAKBkz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVAKBkw
+	id S262686AbVAKBIc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVAKBEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:40:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53900 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262690AbVAKBig (ORCPT
+	Mon, 10 Jan 2005 20:04:02 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:2278 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262562AbVAKBAq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 20:38:36 -0500
-Date: Mon, 10 Jan 2005 17:36:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Chad Kitching <CKitching@powerlandcomputers.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       linux-usb-devel@lists.sourcefoge.net.kroah.org,
-       linux-kernel@vger.kernel.org, laforge@gnumonks.org
-Subject: Re: My vision of usbmon
-Message-ID: <20050111013601.GG18697@kroah.com>
-References: <18DFD6B776308241A200853F3F83D5072851@pl6w2kex.lan.powerlandcomputers.com>
+	Mon, 10 Jan 2005 20:00:46 -0500
+Date: Mon, 10 Jan 2005 17:00:45 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [UPDATE PATCH] scsi/st: replace schedule_timeout() with msleep_interruptible()
+Message-ID: <20050111010045.GM9186@us.ibm.com>
+References: <20050110164703.GD14307@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <18DFD6B776308241A200853F3F83D5072851@pl6w2kex.lan.powerlandcomputers.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
+X-Operating-System: Linux 2.6.10 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 03:02:49PM -0600, Chad Kitching wrote:
-> > -----Original Message-----
-> > From: Greg KH [mailto:greg@kroah.com]
-> > Sent: December 21, 2004 11:11 PM
-> > Subject: Re: My vision of usbmon
-> > 
-> > -/* exported only within usbcore */
-> > -struct usb_bus *usb_bus_get (struct usb_bus *bus)
-> > +struct usb_bus *usb_bus_get(struct usb_bus *bus)
-> >  {
-> > -	struct class_device *tmp;
-> > -
-> > -	if (!bus)
-> > -		return NULL;
-> > -
-> > -	tmp = class_device_get(&bus->class_dev);
-> > -	if (tmp)        
-> > -		return to_usb_bus(tmp);
-> > -	else
-> > -		return NULL;
-> > +	if (bus)
-> > +		class_device_get(&bus->class_dev);
-> > +	return bus; 
-> >  }
-> > +EXPORT_SYMBOL_GPL(usb_bus_get);
->   
-> I'm not familiar with this code, but if the replacement code is 
-> equivalent, is there any point to the return usb_bus pointer?  With 
-> the replacement, you should always get the same pointer you put 
-> into it.  If that is the case, why not remove the return value, and 
-> change drivers/usb/core/usb.c to match?
+On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
+> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+> 
+> Quick patch summary: about 30 new, 30 merged, 30 dropped.
+> Seems like most external trees are merged in -linus, so i'll start
+> (re)sending old patches.
 
-Because that goes against the "style" of the _get functions in the
-driver core.  This way, it's easy to just do:
-	some_function(usb_bus_get(my_bus), foo);
+<snip>
 
-thanks,
+> msleep_interruptible-drivers_scsi_st.patch
 
-greg k-h
+Please consider updating to the following patch:
+
+Description: Use msleep_interruptible() instead of
+schedule_timeout() to guarantee the task delays as expected.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+
+--- 2.6.10-v/drivers/scsi/st.c	2004-12-24 13:35:01.000000000 -0800
++++ 2.6.10/drivers/scsi/st.c	2005-01-05 14:23:05.000000000 -0800
+@@ -36,6 +36,7 @@ static char *verstr = "20041025";
+ #include <linux/moduleparam.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/cdev.h>
++#include <linux/delay.h>
+ #include <asm/uaccess.h>
+ #include <asm/dma.h>
+ #include <asm/system.h>
+@@ -760,9 +761,7 @@ static int test_ready(struct scsi_tape *
+ 
+ 			if (scode == NOT_READY) {
+ 				if (waits < max_wait) {
+-					set_current_state(TASK_INTERRUPTIBLE);
+-					schedule_timeout(HZ);
+-					if (signal_pending(current)) {
++					if (msleep_interruptible(1000)) {
+ 						retval = (-EINTR);
+ 						break;
+ 					}

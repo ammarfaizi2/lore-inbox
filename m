@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262569AbREZXY0>; Sat, 26 May 2001 19:24:26 -0400
+	id <S262313AbREZW6z>; Sat, 26 May 2001 18:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbREZXYQ>; Sat, 26 May 2001 19:24:16 -0400
+	id <S261979AbREZW6p>; Sat, 26 May 2001 18:58:45 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262580AbREZW6z>;
-	Sat, 26 May 2001 18:58:55 -0400
-Date: Sat, 26 May 2001 08:17:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105261139360.30264-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.21.0105260812280.3684-100000@penguin.transmeta.com>
+	by vger.kernel.org with ESMTP id <S261866AbREZW6b>;
+	Sat, 26 May 2001 18:58:31 -0400
+Date: Sun, 27 May 2001 01:00:24 +0300 (EEST)
+From: Doru Petrescu <pdoru@kappa.ro>
+Reply-To: pdoru@kappa.ro
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to open an initial console (on SMP machine)
+In-Reply-To: <Pine.LNX.4.21.0105261858380.11060-100000@bigD.kappa.ro>
+Message-ID: <Pine.LNX.4.21.0105270053090.11502-100000@bigD.kappa.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+:(
 
-On Sat, 26 May 2001, Rik van Riel wrote:
-> 
-> I am smoking the "tested the patch and wasn't able to reproduce
-> a deadlock" stuff.
+ok, so after diging few hours into the kernel it seems that the vgacon.c
+fails to detect/initialize the VGA card. also it seems that it is not
+listed in the /proc/pci ... so I guess there is a bit of a hardware
+problem ... probably the card moved in its slot and now it is not working
+properly.
 
-I'd be happier if _anybody_ was smoking the "thought about the problem
-some more" stuff as well.
+I will investigate and let you guys know if this is a 'hardware' problem ...
+and is just a concidence that it started when I upgraded to 2.4.5-preX
 
-I can easily imagine that this part of your patch
+anyway, I think that the VGA console driver should emit an WARNING that 
+"No VGA card detected => VGA console disabled"
 
-                if (gfp_mask & __GFP_WAIT) {
-                        memory_pressure++;
--                       try_to_free_pages(gfp_mask);
--                       goto try_again;
-+                       if (!order || free_shortage()) {
-+                               int progress = try_to_free_pages(gfp_mask);
-+                               if (progress || gfp_mask & __GFP_IO)
-+                                       goto try_again;
-+                       }
-                }
+'cause if I select VGA text console in the kernel config, I am
+probably expecting to have one. and the rest that use mathines with no
+video card, can just unselect the VGA console option if they don't like
+seeing the warning.
 
-is fine. The fact that other parts of your patch were NOT fine should make
-you go "Hmm, maybe Linus dismissed it for a reason" instead.
 
-Testing is good. But I want to understand how we get into the situation in
-the first place, and whether there are ways to alleviate those problems
-too.
+unfortnatly the machine is in a remote location, and i can't go and fix
+the video card at this hour (01:00 am) ... :(
 
-Testing and finding that the bug went away under your workload is
-good. But thinking that that should stop discussion about the _proper_ fix
-is stupid, Rik.
 
-		Linus
+
+Best regards,
+Doru Petrescu
 

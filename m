@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUDEIXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 04:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUDEIXT
+	id S263163AbUDEI1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 04:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUDEI1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 04:23:19 -0400
-Received: from gprs214-14.eurotel.cz ([160.218.214.14]:57218 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262810AbUDEIXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 04:23:17 -0400
-Date: Mon, 5 Apr 2004 10:22:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Chris Friesen <cfriesen@nortelnetworks.com>, mj@ucw.cz, jack@ucw.cz,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040405082258.GC29705@elf.ucw.cz>
-References: <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <406DE280.6050109@nortelnetworks.com> <20040403004947.GI653@mail.shareable.org> <20040403082303.GA1316@elf.ucw.cz> <20040403131539.GA4706@mail.shareable.org> <20040405081925.GC28924@wohnheim.fh-wedel.de>
+	Mon, 5 Apr 2004 04:27:24 -0400
+Received: from A17-250-248-85.apple.com ([17.250.248.85]:39398 "EHLO
+	smtpout.mac.com") by vger.kernel.org with ESMTP id S263163AbUDEI1W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 04:27:22 -0400
+Message-ID: <16293307.1081153633839.JavaMail.pwaechtler@mac.com>
+Date: Mon, 05 Apr 2004 10:27:13 +0200
+From: Peter Waechtler <pwaechtler@mac.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH RFC] core not owned by euid, mm->dumpable
+Cc: peter@helios.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040405081925.GC28924@wohnheim.fh-wedel.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With the current behavior typical server programs that switch euid
+don't dump core. This is done "for security".
+If the core file pattern exists the dump is written to but readable
+for the file owner (not necessarily root - don't argue: only chdir into
+dirs that only root can write to: think of file servers like samba)
 
-> > > > > Could you not change it back to a normal inode when refcount becomes 1? 
-> > > > 
-> > > > You can only do that if the cowid object has a pointer to the last
-> > > > remaining reference to it.  That's possible, but more complicated and
-> > > > would incur a little more I/O per cow operation.
-> > > 
-> > > You'd have to have pointers to all references to it... because you
-> > > can't tell in advance which one will be the last to go away.
-> > 
-> > Exactly.  Each of the cow pointers would need to be linked in a doubly
-> > linked list containing them all.
-> 
-> I don't like the list idea.  Having the extra cowid (I prefer inode)
-> indirection costs a few bytes and one lookup, not much.  The list is
-> way too much overhead to get rid of so little in a few cases.
+The patch below addresses this (but still not perfect).
+What I would like to see: instead of mm->dumpable=0 when calling seteuid()
+something like mm->dumpAs=root and making sure that the core is owned by root
+mode 600
 
-Nobody likes the "list idea".
+I could install a sighandler that calls prctl(PR_SET_DUMPABLE,1,0,0,0),
+switch euid to root, but still the formerly placed core is owned by evil
+user :(
+Then I could read the core pattern and unlink such a file - and all this
+just for the Linux platform...
 
-> If you really want to, create a new syscall foldfile() that will
-> remove the indirection for one file, if possible.  Then userspace can
-> do the ugly work of scanning for single-linked cowids (or just leave
-> it).
+--- fs/exec.c.orig      2004-04-05 09:41:31.134456912 +0200
++++ fs/exec.c   2004-04-05 09:29:55.614192064 +0200
+@@ -1398,6 +1398,8 @@
 
-We could automaticaly remove them when we see them, or on first open(
-O_RDWR) or something, or just leave them alone. Definitely leave them
-alone for first version.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+        if (!S_ISREG(inode->i_mode))
+                goto close_fail;
++       if (chown_common(file->f_dentry, current->euid, current->egid))
++               goto close_fail;
+        if (!file->f_op)
+                goto close_fail;
+        if (!file->f_op->write)
+--- fs/open.c.orig      2004-04-05 09:43:39.229983432 +0200
++++ fs/open.c   2004-04-05 09:30:04.357862824 +0200
+@@ -648,7 +648,7 @@
+        return error;
+ }
+
+-extern int chown_common(struct dentry * dentry, uid_t user, gid_t group)
++int chown_common(struct dentry * dentry, uid_t user, gid_t group)
+ {
+        struct inode * inode;
+        int error;
+--- include/linux/fs.h.orig     2004-04-05 09:42:52.205132296 +0200
++++ include/linux/fs.h  2004-04-05 09:28:08.215519144 +0200
+@@ -1139,6 +1139,7 @@
+ extern struct file * dentry_open(struct dentry *, struct vfsmount *, int);
+ extern int filp_close(struct file *, fl_owner_t id);
+ extern char * getname(const char __user *);
++extern int chown_common(struct dentry *, uid_t, gid_t);
+
+ /* fs/dcache.c */
+ extern void vfs_caches_init(unsigned long);
+

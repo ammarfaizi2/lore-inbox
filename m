@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318141AbSGRQKG>; Thu, 18 Jul 2002 12:10:06 -0400
+	id <S318182AbSGRQPc>; Thu, 18 Jul 2002 12:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318146AbSGRQKG>; Thu, 18 Jul 2002 12:10:06 -0400
-Received: from a208-141.dialup.iol.cz ([194.228.141.208]:16133 "EHLO devix")
-	by vger.kernel.org with ESMTP id <S318141AbSGRQKF>;
-	Thu, 18 Jul 2002 12:10:05 -0400
-Date: Thu, 18 Jul 2002 17:44:56 +0200 (CEST)
-From: devik <devik@cdi.cz>
-X-X-Sender: <devik@devix>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 is not SMP friendly
-In-Reply-To: <1026999905.9727.13.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0207181722080.535-100000@devix>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318227AbSGRQPb>; Thu, 18 Jul 2002 12:15:31 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:64773 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318182AbSGRQPb>;
+	Thu, 18 Jul 2002 12:15:31 -0400
+Date: Thu, 18 Jul 2002 09:17:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020718161711.GD15037@kroah.com>
+References: <3D361091.13618.16DC46FB@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D361091.13618.16DC46FB@localhost>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 20 Jun 2002 15:05:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Yes I use smbfs.
-Regarding my oops report, is there known
-bug where waitqueue would be corrupted ? When I analyzed
-it I found that invalid address 8bd4189c was loaded from
-tasklist pointer in wait_queue_head_t (sched.c, __wake_up_common
-line "p = curr->task").
-The wakeup was called from get_new_inode and seems like
-if list of tasks was not initialized of what :(
+On Thu, Jul 18, 2002 at 12:49:21AM -0400, Guillaume Boissiere wrote:
+> o Replace initrd by initramfs                     (H. Peter Anvin, Al Viro)
 
-thanks, devik
+A few of the features above, need this feature, so I would move it up to
+"before feature freeze".  Well I hope it happens, that way we can
+actually get most of the above done :)
 
-On 18 Jul 2002, Alan Cox wrote:
+And there are patches available for this on Al Viro's site, but I don't
+know the current state of them.
 
-> On Thu, 2002-07-18 at 11:51, devik wrote:
-> > I someone here running 2.4.18 on PII SMP successfully ?
->
-> PPro in my case but yes. 2.4.18 ought to be pretty solid except for some
-> annoying bugs you'll only hit if you use smbfs.
->
->
+thanks,
 
+greg k-h

@@ -1,90 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVCAOSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVCAO20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVCAOSu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 09:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCAOSu
+	id S261908AbVCAO20 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 09:28:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCAO2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 09:18:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:13558 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261924AbVCAOSc (ORCPT
+	Tue, 1 Mar 2005 09:28:25 -0500
+Received: from news.suse.de ([195.135.220.2]:22992 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261908AbVCAO2V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 09:18:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=uqHnhEdSSFQYNB8AMrPAd0zaRkArhEkUsRrtQgZSMuVUnR6fbjfDSmSp8+ieiR0XQdFntVYtVy3g32C8VJXbnl0h25RxJz//Xnp9/FYRNYCbXV6e4ho4D0hYkey6i2J0gNI99BwrKnYg4F+gydOosPCux9XShbps9Va01yWgcNs=
-Message-ID: <3f250c710503010617537a3ca@mail.gmail.com>
-Date: Tue, 1 Mar 2005 10:17:56 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH] A new entry for /proc
-Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org, rrebel@whenu.com,
-       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
-In-Reply-To: <3f250c7105030100085ab86bd2@mail.gmail.com>
+	Tue, 1 Mar 2005 09:28:21 -0500
+Date: Tue, 1 Mar 2005 15:28:19 +0100
+From: Michael Schroeder <mls@suse.de>
+To: Michal Januszewski <spock@gentoo.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050301142819.GA23884@suse.de>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050228174015.GB1349@elf.ucw.cz> <20050301130325.GB14278@spock.one.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050106202339.4f9ba479.akpm@osdl.org>
-	 <3f250c71050224003110e74704@mail.gmail.com>
-	 <20050224010947.774628f3.akpm@osdl.org>
-	 <3f250c710502240343563c5cb0@mail.gmail.com>
-	 <20050224035255.6b5b5412.akpm@osdl.org>
-	 <3f250c7105022507146b4794f1@mail.gmail.com>
-	 <3f250c71050228014355797bd8@mail.gmail.com>
-	 <3f250c7105022801564a0d0e13@mail.gmail.com>
-	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
-	 <3f250c7105030100085ab86bd2@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050301130325.GB14278@spock.one.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well,
+On Tue, Mar 01, 2005 at 02:03:25PM +0100, Michal Januszewski wrote:
+> Possibly, but I can't recall what exactly was it about. All bugs in
+> fbsplash, that I have known of, have been fixed. If there are still some
+> problems with any fb drivers, please let me know.
 
-It is working better now. You are right Hugh. Now the new version is
-faster than the old one. I removed the struct page and its related
-function.
+Well, you'll run into trouble with all drivers that use a non-standard
+fb_imageblit, i.e.:
 
-Thanks,
+amifb
+cirrusfb
+cyber2000fb
+hgafb
+neofb
+tdfxfb
+tgafb
+vga16fb
+atyfb
+radeon_accel
+i810
+intelfb
+matroxfb_accel
+riva
+savage
 
-BR,
+Hmm, maybe I should change the vesafb test in the bootsplash code
+to test if fb_imageblit == cfb_imageblit. This would make Pavel
+very happy, I guess ;-)
 
-Mauricio Lin.
+Cheers,
+  Michael.
 
-On Tue, 1 Mar 2005 04:08:15 -0400, Mauricio Lin <mauriciolin@gmail.com> wrote:
-> On Mon, 28 Feb 2005 20:41:31 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
-> > On Mon, 28 Feb 2005, Mauricio Lin wrote:
-> > >
-> > > Now I am testing with /proc/pid/smaps and the values are showing that
-> > > the old one is faster than the new one. So I will keep using the old
-> > > smaps version.
-> >
-> > Sorry, I don't have time for more than the briefest look.
-> >
-> > It appears that your old resident_mem_size method is just checking
-> > pte_present, whereas your new smaps_pte_range method is also doing
-> > pte_page (yet no prior check for pfn_valid: wrong) and checking
-> > !PageReserved i.e. accessing the struct page corresponding to each
-> > pte.  So it's not a fair comparison, your new method is accessing
-> > many more cachelines than your old method.
-> >
-> > Though it's correct to check pfn_valid and !PageReserved to get the
-> > same total rss as would be reported elsewhere, I'd suggest that it's
-> > really not worth the overhead of those struct page accesses: just
-> > stick with the pte_present test.
-> So, I can remove the PageReserved macro without no problems, right?
-> 
-> 
-> >
-> > Your smaps_pte_range is missing pte_unmap?
-> Yes, but I already fixed this problem.  Paul Mundt has checked the
-> unmap missing.
-> 
-> Thanks,
-> 
-> Let me perform new experiments now.
-> 
-> BR,
-> 
-> Mauricio Lin.
->
+-- 
+Michael Schroeder                                   mls@suse.de
+main(_){while(_=~getchar())putchar(~_-1/(~(_|32)/13*2-11)*13);}

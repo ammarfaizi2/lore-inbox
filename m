@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272167AbTHDTef (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272157AbTHDTef
+	id S269621AbTHDTsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHDTsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:34:35 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:31933 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S272135AbTHDTec
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:34:32 -0400
-Date: Mon, 04 Aug 2003 13:36:13 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Paul Blazejowski <paulb@blazebox.homeip.net>,
-       Patrick Mansfield <patmans@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-Message-ID: <1352160000.1060025773@aslan.btc.adaptec.com>
-In-Reply-To: <1060021614.889.6.camel@blaze.homeip.net>
-References: <20030801182207.GA3759@blazebox.homeip.net>	 <20030801144455.450d8e52.akpm@osdl.org>	 <20030803015510.GB4696@blazebox.homeip.net>	 <20030802190737.3c41d4d8.akpm@osdl.org>	 <20030803214755.GA1010@blazebox.homeip.net>	 <20030803145211.29eb5e7c.akpm@osdl.org>	 <20030803222313.GA1090@blazebox.homeip.net>	 <20030803223115.GA1132@blazebox.homeip.net>	 <20030804093035.A24860@beaverton.ibm.com> <1060021614.889.6.camel@blaze.homeip.net>
-X-Mailer: Mulberry/3.1.0b5 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 4 Aug 2003 15:48:54 -0400
+Received: from pc3-cmbg5-6-cust177.cmbg.cable.ntl.com ([81.104.203.177]:58616
+	"EHLO cray") by vger.kernel.org with ESMTP id S269621AbTHDTsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:48:53 -0400
+Date: Mon, 4 Aug 2003 20:50:58 +0100
+From: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Cc: kernel@kolivas.org
+Subject: Re: [PATCH] O12.2int for interactivity
+Message-ID: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Patrick,
-> 
-> I enabled CONFIG_SCSI_LOGGING=y in kernel then i used
-> scsi_mod.scsi_logging_level=0x140 and scsi_mod.max_scsi_luns=1 when
-> booting the kernel from lilo.I can see some debug information scroll on
-> the screen and i did see ID0 LUN0 get probed even the correct transfer
-> rate for the SCSI disk is set.I forgot but isn't there a key sequence
-> when pressed it will stop the screen output like pause/break key?
 
-You might be able to get useful information without using a serial
-console if you turn off your CDROM drives so they don't add extra output,
-but your best bet is to use a serial console.
+> I tried them aggressively; irman2 and thud don't hurt here. The idle
+> detection limits both of them from gaining too much sleep_avg while waiting
+> around and they dont get better dynamic priority than 17. 
 
---
-Justin
+Sounds like you've taken the teeth out of the thud program :) The original aim
+was to demonstrate what happens when a maximally interactive task suddenly
+becomes a CPU hog - similar to a web browser starting to render and causing
+intense X activity in the process. Stopping thud getting maximum priority is
+addressing the symptom, not the cause. (That's not to say the idle detection
+is a bad idea - but it's not the complete answer)
+
+What happens if you change the line
+  struct timespec st={10,50000000}; 
+to
+  struct timespec st={0,250000000}; 
+
+and the line
+    nanosleep(&st, 0); 
+to
+    for (n=0; n<40; n++) nanosleep(&st, 0); 
+
+the idea is to do a little bit of work so that the idle detection doesn't kick
+in and thud can reach the max interactive bonus. (I haven't tried your patch
+yet to see if this change achieves this)
+
+Charlie
 

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbUKKQQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbUKKQS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbUKKQQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 11:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUKKQQf
+	id S262271AbUKKQS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 11:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUKKQS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 11:16:35 -0500
-Received: from asplinux.ru ([195.133.213.194]:5128 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S262268AbUKKQQV (ORCPT
+	Thu, 11 Nov 2004 11:18:58 -0500
+Received: from asplinux.ru ([195.133.213.194]:9481 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S262271AbUKKQSv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 11:16:21 -0500
-Message-ID: <419390CC.9040805@sw.ru>
-Date: Thu, 11 Nov 2004 19:18:20 +0300
+	Thu, 11 Nov 2004 11:18:51 -0500
+Message-ID: <41939163.5020305@sw.ru>
+Date: Thu, 11 Nov 2004 19:20:51 +0300
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
 X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] 4/4GB: remove FIXADDR_TOP changing
+Subject: [PATCH]: 4/4GB: 
 Content-Type: multipart/mixed;
- boundary="------------010702060701070207090406"
+ boundary="------------030702070701070804010303"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010702060701070207090406
+--------------030702070701070804010303
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch fixes VSYSCALL_BASE/FIXADDR_TOP relations problems
-in 4gb split kernels (under some combinations of options/patches):
-- if FIXADDR_TOP is changed, VSYSCALL_BASE in vsyscall.lds should be
-   changed as well
-- original 4gb split changes FIXADDR_TOP to be sure that stack
-   is 2 pages aligned, but vsyscall.lds uses hardcoded constants inside.
-   So we had /sbin/init loading problems due to ld-linux.so trying to
-   access wrong addresses in VSYSCALL page.
-
-The fix is the aligment of 4gb pages instead of alignment of FIXADDR_TOP
+This patch fixes exception handling in RESTORE_ALL macro on returing
+to user space. Incorrect values in %ds/%es can lead to incorrect 
+behaivour and iret to kernel space address. This patch moves
+exception handler from .fixup section to .entry.text and makes it
+to be between int80_ret_start_marker/int80_ret_end_marker markers.
 
 Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
@@ -45,67 +40,60 @@ Kirill
 P.S. These 4GB split patches are against modified 2.6.8.1 kernel, but 
 should be appliable to last Fedora kernels
 
---------------010702060701070207090406
+--------------030702070701070804010303
 Content-Type: text/plain;
- name="diff-arch-4gb-fixaddr"
+ name="diff-arch-4gb-restore"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff-arch-4gb-fixaddr"
+ filename="diff-arch-4gb-restore"
 
---- ./include/asm-i386/kmap_types.h.4gb-fix	2004-10-08 16:05:35.000000000 +0400
-+++ ./include/asm-i386/kmap_types.h	2004-10-11 16:16:28.462098360 +0400
-@@ -10,7 +10,8 @@ enum km_type {
- 	 * the 4G/4G virtual stack must be THREAD_SIZE aligned on each cpu.
- 	 */
- 	KM_BOUNCE_READ,
--	KM_VSTACK_BASE,
-+	__KM_VSTACK_BASE,
-+	KM_VSTACK_BASE = __KM_VSTACK_BASE + (__KM_VSTACK_BASE % 2),
- 	KM_VSTACK_TOP = KM_VSTACK_BASE + STACK_PAGE_COUNT-1,
+--- ./arch/i386/kernel/entry.S.4gbrest	2004-11-10 11:21:32.000000000 +0300
++++ ./arch/i386/kernel/entry.S	2004-11-10 12:35:24.239613040 +0300
+@@ -167,7 +167,7 @@ int80_ret_start_marker:					\
+ 	movl %edx, %esp; 				\
+ 	movl %ecx, %cr3;				\
+ 							\
+-	__RESTORE_ALL;					\
++	__RESTORE_ALL_USER;				\
+ int80_ret_end_marker:					\
+ 2:
  
- 	KM_LDT_PAGE15,
-@@ -29,7 +30,8 @@ enum km_type {
- 	KM_IRQ1,
- 	KM_SOFTIRQ0,
- 	KM_SOFTIRQ1,
--	KM_TYPE_NR
-+	__KM_TYPE_NR,
-+	KM_TYPE_NR=__KM_TYPE_NR + (__KM_TYPE_NR % 2)
- };
+@@ -204,14 +204,19 @@ int80_ret_end_marker:					\
  
- #endif
---- ./include/asm-i386/fixmap.h.4gb-fix	2004-10-11 15:55:38.000000000 +0400
-+++ ./include/asm-i386/fixmap.h	2004-10-11 16:25:58.279472952 +0400
-@@ -21,6 +21,8 @@
- #include <linux/threads.h>
- #include <asm/kmap_types.h>
- 
-+#define __FIXADDR_TOP (0xfffff000UL)
+ #define __RESTORE_REGS	\
+ 	__RESTORE_INT_REGS; \
++	popl %ds;	\
++	popl %es;
 +
- /*
-  * Here we define all the compile-time 'special' virtual
-  * addresses. The point is to have a constant address at
-@@ -77,7 +79,10 @@ enum fixed_addresses {
- 	FIX_CYCLONE_TIMER, /*cyclone timer register*/
- 	FIX_VSTACK_HOLE_2,
- #endif 
--	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
-+	/* reserved pte's for temporary kernel mappings */
-+	__FIX_KMAP_BEGIN,
-+	FIX_KMAP_BEGIN = __FIX_KMAP_BEGIN + (__FIX_KMAP_BEGIN & 1) +
-+		((__FIXADDR_TOP >> PAGE_SHIFT) & 1),
- 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
- #ifdef CONFIG_ACPI_BOOT
- 	FIX_ACPI_BEGIN,
-@@ -118,7 +123,7 @@ extern void __set_fixmap (enum fixed_add
-  * IMPORTANT: we have to align FIXADDR_TOP so that the virtual stack
-  * is THREAD_SIZE aligned.
-  */
--#define FIXADDR_TOP	(0xffffe000UL & ~(THREAD_SIZE-1))
-+#define FIXADDR_TOP	__FIXADDR_TOP
- #define __FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
- #define FIXADDR_START	(FIXADDR_TOP - __FIXADDR_SIZE)
++#define __RESTORE_REGS_USER \
++	__RESTORE_INT_REGS; \
+ 111:	popl %ds;	\
+ 222:	popl %es;	\
+-.section .fixup,"ax";	\
++	jmp 666f;	\
+ 444:	movl $0,(%esp);	\
+ 	jmp 111b;	\
+ 555:	movl $0,(%esp);	\
+ 	jmp 222b;	\
+-.previous;		\
++666:			\
+ .section __ex_table,"a";\
+ 	.align 4;	\
+ 	.long 111b,444b;\
+@@ -220,6 +225,13 @@ int80_ret_end_marker:					\
  
+ #define __RESTORE_ALL	\
+ 	__RESTORE_REGS	\
++	__RESTORE_IRET
++
++#define __RESTORE_ALL_USER \
++	__RESTORE_REGS_USER \
++	__RESTORE_IRET
++
++#define __RESTORE_IRET	\
+ 	addl $4, %esp;	\
+ 333:	iret;		\
+ .section .fixup,"ax";   \
 
---------------010702060701070207090406--
+--------------030702070701070804010303--
 

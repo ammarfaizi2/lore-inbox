@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265486AbRFVS4Y>; Fri, 22 Jun 2001 14:56:24 -0400
+	id <S265491AbRFVTCo>; Fri, 22 Jun 2001 15:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265487AbRFVS4P>; Fri, 22 Jun 2001 14:56:15 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:37563 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S265486AbRFVS4H>;
-	Fri, 22 Jun 2001 14:56:07 -0400
-Message-ID: <XFMail.20010622115917.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S265495AbRFVTCe>; Fri, 22 Jun 2001 15:02:34 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:44493 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265491AbRFVTCS>;
+	Fri, 22 Jun 2001 15:02:18 -0400
+Message-ID: <3B33962C.7B401F89@mandrakesoft.com>
+Date: Fri, 22 Jun 2001 15:02:04 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <3B33918D.1CF642B4@mvista.com>
-Date: Fri, 22 Jun 2001 11:59:17 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: george anzinger <george@mvista.com>
-Subject: Re: signal dequeue ...
-Cc: linux-kernel@vger.kernel.org
+To: Tim Hockin <thockin@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/nvram driver
+In-Reply-To: <3B339380.C0D973CB@sun.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim Hockin wrote:
+> Who is maintaining the /dev/nvram driver?  I have a couple things I want to
+> suggest/ask.
 
-On 22-Jun-2001 george anzinger wrote:
-> Davide Libenzi wrote:
->> 
->> I'm just trying to figure out the reason why signal must be delivered one at
->> a
->> time instead of building a frame with multiple calls with only the last one
->> chaining back to the kernel.
->> All previous calls instead of calling the stub that jump back to the kernel
->> will call a small stub like ( Ix86 ) :
->> 
->> stkclean_stub:
->>         add $frame_size, %esp
->>         cmp %esp, $end_stubs
->>         jae $sigreturn_stub
->>         ret
->> sigreturn_stub:
->>         mov __NR_sigreturn, %eax
->>         int $0x80
->> end_stubs:
->> 
->> ...
->> | context1
->> * $stkclean_stub
->> * sigh1_eip
->> | context0
->> * $stkclean_stub
->> * sigh0_eip
->> 
->> When sigh0 return, it'll call stkclean_stub that will clean context0 and if
->> we're at the end it'll call the jump-back-to-kernel stub, otherwise the
->> it'll
->> execute the  ret  the will call sigh1 handler ... and so on.
->> 
-> And if the user handler does a long_jmp?  
-
-But if the user handler does a long_jump even the old stub will be missed,
-isn't it ?
+I haven't seen any patches for ages to nvram, so I presume nobody.
 
 
+> What I really want to know is: should I bother making nvram_open_cnt SMP
+> safe, or should it just go away all together.  I vote for the latter
+> option, unless something depends on this behavior (in which case, other
+> fixes are needed, because it is broken :).
+
+Once you figure out what the best behavior is (which I'm not sure of,
+myself), I would suggest using a semaphore in the open and release
+methods.
+
+	Jeff
 
 
-- Davide
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

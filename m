@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
+	id <S261321AbSKYQAL>; Mon, 25 Nov 2002 11:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:21773 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264908AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S261354AbSKYQAL>; Mon, 25 Nov 2002 11:00:11 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:41204 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261321AbSKYQAK>; Mon, 25 Nov 2002 11:00:10 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021125121545.GA22915@suse.de> 
+References: <20021125121545.GA22915@suse.de>  <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de> <20021119142731.GF27595@poup.poupinou.org> <20021119164550.GQ11952@fs.tum.de> <20021123195720.GA310@elf.ucw.cz> 
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, Adrian Bunk <bunk@fs.tum.de>,
+       Ducrot Bruno <poup@poupinou.org>,
+       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15842.17986.416305.106123@laputa.namesys.com>
-Date: Mon, 25 Nov 2002 18:48:18 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Terje Malmedal <terje.malmedal@usit.uio.no>
-Cc: linux-kernel@vger.kernel.org,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: reiserfs and nfs. 
-In-Reply-To: <E18GKCG-0003cp-00@aqualene.uio.no>
-References: <E18GKCG-0003cp-00@aqualene.uio.no>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-NSA-Fodder: Nazi NSA Vince Foster clones genetic colonel Project Monarch
+Date: Mon, 25 Nov 2002 16:07:11 +0000
+Message-ID: <4020.1038240431@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Malmedal writes:
- > 
- > Hi, 
- > 
- > I'm nfs-exporting a reiserfs filesystem, the problem is that the
- > inode-number as seen from the client seems to change from time to
- > time. This confuses a number of programs, for instance Emacs believes
- > that the file changed under it when this happens.
 
-This problem is not known. What version of reiserfs (3.5 or 3.6) and
-kernel are you using? Is there any way to reproduce this problem?
+davej@codemonkey.org.uk said:
+>  Nice. Shame about all those boxes that won't boot without ACPI. 
 
- > 
- > Is this a known problem? Any known fix? I found a number of old
- > messages about problems with reiser and nfs, but not this
- > specifically.
- > 
- > -- 
- >  - Terje
- > malmedal@usit.uio.no
+I've heard a lot about such beasts but have never actually _met_ one. 
 
-Nikita.
+If I accidentally bought a box which wouldn't boot without ACPI, it would 
+go immediately back from whence it came -- just as it would if it turned up 
+with an nVidia graphics card.
+
+--
+dwmw2
+
 

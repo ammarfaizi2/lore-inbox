@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUBVRVy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 12:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUBVRVu
+	id S261705AbUBVRXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 12:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUBVRXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 12:21:50 -0500
-Received: from dns.communicationvalley.it ([212.239.58.133]:10886 "HELO
-	rose.communicationvalley.it") by vger.kernel.org with SMTP
-	id S261705AbUBVRVs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 12:21:48 -0500
-From: Silla Rizzoli <silla@netvalley.it>
-Organization: Communication Valley spa
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: 2.4.25 yenta problem and small fix/workaround
-Date: Sun, 22 Feb 2004 18:20:46 +0100
-User-Agent: KMail/1.6
-Cc: daniel.ritz@gmx.ch, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200402202331.45218.daniel.ritz@gmx.ch> <200402221703.55235.silla@netvalley.it> <20040222163038.A23746@flint.arm.linux.org.uk>
-In-Reply-To: <20040222163038.A23746@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	Sun, 22 Feb 2004 12:23:19 -0500
+Received: from smtp.golden.net ([199.166.210.31]:36875 "EHLO
+	newsmtp.golden.net") by vger.kernel.org with ESMTP id S261705AbUBVRXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 12:23:15 -0500
+Date: Sun, 22 Feb 2004 12:23:07 -0500
+From: Paul Mundt <lethal@linux-sh.org>
+To: linux-kernel@vger.kernel.org, Jim Wilson <wilson@specifixinc.com>,
+       Judith Lebzelter <judith@osdl.org>, Dan Kegel <dank@kegel.com>,
+       cliff white <cliffw@osdl.org>, "Timothy D. Witham" <wookie@osdl.org>
+Cc: Richard Curnow <richard.curnow@superh.com>
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040222172307.GB11162@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	linux-kernel@vger.kernel.org, Jim Wilson <wilson@specifixinc.com>,
+	Judith Lebzelter <judith@osdl.org>, Dan Kegel <dank@kegel.com>,
+	cliff white <cliffw@osdl.org>, "Timothy D. Witham" <wookie@osdl.org>,
+	Richard Curnow <richard.curnow@superh.com>
+References: <20040222035350.GB31813@MAIL.13thfloor.at> <20040222155209.GA11162@linux-sh.org> <20040222170720.GA24703@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200402221820.49206.silla@netvalley.it>
+In-Reply-To: <20040222170720.GA24703@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This probably occurs because starting X caused AGP to be initialised,
-> which caused an interrupt on IRQ11.  Since the cardbus bridge is also
-> using IRQ11 to report status changes, we notice the status change.
->
-> So, the reason this went wrong _appears_ to be because we never received
-> the interrupt from the cardbus bridge, although the cardbus status
-> correctly indicated there was work to be done.
->
-> Also, you seem to have some proprietary modules loaded - have you tried
-> running without these modules loaded?  (See below.)
 
-> This seems to be a closed source modem driver, which seems to be using
-> IRQ11.  This is definitely one thing to try removing and seeing if the
-> problem goes away.  (By "removing" here I mean _never_ having been
-> loaded since boot - any other type of "removing" will not give the
-> desired test conditions required to correctly isolate the problem.)
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I erased the driver, rebooted and nothing changed.
-I'm sorry it didn't solve the problem, but I'm also relieved that I'm not 
-wasting your time! :D
+On Sun, Feb 22, 2004 at 06:07:20PM +0100, Herbert Poetzl wrote:
+> but why does the sh/sh case fail?
+>=20
+The sh/sh case failed due to the .rept usage. I'm not entirely sure when
+this started to pop up, but it does work again in binutils CVS (or at least
+it did the last time I checked it out). For the time being, I've just gotten
+rid of it entirely and just padded out with sys_ni_syscall. (Look at your
+error log for the exact line).
 
-Regards,
-Silla
+> okay, binutils and gcc seem to 'know' sh and sh64 as=20
+> architectures, (in my case binutils 2.14.90.0.8, and=20
+> gcc 3.3.2, w/o any patches), what binutils/gcc would
+> you suggest for building sh or sh64?
+>=20
+A lot of that depends on what you're trying to build for. The sh defconfig
+is for SH-3, in which case the default gcc and binutils should work just
+fine. For SH-2 and SH-4, there's patch work that needs to be done both
+for gcc and binutils.
+
+> is there a toolchain/binutils which 'know' and 'support'
+> the '-isa=3Dsh64' option? maybe it was depreciated?
+>=20
+I don't know of one out in the wild. SuperH has their own toolchains that
+support this, and is what I currently use. I'm not sure what the status of
+their patches are in relation to getting merged into current gcc/binutils.
+Richard (CC'ed) might know though, Richard?
+
+
+--jho1yZJdad60DJr+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFAOOV71K+teJFxZ9wRAhvfAJ9vBZ3nVzFDklVk8QZMl7SmX/VJbwCfZnE2
+p0+Tjz2GsVp2B8CmgUd//gI=
+=zGPK
+-----END PGP SIGNATURE-----
+
+--jho1yZJdad60DJr+--

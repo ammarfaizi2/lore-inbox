@@ -1,77 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUGICWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUGICpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbUGICWi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 22:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUGICWh
+	id S263640AbUGICpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 22:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGICpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 22:22:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36531 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263019AbUGICWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 22:22:35 -0400
-Date: Thu, 8 Jul 2004 19:21:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Shai Fultheim" <shai@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, mort@wildopensource.com,
-       jes@wildopensource.com
-Subject: Re: [PATCH] PER_CPU [1/4] - PER_CPU-cpu_tlbstate
-Message-Id: <20040708192127.05c07c65.akpm@osdl.org>
-In-Reply-To: <200407090141.i691ffws016223@fire-2.osdl.org>
-References: <200407090141.i691ffws016223@fire-2.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jul 2004 22:45:20 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:20103 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263640AbUGICpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 22:45:10 -0400
+Message-ID: <40EE06B1.1090202@yahoo.com.au>
+Date: Fri, 09 Jul 2004 12:45:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Ingo Molnar <mingo@elte.hu>, wli@holomorphy.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+References: <20040705023120.34f7772b.akpm@osdl.org>	<20040706125438.GS21066@holomorphy.com>	<20040706233618.GW21066@holomorphy.com>	<20040706170247.5bca760c.davem@redhat.com>	<20040707073510.GA27609@elte.hu> <20040707140249.2bfe0a4b.davem@redhat.com>
+In-Reply-To: <20040707140249.2bfe0a4b.davem@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------080007090004060802080407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Shai Fultheim" <shai@scalex86.org> wrote:
->
-> Please find below one out of collection of patched that move NR_CPU array variables to the per-cpu area.
+This is a multi-part message in MIME format.
+--------------080007090004060802080407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is an `allmodconfig' build, gcc-3.4:
+David S. Miller wrote:
+> On Wed, 7 Jul 2004 09:35:10 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> 
+>>the patch below should solve this. Is it safe on sparc to do a
+>>fork_by_hand() like this?
+> 
+> 
+> If the regs are garbage, copy_thread() will explode as it tries
+> to interpret the stack pointer in that regs value.
+> 
+> The parent's regs (stored in current_thread_info() at trap time,
+> and also needed by copy_thread() processing) will also be garbage
+> since we're avoiding the fork syscall trap.
+> 
+> In short, this won't work :)
+> 
+> This is why I use kernel_thread().  Why is that so bad?
+> 
 
-distcc[19912] ERROR: compile on vmm failed
-arch/i386/mm/fault.c: In function `get_segment_eip':
-arch/i386/mm/fault.c:110: error: `per_cpu__cpu_gdt_table' undeclared (first use in this function)
-arch/i386/mm/fault.c:110: error: (Each undeclared identifier is reported only once
-arch/i386/mm/fault.c:110: error: for each function it appears in.)
-arch/i386/mm/fault.c:110: warning: type defaults to `int' in declaration of `type name'
-arch/i386/mm/fault.c:110: error: invalid type argument of `unary *'
-make[1]: *** [arch/i386/mm/fault.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-distcc[20015] ERROR: compile on vmm failed
-arch/i386/kernel/ioport.c: In function `sys_ioperm':
-arch/i386/kernel/ioport.c:86: error: `per_cpu__init_tss' undeclared (first use in this function)
-arch/i386/kernel/ioport.c:86: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/ioport.c:86: error: for each function it appears in.)
-arch/i386/kernel/ioport.c:86: warning: type defaults to `int' in declaration of `type name'
-arch/i386/kernel/ioport.c:86: error: invalid type argument of `unary *'
-make[1]: *** [arch/i386/kernel/ioport.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-distcc[20004] ERROR: compile on vmm failed
-arch/i386/kernel/vm86.c: In function `save_v86_state':
-arch/i386/kernel/vm86.c:124: error: `per_cpu__init_tss' undeclared (first use in this function)
-arch/i386/kernel/vm86.c:124: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/vm86.c:124: error: for each function it appears in.)
-arch/i386/kernel/vm86.c:124: warning: type defaults to `int' in declaration of `type name'
-arch/i386/kernel/vm86.c:124: error: invalid type argument of `unary *'
-arch/i386/kernel/vm86.c: In function `do_sys_vm86':
-arch/i386/kernel/vm86.c:306: error: `per_cpu__init_tss' undeclared (first use in this function)
-arch/i386/kernel/vm86.c:306: warning: type defaults to `int' in declaration of `type name'
-arch/i386/kernel/vm86.c:306: error: invalid type argument of `unary *'
-make[1]: *** [arch/i386/kernel/vm86.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-make: *** Waiting for unfinished jobs....
-distcc[19929] ERROR: compile on vmm failed
-arch/i386/kernel/process.c: In function `exit_thread':
-arch/i386/kernel/process.c:301: error: `per_cpu__init_tss' undeclared (first use in this function)
-arch/i386/kernel/process.c:301: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/process.c:301: error: for each function it appears in.)
-arch/i386/kernel/process.c:301: warning: type defaults to `int' in declaration of `type name'
-arch/i386/kernel/process.c:301: error: invalid type argument of `unary *'
-arch/i386/kernel/process.c: In function `__switch_to':
-arch/i386/kernel/process.c:510: error: `per_cpu__init_tss' undeclared (first use in this function)
-arch/i386/kernel/process.c:510: warning: type defaults to `int' in declaration of `type name'
-arch/i386/kernel/process.c:510: error: invalid type argument of `unary *'
-make: *** [arch/i386/mm] Error 2
+We could make CLONE_IDLETASK clones not do the wakeup?
+
+Ingo? I guess an alternative is to have the arch explicitly
+make a call to dequeue it.
+
+--------------080007090004060802080407
+Content-Type: text/x-patch;
+ name="kernelthread-idle-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernelthread-idle-fix.patch"
+
+
+
+
+---
+
+ linux-2.6-npiggin/kernel/fork.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
+
+diff -puN kernel/fork.c~kernelthread-idle-fix kernel/fork.c
+--- linux-2.6/kernel/fork.c~kernelthread-idle-fix	2004-07-09 12:42:02.000000000 +1000
++++ linux-2.6-npiggin/kernel/fork.c	2004-07-09 12:43:11.000000000 +1000
+@@ -1215,11 +1215,13 @@ long do_fork(unsigned long clone_flags,
+ 			set_tsk_thread_flag(p, TIF_SIGPENDING);
+ 		}
+ 
+-		if (!(clone_flags & CLONE_STOPPED))
+-			wake_up_new_task(p, clone_flags);
+-		else
+-			p->state = TASK_STOPPED;
+-		++total_forks;
++		if (likely(!(clone_flags & CLONE_IDLETASK))) {
++			if (!(clone_flags & CLONE_STOPPED))
++				wake_up_new_task(p, clone_flags);
++			else
++				p->state = TASK_STOPPED;
++			++total_forks;
++		}
+ 
+ 		if (unlikely (trace)) {
+ 			current->ptrace_message = pid;
+
+_
+
+--------------080007090004060802080407--

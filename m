@@ -1,109 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131988AbRDAGEj>; Sun, 1 Apr 2001 01:04:39 -0500
+	id <S131886AbRDAFuS>; Sun, 1 Apr 2001 00:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131992AbRDAGEa>; Sun, 1 Apr 2001 01:04:30 -0500
-Received: from ha1.rdc2.bc.wave.home.com ([24.2.10.68]:47826 "EHLO
-	mail.rdc2.bc.home.com") by vger.kernel.org with ESMTP
-	id <S131988AbRDAGEQ> convert rfc822-to-8bit; Sun, 1 Apr 2001 01:04:16 -0500
-Message-Id: <l03130300b6ec6062bf7d@[192.168.239.105]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Date: Sat, 31 Mar 2001 22:03:28 -0800
-To: linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Revised memory-management stuff (was: OOM killer)
+	id <S131988AbRDAFuI>; Sun, 1 Apr 2001 00:50:08 -0500
+Received: from c209680-a.afour1.il.home.com ([24.14.110.121]:11746 "HELO
+	yakov.dls.net") by vger.kernel.org with SMTP id <S131886AbRDAFuC>;
+	Sun, 1 Apr 2001 00:50:02 -0500
+Date: Sat, 31 Mar 2001 23:58:34 -0600 (CST)
+From: "Arc C." <achapkis@yakov.dls.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel compilation errors
+Message-ID: <Pine.LNX.4.30.0103312352220.29854-100000@yakov.dls.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's clearly been lots of discussion about OOM (and memory management in
-general) over the last week, so it looks like it's time to summarise it and
-work out the solution that's actually going to find it's way into the
-kernel.
+  Hello. I'm trying to compile new kernel 2.4.3 and I get some errors:
 
-Issue 1:
-	The OOM killer was activating too early.  I have a 4-line fix for
-this problem, which has already appeared on the list.  Maybe I should
-forward a copy directly to Alan and/or Linus.
+yakov:/usr/src/linux$ make modules
+....
+....
+make[2]: Entering directory `/home/linux-2.4.3/drivers/block'
+gcc -D__KERNEL__ -I/home/linux-2.4.3/include -Wall -Wstrict-prototypes -O2
+-fomi
+t-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8
+-mcpu=ev4 -Wa,
+-mev6 -DMODULE -DMODVERSIONS -include
+/home/linux-2.4.3/include/linux/modversion
+s.h   -DEXPORT_SYMTAB -c loop.c
+In file included from /home/linux-2.4.3/include/linux/highmem.h:6,
+                 from /home/linux-2.4.3/include/linux/pagemap.h:17,
+                 from /home/linux-2.4.3/include/linux/locks.h:9,
+                 from /home/linux-2.4.3/include/linux/blk.h:6,
+                 from loop.c:65:
+/home/linux-2.4.3/include/asm/pgalloc.h:334: conflicting types for
+`pte_alloc'
+/home/linux-2.4.3/include/linux/mm.h:399: previous declaration of
+`pte_alloc'
+/home/linux-2.4.3/include/asm/pgalloc.h:352: conflicting types for
+`pmd_alloc'
+/home/linux-2.4.3/include/linux/mm.h:412: previous declaration of
+`pmd_alloc'
+make[2]: *** [loop.o] Error 1
+make[2]: Leaving directory `/home/linux-2.4.3/drivers/block'
+make[1]: *** [_modsubdir_block] Error 2
+make[1]: Leaving directory `/home/linux-2.4.3/drivers'
+make: *** [_mod_drivers] Error 2
 
-Issue 2:
-	Applications are not warned when memory is running low, either in
-terms of reserved or allocated memory.  I have implemented an improvement
-on this state of affairs, which makes memory reservation (whether by fork
-or malloc type operations) fail for applications which are larger than 4
-times the unallocated space available.  This also applies to reserved
-memory, but the memory-accounting code needs debugging before this will
-work reliably.  The reason for stopping large processes short of the hard
-OOM line is so that smaller (mostly interactive) processes can still be
-started and run reliably.
+  Here's the output of scripts/ver_linux:
 
-I will probably need some help with debugging the memory-accounting code,
-since it goes into bits of the kernel I know nothing (rather than "very
-little") about.
+Linux yakov.dls.net 2.4.0 #1 Sat Jan 6 20:17:19 CST 2001 alpha unknown
 
-Some posters suggested SIGDANGER, a feature from AIX, to warn processes
-when the system became dangerously low on memory.  Other posters pointed
-out some disadvantages of SIGDANGER, which however (thankfully) only apply
-when SIGDANGER is used in isolation.  For example, a malicious process
-designed to reserve memory within it's SIGDANGER handler could be thwarted
-by malloc() simply failing cleanly as above.  If the process had already
-reserved memory and merely attempted to allocate it (by accessing it), the
-non-memory-overcommit code could defeat it by guaranteeing that the
-reserved memory was already available to be allocated.  Without the
-non-memory-overcommit code, the OOM killer would be triggered - but with
-the improved algorithm I came up with as promised, the effects would be
-less severe on average (and most likely kill the malicious process in
-preference to a valuable batch job or system daemon).
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.10.0.18
+util-linux             2.10m
+modutils               2.4.2
+e2fsprogs              1.19
+Linux C Library        > libc.2.2
+Dynamic linker (ldd)   2.2
+Procps                 2.0.7
+Net-tools              1.56
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         autofs
 
-I have not implemented SIGDANGER, but I don't see any reason why it
-shouldn't be implemented.  Certain implementation details will need some
-care.
+yakov:/usr/src/linux$ cat /proc/cpuinfo
+cpu                     : Alpha
+cpu model               : EV4
+cpu variation           : 0
+cpu revision            : 0
+cpu serial number       : Linux_is_Great!
+system type             : Avanti
+system variation        : 0
+system revision         : 0
+system serial number    : MILO-2.0.35-c5.
+cycle frequency [Hz]    : 233313724
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 34
+max. addr. space #      : 63
+BogoMIPS                : 459.64
+kernel unaligned acc    : 8 (pc=fffffc000040e100,va=fffffc00001c79f2)
+user unaligned acc      : 8184 (pc=1200016dc,va=11ffff6c2)
+platform string         : N/A
+cpus detected           : 0
 
-Issue 3:
-	The OOM killer was frequently killing the "wrong" process.  I have
-developed an improved badness selector, and devised a possible means of
-specifying "don't touch" PIDs at runtime.  PID 1 is never selected for
-killing.  I am debating whether to allow selection of *any* process
-labelled "init" and running as root for the chop, since one of the "unusual
-but frequently encountered" scenarios is for a second init to be running
-during an install or recovery procedure.  This might make it's way in as an
-optional feature.
+  Thank you,
 
-Issue 4:
-	Memory overcommit.  I totally agree with those posters who point
-out that there are situations where this is a Bad ThingÅ, specifically in
-mission-critical environments.  However, for the "average" system, I still
-quite firmly believe it has some advantages.  Since the
-non-memory-overcommit code needs a fair amount of debugging (after I
-hacksawed it in to fit the latest kernels), I hope the solutions to the
-first 3 issues are sufficient to satisfy most people for the time being.
-
-Issue 5:
-	VM balancing needs a *lot* of work.  During my exercising of the
-memory-management code, I noticed that memory-hogging applications could
-completely stall the machine, even when there is a lot of physical RAM
-available.  I'm considering some simple algorithms to help alleviate this -
-these generally amount to a variation on the "suspend some processes when
-thrashing" theory.  I'll need to think about these for a bit though, and
-try to implement them when I have time.
-
-Expect to see patches (containing the fixes mentioned above) on the list soon.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+Arc C.
 

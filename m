@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315257AbSGECH0>; Thu, 4 Jul 2002 22:07:26 -0400
+	id <S315182AbSGECOY>; Thu, 4 Jul 2002 22:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSGECHZ>; Thu, 4 Jul 2002 22:07:25 -0400
-Received: from [24.114.147.133] ([24.114.147.133]:4994 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S315257AbSGECHY>;
-	Thu, 4 Jul 2002 22:07:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: jlnance@intrex.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Date: Fri, 5 Jul 2002 04:11:02 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020619113734.D2658@redhat.com> <E17PyXt-0000hm-00@starship> <20020704101501.A19611@tricia.dyndns.org>
-In-Reply-To: <20020704101501.A19611@tricia.dyndns.org>
+	id <S315265AbSGECOX>; Thu, 4 Jul 2002 22:14:23 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39689
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315182AbSGECOW>; Thu, 4 Jul 2002 22:14:22 -0400
+Date: Thu, 4 Jul 2002 19:15:29 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
+       sullivan@austin.ibm.com
+Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot! 
+In-Reply-To: <200207042259.g64MxdH03605@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10207041900080.19028-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17QIYp-00061b-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 July 2002 16:15, jlnance@intrex.net wrote:
-> On Thu, Jul 04, 2002 at 06:48:45AM +0200, Daniel Phillips wrote:
-> > > behaviour under certain application workloads.  With the half-md4, at
-> > > least we can expect decent worst-case behaviour unless we're under
-> > > active attack (ie. only maliscious apps get hurt).
-> > 
-> > OK, anti-hash-attack is on the list of things to do, and it's fairly
-> > clear how to go about it:
+On Thu, 4 Jul 2002, James Bottomley wrote:
+
+> andre@linux-ide.org said:
+> > The whole reason for my replacement was to add driverfs to IDE and
+> > remove devfs and ultimately "de-gooch" the kernel.  So we are nearly
+> > 100 patches in and the primary reason for ousting is still a failure,
+> > NICE! 
 > 
-> Is it really worth the trouble and complexity to do anti-hash-attack?
-> What is the worst that could happen if someone managed to create a bunch
-> of files that hashed to the same value?
+> Well, perhaps we have slightly different agendas.  I think driverfs will solve 
+> a whole series of enumeration and mapping problems that occur in the SCSI 
+> mid-layer and which get especially tortuous with Fibre Channel.  I also think 
+> it will help us bring the SCSI and IDE views closer together.
 
-Just a slowdown, but in some cases it could be a quadratic slowdown
-that could conceivably be turned into a denial of service.  As risks
-go, it's a minor one, but there's a straightforward solution with
-insignificant cost in either efficiency or code size, so why not do
-it.  The overhead is just a data move from the superblock per name 
-hash.
+Well there was this model I started before I got booted to unify the
+transport layer to operate under the classic/standard CDB model.  However
+this would require fixing the FS's (which are bit-buckets for data
+archives, and no more than a filing cabinet with cool features),
+exteneding block to do nothing but translate between FS <> STORAGE.
+Next was to have asymetric transfer because disk drives reorder to their
+desire, regardless what the meatballs in Linux think.  Linux could vastly
+impove its position in storage if it did two simple things.
 
--- 
-Daniel
+	1) 8K writes and 64K (or larger) reads.
+	2) ONE maybe TWO passes on elevator operations.
+
+Since this is falling on deaf ears in general, oh well.
+Maybe you can carry the banner of sanity.
+
+> I persuaded Linus to put the SCSI driverfs patches in the kernel even though I 
+> knew they touched more than SCSI (the partitions code) and were not as modular 
+> as I would have liked.  The reason is that we need to get as much visibility 
+> on this as possible before the code freeze.  I'm fully prepared to sort out 
+> any problems with this as they arise (and indeed the panic is already fixed).
+
+Great!
+
+I have no problems with "driverfs".
+
+> I believe it's a variation of a principle attributable to a wise Australian:  
+> get the right solution in, even if not quite the right implementation.  That 
+> way, everyone will be extrememly motivated to help produce the right 
+> implementation.
+
+I prefer what Col. Medberry told to be "Perfectly Lazy!"
+"Son, DO IT ONCE and ONLY ONCE, as not to REPEAT THE SAME ERROR!!!!"
+
+This comes after taking his course for the second time, and being ripped
+out of the class rooom and being addressed in a very stern manner.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,125 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbSKSNkn>; Tue, 19 Nov 2002 08:40:43 -0500
+	id <S265187AbSKSNsT>; Tue, 19 Nov 2002 08:48:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265187AbSKSNkn>; Tue, 19 Nov 2002 08:40:43 -0500
-Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:19414 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264984AbSKSNkm>; Tue, 19 Nov 2002 08:40:42 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 19 Nov 2002 05:47:38 -0800
-Message-Id: <200211191347.FAA11306@adam.yggdrasil.com>
-To: rusty@rustcorp.com.au
-Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories
-Cc: linux-kernel@vger.kernel.org
+	id <S265306AbSKSNsT>; Tue, 19 Nov 2002 08:48:19 -0500
+Received: from 251-120-ADSL.red.retevision.es ([80.224.120.251]:28867 "EHLO
+	marcet.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265187AbSKSNsS>; Tue, 19 Nov 2002 08:48:18 -0500
+Date: Tue, 19 Nov 2002 14:55:25 +0100
+From: Javier Marcet <jmarcet@pobox.com>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bttv & 2.5.48
+Message-ID: <20021119135525.GB14615@jerry.marcet.dyndns.org>
+References: <7F54A233BE1@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
+Content-Disposition: inline
+In-Reply-To: <7F54A233BE1@vcnet.vc.cvut.cz>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Gentoo GNU/Linux 1.4 / i686 AMD Athlon(TM) XP 1800+ AuthenticAMD
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
->In message <20021118073247.A10109@adam.yggdrasil.com> you [Adam Richter] write:
->Hmm, I'm not entirely convinced.  Moving back into subdirs introduces
->a namespace which isn't really there.
 
-	As you may already have realized, the phrase "introduces a
-namespace which isn't really there" does not show something that you
-would be prevented or enabled to do, nor does it argue any real
-trade-off (performance, kernel footprint, lines of code to maintain,
-etc.).  In comparison, "select all SCSI and IDE drivers without having
-to release a new version of the ramdisk maker every time a new SCSI or
-IDE driver is added" does identify useful functionality that the
-module tree enables.
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+* Petr Vandrovec <VANDROVE@vc.cvut.cz> [021119 15:27]:
 
->However, as you say, it's trivial.
+>> drivers/media/video/bttv-cards.c: In function AUDC_CONFIG_PINNACLE' unde=
+clared (first use in this function)
+>> drivers/media/video/bttv-cards.c:1742: (Each undeclared identifier is re=
+ported only once
+>> drivers/media/video/bttv-cards.c:1742: for each function it appears in.)
+>> drivers/media/video/bttv-cards.c: In function name'
+>> make[4]: *** [drivers/media/video/bttv-cards.o] Error 1
+>> make[3]: *** [drivers/media/video] Error 2
+>> make[2]: *** [drivers/media] Error 2
+>> make[1]: *** [drivers] Error 2
+>> make: *** [modules] Error 2
+>>=20
+>> I know this has not changed since 2.5.47, nor couldn't spot any
+>> difference within the /media tree, yet it fails on 2.5.48 while it
+>> compiled fine on 2.5.47
+=20
+>> Any idea where the error might be?
 
-	Yes, I see it as this code complexity trade-off:
+>I just commented out that offending line, as I do not have Pinnacle,
+>so it should be never executed ;-)
 
-	     - Add ~50 lines to modprobe
+That's the first thing I did, but how's that it compiled fine in 2.5.47
+if nothing changed?
 
-	       vs.
+>If you have Pinnacle, then you'll have to get tda9887 driver somewhere.
+>This driver defines AUD_CONFIG_PINNACLE (as far as I can tell from
+>missing pieces...).
 
-	     - Need to release new ramdisk builders or have users
-	       maintain custom tables to be able to select of modules
-	       by functional description (for example, "USB controllers").
-	       Users who do not do this may not appreciate it, but it's
-	       an important capability for keeping boot image sizes under
-	       control.
-
-	Also, from a system administratiion standpoint, you can more
-readily tell if, say, you forgot to build sound or firewire entirely,
-as opposed to just a few specific drivers.
-
->> 	I am sorry I was not able to test this change, but it would be
->> a lot of work for me to bring up a system without module device ID
->> table support.  I know your ChangeLog says that support is coming.  I
->> wonder if it would break your module utilities to leave the old macros
->> device ID macros in place and let people run the existing depmod.
-
->I'm actually tempted to push your patch for the moment, since it might
->be a week before device ID support is tested and polished enough to go
->in, with everything else I am doing.
-
-	I am not attached to a particular format.  It's just that the
-disruption of stoppping the device ID tables from working is
-unnecessary.  Integrating my change as temporary is fine.
+It's one of the two cards I have but I'm not have it plugged it ATM.
 
 
->OTOH, the current method exposes
->kernel internals to external userspace programs, which is why I do it
->differently.
+--=20
+Javier Marcet <jmarcet@pobox.com>
 
-	At the moment you don't do it, so I can't compare.  I can only
-point out that requiring a particular ELF format also exposes
-internals in another way and that something needs to read the hardware
-support advertisements from every module and generate tables
-translating that hardware support to module names.  Also bear in mind
-that you many need to generate those tables for a kernel different
-from the one you are currently running.
+--ADZbWkCsHQ7r3kzd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->> 	I also worry about about the latency of reading the
->> kernel symbols for all modules every time modprobe is called.  If I
->> want to have all of the modules installed, that's at least 1143
->> modules on x86, and this might be the standard installation of a Linux
->> distribution.  Here again, the existing depmod program could be used.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
->Yes, it's a fairly obvious optimization: I'd be very interesting in
->timing measurements.  Another method is to use
->/var/cache/modprobe/`uname-r`.dep and use it if available and more
->recent than any module (removes the requirement for depmod).
+iEYEARECAAYFAj3aQs0ACgkQx/ptJkB7frwHxgCfYwPk5AvjThy/EjhoKW4lsR+k
+HOUAn1BhZ6FypTmo1OGEe6IMVyWVRojH
+=/J+6
+-----END PGP SIGNATURE-----
 
-	OK, once your new module scheme works well enough so that
-I can complete a boot, I should be able to do "time modprobe foo"
-pretty readily.
-
-	In the meantime, I think I can guess which approach will be
-faster and which one will scale better as the number of modules
-available increases (read ~6000 symbols from ~1000 modules and compute
-transitive closure for a set of symbols or read and walk a tree from
-one file).
-
-	Also, although depmod currently does not do this, it could be
-changed to catch any reference loops, making it easier to ensure that
-distributions do not ship with these problems, even for obscure
-hardware.
-
-	The code for descending into directories could also go away,
-given modules.dep.
-
-	Finally, since you seem to think that the trade-off of user
-level simplicity at the expense of kernel complexity in this case is
-worth it, you might like to consider that this change could reduce or
-completely eliminate all references to ELF in modprobe and insmod.
-depmod would still have such dependency, but it can be a bigger
-program.  
-
->> 	Finally, I am skeptical of the benefits being worth the cost
->> of putting an ELF relocator and symbol table parser in the kernel.
-
->From the (just posted) FAQ:
-
-	Great.  I'll submit comments on it separately.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+--ADZbWkCsHQ7r3kzd--

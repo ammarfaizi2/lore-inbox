@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHKH4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267967AbUHKIGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUHKH4w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 03:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUHKH4w
+	id S267967AbUHKIGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 04:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267989AbUHKIGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 03:56:52 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:21637 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S267985AbUHKH4u convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 03:56:50 -0400
-X-Sender-Authentication: net64
-Date: Wed, 11 Aug 2004 09:56:48 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jbglaw@lug-owl.de, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       diablod3@gmail.com, dwmw2@infradead.org, eric@lammerts.org,
-       james.bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040811095648.329fb9b9.skraw@ithnet.com>
-In-Reply-To: <200408102133.i7ALXAOf014580@burner.fokus.fraunhofer.de>
-References: <200408102133.i7ALXAOf014580@burner.fokus.fraunhofer.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 11 Aug 2004 04:06:13 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:29424 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267967AbUHKIFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 04:05:51 -0400
+Date: Wed, 11 Aug 2004 10:05:22 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Gene Heskett <gene.heskett@verizon.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: Possible dcache BUG
+Message-ID: <20040811080522.GB11214@k3.hellgate.ch>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408102342.12792.gene.heskett@verizon.net> <Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org> <200408110047.32611.gene.heskett@verizon.net> <Pine.LNX.4.58.0408102159000.1839@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408102159000.1839@ppc970.osdl.org>
+X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004 23:33:10 +0200 (CEST)
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+On Tue, 10 Aug 2004 21:59:48 -0700, Linus Torvalds wrote:
+> That should be "ps axv" of course. Just shows what a retard I am.
 
-> >From: Stephan von Krawczynski <skraw@ithnet.com>
-> 
-> >On Tue, 10 Aug 2004 18:10:57 +0200
-> >Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> 
-> >> Actually, I use Debian since, um, long ago:)  But accept that Jörg
-> >> doesn't really like to care about f*cked up patched versions of
-> >> cdrecord.
-> 
-> >He does not need to. Nobody told him to do.
-> >Besides I doubt that only the patched versions are actually "f*cked up".
-> >My personal experience with cdrecord is that neither version works well on my
-> >system.
+Note that some of those columns won't work as advertised. I'd be
+particularly suspicious about DRS and TRS.
 
-> [a lot of advertising deleted by Joerg deleted]
-
-Nobody besides you talked about that product.
-
-Regards,
-Stephan
+Roger

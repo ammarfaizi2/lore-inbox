@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286647AbSCKSZQ>; Mon, 11 Mar 2002 13:25:16 -0500
+	id <S285692AbSCKSZQ>; Mon, 11 Mar 2002 13:25:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSCKSZH>; Mon, 11 Mar 2002 13:25:07 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:62474 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S285424AbSCKSYw>; Mon, 11 Mar 2002 13:24:52 -0500
-Message-ID: <3C8CF62C.3040902@evision-ventures.com>
-Date: Mon, 11 Mar 2002 19:23:40 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <E16kTdQ-0001AB-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S285424AbSCKSZI>; Mon, 11 Mar 2002 13:25:08 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:17793 "EHLO
+	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S285720AbSCKSZB>; Mon, 11 Mar 2002 13:25:01 -0500
+Subject: Re: 23 second kernel compile (aka which patches help scalibility on
+	NUMA)
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
+In-Reply-To: <126403558.1015667602@[10.10.2.3]>
+In-Reply-To: <20020309164305.GA2914@codepoet.org> 
+	<126403558.1015667602@[10.10.2.3]>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 11 Mar 2002 10:23:37 -0800
+Message-Id: <1015871017.1276.48.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>OK, so there is no f*cking magic utility from IBM to do suspend
->>of MicroDrives under linux through the TASKFILE interface at all
->>as you have climed!
->>
-> 
-> I wrote some bits for the PC110 to work around the APM problem.
-> 
-> 
->>>No because Microsoft implement the bloody standard in the first place. It
->>>
->>Hack, then tell me what I'm at?
->>
-> 
-> I'd hope implementing the bloody standard. 
-> 
-> 
->>Andre Hedrick will may kill you... However apparently we agree that
->>there is something wrong with the current driver.
->>
-> 
-> Yes. There is an awful lot wrong
-> 
-> 
->>It wasn't a claim but just a suspiction. So this is cleared.
->>But apparently there is no special IBM command using taskfile
->>to do magic things to it. So therefore it's still valid:
->>your example was indeed a mock-up.
->>
-> 
-> There are standard commands for power management, and for cache flush.
-> 
-> 
->>to them. But the application notes from IBM and actual code
->>from different operating systems gives a much better formal
->>description of what is needed anyway. Or are you going to claim
->>that narrative languaue is more precise then actual C code?
->>
-> 
-> That depends if the C code is right.
+  Ours is only a 16 way 500MHz machine but I do have 16 GB of memory
+and we could stripe stuff across 80 disk drives. :-)
 
-Not quite if it still works... or if nobody is implementing
-the standard up to word, becouse for example everybody was
-deriving the drivers (or let's say it clear: his TCP/IP stack)
-from the same basic source code and finally the hardware adjusted
-to the reality instead of the standard.
-Or if the standard was in fact just an aftertought after some
-"refference implementation".
-And anyway it's hard to argue that code is formally tighter then
-narrative. (I didn't argue whatever it's formally correct).
-That's a rather trivial fact.
+Tim
 
-But anyway I think you understand those issues and it's a bit
-"theoretical" in respect to the ATA stuff right now.
-
-> Understand - I really appreciate the fact you are planning to tackle this
-> its just the way it comes across on correctness or lack thereof I find a
-> little alarming. Maybe I am misjudging you - if so I certainly apologise
-
-So let's just settle on the fruitless discussions and wait and see... OK?
-Peace? I was basically just alarmed by the fact that you sounded a bit
-discouraging to Pavel. (BTW.> The flush part I have already just added to my
-sorcebase for the parts which Pavels patch tangles... ;-)
+On Sat, 2002-03-09 at 09:53, Martin J. Bligh wrote:
+> --On Saturday, March 09, 2002 9:43 AM -0700 Erik Andersen <andersen@codepoet.org> wrote:
+> > On Fri Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
+> >> "time make -j32 bzImage" is now down to 23 seconds.
+> >> (16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
+> > [-----------snip---------]
+> >> Any other suggestions are welcome. I'd also be interested
+> > 
+> > I suggest that you should give me your computer.  ;-) 
+> 
+> There's a very similar machine that's publicly available
+> in the OSDL (http://www.osdlab.org). I don't think they'll
+> let you take it home, but access is half way there ;-)
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

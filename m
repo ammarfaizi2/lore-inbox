@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282398AbRKXIDm>; Sat, 24 Nov 2001 03:03:42 -0500
+	id <S282399AbRKXIFc>; Sat, 24 Nov 2001 03:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282399AbRKXIDc>; Sat, 24 Nov 2001 03:03:32 -0500
-Received: from lacutis.anu.edu.au ([150.203.193.28]:47006 "EHLO lacutis")
-	by vger.kernel.org with ESMTP id <S282398AbRKXIDV>;
-	Sat, 24 Nov 2001 03:03:21 -0500
-Date: Sat, 24 Nov 2001 19:04:12 +1100
-From: Patrick Cole <z@amused.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No recording on maestro3 (hp omnibook xe3)
-Message-ID: <20011124190412.A14605@wapcaplet>
-In-Reply-To: <20011124003330.A106@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011124003330.A106@elf.ucw.cz>
-User-Agent: Mutt/1.3.23i
+	id <S282401AbRKXIFW>; Sat, 24 Nov 2001 03:05:22 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:43962 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282399AbRKXIFF>;
+	Sat, 24 Nov 2001 03:05:05 -0500
+Date: Sat, 24 Nov 2001 03:05:02 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.15-pre9 breakage (inode.c)
+In-Reply-To: <20011124084455.B1419@athlon.random>
+Message-ID: <Pine.GSO.4.21.0111240247300.4000-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, Nov 24, 2001 at 12:33:31AM +0100, Pavel Machek wrote:
 
-> When I do cat /dev/dsp, I get no data, and 
+
+On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+
+> > Notice that it fixes _all_ problems with stale inodes, with only one rule
+> > for fs code - "don't call iput() when ->clear_inode() doesn't work".  Your
+> > variant requires funnier things - "if at some point ->clear_inode()
+> > may stop working make sure to call invalidate_inodes()" in addition to
+> > the rule above.
 > 
-> Nov 24 00:31:55 amd kernel: read: chip lockup? dmasz 65536 fragsz 64 count 0 hwptr 0 swptr 0
-> Nov 24 00:31:58 amd last message repeated 3 times
-> 
-> in the log. Is there way to help me? linux 2.4.14
+> the rule I add is "if ->clear_inode is really needed, just don't clear
+> s_op before returning null from read_super" and that requirement looks
+> fine.
 
-Well my maestro3 works fine recording; cat /dev/dsp gives lots of rubbish.
-I have however noticed that on odd occasion it just stops working (no playing
-or nothing.. totally dead) and a reboot is required to get functionality back. 
-Anyone had this problem before? 
+It's not that simple.  You may need the per-superblock data structures for
+->clear_inode() to work.
 
-This is the maestro3 from the Inspiron 8100.  Here is the relevant data:
-
-maestro3: version 1.22 built at 20:12:16 Nov 13 2001
-PCI: Found IRQ 5 for device 02:03.0
-maestro3: Configuring ESS Maestro3(i) found at IO 0xEC00 IRQ 5
-maestro3:  subvendor id: 0x00e61028
-
-Sep 30 23:32:31 jaded kernel: read: chip lockup? dmasz 65536 fragsz 64 count 0 hwptr 19808 swptr 19808
-Sep 30 23:32:32 jaded kernel: read: chip lockup? dmasz 65536 fragsz 64 count 0 hwptr 19808 swptr 19808
-
-Cheers,
-
-  Patrick
+In any case, it _is_ additional rule for no good reason.  "inode may stay
+in icache after iput() only when fs is up and running" is a warranty that
+is trivial to provide and that removes a source of hard-to-debug screwups
+in fs code.
 

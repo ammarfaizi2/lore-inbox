@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266045AbUALFFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 00:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266047AbUALFFI
+	id S266047AbUALFO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 00:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266048AbUALFO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 00:05:08 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24839 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266045AbUALFFD
+	Mon, 12 Jan 2004 00:14:58 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:33457 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266047AbUALFO5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 00:05:03 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Date: Mon, 12 Jan 2004 00:06:31 -0500
-Organization: TMR Associates, Inc
-Message-ID: <btt971$3p8$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange> <1073745028.1146.13.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1073883169 3880 192.168.12.10 (12 Jan 2004 04:52:49 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <1073745028.1146.13.camel@nidelv.trondhjem.org>
+	Mon, 12 Jan 2004 00:14:57 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: ACPI: problem on ASUS PR-DLS533
+Date: Mon, 12 Jan 2004 13:14:48 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CA8@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI: problem on ASUS PR-DLS533
+Thread-Index: AcPVGsFSl5lM+R3iTnWFTfSivyz6rgDru0Nw
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Stephan von Krawczynski" <skraw@ithnet.com>
+Cc: <andreas@xss.co.at>, <andrew@walrond.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Jan 2004 05:14:49.0396 (UTC) FILETIME=[00725740:01C3D8CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+>> >I have some TRL-DLS here (P-III). They have dual AIC onboard which
+are
+>> not
+>> >recognised under 2.4.24 but work flawlessly with ACPI in 2.4.23.
+>> 
+>> Are you sure?  You seems to want to say this is a regression.
+>
+>Yes. That is exactly what happened.
+>
+>2.4.23 works flawlessly
+>2.4.24 does not recognise both onboard aic
 
-> No! People who have problems with the support for large rsize/wsize
-> under UDP due to lost fragments can
-> 
->   a) Reduce r/wsize themselves using mount
->   b) Use TCP instead
-> 
-> The correct solution to this problem is (b). I.e. we convert mount to
-> use TCP as the default if it is available. That is consistent with what
-> all other modern implementations do.
-> 
-> Changing a hard maximum on the server in order to fit the lowest common
-> denominator client is simply wrong.
-
-So set the default buffer size to 8k if UDP is being used. Other than 
-getting people to believe 2.6 is broken, you buy nothing. People running 
-UDP are probably not cutting edge state of the art, let the default be 
-small and the client negotiate up if desired.
-
-Why do so many Linux people have the idea that because a standard says 
-they CAN do something, it's fine to do it in a way which doesn't conform 
-to common practice. And Linux 2.4 practice should count even if you 
-pretend that Solaris, AIX, Windows and BSD don't count...
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Since you are so sure, could you file a tracker on bugzilla, and post
+info
+to demonstrate that fact. It's really interesting.

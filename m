@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTIJLRb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbTIJLRT
+	id S262001AbTIJLOy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTIJLOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:17:19 -0400
-Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:39430
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S262482AbTIJLRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:17:16 -0400
-Message-ID: <3F5F0820.3090003@cyberone.com.au>
-Date: Wed, 10 Sep 2003 21:16:48 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Wed, 10 Sep 2003 07:14:53 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12210 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262001AbTIJLOw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 07:14:52 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Kernel-janitors] [PATCH] Remove modules.txt
+Date: Wed, 10 Sep 2003 13:14:41 +0200
+User-Agent: KMail/1.5.1
+Cc: kernel-janitors@osdl.org
+References: <20030910075240.F17CB2C75C@lists.samba.org>
+In-Reply-To: <20030910075240.F17CB2C75C@lists.samba.org>
 MIME-Version: 1.0
-To: Luca Veraldi <luca.veraldi@katamail.com>
-CC: Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Efficient IPC mechanism on Linux
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910120729.C14352@devserv.devel.redhat.com> <20030910103752.GC21313@mail.jlokier.co.uk> <20030910124151.C9878@devserv.devel.redhat.com> <02bc01c37789$ebfa9a40$5aaf7450@wssupremo>
-In-Reply-To: <02bc01c37789$ebfa9a40$5aaf7450@wssupremo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309101314.41460.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 10 September 2003 09:45, Rusty Russell wrote:
+> modules.txt contains mainly ancient information which is replicated
+> in the kconfig help message, README, makefile.txt or the modprobe manual
+> page.  
+
+I found another such gem in Documentation/smp.tex, which was last updated
+more than five years ago. Favorite quote:
+
+ "A single lock is maintained across all processors. This lock is
+  required to access the kernel space."
+
+The whole file has only historic value and should probably be removed
+or have a comment that it does not apply to the current code.
 
 
-Luca Veraldi wrote:
-
->>Memory is sort of starting to be like disk IO in this regard.
->>
->
->Good. So the less you copy memory all around, the better you permorm.
->
-
-Hi Luca,
-There was a zero-copy pipe implementation floating around a while ago
-I think. Did you have a look at that? IIRC it had advantages and
-disadvantages over regular pipes in performance.
-
-Nick
-
-
+	Arnd <><

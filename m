@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262515AbTCMULW>; Thu, 13 Mar 2003 15:11:22 -0500
+	id <S262512AbTCMUK6>; Thu, 13 Mar 2003 15:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262517AbTCMULW>; Thu, 13 Mar 2003 15:11:22 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:11470 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262515AbTCMULU>;
-	Thu, 13 Mar 2003 15:11:20 -0500
-Date: Thu, 13 Mar 2003 12:21:59 -0800
-From: Dave Olien <dmo@osdl.org>
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: DAC960 in 2.5.59 vs modem
-Message-ID: <20030313202159.GA23107@osdl.org>
-References: <20030313163926.6e95029f.deepfire@ibe.miee.ru>
+	id <S262515AbTCMUK6>; Thu, 13 Mar 2003 15:10:58 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:4517 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262512AbTCMUK5>;
+	Thu, 13 Mar 2003 15:10:57 -0500
+Date: Thu, 13 Mar 2003 23:20:35 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: alan@redhat.com, linux-kernel@vger.kernel.org, eokerson@quicknet.net,
+       torvalds@transmeta.com
+Subject: Memleak in Internet PhoneJACK driver
+Message-ID: <20030313202035.GA3292@linuxhacker.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030313163926.6e95029f.deepfire@ibe.miee.ru>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Sam,
+   There is unfree memory on error return path in ixj_build_filter_cadence().
+   Trivial patch that applies to both 2.4 and 2.5 is below.
+   Found with help of smatch + enhanced ufree patch.
 
-Hmmm...  You're not giving me a lot of information here.
-What version Linux are you running?  Is this new behavior
-since you upgraded to a new kernel version, or is this
-an entirely new configuration?
+Bye,
+    Oleg
 
-What device are you running ppp over?
-
-Do the DAC960 and your ppp device happen to share IRQ?
-
-Dave Olien
-
-
-On Thu, Mar 13, 2003 at 04:39:26PM +0300, Samium Gromoff wrote:
-> 	The matters are quite simple: any disk acces to the drives on my
->   DAC960PL tends to kill my ppp connection. that is on a p3-600.
-> 
-> regards, Samium Gromoff
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+===== drivers/telephony/ixj.c 1.16 vs edited =====
+--- 1.16/drivers/telephony/ixj.c	Fri Aug 23 04:23:39 2002
++++ edited/drivers/telephony/ixj.c	Thu Mar 13 23:15:51 2003
+@@ -6001,12 +6001,14 @@
+ 		if(ixjdebug & 0x0001) {
+ 			printk(KERN_INFO "Could not copy cadence to kernel\n");
+ 		}
++		kfree(lcp);
+ 		return -EFAULT;
+ 	}
+ 	if (lcp->filter > 5) {
+ 		if(ixjdebug & 0x0001) {
+ 			printk(KERN_INFO "Cadence out of range\n");
+ 		}
++		kfree(lcp);
+ 		return -1;
+ 	}
+ 	j->cadence_f[lcp->filter].state = 0;

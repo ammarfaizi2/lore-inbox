@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290848AbSARWAW>; Fri, 18 Jan 2002 17:00:22 -0500
+	id <S290850AbSARWMR>; Fri, 18 Jan 2002 17:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290851AbSARWAM>; Fri, 18 Jan 2002 17:00:12 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:42760 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S290848AbSARWAE>; Fri, 18 Jan 2002 17:00:04 -0500
-Message-ID: <3C489AD9.8010307@lexus.com>
-Date: Fri, 18 Jan 2002 13:59:53 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lathi@seapine.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
+	id <S290852AbSARWMI>; Fri, 18 Jan 2002 17:12:08 -0500
+Received: from marc1.theaimsgroup.com ([63.238.77.171]:28169 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id <S290850AbSARWLz>; Fri, 18 Jan 2002 17:11:55 -0500
+Date: Fri, 18 Jan 2002 17:11:39 -0500
+Message-Id: <200201182211.RAA06149@mailer.progressive-comp.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: rm-ing files with open file descriptors
-In-Reply-To: <87lmevjrep.fsf@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Normal unix behaviour -
+On 2002-01-18, Ken Brownfield <brownfld@irridia.com> wrote:
 
-It's always been that way....
+> One nasty side-effect is space allocation -- after unlinking a file and
+> writing to it, you can fill the disk without the file showing up in
+> 'ls' or 'du', etc.  Hard to debug.  Stronghold on Solaris used to do
+> this with log files -- HUP did not discard the old FDs.
 
-jjs
+Hell, syslogd on Linux used to do that ;)
 
-Doug Alcorn wrote:
+Linux's /proc/PID/fd/* will (nowadays) tell you the path/name of files that
+have been unlinked but have active file descriptors, which at least makes
+this less painful to track down *once you think of it*.
 
->I had a weird situation with my application where the user deleted all
->the database files while the app was still reading and writing to the
->opened file descriptor.  What was weird to me was that the app didn't
->complain.  It just went merrily about it's business as if nothing were
->wrong.  Of course, after the app shut down all it's data was lost.
->
->Since I didn't expect this behavior I wrote a simple little program to
->test it[1].  Sure enough, you can rm a file that has opened file
->descriptors and no errors are generated.  Interestingly, sun solaris
->does the same thing.  Since this is the case, I thought this might be
->a feature instead of a bug (ms-win doesn't allow the rm).  So, my
->question is where is this behavior defined?  Is it a kernel issue?
->Does POSIX define this behavior?  Is it a libc issue?  
->
->I tried to google this, but couldn't think of the right terms to
->describe it.  As I'm not on lkm, I would appreciate a CC: to
-><doug@lathi.net>.
->
-
-
+--
+Hank Leininger <hlein@progressive-comp.com> 
+  

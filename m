@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288952AbSATTb7>; Sun, 20 Jan 2002 14:31:59 -0500
+	id <S288955AbSATTd7>; Sun, 20 Jan 2002 14:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288953AbSATTbt>; Sun, 20 Jan 2002 14:31:49 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:63388 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S288952AbSATTbe>; Sun, 20 Jan 2002 14:31:34 -0500
-Date: Sun, 20 Jan 2002 14:31:29 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Larry McVoy <lm@bitmover.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Would anyone be willing to host a second kernel.org site?
-In-Reply-To: <20020119171013.T30683@work.bitmover.com>
-Message-ID: <Pine.GSO.4.33.0201201424130.28783-100000@sweetums.bluetronic.net>
+	id <S288956AbSATTdt>; Sun, 20 Jan 2002 14:33:49 -0500
+Received: from mustard.heime.net ([194.234.65.222]:39145 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S288955AbSATTdi>; Sun, 20 Jan 2002 14:33:38 -0500
+Date: Sun, 20 Jan 2002 20:33:25 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Christian Hammers <ch@westend.com>, <ext2-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] ext3 fs corruption with 2.4.17
+In-Reply-To: <20020118104846.Q29178@lynx.adilger.int>
+Message-ID: <Pine.LNX.4.30.0201202031270.13442-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jan 2002, Larry McVoy wrote:
->> Anyone have any ideas of some organization who would be willing to
->> host a second kernel.org server?  Such an organization should expect
->> around 25 Mbit/s sustained traffic, and up to 40-100 Mbit/s peak
->> traffic (this one can be adjusted to fit the available resources.)
->
->We've priced this lately and I think the cheapest you are looking at is
->around $6500/month for a 25Mbit connection.  That's not a huge amount of
->money but it's enough that it shows up on people's radar screens as a line
->item, it's $80K/year, so there would have to be some justification.
+hi
 
-Yep.  I still laugh at those who say "bandwidth is free."  They've obviously
-never bought anything from UUNet.  At any rate, a full DS3 (45mbps) will
-run between 7k and 20k USD per _month_.  Last time I checked, kernel.org
-didn't have the funds for 7k/year much less per month.
+I keep getting the exact same error
 
-Server colocation is a far cheaper solution, but then they have the
-same problems they have now... limited access to the hardware when something
-goes wrong (and it always does.)
+EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884763
+EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884764
+EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884765
+EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884766
+EXT3-fs error (device ide2(33,0)): ext3_new_block: Allocating block in system zone - block = 884767
+...
 
---Ricky
+The fs is newly created, and the computer has been working fine all the time.
 
+Anyone know what this is ?
+
+I'm running 2.4.17-tux-ide-rmap11c
+
+
+roy
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,69 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVCaEUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVCaET5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVCaEUb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 23:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVCaEUa
+	id S261954AbVCaET5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 23:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVCaETv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 23:20:30 -0500
-Received: from mta8.srv.hcvlny.cv.net ([167.206.4.203]:29253 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261948AbVCaERT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 23:17:19 -0500
-Date: Wed, 30 Mar 2005 23:16:46 -0500
-From: Nick Orlov <bugfixer@list.ru>
-Subject: Re: 2.6.12-rc1-mm3: class_simple API
-In-reply-to: <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Mail-followup-to: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Message-id: <20050331041646.GA24665@nikolas.hn.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.8i
-References: <20050327180431.GA4327@nikolas.hn.org>
- <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
+	Wed, 30 Mar 2005 23:19:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48359 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261954AbVCaER5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 23:17:57 -0500
+Message-ID: <424B79E6.90300@pobox.com>
+Date: Wed, 30 Mar 2005 23:17:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: sean <seandarcy2@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: BK snapshots removed from kernel.org?
+References: <200503271414.33415.nbensa@gmx.net> <20050327210218.GA1236@ip68-4-98-123.oc.oc.cox.net> <200503281226.48146.nbensa@gmx.net> <4248258A.1060604@osdl.org> <d2fr2e$lvo$1@sea.gmane.org> <424B72CC.8030801@osdl.org>
+In-Reply-To: <424B72CC.8030801@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------020601040609060906060507"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 10:19:42PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 27 Mar 2005 13:04:31 EST, Nick Orlov said:
+This is a multi-part message in MIME format.
+--------------020601040609060906060507
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Randy.Dunlap wrote:
+> sean wrote:
 > 
-> > Problem is that the latest bk-driver-core patch included in the 2.6.12-rc1-mm3
-> > removes class_simple API without providing EXPORT_SYMBOL'ed (as opposed to
-> > EXPORT_SYMBOL_GPL) alternative.
-> > 
-> > As the result I don't see a way how out-of-the-kernel non-GPL drivers
-> > (nvidia in my case) could be fixed.
+>> Randy.Dunlap wrote:
+>>
+>>>
+>>> Did you look in
+>>> http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/old/ ?
+>>>
+>>
+>> Yes I did.
+>>
+>> Latest is 2.6.12-rc1-bk2, March 26.
+>>
+>> None since then?
 > 
-> Umm.. try running the latest drivers?
 > 
-> [~]2 uname -a
-> Linux turing-police.cc.vt.edu 2.6.12-rc1-mm3 #1 PREEMPT Sat Mar 26 22:07:50 EST 2005 i686 i686 i386 GNU/Linux
-> [~]2 lsmod | grep nvidia
-> nvidia               3912636  14 
-> agpgart                25672  2 nvidia,intel_agp
-> [~]2 grep -i nvidia /var/log/kernmsg
-> Mar 30 21:58:19 turing-police kernel: [4294721.402000] nvidia: module license 'NVIDIA' taints kernel.
-> Mar 30 21:58:19 turing-police kernel: [4294721.434000] NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb 25 09:08:22 PST 2005
+> I can't explain it other than "the snapshots are broken."
+> All I do is look around for them, and behold, just look in
 > 
+> http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+> 
+> for the 2.6.11.6-bk snapshots.
+> 
+> It's confusing and it needs to be fixed....
+> 
+> Jeff, is there some way that I can help to fix this,
+> with the requirement (for me) that I not be required to use BK?
+> I'll munge scripts or whatever...
+> but I guess that I'll also need a kernel.org account to do that.
 
-I _am_ using the latest NVIDIA driver:
+Should hopefully just be changing get-version.pl ...
 
-nick@nikolas:~$ dmesg | grep NVIDIA
-nvidia: module license 'NVIDIA' taints kernel.
-NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb
-25 09:08:22 PST 2005
+	Jeff, still catching up from trip+engagement
 
-nick@nikolas:~$ ll /lib/modules/`uname -r`/nvidia
-total 4315
--rw-r--r--  1 root root 4399395 2005-03-27 12:29 nvidia.ko
 
-If you are not relying on udev being able to create nvidia device nodes
-you are not affected.
 
--- 
-With best wishes,
-	Nick Orlov.
+--------------020601040609060906060507
+Content-Type: text/plain;
+ name="get-version.pl"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="get-version.pl"
 
+#!/usr/bin/perl -w
+
+use strict;
+use Getopt::Std;
+
+my (%opts, $mode, $s);
+
+getopts('me', \%opts);
+
+if ($opts{m}) {
+	$mode = 0;
+} elsif ($opts{e}) {
+	$mode = 1;
+} else {
+	die "usage: get-version.pl [-e | -m]\n";
+}
+
+$s = <>;
+chomp $s;
+my @line = split(/\./, $s);
+
+my ($kmicro, $kextra);
+
+if ($#line == 3) {
+	$kmicro = $line[2];
+	$kextra = "." . $line[3];
+} else {
+	my @more = split(/-/, $line[2]);
+	if ($#more == 1) {
+		$kmicro = $more[0];
+		$kextra = "-" . $more[1];
+	} elsif (($#more == 0) && ($line[2] =~ /\d+/)) {
+		$kmicro = $more[0];
+		$kextra = "";
+	} else {
+		die "invalid extraversion parse";
+	}
+}
+
+if ($mode) {
+	$s = $kextra;
+} else {
+	$s = $kmicro;
+}
+
+printf("%s\n", $s) unless ($s eq "");
+
+exit(0);
+
+
+
+--------------020601040609060906060507
+Content-Type: application/x-sh;
+ name="snapshot.sh"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="snapshot.sh"
+
+#!/bin/sh
+
+cd ~
+
+export BK_LICENSE=ACCEPTED
+
+kmajor=2
+kminor=$1
+
+date=`date '+%b%Y'`
+log=~/log/snapshot-2$kminor-$date.log
+bktmp=~/tmp
+repo="$bktmp/linux-$kmajor.$kminor"
+dontdiff=~/lib/dontdiff
+snapbase="/pub/linux/kernel/v2.$kminor/snapshots"
+tmpzpatch="$bktmp/patch-$kmajor.$kminor.gz"
+tmppatch="$bktmp/patch-$kmajor.$kminor"
+tmplog="$bktmp/patch-$kmajor.$kminor.log"
+tmpkey="$bktmp/patch-$kmajor.$kminor.key"
+homerepo=~/repo/linux-$kmajor.$kminor
+getver=/home/jgarzik/bin/get-version.pl
+
+#
+# clean up any previous run leavings, timestamp start of this run
+#
+rm -rf $repo $tmppatch $tmpzpatch $tmplog $tmpkey
+echo "" >> $log
+echo "" >> $log
+date >> $log
+
+#
+# pull updates, if any, into $homerepo. default 'bk parent' is used
+#
+cd $homerepo
+echo pull >> $log
+bk pull -q 2>&1 >> $log
+bk changes -k | head -1 > $tmpkey
+
+#
+# discover most recent kernel version
+#
+tmptagver=`bk changes | grep 'TAG: v' | head -1 | awk '{print $2}'`
+kmicro=`echo $tmptagver | $getver -m`
+kextra=`echo $tmptagver | $getver -e`
+kversion="$kmajor.$kminor.$kmicro$kextra"
+snapdir="$snapbase"		# /$kversion
+echo "found kernel version $kversion" >> $log
+
+#
+# find and destroy old snapshots, where "old" is defined as any snapshot
+# for a kernel prior to the current one
+#
+echo "checking for old snapshots" >> $log
+rm -f $bktmp/tmp*
+ls $snapdir | grep patch | grep -v "$kversion" > $bktmp/tmp1
+if [ -s $bktmp/tmp1 ]; then
+	echo "moving old snapshots:" >> $log
+	cat $bktmp/tmp1 >> $log
+
+	( cd $snapdir ; mv `cat $bktmp/tmp1` "$snapdir/old" )
+fi
+rm -f $bktmp/tmp*
+
+#
+# figure out snapshot number of snapshot being created
+#
+snapnum=1
+prevsnap=x
+while [ -f "$snapdir/patch-$kversion-bk$snapnum.gz" ]
+do
+	prevsnap=$snapnum
+	snapnum=`expr $snapnum + 1`
+done
+echo "creating snapshot number $snapnum, previous: $prevsnap" >> $log
+
+snapfn="$snapdir/patch-$kversion-bk$snapnum.gz"
+prevsnaplog="$snapdir/patch-$kversion-bk$prevsnap.log"
+snaplog="$snapdir/patch-$kversion-bk$snapnum.log"
+snapkey="$snapdir/patch-$kversion-bk$snapnum.key"
+
+#
+# see if there are any changes yet in a new kernel version
+#
+bk export -tpatch -h -T -du -rv$kversion, > $tmppatch
+if [ ! -s "$tmppatch" ]; then
+	echo "no BK-only changes yet, skipping snapshot" >> $log
+	rm -rf $repo $tmppatch $tmpzpatch $tmplog $tmpkey
+	exit 0
+fi
+rm -f $tmppatch
+
+#
+# create changelog for BK-only change,s and use that
+# output as metric for deciding if this snapshot would be equal
+# to the previous one
+#
+echo "generating change log" >> $log
+bk changes -rv$kversion.. > $tmplog
+
+if [ -f "$prevsnaplog" ]; then
+	if cmp -s "$prevsnaplog" "$tmplog"
+	then
+		echo "no change in patches, skipping snapshot" >> $log
+		rm -rf $repo $tmpzpatch $tmplog $tmpkey
+		exit 0
+	fi
+fi
+
+#
+# create a throwaway clone, that will contain our EXTRAVERSION update
+#
+echo clone >> $log
+bk clone -ql $homerepo $repo 2>&1 >> $log
+
+#
+# update EXTRAVERSION/SUBLEVEL
+#
+cd $repo
+echo "hacking makefile" >> $log
+bk edit -q Makefile 2>&1 >> $log
+sed -e "s/^SUBLEVEL.*=.*$/SUBLEVEL = $kmicro/g" < Makefile > x
+mv x Makefile
+sed -e "s/^EXTRAVERSION.*=.*$/EXTRAVERSION = $kextra-bk$snapnum/g" < Makefile > x
+mv x Makefile
+bk delta "-yrelease bk$snapnum" -q Makefile 2>&1 >> $log
+bk commit "-yrelease bk$snapnum" -q 2>&1 >> $log
+
+#
+# generate GNU patch snapshot, containing all changes past
+# the point of the last released kernel
+#
+echo "generating and compressing patch" >> $log
+bk export -tpatch -h -T -du -rv$kversion, | gzip -9c > $tmpzpatch
+
+#
+# log info about the patch, and send it out to FTP site
+#
+echo "patch file details:" >> $log
+ls -l $tmpzpatch 2>&1 >> $log
+md5sum $tmpzpatch 2>&1 >> $log
+
+echo "moving patch and cleaning up" >> $log
+mv $tmpzpatch $snapfn
+mv $tmplog $snaplog
+mv $tmpkey $snapkey
+cd ~
+rm -rf $repo
+exit 0
+
+
+--------------020601040609060906060507--

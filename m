@@ -1,74 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270311AbUJUGMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270442AbUJTTjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270311AbUJUGMb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270437AbUJUGMI
+	id S270442AbUJTTjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270471AbUJTTjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:12:08 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:39106 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S270328AbUJUGKm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 02:10:42 -0400
-Subject: Re: [PATCH 4/5]ACPI PNP driver
-From: Li Shaohua <shaohua.li@intel.com>
-To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Adam Belay <ambx1@neo.rr.com>, Matthieu <castet.matthieu@free.fr>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-In-Reply-To: <417750B6.7000409@kolumbus.fi>
-References: <1098327568.6132.226.camel@sli10-desk.sh.intel.com>
-	 <417750B6.7000409@kolumbus.fi>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1098338594.6132.234.camel@sli10-desk.sh.intel.com>
+	Wed, 20 Oct 2004 15:39:00 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:53410
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S269155AbUJTThm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:37:42 -0400
+Subject: [PATCH] SCSI: Replace semaphores with wait_even
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       SCSI <linux-scsi@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098300579.20821.65.camel@thomas>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 21 Oct 2004 14:03:14 +0800
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 21:29:39 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 14:01, Mika Penttilä wrote:
-> Li Shaohua wrote:
-> 
-> >Hi,
-> >This patch provides an ACPI based PNP driver. It is based on Matthieu
-> >Castet's original work. With this patch, legacy device drivers (floppy
-> >ACPI driver, COM ACPI driver, and ACPI motherboard driver) which
-> >directly use ACPI can be removed, since now we have unified PNP
-> >interface for legacy devices.
-> >
-> >Thanks,
-> >Shaohua
-> >
-> >Signed-off-by: Li Shaohua <shaohua.li@intel.com>
-> >
-> >The patch depends on previous 3 patches.
-> >
-> >--- 2.6/drivers/pnp/isapnp/Kconfig.stg3	2004-10-18 17:34:17.591712040
-> >+0800
-> >+++ 2.6/drivers/pnp/isapnp/Kconfig	2004-10-18 17:36:19.173228840 +0800
-> >  
-> >
-> Are you supposed to list here _every_ device to which not to bind? Is 
-> this feasible? Maybe take another approach and bind to the "default" 
-> acpi pnp driver if no specific driver found ?
-> 
-> +static char excluded_id_list[] =
-> +	"PNP0C0A," /* Battery */
-> +	"PNP0C0C,PNP0C0E,PNP0C0D," /* Button */
-> +	"PNP0C09," /* EC */
-> +	"PNP0C0B," /* Fan */
-> +	"PNP0A03," /* PCI root */
-> +	"PNP0C0F," /* Link device */
-> +	"PNP0000," /* PIC */
-> +	"PNP0100," /* Timer */
-> +	;
-We can't distinguish if a device has driver. Driver can be loaded as a
-module. The devices listed here are mainly be controlled by ACPI core or
-can't be controlled by PNP like PIC. This should be a short list.
 
-Thanks,
-Shaohua
+Use wait_event instead of semaphores. Semaphores are slower
+and trigger owner conflicts during semaphore debugging.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+---
+
+ 2.6.9-bk-041020-thomas/drivers/scsi/hosts.c      |    2 +-
+ 2.6.9-bk-041020-thomas/drivers/scsi/scsi_error.c |   19
+++++++++-----------
+ 2.6.9-bk-041020-thomas/include/scsi/scsi_host.h  |    2 +-
+ 3 files changed, 10 insertions(+), 13 deletions(-)
+
+diff -puN drivers/scsi/scsi_error.c~scsihost drivers/scsi/scsi_error.c
+--- 2.6.9-bk-041020/drivers/scsi/scsi_error.c~scsihost	2004-10-20
+15:58:57.000000000 +0200
++++ 2.6.9-bk-041020-thomas/drivers/scsi/scsi_error.c	2004-10-20
+16:02:57.000000000 +0200
+@@ -49,7 +49,7 @@
+ void scsi_eh_wakeup(struct Scsi_Host *shost)
+ {
+ 	if (shost->host_busy == shost->host_failed) {
+-		up(shost->eh_wait);
++		wake_up(shost->eh_wait);
+ 		SCSI_LOG_ERROR_RECOVERY(5,
+ 				printk("Waking error handler thread\n"));
+ 	}
+@@ -1598,7 +1598,7 @@ int scsi_error_handler(void *data)
+ {
+ 	struct Scsi_Host *shost = (struct Scsi_Host *) data;
+ 	int rtn;
+-	DECLARE_MUTEX_LOCKED(sem);
++ 	DECLARE_WAIT_QUEUE_HEAD(eh_wait);
+ 
+ 	/*
+ 	 *    Flush resources
+@@ -1608,7 +1608,7 @@ int scsi_error_handler(void *data)
+ 
+ 	current->flags |= PF_NOFREEZE;
+ 
+-	shost->eh_wait = &sem;
++	shost->eh_wait = &eh_wait;
+ 	shost->ehandler = current;
+ 
+ 	/*
+@@ -1630,15 +1630,12 @@ int scsi_error_handler(void *data)
+ 						  " sleeping\n",shost->host_no));
+ 
+ 		/*
+-		 * Note - we always use down_interruptible with the semaphore
+-		 * even if the module was loaded as part of the kernel.  The
+-		 * reason is that down() will cause this thread to be counted
+-		 * in the load average as a running process, and down
+-		 * interruptible doesn't.  Given that we need to allow this
+-		 * thread to die if the driver was loaded as a module, using
+-		 * semaphores isn't unreasonable.
++		 * Wait, until somebody decides to wake us due to an error
++		 * or because we should be killed
+ 		 */
+-		down_interruptible(&sem);
++		wait_event_interruptible(eh_wait, shost->eh_kill ||
++				(shost->host_busy == shost->host_failed));
++
+ 		if (shost->eh_kill)
+ 			break;
+ 
+diff -puN drivers/scsi/hosts.c~scsihost drivers/scsi/hosts.c
+--- 2.6.9-bk-041020/drivers/scsi/hosts.c~scsihost	2004-10-20
+16:00:04.000000000 +0200
++++ 2.6.9-bk-041020-thomas/drivers/scsi/hosts.c	2004-10-20
+16:00:35.000000000 +0200
+@@ -157,7 +157,7 @@ static void scsi_host_dev_release(struct
+ 		DECLARE_COMPLETION(sem);
+ 		shost->eh_notify = &sem;
+ 		shost->eh_kill = 1;
+-		up(shost->eh_wait);
++		wake_up(shost->eh_wait);
+ 		wait_for_completion(&sem);
+ 		shost->eh_notify = NULL;
+ 	}
+diff -puN include/scsi/scsi_host.h~scsihost include/scsi/scsi_host.h
+--- 2.6.9-bk-041020/include/scsi/scsi_host.h~scsihost	2004-10-20
+16:00:12.000000000 +0200
++++ 2.6.9-bk-041020-thomas/include/scsi/scsi_host.h	2004-10-20
+16:00:29.000000000 +0200
+@@ -396,7 +396,7 @@ struct Scsi_Host {
+ 
+ 	struct list_head	eh_cmd_q;
+ 	struct task_struct    * ehandler;  /* Error recovery thread. */
+-	struct semaphore      * eh_wait;   /* The error recovery thread waits
++	wait_queue_head_t     * eh_wait;   /* The error recovery thread waits
+ 					      on this. */
+ 	struct completion     * eh_notify; /* wait for eh to begin or end */
+ 	struct semaphore      * eh_action; /* Wait for specific actions on the
+_
+
 

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130010AbRAINlo>; Tue, 9 Jan 2001 08:41:44 -0500
+	id <S130013AbRAINly>; Tue, 9 Jan 2001 08:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbRAINle>; Tue, 9 Jan 2001 08:41:34 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:16704 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S130010AbRAINlX>; Tue, 9 Jan 2001 08:41:23 -0500
-Date: Tue, 9 Jan 2001 07:41:21 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200101091341.HAA52016@tomcat.admin.navo.hpc.mil>
-To: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-Cc: Alexander Viro <viro@math.psu.edu>
-X-Mailer: [XMailTool v3.1.2b]
+	id <S130031AbRAINlp>; Tue, 9 Jan 2001 08:41:45 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:32231 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130013AbRAINl3>; Tue, 9 Jan 2001 08:41:29 -0500
+Message-ID: <3A5B168B.A5CCA889@uow.edu.au>
+Date: Wed, 10 Jan 2001 00:47:55 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: Stephen Landamore <stephenl@zeus.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.10.10101091301170.18208-100000@phaedra.cam.zeus.com> <Pine.LNX.4.30.0101091418300.3375-100000@e2>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
-
+Ingo Molnar wrote:
 > 
-> Hello Al,
+> On Tue, 9 Jan 2001, Stephen Landamore wrote:
 > 
-> why `rmdir .` is been deprecated in 2.4.x?  I wrote software that depends on
-> `rmdir .` to work (it's local software only for myself so I don't care that it
-> may not work on unix) and I'm getting flooded by failing cronjobs since I put
-> 2.4.0 on such machine.  `rmdir .` makes perfect sense, the cwd dentry remains
-> pinned by me until I `cd ..`, when it gets finally deleted from disk.  I'd like
-> if we could resurrect such fine feature (adapting userspace is just a few liner
-> but that isn't the point). Comments?
+> > >> Sure.  But sendfile is not one of the fundamental UNIX operations...
+> 
+> > > Neither were eg. kernel-based semaphores. So what? Unix wasnt
+> 
+> > Ehh, that's not correct. HP-UX was the first to implement sendfile().
+> 
+> i dont think we disagree. What i was referring to was the 'original' Unix
+> idea, the 30 years old one, which did not include sendfile() :-) We never
+> claimed that sendfile() first came up in Linux [that would be a blatant
+> lie] - and the Linux API itself was indeed influenced by existing
+> sendfile()/copyfile() interfaces. (at the time Linus implemented
+> sendfile() there already existed several similar interfaces.)
+> 
 
-Not exactly valid, since a file could be created in that "pinned" directory
-after the rmdir...
+y'know our pals have patented it?
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+http://www.delphion.com/details?pn=US05845280__
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270354AbTHLN5v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHLN5v
+	id S270350AbTHLN4O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHLNza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:57:51 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:23457 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S270354AbTHLN5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:57:37 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Aug 2003 09:55:30 -0400
+Received: from h80ad2614.async.vt.edu ([128.173.38.20]:40833 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270350AbTHLNzW (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:55:22 -0400
+Message-Id: <200308121355.h7CDtAfZ007802@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Christian Reichert <c.reichert@resolution.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modprobe: QM_MODULES: Function not implemented ?? 
+In-Reply-To: Your message of "Tue, 12 Aug 2003 09:45:55 +0200."
+             <1060674355.3f389b33101b0@corporate.resolution.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0308112338150.1464-100000@localhost.localdomain>
+            <1060674355.3f389b33101b0@corporate.resolution.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1644567556P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16184.62018.545010.839328@gargle.gargle.HOWL>
-Date: Tue, 12 Aug 2003 15:57:22 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Dave Jones <davej@codemonkey.org.uk>, torvalds@transmeta.com,
-       fxkuehl@gmx.de, linux-kernel@vger.kernel.org, willy@w.ods.org
-Subject: Re: [PATCH][2.6.0-test3] Disable APIC on reboot.
-In-Reply-To: <Pine.GSO.3.96.1030812154705.7029B-100000@delta.ds2.pg.gda.pl>
-References: <16184.10167.743824.668791@gargle.gargle.HOWL>
-	<Pine.GSO.3.96.1030812154705.7029B-100000@delta.ds2.pg.gda.pl>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Date: Tue, 12 Aug 2003 09:55:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki writes:
- > On Tue, 12 Aug 2003, Mikael Pettersson wrote:
- > 
- > > @@ -249,6 +250,14 @@
- > >  	 * other OSs see a clean IRQ state.
- > >  	 */
- > >  	smp_send_stop();
- > > +#elif CONFIG_X86_LOCAL_APIC
- > > +	if (cpu_has_apic) {
- > > +		local_irq_disable();
- > > +		disable_local_APIC();
- > > +		local_irq_enable();
- > > +	}
- > > +#endif
- > > +#ifdef CONFIG_X86_IO_APIC
- > >  	disable_IO_APIC();
- > >  #endif
- > 
- >  You obviously want to disable I/O APICs first.
+--==_Exmh_-1644567556P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <7790.1060696498.1@turing-police.cc.vt.edu>
 
-This follows the same order that the SMP reboot code has been using
-for ages. I did check disable_IO_APIC(), and it does not depend on
-the BP's local APIC being enabled.
+On Tue, 12 Aug 2003 09:45:55 +0200, Christian Reichert said:
 
-I don't think there is a bug, but if there is, it's in the original
-code too (simply trace what an SMP kernel on UP_IOAPIC HW would do).
+> Search the archives, this has been explained too often ...
 
-/Mikael
+Anybody for adding a temporary patch, to come out in 2.6.2 or so once the dust
+settles, that does something like this just before launching userspace:
+
+	printk("\n");
+	printk("Read http://www.codemonkey.org.uk/post-halloween-2.5.txt\n");
+#ifdef CONFIG_MODULES
+	printk("\n");
+	printk("In particular, if you haven't gotten module-init-tools, you're screwed\n");
+#endif
+	mdelay(5000);
+
+Just a thought... ;)
+
+--==_Exmh_-1644567556P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/OPG+cC3lWbTT17ARAtJEAJwLktgPv0tGZ2oFQOHw42Y0g6UfOgCfUfPv
+wVy7gqDaQghGsapCdnOY2yw=
+=u2hd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1644567556P--

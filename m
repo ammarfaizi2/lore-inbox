@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293014AbSB0Wdu>; Wed, 27 Feb 2002 17:33:50 -0500
+	id <S292991AbSB0Wah>; Wed, 27 Feb 2002 17:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293011AbSB0WdD>; Wed, 27 Feb 2002 17:33:03 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:42906 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S293009AbSB0WbT>;
-	Wed, 27 Feb 2002 17:31:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Franck <afranck@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, florin@iucha.net (Florin Iucha)
-Subject: Re: Linux 2.4.19pre1-ac1
-Date: Wed, 27 Feb 2002 23:31:24 +0100
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <02022723312400.01097@dg1kfa>
-Content-Transfer-Encoding: 7BIT
+	id <S293011AbSB0WaK>; Wed, 27 Feb 2002 17:30:10 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39181 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293009AbSB0W3l>;
+	Wed, 27 Feb 2002 17:29:41 -0500
+Date: Wed, 27 Feb 2002 14:23:05 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] PCI Hotplug driver changes for 2.5.6-pre1
+Message-ID: <20020227222305.GA7760@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Florin, hi Alan,
 
-> With 19-pre1-ac1 on a reiserfs partition I cannot patch a kernel. Patch
-> fails with "Invalid cross-device link" or "Out of disk space".
+Pull from:  bk://linuxusb.bkbits.net/pci_hp-2.5
 
-I can reproduce this too on ext2, so this does not seem to be FS related. 
 
-However, I do not get this error messages, the patch runs just fine,
-but corrupts all files it touches, leaving them to be all a bit less than 
-1MiB of size, and all exactly the same size.
+ drivers/hotplug/Config.help        |   11 
+ drivers/hotplug/Config.in          |    5 
+ drivers/hotplug/Makefile           |   12 
+ drivers/hotplug/cpqphp_proc.c      |    2 
+ drivers/hotplug/ibmphp.h           |  745 +++++++++++++
+ drivers/hotplug/ibmphp_core.c      | 1480 ++++++++++++++++++++++++++
+ drivers/hotplug/ibmphp_ebda.c      |  851 +++++++++++++++
+ drivers/hotplug/ibmphp_hpc.c       | 1135 ++++++++++++++++++++
+ drivers/hotplug/ibmphp_pci.c       | 1719 ++++++++++++++++++++++++++++++
+ drivers/hotplug/ibmphp_res.c       | 2067 +++++++++++++++++++++++++++++++++++++
+ drivers/hotplug/pci_hotplug_core.c |   98 -
+ 11 files changed, 8061 insertions(+), 64 deletions(-)
 
-There is no filesystem corruption however, e2fsck runs just fine without any 
-error. Just the files are all damaged. I looked inside them, and it seems 
-huge parts of other files from the patch have been "attached" to them.
+------
+ChangeSet@1.423, 2002-02-27 14:12:18-08:00, greg@kroah.com
+  PCI Hotplug Core cleanups:
+  	- pcihpfs cleanup, removing unneeded file operations.
+  	- Added facility to have the files change their timestamps if the data
+  	  within the file changes.
 
-> 18-rc2-ac1 works fine on the same partition.
+ drivers/hotplug/pci_hotplug_core.c |   98 ++++++++++++++-----------------------
+ 1 files changed, 38 insertions(+), 60 deletions(-)
 
-ACK, for me too; as well as 2.4.18-rc2-ac2 for me. The breakage starts with
-2.4.18-ac1 here.  Plain 2.4.18 from Marcelo works fine as well.
+------
+ChangeSet@1.424, 2002-02-27 14:13:28-08:00, greg@kroah.com
+  Compaq PCI Hotplug controller driver:
+  	- changed proc entry creation to use the proper parent directory variable.
 
-Greetings,
-Andreas
+ drivers/hotplug/cpqphp_proc.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+------
+ChangeSet@1.425, 2002-02-27 14:15:44-08:00, greg@kroah.com
+  Added new IBM PCI Hotplug controller driver.
+  
+  Written by Irene Zubarev, Tong Yu, Jyoti Shah, Chuck Cole, and me.
+
+ drivers/hotplug/Config.help   |   11 
+ drivers/hotplug/Config.in     |    5 
+ drivers/hotplug/Makefile      |   12 
+ drivers/hotplug/ibmphp.h      |  745 +++++++++++++++
+ drivers/hotplug/ibmphp_core.c | 1480 ++++++++++++++++++++++++++++++
+ drivers/hotplug/ibmphp_ebda.c |  851 +++++++++++++++++
+ drivers/hotplug/ibmphp_hpc.c  | 1135 +++++++++++++++++++++++
+ drivers/hotplug/ibmphp_pci.c  | 1719 ++++++++++++++++++++++++++++++++++
+ drivers/hotplug/ibmphp_res.c  | 2067 ++++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 8022 insertions(+), 3 deletions(-)
+

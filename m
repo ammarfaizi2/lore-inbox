@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUJWUw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbUJWWTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUJWUw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 16:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbUJWUwZ
+	id S261312AbUJWWTM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 18:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbUJWWTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 16:52:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26119 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261310AbUJWUtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 16:49:53 -0400
-Date: Sat, 23 Oct 2004 21:49:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 7/7] Input: remove pm_dev from core
-Message-ID: <20041023214946.A13521@flint.arm.linux.org.uk>
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <200410210223.45498.dtor_core@ameritech.net> <200410210230.04156.dtor_core@ameritech.net> <20041021101358.B3089@flint.arm.linux.org.uk> <200410210825.00133.dtor_core@ameritech.net>
+	Sat, 23 Oct 2004 18:19:12 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26758 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261312AbUJWWTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 18:19:03 -0400
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Kevin Puetz <puetzk@puetzk.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <417A8EC2.7070505@keyaccess.nl>
+References: <4176E08B.2050706@techsource.com>
+	 <41785D8D.5070808@keyaccess.nl> <clcqrr$u5o$1@sea.gmane.org>
+	 <417A8EC2.7070505@keyaccess.nl>
+Content-Type: text/plain
+Date: Sat, 23 Oct 2004 18:19:00 -0400
+Message-Id: <1098569940.29081.5.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200410210825.00133.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Thu, Oct 21, 2004 at 08:25:00AM -0500
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 08:25:00AM -0500, Dmitry Torokhov wrote:
-> On Thursday 21 October 2004 04:13 am, Russell King wrote:
-> > On Thu, Oct 21, 2004 at 02:30:02AM -0500, Dmitry Torokhov wrote:
-> > > ChangeSet@1.1971, 2004-10-20 00:57:45-05:00, dtor_core@ameritech.net
-> > >   Input: get rid of pm_dev in input core as it is deprecated and
-> > >          nothing uses it anyway.
-> > 
-> > You might as well remove it completely - anything which uses the
-> > driver model PM implementation will never call these methods, and
-> > ARM uses the driver model PM implementation.
-> > 
-> > Therefore, any driver using the obsolete pm_register() functions
-> > won't receive any PM events.
-> > 
-> > Same is true on x86 btw.
-> > 
-> 
-> Hmm, I admit I missed arm case but for x86 should work actually:
-> 
-> in arch/i386/kernel/apm.c:
-> static int suspend(int vetoable)
-> {
->         int             err;
->         struct apm_user *as;
-> 
->         if (pm_send_all(PM_SUSPEND, (void *)3)) {
->                 /* Vetoed */
->                 if (vetoable) {
->                         if (apm_info.connection_version > 0x100)
->                                 set_system_power_state(APM_STATE_REJECT);
->                         err = -EBUSY;
->                         ignore_sys_suspend = 0;
->                         printk(KERN_WARNING "apm: suspend was vetoed.\n");
->                         goto out;
->                 }
->                 printk(KERN_CRIT "apm: suspend was vetoed, but suspending anyway.\n");
->         }
-> 
->         device_suspend(3);
->         device_power_down(3);
-> ...
-> 
-> but since you say arm does not care I think we'll proceed with the patch.
+On Sat, 2004-10-23 at 19:02 +0200, Rene Herman wrote:
+> I see from unichrome.sf.net that they are piecing together register info 
+> from drivers they got VIA to release...
 
-Sure, it works for x86 using APM.  Don't forget there's ACPI and the
-device model PM implementation (and swsusp).  The latter two did not
-call the old interfaces last time I checked.
+They are not "piecing it together".  They have signed NDA with VIA to
+get docs.  Many vendors have no objection to open source drivers, they
+just want to know who has their chip documentation. 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Anyway the 3D support is somewhat lacking, not for lack of information
+but for lack of developers.  Maybe if you want to improve the 3D driver
+then VIA would work with you.
+
+Lee 
+

@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVCVJ7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVCVKBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbVCVJ7K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVCVJ7K
+	id S262598AbVCVKBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVCVKBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:59:10 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:37338 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262591AbVCVJ7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:59:05 -0500
-From: Michael Stickel <michael.stickel@4g-systems.biz>
-To: ppopov@embeddedalley.com
-Subject: Re: Bitrotting serial drivers
-Date: Tue, 22 Mar 2005 10:58:35 +0100
-User-Agent: KMail/1.7
-Cc: Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linux-mips@linux-mips.org
-References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050320224028.GB6727@linux-mips.org> <423DFE7C.7040406@embeddedalley.com>
-In-Reply-To: <423DFE7C.7040406@embeddedalley.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 05:01:43 -0500
+Received: from relay.rost.ru ([80.254.111.11]:40146 "EHLO relay.rost.ru")
+	by vger.kernel.org with ESMTP id S262598AbVCVKBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 05:01:20 -0500
+Date: Tue, 22 Mar 2005 13:01:14 +0300
+From: Andrey Panin <pazke@donpac.ru>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+Message-ID: <20050322100114.GI2810@pazke>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <20050217194217.GA2458@ucw.cz> <d120d500050321065261ee815c@mail.gmail.com> <1111419068.8079.15.camel@localhost> <200503220213.46375.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8JPrznbw0YAQ/KXy"
 Content-Disposition: inline
-Message-Id: <200503221058.35903.michael.stickel@4g-systems.biz>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:f72049c8971f462876d14eb8b3ccbbf1
+In-Reply-To: <200503220213.46375.dtor_core@ameritech.net>
+X-Uname: Linux 2.6.11-pazke i686
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If we leave the driver for the au1x00 as it is it should not have the 
-register_serial / unregister_serial functions and it should be renamed to 
-something else, e.g. ttySAxxx like it is done for the internal serial port of 
-the strongarm (sa1100).
 
-I have thought about the serial driver and came along this.
-I we take a look at the hardware, we have a chip, the 8250 and its successors 
-and the chip is integrated into some kind of hardware. So the chip has an 
-interface. It has some address lines for register access, it has data lines 
-and some controll lines. It also has an interrupt pin, some (GP)IO-Pins, that 
-are freely programmable and a clock input.  The chip is integrated thru some 
-interface as I mentioned before. It can be an ISA-IO card or a PCI card or a 
-multiport card, where more than one chip is accessed thru the same io-range 
-and the hip to access is selected thru a single register. The au1x00 serial 
-driver is like an ISA card except that the chip is mapped to a memory region 
-instead of an io-region and the fact, that we can calculate the baud_base 
-using the pll configuration of the au1x00, if we assume a 12MHz oscilator, 
-which is standard for the au1x00.
+--8JPrznbw0YAQ/KXy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We need some access methods to access the chip registers, some way to handle 
-intterupts, some way to deal with the gpio-pins, and we need a way to get the 
-clock input of the chip. What should the serial-chip driver know about and 
-what should the card driver know about.
+On 081, 03 22, 2005 at 02:13:45AM -0500, Dmitry Torokhov wrote:
+> On Monday 21 March 2005 10:31, Kenan Esau wrote:
+> > Am Montag, den 21.03.2005, 09:52 -0500 schrieb Dmitry Torokhov:
+> > >=20
+> > > There are couple of things that I an concerned with:
+> > >=20
+> > > 1. I don't like that it overrides meaning of max_proto parameter to be
+> > > exactly the protocol specified.=20
+> >=20
+> > Yeah -- I agree. I also don't like that double-meaning. That was the
+> > reason why I originally proposed the use of a new parameter...
+> >=20
+>=20
+> Ok, I have some patches to lifebook that I would like to included (if
+> they work):
+>=20
+> 1. lifebook-dmi-x86-only - do not compile in DMI detection on anything
+>    but x86.
 
-It's like the streams concept, where the chip driver does not know how to 
-access the chip or what resources it uses, but what to do with the chip.
+On !x86 machines DMI functions will be optimized away and so you'll save on=
+ly
+few bytes in .init.data section. IMHO it's not worth additional ugly #ifdef=
+'s.
 
-Regards,
-Michael
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--8JPrznbw0YAQ/KXy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCP+zqby9O0+A2ZecRAlArAJ9lWC4R3kFASxSDCEp+pzCkdY+siACgxZx7
+CKE+aXmHGOYOjSNwO7Fx/gY=
+=1sWd
+-----END PGP SIGNATURE-----
+
+--8JPrznbw0YAQ/KXy--

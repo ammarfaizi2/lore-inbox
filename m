@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbREUFJq>; Mon, 21 May 2001 01:09:46 -0400
+	id <S262398AbREUGMI>; Mon, 21 May 2001 02:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbREUFJg>; Mon, 21 May 2001 01:09:36 -0400
-Received: from marilyn.protocoloweb.com.br ([200.185.63.18]:7945 "EHLO
-	smtp.ieg.com.br") by vger.kernel.org with ESMTP id <S262392AbREUFJY>;
-	Mon, 21 May 2001 01:09:24 -0400
-Message-ID: <3B08A339.CF0D86CC@linuxall.org>
-Date: Mon, 21 May 2001 02:10:18 -0300
-From: Slump <slump@linuxall.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
-X-Accept-Language: en
+	id <S262399AbREUGL6>; Mon, 21 May 2001 02:11:58 -0400
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:8613 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S262398AbREUGLr>; Mon, 21 May 2001 02:11:47 -0400
+Date: Mon, 21 May 2001 02:11:39 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: "Robert M. Love" <rml@tech9.net>
+cc: Jes Sorensen <jes@sunsite.dk>, John Cowan <jcowan@reutershealth.com>,
+        <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <990411054.773.0.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0105210205520.1590-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4 bug...
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a bug in the patches for kernel 2.4.4.
-When i use 2.4.4 clean, with no patches....
+On 20 May 2001, Robert M. Love wrote:
 
-hde: IBM-DTLA-307020, ATA DISK drive
-hde: 40188960 sectors (20577 MB) w/1916KiB Cache, CHS=39870/16/63,
-UDMA(100)
+>I think this is a very important point, and one I agree with.  I tend to
+>let my distribution handle stuff like python.  now, I use RedHat's
+>on-going devel, RawHide. it is not using python2.  in fact, since
+>switching to python2 may break old stuff, I don't expect python2 until
+>8.0. that wont be for 9 months.  90% of RedHat's configuration tools, et
+>al, are written in python1 and they just are not going to change on
+>someone's whim.
+>
+>im not installing python2 from source just so i can run some new config
+>utility.
+>
+>(on another note, about the coexist issue: am i going to have a python
+>and python2 binary? so now the config tool will find which to use, ala
+>the kgcc mess? great)
 
-then, using kernel 2.4.4 with ac11 patch...
+powertools/7.1/SRPMS/python2-2.0-3.src.rpm
 
-hde: IBM-DTLA-307020, ATA DISK drive
-hde: 40188960 sectors (20577 MB) w/1916KiB Cache, CHS=39870/16/63,
-UDMA(44)
+For the record, the kgcc "mess" you speak of was used by
+Conectiva, and I believe also by debian before adoption in Red
+Hat Linux.  It was about as good a solution as one could get for
+the problem that it solved - the kernel being broken and unable
+to build with our gcc-2.96.  Just to head anyone off at the
+pass... the kernel is fixed and now builds properly with
+gcc-2.96.  Also, if anyone has any questions about gcc-2.96
+please see:
 
-why the hard-disk is found at udma 3??
+http://www.bero.org/gcc296.html
 
 ----------------------------------------------------------------------
-
--=[/home/slump]=- hdparm -t /dev/hde
-
-/dev/hde:
- Timing buffered disk reads:  64 MB in  2.29 seconds = 27.95 MB/sec
+    Mike A. Harris  -  Linux advocate  -  Open Source advocate
+       Opinions and viewpoints expressed are solely my own.
 ----------------------------------------------------------------------
-
--=[/home/slump]=- hdparm -X69 /dev/hde
-
-/dev/hde:
- setting xfermode to 69 (UltraDMA mode5)
-
-
--=[/home/slump]=- hdparm -t /dev/hde
-
-/dev/hde:
- Timing buffered disk reads:  64 MB in  1.84 seconds = 34.78 MB/sec
-------------------------------------------------------------------------
-
-My machine is an athlon 950, with abit-kt7raid motherboard. My hard-disk
-is an IBM DTLA 307020 20gb UDMA 5.
-
-thank's to all ;)
-
-Guilherme M. Schroeder
-slump@linuxall.org
+Microsoft Windows(tm). A 32 bit extension and graphical shell to a 16 bit 
+patch to an 8 bit operating system originally coded for a 4 bit microprocessor
+which was written by a 2 bit company that can't stand 1 bit of competition.
 

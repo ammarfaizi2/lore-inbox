@@ -1,95 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUHGSyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUHGTBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbUHGSyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 14:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUHGSyN
+	id S264213AbUHGTBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 15:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUHGTBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 14:54:13 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:39944 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S264192AbUHGSyG convert rfc822-to-8bit (ORCPT
+	Sat, 7 Aug 2004 15:01:11 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:38862 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264213AbUHGTBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 14:54:06 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: Alexander Stohr <Alexander.Stohr@gmx.de>, sam@ravnborg.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: confirmed: kernel build for 2.6.8-rc3 is broken for at least i386
-Date: Sat, 7 Aug 2004 20:54:03 +0200
-User-Agent: KMail/1.6.2
-References: <2695.1091715476@www33.gmx.net> <200408071821.08530.pluto@pld-linux.org> <20040807173917.GA14733@mars.ravnborg.org>
-In-Reply-To: <20040807173917.GA14733@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200408072054.03554.pluto@pld-linux.org>
+	Sat, 7 Aug 2004 15:01:09 -0400
+Date: Sat, 7 Aug 2004 11:59:18 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20040807115918.44f43089.pj@sgi.com>
+In-Reply-To: <200408071722.36705.efocht@hpce.nec.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<200408071722.36705.efocht@hpce.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 of August 2004 19:39, Sam Ravnborg wrote:
-> On Sat, Aug 07, 2004 at 06:21:07PM +0200, Pawe? Sikora wrote:
-> > -	$(Q)if [ ! -z $$LC_ALL ]; then          \
-> > -		export LANG=$$LC_ALL;           \
-> > -		export LC_ALL= ;                \
-> > -	fi;                                     \
-> > -	export LC_COLLATE=C; export LC_CTYPE=C; \
-> > +	$(Q) \
-> >
-> > ^^^ works for me.
->
-> Thanks!
->
-> I need to track this a bit more.
-> Could you please provide me with information of what
-> you are running.
->
-> make version (make --version)
-> shell & version of shell
-> distribution
+Erich wrote:
+> (and the name cpuset is a bit misleading)
 
-make-3.80-5
-bash-2.05b-14
-PLD(nptl/cvs)
+I've just begun reading your reply.  A quick note on the name "cpusets".
+Yes, it is a bit misleading.
 
-> Could you also try if the attached two Makefiles exhibit the same problem.
-> Just copy them to an empty directory and execute make.
->
-> A good run looks like:
-> Makefile2:1: lds=-P
-> Hi
-
-# LANG=pl_PL make
-make[1]: Wej?cie do katalogu `/home/users/pluto/rpm/BUILD'
-            ^
-            ^ error. `¶' is correct char.
-
-Makefile2:1: lds=
-Hi
-make[1]: Opuszczenie katalogu `/home/users/pluto/rpm/BUILD'
-
-# LANG=C make
-make[1]: Entering directory `/home/users/pluto/rpm/BUILD'
-Makefile2:1: lds=
-Hi
-make[1]: Leaving directory `/home/users/pluto/rpm/BUILD'
-
-with a minor fix...
-
--       export LC_COLLATE=C; export LC_CTYPE=C; \
--       $(MAKE) -f Makefile2 obj=xxx
-+       export LC_COLLATE=C; export LC_CTYPE=C;
-+       $(Q)$(MAKE) -f Makefile2 obj=xxx
-
-works fine...
-
-# LANG=pl_PL make
-make[1]: Wej¶cie do katalogu `/home/users/pluto/rpm/BUILD'
-Makefile2:1: lds=-P
-Hi
-make[1]: Opuszczenie katalogu `/home/users/pluto/rpm/BUILD'
+On SGI's Irix, they are 'cpusets'.  On SGI's 2.4 Linux kernels, the
+kernel portion is called 'cpumemsets', and the user support 'cpusets'. 
+Independently, Simon of Bull chose 'cpusets'.  For a while, I was
+lobbying Simon to change it to 'cpumemsets', then I decided to heck with
+it, as the shorter, sweeter name seemed to be the more commonly used.
 
 -- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

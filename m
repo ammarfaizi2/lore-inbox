@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSCQCKo>; Sat, 16 Mar 2002 21:10:44 -0500
+	id <S290965AbSCQCQE>; Sat, 16 Mar 2002 21:16:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311265AbSCQCKe>; Sat, 16 Mar 2002 21:10:34 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63760 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311264AbSCQCK1>; Sat, 16 Mar 2002 21:10:27 -0500
-Date: Sat, 16 Mar 2002 18:08:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <15507.60617.911732.176262@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203161804210.1505-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310184AbSCQCPr>; Sat, 16 Mar 2002 21:15:47 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:25612 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S290965AbSCQCP3>; Sat, 16 Mar 2002 21:15:29 -0500
+Date: Sun, 17 Mar 2002 03:15:27 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Adam Keys <akeys@post.cis.smu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK] Having a hard time updating by pre-patch
+Message-ID: <20020317031527.A31674@devcon.net>
+Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	Adam Keys <akeys@post.cis.smu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020317005425.TVMQ1147.rwcrmhc52.attbi.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020317005425.TVMQ1147.rwcrmhc52.attbi.com@there>; from akeys@post.cis.smu.edu on Sat, Mar 16, 2002 at 06:54:00PM -0600
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 17 Mar 2002, Paul Mackerras wrote:
+On Sat, Mar 16, 2002 at 06:54:00PM -0600, Adam Keys wrote:
 > 
-> In particular I think it would help if set_pte could be given the
-> mm_struct and the virtual address, then set_pte could fairly easily
-> invalidate the hash-table entry (if any) corresponding to the PTE
-> being changed.  Would you consider a patch along these lines?
+> So far I have found two ways to get from 1.157 to 1.158.  One is to pull from 
+> the parent and then undo down to 1.158.  The only other way that has been 
+> suggested to me is to pull 1.158 in parallel and then import the patch there.
 
-How about just doing a few more "update_mmu_cache()" type of things?
+If you have a clone of the full master 2.5 repository somewhere on
+your harddisk, you can go just there and do a
 
-This is actually why update_mmu_cache() exists in the first place - to be 
-able to proactively fill in shadow information like hashed page tables.
+% bk send -r1.158 - | bk receive /your/uml/repository
 
-Adding a "clear_mmu_cache()"?
+After that change to your uml repository and do a
 
-		Linus
+% bk resolve
 
+to apply the 1.158 changeset to your uml repository (if you give a
+"-a" option to bk receive, bk resolve will be run automatically).
+
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

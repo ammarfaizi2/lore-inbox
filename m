@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268022AbTBMLpx>; Thu, 13 Feb 2003 06:45:53 -0500
+	id <S268025AbTBMLvG>; Thu, 13 Feb 2003 06:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268025AbTBMLpx>; Thu, 13 Feb 2003 06:45:53 -0500
-Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:10983 "EHLO
-	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S268022AbTBMLpw>; Thu, 13 Feb 2003 06:45:52 -0500
-Date: Thu, 13 Feb 2003 09:55:28 -0200 (BRST)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Andrea Arcangeli <andrea@e-mind.com>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-In-Reply-To: <20030213024751.GA14016@bjl1.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
-References: <20030206021029.GW19678@dualathlon.random>
- <20030213024751.GA14016@bjl1.jlokier.co.uk>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268026AbTBMLvG>; Thu, 13 Feb 2003 06:51:06 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:24473 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268025AbTBMLvG>;
+	Thu, 13 Feb 2003 06:51:06 -0500
+Date: Thu, 13 Feb 2003 11:55:45 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: wingel@nano-systems.com, lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+Message-ID: <20030213115545.GA26814@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Rusty Lynch <rusty@linux.co.intel.com>, wingel@nano-systems.com,
+	lkml <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1045106216.1089.16.camel@vmhack>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045106216.1089.16.camel@vmhack>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Jamie Lokier wrote:
-> Andrea Arcangeli wrote:
-> > I guess the bitkeeper network protocol could be also implemented on the
-> > longer run, it should be much faster to fetch all the database that way,
->
-> Nobody (who is covered by copyright laws) is allowed to use the _free_
-> version of BitKeeper to reverse engineer the protocol.  I may be
-> mistaken - perhaps the BitKeeper "anti-competition" clause would be
-> found unenforcable.. but I'm not interested in going there.
+On Wed, Feb 12, 2003 at 07:16:55PM -0800, Rusty Lynch wrote:
+ > Basically, with the help of some watchdog infrastructure code, we could make 
+ > each watchdog device register as a platform_device named watchdog, so for 
+ > every watchdog on the system there is a /sys/devices/legacy/watchdogN/ 
+ > directory created for it.  
 
-Reverse engineering the protocol is probably allowed, as long
-as you don't create an alternative implementation yourself.
+Why legacy ? That seems an odd place to be putting these.
 
-I can't see how Larry's license would stop people from writing
-that alternative implementation, as long as those people don't
-use bitkeeper themselves.
+		Dave
 
-This is mostly because the license doesn't forbid creating an
-alternative to bitkeeper (I doubt Larry would even want that,
-even if the law granted that much power).  All it does is not
-grant the free use of bitkeeper to people working on an alternative.
-
-cheers,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,56 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUHRAdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266877AbUHRAkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268532AbUHRAdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 20:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUHRAdI
+	id S266877AbUHRAkI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 20:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268533AbUHRAkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 20:33:08 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30653 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268534AbUHRAc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 20:32:56 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040817081829.GA1977@elte.hu>
-References: <1092624221.867.118.camel@krustophenia.net>
-	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <20040817021431.169d07db@mango.fruits.de>
-	 <1092701223.13981.106.camel@krustophenia.net>
-	 <20040817073927.GA594@elte.hu>  <20040817081829.GA1977@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092789242.813.4.camel@krustophenia.net>
+	Tue, 17 Aug 2004 20:40:08 -0400
+Received: from 12-217-76-143.client.mchsi.com ([12.217.76.143]:48143 "HELO
+	12.217.76.143") by vger.kernel.org with SMTP id S266877AbUHRAkF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 20:40:05 -0400
+From: Janet Sabatino <Websitepositioning@ligne-net.info>
+To: linux-kernel@vger.kernel.org
+Subject: more website traffic
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 20:34:02 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Tue, 17 Aug 2004 17:40:04 -0700
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Message-Id: <S266877AbUHRAkF/20040818004005Z+186@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 04:18, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > > Yes, Ingo identified an issue with copy_page_range, I don't think it's
-> > > fixed yet.  See the voluntary-preempt-2.6.8.1-P0 thread.
-> > 
-> > right, it's not fixed yet. It's not a trivial critical section - we
-> > are holding two locks and are mapping two atomic kmaps.
-> 
-> fortunately it's easier than i thought - neither the source pmd nor the
-> target pmd can go away so we can simply drop the locks, reschedule, and
-> remap. Does the patch below (ontop of -P3) fix the copy_page_range()
-> latencies you are seeing?
-> 
+In order to be at the top of the list with a search engine, you need to qualify with them.
+Our company does the qualifing for Google, Yahoo!, MSN, and several other companies.
+If you'd like to see if your website qualifies for a better position, reply with your contact info
+and web address. Usual response will come in a couple days after review.
 
-Yes, this fixes it.  Now the most frequent issue is the xfree86
-unmap_vmas latency:
+Sincerely,
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P3
-
-Lee
-
+Janet Sabatino
+Website Positioning Services
+37 Business Center Dr.
+Austin, TX

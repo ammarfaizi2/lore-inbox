@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318918AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
+	id <S318946AbSHWQxW>; Fri, 23 Aug 2002 12:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318946AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39952
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318918AbSHWQsM>; Fri, 23 Aug 2002 12:48:12 -0400
-Subject: Re: interrupt handler
-From: Robert Love <rml@tech9.net>
-To: root@chaos.analogic.com
-Cc: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020823123854.2797A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1020823123854.2797A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Aug 2002 12:52:20 -0400
-Message-Id: <1030121541.1935.3684.camel@phantasy>
-Mime-Version: 1.0
+	id <S318958AbSHWQxW>; Fri, 23 Aug 2002 12:53:22 -0400
+Received: from smtp03.web.de ([217.72.192.158]:7951 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S318946AbSHWQxW>;
+	Fri, 23 Aug 2002 12:53:22 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4-ac1
+References: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
+	<20020823163056.GA7426@sci.fi>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <plail@web.de>
+Date: Fri, 23 Aug 2002 18:56:04 +0200
+In-Reply-To: <20020823163056.GA7426@sci.fi> (Anssi Saari's message of "Fri,
+ 23 Aug 2002 19:30:56 +0300")
+Message-ID: <8765y1a50b.fsf@plailis.homelinux.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-23 at 12:45, Richard B. Johnson wrote:
+Hi Anssi!
 
-> On 23 Aug 2002, Robert Love wrote:
-> > Only the current interrupt handler is disabled... interrupts are
-> > normally ON.
-> 
-> No. Check out irq.c, line 446. The interrupts are turned back on
-> only if the flag did not have SA_INTERRUPT set. Certainly most
-> requests for interrupt services within drivers have SA_INTERRUPT
-> set.
+* Anssi Saari writes:
+>On Fri, Aug 23, 2002 at 06:46:02AM -0400, Alan Cox wrote:
+>>IDE status
+>[...]
 
-Sigh... SA_INTERRUPT is used only for fast interrupts.  Certainly most
-drivers do not have it (and most that do are probably from the way old
-days when we went through great pains to distinguish between fast and
-slow interrupt handlers).
+>This new IDE stuff has certainly worsened my longstanding CD writing problem.
+>Data writes go fine at 16x. Audio writes work fine at 16x in FreeBSD
+>and Windows 98 with the same system. DMA is on, unmask_irq is on, 32bit
+>transfers are on, but don't matter much.
 
-Today, very few things should run with all interrupts disabled.  That is
-just dumb.  In fact, on this system, it seems only the timer interrupt
-sets SA_INTERRUPT...
+If you burn data in DAO mode you will have the same behaviour. Have you
+tried to toggle CONFIG_IDEPCI_SHARE_IRQ? It helped me a lot. Also I
+have to disable umaskirq, otherwise I have the same problems.
+Unfortunately I can't use the latest ac series because of a mysterious
+problem with ide-scsi.
+One thing I still do not understand is:
+IS DMA (theoretically) possible for stuff like c2scans, DAO writing,
+audio grabbing? From what I read in the LKML archives and from what
+Andre wrote me, I'd say no, but on the other hand I can do a c2scan at
+5MB/s with almost no processor usage. Can't really be PIO.
 
-	Robert Love
+regards
+Markus
 

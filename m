@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263014AbTCWKiK>; Sun, 23 Mar 2003 05:38:10 -0500
+	id <S263015AbTCWKkT>; Sun, 23 Mar 2003 05:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263015AbTCWKiK>; Sun, 23 Mar 2003 05:38:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16873 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263014AbTCWKiI>;
-	Sun, 23 Mar 2003 05:38:08 -0500
-Date: Sun, 23 Mar 2003 11:49:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE todo list
-Message-ID: <20030323104916.GI837@suse.de>
-References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
+	id <S263016AbTCWKkT>; Sun, 23 Mar 2003 05:40:19 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:11759 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S263015AbTCWKkS>; Sun, 23 Mar 2003 05:40:18 -0500
+Subject: Re: [PATCH] parallel port
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030323082239.GE6940@fs.tum.de>
+References: <200303230000.h2N00nZX020752@hraefn.swansea.linux.org.uk>
+	 <Pine.LNX.4.44.0303221919160.2959-100000@home.transmeta.com>
+	 <20030323082239.GE6940@fs.tum.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OJOv+67Clr1KKOJtZ/nA"
+Organization: Red Hat, Inc.
+Message-Id: <1048416614.1498.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 23 Mar 2003 11:50:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22 2003, Alan Cox wrote:
-> -	Finish verifying 256 sector I/O or larger on LBA48
-> 	[How to handle change dynamically on hotplug ?]
 
-That is basically impossible. How are you going to handle the case where
-you have a queue full of 256 request writes, and the plugged in disk
-chokes on them? And insolvable unless you start setting aside requests
-simply for this purpose. Also breaks the pseudo atomic segments that a
-single request represents. This is just way beyond ugly...
+--=-OJOv+67Clr1KKOJtZ/nA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is a generic problem of course, and the typical answer is to go by
-the rules of the lowest common denominator if hot plug can cause you
-queue limits to be violated (may be other problems than simply max
-sector count).
+On Sun, 2003-03-23 at 09:22, Adrian Bunk wrote:
+> On Sat, Mar 22, 2003 at 07:21:11PM -0800, Linus Torvalds wrote:
+>=20
+> > This one causes=20
+> >=20
+> > 	drivers/parport/parport_pc.c:2273: warning: implicit declaration of fu=
+nction `rename_region'
+> > 	drivers/built-in.o(.text+0x77a8c): In function `parport_pc_probe_port'=
+:
+> > 	: undefined reference to `rename_region'
+> >=20
+> > for me. I think I complained about that once before already. Tssk, tssk=
+.
+>=20
+> It's perhaps a silly question:
+> Why did you use a "do ... while  (0)" in your fix?
 
--- 
-Jens Axboe
+http://www.kernelnewbies.org/faq/index.php3#dowhile
 
+more details there
+
+--=-OJOv+67Clr1KKOJtZ/nA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+fZFlxULwo51rQBIRAlSFAJ97qeQpJruTcPhJ+k+ZTh2j35BqnACgjKmV
+sPM1ZOy2c504U194K890Pyo=
+=BE58
+-----END PGP SIGNATURE-----
+
+--=-OJOv+67Clr1KKOJtZ/nA--

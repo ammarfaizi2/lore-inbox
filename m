@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265388AbSJXKs3>; Thu, 24 Oct 2002 06:48:29 -0400
+	id <S265389AbSJXKxb>; Thu, 24 Oct 2002 06:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265389AbSJXKs3>; Thu, 24 Oct 2002 06:48:29 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:54479 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S265388AbSJXKs2>;
-	Thu, 24 Oct 2002 06:48:28 -0400
-Date: Thu, 24 Oct 2002 12:54:40 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: zippel@linux-m68k.org
-Cc: linux-kernel@vger.kernel.org
-Subject: small patch, but Linux Kernel Conf in 2.5.44 works great
-Message-ID: <20021024105440.GA28188@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, zippel@linux-m68k.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S265390AbSJXKxb>; Thu, 24 Oct 2002 06:53:31 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:29848 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265389AbSJXKxa> convert rfc822-to-8bit;
+	Thu, 24 Oct 2002 06:53:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: "David S. Miller" <davem@rth.ninka.net>
+Subject: Re: sendfile64() anyone? (was [RESEND] tuning linux for high network performance?)
+Date: Thu, 24 Oct 2002 13:07:36 +0200
+User-Agent: KMail/1.4.1
+Cc: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200210231218.18733.roy@karlsbakk.net> <200210241230.46848.roy@karlsbakk.net> <1035456463.10555.7.camel@rth.ninka.net>
+In-Reply-To: <1035456463.10555.7.camel@rth.ninka.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210241307.36134.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Slight warning patch, but Linux Kernel Conf is really cool. From a users'
-perspective, I note that the 'help' function is very fast now, which used to
-be embarrassingly slow.
+On Thursday 24 October 2002 12:47, David S. Miller wrote:
+> On Thu, 2002-10-24 at 03:30, Roy Sigurd Karlsbakk wrote:
+> > Are there any plans of implementing sendfile64() or sendfile() support
+> > for -D_FILE_OFFSET_BITS=64?
+>
+> This is old hat, and appears in every current vendor kernel I am
+> aware of and is in 2.5.x as well.
 
-Make oldconfig also works as planned.
+then where can I find these patches? I cannot use 2.5, and I usually try to 
+stick with an official kernel.
 
-I would indeed however vote to make the xconfig program available separately
-as well. Many users may need a different compiler for xconfig than for the
-kerel (dreaded C++ ABI issues).
+and - if this patch has been around all this time...
 
-Right now, it is some hassle to make sure that the right compiler is used
-for xconfig and the kernel.
-
-Regards,
-
-bert hubert
-
-Tiny patch to fix a warning:
-
---- linux-2.5.44/scripts/kconfig/kconfig_load.c~	Thu Oct 24 12:31:24 2002
-+++ linux-2.5.44/scripts/kconfig/kconfig_load.c	Thu Oct 24 12:39:34 2002
-@@ -1,5 +1,6 @@
- #include <dlfcn.h>
- #include <stdio.h>
-+#include <stdlib.h>
- 
- #include "lkc.h"
- 
-
+	why isn't it in the official kernel yet?
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

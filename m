@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTJEOP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 10:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263115AbTJEOP3
+	id S263117AbTJEOQl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 10:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTJEOQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 10:15:29 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:56719 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263114AbTJEOP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 10:15:27 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Rob Landley <rob@landley.net>,
-       andersen@codepoet.org, "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031005135603.GA10245@work.bitmover.com>
-References: <20030914064144.GA20689@codepoet.org>
-	 <bk30f1$ftu$2@tangens.hometree.net> <20030915055721.GA6556@codepoet.org>
-	 <200310041952.09186.rob@landley.net>
-	 <20031005010521.GA21138@work.bitmover.com>
-	 <20031005023428.GI7665@parcelfarce.linux.theplanet.co.uk>
-	 <20031005034533.GA29679@work.bitmover.com>
-	 <1065349476.3157.10.camel@imladris.demon.co.uk>
-	 <20031005135603.GA10245@work.bitmover.com>
-Message-Id: <1065363293.3157.61.camel@imladris.demon.co.uk>
+	Sun, 5 Oct 2003 10:16:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60851 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263117AbTJEOQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 10:16:40 -0400
+Date: Sun, 5 Oct 2003 07:11:52 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Willy TARREAU <willy@w.ods.org>
+Cc: marcelo.tosatti@cyclades.com, andersen@codepoet.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: iproute2 not compiling anymore
+Message-Id: <20031005071152.49c35297.davem@redhat.com>
+In-Reply-To: <20031005130044.GA8861@pcw.home.local>
+References: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
+	<20031005130044.GA8861@pcw.home.local>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Sun, 05 Oct 2003 15:14:53 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-05 at 06:56 -0700, Larry McVoy wrote:
-> You're forgetting that what the GPL says doesn't matter if it is
-> unenforceable. 
+On Sun, 5 Oct 2003 15:00:44 +0200
+Willy TARREAU <willy@w.ods.org> wrote:
 
-If the licence is invalid then there exists no licence and it is an
-offence to use the software in question at _all_.
+> /usr/src/linux/include/linux/in.h:147: field `gsr_group' has incomplete type
 
->  Remember all the people yelling at me that they can
-> reverse engineer BK in spite of any no-reverse-engineering clauses?
-> That same logic applies to the GPL, you can't have it both ways.
+I'll happily fix this, thanks for reporting this.
 
-I wasn't doing that yelling.
-
-> It doesn't matter what you think, or I think, or Linus thinks.  What
-> matters is what is legal and what isn't. 
-
-Agreed.
- 
--- 
-dwmw2
-
-
+Can you please in the future report such things on the networking
+development list netdev@oss.sgi.com?  Thanks.

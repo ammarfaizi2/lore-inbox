@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316595AbSHXSVH>; Sat, 24 Aug 2002 14:21:07 -0400
+	id <S316601AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSHXSVH>; Sat, 24 Aug 2002 14:21:07 -0400
-Received: from 24-148-63-229.na.21stcentury.net ([24.148.63.229]:59182 "HELO
-	wotke.danapple.com") by vger.kernel.org with SMTP
-	id <S316595AbSHXSVG>; Sat, 24 Aug 2002 14:21:06 -0400
-To: linux-kernel@vger.kernel.org
-Cc: "Daniel I. Applebaum" <kernel@danapple.com>
-Subject: 2.5.31 build failure & booting problems
-From: "Daniel I. Applebaum" <kernel@danapple.com>
-Date: Sat, 24 Aug 2002 13:25:10 -0500
-Message-Id: <20020824182515.3FE3F10B7A@wotke.danapple.com>
+	id <S316609AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:19693
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
+	id <S316601AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
+Message-ID: <20020824185548.913.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: <linux-kernel@vger.kernel.org>
+cc: dag@newtech.fi
+Subject: Re: Preempt note in the logs 
+Content-type: TEXT/PLAIN; charset=iso-8859-1
+In-reply-to: Your message of "Sat, 24 Aug 2002 12:20:46 MDT."
+             <Pine.LNX.4.44.0208241219150.3234-100000@hawkeye.luckynet.adm> 
+Date: Sat, 24 Aug 2002 21:55:48 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by alpha.home.local id g7OJ4iqd006207
 
 
-OK, I changed to gcc 2.95.3, and that tradcpp0 error disappeared.
-However, when building the ATA stuff as modules, I got some unresolved
-symbols during depmod -a.  Compiling the ATA stuff integral to the
-kernel eliminating those issues.  Sorry I didn't record the error
-messages.  This is all relevant to 2.5.31.
 
-Neither 2.5.31 nor 2.4.19 will boot on my machine.  So I seem to be
-stalled at 2.4.13.  Do I need a new version of LILO?  I'm currently at 
-LILO version 21.4-4
+Whhops,
 
-(For those new to this thread, my LILO will show Loading
-linux-2.4.19.................. and then the machine will immediately
-reboot.  Same for linux-2.5.31.)
+Lots of discussion,
+but this is what I like with Linux:
+lots of people that know what they are talking about
+commenting/discussing things.
 
-My kernels ls -l as:
--rw-rw-r--    1 root     root       886157 Aug 24 10:36 vmlinuz-2.4.19
--rw-rw-r--    1 root     root       897454 Aug 24 11:40 vmlinuz-2.5.31
+Anyway:
+- I am not running xfs, but I do run resiserfs.
+- I also have the ck2 patch that includes the low latency patch,
+  could that be it?
 
-Are they too big?
+My patch got rid of the messages and my laptop behaves again,
+but really I think that there is something fishy going on,
+the messages shouldn't happen....
 
-This is how I build the kernel:
+I am leaving it in your hands guys, as I don't have the experience
+nor the time to go get this one.
 
-make clean
-make menuconfig
-make clean dep bzImage
-make modules
-make modules_install
-cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.19
-cd /boot
-mkinitrd -f initrd-2.4.19.img 2.4.19
-lilo
-reboot
+BRGDS
 
-Any suggestions?  I'm totally baffled.
 
-Which is the very first routine in the kernel to be run?  I'd like to
-insert some kind of print statement, if possible, to see if it is even
-getting called by LILO.
+-- 
+Dag Nygren                               email: dag@newtech.fi
+Oy Espoon NewTech Ab                     phone: +358 9 8024910
+Träsktorpet 3                              fax: +358 9 8024916
+02360 ESBO                              Mobile: +358 400 426312
+FINLAND
 
-Dan.
+

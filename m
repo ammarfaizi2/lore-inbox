@@ -1,90 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315547AbSFEQot>; Wed, 5 Jun 2002 12:44:49 -0400
+	id <S315529AbSFEQtg>; Wed, 5 Jun 2002 12:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315593AbSFEQos>; Wed, 5 Jun 2002 12:44:48 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:19160 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S315547AbSFEQop>; Wed, 5 Jun 2002 12:44:45 -0400
-Message-ID: <3CFE3FCB.9040109@antefacto.com>
-Date: Wed, 05 Jun 2002 17:43:55 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Owen Taylor <otaylor@redhat.com>
-CC: andersen@codepoet.org,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        sopwith@redhat.com
-Subject: Re: Need help tracing regular write activity in 5 s interval
-In-Reply-To: <20020602135501.GA2548@merlin.emma.line.org>	<3CFCA2B0.4060501@antefacto.com> <20020604120434.GA1386@codepoet.org>	<3CFE1B78.9010406@antefacto.com> <20020605155017.251EC2423B5@fresnel.labs.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315544AbSFEQtf>; Wed, 5 Jun 2002 12:49:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55820 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315529AbSFEQte>; Wed, 5 Jun 2002 12:49:34 -0400
+Date: Wed, 5 Jun 2002 17:49:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        David Woodhouse <dwmw2@cambridge.redhat.com>
+Subject: [PATCH] Allow jffs2/super.c to build
+Message-ID: <20020605174928.F10293@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Owen Taylor wrote:
-> Padraig Brady <padraig@antefacto.com> writes:
-> 
->>I'm sure it will :-)
->>
->>However this it just masking the "problem"
-> 
-> Well, the question is, "what is the problem"? 
-> 
-> Your problem is that a debug message is being output by the kernel and
-> filling your logs. If the debug message doesn't do anybody any good
-> (and it doesn't) then removing the debug message is a fine way of
-> solving the problem.
+Linus, lkml, dwmw2,
 
-True. But I thought there might be (future) side affects of
-cdrom_media_changed() always returning true. Why is it there at all?
+  Note: This is not in the MTD CVS (I'm not clear on David's handling
+        of 2.5 MTD)
 
-> I looked at _why_ the debug message was being generated in this
-> particular case a long time ago, and it seemed to essentially be a bug
-> in the IDE code
+The following patch adds <linux/namei.h> which seems to be required to
+allow fs/jffs2 to build in 2.5.20.  This fixes all the following
+warnings/errors:
 
-Yes that's my guess, and I may have time to look at it.
+super.c: In function `jffs2_get_sb':
+super.c:197: storage size of `nd' isn't known
+super.c:245: warning: implicit declaration of function `path_lookup'
+super.c:245: `LOOKUP_FOLLOW' undeclared (first use in this function)
+super.c:245: (Each undeclared identifier is reported only once
+super.c:245: for each function it appears in.)
+super.c:254: warning: implicit declaration of function `path_release'
+super.c:197: warning: unused variable `nd'
 
-, but other than generating the debug message,
-> basically a harmless one, and there was no interest in fixing it among
-> the kernel people I talked to at the time.
-> 
-> (I don't remember details any more; it was several years ago.)
-> 
-> 
->>, and I don't
->>think it's "buggy CDROM drives" as I've tried 3 different
->>machines with the following drives:
->>
->>SAMSUNG DVD-ROM SD-612
->>TOSHIBA DVD-ROM SD-C2402
->>CREATIVE CD5233E
->>
->>and they all show the same problem. I.E. logs filling with
->>"VFS: Disk change detected on device ide1(22,0)".
-> 
-> *This* problem is certainly not a buggy CD-ROM. There are other
-> (rarer) problems with logs filling with magicdev that do have to do
-> with buggy CD-ROM drives; so that is perhaps what you heard about.
-> 
-> (Most common one is that some Yamaha CD-RW's apparently report media
-> in the drive when they don't have any media in the drive.  magicdev
-> tries to mount it, and that failure generates an error message.)
-> 
-> [...] 
-> 
->>Also related, why does the LED flash on every ATA command?
->>Is this controlled by the drive or ide controller?
->>Are you telling me that windows would flash the LED every so often
->>to automount CDs?
-> 
-> Are you sure that the LED flashing isn't the debug messages being
-> written to your hard drive?
+diff -ur orig/fs/jffs2/super.c linux/fs/jffs2/super.c
+--- orig/fs/jffs2/super.c	Sat May 25 11:12:37 2002
++++ linux/fs/jffs2/super.c	Sat May 25 11:16:14 2002
+@@ -48,6 +48,7 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/interrupt.h>
+ #include <linux/ctype.h>
++#include <linux/namei.h>
+ #include "nodelist.h"
+ 
+ void jffs2_put_super (struct super_block *);
 
-Yep. Good point though.
-
-thanks,
-Padraig.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

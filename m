@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261293AbRERRhS>; Fri, 18 May 2001 13:37:18 -0400
+	id <S261280AbRERRms>; Fri, 18 May 2001 13:42:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbRERRhI>; Fri, 18 May 2001 13:37:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28942 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261280AbRERRgx>; Fri, 18 May 2001 13:36:53 -0400
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-To: esr@thyrsus.com
-Date: Fri, 18 May 2001 18:33:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org (CML2),
+	id <S261281AbRERRmi>; Fri, 18 May 2001 13:42:38 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:20745 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261280AbRERRmb>;
+	Fri, 18 May 2001 13:42:31 -0400
+Date: Fri, 18 May 2001 13:41:04 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Tom Rini <trini@kernel.crashing.org>,
+        Michael Meissner <meissner@spectacle-pond.org>,
+        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
         kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010518123413.I14309@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 12:34:13 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: CML2 design philosophy heads-up
+Message-ID: <20010518134104.A16093@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Michael Meissner <meissner@spectacle-pond.org>,
+	Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518120434.F14309@thyrsus.com> <E150nyl-0007Ot-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150o7n-0007PV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E150nyl-0007Ot-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 06:23:55PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you really believe that anyone is going to maintain the CML1 tools
-> for as long as a nanosecond after they get dropped out of the kernel tree?
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> What I am trying to say is that if you can infer probable configuration
+> categories that are relevant then instead of automatically filling the other
+> areas in and blocking changing them without using vi you can put the other
+> options as a submenu. That guides the less expert user and also helps rather
+> than hinders the expert
 
-Do you really believe anyone would be dumb enough to delete them out of spite
-or to further your political machinations if they could both handle the same
-configuration language.
+OK, that's useful input.  Noted.
 
-CML1 has had no official maintainer for about 4 years. People contribute bits
-and it works. So as it stands there would be no reason to remove it.
+There's a bit of a technical problem with the distinction between 
+derivations (which are like macros) and question symbols (which can
+be suppressed or unsuppressed depending on their visibility predicate
+But perhaps I can think up a solution to that one over lunch.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+You [should] not examine legislation in the light of the benefits it will
+convey if properly administered, but in the light of the wrongs it
+would do and the harm it would cause if improperly administered
+	-- Lyndon Johnson, former President of the U.S.

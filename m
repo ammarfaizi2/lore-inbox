@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVBHT5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVBHT6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVBHT5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 14:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVBHT5W
+	id S261647AbVBHT6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 14:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVBHT6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 14:57:22 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:61706 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261646AbVBHT5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 14:57:20 -0500
-Message-Id: <200502082223.j18MMxs0013724@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, lkml <linux-kernel@vger.kernel.org>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [BUG report] UML linux-2.6 latest BK doesn't compile 
-In-Reply-To: Your message of "Tue, 08 Feb 2005 18:37:22 +0100."
-             <200502081837.22519.blaisorblade@yahoo.it> 
-References: <1107857395.15872.2.camel@imp.csi.cam.ac.uk> <200502081829.j18ITAs0003968@ccure.user-mode-linux.org>  <200502081837.22519.blaisorblade@yahoo.it> 
+	Tue, 8 Feb 2005 14:58:08 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53985 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261647AbVBHT6E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 14:58:04 -0500
+Date: Tue, 8 Feb 2005 11:54:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] compile error: 2.6.10 / megaraid_mbox
+Message-ID: <20050208195425.GB24698@kroah.com>
+References: <20050208081057.GC21154@schottelius.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Feb 2005 17:22:59 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <20050208081057.GC21154@schottelius.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blaisorblade@yahoo.it said:
-> Why not simply disable CONFIG_GCOV for him, in this case? 
+On Tue, Feb 08, 2005 at 09:10:57AM +0100, Nico Schottelius wrote:
+> Good morning!
+> 
+> I was trying to compile Megaraid on 2.6.10 and
+> noticed that pci_dma_sync_single and pci_dma_sync_sg
+> are deprecated. Greg seems to tried to patch it in 2.6.9
+> (http://lkml.org/lkml/2004/10/19/425), but it seems he didn't catch it
+> all.
+> 
+> A patch against vanialla 2.6.10 is attached.
 
-Anton presumably turned on CONFIG_GCOV because he wanted to do some profiling...
+Hm, can you redo the patch so that I can apply it with "-p1" to patch,
+and add a Signed-off-by: line (also keep the same description as above.)
 
-				Jeff
+thanks,
 
+greg k-h

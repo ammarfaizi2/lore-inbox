@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVBYMJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVBYMZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262684AbVBYMJR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 07:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVBYMJR
+	id S262659AbVBYMZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 07:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVBYMZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 07:09:17 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:22232 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262684AbVBYMHn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 07:07:43 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: arch/xen is a bad idea
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Fri, 25 Feb 2005 12:07:45 -0000
-Message-ID: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: arch/xen is a bad idea
-Thread-Index: AcUbL1+vuOzkf+06S2uePByX4dLoywAAONTg
-From: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
-To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>
-Cc: <riel@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <Ian.Pratt@cl.cam.ac.uk>, <Steven.Hand@cl.cam.ac.uk>,
-       <Christian.Limpach@cl.cam.ac.uk>, <Keir.Fraser@cl.cam.ac.uk>,
-       <ian.pratt@cl.cam.ac.uk>
+	Fri, 25 Feb 2005 07:25:09 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:12392 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262659AbVBYMY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 07:24:59 -0500
+X-ME-UUID: 20050225122458291.4711C1C0026D@mwinf0802.wanadoo.fr
+Date: Fri, 25 Feb 2005 13:15:37 +0100
+To: Christian <evil@g-house.de>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Tom Rini <trini@kernel.crashing.org>,
+       Meelis Roos <mroos@linux.ee>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, Sven Hartge <hartge@ds9.gnuu.de>
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah) PCI IRQ map
+Message-ID: <20050225121536.GA20174@pegasos>
+References: <20041206185416.GE7153@smtp.west.cox.net> <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos> <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos> <421E7033.1030600@g-house.de> <20050225063609.GA21244@pegasos> <49984.195.126.66.126.1109332744.squirrel@housecafe.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <49984.195.126.66.126.1109332744.squirrel@housecafe.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> The Xen team still believe that it's best to keep arch/xen, 
-> arch/xen/i386,
-> arch/xen/x86_64, etc.  And I believe that Andi (who is the 
-> world expert on
-> maintaining an i386 derivative) thinks that this is will be a 
-> long-term
-> maintenance problem.
+On Fri, Feb 25, 2005 at 12:59:04PM +0100, Christian wrote:
+> On Fri, February 25, 2005 7:36, Sven Luther said:
+> > So, now, we need to find out what the problems where, i think it is
+> > something that went in between 2.6.8 and 2.6.10, and leigh said he had
+> > some ideas.
+> 
+> may i ask what patches were applied to a vanilla 2.6.8 kernel to build the
+> 2.6.8-d-i then?
 
-I think there's an interim compromise position that everyone might go
-for:
+Some backports that i got from the list. The complete list of patches is at :
 
-Phase 1 is for us to submit a load of patches that squeeze out the low
-hanging fruit in unifying xen/i386 and i386. Most of these will be
-strict cleanups to i386, and the result will be to almost halve the
-number of files that we need to modify.
+  http://svn.debian.org/wsvn/kernel/trunk/kernel/source/kernel-source-2.6.8-2.6.8/debian/patches/?rev=0&sc=0
 
-The next phase is that we re-organise the current arch/xen as follows:
+And i guess the one at hand here is : 
 
-We move the remaining (reduced) contents of arch/xen/i386 to
-arch/i386/xen (ditto for x86_64). We then move the xen-specific files
-that are shared between all the different xen architectures to
-drivers/xen/core. I know this last step is a bit odd, but it's the best
-location that Rusty Russel and I could come up with.
+  http://svn.debian.org/wsvn/kernel/trunk/kernel/source/kernel-source-2.6.8-2.6.8/debian/patches/powerpc-prep-powerstack-irq.dpatch?op=file&rev=0&sc=0
 
-At this point, I'd hope that we could get xen into the main-line tree.
+--- kernel-source-2.6.8.orig/arch/ppc/platforms/prep_pci.c	2004-12-28
+08:24:07.000000000 +0100
++++ kernel-source-2.6.8/arch/ppc/platforms/prep_pci.c	2005-01-03
+11:15:30.604274816 +0100ll lines beginning with `## DP:' are a description of
+the patch.
+## DP: Description: Fix PReP - motorola powerstack II utah pci irq mapping.
+## DP: Patch author: Tom Rini <trini@kernel.crashing.org>
+## DP: Upstream status: backport
 
-The final phase is to see if we can further unify more native and xen
-files. This is going to require some significant i386 code refactoring,
-and I think its going to be much easier to do if all the code is in the
-main-line tree so that people can see the motivation for what's going
-on.
+. $(dirname $0)/DPATCH
 
-What do you think?
+@DPATCH@
+@@ -115,13 +115,13 @@
+ static char Utah_pci_IRQ_map[23] __prepdata =
+ {
+         0,   /* Slot 0  - unused */
+-        0,   /* Slot 1  - unused */
++        4,   /* Slot 1  - IDE - SL82C105 */
+         5,   /* Slot 2  - SCSI - NCR825A  */
+         0,   /* Slot 3  - unused */
+-        1,   /* Slot 4  - Ethernet - DEC2114x */
++        3,   /* Slot 4  - Ethernet - DEC2114x */
+         0,   /* Slot 5  - unused */
+-        3,   /* Slot 6  - PCI Card slot #1 */
+-        4,   /* Slot 7  - PCI Card slot #2 */
++        2,   /* Slot 6  - PCI Card slot #1 */
++        3,   /* Slot 7  - PCI Card slot #2 */
+         5,   /* Slot 8  - PCI Card slot #3 */
+         5,   /* Slot 9  - PCI Bridge */
+              /* added here in case we ever support PCI bridges */
 
-Best,
-Ian
+Friendly,
+
+Sven Luther
 

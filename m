@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287196AbRL2NQo>; Sat, 29 Dec 2001 08:16:44 -0500
+	id <S284854AbRL2NXo>; Sat, 29 Dec 2001 08:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287197AbRL2NQe>; Sat, 29 Dec 2001 08:16:34 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:16059 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S287196AbRL2NQV>;
-	Sat, 29 Dec 2001 08:16:21 -0500
-Message-ID: <3C2DC1AA.2070106@athlon.maya.org>
-Date: Sat, 29 Dec 2001 14:14:18 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011225
-X-Accept-Language: en-us
+	id <S287189AbRL2NXe>; Sat, 29 Dec 2001 08:23:34 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:18853 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S284854AbRL2NXW>;
+	Sat, 29 Dec 2001 08:23:22 -0500
+Date: Sat, 29 Dec 2001 14:23:14 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
+ - update)
+In-Reply-To: <20011229004430.Y1507-100000@gerard>
+Message-ID: <Pine.GSO.4.21.0112291421030.277-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C2CD326.100@athlon.maya.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann wrote:
-
-> Hello all,
+On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+> On Fri, 28 Dec 2001, Geert Uytterhoeven wrote:
+> > The sym-2 driver has a define for modifying the PCI latency timer
+> > (SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
 > 
-> Again, I did a rsync-operation as described in
-> "[2.4.17rc1] Swapping" MID <3C1F4014.2010705@athlon.maya.org>.
+> By default sym-2 use value 3 for the pci_fix_up (cache line size + memory
+> write and invalidate). The latency timer fix-up has been removed, since it
+> is rather up to the generic PCI driver to tune latency timers.
 > 
+> > Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
+> > bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
+> > driver (wrong burst_max)?
+> 
+> Great bug hunting!
+> 
+> It is about certainly not a software bug in the driver. Any latency timer
+> value should not give any trouble if hardware was flawless. Just the PCI
+> performances could be affected.
 
-Some other examples:
-I just did a
-cp -Rd linux-2.4.16 linux-2.4.17
-(with object-files). Before starting this action, I had about 120 MB of 
-free RAM. During copying - I did nothing else meanwhile, there was 2MB 
-swap used - and 12 MB of RAM were free. The biggest part of memory was 
-used for caching - what is ok.
-After copying, only 10 MB of memory have been given free again. There 
-have been 490MB of RAM used now (nearly most for caching).
+I played a bit with sym-2 and setpci. Everything goes fine as long as the PCI
+latency timer value is smaller than 0x16 (yes, at first I thought it was
+decimal, but setpci parameters are in hex).
 
-Outgoing from this situation, I started another little cp-action:
-cp -Rd linux-2.4.18pre1 linux-2.4.test
-(again including object files).
-Result: the swap usage stayed nearly constant, neverthless there have 
-been 6 accesses to swap.
+Gr{oetje,eeting}s,
 
-Now, I deleted the linux-2.4.test-directory with
-rm -R linux-2.4.test
-This action was very fast (approximately 1s).
+						Geert
 
-Afterwards, a big part of the cache memory has been given free (about 
-100MB). Now, 122MB of RAM have been free again.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Next example (running after the last):
-SuSE run-crons have been running. This means:
--> updatedb
--> sort
--> frcode
--> find
--> mandb
-
-47MB swap used, 2/3 of memory is used for buffers (Don't forget: I've 
-got 512MB of RAM) and about 30MB of RAM are free.
-
-
-My observation:
-Why does the kernel swap to get free memory for caching / buffering? I 
-can't see any sense in this action. Wouldn't it be better to shrink the 
-cashing / buffering-RAM to the amount of memory, which is obviously free?
-
-Swapping should be principally used, if the RAM ends for real memory 
-(memory, which is used for running applications). First of all, the 
-memory-usage of cache and buffers should be reduced before starting to 
-swap IMHO.
-
-Or would it be possible, to implement more than one swapping strategy, 
-which could be configured during make menuconfig? This would give the 
-user the chance to find the best swapping strategy for his purpose.
-
-
-
-Regards,
-Andreas Hartmann
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUDVT6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264653AbUDVT6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUDVT6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 15:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264654AbUDVT4k
+	id S264653AbUDVT6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 15:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbUDVTzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 15:56:40 -0400
-Received: from mail12.intermedia.net ([206.40.48.197]:32452 "HELO
-	mail12.intermedia.net") by vger.kernel.org with SMTP
-	id S264663AbUDVTwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 15:52:33 -0400
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040421132047.026ab7f2.davem@redhat.com>
-References: <40869267.30408@nortelnetworks.com>
-	 <Pine.LNX.4.53.0404211153550.1169@chaos>
-	 <4086A077.2000705@nortelnetworks.com>
-	 <20040421170340.GB24201@wohnheim.fh-wedel.de>
-	 <20040421132047.026ab7f2.davem@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1082664092.9062.14.camel@ranjeet-pc2.zultys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 22 Apr 2004 13:01:33 -0700
-Content-Transfer-Encoding: 8bit
+	Thu, 22 Apr 2004 15:55:48 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:8842 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S264657AbUDVTxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 15:53:21 -0400
+Message-ID: <408822F1.80409@tmr.com>
+Date: Thu, 22 Apr 2004 15:54:25 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking objrmap under memory pressure
+References: <c5mcoc$s9l$1@gatekeeper.tmr.com> <Pine.LNX.4.44.0404151746140.9558-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0404151746140.9558-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-21 at 13:20, David S. Miller wrote:
-> On Wed, 21 Apr 2004 19:03:40 +0200
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+Hugh Dickins wrote:
+> On Thu, 15 Apr 2004, Bill Davidsen wrote:
 > 
-> > Heise.de made it appear, as if the only news was that with tcp
-> > windows, the propability of guessing the right sequence number is not
-> > 1:2^32 but something smaller.  They said that 64k packets would be
-> > enough, so guess what the window will be.
+>>Hugh Dickins wrote:
+>>
+>>>The worst that will happen with anonmm's mremap move, is that some
+>>>app might go slower and need more swap.  Unlikely, but agreed possible.
+>>
+>>It appears that users on small memory machines running kde are not of 
+>>concern to you. Unfortunately that describes a fair number of people, 
+>>not everyone has the big memory fast system. I will try to get some 
+>>reproducible numbers, but "consistently feels faster" is a reason to 
+>>keep running -aa even if I can't quantify it.
 > 
-> Yes, that is their major discovery.  You need to guess the ports
-> and source/destination addresses as well, which is why I don't
-> consider this such a serious issue personally.
 > 
-> It is mitigated if timestamps are enabled, because that becomes
-> another number you have to guess.
+> Appearances can be deceptive.  Of course I care about users,
+> of small or large memory machines, running kde or not.
 > 
-> It is mitigated also by randomized ephemeral port selection, which
-> OpenBSD implements and we could easily implement as well.
+> It appears that you do not understand that we're talking about a
+> case so rare that we've never seen it in practice, only by testing.
 > 
-> I'm very happy that OpenBSD checked in a fix for this a week or so
-> ago and took some of the thunder out of this bogusly hyped announcement.
+> But perhaps we haven't looked out for it enough (no printk), I'd better
+> put something in to tell us when it does occur, thanks for the reminder.
+> 
+> If -aa consistently feels faster to you, great, go with it:
+> but I doubt it's because of this issue we're discussing!
 
-(Not the same issue, but interesting still, and its related)
+I don't disagree on that, but it seems that KDE developers have put some 
+serious effort into making the software well-behaved, and unless there 
+is some measurable benefit from the code which negates the benefits of 
+that effort, it seems desirable to appreciate code code by letting it work.
 
-Isn't this (http://www.lowth.com/cutter/) an application on the same
-lines ? (but from the perspective of a person ON one of the two endpoint
-machines, rather than a remote third party).
-
-QUOTE
-
-There is a feature of the TCP/IP protocol that we could use to good
-effect here :- If a packet (other than an RST) is received on a
-connection that has the wrong sequence number, then the host responds by
-sending a corrective "ACK" packet back. This "ACK" reply is designed to
-put the sequence numbers at both ends back into step - and allows the
-protocol to retransmit packets that got lost. This is very nice for our
-needs - if the firewall sends a packet that is "correct" in all respects
-except for the sequence number, then the host very helpfully tells us
-what should have been used. We can then use this information to build
-the RST packet that will abort the connection.
-
-END OF QUOTE
-
-thanks,
+I was more commenting on the good performance at the bottom end than 
+addressing the large machines. All the big machines I have are in the 
+overkill range, and finding small benefits doesn't do much with 
+production loads, so I can't contribute any useful info at that end.
 
 -- 
-
-Ranjeet Shetye
-Senior Software Engineer
-Zultys Technologies
-Ranjeet dot Shetye2 at Zultys dot com
-http://www.zultys.com/
- 
-The views, opinions, and judgements expressed in this message are solely
-those of the author. The message contents have not been reviewed or
-approved by Zultys.
-
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,146 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319481AbSIMBuM>; Thu, 12 Sep 2002 21:50:12 -0400
+	id <S319487AbSIMBvL>; Thu, 12 Sep 2002 21:51:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319487AbSIMBuM>; Thu, 12 Sep 2002 21:50:12 -0400
-Received: from dp.samba.org ([66.70.73.150]:8144 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319481AbSIMBuK>;
+	id <S319484AbSIMBuT>; Thu, 12 Sep 2002 21:50:19 -0400
+Received: from dp.samba.org ([66.70.73.150]:12240 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319486AbSIMBuK>;
 	Thu, 12 Sep 2002 21:50:10 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] Hot unplug CPU 1/4
-Date: Fri, 13 Sep 2002 11:54:18 +1000
-Message-Id: <20020913015501.E05C52C053@lists.samba.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Generated files destruction 
+In-reply-to: Your message of "Thu, 12 Sep 2002 15:53:45 EST."
+             <Pine.LNX.4.44.0209121551010.31494-100000@chaos.physics.uiowa.edu> 
+Date: Fri, 13 Sep 2002 10:42:08 +1000
+Message-Id: <20020913015502.29C4E2C08B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Bitops Cleanup
-Author: Rusty Russell
-Status: Trivial
+In message <Pine.LNX.4.44.0209121551010.31494-100000@chaos.physics.uiowa.edu> y
+ou write:
+> On Thu, 12 Sep 2002, Rusty Russell wrote:
+> 
+> > 	I would like to start migrating all build-generated files to
+> > names matching "generated*" or ".generated*", esp. those which look
+> > like source files.  This is mainly for readability and for simplicity
+> > when diffing built kernel trees.  I'll be encouraging various
+> > maintainers who generate (.c, .h and .s) files which are not meant to
+> > be shipped with the kernel source to migrate, in my copious free
+> > time...
+> 
+> I think the proper solution here is actually separate obj/src dirs, 
+> instead of special names. It's actually quite easy to get that implemented 
+> in the current kbuild, I just didn't find the time for proper testing yet. 
+> I'll have a patch ready for testing soon, though.
 
-D: This renames bitmap_member to DECLARE_BITMAP, and moves it to bitops.h.
+Sure, if it basically comes for free.  Otherwise, I don't see any
+attraction in separating them: cp -al linux-2.5.34 working-2.5.34-foo
+takes a couple of seconds.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/drivers/zorro/zorro.c .7898-linux-2.5.31.updated/drivers/zorro/zorro.c
---- .7898-linux-2.5.31/drivers/zorro/zorro.c	2002-07-25 10:13:15.000000000 +1000
-+++ .7898-linux-2.5.31.updated/drivers/zorro/zorro.c	2002-08-12 18:32:06.000000000 +1000
-@@ -80,7 +80,7 @@ struct zorro_dev *zorro_find_device(zorr
-      *  FIXME: use the normal resource management
-      */
- 
--bitmap_member(zorro_unused_z2ram, 128);
-+DECLARE_BITMAP(zorro_unused_z2ram, 128);
- 
- 
- static void __init mark_region(unsigned long start, unsigned long end,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/bitops.h .7898-linux-2.5.31.updated/include/linux/bitops.h
---- .7898-linux-2.5.31/include/linux/bitops.h	2002-06-24 00:53:24.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/bitops.h	2002-08-12 18:33:56.000000000 +1000
-@@ -1,6 +1,11 @@
- #ifndef _LINUX_BITOPS_H
- #define _LINUX_BITOPS_H
- #include <asm/bitops.h>
-+#include <asm/types.h>
-+
-+#define BITS_TO_LONG(bits) (((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
-+#define DECLARE_BITMAP(name,bits) \
-+	unsigned long name[BITS_TO_LONG(bits)]
- 
- /*
-  * ffs: find first bit set. This is defined the same way as
-@@ -107,7 +112,4 @@ static inline unsigned int generic_hweig
-         return (res & 0x0F) + ((res >> 4) & 0x0F);
- }
- 
--#include <asm/bitops.h>
--
--
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/types.h .7898-linux-2.5.31.updated/include/linux/types.h
---- .7898-linux-2.5.31/include/linux/types.h	2002-06-17 23:19:25.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/types.h	2002-08-12 18:32:06.000000000 +1000
-@@ -3,9 +3,6 @@
- 
- #ifdef	__KERNEL__
- #include <linux/config.h>
--
--#define bitmap_member(name,bits) \
--	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
- #endif
- 
- #include <linux/posix_types.h>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/zorro.h .7898-linux-2.5.31.updated/include/linux/zorro.h
---- .7898-linux-2.5.31/include/linux/zorro.h	2002-07-25 10:13:18.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/zorro.h	2002-08-12 18:32:06.000000000 +1000
-@@ -10,6 +10,7 @@
- 
- #ifndef _LINUX_ZORRO_H
- #define _LINUX_ZORRO_H
-+#include <linux/bitops.h>
- 
- #ifndef __ASSEMBLY__
- 
-@@ -199,7 +200,7 @@ extern struct zorro_dev *zorro_find_devi
-      *  the corresponding bits.
-      */
- 
--extern bitmap_member(zorro_unused_z2ram, 128);
-+extern DECLARE_BITMAP(zorro_unused_z2ram, 128);
- 
- #define Z2RAM_START		(0x00200000)
- #define Z2RAM_END		(0x00a00000)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/sound/ac97_codec.h .7898-linux-2.5.31.updated/include/sound/ac97_codec.h
---- .7898-linux-2.5.31/include/sound/ac97_codec.h	2002-06-21 09:41:55.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/sound/ac97_codec.h	2002-08-12 18:32:06.000000000 +1000
-@@ -25,6 +25,7 @@
-  *
-  */
- 
-+#include <linux/bitops.h>
- #include "control.h"
- #include "info.h"
- 
-@@ -169,7 +170,7 @@ struct _snd_ac97 {
- 	unsigned int rates_mic_adc;
- 	unsigned int spdif_status;
- 	unsigned short regs[0x80]; /* register cache */
--	bitmap_member(reg_accessed,0x80); /* bit flags */
-+	DECLARE_BITMAP(reg_accessed, 0x80); /* bit flags */
- 	union {			/* vendor specific code */
- 		struct {
- 			unsigned short unchained[3];	// 0 = C34, 1 = C79, 2 = C69
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h
---- .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h	2002-06-21 09:41:57.000000000 +1000
-+++ .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h	2002-08-12 18:32:06.000000000 +1000
-@@ -53,7 +53,7 @@ struct _snd_seq_client {
- 	char name[64];		/* client name */
- 	int number;		/* client number */
- 	unsigned int filter;	/* filter flags */
--	bitmap_member(event_filter, 256);
-+	DECLARE_BITMAP(event_filter, 256);
- 	snd_use_lock_t use_lock;
- 	int event_lost;
- 	/* ports */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_queue.h .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h
---- .7898-linux-2.5.31/sound/core/seq/seq_queue.h	2002-06-21 09:41:57.000000000 +1000
-+++ .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h	2002-08-12 18:32:06.000000000 +1000
-@@ -26,6 +26,7 @@
- #include "seq_lock.h"
- #include <linux/interrupt.h>
- #include <linux/list.h>
-+#include <linux/bitops.h>
- 
- #define SEQ_QUEUE_NO_OWNER (-1)
- 
-@@ -51,7 +52,7 @@ struct _snd_seq_queue {
- 	spinlock_t check_lock;
- 
- 	/* clients which uses this queue (bitmap) */
--	bitmap_member(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
-+ 	DECLARE_BITMAP(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
- 	unsigned int clients;	/* users of this queue */
- 	struct semaphore timer_mutex;
- 
-
+Cheers!
+Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

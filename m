@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287604AbSAEIhg>; Sat, 5 Jan 2002 03:37:36 -0500
+	id <S287617AbSAEIwb>; Sat, 5 Jan 2002 03:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287613AbSAEIh1>; Sat, 5 Jan 2002 03:37:27 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:51346 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S287604AbSAEIhL>;
-	Sat, 5 Jan 2002 03:37:11 -0500
-Message-ID: <3C36BBAA.1010609@athlon.maya.org>
-Date: Sat, 05 Jan 2002 09:39:06 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011231
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: brownfld@irridia.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com>	<3C360D6E.9020207@athlon.maya.org> <20020104215503.7c43dac2.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S287618AbSAEIwU>; Sat, 5 Jan 2002 03:52:20 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:51210 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287617AbSAEIwG>; Sat, 5 Jan 2002 03:52:06 -0500
+Subject: 2.5.2-pre8 -- reiserfs compilation errors
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99+cvs.2002.01.04.17.55 (Preview Release)
+Date: 05 Jan 2002 00:52:22 -0800
+Message-Id: <1010220743.21181.4.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
 
-[...]
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o procfs.o procfs.c
+procfs.c: In function `reiserfs_version_in_proc':
+procfs.c:80: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_super_in_proc':
+procfs.c:137: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_per_level_in_proc':
+procfs.c:217: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_bitmap_in_proc':
+procfs.c:296: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_on_disk_super_in_proc':
+procfs.c:337: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_oidmap_in_proc':
+procfs.c:390: conversion to non-scalar type requested
+procfs.c: In function `reiserfs_journal_in_proc':
+procfs.c:441: conversion to non-scalar type requested
+procfs.c:494: incompatible type for argument 1 of `bdevname'
+procfs.c: In function `reiserfs_proc_register':
+procfs.c:581: aggregate value used where an integer was expected
+make[3]: *** [procfs.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/fs/reiserfs'
 
->>If you have applications, which doesn't 
->>access to much memory, you can't view the problems.
->>If you access more than 1G (and you do not just copy, but rsync e.g.) 
->>and you have only 512MB of RAM, the machine swaps a lot with most actual 
->>2.4.-kernels (patches).
->>
-> 
-> Can you provide a simple and reproducible test case (e.g. some demo source),
-> where things break? I am very willing to test it here.
-> 
+#
+# File systems
+#
+CONFIG_QUOTA=y
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_CHECK=y
+CONFIG_REISERFS_PROC_INFO=y
 
-It's easy - take a grown inn-newsserver-partition with reiserfs (*) (a 
-lot of small files and a lot of directories), about 1,3 GB or more, and 
-do a complete rsync to this partition to transport it somewhere else. 
-But you have to do it with a existing target, no empty target, so that 
-rsync must scan the whole target partition, too.
+Gnu C                  3.0.3
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.12
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.22
+PPP                    2.4.0
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Linux C++ Library      3.0.2
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.3.3
+Sh-utils               2.0
 
-I don't like special test-programs. They seldom show up the reality. 
-What we need is a kernel that behaves fine in reality - not in testcases.
-And before starting the test, take care, that most of ram is already 
-used for cache or buffers or applications.
-
-I did this test with several VM-patches and there are huge differences 
-in swap consumption between them: 319MB with 2.4.17rc2 and 59MB with 
-2.4.17 oom-patch (max).
-It's more than a little difference :-).
-
-
-Regards,
-Andreas Hartmann
-
-
-(*) If I had DSL, I would send it to you (as tar.gz) - but with modem, 
-it's a bit too much :-)!
-But your squid cache should be fine, too. It has a similar structure: a 
-lot of small files and a lot of subdirectories. But I think, that your 
-squid cache size isn't as high as my inn-partition.
 

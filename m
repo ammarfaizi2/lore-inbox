@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVASH5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVASH5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVASH5d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVASH4a
+	id S261631AbVASH5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVASH50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:56:30 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52415 "EHLO
+	Wed, 19 Jan 2005 02:57:26 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52927 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261629AbVASHdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:25 -0500
+	id S261631AbVASHd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:33:27 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 22/29] x86-crash_shutdown-nmi-shootdown
+Subject: [PATCH 25/29] crashdump-documentation
 Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-crash-shutdown-nmi-shootdown-11061198973234@ebiederm.dsl.xmission.com>
+Message-ID: <crashdump-documentation-11061198972662@ebiederm.dsl.xmission.com>
 X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <kexec-ppc-support-11061198973302@ebiederm.dsl.xmission.com>
+In-Reply-To: <x86-crash-shutdown-apic-shutdown-11061198971134@ebiederm.dsl.xmission.com>
 References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
 	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
@@ -39,103 +39,140 @@ References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
 	<x86-64-crashkernel-11061198971876@ebiederm.dsl.xmission.com>
 	<kexec-ppc-support-11061198973302@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-nmi-shootdown-11061198973234@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-snapshot-registers-11061198972173@ebiederm.dsl.xmission.com>
+	<x86-crash-shutdown-apic-shutdown-11061198971134@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-One of the dangers when switching from one kernel to another
-is what happens to all of the other cpus that were running
-in the crashed kernel.   In an attempt to avoid that problem
-this patch adds a nmi handler and attempts to shoot down
-the other cpus by sending them non maskable interrupts.
+I have addressed the worst of the documentation changes
+that come about from the current refacatoring.
 
-The code then waits for 1 second or until all known cpus
-have stopped running and then jumps from the running kernel
-that has crashed to the kernel in reserved memory.
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
 
-The kernel spin loop is used for the delay as that should
-behave continue to be safe even in after a crash.
+This patch contains the documentation for the kexec based crash dump tool.
+
+Signed off by Hariprasad Nellitheertha <hari@in.ibm.com>
 
 Signed-off-by: Eric Biederman <ebiederm@xmission.com>
 ---
 
- crash.c |   56 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 56 insertions(+)
+ 00-INDEX  |    2 +
+ kdump.txt |   98 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 100 insertions(+)
 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-kexec-ppc-support/arch/i386/kernel/crash.c linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-nmi-shootdown/arch/i386/kernel/crash.c
---- linux-2.6.11-rc1-mm1-nokexec-kexec-ppc-support/arch/i386/kernel/crash.c	Tue Jan 18 22:58:15 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-nmi-shootdown/arch/i386/kernel/crash.c	Tue Jan 18 23:15:17 2005
-@@ -23,12 +23,65 @@
- #include <asm/hardirq.h>
- #include <asm/nmi.h>
- #include <asm/hw_irq.h>
-+#include <mach_ipi.h>
- 
- #define MAX_NOTE_BYTES 1024
- typedef u32 note_buf_t[MAX_NOTE_BYTES/4];
- 
- note_buf_t crash_notes[NR_CPUS];
- 
-+#ifdef CONFIG_SMP
-+static atomic_t waiting_for_crash_ipi;
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-apic-shutdown/Documentation/00-INDEX linux-2.6.11-rc1-mm1-nokexec-crashdump-documentation/Documentation/00-INDEX
+--- linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-apic-shutdown/Documentation/00-INDEX	Fri Jan 14 04:28:28 2005
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-documentation/Documentation/00-INDEX	Tue Jan 18 23:16:08 2005
+@@ -140,6 +140,8 @@
+ 	- info on the in-kernel binary support for Java(tm).
+ kbuild/
+ 	- directory with info about the kernel build process.
++kdumpt.txt
++	- mini HowTo on getting the crash dump code to work.
+ kernel-doc-nano-HOWTO.txt
+ 	- mini HowTo on generation and location of kernel documentation files.
+ kernel-docs.txt
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-apic-shutdown/Documentation/kdump.txt linux-2.6.11-rc1-mm1-nokexec-crashdump-documentation/Documentation/kdump.txt
+--- linux-2.6.11-rc1-mm1-nokexec-x86-crash_shutdown-apic-shutdown/Documentation/kdump.txt	Wed Dec 31 17:00:00 1969
++++ linux-2.6.11-rc1-mm1-nokexec-crashdump-documentation/Documentation/kdump.txt	Tue Jan 18 23:16:08 2005
+@@ -0,0 +1,98 @@
++Documentation for kdump - the kexec based crash dumping solution
++================================================================
 +
-+static int crash_nmi_callback(struct pt_regs *regs, int cpu)
-+{
-+	local_irq_disable();
-+	atomic_dec(&waiting_for_crash_ipi);
-+	/* Assume hlt works */
-+	__asm__("hlt");
-+	for(;;);
-+	return 1;
-+}
++DESIGN
++======
 +
-+/*
-+ * By using the NMI code instead of a vector we just sneak thru the
-+ * word generator coming out with just what we want.  AND it does
-+ * not matter if clustered_apic_mode is set or not.
-+ */
-+static void smp_send_nmi_allbutself(void)
-+{
-+	send_IPI_allbutself(APIC_DM_NMI);
-+}
++We use kexec to reboot to a second kernel whenever a dump needs to be taken.
++This second kernel is booted with with very little memory (configurable
++at compile time). The first kernel reserves the section of memory that the
++second kernel uses. This ensures that on-going DMA from the first kernel
++does not corrupt the second kernel. The first 640k of physical memory is
++needed irrespective of where the kernel loads at. Hence, this region is
++backed up before reboot.
 +
-+static void nmi_shootdown_cpus(void)
-+{
-+	unsigned long msecs;
-+	atomic_set(&waiting_for_crash_ipi, num_online_cpus() - 1);
++In the second kernel, "old memory" can be accessed in two ways. The
++first one is through a device interface. We can create a /dev/oldmem or
++whatever and write out the memory in raw format. The second interface is
++through /proc/vmcore. This exports the dump as an ELF format file which
++can be written out using any file copy command (cp, scp, etc). Further, gdb
++can be used to perform some minimal debugging on the dump file. Both these
++methods ensure that there is correct ordering of the dump pages (corresponding
++to the first 640k that has been relocated).
 +
-+	/* Would it be better to replace the trap vector here? */
-+	set_nmi_callback(crash_nmi_callback);
-+	/* Ensure the new callback function is set before sending
-+	 * out the NMI
-+	 */
-+	wmb();
++SETUP
++=====
 +
-+	smp_send_nmi_allbutself();
-+		
-+	msecs = 1000; /* Wait at most a second for the other cpus to stop */
-+	while ((atomic_read(&waiting_for_crash_ipi) > 0) && msecs) {
-+		mdelay(1);
-+		msecs--;
-+	}
-+	
-+	/* Leave the nmi callback set */
-+}
-+#else
-+static void nmi_shootdown_cpus(void)
-+{
-+	/* There are no cpus to shootdown */
-+}
-+#endif
++1) Obtain the appropriate -mm tree patch and apply it on to the vanilla
++   kernel tree.
 +
- void machine_crash_shutdown(void)
- {
- 	/* This function is only called after the system
-@@ -39,4 +92,7 @@
- 	 * In practice this means shooting down the other cpus in
- 	 * an SMP system.
- 	 */
-+	/* The kernel is broken so disable interrupts */
-+	local_irq_disable();
-+	nmi_shootdown_cpus();
- }
++2) Two kernels need to be built in order to get this feature working.
++
++   For the first kernel, choose the default values for the following options.
++
++   a) Physical address where the kernel is loaded
++   b) kexec system call
++   c) kernel crash dumps
++
++   All the options are under "Processor type and features"
++
++   For the second kernel, change (a) to 16MB. If you want to choose another
++   value here, ensure "location from where the crash dumping kernel will boot
++   (MB)" under (c) reflects the same value.
++
++   Also ensure you have CONFIG_HIGHMEM on.
++
++3) Boot into the first kernel. You are now ready to try out kexec based crash
++   dumps.
++
++4) Load the second kernel to be booted using
++
++   kexec -p <second-kernel> --args-linux --append="root=<root-dev> dump
++   init 1 memmap=exactmap memmap=640k@0 memmap=32M@16M"
++
++   Note that <second-kernel> has to be a vmlinux image. bzImage will not
++   work, as of now.
++
++5) System reboots into the second kernel when a panic occurs.
++   You could write a module to call panic, for testing purposes.
++
++6) Write out the dump file using
++
++   cp /proc/vmcore <dump-file>
++
++You can also access the dump as a device for a linear/raw view. To do this,
++you will need the kd-oldmem-<version>.patch built into the kernel. To create
++the device, type
++
++  mknod /dev/oldmem c 1 12
++
++Use "dd" with suitable options for count, bs and skip to access specific
++portions of the dump.
++
++ANALYSIS
++========
++
++You can run gdb on the dump file copied out of /proc/vmcore. Use vmlinux built
++with -g and run
++
++  gdb vmlinux <dump-file>
++
++Stack trace for the task on processor 0, register display, memory display
++work fine.
++
++TODO
++====
++
++1) Provide a kernel-pages only view for the dump. This could possibly turn up
++   as /proc/vmcore-kern.
++2) Provide register contents of all processors (similar to what multi-threaded
++   core dumps does).
++3) Modify "crash" to make it recognize this dump.
++4) Make the i386 kernel boot from any location so we can run the second kernel
++   from the reserved location instead of the current approach.
++
++CONTACT
++=======
++
++Hariprasad Nellitheertha - hari at in dot ibm dot com

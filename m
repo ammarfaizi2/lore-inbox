@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315483AbSEMCgf>; Sun, 12 May 2002 22:36:35 -0400
+	id <S315491AbSEMCtf>; Sun, 12 May 2002 22:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSEMCge>; Sun, 12 May 2002 22:36:34 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65487 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315483AbSEMCgd>; Sun, 12 May 2002 22:36:33 -0400
-Date: Sun, 12 May 2002 20:36:25 -0600
-Message-Id: <200205130236.g4D2aPX13250@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
+	id <S315493AbSEMCte>; Sun, 12 May 2002 22:49:34 -0400
+Received: from web20110.mail.yahoo.com ([216.136.226.47]:8459 "HELO
+	web20110.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315491AbSEMCtd>; Sun, 12 May 2002 22:49:33 -0400
+Message-ID: <20020513024933.74553.qmail@web20110.mail.yahoo.com>
+Date: Sun, 12 May 2002 19:49:33 -0700 (PDT)
+From: Jennifer Huang <carrothh@yahoo.com>
+Subject: Re: Question about cpu time accuracy.
+To: Kurt Wall <kwall@kurtwerks.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v212 available
-In-Reply-To: <Pine.GSO.4.21.0205110213300.20383-100000@weyl.math.psu.edu>
+In-Reply-To: <20020512185709.C623@marta>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Sat, 11 May 2002, Richard Gooch wrote:
-> > This is against 2.5.14. Highlights of this release:
+Thanks very much for your information.
+
+Just one more question, does it work for 2.4.18?
+Thanks.
+
+--- Kurt Wall <kwall@kurtwerks.com> wrote:
+> Scribbling feverishly on May 12, Jennifer Huang
+> managed to emit:
+> > Hi all,
 > > 
-> > - Added BKL to <devfs_open> because drivers still need it
+> > I have a question about cpu time accuracy.
+> > 
+> > I am using kernel 2.4.18. But, when I tried
+> "utime"
+> > and "nanosleep" to get a process suspended, it
+> only
+> > worked in 10ms granularity, and it's no way to
+> sleep
+> > for 1 microsecond.
 > 
-> Sigh...  Look at the callers of check_disc_changed() and check
-> what's going on with traversing directory contents there.
+> The standard kernel timer has a resolution of 1/HZ,
+> which is 10ms on 
+> an x86. You could try a scheduling policy of
+> SCHED_FIFO or SCHED_RR,
+> but this only gets you 2ms resolution. 
+> 
+> > Anyone can help me out of this?
+> 
+> There are patches available for high resolution
+> timers:
+> 
+> http://sourceforge.net/projects/high-res-timers/
+> http://www.cs.wisc.edu/paradyn/libhrtime/
+> 
+> Kurt
+> -- 
+> Anarchy may not be the best form of government, but
+> it's better than no
+> government at all.
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-OK, I've had a look. There is indeed a race there. While it is safe
-against module unloading, it isn't safe against removal of entries
-from the directory. I'm considering some different options to fix this
-(one is simple and obvious, the other will be a little more
-efficient).
 
-Question: can invalidate_device() and the bdops methods
-check_media_change() and revalidate() be called with a lock held?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

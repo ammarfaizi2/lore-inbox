@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264475AbRF1Veo>; Thu, 28 Jun 2001 17:34:44 -0400
+	id <S264476AbRF1Vfo>; Thu, 28 Jun 2001 17:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264496AbRF1Vef>; Thu, 28 Jun 2001 17:34:35 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:33690 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264475AbRF1VeW>;
-	Thu, 28 Jun 2001 17:34:22 -0400
-Message-ID: <3B3BA303.2807E1E6@mandrakesoft.com>
-Date: Thu, 28 Jun 2001 17:34:59 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
+	id <S264407AbRF1Vfe>; Thu, 28 Jun 2001 17:35:34 -0400
+Received: from ns.guardiandigital.com ([209.11.107.5]:30480 "HELO
+	juggernaut.dmz.guardiandigital.com") by vger.kernel.org with SMTP
+	id <S264476AbRF1VfT>; Thu, 28 Jun 2001 17:35:19 -0400
+Date: Thu, 28 Jun 2001 17:35:14 -0400 (EDT)
+From: "Ryan W. Maple" <ryan@guardiandigital.com>
+To: Justin Guyett <justin@soze.net>
+Cc: Ralf Baechle <ralf@uni-koblenz.de>, james bond <difda@hotmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: BIG PROBLEM
+In-Reply-To: <Pine.LNX.4.33.0106281413080.23200-100000@gw.soze.net>
+Message-ID: <Pine.LNX.4.10.10106281734140.11669-100000@mastermind.inside.guardiandigital.com>
+X-Base: ALL YOUR BASE ARE BELONG TO US. (http://www.scene.org/redhound/AYB.swf)
 MIME-Version: 1.0
-To: John R Lenton <john@grulic.org.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106280921460.10308-100000@localhost.localdomain> <31074.993745533@redhat.com> <20010628183040.E7494@grulic.org.ar>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John R Lenton wrote:
-> 
-> On Thu, Jun 28, 2001 at 05:25:33PM +0100, David Woodhouse wrote:
-> >
-> > KERN_BANNER
-> 
-> cool, what about kbannerd ?
 
+On Thu, 28 Jun 2001, Justin Guyett wrote:
 
-I'm still pushing for a Perl interpreter in the kernel, let's not forget
-that too.
+> On Thu, 28 Jun 2001, Ralf Baechle wrote:
+> 
+> > Some versions of the 3c59x driver emit a NUL character on bootup which makes
+> > klogd suck CPU.  This is fixed in 2.4.5, dunno about 2.4.4.
+> 
+> sysklogd 1.4.1 changelog lists a no busyloop fix.
+
+Check out:  http://bugs.debian.org/85478
+
+  "When klogd's LogLine() function encounters a null byte in state
+   PARSING_TEXT, it will loop infinitely.  More precisely, copyin()
+   will treat the null byte as a delimiter - unlike LogLine(), which
+   will invoke copyin() ever and ever again."
+
+Kinda off-topic, but I just wanted to prove that the bug was in klogd and
+not the kernel. :)
+
+-r
+

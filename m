@@ -1,71 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSBZPJv>; Tue, 26 Feb 2002 10:09:51 -0500
+	id <S290713AbSBZPOV>; Tue, 26 Feb 2002 10:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288248AbSBZPJi>; Tue, 26 Feb 2002 10:09:38 -0500
-Received: from [12.38.223.195] ([12.38.223.195]:38239 "HELO
-	starentnetworks.com") by vger.kernel.org with SMTP
-	id <S288800AbSBZPJV>; Tue, 26 Feb 2002 10:09:21 -0500
-Message-ID: <3C7BA51C.8010900@sw.starentnetworks.com>
-Date: Tue, 26 Feb 2002 10:09:16 -0500
-From: Brian Ristuccia <bristucc@sw.starentnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Brian Ristuccia <bristucc@sw.starentnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel nfsd consuming 100% CPU on 2.4.17 and 2.4.18 with reiserfs?
-In-Reply-To: <3C7B9212.5050400@sw.starentnetworks.com> <2305220000.1014735355@tiny>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288248AbSBZPNZ>; Tue, 26 Feb 2002 10:13:25 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:16835 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S288800AbSBZPNM>; Tue, 26 Feb 2002 10:13:12 -0500
+Date: Tue, 26 Feb 2002 10:13:04 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@zip.com.au>
+Subject: Re: suspend/resume and 3c59x
+Message-ID: <20020226151304.GA803@ufies.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20020225200056.GW12719@ufies.org> <3C7A9C75.F6A4BA05@zip.com.au> <3C7A9C75.F6A4BA05@zip.com.au> <20020225233242.GA5370@ufies.org> <3C7AD0AC.13A554DA@zip.com.au> <20020227001144.328c210c.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+In-Reply-To: <20020227001144.328c210c.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
-> 
-> On Tuesday, February 26, 2002 08:48:02 AM -0500 Brian Ristuccia
-> <bristucc@sw.starentnetworks.com> wrote:
-> 
-> 
->>It seems that kernel nfsd consumes an inordinate amount of CPU time
->>during writes on this machine. With a few hundred kb/sec being written
->>over NFSv3 from a 2.2.17 client, all of the nfsd threads each consume as
->>much of the available CPU time as possible. On a similarly configured
->>machine with ext3 instead of reiserfs, nfsd consumes much less CPU time.
->>
->>Is there a known issue with NFSv3 performance and reiserfs?
->>
-> 
-> No, it is not a known issue.  Does it only happen with a 2.2.17 client, or
-> can you reproduce with any kernel version on the client?
-> 
 
-I can get it to happen with 2.2.19 and 2.4.4-pre3 as well.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So I'm pretty sure the NFS server is doing too much work somewhere.
+On Wed, Feb 27, 2002 at 12:11:44AM +1100, Stephen Rothwell wrote:
+> On Mon, 25 Feb 2002 16:02:52 -0800 Andrew Morton <akpm@zip.com.au> wrote:
+> >
+> > Just for the record: Both Christophe's 3c<mumble> and my 3c556B
+> > mini-PCI NIC failed to survive APM resumes in 2.4.17.  But something
+> > outside the 3c59x driver got fixed somewhere in the 2.4.18-pre series,
+> > and resume works OK in 2.4.18.
+>=20
+> We now notify (and wait for a response from) user mode processes about
+> the pending suspend BEFORE we notify the drivers.  We used to do this the
+> other way around (which was never correct - mea culpa).
+>=20
+> This MAY have changed the behaviour of the drivers ...
 
-If it matters, it's a SMP kernel running on a dual 1ghz pIII system with 
-2gb of memory. The filesystem resides on a linux kernel md RAID-5 array 
-with 6 10,000 rpm disks. It's my understanding that the a machine this 
-large should soak out the available network or disk bandwidth long 
-before it became CPU bound serving NFS. I also did some raw IO tests to 
-confirm that the md block device wasn't hogging up CPU time that was 
-getting accounted to the nfsd kernel threads. I can soak that array 
-pretty hard without soaking the CPU.
+Unfortunately after a few experiments my 3c59x does not resume correctly
+with 2.4.18. I don't understand why but sometimes it takes a few seconds
+to return in a good state after a suspend/resume cycle and sometimes (at
+least one time) the card stay in a bad state.
 
-The closest machine configuration wise that I have access to is 
-similarly configured, only with 3 disks instead of 6 and ext3 instead of 
-reiserfs. Both machines were running exactly the same 2.4.17 image when 
-I started having this problem. I can't reproduce the problem there, even 
-when I do nasty things like run bonnie++ over NFS. (This isn't to say 
-that nfsd is free on this other machine, but I'm seeing it use on the 
-order of 2-4% CPU per nfsd thread with 8 threads and a load average of 
-between 1 and 2 vs. 20+% and a load average of 8 on the other machine).
+Would it be possible that the driver is never notified that the machine
+is going in a suspend mode ?=20
+When you said 'we now notify ...' the 'we' stand for apm ?
 
-Thanks.
+Looking in the driver, the enable_wol (now I know that wol means Wake up
+on Lan, and I would prefer let this option disabled but it also turn on
+pm stuff as Andrew told me) enables few acpi call.
 
--- 
-Brian Ristuccia
+Andrew : Is your card back immediately after resuming ?
+
+Christophe
 
 
+>=20
+> --=20
+> Cheers,
+> Stephen Rothwell                    sfr@canb.auug.org.au
+> http://www.canb.auug.org.au/~sfr/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+Thousands of years ago, cats were worshipped as gods.
+Cats have never forgotten this. --Anonymous
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8e6YAj0UvHtcstB4RAvHYAJ9ZJQct3hD3FNBHaR4kDwrBjz856ACfemZd
+iHlJVTm6tVTuTJtYvtmaLYc=
+=Gn1j
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--

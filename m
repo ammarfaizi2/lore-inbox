@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316659AbSHDMtW>; Sun, 4 Aug 2002 08:49:22 -0400
+	id <S317814AbSHDMyp>; Sun, 4 Aug 2002 08:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSHDMtW>; Sun, 4 Aug 2002 08:49:22 -0400
-Received: from stingr.net ([212.193.32.15]:37530 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S316659AbSHDMtS>;
-	Sun, 4 Aug 2002 08:49:18 -0400
-Date: Sun, 4 Aug 2002 16:52:51 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 make allmodconfig - undefined symbols
-Message-ID: <20020804125251.GB13637@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <29906.1028456000@ocs3.intra.ocs.com.au>
+	id <S317833AbSHDMyp>; Sun, 4 Aug 2002 08:54:45 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50423 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317814AbSHDMyo>; Sun, 4 Aug 2002 08:54:44 -0400
+Subject: Re: [PATCH] 2.4.19 warnings cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <m3znw3k8qq.fsf@defiant.pm.waw.pl>
+References: <m3znw3k8qq.fsf@defiant.pm.waw.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Aug 2002 15:16:23 +0100
+Message-Id: <1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <29906.1028456000@ocs3.intra.ocs.com.au>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Keith Owens:
-> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
-> wanting proc_get_inode, there was only one undefined symbol.  In the
-> extremely unlikely event that binfmt_elf is a module (how do you load
-> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
+> --- linux/drivers/net/ppp_generic.c.orig	Sat Aug  3 17:13:58 2002
+> +++ linux/drivers/net/ppp_generic.c	Sat Aug  3 19:11:54 2002
+> @@ -378,7 +378,7 @@
+>  {
+>  	struct ppp_file *pf = file->private_data;
+>  	DECLARE_WAITQUEUE(wait, current);
+> -	ssize_t ret;
+> +	ssize_t ret = 0; /* suppress compiler warning */
+>  	struct sk_buff *skb = 0;
+>  
+>  	if (pf == 0)
 
-I wrote about it many times at 19-pre stage. With patches, err, to warning
-cases too. _Nothing_ is applied.
 
-They still in my tree ... but who interested in my tree ? :)
+Please don't do this. I'm regularly having to fix drivers where people
+hid bugs this way rather than working out if it was a real problem. If
+it is genuinely a compiler corner case then let the gcc folks know and
+comment it but leave the warning.
 
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)

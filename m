@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262466AbTCMQgi>; Thu, 13 Mar 2003 11:36:38 -0500
+	id <S262506AbTCMQqJ>; Thu, 13 Mar 2003 11:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262471AbTCMQgi>; Thu, 13 Mar 2003 11:36:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9860 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262466AbTCMQgg>;
-	Thu, 13 Mar 2003 11:36:36 -0500
-Date: Thu, 13 Mar 2003 17:47:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Willy Gardiol <gardiol@libero.it>
-Cc: James Stevenson <james@stev.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-Message-ID: <20030313164708.GJ836@suse.de>
-References: <20030227221017.4291c1f6.skraw@ithnet.com> <014b01c2e978$701050e0$0cfea8c0@ezdsp.com> <20030313163707.GH836@suse.de> <200303131739.39991.gardiol@libero.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303131739.39991.gardiol@libero.it>
+	id <S262508AbTCMQqJ>; Thu, 13 Mar 2003 11:46:09 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:47532 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S262506AbTCMQqH>; Thu, 13 Mar 2003 11:46:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Date: Thu, 13 Mar 2003 18:00:48 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
+References: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl>
+In-Reply-To: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030313165652.7CF10109CC9@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 13 2003, Willy Gardiol wrote:
-> Do you thnik this can have somthing to share with the oops i am
-> getting with ide-scsi, a cd burner, DMA, and a PCI IDE controller?  I
-> attach the oops decoded.
-> 
-> There is a thread about this on linux-ide, it seems a problem common
-> at least to another guy
+On Thu 13 Mar 03 01:52, Horst von Brand wrote:
+> Daniel Phillips <phillips@arcor.de> said:
+> > On Wed 12 Mar 03 04:47, Horst von Brand wrote:
+> > > ...You need to focus on changes to files,
+> > > not files. I.e., file appeared/dissapeared/changed name/was edited by
+> > > altering lines so and so.
+> >
+> > It's useful to make the distinction that "file
+> > appeared/dissapeared/changed name" are changes to a directory object,
+> > while "was edited by altering lines so and so" is a change to a file
+> > object...
+>
+> I don't think so. As the user sees it, a directory is mostly a convenient
+> labeled container for files. You think in terms of moving files around, not
+> destroying one and magically creating an exact copy elsewhere (even if
+> mv(1) does exactly this in some cases). Also, this breaks up the operation
+> "mv foo bar/baz" into _two_ changes, and this is wrong as the file loses
+> its revision history.
 
-Looks very similar, indeed.
+No, that's a single change to one directory object.
 
--- 
-Jens Axboe
+> > ...then this part gets much easier.
+>
+> ... by screwing it up. This is exactly one of the problems noted for CVS.
 
+CVS doesn't have directory objects.
+
+Does anybody have a convenient mailing list for this design discussion?
+
+Regards,
+
+Daniel

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbTIVVvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 17:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTIVVvP
+	id S262797AbTIVVyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTIVVyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 17:51:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34574 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261178AbTIVVvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 17:51:14 -0400
-Date: Mon, 22 Sep 2003 16:51:04 -0500
-From: Tommy Reynolds <reynolds@redhat.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compiler warnings and syscall macros
-Message-Id: <20030922165104.29176e94.reynolds@redhat.com>
-In-Reply-To: <3F6F6B1B.9040609@nortelnetworks.com>
-References: <3F6F6B1B.9040609@nortelnetworks.com>
-Organization: Red Hat GLS
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+	Mon, 22 Sep 2003 17:54:45 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43649 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262797AbTIVVyo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 17:54:44 -0400
+Date: Mon, 22 Sep 2003 22:54:32 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+Message-ID: <20030922215432.GE29869@mail.jlokier.co.uk>
+References: <20030922153651.16497.qmail@science.horizon.com> <m1brtck6wq.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1brtck6wq.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered Chris Friesen <cfriesen@nortelnetworks.com>, spoke thus:
-
-> Would it hurt anything if I put in an explicit cast, like this?
+linux@horizon.com writes:
+> > So can we gradually kill inb_p, outb_p in 2.6?  An the other
+> > miscellaneous users of I/O port 0x80 for I/O delays?
 > 
-> __sc_ret = (unsigned long) -1;
+> Actually, It's not easy.  The issue got debated a lot a few years ago.
+> A read is also acceptable, and allows a few more ports to be
+> potentially used, but that corrupts %al and thus bloats the code.
 
-Why not do the obvious:
+It bloats the code a lot less than udelay() calls or any other
+solution which keeps the delay!
 
-	__sc_ret = -1UL;
+In the worst case, the bloat from a read _should_ be two bytes: "push
+%eax; inb $80,%al; pop %eax".  Whereas a call to udelay is 5 bytes,
+for a call instruction.
 
-and use a proper constant?
+-- Jamie

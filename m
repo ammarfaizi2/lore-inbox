@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271574AbRIFRjr>; Thu, 6 Sep 2001 13:39:47 -0400
+	id <S271586AbRIFRo1>; Thu, 6 Sep 2001 13:44:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271557AbRIFRjh>; Thu, 6 Sep 2001 13:39:37 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:41481 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S271569AbRIFRj2>; Thu, 6 Sep 2001 13:39:28 -0400
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
- bug 2.4.9 and 2.2.19]
-In-Reply-To: <20010906212303.A23595@castle.nmd.msu.ru> "from Andrey Savochkin
- at Sep 6, 2001 09:23:03 pm"
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Date: Thu, 6 Sep 2001 13:39:48 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>,
-        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S271597AbRIFRoR>; Thu, 6 Sep 2001 13:44:17 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:54794 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271594AbRIFRoE>; Thu, 6 Sep 2001 13:44:04 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906173948.502BFBC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 19:51:26 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: riel@conectiva.com.br, jaharkes@cs.cmu.edu, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva> <20010906122459Z16031-32383+3771@humbolt.nl.linux.org> <20010906151015.69d2afb2.skraw@ithnet.com>
+In-Reply-To: <20010906151015.69d2afb2.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906174422Z16127-26184+6@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin:
-> > That is not practical. Surely there is an API to find out if an IP
-> > address connects to the machine itself. If every UNIX system on
-> > this planet can do it, then surely Linux can do it.
+On September 6, 2001 03:10 pm, Stephan von Krawczynski wrote:
+> > Blindly delaying all the writes in the name of better read performance isn't 
+> > the right idea either.  Perhaps we should have a good think about some 
+> > sensible mechanism for balancing reads against writes.
 > 
-> Let me correct you: you need to recognize not addresses that result in
-> connecting to the _machine_ itself, but connecting to the same _MTA_.
+> I guess I have the real-world proof for that:
+> Yesterday I mastered a CD (around 700 MB) and burned it, I left the equipment
+> to get some food and sleep (sometimes needed :-). During this time the machine
+> acts as nfs-server and gets about 3 GB of data written to it. Coming back today
+> I recognise that deleting the CD image made yesterday frees up about 500 MB of
+> physical mem (free mem was very low before). It was obviously held 24 hours for
+> no reason, and _not_ (as one would expect) exchanged against the nfs-data. This
+> means the caches were full with _old_ data and explains why nfs performance has
+> remarkably dropped since 2.2. There is too few mem around to get good
+> performance (no matter if read or write). Obviously aging did not work at all,
+> there was not a single hit on these (CD image) pages during 24 hours, compared
+> to lots on the nfs-data. Even if the nfs-data would only have one single hit,
+> the old CD image should have been removed, because it is inactive and _older_.
 
-The SMTP RFC requires that user@[ip.address] is correctly recognized
-as a final destination.  This requires that Linux provides the MTA
-with information about IP addresses that correspond with INADDR_ANY.
+OK, this is not related to what we were discussing (IO latency).  It's not too
+hard to fix, we just need to do a little aging whenever there are allocations,
+whether or not there is memory_pressure.  I don't think it's a real problem
+though, we have at least two problems we really do need to fix (oom and
+high order failures).
 
-I am susprised that it is not possible to ask such information up
-front (same with netmasks), and that an application has to actually
-query a complex oracle, again and again, for every IP address.
-
-	Wietse
+--
+Daniel

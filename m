@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTEHWd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 18:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbTEHWd3
+	id S262196AbTEHWf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 18:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTEHWe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 18:33:29 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:28300 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262192AbTEHWdF (ORCPT
+	Thu, 8 May 2003 18:34:59 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:47500 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S262189AbTEHWda (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 18:33:05 -0400
-Date: Thu, 8 May 2003 23:36:02 +0200
+	Thu, 8 May 2003 18:33:30 -0400
+Date: Thu, 8 May 2003 23:47:38 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-Message-ID: <20030508213601.GC4466@elf.ucw.cz>
-References: <20030506164252.GA5125@mail.jlokier.co.uk> <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk> <20030506185433.GA6023@mail.jlokier.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: mikpe@csd.uu.se, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore sysenter MSRs at resume
+Message-ID: <20030508214737.GD4466@elf.ucw.cz>
+References: <16057.16684.101916.709412@gargle.gargle.HOWL> <Pine.LNX.4.44.0305071033400.2997-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030506185433.GA6023@mail.jlokier.co.uk>
+In-Reply-To: <Pine.LNX.4.44.0305071033400.2997-100000@home.transmeta.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,34 +28,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > So, as dynamic loading is ok between parts of Linux and binary-only
-> > > code, that seems to imply we could build a totally different kind of
-> > > binary-only kernel which was able to make use of all the Linux kernel
-> > > modules.  We could even modularise parts of the kernel which aren't
-> > > modular now, so that we could take advantage of even more parts of Linux.
-> > 
-> > You want a legal list - you really do. Its all about derived works and
-> > thats an area where even some lawyers will only hunt in packs 8)
+> > We don't do apm suspend/resume on SMP, so this is no different from the
+> > current situation. I don't know if acpi does it or not.
 > 
-> Alan, you're right of course - from a legal standpoint.  But I'm not
-> interested in how it pans out in a strict legal interpretation.
-> 
-> What I'm interested in is how the kernel developers and driver authors
-> would treat something like that.  Binary modules haven't had the full
-> lawyer treatment AFAIK, but a sort of community viewpoint regarding
-> what is and is not acceptable, to the community, is fairly clear on
-> this list.
-> 
-> So I was wondering what is the community viewpoint when it's the
-> core kernel that is a non-GPL binary, rather than the modules.
-> 
-> What if this new-fangled other kernel is open source, but BSD
-> license
+> Well, the thing is, if we ever do want to support it (and I suspect we 
+> do), we should have the infrastructure ready. It shouldn't be too hard to 
+> support SMP suspend in a 2.7.x timeframe, since it from a technology angle 
+> looks like simply hot-plug CPU's. Some of the infrastructure for that 
+> already exists.
 
-If you took vicam driver and made it ran under Windows XP, it would be
-okay. (It uses defined interface after all). I do not see why vicam
-driver under "your own os" would be different.
-
+Actually, then MSRs should restored during hotadd operation, so resume
+still does *not* care about non-boot cpus...
 								Pavel
 -- 
 When do you have a heart between your knees?

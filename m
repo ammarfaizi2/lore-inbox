@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267637AbTALX1t>; Sun, 12 Jan 2003 18:27:49 -0500
+	id <S267644AbTALXPs>; Sun, 12 Jan 2003 18:15:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267638AbTALX1q>; Sun, 12 Jan 2003 18:27:46 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:11532 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267637AbTALX1n>; Sun, 12 Jan 2003 18:27:43 -0500
-Date: Mon, 13 Jan 2003 00:36:30 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-ID: <20030112233630.GB29758@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301041809.KAA06893@adam.yggdrasil.com> <avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net> <avae9i$gv1$1@forge.intermeta.de> <3E18CC4D.1020604@cox.net> <20030106234116.GH10752@merlin.emma.line.org> <3E1A1A2C.2000409@walrond.org> <20030107012429.GA12944@merlin.emma.line.org> <ave8su$u17$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ave8su$u17$1@forge.intermeta.de>
-User-Agent: Mutt/1.5.1i
+	id <S267640AbTALXPm>; Sun, 12 Jan 2003 18:15:42 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:15579 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267638AbTALXOs> convert rfc822-to-8bit; Sun, 12 Jan 2003 18:14:48 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Oliver Neukum <oliver@neukum.name>
+To: "Emiliano Gabrielli" <emiliano.gabrielli@roma2.infn.it>
+Subject: Re: any chance of 2.6.0-test*?
+Date: Mon, 13 Jan 2003 00:23:12 +0100
+User-Agent: KMail/1.4.3
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042411916.1209.181.camel@RobsPC.RobertWilkens.com> <33073.62.98.226.220.1042412722.squirrel@webmail.roma2.infn.it>
+In-Reply-To: <33073.62.98.226.220.1042412722.squirrel@webmail.roma2.infn.it>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301130023.12830.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Jan 2003, Henning P. Schmiedehausen wrote:
+Am Montag, 13. Januar 2003 00:05 schrieb Emiliano Gabrielli:
+> <quote who="Rob Wilkens">
+>
+> > On Sun, 2003-01-12 at 17:43, Oliver Neukum wrote:
+> >> It's code that causes added hardship for anybody checking the locking.
+> >
+> > I can certainly see where it would seem "easier" to match "one lock" to
+> > "one unlock" if your troubleshooting a locking issue.
+> >
+> > "easier" is the motivation behind using goto.. Laziness.. that's all it
+> > is.
+>
+> In italy we say "Non c'è peggior sordo di chi non vuole sentire"
 
-> Matthias Andree <matthias.andree@gmx.de> writes:
-> 
-> >> Until the manufacturers start providing good quality supported drivers 
-> >> for their hardware, binary or source, linux will stay exactly where it 
-> >> is now; a server room tool and a hobbyists playground.
-> 
-> >> I for one think thats a real shame
-> 
-> >Only that you can't trust in the el-cheapo vendors claiming Linux
-> >support, and an independent certification is needed (not only for Linux,
-> >for the *BSDs as well). Without a trusted certification, some crooks may
-> >try to claim Linux support and it won't quite work out.
-> 
-> http://www.cs.helsinki.fi/linux/linux-kernel/2001-35/0559.html
-> 
-> Dated 5. September 2001.
+There's no worse fate than that of those who don't want to listen?
+(My Italian is bad.)
 
-Close, but I hadn't meant signing in mind, but something like "we write
-we support Linux" when they only have 2.0 binary-only modules. I want
-the term "Linux compatible" to be certified, not soft- or hardware per
-se. Signing drivers is difficult, because of the said problems, and
-because a faithful and trustworthy vendor then has to have his stuff
-re-certified over and over.
+> Till to this point the thread was useful to beginners becouse of a lot of
+> smarty coders explained a point that everyone has heard but that rarely
+> knows at deep...
+>
+> but now Let's ignore him ! He is not a beginner he is a lamer!
 
-I you happened to read the German c't magazine 1/2003 about RAID
-hardware and Linux, or the 2/2003 edition about TV cards, then look at
-the pertinent sections to know what I mean.
+Very well. What could be said has been said. But please don't insult him.
+Time spent explaining is usually well spent. Perhaps somebody learned.
 
-The other thing (Linus labs) is already there: module tainting...
+OK, maybe  I have a soft spot.
+
+	Regards
+		Oliver
+

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314458AbSDVTlB>; Mon, 22 Apr 2002 15:41:01 -0400
+	id <S314687AbSDVTny>; Mon, 22 Apr 2002 15:43:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314463AbSDVTlA>; Mon, 22 Apr 2002 15:41:00 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:56582 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314458AbSDVTlA>; Mon, 22 Apr 2002 15:41:00 -0400
-Message-ID: <3CC4673B.21CD6090@linux-m68k.org>
-Date: Mon, 22 Apr 2002 21:40:43 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S314688AbSDVTnx>; Mon, 22 Apr 2002 15:43:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50185 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314687AbSDVTnw>; Mon, 22 Apr 2002 15:43:52 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: CONFIG_RAMFS in 2.4.19-pre7-ac2 ???
+Date: 22 Apr 2002 12:43:41 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aa1p5d$qki$1@cesium.transmeta.com>
+In-Reply-To: <3CC1A1EF.AF524412@kegel.com>
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Daniel Phillips <phillips@bonn-fries.net>, lm@bitmover.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <Pine.LNX.4.44.0204221229440.3714-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Followup to:  <3CC1A1EF.AF524412@kegel.com>
+By author:    Dan Kegel <dank@kegel.com>
+In newsgroup: linux.dev.kernel
+> 
+> Roy wrote:
+> > After upgrading to 2.4.19-pre7-ac2, I can't get CONFIG_RAMFS
+> 
+> Gee, I hope CONFIG_RAMFS isn't going away.  I need it to
+> do loopback mounts of cramfs on an embedded system that
+> uses tmpfs as its main filesystem.  (tmpfs doesn't support
+> loopback mounts.)
+> 
 
-Thunder from the hill wrote:
+CONFIG_RAMFS is probably going away, but that doesn't mean ramfs is
+going away.  At least in Linux 2.5 ramfs will end up being required
+core code.
 
-> --- bk-kernel-howto.txt~        Mon Apr 22 12:26:50 2002
-> +++ bk-kernel-howto.txt Mon Apr 22 12:26:11 2002
-> @@ -15,6 +15,14 @@
-
-I'd prefer this to be a separate document (e.g. README) and not
-somewhere inbetween.
-
-> +    Also, BitKeeper is not free software.  You may use it for free, subject
-> +    to the licensing rules (bk help bkl will display them), but it is
-                               ^^^^^^^^^^^
-
-At that point it's already too late, the user must have the chance to
-read this, before he installs bk.
-
-> +    not open source.  If you feel strongly about 100% free software
-> +    tool chain, then don't use BitKeeper.  Linus has repeatedly stated
-                                                   
-^^^^^^^^^^^^^^^^^^^^^
-
-That has a "for all these idiots, that don't want to understand"
-aftertaste, I'm certain Linus doesn't want to imply that.
-
-bye, Roman
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

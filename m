@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbTIKI1h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 04:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTIKI1h
+	id S261165AbTIKIoK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 04:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbTIKIoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 04:27:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51692 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261157AbTIKI1g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 04:27:36 -0400
-Date: Thu, 11 Sep 2003 10:20:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
-Message-ID: <20030911082057.GP1396@suse.de>
-References: <20030910114346.025fdb59.akpm@osdl.org> <10720000.1063224243@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Sep 2003 04:44:09 -0400
+Received: from ad96e1d52.dsl.de.colt.net ([217.110.29.82]:34877 "EHLO
+	argon.intranet.online-skating.de") by vger.kernel.org with ESMTP
+	id S261165AbTIKIoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 04:44:07 -0400
+Date: Thu, 11 Sep 2003 10:44:00 +0200
+From: Harry Brueckner <hb@o-d.de>
+Reply-To: Harry Brueckner <hb@o-d.de>
+To: linux-kernel@vger.kernel.org
+Subject: devfs with 2.6.0-test4 kernel
+Message-ID: <196810000.1063269840@localhost.localdomain>
+X-Mailer: Mulberry/3.1.0b6 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <10720000.1063224243@flay>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10 2003, Martin J. Bligh wrote:
-> >> I have another oops for you with 2.6.0-test4-mm3-1 and ide-scsi. 
-> > 
-> > ide-scsi is a dead duck.  defunct.  kaput.  Don't use it.  It's only being
-> > kept around for weirdo things like IDE-based tape drives, scanners, etc.
-> > 
-> > Just use /dev/hdX directly.
-> 
-> That's a real shame ... it seemed to work fine until recently. Some
-> of the DVD writers (eg the one I have - Sony DRU500A or whatever)
+Hello,
 
-Then maybe it would be a really good idea to find out why it doesn't
-work with ide-cd. What are the symptoms?
+I just switched to a self compiled 2.6.0-test4 kernel with devfs support on 
+my Debian unstable system. devfsd is running nicely without any complaints.
+On my old 2.4.20 kernel I did not use devfs.
 
-> need it. Is it unfixable? or just nobody's done it?
+Now when I boot into the new 2.6 kernel it starts up but throws tons of 
+messages like
 
-It's not unfixable, there's just not a lot of motivation to fix it since
-it's basically dead.
+...
+FATAL: Module /dev/ttyx0
+FATAL: Module /dev/ttyx1
+FATAL: Module /dev/ttyx2
+FATAL: Module /dev/ttyx3
+FATAL: Module /dev/ttyx4
+FATAL: Module /dev/ttyx5
+...
 
--- 
-Jens Axboe
+and it seems not to find alot of other /dev entries as well.
+
+Googling around I did not find any hints about where this problem might 
+come from.
+
+Any ideas what might be wrong?
+
+TIA, Harry
 

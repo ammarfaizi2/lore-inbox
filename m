@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263785AbTDXSSO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTDXSSO
+	id S263782AbTDXSRj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTDXSRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:18:14 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:44812 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S263785AbTDXSSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:18:10 -0400
-Message-ID: <3EA82D46.6030604@inet6.fr>
-Date: Thu, 24 Apr 2003 20:30:30 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
+	Thu, 24 Apr 2003 14:17:38 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:41883 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263782AbTDXSRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:17:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Date: Thu, 24 Apr 2003 20:31:06 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Martin Zwickel <martin.zwickel@technotrend.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [QUESTION] hdparm -d1 on boot gives strange errors
-References: <20030424101212.4687780c.martin.zwickel@technotrend.de>
-In-Reply-To: <20030424101212.4687780c.martin.zwickel@technotrend.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030424182945.7065812EFF1@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Zwickel wrote:
+On Thu 24 Apr 03 05:59, Linus Torvalds wrote:
+> ...I wanted to bring this out in the open,
+> because I know there are people who think that signed binaries are an act
+> of "subversion" (or "perversion") of the GPL, and I wanted to make sure
+> that people don't live under mis-apprehension that it can't be done.
 
->Hi there!
->
->I'm running Gentoo, and on boot, a script enables DMA on all IDE-Devices.
->For my 1st disk on hdparm -d1 it waits 15secs and kernel gives strange errors.
->But for my 2nd disk it works ok.
->
->Any clues?
->
+Open source + Linux + DRM could be used to solve the Quake client-side 
+cheating problem:
 
-See below.
+   http://catb.org/~esr/writings/quake-cheats.html
 
->Is it the damn SiS chipset?
->
->  
->
+To join a game, you'd have to be able to prove you're running code that is 
+secure all the way from boot to reboot, where everything from network driver 
+to physics engine is known to be compiled from open source that all 
+participants agree is good.  You could call this a "white hat" use of DRM.  
+It's strictly voluntary and nothing mysterious takes over your computer - no 
+spyware, no trojans.  Just Linux, drivers, and the game.
 
-Maybe but drive/chipset combination is more likely. The one being out of 
-spec is unknown to me.
+Granted, this is a pretty theoretical application.  Just because of the sheer 
+amount of work needed to put all the pieces in in place, DRM will actually be 
+used a lot more for what is really easy: trampling on fair use rights.  But 
+it's not like fair use isn't already being trampled upon, without the aid of 
+DRM.
 
+The point of this is that, to be maximally effective, DRM wants to be coupled 
+with open source: with just DRM and no open source, there's no way to achieve 
+the same level of trust.  So there is a silver lining, even in this rotten, 
+stinking cloud.
 
-Note :
+Regards,
 
-What I don't understand is why you need the hdparm -d1 : from your boot 
-log, the kernel already set DMA for you.
-
-> hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63, UDMA(100)
-
-> hdb: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63, UDMA(100)
-
-
-These come after (probably when hdparm -d1 is called)
-
-hda: dma_timer_expiry: dma status == 0x61
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
-
-
-My clue :
-
-> WDC WD800BB-00CAA1
-
-Hum, I have a WDC WD800BB-32CCB0 here and it is the only one that wouldn't work correctly with my SiS735-based K7S5A (sometimes values returned by the drive including its id string had one bit forced to 1 or 0, had to reboot to fix the issue).
-
-Try a different drive...
-
-LB.
-
+Daniel

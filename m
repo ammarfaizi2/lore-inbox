@@ -1,175 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbTH2Th2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 15:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTH2Th2
+	id S261539AbTH2Tks (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 15:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbTH2Tks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 15:37:28 -0400
-Received: from pD9532865.dip.t-dialin.net ([217.83.40.101]:18187 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S261756AbTH2ThY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 15:37:24 -0400
-Date: Fri, 29 Aug 2003 19:37:18 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030829193718.A19684@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
-	linux-kernel@vger.kernel.org
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>; from jamie@shareable.org on Fri, Aug 29, 2003 at 06:35:10AM +0100
+	Fri, 29 Aug 2003 15:40:48 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:13440 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261539AbTH2Tko
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 15:40:44 -0400
+Date: Fri, 29 Aug 2003 15:41:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Antonio Vargas <wind@cocodriloo.com>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
+In-Reply-To: <20030829184847.GA2069@werewolf.able.es>
+Message-ID: <Pine.LNX.4.53.0308291517001.32044@chaos>
+References: <20030828223511.GA23528@werewolf.able.es> <20030829152418.GB709@wind.cocodriloo.com>
+ <20030829184847.GA2069@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 06:35:10AM +0100, Jamie Lokier wrote:
-> Dear All,
-> 
-> I'd appreciate if folks would run the program below on various
-> machines, especially those whose caches aren't automatically coherent
-> at the hardware level.
- 
+On Fri, 29 Aug 2003, J.A. Magallon wrote:
 
-Dual Alpha ev6:
+>
+> On 08.29, Antonio Vargas wrote:
+> > On Fri, Aug 29, 2003 at 12:35:11AM +0200, J.A. Magallon wrote:
+> [...]
+> > >
+> > > A collateral question: why is the reason for this function ?
+> > > long long assignments are not atomic in gcc ?
+> >
+> > On x86, long long int == 64 bits but the chip is 32 bits wide,
+> > so it uses 2 separate memory accesses. There are 64bit-wide
+> > instructions which do bus-locking so that the are atomic,
+> > but gcc will not use them directly.
+> >
+>
+> I know, my question was why gcc does not generate cmpxchg8b on
+> a 64 bits assign. Or it should not ?
+>
 
-
-ds20:~/src/cachetest$ ./doit 
-Test separation: 8192 bytes: FAIL - too slow
-Test separation: 16384 bytes: FAIL - too slow
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: minimum fast spacing: 32768 (4 pages)
-
-real    0m4.148s
-user    0m4.029s
-sys     0m0.075s
-cpu                     : Alpha
-cpu model               : EV6
-cpu variation           : 7
-cpu revision            : 0
-cpu serial number       : 
-system type             : Tsunami
-system variation        : Goldrush
-system revision         : 0
-system serial number    : ay91560403
-cycle frequency [Hz]    : 500000000 
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 44
-max. addr. space #      : 255
-BogoMIPS                : 998.56
-kernel unaligned acc    : 0 (pc=0,va=0)
-user unaligned acc      : 0 (pc=0,va=0)
-platform string         : AlphaServer DS20 500 MHz
-cpus detected           : 2
-cpus active             : 2
-cpu active mask         : 0000000000000003
+It's not an assignment operator. The fact that you 'could' use
+it as one is not relevant. For instance, using XOR you can
+exchange the values of two operands. However, you would not
+really like a 'C' compiler to do that. Instead, you would
+expect it to stash some invisible temporary variable some-
+where, hopefully in a register. If you really want to
+swap values using the ^ operator, then you can code it yourself.
 
 
+Wana play?
 
-Single Alpha ev4 (AXPpci33):
+int main()
+{
+    int a, b;
+    a = 0xaaaaaaaa;
+    b = 0xbbbbbbbb;
+   printf("a = %08x b = %08x \n", a, b);
+// Swap
+   a ^= b;
+   b ^= a;
+   a ^= b;
+   printf("a = %08x b = %08x \n", a, b);
+    return 0;
+}
 
-Marvin:~/src/cachetest$ ./doit 
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
+The generated code is awful:
 
-real    0m1.442s
-user    0m0.853s
-sys     0m0.471s
-cpu                     : Alpha
-cpu model               : LCA4
-cpu variation           : -4294967301
-cpu revision            : 0
-cpu serial number       : Linux_is_Great!
-system type             : Noname
-system variation        : 0
-system revision         : 0
-system serial number    : MILO-2.2-17
-cycle frequency [Hz]    : 166868457 
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 34
-max. addr. space #      : 63
-BogoMIPS                : 320.40
-kernel unaligned acc    : 56014443 (pc=fffffc0000ab65a4,va=fffffc0000b99105)
-user unaligned acc      : 2695 (pc=2000031ff90,va=11fffef26)
-platform string         : N/A
-cpus detected           : 0
+	movl -8(%ebp),%edx
+	xorl %edx,-4(%ebp)
+	movl -4(%ebp),%edx
+	xorl %edx,-8(%ebp)
+	movl -8(%ebp),%edx
+	xorl %edx,-4(%ebp)
+	movl -8(%ebp),%eax
+
+gcc doesn't care that some xchg operations are atomic. If there
+was an 'atomic_t' type that 'C' (generically) knew about, then
+the code-generator might try to find some strange sequence that
+would perform 64-bit atomic operations on a 32-bit processor as
+a side-effect, which is what it is with the compare/exchange-8-bytes
+opcode.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-
-
-ordinary Pentium II:
-
-
-bash-2.03$ ./doit           
-Test separation: 4096 bytes: pass
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
-
-real    0m0.342s
-user    0m0.290s
-sys     0m0.030s
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 3
-model name      : Pentium II (Klamath)
-stepping        : 4
-cpu MHz         : 300.691
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov mmx
-bogomips        : 599.65
-
-
-
-
-bye,
-Thorsten
-
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

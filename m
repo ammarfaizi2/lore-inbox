@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSFKOMU>; Tue, 11 Jun 2002 10:12:20 -0400
+	id <S317059AbSFKOP5>; Tue, 11 Jun 2002 10:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSFKOMT>; Tue, 11 Jun 2002 10:12:19 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:24078 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S317058AbSFKOMS>; Tue, 11 Jun 2002 10:12:18 -0400
-Date: Wed, 12 Jun 2002 00:14:33 +1000
-From: john slee <indigoid@higherplane.net>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: thunder@ngforever.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Futex Asynchronous Interface
-Message-ID: <20020611141433.GV27429@higherplane.net>
-In-Reply-To: <Pine.LNX.4.44.0206100808180.6159-100000@hawkeye.luckynet.adm> <8QbwcRg1w-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S317063AbSFKOP4>; Tue, 11 Jun 2002 10:15:56 -0400
+Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:44886 "EHLO
+	mail.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S317059AbSFKOPz>; Tue, 11 Jun 2002 10:15:55 -0400
+Message-ID: <3D060602.20409@blue-labs.org>
+Date: Tue, 11 Jun 2002 10:15:30 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020501
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Thunder from the hill <thunder@ngforever.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-pre10-ac2, compile warnings/failures
+In-Reply-To: <3D0518BF.4090404@blue-labs.org> <Pine.LNX.4.44.0206101855290.17269-100000@hawkeye.luckynet.adm> <20020611060353.GA6711@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bmilter: Processing completed, Bmilter version 0.1.0 build 565; timestamp 2002-06-11 10:15:19, message serial number 7922
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 10:46:00PM +0200, Kai Henningsen wrote:
-> thunder@ngforever.de (Thunder from the hill)  wrote on 10.06.02 in <Pine.LNX.4.44.0206100808180.6159-100000@hawkeye.luckynet.adm>:
-> 
-> > On Mon, 10 Jun 2002, Helge Hafting wrote:
-> > > ls /dev/net
-> > > eth0 eth1 eth2 ippp0
-> >
-> > What is it worth? You have a few more files which you can't do anything
-> > with, and ifconfig output is much more greppable etc.
-> 
-> Ifconfig output is *WHAT*?!
-> 
-> Ifconfig output, to be parsed by a script, is one of the shittiest  
-> interfaces possible.
+It's been brought up over and over the last couple of years.  GCC 
+started warning about it quite a while ago and it's been named as a bad 
+form.  Patches to fix various things have been submitted sporadically 
+for a long time as well.  Future versions of GCC will mark it as an error.
 
-it may be but you can use 'ip' instead which _is_ much more script
-friendly and seems to have at least ifconfig functionality.
+David
 
-j.
+Greg KH wrote:
 
--- 
-toyota power: http://indigoid.net/
+>On Mon, Jun 10, 2002 at 06:59:36PM -0600, Thunder from the hill wrote:
+>  
+>
+>>Hi,
+>>
+>>On Mon, 10 Jun 2002, David Ford wrote:
+>>    
+>>
+>>>People, please don't do things like:
+>>>
+>>>[bad use of doublequotes]
+>>>
+>>>Patches keep going in to fix this.
+>>>
+>>>[good use of doublequotes]
+>>>      
+>>>
+>>The same applies to 2.5. Can someone write a perl script that treats it so 
+>>anonymous that it can find these buggy places?
+>>    
+>>
+>
+>And could someone actually _tell_ the maintainers of these drivers that
+>there is a problem?  And what compiler version causes it?
+>
+>This the first I've heard of this problem.
+>
+>greg k-h
+>  
+>
+

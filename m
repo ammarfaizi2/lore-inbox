@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311559AbSCNIXX>; Thu, 14 Mar 2002 03:23:23 -0500
+	id <S311560AbSCNIXn>; Thu, 14 Mar 2002 03:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311560AbSCNIXN>; Thu, 14 Mar 2002 03:23:13 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:5659 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S311559AbSCNIWz>; Thu, 14 Mar 2002 03:22:55 -0500
-Date: Thu, 14 Mar 2002 08:24:43 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 23 second kernel compile / pagemap_lru_lock improvement
-In-Reply-To: <5740000.1016059202@flay>
-Message-ID: <Pine.LNX.4.21.0203140804190.1294-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311561AbSCNIXe>; Thu, 14 Mar 2002 03:23:34 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:41743 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S311560AbSCNIXY>; Thu, 14 Mar 2002 03:23:24 -0500
+Date: Thu, 14 Mar 2002 09:23:22 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Daniela Engert <dani@ngrt.de>, LKML <linux-kernel@vger.kernel.org>,
+        Martin Dalecki <martin@dalecki.de>, Shawn Starr <spstarr@sh0n.net>
+Subject: Re: [patch] PIIX rewrite patch, pre-final
+Message-ID: <20020314092322.A32260@ucw.cz>
+In-Reply-To: <20020314083038.A31923@ucw.cz> <20020314063843.E0E3210921@mail.medav.de> <20020314091808.B31998@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314091808.B31998@ucw.cz>; from vojtech@suse.cz on Thu, Mar 14, 2002 at 09:18:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Martin J. Bligh wrote:
-> > 
-> > I'm surprised it made any difference at all, I think the patch mainly
-> > adds more tests: activate_page is only called from mark_page_accessed
-> > (after testing !PageActive) and from fail_writepage (where usually
-> > !PageActive).  I don't think many !PageLRU pages can get there.
+On Thu, Mar 14, 2002 at 09:18:08AM +0100, Vojtech Pavlik wrote:
+> On Thu, Mar 14, 2002 at 08:44:42AM +0100, Daniela Engert wrote:
 > 
-> It does seem distinctly odd that we take the lock, *then* test whether
-> we actually need to do anything. Is the test just a sanity check that
-> should never fail?
+> > The PIIX3 bug is real, I have several user reports about it!
+> 
+> Thanks A LOT for the tables, added are some comments from me ...
+> 
+> >  Vendor
+> >  | Device
+> >  | | Revision			       ATA	ATAPI	     ATA66  ATA133
+> >  | | | south/host bridge id	     PIO  DMA  PIO  DMA  ATA33 | ATA100|   Docs
+> >  | | | | south/host bridge rev.     32bit  |  32bit  |	   |   |   |   |  avail
+> >  | | | | |			      |    |	|    |	   |   |   |   |    |
+> >  v v v v v			      v    v	v    v	   v   v   v   v    v
+> > 
+> >  0x8086 Intel
+> >    0x1230 PIIX		      x    x	x    x	   -   -   -   -    x
+> >      < 02			      x    -	x    -	   -   -   -   -    x
+> 
+> I suppose this means on PIIXes with rev 00 and 01 of the IDE controller
+> DMA transfers don't work reliably, right?
+> 
+> >        0x84C4 Orion
+> > 	 < 04			      x    -	x    -	   -   -   -   -    x
+> 
+> And this means that if there is an 84c4 PCI bridge in the system with
+> rev less than 04 (04 is OK), then DMA transfers are broken again.
 
-It's quite normal to have to recheck flags after taking the relevant
-lock.  Here I think the two flags have different needs.  I've not
-checked rigorously, but I believe that the PageLRU flag cannot change
-beneath us (but does need to be checked either outside or inside the
-lock); whereas it's easy to find races where PageActive is set outside
-but found clear once inside the lock, or vice versa.
+And there is one more Intel chip:
 
-Now it doesn't matter if we make a wrong activity decision occasionally,
-but we do need to keep internal consistency.  If PageActive were not
-rechecked inside pagemap_lru_lock, nr_active_pages and nr_inactive_pages
-would become approximate instead of exact counts; then there's a danger
-they would tend to drift in one direction, unbalancing shrink_caches.
+0x1234, the infamous MPIIX. Can do PIO only, 32 bit is OK, has a single
+channel switchable to primary or secondary, IDETIM is located in
+registers 6C-6D on the ISA bridge. Docs available.
 
-Hugh
-
+-- 
+Vojtech Pavlik
+SuSE Labs

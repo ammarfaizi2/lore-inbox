@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289434AbSAJMve>; Thu, 10 Jan 2002 07:51:34 -0500
+	id <S289432AbSAJM54>; Thu, 10 Jan 2002 07:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289432AbSAJMvQ>; Thu, 10 Jan 2002 07:51:16 -0500
-Received: from smtp03.wxs.nl ([195.121.6.37]:16090 "EHLO smtp03.wxs.nl")
-	by vger.kernel.org with ESMTP id <S289428AbSAJMvC>;
-	Thu, 10 Jan 2002 07:51:02 -0500
-Subject: Re: [PATCH] Combined APM patch
-From: Thomas Hood <jdthood@mail.com>
-To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 10 Jan 2002 07:51:05 -0500
-Message-Id: <1010667066.12688.41.camel@thanatos>
-Mime-Version: 1.0
+	id <S289433AbSAJM5p>; Thu, 10 Jan 2002 07:57:45 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:12168 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S289432AbSAJM5h>;
+	Thu, 10 Jan 2002 07:57:37 -0500
+Date: Thu, 10 Jan 2002 13:56:58 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Henrique de Moraes Holschuh <hmh@debian.org>
+cc: linux-kernel@vger.kernel.org, Jani Forssell <jani.forssell@viasys.com>
+Subject: Re: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
+In-Reply-To: <20020110100101.A25366@khazad-dum>
+Message-ID: <Pine.LNX.4.21.0201101352270.17054-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just browsing the diff between my patch and Stephen's, I have
-a couple of questions.
+On Thu, 10 Jan 2002, Henrique de Moraes Holschuh wrote:
 
-< static int			suspends_pending; /* = 0 */
----
-> static int			suspends_pending;
-
-Is it not good practice to note when the code _assumes_ zero-
-initialization?  I have seen comments like these elsewhere in
-the kernel sources.
-
-< 	static int use_apm_idle; /* = 0 */
-< 	static unsigned int last_jiffies; /* = 0 */
-< 	static unsigned int last_stime; /* = 0 */
----
-> 	static int use_apm_idle = 0;
-> 	static unsigned int last_jiffies = 0;
-> 	static unsigned int last_stime = 0;
-
-Are static variables defined within functions not initialized
-to zero at load time, as global static variables are?
-
-< 			ignore_sys_suspend = 0;
----
-> 			waiting_for_resume = 0;
-
-Don't you think "ignore_sys_suspend" is a name more consistent
-with the other "ignore_yadda_yadda" variable names?  Minor issue.
-
-Everything else looks good to me.
-
-On Sun, 2002-01-06 at 23:52, Stephen Rothwell wrote:
-> This is my version of the combined APM patches;
+> On Thu, 10 Jan 2002, Martin Josefsson wrote:
+> > We've replaved that memory module now and now it's better but I have to
+> > say that the KT133 or atleast the Asus A7V motherboard seems to be quite
+> > broken. we have a lot of spurious irq's and the ide controllers freak when
+> > but under some load and start getting irq timeouts and resets the ide
+> > channels over and over again with some delay in between when it kind of
+> > works, slow as hell but works.
 > 
-> 	Change notification order so that user mode is notified
-> 		before drivers of impending suspends.
-> 	Move the idling back into the idle loop.
-> 	A couple of small tidy ups.
+> Well, my A7V is also acting up, with spurious IRQs (but not too many), and
+> PCI lockups if the load on the PCI bus increases too much -- this is
+> probably the last time I ever buy a VIA board (because they take soooo much
+> time to acknowledge their screw ups and help people fix it) unless they
+> start issuing non-binary-only fixes (heck, all it takes is a doc telling us
+> what to do on the PCI registers!).
 > 
-> See header comments for attributions.
+> The IDE corruption and lockups you can fix, just apply the latest IDE
+> patches, the 2.4.18pre IDE subsystem is not to be used on a KT133, it will
+> not work at all if you give it a slightly bigger load on the promise
+> controller, for example.
 > 
-> This works for me (including as a module).
+> > We are going to replace the motherboard with one with VIA KT266A chipset,
+> > hope that works better.
 > 
-> Please test and let me know - it seems to lower my power requirements
-> by about 10% on my Thinkpad (over stock 2.4.17).
-> 
-> http://www.canb.auug.org.au/~sfr/2.4.17-APM.1.diff
+> Without the IDE patches, it will (most probably) not help.
 
-The kernel compiles fine with your patch; I'll test over the
-next few days.
+I am using the IDE patch. I've heard that the A7V133 which is based on the
+KT133A chipset works much better in linux. I know people using it in a
+router for a 1000 client network on a 100Mbit connection and it's working
+fine, no problems at all. If we push the networking too hard we get a lot
+of spurious interrupts and it appears as we loose some interrupts aswell
+as NIC drivers and IDE drivers start complaining sometimes and when it has
+started loosing interrupts only a reboot can bring it back to
+"normal" operation.
 
-Thanks
-Thomas
+/Martin
 
-
-
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
 

@@ -1,65 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVBFTTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVBFTSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVBFTTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 14:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVBFTTG
+	id S261292AbVBFTSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 14:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVBFTSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 14:19:06 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:495 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261289AbVBFTI5 (ORCPT
+	Sun, 6 Feb 2005 14:18:36 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:8686 "EHLO suse.de")
+	by vger.kernel.org with ESMTP id S261284AbVBFTHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 14:08:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZsnTrSRSzjXocDkqlXBA28oZjNGlTgCKweb9OzoALTFlzS3b44z4DFgVEhcXUc4KytZCWrMl6zti5brLV+RdYtT7pVaUe9C9IbBHeusCZ3PYHRUtyJfA9xfYa45L0j1kann+Mjc7YrM7bpXMAeShHOLN9mQ1u9v5WBjbYssH2oc=
-Message-ID: <58cb370e05020611081a604a45@mail.gmail.com>
-Date: Sun, 6 Feb 2005 20:08:53 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 04/09] ide: convert REQ_DRIVE_TASK to REQ_DRIVE_TASKFILE
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050205102843.93952132701@htj.dyndns.org>
+	Sun, 6 Feb 2005 14:07:06 -0500
+Date: Sun, 6 Feb 2005 20:07:24 +0100
+From: Vojtech Pavlik <vojtech@suse.de>
+To: Mikkel Krautz <krautz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
+Message-ID: <20050206190724.GL23126@ucw.cz>
+References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com> <41C46B4D.5040506@gmail.com> <20041218165331.GA7737@kroah.com> <d4b385204121817521b0df40f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <42049F20.7020706@home-tj.org>
-	 <20050205102843.93952132701@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d4b385204121817521b0df40f@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot about this one...
-
-> @@ -55,22 +55,19 @@
->  #include <asm/io.h>
->  #include <asm/bitops.h>
+On Sun, Dec 19, 2004 at 01:52:06AM +0000, Mikkel Krautz wrote:
+> On Sat, 18 Dec 2004 08:53:31 -0800, Greg KH <greg@kroah.com> wrote:
+> > On Sat, Dec 18, 2004 at 05:39:25PM +0000, Mikkel Krautz wrote:
+> > > On Fri, 17 Dec 2004 18:59:48 -0800, Greg KH <greg@kroah.com> wrote:
+> > > > What about makeing it a module paramater then, that is exported to
+> > > > sysfs?  That makes it easier to adjust on the fly (before the mouse is
+> > > > inserted), and doesn't require the kernel to be rebuilt.
+> > >
+> > > I really like the idea. I'm start to think that this is the ideal way to
+> > > accomplish this.
+> > >
+> > > Here's a new patch. Let's hope it doesn't wrap!
+> > 
+> > It was eaten :(
+> > 
+> > > module_init(hid_init);
+> > > module_exit(hid_exit);
+> > > +module_param(hid_mouse_polling_interval, int, 644);
+> > 
+> > 0644, or use the proper #defines instead.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> -static void ide_fill_flush_cmd(ide_drive_t *drive, struct request *rq)
-> +void ide_init_flush_task(ide_drive_t *drive, ide_task_t *args)
->  {
-> -       char *buf = rq->cmd;
-> -
-> -       /*
-> -        * reuse cdb space for ata command
-> -        */
-> -       memset(buf, 0, sizeof(rq->cmd));
-> -
-> -       rq->flags = REQ_DRIVE_TASK | REQ_STARTED;
-> -       rq->buffer = buf;
-> -       rq->buffer[0] = WIN_FLUSH_CACHE;
-> +       memset(args, 0, sizeof(*args));
-> 
->         if (ide_id_has_flush_cache_ext(drive->id) &&
->             (drive->capacity64 >= (1UL << 28)))
-> -               rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
-> +               args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE_EXT;
-> +       else
-> +               args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE;
-> +
-> +       args->command_type = IDE_DRIVE_TASK_NO_DATA;
-> +       args->data_phase = TASKFILE_NO_DATA;
-> +       args->handler = task_no_data_intr;
->  }
+> Here's an updated version, with your and Marcel's suggestions:
 
-Isn't EXPORT_SYMBOL_{GPL} needed for ide_init_flush_task()?
+Some more suggestions:
+
+A MODULE_PARM_DESC() would be good, as well as a patch to
+kernel-parameters.txt.
+
+Also, it'd be better instead of changing the bInterval in the endpoint
+descriptor to change the "interval" variable. This way one wouldn't need
+to think about whether the device is Full-speed or High-speed when
+setting the parameter. Also the endpoint descriptor should be considered
+read only. 
+
+> Signed-off-by: Mikkel Krautz <krautz@gmail.com>
+> ---
+> 
+> 
+>  hid-core.c |    9 ++++++++-
+>  1 files changed, 8 insertions(+), 1 deletion(-)
+> 
+> 
+> --- clean/drivers/usb/input/hid-core.c
+> +++ dirty/drviers/usb/input/hid-core.c
+> @@ -37,11 +37,12 @@
+>   * Version Information
+>   */
+>  
+> -#define DRIVER_VERSION "v2.0"
+> +#define DRIVER_VERSION "v2.01"
+>  #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
+>  #define DRIVER_DESC "USB HID core driver"
+>  #define DRIVER_LICENSE "GPL"
+>  
+> +static unsigned int hid_mousepoll_interval;
+>  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+>  				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
+>  
+> @@ -1663,6 +1664,11 @@
+>  		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
+>  			continue;
+>  
+> +		/* Change the polling interval of mice. */
+> +		if (hid->collection->usage == HID_GD_MOUSE
+> +				&& hid_mousepoll_interval > 0)
+> +			endpoint->bInterval = hid_mousepoll_interval;
+> +		
+>  		/* handle potential highspeed HID correctly */
+>  		interval = endpoint->bInterval;
+>  		if (dev->speed == USB_SPEED_HIGH)
+> @@ -1910,6 +1916,7 @@
+>  
+>  module_init(hid_init);
+>  module_exit(hid_exit);
+> +module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
+>  
+>  MODULE_AUTHOR(DRIVER_AUTHOR);
+>  MODULE_DESCRIPTION(DRIVER_DESC);
+> 
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

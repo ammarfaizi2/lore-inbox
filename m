@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264657AbUD1NBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUD1NEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264657AbUD1NBt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 09:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUD1NBt
+	id S264767AbUD1NEb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 09:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUD1NEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 09:01:49 -0400
-Received: from [203.97.82.178] ([203.97.82.178]:59536 "EHLO treshna.com")
-	by vger.kernel.org with ESMTP id S264657AbUD1NBs (ORCPT
+	Wed, 28 Apr 2004 09:04:31 -0400
+Received: from mail.tmr.com ([216.238.38.203]:35080 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S264767AbUD1NEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 09:01:48 -0400
-Message-ID: <408FAB17.3090305@treshna.com>
-Date: Thu, 29 Apr 2004 01:01:11 +1200
-From: Dru <andru@treshna.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel lockup on alpha with heavy IO
-References: <408C75E4.50908@treshna.com> <20040426131319.A9952@jurassic.park.msu.ru> <408E3D8C.8090504@treshna.com> <20040427201013.A14559@jurassic.park.msu.ru>
-In-Reply-To: <20040427201013.A14559@jurassic.park.msu.ru>
+	Wed, 28 Apr 2004 09:04:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: USB related oops in 2.6.6-rk2-bk3 (similar with 2.6.5)
+Date: Wed, 28 Apr 2004 09:05:50 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c6o9vn$4rr$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net> <Pine.LNX.4.58.0404270115260.5772@alpha.polcom.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1083157303 4987 192.168.12.100 (28 Apr 2004 13:01:43 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <Pine.LNX.4.58.0404270115260.5772@alpha.polcom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
+Grzegorz Kulewski wrote:
+> Hi,
+> 
+> I experienced this oops. I have uhci-hcd and two devices. One is usb 
+> camera (TC111 - probably not supported under linux?) and the 
+> second is speedtouch modem. Everytime I shut down my system (Gentoo) with 
+> 2.6.5 and newer I get some oops but system log is down before that and I 
+> have no time to hack start scripts to stop shuting syslog. It occures when  
+> removing some usb modules. So I stopped speedtouch and removed the modules 
+> manually (in stop scripts order I hope). But I have not removed uhci-hcd 
+> module (this module is removed in other part of stop scripts). And... 
+> nothing happened. So I unplugged speedtouch and replugged it back. And I 
+> immendiatelly got atached oops. (I think that I should use ksymoops, but 
+> it is searching for /proc/ksyms that is not present in 2.6 and it does not 
+> like /proc/kallsyms... And it produces nothing but warnings. What options 
+> should I use?)
+> 
+> What can I do to help track the problem down?
 
->On Tue, Apr 27, 2004 at 11:01:32PM +1200, Dru wrote:
->  
->
->>I am not having much luck with the firmware upgrade.
->>It gets up to saying Copying up1500fw.txt from dva0 . . .  and
->>just sits there. It never reachs albasrm.rom file.
->>    
->>
->
->Well, it was about 1.5 years ago when I upgraded the firmware last
->time, so I don't recall all details... Anyway, from memory:
->- make sure that you get to SRM prompt right after reset or
->  powerup, i.e. 'auto_action' is set to 'halt';
->- IIRC, UP1500 has problems with some floppy drives, and it
->  may require 2-3 resets before it reads the rom image file
->  successfully.
->
->  
->
-Finally got firmware to update, the up1500 board is a bit
-sturburn. Many repeated attempts and changing around
-floppy drives was successful. thanks for the help.
+Does it happen without preempt?
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

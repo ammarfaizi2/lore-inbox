@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSKAR4J>; Fri, 1 Nov 2002 12:56:09 -0500
+	id <S265635AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265629AbSKAR4J>; Fri, 1 Nov 2002 12:56:09 -0500
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:56104 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S265587AbSKAR4I>; Fri, 1 Nov 2002 12:56:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jos Hulzink <josh@stack.nl>
-To: Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 build failed with ACPI turned on
-Date: Fri, 1 Nov 2002 20:02:38 +0100
-User-Agent: KMail/1.4.3
-References: <20021031194547.GA3555@hq.alert.sk>
-In-Reply-To: <20021031194547.GA3555@hq.alert.sk>
+	id <S265642AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:44957 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265635AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.45: fix fs capabilities initialization
+Date: Fri, 01 Nov 2002 19:10:16 +0100
+Message-ID: <87vg3h6u0n.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211012002.38085.josh@stack.nl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 20:45, Robert Varga wrote:
-> The structure declaration is protected by
->
-> #if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_PM)
->
-> on line 640.
+This patch implements filesystem capabilities. It allows to run
+privileged executables without the need for suid root.
 
-At the moment CONFIG_PM seems to be enabling APM, though it clearly does more than that. I think the config options for ACPI and APM should be sorted out sooner or later. Just enable Power Management and this should compile.
+Changes:
+- recognize new capability db immediately instead of after the next
+  mount
 
-Jos
+The complete patch is available at:
+<http://home.t-online.de/home/olaf.dietsche/linux/capability/>
 
+Regards, Olaf.
+
+diff -urN a/fs/fscaps.c b/fs/fscaps.c
+--- a/fs/fscaps.c	Fri Nov  1 18:52:41 2002
++++ b/fs/fscaps.c	Fri Nov  1 02:06:15 2002
+@@ -252,7 +252,7 @@
+ 		return;
+ 
+ 	if (__fscap_lookup(mnt, &nd))
+-		return;
++		nd.dentry = NULL;
+ 
+ 	__info_init(mnt, nd.dentry);
+ }

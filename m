@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTKPT0x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 14:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTKPT0x
+	id S262098AbTKPT2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 14:28:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTKPT2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 14:26:53 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:27292 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261825AbTKPT0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 14:26:51 -0500
-Date: Mon, 17 Nov 2003 06:26:44 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Terrible interactivity with 2.6.0-t9-mm3
-Message-ID: <20031116192643.GB15439@zip.com.au>
+	Sun, 16 Nov 2003 14:28:31 -0500
+Received: from dd1234.kasserver.com ([81.209.148.157]:13006 "EHLO
+	dd1234.kasserver.com") by vger.kernel.org with ESMTP
+	id S262098AbTKPT23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 14:28:29 -0500
+Date: Sun, 16 Nov 2003 19:28:27 +0000
+From: Jochen Voss <voss@seehuhn.de>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
+Message-ID: <20031116192827.GA1155@seehuhn.de>
+References: <20031113184506.GA602@seehuhn.de> <8xzs6cPHw-B@khms.westfalen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-Organisation: Furball Inc.
+In-Reply-To: <8xzs6cPHw-B@khms.westfalen.de>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed major interactivity problems whilst ogging one of my
-cds. X (which is running at a nice of 0) stuttered in its display
-uptdates (eg: ogging on two seperate machines but displaying on one, 
-the progress display of the much faster box would come in spurts until
-I ^z the ogg on the box running X). Keyboard input also stutters
-and the nfs connection (over which I was encoding from the X running
-box) eventually gave up the ghost and I got lots of 'server not
-responding, timed out' msgs.
 
-Playing Heroes3 was also impossible until I ran it under nice -n 1.
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Doh. :/ This is the first time this has been so bad that I've felt
-it was worth writing about. :/
+Hello Kai,
 
-Systems:
+On Sun, Nov 16, 2003 at 06:31:00PM +0200, Kai Henningsen wrote:
+> voss@seehuhn.de (Jochen Voss)  wrote on 13.11.03 in <20031113184506.GA602=
+@seehuhn.de>:
+>=20
+> > With SMP and ACPI enabled I get the following kernel
+> > boot messages
+>=20
+> > but later-on the following messages appear:
+> >
+> >     No local APIC present or hardware disabled
+>=20
+> >     Local APIC not detected. Using dummy APIC emulation.
+>=20
+> Hmmm ... are you sure you didn't confuse ACPI with APIC?
+Yes, I am sure.  I had ACPI enabled (on request by Linus)
+and the messages are about the APIC.
 
-X: P3-700 with 256MB RAM, half of it free running Debian sarge (libc
-   2.3.2 and X 4.2.1.1) and 2.6.0-t9-mm3.
-SSH: Athlon XP 2500+ with 512MB of RAM with all but 46MB free running
-     the same version of Debian but with 2.6.0-t9-mm2.
+As far as I understand this, the situation is as follows:
+The original problem was related to the APIC and the
+multiprocessor (here: hyper-threading) configuration.  The
+system tries to use ACPI to acquire information about the
+multiprocessor configuration.  If ACPI succeeded in doing
+so, then my kernel would not try to read the mptable, and
+the crash would not occur.
 
--- 
-  From the people who brought you burnt villages in Vietnam...
+I hope this helps,
+Jochen
+--=20
+http://seehuhn.de/
 
-      http://news.independent.co.uk/world/middle_east/story.jsp?story=452375
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/t8/bf+iD8yEbECURAoPvAJ46jlLO36g0ZXt3hn2rC0zpctxiSQCfR0bN
+mEMx5TE6TC/i1RYhIpmSVCE=
+=EpED
+-----END PGP SIGNATURE-----
+
+--OgqxwSJOaUobr8KG--

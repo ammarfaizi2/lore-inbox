@@ -1,65 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269791AbUJGKwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJGK4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269791AbUJGKwW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJGKwV
+	id S267333AbUJGK4q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269793AbUJGK4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:52:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28101 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269791AbUJGKvF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:51:05 -0400
-Date: Thu, 7 Oct 2004 12:52:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
-Message-ID: <20041007105230.GA17411@elte.hu>
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041005134707.GA32033@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 7 Oct 2004 06:56:46 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:10896 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267333AbUJGK4e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 06:56:34 -0400
+Message-Id: <200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+cc: colpatch@us.ibm.com, mbligh@aracnet.com, Simon.Derr@bull.net,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement 
+In-reply-to: Your message of "Thu, 07 Oct 2004 01:51:07 PDT."
+             <20041007015107.53d191d4.pj@sgi.com> 
+Date: Thu, 07 Oct 2004 03:53:21 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > I don't see what non-exclusive cpusets buys us.
+    
+    One can nest them, overlap them, and duplicate them ;)
+    
+    For example, we could do the following:
 
-i've released the -T3 VP patch:
+Once you have the exclusive set in your example, wouldn't the existing
+functionality of CKRM provide you all the functionality the other
+non-exclusive sets require?
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+Seems to me, we need a way to *restrict use* of certain resources
+(exclusive) and a way to *share use* of certain resources (non-exclusive.)
+CKRM does the latter right now, I believe, but not the former. (Does
+CKRM support sharing hierarchies as in the dept/group/individual example
+you used?)
 
-Changes since -T1 (-T2 was not announced):
+What about this model:
 
- - rebased to -rc3-mm3. This should fix the build problems and further 
-   shrinks the -VP patch. Also, people who had USB problems please
-   re-test -T3 as -mm3 is supposed to have much of those problems fixed.
-   Also, the dvb-bt8xx.c build problem should be fixed in -mm3 too, plus
-   a number of smp_processor_id() warnings were debugged and fixed as
-   well.
+    * All exclusive sets exist at the "top level" (non-overlapping,
+      non-hierarchical) and each is represented by a separate sched_domain
+      hierarchy suitable for the hardware used to create the cpuset.
+      I can't imagine anything more than an academic use for nested
+      exclusive sets.
 
- - fixed SWSUSPEND compilation. Could someone who uses swsuspend check
-   whether sw-suspension works fine?
+    * All non-exclusive sets are rooted at the "top level" but may
+      subdivide their range as needed in a tree fashion (multiple levels
+      if desired).  Right now I believe this functionality could be
+      provided by CKRM.
 
- - improved CONFIG_DEBUG_PREEMPT - this could help debug any potentially
-   remaining unbalanced preemption counts that were reported. (but
-   the fixes in -mm3 could fix them as well.)
+Observations:
 
-to build a -T3 tree from scratch the patching order is:
+    * There is no current mechanism to create exclusive sets; cpus_allowed
+      alone won't cut it.  A combination of Matt's patch plus Paul's
+      code could probably resolve this.
 
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/2.6.9-rc3-mm3.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+    * There is no clear policy on how to amiably create an exclusive set.
+      The main problem is what to do with the tasks already there.
+      I'd suggest they get forcibly moved.  If their current cpus_allowed
+      mask does not allow them to move, then if they are a user process
+      they are killed.  If they are a system process and cannot be
+      moved, they stay and gain squatter's rights in the newly created
+      exclusive set.
 
-	Ingo
+    * Interrupts are not under consideration right now. They land where
+      they land, and this may affect exclusive sets.  If this is a
+      problem, for now, you simply lay out your hardware and exclusive
+      sets more intelligently.
+
+    * Memory allocation has a tendency and preference, but no hard policy
+      with regards to where it comes from.  A task which starts on one
+      part of the system but moves to another may have all its memory
+      allocated relatively far away.  In unusual cases, it may acquire
+      remote memory because that's all that's left.  A memory allocation
+      policy similar to cpus_allowed might be needed. (Martin?)
+
+    * If we provide a means for creating exclusive sets, I haven't heard
+      a good reason why CKRM can't manage this.
+
+Rick

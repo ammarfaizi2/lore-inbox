@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131529AbRCXBRh>; Fri, 23 Mar 2001 20:17:37 -0500
+	id <S131528AbRCXBT1>; Fri, 23 Mar 2001 20:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131528AbRCXBR1>; Fri, 23 Mar 2001 20:17:27 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:62006 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S131533AbRCXBRQ>; Fri, 23 Mar 2001 20:17:16 -0500
-Message-Id: <4.3.2.7.2.20010323170728.00b31100@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 23 Mar 2001 17:16:26 -0800
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: Re: [PATCH] gcc-3.0 warnings
-In-Reply-To: <20010323163129.B2534@kochanski.internal.splhi.com>
-In-Reply-To: <20010323235909.C3098@werewolf.able.es>
- <20010323162956.A27066@ganymede.isdn.uiuc.edu>
- <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>
- <20010323235909.C3098@werewolf.able.es>
+	id <S131530AbRCXBTR>; Fri, 23 Mar 2001 20:19:17 -0500
+Received: from monza.monza.org ([209.102.105.34]:55812 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131528AbRCXBTL>;
+	Fri, 23 Mar 2001 20:19:11 -0500
+Date: Fri, 23 Mar 2001 17:18:04 -0800
+From: Tim Wright <timw@splhi.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: fix comments in <linux/timer.h>
+Message-ID: <20010323171804.F2534@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:31 PM 3/23/01 -0800, you wrote:
->This has nothing to do with fastpathing and object code optimization. C
->doesn't have exception handling, so you either have to remember to undo
->allocations etc.  in failure cases all through the code, or you stick your
->undo code at the end of the function and have all failure cases jump to the
->relevant label.  It's not pretty, but it's much less error-prone e.g.
+Micro patchlet :-)
+In wandering around the kernel recently, I found that <linux/timer.h>
+contains stale comments at the head of the file relating to the old static
+timers which were deleted for 2.4.
+So, here's a trivial patch to try to bring things back in sync.
 
-Really?  I have a "cleanup" function that can be called during failure 
-cases (and success cases -- but you didn't mention that) so that the cost 
-is very low and I don't have to code ANY labels.
+Regards,
 
-But then again, I'm a double-pipe abuser, in that I tend to code "atomic" 
-sequences as
+Tim
 
-if ((a) || (b) || (c) || (d) || (e) || (f) || (g) || ... ) { something 
-failed}  else {it all worked!}
 
-and make sure that the failure value is non-zero for each a, b, c, d, and 
-so forth.
+--- timer.h.2.4.2	Fri Mar 23 13:57:51 2001
++++ timer.h	Fri Mar 23 14:07:00 2001
+@@ -5,17 +5,13 @@
+ #include <linux/list.h>
+ 
+ /*
+- * This is completely separate from the above, and is the
+- * "new and improved" way of handling timers more dynamically.
+- * Hopefully efficient and general enough for most things.
++ * In Linux 2.4, static timers have been removed from the kernel.
++ * Timers may be dynamically created and destroyed, and should be initialized
++ * by a call to init_timer() upon creation.
+  *
+- * The "hardcoded" timers above are still useful for well-
+- * defined problems, but the timer-list is probably better
+- * when you need multiple outstanding timers or similar.
+- *
+- * The "data" field is in case you want to use the same
+- * timeout function for several timeouts. You can use this
+- * to distinguish between the different invocations.
++ * The "data" field enables use of a common timeout function for several
++ * timeouts. You can use this field to distinguish between the different
++ * invocations.
+  */
+ struct timer_list {
+ 	struct list_head list;
 
-I remember looking at the generated code from one compiler for x86 and 
-seeing a series of short jumps to short jumps to short jumps... to the 
-failure case, which in that particular sequence saved about 100 bytes.  I 
-haven't looked at GCC output yet to see what it does, but working in a 
-32-bit system instead of a 16-bit system I tend to care a little less about 
-"efficiency".
 
-Does that mean that I avoid "goto"?  No. Like every other construct in the 
-C language, there is a valid and appropriate use for every single 
-thing.  The key is recognizing when the goto is appropriate.
-
-Another thing you will see in my code is resource pointers being 
-initialized to zero on entry, set to non-zero values as resources are 
-allocated, and then conditionally released based on whether the value is 
-zero or non-zero.  It makes recovery from malloc failures easier, for one 
-thing.
-
-Satch. the || Abuser.
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

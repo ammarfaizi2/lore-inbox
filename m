@@ -1,52 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311661AbSCTPbN>; Wed, 20 Mar 2002 10:31:13 -0500
+	id <S311670AbSCTPeD>; Wed, 20 Mar 2002 10:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311652AbSCTPbE>; Wed, 20 Mar 2002 10:31:04 -0500
-Received: from firewall.embl-grenoble.fr ([193.49.43.1]:21724 "HELO
-	out.esrf.fr") by vger.kernel.org with SMTP id <S311653AbSCTPay>;
-	Wed, 20 Mar 2002 10:30:54 -0500
-Date: Wed, 20 Mar 2002 16:30:36 +0100
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: make rpm is not documented
-Message-ID: <20020320163036.C22220@pcmaftoul.esrf.fr>
-In-Reply-To: <20020320154100.D21789@pcmaftoul.esrf.fr> <E16nhv9-0002XX-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S311667AbSCTPdx>; Wed, 20 Mar 2002 10:33:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7947 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311657AbSCTPdo>; Wed, 20 Mar 2002 10:33:44 -0500
+Subject: Re: Re[2]: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP
+To: nerijus@users.sourceforge.net (Nerijus Baliunas)
+Date: Wed, 20 Mar 2002 15:49:20 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <ISPFE11r0dSHpVyLrid00004b63@mail.takas.lt> from "Nerijus Baliunas" at Mar 20, 2002 05:27:20 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16niL2-0002c4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 03:22:35PM +0000, Alan Cox wrote:
-> > Second stuff, make rpm don't work for me on suse's kernel.
+> Is AMD driver somehow related to ServerWorks OSB4?
 > 
-> Ask SuSE 8)
-> 
-> > Didn't yet watched what is the problem, but seems to be related with
-> > EXTRAVERSION or something like this.
-> 
-> At least some versions of the script didnt like multiple '-' symbols. 
-> Gerald Britton fixed this for 2.4.18
-I'm using unstable suse kernel wich is merged from 1st March up to
-2.4.19pre1aa
-The patch don't seem to work , but I won't bother you with this stuff as
-this is some specific suse Makefile ( EXTRAVERSION is set to nothing but
-it has another way to fill it , later in their Makefile )
-> Basically the thing works with
-> 
-> make config/menuconfig/xconfig
-> if you use make menu/xconfig then run make oldconfig (I dont trust xconfig..)
-Neither I  ;-)
-> make rpm
-> 
-> [wait.. wait.. wait.. ]
-> 
-> rpm --install
-> 
-> add to lilo.conf
-> 
-> enjoy
-        Sam
-PS: Thanks for answering
+> BTW, it seems I have the same problem with Compaq ProLiant ML330, which has OSB4,
+> and Seagate ST320011A drives. Is turning off UDMA enough?
+
+On about 400 out of 400 machines on a render farm it was..

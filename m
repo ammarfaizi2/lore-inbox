@@ -1,178 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131258AbRAOUr7>; Mon, 15 Jan 2001 15:47:59 -0500
+	id <S131401AbRAOUt7>; Mon, 15 Jan 2001 15:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131401AbRAOUrj>; Mon, 15 Jan 2001 15:47:39 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:49680 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131258AbRAOUrd>;
-	Mon, 15 Jan 2001 15:47:33 -0500
-Date: Mon, 15 Jan 2001 21:47:03 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Jonathan Thackray <jthackray@zeus.com>
-Subject: [patch] sendpath() support, 2.4.0-test3/-ac9
-In-Reply-To: <93vgih$640$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101152141320.6418-300000@elte.hu>
+	id <S131485AbRAOUtt>; Mon, 15 Jan 2001 15:49:49 -0500
+Received: from www.wen-online.de ([212.223.88.39]:33555 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131483AbRAOUtb>;
+	Mon, 15 Jan 2001 15:49:31 -0500
+Date: Mon, 15 Jan 2001 21:49:16 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: Vlad Bolkhovitine <vladb@sw.com.sg>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: mmap()/VM problems in 2.4.0
+In-Reply-To: <87hf30d0ar.fsf@atlas.iskon.hr>
+Message-ID: <Pine.Linu.4.10.10101152142440.772-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-723171322-979591382=:6418"
-Content-ID: <Pine.LNX.4.30.0101152143110.6418@elte.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On 15 Jan 2001, Zlatko Calusic wrote:
 
---655616-723171322-979591382=:6418
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0101152143111.6418@elte.hu>
+> "Vlad Bolkhovitine" <vladb@sw.com.sg> writes:
+> 
+> > Here is updated info for 2.4.1pre3:
+> > 
+> > Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
+> > 
+> > with mmap()
+> > 
+> >  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
+> >  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+> > ------- ------ ------- --- ----------- ----------- ----------- -----------
+> >    .     1024   4096    2  1.089 1.24% 0.235 0.45% 1.118 4.11% 0.616 1.41%
+> > 
+> > without mmap()
+> >    
+> >  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
+> >  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+> > ------- ------ ------- --- ----------- ----------- ----------- -----------
+> >    .     1024   4096    2  28.41 41.0% 0.547 1.15% 13.16 16.1% 0.652 1.46%
+> > 
+> > 
+> > Mmap() performance dropped dramatically down to almost unusable level. Plus,
+> > system was unusable during test: "vmstat 1" updated results every 1-2 _MINUTES_!
+> > 
+> 
+> You need Marcelo's patch. Please apply and retest.
 
+My box thinks quite highly of that patch fwiw, but insists that he needs
+to apply Jens Axboes' blk patch first ;-)  (Not because of tiobench)
 
-On 15 Jan 2001, Linus Torvalds wrote:
+	-Mike
 
-> 	int fd = open(..)
-> 	fstat(fd..);
-> 	sendfile(fd..);
-> 	close(fd);
->
-> is any slower than
->
-> 	.. cache stat() in user space based on name ..
-> 	sendpath(name, ..);
->
-> on any real load.
-
-just for kicks i've implemented sendpath() support. (patch against
-2.4.0-test and sample code attached) It appears to work just fine here.
-With a bit of reorganization in mm/filemap.c it was quite straightforward
-to do.
-
-Jonathan, is this what Zeus needs? If yes, it could be interesting to run
-a simple benchmark to compare sendpath() to open()+sendfile()?
-
-	Ingo
-
---655616-723171322-979591382=:6418
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="sendpath-2.4.0-A1"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101152143020.6418@elte.hu>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="sendpath-2.4.0-A1"
-
-LS0tIGxpbnV4L21tL2ZpbGVtYXAuYy5vcmlnCU1vbiBKYW4gMTUgMjI6NDM6
-MjEgMjAwMQ0KKysrIGxpbnV4L21tL2ZpbGVtYXAuYwlNb24gSmFuIDE1IDIz
-OjA5OjU1IDIwMDENCkBAIC0zOSw2ICszOSw4IEBADQogICogcGFnZS1jYWNo
-ZSwgMjEuMDUuMTk5OSwgSW5nbyBNb2xuYXIgPG1pbmdvQHJlZGhhdC5jb20+
-DQogICoNCiAgKiBTTVAtdGhyZWFkZWQgcGFnZW1hcC1MUlUgMTk5OSwgQW5k
-cmVhIEFyY2FuZ2VsaSA8YW5kcmVhQHN1c2UuZGU+DQorICoNCisgKiBTdGFy
-dGVkIHNlbmRwYXRoKCkgc3VwcG9ydCwgKEMpIDIwMDAgSW5nbyBNb2xuYXIg
-PG1pbmdvQHJlZGhhdC5jb20+DQogICovDQogDQogYXRvbWljX3QgcGFnZV9j
-YWNoZV9zaXplID0gQVRPTUlDX0lOSVQoMCk7DQpAQCAtMTQ1MCwxNSArMTQ1
-MiwxNSBAQA0KIAlyZXR1cm4gd3JpdHRlbjsNCiB9DQogDQotYXNtbGlua2Fn
-ZSBzc2l6ZV90IHN5c19zZW5kZmlsZShpbnQgb3V0X2ZkLCBpbnQgaW5fZmQs
-IG9mZl90ICpvZmZzZXQsIHNpemVfdCBjb3VudCkNCisvKg0KKyAqIEdldCBp
-bnB1dCBmaWxlLCBhbmQgdmVyaWZ5IHRoYXQgaXQgaXMgb2suLg0KKyAqLw0K
-K3N0YXRpYyBzdHJ1Y3QgZmlsZSAqIGdldF92ZXJpZnlfaW5fZmlsZSAoaW50
-IGluX2ZkLCBzaXplX3QgY291bnQpDQogew0KLQlzc2l6ZV90IHJldHZhbDsN
-Ci0Jc3RydWN0IGZpbGUgKiBpbl9maWxlLCAqIG91dF9maWxlOw0KLQlzdHJ1
-Y3QgaW5vZGUgKiBpbl9pbm9kZSwgKiBvdXRfaW5vZGU7DQorCXN0cnVjdCBp
-bm9kZSAqIGluX2lub2RlOw0KKwlzdHJ1Y3QgZmlsZSAqIGluX2ZpbGU7DQor
-CWludCByZXR2YWw7DQogDQotCS8qDQotCSAqIEdldCBpbnB1dCBmaWxlLCBh
-bmQgdmVyaWZ5IHRoYXQgaXQgaXMgb2suLg0KLQkgKi8NCiAJcmV0dmFsID0g
-LUVCQURGOw0KIAlpbl9maWxlID0gZmdldChpbl9mZCk7DQogCWlmICghaW5f
-ZmlsZSkNCkBAIC0xNDc0LDEwICsxNDc2LDIxIEBADQogCXJldHZhbCA9IGxv
-Y2tzX3ZlcmlmeV9hcmVhKEZMT0NLX1ZFUklGWV9SRUFELCBpbl9pbm9kZSwg
-aW5fZmlsZSwgaW5fZmlsZS0+Zl9wb3MsIGNvdW50KTsNCiAJaWYgKHJldHZh
-bCkNCiAJCWdvdG8gZnB1dF9pbjsNCisJcmV0dXJuIGluX2ZpbGU7DQorZnB1
-dF9pbjoNCisJZnB1dChpbl9maWxlKTsNCitvdXQ6DQorCXJldHVybiBFUlJf
-UFRSKHJldHZhbCk7DQorfQ0KKy8qDQorICogR2V0IG91dHB1dCBmaWxlLCBh
-bmQgdmVyaWZ5IHRoYXQgaXQgaXMgb2suLg0KKyAqLw0KK3N0YXRpYyBzdHJ1
-Y3QgZmlsZSAqIGdldF92ZXJpZnlfb3V0X2ZpbGUgKGludCBvdXRfZmQsIHNp
-emVfdCBjb3VudCkNCit7DQorCXN0cnVjdCBmaWxlICpvdXRfZmlsZTsNCisJ
-c3RydWN0IGlub2RlICpvdXRfaW5vZGU7DQorCWludCByZXR2YWw7DQogDQot
-CS8qDQotCSAqIEdldCBvdXRwdXQgZmlsZSwgYW5kIHZlcmlmeSB0aGF0IGl0
-IGlzIG9rLi4NCi0JICovDQogCXJldHZhbCA9IC1FQkFERjsNCiAJb3V0X2Zp
-bGUgPSBmZ2V0KG91dF9mZCk7DQogCWlmICghb3V0X2ZpbGUpDQpAQCAtMTQ5
-MSw2ICsxNTA0LDI5IEBADQogCXJldHZhbCA9IGxvY2tzX3ZlcmlmeV9hcmVh
-KEZMT0NLX1ZFUklGWV9XUklURSwgb3V0X2lub2RlLCBvdXRfZmlsZSwgb3V0
-X2ZpbGUtPmZfcG9zLCBjb3VudCk7DQogCWlmIChyZXR2YWwpDQogCQlnb3Rv
-IGZwdXRfb3V0Ow0KKwlyZXR1cm4gb3V0X2ZpbGU7DQorDQorZnB1dF9vdXQ6
-DQorCWZwdXQob3V0X2ZpbGUpOw0KK2ZwdXRfaW46DQorCXJldHVybiBFUlJf
-UFRSKHJldHZhbCk7DQorfQ0KKw0KK2FzbWxpbmthZ2Ugc3NpemVfdCBzeXNf
-c2VuZGZpbGUoaW50IG91dF9mZCwgaW50IGluX2ZkLCBvZmZfdCAqb2Zmc2V0
-LCBzaXplX3QgY291bnQpDQorew0KKwlzc2l6ZV90IHJldHZhbDsNCisJc3Ry
-dWN0IGZpbGUgKiBpbl9maWxlLCAqb3V0X2ZpbGU7DQorDQorCWluX2ZpbGUg
-PSBnZXRfdmVyaWZ5X2luX2ZpbGUoaW5fZmQsIGNvdW50KTsNCisJaWYgKElT
-X0VSUihpbl9maWxlKSkgew0KKwkJcmV0dmFsID0gUFRSX0VSUihpbl9maWxl
-KTsNCisJCWdvdG8gb3V0Ow0KKwl9DQorCW91dF9maWxlID0gZ2V0X3Zlcmlm
-eV9vdXRfZmlsZShvdXRfZmQsIGNvdW50KTsNCisJaWYgKElTX0VSUihvdXRf
-ZmlsZSkpIHsNCisJCXJldHZhbCA9IFBUUl9FUlIob3V0X2ZpbGUpOw0KKwkJ
-Z290byBmcHV0X2luOw0KKwl9DQogDQogCXJldHZhbCA9IDA7DQogCWlmIChj
-b3VudCkgew0KQEAgLTE1MjQsNiArMTU2MCw1NiBAQA0KIAlmcHV0KGluX2Zp
-bGUpOw0KIG91dDoNCiAJcmV0dXJuIHJldHZhbDsNCit9DQorDQorYXNtbGlu
-a2FnZSBzc2l6ZV90IHN5c19zZW5kcGF0aChpbnQgb3V0X2ZkLCBjaGFyICpw
-YXRoLCBvZmZfdCAqb2Zmc2V0LCBzaXplX3QgY291bnQpDQorew0KKwlzdHJ1
-Y3QgZmlsZSBpbl9maWxlLCAqb3V0X2ZpbGU7DQorCXJlYWRfZGVzY3JpcHRv
-cl90IGRlc2M7DQorCWxvZmZfdCBwb3MgPSAwLCAqcHBvczsNCisJc3RydWN0
-IG5hbWVpZGF0YSBuZDsNCisJaW50IHJldDsNCisNCisJb3V0X2ZpbGUgPSBn
-ZXRfdmVyaWZ5X291dF9maWxlKG91dF9mZCwgY291bnQpOw0KKwlpZiAoSVNf
-RVJSKG91dF9maWxlKSkgew0KKwkJcmV0ID0gUFRSX0VSUihvdXRfZmlsZSk7
-DQorCQlnb3RvIGVycjsNCisJfQ0KKwlyZXQgPSB1c2VyX3BhdGhfd2Fsayhw
-YXRoLCAmbmQpOw0KKwlpZiAocmV0KQ0KKwkJZ290byBwdXRfb3V0Ow0KKwly
-ZXQgPSAtRUlOVkFMOw0KKwlpZiAoIW5kLmRlbnRyeSB8fCAhbmQuZGVudHJ5
-LT5kX2lub2RlKQ0KKwkJZ290byBwdXRfaW5fb3V0Ow0KKw0KKwltZW1zZXQo
-JmluX2ZpbGUsIDAsIHNpemVvZihpbl9maWxlKSk7DQorCWluX2ZpbGUuZl9k
-ZW50cnkgPSBuZC5kZW50cnk7DQorCWluX2ZpbGUuZl9vcCA9IG5kLmRlbnRy
-eS0+ZF9pbm9kZS0+aV9mb3A7DQorDQorCXBwb3MgPSAmaW5fZmlsZS5mX3Bv
-czsNCisJaWYgKG9mZnNldCkgew0KKwkJaWYgKGdldF91c2VyKHBvcywgb2Zm
-c2V0KSkNCisJCQlnb3RvIHB1dF9pbl9vdXQ7DQorCQlwcG9zID0gJnBvczsN
-CisJfQ0KKwlkZXNjLndyaXR0ZW4gPSAwOw0KKwlkZXNjLmNvdW50ID0gY291
-bnQ7DQorCWRlc2MuYnVmID0gKGNoYXIgKikgb3V0X2ZpbGU7DQorCWRlc2Mu
-ZXJyb3IgPSAwOw0KKwlkb19nZW5lcmljX2ZpbGVfcmVhZCgmaW5fZmlsZSwg
-cHBvcywgJmRlc2MsIGZpbGVfc2VuZF9hY3RvciwgMCk7DQorDQorCXJldCA9
-IGRlc2Mud3JpdHRlbjsNCisJaWYgKCFyZXQpDQorCQlyZXQgPSBkZXNjLmVy
-cm9yOw0KKwlpZiAob2Zmc2V0KQ0KKwkJcHV0X3VzZXIocG9zLCBvZmZzZXQp
-Ow0KKw0KK3B1dF9pbl9vdXQ6DQorCWZwdXQob3V0X2ZpbGUpOw0KK3B1dF9v
-dXQ6DQorCXBhdGhfcmVsZWFzZSgmbmQpOw0KK2VycjoNCisJcmV0dXJuIHJl
-dDsNCiB9DQogDQogLyoNCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL2Vu
-dHJ5LlMub3JpZwlNb24gSmFuIDE1IDIyOjQyOjQ3IDIwMDENCisrKyBsaW51
-eC9hcmNoL2kzODYva2VybmVsL2VudHJ5LlMJTW9uIEphbiAxNSAyMjo0Mzox
-MiAyMDAxDQpAQCAtNjQ2LDYgKzY0Niw3IEBADQogCS5sb25nIFNZTUJPTF9O
-QU1FKHN5c19nZXRkZW50czY0KQkvKiAyMjAgKi8NCiAJLmxvbmcgU1lNQk9M
-X05BTUUoc3lzX2ZjbnRsNjQpDQogCS5sb25nIFNZTUJPTF9OQU1FKHN5c19u
-aV9zeXNjYWxsKQkvKiByZXNlcnZlZCBmb3IgVFVYICovDQorCS5sb25nIFNZ
-TUJPTF9OQU1FKHN5c19zZW5kcGF0aCkNCiANCiAJLyoNCiAJICogTk9URSEh
-IFRoaXMgZG9lc24ndCBoYXZlIHRvIGJlIGV4YWN0IC0gd2UganVzdCBoYXZl
-DQpAQCAtNjUzLDYgKzY1NCw2IEBADQogCSAqIGVudHJpZXMuIERvbid0IHBh
-bmljIGlmIHlvdSBub3RpY2UgdGhhdCB0aGlzIGhhc24ndA0KIAkgKiBiZWVu
-IHNocnVuayBldmVyeSB0aW1lIHdlIGFkZCBhIG5ldyBzeXN0ZW0gY2FsbC4N
-CiAJICovDQotCS5yZXB0IE5SX3N5c2NhbGxzLTIyMQ0KKwkucmVwdCBOUl9z
-eXNjYWxscy0yMjMNCiAJCS5sb25nIFNZTUJPTF9OQU1FKHN5c19uaV9zeXNj
-YWxsKQ0KIAkuZW5kcg0K
---655616-723171322-979591382=:6418
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="sendpath.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101152143021.6418@elte.hu>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="sendpath.c"
-
-DQovKg0KICogU2FtcGxlIHNlbmRwYXRoKCkgY29kZS4gSXQgc2hvdWxkIG1h
-aW5seSBiZSB1c2VkIGZvciBzb2NrZXRzLg0KICovDQoNCiNpbmNsdWRlIDxs
-aW51eC91bmlzdGQuaD4NCiNpbmNsdWRlIDxzeXMvc2VuZGZpbGUuaD4NCiNp
-bmNsdWRlIDxzdGRsaWIuaD4NCiNpbmNsdWRlIDx1bmlzdGQuaD4NCiNpbmNs
-dWRlIDxzdGRpby5oPg0KI2luY2x1ZGUgPGZjbnRsLmg+DQoNCiNkZWZpbmUg
-X19OUl9zZW5kcGF0aCAyMjMNCg0KX3N5c2NhbGw0IChpbnQsIHNlbmRwYXRo
-LCBpbnQsIG91dF9mZCwgY2hhciAqLCBwYXRoLCBvZmZfdCAqLCBvZmYsIHNp
-emVfdCwgc2l6ZSkNCg0KaW50IG1haW4gKGludCBhcmdjLCBjaGFyICoqYXJn
-dikNCnsNCglpbnQgb3V0X2ZkOw0KCWludCByZXQ7DQoNCglvdXRfZmQgPSBv
-cGVuKCIuL3RtcGZpbGUiLCBPX1JEV1J8T19DUkVBVHxPX1RSVU5DLCAwNzAw
-KTsNCglyZXQgPSBzZW5kcGF0aChvdXRfZmQsICIvdXNyL2luY2x1ZGUvdW5p
-c3RkLmgiLCBOVUxMLCAzMDApOw0KDQoJcHJpbnRmKCJzZW5kcGF0aCB3cm90
-ZSAlZCBieXRlcyBpbnRvIC4vdG1wZmlsZS5cbiIsIHJldCk7DQoJcmV0dXJu
-IDA7DQp9DQo=
---655616-723171322-979591382=:6418--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,92 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbTBLUGH>; Wed, 12 Feb 2003 15:06:07 -0500
+	id <S267612AbTBLUHW>; Wed, 12 Feb 2003 15:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267612AbTBLUGH>; Wed, 12 Feb 2003 15:06:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1031 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267605AbTBLUGF>; Wed, 12 Feb 2003 15:06:05 -0500
-Date: Wed, 12 Feb 2003 12:12:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roland McGrath <roland@redhat.com>
-cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: another subtle signals issue
-In-Reply-To: <200302120206.h1C26sI19476@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.44.0302121138570.8062-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267613AbTBLUHW>; Wed, 12 Feb 2003 15:07:22 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28897 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267612AbTBLUHV>; Wed, 12 Feb 2003 15:07:21 -0500
+Date: Wed, 12 Feb 2003 15:17:04 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200302122017.h1CKH4b13492@devserv.devel.redhat.com>
+To: Shawn Starr <spstarr@sh0n.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for   i8042?
+In-Reply-To: <mailman.1045078501.23836.linux-kernel2news@redhat.com>
+References: <mailman.1045078501.23836.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> On Wed, Feb 12, 2003 at 11:14:40AM -0500, Shawn Starr wrote:
+>> >
+>> > Right but, why does this *not* show up in 2.4? IRQ 12 is free in 2.4 but
+>> > not in 2.5 *with* PS/2 mouse enabled?!
+>>
+>> Because this interrupt is only requested when /dev/psaux is opened in 2.4.
+> 
+> I see, wasn't this better behaviour though?
 
-Btw, Roland, instead of your previous patch I would prefer something that 
-just makes "sig_ignored()" test the state of the signal better. Ie 
-something like the appended.
+Not for all hardware. As SMM emulated "software i8042" continue
+to spread, the bugs continue to spread as well. Some systems,
+notably Dell i5000 simply do not work at all if the IRQ12 is
+not serviced (it's actually a little more complicated, but anyway...).
 
-This should bring it much closer to the old code, which got this _right_. 
-For example, a signal that is blocked is _never_ ignored, since even if 
-the handler is SIG_IGN right now, it may not be by the time it is 
-unblocked.
+I saw that the counter was at zero for your soundblaster, but
+I strongly suspect it had little to do with the PS/2 mouse.
+I am surprised it even compiles. I think it was one of the
+last drivers converted to proper DMA API, perhaps it just
+wasn't done right. I know SB won't interrupt if DMA does not
+complete. Why don't you verify that the sound subsystem is
+sane in your case? You might be using ALSA and not knowing it.
 
-I bet the blocked case accounts for some of the new test failures, while
-the (SIG_DFL && sig_kernel_ignore(sig)) case will account for a few more.  
-In general I _think_ this should get us pretty much back to the old
-behaviour.
-
-At least this fixes the pipe write() / SIGWINCH testcase for me.
-
-		Linus
-
----
-===== kernel/signal.c 1.69 vs edited =====
---- 1.69/kernel/signal.c	Tue Feb 11 17:33:52 2003
-+++ edited/kernel/signal.c	Wed Feb 12 12:03:28 2003
-@@ -141,14 +141,34 @@
- 	(((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_DFL) &&	\
- 	 ((t)->sighand->action[(signr)-1].sa.sa_handler != SIG_IGN))
- 
--#define sig_ignored(t, signr) \
--	(!((t)->ptrace & PT_PTRACED) && \
--	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_IGN)
--
- #define sig_fatal(t, signr) \
- 	(!T(signr, SIG_KERNEL_IGNORE_MASK|SIG_KERNEL_STOP_MASK) && \
- 	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_DFL)
- 
-+static inline int sig_ignored(struct task_struct *t, int sig)
-+{
-+	void * handler;
-+
-+	/*
-+	 * Tracers always want to know about signals..
-+	 */
-+	if (t->ptrace & PT_PTRACED)
-+		return 0;
-+
-+	/*
-+	 * Blocked signals are never ignored, since the
-+	 * signal handler may change by the time it is
-+	 * unblocked.
-+	 */
-+	if (sigismember(&t->blocked, sig))
-+		return 0;
-+
-+	/* Is it explicitly or implicitly ignored? */
-+	handler = t->sighand->action[sig-1].sa.sa_handler;
-+	return   handler == SIG_IGN ||
-+		(handler == SIG_DFL && sig_kernel_ignore(sig));
-+}
-+
- /*
-  * Re-calculate pending state from the set of locally pending
-  * signals, globally pending signals, and blocked signals.
-@@ -642,7 +662,7 @@
- 			 * TIF_SIGPENDING
- 			 */
- 			state = TASK_STOPPED;
--			if (!sigismember(&t->blocked, SIGCONT)) {
-+			if (sig_user_defined(t, SIGCONT) && !sigismember(&t->blocked, SIGCONT)) {
- 				set_tsk_thread_flag(t, TIF_SIGPENDING);
- 				state |= TASK_INTERRUPTIBLE;
- 			}
-
+-- Pete

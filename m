@@ -1,76 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbTHVAJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTHVAJT
+	id S262962AbTHVASn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTHVASn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:09:19 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:57031
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262939AbTHVAJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:09:18 -0400
-Message-ID: <1061510950.3f455f26b14fa@kolivas.org>
-Date: Fri, 22 Aug 2003 10:09:10 +1000
-From: Con Kolivas <kernel@kolivas.org>
-To: Wes Janzen <superchkn@sbcglobal.net>
-Cc: Mike Galbraith <efault@gmx.de>, Voluspa <lista1@comhem.se>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O17int
-References: <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net> <200308210723.42789.kernel@kolivas.org> <5.2.1.1.2.20030821090657.00b45af8@pop.gmx.net> <5.2.1.1.2.20030821154224.01990b48@pop.gmx.net> <3F454532.4030200@sbcglobal.net>
-In-Reply-To: <3F454532.4030200@sbcglobal.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+	Thu, 21 Aug 2003 20:18:43 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:42115 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S262962AbTHVASl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 20:18:41 -0400
+Subject: PCMCIA problem
+From: Stian Jordet <liste@jordet.nu>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1061511537.903.2.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 22 Aug 2003 02:18:58 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Wes Janzen <superchkn@sbcglobal.net>:
+Hi,
 
-> I wish I could get mm3 running so I could evaluate those interactivity 
-> statements.  I can't imagine it being worse than what I'm experiencing now:
+I don't really know wether this is kernel problem, pcmcia-cs problem or
+a hardware problem. I have a very, very cheap mmc/sc card -> pcmcia
+converter. When I insert it, I get these messages:
 
-Umm. You didn't mention which kernel/patch? I seem to recall you were using 
-Osomething but which?
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0100-0x04ff: excluding 0x170-0x177 0x370-0x37f
+0x3c0-0x3df 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+hde: PCMCIA/SD ADAPTER, CFA DISK drive
+hdf: probing with STATUS(0x50) instead of ALTSTATUS(0x0a)
+hdf: PCMCIA/SD ADAPTER, CFA DISK drive
+ide2 at 0x100-0x107,0x10e on irq 18
+hde: max request size: 128KiB
+hde: 125440 sectors (64 MB) w/1KiB Cache, CHS=490/8/32
+ hde: hde1
+hdf: max request size: 128KiB
+hdf: 125440 sectors (64 MB) w/1KiB Cache, CHS=490/8/32
+ hdf:hdf: status error: status=0x78 { DriveReady DeviceFault
+SeekComplete DataRequest }
+ 
+hdf: drive not ready for command
+ide2: reset: success
+hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
+DataRequest Error }
+hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
+AddrMarkNotFound }, LBAsect=7991417, sector=0
+hdf: drive not ready for command
+ide2: reset: success
+hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
+DataRequest Error }
+hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
+AddrMarkNotFound }, LBAsect=7991417, sector=0
+end_request: I/O error, dev hdf, sector 0
+Buffer I/O error on device hdf, logical block 0
+hdf: drive not ready for command
+hdf: status timeout: status=0xe1 { Busy }
+ 
+hdf: drive not ready for command
+ide2: reset: success
+hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
+DataRequest Error }
+hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
+AddrMarkNotFound }, LBAsect=7991417, sector=0
+hdf: drive not ready for command
+ide2: reset: success
+hdf: status error: status=0x79 { DriveReady DeviceFault SeekComplete
+DataRequest Error }
+hdf: status error: error=0x79 { UncorrectableError SectorIdNotFound
+AddrMarkNotFound }, LBAsect=7991417, sector=0
+end_request: I/O error, dev hdf, sector 0
+Buffer I/O error on device hdf, logical block 0
+hdf: drive not ready for command
+ unable to read partition table
+ide-cs: hde: Vcc = 3.3, Vpp = 0.0
+ hde: hde1
 
-> That would be compiling the kernel, bunzipping a file, and some cron 
-> mandb thing that was running gzip in the background niced.  Plus X and 
-> Mozilla, which probably starts the problem.  At the end there, you see 
-> things calm down.  That's also the way it starts out, then something 
-> sets off the "priority inversion" and the machine becomes completely 
-> worthless.  Even the task that are running aren't really accomplishing 
-> anything.  So the load goes from around 4/5 into the teens and the 
-> context switching makes a corresponding jump.  And then both 
-> interactivity AND throughput fall through the floor.
-> 
-> I can't imagine any interactivity regressions that are worse than this 
-> behavior...
+It seems to work perfect, but why on earth does it seem to try hdf for
+anything? There is no card in the other slot? Anyone knows? It's the
+same with 2.4.22-rc2 and 2.6.0-test3-latest-bk.
 
-If this is Osomething, can you tell me when it started doing this and what 
-vanilla does.
+Best regards,
+Stian
 
-> And this happens with just X and Mozilla running.  It happens less often 
-> without X running, but still happens.  Even if I'm at a VT, it could 
-> take 5-6 seconds for my text to appear after I type.  This happens all 
-> the time, about once every few minutes and correlates with a 
-> simultaneous increase in context switches and load.
-
-Ditto
-
-> Can you set a cutoff point where if the process uses less that X percent 
-> of the max timeslice, it is penalized?  I don't know if it's possible  
-> to do a loop of empty spins at some point and time it to find out what 
-> the cut-off point should be...otherwise I imagine it would need to be 
-> tuned for every processor speed.  Could you use the bogomips to gauge 
-> the speed of the machine and use that to determine the min timeslice?  
->  From what I understand above, that would perhaps be more selective than 
-> just penalizing every process and have a positive affect on 
-> everything...of course I'm open to the possibility that I have it all 
-> wrong ;-)
-
-A thought, but unfortunately some arbitrary limit would just be hit by 
-everything randomly rather than with any meaningful frequency. The timeslice  
-interactive things use up is extremely variable depending on circumstances. 
-
-Con

@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264032AbUCZLsI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 06:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbUCZLsI
+	id S264016AbUCZL47 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 06:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264020AbUCZL47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 06:48:08 -0500
-Received: from smtp-out6.xs4all.nl ([194.109.24.7]:57096 "EHLO
-	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264032AbUCZLsB
+	Fri, 26 Mar 2004 06:56:59 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:23719 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S264016AbUCZL46
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 06:48:01 -0500
-Date: Fri, 26 Mar 2004 12:47:39 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-fbdev-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Radeon 7000 problems with kernels after 2.6.3
-Message-ID: <20040326114739.GA32596@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 26 Mar 2004 06:56:58 -0500
+Message-ID: <40641A45.2060100@stesmi.com>
+Date: Fri, 26 Mar 2004 12:55:49 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Giuliano Pochini <pochini@shiny.it>
+CC: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: Binary-only firmware covered by the GPL?
+References: <XFMail.20040326122022.pochini@shiny.it>
+In-Reply-To: <XFMail.20040326122022.pochini@shiny.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On recent kernel (2.6.4 and later) my Radeon 7000 doesn't display
-anything. My Eizo monitor warns me of really incompatible frequencies
-(fV 217.2 Hz, fH 271.5 kHz). fbset returns normal values, by the way.
+Giuliano Pochini wrote:
 
-I've found out that this chunk in patch-2.6.4, applying to
-drivers/video/aty/radeon_base.c, causes my problems:
+> On 26-Mar-2004 David Schwartz wrote:
+> 
+> 
+>>As for "another processor", another from what processor? There is just this
+>>one file. We have here a file that is allegedly distributed under the terms
+>>of the GPL. It is, however, obfuscated and not the preferred form for making
+>>modifications.
+> 
+> 
+> It's my turn to make flames grow higher :)
+> And about binary data which is not executed by any processor ?  Some
+> cards have ASIC chips that must be programmed to make the card do
+> something other than consuming power. That "code" is *not* a program
+> and it's always shipped in binary form.
 
-@@ -1329,6 +1320,16 @@
-         * not sure which model starts having FP2_GEN_CNTL, I assume anything more
-         * recent than an r(v)100...
-         */
-+#if 0
-+       /* XXX I had reports of flicker happening with the cinema display
-+        * on TMDS1 that seem to be fixed if I also forbit odd dividers in
-+        * this case. This could just be a bandwidth calculation issue, I
-+        * haven't implemented the bandwidth code yet, but in the meantime,
-+        * forcing uses_dvo to 1 fixes it and shouln't have bad side effects,
-+        * I haven't seen a case were were absolutely needed an odd PLL
-+        * divider. I'll find a better fix once I have more infos on the
-+        * real cause of the problem.
-+        */
-        while (rinfo->has_CRTC2) {
-                u32 fp2_gen_cntl = INREG(FP2_GEN_CNTL);
-                u32 disp_output_cntl;
-@@ -1362,6 +1363,9 @@
-                uses_dvo = 1;
-                break;
-        }
-+#else
-+       uses_dvo = 1;
-+#endif
-        if (freq > rinfo->pll.ppll_max)
-                freq = rinfo->pll.ppll_max;
-        if (freq*12 < rinfo->pll.ppll_min)
+Shipped - yes, but how is it modified (ie edited) ?
 
-If I change that #if 0 to #if 1, I get a normal image. This is with the
-following video-card:
+Using a special program? That's fine then. Using a hex editor? That's
+also fine. Using a VHDL compiler ? Then they need to give out the VHDL
+code to it I believe. But hell, what do I know, when moving over to
+hardware it's uncertain how the GPL would apply, at least to me,
+and of course IANAL.
 
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R100 QD [Radeon 7200] (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc Radeon 7000/Radeon
-        Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 16
-        Memory at d8000000 (32-bit, prefetchable) [size=128M]
-        I/O ports at a000 [size=256]
-        Memory at e5000000 (32-bit, non-prefetchable) [size=512K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [58] AGP version 2.0
-        Capabilities: [50] Power Management version 2
-
-
-I've seen other messages about problems with radeonfb. Can other people
-confirm this problem, and confirm that removing this chunk fixes the
-problem?
-
-
-Kind regards,
-Jurriaan
--- 
-Don't like these taglines? Steal your own...
-Debian (Unstable) GNU/Linux 2.6.5-rc2-mm3 3940 bogomips 0.18 0.28
+// Stefan

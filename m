@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVBVWfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVBVWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVBVWfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 17:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVBVWfc
+	id S261306AbVBVWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 17:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVBVWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 17:35:32 -0500
-Received: from a.mail.sonic.net ([64.142.16.245]:2441 "EHLO a.mail.sonic.net")
-	by vger.kernel.org with ESMTP id S261308AbVBVWfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 17:35:16 -0500
-Date: Tue, 22 Feb 2005 14:34:48 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Russell King <rmk@arm.linux.org.uk>, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why does printk helps PCMCIA card to initialise?
-Message-ID: <20050222223448.GA32644@sonic.net>
+	Tue, 22 Feb 2005 17:35:23 -0500
+Received: from mail.shareable.org ([81.29.64.88]:23720 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261306AbVBVWfM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 17:35:12 -0500
+Date: Tue, 22 Feb 2005 22:34:57 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Olof Johansson <olof@austin.ibm.com>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
+Message-ID: <20050222223457.GK22555@mail.shareable.org>
+References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005, Linus Torvalds wrote:
-> On Mon, 21 Feb 2005, Russell King wrote:
-> >
-> > In cs.c, alloc_io_space(), find the line:
-> >
-> > if (*base & ~(align-1)) {
-> >
-> > delete the ~ and rebuild. This may resolve your problem.
+Linus Torvalds wrote:
+> > 	queue_me(...) etc.
+> > 	current->flags |= PF_MMAP_SEM;             <- new
+> > 	ret = get_user(...);
+> > 	current->flags &= PF_MMAP_SEM;             <- new
+> > 	/* the rest */
 > 
-> Unlikely. The code is too broken for words.
+> That is uglee. 
+> 
+> We really have this already, and it's called "current->preempt". It 
+> handles any lock at all, and doesn't add yet another special case to all 
+> the architectures.
 
-The original code is correct; you are misinterpreting the meaning of
-the "align" variable here.  PCMCIA cards can request a specific base
-IO address, and can also specify how many IO address lines they
-decode.  The number of decoded lines determines a maximal alignment
-restriction for a card; if it only decodes 3 lines, then it should not
-reasonably ask for an IO region with more specificity than being on an
-8 port boundary.  The "align" variable here holds this alignment.  The
-"oddness" here is that the card is providing conflicting information,
-that it needs IO ports at a specific address, but is only decoding 3
-address lines (i.e. align=8).
+Ooh, I didn't know current->preempt did that (been away).
 
-The names of "base" and "align" have the expected meanings when a card
-only specifies one or the other.  It's only for the case where both
-are specified that the meaning is complicated.  Then, "base" is more
-like an offset into a block that has "align" alignment
+> 	repeat:
+> 		down_read(&current->mm->mmap_sem);
+> 		get_futex_key(...) etc.
+> 		queue_me(...) etc.
+> 		inc_preempt_count();
+> 		ret = get_user(...);
+> 		dec_preempt_count();
+> 		if (unlikely(ret)) {
+> 			up_read(&current->mm->mmap_sem);
+> 			/* Re-do the access outside the lock */
+> 			ret = get_user(...);
+> 			if (!ret)
+> 				goto repeat;
+> 			return ret;
+>		}
 
-Given an "odd" request for a base=0x260 and align=8, the allocator
-promotes this to align=0x400, and would allow addresses 0x260, 0x660,
-0xa60, 0xe60, etc, subject to restrictions in /etc/pcmcia/config.opts.
+That would work.  I like it. :)
 
-The real problem here is that all the IO address ranges the card
-claims to support were unavailable.  I'd first try adding:
+Page faults will enter the fault handler twice (i.e. slower), but
+that's not really a disadvantage, because a program always references
+the memory just before calling futex_wait anyway.  A fault is rare.
 
-  include port 0x0600-0x07ff
+There is one small but important error: the "return ret" mustn't just
+return.  It must call unqueue_me(&q) just like the code at out_unqueue,
+_including_ the conditional "ret = 0", but _excluding_ the up_read().
 
-to /etc/pcmcia/config.opts to give the allocator more flexibility in
-choosing port ranges.  
+Alternatively, since it's a rare case, just shuffle the loop around:
 
--- Dave
+ 		down_read(&current->mm->mmap_sem);
+ 	repeat:
+ 		get_futex_key(...) etc.
+ 		queue_me(...) etc.
+ 		inc_preempt_count();
+ 		ret = get_user(...);
+ 		dec_preempt_count();
+ 		if (unlikely(ret)) {
+ 			up_read(&current->mm->mmap_sem);
+ 			/* Re-do the access outside the lock */
+ 			ret = get_user(...);
+			down_read(&current->mm->mmap_sem);
+ 			if (!ret)
+ 				goto repeat;
+ 			goto out_unqueue;
+		}
+
+-- Jamie

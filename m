@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264575AbTL0VfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 16:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTL0VfG
+	id S264608AbTL0V4i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 16:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTL0V4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 16:35:06 -0500
-Received: from 207-218-206-107.ev1.net ([207.218.206.107]:46477 "HELO
-	server3.pluginbox.com") by vger.kernel.org with SMTP
-	id S264575AbTL0VfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 16:35:01 -0500
-Message-ID: <3FEDFB09.5020903@ruttiger.com>
-Date: Sat, 27 Dec 2003 16:35:05 -0500
-From: Blake Caldwell <blake-lkml@ruttiger.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Blake Caldwell <blake-lkml@ruttiger.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: need 2.6.0 online development documentation (newbie)
-References: <3FEDE8E0.8070301@ruttiger.com>
-In-Reply-To: <3FEDE8E0.8070301@ruttiger.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Dec 2003 16:56:38 -0500
+Received: from 0x503e3f58.boanxx7.adsl-dhcp.tele.dk ([80.62.63.88]:51098 "HELO
+	mail.hswn.dk") by vger.kernel.org with SMTP id S264608AbTL0V4g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 16:56:36 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Henrik Storner <henrik-kernel@hswn.dk>
+Newsgroups: linux.kernel
+Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
+Date: Sat, 27 Dec 2003 21:56:35 +0000 (UTC)
+Organization: Linux Users Inc.
+Message-ID: <bskv6j$aje$1@ask.hswn.dk>
+References: <1072535590.12308.250.camel@nosferatu.lan> <1080000.1072475704@[10.10.2.4]>	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>	 <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]>	 <1072523478.12308.52.camel@nosferatu.lan>	 <1072525450.3794.8.camel@wires.home.biz>	 <1072527874.12308.100.camel@nosferatu.lan>	 <1072530488.2906.1.camel@wires.home.biz>	 <1072535590.12308.250.camel@nosferatu.lan> <1072544151.8611.18.camel@wires.home.biz>
+NNTP-Posting-Host: osiris.hswn.dk
+X-Trace: ask.hswn.dk 1072562195 10862 172.16.10.100 (27 Dec 2003 21:56:35 GMT)
+X-Complaints-To: news@ask.hswn.dk
+NNTP-Posting-Date: Sat, 27 Dec 2003 21:56:35 +0000 (UTC)
+User-Agent: nn/6.6.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nevermind - i think i found it in these articles:
-http://lwn.net/Articles/driver-porting/
+In <1072544151.8611.18.camel@wires.home.biz> Edward Tandi <ed@efix.biz> writes:
 
-thanks,
-- Blake
+>I would say the symptoms are that the music starts playing OK bit after
+>a short period (18-19 seconds), the music changes overall speed (by a
+>semi-tone or so). When it does this, the sound also starts to break up.
 
-Blake Caldwell wrote:
-> I'm trying to get involved in kernel development, starting with 2.6 
-> modules.  i found some great stuff for 2.4, which had 'hello world' 
-> modules, but they're not compiling in 2.6
-> 
-> could anyone point me in the right direction for some online beginner's 
-> docs for 2.6 kernel & module programming?  I've ordered the book 
-> previously mentioned here, but am eager to get started.
-> 
-> thanks in advance,
-> 
-> - Blake
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Just a "me too" post - I've been trying out 2.6.0 over the past couple
+of days, and this is the only real issue I've encountered. Just like
+you describe, the pace of the music playing speeds up slightly, and
+there are some mis-sounds for a few seconds. Then it comes back to
+normal.
+
+>It could be a driver issue. FYI, I am using a VIA KT400 chipset.
+
+Could be. I have the same chipset (KT400A, actually).
+
+-- 
+Henrik Storner

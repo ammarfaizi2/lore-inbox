@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264749AbSKNTmT>; Thu, 14 Nov 2002 14:42:19 -0500
+	id <S264653AbSKNTg4>; Thu, 14 Nov 2002 14:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264756AbSKNTmT>; Thu, 14 Nov 2002 14:42:19 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:46764 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264749AbSKNTmS>; Thu, 14 Nov 2002 14:42:18 -0500
-Subject: Re: [patch] remove hugetlb syscalls
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264749AbSKNTg4>; Thu, 14 Nov 2002 14:36:56 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58752 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264653AbSKNTgz>; Thu, 14 Nov 2002 14:36:55 -0500
+Date: Thu, 14 Nov 2002 14:43:45 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David.Mosberger@acm.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3DD3F960.6000501@pobox.com>
-References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>	<08a601c28bb
-	b$2f6182a0$760010ac@edumazet>	<20021114141310.A25747@infradead.org>	<ugel9oa
-	vk4.fsf@panda.mostang.com>	<1037298675.16000.47.camel@irongate.swansea.linux
-	 .org.uk> <15827.61722.800066.756875@panda.mostang.com> 
-	<3DD3F960.6000501@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Nov 2002 20:15:06 +0000
-Message-Id: <1037304906.16000.65.camel@irongate.swansea.linux.org.uk>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <20021114144345.D5294@devserv.devel.redhat.com>
+References: <225710000.1037241209@flay> <mailman.1037294313.19087.linux-kernel2news@redhat.com> <200211141912.gAEJCwH01539@devserv.devel.redhat.com> <225710000.1037241209@flay> <3DD3FB29.6020504@pobox.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DD3FB29.6020504@pobox.com>; from jgarzik@pobox.com on Thu, Nov 14, 2002 at 02:36:09PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-14 at 19:28, Jeff Garzik wrote:
-> However, that said, I think hugetlbfs will almost always get used in 
-> preference to the syscalls, so leaving them in may be more a statement 
-> of technical correctness/cleanliness than anything else.
+> Date: Thu, 14 Nov 2002 14:36:09 -0500
+> From: Jeff Garzik <jgarzik@pobox.com>
 
-Just rewrite the syscall crap in userspace as library functions calling
-hugetlbfs. End of problem, less kernel code, less bugs, same interface
+>[...]
+> Sure, but vger and ftp are both suffixed with "kernel.org"   If 
+> Transmeta or Red Hat ever flake out, it's easier to redirect the domain 
+> to some other machine.
 
+You are right, I forgot about this aspect. My fingers typed
+"vger.rutgerds.edu" for a about a year, all by themselves.
+
+> > I'm more interested in contacting the admin to be a component
+> > owner for sparc, for instance. Someone is going to have a significant
+> > admin load, because Bugzilla is not going to be self-running.
+> > Who is that person?
+> 
+> Check out Martin's original announcement, as well as his recent one. 
+> I'm pretty pleased:  they have staff that will help triage bugs and keep 
+> the garbage level low.  Hopefully leaving the kernel hackers to do 
+> nothing more than fix bugs :)
+
+No, wait, I'm not talking about triage here, just admining the
+Bugzilla itself. I'll poke bugme-admin@ and see what comes out.
+
+-- Pete

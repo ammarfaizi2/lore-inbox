@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318197AbSGQCou>; Tue, 16 Jul 2002 22:44:50 -0400
+	id <S318198AbSGQCuv>; Tue, 16 Jul 2002 22:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318199AbSGQCou>; Tue, 16 Jul 2002 22:44:50 -0400
-Received: from gw.lowendale.com.au ([203.26.242.120]:27949 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S318197AbSGQCot>; Tue, 16 Jul 2002 22:44:49 -0400
-Date: Wed, 17 Jul 2002 12:51:49 +1000 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: linux-sound@vger.kernel.org
-cc: linux-kernel@vger.kernel.org
-Subject: Ali5451 and MIDI synth
-Message-ID: <Pine.LNX.4.05.10207171247410.1649-100000@marina.lowendale.com.au>
+	id <S318200AbSGQCuu>; Tue, 16 Jul 2002 22:50:50 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:11233 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S318198AbSGQCuu>; Tue, 16 Jul 2002 22:50:50 -0400
+Message-ID: <3D34DC77.20102@snapgear.com>
+Date: Wed, 17 Jul 2002 12:54:47 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE]: linux-2.5.26uc0 patches for MMU-less support
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm trying to get MIDI synth happening with the Ali M5451 audio chipset
-(as found in the Toshiba 1800 notebook).
+Hi All,
 
-So far, it appears to me that:
+I have updated the uClinux (MMU-less support) patches for
+linux-2.5.26. You can get them at:
 
-* linux-2.2 has MIDI support in the code (v0.14.5c of trident.c) - but
-this driver (a) doesn't work for basic audio[1] and (b) doesn't register a
-MIDI synth device (and MIDI players complain of no device).
+   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x
 
-* linux-2.4 has no MIDI support in the code (v0.14.9d of trident.c) - this
-driver works OK for basic audio.  Oddly, I can't see any mention of the
-MIDI code removal in the driver's history.
+Regards
+Greg
 
-* ALSA-0.9 - no MIDI support in the code (alsa-kernel/pci/ali5451/*).
 
-Have I missed something here?
-
-Thanks,
-Neale.
-
-[1] "doesn't work for basic audio" includes this being logged to kern.log:
-
-	trident: drain_dac, dma timeout?
-
-Interestingly, I can make this go away by first loading and unloading the
-ALSA drivers then loading the OSS drivers.  This makes me suspicious that
-linux-2.2's OSS driver is missing something in the initialisation.
-
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

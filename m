@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317537AbSGJQha>; Wed, 10 Jul 2002 12:37:30 -0400
+	id <S317538AbSGJQmy>; Wed, 10 Jul 2002 12:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317538AbSGJQh3>; Wed, 10 Jul 2002 12:37:29 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:14706 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317537AbSGJQh2>; Wed, 10 Jul 2002 12:37:28 -0400
-Date: Wed, 10 Jul 2002 18:41:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thomas Tonino <ttonino@users.sourceforge.net>
-Cc: Jens Axboe <axboe@suse.de>, Thomas Tonino <ttonino@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: Terrible VM in 2.4.11+?
-Message-ID: <20020710164131.GC2513@dualathlon.random>
-References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es> <3D2BF3CC.3040409@users.sf.net> <20020710084904.GH3185@suse.de> <3D2C3C24.8090402@users.sf.net>
-Mime-Version: 1.0
+	id <S317540AbSGJQmx>; Wed, 10 Jul 2002 12:42:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7438 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317538AbSGJQmw>; Wed, 10 Jul 2002 12:42:52 -0400
+Subject: Re: bzip2 patent status query
+To: jbradford@dial.pipex.com
+Date: Wed, 10 Jul 2002 18:08:57 +0100 (BST)
+Cc: cl81@gmx.net (Christian Ludwig), linux-kernel@vger.kernel.org
+In-Reply-To: <200207101554.QAA07949@darkstar.example.net> from "jbradford@dial.pipex.com" at Jul 10, 2002 04:54:51 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D2C3C24.8090402@users.sf.net>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17SKxW-0007Ph-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 03:52:36PM +0200, Thomas Tonino wrote:
-> Jens Axboe wrote:
-> 
-> >That's probably not just a mm issue, if you use stock 2.4.18 with 4GB
-> >ram you will spend oodles of time bounce buffering i/o. 2.4.19-pre9-aa2
-> >includes the block-highmem stuff, which enables direct-to-highmem i/o,
-> >if you enabled the CONFIG_HIGHIO option.
-> 
-> Indeed, highio seemed a feature I wanted, so I enabled it. But in the 
-> 'stuck' state on the 2 GB 2.4.18 machine, the load is 75 while there is 
-> no disk activity according to iostat, but shells perform slowly anyway 
+> Is bzip2 *definitely* patent-unencumbered?
 
-I doubt the issue is highio here, the 75 load is probably because of 75
-tasks deadlocked in D state, it's probably one of the many fixes in my
-tree that avoided the deadlock for you.
+Who knows. Move out of the USA if it worries you
 
-If you provide a SYSRQ+T I would be more confortable though, so I can
-tell you which of the fixes in my tree you need applied to mainline and
-more important so I'm sure the problem is really just fixed in my tree.
-I've no pending bugreport at the moment for -aa (the last emails for
-rc1aa1 were all about acpi that didn't compile for smp, and I dropped it
-in rc1aa2 until I get my poor broken laptop replaced).
+> It claims to be on it's home page, but I found this from the OpenBSD people:
+> http://www.openbsd.org/2.8_packages/m68k/bzip-0.21.tgz-long.html
 
-thanks,
-
-Andrea
+bzip != bzip2. bzip is known to be not usable in the USSA

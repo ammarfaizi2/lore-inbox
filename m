@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290229AbSBFH4W>; Wed, 6 Feb 2002 02:56:22 -0500
+	id <S290223AbSBFIEP>; Wed, 6 Feb 2002 03:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290223AbSBFH4M>; Wed, 6 Feb 2002 02:56:12 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:53972 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S290232AbSBFH4B>; Wed, 6 Feb 2002 02:56:01 -0500
-Date: Wed, 6 Feb 2002 09:49:12 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH] Re: 2.4.17 Oops when trying to mount ATAPI CDROM
-In-Reply-To: <Pine.LNX.3.96.1020205180314.3562B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0202060943260.8308-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290232AbSBFIEF>; Wed, 6 Feb 2002 03:04:05 -0500
+Received: from bitmover.com ([192.132.92.2]:47533 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290223AbSBFIDx>;
+	Wed, 6 Feb 2002 03:03:53 -0500
+Date: Wed, 6 Feb 2002 00:03:43 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020206000343.I14622@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Reid Hekman <reid.hekman@ndsu.nodak.edu>,
+	Andreas Dilger <adilger@turbolabs.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com> <20020205235000.J2928@lynx.turbolabs.com> <1012981874.6918.10.camel@zeus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1012981874.6918.10.camel@zeus>; from reid.hekman@ndsu.nodak.edu on Wed, Feb 06, 2002 at 01:50:34AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Feb 2002, Bill Davidsen wrote:
+> I second that. Maybe however we can have it both ways -- I have no
+> experience with bk, but can't this same info be made available elsewhere
+> like a public web interface or some such thing?
 
-> I have two comments on that code, first that it is some of the ugliest
-> code I've seen in a while in terms of goto's, 
+I've put up read-only clones on 
 
-10: You ain't seen nothing...
+	http://linux.bkbits.net
 
-> the patch adds a goto to avoid duplicating the test for the missing id,
-> which really could be made more readable.
+you can go there and get the changelogs in web form.  I just figured out
+what a bad choice 8088 was for a port and we'll be moving stuff over to
+8080 since that seems to go through more firewalls.
 
-I don't see whats so unreadable about it though, its a short function with 
-just a few possible code paths, (out of interest) could you post what you 
-have in mind.
+hpa is working on getting these up in some of the kernel.org sites, he's
+stalled out because of some stuff he needs from me, we'll get that 
+straightened out and the the authoritative source is bk.kernel.org or
+master.kernel.org, I'm not quite sure.  Peter will tell you.  But we'll
+keep up to date with Linus' BK tree as long as he is playing with BK
+and you can follow along there.
 
-> (while I have a flow diagram in front of me), but given the recent
-> discussion of path acceptable lately I won't bother. The code really is
-> uglier than a hedgehog's asshole, though.
+Oh, and for what it is worth, I agree that having the changelogs as part
+of the history rocks.  Goto the http://linux.bkbits.net:8088/linux-2.5
+link and click on user statistics - because Linus hacked up a nice email
+to patch importer script, all the patches look like they were checked
+in by the person who sent them.  And it propogates down to the annotated
+listings.
 
-GOTO 10
-
-> MORE IMPORTANT: doesn't this imply that the device id has either been lost
-> or not initialized? I haven't finished grepping for calls to this code
-> yet, but intuitively I would guess that if we don't have the id all the
-> other stuff might be suspect as well.
-
-Indeed, frankly i have no idea how he managed to go on in that state, but 
-do note his device is horribly broken. This patch doesn't really fix his 
-case, but adds a (needed) NULL pointer check.
-
-Regards,
-	Zwane Mwaikambo
-
-
+Here's hoping bkbits.net has gone belly up before I wake up tomorrow :-)
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

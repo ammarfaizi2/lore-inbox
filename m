@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313201AbSEMMgv>; Mon, 13 May 2002 08:36:51 -0400
+	id <S313202AbSEMMxA>; Mon, 13 May 2002 08:53:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSEMMgu>; Mon, 13 May 2002 08:36:50 -0400
-Received: from parmenides.zen.co.uk ([212.23.8.69]:35589 "HELO
-	parmenides.zen.co.uk") by vger.kernel.org with SMTP
-	id <S313201AbSEMMgt>; Mon, 13 May 2002 08:36:49 -0400
-Message-ID: <3CDFB41A.6070701@treblig.org>
-Date: Mon, 13 May 2002 13:39:54 +0100
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S313206AbSEMMw7>; Mon, 13 May 2002 08:52:59 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:50230 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S313202AbSEMMw6>; Mon, 13 May 2002 08:52:58 -0400
+Date: Mon, 13 May 2002 14:00:16 +0100
+From: Ian Molton <spyro@armlinux.org>
 To: Tomas Szepe <szepe@pinerecords.com>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, gilbertd@treblig.org, linux-kernel@vger.kernel.org
 Subject: Re: Changelogs on kernel.org
-In-Reply-To: <20020512145802Z313578-22651+30503@vger.kernel.org> <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com> <20020513115800.GC4258@louise.pinerecords.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20020513140016.66a84fef.spyro@armlinux.org>
+In-Reply-To: <20020513101228.GA4071@louise.pinerecords.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+On Mon, 13 May 2002 12:12:28 +0200
+Tomas Szepe <szepe@pinerecords.com> wrote:
 
-> Alright, another one.
+> > [Linus Torvalds <torvalds@transmeta.com>, May-12 2002, Sun, 18:56
+> > -0700]
+> >
+> > As an example, if the long version looks like this:
+> > ...
+> > The short version could look like
+> > ...
 > 
-> $ ./fmtcl2.pl /usr/src/ChangeLog-2.5.14
-> 
-> Summary of changes from v2.5.13 to v2.5.14
-> ============================================
-> 
-> o  kd.h                                                                             (Andries.Brouwer@cwi.nl)
-> o  NTFS: Release 2.0.6 - Major bugfix to make compatible with other kernel changes. (aia21@cantab.net)
-> o  mm/memory.c:                                                                     (aia21@cantab.net)
-> o  suppress allocation warnings for radix-tree allocations                          (akpm@zip.com.au)
+> How's this? (script attached)
 
-<snip>
-
-Ah - thats it!
-
-
+very nice :)

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261659AbSJAQAz>; Tue, 1 Oct 2002 12:00:55 -0400
+	id <S261690AbSJAQEH>; Tue, 1 Oct 2002 12:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261923AbSJAQAC>; Tue, 1 Oct 2002 12:00:02 -0400
-Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:47515 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262124AbSJAP71>;
-	Tue, 1 Oct 2002 11:59:27 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Daniel Phillips <phillips@arcor.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated v2
-Date: Tue, 1 Oct 2002 18:05:15 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44L.0209261628490.1837-100000@duckman.distro.conectiva> <E17w6Mc-0005p6-00@starship> <20020930160434.Q13755@bitchcake.off.net>
-In-Reply-To: <20020930160434.Q13755@bitchcake.off.net>
+	id <S261717AbSJAQEA>; Tue, 1 Oct 2002 12:04:00 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:27560 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261690AbSJAQDe>; Tue, 1 Oct 2002 12:03:34 -0400
+Date: Tue, 01 Oct 2002 09:06:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Daniel Phillips <phillips@arcor.de>, Dave McCracken <dmccr@us.ibm.com>,
+       "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Page table sharing
+Message-ID: <851859439.1033463169@[10.10.2.3]>
+In-Reply-To: <E17wMl3-0005tY-00@starship>
+References: <E17wMl3-0005tY-00@starship>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E17wPWO-0005up-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 September 2002 22:04, Zach Brown wrote:
-> but really, I think these are DOA.
+> I'm not sure how relevant page table sharing has to the halloween 
+> deadline since it's not a feature per se, just an optimization.   
+> It has more to do with getting numa ia32 boxes to survive, so it's 
+> an ideal out-of-tree patch.
 
-No argument there.
+Any large 32 bit box with significant numbers of processes will need 
+it to cope with the bloat that rmap introduced - this has nothing to
+do with NUMA (some apps may be saved by large pages, some not). 
+Avoiding hangs from ZONE_NORMAL oom is not an "optimisation", and I 
+doubt optimisations involving major VM changes would be very welcome
+after the freeze. This is something we need to get working ASAP ...
 
-> having to define a single magical
-> structure member makes these more trouble than they're worth.  I've come
-> to prefer wli's 'struct list' approach.  It has the added benefit of
-> actually being sanely implementable with shared code, something
-> ridiculously low memory setups might appreciate.
-
-Have you tried it in a real program?  I have.  It's not nice to use.
-My original response to Bill:
-
-> > How's this look?
-> 
-> Unfortunately, not good.  You get code like:
-> 
->         foo = (struct mylist *) slist_pop((slist *) &somelist->next);
->
-> So type safety goes out the window, and you gain some niceness in the
-> definition in exchange for ugliness in usage, the wrong tradeoff imho.
-
-Single linked lists are so simple - just write the darn code out in
-full.  Yes, the fact that you can't sanely generalize these things shows
-that C as a language falls a few cards short of a full deck, but we knew
-that.  It makes nice kernels, it does not make art.
-
--- 
-Daniel
+M.
 

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292091AbSBTRfE>; Wed, 20 Feb 2002 12:35:04 -0500
+	id <S292104AbSBTRfe>; Wed, 20 Feb 2002 12:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292104AbSBTRes>; Wed, 20 Feb 2002 12:34:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:43136 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292091AbSBTRce>;
-	Wed, 20 Feb 2002 12:32:34 -0500
-Date: Wed, 20 Feb 2002 09:30:34 -0800 (PST)
-Message-Id: <20020220.093034.112623671.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C73DC34.E83CCD35@mandrakesoft.com>
-In-Reply-To: <20020220103320.A32211@vger.timpanogas.org>
-	<20020220103539.B32211@vger.timpanogas.org>
-	<3C73DC34.E83CCD35@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S292107AbSBTRf1>; Wed, 20 Feb 2002 12:35:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46090 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292104AbSBTRfM>; Wed, 20 Feb 2002 12:35:12 -0500
+Subject: Re: 2.5.4 PNPBIOS fault
+To: rddunlap@osdl.org (Randy.Dunlap)
+Date: Wed, 20 Feb 2002 17:49:21 +0000 (GMT)
+Cc: jdthood@mail.com (Thomas Hood), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0202200906431.3312-100000@dragon.pdx.osdl.net> from "Randy.Dunlap" at Feb 20, 2002 09:22:25 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16darp-0004Da-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Wed, 20 Feb 2002 12:26:12 -0500
-   
-   type abuse aside, and alpha bugs aside, this looks ok... what is the
-   value of as->msize?
+> | PnPBIOS: Found PnP BIOS installation structure at 0xc00f6010.
+> | PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xb4a6, dseg 0x400.
+> | Unable to handle kernel paging request at virtual address 0000de3a
+> |  printing eip:
+> |  00004298
 
-Jeff and Jeff, the problem is one of two things:
+That looks like it choked from the pnpbios yes. Is this an intel bios ?
 
-1) when you have ~2GB of memory the vmalloc pool is very small
-   and this it the same place ioremap allocations come from
-
-2) the BIOS or Linus is not assigning resources of the device
-   properly, or it simple can't because the available PCI MEM space
-   with this much memory is too small
-
-I note that one of the resources of the card is 16MB or so.
+Send me some DMI strings

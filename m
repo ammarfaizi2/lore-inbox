@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266921AbRG1Qjy>; Sat, 28 Jul 2001 12:39:54 -0400
+	id <S266938AbRG1Qpq>; Sat, 28 Jul 2001 12:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266929AbRG1Qjp>; Sat, 28 Jul 2001 12:39:45 -0400
-Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:49536
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S266921AbRG1Qj2>; Sat, 28 Jul 2001 12:39:28 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Robert Schiele <rschiele@uni-mannheim.de>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.4.8-pre1 build error in drivers/parport/parport_pc.c 
-In-Reply-To: Message from Robert Schiele <rschiele@uni-mannheim.de> 
-   of "Fri, 27 Jul 2001 10:12:41 +0200." <20010727101241.A15014@schiele.swm.uni-mannheim.de> 
-In-Reply-To: <01072619531103.06728@localhost.localdomain>  <20010727101241.A15014@schiele.swm.uni-mannheim.de> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-666839274P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 28 Jul 2001 17:39:22 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E15QX7a-0000gl-00@kings-cross.london.uk.eu.org>
+	id <S266941AbRG1Qpe>; Sat, 28 Jul 2001 12:45:34 -0400
+Received: from ns.caldera.de ([212.34.180.1]:45719 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S266938AbRG1QpY>;
+	Sat, 28 Jul 2001 12:45:24 -0400
+Date: Sat, 28 Jul 2001 18:45:10 +0200
+Message-Id: <200107281645.f6SGjA620666@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: kiwiunixman@yahoo.co.nz (Matthew Gardiner)
+Cc: kernel <linux-kernel@vger.kernel.org>, Hans Reiser <reiser@namesys.com>,
+        Joshua Schmidlkofer <menion@srci.iwpsd.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <01072901450000.02683@kiwiunixman.nodomain.nowhere>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
---==_Exmh_-666839274P
-Content-Type: text/plain; charset=us-ascii
+Hi Matthew,
 
->Hmm, these functions are multiply defined, namely in the c source and
->in it's header file. I see no reason why someone should do this. The
->problem was hidden in older kernel releases by the fact that these
->functions were declared "extern __inline__" which is absolutely
->nonsense in my opinion. So the solution should be to just remove these
->inline functions from the c source file, which can be done with the
->following simple and stupid patch.
->
->This should be the correct solution, or did I miss the vital point?
+In article <01072901450000.02683@kiwiunixman.nodomain.nowhere> you wrote:
+> Regards to the ReiserFS. Something more spookie, OpenLinux (no boos and 
+> hisses please ;) ), they have ReiserFS as a module, yet, when I have the root 
+> partition as reiser I have no problems, voo doo magic perhaps? because when I 
+> compiled 2.4.7 w/ ReiserFS as a module, the boot forks up.
 
-I think you did miss the vital point: this will probably break with 
-CONFIG_PARPORT_OTHER.
+Well, as reiserfs is a module it needs to be on the initrd.  The install
+of the kernel kernel RPM automatically creates a new initrd which includes
+the modules in /etc/modules/rootfs.  If you don't create a new initrd your
+modular reiserfs setup will of course fail.
 
-Declaring them "extern inline" in parport_pc.h is exactly the right thing to 
-do.  What do you think is wrong with that?
+> Regarding the last comment, I think Redhat and Caldera have debugging enable 
+> (God knows why?), well, Caldera definately dones, after having a look at 
+> their default kernel configuration, hence, when I recompiled my kernel to 
+> 2.4.7, threw the reiserFS into the guts of the kernel with debugging turned 
+> off, there was a speed increase.
 
-p.
+Reiserfs as implemented in the 2.4.2-based kernel of OpenLinux 3.1 is
+everything but stable and has a lot of issues (e.g. NFS-exporting doesn't
+work).  That is the reason why it is a) marked experimental and is completly
+unsupported (and that is written _big_ _fat_ in manuals and similar stuff)
+and b) has debugging enabled to have the additional sanity checks that are
+under this option and give addtional hints if reiserfs fails again.
 
+	Christoph
 
---==_Exmh_-666839274P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7Yuq6VTLPJe9CT30RAqD2AJ9Z80DI5FlP08PxtMruZ2VWYrh8UwCdHfz6
-buNAlPfpnXM5CCqvEzC5EmA=
-=zRDp
------END PGP SIGNATURE-----
-
---==_Exmh_-666839274P--
+-- 
+Of course it doesn't work. We've performed a software upgrade.

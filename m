@@ -1,61 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVAOA72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVAOA7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbVAOA72 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVAOA4C
+	id S262085AbVAOA7h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVAOA7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:56:02 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:27077 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262078AbVAOAyC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:54:02 -0500
-Date: Fri, 14 Jan 2005 16:50:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Tom Zanussi <zanussi@comcast.net>
-Cc: Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH 4/4] relayfs for 2.6.10: headers
-Message-ID: <20050115005001.GB9046@kroah.com>
-References: <41E736C4.3080806@opersys.com> <20050114191013.GB15337@kroah.com> <41E8282F.8060208@comcast.net>
+	Fri, 14 Jan 2005 19:59:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:50158 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262085AbVAOA6p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 19:58:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Cc5dsuQaC1ySXIdJ4wdunkKHpUIwTfPIS0HEWmjvkAWthzjHTtOoPRo5Rty3Z6Bh00fk3qCDXv/9LrIXWeZ/wvZJImhtuvyQb4wY8sXnNjX9b2wYEXjivC3xaiFMk8UG0L3vKXcQ6f9n16Iu/XVmvX0/gl4/ymGxvkD7IKI/58I=
+Message-ID: <58cb370e05011416584437493d@mail.gmail.com>
+Date: Sat, 15 Jan 2005 01:58:44 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [UPDATE PATCH] ide/ide-cd: use ssleep() instead of schedule_timeout()
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, kj <kernel-janitors@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050107194741.GG7387@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E8282F.8060208@comcast.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041225004846.GA19373@nd47.coderock.org>
+	 <20050107194013.GB2924@us.ibm.com> <20050107194741.GG7387@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 02:14:39PM -0600, Tom Zanussi wrote:
-> Greg KH wrote:
-> >On Thu, Jan 13, 2005 at 10:04:36PM -0500, Karim Yaghmour wrote:
-> >
-> >>+/**
-> >>+ *	have_cmpxchg - does this architecture have a cmpxchg?
-> >>+ *
-> >>+ *	Returns 1 if this architecture has a cmpxchg useable by
-> >>+ *	the lockless scheme, 0 otherwise.
-> >>+ */
-> >>+static inline int
-> >>+have_cmpxchg(void)
-> >>+{
-> >>+#if defined(__HAVE_ARCH_CMPXCHG)
-> >>+	return 1;
-> >>+#else
-> >>+	return 0;
-> >>+#endif
-> >>+}
-> >
-> >
-> >Shouldn't this be a build time check, and not a runtime one?
-> >
-> 
-> This was to avoid having an ifdef in the main body of the code.  It's 
-> only used in channel setup, so I did'nt worrry about runtime checking.
-
-This should all be set up properly for you anyway.  I don't think this
-is needed at all.
-
-thanks,
-
-greg k-h
+applied

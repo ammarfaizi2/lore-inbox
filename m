@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRCZV31>; Mon, 26 Mar 2001 16:29:27 -0500
+	id <S129242AbRCZV2h>; Mon, 26 Mar 2001 16:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRCZV3S>; Mon, 26 Mar 2001 16:29:18 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:12605 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129245AbRCZV3A>; Mon, 26 Mar 2001 16:29:00 -0500
-Date: Mon, 26 Mar 2001 15:27:44 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103262127.PAA24549@tomcat.admin.navo.hpc.mil>
-To: dalecki@evision-ventures.com, "Eric W. Biederman" <ebiederm@xmission.com>
+	id <S129245AbRCZV2S>; Mon, 26 Mar 2001 16:28:18 -0500
+Received: from suntan.tandem.com ([192.216.221.8]:39598 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S129242AbRCZV2N>; Mon, 26 Mar 2001 16:28:13 -0500
+Message-ID: <3ABFB20E.DFB37BFA@kahuna.cag.cpqcorp.net>
+Date: Mon, 26 Mar 2001 13:18:06 -0800
+From: John Byrne <jbyrne@kahuna.cag.cpqcorp.net>
+Reply-To: John.L.Byrne@compaq.com
+X-Mailer: Mozilla 4.61 [en] (X11; I; UnixWare 5 i386)
+MIME-Version: 1.0
+To: torvalds@transmeta.com
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-X-Mailer: [XMailTool v3.1.2b]
+Subject: Re: Larger dev_t
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com>:
-> "Eric W. Biederman" wrote:
-> > 
-> > Matthew Wilcox <matthew@wil.cx> writes:
-> > 
-> > > On Mon, Mar 26, 2001 at 10:47:13AM -0700, Andreas Dilger wrote:
-> > > > What do you mean by problems 5 years down the road?  The real issue is that
-> > > > this 32-bit block count limit affects composite devices like MD RAID and
-> > > > LVM today, not just individual disks.  There have been several postings
-> > > > I have seen with people having a problem _today_ with a 2TB limit on
-> > > > devices.
-> > >
-> > > people who can afford 2TB of disc can afford to buy a 64-bit processor.
-> > 
-> > Currently that doesn't solve the problem as block_nr is held in an int.
-> > And as gcc compiles an int to a 32bit number on a 64bit processor, the
-> > problem still isn't solved.
-> > 
-> > That at least we need to address.
+> Re: Larger dev_t
 > 
-> And then you must face the fact that there may be the need for
-> some of the shelf software, which isn't well supported on 
-> correspondig 64 bit architectures... as well. So the
-> arguemnt doesn't hold up to the reality in any way.
+On Sat Mar 24 2001 Linus Torvalds (torvalds@transmeta.com) wrote:
+> There is no way in HELL I will ever accept a 64-bit dev_t.
+> 
+> I _will_ accept a 32-bit dev_t, with 12 bits for major numbers, and 20
+> bits for minor numbers.
+> 
 
-You are missing the point - I may need to use a 32 bit system to monitor
-a large file system. I don't need the compute power of most 64 bit systems
-to monitor user file activity.
+Do you have any interest in doing away with the concept of major and
+minor numbers altogether; turning the dev_t into an opaque unique id?
 
-> BTW. For many reasons 32 bit architecutres are in
-> respoect of some application shemes *faster* the 64.
+At the application level, the kinds of information that is derived from
+the major/minor number should probably be derived in some other manner
+such as a library or system call. Code that determines device type by
+comparing with the major/minor numbers should probably be discouraged in
+the long run and this could be a good time to start.
 
-Which is why I want to use them with a 64 bit file system. Some of the
-weather models run here have been known to exceed 100 GB data file. Yes
-one  file. Most only need 20GB, but there are a couple of hundred of them...  
-
-> Ultra III in 64 mode just crawls in comparision to 32.
-
-Depends on what you are doing. If you need to handle large arrays of
-floating point it is reasonable (not great, just reasonable).
-
-> Alpha - unfortulatly an orphaned and dyring archtecutre... which
-> is not well supported by sw verndors...
-
-These are NOT the only 64 bit systems - Intel, PPC, IBM (in various guises).
-If you need raw compute power, the Alpha is pretty good (we have over a
-1000 in a Cray T3..).
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+John Byrne

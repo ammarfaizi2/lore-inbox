@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266650AbRGTHC0>; Fri, 20 Jul 2001 03:02:26 -0400
+	id <S266652AbRGTHC0>; Fri, 20 Jul 2001 03:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266652AbRGTHCR>; Fri, 20 Jul 2001 03:02:17 -0400
-Received: from [210.77.38.126] ([210.77.38.126]:16651 "EHLO
+	id <S266653AbRGTHCQ>; Fri, 20 Jul 2001 03:02:16 -0400
+Received: from [210.77.38.126] ([210.77.38.126]:16907 "EHLO
 	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
-	id <S266650AbRGTHCG>; Fri, 20 Jul 2001 03:02:06 -0400
-Date: Wed, 4 Jul 2001 15:02:04 +0800
+	id <S266652AbRGTHCG>; Fri, 20 Jul 2001 03:02:06 -0400
+Date: Wed, 4 Jul 2001 14:57:56 +0800
 From: michaelc <michaelc@turbolinux.com.cn>
 X-Mailer: The Bat! (v1.49) UNREG / CD5BF9353B3B7091
 Reply-To: michaelc <michaelc@turbolinux.com.cn>
 X-Priority: 3 (Normal)
-Message-ID: <1457128843.20010704150204@turbolinux.com.cn>
+Message-ID: <1256881546.20010704145756@turbolinux.com.cn>
 To: "D. Stimits" <stimits@idcomm.com>
-CC: linux-kernel@vger.kernel.org
+CC: kernel-list <linux-kernel@vger.kernel.org>
 Subject: Re: page reserved twice
 In-Reply-To: <3B42610F.29D004FF@idcomm.com>
 In-Reply-To: <3B42610F.29D004FF@idcomm.com>
@@ -25,8 +25,6 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 Hello D.,
-
-Wednesday, July 04, 2001, 8:19:27 AM, you wrote:
 
 Wednesday, July 04, 2001, 8:19:27 AM, you wrote:
 
@@ -72,12 +70,16 @@ DS> twice?
  then kernel call find_smp_config to get MP configuration table if your machine
  is SMP, and the function will reserve the MP-table at 0xfa000,0xfb000, 0xf4000,
  and because these regions were reserved by kernel, so kernel would
- print the message, so it doesn't cause any problem on your machine.
+ print the message, but it doesn't affect you system.
+ 
+ 
+       
  
 
-       
+
+
 -- 
 Best regards,
- michael chen                            mailto:michaelc@turbolinux.com.cn
+ michaelc                            mailto:michaelc@turbolinux.com.cn
 
 

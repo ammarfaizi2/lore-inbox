@@ -1,40 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbSIPKWX>; Mon, 16 Sep 2002 06:22:23 -0400
+	id <S261334AbSIPKvs>; Mon, 16 Sep 2002 06:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261334AbSIPKWX>; Mon, 16 Sep 2002 06:22:23 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57071 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261297AbSIPKWX>; Mon, 16 Sep 2002 06:22:23 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.NEB.4.44.0209161206590.14886-100000@mimas.fachschaften.tu-muenchen.de> 
-References: <Pine.NEB.4.44.0209161206590.14886-100000@mimas.fachschaften.tu-muenchen.de> 
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.35 
-Mime-Version: 1.0
+	id <S261342AbSIPKvs>; Mon, 16 Sep 2002 06:51:48 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:48652 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S261334AbSIPKvq>; Mon, 16 Sep 2002 06:51:46 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix for ptrace breakage
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 16 Sep 2002 19:56:02 +0900
+Message-ID: <87it16kxtp.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 16 Sep 2002 11:27:15 +0100
-Message-ID: <3417.1032172035@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-bunk@fs.tum.de said:
->  Since 2.5.34 the compilation of JFFS2 fails with a compile error
-> similar to the one in JFFS: 
+This patch fixes the following,
 
-Yeah. Somebody changed the prototype of dequeue_signal() and even though 
-there are few users evidently didn't bother to fix them accordingly.
+    - race condition of ptrace flag
+    - sent odd signal to the tracer
+    - broken before behavior
 
-Current JFFS2 code depends on some fairly trivial rbtree updates which Linus
-keeps ignoring without comment. Once those are in, I can update the JFFS2
-code in 2.5 too, and will take a look if whoever broke it hasn't got around
-to testing (or even compiling) their changes by then.
+And some cleanup.
 
---
-dwmw2
+Please apply.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-
+--- linux-2.5.35/kernel/exit.c~	2002-09-16 17:41:59.000000000 +0900
++++ linux-2.5.35/kernel/exit.c	2002-09-16 17:28:01.000000000 +0900
+@@ -221,7 +221,6 @@ void reparent_to_init(void)
+ 	/* Set the exit signal to SIGCHLD so we signal init on exit */
+ 	current->exit_signal = SIGCHLD;
+ 
+-	current->ptrace = 0;
+ 	if ((current->policy == SCHED_NORMAL) && (task_nice(current) < 0))
+ 		set_user_nice(current, 0);
+ 	/* cpus_allowed? */
+@@ -464,50 +463,35 @@ static inline void forget_original_paren
+ 	}
+ 	list_for_each(_p, &father->ptrace_children) {
+ 		p = list_entry(_p,struct task_struct,ptrace_list);
++		list_del_init(&p->ptrace_list);
+ 		reparent_thread(p, reaper, child_reaper);
++		if (p->parent != p->real_parent)
++			list_add(&p->ptrace_list, &p->real_parent->ptrace_children);
+ 	}
+ }
+ 
+-static inline void zap_thread(task_t *p, task_t *father, int traced)
++static inline void zap_thread(task_t *p, task_t *father)
+ {
+-	/* If someone else is tracing this thread, preserve the ptrace links.  */
+-	if (unlikely(traced)) {
+-		task_t *trace_task = p->parent;
+-		int ptrace_flag = p->ptrace;
+-		BUG_ON (ptrace_flag == 0);
+-
+-		__ptrace_unlink(p);
+-		p->ptrace = ptrace_flag;
+-		__ptrace_link(p, trace_task);
+-	} else {
+-		/*
+-		 * Otherwise, if we were tracing this thread, untrace it.
+-		 * If we were only tracing the thread (i.e. not its real
+-		 * parent), stop here.
+-		 */
+-		ptrace_unlink (p);
+-		if (p->parent != father) {
+-			BUG_ON(p->parent != p->real_parent);
+-			return;
+-		}
+-		list_del_init(&p->sibling);
+-		p->parent = p->real_parent;
+-		list_add_tail(&p->sibling, &p->parent->children);
+-	}
++	ptrace_unlink(p);
+ 
++	remove_parent(p);
++	p->parent = p->real_parent;
++	add_parent(p, p->parent);
+ 	if (p->state == TASK_ZOMBIE && p->exit_signal != -1)
+ 		do_notify_parent(p, p->exit_signal);
++
+ 	/*
+ 	 * process group orphan check
+ 	 * Case ii: Our child is in a different pgrp
+ 	 * than we are, and it was the only connection
+ 	 * outside, so the child pgrp is now orphaned.
+ 	 */
+-	if ((p->pgrp != current->pgrp) &&
+-	    (p->session == current->session)) {
++	if ((p->pgrp != father->pgrp) &&
++	    (p->session == father->session)) {
+ 		int pgrp = p->pgrp;
+ 
+-		if (__will_become_orphaned_pgrp(pgrp, 0) && __has_stopped_jobs(pgrp)) {
++		if (__will_become_orphaned_pgrp(pgrp, 0) &&
++		    __has_stopped_jobs(pgrp)) {
+ 			__kill_pg_info(SIGHUP, (void *)1, pgrp);
+ 			__kill_pg_info(SIGCONT, (void *)1, pgrp);
+ 		}
+@@ -520,7 +504,7 @@ static inline void zap_thread(task_t *p,
+  */
+ static void exit_notify(void)
+ {
+-	struct task_struct *t;
++	struct task_struct *t, *p;
+ 
+ 	write_lock_irq(&tasklist_lock);
+ 
+@@ -580,10 +564,8 @@ static void exit_notify(void)
+ 	if (current->exit_signal != -1)
+ 		do_notify_parent(current, current->exit_signal);
+ 
+-	while (!list_empty(&current->children))
+-		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
+-	while (!list_empty(&current->ptrace_children))
+-		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,ptrace_list), current, 1);
++	while ((p = eldest_child(current)) != NULL)
++		zap_thread(p, current);
+ 	BUG_ON(!list_empty(&current->children));
+ 
+ 	current->state = TASK_ZOMBIE;

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265618AbTF2KKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 06:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbTF2KKT
+	id S265620AbTF2KXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 06:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265622AbTF2KXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 06:10:19 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:17559 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S265618AbTF2KKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 06:10:15 -0400
-Date: Sun, 29 Jun 2003 06:24:28 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Daniel Egger <degger@fhm.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-In-Reply-To: <1056867876.11843.1.camel@sonja>
-Message-ID: <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
-References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> 
- <20030627163720.GF357@zip.com.au>  <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
-  <20030627235150.GA21243@work.bitmover.com>  <20030627165519.A1887@beaverton.ibm.com>
-  <20030628001625.GC18676@work.bitmover.com>  <20030627205140.F29149@newbox.localdomain>
-  <20030628031920.GF18676@work.bitmover.com>  <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk>
-  <20030628191847.GB8158@work.bitmover.com>  <20030628193857.GH841@gallifrey>
-  <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk> <1056867876.11843.1.camel@sonja>
+	Sun, 29 Jun 2003 06:23:23 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:29669 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id S265620AbTF2KXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 06:23:16 -0400
+From: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.4.22-pre1] menuconfig oddity
+Date: Sun, 29 Jun 2003 12:37:23 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200306231927.57946.jan-hinnerk_reichert@hamburg.de> <20030626175032.GA24661@fs.tum.de>
+In-Reply-To: <20030626175032.GA24661@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306291237.23250.jan-hinnerk_reichert@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Daniel ,
+On Thursday 26 June 2003 19:50, Adrian Bunk wrote:
+> On Mon, Jun 23, 2003 at 07:27:57PM +0200, Jan-Hinnerk Reichert wrote:
+> > Hi,
+> >
+> > first I want to say that I could compile 2.4.22-pre1 without problems and
+> > everything works fine for 4 hours on a desktop machine with little load.
+> >
+> > However, I had a small problem during my installation:
+> >
+> > After the first compilation and reboot, I started menuconfig again and
+> > all subentries of "ACPI support" were gone. I took a brief look at the
+> > .config, but there were at least some entries.
+> >
+> > So I ignored this, changed my config via menuconfig, recompiled and
+> > rebooted and ACPI was gone ;-(
+> >
+> > After copying my old config and "make oldconfig", everything was back to
+> > normal. Unfortunately i wasn't able to reproduce this error.
+> >
+> > I just wanted to let you know...
+>
+> Did you accidentially enable "CPU Enumeration Only" in the
+> "ACPI support" menu?
 
-On Sun, 29 Jun 2003, Daniel Egger wrote:
-> Am Sam, 2003-06-28 um 22.31 schrieb Alan Cox:
-> > I'm testing the USB2 disk idea at the moment. Big problem is performance
-> > - 5Mbytes/second isnt the best backup rate in the world.
-> Which are 300Mbytes/minute, still faster than many tapes.
-            ^^^^^^^^^^^^^^^^
-	5MB/Sec is faster than MOST tapes drivs ?  Or ???
-	If you are talking older scsi-2 or 1 drives yes .
-	But on a properly tuned system any of the newer tape drives s/b
-	able beat that hands down .
+I can't say for sure, but the "CPU Enumeration Only" entry was also gone when 
+I noticed the error.
+There was only the "ACPI support" entry left in the "ACPI support" menu.
 
-> I've also made the experience that IEEE1394 (aka Firewire/iLink) is
-> always faster than USB2.
-	I'd like to see a raising hands that have this functional at
-	anywhere near line (60% is close enough) rate ?
-		Tia ,  JimL
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+> If this isn't the problem, please send your .config.
+
+Unfortunately, I haven't saved the non-working .config.
+
+Which config should I sent? The old 2.4.20-SuSE, the one after "make 
+oldconfig"?
+
+ Jan-Hinnerk
+

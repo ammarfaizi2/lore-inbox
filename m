@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281009AbRKKIfV>; Sun, 11 Nov 2001 03:35:21 -0500
+	id <S281019AbRKKJA3>; Sun, 11 Nov 2001 04:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281019AbRKKIfL>; Sun, 11 Nov 2001 03:35:11 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:56778 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281009AbRKKIe7>; Sun, 11 Nov 2001 03:34:59 -0500
-Date: Sun, 11 Nov 2001 09:34:42 +0100 (CET)
-From: Oktay Akbal <oktay.akbal@s-tec.de>
-X-X-Sender: oktay@omega.hbh.net
+	id <S281044AbRKKJAU>; Sun, 11 Nov 2001 04:00:20 -0500
+Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:51269 "HELO
+	email04.aon.at") by vger.kernel.org with SMTP id <S281019AbRKKJAE>;
+	Sun, 11 Nov 2001 04:00:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Klotz <peter.klotz@aon.at>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Numbers: ext2/ext3/reiser Performance (ext3 is slow)
-In-Reply-To: <E162nwk-0005iG-00@schizo.psychosis.com>
-Message-ID: <Pine.LNX.4.40.0111110913160.21659-100000@omega.hbh.net>
+Subject: Error message during modules_install of 2.4.14
+Date: Sun, 11 Nov 2001 10:01:03 +0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.27)
+Message-Id: <01111110010300.23755@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi developers
 
-> On Saturday 10 November 2001 9:29, Oktay Akbal wrote:
->
-> > Time to complete sql-bench
-> >
-> > ext2	176min
-> > reiser  203min (+15%)
-> > ext3    310min (+76%)   (first test with 2.4.14-ext3 319min)
+During "make modules_install" I got the following error message:
 
-For completeness:
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.14; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.14/kernel/drivers/block/loop.o
+depmod:         deactivate_page
 
-ext3 (writeback) 204min (as predicted Arjan now on the reiser level)
-ext3 (journal)   386min (+119%)
+Is this something to worry about?
 
->From the explanation in the ext3-Documentation, I did not realize,
-that the difference could be that big.
-
-Thanks
-
-Oktay Akbal
-
-
-
+Bye, Peter.
 

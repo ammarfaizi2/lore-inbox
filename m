@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbULDRGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbULDRSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbULDRGP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 12:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbULDRGP
+	id S262552AbULDRSE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 12:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbULDRSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 12:06:15 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:51148 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S261759AbULDRGM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 12:06:12 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc3
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
-	<pan.2004.12.04.09.06.09.707940@nn7.de>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Sat, 04 Dec 2004 09:06:10 -0800
-In-Reply-To: <pan.2004.12.04.09.06.09.707940@nn7.de> (message from Soeren
- Sonnenburg on Sat, 04 Dec 2004 10:06:10 +0100)
-Message-ID: <87oeha6lj1.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Sat, 4 Dec 2004 12:18:04 -0500
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:53147 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S262552AbULDRSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 12:18:02 -0500
+Date: Sat, 4 Dec 2004 12:18:03 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Mark McPherson <mark@mahonia.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.6.9-ac13
+In-Reply-To: <1102096309.10714.1.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0412041210210.20333@linaeum.absolutedigital.net>
+References: <1102096309.10714.1.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg <kernel@nn7.de> writes:
+On Sat, 4 Dec 2004, Mark McPherson wrote:
 
-> as -rc2 this one is still oopsing on resume from sleep on powerpc
-> ...
+> Here, at least, bzdiff tells me that the .bz2 patches for -ac12 and 
+> -ac13 are identical. And the byte counts in Alan's directory seem to be 
+> the same for these files. Could it be that the -ac12 patch set was 
+> inadvertently assembled and released again as -ac13?
 
-well, it's still more than my thinkpad which doesn't want to wake up
-from sleep anymore.
+Alan, Mark's right. -ac12 and -ac13 are identical on kernel.org. My 
+appologies on my earlier comment, I didn't even think to examine the patch 
+more closely.
 
-> kernel versions 2.6.X  (X<=9) used to work fine...
+-- Cal
 
-same here. it started with -rc1.
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |

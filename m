@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUK2PpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbUK2PpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUK2PpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 10:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUK2PnV
+	id S261733AbUK2PpX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 10:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbUK2Pm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 10:43:21 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:4804 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261740AbUK2PmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 10:42:16 -0500
-Message-ID: <41AB433C.2030705@namesys.com>
-Date: Mon, 29 Nov 2004 07:41:48 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>
-CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com> <1101287762.1267.41.camel@pear.st-and.ac.uk> <4d8e3fd304112407023ff0a33d@mail.gmail.com> <200411241711.28393.christian.mayrhuber@gmx.net> <1101379820.2838.15.camel@grape.st-and.ac.uk> <41A773CD.6000802@namesys.com> <20041127124937.GO26192@nysv.org>
-In-Reply-To: <20041127124937.GO26192@nysv.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 29 Nov 2004 10:42:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261733AbUK2Pkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 10:40:35 -0500
+Date: Mon, 29 Nov 2004 10:40:07 -0500
+From: Dave Jones <davej@redhat.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: pawfen@wp.pl, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MTRR vesafb and wrong X performance
+Message-ID: <20041129154006.GB3898@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Gerd Knorr <kraxel@bytesex.org>, pawfen@wp.pl,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <1101338139.1780.9.camel@PC3.dom.pl> <20041124171805.0586a5a1.akpm@osdl.org> <1101419803.1764.23.camel@PC3.dom.pl> <87is7ogb93.fsf@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87is7ogb93.fsf@bytesex.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Törnqvist wrote:
+On Mon, Nov 29, 2004 at 12:12:08PM +0100, Gerd Knorr wrote:
+ > > > Please send the full dmesg output and the contents of /proc/mtrr for
+ > > > 2.6.10-rc2.
+ > > reg02: base=0xe3000000 (3632MB), size=   4MB: write-combining, count=1
+ > > vesafb: framebuffer at 0xe3000000, mapped to 0xcc880000, using 1875k,
+ > > total 4096k
+ > 
+ > The BIOS reports 4MB video memory, and vesafb adds an mtrr entry for
+ > that.  Looks ok, with the exception that the reported 4MB are probably
+ > not correct, otherwise the X-Server wouldn't complain.
 
->On Fri, Nov 26, 2004 at 10:19:57AM -0800, Hans Reiser wrote:
->
->  
->
->>For the case Peter cites, yes, it does add clutter to the pathname to 
->>say "..metas" (actually, it is "...." now in the current reiser4, not 
->>"..metas").  This is because you aren't looking for metafile 
->>    
->>
->
->"...." shound like something that could be an alias for ../..
->so not much better than reserving the word "metas" from the namespace.
->
->I guess I'll still go with ..metas here, as it's the best compromise
->showed. Or maybe even ..meta (as there is no need for the plural imo)
->
->Just re-opening a damned useless, old, tired and daft can of worms :P
->
->  
->
-I agree that ..metas is much less likely to cause a namespace collision, 
-but I also think that if we called it "john" it would not be a major 
-problem, and since the issue is causing us political problems in getting 
-into the kernel, "...." is more PR right (as it does not slight Finnish 
-women named meta by suggesting they are too obscure to count), and so 
-"...." wins.    "...." also has the advantage that it is elegant in 
-extending the Unix convention, in that we already have a ".." and a "." 
-and hidden files that start with ".".
+vesafb is assuming that the memory used in the current screen mode
+xres*yres*depth rounded up to nearest power of 2, is the amount of
+ram the card has, which is not just wrong, it's dumb.
+
+ > vesafb in 2.6.10-rc2 has a option to overwrite the BIOS-reported value
+ > (vtotal=n, with n in megabytes), that should fix it.
+
+which is an ugly hack for the above problem imo.
+vesafb:nomtrr also fixes the problem, and leaves X free
+to set things up correctly in my experience.
+
+If vesafb can't get it right, maybe it shouldn't be
+attempted to do it in the half-assed way it currently does.
+
+		Dave
+

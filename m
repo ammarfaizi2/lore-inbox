@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUJ0HdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbUJ0HXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUJ0HdB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 03:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbUJ0HdB
+	id S261529AbUJ0HXd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 03:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUJ0HXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 03:33:01 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:14096 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261638AbUJ0Hc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 03:32:59 -0400
-Date: Wed, 27 Oct 2004 09:38:56 +0200
-To: Hua Zhong <hzhong@cisco.com>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041027073856.GA24886@hh.idb.hist.no>
-References: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <00ba01c4bae4$892ec4f0$ca41cb3f@amer.cisco.com>
-Mime-Version: 1.0
+	Wed, 27 Oct 2004 03:23:33 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:61962 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S261529AbUJ0HX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 03:23:27 -0400
+To: linux-kernel@vger.kernel.org
+Cc: David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: MAP_SHARED bizarrely slow
+From: James Cloos <cloos@jhcloos.com>
+In-Reply-To: <20041027064527.GJ1676@zax> (David Gibson's message of "Wed, 27
+ Oct 2004 16:45:27 +1000")
+References: <20041027064527.GJ1676@zax>
+X-Hashcash: 0:041027:linux-kernel@vger.kernel.org:017a53f9603beaa8
+X-Hashcash: 0:041027:david@gibson.dropbear.id.au:00339d805705f9da
+Date: Wed, 27 Oct 2004 00:23:00 -0700
+Message-ID: <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00ba01c4bae4$892ec4f0$ca41cb3f@amer.cisco.com>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 03:46:58PM -0700, Hua Zhong wrote:
-> 
-> But not everyone reads LKML or the annoucement..a lot of people may just
-> decide whether to try this out based on the name. They go to kernel.org from
-> time to time and say: I'll test the next rc release.
-> 
-> "RC" has a very well-known meaning. It would make people scared if they find
-> rc isn't stable, and lose a lot of potential testers. So why break it?
-> 
-I expect a "rc" to be a kind of beta - an attempt to get it right
-rather than experiment - but it may still be broken.  Someone
-who want stability should try the latest point release
-(2.6.9) or fix release (2.6.9.x with the current system)
+>>>>> "David" == David Gibson <david@gibson.dropbear.id.au> writes:
 
-Helge Hafting
+David> http://www.ozlabs.org/people/dgibson/maptest.tar.gz
+
+David> On a number of machines I've tested - both ppc64 and x86 - the
+David> SHARED version is consistently and significantly (50-100%)
+David> slower than the PRIVATE version.
+
+Just gave it a test on my laptop and server.  Both are p3.  The
+laptop is under heavier mem pressure; the server has just under
+a gig with most free/cache/buff.  Laptop is still running 2.6.7
+whereas the server is bk as of 2004-10-24.
+
+Buth took about 11 seconds for the private and around 30 seconds
+for the shared tests.
+
+So if this is a regression, it predates v2.6.7.
+
+-JimC
+-- 
+James H. Cloos, Jr. <cloos@jhcloos.com> <http://jhcloos.com>
+
+

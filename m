@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUD1UIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUD1UIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUD1UIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUD1UHX
+	id S262026AbUD1UIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUD1UHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:07:23 -0400
-Received: from wirefire.bureaudepost.com ([66.38.187.209]:58587 "EHLO
-	oasis.linuxant.com") by vger.kernel.org with ESMTP id S261742AbUD1Tl5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:41:57 -0400
-In-Reply-To: <409006E6.5070406@techsource.com>
-References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <1083117450.2152.222.camel@bach> <1EF114FF-98C4-11D8-85DF-000A95BCAC26@linuxant.com> <408F99D5.1010900@aitel.hist.no> <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com> <409006E6.5070406@techsource.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1A22C4E6-994C-11D8-85DF-000A95BCAC26@linuxant.com>
-Content-Transfer-Encoding: 7bit
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Helge Hafting <helgehaf@aitel.hist.no>
-From: Marc Boucher <marc@linuxant.com>
+	Wed, 28 Apr 2004 16:07:00 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:13574 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261752AbUD1Tmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:42:31 -0400
+Message-ID: <40900A28.2030506@techsource.com>
+Date: Wed, 28 Apr 2004 15:46:48 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Wed, 28 Apr 2004 15:41:54 -0400
-To: Timothy Miller <miller@techsource.com>
-X-Mailer: Apple Mail (2.613)
+References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <20040428002516.GC3272@zax> <677BC9FC-98B1-11D8-85DF-000A95BCAC26@linuxant.com> <408FEBCA.70607@techsource.com> <975460FA-994A-11D8-85DF-000A95BCAC26@linuxant.com>
+In-Reply-To: <975460FA-994A-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Apr 28, 2004, at 3:32 PM, Timothy Miller wrote:
 
->
->
-> Marc Boucher wrote:
->
->>> I believe you have to remove the \0 to operate legally (or release 
->>> the full source under the GPL for real.)
->>> Your customer's problem is fixable though.  Either by also changing 
->>> the logging level
->>> so the message doesn't go out on the console, or by patching the 
->>> line with that printk() out of your customer's kernel.
->>> You can do this as a part of your install program.  If it gets too 
->>> hard, consider
->>> supplying the customer with your own precompiled kernel.
->> Thank you for the advice. However, if you knew our customers and 
->> understood their needs better you would realize that these are not 
->> feasible options.
->
->
-> If your only "options" involve violating the GPL, then you cannot do 
-> business in this area.
+Marc Boucher wrote:
+> 
+> Timothy,
+> 
+> I am truly sorry about the concern this has caused, have already 
+> publicly apologized for not submitting a patch to properly correct the 
+> issue when the workaround was implemented, and proposed a change to the 
+> modem drivers that should go in as soon as possible to restore tainting 
+> and one instance of the warning messages while avoiding the flood.
 
-that's not what I said. What I said is that kernel patches are not an 
-acceptable temporary workaround for the large installed base of average 
-customers, since they generally cannot or do not want to bother 
-recompiling stuff. We still make source for linux code and other parts 
-required to allow the technically inclined to easily rebuild the 
-modules and comply with the GPL.
+I was not personally offended, but I hope what you said here is taken by 
+others as a good-faith gesture.
 
->  "Someone won't let me release some code" isn't an excuse for breaking 
-> the law.
->
+> 
+> At the same time, I think that the "community" should, without 
+> relinquishing its principles, be less eager before getting the facts to 
+> attack people and companies trying to help in good faith, and be more 
+> realistic when it comes to satisfying practical needs of ordinary users.
 
-  The proprietary code that cannot be released in source form is 
-licensed material that was essentially developed by another party 
-(Conexant) for other platforms. It clearly does not constitute a 
-derived work of Linux.
+This is just part of the community, something which you should learn to 
+take advantage of.  It's part of an impressive system of checks and 
+balances.
 
-Marc
+A major principle of internet communication is that people will say 
+venomous things in email which they would never say to you in person. 
+You have to take what they say for what it MEANS, not what it looks like.
 
---
-Marc Boucher
-Linuxant inc.
+If you're flamed, particularly in a forum like LKML, pay attention to 
+the meat of what the person is saying.  If the person is right, GREAT. 
+If the person has completely misunderstood the situation, let it go.
+
+And then, don't get drawn into endless debate defending yourself to 
+every comment that people make.  Sometimes, it's best to just summarize 
+the situation, acknowledge people's complaints, explain which ones are 
+factual, and explain that you're working on a solution.
+
+There are a number of people on LKML who seem to do an amazing job of 
+getting to the point in a debate.  Take Theodore Ts'o, for example.  In 
+particular, his posts are a pleasure to read because they are so clear 
+and full of knowledge.
 

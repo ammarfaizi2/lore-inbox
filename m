@@ -1,129 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUIMWGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269001AbUIMWGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269013AbUIMWGi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 18:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268998AbUIMWF7
+	id S269001AbUIMWGv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 18:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268993AbUIMWGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 18:05:59 -0400
-Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:15540
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S268993AbUIMWFf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 18:05:35 -0400
-Date: Mon, 13 Sep 2004 18:05:32 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] linux/dma-mapping.h needs linux/device.h
-Message-ID: <Pine.LNX.4.61.0409131802280.12375@xanadu.home>
+	Mon, 13 Sep 2004 18:06:51 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:52700 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S269008AbUIMWGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 18:06:35 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+Subject: Re: FYI: my current bigdiff
+Date: Mon, 13 Sep 2004 16:06:32 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <20040909134421.GA12204@elf.ucw.cz> <20040910041320.DF700E7504@voldemort.scrye.com>
+In-Reply-To: <20040910041320.DF700E7504@voldemort.scrye.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409131606.32741.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that most architectures already include linux/device.h in their
-own asm/dma-mapping.h.  Most but not all, and some drivers fail to
-compile on those architectures that don't.  Since everybody needs it
-let's include device.h from one place only and fix compilation for 
-everybody.
+On Thursday 09 September 2004 10:13 pm, Kevin Fenzi wrote:
+> After booting with the pci=routeirq as suggested wireless and usb
+> played nice on suspend resume again.
 
---- linux-2.6/include/linux/dma-mapping.h	29 Aug 2004 04:59:03 -0000	1.7
-+++ linux-2.6/include/linux/dma-mapping.h	10 Sep 2004 15:28:58 -0000
-@@ -1,6 +1,7 @@
- #ifndef _ASM_LINUX_DMA_MAPPING_H
- #define _ASM_LINUX_DMA_MAPPING_H
+Kevin, can you try the attached patch, please?
+
+===== drivers/pcmcia/yenta_socket.c 1.59 vs edited =====
+--- 1.59/drivers/pcmcia/yenta_socket.c	2004-08-22 08:39:15 -06:00
++++ edited/drivers/pcmcia/yenta_socket.c	2004-09-13 16:01:48 -06:00
+@@ -1036,11 +1036,17 @@
+ static int yenta_dev_resume (struct pci_dev *dev)
+ {
+ 	struct yenta_socket *socket = pci_get_drvdata(dev);
++	int ret;
  
-+#include <linux/device.h>
- #include <linux/err.h>
+ 	if (socket) {
+-		pci_set_power_state(dev, 0);
+ 		/* FIXME: pci_restore_state needs to have a better interface */
+ 		pci_restore_state(dev, socket->saved_state);
++		ret = pci_enable_device(dev);
++		if (ret < 0) {
++			printk(KERN_ERR "yenta %s: couldn't enable device (%d)\n",
++				pci_name(dev), ret);
++			return ret;
++		}
+ 		pci_write_config_dword(dev, 16*4, socket->saved_state[16]);
+ 		pci_write_config_dword(dev, 17*4, socket->saved_state[17]);
  
- /* These definitions mirror those in pci.h, so they can be used
---- linux-2.6/include/asm-i386/dma-mapping.h	29 Aug 2004 04:59:03 -0000	1.10
-+++ linux-2.6/include/asm-i386/dma-mapping.h	10 Sep 2004 15:30:26 -0000
-@@ -1,7 +1,6 @@
- #ifndef _ASM_I386_DMA_MAPPING_H
- #define _ASM_I386_DMA_MAPPING_H
+===== drivers/usb/core/hcd-pci.c 1.33 vs edited =====
+--- 1.33/drivers/usb/core/hcd-pci.c	2004-06-30 11:06:30 -06:00
++++ edited/drivers/usb/core/hcd-pci.c	2004-09-13 15:54:54 -06:00
+@@ -354,8 +354,14 @@
+ 	}
+ 	hcd->state = USB_STATE_RESUMING;
  
--#include <linux/device.h>
- #include <linux/mm.h>
- 
- #include <asm/cache.h>
---- linux-2.6/include/asm-ia64/dma-mapping.h	24 Aug 2004 18:23:25 -0000	1.7
-+++ linux-2.6/include/asm-ia64/dma-mapping.h	10 Sep 2004 15:32:59 -0000
-@@ -6,7 +6,6 @@
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-  */
- #include <linux/config.h>
--#include <linux/device.h>
- #include <asm/machvec.h>
- 
- #define dma_alloc_coherent	platform_dma_alloc_coherent
---- linux-2.6/include/asm-mips/dma-mapping.h	20 Apr 2004 14:59:56 -0000	1.7
-+++ linux-2.6/include/asm-mips/dma-mapping.h	10 Sep 2004 15:35:32 -0000
-@@ -1,7 +1,6 @@
- #ifndef _ASM_DMA_MAPPING_H
- #define _ASM_DMA_MAPPING_H
- 
--#include <linux/device.h>
- #include <asm/scatterlist.h>
- #include <asm/cache.h>
- 
---- linux-2.6/include/asm-ppc/dma-mapping.h	29 May 2004 17:56:14 -0000	1.7
-+++ linux-2.6/include/asm-ppc/dma-mapping.h	10 Sep 2004 15:35:12 -0000
-@@ -8,7 +8,6 @@
- #include <linux/config.h>
- /* need struct page definitions */
- #include <linux/mm.h>
--#include <linux/device.h>
- #include <asm/scatterlist.h>
- #include <asm/io.h>
- 
---- linux-2.6/include/asm-ppc64/dma-mapping.h	12 Apr 2004 19:50:11 -0000	1.5
-+++ linux-2.6/include/asm-ppc64/dma-mapping.h	10 Sep 2004 15:34:51 -0000
-@@ -8,7 +8,6 @@
- #define _ASM_DMA_MAPPING_H
- 
- #include <linux/types.h>
--#include <linux/device.h>
- #include <linux/cache.h>
- /* need struct page definitions */
- #include <linux/mm.h>
---- linux-2.6/include/asm-sh/dma-mapping.h	24 Jun 2004 16:25:06 -0000	1.4
-+++ linux-2.6/include/asm-sh/dma-mapping.h	10 Sep 2004 15:34:27 -0000
-@@ -3,7 +3,6 @@
- 
- #include <linux/config.h>
- #include <linux/mm.h>
--#include <linux/device.h>
- #include <asm/scatterlist.h>
- #include <asm/io.h>
- 
---- linux-2.6/include/asm-sh64/dma-mapping.h	30 Jun 2004 02:18:58 -0000	1.2
-+++ linux-2.6/include/asm-sh64/dma-mapping.h	10 Sep 2004 15:33:57 -0000
-@@ -3,7 +3,6 @@
- 
- #include <linux/config.h>
- #include <linux/mm.h>
--#include <linux/device.h>
- #include <asm/scatterlist.h>
- #include <asm/io.h>
- 
---- linux-2.6/include/asm-sparc/dma-mapping.h	15 Jun 2004 05:28:00 -0000	1.5
-+++ linux-2.6/include/asm-sparc/dma-mapping.h	10 Sep 2004 15:30:54 -0000
-@@ -2,7 +2,6 @@
- #define _ASM_SPARC_DMA_MAPPING_H
- 
- #include <linux/config.h>
--#include <linux/device.h>
- 
- #ifdef CONFIG_PCI
- #include <asm-generic/dma-mapping.h>
---- linux-2.6/include/asm-x86_64/dma-mapping.h	24 Aug 2004 18:20:09 -0000	1.6
-+++ linux-2.6/include/asm-x86_64/dma-mapping.h	10 Sep 2004 15:33:31 -0000
-@@ -7,7 +7,6 @@
-  */
- 
- #include <linux/config.h>
--#include <linux/device.h>
- 
- #include <asm/scatterlist.h>
- #include <asm/io.h>
+-	if (has_pci_pm)
+-		pci_set_power_state (dev, 0);
++	pci_restore_state (dev, hcd->pci_state);
++	retval = pci_enable_device (dev);
++	if (retval < 0) {
++		dev_err (hcd->self.controller, "can't enable device! (%d)\n",
++				retval);
++		return retval;
++	}
++
+ 	dev->dev.power.power_state = 0;
+ 	retval = request_irq (dev->irq, usb_hcd_irq, SA_SHIRQ,
+ 				hcd->description, hcd);
+@@ -365,7 +371,6 @@
+ 		return retval;
+ 	}
+ 	pci_set_master (dev);
+-	pci_restore_state (dev, hcd->pci_state);
+ #ifdef	CONFIG_USB_SUSPEND
+ 	pci_enable_wake (dev, dev->current_state, 0);
+ 	pci_enable_wake (dev, 4, 0);

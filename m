@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbTCGGkn>; Fri, 7 Mar 2003 01:40:43 -0500
+	id <S261394AbTCGGn6>; Fri, 7 Mar 2003 01:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbTCGGkn>; Fri, 7 Mar 2003 01:40:43 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:17294 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261393AbTCGGkm>;
-	Fri, 7 Mar 2003 01:40:42 -0500
-Date: Fri, 7 Mar 2003 07:50:59 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <20030307064552.GA21885@vitelus.com>
-Message-ID: <Pine.LNX.4.44.0303070748460.3794-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261396AbTCGGn6>; Fri, 7 Mar 2003 01:43:58 -0500
+Received: from mail.eskimo.com ([204.122.16.4]:60687 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S261394AbTCGGnz>;
+	Fri, 7 Mar 2003 01:43:55 -0500
+Date: Thu, 6 Mar 2003 22:54:15 -0800
+To: "Guangyu Kang (Shanghai)" <GuangyuKang@viatech.com.cn>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Help please: DVD ROM read difficulty
+Message-ID: <20030307065415.GA7379@eskimo.com>
+References: <C373923C3B6ED611874200010250D52E155E1A@exchsh01.viatech.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C373923C3B6ED611874200010250D52E155E1A@exchsh01.viatech.com.cn>
+User-Agent: Mutt/1.5.3i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 07, 2003 at 10:14:59AM +0800, Guangyu Kang (Shanghai) wrote:
+> Hi:
+>         Currently I'm working on a DVD player fo LINUX project.
+>         My player use libc read() function on /dev/hdc, i.e. dvd rom in my
+> system, to read data.
+>         The last issue I encountered is difficulties during reading
+> scratched discs.
+>         Such disc will cause the dvd rom drive get ECC error (code = 0x40)
+> when perorming the read action.
+>         And the kernel will keep retrying to get the correct data from the
+> disc.
 
-On Thu, 6 Mar 2003, Aaron Lehmann wrote:
+A related problem in this case is that the reader thread will be stuck
+in uninterruptible sleep, probably for several minutes.  Meaning, the
+process can't even be stopped or killed.
 
-> > But it was definitely there. 3-5 second _pauses_. Not slowdowns.
-> 
-> I can second this. Using Linux 2.5.5x, untarring a file while
-> compiling could cause X to freeze for several seconds at a time.
-> I haven't seen this problem recently, [...]
+Since the read tends to just return short, without raising an error at
+all, the process will often immediately go back into uninterruptible
+sleep if it does wake up, too, since it's spinning on the system call.
+Signal delivery seems to be pretty flaky in this case too - you'd expect
+a signal 9 to be delivered as soon as the process tries to wake up, but
+it tends to not.  I've had to try junk like:
 
-i believe this is rather due to IO scheduling / VM throttling. Andrew 
-added some nice improvements lately, so this should really not happen with 
-2.5.64 kernels.
+	while true ; do kill -9 $stupid_process ; done
 
-> [...] though I do experience my share of XMMS skips.
+.. just to get something to die when it's reading bad media.
 
-okay, could you please test BK-curr, or 2.5.64+combo-patch? Do the skips
-still persist? Did they get worse perhaps? I guess it might take a few
-days of music listening while doing normal desktop activity, to get a good
-feel of it though.
+A quick way around this tends to be to hit the eject button on the CD
+drive itself - it will cause the driver to abort the read quickly when
+it sees that the drive is empty.  However, if the tray is locked, this
+is impossible (and sometimes, the driver will get into a bad state and
+won't let you unlock the tray, either).
 
-	Ingo
+All around, error handling on CD's and DVD's is extremely flaky.
 
+
+At the very least, if the driver is going to be in some sort of long
+term wait, it needs to put the process in an interruptible sleep and
+have some capability of aborting the request.
+
+Of course, it gets worse in kernels where ide-scsi is in use, since in
+that case error messages are often not even delivered.  Do I cdrom read
+audio ioctl, watch it go to sleep *forever* after the IDE layer gets
+reset underneath it and the request gets lost completely.  I loved
+trying to debug that one at the application level. :-)
+
+-J

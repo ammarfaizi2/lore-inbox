@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266968AbTAFPKg>; Mon, 6 Jan 2003 10:10:36 -0500
+	id <S266987AbTAFPLv>; Mon, 6 Jan 2003 10:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbTAFPKf>; Mon, 6 Jan 2003 10:10:35 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:11136 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S266968AbTAFPKf>; Mon, 6 Jan 2003 10:10:35 -0500
-Date: Mon, 6 Jan 2003 16:19:08 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.54 - quota support
-Message-ID: <20030106151908.GA640@mail.muni.cz>
-References: <20030106003801.GA522@mail.muni.cz> <3E18E2F0.1F6A47D0@digeo.com> <20030106103656.GA508@mail.muni.cz> <20030106144842.GD24714@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030106144842.GD24714@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+	id <S266989AbTAFPLv>; Mon, 6 Jan 2003 10:11:51 -0500
+Received: from mail2.uklinux.net ([80.84.72.32]:57285 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id <S266987AbTAFPLu>;
+	Mon, 6 Jan 2003 10:11:50 -0500
+Message-ID: <3E199EBA.7040807@stephenthomas.uklinux.net>
+Date: Mon, 06 Jan 2003 15:20:26 +0000
+From: Stephen Thomas <mail@stephenthomas.uklinux.net>
+Reply-To: mail@stephenthomas.uklinux.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: E7205/E7505 support in 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 03:48:43PM +0100, Jan Kara wrote:
->   I seems like quotaon (or better quotactl()) waits on some lock
-> forever... I'll try to reproduce it but in the mean time can you print
-> list of processes, write down a few addresses from the top of the stack
-> of quotaon and try to match it in the system.map to function in which
-> is process stuck?
+I'm thinking of upgrading the innards of my home machine, and
+currently I'm interested in using a motherboard based around the
+Granite Bay chipset (specifically, I looking at an Asus P4G8X).
 
-according to strace quotaon freezes at
-quotactl(0xff800002, "/dev/hda1", 2
+I notice that 2.5 kernels now have explicit support for this
+chipset, while 2.4 don't seem to.  So, if I ran a 2.4 kernel
+on such a machine, would it a) not work, b) work fine, or
+c) work OK but not as well as it could do?
 
-call trace is: (sysrq-t)
-vfs_permission
-__rwsem_do_wake
-rwsem_down_read_failed
-module_put
-dqinit_needed
-vfs_quota_off
-resolve_dev
-d_free
-deny_write_access
-check_quotactl_valid
-d_free
-scheduling_functions_start_here
-do_quotactl
-system_call
+Widening the point somewhat, I notice messages on the list
+go by stating that motherboard such-and-such is stable/flaky under
+linux.  Is there any list anywhere of known good/bad boards,
+chipsets, etc?
 
+Stephen
 
-Btw, freeze on quotaon is not regular. After some time that system is up,
-quotaon reports only no such device and terminates.
-
-so looks like
-1) freeze on quotactl
-2) reports no such device
-
-in both cases not working.
-
--- 
-Luká¹ Hejtmánek

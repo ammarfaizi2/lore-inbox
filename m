@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262338AbSIPPwt>; Mon, 16 Sep 2002 11:52:49 -0400
+	id <S262654AbSIPP6T>; Mon, 16 Sep 2002 11:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbSIPPwt>; Mon, 16 Sep 2002 11:52:49 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:54028 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S262338AbSIPPwr>;
-	Mon, 16 Sep 2002 11:52:47 -0400
-Date: Mon, 16 Sep 2002 17:57:08 +0200 (CEST)
-From: venom@sns.it
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Mark Veltzer <mark@veltzer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hi is this critical??
-In-Reply-To: <1032185694.7129.21.camel@bip>
-Message-ID: <Pine.LNX.4.43.0209161756080.5976-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262658AbSIPP6S>; Mon, 16 Sep 2002 11:58:18 -0400
+Received: from ns.sysgo.de ([213.68.67.98]:21497 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S262654AbSIPP6Q>;
+	Mon, 16 Sep 2002 11:58:16 -0400
+Date: Mon, 16 Sep 2002 17:59:41 +0200
+From: Soewono Effendi <SEffendi@sysgo.de>
+To: "Daniel Phillips" <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: kernel debuggers was [Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34]
+Message-Id: <20020916175941.38927715.SEffendi@sysgo.de>
+In-Reply-To: <E17qxbC-0000JO-00@starship>
+References: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
+	<E17qejV-00008L-00@starship>
+	<20020916090616.GF12364@suse.de>
+	<E17qxbC-0000JO-00@starship>
+Organization: SYSGO Real-Time Solutions GmbH
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If so, why not to use S.M.A.R.T with smartd and smartctl?
-I think you will like them (loock on freshmeat for the link).
+Hi all,
 
+just my .02 $
 
-On 16 Sep 2002, Xavier Bestel wrote:
+what I mostly admire in linux and it's development till now, 
+is it's flexibility to adapt the dynamic complex changing requirements 
+from server to desktop even embedded system and real-time system.
+>From high throughput to low latency, you just name it!
 
-> Date: 16 Sep 2002 16:14:54 +0200
-> From: Xavier Bestel <xavier.bestel@free.fr>
-> To: Mark Veltzer <mark@veltzer.org>
-> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Hi is this critical??
->
-> Le lun 16/09/2002 à 16:16, Mark Veltzer a écrit :
->
-> > 2. The user who posted the question is under no circumstances a "looser"
-> > (mind the oo instead of the u...). His question is very valid and the fact
-> > that he read dmesg puts him way past any standard computer user.
->
-> Well, actually I didn't want to depict *him* as a looser. I was talking
-> about me :) I've already been confronted with message from the IDE
-> drivers (and that's when I see them. I'm not always at the console or
-> reading syslog) and I never remember if they are critical or harmless. I
-> have to either dig through lkml archives to find what they mean, or ask
-> lkml what do they mean (to the luser I am).
->
-> IDE error/status message aren't visible enough. I'd like to know when my
-> drive is near failing, without looking at syslog.
->
-> 	Xav - luser
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+And still though no one feels disadvantaged, 
+since features not needed are "removable".
 
+I'm just wondering "if it's worth the effort" to provide 
+"removable customizable kernel debugging tools (entry/break points)", 
+which one can replaces with tools of his/her choice.
+I'm talking about some unified cleaver reasonable MACROS, 
+which one can easy insert/use them where needed.
+
+It's still wrong to force development tools to be persist in running system
+where they are not needed.
+
+There are lots of "nice things" that can be implemented in kernel, 
+but are they essential?
+Tools should not become burdens!
+
+Best regards,
+S. Effendi

@@ -1,59 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbUKEEDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbUKEEGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbUKEEDg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 23:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbUKEEDe
+	id S262591AbUKEEGp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 23:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbUKEEGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 23:03:34 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:38616 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S262584AbUKEEDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 23:03:30 -0500
-Date: Fri, 5 Nov 2004 05:03:09 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-Message-ID: <20041105040308.GJ8229@dualathlon.random>
-References: <418837D1.402@us.ibm.com> <20041103022606.GI3571@dualathlon.random> <418846E9.1060906@us.ibm.com> <20041103030558.GK3571@dualathlon.random> <1099612923.1022.10.camel@localhost> <1099615248.5819.0.camel@localhost> <20041105005344.GG8229@dualathlon.random> <1099619740.5819.65.camel@localhost> <20041105020831.GI8229@dualathlon.random> <1099621391.5819.72.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099621391.5819.72.camel@localhost>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Thu, 4 Nov 2004 23:06:44 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:24298 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262591AbUKEEFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 23:05:53 -0500
+From: "Scott Lockwood" <lkml@lrsehosting.com>
+To: "=?iso-8859-1?Q?'J=E9r=F4me_Petazzoni'?=" <jp@enix.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Possible GPL infringement in Broadcom-based routers
+Date: Thu, 4 Nov 2004 22:05:47 -0600
+Message-ID: <00b001c4c2ec$baf0a520$0500a8c0@54GDL8PX41>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_00B1_01C4C2BA.70563520"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+In-Reply-To: <418ABC5F.6060200@enix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 06:23:11PM -0800, Dave Hansen wrote:
-> I'm not quite sure if this has any other weird effects, so I'll hold on
-> to it for a week or so and see if anything turns up.  
+This is a multi-part message in MIME format.
 
-this fixed the problem for me too.
+------=_NextPart_000_00B1_01C4C2BA.70563520
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-However I'm not convinced this is correct, nothing in the kernel should
-ever free a bootmem piece of memory after the machine has booted.
+I work for lawyers. Let me know if you would like a referral.
 
-If this helps, it also means we found an existing pte (not pmd) with
-page_count 0 during the first unmap event (bootmem allocated). The
-transition from mapped to unmapped works fine, but the transition from
-unmapped to mapped will thorw the pte away and we'll regenerate a 2M pmd
-where there was a pte instead. I wonder why there are 4k pages there in
-the first place.
+Regards,=20
+Scott Lockwood=20
 
-Anyways I understand what's going on now thanks to your debugging, and I
-believe the only real fix is to use PageReserved to catch if we're
-working on a newly allocated page or not, I don't like to depend on the
-page_count being 0 for the bootmem pages like the previous code was
-doing. I believe my code would now fall apart even if you were using it
-with PSE disabled (nopentium or something). So I've to fix that bit at
-least and I will use PageReserved for that.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of J=E9r=F4me
+Petazzoni
+Sent: Thursday, November 04, 2004 5:34 PM
+To: linux-kernel@vger.kernel.org
+Subject: Possible GPL infringement in Broadcom-based routers
 
-The page_count of bootmem pages really doesn't matter since they must
-never be freed. It really should remain 0 so we catch if anybody
-executes a put_page on it.
 
-I'll fix it up...
+The following routers (and they might be other models, too) :
+- Us Robotics 9105 (without wireless) and 9106 (with wireless)
+- Siemens SE515
+- Dynalink RTA230
+- Buffalo WMR-G54
+- Inventel DBW-200
+
+... are all based on the same Broadcom chipset (96345 board). They=20
+integrate a 4-ports Ethernet switch, a 802.11g wireless access point,=20
+and a DSL modem (and doing routing and/or bridging between those=20
+interfaces). The CPU runs the MIPS32 instruction set. It runs a 2.4.17=20
+linux-mips kernel with additional patches, and is loaded with a lot of=20
+free software (busybox, uclibc, zebra...)
+
+The vendors (probably Broadcom, in fact) had to patch the kernel to=20
+support the DSL modem, the wireless interface (which is a PCMCIA-hosted=20
+BCM4306 ; which already was subject of heated debates earlier), and also
+
+some generic stuff like the flash memory and the front leds.=20
+Miscellaneous vendors provide so-called "GPL sources", which are=20
+generally mutilated kernels, lacking all the "interesting" parts=20
+(wireless and DSL drivers for instance).
+
+Can Broadcom and the vendors "escape" the obligations of the GPL by=20
+shipping those proprietary drivers as modules, or are they violating the
+
+GPL plain and simple by removing the related source code (and showing=20
+irrelevant code to show "proof of good will") ?
+
+Broadcom has been contacted about this matter but hasn't answered so=20
+far, nor did US Robotics (I tried to contact USR since I own a USR
+router).
+
+Any suggestions about the legal (or if it's a lost cause, technical!)=20
+ways to get support for this platform will be very welcome.
+
+More information can be found here :
+http://skaya.enix.org/wiki/GplInfringement (some extra details)
+http://skaya.enix.org/wiki/BroadCom96345 (technical info that I gathered
+
+about the router, firmware and kernel formats, etc.)
+http://sourceforge.net/projects/brcm6345-linux/ (sourceforge project)
+
+Best regards,
+J=E9r=F4me Petazzoni <jp at enix dot org>
+PS: please be kind and cc me, as my lkml awareness is limited to KT ...
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+------=_NextPart_000_00B1_01C4C2BA.70563520
+Content-Type: text/x-vcard;
+	name="Scott Lockwood.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Scott Lockwood.vcf"
+
+BEGIN:VCARD
+VERSION:2.1
+N:Lockwood;Scott
+FN:Scott Lockwood
+TITLE:User Support Specialist
+TEL;WORK;VOICE:+1 (312) 602-5140
+TEL;HOME;VOICE:+1 (815) 723-2101
+TEL;CELL;VOICE:+1 (312) 617-8626
+TEL;VOICE:815-557-7443
+TEL;WORK;FAX:+1 (312) 602-5050
+EMAIL;PREF;INTERNET:Scott.Lockwood@bryancave.com
+REV:20041011T173726Z
+END:VCARD
+
+------=_NextPart_000_00B1_01C4C2BA.70563520--
+

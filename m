@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132436AbRAJIbO>; Wed, 10 Jan 2001 03:31:14 -0500
+	id <S130998AbRAJIee>; Wed, 10 Jan 2001 03:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132360AbRAJIbE>; Wed, 10 Jan 2001 03:31:04 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:16777 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S132436AbRAJIbD>; Wed, 10 Jan 2001 03:31:03 -0500
-Message-ID: <3A5C1F64.99C611F2@uow.edu.au>
-Date: Wed, 10 Jan 2001 19:37:56 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id <S132209AbRAJIeY>; Wed, 10 Jan 2001 03:34:24 -0500
+Received: from ns.caldera.de ([212.34.180.1]:3091 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130998AbRAJIeR>;
+	Wed, 10 Jan 2001 03:34:17 -0500
+Date: Wed, 10 Jan 2001 09:33:08 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: migo@elte.hu, linux-kernel@vger.kernel.org
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010110093308.A4508@caldera.de>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>, migo@elte.hu,
+	linux-kernel@vger.kernel.org
 In-Reply-To: <20010110084235.A365@caldera.de> <Pine.LNX.4.10.10101100003560.3520-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10101100003560.3520-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jan 10, 2001 at 12:05:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Jan 10, 2001 at 12:05:01AM -0800, Linus Torvalds wrote:
 > 
-> De gustibus non disputandum.
+> 
+> On Wed, 10 Jan 2001, Christoph Hellwig wrote:
+> > 
+> > Simple.  Because I stated before that I DON'T even want the networking
+> > to use kiobufs in lower layers.  My whole argument is to pass a kiovec
+> > into the fileop instead of a page, because it makes sense for other
+> > drivers to use multiple pages, and doesn't hurt networking besides
+> > the cost of one kiobuf (116k) and the processor cycles for creating
+> > and destroying it once per sys_sendfile.
+> 
+> Fair enough.
+> 
+> My whole argument against that is that I think kiovec's are incredibly
+> ugly, and the less I see of them in critical regions, the happier I am.
+> 
+> And that, I have to admit, is really mostly a matter of "taste". 
 
-http://cogprints.soton.ac.uk/documents/disk0/00/00/07/57/
+Ok.
 
-	"ingestion of the afterbirth during delivery"
+This is a statement that makes all the kiobuf efforts currently look
+no more as interesting as before.
 
-eh?
+IHMO is time to find a generic interface for IO that is acceptable by
+you and widely usable.
 
+As you stated before that seems to be s.th. with page,offset,length
+tuples.
 
-http://www.degustibus.co.uk/
+	Christoph
 
-	"Award winning artisan breadmakers."
-
-Ah.  That'll be it.
-
--
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

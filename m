@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284252AbRLEL4Z>; Wed, 5 Dec 2001 06:56:25 -0500
+	id <S284296AbRLEMMS>; Wed, 5 Dec 2001 07:12:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284250AbRLEL4O>; Wed, 5 Dec 2001 06:56:14 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:4496 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S284204AbRLEL4B>; Wed, 5 Dec 2001 06:56:01 -0500
-Date: Wed, 5 Dec 2001 11:55:57 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: <alastair@gurney>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.16 kernel panics (possible reason 2.2.2 Samba)
-Message-ID: <Pine.GSO.4.33.0112051150330.11074-100000@gurney>
+	id <S284290AbRLEMMI>; Wed, 5 Dec 2001 07:12:08 -0500
+Received: from mons.uio.no ([129.240.130.14]:6888 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S284300AbRLEMMC>;
+	Wed, 5 Dec 2001 07:12:02 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: NFS Performance on Linux 2.2.19 (RedHat version) -- lstat64() ?
+In-Reply-To: <OFEE87D44A.D1899606-ON85256B19.00026956@ma.lycos.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 05 Dec 2001 13:11:58 +0100
+In-Reply-To: <OFEE87D44A.D1899606-ON85256B19.00026956@ma.lycos.com>
+Message-ID: <shsk7w1hnn5.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux version 2.4.16	(root@linux) (gcc version 2.96 20000731	(Red Hat
->  Linux 7.0)) #4 Tue Dec 4 10:19:01 EET 2001
+>>>>> " " == Joe Pranevich <Joe.Pranevich@corp.terralycos.com> writes:
 
-Please tell me you've upgraded the compiler in your stock Red Hat 7.0
-distribution? The original gcc-2.96-69 is famously known to be broken,
-and should not be used to compile kernels. My quick-and-dirty advice
-would be to nab the "rpm" for the latest build in Red Hat 7.2
-(gcc-2.96-98), upgrade it and use that to recompile the kernel.
+     > but not in a precise testing environment. Where my confusion
+     > comes in is that a simple "ls" against a directory with a
+     > couple files takes approximately 4-5 times as long under Linux
+     > as on Solaris. Doing a "strace -c" on the ls process shows that
+     > nearly all of the time is being spent in lstat64(). (And yes, I
+     > was using "ls --color=none" :) ) (Our application does a lot of
+     > similar operations, so this is a valid test.)
 
-If that's not the problem, then no doubt others will be able to help
-you....
+Hi,
 
-Cheers
-Alastair
+  Solaris is currently more efficient than we are when it comes to
+filehandle and attribute caching, but together with Chuck Lever, we
+worked hard over the summer to even the odds.
 
-o o o o o o o o o o o o o o o o o o o o o o o o o o o o
-Alastair Stevens           \ \
-MRC Biostatistics Unit      \ \___________ 01223 330383
-Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+  My main suspect for your report is the NFSv3 operation
+READDIRPLUS. Whereas ordinary NFSv2/v3 READDIR returns only the
+filename + inode number for each directory entry, READDIRPLUS also
+returns the NFS filehandle and full file attributes. With proper
+caching, this is sufficient to save an entire LOOKUP RPC call per file
+when you get to the stat() calls...
 
+  I do have patches that you can test, though unfortunately only for
+the 2.4. series. A backport to the 2.2.x series should be possible if
+you're able and willing, but my own schedule unfortunately won't
+permit it.
+As far as I know, the 2.4 patches can be considered `production
+quality' (meaning that I haven't seen any bugs reported over the last
+couple of months), and I've been using them in production on our own
+machines.
+
+If you are interested, please first apply the attribute cache
+improvements in
+
+  http://www.fys.uio.no/~trondmy/src/2.4.16/linux-2.4.15-cto.dif
+
+and then the readdirplus implementation in
+
+  http://www.fys.uio.no/~trondmy/src/2.4.16/linux-2.4.15-rdplus.dif
+
+Cheers,
+   Trond

@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263009AbTDBOSd>; Wed, 2 Apr 2003 09:18:33 -0500
+	id <S263016AbTDBOeR>; Wed, 2 Apr 2003 09:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263010AbTDBOSd>; Wed, 2 Apr 2003 09:18:33 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:64753 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S263009AbTDBOSc>;
-	Wed, 2 Apr 2003 09:18:32 -0500
-Subject: Re: how to interpret ide error messages (2.4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Kiniger, Karl (MED)" <karl.kiniger@med.ge.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030402122324.GA23847@ki_pc2.kretz.co.at>
-References: <20030402122324.GA23847@ki_pc2.kretz.co.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049290268.16275.51.camel@dhcp22.swansea.linux.org.uk>
+	id <S263017AbTDBOeR>; Wed, 2 Apr 2003 09:34:17 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:53000 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S263016AbTDBOeQ>;
+	Wed, 2 Apr 2003 09:34:16 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linas@austin.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace patch fails stress testing 
+In-reply-to: Your message of "02 Apr 2003 12:49:48 +0100."
+             <1049284187.16276.32.camel@dhcp22.swansea.linux.org.uk> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Apr 2003 14:31:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 Apr 2003 00:45:31 +1000
+Message-ID: <28174.1049294731@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 13:23, Kiniger, Karl (MED) wrote:
-> kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> kernel: hdc: dma_intr: error=0x01 { AddrMarkNotFound }, LBAsect=20300322, sector=1263288
-> kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+On Tue, 2003-04-01 at 19:22, linas@austin.ibm.com wrote:
+> The problem appears to be that task->mm is dereferenced without 
+> looking to see if mm is NULL.  e.g. in the sched.h in the 
+> is_dumpable() macro, we have task->mm->dumpable .  I'm sitting
+> in front of a KDB session and I'm clearly looking at task->mm
+> which is NULL. 
 
-The drive could not find the requested sector. That normally means bad
-things but for some drivers can also mean the controller asked for a
-totally bogon sector number
+Sorry, KDB is an illegal kernel patch.  Linus has spoken, the kernel
+does not need debuggers.
 
-> kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=20803307, sector=1766272
-> kernel: end_request: I/O error, dev 16:04 (hdc), sector 1766272
-
-Unrecoverable data error.
-
-> The affected sectors dont generate any error messages if I read them today...
-
-On errors the next write to a bad sector will typically remap it
-transparently to another spare block on the disk. Read obviously cannot
-do the same. That would mean that if for example clearcase ignored the
-I/O error and wrote back what it thought it saw but did not that it may
-have recovered the sector with invalid data. Its also possible of course
-clearcase actually handles I/O errors properly (which is hard).
-
-Consult the clearcase support I guess, there should be tools to verify
-your clearcase datasets. You might also want to force an fsck on your
-file systems while the box is down for disk replacement to check 
-everything out.
+All right, assume a smiley there.
 

@@ -1,33 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267726AbTBGLEB>; Fri, 7 Feb 2003 06:04:01 -0500
+	id <S262201AbTBGMVt>; Fri, 7 Feb 2003 07:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267789AbTBGLEB>; Fri, 7 Feb 2003 06:04:01 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267726AbTBGLEA>;
-	Fri, 7 Feb 2003 06:04:00 -0500
-Date: Fri, 7 Feb 2003 18:03:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH][5/6] CPU Hotplug i386
-Message-ID: <20030207170030.GA2054@zaurus.ucw.cz>
-References: <Pine.LNX.4.44.0302030550480.9361-100000@montezuma.mastecende.com>
+	id <S262449AbTBGMVt>; Fri, 7 Feb 2003 07:21:49 -0500
+Received: from unthought.net ([212.97.129.24]:18392 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S262201AbTBGMVr>;
+	Fri, 7 Feb 2003 07:21:47 -0500
+Date: Fri, 7 Feb 2003 13:31:23 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Race in RPC code
+Message-ID: <20030207123123.GA25807@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org,
+	Trond Myklebust <trond.myklebust@fys.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="aM3YZ0Iwxop3KEKx"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302030550480.9361-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> +#ifdef CONFIG_HOTPLUG
-> +static inline void maybe_play_dead(void)
+--aM3YZ0Iwxop3KEKx
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Maybe config_CPU_hotplug would be a better
-name?
-				Pavel
 
+Hello all,
+
+I think there is a race in the RPC code in 2.4.20, related to timeout
+and congestion window handling.
+
+The problem code is in net/sunrpc/xprt.c:
+
+static void
+xprt_timer(struct rpc_task *task)
+{       
+        struct rpc_rqst *req = task->tk_rqstp;
+        struct rpc_xprt *xprt = req->rq_xprt;
+
+        spin_lock(&xprt->sock_lock);
+        if (req->rq_received)
+                goto out;
+
+        if (!xprt->nocong) {
+                if (xprt_expbackoff(task, req)) {
+                        rpc_add_timer(task, xprt_timer);
+                        goto out_unlock;
+                }
+                rpc_inc_timeo(&task->tk_client->cl_rtt);
+                xprt_adjust_cwnd(req->rq_xprt, -ETIMEDOUT);
+        }
+        req->rq_nresend++;
+
+The call to xprt_adjust_cwnd is the problem - I experienced a panic
+(null pointer dereference) in 
+
+static void
+xprt_adjust_cwnd(struct rpc_xprt *xprt, int result)
+{
+        unsigned long   cwnd;
+
+        cwnd = xprt->cwnd;
+        if (result >= 0 && cwnd <= xprt->cong) {
+
+Here it is the "cwnd = xprt->cwnd" that causes the panic. xprt was 0.
+
+This means, in the xprt_timer code, that req->rq_xprt must have been 0.
+
+I guess this can happen because of the sequence:
+
+ xprt = req->rq_xprt;
+ spin_lock(&xprt->sock_lock);
+...
+ xprt_adjust_cwnd(req->rq_xprt);
+
+We don't know whether req has been modified between the assignment and
+the spin_lock.
+
+Attached is a patch to solve the problem - please comment.
+
+It does not solve the other potential (?) problem with:
+
+ xprt = req->rq_xprt;
+ spin_lock(&xprt->sock_lock);
+ ...
+                if (xprt_expbackoff(task, req)) {
+ ...
+
+Any suggestions to that one?
+
+I cannot test whether my patch solve the problem, because this panic has
+happened once on a *heavily* loaded box which has run 2.4.20 ever since
+it came out.  The race is extremely rare.  It is an SMP box by the way.
+
+Thanks a lot to "baldrick" on kernel-newbies for the help!
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
+
+--aM3YZ0Iwxop3KEKx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=race-diff
+
+--- linux-2.4.20-unpatched/net/sunrpc/xprt.c	Fri Feb  7 12:22:19 2003
++++ linux-2.4.20/net/sunrpc/xprt.c	Fri Feb  7 13:13:40 2003
+@@ -1021,7 +1021,7 @@
+ 			goto out_unlock;
+ 		}
+ 		rpc_inc_timeo(&task->tk_client->cl_rtt);
+-		xprt_adjust_cwnd(req->rq_xprt, -ETIMEDOUT);
++		xprt_adjust_cwnd(xprt, -ETIMEDOUT);
+ 	}
+ 	req->rq_nresend++;
+ 
+
+--aM3YZ0Iwxop3KEKx--

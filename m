@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbTF3Xsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 19:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTF3Xsi
+	id S265073AbTGAAK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 20:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbTGAAK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 19:48:38 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:41412 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S263295AbTF3Xsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 19:48:36 -0400
-Date: Tue, 1 Jul 2003 01:02:57 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.73 Scheduling while atomic with taskfile IO and high
- memory
-In-Reply-To: <Pine.LNX.4.53.0306301702150.2299@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.53.0307010059170.22576@skynet>
-References: <Pine.LNX.4.53.0306302052520.22576@skynet>
- <Pine.LNX.4.53.0306301702150.2299@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Jun 2003 20:10:58 -0400
+Received: from adsl-66-120-156-55.dsl.lsan03.pacbell.net ([66.120.156.55]:59646
+	"EHLO river.fishnet") by vger.kernel.org with ESMTP id S264889AbTGAAK5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 20:10:57 -0400
+Date: Mon, 30 Jun 2003 17:25:16 -0700
+Message-Id: <200307010025.h610PGmX007656@river.fishnet>
+From: John Salmon <jsalmon@thesalmons.org>
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: negative tcp_tw_count and other TIME_WAIT weirdness?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jun 2003, Zwane Mwaikambo wrote:
 
-> Could you try selecting your specific IDE chipset (or all), it doesn't
-> look like PIO is getting along famously with various other bits. I also
-> noticed TCQ, do you have any TCQ capable IDE devices?
->
+I have several fairly busy servers reporting a negative value
+for tcp_tw_count.  For example:
 
-Tried many things, in no particular order
+bash-2.05a# cat /proc/net/sockstat
+sockets: used 121
+TCP: inuse 50 orphan 0 tw -65048 alloc 81 mem 26
+UDP: inuse 15
+RAW: inuse 1
+FRAG: inuse 0 memory 0
+bash-2.05a# 
 
-o PCI chipsets disabled
-o Disabled TCQ (device doesn't support it anyway)
-o DMA disabled and ide_setup_dma() stub function added so it'll compile
-o PCI Generic chipset support enabled
-o Intel PIIX chipset support enabled
-o All chipset under the sun supported
+When I look at netstat -n, I see many (hundreds) connections 
+stuck in TIME_WAIT.  They've been there for at least a few hours,
+and probably much longer (days).
 
-All come up with the same errors. The following workarounds let it
-boot
+Is this expected behavior?  A known bug?
 
-o Removing inc_preempt_count() and dec_preempt_count() from kmap_atomic()
-  and kunmap_atomic()
-o Disabling high memory
-o Disabling taskfile IO
+FWIW, I'm using a RedHat kernel, 2.4.18-24.7.xsmp on a 2-processor Athlon
+system.   If this looks like a bug I'll try to reproduce it with
+an unmodified kernel.
 
-A quickie patch to sched.c shows that preempt_count() keeps incrementing
-for each time the sleeping while atomic message is printed by the
-cpu_idle() thread
+Thanks,
+John Salmon
 
--- 
-Mel Gorman
+

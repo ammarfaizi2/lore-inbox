@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264673AbTA2PaQ>; Wed, 29 Jan 2003 10:30:16 -0500
+	id <S261963AbTA2P3P>; Wed, 29 Jan 2003 10:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265168AbTA2PaQ>; Wed, 29 Jan 2003 10:30:16 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:950 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S264673AbTA2PaO>;
-	Wed, 29 Jan 2003 10:30:14 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S264673AbTA2P3P>; Wed, 29 Jan 2003 10:29:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54947 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261963AbTA2P3O>;
+	Wed, 29 Jan 2003 10:29:14 -0500
+Date: Wed, 29 Jan 2003 16:38:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE: Do not call bh_phys() on buffers with invalid b_page.
+Message-ID: <20030129153820.GF31566@suse.de>
+References: <1043852266.1690.63.camel@zion.wanadoo.fr> <20030129150000.GD31566@suse.de> <1043853614.1668.70.camel@zion.wanadoo.fr> <20030129152214.GE31566@suse.de> <1043853975.1668.74.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15927.62893.336010.363817@harpo.it.uu.se>
-Date: Wed, 29 Jan 2003 16:39:25 +0100
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-In-Reply-To: <20030128212753.GA29191@wotan.suse.de>
-References: <15921.37163.139583.74988@harpo.it.uu.se>
-	<20030124193721.GA24876@wotan.suse.de>
-	<15926.60767.451098.218188@harpo.it.uu.se>
-	<20030128212753.GA29191@wotan.suse.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <1043853975.1668.74.camel@zion.wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > > It looks as if %gs handling isn't quite right.
- > 
- > You are running vanilla 2.4.21pre3, right? 
- > 
- > I just noticed that my big update which has this all fixed went 
- > only in after pre3.
+On Wed, Jan 29 2003, Benjamin Herrenschmidt wrote:
+> On Wed, 2003-01-29 at 16:22, Jens Axboe wrote:
+> 
+> > Ehm no, if b_data is < PAGE_SIZE, it's probably an offset and not a
+> > valid address. So it should be exactly where it is -- for b_page, it's
+> > _not_ buggy for b_data to be < PAGE_SIZE. That's expected. Submitter
+> > would have to be buggy for it to trigger, though, so you can just remove
+> > it if you want.
+> 
+> Ah, I see what you wanted to check now :) Ok, I won't remove it, though
+> it would still make sense to extend the test to PAGE_OFFSET I beleive,
+> any b_data < PAGE_OFFSET is wrong.
 
-I got 2.4.21-pre4 which has your x86_64 updates. It works MUCH better.
-Still some problems remain:
+No, any b_data < PAGE_OFFSET is not wrong, that's the point. For highmem
+b_page, b_data will be the offset into the page. So it could be 2048,
+for instance.
 
-1. One unknown ioctl is logged from RH8.0 init:
+The test is meant to catch an invalid buffer_head, where b_page is not
+set but b_data isn't valid either. So to make it complete, you could do:
 
-ioctl32(iwconfig:185): Unknown cmd fd(3) cmd(00008b01){00} arg(ffffda90) on socket:[389]
+	if (bh->b_page) {
+		...
+		if (bh->b_data >= PAGE_SIZE)
+			BUG();
+	} else {
+		...
+		if (bh->b_data < PAGE_SIZE)
+			BUG();
+		if (bh->b_data < PAGE_OFFSET)
+			BUG();
+	}
 
-2. gdb still seems broken. gdb ./sleep [where ./sleep is simply main() calling
-   nanosleep(), but linked with -lpthread] hangs or loops and takes forever
-   to respond to ^C.
+as they are two different bugs.
 
-3. bootsect.S still needs a patch to prevent 'bzdisk' kernels from
-   disabling the FDC
+> Anyway, let's leave 2.4 as it is now.
 
-/Mikael
+:-)
 
---- linux-2.4.21-pre4/arch/x86_64/boot/bootsect.S.~1~	2002-11-30 17:12:24.000000000 +0100
-+++ linux-2.4.21-pre4/arch/x86_64/boot/bootsect.S	2003-01-29 16:08:38.000000000 +0100
-@@ -395,9 +395,15 @@
- # NOTE: Doesn't save %ax or %dx; do it yourself if you need to.
- 
- kill_motor:
-+#if 1
-+	xorw	%ax, %ax		# reset FDC
-+	xorb	%dl, %dl
-+	int	$0x13
-+#else
- 	movw	$0x3f2, %dx
- 	xorb	%al, %al
- 	outb	%al, %dx
-+#endif
- 	ret
- 
- sectors:	.word 0
+-- 
+Jens Axboe
+

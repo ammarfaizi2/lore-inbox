@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbUBXWTB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:19:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbUBXWTB
+	id S262496AbUBXWTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUBXWTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:19:01 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:50096 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262462AbUBXWS4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:18:56 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
-Date: Tue, 24 Feb 2004 14:18:18 -0800
-Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C36CA@orsmsx410.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH - InfiniBand Access Layer (IBAL)
-Thread-Index: AcP7EIVy3nf5+utOTCWbCdHVm/R0cQADdY3Q
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "Greg KH" <greg@kroah.com>, "Christoph Hellwig" <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@jf.intel.com>,
-       <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
-X-OriginalArrivalTime: 24 Feb 2004 22:18:20.0132 (UTC) FILETIME=[1BDC4240:01C3FB24]
+	Tue, 24 Feb 2004 17:19:14 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:36559 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262496AbUBXWTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:19:02 -0500
+Date: Tue, 24 Feb 2004 14:19:01 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Manuel Estrada Sainz <ranty@debian.org>
+Subject: firmware.agent Opps
+Message-ID: <20040224221900.GA5954@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 07:50:18PM +0000, Greg KH wrote:
+	Hi,
 
->Please make those changes and then post the patch here 
->(not just a link, if it's too big, split it up into the logical pieces
-to fit.)  
-> We can go from there.
+	Using 2.6.3 (SMP), prism54 driver and firmware.agent from
+Debian unstable. I got the following nice Ooops :
 
-> You mean this whole huge chunk of code doesn't have any hardware
-drivers?  
-> What good is it then?
+-----------------------------------------
+/etc/hotplug/pci.agent: Setup prism54 for PCI slot 0000:03:00.0
+kernel: Loaded prism54 driver, version 1.0.2.2
+kernel: PCI: Enabling device 0000:03:00.0 (0000 -> 0002)
+/etc/hotplug/net.agent: invoke nameif for eth0
+/etc/hotplug/net.agent: iface eth0 is remapped to prism0
+/etc/hotplug/net.agent: invoke ifup prism0
+/etc/hotplug/pci.agent: missing kernel or user mode driver prism54 
+/etc/hotplug/firmware.agent: comming for /class/firmware/0000:03:00.0
+/etc/hotplug/firmware.agent: doing echo 1
+/etc/hotplug/firmware.agent: doing cp
+/etc/hotplug/firmware.agent: doing echo 0
+kernel:  printing eip:
+kernel: c016519d
+kernel: Oops: 0000 [#1]
+kernel: CPU:    0
+kernel: EIP:    0060:[dnotify_flush+17/120]    Not tainted
+kernel: EFLAGS: 00010246
+kernel: EIP is at dnotify_flush+0x11/0x78
+kernel: eax: cde870c0   ebx: cde79440   ecx: 00000000   edx: cdddfc60
+kernel: esi: cde79440   edi: cdddfc60   ebp: cdd8a000   esp: cdd8bf8c
+kernel: ds: 007b   es: 007b   ss: 0068
+kernel: Process firmware.agent (pid: 480, threadinfo=cdd8a000 task=cde29350)
+kernel: Stack: cde79440 00000000 cdddfc60 c014c7d0 cde79440 cdddfc60 cde79440 00000000 
+kernel:        00000001 c014c83c cde79440 cdddfc60 00000001 c0108c33 00000001 401706a0 
+kernel:        080cd648 00000000 00000001 bffff79c 00000006 0000007b 0000007b 00000006 
+kernel: Call Trace:
+kernel:  [filp_close+84/108] filp_close+0x54/0x6c
+kernel:  [sys_close+84/108] sys_close+0x54/0x6c
+kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+kernel: 
+kernel: Code: 0f b7 41 20 25 00 f0 ff ff 66 3d 00 40 75 54 b8 a4 06 29 c0 
+-----------------------------------------
 
-Good to split things into chunks so that it is more manageable for
-review
-by the Linux community. 
+	If you think the driver is at fault, please tell me and I'll
+forward that to the prism54 guys. If you need more info, just yell at
+me.
 
-Hardware drivers coming soon.
-I saw an email on the InfiniBand sourceforge list 
-a couple weeks back that the Mellanox people will be providing open
-source code 
-for their InfiniBand hardware pretty soon. It may need some rework to
-meet the 
-standards of the Linux community and fit into the reworked IBAL. I also
-saw 
-a note from a guy from Fujitsu on the Infiniband list 
-that they have a 2.6 hardware driver for IBAL for their HCA, but I am
-not 
-sure of their open source plans. 
-Pretty soon, I don't think people will need worry about a lack of
-InfiniBand open 
-source code. There may be more of it than you will want to deal with. 
+	Thanks...
 
-BTW. The patch on sourceforge should be OK now. My error on initial
-upload
-and now fixed. 
+	Jean

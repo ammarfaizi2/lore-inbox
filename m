@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUFIMnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265764AbUFIMm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUFIMnt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUFIMnt
+	id S265764AbUFIMm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUFIMm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:43:49 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:54162 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265767AbUFIMnd (ORCPT
+	Wed, 9 Jun 2004 08:42:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:409 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265764AbUFIMag (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:43:33 -0400
-Date: Wed, 9 Jun 2004 14:43:02 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: chase.maupin@hp.com, iss_storagedev@hp.com
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [STACK] >4k call path in hp/compaq fibre channel driver
-Message-ID: <20040609124302.GI21168@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
+	Wed, 9 Jun 2004 08:30:36 -0400
+Subject: Re: [STACK] >3k call path in reiserfs
+From: Chris Mason <mason@suse.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040609122226.GE21168@wohnheim.fh-wedel.de>
+References: <20040609122226.GE21168@wohnheim.fh-wedel.de>
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Message-Id: <1086784264.10973.236.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Jun 2004 08:31:04 -0400
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase, I guess this code won't live long with 4k stacks.  Can you
-please fix CpqTsProcessIMQEntry() and PeekIMQEntry()?
+On Wed, 2004-06-09 at 08:22, Jörn Engel wrote:
+> reiserfs has some stack-hungry functions as well.  Could you put them
+> on a diet?
+> 
+Yes, we should be able to fix things by getting rid of some of the
+inlines in a few spots (some funcs are much too large for inlining). 
+I'll send a patch out this morning.
 
-Linus, Andrew, how about marking CONFIG_SCSI_CPQFCTS as broken for the
-time being?
+-chris
 
-stackframes for call path too long (4144):
-    size  function
-       0
-____FAKE.Name.Chip.stat.Regi.LILP.Opti.high.lowe->ProcessIMQEntry
-    2076  CpqTsProcessIMQEntry
-    2052  PeekIMQEntry
-      16  CpqTsGetSFQEntry
-       0  __constant_memcpy
-       0  __builtin_memcpy
 
-Jörn
-
--- 
-The grand essentials of happiness are: something to do, something to
-love, and something to hope for.
--- Allan K. Chalmers

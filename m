@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262536AbSJKPhE>; Fri, 11 Oct 2002 11:37:04 -0400
+	id <S262512AbSJKPfF>; Fri, 11 Oct 2002 11:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262538AbSJKPhE>; Fri, 11 Oct 2002 11:37:04 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:37134 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S262536AbSJKPhB>; Fri, 11 Oct 2002 11:37:01 -0400
-Date: Fri, 11 Oct 2002 09:38:57 -0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: arjanv@redhat.com, axboe@suse.de
-Subject: Re: [PATCH] 2.5.41, cciss (3 of 3)
-Message-ID: <20021011093857.A1211@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S262522AbSJKPfF>; Fri, 11 Oct 2002 11:35:05 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:22930
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262512AbSJKPfE>; Fri, 11 Oct 2002 11:35:04 -0400
+Date: Fri, 11 Oct 2002 11:21:01 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org, <pavel@ucw.cz>
+Subject: Re: make idedisk_suspend()/idedisk_resume() conditional on
+ CONFIG_SOFTWARE_SUSPEND
+In-Reply-To: <20021011141218.GP12432@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0210111101530.8784-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Fri, 11 Oct 2002, William Lee Irwin III wrote:
 
-> On Fri, 2002-10-11 at 16:10, Stephen Cameron wrote:
-[... a bogus patch involving a 20 second udelay ...]
+> ide-disk.c gets the following warning:
+> 
+> drivers/ide/ide-disk.c:1614: warning: `idedisk_suspend' defined but not used
+> drivers/ide/ide-disk.c:1651: warning: `idedisk_resume' defined but not used
 
-> ugh 20 seconds udelay....
->
-> why can't you sleep here ? [...]
+Hi Pavel,
+	shouldn't this kinda thing be handled by the driver model layer? 
+Ditto for the device walk and suspend in suspend.c. Also what do you 
+think of adding hooks to driver model tree so that we can add additional 
+handlers for things like this with the driver model doing the final 
+suspend as specified in the driver. 
 
-No reason that I can see.  Thanks for pointing it out.
-Is this better?  (I also changed the spaces to tabs 
-while I was at it.)
+	Zwane
+-- 
+function.linuxpower.ca
 
--- steve
 
-diff -urN linux-2.5.41/drivers/block/cciss.c linux-2.5.41-20sec/drivers/block/cciss.c
---- linux-2.5.41/drivers/block/cciss.c	Fri Oct 11 09:17:00 2002
-+++ linux-2.5.41-20sec/drivers/block/cciss.c	Fri Oct 11 09:07:17 2002
-@@ -1297,24 +1297,25 @@
- /*
-  *   Wait polling for a command to complete.
-  *   The memory mapped FIFO is polled for the completion.
-- *   Used only at init time, interrupts disabled.
-+ *   Used only at init time, interrupts from the HBA are disabled.
-  */
- static unsigned long pollcomplete(int ctlr)
- {
--        unsigned long done;
--        int i;
-+	unsigned long done;
-+	int i;
-+	DECLARE_WAIT_QUEUE_HEAD(polling_wqh);
- 
--        /* Wait (up to 2 seconds) for a command to complete */
-+	/* Wait (up to 20 seconds) for a command to complete */
- 
--        for (i = 200000; i > 0; i--) {
--                done = hba[ctlr]->access.command_completed(hba[ctlr]);
--                if (done == FIFO_EMPTY) {
--                        udelay(10);     /* a short fixed delay */
--                } else
--                        return (done);
--        }
--        /* Invalid address to tell caller we ran out of time */
--        return 1;
-+	for (i = 20 * HZ; i > 0; i--) {
-+		done = hba[ctlr]->access.command_completed(hba[ctlr]);
-+		if (done == FIFO_EMPTY)
-+			interruptible_sleep_on_timeout(&polling_wqh, 1);
-+		else
-+			return (done);
-+	}
-+	/* Invalid address to tell caller we ran out of time */
-+	return 1;
- }
- /*
-  * Send a command to the controller, and wait for it to complete.  

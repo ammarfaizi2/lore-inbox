@@ -1,161 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264245AbRFQCXb>; Sat, 16 Jun 2001 22:23:31 -0400
+	id <S264440AbRFQC1l>; Sat, 16 Jun 2001 22:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264439AbRFQCXV>; Sat, 16 Jun 2001 22:23:21 -0400
-Received: from [207.106.50.26] ([207.106.50.26]:25863 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S264245AbRFQCXK>;
-	Sat, 16 Jun 2001 22:23:10 -0400
-Date: Sat, 16 Jun 2001 22:27:09 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Cc: rick@linuxmafia.com
-Subject: Kernel configuration.  It's not just a job, it's an adventure!
-Message-ID: <20010616222709.A11872@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net, rick@linuxmafia.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S264439AbRFQC1b>; Sat, 16 Jun 2001 22:27:31 -0400
+Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:50948
+	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
+	id <S264440AbRFQC1O>; Sat, 16 Jun 2001 22:27:14 -0400
+Date: Sat, 16 Jun 2001 23:26:47 -0300 (BRT)
+From: Christian Robottom Reis <kiko@async.com.br>
+To: <eepro100@scyld.com>
+cc: <saw@saw.sw.com.sg>, <linux-kernel@vger.kernel.org>
+Subject: eepro100 problems with 2.2.19 _and_ 2.4.0
+Message-ID: <Pine.LNX.4.32.0106161923290.339-100000@blackjesus.async.com.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Various people on the Linux kernel mailing list and elsewhere have been heard
-to opine that CML2's user interface is too oriented towards nontechnical
-users.  In response to these complaints, I have implemented a fourth CML2
-front end with an interface style expressly designed for the serious,
-hard-core hacker.  A transcript of an example session follows:
 
-----------------------------------------------------------------------------
-Welcome to CML2 Adventure, version 1.6.1.
-You are in a maze of twisty little Linux kernel options menus, all different.
-The main room.  A sign reads `Linux Kernel Configuration System'.
-Passages lead off in all directions.
+Hello everybody,
 
-> n
-The arch room.  A sign reads `Processor type'.
-A passage leads upwards.
+I'm having a ton of problems with a set of boxes that use an onboard
+variant of the eepro100. I'm not sure what version it is (#$@#*&$@ Intel
+documentation - motherboard is model D815EEA2) but eepro100-diag reports:
 
-Choose your processor architecture.
-A brass lantern is here.
-There is a row of buttons on the wall of this room. They read:
-X86, ALPHA, SPARC32, SPARC64, MIPS32, MIPS64, PPC, M68K, ARM, SUPERH, IA64, PARISC, S390, S390X, CRIS
-The button marked X86 is pressed.
-> take lantern
-Lantern: taken.
-> look X86
-Value of X86 is y.
-This is Linux's home port.  Linux was originally native to the Intel
-386, and runs on all the later x86 processors including the Intel
-486, 586, Pentiums, and various instruction-set-compatible chips by
-AMD, Cyrix, and others.
-> up
-In main room.
-> nearby
-The arch room.  A sign reads `Processor type'.
-The archihacks room.  A sign reads `Architecture-specific hardware hacks'.
-The buses room.  A sign reads `System buses and controller types'.
-The pm room.  A sign reads `Power management'.
-The mtd room.  A sign reads `Memory Technology Device (MTD) support'.
-The x86 room.  A sign reads `Intel and compatible 80x86 processor options'.
-The policy room.  A sign reads `Configuration policy options'.
-The generic room.  A sign reads `Architecture-independent feature selections'.
-The block_devices room.  A sign reads `Block devices'.
+eepro100-diag.c:v2.05 6/13/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Intel i82562 Pro/100 V adapter at 0xdf00.
+i82557 chip registers at 0xdf00:
+  00000000 00000000 00000000 00080002 183f0000 00000000
 
-> go generic
-The generic room.  A sign reads `Architecture-independent feature selections'.
-A passage leads upwards.
+Okay, now for the bad part. Symptoms:
 
-There is an option named MODULES here.
-There is an option named NET here.
-There is an option named SYSVIPC here.
-There is an option named BSD_PROCESS_ACCT here.
-There is an option named SYSCTL here.
-There is an option named BINFMT_AOUT here.
-There is an option named BINFMT_MISC here.
-There is an option named SMP here.
-> take NET
-NET: taken.
-> take MODULES
-Tristate symbols won't default to M.
-MODULES: taken.
-> up
-In main room.
-> nearby
-The arch room.  A sign reads `Processor type'.
-The archihacks room.  A sign reads `Architecture-specific hardware hacks'.
-The buses room.  A sign reads `System buses and controller types'.
-The pm room.  A sign reads `Power management'.
-The mtd room.  A sign reads `Memory Technology Device (MTD) support'.
-The x86 room.  A sign reads `Intel and compatible 80x86 processor options'.
-The policy room.  A sign reads `Configuration policy options'.
-The generic room.  A sign reads `Architecture-independent feature selections'.
-The block_devices room.  A sign reads `Block devices'.
+* slow transfers (internet ftps are the case) hard lock box.
+* interactive use hard locks box.
+* basic Netperf tests run fine.
+* wget of > 20MB files from local server run fine.
 
-> go buses
-The buses room.  A sign reads `System buses and controller types'.
-A passage leads upwards.
+Steps to reproduce problem:
 
-Specify the buses, disk controllers, and internal interconnection standards
-that you want your kernel to support.
-It is very dark.  If you continue, you are likely to be eaten by a grue.
-There is an option named EISA here.
-There is an option named PCI here.
-There is an option named PNP here.
-There is an option named PARPORT here.
-There is an option named HOTPLUG here.
-There is an option named IDE here.
-There is an option named SCSI here.
-There is an option named USB here.
-There is an option named I2O here.
-There is an option named MTD here.
-There is an option named WATCHDOG here.
-> light lantern
-The lantern radiates a mellow golden light.
-> take PCI
-PCI: taken.
-> help
-Welcome to the adventure configurator.  For a command summary, type `commands'.
-In general, a three-letter abbreviation of any command word is sufficient
-to identify it to the parser.
+* Run large ( > 2MB works ) ftp transfer in box.
+* ssh in from another box and attempt an ls -lR /
 
-This interface emulates the style of classic text adventure games such as
-Colossal Cave Adventure and Zork.  Configuration menus are rooms, and
-configuration options are objects that can be taken and dropped (except
-for choice/radiobutton symbols, which become buttons on various room walls).
-Objects and rooms may silently appear and disappear as visibilities
-change.
+So it seems that only when the network i/o is low does the lock occur.
 
-Have fun, and beware of the grues!
+I've tried up to now four sets of drivers (all non-modules):
 
-In main room.
-> commands
-look [target] -- look here or at target (direction or option).
-nearby        -- list nearby rooms (useful with go)
-go            -- go to a named menu (follow with the label).
-inventory     -- show which options you have picked up.
-drop          -- unset option.
-take [module] -- set option, follow with option name.
-press         -- press a button (follow with the button name).
-set           -- set numeric or string; follow with symbol and value.
-load          -- read in a configuration (follow with the filename).
-save          -- save the configuration (follow with a filename).
-xyzzy         -- toggle suppression flag.
-quit          -- quit, discarding changes.
-exit          -- exit, saving the configuration.
-You can move in compass directions n,e,w,s,ne,nw,se,sw or dn for down.
-> quit
-----------------------------------------------------------------------------
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+* 2.2.19 straight (Andrey?)
+	Kills networking, but stays alive - reports (typed in):
+	epro100: cmd_wait for (0xffffff00) timedout with (0xffffff00)!
 
-What, then is law [government]? It is the collective organization of
-the individual right to lawful defense."
-	-- Frederic Bastiat, "The Law"
+* 2.2.19 with Donald's eepro100.c scyld:network/
+	Hard lock (seems to take longer to hang) - it also creates
+	8 devices eth0-eth7!
+
+* 2.2.19 with Donald's eepro100.c fromscyld:network/test/
+	Hard lock (pretty fast) - no multiple creation bugs
+
+* 2.4.5 straight
+	Hangs ssh connection, reports (typed in):
+	epro100: wait_for_cmd_done timeout!
+	Data socket timed out:
+	eth0: Transmit timed out: status 0050  0c00 at 907/935 command 000c0000.
+
+So now I'm left here stuck with a stupid unworking on-board card.
+
+Donald, Andrey, anyone? have you seen this before? What can I do to help
+this get diagnosed properly?
+
+BTW: eepro100-diag reports sleep mode on - this is bad, right? And I can
+turn it off?
+
+Take care,
+--
+/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
+~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
+
+
+
 
 

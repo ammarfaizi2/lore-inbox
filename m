@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284636AbRLZR4O>; Wed, 26 Dec 2001 12:56:14 -0500
+	id <S284669AbRLZSEP>; Wed, 26 Dec 2001 13:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284669AbRLZR4E>; Wed, 26 Dec 2001 12:56:04 -0500
-Received: from ep09.kernel.pl ([212.160.181.1]:29459 "EHLO ep09.kernel.pl")
-	by vger.kernel.org with ESMTP id <S284636AbRLZRzy>;
-	Wed, 26 Dec 2001 12:55:54 -0500
-Date: Wed, 26 Dec 2001 18:55:49 +0100 (CET)
-From: Krzysztof Taraszka <dzimi@ep09.kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Little bug in 2.2.20/drivers/video
-Message-ID: <Pine.LNX.4.43.0112261849310.29495-100000@ep09.kernel.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S284676AbRLZSEE>; Wed, 26 Dec 2001 13:04:04 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:37643 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284669AbRLZSD4>;
+	Wed, 26 Dec 2001 13:03:56 -0500
+Date: Wed, 26 Dec 2001 10:03:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Guido Guenther <agx@sigxcpu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17]: oops in usbcore during suspend
+Message-ID: <20011226100353.D3460@kroah.com>
+In-Reply-To: <20011223230723.GA1483@bogon.ms20.nix> <20011223184243.D5941@kroah.com> <20011226180021.A30644@galadriel.physik.uni-konstanz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011226180021.A30644@galadriel.physik.uni-konstanz.de>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 28 Nov 2001 15:10:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I found little bug in 2.2.20 kernel source 
-tree.
-When I use CONFIG_FB_ATY=m it doesn't build atyfb.o, so this is my patch:
+On Wed, Dec 26, 2001 at 06:00:21PM +0100, Guido Guenther wrote:
+> Call Trace: [usbcore:usb_devfs_handle_Re9c5f87f+174345/197882743] [usbcore:usb_devfs_handle_Re9c5f87f+174855/197882233] [pci_pm_suspend_device+32/36] [pci_pm_suspend_bus+82/104] [pci_pm_suspend+35/68] 
 
->>> -- cut here -- <<<
-diff -urN linux.orig/drivers/video/Makefile
-linux/drivers/video/Makefile
---- linux.orig/drivers/video/Makefile     Sun Mar 25 18:37:37 2001
-+++ linux/drivers/video/Makefile   Wed Dec 26 15:58:08 2001
-@@ -102,6 +102,10 @@
+These aren't valid symbols :)
+It looks like something is messing with your oops output before you run
+it through ksymoops.  Can you take the raw values from 'dmesg'?
 
- ifeq ($(CONFIG_FB_ATY),y)
- L_OBJS += atyfb.o
-+else
-+  ifeq ($(CONFIG_FB_ATY),m)
-+  M_OBJS += atyfb.o
-+  endif
- endif
+thanks,
 
- ifeq ($(CONFIG_FB_ATY128),y)
->>> -- end here -- <<<
-
-Krzysztof Taraszka      (dzimi@pld.org.pl)
-
-
+greg k-h

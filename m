@@ -1,40 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262773AbSITPVU>; Fri, 20 Sep 2002 11:21:20 -0400
+	id <S262772AbSITPTv>; Fri, 20 Sep 2002 11:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262774AbSITPVU>; Fri, 20 Sep 2002 11:21:20 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:46600 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262773AbSITPVT>; Fri, 20 Sep 2002 11:21:19 -0400
-Date: Fri, 20 Sep 2002 16:26:18 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
-Message-ID: <20020920152618.GA90329@compsoc.man.ac.uk>
-References: <1032305535.7481.204.camel@cog> <20020917.163246.113965700.davem@redhat.com> <20020918015209.B31263@wotan.suse.de> <20020917.164649.110499262.davem@redhat.com> <20020918015838.A6684@wotan.suse.de> <15753.45833.702405.2357@kim.it.uu.se> <1032442039.26712.32.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1032442039.26712.32.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17sPff-000BUN-00*tkzY24urOBQ* (Manchester Computing, University of Manchester)
+	id <S262773AbSITPTv>; Fri, 20 Sep 2002 11:19:51 -0400
+Received: from copper.ftech.net ([212.32.16.118]:60367 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id <S262772AbSITPTu>;
+	Fri, 20 Sep 2002 11:19:50 -0400
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF52B@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: "'Krzysztof Halasa'" <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Francois Romieu <romieu@cogenit.fr>, henrique@cyclades.com
+Subject: RE: 2.4 + generic HDLC update? Any ideas?
+Date: Fri, 20 Sep 2002 16:18:25 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 02:27:19PM +0100, Alan Cox wrote:
+Hi,
+	we use the generic HDLC module (by patch) in 2.4 with our FarSync
+card.  I would be happy for it to be incorporated into the 2.4 Kernel.  We
+don't use sethdlc, we have our own configuration utility.
 
-> > - There are plenty of laptops whose CPUs have local APICs but whose
-> >   BIOSen go berserk if you enable it. There are also plenty of laptops
-> 
-> Frequently because we don't disable it again before any APM calls I
-> suspect. When a CPU goes into sleep mode you must disable PMC and local
-> apic timer interrupts.
+	We are finding that some distro's are now incorporating the patch
+anyway (Mandrake for example), and some of our customers are getting
+confused when the patch doesn't install cleanly because it is already there.
+Especially if the customer doesn't understand patch anyway and is just
+following install instructions.
 
-Isn't this exactly what apic_pm_suspend() does ? Or is that in 2.5 only ?
+	What 2.4 version would you aim for?
 
-regards
-john
+
+Kevin Curtis
+Linux Development
+FarSite Communications Ltd
+kevin.curtis@farsite.co.uk
+tel:   +44 1256 330461
+fax:  +44 1256 854931
+http://www.farsite.co.uk
+
+
+-----Original Message-----
+From: Krzysztof Halasa [mailto:khc@pm.waw.pl]
+Sent: 19 September 2002 14:33
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox; Jeff Garzik; Francois Romieu; henrique@cyclades.com
+Subject: 2.4 + generic HDLC update? Any ideas?
+
+
+Hi,
+
+The question is probably aimed mainly at people maintaining 2.4 Linux
+and/or networking, but I'd like to see an opinion of other users/
+developers as well.
+
+What do you think about updating the 2.4 generic HDLC layer to the
+newer 2.5 code?
+
+Facts:
+- it would break all sethdlc compatibility, users would be required to
+  get 2.5 sethdlc.c and recompile it. There are even cosmetic sethdlc
+  syntax changes and additions (sethdlc is a configuration tool).
+- it would make it possible to support new boards like Cyclades PC300
+  (not only this one).
+- drivers which are in current 2.4 include Moxa C101 and RISCom/N2,
+  which are older ISA cards. Most of their users currently use 2.5
+  generic HDLC (a patch) with 2.4 kernels anyway.
+- the other driver affected is DSCC4, but I know exactly nothing about
+  it (a 2.5 version of it is, of course, available). What do you think,
+  Francois?
+
+The update, if any, wouldn't take place yet. I would expect it to happen
+after some remaining questions regarding 2.5 code are resolved - chances
+are there will be small changes to 2.5 generic HDLC interface first.
 -- 
-Support the project - http://www.gtonline.net/private/mapp/project/
+Krzysztof Halasa
+Network Administrator
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbQLQAvw>; Sat, 16 Dec 2000 19:51:52 -0500
+	id <S131091AbQLQAwC>; Sat, 16 Dec 2000 19:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131350AbQLQAvm>; Sat, 16 Dec 2000 19:51:42 -0500
-Received: from jalon.able.es ([212.97.163.2]:36809 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131091AbQLQAvf>;
-	Sat, 16 Dec 2000 19:51:35 -0500
-Date: Sun, 17 Dec 2000 01:21:02 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001217012102.E689@werewolf.able.es>
-In-Reply-To: <91fiht$7ve$1@enterprise.cistron.net> <Pine.LNX.3.96.1001216084813.22767C-100000@tarot.mentasm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.3.96.1001216084813.22767C-100000@tarot.mentasm.org>; from ferret@phonewave.net on Sat, Dec 16, 2000 at 18:20:46 +0100
-X-Mailer: Balsa 1.0.0
+	id <S131452AbQLQAvw>; Sat, 16 Dec 2000 19:51:52 -0500
+Received: from lips.borg.umn.edu ([160.94.232.50]:19987 "EHLO
+	lips.borg.umn.edu") by vger.kernel.org with ESMTP
+	id <S131091AbQLQAvr>; Sat, 16 Dec 2000 19:51:47 -0500
+Message-ID: <3A3C06F7.54F51AFA@thebarn.com>
+Date: Sat, 16 Dec 2000 18:21:11 -0600
+From: Russell Cattelan <cattelan@thebarn.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.12 i386)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <Pine.LNX.4.10.10012142208420.1308-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lets try another scenario (from user point of view)
-Ship kernel sources split in kernel-headers-2.2.18(tar.bz2,rpm,deb) and
-kernel-source-2.2.18, and a binary kernel-2.2.18
+Linus Torvalds wrote:
 
-One user not doing kernel compiles, but with various installed
-kernels to try has:
-/usr/include/kernel-2.2.18
-/usr/include/kernel-2.4.0
-/usr/include/kernel -> kernel-2.2.18 (setup at boot-init scripts 
-                                      with uname -r)
-User can compile userspace apps and test kernel modules including
-/usr/include/kernel. If glibc is kernel independent, glibc headers
-just include 'kernel'. If it is kernel dependent, include 
-'kernel-x.y.z'.
+> On Thu, 14 Dec 2000, Russell Cattelan wrote:
+> >
+> > Ok one more wrinkle.
+> > sync_buffers calls ll_rw_block, this is going to have the same problem as
+> > calling ll_rw_block directly.
+>
+> Good point.
+>
+> This actually looks fairly nasty to fix. The obvious fix would be to not
+> put such buffers on the dirty list at all, and instead rely on the VM
+> layer calling "writepage()" when it wants to push out the pages.
+> That would be the nice behaviour from a VM standpoint.
+>
+> However, that assumes that you don't have any "anonymous" buffers, which
+> is probably an unrealistic assumption.
+>
+> The problem is that we don't have any per-buffer "writebuffer()" function,
+> the way we have them per-page. It was never needed for any of the normal
+> filesystems, and XFS just happened to be able to take advantage of the
+> b_end_io behaviour.
+>
+> Suggestions welcome.
+>
+>                 Linus
 
-User rebuilding kernel: kernel-source-x.y.z always look at
-/usr/include/kernel-x.y.z, not just kernel.
-A developer building a patched kernel that does not change headers
-can manually do 
-/usr/include/kernel-2.2.18-my-pre -> /usr/include/kernel-2.2.18
-If he need to change headers, dup include tree.
+Ok after a bit of trial and error I do have something working.
+I wouldn't call it the most elegant solution but it does work
+and it isn't very intrusive.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+#define BH_End_io  7    /* End io function defined don't remap it */
 
-Linux werewolf 2.2.19-pre1 #1 SMP Fri Dec 15 22:25:20 CET 2000 i686
+                /*  don't change the callback if somebody explicitly set it */
+
+                if(!test_bit(BH_End_io, &bh->b_state)){
+                  bh->b_end_io = end_buffer_io_sync;
+                }
+What I've done is in the XFS set buffer_head setup functions is
+set the initial value of b_state to BH_Locked  and BH_End_io
+set the callback function and the rest of the relevant fields and then unlock
+the
+buffer.
+
+The only other quick fix that comes to mind is to change sync_buffers to use
+submit_bh rather than ll_rw_block.
+
+--
+Russell Cattelan
+cattelan@thebarn.com
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

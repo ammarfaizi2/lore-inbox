@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265981AbUA2QGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 11:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUA2QF7
+	id S266193AbUA2QNH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 11:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUA2QNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 11:05:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23952 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265981AbUA2QF6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 11:05:58 -0500
-Date: Thu, 29 Jan 2004 08:05:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthew Wilcox <willy@debian.org>
-cc: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Andi Kleen <ak@colin2.muc.de>,
-       Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-In-Reply-To: <20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0401290802370.689@home.osdl.org>
-References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com>
- <20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk>
- <20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jan 2004 11:13:07 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:31106 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S266193AbUA2QNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 11:13:04 -0500
+Date: Thu, 29 Jan 2004 16:21:47 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200401291621.i0TGLlHd001384@81-2-122-30.bradfords.org.uk>
+To: Stephen Smoogen <smoogen@lanl.gov>, chakkerz@optusnet.com.au
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075391946.5035.17.camel@smoogen2.lanl.gov>
+References: <4017F2C0.4020001@techsource.com>
+ <200401291211.05461.chakkerz@optusnet.com.au>
+ <1075391946.5035.17.camel@smoogen2.lanl.gov>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 29 Jan 2004, Matthew Wilcox wrote:
+Quote from Stephen Smoogen <smoogen@lanl.gov>:
+> On Wed, 2004-01-28 at 18:11, Christian Unger wrote:
+> > Oh ... don't get me wrong, i think that the conceptual idea is awesome. 
+> > Personally, i wouldn't know where to begin, but can the open source community 
+> > compete with Nvidia and ATI? afterall this goes beyond software, it delves 
 > 
-> Brian Gerst spotted a bug -- I'd forgotten to initialise mmcfg_virt_addr.
+> Well I think the first problem is that the idea is currently too big. If
+> someone were to do this sucessfully they would make the first open cards
+> something like a Trident 8900C. Something small but usable for people
+> who need it. The next cards would add onto it, and so on and so on until
+> you got a base that would meet the 3D ATI/Nvidia needs. Trying to aim
+> for the top at the beginning is a great way to crater.
 
-The compiler _should_ entirely compile away "fix_to_virt(xxx)", so by 
-creating a variable for the value, you're actually making code generation 
-worse. You might as well have
+A simple framebuffer connected to the parallel port would be trivial
+to make, and it would be suprisingly useful for simple applications
+such as word processing.  Literally a handful of components soldered
+on to a piece of stripboard and well written drivers for the
+framebuffer console and X is all it would take.  No need for anything
+remotely fancy at first.
 
-	#define mmcfg_virt_addr (fix_to_virt(FIX_PCIE_MCFG))
-
-instead.
-
-That said, this patch looks perfectly acceptable to me. With some testing, 
-I'd take it through Greg or -mm.
-
-		Linus
+John.

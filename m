@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131330AbQJ1Uif>; Sat, 28 Oct 2000 16:38:35 -0400
+	id <S131388AbQJ1Uih>; Sat, 28 Oct 2000 16:38:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129068AbQJ1Ui1>; Sat, 28 Oct 2000 16:38:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:5640 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131330AbQJ1UiO>;
-	Sat, 28 Oct 2000 16:38:14 -0400
-Date: Sat, 28 Oct 2000 13:40:40 -0700
-From: Jens Axboe <axboe@suse.de>
-To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+	id <S131337AbQJ1Ui0>; Sat, 28 Oct 2000 16:38:26 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:6660 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S131333AbQJ1UiS>;
+	Sat, 28 Oct 2000 16:38:18 -0400
+Message-Id: <200010281456.e9SEue007566@sleipnir.valparaiso.cl>
+To: Jens Maurer <jmaurer@cck.uni-kl.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 & ASUS CD-S500/A (again)
-Message-ID: <20001028134040.I3919@suse.de>
-In-Reply-To: <3.0.1.32.20001028221127.008b6460@pop.tiscalinet.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3.0.1.32.20001028221127.008b6460@pop.tiscalinet.it>; from lenstra@tiscalinet.it on Sat, Oct 28, 2000 at 10:11:27PM +0200
-X-OS: Linux 2.4.0-test10 i686
+Subject: linux-2.4.0-test10-pre6: Trigraphs in drivers/pci/devlist.h
+X-Mailer: MH [Version 6.8.4]
+Date: Sat, 28 Oct 2000 11:56:40 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28 2000, Lorenzo Allegrucci wrote:
-> I've got this while trying to play an audio CD by cdplay.
+I understand you are in charge of this per MAINTAINERS, it not, I
+apologize for bothering you.
 
-[snip]
+Red Hat 7, i686, gcc-20001027 (from CVS) complains about '??)' trigraphs at
+lines 1278 and 6367. Should that be just '(?)', or perhaps 'xx'? (egcs-1.1.2
+keeps quiet).
 
-> NOTE:
-> 2.4.0-test9 works without problems.
+[Yes, trigraphs are bletcherous. Perhaps disable the warning for good in
+ Makefile:
 
-2.2.18-pre-latest will do then, could you try that?
-
+ HOSTCFLAGS      = -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+]
+Thanks!
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                              +56 32 672616
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

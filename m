@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVAVBqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVAVBrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVAVBqg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 20:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVAVBqg
+	id S262398AbVAVBrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 20:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAVBri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 20:46:36 -0500
-Received: from main.gmane.org ([80.91.229.2]:19375 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262394AbVAVBpo (ORCPT
+	Fri, 21 Jan 2005 20:47:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:33003 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262405AbVAVBr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 20:45:44 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dan Stromberg <strombrg@dcs.nac.uci.edu>
-Subject: Loopback mounting from a file with a partition table?
-Date: Fri, 21 Jan 2005 17:45:32 -0800
-Message-ID: <pan.2005.01.22.01.45.31.457367@dcs.nac.uci.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: seki.nac.uci.edu
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+	Fri, 21 Jan 2005 20:47:28 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16881.45225.726680.430987@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Jan 2005 12:47:21 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: anton@samba.org, moilanen@austin.ibm.com
+Subject: [PATCH] PPC64 Fix in_be64 definition
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone tried loopback mounting individual partitions from within a
-file that contains a partition table?
+This patch is from Jake Moilanen <moilanen@austin.ibm.com>.
 
-When I mount -o loop the file, I seem to get the first partition in the
-file, but I don't see anything in the man page for mount that indicates a
-way of getting any other partitions from a file with a partition table.
+The instruction syntax for the in_be64 inline asm was incorrect for
+the "m" constraint for the address parameter.  This patch fixes the
+instruction in the inline asm.
 
-Any comments?
+Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Thanks!
-
-
+diff -puN include/asm-ppc64/io.h~in_be64-fix include/asm-ppc64/io.h
+--- linux-2.6-bk/include/asm-ppc64/io.h~in_be64-fix	Tue Jan  4 15:33:22 2005
++++ linux-2.6-bk-moilanen/include/asm-ppc64/io.h	Wed Jan  5 08:08:03 2005
+@@ -371,7 +371,7 @@ static inline unsigned long in_be64(cons
+ {
+ 	unsigned long ret;
+ 
+-	__asm__ __volatile__("ld %0,0(%1); twi 0,%0,0; isync"
++	__asm__ __volatile__("ld%U1%X1 %0,%1; twi 0,%0,0; isync"
+ 			     : "=r" (ret) : "m" (*addr));
+ 	return ret;
+ }

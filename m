@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVAaOl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAaOvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVAaOl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 09:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVAaOl5
+	id S261225AbVAaOvF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 09:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVAaOvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 09:41:57 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:48258 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261221AbVAaOlo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 09:41:44 -0500
-Message-ID: <41FE439B.6080500@cosmosbay.com>
-Date: Mon, 31 Jan 2005 15:41:31 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: fr, en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org, akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Time to change NR_OPEN value
-References: <41FE2C63.mailD8U11TTK4@phoenix.one.melware.de>
-In-Reply-To: <41FE2C63.mailD8U11TTK4@phoenix.one.melware.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jan 2005 09:51:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7337 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261225AbVAaOvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 09:51:03 -0500
+Date: Mon, 31 Jan 2005 14:51:00 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
+       Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.11-rc2-mm2
+Message-ID: <20050131145100.GA13161@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Paul Blazejowski <diffie@gmail.com>,
+	linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>
+References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050129235653.1d9ba5a9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Time has come to change NR_OPEN value, some production servers hit the 
-not so 'ridiculously high value' of 1024*1024 file descriptors per process.
+On Sat, Jan 29, 2005 at 11:56:53PM -0800, Andrew Morton wrote:
+> Paul Blazejowski <diffie@gmail.com> wrote:
+> >
+> > Kernel compile errors here, i think this might be XFS related...
+> > 
+> >  fs/built-in.o(.text+0x52a93): In function `linvfs_decode_fh':
+> >  : undefined reference to `find_exported_dentry'
+> >  make: *** [.tmp_vmlinux1] Error 1
+> 
+> bix:/home/akpm> grep EXPORT x
+> CONFIG_XFS_EXPORT=y
+> CONFIG_EXPORTFS=m
+> 
+> That isn't going to work.  Something like this, perhaps?
 
-AFAIK this is safe to raise this value, because alloc_fd_array() uses 
-vmalloc() for large arrays and vmalloc() returns NULL  if a too large 
-allocation is attempted (or in case of memory shortage)
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+This patch (implementing Roman's suggestion) should fix it:
 
-diff -Nru /tmp/fs.h include/linux/fs.h
---- linux.orig/include/linux/fs.h   2005-01-31 15:28:01.926685144 +0100
-+++ inux/include/linux/fs.h  2005-01-31 15:29:37.047224624 +0100
-@@ -32,7 +32,8 @@
-   * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
-   * the file limit at runtime and only root can increase the per-process
-   * nr_file rlimit, so it's safe to set up a ridiculously high absolute
-- * upper limit on files-per-process.
-+ * upper limit on files-per-process. Actual limit depends on vmalloc()
-+ * constraints.
-   *
-   * Some programs (notably those using select()) may have to be
-   * recompiled to take full advantage of the new limits..
-@@ -40,7 +41,7 @@
-
-  /* Fixed constants first: */
-  #undef NR_OPEN
--#define NR_OPEN (1024*1024)    /* Absolute upper limit on fd num */
-+#define NR_OPEN (16*1024*1024) /* Absolute upper limit on fd num */
-  #define INR_OPEN 1024          /* Initial setting for nfile rlimits */
-
-  #define BLOCK_SIZE_BITS 10
-
+--- linux-2.6.11-rc2-mm1/fs/xfs/Kconfig~	2005-01-31 15:56:45.969973712 +0100
++++ linux-2.6.11-rc2-mm1/fs/xfs/Kconfig	2005-01-31 15:57:12.236974472 +0100
+@@ -3,6 +3,7 @@
+ config XFS_FS
+ 	tristate "XFS filesystem support"
+ 	select QSORT
++	select EXPORTFS if NFSD
+ 	help
+ 	  XFS is a high performance journaling filesystem which originated
+ 	  on the SGI IRIX platform.  It is completely multi-threaded, can

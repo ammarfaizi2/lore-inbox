@@ -1,98 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266310AbSKGDQm>; Wed, 6 Nov 2002 22:16:42 -0500
+	id <S266314AbSKGDlm>; Wed, 6 Nov 2002 22:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266311AbSKGDQm>; Wed, 6 Nov 2002 22:16:42 -0500
-Received: from packet.digeo.com ([12.110.80.53]:12247 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266310AbSKGDQk>;
-	Wed, 6 Nov 2002 22:16:40 -0500
-Message-ID: <3DC9DCA1.F3AFC34A@digeo.com>
-Date: Wed, 06 Nov 2002 19:23:13 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
+	id <S266315AbSKGDlm>; Wed, 6 Nov 2002 22:41:42 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:20910 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S266314AbSKGDlk>; Wed, 6 Nov 2002 22:41:40 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] ext3 inode accounting fix
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2002 03:23:13.0366 (UTC) FILETIME=[0142FF60:01C2860D]
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-6d9993d4-2405-4c39-ae3f-40f20eaf1cab"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Subject: RE: [Lmbench-users] Latest kernel LMBench performance results.(wi th HZ=1000)
+Date: Thu, 7 Nov 2002 09:18:10 +0530
+Message-ID: <7F396B9772328640B7593FA817EEEDAD08ACBA@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lmbench-users] Latest kernel LMBench performance results.(wi th HZ=1000)
+Thread-Index: AcKGCz4qMqe5BAuFQ6+PD9YhCenq3AABNFZw
+From: "Pavan Kumar Reddy N.S." <pavan.kumar@wipro.com>
+To: "Ralf Baechle" <ralf@linux-mips.org>,
+       "Nagel Michael" <Michael.Nagel@fci.com>
+Cc: <lmbench-users@bitmover.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Nov 2002 03:48:10.0620 (UTC) FILETIME=[7DB1D3C0:01C28610]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ext3 in the 2.5.46 kernel is double-counting inodes in the per-blockgroup
-accounting structures.  When a blockgroup fills up this triggers a
-consistency check and the filesystem is remounted read-only.
+This is a multi-part message in MIME format.
 
-There is no data loss, but all ext3 filesystems which have been mounted
-read/write under the 2.5.46 kernel will have incorrect accounting.   They
-must be fixed with a fsck.  If this is not done, the filesystem will
-be remounted read-only at some time in the future - when a blockgroup
-runs out of inodes and the consistency check detects the error.
-
-Step 1: patch the 2.5.46 kernel with the below fix
-
-Step 2: reboot into the new kernel, forcing a fsck against all ext3
-        filesystems.
-
-Alternatively, wait for 2.5.47 and then fsck all filesystems.  The problem
-only manifests if all of a blockgroup's inodes are consumed, and that is
-rare.
+------=_NextPartTM-000-6d9993d4-2405-4c39-ae3f-40f20eaf1cab
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
 
---- 25/fs/ext3/ialloc.c~ext3-inodes-count-fix	Wed Nov  6 16:16:55 2002
-+++ 25-akpm/fs/ext3/ialloc.c	Wed Nov  6 16:24:20 2002
-@@ -227,11 +227,6 @@ static int find_group_dir(struct super_b
- 	}
- 	if (!best_desc)
- 		return -1;
--	best_desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(best_desc->bg_free_inodes_count) - 1);
--	best_desc->bg_used_dirs_count =
--		cpu_to_le16(le16_to_cpu(best_desc->bg_used_dirs_count) + 1);
--	mark_buffer_dirty(best_bh);
- 	return best_group;
- }
+There is debugging code enabled for the loopback interface
+in 2.5.x to test out some new features in the networking stack.
+This is another reason for the performance drop.
+
+-pavan
+
+> -----Original Message-----
+> From: Ralf Baechle [mailto:ralf@linux-mips.org]=20
+> Sent: Thursday, November 07, 2002 8:33 AM
+> To: Nagel, Michael
+> Cc: lmbench-users@bitmover.com
+> Subject: Re: [Lmbench-users] Latest kernel LMBench=20
+> performance results.(wi th HZ=3D1000)
+>=20
+>=20
+> On Wed, Nov 06, 2002 at 10:05:17AM +0100, Nagel, Michael wrote:
+>=20
+> > Reading the results I saw a noticeable decrease of the TCP=20
+> performance=20
+> > between the 2.4.x and the 2.5.x kernels. Any explanations=20
+> on that? How=20
+> > about the impact on performance for server-related applications?
+>=20
+> That's a typical observation for development kernels and=20
+> should not be valued to highly.  In the past month large=20
+> parts of the kernel code have be rewritten.  All these=20
+> subsystems and their frequently very subtle interaction with=20
+> each other still need alot of fine tuning which will happen=20
+> as we progress further to a 2.6 release and probably even=20
+> beyond 2.6.0.
+>=20
+>   Ralf
+> _______________________________________________
+> Lmbench-users mailing list
+> Lmbench-users@bitmover.com=20
+> http://bitmover.com/mailman/listinfo/lmbench-> users
+>=20
+
+------=_NextPartTM-000-6d9993d4-2405-4c39-ae3f-40f20eaf1cab
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer**************************************************    
  
-@@ -355,14 +350,7 @@ fallback:
- 	}
- 
- 	return -1;
--
- found:
--	desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_free_inodes_count) - 1);
--	desc->bg_used_dirs_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_used_dirs_count) + 1);
--	sbi->s_dir_count++;
--	mark_buffer_dirty(bh);
- 	return group;
- }
- 
-@@ -410,9 +398,6 @@ static int find_group_other(struct super
- 	return -1;
- 
- found:
--	desc->bg_free_inodes_count =
--		cpu_to_le16(le16_to_cpu(desc->bg_free_inodes_count) - 1);
--	mark_buffer_dirty(bh);
- 	return group;
- }
- 
-@@ -521,9 +506,11 @@ repeat:
- 	if (err) goto fail;
- 	gdp->bg_free_inodes_count =
- 		cpu_to_le16(le16_to_cpu(gdp->bg_free_inodes_count) - 1);
--	if (S_ISDIR(mode))
-+	if (S_ISDIR(mode)) {
- 		gdp->bg_used_dirs_count =
- 			cpu_to_le16(le16_to_cpu(gdp->bg_used_dirs_count) + 1);
-+		EXT3_SB(sb)->s_dir_count++;
-+	}
- 	BUFFER_TRACE(bh2, "call ext3_journal_dirty_metadata");
- 	err = ext3_journal_dirty_metadata(handle, bh2);
- 	if (err) goto fail;
+ Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
+and 'confidential' and intended for use only by the individual or entity to which it is 
+addressed. You are notified that any use, copying or dissemination of the information 
+contained in the E-MAIL in any manner whatsoever is strictly prohibited.
 
-_
+****************************************************************************************
+
+------=_NextPartTM-000-6d9993d4-2405-4c39-ae3f-40f20eaf1cab--

@@ -1,54 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282848AbRLTJlY>; Thu, 20 Dec 2001 04:41:24 -0500
+	id <S282945AbRLTJpO>; Thu, 20 Dec 2001 04:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRLTJlO>; Thu, 20 Dec 2001 04:41:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11018 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282688AbRLTJk7>; Thu, 20 Dec 2001 04:40:59 -0500
-Date: Thu, 20 Dec 2001 09:37:10 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI updates - 32-bit IO support
-Message-ID: <20011220093710.C29925@flint.arm.linux.org.uk>
-In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk> <9vrmea$mef$1@cesium.transmeta.com> <20011219.213019.35013739.davem@redhat.com>
-Mime-Version: 1.0
+	id <S282907AbRLTJpF>; Thu, 20 Dec 2001 04:45:05 -0500
+Received: from elin.scali.no ([62.70.89.10]:28433 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S282702AbRLTJo6>;
+	Thu, 20 Dec 2001 04:44:58 -0500
+Message-ID: <3C21B30D.871B6BE4@scali.no>
+Date: Thu, 20 Dec 2001 10:44:45 +0100
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, nfs list <nfs@lists.sourceforge.net>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: 2.4.8 NFS Problems
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011219.213019.35013739.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 09:30:19PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 09:30:19PM -0800, David S. Miller wrote:
-> Don't the PCI specs actually talk about 24-bits in fact?
-> 
-> Russell does you box really have the full 32-bits or is it
-> really just 24-bits?
+Hi guys,
 
-Shrug - the chip documentation isn't good enough to indicate either.
+I was searching on google for some reports on the problem I'm seeing with our NFS server/clients and
+found this thread. It looked somewhat the same (atleast the result with the EIO is the same).
 
-What I do know is:
+Parts of old message :
 
-- setting the bridge and eepro100 up with 16-bit IO addresses causes PCI
-  master aborts.
-- setting the bridge and eepro100 up with 32-bit IO addresses which
-  correspond to the host MMIO region, it works perfectly.
+>From: Mike Black (mblack@csihq.com)
+>Date: Sep 05 2001 
 
-It appears that the first bridge converts the mmio access into a PCI
-IO read/write cycle without any address translation.  So, when I
-access mmio 0x90011000, it would appear to cause a PCI IO cycle at
-the same address.
+>I've been getting random NFS EIO errors for a few months but
+>now it's repeatable. 
+>Trying to copy a large file from one 2.4.8 SMP box to another
+>is consistently failing (at different offsets >each time). 
 
-The MMIO region for this bus is 0x90010000 - 0x9001ffff, so its impossible
-to test the effect of different upper 16-bits.
 
-I suppose I could waste some time by getting Linux to generate lots of IO
-cycles and scoping the PCI bus lines to find the PCI address, but I think
-its rather academic in light of the above.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Our setup is like this :
 
+Server:
+	RedHat 7.2 - kernel 2.4.9-13smp
+        nfs-utils-0.3.1-13.7.2.1
+	ext3 filesystem (73GB)
+
+
+Clients:
+	ia32 client - RedHat 6.2 - kernel 2.2.19-6.2.7enterprise
+	mount-2.10r-0.6.x
+
+
+	alpha client - RedHat 6.2 - kernel 2.2.19 (vanilla)
+	mount-2.10r-5
+
+
+	ia64 client - RedHat 7.1 - kernel 2.4.3-12smp
+	mount-2.10r-5
+
+
+
+I've seen the "Input/Output error" problem only on the Alpha and the IA64 clients and the problem is
+occuring when making a static library (with 'ar'). The message is like this :
+
+ar: xxxxxx/libmpi.a: Input/output error
+
+
+The mountpoints is mounted like this :
+
+ia32 client:
+huey:/export/home/mpitest /home/mpitest nfs rw,v3,rsize=8192,wsize=8192,addr=huey 0 0
+
+alpha client:
+huey:/export/home/mpitest /home/mpitest nfs rw,v3,rsize=8192,wsize=8192,addr=huey 0 0
+
+ia64 client:
+huey:/export/home/mpitest /home/mpitest nfs rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=huey 0 0
+
+
+I don't know why the "hard" and "lock" options doesn't appear on ia32 and alpha, but this might be
+related to the /proc/mounts interface on the running kernel (these clients are running 2.2.19 while
+the ia64 client is running 2.4). The automount entry looks like this :
+
+/home           auto_home       rsize=8192,wsize=8192
+
+So according to the nfs man pages the "hard" option should be default :
+
+       hard           If an NFS file operation has a major timeout then report "server not
+                      responding" on the console and continue retrying indefinitely.  This
+                      is the default.
+
+
+So what could be the problem here ? Is it a NFS server bug, a NFS client bug or a NFS/ext3 bug ? We
+used to run RedHat 7.0 on this server with the 2.2.19-enterprise kernel, nfs-utils-0.3.1-7 and with
+a ext2 filesystem. This problem did not occur back then.
+
+Thanks,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265993AbUBEQSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 11:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbUBEQSe
+	id S266364AbUBEQdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 11:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266395AbUBEQdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 11:18:34 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:9614 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265993AbUBEQSc
+	Thu, 5 Feb 2004 11:33:21 -0500
+Received: from mailgate.wolfson.co.uk ([194.217.161.2]:9197 "EHLO
+	wolfsonmicro.com") by vger.kernel.org with ESMTP id S266364AbUBEQdS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 11:18:32 -0500
-Message-ID: <40226C49.4010307@cyberone.com.au>
-Date: Fri, 06 Feb 2004 03:16:09 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-References: <20040205014405.5a2cf529.akpm@osdl.org> <40222D4B.6050608@cyberone.com.au> <68430000.1075997516@[10.10.2.4]>
-In-Reply-To: <68430000.1075997516@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Feb 2004 11:33:18 -0500
+Subject: Re: [BUG] unsafe reset in ac97_codec.c
+From: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <40216306.2010602@pobox.com>
+References: <1075822947.5204.506.camel@cearnarfon>
+	 <40216306.2010602@pobox.com>
+Content-Type: text/plain
+Message-Id: <1075998717.5204.1003.camel@cearnarfon>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 05 Feb 2004 16:31:57 +0000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-02-04 at 21:24, Jeff Garzik wrote:
+
+> In general it's important for Linux to be able to reset a device 
+> reliable.  Where in Other Operating Systems one must reboot the 
+> computer, Linux users can just re-load the driver quite often.
+> 
+> So I think there are two comments here:
+> 
+> * I can certainly see -probing- being unreliable (but not necessarily reset)
+
+I agree, but I think we need to be aware of the codec type before we do
+a register reset. This type of codec is now becoming popular in PDA's.
+
+> 
+> * If the default state for some devices is power-down, the driver should 
+> be aware of that -anyway-, and we should power up on startup or on-demand.
+> 
+
+I can see another problem with the current probe implementation.
+Currently it sends the register reset command without first checking the
+codec ready bit. This assumes that the AC97 link is up and completely
+working before probe is called.
+
+I would like to suggest some changes to probe:-
+
+1. We have a new flag AC97_DEFAULT_POWER_OFF in ac97_codec_ids[] to mark
+codecs that have a default power state of "off".
+
+2. Probe checks the codec ready bit (or waits 10uS) first before doing
+anything else.
+
+3. Probe reads the codec ID (hardwired codec registers) and if the codec
+is of type AC97_DEFAULT_POWER_OFF then goes to step 6. In this case the
+code that calls probe will have done a warm reset to wake the codec in
+the first place.
+
+4. Send register reset to codec.
+
+5. wait for codec ready bit. 
+
+6. carry on as original probe, by reading register AC97_RESET
+
+I'll implement this if it's acceptable as I can test it on both types of
+codec.
+
+Liam
 
 
-Martin J. Bligh wrote:
-
->--Nick Piggin <piggin@cyberone.com.au> wrote (on Thursday, February 05, 2004 22:47:23 +1100):
->
->
->>Andrew Morton wrote:
->>
->>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
->>>
->>>
->>>- Merged some page reclaim fixes from Nick and Nikita.  These yield some
->>> performance improvements in low memory and heavy paging situations.
->>>
->>>
->>>
->>Nikita's vm-dont-rotate-active-list.patch still has this:
->>
->>+/* dummy pages used to scan active lists */
->>+static struct page scan_pages[MAX_NUMNODES][MAX_NR_ZONES];
->>+
->>
->>Which probably needs its nodes and cachelines untangled.
->>Maybe it doesn't - I really don't know.
->>
->
->The idle toad's way is to shove it in the pgdat.
->Maybe even the zone structure?
->
->
-
-It logically belongs in the zone structure, but apparently
-dependancies will not allow that right now.
 

@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbTI3NsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTI3NsK
+	id S261473AbTI3Nxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTI3Nxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:48:10 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:32730 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261495AbTI3NsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:48:04 -0400
-Date: Tue, 30 Sep 2003 15:44:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
-Message-ID: <20030930134453.GA25198@ucw.cz>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc> <20030930125126.GA24122@ucw.cz> <20030930132134.GA17242@cathedrallabs.org>
+	Tue, 30 Sep 2003 09:53:51 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:50267 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261473AbTI3Nxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:53:47 -0400
+Date: Tue, 30 Sep 2003 14:53:24 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20030930135324.GC5507@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jamie Lokier <jamie@shareable.org>, akpm@osdl.org,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	richard.brunner@amd.com
+References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com> <20030930133936.GA28876@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030930132134.GA17242@cathedrallabs.org>
+In-Reply-To: <20030930133936.GA28876@mail.shareable.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 10:21:34AM -0300, Aristeu Sergio Rozanski Filho wrote:
+On Tue, Sep 30, 2003 at 02:39:36PM +0100, Jamie Lokier wrote:
+ > Dave Jones wrote:
+ > > This looks to be completely gratuitous. Why disable it when we have the
+ > > ability to work around it ?
+ > 
+ > Because some people expressed a wish to have kernels that don't
+ > contain the workaround code, be they P4-optimised or 486-optimised
+ > kernels.
 
-> > This is because it is the same as on the latest 2.4 kernel. 2.6 used
-> > software autorepeat up to test6. Now, because of hardware bugs, it was
-> > necessary to switch back to hardware autorepeat, like 2.4 uses.
-> and it fixes the problem with my notebook's keyboard, thanks :)
+And those people are wrong. If they want to save bloat, instead of
+'fixing' things by removing <1 page of .text, how about working on
+some of the real problems like shrinking some of the growth of various
+data structures that actually *matter*.
 
-What problem exactly was that?
+The "I don't want Athlon code in my kernel because I run a P4 and
+it makes it slow/bigger" argument is totally bogus. It's akin to
+the gentoo-esque "I compiled my distro with -march=p4 and now
+my /bin/ls is faster than yours" argument.
 
-> > Interesting. This probably has much to do with mouse acceleration
-> > settings. What was done was that the mouse report rate was made LOWER
-> > (60 compared to 200) to cure problems with some systems that couldn't
-> > handle the high report rate.
-> > 
-> > This makes the movement per report larger and thus the acceleration
-> > formula in XFree then works more aggressively.
+ > After all we have kernels that don't contain the F00F
+ > workaround too.  I'm not pushing this patch as is, it's for
+ > considering the pros and cons.
 
-> test6 was the first 2.5/2.6 kernel that psmouse_noext=1 wasn't necessary
-> to make my synaptics touchpad work. but i noticed it's much more
-> sensible (with leads to be very difficult to hit xmms' pause button :)
-> than using it with noext option. is anyone working in an user level
-> application to configure 2.6's synaptics touchpad driver?
+F00F workaround was enabled on every kernel that is possible
+to boot on affected hardware last time I looked.
+This is what you seem to be missing, it's not optional.
+If its possible to boot that kernel on affected hardware, 
+it needs errata workarounds.
 
-Have you tried the
+ > CONFIG_X86_PREFETCH_WORKAROUND makes more makes more sense with the
+ > recently available "split every x86 CPU into individually selectable
+ > options" patch, and, on reflection, that's probably where it belongs.
 
-	http://w1.894.telia.com/~u89404340/touchpad/index.html
+Said patch isn't included in mainline, so this argument is bogus.
+Relative merits of that patch were already discussed in another thread.
 
-XFree86 driver?
+		Dave
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316715AbSEQWkF>; Fri, 17 May 2002 18:40:05 -0400
+	id <S316717AbSEQWlQ>; Fri, 17 May 2002 18:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316717AbSEQWkE>; Fri, 17 May 2002 18:40:04 -0400
-Received: from bitmover.com ([192.132.92.2]:14241 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316715AbSEQWkE>;
-	Fri, 17 May 2002 18:40:04 -0400
-Date: Fri, 17 May 2002 15:40:04 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Andrew Morton <akpm@zip.com.au>, Wayne.Brown@altec.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020517154004.I8794@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Andrew Morton <akpm@zip.com.au>, Wayne.Brown@altec.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020517214247.GA26374@holomorphy.com> <Pine.LNX.4.44.0205171707510.26436-100000@chaos.physics.uiowa.edu> <20020517223431.GB26374@holomorphy.com>
+	id <S316718AbSEQWlP>; Fri, 17 May 2002 18:41:15 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:45316
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S316717AbSEQWlO>; Fri, 17 May 2002 18:41:14 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: akpm@zip.com.au
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020517183411.02198598@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 May 2002 18:35:06 -0400
+To: Andrew Morton <akpm@zip.com.au>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: [PATCH] Fix BUG macro
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ghozlane Toumi <ghoz@sympatico.ca>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <3CE54EE0.70FB57E9@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 03:34:31PM -0700, William Lee Irwin III wrote:
-> On Fri, May 17, 2002 at 05:16:22PM -0500, Kai Germaschewski wrote:
-> > I suppose you want ccache then. kbuild-2.5 may save two minutes of your
-> > one hour build. The current kbuild's problem is not that it recompiles too
-> > many files, but rather too few sometimes (in particular with modversions).
-> > (And yes, ccache won't work too well if you move your trees around, since 
-> > *both* build systems use absolute paths. That needs fixing)
-> 
-> Hmm. That kind of blows. Well, someone else's problem (or is it?). I'll
-> take it for what it can do now and plod along.
+At 11:41 AM 5/17/2002 -0700, Andrew Morton wrote:
 
-In the for what it is worth department, we like ccache here at BitMover and
-converted the CVS tree to BK just for fun.
+>> Well, a way to work around this would be to replace
+>> 
+>>         -I$(TOPDIR)/include
+>> 
+>> with
+>> 
+>>         -I../../include
+>> 
+>> on the command line, I suppose, with the right amount of "../". A bit
+>> hackish, but it should do.
+>
+>Almost..  The final solution to all problems is to merge
+>kbuild-2.5 and then to teach it to use relative pathnames
+>when performing a build within the source tree.  Presumably
+>that's not hard, but I'm surely about to learn why it's
+>not feasible.
 
-	http://ccache.bkbits.net
+What if you just let $TOPDIR = '../..' ?
 
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+--
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
+

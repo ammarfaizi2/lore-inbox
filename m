@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVCaJUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVCaJ2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVCaJUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 04:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCaJT6
+	id S261263AbVCaJ2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 04:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVCaJ10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 04:19:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:61743 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261245AbVCaJIa (ORCPT
+	Thu, 31 Mar 2005 04:27:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:64806 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261263AbVCaJIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 04:08:30 -0500
+	Thu, 31 Mar 2005 04:08:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=JwZyzodtIOm+P1DsqUlyq4qcupHmcyx9W7Zxac5tvnrs5P9aPYRcihh45mZi/cTSToTX50MzARIzYw0yMplLqdlWKfwOir2RFXk1iSGnVrK9DOWIzhwZL3Ur2gHrlp7Fo0XszgBxlS7k/dzRoW/LRt5SrLDSnM9qydXd2Kf/POk=
+        b=qQonwjSR+R65b8Y4/4Oj5I9z5cUjy/6W4IPp0iHlV2gI4lfHM0XUZg5c/dtBobEGINGMWKRSuACeLi0GlxipRCjajrm7F7bvBoQiMA3H8W6tH+ihYbrX61z4HeLMEMuygI6AmFrvqxP+OSRAkohU2l1xbnOoNN/WPSM3CkzEfqU=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -20,75 +20,114 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050331090647.FEDC3964@htj.dyndns.org>
 In-Reply-To: <20050331090647.FEDC3964@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 07/13] scsi: move error handling out of scsi_init_io() into scsi_prep_fn()
-Message-ID: <20050331090647.79DF3B09@htj.dyndns.org>
-Date: Thu, 31 Mar 2005 18:08:25 +0900 (KST)
+Subject: Re: [PATCH scsi-misc-2.6 11/13] scsi: add reprep arg to scsi_requeue_command() and make it public
+Message-ID: <20050331090647.ABDB1FF4@htj.dyndns.org>
+Date: Thu, 31 Mar 2005 18:08:45 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-07_scsi_consolidate_prep_fn_error_handling.patch
+11_scsi_make_requeue_command_public.patch
 
-	When scsi_init_io() returns BLKPREP_DEFER or BLKPREP_KILL,
-	it's supposed to free resources itself.  This patch
-	consolidates defer and kill handling into scsi_prep_fn().
-	This fixes a queue stall bug which occurred when sgtable
-	allocation failed and device_busy == 0.
+	Add reprep argument to scsi_requeue_command(), remove
+	redundant q argument, add code to set cmd->state/owner, and
+	make the function public.  This patch is preparation for
+	consolidating requeue paths.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- scsi_lib.c |   23 ++++++++++++-----------
- 1 files changed, 12 insertions(+), 11 deletions(-)
+ scsi_lib.c  |   23 ++++++++++++++---------
+ scsi_priv.h |    1 +
+ 2 files changed, 15 insertions(+), 9 deletions(-)
 
 Index: scsi-export/drivers/scsi/scsi_lib.c
 ===================================================================
---- scsi-export.orig/drivers/scsi/scsi_lib.c	2005-03-31 18:06:21.000000000 +0900
-+++ scsi-export/drivers/scsi/scsi_lib.c	2005-03-31 18:06:21.000000000 +0900
-@@ -960,9 +960,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	printk(KERN_ERR "req nr_sec %lu, cur_nr_sec %u\n", req->nr_sectors,
- 			req->current_nr_sectors);
+--- scsi-export.orig/drivers/scsi/scsi_lib.c	2005-03-31 18:06:22.000000000 +0900
++++ scsi-export/drivers/scsi/scsi_lib.c	2005-03-31 18:06:22.000000000 +0900
+@@ -466,8 +466,8 @@ void scsi_device_unbusy(struct scsi_devi
+  *
+  * Purpose:	Handle post-processing of completed commands.
+  *
+- * Arguments:	q	- queue to operate on
+- *		cmd	- command that may need to be requeued.
++ * Arguments:	cmd	- command that may need to be requeued.
++ *		reprep	- needs to prep the command again?
+  *
+  * Returns:	Nothing
+  *
+@@ -478,11 +478,16 @@ void scsi_device_unbusy(struct scsi_devi
+  *		we need to request the blocks that come after the bad
+  *		sector.
+  */
+-static void scsi_requeue_command(struct request_queue *q, struct scsi_cmnd *cmd)
++void scsi_requeue_command(struct scsi_cmnd *cmd, int reprep)
+ {
++	struct request_queue *q = cmd->device->request_queue;
+ 	unsigned long flags;
  
--	/* release the command and kill it */
--	scsi_release_buffers(cmd);
--	scsi_put_command(cmd);
- 	return BLKPREP_KILL;
- }
- 
-@@ -1130,18 +1127,17 @@ static int scsi_prep_fn(struct request_q
- 		 * required).
- 		 */
- 		ret = scsi_init_io(cmd);
--		if (ret)	/* BLKPREP_KILL return also releases the command */
--			return ret;
--		
-+		if (ret == BLKPREP_DEFER)
-+			goto defer;
-+		else if (ret == BLKPREP_KILL)
-+			goto kill;
+-	cmd->request->flags &= ~REQ_DONTPREP;
++	cmd->state = SCSI_STATE_MLQUEUE;
++	cmd->owner = SCSI_OWNER_MIDLEVEL;
 +
- 		/*
- 		 * Initialize the actual SCSI command for this request.
++	if (reprep)
++		cmd->request->flags &= ~REQ_DONTPREP;
+ 	cmd->request->flags |= REQ_SOFTBARRIER;
+ 
+ 	spin_lock_irqsave(q->queue_lock, flags);
+@@ -556,7 +561,7 @@ static struct scsi_cmnd *scsi_end_reques
+ 				 * leftovers in the front of the
+ 				 * queue, and goose the queue again.
+ 				 */
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command(cmd, 1);
+ 
+ 			return cmd;
+ 		}
+@@ -818,7 +823,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 				* media change, so we just retry the
+ 				* request and see what happens.  
+ 				*/
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command(cmd, 1);
+ 				return;
+ 			}
+ 			break;
+@@ -839,7 +844,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 				 * This will cause a retry with a 6-byte
+ 				 * command.
+ 				 */
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command(cmd, 1);
+ 				result = 0;
+ 			} else {
+ 				cmd = scsi_end_request(cmd, 0, this_count, 1);
+@@ -852,7 +857,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 			 * retry.
+ 			 */
+ 			if (sshdr.asc == 0x04 && sshdr.ascq == 0x01) {
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command(cmd, 1);
+ 				return;
+ 			}
+ 			printk(KERN_INFO "Device %s not ready.\n",
+@@ -878,7 +883,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 		 * recovery reasons.  Just retry the request
+ 		 * and see what happens.  
  		 */
- 		drv = *(struct scsi_driver **)req->rq_disk->private_data;
--		if (unlikely(!drv->init_command(cmd))) {
--			scsi_release_buffers(cmd);
--			scsi_put_command(cmd);
--			return BLKPREP_KILL;
--		}
-+		if (unlikely(!drv->init_command(cmd)))
-+			goto kill;
+-		scsi_requeue_command(q, cmd);
++		scsi_requeue_command(cmd, 1);
+ 		return;
  	}
- 
- 	/*
-@@ -1157,6 +1153,11 @@ static int scsi_prep_fn(struct request_q
- 	if (sdev->device_busy == 0)
- 		blk_plug_device(q);
- 	return BLKPREP_DEFER;
-+
-+ kill:
-+	scsi_release_buffers(cmd);
-+	scsi_put_command(cmd);
-+	return BLKPREP_KILL;
- }
- 
- /*
+ 	if (result) {
+Index: scsi-export/drivers/scsi/scsi_priv.h
+===================================================================
+--- scsi-export.orig/drivers/scsi/scsi_priv.h	2005-03-31 18:06:20.000000000 +0900
++++ scsi-export/drivers/scsi/scsi_priv.h	2005-03-31 18:06:22.000000000 +0900
+@@ -96,6 +96,7 @@ extern int scsi_maybe_unblock_host(struc
+ extern void scsi_setup_cmd_retry(struct scsi_cmnd *cmd);
+ extern void scsi_device_unbusy(struct scsi_device *sdev);
+ extern int scsi_queue_insert(struct scsi_cmnd *cmd, int reason);
++extern void scsi_requeue_command(struct scsi_cmnd *cmd, int reprep);
+ extern void scsi_next_command(struct scsi_cmnd *cmd);
+ extern void scsi_run_host_queues(struct Scsi_Host *shost);
+ extern struct request_queue *scsi_alloc_queue(struct scsi_device *sdev);
 

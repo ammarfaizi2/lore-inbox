@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbTFOPst (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 11:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFOPst
+	id S262321AbTFOPvl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 11:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbTFOPvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 11:48:49 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:31877 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S262318AbTFOPss
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 11:48:48 -0400
-Date: Sun, 15 Jun 2003 09:05:26 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: GFDL in the kernel tree
-In-reply-to: <20030615140758.A9390@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@transmeta.com, mochel@osdl.org, linux-kernel@vger.kernel.org
-Message-id: <3EEC9946.9090308@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-References: <20030615140758.A9390@infradead.org>
+	Sun, 15 Jun 2003 11:51:41 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:58274 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262321AbTFOPvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 11:51:33 -0400
+Date: Sun, 15 Jun 2003 18:05:24 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: quinlan@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make cramfs look less hostile
+Message-ID: <20030615160524.GD1063@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> 2.5.71 introduces two GFDL-licensed files in the kernel tree...
+Hi!
 
-A "grep" in Documentation/DocBook shows me three GFDL files,
-last time I grepped there were none.  So I was aware that
-adding one would likely raise some issues ... evidently
-a variety of people have noticed that GPL for docs/specs
-isn't the best solution.
+This thing has been biting me now and again.  "cramfs: wrong magic\n"
+looks like an error condition to most people and thus creates bug
+reports.  But there is no bug per se in having cramfs support in the
+kernel and booting from a jffs2 rootfs.  So instead of teaching the
+users over and over, how about this little one-liner?
 
+Jörn
 
-> (2) Documentation/DocBook/gadget.tmpl, one of the files, includes
->     extracted from source files licensed under GPL, making this
->     a GPL license violation.
+-- 
+Mundie uses a textbook tactic of manipulation: start with some
+reasonable talk, and lead the audience to an unreasonable conclusion.
+-- Bruce Perens
 
-Almost all of that is covered by a "GFDL Exception"; see the
-top of <linux/usb_gadget.h>.  I can submit a patch to do the
-same for one other file (usbstring.c, one function).
-
-But there's a potential issue for kerneldoc for one particular
-structure, "usb_ctrlrequest", which was merged into 2.5 from a
-patch on 2/2/2002 ... I think I know who contributed that patch.
-If that author isn't willing to let that text be covered by
-GFDL, and for some reason I can't replace it with similar text
-that is (mostly pointing to the USB spec for details), I'll pull
-that bit out.  In short:  This particular issue is fixable.
-
-
-> And of course there's still all those nasty issue with GFDL like
-> invariant sections and cover texts that make at least the debian-devel
-> list believe it's an unfree license..
-
-Only when those sections are used.  Which none of those three
-files do; all that doc is Free (GPL-compatible) by Debian terms.
-(Modulo minor issues to be worked.)
-
-- Dave
-
-
-
+--- linux-2.5.71/fs/cramfs/inode.c~cramfs_message	2003-06-05 17:47:36.000000000 +0200
++++ linux-2.5.71/fs/cramfs/inode.c	2003-06-15 17:58:03.000000000 +0200
+@@ -218,7 +218,7 @@
+ 		/* check at 512 byte offset */
+ 		memcpy(&super, cramfs_read(sb, 512, sizeof(super)), sizeof(super));
+ 		if (super.magic != CRAMFS_MAGIC) {
+-			printk(KERN_ERR "cramfs: wrong magic\n");
++			printk(KERN_INFO "cramfs: magic not found\n");
+ 			goto out;
+ 		}
+ 	}

@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314623AbSD0WTQ>; Sat, 27 Apr 2002 18:19:16 -0400
+	id <S314629AbSD0WUp>; Sat, 27 Apr 2002 18:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314624AbSD0WTP>; Sat, 27 Apr 2002 18:19:15 -0400
-Received: from family.zawodny.com ([63.174.200.26]:26852 "EHLO
-	family.zawodny.com") by vger.kernel.org with ESMTP
-	id <S314623AbSD0WTP>; Sat, 27 Apr 2002 18:19:15 -0400
-Date: Sat, 27 Apr 2002 15:19:05 -0700
-From: Jeremy Zawodny <Jeremy@Zawodny.com>
-To: Lars Weitze <cd@kalkatraz.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 100 Mbit on slow machine
-Message-ID: <20020427221905.GA10112@thinkpad0.zawodny.com>
-In-Reply-To: <20020427195609.0a397df9.cd@kalkatraz.de>
-Mime-Version: 1.0
+	id <S314625AbSD0WUo>; Sat, 27 Apr 2002 18:20:44 -0400
+Received: from gear.torque.net ([204.138.244.1]:19729 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S314624AbSD0WUl>;
+	Sat, 27 Apr 2002 18:20:41 -0400
+Message-ID: <3CCB22BB.BA6BDFF6@torque.net>
+Date: Sat, 27 Apr 2002 18:14:19 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.10-dj1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: axboe@suse.de, Dave Jones <davej@suse.de>, linux-scsi@vger.kernel.org
+Subject: [PATCH] ide-scsi 2.5.10-dj1 compilation failure 
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uptime: 15:18:13 up 19 days, 22:20,  6 users,  load average: 0.01, 0.01, 0.00
-X-Os-Info: Linux thinkpad0 2.4.18 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 07:56:09PM +0200, Lars Weitze wrote:
-> Hi,
-> 
-> I am using a P200 MMX as an Fileserver. After i upgraded it to an 100
-> Mbit/s NIC (tulip chip and 3Com "Vortex" tried) i am getting the follwing
-> behaviour: The network stack seems to "block" when sending files to the
-> machine with full 100 Mbit/s. There are -no- kernel messages. Doing a ping
-> an the machine gives all ping packets back in "one bunch". Even after
-> stopping accesing the machine at full speed (stopping the transfer) i am
-> just getting this "packaged" ping reply (9000 ms and more).
+Christoph Lameter <christoph@lameter.com> reported this
+compile error in lk 2.5.10-dj1:
+> ide-scsi.c:837: unknown field `abort' specified in initializer
+> ide-scsi.c:837: warning: initialization from incompatible pointer type
+> ide-scsi.c:838: unknown field `reset' specified in initializer
+> ide-scsi.c:838: warning: initialization from incompatible pointer type
 
-Have you verified that the duplex settings are correct?  I've had
-problems on more than one occasion with mismatched duplex on 100Mbit
-cards (and switches).
+Below is a patch which attempts to do the right thing:
+it wires up the scsi new eh handling and attempts to do
+a device reset.
 
-Jeremy
--- 
-Jeremy D. Zawodny     |  Perl, Web, MySQL, Linux Magazine, Yahoo!
-<Jeremy@Zawodny.com>  |  http://jeremy.zawodny.com/
+It has been tested and oopses in start_request() inside
+ide.c when a device reset is issued :-) Since the previous
+ide-scsi logic just ignored scsi error handling, it isn't
+really a whole lot worse. There is a "fix me" at the
+appropriate point.
+
+Doug Gilbert
+
+--- linux/drivers/scsi/ide-scsi.c	Sat Apr 27 14:52:08 2002
++++ linux/drivers/scsi/ide-scsi.c2510dj1hack	Sat Apr 27 17:36:07 2002
+@@ -804,14 +804,20 @@
+ 	return 0;
+ }
+ 
+-int idescsi_abort (Scsi_Cmnd *cmd)
++/* try to do correct thing for scsi subsystem's new eh */
++int idescsi_device_reset (Scsi_Cmnd *cmd)
+ {
+-	return SCSI_ABORT_SNOOZE;
+-}
++	ide_drive_t *drive = idescsi_drives[cmd->target];
++        struct request req;
+ 
+-int idescsi_reset (Scsi_Cmnd *cmd, unsigned int resetflags)
+-{
+-	return SCSI_RESET_SUCCESS;
++        ide_init_drive_cmd(&req);
++        req.flags = REQ_SPECIAL;
++/* FIX ME, the next executable line causes on oops in lk 2.5.10-dj1
++ * [code copied from ide-cd's ide_cdrom_reset(), does it work?]
++ */
++        ide_do_drive_cmd(drive, &req, ide_wait);
++
++	return SUCCESS;
+ }
+ 
+ int idescsi_bios (Disk *disk, kdev_t dev, int *parm)
+@@ -834,8 +840,8 @@
+ 	info:		idescsi_info,
+ 	ioctl:		idescsi_ioctl,
+ 	queuecommand:	idescsi_queue,
+-	abort:		idescsi_abort,
+-	reset:		idescsi_reset,
++	eh_device_reset_handler: 
++			idescsi_device_reset,
+ 	bios_param:	idescsi_bios,
+ 	can_queue:	10,
+ 	this_id:	-1,
+

@@ -1,202 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264782AbSJOW3s>; Tue, 15 Oct 2002 18:29:48 -0400
+	id <S264847AbSJOWc1>; Tue, 15 Oct 2002 18:32:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbSJOW3r>; Tue, 15 Oct 2002 18:29:47 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:50187 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S264875AbSJOW1c>; Tue, 15 Oct 2002 18:27:32 -0400
-Date: Tue, 15 Oct 2002 23:33:19 +0100
-From: John Levon <levon@movementarian.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [4/7] oprofile - NMI hook
-Message-ID: <20021015223319.GD41906@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *181aFc-000DFP-00*.HlEYvAKy2k* (Manchester Computing, University of Manchester)
+	id <S264875AbSJOWbF>; Tue, 15 Oct 2002 18:31:05 -0400
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:29649 "EHLO
+	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S264830AbSJOWaW>; Tue, 15 Oct 2002 18:30:22 -0400
+Date: Tue, 15 Oct 2002 15:36:09 -0700
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: [PATCH] async poll for 2.5
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Message-id: <3DAC9859.5060005@netscape.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------ms020302050000010307090501; micalg=sha1;
+ protocol="application/x-pkcs7-signature"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a)
+ Gecko/20020910
+References: <Pine.LNX.4.44.0210151521090.1554-100000@blue1.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
-This patch provides a simple api to let oprofile hook into
-the NMI interrupt for the perfctr profiler.
+--------------ms020302050000010307090501
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Davide Libenzi wrote:
+
+>I don't want this to become the latest pro/against threads but if your
+>processing thread block for a long time you should consider handling the
+>blocking condition asynchronously. If your procesing thread blocks, your
+>application model should very likely be redesigned, or you just go with
+>threads ( and you do not need any multiplex interface ).
+>
+Rewriting the code to handle the blocking condition asynchronously can 
+be inordinately expensive and time consuming.  This is particularly true 
+when using third party code (such as the system DNS resolver) which only 
+has blocking interfaces.
+
+A much more cost effective and timely methodology is to only 
+asynchronously code the most important conditions, leaving threads to 
+handle the rest.
+
+>Your assumption is wrong, the registration is done as soon as the fd
+>"born" ( socket() or accept() for example ) and is typically removed when
+>it dies.
+>
+Nonetheless, the requirement for user space to test the condition after 
+the registration, not before, is subtle.  A program which does these in 
+the wrong order is still likely to pass QA and will fail in production 
+in a way that will be difficult to diagnose.  There is no rational 
+reason for the kernel to not test the condition upon registration.
 
 
-diff -Naur -X dontdiff linux-linus/arch/i386/kernel/i386_ksyms.c linux-linus2/arch/i386/kernel/i386_ksyms.c
---- linux-linus/arch/i386/kernel/i386_ksyms.c	Tue Oct 15 22:46:47 2002
-+++ linux-linus2/arch/i386/kernel/i386_ksyms.c	Tue Oct 15 22:47:19 2002
-@@ -29,6 +29,7 @@
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-+#include <asm/nmi.h>
- 
- extern void dump_thread(struct pt_regs *, struct user *);
- extern spinlock_t rtc_lock;
-@@ -151,6 +152,10 @@
- EXPORT_SYMBOL(flush_tlb_page);
- #endif
- 
-+#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PM)
-+EXPORT_SYMBOL_GPL(set_nmi_pm_callback);
-+EXPORT_SYMBOL_GPL(unset_nmi_pm_callback);
-+#endif
- #ifdef CONFIG_X86_IO_APIC
- EXPORT_SYMBOL(IO_APIC_get_PCI_irq_vector);
- #endif
-@@ -169,6 +174,8 @@
- 
- EXPORT_SYMBOL_GPL(register_profile_notifier);
- EXPORT_SYMBOL_GPL(unregister_profile_notifier);
-+EXPORT_SYMBOL_GPL(set_nmi_callback);
-+EXPORT_SYMBOL_GPL(unset_nmi_callback);
-  
- #undef memcpy
- #undef memset
-diff -Naur -X dontdiff linux-linus/arch/i386/kernel/nmi.c linux-linus2/arch/i386/kernel/nmi.c
---- linux-linus/arch/i386/kernel/nmi.c	Sun Oct 13 19:51:03 2002
-+++ linux-linus2/arch/i386/kernel/nmi.c	Tue Oct 15 22:47:02 2002
-@@ -175,6 +175,18 @@
- 	return 0;
- }
- 
-+struct pm_dev * set_nmi_pm_callback(pm_callback callback)
-+{
-+	apic_pm_unregister(nmi_pmdev);
-+	return apic_pm_register(PM_SYS_DEV, 0, callback);
-+}
-+
-+void unset_nmi_pm_callback(struct pm_dev * dev)
-+{
-+	apic_pm_unregister(dev);
-+	nmi_pmdev = apic_pm_register(PM_SYS_DEV, 0, nmi_pm_callback);
-+}
-+ 
- static void nmi_pm_init(void)
- {
- 	if (!nmi_pmdev)
-diff -Naur -X dontdiff linux-linus/arch/i386/kernel/traps.c linux-linus2/arch/i386/kernel/traps.c
---- linux-linus/arch/i386/kernel/traps.c	Sun Oct 13 19:51:03 2002
-+++ linux-linus2/arch/i386/kernel/traps.c	Tue Oct 15 22:47:02 2002
-@@ -40,6 +40,7 @@
- #include <asm/debugreg.h>
- #include <asm/desc.h>
- #include <asm/i387.h>
-+#include <asm/nmi.h>
- 
- #include <asm/smp.h>
- #include <asm/pgalloc.h>
-@@ -478,17 +479,16 @@
- 		return;
- 	}
- #endif
--	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
-+	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
-+		reason, smp_processor_id());
- 	printk("Dazed and confused, but trying to continue\n");
- 	printk("Do you have a strange power saving mode enabled?\n");
- }
- 
--asmlinkage void do_nmi(struct pt_regs * regs, long error_code)
-+static void default_do_nmi(struct pt_regs * regs)
- {
- 	unsigned char reason = inb(0x61);
--
--	++nmi_count(smp_processor_id());
--
-+ 
- 	if (!(reason & 0xc0)) {
- #if CONFIG_X86_LOCAL_APIC
- 		/*
-@@ -515,6 +515,33 @@
- 	inb(0x71);		/* dummy */
- 	outb(0x0f, 0x70);
- 	inb(0x71);		/* dummy */
-+}
-+
-+static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
-+{
-+	return 0;
-+}
-+ 
-+static nmi_callback_t nmi_callback = dummy_nmi_callback;
-+ 
-+asmlinkage void do_nmi(struct pt_regs * regs, long error_code)
-+{
-+	int cpu = smp_processor_id();
-+
-+	++nmi_count(cpu);
-+
-+	if (!nmi_callback(regs, cpu))
-+		default_do_nmi(regs);
-+}
-+
-+void set_nmi_callback(nmi_callback_t callback)
-+{
-+	nmi_callback = callback;
-+}
-+
-+void unset_nmi_callback(void)
-+{
-+	nmi_callback = dummy_nmi_callback;
- }
- 
- /*
-diff -Naur -X dontdiff linux-linus/include/asm-i386/nmi.h linux-linus2/include/asm-i386/nmi.h
---- linux-linus/include/asm-i386/nmi.h	Thu Jan  1 01:00:00 1970
-+++ linux-linus2/include/asm-i386/nmi.h	Tue Oct 15 22:47:02 2002
-@@ -0,0 +1,49 @@
-+/*
-+ *  linux/include/asm-i386/nmi.h
-+ */
-+#ifndef ASM_NMI_H
-+#define ASM_NMI_H
-+
-+#include <linux/pm.h>
-+ 
-+struct pt_regs;
-+ 
-+typedef int (*nmi_callback_t)(struct pt_regs * regs, int cpu);
-+ 
-+/** 
-+ * set_nmi_callback
-+ *
-+ * Set a handler for an NMI. Only one handler may be
-+ * set. Return 1 if the NMI was handled.
-+ */
-+void set_nmi_callback(nmi_callback_t callback);
-+ 
-+/** 
-+ * unset_nmi_callback
-+ *
-+ * Remove the handler previously set.
-+ */
-+void unset_nmi_callback(void);
-+ 
-+#ifdef CONFIG_PM
-+ 
-+/** Replace the PM callback routine for NMI. */
-+struct pm_dev * set_nmi_pm_callback(pm_callback callback);
-+
-+/** Unset the PM callback routine back to the default. */
-+void unset_nmi_pm_callback(struct pm_dev * dev);
-+
-+#else
-+
-+static inline struct pm_dev * set_nmi_pm_callback(pm_callback callback)
-+{
-+	return 0;
-+} 
-+ 
-+static inline void unset_nmi_pm_callback(struct pm_dev * dev)
-+{
-+}
-+
-+#endif /* CONFIG_PM */
-+ 
-+#endif /* ASM_NMI_H */
+--------------ms020302050000010307090501
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MDE1MjIzNjEwWjAjBgkqhkiG9w0BCQQxFgQUci429aXpNY/bKrjfC8JcYlkqIkkwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
+VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
+EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
+AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
+gDf2hf8YoEvdLM/RCtJ1WSk7hXm4QsLWFYnOlnojhCeMUU3uSSA1Ywy6TqP99d6fQw3tKLL2
+crr4GuQnKLkDe42w48pJcSFp8WUxjw4Gz71Y1HaBuKk2Had5jjEd8GXvvTNT+ZyO9IMqtqvE
+ukyFn0rv2sS4c5FAROGAMV8SsQmBAAAAAAAA
+--------------ms020302050000010307090501--
+

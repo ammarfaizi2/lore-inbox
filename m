@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271704AbRHQRVj>; Fri, 17 Aug 2001 13:21:39 -0400
+	id <S269387AbRHQRZj>; Fri, 17 Aug 2001 13:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271696AbRHQRVa>; Fri, 17 Aug 2001 13:21:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13440 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271701AbRHQRVT>; Fri, 17 Aug 2001 13:21:19 -0400
-Date: Fri, 17 Aug 2001 13:21:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Christensen <David_Christensen@Phoenix.com>
-cc: Holger Lubitz <h.lubitz@internet-factory.de>, linux-kernel@vger.kernel.org
-Subject: RE: Encrypted Swap
-In-Reply-To: <D973CF70008ED411B273009027893BA401BE6BA9@irv-exch.phoenix.com>
-Message-ID: <Pine.LNX.3.95.1010817131800.2216B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271696AbRHQRZ3>; Fri, 17 Aug 2001 13:25:29 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:48630 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269387AbRHQRZS>; Fri, 17 Aug 2001 13:25:18 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 17 Aug 2001 11:25:25 -0600
+To: Marc SCHAEFER <schaefer@alphanet.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 not NULLing deleted files?
+Message-ID: <20010817112525.A17372@turbolinux.com>
+Mail-Followup-To: Marc SCHAEFER <schaefer@alphanet.ch>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <01081709381000.08800@haneman> <200108171632.SAA00941@vulcan.alphanet.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108171632.SAA00941@vulcan.alphanet.ch>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, David Christensen wrote:
-
-> > > Ryan Mack proclaimed:
-> > > > is running.  If the system is physically compromised, 
-> > there is little way
-> > > > I can think of to take root without having to at least reboot the
-> > > > computer, thus destroying the unencrypted contents of RAM.
-> > > 
-> > > This is a myth. RAM survives rebooting, even after a quick 
-> > power cycle
-> > > most cells will probably still be ok. And with todays 
-> > memory sizes, it
-> > > would take a noticable amount of time to initialize all of 
-> > it to a given
-> > > value, so most systems don't do it (just testing some bytes of every
-> > > megabyte instead).
-> > > 
-> > > Holger
-> > > -
-> > 
-> > Errrm no. All BIOS that anybody would use write all memory found when
-> > initializing the SDRAM controller. They need to because nothing,
-> > refresh, precharge, (or if you've got it, parity/crc) will work
-> > until every cell is exercised. A "warm-boot" is different. However,
-> > if you hit the reset or the power switch, nothing in RAM survives.
+On Aug 17, 2001  18:32 +0200, Marc SCHAEFER wrote:
+> Special care, as far as I understand it, must be taken when allocating
+> fs data blocks. The following sequence must be followed:
 > 
-> Most modern firmware does NOT clear memory during POST, it takes too long.
-> Certain compatibility areas are usually cleared (such as the 1st megabyte)
-> but the rest is
-> left as is, except for a few read/writes (usually on a megabyte boundary).
-> The 
-> exception to this rule is ECC systems.  They have to be written to make sure
-> the 
-> ECC information is correct.  
+>    1. reserve them
+>    2. clear them
+>    3. mark them as allocated.
 > 
-> SDRAM memory sizing is usually done by reading an EEPROM on the SDRAM DIMM.
-> The BIOS doesn't need to guess the correct timing values, it simply reads
-> the EEPROM and programs the memory controller.  In the case of a BIOS that
-> doesn't use EEPROM you might lose data as the BIOS iteratively tries 
-> different memory timings and tests if they work.
-> 
-> I have done work implementing ACPI S3 (suspend-to-RAM) in DOS by simply
-> hitting 
-> the RESET button and restoring the memory controller settings.  The contents
-> of 
-> RAM have always been valid.
-> 
-> David Christensen
-> 
+> if 2 is too expensive, maybe it's sufficient to mark them as dirty
+> and zero them in memory. But what happens if the system crashes, with
+> the metadata to the disk (block allocated), but the data block not
+> yet filled/zeroed ?
 
-I just posted working SDRAM controller initialization code. The SDRAM
-controller must be initialized in a specific step-by-step manner or
-else you don't even get to "restoring the memory controller settings".
+Ext2 and ext3 both do this already (with caveats).  Since ext2 doesn't
+impose write ordering constraints, there is not a hard guarantee that
+the data block makes it to disk before the metadata is updated.  If
+you run ext3 in data=ordered or data=journal mode, then you do have
+such a guarantee. 
 
+If you run in data=writeback mode, you basically have the same
+situation as ext2 (data may be written before or after the metadata).
+This is the same as the _current_ reiserfs code, but there are
+apparently patches available which allow data=ordered mode also.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

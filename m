@@ -1,93 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265807AbRF2JaM>; Fri, 29 Jun 2001 05:30:12 -0400
+	id <S265802AbRF2Jem>; Fri, 29 Jun 2001 05:34:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265803AbRF2J3w>; Fri, 29 Jun 2001 05:29:52 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:4365 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S265802AbRF2J3m>;
-	Fri, 29 Jun 2001 05:29:42 -0400
-Date: Fri, 29 Jun 2001 11:29:04 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: volodya@mindspring.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
-Message-ID: <20010629112903.B30190@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <E15A7os-0003e9-00@come.alcove-fr> <Pine.LNX.4.20.0106281504570.1132-100000@node2.localnet.net>
+	id <S265803AbRF2Jec>; Fri, 29 Jun 2001 05:34:32 -0400
+Received: from penguin.eunet.cz ([193.86.255.66]:28422 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S265802AbRF2JeS>; Fri, 29 Jun 2001 05:34:18 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Fri, 29 Jun 2001 11:34:07 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx kernel driver; ATTN Mr. Justin T. Gibbs
+Message-ID: <20010629113407.C1100@informatics.muni.cz>
+In-Reply-To: <3B38C4D2.EB2A8944@mycompany.com> <E15Ewis-0003ul-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.20.0106281504570.1132-100000@node2.localnet.net>; from volodya@mindspring.com on Thu, Jun 28, 2001 at 03:11:22PM -0400
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15Ewis-0003ul-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jun 26, 2001 at 06:33:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 03:11:22PM -0400, volodya@mindspring.com wrote:
+Alan Cox wrote:
+: Except for an obscure bug under very high memory load I'm not aware of any 
+: outstanding bugs in the AIC7xxx driver, certainly not like you describe. There
+: is however always a first time for any bug 8)
 
-> I imagine it is either using ZV port or VIP/MPP connector - I'll be happy
-> to help you to get it to work, provided you know the part that produces
-> video stream.
+	Well, AIC7xxx crashes on me with stock 2.4.5 kernel
+(Athlon TB 850, ASUS A7V). I run 2.4.3 + zerocopy patches, and when I tried
+to upgrade to 2.4.5, it crashes during boot while initializing the AIC7xxx
+driver. I have written down the Oops numbers by hand, but I had to
+reboot the server back to 2.4.3+zerocopy.
 
-This part is described in the chip's doc here:
-	http://va.samba.org/picturebook/72002_E_.pdf
+	Here are relevant parts of dmesg on 2.4.3 (just to identify the
+hardware):
 
-Look at the page 9 where the connections between the chip and
-the video bus are described. The problem is that there are 2 possible
-modes (ZV-port or Digital YC), and I'm not sure which one Sony
-chose to use...
+SCSI subsystem driver Revision: 1.00
+request_module[scsi_hostadapter]: Root fs not mounted
+PCI: Found IRQ 12 for device 00:0a.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.5
+        <Adaptec 2940 Ultra SCSI adapter>
+        aic7880: Wide Channel A, SCSI Id=7, 16/255 SCBs
 
-> > Well, not quite... I've had several X lockups while using the YUV 
-> > acceleration code. Let's say one lockup per half an hour.
-> 
-> That's not supposed to happen - let me know what causes it.. what you are
-> using, etc..
+  Vendor: SEAGATE   Model: ST118273W         Rev: 5698
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
+(scsi0:A:0): 40.000MB/s transfers (20.000MHz, offset 8, 16bit)
+scsi0:0:0:0: Tagged Queuing enabled.  Depth 8
+SCSI device sda: 35566480 512-byte hdwr sectors (18210 MB)
+ sda: sda1 sda2
 
-The lockups happen upon closing xawtv (used with xv output). Let's
-say one time in ten runs... Then the X server is dead, but I can
-still log in using the network and do whatever I want. But if I kill
-the X server the whole system freezes hard.
+Now the Oops tracing:
 
-> > but in 640x480 the framerate achieved with Xv is below the
-> > one I get by converting YUV->RGB in software...
-> 
-> You have to be careful here - you can't write to the framebuffer without 
-> waiting for engine to go idle. Otherwise it'll lockup.
+EIP was ahc_match_scb + 0x19
 
-??? That's not me, it's xawtv, through the XV facilities of the 
-X server which writes to the framebuffer... Or maybe I don't 
-understand the question...
+Call trace:
 
-Anyway, I've retested it with the latest ati.2 binaries and how
-the 640x480 xv speed seems to have improved (or something in
-my configuration changed, of course :-) ).
+ahc_search_qinfifo + 0x187
+ahc_abort_scbs + 0x6a
+__udelay + 0x27
+ahc_reset_current_channel + 0x27c
+ahc_pci_config + 0x4e2
+pci_read_config_byte + 0x1c
+...
 
-> > (but no X driver recognizes this connector today). The motion jpeg
-> > chip this camera is based on definately has a video output.
-> 
-> I can help you get this to work.
+-Yenya
 
-I'd like to, thanks.
-
-> > Or it could just be the application who gets YUV data from the chip
-> > then send it directly to the video board. Today this works, almost
-> > (because we need a patched X - read gatos - and a patched xawtv - in
-> > order to do scaling).
-> 
-> Try using xv_stream from ati_xv branch on gatos.
-
-It won't work out of the box either (it uses only v4l read calls and
-doesn't support mmap, it assumes a capture size of 352x288 which this
-camera does not support etc). But it should be easy to patch it and
-make it work with this camera, just like I did with xawtv.
-
-Stelian.
-
-PS: this hasn't much to do with the kernel anymore, I suggest we
-take this discussion off list now. I'm not sure neither if Linus
-is really interested in getting a copy of this. :-)
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+It is a very bad idea to feed negative numbers to memcpy.         --Alan Cox

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266908AbSLQTSj>; Tue, 17 Dec 2002 14:18:39 -0500
+	id <S265683AbSLQTUy>; Tue, 17 Dec 2002 14:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266733AbSLQTSi>; Tue, 17 Dec 2002 14:18:38 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1454 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S266908AbSLQTSh>; Tue, 17 Dec 2002 14:18:37 -0500
-Date: Tue, 17 Dec 2002 14:28:34 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: My fixes to ide-tape in 2.4.20-ac2
-In-Reply-To: <20021217142235.C8233@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.50L.0212171427080.26120-100000@freak.distro.conectiva>
-References: <20021213224424.A3446@devserv.devel.redhat.com>
- <Pine.LNX.4.50L.0212162248480.31876-100000@freak.distro.conectiva>
- <20021217142235.C8233@devserv.devel.redhat.com>
+	id <S265568AbSLQTUy>; Tue, 17 Dec 2002 14:20:54 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29452 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265683AbSLQTUu>; Tue, 17 Dec 2002 14:20:50 -0500
+Date: Tue, 17 Dec 2002 14:27:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
+In-Reply-To: <20021216223848.GA2994@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1021217141920.20007A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Dec 2002, J.A. Magallon wrote:
 
+> Number of threads	Elapsed time   User Time   System Time
+> 1                   53:216           53:220    00:000
+> 2                   29:272           58:180    00:320
+> 3                   27:162         1:21:450    00:540
+> 4                   25:094         1:41:080    01:250
+> 
+> Elapsed is measured by the parent thread, that is not doing anything
+> but wait on a pthread_join. User and system times are the sum of
+> times for all the children threads, that do real work.
+> 
+> The jump from 1->2 threads is fine, the one from 2->4 is ridiculous...
+> I have my cpus doubled but each one has half the pipelining for floating
+> point...see the user cpu time increased due to 'worst' processors and
+> cache pollution on each package.
+> 
+> So, IMHO and for my apps, HyperThreading is just a bad joke.
 
-On Tue, 17 Dec 2002, Pete Zaitcev wrote:
+I must be misreading this, it looks to me as though having threads running
+HT is reducing the clock time, and frankly that's what I want. It may not
+be as good as having more processors, but it certainly is better for
+nothing, even for your application. I read that as about 10% faster, and I
+know people who spend more on fans to o/c their CPU than the premium for a
+Xeon.
 
-> > Date: Mon, 16 Dec 2002 22:49:35 -0200 (BRST)
-> > From: Marcelo Tosatti <marcelo@conectiva.com.br>
->
-> > > I checked that my fixes were not corrected by Alan Stern,
-> > > and re-diffed them against 2.4.20-ac2. I think it would
-> > > be right if Alan (Cox :-) applied this patch to -ac3 or something.
-> > > Marcelo agreed to take it many times but forgot to actually apply.
-> >
-> > I haven't applied them because I was afraid they could break something.
-> >
-> > Great that now its been tested in -ac.
->
-> Yes, Alan saves the day. However, I would think this is what your
-> -pre series were supposed to do. Add fixes, see if they break things.
-> Release more often. If patches regress, remove them. Obviously, your
-> master vision is different, but personally I think it's unfortunate.
+More to the point, since you have no choice if you want to go fast or have
+>2 CPUs, you get HT included. Clearly if you want good latency you don't
+run SMP at all due to the extra locking, that's a kernel issue, not HT.
 
-Pete,
-
-I'm not master. Most people here know much more than what I do.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

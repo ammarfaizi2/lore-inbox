@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVCBTIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVCBTLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVCBTIS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 14:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVCBTIS
+	id S262415AbVCBTLn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 14:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVCBTLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 14:08:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14489 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262412AbVCBTIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 14:08:06 -0500
-Date: Wed, 2 Mar 2005 11:34:41 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, "John L. Males" <jlmales@softhome.net>
-Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
-Message-ID: <20050302143440.GA2543@logos.cnet>
-References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk> <20050302120332.GA27882@logos.cnet> <200503021208.51480.gene.heskett@verizon.net>
+	Wed, 2 Mar 2005 14:11:43 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:39690 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262415AbVCBTLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 14:11:31 -0500
+Date: Wed, 2 Mar 2005 20:14:27 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11-rc5-mm1 nfs oddity, file creation => "no such file"
+Message-ID: <20050302191427.GA9383@hh.idb.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503021208.51480.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I observed an oddity on a nfs-mounted fs while using 2.6.11-rc5-mm1.
 
-n Wed, Mar 02, 2005 at 12:08:51PM -0500, Gene Heskett wrote:
-> On Wednesday 02 March 2005 07:03, Marcelo Tosatti wrote:
-> >On Wed, Mar 02, 2005 at 11:15:42AM -0000, Mark Yeatman wrote:
-> >> Hi
-> >>
-> >> Never had to log a bug before, hope this is correctly done.
-> >>
-> >> Thanks
-> >>
-> >> Mark
-> >>
-> >> Detail....
-> >>
-> >> [1.] One line summary of the problem:
-> >> SCSI tape drive is refusing to rewind after backup to allow verify
-> >> and causing illegal seek error
-> >>
-> >> [2.] Full description of the problem/report:
-> >> On backup the tape drive is reporting the following error and
-> >> failing it's backups.
-> >>
-> >> tar: /dev/st0: Warning: Cannot seek: Illegal seek
-> >>
-> >> I have traced this back to failing at an upgrade of the kernel to
-> >> 2.4.29 on Feb 8th. The backups have not worked since. Replacement
-> >> Drives have been tried and cables to no avail. I noticed in the
-> >> the changelog that a patch by Solar Designer to the Scsi tape
-> >> return code had been made.
-> >
-> >v2.6 also contains the same problem BTW.
-> >
-> >Try this:
-> >
-> >--- a/drivers/scsi/st.c.orig 2005-03-02 09:02:13.637158144 -0300
-> >+++ b/drivers/scsi/st.c 2005-03-02 09:02:20.208159200 -0300
-> >@@ -3778,7 +3778,6 @@
-> >  read:  st_read,
-> >  write:  st_write,
-> >  ioctl:  st_ioctl,
-> >- llseek:  no_llseek,
-> >  open:  st_open,
-> >  flush:  st_flush,
-> >  release: st_release,
-> >-
-> 
-> Interesting Marcelo.  How long has this been true in 2.6?
+I tried to save a file from xfig, and got an error message about a
+nonexisting file.  Now apps may have their own bugs, so I
+retried in the shell:
 
-Actually I just checked and it seems v2.6 is not using "no_llseek".
+$ cat > newfile
+newfile: No such file or directory
+$
 
-However John L. Males reports the same problem with v2.6 - John, care
-to retest with v2.6.10 ?
+Eh - of course it didn't exist - I was trying to create it!
 
-> I thought I had an amanda problem, and eventually went to virtual 
-> tapes on disk, largely because of this.  However, I have to say it is 
-> working better than tapes ever did here.  Unforch, that 200GB disk is 
-> certainly a single point of failure I don't relish thinking about...
+This also resulted in "newfile" being created with size 0.
+Repeating the "cat > newfile" worked fine once the zero-length
+file existed.  Unfortunately, xfig always removes files before overwriting
+so it couldn't save on the nfs volume at all.
 
-:)
+File creation by "touch filename" worked flawlessly.
+
+After this I rebooted into 2.6.11-rc3-mm1 which haven't shown this problem
+so far.  There were nothing in "dmesg" when this happened, other
+than a message about "mount" being older than the kernel.
+
+I can try to recreate the problem if necessary.
+
+Helge Hafting
+
+

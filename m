@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbUKHJMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbUKHJVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbUKHJMg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:12:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUKHJMf
+	id S261795AbUKHJVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKHJVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:12:35 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:17886 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261794AbUKHJAP
+	Mon, 8 Nov 2004 04:21:14 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:18398 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261795AbUKHJAb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:00:15 -0500
+	Mon, 8 Nov 2004 04:00:31 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 8 Nov 2004 09:53:00 +0100
+Date: Mon, 8 Nov 2004 09:52:43 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch 5/6] v4l: cx88 update
-Message-ID: <20041108085300.GA19277@bytesex>
+Subject: [patch 4/6] v4l: saa7134 update
+Message-ID: <20041108085243.GA19262@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,14 +22,16 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cx88 driver update, changes:
+This is a update for the saa7134 driver, changes:
 
- * adapt to video-buf changes.
- * add support for a new card.
- * use the new video-buf-dvb module.
-
-The dvb stuff doesn't build yet as it depends on some cutting-edge
-code from the linuxtv cvs and is tagged as 'BROKEN' because of that.
+ * adapt to the video-buf changes.
+ * add new cards.
+ * split mpeg encoder card support to separare module
+   (saa7134-empress), as preparation for the dvb support
+   which also uses the MPEG capabilities of the card.
+ * started working on dvb support (not functional yet, also
+   marked 'BROKEN').
+ * convert insmod options to new-style.
 
 The patch also removes all trailing whitespaces.  I've a script to
 remove them from my sources now, that should kill those no-op
@@ -37,921 +39,1719 @@ whitespace changes in my patches after merging this initial cleanup.
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
 ---
- drivers/media/video/Kconfig               |   13 
- drivers/media/video/cx88/Makefile         |    4 
- drivers/media/video/cx88/cx88-blackbird.c |   51 +--
- drivers/media/video/cx88/cx88-cards.c     |   32 +-
- drivers/media/video/cx88/cx88-core.c      |   23 -
- drivers/media/video/cx88/cx88-dvb.c       |  343 ++++++++--------------
- drivers/media/video/cx88/cx88-i2c.c       |    6 
- drivers/media/video/cx88/cx88-mpeg.c      |    5 
- drivers/media/video/cx88/cx88-reg.h       |   66 ++--
- drivers/media/video/cx88/cx88-tvaudio.c   |   28 +
- drivers/media/video/cx88/cx88-vbi.c       |   22 -
- drivers/media/video/cx88/cx88-video.c     |  153 +++++----
- drivers/media/video/cx88/cx88.h           |   28 -
- 13 files changed, 350 insertions(+), 424 deletions(-)
+ drivers/media/video/Kconfig                   |    7 
+ drivers/media/video/saa7134/Makefile          |    6 
+ drivers/media/video/saa7134/saa6752hs.c       |   94 ++--
+ drivers/media/video/saa7134/saa7134-cards.c   |  124 +++++
+ drivers/media/video/saa7134/saa7134-core.c    |  253 +++++++----
+ drivers/media/video/saa7134/saa7134-dvb.c     |   91 ++++
+ drivers/media/video/saa7134/saa7134-empress.c |  394 ++++++++++++++++++
+ drivers/media/video/saa7134/saa7134-i2c.c     |   32 +
+ drivers/media/video/saa7134/saa7134-input.c   |   13 
+ drivers/media/video/saa7134/saa7134-oss.c     |   26 -
+ drivers/media/video/saa7134/saa7134-ts.c      |  365 +---------------
+ drivers/media/video/saa7134/saa7134-tvaudio.c |   47 +-
+ drivers/media/video/saa7134/saa7134-vbi.c     |   37 -
+ drivers/media/video/saa7134/saa7134-video.c   |  148 +++---
+ drivers/media/video/saa7134/saa7134.h         |   83 ++-
+ include/media/saa6752hs.h                     |    6 
+ 16 files changed, 1073 insertions(+), 653 deletions(-)
 
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88.h
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134.h
 ===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88.h	2004-11-07 12:24:30.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88.h	2004-11-07 16:01:04.547277171 +0100
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134.h	2004-11-07 12:23:35.088406304 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134.h	2004-11-07 15:55:19.393371433 +0100
 @@ -1,5 +1,5 @@
  /*
-- * $Id: cx88.h,v 1.37 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88.h,v 1.40 2004/11/03 09:04:51 kraxel Exp $
+- * $Id: saa7134.h,v 1.20 2004/09/30 12:21:15 kraxel Exp $
++ * $Id: saa7134.h,v 1.27 2004/11/04 11:03:52 kraxel Exp $
   *
-  * v4l2 device driver for cx2388x based TV cards
+  * v4l2 device driver for philips saa7134 based TV cards
   *
-@@ -26,15 +26,10 @@
- #include <linux/videodev.h>
- #include <linux/kdev_t.h>
+@@ -31,11 +31,12 @@
  
--#include <dvbdev.h>
--#include <dmxdev.h>
--#include <dvb_demux.h>
--#include <dvb_net.h>
--#include <dvb_frontend.h>
--
+ #include <asm/io.h>
+ 
 -#include <media/video-buf.h>
  #include <media/tuner.h>
  #include <media/audiochip.h>
+ #include <media/id.h>
+ #include <media/ir-common.h>
 +#include <media/video-buf.h>
 +#include <media/video-buf-dvb.h>
  
- #include "btcx-risc.h"
- #include "cx88-reg.h"
-@@ -160,6 +155,7 @@ extern struct sram_channel cx88_sram_cha
- #define CX88_BOARD_HAUPPAUGE_DVB_T1        18
- #define CX88_BOARD_CONEXANT_DVB_T1         19
- #define CX88_BOARD_PROVIDEO_PV259          20
-+#define CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS 21
+ #ifndef TRUE
+ # define TRUE (1==1)
+@@ -164,8 +165,12 @@ struct saa7134_format {
+ #define SAA7134_BOARD_VIDEOMATE_TV_GOLD_PLUS 41
+ #define SAA7134_BOARD_SABRENT_SBTTVFM  42
+ #define SAA7134_BOARD_ZOLID_XPERT_TV7134 43
+-#define SAA7134_EMPIRE_PCI_TV_RADIO_LE 44
++#define SAA7134_BOARD_EMPIRE_PCI_TV_RADIO_LE 44
++#define SAA7134_BOARD_AVERMEDIA_307    45
++#define SAA7134_BOARD_AVERMEDIA_CARDBUS 46
++#define SAA7134_BOARD_CINERGY400_CARDBUS 47
  
- enum cx88_itype {
- 	CX88_VMUX_COMPOSITE1 = 1,
-@@ -351,7 +347,6 @@ struct cx8802_fh {
++#define SAA7134_MAXBOARDS 8
+ #define SAA7134_INPUT_MAX 8
+ 
+ struct saa7134_input {
+@@ -176,6 +181,12 @@ struct saa7134_input {
+ 	unsigned int            tv:1;
  };
  
- struct cx8802_suspend_state {
--	u32                        pci_cfg[64 / sizeof(u32)];
- 	int                        disabled;
++enum saa7134_mpeg_type {
++	SAA7134_MPEG_UNUSED,
++	SAA7134_MPEG_EMPRESS,
++	SAA7134_MPEG_DVB,
++};
++
+ struct saa7134_board {
+ 	char                    *name;
+ 	unsigned int            audio_clock;
+@@ -185,18 +196,20 @@ struct saa7134_board {
+ 	struct saa7134_input    inputs[SAA7134_INPUT_MAX];
+ 	struct saa7134_input    radio;
+ 	struct saa7134_input    mute;
+-	
+-	/* peripheral I/O */
+-	unsigned int            has_ts;
+-	enum saa7134_video_out  video_out;
+ 
+ 	/* i2c chip info */
+ 	unsigned int            tuner_type;
+ 	unsigned int            tda9887_conf;
++
++	/* peripheral I/O */
++	enum saa7134_video_out  video_out;
++	enum saa7134_mpeg_type  mpeg;
  };
  
-@@ -369,11 +364,6 @@ struct cx8802_dev {
- 	u32                        ts_packet_size;
- 	u32                        ts_packet_count;
+ #define card_has_radio(dev)   (NULL != saa7134_boards[dev->board].radio.name)
+-#define card_has_ts(dev)      (saa7134_boards[dev->board].has_ts)
++#define card_is_empress(dev)  (SAA7134_MPEG_EMPRESS == saa7134_boards[dev->board].mpeg)
++#define card_is_dvb(dev)      (SAA7134_MPEG_DVB     == saa7134_boards[dev->board].mpeg)
++#define card_has_mpeg(dev)    (SAA7134_MPEG_UNUSED  != saa7134_boards[dev->board].mpeg)
+ #define card(dev)             (saa7134_boards[dev->board])
+ #define card_in(dev,n)        (saa7134_boards[dev->board].inputs[n])
  
--	/* error stats */
--	u32                        stopper_count;
--	u32                        error_count;
--	u32                        timeout_count;
--
- 	/* other global state info */
- 	struct cx8802_suspend_state state;
- 
-@@ -383,15 +373,7 @@ struct cx8802_dev {
- 	u32                        mailbox;
- 
- 	/* for dvb only */
--	struct dvb_adapter         *dvb_adapter;
--	struct videobuf_queue      dvbq;
--	struct task_struct         *dvb_thread;
--	struct dvb_demux           demux;
--	struct dmxdev              dmxdev;
--	struct dmx_frontend        fe_hw;
--	struct dmx_frontend        fe_mem;
--	struct dvb_net             dvbnet;
--	int                        nfeeds;
-+	struct videobuf_dvb        dvb;
- 	void*                      fe_handle;
- 	int                        (*fe_release)(void *handle);
- };
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-reg.h
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-reg.h	2004-11-07 12:22:32.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-reg.h	2004-11-07 16:01:04.548276982 +0100
-@@ -1,5 +1,5 @@
--/* 
--    $Id: cx88-reg.h,v 1.5 2004/09/15 16:15:24 kraxel Exp $
-+/*
-+    $Id: cx88-reg.h,v 1.6 2004/10/13 10:39:00 kraxel Exp $
- 
-     cx88x-hw.h - CX2388x register offsets
- 
-@@ -559,11 +559,11 @@
- /* ---------------------------------------------------------------------- */
- /* various constants                                                      */
- 
--#define SEL_BTSC     0x01 
--#define SEL_EIAJ     0x02 
--#define SEL_A2       0x04 
-+#define SEL_BTSC     0x01
-+#define SEL_EIAJ     0x02
-+#define SEL_A2       0x04
- #define SEL_SAP      0x08
--#define SEL_NICAM    0x10 
-+#define SEL_NICAM    0x10
- #define SEL_FMRADIO  0x20
- 
- // AUD_CTL
-@@ -618,7 +618,7 @@
- #define EN_DMTRX_BYPASS         (1 << 11)
+@@ -264,7 +277,7 @@ struct saa7134_fh {
+ 	unsigned int               radio;
+ 	enum v4l2_buf_type         type;
+ 	unsigned int               resources;
+-#ifdef VIDIOC_G_PRIORITY 
++#ifdef VIDIOC_G_PRIORITY
+ 	enum v4l2_priority	   prio;
  #endif
  
--// Video 
-+// Video
- #define VID_CAPTURE_CONTROL		0x310180
+@@ -284,16 +297,6 @@ struct saa7134_fh {
+ 	struct saa7134_pgtable     pt_vbi;
+ };
  
- #define CX23880_CAP_CTL_CAPTURE_VBI_ODD  (1<<3)
-@@ -630,10 +630,10 @@
- #define VideoInputMux1		 0x1
- #define VideoInputMux2		 0x2
- #define VideoInputMux3		 0x3
--#define VideoInputTuner		 0x0 
--#define VideoInputComposite	 0x1 
-+#define VideoInputTuner		 0x0
-+#define VideoInputComposite	 0x1
- #define VideoInputSVideo	 0x2
--#define VideoInputOther		 0x3 
-+#define VideoInputOther		 0x3
+-/* TS status */
+-struct saa7134_ts {
+-	unsigned int               users;
+-
+-	/* TS capture */
+-	struct videobuf_queue      ts;
+-	struct saa7134_pgtable     pt_ts;
+-	int			   started;
+-};
+-
+ /* oss dsp status */
+ struct saa7134_oss {
+         struct semaphore           lock;
+@@ -338,23 +341,37 @@ struct saa7134_ir {
+         struct timer_list          timer;
+ };
  
- #define Xtal0		 0x1
- #define Xtal1		 0x2
-@@ -644,12 +644,12 @@
- #define VideoFormatNTSCJapan	 0x2
- #define VideoFormatNTSC443	 0x3
- #define VideoFormatPAL		 0x4
--#define VideoFormatPALB		 0x4 
--#define VideoFormatPALD		 0x4 
--#define VideoFormatPALG		 0x4 
--#define VideoFormatPALH		 0x4 
--#define VideoFormatPALI		 0x4 
--#define VideoFormatPALBDGHI	 0x4 
-+#define VideoFormatPALB		 0x4
-+#define VideoFormatPALD		 0x4
-+#define VideoFormatPALG		 0x4
-+#define VideoFormatPALH		 0x4
-+#define VideoFormatPALI		 0x4
-+#define VideoFormatPALBDGHI	 0x4
- #define VideoFormatPALM		 0x5
- #define VideoFormatPALN		 0x6
- #define VideoFormatPALNC	 0x7
-@@ -661,12 +661,12 @@
- #define VideoFormatNTSCJapan27MHz	 0x12
- #define VideoFormatNTSC44327MHz		 0x13
- #define VideoFormatPAL27MHz		 0x14
--#define VideoFormatPALB27MHz		 0x14 
--#define VideoFormatPALD27MHz		 0x14 
--#define VideoFormatPALG27MHz		 0x14 
--#define VideoFormatPALH27MHz		 0x14 
--#define VideoFormatPALI27MHz		 0x14 
--#define VideoFormatPALBDGHI27MHz	 0x14 
-+#define VideoFormatPALB27MHz		 0x14
-+#define VideoFormatPALD27MHz		 0x14
-+#define VideoFormatPALG27MHz		 0x14
-+#define VideoFormatPALH27MHz		 0x14
-+#define VideoFormatPALI27MHz		 0x14
-+#define VideoFormatPALBDGHI27MHz	 0x14
- #define VideoFormatPALM27MHz		 0x15
- #define VideoFormatPALN27MHz		 0x16
- #define VideoFormatPALNC27MHz		 0x17
-@@ -745,8 +745,8 @@
- #define CHANNEL_VIP_UP		 0xA
- #define CHANNEL_HOST_DN		 0xB
- #define CHANNEL_HOST_UP		 0xC
--#define CHANNEL_FIRST		 0x1 
--#define CHANNEL_LAST		 0xC 
-+#define CHANNEL_FIRST		 0x1
-+#define CHANNEL_LAST		 0xC
++/* ts/mpeg status */
++struct saa7134_ts {
++	/* TS capture */
++	struct saa7134_pgtable     pt_ts;
++	int                        nr_packets;
++	int                        nr_bufs;
++};
++
++/* ts/mpeg ops */
++struct saa7134_mpeg_ops {
++	enum saa7134_mpeg_type     type;
++	struct list_head           next;
++	int                        (*init)(struct saa7134_dev *dev);
++	int                        (*fini)(struct saa7134_dev *dev);
++};
++
+ /* global device status */
+ struct saa7134_dev {
+ 	struct list_head           devlist;
+         struct semaphore           lock;
+        	spinlock_t                 slock;
+-#ifdef VIDIOC_G_PRIORITY 
++#ifdef VIDIOC_G_PRIORITY
+ 	struct v4l2_prio_state     prio;
+ #endif
  
- #define GP_COUNT_CONTROL_NONE		 0x0
- #define GP_COUNT_CONTROL_INC		 0x1
-@@ -773,15 +773,15 @@
- #define DEFAULT_SAT_U_NTSC			0x7F
- #define DEFAULT_SAT_V_NTSC			0x5A
+ 	/* various device info */
+ 	unsigned int               resources;
+ 	struct video_device        *video_dev;
+-	struct video_device        *ts_dev;
+ 	struct video_device        *radio_dev;
+ 	struct video_device        *vbi_dev;
+ 	struct saa7134_oss         oss;
+-	struct saa7134_ts          ts;
  
--typedef enum                                                                          
--{                                                                                     
--	SOURCE_TUNER = 0,                                                             
--	SOURCE_COMPOSITE,                                                             
--	SOURCE_SVIDEO,                                                                
--	SOURCE_OTHER1,                                                                
--	SOURCE_OTHER2,                                                                
--	SOURCE_COMPVIASVIDEO,                                                         
--	SOURCE_CCIR656                                                                    
-+typedef enum
-+{
-+	SOURCE_TUNER = 0,
-+	SOURCE_COMPOSITE,
-+	SOURCE_SVIDEO,
-+	SOURCE_OTHER1,
-+	SOURCE_OTHER2,
-+	SOURCE_COMPVIASVIDEO,
-+	SOURCE_CCIR656
- } VIDEOSOURCETYPE;
+ 	/* infrared remote */
+ 	int                        has_remote;
+@@ -362,6 +379,7 @@ struct saa7134_dev {
  
- #endif /* _CX88_REG_H_ */
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-cards.c
+ 	/* pci i/o */
+ 	char                       name[32];
++	int                        nr;
+ 	struct pci_dev             *pci;
+ 	unsigned char              pci_rev,pci_lat;
+ 	__u32                      *lmmio;
+@@ -386,7 +404,6 @@ struct saa7134_dev {
+ 
+ 	/* video+ts+vbi capture */
+ 	struct saa7134_dmaqueue    video_q;
+-	struct saa7134_dmaqueue    ts_q;
+ 	struct saa7134_dmaqueue    vbi_q;
+ 	unsigned int               video_fieldcount;
+ 	unsigned int               vbi_fieldcount;
+@@ -420,6 +437,19 @@ struct saa7134_dev {
+ 	struct saa7134_input       *hw_input;
+ 	unsigned int               hw_mute;
+ 	int                        last_carrier;
++
++	/* SAA7134_MPEG_* */
++	struct saa7134_ts          ts;
++	struct saa7134_dmaqueue    ts_q;
++	struct saa7134_mpeg_ops    *mops;
++
++	/* SAA7134_MPEG_EMPRESS only */
++	struct video_device        *empress_dev;
++	struct videobuf_queue      empress_tsq;
++	unsigned int               empress_users;
++
++	/* SAA7134_MPEG_DVB only */
++	struct videobuf_dvb        dvb;
+ };
+ 
+ /* ----------------------------------------------------------- */
+@@ -512,11 +542,16 @@ void saa7134_irq_video_done(struct saa71
+ /* ----------------------------------------------------------- */
+ /* saa7134-ts.c                                                */
+ 
+-extern struct video_device saa7134_ts_template;
++#define TS_PACKET_SIZE 188 /* TS packets 188 bytes */
++
++extern struct videobuf_queue_ops saa7134_ts_qops;
++
+ int saa7134_ts_init1(struct saa7134_dev *dev);
+ int saa7134_ts_fini(struct saa7134_dev *dev);
+ void saa7134_irq_ts_done(struct saa7134_dev *dev, unsigned long status);
+ 
++int saa7134_ts_register(struct saa7134_mpeg_ops *ops);
++void saa7134_ts_unregister(struct saa7134_mpeg_ops *ops);
+ 
+ /* ----------------------------------------------------------- */
+ /* saa7134-vbi.c                                               */
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-core.c
 ===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-cards.c	2004-11-07 12:23:44.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-cards.c	2004-11-07 16:01:04.548276982 +0100
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-core.c	2004-11-07 12:22:16.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-core.c	2004-11-07 15:55:19.394371245 +0100
 @@ -1,5 +1,5 @@
  /*
-- * $Id: cx88-cards.c,v 1.44 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-cards.c,v 1.47 2004/11/03 09:04:50 kraxel Exp $
+- * $Id: saa7134-core.c,v 1.10 2004/09/15 16:15:24 kraxel Exp $
++ * $Id: saa7134-core.c,v 1.15 2004/11/07 14:44:59 kraxel Exp $
   *
-  * device driver for Conexant 2388x based TV cards
-  * card-specific stuff.
-@@ -336,11 +336,11 @@ struct cx88_board cx88_boards[] = {
- 		.tuner_type     = TUNER_ABSENT, /* No analog tuner */
- 		.input          = {{
- 			.type   = CX88_VMUX_COMPOSITE1,
--			.vmux   = 0,
-+			.vmux   = 1,
- 			.gpio0  = 0x000027df,
- 		 },{
- 			.type   = CX88_VMUX_SVIDEO,
--			.vmux   = 1,
-+			.vmux   = 2,
- 			.gpio0  = 0x000027df,
- 		}},
- 		.dvb            = 1,
-@@ -438,6 +438,20 @@ struct cx88_board cx88_boards[] = {
- 		}},
- 		.blackbird = 1,
- 	},
-+	[CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS] = {
-+		.name           = "DVICO FusionHDTV DVB-T Plus",
-+		.tuner_type     = TUNER_ABSENT, /* No analog tuner */
-+		.input          = {{
-+			.type   = CX88_VMUX_COMPOSITE1,
-+			.vmux   = 1,
-+			.gpio0  = 0x000027df,
-+		 },{
-+			.type   = CX88_VMUX_SVIDEO,
-+			.vmux   = 2,
-+			.gpio0  = 0x000027df,
-+		}},
-+		.dvb            = 1,
-+	},
- };
- const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
- 
-@@ -525,6 +539,10 @@ struct cx88_subid cx88_subids[] = {
- 		.subvendor = 0x1540,
- 		.subdevice = 0x2580,
- 		.card      = CX88_BOARD_PROVIDEO_PV259,
-+	},{
-+		.subvendor = 0x18AC,
-+		.subdevice = 0xDB10,
-+		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS,
- 	}
- };
- const unsigned int cx88_idcount = ARRAY_SIZE(cx88_subids);
-@@ -612,7 +630,7 @@ static struct {
- 	{ TUNER_ABSENT,        "Philips TD1536D_FH_44"},
- 	{ TUNER_LG_NTSC_FM,    "LG TPI8NSR01F"},
- 	{ TUNER_LG_PAL_FM,     "LG TPI8PSB01D"},
--	{ TUNER_LG_PAL,        "LG TPI8PSB11D"},	
-+	{ TUNER_LG_PAL,        "LG TPI8PSB11D"},
- 	{ TUNER_LG_PAL_I_FM,   "LG TAPC-I001D"},
- 	{ TUNER_LG_PAL_I,      "LG TAPC-I701D"}
- };
-@@ -634,12 +652,12 @@ static void hauppauge_eeprom(struct cx88
- 	model = eeprom_data[12] << 8 | eeprom_data[11];
- 	tuner = eeprom_data[9];
- 	radio = eeprom_data[blk2-1] & 0x01;
--	
-+
-         if (tuner < ARRAY_SIZE(hauppauge_tuner))
-                 core->tuner_type = hauppauge_tuner[tuner].id;
- 	if (radio)
- 		core->has_radio = 1;
--	
-+
- 	printk(KERN_INFO "%s: hauppauge eeprom: model=%d, "
- 	       "tuner=%s (%d), radio=%s\n",
- 	       core->name, model, (tuner < ARRAY_SIZE(hauppauge_tuner)
-@@ -804,7 +822,7 @@ void cx88_card_list(struct cx88_core *co
- void cx88_card_setup(struct cx88_core *core)
- {
- 	static u8 eeprom[128];
--		
-+
- 	switch (core->board) {
- 	case CX88_BOARD_HAUPPAUGE:
- 		if (0 == core->i2c_rc)
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-core.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-core.c	2004-11-07 12:22:08.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-core.c	2004-11-07 16:01:04.549276793 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-core.c,v 1.13 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-core.c,v 1.15 2004/10/25 11:26:36 kraxel Exp $
-  *
-  * device driver for Conexant 2388x based TV cards
+  * device driver for philips saa7134 based TV cards
   * driver core
-@@ -50,13 +50,12 @@ module_param(latency,int,0444);
- MODULE_PARM_DESC(latency,"pci latency timer");
+@@ -38,64 +38,56 @@ MODULE_DESCRIPTION("v4l2 driver module f
+ MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
+ MODULE_LICENSE("GPL");
  
- static unsigned int tuner[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
--static int tuner_num;
--module_param_array(tuner,int,&tuner_num,0444);
--MODULE_PARM_DESC(tuner,"tuner type");
-+static unsigned int card[]  = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
-+
-+module_param_array(tuner, int, NULL, 0444);
-+module_param_array(card,  int, NULL, 0444);
- 
--static unsigned int card[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
--static int card_num;
--module_param_array(card,int,&card_num,0444);
-+MODULE_PARM_DESC(tuner,"tuner type");
- MODULE_PARM_DESC(card,"card type");
- 
- static unsigned int nicam = 0;
-@@ -137,7 +136,7 @@ static u32* cx88_risc_field(u32 *rp, str
- 	/* sync instruction */
- 	if (sync_line != NO_SYNC_LINE)
- 		*(rp++) = cpu_to_le32(RISC_RESYNC | sync_line);
--	
-+
- 	/* scan lines */
- 	sg = sglist;
- 	for (line = 0; line < lines; line++) {
-@@ -291,7 +290,7 @@ cx88_free_buffer(struct pci_dev *pci, st
-  *
-  * Every channel has 160 bytes control data (64 bytes instruction
-  * queue and 6 CDT entries), which is close to 2k total.
-- * 
-+ *
-  * Address layout:
-  *    0x0000 - 0x03ff    CMDs / reserved
-  *    0x0400 - 0x0bff    instruction queues + CDs
-@@ -467,7 +466,7 @@ void cx88_risc_disasm(struct cx88_core *
- 		      struct btcx_riscmem *risc)
- {
- 	unsigned int i,j,n;
--	
-+
- 	printk("%s: risc disasm: %p [dma=0x%08lx]\n",
- 	       core->name, risc->cpu, (unsigned long)risc->dma);
- 	for (i = 0; i < (risc->size >> 2); i += n) {
-@@ -537,13 +536,13 @@ void cx88_sram_channel_dump(struct cx88_
- }
- 
- char *cx88_pci_irqs[32] = {
--	"vid", "aud", "ts", "vip", "hst", "5", "6", "tm1", 
-+	"vid", "aud", "ts", "vip", "hst", "5", "6", "tm1",
- 	"src_dma", "dst_dma", "risc_rd_err", "risc_wr_err",
- 	"brdg_err", "src_dma_err", "dst_dma_err", "ipb_dma_err",
- 	"i2c", "i2c_rack", "ir_smp", "gpio0", "gpio1"
- };
- char *cx88_vid_irqs[32] = {
--	"y_risci1", "u_risci1", "v_risci1", "vbi_risc1", 
-+	"y_risci1", "u_risci1", "v_risci1", "vbi_risc1",
- 	"y_risci2", "u_risci2", "v_risci2", "vbi_risc2",
- 	"y_oflow",  "u_oflow",  "v_oflow",  "vbi_oflow",
- 	"y_sync",   "u_sync",   "v_sync",   "vbi_sync",
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-i2c.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-i2c.c	2004-11-07 12:22:20.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-i2c.c	2004-11-07 16:01:04.549276793 +0100
-@@ -1,5 +1,5 @@
- /*
--    $Id: cx88-i2c.c,v 1.17 2004/10/11 13:45:51 kraxel Exp $
-+    $Id: cx88-i2c.c,v 1.18 2004/10/13 10:39:00 kraxel Exp $
- 
-     cx88-i2c.c  --  all the i2c code is here
- 
-@@ -21,7 +21,7 @@
-     You should have received a copy of the GNU General Public License
-     along with this program; if not, write to the Free Software
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--    
-+
- */
- 
- #include <linux/module.h>
-@@ -72,7 +72,7 @@ static int cx8800_bit_getscl(void *data)
- {
- 	struct cx88_core *core = data;
- 	u32 state;
--	
-+
- 	state = cx_read(MO_I2C);
- 	return state & 0x02 ? 1 : 0;
- }
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-tvaudio.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-tvaudio.c	2004-11-07 12:22:29.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-tvaudio.c	2004-11-07 16:01:04.550276604 +0100
-@@ -1,5 +1,5 @@
- /*
--    $Id: cx88-tvaudio.c,v 1.22 2004/10/11 13:45:51 kraxel Exp $
-+    $Id: cx88-tvaudio.c,v 1.24 2004/10/25 11:51:00 kraxel Exp $
- 
-     cx88x-audio.c - Conexant CX23880/23881 audio downstream driver driver
- 
-@@ -18,9 +18,9 @@
- 
-     Some comes from the dscaler sources, one of the dscaler driver guy works
-     for Conexant ...
--    
-+
-     -----------------------------------------------------------------------
--    
-+
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-@@ -553,6 +553,13 @@ static void set_audio_standard_A2(struct
- 	set_audio_start(core, 0x0004, EN_DMTRX_SUMDIFF | EN_A2_AUTO_STEREO);
- 	set_audio_registers(core, a2_common);
- 	switch (core->tvaudio) {
-+	case WW_NICAM_I:
-+		/* gives at least mono according to the dscaler guys */
-+		/* so use use that while nicam is broken ...         */
-+		dprintk("%s PAL-I mono (status: unknown)\n",__FUNCTION__);
-+		set_audio_registers(core, a2_table1);
-+		cx_write(AUD_CTL, EN_A2_FORCE_MONO1);
-+		break;
- 	case WW_A2_BG:
- 		dprintk("%s PAL-BG A2 (status: known-good)\n",__FUNCTION__);
- 		set_audio_registers(core, a2_table1);
-@@ -601,7 +608,7 @@ static void set_audio_standard_FM(struct
- 			cx_write(AUD_DEEMPH1_B0, 0x1C29);
- 			cx_write(AUD_DEEMPH1_A1, 0x3FC66);
- 			cx_write(AUD_DEEMPH1_B1, 0x399A);
--			
-+
- 			break;
- 
- 		case WW_FM_DEEMPH_75:
-@@ -639,10 +646,11 @@ void cx88_set_tvaudio(struct cx88_core *
- 	case WW_BTSC:
- 		set_audio_standard_BTSC(core,0);
- 		break;
--	case WW_NICAM_I:
-+	// case WW_NICAM_I:
- 	case WW_NICAM_BGDKL:
- 		set_audio_standard_NICAM(core);
- 		break;
-+	case WW_NICAM_I:
- 	case WW_A2_BG:
- 	case WW_A2_DK:
- 	case WW_A2_M:
-@@ -750,7 +758,7 @@ void cx88_set_stereo(struct cx88_core *c
- 	case WW_A2_DK:
- 	case WW_A2_M:
- 		switch (mode) {
--		case V4L2_TUNER_MODE_MONO:   
-+		case V4L2_TUNER_MODE_MONO:
- 		case V4L2_TUNER_MODE_LANG1:
- 			ctl  = EN_A2_FORCE_MONO1;
- 			mask = 0x3f;
-@@ -767,7 +775,7 @@ void cx88_set_stereo(struct cx88_core *c
- 		break;
- 	case WW_NICAM_BGDKL:
- 		switch (mode) {
--		case V4L2_TUNER_MODE_MONO:   
-+		case V4L2_TUNER_MODE_MONO:
- 			ctl  = EN_NICAM_FORCE_MONO1;
- 			mask = 0x3f;
- 			break;
-@@ -780,10 +788,10 @@ void cx88_set_stereo(struct cx88_core *c
- 			mask = 0x93f;
- 			break;
- 		}
--		break;	
-+		break;
- 	case WW_FM:
- 		switch (mode) {
--		case V4L2_TUNER_MODE_MONO:   
-+		case V4L2_TUNER_MODE_MONO:
- 			ctl  = EN_FMRADIO_FORCE_MONO;
- 			mask = 0x3f;
- 			break;
-@@ -792,7 +800,7 @@ void cx88_set_stereo(struct cx88_core *c
- 			mask = 0x3f;
- 			break;
- 		}
--		break;	
-+		break;
- 	}
- 
- 	if (UNSET != ctl) {
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-video.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-video.c	2004-11-07 12:22:59.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-video.c	2004-11-07 16:01:04.551276416 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-video.c,v 1.40 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-video.c,v 1.46 2004/11/07 14:44:59 kraxel Exp $
-  *
-  * device driver for Conexant 2388x based TV cards
-  * video4linux video interface
-@@ -41,18 +41,15 @@ MODULE_LICENSE("GPL");
+-#define SAA7134_MAXBOARDS 8
+-
  /* ------------------------------------------------------------------ */
  
- static unsigned int video_nr[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
--static unsigned int video_nr_num;
--module_param_array(video_nr,int,&video_nr_num,0444);
--MODULE_PARM_DESC(video_nr,"video device numbers");
-+static unsigned int vbi_nr[]   = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
-+static unsigned int radio_nr[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
+ static unsigned int irq_debug = 0;
+-MODULE_PARM(irq_debug,"i");
++module_param(irq_debug, int, 0644);
+ MODULE_PARM_DESC(irq_debug,"enable debug messages [IRQ handler]");
  
--static unsigned int vbi_nr[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
--static unsigned int vbi_nr_num;
--module_param_array(vbi_nr,int,&vbi_nr_num,0444);
--MODULE_PARM_DESC(vbi_nr,"vbi device numbers");
+ static unsigned int core_debug = 0;
+-MODULE_PARM(core_debug,"i");
++module_param(core_debug, int, 0644);
+ MODULE_PARM_DESC(core_debug,"enable debug messages [core]");
+ 
+ static unsigned int gpio_tracking = 0;
+-MODULE_PARM(gpio_tracking,"i");
++module_param(gpio_tracking, int, 0644);
+ MODULE_PARM_DESC(gpio_tracking,"enable debug messages [gpio]");
+ 
+-static unsigned int video_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(video_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(video_nr,"video device number");
+-
+-static unsigned int ts_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(ts_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(ts_nr,"ts device number");
+-
+-static unsigned int vbi_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(vbi_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(vbi_nr,"vbi device number");
+-
+-static unsigned int radio_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(radio_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(radio_nr,"radio device number");
+-
+ static unsigned int oss = 0;
+-MODULE_PARM(oss,"i");
++module_param(oss, int, 0444);
+ MODULE_PARM_DESC(oss,"register oss devices (default: no)");
+ 
+-static unsigned int dsp_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(dsp_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(dsp_nr,"oss dsp device number");
+-
+-static unsigned int mixer_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(mixer_nr,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(mixer_nr,"oss mixer device number");
+-
+-static unsigned int tuner[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(tuner,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(tuner,"tuner type");
+-
+-static unsigned int card[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
+-MODULE_PARM(card,"1-" __stringify(SAA7134_MAXBOARDS) "i");
+-MODULE_PARM_DESC(card,"card type");
+-
+ static unsigned int latency = UNSET;
+-MODULE_PARM(latency,"i");
++module_param(latency, int, 0444);
+ MODULE_PARM_DESC(latency,"pci latency timer");
+ 
+-struct list_head  saa7134_devlist;
+-unsigned int      saa7134_devcount;
++static unsigned int video_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int vbi_nr[]   = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int radio_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int dsp_nr[]   = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int mixer_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int tuner[]    = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++static unsigned int card[]     = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++
 +module_param_array(video_nr, int, NULL, 0444);
 +module_param_array(vbi_nr,   int, NULL, 0444);
 +module_param_array(radio_nr, int, NULL, 0444);
++module_param_array(dsp_nr,   int, NULL, 0444);
++module_param_array(mixer_nr, int, NULL, 0444);
++module_param_array(tuner,    int, NULL, 0444);
++module_param_array(card,     int, NULL, 0444);
++
++MODULE_PARM_DESC(video_nr, "video device number");
++MODULE_PARM_DESC(vbi_nr,   "vbi device number");
++MODULE_PARM_DESC(radio_nr, "radio device number");
++MODULE_PARM_DESC(dsp_nr,   "oss dsp device number");
++MODULE_PARM_DESC(mixer_nr, "oss mixer device number");
++MODULE_PARM_DESC(tuner,    "tuner type");
++MODULE_PARM_DESC(card,     "card type");
++
++static DECLARE_MUTEX(devlist_lock);
++LIST_HEAD(saa7134_devlist);
++static LIST_HEAD(mops_list);
++static unsigned int saa7134_devcount;
  
--static unsigned int radio_nr[] = {[0 ... (CX88_MAXBOARDS - 1)] = UNSET };
--static unsigned int radio_nr_num;
--module_param_array(radio_nr,int,&radio_nr_num,0444);
-+MODULE_PARM_DESC(video_nr,"video device numbers");
-+MODULE_PARM_DESC(vbi_nr,"vbi device numbers");
- MODULE_PARM_DESC(radio_nr,"radio device numbers");
- 
- static unsigned int video_debug = 0;
-@@ -210,7 +207,7 @@ static struct cx8800_fmt formats[] = {
- static struct cx8800_fmt* format_by_fourcc(unsigned int fourcc)
+ #define dprintk(fmt, arg...)	if (core_debug) \
+ 	printk(KERN_DEBUG "%s/core: " fmt, dev->name , ## arg)
+@@ -246,7 +238,7 @@ int saa7134_buffer_pages(int size)
+ int saa7134_buffer_count(unsigned int size, unsigned int count)
+ {
+ 	unsigned int maxcount;
+-	
++
+ 	maxcount = 1024 / saa7134_buffer_pages(size);
+ 	if (count > maxcount)
+ 		count = maxcount;
+@@ -273,7 +265,7 @@ int saa7134_pgtable_alloc(struct pci_dev
+ {
+         u32          *cpu;
+         dma_addr_t   dma_addr;
+-	
++
+ 	cpu = pci_alloc_consistent(pci, SAA7134_PGTABLE_SIZE, &dma_addr);
+ 	if (NULL == cpu)
+ 		return -ENOMEM;
+@@ -330,7 +322,7 @@ int saa7134_buffer_queue(struct saa7134_
+ #ifdef DEBUG_SPINLOCKS
+ 	BUG_ON(!spin_is_locked(&dev->slock));
+ #endif
+-	
++
+ 	dprintk("buffer_queue %p\n",buf);
+ 	if (NULL == q->curr) {
+ 		if (!q->need_two) {
+@@ -360,7 +352,7 @@ void saa7134_buffer_finish(struct saa713
+ 	BUG_ON(!spin_is_locked(&dev->slock));
+ #endif
+ 	dprintk("buffer_finish %p\n",q->curr);
+-	
++
+ 	/* finish current buffer */
+ 	q->curr->vb.state = state;
+ 	do_gettimeofday(&q->curr->vb.ts);
+@@ -483,7 +475,7 @@ int saa7134_set_dmabits(struct saa7134_d
+ 			SAA7134_IRQ1_INTE_RA2_1 |
+ 			SAA7134_IRQ1_INTE_RA2_0;
+ 	}
+-	
++
+ 	/* set task conditions + field handling */
+ 	if (V4L2_FIELD_HAS_BOTH(cap) || V4L2_FIELD_HAS_BOTH(ov) || cap == ov) {
+ 		/* default config -- use full frames */
+@@ -507,7 +499,7 @@ int saa7134_set_dmabits(struct saa7134_d
+ 		saa_writeb(SAA7134_FIELD_HANDLING(TASK_B),  0x01);
+ 		split = 1;
+ 	}
+-	
++
+ 	/* irqs */
+ 	saa_writeb(SAA7134_REGION_ENABLE, task);
+ 	saa_writel(SAA7134_IRQ1,          irq);
+@@ -541,7 +533,7 @@ static void print_irqstatus(struct saa71
+ 			    unsigned long report, unsigned long status)
  {
  	unsigned int i;
 -	
 +
- 	for (i = 0; i < ARRAY_SIZE(formats); i++)
- 		if (formats[i].fourcc == fourcc)
- 			return formats+i;
-@@ -433,10 +430,10 @@ static int start_video_dma(struct cx8800
- 	/* enable irqs */
- 	cx_set(MO_PCI_INTMSK, 0x00fc01);
- 	cx_set(MO_VID_INTMSK, 0x0f0011);
+ 	printk(KERN_DEBUG "%s/irq[%d,%ld]: r=0x%lx s=0x%02lx",
+ 	       dev->name,loop,jiffies,report,status);
+ 	for (i = 0; i < IRQBITS; i++) {
+@@ -596,7 +588,7 @@ static irqreturn_t saa7134_irq(int irq, 
+ 			saa7134_irq_vbi_done(dev,status);
+ 
+ 		if ((report & SAA7134_IRQ_REPORT_DONE_RA2) &&
+-		    card_has_ts(dev))
++		    card_has_mpeg(dev))
+ 			saa7134_irq_ts_done(dev,status);
+ 
+ 		if ((report & SAA7134_IRQ_REPORT_DONE_RA3))
+@@ -643,7 +635,7 @@ static int saa7134_hwinit1(struct saa713
+ 	saa7134_track_gpio(dev,"pre-init");
+ 	saa7134_video_init1(dev);
+ 	saa7134_vbi_init1(dev);
+-	if (card_has_ts(dev))
++	if (card_has_mpeg(dev))
+ 		saa7134_ts_init1(dev);
+ 	saa7134_input_init1(dev);
+ 
+@@ -654,11 +646,11 @@ static int saa7134_hwinit1(struct saa713
+ 		saa7134_oss_init1(dev);
+ 		break;
+ 	}
 -	
 +
- 	/* enable capture */
- 	cx_set(VID_CAPTURE_CONTROL,0x06);
+ 	/* RAM FIFO config */
+ 	saa_writel(SAA7134_FIFO_SIZE, 0x08070503);
+ 	saa_writel(SAA7134_THRESHOULD,0x02020202);
 -	
 +
- 	/* start dma */
- 	cx_set(MO_DEV_CNTRL2, (1<<5));
- 	cx_set(MO_VID_DMACNTRL, 0x11);
-@@ -465,7 +462,7 @@ static int restart_video_queue(struct cx
+ 	/* enable audio + video processing */
+ 	saa_writel(SAA7134_MAIN_CTRL,
+ 		   SAA7134_MAIN_CTRL_VPLLE |
+@@ -675,7 +667,7 @@ static int saa7134_hwinit1(struct saa713
+ 
+ 	/* set vertical line numbering start (vbi needs this) */
+ 	saa_writeb(SAA7134_SOURCE_TIMING2, 0x20);
+-	
++
+ 	return 0;
+ }
+ 
+@@ -719,7 +711,7 @@ static int saa7134_hwfini(struct saa7134
+ 		saa7134_oss_fini(dev);
+ 		break;
+ 	}
+-	if (card_has_ts(dev))
++	if (card_has_mpeg(dev))
+ 		saa7134_ts_fini(dev);
+ 	saa7134_input_fini(dev);
+ 	saa7134_vbi_fini(dev);
+@@ -760,7 +752,7 @@ static struct video_device *vdev_init(st
+ 				      char *type)
  {
- 	struct cx88_buffer *buf, *prev;
- 	struct list_head *item;
+ 	struct video_device *vfd;
 -	
 +
- 	if (!list_empty(&q->active)) {
- 	        buf = list_entry(q->active.next, struct cx88_buffer, vb.queue);
- 		dprintk(2,"restart_queue [%p/%d]: restart dma\n",
-@@ -514,10 +511,10 @@ static int restart_video_queue(struct cx
+ 	vfd = video_device_alloc();
+ 	if (NULL == vfd)
+ 		return NULL;
+@@ -782,13 +774,6 @@ static void saa7134_unregister_video(str
+ 			video_device_release(dev->video_dev);
+ 		dev->video_dev = NULL;
+ 	}
+-	if (dev->ts_dev) {
+-		if (-1 != dev->ts_dev->minor)
+-			video_unregister_device(dev->ts_dev);
+-		else
+-			video_device_release(dev->ts_dev);
+-		dev->ts_dev = NULL;
+-	}
+ 	if (dev->vbi_dev) {
+ 		if (-1 != dev->vbi_dev->minor)
+ 			video_unregister_device(dev->vbi_dev);
+@@ -805,10 +790,38 @@ static void saa7134_unregister_video(str
+ 	}
+ }
+ 
++static void mpeg_ops_attach(struct saa7134_mpeg_ops *ops,
++			    struct saa7134_dev *dev)
++{
++	int err;
++
++	if (NULL != dev->mops)
++		return;
++	if (saa7134_boards[dev->board].mpeg != ops->type)
++		return;
++	err = ops->init(dev);
++	if (0 != err)
++		return;
++	dev->mops = ops;
++}
++
++static void mpeg_ops_detach(struct saa7134_mpeg_ops *ops,
++			    struct saa7134_dev *dev)
++{
++	if (NULL == dev->mops)
++		return;
++	if (dev->mops != ops)
++		return;
++	dev->mops->fini(dev);
++	dev->mops = NULL;
++}
++
+ static int __devinit saa7134_initdev(struct pci_dev *pci_dev,
+ 				     const struct pci_device_id *pci_id)
+ {
+ 	struct saa7134_dev *dev;
++	struct list_head *item;
++	struct saa7134_mpeg_ops *mops;
+ 	int err;
+ 
+ 	dev = kmalloc(sizeof(*dev),GFP_KERNEL);
+@@ -822,7 +835,9 @@ static int __devinit saa7134_initdev(str
+ 		err = -EIO;
+ 		goto fail1;
+ 	}
+-	sprintf(dev->name,"saa%x[%d]",pci_dev->device,saa7134_devcount);
++
++	dev->nr = saa7134_devcount;
++	sprintf(dev->name,"saa%x[%d]",pci_dev->device,dev->nr);
+ 
+ 	/* pci quirks */
+ 	if (pci_pci_problems) {
+@@ -864,21 +879,21 @@ static int __devinit saa7134_initdev(str
+ 
+ 	/* board config */
+ 	dev->board = pci_id->driver_data;
+-	if (card[saa7134_devcount] >= 0 &&
+-	    card[saa7134_devcount] < saa7134_bcount)
+-		dev->board = card[saa7134_devcount];
++	if (card[dev->nr] >= 0 &&
++	    card[dev->nr] < saa7134_bcount)
++		dev->board = card[dev->nr];
+ 	if (SAA7134_BOARD_NOAUTO == dev->board) {
+ 		must_configure_manually();
+ 		dev->board = SAA7134_BOARD_UNKNOWN;
+ 	}
+ 	dev->tuner_type   = saa7134_boards[dev->board].tuner_type;
+ 	dev->tda9887_conf = saa7134_boards[dev->board].tda9887_conf;
+-	if (UNSET != tuner[saa7134_devcount])
+-		dev->tuner_type = tuner[saa7134_devcount];
++	if (UNSET != tuner[dev->nr])
++		dev->tuner_type = tuner[dev->nr];
+         printk(KERN_INFO "%s: subsystem: %04x:%04x, board: %s [card=%d,%s]\n",
+ 	       dev->name,pci_dev->subsystem_vendor,
+ 	       pci_dev->subsystem_device,saa7134_boards[dev->board].name,
+-	       dev->board, card[saa7134_devcount] == dev->board ?
++	       dev->board, card[dev->nr] == dev->board ?
+ 	       "insmod option" : "autodetected");
+ 
+ 	/* get mmio */
+@@ -925,17 +940,19 @@ static int __devinit saa7134_initdev(str
+ 		request_module("tuner");
+ 	if (dev->tda9887_conf)
+ 		request_module("tda9887");
+-  	if (card_has_ts(dev))
++  	if (card_is_empress(dev)) {
++		request_module("saa7134-empress");
+ 		request_module("saa6752hs");
++	}
++  	if (card_is_dvb(dev))
++		request_module("saa7134-dvb");
+ 
+-#ifdef VIDIOC_G_PRIORITY
+ 	v4l2_prio_init(&dev->prio);
+-#endif
+ 
+ 	/* register v4l devices */
+ 	dev->video_dev = vdev_init(dev,&saa7134_video_template,"video");
+ 	err = video_register_device(dev->video_dev,VFL_TYPE_GRABBER,
+-				    video_nr[saa7134_devcount]);
++				    video_nr[dev->nr]);
+ 	if (err < 0) {
+ 		printk(KERN_INFO "%s: can't register video device\n",
+ 		       dev->name);
+@@ -944,22 +961,9 @@ static int __devinit saa7134_initdev(str
+ 	printk(KERN_INFO "%s: registered device video%d [v4l2]\n",
+ 	       dev->name,dev->video_dev->minor & 0x1f);
+ 
+-	if (card_has_ts(dev)) {
+-		dev->ts_dev = vdev_init(dev,&saa7134_ts_template,"ts");
+-		err = video_register_device(dev->ts_dev,VFL_TYPE_GRABBER,
+-					    ts_nr[saa7134_devcount]);
+-		if (err < 0) {
+-			printk(KERN_INFO "%s: can't register video device\n",
+-			       dev->name);
+-			goto fail4;
+-		}
+-		printk(KERN_INFO "%s: registered device video%d [mpeg]\n",
+-		       dev->name,dev->ts_dev->minor & 0x1f);
+-	}
+-	
+ 	dev->vbi_dev = vdev_init(dev,&saa7134_vbi_template,"vbi");
+ 	err = video_register_device(dev->vbi_dev,VFL_TYPE_VBI,
+-				    vbi_nr[saa7134_devcount]);
++				    vbi_nr[dev->nr]);
+ 	if (err < 0)
+ 		goto fail4;
+ 	printk(KERN_INFO "%s: registered device vbi%d\n",
+@@ -968,7 +972,7 @@ static int __devinit saa7134_initdev(str
+ 	if (card_has_radio(dev)) {
+ 		dev->radio_dev = vdev_init(dev,&saa7134_radio_template,"radio");
+ 		err = video_register_device(dev->radio_dev,VFL_TYPE_RADIO,
+-					    radio_nr[saa7134_devcount]);
++					    radio_nr[dev->nr]);
+ 		if (err < 0)
+ 			goto fail4;
+ 		printk(KERN_INFO "%s: registered device radio%d\n",
+@@ -983,16 +987,16 @@ static int __devinit saa7134_initdev(str
+ 		if (oss) {
+ 			err = dev->oss.minor_dsp =
+ 				register_sound_dsp(&saa7134_dsp_fops,
+-						   dsp_nr[saa7134_devcount]);
++						   dsp_nr[dev->nr]);
+ 			if (err < 0) {
+ 				goto fail4;
+ 			}
+ 			printk(KERN_INFO "%s: registered device dsp%d\n",
+ 			       dev->name,dev->oss.minor_dsp >> 4);
+-			
++
+ 			err = dev->oss.minor_mixer =
+ 				register_sound_mixer(&saa7134_mixer_fops,
+-						     mixer_nr[saa7134_devcount]);
++						     mixer_nr[dev->nr]);
+ 			if (err < 0)
+ 				goto fail5;
+ 			printk(KERN_INFO "%s: registered device mixer%d\n",
+@@ -1002,9 +1006,16 @@ static int __devinit saa7134_initdev(str
+ 	}
+ 
+ 	/* everything worked */
+-	list_add_tail(&dev->devlist,&saa7134_devlist);
+ 	pci_set_drvdata(pci_dev,dev);
+ 	saa7134_devcount++;
++
++	down(&devlist_lock);
++	list_for_each(item,&mops_list) {
++		mops = list_entry(item, struct saa7134_mpeg_ops, next);
++		mpeg_ops_attach(mops, dev);
++	}
++	list_add_tail(&dev->devlist,&saa7134_devlist);
++	up(&devlist_lock);
+ 	return 0;
+ 
+  fail5:
+@@ -1034,6 +1045,8 @@ static int __devinit saa7134_initdev(str
+ static void __devexit saa7134_finidev(struct pci_dev *pci_dev)
+ {
+         struct saa7134_dev *dev = pci_get_drvdata(pci_dev);
++	struct list_head *item;
++	struct saa7134_mpeg_ops *mops;
+ 
+ 	/* debugging ... */
+ 	if (irq_debug) {
+@@ -1054,6 +1067,15 @@ static void __devexit saa7134_finidev(st
+ 	saa7134_hwfini(dev);
+ 
+ 	/* unregister */
++	down(&devlist_lock);
++	list_del(&dev->devlist);
++	list_for_each(item,&mops_list) {
++		mops = list_entry(item, struct saa7134_mpeg_ops, next);
++		mpeg_ops_detach(mops, dev);
++	}
++	up(&devlist_lock);
++	saa7134_devcount--;
++
+ 	saa7134_i2c_unregister(dev);
+ 	switch (dev->pci->device) {
+ 	case PCI_DEVICE_ID_PHILIPS_SAA7134:
+@@ -1079,11 +1101,45 @@ static void __devexit saa7134_finidev(st
+ 	pci_set_drvdata(pci_dev, NULL);
+ 
+ 	/* free memory */
+-	list_del(&dev->devlist);
+-	saa7134_devcount--;
+ 	kfree(dev);
+ }
+ 
++/* ----------------------------------------------------------- */
++
++int saa7134_ts_register(struct saa7134_mpeg_ops *ops)
++{
++	struct list_head *item;
++	struct saa7134_dev *dev;
++
++	down(&devlist_lock);
++	list_for_each(item,&saa7134_devlist) {
++		dev = list_entry(item, struct saa7134_dev, devlist);
++		mpeg_ops_attach(ops, dev);
++	}
++	list_add_tail(&ops->next,&mops_list);
++	up(&devlist_lock);
++	return 0;
++}
++
++void saa7134_ts_unregister(struct saa7134_mpeg_ops *ops)
++{
++	struct list_head *item;
++	struct saa7134_dev *dev;
++
++	down(&devlist_lock);
++	list_del(&ops->next);
++	list_for_each(item,&saa7134_devlist) {
++		dev = list_entry(item, struct saa7134_dev, devlist);
++		mpeg_ops_detach(ops, dev);
++	}
++	up(&devlist_lock);
++}
++
++EXPORT_SYMBOL(saa7134_ts_register);
++EXPORT_SYMBOL(saa7134_ts_unregister);
++
++/* ----------------------------------------------------------- */
++
+ static struct pci_driver saa7134_pci_driver = {
+         .name     = "saa7134",
+         .id_table = saa7134_pci_tbl,
+@@ -1114,6 +1170,13 @@ module_init(saa7134_init);
+ module_exit(saa7134_fini);
+ 
+ /* ----------------------------------------------------------- */
++
++EXPORT_SYMBOL(saa7134_print_ioctl);
++EXPORT_SYMBOL(saa7134_i2c_call_clients);
++EXPORT_SYMBOL(saa7134_devlist);
++EXPORT_SYMBOL(saa7134_boards);
++
++/* ----------------------------------------------------------- */
+ /*
+  * Local variables:
+  * c-basic-offset: 8
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-cards.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-cards.c	2004-11-07 12:23:54.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-cards.c	2004-11-07 15:55:19.395371057 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-cards.c,v 1.27 2004/09/30 14:17:12 kraxel Exp $
++ * $Id: saa7134-cards.c,v 1.35 2004/11/07 14:44:59 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * card-specific stuff.
+@@ -199,7 +199,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.name = name_radio,
+ 			.amux = LINE2,
+ 		},
+-		.has_ts    = 1,
++		.mpeg      = SAA7134_MPEG_EMPRESS,
+ 		.video_out = CCIR656,
+ 	},
+ 	[SAA7134_BOARD_MONSTERTV] = {
+@@ -323,7 +323,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.amux = LINE2,
+ 			.gpio = 0x20000,
+ 		},
+-		.has_ts		= 1,
++		.mpeg           = SAA7134_MPEG_EMPRESS,
+ 		.video_out	= CCIR656,
+ 	},
+ 	[SAA7134_BOARD_CINERGY400] = {
+@@ -628,7 +628,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.vmux = 8,
+ 			.amux = LINE1,
+ 		}},
+-		.has_ts    = 1,
++		.mpeg      = SAA7134_MPEG_EMPRESS,
+ 		.video_out = CCIR656,
+ 	},
+ 	[SAA7134_BOARD_VIDEOMATE_TV] = {
+@@ -752,7 +752,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.amux = LINE2,
+ 			.tv   = 1,
+ 		}},
+-		.has_ts    = 1,
++		.mpeg      = SAA7134_MPEG_EMPRESS,
+ 		.video_out = CCIR656,
+         },
+         [SAA7134_BOARD_ASUSTEK_TVFM7133] = {
+@@ -785,7 +785,7 @@ struct saa7134_board saa7134_boards[] = 
+                 .name           = "Pinnacle PCTV Stereo (saa7134)",
+                 .audio_clock    = 0x00187de7,
+                 .tuner_type     = TUNER_MT2032,
+-                .tda9887_conf   = TDA9887_PRESENT,
++                .tda9887_conf   = TDA9887_PRESENT | TDA9887_INTERCARRIER,
+                 .inputs         = {{
+                         .name = name_tv,
+                         .vmux = 3,
+@@ -838,7 +838,7 @@ struct saa7134_board saa7134_boards[] = 
+ 			.name = name_svideo,
+ 			.vmux = 8,
+ 			.amux = LINE1,
+-		},{			
++		},{
+ 			.name = name_comp1,
+ 			.vmux = 1,
+ 			.amux = LINE1,
+@@ -1075,7 +1075,6 @@ struct saa7134_board saa7134_boards[] = 
+        			.name = name_tv,
+ 			.vmux = 1,
+ 			.amux = LINE2,
+-			.gpio = 0x0000,
+ 			.tv   = 1,
+                 },{
+                         .name = name_comp1,
+@@ -1174,7 +1173,7 @@ struct saa7134_board saa7134_boards[] = 
+                         .tv   = 1,
+                 }},
+ 	},
+-	[SAA7134_EMPIRE_PCI_TV_RADIO_LE] = {
++	[SAA7134_BOARD_EMPIRE_PCI_TV_RADIO_LE] = {
+ 		/* "Matteo Az" <matte.az@nospam.libero.it> ;-) */
+ 		.name           = "Empire PCI TV-Radio LE",
+ 		.audio_clock    = 0x00187de7,
+@@ -1208,6 +1207,77 @@ struct saa7134_board saa7134_boards[] = 
+ 			 .gpio =0x8000,
+ 		 }
+ 	},
++        [SAA7134_BOARD_AVERMEDIA_307] = {
++		/* Nickolay V. Shmyrev <nshmyrev@yandex.ru> */
++		.name           = "Avermedia AVerTV Studio 307",
++		.audio_clock    = 0x00187de7,
++		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
++		.tda9887_conf   = TDA9887_PRESENT,
++		.inputs         = {{
++			.name = name_tv,
++			.vmux = 1,
++			.amux = TV,
++			.tv   = 1,
++		},{
++			.name = name_comp1,
++			.vmux = 0,
++			.amux = LINE2,
++		},{
++			.name = name_comp2,
++			.vmux = 3,
++			.amux = LINE2,
++		},{
++			.name = name_svideo,
++			.vmux = 8,
++			.amux = LINE2,
++		}},
++		.radio = {
++			.name = name_radio,
++			.amux = TV,
++		},
++        },
++	[SAA7134_BOARD_AVERMEDIA_CARDBUS] = {
++		/* Jon Westgate <oryn@oryn.fsck.tv> */
++		.name           = "AVerMedia Cardbus TV/Radio",
++		.audio_clock    = 0x00200000,
++		.tuner_type     = TUNER_PHILIPS_PAL,
++		.inputs         = {{
++			.name = name_tv,
++			.vmux = 1,
++			.amux = LINE2,
++			.tv   = 1,
++		},{
++			.name = name_comp1,
++			.vmux = 3,
++			.amux = LINE2,
++		},{
++			.name = name_svideo,
++			.vmux = 8,
++			.amux = LINE2,
++		}},
++		.radio = {
++                	.name = name_radio,
++			.amux = LINE1,
++		},
++	},
++	[SAA7134_BOARD_CINERGY400_CARDBUS] = {
++		.name           = "Terratec Cinergy 400 mobile",
++		.audio_clock    = 0x187de7,
++		.tuner_type     = UNSET /* not supported yet :/ */,
++		.inputs         = {{
++       			.name = name_tv,
++			.vmux = 5,
++			.tv   = 1,
++                },{
++                        .name = name_comp1,
++                        .vmux = 3,
++                        .amux = LINE1,
++                },{
++                        .name = name_svideo,
++                        .vmux = 4,
++                        .amux = LINE1,
++		}},
++	},
+ };
+ const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
+ 
+@@ -1253,6 +1323,12 @@ struct pci_device_id saa7134_pci_tbl[] =
+                 .driver_data  = SAA7134_BOARD_CINERGY600,
+         },{
+ 		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
++		.subvendor    = 0x153b,
++		.subdevice    = 0x1162,
++		.driver_data  = SAA7134_BOARD_CINERGY400_CARDBUS,
++        },{
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
+ 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
+ 		.subvendor    = 0x5168,
+ 		.subdevice    = 0x0138,
+@@ -1384,6 +1460,13 @@ struct pci_device_id saa7134_pci_tbl[] =
+                 .subdevice    = 0x10ff,
+ 		.driver_data  = SAA7134_BOARD_AVERMEDIA_DVD_EZMAKER,
+         },{
++		/* AVerMedia CardBus */
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++                .subvendor    = 0x1461, /* Avermedia Technologies Inc */
++                .subdevice    = 0xd6ee,
++		.driver_data  = SAA7134_BOARD_AVERMEDIA_CARDBUS,
++	},{
+ 		/* TransGear 3000TV */
+ 		.vendor       = PCI_VENDOR_ID_PHILIPS,
+ 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7130,
+@@ -1399,6 +1482,12 @@ struct pci_device_id saa7134_pci_tbl[] =
+         },{
+                 .vendor       = PCI_VENDOR_ID_PHILIPS,
+                 .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++                .subvendor    = 0x11bd,
++                .subdevice    = 0x002d, /* 300i DVB-T + PAL */
++                .driver_data  = SAA7134_BOARD_PINNACLE_PCTV_STEREO,
++        },{
++                .vendor       = PCI_VENDOR_ID_PHILIPS,
++                .device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
+                 .subvendor    = 0x1019,
+                 .subdevice    = 0x4cb4,
+                 .driver_data  = SAA7134_BOARD_ECS_TVP3XP,
+@@ -1427,7 +1516,14 @@ struct pci_device_id saa7134_pci_tbl[] =
+                 .subvendor    = 0x185b,
+                 .subdevice    = 0xc100,
+ 		.driver_data  = SAA7134_BOARD_VIDEOMATE_TV_PVR,
+-		
++
++ 	},{
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
++               .subvendor    = 0x1461, /* Avermedia Technologies Inc */
++               .subdevice    = 0x9715,
++		.driver_data  = SAA7134_BOARD_AVERMEDIA_307,
++
+  	},{
+ 		/* --- boards without eeprom + subsystem ID --- */
+                 .vendor       = PCI_VENDOR_ID_PHILIPS,
+@@ -1442,7 +1538,7 @@ struct pci_device_id saa7134_pci_tbl[] =
+ 		.subdevice    = 0,
+ 		.driver_data  = SAA7134_BOARD_NOAUTO,
+ 	},{
+-		
++
+ 		/* --- default catch --- */
+ 		.vendor       = PCI_VENDOR_ID_PHILIPS,
+ 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7130,
+@@ -1544,6 +1640,7 @@ int saa7134_board_init1(struct saa7134_d
+ 	case SAA7134_BOARD_ECS_TVP3XP:
+ 	case SAA7134_BOARD_ECS_TVP3XP_4CB5:
+ 	case SAA7134_BOARD_MD2819:
++	case SAA7134_BOARD_AVERMEDIA_307:
+ 		dev->has_remote = 1;
+ 		break;
+ 	case SAA7134_BOARD_AVACSSMARTTV:
+@@ -1555,6 +1652,11 @@ int saa7134_board_init1(struct saa7134_d
+ 		       "%s: you try the audio_clock_override=0x200000 insmod option.\n",
+ 		       dev->name,dev->name,dev->name);
+ 		break;
++	case SAA7134_BOARD_CINERGY400_CARDBUS:
++		/* power-up tuner chip */
++		saa_andorl(SAA7134_GPIO_GPMODE0 >> 2,   0x00040000, 0x00040000);
++		saa_andorl(SAA7134_GPIO_GPSTATUS0 >> 2, 0x00040000, 0x00000000);
++		break;
+ 	}
+ 	return 0;
+ }
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-i2c.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-i2c.c	2004-11-07 12:21:44.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-i2c.c	2004-11-07 15:55:19.395371057 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-i2c.c,v 1.5 2004/10/06 17:30:51 kraxel Exp $
++ * $Id: saa7134-i2c.c,v 1.7 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * i2c interface support
+@@ -34,11 +34,11 @@
+ /* ----------------------------------------------------------- */
+ 
+ static unsigned int i2c_debug = 0;
+-MODULE_PARM(i2c_debug,"i");
++module_param(i2c_debug, int, 0644);
+ MODULE_PARM_DESC(i2c_debug,"enable debug messages [i2c]");
+ 
+ static unsigned int i2c_scan = 0;
+-MODULE_PARM(i2c_scan,"i");
++module_param(i2c_scan, int, 0444);
+ MODULE_PARM_DESC(i2c_scan,"scan i2c bus at insmod time");
+ 
+ #define d1printk if (1 == i2c_debug) printk
+@@ -88,7 +88,7 @@ enum i2c_attr {
+ static inline enum i2c_status i2c_get_status(struct saa7134_dev *dev)
+ {
+ 	enum i2c_status status;
+-	
++
+ 	status = saa_readb(SAA7134_I2C_ATTR_STATUS) & 0x0f;
+ 	d2printk(KERN_DEBUG "%s: i2c stat <= %s\n",dev->name,
+ 		 str_i2c_status[status]);
+@@ -184,7 +184,7 @@ static int i2c_reset(struct saa7134_dev 
+ 
+ 	if (!i2c_is_idle(status))
+ 		return FALSE;
+-	
++
+ 	i2c_set_attr(dev,NOP);
+ 	return TRUE;
+ }
+@@ -210,7 +210,7 @@ static inline int i2c_send_byte(struct s
+ 	saa_writel(SAA7134_I2C_ATTR_STATUS >> 2, dword);
+ #endif
+ 	d2printk(KERN_DEBUG "%s: i2c data => 0x%x\n",dev->name,data);
+-	
++
+ 	if (!i2c_is_busy_wait(dev))
+ 		return -EIO;
+ 	status = i2c_get_status(dev);
+@@ -223,7 +223,7 @@ static inline int i2c_recv_byte(struct s
+ {
+ 	enum i2c_status status;
+ 	unsigned char data;
+-	
++
+ 	i2c_set_attr(dev,CONTINUE);
+ 	if (!i2c_is_busy_wait(dev))
+ 		return -EIO;
+@@ -302,7 +302,7 @@ static int saa7134_i2c_xfer(struct i2c_a
+ 
+ /* ----------------------------------------------------------- */
+ 
+-static int algo_control(struct i2c_adapter *adapter, 
++static int algo_control(struct i2c_adapter *adapter,
+ 			unsigned int cmd, unsigned long arg)
+ {
+ 	return 0;
+@@ -313,6 +313,18 @@ static u32 functionality(struct i2c_adap
+ 	return I2C_FUNC_SMBUS_EMUL;
+ }
+ 
++#ifndef I2C_PEC
++static void inc_use(struct i2c_adapter *adap)
++{
++	MOD_INC_USE_COUNT;
++}
++
++static void dec_use(struct i2c_adapter *adap)
++{
++	MOD_DEC_USE_COUNT;
++}
++#endif
++
+ static int attach_inform(struct i2c_client *client)
+ {
+         struct saa7134_dev *dev = client->adapter->algo_data;
+@@ -419,10 +431,10 @@ int saa7134_i2c_register(struct saa7134_
+ 	strcpy(dev->i2c_adap.name,dev->name);
+ 	dev->i2c_adap.algo_data = dev;
+ 	i2c_add_adapter(&dev->i2c_adap);
+-	
++
+ 	dev->i2c_client = saa7134_client_template;
+ 	dev->i2c_client.adapter = &dev->i2c_adap;
+-	
++
+ 	saa7134_i2c_eeprom(dev,dev->eedata,sizeof(dev->eedata));
+ 	if (i2c_scan)
+ 		do_i2c_scan(dev->name,&dev->i2c_client);
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-tvaudio.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-tvaudio.c	2004-11-07 12:21:12.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-tvaudio.c	2004-11-07 15:55:19.396370869 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-tvaudio.c,v 1.13 2004/09/22 11:47:11 kraxel Exp $
++ * $Id: saa7134-tvaudio.c,v 1.17 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * tv audio decoder (fm stereo, nicam, ...)
+@@ -36,18 +36,18 @@
  /* ------------------------------------------------------------------ */
+ 
+ static unsigned int audio_debug = 0;
+-MODULE_PARM(audio_debug,"i");
++module_param(audio_debug, int, 0644);
+ MODULE_PARM_DESC(audio_debug,"enable debug messages [tv audio]");
+ 
+ static unsigned int audio_ddep = 0;
+-MODULE_PARM(audio_ddep,"i");
++module_param(audio_ddep, int, 0644);
+ MODULE_PARM_DESC(audio_ddep,"audio ddep overwrite");
+ 
+ static int audio_clock_override = UNSET;
+-MODULE_PARM(audio_clock_override, "i");
++module_param(audio_clock_override, int, 0644);
+ 
+ static int audio_clock_tweak = 0;
+-MODULE_PARM(audio_clock_tweak, "i");
++module_param(audio_clock_tweak, int, 0644);
+ MODULE_PARM_DESC(audio_clock_tweak, "Audio clock tick fine tuning for cards with audio crystal that's slightly off (range [-1024 .. 1024])");
+ 
+ #define dprintk(fmt, arg...)	if (audio_debug) \
+@@ -284,7 +284,7 @@ static void tvaudio_setmode(struct saa71
+ 	saa_writeb(SAA7134_AUDIO_CLOCKS_PER_FIELD1, (acpf & 0x00ff00) >> 8);
+ 	saa_writeb(SAA7134_AUDIO_CLOCKS_PER_FIELD2, (acpf & 0x030000) >> 16);
+ 	tvaudio_setcarrier(dev,audio->carr1,audio->carr2);
+-	
++
+ 	switch (audio->mode) {
+ 	case TVAUDIO_FM_MONO:
+ 	case TVAUDIO_FM_BG_STEREO:
+@@ -324,14 +324,21 @@ static void tvaudio_setmode(struct saa71
+ static int tvaudio_sleep(struct saa7134_dev *dev, int timeout)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+-	
++
+ 	add_wait_queue(&dev->thread.wq, &wait);
+ 	if (dev->thread.scan1 == dev->thread.scan2 && !dev->thread.shutdown) {
+ 		if (timeout < 0) {
+ 			set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule();
+-		} else
++		} else {
++#if 0
++			/* hmm, that one doesn't return on wakeup ... */
+ 			msleep_interruptible(timeout);
++#else
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule_timeout(msecs_to_jiffies(timeout));
++#endif
++		}
+ 	}
+ 	remove_wait_queue(&dev->thread.wq, &wait);
+ 	return dev->thread.scan1 != dev->thread.scan2;
+@@ -407,7 +414,7 @@ static int tvaudio_getstereo(struct saa7
+ {
+ 	__u32 idp,nicam;
+ 	int retval = -1;
+-	
++
+ 	switch (audio->mode) {
+ 	case TVAUDIO_FM_MONO:
+ 		return V4L2_TUNER_SUB_MONO;
+@@ -644,7 +651,7 @@ static char *stdres[0x20] = {
+ 	[0x09] = "D/K NICAM",
+ 	[0x0a] = "L NICAM",
+ 	[0x0b] = "I NICAM",
+-	
++
+ 	[0x0c] = "M Korea",
+ 	[0x0d] = "M BTSC ",
+ 	[0x0e] = "M EIAJ",
+@@ -739,7 +746,7 @@ static int mute_input_7133(struct saa713
+ {
+ 	u32 reg = 0;
+ 	int mask;
+-	
++
+ 	switch (dev->input->amux) {
+ 	case TV:    reg = 0x02; break;
+ 	case LINE1: reg = 0x00; break;
+@@ -845,12 +852,12 @@ static int tvaudio_thread_ddep(void *dat
+ 			(value & 0x002000) ? " BTSC stereo noise mute " : "",
+ 			(value & 0x004000) ? " SAP noise mute "         : "",
+ 			(value & 0x008000) ? " VDSP "                   : "",
+-			
++
+ 			(value & 0x010000) ? " NICST "                  : "",
+ 			(value & 0x020000) ? " NICDU "                  : "",
+ 			(value & 0x040000) ? " NICAM muted "            : "",
+ 			(value & 0x080000) ? " NICAM reserve sound "    : "",
+-			
++
+ 			(value & 0x100000) ? " init done "              : "");
+ 	}
+ 
+@@ -865,7 +872,7 @@ static int tvaudio_thread_ddep(void *dat
+ int saa7134_tvaudio_rx2mode(u32 rx)
+ {
+ 	u32 mode;
+-	
++
+ 	mode = V4L2_TUNER_MODE_MONO;
+ 	if (rx & V4L2_TUNER_SUB_STEREO)
+ 		mode = V4L2_TUNER_MODE_STEREO;
+@@ -875,7 +882,7 @@ int saa7134_tvaudio_rx2mode(u32 rx)
+ 		mode = V4L2_TUNER_MODE_LANG2;
+ 	return mode;
+ }
+-	
++
+ void saa7134_tvaudio_setmute(struct saa7134_dev *dev)
+ {
+ 	switch (dev->pci->device) {
+@@ -940,14 +947,14 @@ int saa7134_tvaudio_init2(struct saa7134
+ 	int (*my_thread)(void *data) = NULL;
+ 
+ 	/* enable I2S audio output */
+-	if (saa7134_boards[dev->board].has_ts) {
++	if (card_is_empress(dev)) {
+ 		int i2sform = (48000 == dev->oss.rate)
+ 			? 0x01 : 0x00;
+-		
++
+ 		/* enable I2S output */
+-		saa_writeb(SAA7134_I2S_OUTPUT_SELECT,  0x80); 
+-		saa_writeb(SAA7134_I2S_OUTPUT_FORMAT,  i2sform); 
+-		saa_writeb(SAA7134_I2S_OUTPUT_LEVEL,   0x0F);	
++		saa_writeb(SAA7134_I2S_OUTPUT_SELECT,  0x80);
++		saa_writeb(SAA7134_I2S_OUTPUT_FORMAT,  i2sform);
++		saa_writeb(SAA7134_I2S_OUTPUT_LEVEL,   0x0F);
+ 		saa_writeb(SAA7134_I2S_AUDIO_OUTPUT,   0x01);
+ 	}
+ 
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-video.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-video.c	2004-11-07 12:21:46.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-video.c	2004-11-07 15:55:19.398370493 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-video.c,v 1.15 2004/10/11 14:53:13 kraxel Exp $
++ * $Id: saa7134-video.c,v 1.19 2004/11/07 14:44:59 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * video4linux video interface
+@@ -39,11 +39,11 @@ static unsigned int gbuffers      = 8;
+ static unsigned int noninterlaced = 0;
+ static unsigned int gbufsize      = 720*576*4;
+ static unsigned int gbufsize_max  = 720*576*4;
+-MODULE_PARM(video_debug,"i");
++module_param(video_debug, int, 0644);
+ MODULE_PARM_DESC(video_debug,"enable debug messages [video]");
+-MODULE_PARM(gbuffers,"i");
++module_param(gbuffers, int, 0444);
+ MODULE_PARM_DESC(gbuffers,"number of capture buffers, range 2-32");
+-MODULE_PARM(noninterlaced,"i");
++module_param(noninterlaced, int, 0644);
+ MODULE_PARM_DESC(noninterlaced,"video input is noninterlaced");
+ 
+ #define dprintk(fmt, arg...)	if (video_debug) \
+@@ -55,7 +55,7 @@ MODULE_PARM_DESC(noninterlaced,"video in
+ static int video_out[][9] = {
+ 	[CCIR656] = { 0x00, 0xb1, 0x00, 0xa1, 0x00, 0x04, 0x06, 0x00, 0x00 },
+ };
+-		
++
+ static struct saa7134_format formats[] = {
+ 	{
+ 		.name     = "8 bpp gray",
+@@ -373,7 +373,7 @@ static const unsigned int CTRLS = ARRAY_
+ static const struct v4l2_queryctrl* ctrl_by_id(unsigned int id)
+ {
+ 	unsigned int i;
+-	
++
+ 	for (i = 0; i < CTRLS; i++)
+ 		if (video_ctrls[i].id == id)
+ 			return video_ctrls+i;
+@@ -482,12 +482,12 @@ static void set_tvnorm(struct saa7134_de
+ 	saa_writeb(SAA7134_HSYNC_START,           0xeb);
+ 	saa_writeb(SAA7134_HSYNC_STOP,            0xe0);
+ 	saa_writeb(SAA7134_SOURCE_TIMING1,        norm->src_timing);
+-	
++
+ 	saa_writeb(SAA7134_SYNC_CTRL,             sync_control);
+ 	saa_writeb(SAA7134_LUMA_CTRL,             luma_control);
+ 	saa_writeb(SAA7134_DEC_LUMA_BRIGHT,       dev->ctl_bright);
+ 	saa_writeb(SAA7134_DEC_LUMA_CONTRAST,     dev->ctl_contrast);
+- 
++
+ 	saa_writeb(SAA7134_DEC_CHROMA_SATURATION, dev->ctl_saturation);
+ 	saa_writeb(SAA7134_DEC_CHROMA_HUE,        dev->ctl_hue);
+ 	saa_writeb(SAA7134_CHROMA_CTRL1,          norm->chroma_ctrl1);
+@@ -570,7 +570,7 @@ static void set_h_prescale(struct saa713
+ static void set_v_scale(struct saa7134_dev *dev, int task, int yscale)
+ {
+ 	int val,mirror;
+-	
++
+ 	saa_writeb(SAA7134_V_SCALE_RATIO1(task), yscale &  0xff);
+ 	saa_writeb(SAA7134_V_SCALE_RATIO2(task), yscale >> 8);
+ 
+@@ -624,7 +624,7 @@ static void set_size(struct saa7134_dev 
+ 	saa_writeb(SAA7134_H_SCALE_INC1(task),      xscale &  0xff);
+ 	saa_writeb(SAA7134_H_SCALE_INC2(task),      xscale >> 8);
+ 	set_v_scale(dev,task,yscale);
+-	
++
+ 	saa_writeb(SAA7134_VIDEO_PIXELS1(task),     width  & 0xff);
+ 	saa_writeb(SAA7134_VIDEO_PIXELS2(task),     width  >> 8);
+ 	saa_writeb(SAA7134_VIDEO_LINES1(task),      height/div & 0xff);
+@@ -651,7 +651,7 @@ static void sort_cliplist(struct cliplis
+ {
+ 	struct cliplist swap;
+ 	int i,j,n;
+-	
++
+ 	for (i = entries-2; i >= 0; i--) {
+ 		for (n = 0, j = 0; j <= i; j++) {
+ 			if (cl[j].position > cl[j+1].position) {
+@@ -846,7 +846,7 @@ static int buffer_activate(struct saa713
+ 	dprintk("buffer_activate buf=%p\n",buf);
+ 	buf->vb.state = STATE_ACTIVE;
+ 	buf->top_seen = 0;
+-	
++
+ 	set_size(dev,TASK_A,buf->vb.width,buf->vb.height,
+ 		 V4L2_FIELD_HAS_BOTH(buf->vb.field));
+ 	if (buf->fmt->yuv)
+@@ -918,15 +918,16 @@ static int buffer_activate(struct saa713
+ 	return 0;
+ }
+ 
+-static int buffer_prepare(void *priv, struct videobuf_buffer *vb,
++static int buffer_prepare(struct videobuf_queue *q,
++			  struct videobuf_buffer *vb,
+ 			  enum v4l2_field field)
+ {
+-	struct saa7134_fh *fh = priv;
++	struct saa7134_fh *fh = q->priv_data;
+ 	struct saa7134_dev *dev = fh->dev;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
+ 	unsigned int size;
+ 	int err;
+-	
++
+ 	/* sanity checks */
+ 	if (NULL == fh->fmt)
+ 		return -EINVAL;
+@@ -980,9 +981,9 @@ static int buffer_prepare(void *priv, st
+ }
  
  static int
 -buffer_setup(void *priv, unsigned int *count, unsigned int *size)
 +buffer_setup(struct videobuf_queue *q, unsigned int *count, unsigned int *size)
  {
--	struct cx8800_fh *fh = priv;
--	
-+	struct cx8800_fh *fh = q->priv_data;
-+
- 	*size = fh->fmt->depth*fh->width*fh->height >> 3;
+-	struct saa7134_fh *fh = priv;
++	struct saa7134_fh *fh = q->priv_data;
+ 
+ 	*size = fh->fmt->depth * fh->width * fh->height >> 3;
  	if (0 == *count)
- 		*count = 32;
-@@ -527,12 +524,12 @@ buffer_setup(void *priv, unsigned int *c
+@@ -991,19 +992,19 @@ buffer_setup(void *priv, unsigned int *c
+ 	return 0;
  }
  
- static int
--buffer_prepare(void *priv, struct videobuf_buffer *vb,
-+buffer_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
- 	       enum v4l2_field field)
+-static void buffer_queue(void *priv, struct videobuf_buffer *vb)
++static void buffer_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
  {
--	struct cx8800_fh   *fh  = priv;
-+	struct cx8800_fh   *fh  = q->priv_data;
- 	struct cx8800_dev  *dev = fh->dev;
--	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
-+	struct cx88_buffer *buf = container_of(vb,struct cx88_buffer,vb);
- 	int rc, init_buffer = 0;
- 
- 	BUG_ON(NULL == fh->fmt);
-@@ -611,11 +608,11 @@ buffer_prepare(void *priv, struct videob
- }
- 
- static void
--buffer_queue(void *priv, struct videobuf_buffer *vb)
-+buffer_queue(struct videobuf_queue *vq, struct videobuf_buffer *vb)
- {
--	struct cx88_buffer    *buf  = (struct cx88_buffer*)vb;
-+	struct cx88_buffer    *buf = container_of(vb,struct cx88_buffer,vb);
- 	struct cx88_buffer    *prev;
--	struct cx8800_fh      *fh   = priv;
-+	struct cx8800_fh      *fh   = vq->priv_data;
- 	struct cx8800_dev     *dev  = fh->dev;
- 	struct cx88_dmaqueue  *q    = &dev->vidq;
- 
-@@ -659,10 +656,10 @@ buffer_queue(void *priv, struct videobuf
- 	}
+-	struct saa7134_fh *fh = priv;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_fh *fh = q->priv_data;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_buffer_queue(fh->dev,&fh->dev->video_q,buf);
  }
  
 -static void buffer_release(void *priv, struct videobuf_buffer *vb)
 +static void buffer_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
  {
--	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
--	struct cx8800_fh   *fh  = priv;
-+	struct cx88_buffer *buf = container_of(vb,struct cx88_buffer,vb);
-+	struct cx8800_fh   *fh  = q->priv_data;
- 
- 	cx88_free_buffer(fh->dev->pci,buf);
+-	struct saa7134_fh *fh = priv;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_fh *fh = q->priv_data;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_dma_free(fh->dev,buf);
  }
-@@ -722,7 +719,7 @@ static u32* ov_risc_field(struct cx8800_
- 				ra = addr + (fh->fmt->depth>>3)*start;
- 			else
- 				ra = 0;
--				
-+
- 			if (0 == start)
- 				ri |= RISC_SOL;
- 			if (fh->win.w.width == end)
-@@ -745,11 +742,11 @@ static int ov_risc_frame(struct cx8800_d
- 	u32 instructions,fields;
- 	u32 *rp;
- 	int rc;
+ 
+@@ -1160,7 +1161,7 @@ static int set_control(struct saa7134_de
+ static struct videobuf_queue* saa7134_queue(struct saa7134_fh *fh)
+ {
+ 	struct videobuf_queue* q = NULL;
 -	
 +
- 	/* skip list for window clipping */
- 	if (NULL == (skips = kmalloc(sizeof(*skips) * fh->nclips,GFP_KERNEL)))
- 		return -ENOMEM;
+ 	switch (fh->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 		q = &fh->cap;
+@@ -1177,7 +1178,7 @@ static struct videobuf_queue* saa7134_qu
+ static int saa7134_resource(struct saa7134_fh *fh)
+ {
+ 	int res = 0;
 -	
 +
- 	fields = 0;
- 	if (V4L2_FIELD_HAS_TOP(fh->win.field))
- 		fields++;
-@@ -875,7 +872,7 @@ static int setup_window(struct cx8800_de
- 	default:
- 		BUG();
- 	}
--	
-+
- 	down(&fh->vidq.lock);
- 	if (fh->clips)
- 		kfree(fh->clips);
-@@ -885,13 +882,13 @@ static int setup_window(struct cx8800_de
- #if 0
- 	fh->ov.setup_ok = 1;
- #endif
--	
-+
- 	/* update overlay if needed */
- 	retval = 0;
- #if 0
- 	if (check_btres(fh, RESOURCE_OVERLAY)) {
- 		struct bttv_buffer *new;
--		
-+
- 		new = videobuf_alloc(sizeof(*new));
- 		bttv_overlay_risc(btv, &fh->ov, fh->ovfmt, new);
- 		retval = bttv_switch_overlay(btv,fh,new);
-@@ -938,7 +935,7 @@ static int video_open(struct inode *inod
+ 	switch (fh->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 		res = RESOURCE_VIDEO;
+@@ -1199,7 +1200,7 @@ static int video_open(struct inode *inod
  	struct list_head *list;
- 	enum v4l2_buf_type type = 0;
+ 	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
  	int radio = 0;
 -	
 +
- 	list_for_each(list,&cx8800_devlist) {
- 		h = list_entry(list, struct cx8800_dev, devlist);
- 		if (h->video_dev->minor == minor) {
-@@ -978,14 +975,14 @@ static int video_open(struct inode *inod
+ 	list_for_each(list,&saa7134_devlist) {
+ 		h = list_entry(list, struct saa7134_dev, devlist);
+ 		if (h->video_dev && (h->video_dev->minor == minor))
+@@ -1231,24 +1232,21 @@ static int video_open(struct inode *inod
+ 	fh->fmt      = format_by_fourcc(V4L2_PIX_FMT_BGR24);
+ 	fh->width    = 720;
+ 	fh->height   = 576;
+-#ifdef VIDIOC_G_PRIORITY
+ 	v4l2_prio_open(&dev->prio,&fh->prio);
+-#endif
+ 
+ 	videobuf_queue_init(&fh->cap, &video_qops,
  			    dev->pci, &dev->slock,
  			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
  			    V4L2_FIELD_INTERLACED,
--			    sizeof(struct cx88_buffer));
-+			    sizeof(struct cx88_buffer),
+-			    sizeof(struct saa7134_buf));
+-	init_MUTEX(&fh->cap.lock);
+-	saa7134_pgtable_alloc(dev->pci,&fh->pt_cap);
+-
++			    sizeof(struct saa7134_buf),
 +			    fh);
- 	videobuf_queue_init(&fh->vbiq, &cx8800_vbi_qops,
+ 	videobuf_queue_init(&fh->vbi, &saa7134_vbi_qops,
  			    dev->pci, &dev->slock,
  			    V4L2_BUF_TYPE_VBI_CAPTURE,
  			    V4L2_FIELD_SEQ_TB,
--			    sizeof(struct cx88_buffer));
--	init_MUTEX(&fh->vidq.lock);
--	init_MUTEX(&fh->vbiq.lock);
-+			    sizeof(struct cx88_buffer),
+-			    sizeof(struct saa7134_buf));
+-        init_MUTEX(&fh->vbi.lock);
++			    sizeof(struct saa7134_buf),
 +			    fh);
++	saa7134_pgtable_alloc(dev->pci,&fh->pt_cap);
+ 	saa7134_pgtable_alloc(dev->pci,&fh->pt_vbi);
  
  	if (fh->radio) {
- 		struct cx88_core *core = dev->core;
-@@ -1013,14 +1010,12 @@ video_read(struct file *file, char *data
+@@ -1271,13 +1269,13 @@ video_read(struct file *file, char __use
  	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
  		if (res_locked(fh->dev,RESOURCE_VIDEO))
  			return -EBUSY;
--		return videobuf_read_one(file->private_data,
--					 &fh->vidq, data, count, ppos,
-+		return videobuf_read_one(&fh->vidq, data, count, ppos,
+-		return videobuf_read_one(file->private_data, saa7134_queue(fh),
++		return videobuf_read_one(saa7134_queue(fh),
+ 					 data, count, ppos,
  					 file->f_flags & O_NONBLOCK);
  	case V4L2_BUF_TYPE_VBI_CAPTURE:
  		if (!res_get(fh->dev,fh,RESOURCE_VBI))
  			return -EBUSY;
--		return videobuf_read_stream(file->private_data,
--					    &fh->vbiq, data, count, ppos, 1,
-+		return videobuf_read_stream(&fh->vbiq, data, count, ppos, 1,
+-		return videobuf_read_stream(file->private_data, saa7134_queue(fh),
++		return videobuf_read_stream(saa7134_queue(fh),
+ 					    data, count, ppos, 1,
  					    file->f_flags & O_NONBLOCK);
- 	default:
- 		BUG();
-@@ -1032,16 +1027,30 @@ static unsigned int
- video_poll(struct file *file, struct poll_table_struct *wait)
- {
- 	struct cx8800_fh *fh = file->private_data;
-+	struct cx88_buffer *buf;
+ 		break;
+@@ -1294,8 +1292,7 @@ video_poll(struct file *file, struct pol
+ 	struct videobuf_buffer *buf = NULL;
  
- 	if (V4L2_BUF_TYPE_VBI_CAPTURE == fh->type) {
- 		if (!res_get(fh->dev,fh,RESOURCE_VBI))
- 			return POLLERR;
+ 	if (V4L2_BUF_TYPE_VBI_CAPTURE == fh->type)
 -		return videobuf_poll_stream(file, file->private_data,
--					    &fh->vbiq, wait);
-+		return videobuf_poll_stream(file, &fh->vbiq, wait);
- 	}
+-					    &fh->vbi, wait);
++		return videobuf_poll_stream(file, &fh->vbi, wait);
  
--	/* FIXME */
--	return POLLERR;
-+	if (res_check(fh,RESOURCE_VIDEO)) {
-+		/* streaming capture */
-+		if (list_empty(&fh->vidq.stream))
-+			return POLLERR;
-+		buf = list_entry(fh->vidq.stream.next,struct cx88_buffer,vb.stream);
-+	} else {
-+		/* read() capture */
-+		buf = (struct cx88_buffer*)fh->vidq.read_buf;
-+		if (NULL == buf)
-+			return POLLERR;
-+	}
-+	poll_wait(file, &buf->vb.done, wait);
-+	if (buf->vb.state == STATE_DONE ||
-+	    buf->vb.state == STATE_ERROR)
-+		return POLLIN|POLLRDNORM;
-+	return 0;
- }
- 
- static int video_release(struct inode *inode, struct file *file)
-@@ -1057,7 +1066,7 @@ static int video_release(struct inode *i
+ 	if (res_check(fh,RESOURCE_VIDEO)) {
+ 		if (!list_empty(&fh->cap.stream))
+@@ -1345,7 +1342,7 @@ static int video_release(struct inode *i
  
  	/* stop video capture */
  	if (res_check(fh, RESOURCE_VIDEO)) {
--		videobuf_queue_cancel(file->private_data,&fh->vidq);
-+		videobuf_queue_cancel(&fh->vidq);
+-		videobuf_streamoff(file->private_data,&fh->cap);
++		videobuf_streamoff(&fh->cap);
  		res_free(dev,fh,RESOURCE_VIDEO);
  	}
- 	if (fh->vidq.read_buf) {
-@@ -1068,9 +1077,9 @@ static int video_release(struct inode *i
+ 	if (fh->cap.read_buf) {
+@@ -1356,18 +1353,16 @@ static int video_release(struct inode *i
  	/* stop vbi capture */
  	if (res_check(fh, RESOURCE_VBI)) {
- 		if (fh->vbiq.streaming)
--			videobuf_streamoff(file->private_data,&fh->vbiq);
-+			videobuf_streamoff(&fh->vbiq);
- 		if (fh->vbiq.reading)
--			videobuf_read_stop(file->private_data,&fh->vbiq);
-+			videobuf_read_stop(&fh->vbiq);
+ 		if (fh->vbi.streaming)
+-			videobuf_streamoff(file->private_data,&fh->vbi);
++			videobuf_streamoff(&fh->vbi);
+ 		if (fh->vbi.reading)
+-			videobuf_read_stop(file->private_data,&fh->vbi);
++			videobuf_read_stop(&fh->vbi);
  		res_free(dev,fh,RESOURCE_VBI);
  	}
  
-@@ -1084,7 +1093,7 @@ video_mmap(struct file *file, struct vm_
- {
- 	struct cx8800_fh *fh = file->private_data;
+ 	saa7134_pgtable_free(dev->pci,&fh->pt_cap);
+ 	saa7134_pgtable_free(dev->pci,&fh->pt_vbi);
  
--	return videobuf_mmap_mapper(vma, get_queue(fh));
-+	return videobuf_mmap_mapper(get_queue(fh), vma);
+-#ifdef VIDIOC_G_PRIORITY
+ 	v4l2_prio_close(&dev->prio,&fh->prio);
+-#endif
+ 	file->private_data = NULL;
+ 	kfree(fh);
+ 	return 0;
+@@ -1377,8 +1372,8 @@ static int
+ video_mmap(struct file *file, struct vm_area_struct * vma)
+ {
+ 	struct saa7134_fh *fh = file->private_data;
+-	
+-	return videobuf_mmap_mapper(vma,saa7134_queue(fh));
++
++	return videobuf_mmap_mapper(saa7134_queue(fh), vma);
  }
  
  /* ------------------------------------------------------------------ */
-@@ -1095,7 +1104,7 @@ static int get_control(struct cx8800_dev
- 	struct cx88_ctrl *c = NULL;
- 	u32 value;
- 	int i;
--	
-+
- 	for (i = 0; i < CX8800_CTLS; i++)
- 		if (cx8800_ctls[i].v.id == ctl->id)
- 			c = &cx8800_ctls[i];
-@@ -1269,7 +1278,7 @@ static int cx8800_s_fmt(struct cx8800_de
- 			struct v4l2_format *f)
+@@ -1436,7 +1431,7 @@ int saa7134_try_fmt(struct saa7134_dev *
+ 		    struct v4l2_format *f)
  {
  	int err;
 -	
 +
  	switch (f->type) {
  	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 		err = cx8800_try_fmt(dev,fh,f);
-@@ -1311,7 +1320,7 @@ static int video_do_ioctl(struct inode *
+ 	{
+@@ -1451,7 +1446,7 @@ int saa7134_try_fmt(struct saa7134_dev *
+ 		field = f->fmt.pix.field;
+ 		maxw  = min(dev->crop_current.width*4,  dev->crop_bounds.width);
+ 		maxh  = min(dev->crop_current.height*4, dev->crop_bounds.height);
+-		
++
+ 		if (V4L2_FIELD_ANY == field) {
+ 			field = (f->fmt.pix.height > maxh/2)
+ 				? V4L2_FIELD_INTERLACED
+@@ -1481,7 +1476,7 @@ int saa7134_try_fmt(struct saa7134_dev *
+ 			(f->fmt.pix.width * fmt->depth) >> 3;
+ 		f->fmt.pix.sizeimage =
+ 			f->fmt.pix.height * f->fmt.pix.bytesperline;
+-		
++
+ 		return 0;
+ 	}
+ 	case V4L2_BUF_TYPE_VIDEO_OVERLAY:
+@@ -1502,13 +1497,13 @@ int saa7134_s_fmt(struct saa7134_dev *de
+ {
+ 	unsigned long flags;
+ 	int err;
+-	
++
+ 	switch (f->type) {
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 		err = saa7134_try_fmt(dev,fh,f);
+ 		if (0 != err)
+ 			return err;
+-			
++
+ 		fh->fmt       = format_by_fourcc(f->fmt.pix.pixelformat);
+ 		fh->width     = f->fmt.pix.width;
+ 		fh->height    = f->fmt.pix.height;
+@@ -1550,7 +1545,7 @@ int saa7134_common_ioctl(struct saa7134_
+ 			 unsigned int cmd, void *arg)
+ {
+ 	int err;
+-	
++
+ 	switch (cmd) {
+ 	case VIDIOC_QUERYCTRL:
+ 	{
+@@ -1617,7 +1612,7 @@ int saa7134_common_ioctl(struct saa7134_
+ 	case VIDIOC_S_INPUT:
+ 	{
+ 		int *i = arg;
+-		
++
+ 		if (*i < 0  ||  *i >= SAA7134_INPUT_MAX)
+ 			return -EINVAL;
+ 		if (NULL == card_in(dev,*i).name)
+@@ -1631,6 +1626,7 @@ int saa7134_common_ioctl(struct saa7134_
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL(saa7134_common_ioctl);
+ 
+ /*
+  * This function is _not_ called directly, but from
+@@ -1648,7 +1644,6 @@ static int video_do_ioctl(struct inode *
+ 	if (video_debug > 1)
+ 		saa7134_print_ioctl(dev->name,cmd);
+ 
+-#ifdef VIDIOC_G_PRIORITY
+ 	switch (cmd) {
+ 	case VIDIOC_S_CTRL:
+ 	case VIDIOC_S_STD:
+@@ -1659,13 +1654,12 @@ static int video_do_ioctl(struct inode *
+ 		if (0 != err)
+ 			return err;
+ 	}
+-#endif
+ 
+ 	switch (cmd) {
  	case VIDIOC_QUERYCAP:
  	{
  		struct v4l2_capability *cap = arg;
 -		
 +
  		memset(cap,0,sizeof(*cap));
-                 strcpy(cap->driver, "cx8800");
- 		strlcpy(cap->card, cx88_boards[core->board].name,
-@@ -1416,7 +1425,7 @@ static int video_do_ioctl(struct inode *
- 	case VIDIOC_S_INPUT:
+                 strcpy(cap->driver, "saa7134");
+ 		strlcpy(cap->card, saa7134_boards[dev->board].name,
+@@ -1677,7 +1671,7 @@ static int video_do_ioctl(struct inode *
+ 			V4L2_CAP_VIDEO_OVERLAY |
+ 			V4L2_CAP_VBI_CAPTURE |
+ 			V4L2_CAP_TUNER |
+-			V4L2_CAP_READWRITE | 
++			V4L2_CAP_READWRITE |
+ 			V4L2_CAP_STREAMING;
+ 		return 0;
+ 	}
+@@ -1727,7 +1721,7 @@ static int video_do_ioctl(struct inode *
+ 			set_tvnorm(dev,&tvnorms[i]);
+ 			start_preview(dev,fh);
+ 			spin_unlock_irqrestore(&dev->slock,flags);
+-		} else 
++		} else
+ 			set_tvnorm(dev,&tvnorms[i]);
+ 		saa7134_tvaudio_do_scan(dev);
+ 		up(&dev->lock);
+@@ -1873,7 +1867,7 @@ static int video_do_ioctl(struct inode *
+ 		up(&dev->lock);
+ 		return 0;
+ 	}
+-		
++
+ 	/* --- control ioctls ---------------------------------------- */
+ 	case VIDIOC_ENUMINPUT:
+ 	case VIDIOC_G_INPUT:
+@@ -1900,7 +1894,6 @@ static int video_do_ioctl(struct inode *
+                 return 0;
+         }
+ 
+-#ifdef VIDIOC_G_PRIORITY
+         case VIDIOC_G_PRIORITY:
+         {
+                 enum v4l2_priority *p = arg;
+@@ -1914,7 +1907,6 @@ static int video_do_ioctl(struct inode *
+ 
+                 return v4l2_prio_change(&dev->prio, &fh->prio, *prio);
+         }
+-#endif
+ 
+ 	/* --- preview ioctls ---------------------------------------- */
+ 	case VIDIOC_ENUM_FMT:
+@@ -1949,7 +1941,7 @@ static int video_do_ioctl(struct inode *
+ 			strcpy(f->description,"vbi data");
+ 			break;
+ 		default:
+-			return -EINVAL;	
++			return -EINVAL;
+ 		}
+ 		return 0;
+ 	}
+@@ -1965,7 +1957,7 @@ static int video_do_ioctl(struct inode *
  	{
- 		unsigned int *i = arg;
+ 		struct v4l2_framebuffer *fb = arg;
+ 		struct saa7134_format *fmt;
 -		
 +
- 		if (*i >= 4)
- 			return -EINVAL;
- 		down(&dev->lock);
-@@ -1520,13 +1529,13 @@ static int video_do_ioctl(struct inode *
- 		return get_control(dev,arg);
- 	case VIDIOC_S_CTRL:
- 		return set_control(dev,arg);
--		
+ 		if(!capable(CAP_SYS_ADMIN) &&
+ 		   !capable(CAP_SYS_RAWIO))
+ 			return -EPERM;
+@@ -2021,7 +2013,7 @@ static int video_do_ioctl(struct inode *
+ 		struct v4l2_format *f = arg;
+ 		return saa7134_try_fmt(dev,fh,f);
+ 	}
+-	
 +
- 	/* --- tuner ioctls ------------------------------------------ */
- 	case VIDIOC_G_TUNER:
+ 	case VIDIOCGMBUF:
  	{
- 		struct v4l2_tuner *t = arg;
- 		u32 reg;
--		
-+
- 		if (UNSET == core->tuner_type)
- 			return -EINVAL;
- 		if (0 != t->index)
-@@ -1603,7 +1612,7 @@ static int video_do_ioctl(struct inode *
+ 		struct video_mbuf *mbuf = arg;
+@@ -2034,7 +2026,7 @@ static int video_do_ioctl(struct inode *
  		req.type   = q->type;
- 		req.count  = 8;
+ 		req.count  = gbuffers;
  		req.memory = V4L2_MEMORY_MMAP;
 -		err = videobuf_reqbufs(file->private_data,q,&req);
 +		err = videobuf_reqbufs(q,&req);
  		if (err < 0)
  			return err;
  		memset(mbuf,0,sizeof(*mbuf));
-@@ -1616,16 +1625,16 @@ static int video_do_ioctl(struct inode *
+@@ -2047,16 +2039,16 @@ static int video_do_ioctl(struct inode *
  		return 0;
  	}
  	case VIDIOC_REQBUFS:
--		return videobuf_reqbufs(file->private_data, get_queue(fh), arg);
-+		return videobuf_reqbufs(get_queue(fh), arg);
+-		return videobuf_reqbufs(file->private_data,saa7134_queue(fh),arg);
++		return videobuf_reqbufs(saa7134_queue(fh),arg);
  
  	case VIDIOC_QUERYBUF:
- 		return videobuf_querybuf(get_queue(fh), arg);
+ 		return videobuf_querybuf(saa7134_queue(fh),arg);
  
  	case VIDIOC_QBUF:
--		return videobuf_qbuf(file->private_data, get_queue(fh), arg);
-+		return videobuf_qbuf(get_queue(fh), arg);
+-		return videobuf_qbuf(file->private_data,saa7134_queue(fh),arg);
++		return videobuf_qbuf(saa7134_queue(fh),arg);
  
  	case VIDIOC_DQBUF:
--		return videobuf_dqbuf(file->private_data, get_queue(fh), arg,
-+		return videobuf_dqbuf(get_queue(fh), arg,
+-		return videobuf_dqbuf(file->private_data,saa7134_queue(fh),arg,
++		return videobuf_dqbuf(saa7134_queue(fh),arg,
  				      file->f_flags & O_NONBLOCK);
  
  	case VIDIOC_STREAMON:
-@@ -1634,13 +1643,13 @@ static int video_do_ioctl(struct inode *
+@@ -2065,13 +2057,13 @@ static int video_do_ioctl(struct inode *
  
                  if (!res_get(dev,fh,res))
  			return -EBUSY;
--		return videobuf_streamon(file->private_data, get_queue(fh));
-+		return videobuf_streamon(get_queue(fh));
+-		return videobuf_streamon(file->private_data,saa7134_queue(fh));
++		return videobuf_streamon(saa7134_queue(fh));
  	}
  	case VIDIOC_STREAMOFF:
  	{
- 		int res = get_ressource(fh);
+ 		int res = saa7134_resource(fh);
  
--		err = videobuf_streamoff(file->private_data, get_queue(fh));
-+		err = videobuf_streamoff(get_queue(fh));
+-		err = videobuf_streamoff(file->private_data,saa7134_queue(fh));
++		err = videobuf_streamoff(saa7134_queue(fh));
  		if (err < 0)
  			return err;
  		res_free(dev,fh,res);
-@@ -1668,7 +1677,7 @@ static int radio_do_ioctl(struct inode *
- 	struct cx8800_fh *fh    = file->private_data;
- 	struct cx8800_dev *dev  = fh->dev;
- 	struct cx88_core  *core = dev->core;
+@@ -2096,7 +2088,7 @@ static int radio_do_ioctl(struct inode *
+ {
+ 	struct saa7134_fh *fh = file->private_data;
+ 	struct saa7134_dev *dev = fh->dev;
 -	
 +
  	if (video_debug > 1)
- 		cx88_print_ioctl(core->name,cmd);
- 
-@@ -1676,7 +1685,7 @@ static int radio_do_ioctl(struct inode *
- 	case VIDIOC_QUERYCAP:
- 	{
- 		struct v4l2_capability *cap = arg;
--		
-+
- 		memset(cap,0,sizeof(*cap));
-                 strcpy(cap->driver, "cx8800");
- 		strlcpy(cap->card, cx88_boards[core->board].name,
-@@ -1697,7 +1706,7 @@ static int radio_do_ioctl(struct inode *
- 		strcpy(t->name, "Radio");
-                 t->rangelow  = (int)(65*16);
-                 t->rangehigh = (int)(108*16);
--		
-+
- #ifdef V4L2_I2C_CLIENTS
- 		cx88_call_i2c_clients(dev->core,VIDIOC_G_TUNER,t);
- #else
-@@ -1713,7 +1722,7 @@ static int radio_do_ioctl(struct inode *
+ 		saa7134_print_ioctl(dev->name,cmd);
+ 	switch (cmd) {
+@@ -2140,7 +2132,7 @@ static int radio_do_ioctl(struct inode *
  	case VIDIOC_ENUMINPUT:
  	{
  		struct v4l2_input *i = arg;
@@ -960,7 +1760,7 @@ Index: linux-2004-11-05/drivers/media/video/cx88/cx88-video.c
  		if (i->index != 0)
  			return -EINVAL;
  		strcpy(i->name,"Radio");
-@@ -1770,7 +1779,7 @@ static int radio_do_ioctl(struct inode *
+@@ -2194,7 +2186,7 @@ static int radio_do_ioctl(struct inode *
  	case VIDIOC_G_FREQUENCY:
  	case VIDIOC_S_FREQUENCY:
  		return video_do_ioctl(inode,file,cmd,arg);
@@ -969,781 +1769,1624 @@ Index: linux-2004-11-05/drivers/media/video/cx88/cx88-video.c
  	default:
  		return v4l_compat_translate_ioctl(inode,file,cmd,arg,
  						  radio_do_ioctl);
-@@ -1795,7 +1804,7 @@ static void cx8800_vid_timeout(unsigned 
- 	unsigned long flags;
- 
- 	cx88_sram_channel_dump(dev->core, &cx88_sram_channels[SRAM_CH21]);
--	
-+
- 	cx_clear(MO_VID_DMACNTRL, 0x11);
- 	cx_clear(VID_CAPTURE_CONTROL, 0x06);
- 
-@@ -1833,7 +1842,7 @@ static void cx8800_vid_irq(struct cx8800
- 		cx_clear(VID_CAPTURE_CONTROL, 0x06);
- 		cx88_sram_channel_dump(dev->core, &cx88_sram_channels[SRAM_CH21]);
+@@ -2302,7 +2294,7 @@ int saa7134_video_init1(struct saa7134_d
+ 		saa_writeb(SAA7134_VIDEO_PORT_CTRL7, video_out[vo][7]);
+ 		saa_writeb(SAA7134_VIDEO_PORT_CTRL8, video_out[vo][8]);
  	}
--	
+- 
 +
- 	/* risc1 y */
- 	if (status & 0x01) {
- 		spin_lock(&dev->slock);
-@@ -1892,7 +1901,7 @@ static irqreturn_t cx8800_irq(int irq, v
- 		       core->name);
- 		cx_write(MO_PCI_INTMSK,0);
- 	}
--	
-+
-  out:
- 	return IRQ_RETVAL(handled);
+ 	return 0;
  }
-@@ -2134,7 +2143,7 @@ static void __devexit cx8800_finidev(str
- 	cx88_shutdown(dev->core); /* FIXME */
- 	pci_disable_device(pci_dev);
  
--	/* unregister stuff */	
-+	/* unregister stuff */
+@@ -2330,7 +2322,7 @@ void saa7134_irq_video_intl(struct saa71
  
- 	free_irq(pci_dev->irq, dev);
- 	cx8800_unregister_video(dev);
-@@ -2170,7 +2179,7 @@ static int cx8800_suspend(struct pci_dev
- 	/* FIXME -- shutdown device */
- 	cx88_shutdown(dev->core);
- #endif
+ 	norm = saa_readb(SAA7134_STATUS_VIDEO1) & 0x03;
+ 	dprintk("DCSDT: %s\n",st[norm]);
 -	
 +
- 	pci_save_state(pci_dev);
- 	if (0 != pci_set_power_state(pci_dev, state)) {
- 		pci_disable_device(pci_dev);
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-vbi.c
+ 	if (0 != norm) {
+ 		/* wake up tvaudio audio carrier scan thread */
+ 		saa7134_tvaudio_do_scan(dev);
+@@ -2348,7 +2340,7 @@ void saa7134_irq_video_intl(struct saa71
+ void saa7134_irq_video_done(struct saa7134_dev *dev, unsigned long status)
+ {
+ 	enum v4l2_field field;
+-	
++
+ 	spin_lock(&dev->slock);
+ 	if (dev->video_q.curr) {
+ 		dev->video_fieldcount++;
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-vbi.c
 ===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-vbi.c	2004-11-07 12:22:41.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-vbi.c	2004-11-07 16:01:04.551276416 +0100
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-vbi.c	2004-11-07 12:24:10.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-vbi.c	2004-11-07 15:55:19.398370493 +0100
 @@ -1,5 +1,5 @@
  /*
-- * $Id: cx88-vbi.c,v 1.12 2004/10/11 13:45:51 kraxel Exp $
-+ * $Id: cx88-vbi.c,v 1.14 2004/11/07 13:17:15 kraxel Exp $
-  */
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -143,7 +143,7 @@ void cx8800_vbi_timeout(unsigned long da
+- * $Id: saa7134-vbi.c,v 1.3 2004/09/23 13:58:19 kraxel Exp $
++ * $Id: saa7134-vbi.c,v 1.5 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * video4linux video interface
+@@ -33,11 +33,11 @@
  /* ------------------------------------------------------------------ */
  
- static int
--vbi_setup(void *priv, unsigned int *count, unsigned int *size)
-+vbi_setup(struct videobuf_queue *q, unsigned int *count, unsigned int *size)
+ static unsigned int vbi_debug  = 0;
+-MODULE_PARM(vbi_debug,"i");
++module_param(vbi_debug, int, 0644);
+ MODULE_PARM_DESC(vbi_debug,"enable debug messages [vbi]");
+ 
+ static unsigned int vbibufs = 4;
+-MODULE_PARM(vbibufs,"i");
++module_param(vbibufs, int, 0444);
+ MODULE_PARM_DESC(vbibufs,"number of vbi buffers, range 2-32");
+ 
+ #define dprintk(fmt, arg...)	if (vbi_debug) \
+@@ -53,7 +53,7 @@ static void task_init(struct saa7134_dev
+ 		      int task)
  {
- 	*size = VBI_LINE_COUNT * VBI_LINE_LENGTH * 2;
+ 	struct saa7134_tvnorm *norm = dev->tvnorm;
+-	
++
+ 	/* setup video scaler */
+ 	saa_writeb(SAA7134_VBI_H_START1(task), norm->h_start     &  0xff);
+ 	saa_writeb(SAA7134_VBI_H_START2(task), norm->h_start     >> 8);
+@@ -115,12 +115,13 @@ static int buffer_activate(struct saa713
+ 	return 0;
+ }
+ 
+-static int buffer_prepare(void *priv, struct videobuf_buffer *vb,
++static int buffer_prepare(struct videobuf_queue *q,
++			  struct videobuf_buffer *vb,
+ 			  enum v4l2_field field)
+ {
+-	struct saa7134_fh *fh   = priv;
++	struct saa7134_fh *fh   = q->priv_data;
+ 	struct saa7134_dev *dev = fh->dev;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
+ 	struct saa7134_tvnorm *norm = dev->tvnorm;
+ 	unsigned int lines, llength, size;
+ 	int err;
+@@ -169,12 +170,12 @@ static int buffer_prepare(void *priv, st
+ }
+ 
+ static int
+-buffer_setup(void *priv, unsigned int *count, unsigned int *size)
++buffer_setup(struct videobuf_queue *q, unsigned int *count, unsigned int *size)
+ {
+-	struct saa7134_fh *fh   = priv;
++	struct saa7134_fh *fh   = q->priv_data;
+ 	struct saa7134_dev *dev = fh->dev;
+ 	int llength,lines;
+-	
++
+ 	lines   = dev->tvnorm->vbi_v_stop - dev->tvnorm->vbi_v_start +1;
+ #if 1
+ 	llength = VBI_LINE_LENGTH;
+@@ -190,21 +191,21 @@ buffer_setup(void *priv, unsigned int *c
+ 	return 0;
+ }
+ 
+-static void buffer_queue(void *priv, struct videobuf_buffer *vb)
++static void buffer_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
+ {
+-	struct saa7134_fh *fh = priv;
++	struct saa7134_fh *fh = q->priv_data;
+ 	struct saa7134_dev *dev = fh->dev;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_buffer_queue(dev,&dev->vbi_q,buf);
+ }
+ 
+-static void buffer_release(void *priv, struct videobuf_buffer *vb)
++static void buffer_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
+ {
+-	struct saa7134_fh *fh   = priv;
++	struct saa7134_fh *fh   = q->priv_data;
+ 	struct saa7134_dev *dev = fh->dev;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_dma_free(dev,buf);
+ }
+ 
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-oss.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-oss.c	2004-11-07 12:22:46.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-oss.c	2004-11-07 15:55:19.399370304 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-oss.c,v 1.9 2004/09/15 16:15:24 kraxel Exp $
++ * $Id: saa7134-oss.c,v 1.11 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * oss dsp interface
+@@ -34,11 +34,11 @@
+ /* ------------------------------------------------------------------ */
+ 
+ static unsigned int oss_debug  = 0;
+-MODULE_PARM(oss_debug,"i");
++module_param(oss_debug, int, 0644);
+ MODULE_PARM_DESC(oss_debug,"enable debug messages [oss]");
+ 
+ static unsigned int oss_rate  = 0;
+-MODULE_PARM(oss_rate,"i");
++module_param(oss_rate, int, 0444);
+ MODULE_PARM_DESC(oss_rate,"sample rate (valid are: 32000,48000)");
+ 
+ #define dprintk(fmt, arg...)	if (oss_debug) \
+@@ -140,7 +140,7 @@ static int dsp_rec_start(struct saa7134_
+ 	}
+ 
+ 	switch (dev->oss.afmt) {
+-	case AFMT_S8:     
++	case AFMT_S8:
+ 	case AFMT_S16_LE:
+ 	case AFMT_S16_BE: sign = 1; break;
+ 	default:          sign = 0; break;
+@@ -161,7 +161,7 @@ static int dsp_rec_start(struct saa7134_
+ 		if (sign)
+ 			fmt |= 0x04;
+ 		fmt |= (TV == dev->oss.input) ? 0xc0 : 0x80;
+-		
++
+ 		saa_writeb(SAA7134_NUM_SAMPLES0, (dev->oss.blksize & 0x0000ff));
+ 		saa_writeb(SAA7134_NUM_SAMPLES1, (dev->oss.blksize & 0x00ff00) >>  8);
+ 		saa_writeb(SAA7134_NUM_SAMPLES2, (dev->oss.blksize & 0xff0000) >> 16);
+@@ -193,7 +193,7 @@ static int dsp_rec_start(struct saa7134_
+ 	saa_writel(SAA7134_RS_BA2(6),dev->oss.blksize);
+ 	saa_writel(SAA7134_RS_PITCH(6),0);
+ 	saa_writel(SAA7134_RS_CONTROL(6),control);
+-	
++
+ 	/* start dma */
+ 	dev->oss.recording_on = 1;
+ 	spin_lock_irqsave(&dev->slock,flags);
+@@ -369,7 +369,7 @@ static int dsp_ioctl(struct inode *inode
+ 	void __user *argp = (void __user *) arg;
+ 	int __user *p = argp;
+ 	int val = 0;
+-	
++
+ 	if (oss_debug > 1)
+ 		saa7134_print_ioctl(dev->name,cmd);
+         switch (cmd) {
+@@ -412,7 +412,7 @@ static int dsp_ioctl(struct inode *inode
+ 		/* fall through */
+         case SOUND_PCM_READ_CHANNELS:
+ 		return put_user(dev->oss.channels, p);
+-		
++
+         case SNDCTL_DSP_GETFMTS: /* Returns a mask */
+ 		return put_user(AFMT_U8     | AFMT_S8     |
+ 				AFMT_U16_LE | AFMT_U16_BE |
+@@ -535,7 +535,7 @@ static int
+ mixer_recsrc_7134(struct saa7134_dev *dev)
+ {
+ 	int analog_io,rate;
+-	
++
+ 	switch (dev->oss.input) {
+ 	case TV:
+ 		saa_andorb(SAA7134_AUDIO_FORMAT_CTRL, 0xc0, 0xc0);
+@@ -557,7 +557,7 @@ static int
+ mixer_recsrc_7133(struct saa7134_dev *dev)
+ {
+ 	u32 value = 0xbbbbbb;
+-	
++
+ 	switch (dev->oss.input) {
+ 	case TV:
+ 		value = 0xbbbb10;  /* MAIN */
+@@ -655,7 +655,7 @@ static int mixer_ioctl(struct inode *ino
+ 	int val,ret;
+ 	void __user *argp = (void __user *) arg;
+ 	int __user *p = argp;
+-	
++
+ 	if (oss_debug > 1)
+ 		saa7134_print_ioctl(dev->name,cmd);
+         switch (cmd) {
+@@ -786,7 +786,7 @@ int saa7134_oss_init1(struct saa7134_dev
+ 	mixer_level(dev,LINE1,dev->oss.line1);
+ 	mixer_level(dev,LINE2,dev->oss.line2);
+ 	mixer_recsrc(dev, (dev->oss.rate == 32000) ? TV : LINE2);
+-	
++
+ 	return 0;
+ }
+ 
+@@ -840,7 +840,7 @@ void saa7134_irq_oss_done(struct saa7134
+ 	dev->oss.dma_blk = (dev->oss.dma_blk + 1) % dev->oss.blocks;
+ 	dev->oss.read_count += dev->oss.blksize;
+ 	wake_up(&dev->oss.wq);
+-	
++
+  done:
+ 	spin_unlock(&dev->slock);
+ }
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-ts.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-ts.c	2004-11-07 12:21:20.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-ts.c	2004-11-07 15:55:19.399370304 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-ts.c,v 1.9 2004/10/11 14:53:13 kraxel Exp $
++ * $Id: saa7134-ts.c,v 1.12 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * device driver for philips saa7134 based TV cards
+  * video4linux video interface
+@@ -31,24 +31,12 @@
+ #include "saa7134-reg.h"
+ #include "saa7134.h"
+ 
+-#include <media/saa6752hs.h>
+-
+ /* ------------------------------------------------------------------ */
+ 
+-#define TS_PACKET_SIZE 188 /* TS packets 188 bytes */
+-
+ static unsigned int ts_debug  = 0;
+-MODULE_PARM(ts_debug,"i");
++module_param(ts_debug, int, 0644);
+ MODULE_PARM_DESC(ts_debug,"enable debug messages [ts]");
+ 
+-static unsigned int tsbufs = 4;
+-MODULE_PARM(tsbufs,"i");
+-MODULE_PARM_DESC(tsbufs,"number of ts buffers, range 2-32");
+-
+-static unsigned int ts_nr_packets = 30;
+-MODULE_PARM(ts_nr_packets,"i");
+-MODULE_PARM_DESC(ts_nr_packets,"size of a ts buffers (in ts packets)");
+-
+ #define dprintk(fmt, arg...)	if (ts_debug) \
+ 	printk(KERN_DEBUG "%s/ts: " fmt, dev->name , ## arg)
+ 
+@@ -59,11 +47,11 @@ static int buffer_activate(struct saa713
+ 			   struct saa7134_buf *next)
+ {
+ 	u32 control;
+-	
++
+ 	dprintk("buffer_activate [%p]",buf);
+ 	buf->vb.state = STATE_ACTIVE;
+ 	buf->top_seen = 0;
+-	
++
+         /* dma: setup channel 5 (= TS) */
+         control = SAA7134_RS_CONTROL_BURST_16 |
+                 SAA7134_RS_CONTROL_ME |
+@@ -85,24 +73,24 @@ static int buffer_activate(struct saa713
+ 
+ 	/* start DMA */
+ 	saa7134_set_dmabits(dev);
+-	
++
+ 	mod_timer(&dev->ts_q.timeout, jiffies+BUFFER_TIMEOUT);
+ 	return 0;
+ }
+ 
+-static int buffer_prepare(void *priv, struct videobuf_buffer *vb,
++static int buffer_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
+ 			  enum v4l2_field field)
+ {
+-	struct saa7134_dev *dev = priv;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
++	struct saa7134_dev *dev = q->priv_data;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
+ 	unsigned int lines, llength, size;
+ 	int err;
+-	
++
+ 	dprintk("buffer_prepare [%p,%s]\n",buf,v4l2_field_names[field]);
+ 
+ 	llength = TS_PACKET_SIZE;
+-	lines = ts_nr_packets;
+-	
++	lines = dev->ts.nr_packets;
++
+ 	size = lines * llength;
+ 	if (0 != buf->vb.baddr  &&  buf->vb.bsize < size)
+ 		return -EINVAL;
+@@ -138,323 +126,51 @@ static int buffer_prepare(void *priv, st
+ }
+ 
+ static int
+-buffer_setup(void *priv, unsigned int *count, unsigned int *size)
++buffer_setup(struct videobuf_queue *q, unsigned int *count, unsigned int *size)
+ {
+-	*size = TS_PACKET_SIZE * ts_nr_packets;
++	struct saa7134_dev *dev = q->priv_data;
++
++	*size = TS_PACKET_SIZE * dev->ts.nr_packets;
  	if (0 == *count)
-@@ -156,12 +156,12 @@ vbi_setup(void *priv, unsigned int *coun
- }
- 
- static int
--vbi_prepare(void *priv, struct videobuf_buffer *vb,
-+vbi_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
- 	    enum v4l2_field field)
- {
--	struct cx8800_fh   *fh  = priv;
-+	struct cx8800_fh   *fh  = q->priv_data;
- 	struct cx8800_dev  *dev = fh->dev;
--	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
-+	struct cx88_buffer *buf = container_of(vb,struct cx88_buffer,vb);
- 	unsigned int size;
- 	int rc;
- 
-@@ -192,11 +192,11 @@ vbi_prepare(void *priv, struct videobuf_
- }
- 
- static void
--vbi_queue(void *priv, struct videobuf_buffer *vb)
-+vbi_queue(struct videobuf_queue *vq, struct videobuf_buffer *vb)
- {
--	struct cx88_buffer    *buf  = (struct cx88_buffer*)vb;
-+	struct cx88_buffer    *buf = container_of(vb,struct cx88_buffer,vb);
- 	struct cx88_buffer    *prev;
--	struct cx8800_fh      *fh   = priv;
-+	struct cx8800_fh      *fh   = vq->priv_data;
- 	struct cx8800_dev     *dev  = fh->dev;
- 	struct cx88_dmaqueue  *q    = &dev->vbiq;
- 
-@@ -224,10 +224,10 @@ vbi_queue(void *priv, struct videobuf_bu
- 	}
- }
- 
--static void vbi_release(void *priv, struct videobuf_buffer *vb)
-+static void vbi_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
- {
--	struct cx88_buffer *buf = (struct cx88_buffer*)vb;
--	struct cx8800_fh   *fh  = priv;
-+	struct cx88_buffer *buf = container_of(vb,struct cx88_buffer,vb);
-+	struct cx8800_fh   *fh  = q->priv_data;
- 
- 	cx88_free_buffer(fh->dev->pci,buf);
- }
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-mpeg.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-mpeg.c	2004-11-07 12:24:38.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-mpeg.c	2004-11-07 16:01:04.552276227 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-mpeg.c,v 1.11 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-mpeg.c,v 1.14 2004/10/25 11:26:36 kraxel Exp $
-  *
-  *  Support for the mpeg transport stream transfers
-  *  PCI function #2 of the cx2388x.
-@@ -239,7 +239,6 @@ static void cx8802_timeout(unsigned long
- 	if (debug)
- 		cx88_sram_channel_dump(dev->core, &cx88_sram_channels[SRAM_CH28]);
- 	cx8802_stop_dma(dev);
--	dev->timeout_count++;
- 	do_cancel_buffers(dev,"timeout",1);
- }
- 
-@@ -276,7 +275,6 @@ static void cx8802_mpeg_irq(struct cx880
- 	/* risc2 y */
- 	if (status & 0x10) {
- 		spin_lock(&dev->slock);
--		dev->stopper_count++;
- 		cx8802_restart_queue(dev,&dev->mpegq);
- 		spin_unlock(&dev->slock);
- 	}
-@@ -284,7 +282,6 @@ static void cx8802_mpeg_irq(struct cx880
-         /* other general errors */
-         if (status & 0x1f0100) {
-                 spin_lock(&dev->slock);
--		dev->error_count++;
- 		cx8802_stop_dma(dev);
-                 cx8802_restart_queue(dev,&dev->mpegq);
-                 spin_unlock(&dev->slock);
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-dvb.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-dvb.c	2004-11-07 12:23:11.639793830 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-dvb.c	2004-11-07 16:01:04.552276227 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-dvb.c,v 1.12 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-dvb.c,v 1.19 2004/11/07 14:44:59 kraxel Exp $
-  *
-  * device driver for Conexant 2388x based TV cards
-  * MPEG Transport Stream (DVB) routines
-@@ -32,6 +32,8 @@
- 
- #include "cx88.h"
- #include "cx22702.h"
-+#include "mt352.h"
-+#include "mt352_priv.h" /* FIXME */
- 
- MODULE_DESCRIPTION("driver for cx2388x based DVB cards");
- MODULE_AUTHOR("Chris Pascoe <c.pascoe@itee.uq.edu.au>");
-@@ -47,9 +49,10 @@ MODULE_PARM_DESC(debug,"enable debug mes
- 
- /* ------------------------------------------------------------------ */
- 
--static int dvb_buf_setup(void *priv, unsigned int *count, unsigned int *size)
-+static int dvb_buf_setup(struct videobuf_queue *q,
-+			 unsigned int *count, unsigned int *size)
- {
--	struct cx8802_dev *dev = priv;
-+	struct cx8802_dev *dev = q->priv_data;
- 
- 	dev->ts_packet_size  = 188 * 4;
- 	dev->ts_packet_count = 32;
-@@ -59,22 +62,22 @@ static int dvb_buf_setup(void *priv, uns
+-		*count = tsbufs;
++		*count = dev->ts.nr_bufs;
+ 	*count = saa7134_buffer_count(*size,*count);
  	return 0;
  }
  
--static int dvb_buf_prepare(void *priv, struct videobuf_buffer *vb,
-+static int dvb_buf_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
- 			   enum v4l2_field field)
+-static void buffer_queue(void *priv, struct videobuf_buffer *vb)
++static void buffer_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
  {
--	struct cx8802_dev *dev = priv;
-+	struct cx8802_dev *dev = q->priv_data;
- 	return cx8802_buf_prepare(dev, (struct cx88_buffer*)vb);
+-	struct saa7134_dev *dev = priv;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_dev *dev = q->priv_data;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_buffer_queue(dev,&dev->ts_q,buf);
  }
  
--static void dvb_buf_queue(void *priv, struct videobuf_buffer *vb)
-+static void dvb_buf_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
+-static void buffer_release(void *priv, struct videobuf_buffer *vb)
++static void buffer_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
  {
--	struct cx8802_dev *dev = priv;
-+	struct cx8802_dev *dev = q->priv_data;
- 	cx8802_buf_queue(dev, (struct cx88_buffer*)vb);
+-	struct saa7134_dev *dev = priv;
+-	struct saa7134_buf *buf = (struct saa7134_buf *)vb;
+-	
++	struct saa7134_dev *dev = q->priv_data;
++	struct saa7134_buf *buf = container_of(vb,struct saa7134_buf,vb);
++
+ 	saa7134_dma_free(dev,buf);
  }
  
--static void dvb_buf_release(void *priv, struct videobuf_buffer *vb)
-+static void dvb_buf_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
- {
--	struct cx8802_dev *dev = priv;
-+	struct cx8802_dev *dev = q->priv_data;
- 	cx88_free_buffer(dev->pci, (struct cx88_buffer*)vb);
- }
- 
-@@ -85,233 +88,141 @@ struct videobuf_queue_ops dvb_qops = {
- 	.buf_release  = dvb_buf_release,
+-static struct videobuf_queue_ops ts_qops = {
++struct videobuf_queue_ops saa7134_ts_qops = {
+ 	.buf_setup    = buffer_setup,
+ 	.buf_prepare  = buffer_prepare,
+ 	.buf_queue    = buffer_queue,
+ 	.buf_release  = buffer_release,
  };
- 
--static int dvb_thread(void *data)
+-
+-
+-/* ------------------------------------------------------------------ */
+-
+-static void ts_reset_encoder(struct saa7134_dev* dev) 
 -{
--	struct cx8802_dev *dev = data;
--	struct videobuf_buffer *buf;
--	unsigned long flags;
+-	saa_writeb(SAA7134_SPECIAL_MODE, 0x00);
+-	msleep(10);
+-   	saa_writeb(SAA7134_SPECIAL_MODE, 0x01);
+-	msleep(100);
+-}
+-
+-static int ts_init_encoder(struct saa7134_dev* dev, void* arg) 
+-{
+-	ts_reset_encoder(dev);
+-	saa7134_i2c_call_clients(dev, MPEG_SETPARAMS, arg);
+- 	return 0;
+-}
+-
+-
+-/* ------------------------------------------------------------------ */
+-
+-static int ts_open(struct inode *inode, struct file *file)
+-{
+-	int minor = iminor(inode);
+-	struct saa7134_dev *h,*dev = NULL;
+-	struct list_head *list;
 -	int err;
--
--	dprintk(1,"dvb thread started\n");
--	videobuf_read_start(dev, &dev->dvbq);
--
--	for (;;) {
--		/* fetch next buffer */
--		buf = list_entry(dev->dvbq.stream.next,
--				 struct videobuf_buffer, stream);
--		list_del(&buf->stream);
--		err = videobuf_waiton(buf,0,1);
--		BUG_ON(0 != err);
--
--		/* no more feeds left or stop_feed() asked us to quit */
--		if (0 == dev->nfeeds)
--			break;
--		if (kthread_should_stop())
--			break;
--		if (current->flags & PF_FREEZE)
--			refrigerator(PF_FREEZE);
--
--		/* feed buffer data to demux */
--		if (buf->state == STATE_DONE)
--			dvb_dmx_swfilter(&dev->demux, buf->dma.vmalloc,
--					 buf->size);
--
--		/* requeue buffer */
--		list_add_tail(&buf->stream,&dev->dvbq.stream);
--		spin_lock_irqsave(dev->dvbq.irqlock,flags);
--		dev->dvbq.ops->buf_queue(dev,buf);
--		spin_unlock_irqrestore(dev->dvbq.irqlock,flags);
--
--		/* log errors if any */
--		if (dev->error_count || dev->stopper_count) {
--			printk("%s: error=%d stopper=%d\n",
--			       dev->core->name, dev->error_count,
--			       dev->stopper_count);
--			dev->error_count   = 0;
--			dev->stopper_count = 0;
--		}
--		if (debug && dev->timeout_count) {
--			printk("%s: timeout=%d (FE not locked?)\n",
--			       dev->core->name, dev->timeout_count);
--			dev->timeout_count = 0;
--		}
+-	
+-	list_for_each(list,&saa7134_devlist) {
+-		h = list_entry(list, struct saa7134_dev, devlist);
+-		if (h->ts_dev && h->ts_dev->minor == minor)
+-			dev = h;
 -	}
+-	if (NULL == dev)
+-		return -ENODEV;
 -
--	videobuf_read_stop(dev, &dev->dvbq);
--	dprintk(1,"dvb thread stopped\n");
-+/* ------------------------------------------------------------------ */
- 
--	/* Hmm, linux becomes *very* unhappy without this ... */
--	while (!kthread_should_stop()) {
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule();
--	}
-+static int dvico_fusionhdtv_demod_init(struct dvb_frontend* fe)
-+{
-+	static u8 clock_config []  = { CLOCK_CTL,  0x38, 0x39 };
-+	static u8 reset []         = { RESET,      0x80 };
-+	static u8 adc_ctl_1_cfg [] = { ADC_CTL_1,  0x40 };
-+	static u8 agc_cfg []       = { AGC_TARGET, 0x24, 0x20 };
-+	static u8 gpp_ctl_cfg []   = { GPP_CTL,    0x33 };
-+	static u8 capt_range_cfg[] = { CAPT_RANGE, 0x32 };
-+
-+	mt352_write(fe, clock_config,   sizeof(clock_config));
-+	udelay(200);
-+	mt352_write(fe, reset,          sizeof(reset));
-+	mt352_write(fe, adc_ctl_1_cfg,  sizeof(adc_ctl_1_cfg));
-+
-+	mt352_write(fe, agc_cfg,        sizeof(agc_cfg));
-+	mt352_write(fe, gpp_ctl_cfg,    sizeof(gpp_ctl_cfg));
-+	mt352_write(fe, capt_range_cfg, sizeof(capt_range_cfg));
- 	return 0;
- }
- 
--/* ---------------------------------------------------------------------------- */
-+#define IF_FREQUENCYx6 217    /* 6 * 36.16666666667MHz */
- 
--static int dvb_start_feed(struct dvb_demux_feed *feed)
-+static int lg_z201_pll_set(struct dvb_frontend* fe,
-+			   struct dvb_frontend_parameters* params, u8* pllbuf)
- {
--	struct dvb_demux *demux = feed->demux;
--	struct cx8802_dev *dev = demux->priv;
--	int rc;
-+	u32 div;
-+	unsigned char cp = 0;
-+	unsigned char bs = 0;
-+
-+	div = (((params->frequency + 83333) * 3) / 500000) + IF_FREQUENCYx6;
-+
-+	if (params->frequency < 542000000) cp = 0xbc;
-+	else if (params->frequency < 830000000) cp = 0xf4;
-+	else cp = 0xfc;
-+
-+	if (params->frequency == 0) bs = 0x03;
-+	else if (params->frequency < 157500000) bs = 0x01;
-+	else if (params->frequency < 443250000) bs = 0x02;
-+	else bs = 0x04;
-+
-+	pllbuf[0] = 0xC2; /* Note: non-linux standard PLL I2C address */
-+	pllbuf[1] = div >> 8;
-+	pllbuf[2] = div & 0xff;
-+	pllbuf[3] = cp;
-+	pllbuf[4] = bs;
- 
--	if (!demux->dmx.frontend)
--		return -EINVAL;
-+	return 0;
-+}
- 
--	down(&dev->lock);
--	dev->nfeeds++;
--	rc = dev->nfeeds;
+-	dprintk("open minor=%d\n",minor);
+-	down(&dev->ts.ts.lock);
+-	err = -EBUSY;
+-	if (dev->ts.users)
+-		goto done;
 -
--	if (NULL != dev->dvb_thread)
--		goto out;
--	dev->dvb_thread = kthread_run(dvb_thread, dev, "%s dvb", dev->core->name);
--	if (IS_ERR(dev->dvb_thread)) {
--		rc = PTR_ERR(dev->dvb_thread);
--		dev->dvb_thread = NULL;
--	}
-+static int thomson_dtt7579_pll_set(struct dvb_frontend* fe,
-+				   struct dvb_frontend_parameters* params,
-+				   u8* pllbuf)
-+{
-+	u32 div;
-+	unsigned char cp = 0;
-+	unsigned char bs = 0;
-+
-+	div = (((params->frequency + 83333) * 3) / 500000) + IF_FREQUENCYx6;
-+
-+	if (params->frequency < 542000000) cp = 0xb4;
-+	else if (params->frequency < 771000000) cp = 0xbc;
-+	else cp = 0xf4;
-+
-+        if (params->frequency == 0) bs = 0x03;
-+	else if (params->frequency < 443250000) bs = 0x02;
-+	else bs = 0x08;
-+
-+	pllbuf[0] = 0xc0; // Note: non-linux standard PLL i2c address
-+	pllbuf[1] = div >> 8;
-+   	pllbuf[2] = div & 0xff;
-+   	pllbuf[3] = cp;
-+   	pllbuf[4] = bs;
- 
--out:
--	up(&dev->lock);
--	dprintk(2, "%s rc=%d\n",__FUNCTION__,rc);
--	return rc;
--}
+-	dev->ts.started = 0;
+-	dev->ts.users++;
+-	file->private_data = dev;
+-	err = 0;
 -
--static int dvb_stop_feed(struct dvb_demux_feed *feed)
--{
--	struct dvb_demux *demux = feed->demux;
--	struct cx8802_dev *dev = demux->priv;
--	int err = 0;
--
--	dprintk(2, "%s\n",__FUNCTION__);
--
--	down(&dev->lock);
--	dev->nfeeds--;
--	if (0 == dev->nfeeds  &&  NULL != dev->dvb_thread) {
--		cx8802_cancel_buffers(dev);
--		err = kthread_stop(dev->dvb_thread);
--		dev->dvb_thread = NULL;
--	}
--	up(&dev->lock);
+- done:
+-	up(&dev->ts.ts.lock);
 -	return err;
-+	return 0;
- }
- 
--static void dvb_unregister(struct cx8802_dev *dev)
--{
--#if 1 /* really needed? */
--	down(&dev->lock);
--	if (NULL != dev->dvb_thread) {
--		kthread_stop(dev->dvb_thread);
--		BUG();
--	}
--	up(&dev->lock);
--#endif
-+struct mt352_config dvico_fusionhdtv_dvbt1 = {
-+	.demod_address = 0x0F,
-+	.demod_init    = dvico_fusionhdtv_demod_init,
-+	.pll_set       = lg_z201_pll_set,
-+};
- 
--	dvb_net_release(&dev->dvbnet);
--	dev->demux.dmx.remove_frontend(&dev->demux.dmx, &dev->fe_mem);
--	dev->demux.dmx.remove_frontend(&dev->demux.dmx, &dev->fe_hw);
--	dvb_dmxdev_release(&dev->dmxdev);
--	dvb_dmx_release(&dev->demux);
--	if (dev->fe_handle)
--		dev->fe_release(dev->fe_handle);
--	dvb_unregister_adapter(dev->dvb_adapter);
--	return;
 -}
-+struct mt352_config dvico_fusionhdtv_dvbt_plus = {
-+	.demod_address = 0x0F,
-+	.demod_init    = dvico_fusionhdtv_demod_init,
-+	.pll_set       = thomson_dtt7579_pll_set,
-+};
- 
- static int dvb_register(struct cx8802_dev *dev)
- {
--	int result;
-+	/* init struct videobuf_dvb */
-+	dev->dvb.name = dev->core->name;
- 
--	/* adapter */
--	result = dvb_register_adapter(&dev->dvb_adapter, dev->core->name,
--				      THIS_MODULE);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: dvb_register_adapter failed (errno = %d)\n",
--		       dev->core->name, result);
--		goto fail1;
--	}
 -
--	/* frontend */
-+	/* init frontend */
- 	switch (dev->core->board) {
- 	case CX88_BOARD_HAUPPAUGE_DVB_T1:
- 	case CX88_BOARD_CONEXANT_DVB_T1:
--		dev->fe_handle = cx22702_create(&dev->core->i2c_adap,
--						dev->dvb_adapter,
--						dev->core->pll_addr,
--						dev->core->pll_type,
--						dev->core->demod_addr);
--		dev->fe_release = cx22702_destroy;
-+		dev->dvb.frontend = cx22702_create(&dev->core->i2c_adap,
-+						   dev->core->pll_addr,
-+						   dev->core->pll_type,
-+						   dev->core->demod_addr);
-+		break;
-+	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T1:
-+		dev->dvb.frontend = mt352_attach(&dvico_fusionhdtv_dvbt1,
-+						 &dev->core->i2c_adap);
-+		if (dev->dvb.frontend) {
-+			dev->dvb.frontend->ops->info.frequency_min = 174000000;
-+			dev->dvb.frontend->ops->info.frequency_max = 862000000;
-+		}
-+		break;
-+	case CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS:
-+		dev->dvb.frontend = mt352_attach(&dvico_fusionhdtv_dvbt_plus,
-+						 &dev->core->i2c_adap);
-+		if (dev->dvb.frontend) {
-+			dev->dvb.frontend->ops->info.frequency_min = 174000000;
-+			dev->dvb.frontend->ops->info.frequency_max = 862000000;
-+		}
- 		break;
- 	default:
--		printk("%s: FIXME: frontend handing not here yet ...\n",
-+		printk("%s: FIXME: frontend handling not here yet ...\n",
- 		       dev->core->name);
- 		break;
- 	}
-+	if (NULL == dev->dvb.frontend)
-+		return -1;
- 
--	/* demux */
--	dev->demux.dmx.capabilities =
--		DMX_TS_FILTERING | DMX_SECTION_FILTERING |
--		DMX_MEMORY_BASED_FILTERING;
--	dev->demux.priv       = dev;
--	dev->demux.filternum  = 256;
--	dev->demux.feednum    = 256;
--	dev->demux.start_feed = dvb_start_feed;
--	dev->demux.stop_feed  = dvb_stop_feed;
--	result = dvb_dmx_init(&dev->demux);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: dvb_dmx_init failed (errno = %d)\n",
--		       dev->core->name, result);
--		goto fail2;
--	}
-+	/* Copy the board name into the DVB structure */
-+	strlcpy(dev->dvb.frontend->ops->info.name,
-+		cx88_boards[dev->core->board].name,
-+		sizeof(dev->dvb.frontend->ops->info.name));
- 
--	dev->dmxdev.filternum    = 256;
--	dev->dmxdev.demux        = &dev->demux.dmx;
--	dev->dmxdev.capabilities = 0;
--	result = dvb_dmxdev_init(&dev->dmxdev, dev->dvb_adapter);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: dvb_dmxdev_init failed (errno = %d)\n",
--		       dev->core->name, result);
--		goto fail3;
--	}
+-static int ts_release(struct inode *inode, struct file *file)
+-{
+-	struct saa7134_dev *dev = file->private_data;
 -
--	dev->fe_hw.source = DMX_FRONTEND_0;
--	result = dev->demux.dmx.add_frontend(&dev->demux.dmx, &dev->fe_hw);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: add_frontend failed (DMX_FRONTEND_0, errno = %d)\n",
--		       dev->core->name, result);
--		goto fail4;
--	}
+-	if (dev->ts.ts.streaming)
+-		videobuf_streamoff(file->private_data,&dev->ts.ts);
+-	down(&dev->ts.ts.lock);
+-	if (dev->ts.ts.reading)
+-		videobuf_read_stop(file->private_data,&dev->ts.ts);
+-	dev->ts.users--;
 -
--	dev->fe_mem.source = DMX_MEMORY_FE;
--	result = dev->demux.dmx.add_frontend(&dev->demux.dmx, &dev->fe_mem);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: add_frontend failed (DMX_MEMORY_FE, errno = %d)\n",
--		       dev->core->name, result);
--		goto fail5;
--	}
--
--	result = dev->demux.dmx.connect_frontend(&dev->demux.dmx, &dev->fe_hw);
--	if (result < 0) {
--		printk(KERN_WARNING "%s: connect_frontend failed (errno = %d)\n",
--		       dev->core->name, result);
--		goto fail6;
--	}
--
--	dvb_net_init(dev->dvb_adapter, &dev->dvbnet, &dev->demux.dmx);
+-	/* stop the encoder */
+-	if (dev->ts.started)
+-	      	ts_reset_encoder(dev);
+-  
+-	up(&dev->ts.ts.lock);
 -	return 0;
+-}
 -
--fail6:
--	dev->demux.dmx.remove_frontend(&dev->demux.dmx, &dev->fe_mem);
--fail5:
--	dev->demux.dmx.remove_frontend(&dev->demux.dmx, &dev->fe_hw);
--fail4:
--	dvb_dmxdev_release(&dev->dmxdev);
--fail3:
--	dvb_dmx_release(&dev->demux);
--fail2:
--	dvb_unregister_adapter(dev->dvb_adapter);
--fail1:
--	return result;
-+	/* register everything */
-+	return videobuf_dvb_register(&dev->dvb);
- }
+-static ssize_t
+-ts_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
+-{
+-	struct saa7134_dev *dev = file->private_data;
+-
+-	if (!dev->ts.started) {
+-		ts_init_encoder(dev, NULL);
+-		dev->ts.started = 1;
+-	}
+-  
+-	return videobuf_read_stream(file->private_data,
+-				    &dev->ts.ts, data, count, ppos, 0,
+-				    file->f_flags & O_NONBLOCK);
+-}
+-
+-static unsigned int
+-ts_poll(struct file *file, struct poll_table_struct *wait)
+-{
+-	struct saa7134_dev *dev = file->private_data;
+-
+-	return videobuf_poll_stream(file, file->private_data,
+-				    &dev->ts.ts, wait);
+-}
+-
+-
+-static int
+-ts_mmap(struct file *file, struct vm_area_struct * vma)
+-{
+-	struct saa7134_dev *dev = file->private_data;
+-
+-	return videobuf_mmap_mapper(vma, &dev->ts.ts);
+-}
+-
+-/*
+- * This function is _not_ called directly, but from
+- * video_generic_ioctl (and maybe others).  userspace
+- * copying is done already, arg is a kernel pointer.
+- */
+-static int ts_do_ioctl(struct inode *inode, struct file *file,
+-		       unsigned int cmd, void *arg)
+-{
+-	struct saa7134_dev *dev = file->private_data;
+-
+-	if (ts_debug > 1)
+-		saa7134_print_ioctl(dev->name,cmd);
+-	switch (cmd) {
+-	case VIDIOC_QUERYCAP:
+-	{
+-		struct v4l2_capability *cap = arg;
+-
+-		memset(cap,0,sizeof(*cap));
+-                strcpy(cap->driver, "saa7134");
+-		strlcpy(cap->card, saa7134_boards[dev->board].name,
+-			sizeof(cap->card));
+-		sprintf(cap->bus_info,"PCI:%s",pci_name(dev->pci));
+-		cap->version = SAA7134_VERSION_CODE;
+-		cap->capabilities =
+-			V4L2_CAP_VIDEO_CAPTURE |
+-			V4L2_CAP_READWRITE |
+-			V4L2_CAP_STREAMING;
+-		return 0;
+-	}
+-
+-	/* --- input switching --------------------------------------- */
+-	case VIDIOC_ENUMINPUT:
+-	{
+-		struct v4l2_input *i = arg;
+-		
+-		if (i->index != 0)
+-			return -EINVAL;
+-		i->type = V4L2_INPUT_TYPE_CAMERA;
+-		strcpy(i->name,"CCIR656");
+-		return 0;
+-	}
+-	case VIDIOC_G_INPUT:
+-	{
+-		int *i = arg;
+-		*i = 0;
+-		return 0;
+-	}
+-	case VIDIOC_S_INPUT:
+-	{
+-		int *i = arg;
+-		
+-		if (*i != 0)
+-			return -EINVAL;
+-		return 0;
+-	}
+-	/* --- capture ioctls ---------------------------------------- */
+-	
+-	case VIDIOC_ENUM_FMT:
+-	{
+-		struct v4l2_fmtdesc *f = arg;
+-		int index;
+-
+-		index = f->index;
+-		if (index != 0)
+-			return -EINVAL;
+-		
+-		memset(f,0,sizeof(*f));
+-		f->index = index;
+-		strlcpy(f->description, "MPEG TS", sizeof(f->description));
+-		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+-		f->pixelformat = V4L2_PIX_FMT_MPEG;
+-		return 0;
+-	}
+-
+-	case VIDIOC_G_FMT:
+-	{
+-		struct v4l2_format *f = arg;
+-
+-		memset(f,0,sizeof(*f));
+-		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+-		
+-		/* FIXME: translate subsampling type EMPRESS into
+-		 *        width/height: */
+-		f->fmt.pix.width        = 720; /* D1 */
+-		f->fmt.pix.height       = 576;
+-		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
+-		f->fmt.pix.sizeimage    = TS_PACKET_SIZE*ts_nr_packets;
+-		return 0;
+-	}
+-	
+-	case VIDIOC_S_FMT:
+-	{
+-		struct v4l2_format *f = arg;
+-
+-		if (f->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
+-		    return -EINVAL;
+-
+-		/* 
+-		  FIXME: translate and round width/height into EMPRESS
+-		  subsample type:
+-		 
+-		          type  |   PAL   |  NTSC 
+-			---------------------------
+-			  SIF   | 352x288 | 352x240
+-			 1/2 D1 | 352x576 | 352x480
+-			 2/3 D1 | 480x576 | 480x480
+-			  D1    | 720x576 | 720x480
+-		*/
+-
+-		f->fmt.pix.width        = 720; /* D1 */
+-		f->fmt.pix.height       = 576;
+-		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
+-		f->fmt.pix.sizeimage    = TS_PACKET_SIZE*ts_nr_packets;
+-		return 0;
+-	}
+-
+-	case VIDIOC_REQBUFS:
+-		return videobuf_reqbufs(file->private_data,&dev->ts.ts,arg);
+-
+-	case VIDIOC_QUERYBUF:
+-		return videobuf_querybuf(&dev->ts.ts,arg);
+-
+-	case VIDIOC_QBUF:
+-		return videobuf_qbuf(file->private_data,&dev->ts.ts,arg);
+-
+-	case VIDIOC_DQBUF:
+-		return videobuf_dqbuf(file->private_data,&dev->ts.ts,arg,
+-				      file->f_flags & O_NONBLOCK);
+-
+-	case VIDIOC_STREAMON:
+-		return videobuf_streamon(file->private_data,&dev->ts.ts);
+-
+-	case VIDIOC_STREAMOFF:
+-		return videobuf_streamoff(file->private_data,&dev->ts.ts);
+-
+-	case VIDIOC_QUERYCTRL:
+-	case VIDIOC_G_CTRL:
+-	case VIDIOC_S_CTRL:
+-		return saa7134_common_ioctl(dev, cmd, arg);
+-
+-	case MPEG_SETPARAMS:
+-		return ts_init_encoder(dev, arg);
+-
+-	default:
+-		return -ENOIOCTLCMD;
+-	}
+-	return 0;
+-}
+-
+-static int ts_ioctl(struct inode *inode, struct file *file,
+-		     unsigned int cmd, unsigned long arg)
+-{
+-	return video_usercopy(inode, file, cmd, arg, ts_do_ioctl);
+-}
+-
+-
+-static struct file_operations ts_fops =
+-{
+-	.owner	  = THIS_MODULE,
+-	.open	  = ts_open,
+-	.release  = ts_release,
+-	.read	  = ts_read,
+-	.poll	  = ts_poll,
+-	.mmap	  = ts_mmap,
+-	.ioctl	  = ts_ioctl,
+-	.llseek   = no_llseek,
+-};
+-
++EXPORT_SYMBOL_GPL(saa7134_ts_qops);
  
  /* ----------------------------------------------------------- */
-@@ -346,13 +257,12 @@ static int __devinit dvb_probe(struct pc
+ /* exported stuff                                              */
  
- 	/* dvb stuff */
- 	printk("%s/2: cx2388x based dvb card\n", core->name);
--	videobuf_queue_init(&dev->dvbq, &dvb_qops,
-+	videobuf_queue_init(&dev->dvb.dvbq, &dvb_qops,
- 			    dev->pci, &dev->slock,
- 			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
- 			    V4L2_FIELD_TOP,
--			    sizeof(struct cx88_buffer));
--	init_MUTEX(&dev->dvbq.lock);
--
-+			    sizeof(struct cx88_buffer),
-+			    dev);
- 	err = dvb_register(dev);
- 	if (0 != err)
- 		goto fail_free;
-@@ -370,7 +280,7 @@ static void __devexit dvb_remove(struct 
-         struct cx8802_dev *dev = pci_get_drvdata(pci_dev);
+-struct video_device saa7134_ts_template =
+-{
+-	.name          = "saa7134-ts",
+-	.type          = 0 /* FIXME */,
+-	.type2         = 0 /* FIXME */,
+-	.hardware      = 0,
+-	.fops          = &ts_fops,
+-	.minor	       = -1,
+-};
++static unsigned int tsbufs = 4;
++module_param(tsbufs, int, 0444);
++MODULE_PARM_DESC(tsbufs,"number of ts buffers, range 2-32");
++
++static unsigned int ts_nr_packets = 30;
++module_param(ts_nr_packets, int, 0444);
++MODULE_PARM_DESC(ts_nr_packets,"size of a ts buffers (in ts packets)");
  
- 	/* dvb */
--	dvb_unregister(dev);
-+	videobuf_dvb_unregister(&dev->dvb);
- 
- 	/* common */
- 	cx8802_fini_common(dev);
-@@ -394,7 +304,7 @@ static struct pci_driver dvb_pci_driver 
-         .name     = "cx88-dvb",
-         .id_table = cx8802_pci_tbl,
-         .probe    = dvb_probe,
--        .remove   = dvb_remove,
-+        .remove   = __devexit_p(dvb_remove),
- 	.suspend  = cx8802_suspend_common,
- 	.resume   = cx8802_resume_common,
- };
-@@ -423,5 +333,6 @@ module_exit(dvb_fini);
- /*
-  * Local variables:
-  * c-basic-offset: 8
-+ * compile-command: "make DVB=1"
-  * End:
-  */
-Index: linux-2004-11-05/drivers/media/video/cx88/cx88-blackbird.c
-===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/cx88-blackbird.c	2004-11-07 12:23:49.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/cx88-blackbird.c	2004-11-07 16:01:04.553276038 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cx88-blackbird.c,v 1.14 2004/10/12 07:33:22 kraxel Exp $
-+ * $Id: cx88-blackbird.c,v 1.17 2004/11/07 13:17:15 kraxel Exp $
-  *
-  *  Support for a cx23416 mpeg encoder via cx2388x host port.
-  *  "blackbird" reference design.
-@@ -543,9 +543,10 @@ static int blackbird_initialize_codec(st
- 
- /* ------------------------------------------------------------------ */
- 
--static int bb_buf_setup(void *priv, unsigned int *count, unsigned int *size)
-+static int bb_buf_setup(struct videobuf_queue *q,
-+			unsigned int *count, unsigned int *size)
+ int saa7134_ts_init1(struct saa7134_dev *dev)
  {
--	struct cx8802_fh *fh = priv;
-+	struct cx8802_fh *fh = q->priv_data;
+@@ -467,6 +183,8 @@ int saa7134_ts_init1(struct saa7134_dev 
+ 		ts_nr_packets = 4;
+ 	if (ts_nr_packets > 312)
+ 		ts_nr_packets = 312;
++	dev->ts.nr_bufs    = tsbufs;
++	dev->ts.nr_packets = ts_nr_packets;
  
- 	fh->dev->ts_packet_size  = 512;
- 	fh->dev->ts_packet_count = 100;
-@@ -561,23 +562,24 @@ static int bb_buf_setup(void *priv, unsi
- }
+ 	INIT_LIST_HEAD(&dev->ts_q.queue);
+ 	init_timer(&dev->ts_q.timeout);
+@@ -474,26 +192,21 @@ int saa7134_ts_init1(struct saa7134_dev 
+ 	dev->ts_q.timeout.data     = (unsigned long)(&dev->ts_q);
+ 	dev->ts_q.dev              = dev;
+ 	dev->ts_q.need_two         = 1;
+-	videobuf_queue_init(&dev->ts.ts, &ts_qops, dev->pci, &dev->slock,
+-			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
+-			    V4L2_FIELD_ALTERNATE,
+-			    sizeof(struct saa7134_buf));
+ 	saa7134_pgtable_alloc(dev->pci,&dev->ts.pt_ts);
  
- static int
--bb_buf_prepare(void *priv, struct videobuf_buffer *vb,
--		 enum v4l2_field field)
-+bb_buf_prepare(struct videobuf_queue *q, struct videobuf_buffer *vb,
-+	       enum v4l2_field field)
- {
--	struct cx8802_fh *fh = priv;
-+	struct cx8802_fh *fh = q->priv_data;
- 	return cx8802_buf_prepare(fh->dev, (struct cx88_buffer*)vb);
- }
- 
- static void
--bb_buf_queue(void *priv, struct videobuf_buffer *vb)
-+bb_buf_queue(struct videobuf_queue *q, struct videobuf_buffer *vb)
- {
--	struct cx8802_fh *fh = priv;
-+	struct cx8802_fh *fh = q->priv_data;
- 	cx8802_buf_queue(fh->dev, (struct cx88_buffer*)vb);
- }
- 
--static void bb_buf_release(void *priv, struct videobuf_buffer *vb)
-+static void
-+bb_buf_release(struct videobuf_queue *q, struct videobuf_buffer *vb)
- {
--	struct cx8802_fh *fh = priv;
-+	struct cx8802_fh *fh = q->priv_data;
- 	cx88_free_buffer(fh->dev->pci, (struct cx88_buffer*)vb);
- }
- 
-@@ -635,23 +637,23 @@ static int mpeg_do_ioctl(struct inode *i
- 
- 	/* --- streaming capture ------------------------------------- */
- 	case VIDIOC_REQBUFS:
--		return videobuf_reqbufs(file->private_data, &fh->mpegq, arg);
-+		return videobuf_reqbufs(&fh->mpegq, arg);
- 
- 	case VIDIOC_QUERYBUF:
- 		return videobuf_querybuf(&fh->mpegq, arg);
- 
- 	case VIDIOC_QBUF:
--		return videobuf_qbuf(file->private_data, &fh->mpegq, arg);
-+		return videobuf_qbuf(&fh->mpegq, arg);
- 
- 	case VIDIOC_DQBUF:
--		return videobuf_dqbuf(file->private_data, &fh->mpegq, arg,
-+		return videobuf_dqbuf(&fh->mpegq, arg,
- 				      file->f_flags & O_NONBLOCK);
- 
- 	case VIDIOC_STREAMON:
--		return videobuf_streamon(file->private_data, &fh->mpegq);
-+		return videobuf_streamon(&fh->mpegq);
- 
- 	case VIDIOC_STREAMOFF:
--		return videobuf_streamoff(file->private_data, &fh->mpegq);
-+		return videobuf_streamoff(&fh->mpegq);
- 
- 	default:
- 		return -EINVAL;
-@@ -696,9 +698,8 @@ static int mpeg_open(struct inode *inode
- 			    dev->pci, &dev->slock,
- 			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
- 			    V4L2_FIELD_TOP,
--			    sizeof(struct cx88_buffer));
--	init_MUTEX(&fh->mpegq.lock);
--
-+			    sizeof(struct cx88_buffer),
-+			    fh);
+ 	/* init TS hw */
+ 	saa_writeb(SAA7134_TS_SERIAL1, 0x00);  /* deactivate TS softreset */
+ 	saa_writeb(SAA7134_TS_PARALLEL, 0xec); /* TSSOP high active, TSVAL high active, TSLOCK ignored */
+ 	saa_writeb(SAA7134_TS_PARALLEL_SERIAL, (TS_PACKET_SIZE-1));
+-	saa_writeb(SAA7134_TS_DMA0, ((ts_nr_packets-1)&0xff));
+-	saa_writeb(SAA7134_TS_DMA1, (((ts_nr_packets-1)>>8)&0xff));
+-	saa_writeb(SAA7134_TS_DMA2, ((((ts_nr_packets-1)>>16)&0x3f) | 0x00)); /* TSNOPIT=0, TSCOLAP=0 */
+- 
++	saa_writeb(SAA7134_TS_DMA0, ((dev->ts.nr_packets-1)&0xff));
++	saa_writeb(SAA7134_TS_DMA1, (((dev->ts.nr_packets-1)>>8)&0xff));
++	saa_writeb(SAA7134_TS_DMA2, ((((dev->ts.nr_packets-1)>>16)&0x3f) | 0x00)); /* TSNOPIT=0, TSCOLAP=0 */
++
  	return 0;
  }
  
-@@ -710,9 +711,9 @@ static int mpeg_release(struct inode *in
- 
- 	/* stop mpeg capture */
- 	if (fh->mpegq.streaming)
--		videobuf_streamoff(file->private_data,&fh->mpegq);
-+		videobuf_streamoff(&fh->mpegq);
- 	if (fh->mpegq.reading)
--		videobuf_read_stop(file->private_data,&fh->mpegq);
-+		videobuf_read_stop(&fh->mpegq);
- 
- 	file->private_data = NULL;
- 	kfree(fh);
-@@ -724,8 +725,7 @@ mpeg_read(struct file *file, char *data,
+ int saa7134_ts_fini(struct saa7134_dev *dev)
  {
- 	struct cx8802_fh *fh = file->private_data;
- 
--	return videobuf_read_stream(file->private_data,
--				    &fh->mpegq, data, count, ppos, 0,
-+	return videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
- 				    file->f_flags & O_NONBLOCK);
+-	/* nothing */
+ 	saa7134_pgtable_free(dev->pci,&dev->ts.pt_ts);
+ 	return 0;
  }
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-input.c
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa7134-input.c	2004-11-07 12:24:50.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-input.c	2004-11-07 15:55:19.400370116 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: saa7134-input.c,v 1.9 2004/09/15 16:15:24 kraxel Exp $
++ * $Id: saa7134-input.c,v 1.12 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * handle saa7134 IR remotes via linux kernel input layer.
+  *
+@@ -30,11 +30,11 @@
+ #include "saa7134.h"
  
-@@ -734,8 +734,7 @@ mpeg_poll(struct file *file, struct poll
+ static unsigned int disable_ir = 0;
+-MODULE_PARM(disable_ir,"i");
++module_param(disable_ir, int, 0444);
+ MODULE_PARM_DESC(disable_ir,"disable infrared remote support");
+ 
+ static unsigned int ir_debug = 0;
+-MODULE_PARM(ir_debug,"i");
++module_param(ir_debug, int, 0644);
+ MODULE_PARM_DESC(ir_debug,"enable debug messages [IR]");
+ 
+ #define dprintk(fmt, arg...)	if (ir_debug) \
+@@ -63,7 +63,7 @@ static IR_KEYTAB_TYPE flyvideo_codes[IR_
+ 	[   20 ] = KEY_VOLUMEUP,
+ 	[   23 ] = KEY_VOLUMEDOWN,
+ 	[   18 ] = KEY_CHANNELUP,    // Channel +
+-	[   19 ] = KEY_CHANNELDOWN,  // Channel - 
++	[   19 ] = KEY_CHANNELDOWN,  // Channel -
+ 	[    6 ] = KEY_AGAIN,        // Recal
+ 	[   16 ] = KEY_KPENTER,      // Enter
+ 
+@@ -353,6 +353,7 @@ int saa7134_input_init1(struct saa7134_d
+ 		polling      = 50; // ms
+ 		break;
+ 	case SAA7134_BOARD_MD2819:
++	case SAA7134_BOARD_AVERMEDIA_307:
+ 		ir_codes     = md2819_codes;
+ 		mask_keycode = 0x0007C8;
+ 		mask_keydown = 0x000010;
+@@ -378,7 +379,7 @@ int saa7134_input_init1(struct saa7134_d
+ 	ir->mask_keydown = mask_keydown;
+ 	ir->mask_keyup   = mask_keyup;
+         ir->polling      = polling;
+-	
++
+ 	/* init input device */
+ 	snprintf(ir->name, sizeof(ir->name), "saa7134 IR (%s)",
+ 		 saa7134_boards[dev->board].name);
+@@ -417,7 +418,7 @@ void saa7134_input_fini(struct saa7134_d
  {
- 	struct cx8802_fh *fh = file->private_data;
+ 	if (NULL == dev->remote)
+ 		return;
+-	
++
+ 	input_unregister_device(&dev->remote->dev);
+ 	if (dev->remote->polling)
+ 		del_timer_sync(&dev->remote->timer);
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-empress.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-empress.c	2004-11-07 15:55:19.400370116 +0100
+@@ -0,0 +1,394 @@
++/*
++ * $Id: saa7134-empress.c,v 1.3 2004/11/07 13:17:15 kraxel Exp $
++ *
++ * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/init.h>
++#include <linux/list.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++
++#include "saa7134-reg.h"
++#include "saa7134.h"
++
++#include <media/saa6752hs.h>
++
++/* ------------------------------------------------------------------ */
++
++MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
++MODULE_LICENSE("GPL");
++
++static unsigned int empress_nr[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
++module_param_array(empress_nr, int, NULL, 0444);
++MODULE_PARM_DESC(empress_nr,"ts device number");
++
++static unsigned int debug = 0;
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug,"enable debug messages");
++
++#define dprintk(fmt, arg...)	if (debug)			\
++	printk(KERN_DEBUG "%s/empress: " fmt, dev->name , ## arg)
++
++/* ------------------------------------------------------------------ */
++
++static void ts_reset_encoder(struct saa7134_dev* dev)
++{
++	saa_writeb(SAA7134_SPECIAL_MODE, 0x00);
++	msleep(10);
++   	saa_writeb(SAA7134_SPECIAL_MODE, 0x01);
++	msleep(100);
++}
++
++static int ts_init_encoder(struct saa7134_dev* dev, void* arg)
++{
++	ts_reset_encoder(dev);
++	saa7134_i2c_call_clients(dev, MPEG_SETPARAMS, arg);
++ 	return 0;
++}
++
++/* ------------------------------------------------------------------ */
++
++static int ts_open(struct inode *inode, struct file *file)
++{
++	int minor = iminor(inode);
++	struct saa7134_dev *h,*dev = NULL;
++	struct list_head *list;
++	int err;
++
++	list_for_each(list,&saa7134_devlist) {
++		h = list_entry(list, struct saa7134_dev, devlist);
++		if (h->empress_dev && h->empress_dev->minor == minor)
++			dev = h;
++	}
++	if (NULL == dev)
++		return -ENODEV;
++
++	dprintk("open minor=%d\n",minor);
++	down(&dev->empress_tsq.lock);
++	err = -EBUSY;
++	if (dev->empress_users)
++		goto done;
++
++	dev->empress_users++;
++	file->private_data = dev;
++	ts_init_encoder(dev, NULL);
++	err = 0;
++
++ done:
++	up(&dev->empress_tsq.lock);
++	return err;
++}
++
++static int ts_release(struct inode *inode, struct file *file)
++{
++	struct saa7134_dev *dev = file->private_data;
++
++	if (dev->empress_tsq.streaming)
++		videobuf_streamoff(&dev->empress_tsq);
++	down(&dev->empress_tsq.lock);
++	if (dev->empress_tsq.reading)
++		videobuf_read_stop(&dev->empress_tsq);
++	dev->empress_users--;
++
++	/* stop the encoder */
++	ts_reset_encoder(dev);
++
++	up(&dev->empress_tsq.lock);
++	return 0;
++}
++
++static ssize_t
++ts_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
++{
++	struct saa7134_dev *dev = file->private_data;
++
++	return videobuf_read_stream(&dev->empress_tsq,
++				    data, count, ppos, 0,
++				    file->f_flags & O_NONBLOCK);
++}
++
++static unsigned int
++ts_poll(struct file *file, struct poll_table_struct *wait)
++{
++	struct saa7134_dev *dev = file->private_data;
++
++	return videobuf_poll_stream(file, &dev->empress_tsq, wait);
++}
++
++
++static int
++ts_mmap(struct file *file, struct vm_area_struct * vma)
++{
++	struct saa7134_dev *dev = file->private_data;
++
++	return videobuf_mmap_mapper(&dev->empress_tsq, vma);
++}
++
++/*
++ * This function is _not_ called directly, but from
++ * video_generic_ioctl (and maybe others).  userspace
++ * copying is done already, arg is a kernel pointer.
++ */
++static int ts_do_ioctl(struct inode *inode, struct file *file,
++		       unsigned int cmd, void *arg)
++{
++	struct saa7134_dev *dev = file->private_data;
++
++	if (debug > 1)
++		saa7134_print_ioctl(dev->name,cmd);
++	switch (cmd) {
++	case VIDIOC_QUERYCAP:
++	{
++		struct v4l2_capability *cap = arg;
++
++		memset(cap,0,sizeof(*cap));
++                strcpy(cap->driver, "saa7134");
++		strlcpy(cap->card, saa7134_boards[dev->board].name,
++			sizeof(cap->card));
++		sprintf(cap->bus_info,"PCI:%s",pci_name(dev->pci));
++		cap->version = SAA7134_VERSION_CODE;
++		cap->capabilities =
++			V4L2_CAP_VIDEO_CAPTURE |
++			V4L2_CAP_READWRITE |
++			V4L2_CAP_STREAMING;
++		return 0;
++	}
++
++	/* --- input switching --------------------------------------- */
++	case VIDIOC_ENUMINPUT:
++	{
++		struct v4l2_input *i = arg;
++
++		if (i->index != 0)
++			return -EINVAL;
++		i->type = V4L2_INPUT_TYPE_CAMERA;
++		strcpy(i->name,"CCIR656");
++		return 0;
++	}
++	case VIDIOC_G_INPUT:
++	{
++		int *i = arg;
++		*i = 0;
++		return 0;
++	}
++	case VIDIOC_S_INPUT:
++	{
++		int *i = arg;
++
++		if (*i != 0)
++			return -EINVAL;
++		return 0;
++	}
++	/* --- capture ioctls ---------------------------------------- */
++
++	case VIDIOC_ENUM_FMT:
++	{
++		struct v4l2_fmtdesc *f = arg;
++		int index;
++
++		index = f->index;
++		if (index != 0)
++			return -EINVAL;
++
++		memset(f,0,sizeof(*f));
++		f->index = index;
++		strlcpy(f->description, "MPEG TS", sizeof(f->description));
++		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++		f->pixelformat = V4L2_PIX_FMT_MPEG;
++		return 0;
++	}
++
++	case VIDIOC_G_FMT:
++	{
++		struct v4l2_format *f = arg;
++
++		memset(f,0,sizeof(*f));
++		f->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++
++		/* FIXME: translate subsampling type EMPRESS into
++		 *        width/height: */
++		f->fmt.pix.width        = 720; /* D1 */
++		f->fmt.pix.height       = 576;
++		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
++		f->fmt.pix.sizeimage    = TS_PACKET_SIZE * dev->ts.nr_packets;
++		return 0;
++	}
++
++	case VIDIOC_S_FMT:
++	{
++		struct v4l2_format *f = arg;
++
++		if (f->type != V4L2_BUF_TYPE_VIDEO_CAPTURE)
++		    return -EINVAL;
++
++		/*
++		  FIXME: translate and round width/height into EMPRESS
++		  subsample type:
++
++		          type  |   PAL   |  NTSC
++			---------------------------
++			  SIF   | 352x288 | 352x240
++			 1/2 D1 | 352x576 | 352x480
++			 2/3 D1 | 480x576 | 480x480
++			  D1    | 720x576 | 720x480
++		*/
++
++		f->fmt.pix.width        = 720; /* D1 */
++		f->fmt.pix.height       = 576;
++		f->fmt.pix.pixelformat  = V4L2_PIX_FMT_MPEG;
++		f->fmt.pix.sizeimage    = TS_PACKET_SIZE* dev->ts.nr_packets;
++		return 0;
++	}
++
++	case VIDIOC_REQBUFS:
++		return videobuf_reqbufs(&dev->empress_tsq,arg);
++
++	case VIDIOC_QUERYBUF:
++		return videobuf_querybuf(&dev->empress_tsq,arg);
++
++	case VIDIOC_QBUF:
++		return videobuf_qbuf(&dev->empress_tsq,arg);
++
++	case VIDIOC_DQBUF:
++		return videobuf_dqbuf(&dev->empress_tsq,arg,
++				      file->f_flags & O_NONBLOCK);
++
++	case VIDIOC_STREAMON:
++		return videobuf_streamon(&dev->empress_tsq);
++
++	case VIDIOC_STREAMOFF:
++		return videobuf_streamoff(&dev->empress_tsq);
++
++	case VIDIOC_QUERYCTRL:
++	case VIDIOC_G_CTRL:
++	case VIDIOC_S_CTRL:
++		return saa7134_common_ioctl(dev, cmd, arg);
++
++	case MPEG_SETPARAMS:
++		return ts_init_encoder(dev, arg);
++
++	default:
++		return -ENOIOCTLCMD;
++	}
++	return 0;
++}
++
++static int ts_ioctl(struct inode *inode, struct file *file,
++		     unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, ts_do_ioctl);
++}
++
++static struct file_operations ts_fops =
++{
++	.owner	  = THIS_MODULE,
++	.open	  = ts_open,
++	.release  = ts_release,
++	.read	  = ts_read,
++	.poll	  = ts_poll,
++	.mmap	  = ts_mmap,
++	.ioctl	  = ts_ioctl,
++	.llseek   = no_llseek,
++};
++
++/* ----------------------------------------------------------- */
++
++static struct video_device saa7134_empress_template =
++{
++	.name          = "saa7134-empress",
++	.type          = 0 /* FIXME */,
++	.type2         = 0 /* FIXME */,
++	.hardware      = 0,
++	.fops          = &ts_fops,
++	.minor	       = -1,
++};
++
++static int empress_init(struct saa7134_dev *dev)
++{
++	int err;
++
++	dprintk("%s: %s\n",dev->name,__FUNCTION__);
++	dev->empress_dev = video_device_alloc();
++	if (NULL == dev->empress_dev)
++		return -ENOMEM;
++	*(dev->empress_dev) = saa7134_empress_template;
++	dev->empress_dev->dev     = &dev->pci->dev;
++	dev->empress_dev->release = video_device_release;
++	snprintf(dev->empress_dev->name, sizeof(dev->empress_dev->name),
++		 "%s empress (%s)", dev->name,
++		 saa7134_boards[dev->board].name);
++
++	err = video_register_device(dev->empress_dev,VFL_TYPE_GRABBER,
++				    empress_nr[dev->nr]);
++	if (err < 0) {
++		printk(KERN_INFO "%s: can't register video device\n",
++		       dev->name);
++		video_device_release(dev->empress_dev);
++		dev->empress_dev = NULL;
++		return err;
++	}
++	printk(KERN_INFO "%s: registered device video%d [mpeg]\n",
++	       dev->name,dev->empress_dev->minor & 0x1f);
++
++	videobuf_queue_init(&dev->empress_tsq, &saa7134_ts_qops,
++			    dev->pci, &dev->slock,
++			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
++			    V4L2_FIELD_ALTERNATE,
++			    sizeof(struct saa7134_buf),
++			    dev);
++	return 0;
++}
++
++static int empress_fini(struct saa7134_dev *dev)
++{
++	dprintk("%s: %s\n",dev->name,__FUNCTION__);
++
++	if (NULL == dev->empress_dev)
++		return 0;
++	video_unregister_device(dev->empress_dev);
++	dev->empress_dev = NULL;
++	return 0;
++}
++
++static struct saa7134_mpeg_ops empress_ops = {
++	.type          = SAA7134_MPEG_EMPRESS,
++	.init          = empress_init,
++	.fini          = empress_fini,
++};
++
++static int __init empress_register(void)
++{
++	return saa7134_ts_register(&empress_ops);
++}
++
++static void __exit empress_unregister(void)
++{
++	saa7134_ts_unregister(&empress_ops);
++}
++
++module_init(empress_register);
++module_exit(empress_unregister);
++
++/* ----------------------------------------------------------- */
++/*
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa7134-dvb.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2004-11-05/drivers/media/video/saa7134/saa7134-dvb.c	2004-11-07 15:55:19.401369928 +0100
+@@ -0,0 +1,91 @@
++/*
++ * $Id: saa7134-dvb.c,v 1.4 2004/11/07 14:44:59 kraxel Exp $
++ *
++ * (c) 2004 Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/init.h>
++#include <linux/list.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/kthread.h>
++#include <linux/suspend.h>
++
++#include "saa7134-reg.h"
++#include "saa7134.h"
++
++MODULE_AUTHOR("Gerd Knorr <kraxel@bytesex.org> [SuSE Labs]");
++MODULE_LICENSE("GPL");
++
++/* ------------------------------------------------------------------ */
++
++static int dvb_init(struct saa7134_dev *dev)
++{
++	printk("%s: %s\n",dev->name,__FUNCTION__);
++
++	/* init struct videobuf_dvb */
++	dev->dvb.name = dev->name;
++	videobuf_queue_init(&dev->dvb.dvbq, &saa7134_ts_qops,
++			    dev->pci, &dev->slock,
++			    V4L2_BUF_TYPE_VIDEO_CAPTURE,
++			    V4L2_FIELD_TOP,
++			    sizeof(struct saa7134_buf),
++			    dev);
++
++	/* TODO: init frontend */
++	if (NULL == dev->dvb.frontend)
++		return -1;
++
++	/* register everything else */
++	return videobuf_dvb_register(&dev->dvb);
++}
++
++static int dvb_fini(struct saa7134_dev *dev)
++{
++	printk("%s: %s\n",dev->name,__FUNCTION__);
++	videobuf_dvb_unregister(&dev->dvb);
++	return 0;
++}
++
++static struct saa7134_mpeg_ops dvb_ops = {
++	.type          = SAA7134_MPEG_DVB,
++	.init          = dvb_init,
++	.fini          = dvb_fini,
++};
++
++static int __init dvb_register(void)
++{
++	return saa7134_ts_register(&dvb_ops);
++}
++
++static void __exit dvb_unregister(void)
++{
++	saa7134_ts_unregister(&dvb_ops);
++}
++
++module_init(dvb_register);
++module_exit(dvb_unregister);
++
++/* ------------------------------------------------------------------ */
++/*
++ * Local variables:
++ * c-basic-offset: 8
++ * compile-command: "make DVB=1"
++ * End:
++ */
+Index: linux-2004-11-05/include/media/saa6752hs.h
+===================================================================
+--- linux-2004-11-05.orig/include/media/saa6752hs.h	2004-11-07 12:24:50.000000000 +0100
++++ linux-2004-11-05/include/media/saa6752hs.h	2004-11-07 15:51:24.589532030 +0100
+@@ -1,4 +1,4 @@
+-/* 
++/*
+     saa6752hs.h - definition for saa6752hs MPEG encoder
  
--	return videobuf_poll_stream(file, file->private_data,
--				    &fh->mpegq, wait);
-+	return videobuf_poll_stream(file, &fh->mpegq, wait);
- }
- 
- static int
-@@ -743,7 +742,7 @@ mpeg_mmap(struct file *file, struct vm_a
- {
- 	struct cx8802_fh *fh = file->private_data;
- 
--	return videobuf_mmap_mapper(vma, &fh->mpegq);
-+	return videobuf_mmap_mapper(&fh->mpegq, vma);
- }
- 
- static struct file_operations mpeg_fops =
-@@ -871,7 +870,7 @@ static struct pci_driver blackbird_pci_d
-         .name     = "cx88-blackbird",
-         .id_table = cx8802_pci_tbl,
-         .probe    = blackbird_probe,
--        .remove   = blackbird_remove,
-+        .remove   = __devexit_p(blackbird_remove),
- 	.suspend  = cx8802_suspend_common,
- 	.resume   = cx8802_resume_common,
+     Copyright (C) 2003 Andrew de Quincey <adq@lidskialf.net>
+@@ -31,14 +31,14 @@ enum mpeg_bitrate_mode {
+ enum mpeg_audio_bitrate {
+ 	MPEG_AUDIO_BITRATE_256 = 0, /* 256 kBit/sec */
+ 	MPEG_AUDIO_BITRATE_384 = 1, /* 384 kBit/sec */
+-    
++
+ 	MPEG_AUDIO_BITRATE_MAX
  };
-Index: linux-2004-11-05/drivers/media/video/Kconfig
+ 
+ #define MPEG_VIDEO_TARGET_BITRATE_MAX 27000
+ #define MPEG_VIDEO_MAX_BITRATE_MAX 27000
+ #define MPEG_TOTAL_BITRATE_MAX 27000
+-    
++
+ struct mpeg_params {
+ 	enum mpeg_bitrate_mode bitrate_mode;
+ 	unsigned int video_target_bitrate;
+Index: linux-2004-11-05/drivers/media/video/saa7134/saa6752hs.c
 ===================================================================
---- linux-2004-11-05.orig/drivers/media/video/Kconfig	2004-11-07 16:00:38.239242292 +0100
-+++ linux-2004-11-05/drivers/media/video/Kconfig	2004-11-07 16:01:28.435768837 +0100
-@@ -315,12 +315,13 @@ config VIDEO_CX88
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cx8800
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/saa6752hs.c	2004-11-07 12:24:24.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/saa6752hs.c	2004-11-07 15:51:24.589532030 +0100
+@@ -36,7 +36,7 @@ enum saa6752hs_command {
+     	SAA6752HS_COMMAND_RECONFIGURE = 4,
+     	SAA6752HS_COMMAND_SLEEP = 5,
+ 	SAA6752HS_COMMAND_RECONFIGURE_FORCE = 6,
+-    
++
+ 	SAA6752HS_COMMAND_MAX
+ };
  
--#config VIDEO_CX88_DVB
--#	tristate "DVB Support for cx2388x based TV cards"
--#	depends on VIDEO_CX88 && DVB_CORE
--#	---help---
--#	  This adds support for DVB cards based on the
--#	  Connexant 2388x chip.
-+config VIDEO_CX88_DVB
-+	tristate "DVB Support for cx2388x based TV cards"
-+	depends on VIDEO_CX88 && DVB_CORE && BROKEN
-+	select VIDEO_BUF_DVB
-+	---help---
-+	  This adds support for DVB cards based on the
-+	  Connexant 2388x chip.
+@@ -46,24 +46,24 @@ enum saa6752hs_command {
+ static u8 PAT[] = {
+ 	0xc2, // i2c register
+ 	0x00, // table number for encoder
+-  
++
+ 	0x47, // sync
+ 	0x40, 0x00, // transport_error_indicator(0), payload_unit_start(1), transport_priority(0), pid(0)
+ 	0x10, // transport_scrambling_control(00), adaptation_field_control(01), continuity_counter(0)
+-     
++
+ 	0x00, // PSI pointer to start of table
+-    
++
+ 	0x00, // tid(0)
+ 	0xb0, 0x0d, // section_syntax_indicator(1), section_length(13)
+-    
++
+ 	0x00, 0x01, // transport_stream_id(1)
+-    
++
+ 	0xc1, // version_number(0), current_next_indicator(1)
+-    
++
+ 	0x00, 0x00, // section_number(0), last_section_number(0)
  
- config VIDEO_OVCAMCHIP
- 	tristate "OmniVision Camera Chip support"
-Index: linux-2004-11-05/drivers/media/video/cx88/Makefile
+ 	0x00, 0x01, // program_number(1)
+-	
++
+ 	0xe0, 0x10, // PMT PID(0x10)
+ 
+ 	0x76, 0xf1, 0x44, 0xd1 // CRC32
+@@ -72,29 +72,29 @@ static u8 PAT[] = {
+ static u8 PMT[] = {
+ 	0xc2, // i2c register
+ 	0x01, // table number for encoder
+-  
++
+ 	0x47, // sync
+ 	0x40, 0x10, // transport_error_indicator(0), payload_unit_start(1), transport_priority(0), pid(0x10)
+ 	0x10, // transport_scrambling_control(00), adaptation_field_control(01), continuity_counter(0)
+-     
++
+ 	0x00, // PSI pointer to start of table
+-    
++
+ 	0x02, // tid(2)
+ 	0xb0, 0x17, // section_syntax_indicator(1), section_length(23)
+ 
+ 	0x00, 0x01, // program_number(1)
+-    
++
+ 	0xc1, // version_number(0), current_next_indicator(1)
+-    
++
+ 	0x00, 0x00, // section_number(0), last_section_number(0)
+-    
++
+ 	0xe1, 0x04, // PCR_PID (0x104)
+-   
++
+ 	0xf0, 0x00, // program_info_length(0)
+-    
++
+ 	0x02, 0xe1, 0x00, 0xf0, 0x00, // video stream type(2), pid(0x100)
+ 	0x04, 0xe1, 0x03, 0xf0, 0x00, // audio stream type(4), pid(0x103)
+-    
++
+ 	0xa1, 0xca, 0x0f, 0x82 // CRC32
+ };
+ 
+@@ -106,7 +106,7 @@ static struct mpeg_params mpeg_params_te
+ 	.total_bitrate = 6000,
+ };
+ 
+-  
++
+ /* ---------------------------------------------------------------------- */
+ 
+ 
+@@ -122,11 +122,11 @@ static int saa6752hs_chip_command(struct
+   	case SAA6752HS_COMMAND_RESET:
+   		buf[0] = 0x00;
+ 		break;
+-	  
++
+ 	case SAA6752HS_COMMAND_STOP:
+ 		  	buf[0] = 0x03;
+ 		break;
+-	  
++
+ 	case SAA6752HS_COMMAND_START:
+   		buf[0] = 0x02;
+ 		break;
+@@ -134,11 +134,11 @@ static int saa6752hs_chip_command(struct
+ 	case SAA6752HS_COMMAND_PAUSE:
+   		buf[0] = 0x04;
+ 		break;
+-	  
++
+ 	case SAA6752HS_COMMAND_RECONFIGURE:
+ 		buf[0] = 0x05;
+ 		break;
+-	  
++
+   	case SAA6752HS_COMMAND_SLEEP:
+   		buf[0] = 0x06;
+ 		break;
+@@ -146,11 +146,11 @@ static int saa6752hs_chip_command(struct
+   	case SAA6752HS_COMMAND_RECONFIGURE_FORCE:
+ 		buf[0] = 0x07;
+ 		break;
+-	
++
+ 	default:
+-		return -EINVAL;  
++		return -EINVAL;
+ 	}
+-	
++
+   	// set it and wait for it to be so
+ 	i2c_master_send(client, buf, 1);
+ 	timeout = jiffies + HZ * 3;
+@@ -166,14 +166,14 @@ static int saa6752hs_chip_command(struct
+ 			status = -ETIMEDOUT;
+ 			break;
+ 		}
+-	
++
+ 		// wait a bit
+ 		msleep(10);
+ 	}
+ 
+ 	// delay a bit to let encoder settle
+ 	msleep(50);
+-	
++
+ 	// done
+   	return status;
+ }
+@@ -183,12 +183,12 @@ static int saa6752hs_set_bitrate(struct 
+ 				 struct mpeg_params* params)
+ {
+   	u8 buf[3];
+-  
++
+ 	// set the bitrate mode
+ 	buf[0] = 0x71;
+ 	buf[1] = params->bitrate_mode;
+ 	i2c_master_send(client, buf, 2);
+-	  
++
+ 	// set the video bitrate
+ 	if (params->bitrate_mode == MPEG_BITRATE_MODE_VBR) {
+ 		// set the target bitrate
+@@ -209,24 +209,24 @@ static int saa6752hs_set_bitrate(struct 
+ 	  	buf[2] = params->video_target_bitrate & 0xff;
+ 		i2c_master_send(client, buf, 3);
+ 	}
+-	  
++
+ 	// set the audio bitrate
+  	buf[0] = 0x94;
+   	buf[1] = params->audio_bitrate;
+ 	i2c_master_send(client, buf, 2);
+-	
++
+ 	// set the total bitrate
+ 	buf[0] = 0xb1;
+   	buf[1] = params->total_bitrate >> 8;
+   	buf[2] = params->total_bitrate & 0xff;
+ 	i2c_master_send(client, buf, 3);
+-  
++
+ 	return 0;
+ }
+ 
+ 
+ static int saa6752hs_init(struct i2c_client* client, struct mpeg_params* params)
+-{  
++{
+ 	unsigned char buf[3];
+ 	void *data;
+ 
+@@ -244,41 +244,41 @@ static int saa6752hs_init(struct i2c_cli
+         		return -EINVAL;
+ 		if (params->bitrate_mode         == MPEG_BITRATE_MODE_MAX &&
+ 		    params->video_target_bitrate <= params->video_max_bitrate)
+-			return -EINVAL; 
++			return -EINVAL;
+ 	}
+-  
++
+     	// Set GOP structure {3, 13}
+ 	buf[0] = 0x72;
+ 	buf[1] = 0x03;
+ 	buf[2] = 0x0D;
+ 	i2c_master_send(client,buf,3);
+-  
++
+     	// Set minimum Q-scale {4}
+ 	buf[0] = 0x82;
+ 	buf[1] = 0x04;
+ 	i2c_master_send(client,buf,2);
+-  
++
+     	// Set maximum Q-scale {12}
+ 	buf[0] = 0x83;
+ 	buf[1] = 0x0C;
+ 	i2c_master_send(client,buf,2);
+-  
++
+     	// Set Output Protocol
+ 	buf[0] = 0xD0;
+ 	buf[1] = 0x01;
+ 	i2c_master_send(client,buf,2);
+-  
++
+     	// Set video output stream format {TS}
+ 	buf[0] = 0xB0;
+ 	buf[1] = 0x05;
+ 	i2c_master_send(client,buf,2);
+-  
++
+     	// Set Audio PID {0x103}
+ 	buf[0] = 0xC1;
+ 	buf[1] = 0x01;
+ 	buf[2] = 0x03;
+ 	i2c_master_send(client,buf,3);
+-  
++
+         // setup bitrate settings
+ 	data = i2c_get_clientdata(client);
+ 	if (params) {
+@@ -288,18 +288,18 @@ static int saa6752hs_init(struct i2c_cli
+ 		// parameters were not supplied. use the previous set
+    		saa6752hs_set_bitrate(client, (struct mpeg_params*) data);
+ 	}
+-	  
++
+ 	// Send SI tables
+   	i2c_master_send(client,PAT,sizeof(PAT));
+   	i2c_master_send(client,PMT,sizeof(PMT));
+-	  
++
+ 	// mute then unmute audio. This removes buzzing artefacts
+ 	buf[0] = 0xa4;
+ 	buf[1] = 1;
+ 	i2c_master_send(client, buf, 2);
+   	buf[1] = 0;
+ 	i2c_master_send(client, buf, 2);
+-	  
++
+ 	// start it going
+ 	saa6752hs_chip_command(client, SAA6752HS_COMMAND_START);
+ 
+@@ -320,14 +320,14 @@ static int saa6752hs_attach(struct i2c_a
+                 return -ENOMEM;
+         memcpy(client,&client_template,sizeof(struct i2c_client));
+ 	strlcpy(client->name, "saa6752hs", sizeof(client->name));
+-   
++
+ 	if (NULL == (params = kmalloc(sizeof(struct mpeg_params), GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	memcpy(params,&mpeg_params_template,sizeof(struct mpeg_params));
+ 	i2c_set_clientdata(client, params);
+ 
+         i2c_attach_client(client);
+-  
++
+ 	return 0;
+ }
+ 
+@@ -362,7 +362,7 @@ saa6752hs_command(struct i2c_client *cli
+ 		/* nothing */
+ 		break;
+ 	}
+-	
++
+ 	return 0;
+ }
+ 
+Index: linux-2004-11-05/drivers/media/video/saa7134/Makefile
 ===================================================================
---- linux-2004-11-05.orig/drivers/media/video/cx88/Makefile	2004-11-07 12:21:50.000000000 +0100
-+++ linux-2004-11-05/drivers/media/video/cx88/Makefile	2004-11-07 16:01:04.554275850 +0100
-@@ -5,4 +5,6 @@ cx8802-objs	:= cx88-mpeg.o
- obj-$(CONFIG_VIDEO_CX88) += cx88xx.o cx8800.o cx8802.o cx88-blackbird.o
- obj-$(CONFIG_VIDEO_CX88_DVB) += cx88-dvb.o
+--- linux-2004-11-05.orig/drivers/media/video/saa7134/Makefile	2004-11-07 12:24:37.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/saa7134/Makefile	2004-11-07 15:58:43.792843832 +0100
+@@ -3,6 +3,8 @@ saa7134-objs :=	saa7134-cards.o saa7134-
+ 		saa7134-oss.o saa7134-ts.o saa7134-tvaudio.o	\
+ 		saa7134-vbi.o saa7134-video.o saa7134-input.o
  
--EXTRA_CFLAGS = -I$(src)/.. -I$(srctree)/drivers/media/dvb/dvb-core
+-obj-$(CONFIG_VIDEO_SAA7134) += saa7134.o saa6752hs.o
++obj-$(CONFIG_VIDEO_SAA7134) += saa7134.o saa7134-empress.o saa6752hs.o
++obj-$(CONFIG_VIDEO_SAA7134_DVB) += saa7134-dvb.o
+ 
+-EXTRA_CFLAGS = -I$(src)/..
 +EXTRA_CFLAGS += -I$(src)/..
 +EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core
-+EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends
+Index: linux-2004-11-05/drivers/media/video/Kconfig
+===================================================================
+--- linux-2004-11-05.orig/drivers/media/video/Kconfig	2004-11-07 12:24:07.000000000 +0100
++++ linux-2004-11-05/drivers/media/video/Kconfig	2004-11-07 16:00:38.239242292 +0100
+@@ -245,6 +245,13 @@ config VIDEO_SAA7134
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called saa7134.
+ 
++config VIDEO_SAA7134_DVB
++	tristate "DVB Support for saa7134 based TV cards"
++	depends on VIDEO_SAA7134 && DVB_CORE && BROKEN
++	---help---
++	  This adds support for DVB cards based on the
++	  Philips saa7134 chip.
++
+ config VIDEO_MXB
+ 	tristate "Siemens-Nixdorf 'Multimedia eXtension Board'"
+ 	depends on VIDEO_DEV && PCI
 
 -- 
 #define printk(args...) fprintf(stderr, ## args)

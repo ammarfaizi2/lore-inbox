@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbTLESm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbTLESm0
+	id S264303AbTLESv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbTLESv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:42:26 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:17556
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S264299AbTLESmZ
+	Fri, 5 Dec 2003 13:51:26 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:44781 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264303AbTLEStq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:42:25 -0500
-Subject: Re: Linux GPL and binary module exception clause?
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>,
-       Nick Piggin <piggin@cyberone.com.au>, Paul Adams <padamsdev@yahoo.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0312050853200.9125@home.osdl.org>
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
-	 <3FCFCC3E.8050008@cyberone.com.au>
-	 <16336.2094.950232.375620@wombat.chubb.wattle.id.au>
-	 <3FD00CD2.2020900@cyberone.com.au>
-	 <16336.16523.259812.642087@wombat.chubb.wattle.id.au>
-	 <Pine.LNX.4.58.0312050853200.9125@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1070649742.15655.15.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 05 Dec 2003 10:42:23 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 13:49:46 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: High-pitch noise with 2.6.0-test11
+Date: Fri, 5 Dec 2003 10:49:38 -0800
+Message-ID: <F760B14C9561B941B89469F59BA3A84702C93186@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: High-pitch noise with 2.6.0-test11
+Thread-Index: AcO7G22TIBgqP88NQxC133C8a3/fswARRM+Q
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Troels Walsted Hansen" <troels@thule.no>,
+       "Jean-Marc Valin" <Jean-Marc.Valin@USherbrooke.ca>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Dec 2003 18:49:39.0686 (UTC) FILETIME=[89A21060:01C3BB60]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-05 at 09:19, Linus Torvalds wrote:
-> But when you use that code to create an "elaboration" to the kernel, that
-> makes it a derived work, and you cannot distribute it except as laid out
-> by the GPL. A binary module is one such case, but even just a source patch
-> is _also_ one such case. The lines you added are yours, but when you
-> distribute it as an elaboration, you are bound by the restriction on
-> derivative works.
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> Troels Walsted Hansen
+
+> > itself (that wasn't there with 2.4). The noise happens only 
+> when the CPU
+> > is idle. Also, I have noticed that removing thermal.o makes 
+> the noise
+> > stop, which is very odd. Is there anything that can be done 
+> about that?
 > 
-> Or you had better have some other strong argument why it isn't. Which has
-> been my point all along.
+> I had the same problem with my Dell Latitude C600 and newer 
+> kernels with 
+>   HZ>100. The solution I found was to add "apm=idle-threshold=100" to 
+> the kernel commandline, to disable APM idle calls.
+> 
+> You should monitor the temperature of your laptop to make sure it 
+> doesn't spin wildly and create extra heat if you use the same 
+> solution.
+> 
+> Using ACPI instead of APM might also be a solution?
 
-I tend to agree, but there is a counter-argument:
+Here's the answer from another thread:
 
-You can't copyright "facts".  A header file contains facts about the
-kernel within it, particularly once it has been compiled into machine
-code.  In machine code, it is simply things like integers (the sizes and
-offsets of things, other constants), and encoded entrypoints (however
-function calls back into the kernel end up looking).  A binary
-containing facts about the kernel is not a derived work of the kernel,
-even if those facts came from headers in the kernel source.  
+"It's not normal, but it means they used cheap capacitors. This is known
+as the acoustic noise issue. It's related to PCB vibration as a result
+of the piezo electric effect on the caps. What is the timer tick
+frequency? ... The 1ms gives a nice 1kHz tone. It's related to the
+voltage change of C4 exit."
 
-To argue against this, you'd have to demonstrate that the original
-author of the header file had some creative input into the machine code
-of the module, on order for the module to be considered a derived work
-of the header.  
-
-You could so far as saying that if every header put a chunk of text
-(say, a piece of poetry) into each .o file which used that header, then
-there'd be a much stronger case for saying the .o is derived from the
-header. 
-
-I've had long complex arguments with legal types over whether function
-names are creative ("flumulate_my_greeble" is the best function name
-ever!) or mere facts (the function name is simply a cookie you need to
-refer to to call a function - it doesn't matter what the name actually
-is).
-
-	J
-
+Regards -- Andy

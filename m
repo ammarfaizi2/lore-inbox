@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293736AbSCKXFF>; Mon, 11 Mar 2002 18:05:05 -0500
+	id <S293560AbSCKXFZ>; Mon, 11 Mar 2002 18:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293560AbSCKXEz>; Mon, 11 Mar 2002 18:04:55 -0500
-Received: from CPE-203-51-27-33.nsw.bigpond.net.au ([203.51.27.33]:44271 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S293736AbSCKXEo>; Mon, 11 Mar 2002 18:04:44 -0500
-Message-ID: <3C8D380A.166A7895@eyal.emu.id.au>
-Date: Tue, 12 Mar 2002 10:04:42 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
+	id <S310120AbSCKXFQ>; Mon, 11 Mar 2002 18:05:16 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:16781 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S293560AbSCKXFK>;
+	Mon, 11 Mar 2002 18:05:10 -0500
+Date: Tue, 12 Mar 2002 10:02:25 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Mihnea-Costin Grigore <mgc8@totalnet.ro>
+Subject: [PATCH] DMI patch for broken Dell laptop
+Message-Id: <20020312100225.2415c8c6.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes -pre3, with the new IDE code. It has been stable enough time in
+Hi Marcelo, Linus,
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--DKBUILD_BASENAME=indydog  -c -o indydog.o indydog.c
-indydog.c:25: asm/sgi/sgimc.h: No such file or directory
-indydog.c:31: warning: function declaration isn't a prototype
-indydog.c: In function `indydog_ping':
-indydog.c:32: dereferencing pointer to incomplete type
-indydog.c: In function `indydog_open':
-indydog.c:52: `KSEG1' undeclared (first use in this function)
-indydog.c:52: (Each undeclared identifier is reported only once
-indydog.c:52: for each function it appears in.)
-indydog.c:54: dereferencing pointer to incomplete type
-indydog.c:54: `SGIMC_CCTRL0_WDOG' undeclared (first use in this
-function)
-indydog.c:55: dereferencing pointer to incomplete type
-indydog.c: In function `indydog_release':
-indydog.c:72: dereferencing pointer to incomplete type
-indydog.c:73: `SGIMC_CCTRL0_WDOG' undeclared (first use in this
-function)
-indydog.c:74: dereferencing pointer to incomplete type
-make[2]: *** [indydog.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/char'
+This adds DMI recognition for anohter broken Dell laptop BIOS (BIOS
+version A12 on the Insiron 2500).
 
+Patch against 2.4.19-pre2, but applies also to 2.5.6 (with offset).
 
-Now, I am on an i386 machine, and indydog.c looks like a foreign object
-here.
-Since I automatically select 'm' for all offered options (just for
-testing)
-I guess we have a bad dependency in the watchdog config (but I am only
-guessing):
+Reported by Mihnea-Costin Grigore <mgc8@totalnet.ro>.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG
-$CONFIG_SGI_IP22
-
-Looks OK to me though. However CONFIG_SGI_IP22 is not set anywhere,
-should
-dep_tristate treat it as FALSE?
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+diff -ruN 2.4.19-pre2/arch/i386/kernel/dmi_scan.c 2.4.19-pre2-Dell/arch/i386/kernel/dmi_scan.c
+--- 2.4.19-pre2/arch/i386/kernel/dmi_scan.c	Wed Mar  6 16:13:35 2002
++++ 2.4.19-pre2-Dell/arch/i386/kernel/dmi_scan.c	Mon Mar 11 11:26:38 2002
+@@ -452,6 +452,11 @@
+ 			MATCH(DMI_BIOS_VERSION, "A04"),
+ 			MATCH(DMI_BIOS_DATE, "08/24/2000"), NO_MATCH
+ 			} },
++	{ broken_apm_power, "Dell Inspiron 2500", {	/* Handle problems with APM on Inspiron 2500 */
++			MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
++			MATCH(DMI_BIOS_VERSION, "A12"),
++			MATCH(DMI_BIOS_DATE, "02/04/2002"), NO_MATCH
++			} },
+ 	{ set_realmode_power_off, "Award Software v4.60 PGMA", {	/* broken PM poweroff bios */
+ 			MATCH(DMI_BIOS_VENDOR, "Award Software International, Inc."),
+ 			MATCH(DMI_BIOS_VERSION, "4.60 PGMA"),

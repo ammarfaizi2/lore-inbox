@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264928AbSJVWFZ>; Tue, 22 Oct 2002 18:05:25 -0400
+	id <S264920AbSJVWLr>; Tue, 22 Oct 2002 18:11:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbSJVWFZ>; Tue, 22 Oct 2002 18:05:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:37011 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264928AbSJVWFY>;
-	Tue, 22 Oct 2002 18:05:24 -0400
-Subject: Re: Linux 2.5.44-ac1
-From: Mark Haverkamp <markh@osdl.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
-References: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+	id <S264906AbSJVWLq>; Tue, 22 Oct 2002 18:11:46 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10897 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S264920AbSJVWLq>;
+	Tue, 22 Oct 2002 18:11:46 -0400
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+From: "David S. Miller" <davem@rth.ninka.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.44.0210221936010.18790-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0210221936010.18790-100000@localhost.localdomain>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Oct 2002 15:12:26 -0700
-Message-Id: <1035324746.24190.3.camel@markh1.pdx.osdl.net>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 15:27:55 -0700
+Message-Id: <1035325675.16084.11.camel@rth.ninka.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 10:27, Alan Cox wrote:
+On Tue, 2002-10-22 at 10:57, Ingo Molnar wrote:
+> -	flush_tlb_page(vma, addr);
+> +	if (flush)
+> +		flush_tlb_page(vma, addr);
 
-> o	Fix blk ioctls on aacraid			(Mark Haverkamp)
-
-Somewhere between 2.5.43 and 2.5.44 the blk ioctls code changed
-elsewhere making this one unnecessary.
-
-Mark. 
+You're still using page level flushes, even though we agreed that
+a range flush one level up was more appropriate.
 

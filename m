@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263083AbTCSRZ4>; Wed, 19 Mar 2003 12:25:56 -0500
+	id <S263086AbTCSRgw>; Wed, 19 Mar 2003 12:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263085AbTCSRZ4>; Wed, 19 Mar 2003 12:25:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9227 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263083AbTCSRZz>; Wed, 19 Mar 2003 12:25:55 -0500
+	id <S263089AbTCSRgw>; Wed, 19 Mar 2003 12:36:52 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:6085 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S263086AbTCSRgw>; Wed, 19 Mar 2003 12:36:52 -0500
+From: Oliver Neukum <oliver@neukum.name>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux on 16-bit processors
-Date: 19 Mar 2003 09:36:36 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b5a9r4$ekf$1@cesium.transmeta.com>
-References: <17232.1048031207@www59.gmx.net> <1048084009.30751.23.camel@irongate.swansea.linux.org.uk>
+Subject: question on macros in wait.h
+Date: Wed, 19 Mar 2003 18:47:36 +0100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303191847.36002.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1048084009.30751.23.camel@irongate.swansea.linux.org.uk>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
-> 
-> BTW are "real" 16bit processors actually cheaper any more ? 16bit keeps
-> costs down but several 683xx processors seem to use 16bit external
-> data bus as do some ARM.
-> 
+Hi,
 
-80186 seems to be going strong, still; and EZ80 is available as a
-synthesizable core (basically a Z80 with a 24-bit addressing mode and
-a very primitime MMU.)
+is there some deeper reason that there's no macro for waiting
+uninterruptablely with a timeout? Or did just nobody feel a need
+as yet?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+	Regards
+		Oliver
+

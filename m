@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288531AbSAHWjh>; Tue, 8 Jan 2002 17:39:37 -0500
+	id <S288540AbSAHWoI>; Tue, 8 Jan 2002 17:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288528AbSAHWj2>; Tue, 8 Jan 2002 17:39:28 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:1548 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288531AbSAHWjU>; Tue, 8 Jan 2002 17:39:20 -0500
-Message-ID: <3C3B7356.3361F4ED@zip.com.au>
-Date: Tue, 08 Jan 2002 14:31:50 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S288532AbSAHWn5>; Tue, 8 Jan 2002 17:43:57 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:43256 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S288528AbSAHWnm>;
+	Tue, 8 Jan 2002 17:43:42 -0500
+Subject: Re:O(1) scheduler, 2.4.17-D2.patch,  some results
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFAB229BAA.8F0F11D3-ON85256B3B.007BFDD5@raleigh.ibm.com>
+From: "Partha Narayanan" <partha@us.ibm.com>
+Date: Tue, 8 Jan 2002 16:43:35 -0600
+X-MIMETrack: Serialize by Router on D04NMS38/04/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 01/08/2002 05:43:36 PM
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33L.0201081920130.2985-100000@imladris.surriel.com>,
-		<Pine.LNX.4.33L.0201081920130.2985-100000@imladris.surriel.com> <1010526342.3225.133.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> On Tue, 2002-01-08 at 16:24, Rik van Riel wrote:
-> 
-> > So what exactly _is_ the difference between an explicit
-> > preemption point and a place where we need to explicitly
-> > drop a spinlock ?
-> 
-> In that case nothing, except that when we drop the lock and check it is
-> the earliest place where preemption is allowed.  In the normal scenario,
-> however, we have a check for reschedule on return from interrupt (e.g.
-> the timer) and thus preempt in the same manner as with user space and
-> that is the key.
+VolanoMark 10/100 Loopback test results:
 
-One could do:
+8-way 700 Mhz.
+Kernel built with 1GB Memory support,
+IBM JVM 1.3 (build cx130-20010626)
+Throughput in msg/sec
 
-static inline void spin_unlock(spinlock_t *lock)
-{
-        __asm__ __volatile__(
-                spin_unlock_string
-        );
 
-	if (--current->lock_depth == 0 &&
-		current->need_resched &&
-		current->state == TASK_RUNNING)
-		schedule();
-}
 
-But I have generally avoided "global" solutions like this, in favour
-of nailing the _specific_ code which is causing the problem.  Which
-is a lot more work, but more useful.
+     2.4.14         2.4.14 + MQ    2.4.17          2.4.17+ Ingo's scheduler
+     ==============================================================
 
-The scheduling points in bread() and submit_bh() in the mini-ll patch
-go against this (masochistic) philosophy.
+4-way     17565          24864           15894          23300
 
-> > > Future work would be to look into long-held locks and see what we can
-> > > do.
-> >
-> > One thing we could do is download Andrew Morton's patch ;)
-> 
-> That is certainly one option, and Andrew's patch is very good.
-> Nonetheless, I think we need a more general framework that tackles the
-> problem itself.  Preemptible kernel does this, yields results now, and
-> allows for greater return later on.
+8-way     13734          37007           11595          29726
 
-We need something which makes 2.4.x not suck.
 
--
+2.4.14 performs better than 2.4.17 - run queue lock added to sched_yield in
+2.4.17.
+The new scheduler will be analyzed further and the results posted.
+
+
+Please respond to partha@us.ibm.com.
+
+Partha
+

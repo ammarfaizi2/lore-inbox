@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265272AbSJaS1D>; Thu, 31 Oct 2002 13:27:03 -0500
+	id <S263181AbSJaSOh>; Thu, 31 Oct 2002 13:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265289AbSJaS1D>; Thu, 31 Oct 2002 13:27:03 -0500
-Received: from otter.mbay.net ([206.55.237.2]:39695 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S265272AbSJaS0E> convert rfc822-to-8bit;
-	Thu, 31 Oct 2002 13:26:04 -0500
-From: John Alvord <jalvo@mbay.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-Date: Thu, 31 Oct 2002 10:31:59 -0800
-Message-ID: <77t2suc7q7dtjvnm7p44d43mribai1d23i@4ax.com>
-References: <Pine.LNX.4.44.0210310941310.20412-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210310951180.1410-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0210310951180.1410-100000@penguin.transmeta.com>
-X-Mailer: Forte Agent 1.92/32.570
+	id <S263039AbSJaSNa>; Thu, 31 Oct 2002 13:13:30 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:3846 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S262913AbSJaSMQ>;
+	Thu, 31 Oct 2002 13:12:16 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
+Message-ID: <15809.29694.883782.811063@laputa.namesys.com>
+Date: Thu, 31 Oct 2002 21:18:38 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: reiser4 [0/8] overview
+In-Reply-To: <200210311910.48774.m.c.p@wolk-project.de>
+References: <200210311910.48774.m.c.p@wolk-project.de>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002 09:54:54 -0800 (PST), Linus Torvalds
-<torvalds@transmeta.com> wrote:
+Marc-Christian Petersen writes:
+ > Hi Nikita,
+ > 
+ > > This message starts set of 8 patches against your current BK tree to
+ > > include reiser4.
+ > > Changes to the core code are fairly small and trivial: mostly function
+ > > exports, plus one patch to share ->journal_info pointer with Ext3.
+ > > All patches are available at http://namesys.com/snapshots/2002.10.31/,
+ > > they can be applied in any order.
+ > 
+ > > Utilities, including mkfs.reiser4 are available at
+ > > http://namesys.com/snapshots/2002.10.31/reiser4progs-0.1.0.tar.gz
+ > 
+ > 
+ > Forbidden
+ > 
+ > You don't have permission to access 
+ > /snapshots/2002.10.31/reiser4progs-0.1.0.tar.gz on this server.
+ > 
+ > Apache/1.3.23 Server at thebsh.namesys.com Port 80
+ > 
+ > The directory itself does _not_ contain any reiserfs progs.
 
+Fixed.
 
->Guys, why do you even bother trying to convince me? If you are right, you 
->will be able to convince other people, and that's the whole point of open 
->source.
->
->Being "vendor-driven" is _not_ a bad thing. It only means that _I_ am not
->personally convinced. I'm only one person.
+ > 
+ > ciao, Marc
 
-It sounds to me like there needs to be L-K traffic when problems are
-solved using LKCD.
-
-Personally I love crash dumps... in 33 years of computing I have spent
-a total of 1-2 years doing nothing but enhancing and developing
-post-processing facilities. The true benefit is not just the "crashed
-here, add a null check nonsense". It is the ability to examine the
-whole system state. With an inboard trace table, you can even go back
-in time. You can look at call stacks, locks held, state of allocated
-memory, etc etc. If you save callstacks and time with allocated
-memory, you can track down storage growth problems. I have spent weeks
-winkling problems out of crash dumps, solving problems the developers
-didn't even know existed.
-
-With the right facility you can take crash dump snapshots and keep on
-running. It is a great tool for understanding a system.
-
-But until there is a flow of results - good quality fixes - resulting
-from such analysis, I can see exactly why LT is doubtful. 
-
-john alvord
+Nikita.

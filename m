@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261499AbSKBXVV>; Sat, 2 Nov 2002 18:21:21 -0500
+	id <S261504AbSKBXZh>; Sat, 2 Nov 2002 18:25:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261501AbSKBXVV>; Sat, 2 Nov 2002 18:21:21 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48904 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261499AbSKBXVS>;
-	Sat, 2 Nov 2002 18:21:18 -0500
-Date: Sat, 2 Nov 2002 15:24:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] USB Kernel bug in 2.5.45
-Message-ID: <20021102232428.GB24425@kroah.com>
-References: <20021102204419.GB22607@kroah.com> <Pine.LNX.4.44.0211030010060.18761-100000@gfrw1044.bocc.de>
+	id <S261505AbSKBXZg>; Sat, 2 Nov 2002 18:25:36 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:48906 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261504AbSKBXZg>;
+	Sat, 2 Nov 2002 18:25:36 -0500
+Date: Sun, 3 Nov 2002 00:29:56 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Kernel GUI config
+Message-ID: <20021102232956.GC16498@mars.ravnborg.org>
+Mail-Followup-To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20021102231435.GA2384@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211030010060.18761-100000@gfrw1044.bocc.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021102231435.GA2384@werewolf.able.es>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 12:10:43AM +0100, Jochen Friedrich wrote:
-> Hi Greg,
-> 
-> > If you disable devfs does it work ok?
-> 
-> Yes, it does...
+On Sun, Nov 03, 2002 at 12:14:35AM +0100, J.A. Magallón wrote:
+> To reduce implementation efforts (and bug chasing), as someone said, you
+> can take all the current parts toolkit-independent (parsers, etc.) from
+> qconf and split them in a library.
+If you look into scripts/kconfig you will find a shared library: libkconfig.so
+Thats exactly what you ask for. A library containing the back-end.
+The current frontends: oldconfig, menuconfig and xconfig are based on that.
 
-Great, thanks for trying.  I don't see any more problems here :)
+Before getting into too much discussing about how to integrate a new
+front-end lets see it.
 
-thanks,
-
-greg k-h
+	Sam

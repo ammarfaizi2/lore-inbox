@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVCVKUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVCVKZC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbVCVKUj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVCVKUj
+	id S262612AbVCVKZC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:25:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVCVKYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:20:39 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:52122 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262605AbVCVKUZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:20:25 -0500
-Date: Tue, 22 Mar 2005 11:19:58 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-In-Reply-To: <20050322092032.GA20240@elte.hu>
-Message-Id: <Pine.OSF.4.05.10503221102200.25802-100000@da410.phys.au.dk>
+	Tue, 22 Mar 2005 05:24:43 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:33031 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S262608AbVCVKYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 05:24:36 -0500
+Subject: Re: [5/5] [CRYPTO] Optimise kmap calls in crypt()
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cryptoapi@lists.logix.cz
+In-Reply-To: <20050322011308.GA15734@gondor.apana.org.au>
+References: <20050321094047.GA23084@gondor.apana.org.au>
+	 <20050321094807.GA23235@gondor.apana.org.au>
+	 <20050321094939.GB23235@gondor.apana.org.au>
+	 <20050321095057.GC23235@gondor.apana.org.au>
+	 <20050321095208.GD23235@gondor.apana.org.au>
+	 <20050321095322.GE23235@gondor.apana.org.au>
+	 <1111404659.12532.9.camel@ghanima>
+	 <20050322011308.GA15734@gondor.apana.org.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Go4VRgbqEvkWiJm1jZv+"
+Date: Tue, 22 Mar 2005 11:24:31 +0100
+Message-Id: <1111487071.12618.1.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, Ingo Molnar wrote:
 
-> 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > On the other hand with a rw-lock being unlimited - and thus do not
-> > keep track of it readers - the readers can't be boosted by the writer.
-> > Then you are back to square 1: The grace period can take a very long
-> > time.
-> 
-> btw., is the 'very long grace period' a real issue? We could avoid all
-> the RCU read-side locking latencies by making it truly unlocked and just
-> living with the long grace periods. Perhaps it's enough to add an
-> emergency mechanism to the OOM handler, which frees up all the 'blocked
-> by preemption' RCU callbacks via some scheduler magic. (e.g. such an
-> emergency mechanism could be _conditional_ locking on the read side -
-> i.e. new RCU read-side users would be blocked until the OOM situation
-> goes away, or something like that.)
+--=-Go4VRgbqEvkWiJm1jZv+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You wont catch RCU read-sides already entered - see below.
+On Tue, 2005-03-22 at 12:13 +1100, Herbert Xu wrote:
+> On Mon, Mar 21, 2005 at 12:30:59PM +0100, Fruhwirth Clemens wrote:
+> >=20
+> > Applying all patches results in a "does not work for me". The decryptio=
+n
+> > result is different from the original and my LUKS managed partition
+> > refuses to mount.
+>=20
+> Thanks for testing this Fruhwirth.  The problem is that walk->data wasn't
+> being incremented anymore after my last change. =20
 
-> 
-> your patch is implementing just that, correct? Would you mind redoing it
-> against a recent -RT base? (-40-04 or so)
->
+I remember, that I almost forgot about that pointer too.
 
-In fact I am working on clean 2.6.12-rc1 right now. I figured this is
-orthorgonal to the rest RT patch and can probably go upstream immediately.
-Seemed to work. I'll try to make into a clean patch soonish and also try
-it on -40-04. 
-I am trying to make a boosting mechanism in the scheduler such that RCU
-readers are boosted to MAX_RT_PRIO when preempted. I have to take it out
-first.
+> This patch should fix it up.
 
-Any specific tests I have to run? I am considering making an RCU test
-device.
+Works for me now. Thanks.
 
-> also, what would be the worst-case workload causing long grace periods?
+--=20
+Fruhwirth Clemens - http://clemens.endorphin.org=20
+for robots: sp4mtrap@endorphin.org
 
-A nice 19 task, A, enter an RCU region and is preempted. A lot of other
-tasks starts running. Then task A might starved for _minuttes_ such that
-there is no RCU-grace periods in all that time.
+--=-Go4VRgbqEvkWiJm1jZv+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> 
-> 	Ingo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Esben
+iD8DBQBCP/JfbjN8iSMYtrsRArcOAJ0ZoUcmYmU0JEwVySvGm/9OlH3viwCfTUdP
+uJtSfK0zMCvQethIqGmvmp4=
+=LdSE
+-----END PGP SIGNATURE-----
 
+--=-Go4VRgbqEvkWiJm1jZv+--

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVADAPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVADAUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVADAPV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVADAMI
+	id S262049AbVADAUm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVADAUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:12:08 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:47335 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261993AbVADAHQ
+	Mon, 3 Jan 2005 19:20:11 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24968 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262010AbVADASE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:07:16 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Cc: rmk+lkml@arm.linux.org.uk, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050104000735.17524.96005.71130@localhost.localdomain>
-Subject: [PATCH] mach-ixp2000: remove cli()/sti()
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Mon, 3 Jan 2005 18:07:15 -0600
-Date: Mon, 3 Jan 2005 18:07:15 -0600
+	Mon, 3 Jan 2005 19:18:04 -0500
+Date: Tue, 4 Jan 2005 01:14:54 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [ide] clean up error path in do_ide_setup_pci_device()
+Message-ID: <20050104001454.GA7655@electric-eye.fr.zoreil.com>
+References: <200412310343.iBV3hqvd015595@hera.kernel.org> <1104773262.13302.3.camel@localhost.localdomain> <58cb370e050103142269e1f67f@mail.gmail.com> <1104788671.13302.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104788671.13302.63.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace to-be-deprecated functions in arch/arm/mach-ixp2000/pci.c
+Alan Cox <alan@lxorguk.ukuu.org.uk> :
+[...]
+> One example where the weird design makes it obvious is the CS5520. Here
+> the 5520 bridge has the IDE in one BAR and all sorts of other logic
+> (including the xBUS virtual ISA environment) in the same PCI function.
+> On that chip a pci_disable_device on the IDE pci_dev turns off mundane
+> things like the timer chips keyboard and mouse 8).
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+/me looks at the comments in drivers/ide/pci/cs5520.c
 
-diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/arm/mach-ixp2000/pci.c linux-2.6.10-mm1/arch/arm/mach-ixp2000/pci.c
---- linux-2.6.10-mm1-original/arch/arm/mach-ixp2000/pci.c	2004-12-24 16:34:58.000000000 -0500
-+++ linux-2.6.10-mm1/arch/arm/mach-ixp2000/pci.c	2005-01-03 18:58:52.648191137 -0500
-@@ -145,7 +145,7 @@
- 
- 	pci_master_aborts = 1;
- 
--	cli();
-+	local_irq_disable();
- 	temp = *(IXP2000_PCI_CONTROL);
- 	if (temp & ((1 << 8) | (1 << 5))) {
- 		ixp2000_reg_write(IXP2000_PCI_CONTROL, temp);
-@@ -158,7 +158,7 @@
- 			temp = *(IXP2000_PCI_CMDSTAT);
- 		}
- 	}
--	sti();
-+	local_irq_enable();
- 
- 	/*
- 	 * If it was an imprecise abort, then we need to correct the
-@@ -175,7 +175,7 @@
- {
- 	volatile u32 temp;
- 
--	cli();
-+	local_irq_disable();
- 	temp = *(IXP2000_PCI_CONTROL);
- 	if (temp & ((1 << 8) | (1 << 5))) {	
- 		ixp2000_reg_write(IXP2000_PCI_CONTROL, temp);
-@@ -188,7 +188,7 @@
- 			temp = *(IXP2000_PCI_CMDSTAT);
- 		}
- 	}
--	sti();
-+	local_irq_enable();
- 
- 	return 0;
- }
+Is it worth the pain to remember if ide_setup_pci_device() did enable a
+specific bar or not in order to balance it more accurately ?
+
+--
+Ueimor

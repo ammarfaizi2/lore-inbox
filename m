@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265492AbUHOAVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUHOAXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265492AbUHOAVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 20:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUHOAVZ
+	id S265521AbUHOAXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 20:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUHOAXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 20:21:25 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:60584 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S265492AbUHOAVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 20:21:23 -0400
-Message-ID: <411EAC81.2030703@grupopie.com>
-Date: Sun, 15 Aug 2004 01:21:21 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-References: <8634.1092485844@ocs3.ocs.com.au>
-In-Reply-To: <8634.1092485844@ocs3.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.10; host: bipbip)
+	Sat, 14 Aug 2004 20:23:46 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:7069 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S265521AbUHOAXn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 20:23:43 -0400
+Date: Sat, 14 Aug 2004 18:23:40 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Otto Wyss <otto.wyss@orpatec.ch>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: New concept of ext3 disk checks
+Message-ID: <20040815002340.GA19889@schnapps.adilger.int>
+Mail-Followup-To: Otto Wyss <otto.wyss@orpatec.ch>,
+	Theodore Ts'o <tytso@mit.edu>,
+	'linux-kernel' <linux-kernel@vger.kernel.org>
+References: <411BAFCA.92217D16@orpatec.ch> <20040812223907.GA7720@thunk.org> <20040813003403.GK18216@schnapps.adilger.int> <411DBC0C.7FE46F9C@orpatec.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <411DBC0C.7FE46F9C@orpatec.ch>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Sat, 14 Aug 2004 05:50:50 +0100, 
-> Paulo Marques <pmarques@grupopie.com> wrote:
+On Aug 14, 2004  09:15 +0200, Otto Wyss wrote:
+> Instead of a daily cron job I envision a solution where writes to the
+> disk are checked for correctness within a short time lag after they have
+> been done. Assume this time lag is set to a few minutes, on a high
+> performance system not each write of a certain node gets checked while
+> on a desktop system most probably each single write is. Choosing the
+> right time lag gives a balance of discovering problems fast against
+> additional disk access.
 > 
->>Well, I found some time and decided to give it a go :)
+> Okay, such tests could be done by a constantly running background task
+> in user space. But since journalling just should guarantee that any disk
+> access is done correct, even in case of problems, it should be
+> considered if such test can be integrated there. This has the advantage
+> that if journalling is able to guarantee correctness by other means
+> these test aren't needed at all and may be completely remove.
 > 
-> 
-> This patch regresses some recent changes to kallsyms which handle
-> aliased symbols, IOW symbols with the same address.  The speed up is
-> very good, but it has two problems with repeated addresses.
+> What I want to achieve with this new concept is that the file system
+> itself not only tries to prevent any data corruption but also tries to
+> detect and report it if corruption still has happened anyway. 
 
-Oops, I didn't realize that there could be repeated addresses :(
+The ext3 (and ext2) kernel code already does consistency checking of a
+lot of data structures in the kernel, and if any errors are found the
+superblock is marked with an "error" flag and the next time the system
+is booted a full fsck is done.  The administrator has the option (via
+the "errors=" mount option) to either panic the kernel, remount read-only,
+or continue using the filesystem if an error is found.
 
-I did a test running 500000 lookups with the original function and my 
-own and compared the results from both functions looking for any 
-differences. The test program was fed from /proc/kallsyms from my 
-machine. Because there were no aliases there, the result was ok and I 
-felt confident about the algorithm.
+The problem with re-reading blocks and checking for validity after a write
+is that there is a good chance the block is still in cache (either kernel
+buffer/page cache or disk cache) so this doesn't really add much robustness.
+The other problem with this is that checking individual block validity
+doesn't take the "big picture" into account since if we just wrote a block
+to disk we assume that what we wrote is the correct thing so re-checking
+this same data doesn't help much.
 
-Anyway, at first glance your patch looks right, and I don't think there 
-will be any performance implications from it, unless there can be 
-thousands of aliases for the same address :)
+The periodic fsck of a filesystem snapshot, on the other hand, is as good 
+as you can get for validity checking.  The only additional feature needed
+is online repair, but that is a .00001% requirement vs. actually detecting
+the error in the first place.
 
--- 
-Paulo Marques - www.grupopie.com
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUFDUOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUFDUO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265964AbUFDUOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbUFDUOv
+	id S265971AbUFDUO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUFDUO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:14:51 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:15622 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S265964AbUFDUOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:14:20 -0400
-Date: Wed, 2 Jun 2004 15:13:26 -0500
+	Fri, 4 Jun 2004 16:14:28 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:3086 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S265971AbUFDUOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 16:14:18 -0400
+Date: Wed, 2 Jun 2004 16:16:09 -0500
 From: mikem@beardog.cca.cpqcorp.net
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss update for 2.6.7-rc1
-Message-ID: <20040602201326.GA1346@beardog.cca.cpqcorp.net>
+To: marcelo.tosati@cyclades.com, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, coughlan@redhat.com
+Subject: cciss update for 2.4.27
+Message-ID: <20040602211609.GA1544@beardog.cca.cpqcorp.net>
 Reply-To: mike.miller@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,33 +23,27 @@ User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was having problems with my mailer. Not sure if this made it or not. Sorry for any duplication.
+This patch adds a conversion function for 2 of our ioctls. It is required for the x86_64 architecture. When 32-bit user space apps make calls into the 64-bit kernel we must ensure that pointers are handled properly. Without this the pointers turn to garbage and result are unpredictable.
 
-This patch provides a conversion routine for 32-bit user space apps that call into a 64-bit kernel on x86_64 architectures. This is required for the HP Array Configuration utility and the HP management agents. Without this patch the apps will not function. The 2 ioctls affected are the cciss pass thru ioctls.
-Caveat: it spits out 2 warnings during compilation. I've tried everything I can think of to clean them up, but...
-If anyone has any helpful suggestions I'm all ears.
-
-Code by Stephen Cameron
-Tested by Stephen Cameron & Mike Miller
-
-Please consider this for inclusion.
+Please consider this patch for inclusion.
 
 Thanks,
 mikem
---------------------------------------------------------------------------------
- drivers/block/cciss.c       |  136 ++++++++++++++++++++++++++++++++++++++++++++ include/linux/cciss_ioctl.h |   28 +++++++++
- 2 files changed, 164 insertions(+)
+-------------------------------------------------------------------------------
+ drivers/block/cciss.c       |  139 +++++++++++++++++++++++++++++++++++++++++++- include/linux/cciss_ioctl.h |   27 ++++++++
+ 2 files changed, 165 insertions(+), 1 deletion(-)
 
-diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
---- lx267-rc1.orig/drivers/block/cciss.c	2004-05-09 21:33:20.000000000 -0500
-+++ lx267-rc1/drivers/block/cciss.c	2004-05-28 10:34:17.000000000 -0500
-@@ -451,6 +451,140 @@ static int cciss_release(struct inode *i
+diff -burpN lx2427-rc2.orig/drivers/block/cciss.c lx2427-rc2-ioctl/drivers/block/cciss.c
+--- lx2427-rc2.orig/drivers/block/cciss.c	2004-04-14 08:05:29.000000000 -0500
++++ lx2427-rc2-ioctl/drivers/block/cciss.c	2004-06-02 15:23:02.000000000 -0500
+@@ -487,6 +487,142 @@ static int cciss_release(struct inode *i
  	return 0;
  }
  
 +#ifdef __x86_64__
 +/* for AMD 64 bit kernel compatibility with 32-bit userland ioctls */
-+#include <linux/syscalls.h>
++extern int sys_ioctl(unsigned int fd, unsigned cmd, unsigned long arg);
++
 +extern int 
 +register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int,
 +      unsigned int, unsigned long, struct file *));
@@ -59,7 +53,8 @@ diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
 +static int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
 +	struct file *file);
 +
-+typedef int (*handler_type) (unsigned int, unsigned int, unsigned long, struct file *);
++typedef long (*handler type) (unsigned int, unsigned int, unsigned long,
++				struct file *);
 +
 +static struct ioctl32_map {
 +	unsigned int cmd; 
@@ -121,7 +116,7 @@ diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
 +	}
 +}
 +int cciss_ioctl32_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
-+	struct file *file)
++				struct file *file)
 +{
 +	IOCTL32_Command_struct *arg32 = 
 +		(IOCTL32_Command_struct *) arg;
@@ -149,8 +144,8 @@ diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
 +		return -EFAULT; 
 +	return err;
 +}
-+int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
-+	struct file *file)
++int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg,
++					struct file *file)
 +{
 +	BIG_IOCTL32_Command_struct *arg32 = 
 +		(BIG_IOCTL32_Command_struct *) arg;
@@ -184,31 +179,28 @@ diff -burpN lx267-rc1.orig/drivers/block/cciss.c lx267-rc1/drivers/block/cciss.c
  /*
   * ioctl 
   */
-@@ -2729,6 +2863,7 @@ int __init cciss_init(void)
- 
+@@ -3317,7 +3453,7 @@ int __init cciss_init(void)
+ EXPORT_NO_SYMBOLS;
  static int __init init_cciss_module(void)
  {
+-
 +	register_cciss_ioctl32();
- 	return ( cciss_init());
+ 	return cciss_init();
  }
  
-@@ -2736,6 +2871,7 @@ static void __exit cleanup_cciss_module(
+@@ -3325,6 +3461,7 @@ static void __exit cleanup_cciss_module(
  {
  	int i;
  
 +	unregister_cciss_ioctl32();
  	pci_unregister_driver(&cciss_pci_driver);
  	/* double check that all controller entrys have been removed */
- 	for (i=0; i< MAX_CTLR; i++) 
-diff -burpN lx267-rc1.orig/include/linux/cciss_ioctl.h lx267-rc1/include/linux/cciss_ioctl.h
---- lx267-rc1.orig/include/linux/cciss_ioctl.h	2004-05-09 21:32:29.000000000 -0500
-+++ lx267-rc1/include/linux/cciss_ioctl.h	2004-05-28 10:34:17.000000000 -0500
-@@ -206,7 +206,35 @@ typedef struct _LogvolInfo_struct{
- #define CCISS_REGNEWDISK  _IOW(CCISS_IOC_MAGIC, 13, int)
- 
- #define CCISS_REGNEWD	   _IO(CCISS_IOC_MAGIC, 14)
-+#define CCISS_RESCANDISK   _IO(CCISS_IOC_MAGIC, 16)
- #define CCISS_GETLUNINFO   _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
+ 	for (i=0; i< MAX_CTLR; i++) {
+diff -burpN lx2427-rc2.orig/include/linux/cciss_ioctl.h lx2427-rc2-ioctl/include/linux/cciss_ioctl.h
+--- lx2427-rc2.orig/include/linux/cciss_ioctl.h	2003-06-13 09:51:38.000000000 -0500
++++ lx2427-rc2-ioctl/include/linux/cciss_ioctl.h	2004-06-02 15:23:02.000000000 -0500
+@@ -208,4 +208,31 @@ typedef struct _LogvolInfo_struct{
+ #define CCISS_GETLUNINFO  _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
  #define CCISS_BIG_PASSTHRU _IOWR(CCISS_IOC_MAGIC, 18, BIG_IOCTL_Command_struct)
  
 +#ifdef __KERNEL__

@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbRBPQBD>; Fri, 16 Feb 2001 11:01:03 -0500
+	id <S130516AbRBPQDx>; Fri, 16 Feb 2001 11:03:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129159AbRBPQAy>; Fri, 16 Feb 2001 11:00:54 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:31500 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129259AbRBPQAi>;
-	Fri, 16 Feb 2001 11:00:38 -0500
-Date: Fri, 16 Feb 2001 17:00:29 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-Message-ID: <20010216170029.A4450@pcep-jamie.cern.ch>
-In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com> <20010216151839.A3989@pcep-jamie.cern.ch> <3A8D4045.F8F27782@colorfullife.com> <20010216162741.A4284@pcep-jamie.cern.ch> <3A8D4D43.CF589FA0@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A8D4D43.CF589FA0@colorfullife.com>; from manfred@colorfullife.com on Fri, Feb 16, 2001 at 04:54:44PM +0100
+	id <S130543AbRBPQDd>; Fri, 16 Feb 2001 11:03:33 -0500
+Received: from tux17.cs.wisc.edu ([128.105.111.117]:50692 "EHLO
+	tux17.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S130516AbRBPQDb>; Fri, 16 Feb 2001 11:03:31 -0500
+Date: Fri, 16 Feb 2001 10:03:31 -0600 (CST)
+From: Matthew McCormick <mattmcc@cs.wisc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: write system call location
+Message-ID: <Pine.LNX.3.96L.1010216100247.2507G-100000@tux17.cs.wisc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> >         entry = ptep_get_and_clear(pte);
-> >         set_pte(pte, pte_modify(entry, newprot));
-> > 
-> > I.e. the only code with the race condition is code which explicitly
-> > clears the dirty bit, in vmscan.c.
-> > 
-> > Do you see any possibility of losing a dirty bit here?
-> >
-> Of course.
-> Just check the output after preprocessing.
-> It's 
-> 	int entry;
-> 	entry = *pte;
-> 	entry &= ~_PAGE_CHG_MASK;
-> 	entry |= pgprot_val(newprot)
-> 	*pte = entry;
+I have been trying to find the source code for the write system call.
+I've checked through all the source code for the kernel and looked around
+on the mailling list but can't seem to find it anywhere.  I was tracing
+the file system operations and reached the function sys_write (which calls
+write).  Any help would be greatly appreciated.  I don't belong to the
+mailing list so please CC me on the answer.  My e-mail is:
 
-And how does that lose a dirty bit?
+mattmcc@cs.wisc.edu
 
-For the other processor to not write a dirty bit, it must have a dirty
-TLB entry already which, along with the locked cycle in
-ptep_get_and_clear, means that `entry' will have _PAGE_DIRTY set.  The
-dirty bit is not lost.
+Thank you for the help.
 
-> We need
-> 	atomic_clear_mask (_PAGE_CHG_MASK, pte);
-> 	atomic_set_mask (pgprot_val(newprot), *pte);
-> 
-> for multi threaded apps.
+Matt McCormick
 
-cmpxchg is probably faster.
 
--- Jamie

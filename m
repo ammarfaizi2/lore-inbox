@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbTIRNZz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 09:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbTIRNZz
+	id S261277AbTIRNR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 09:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTIRNR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 09:25:55 -0400
-Received: from 209-5-247-146.mb.skyweb.ca ([209.5.247.146]:29929 "EHLO
-	telecomoptions.com") by vger.kernel.org with ESMTP id S261298AbTIRNZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 09:25:54 -0400
-From: Dave Poirier <dpoirier@telecomoptions.com>
-Date: Thu, 18 Sep 2003 08:25:50 -0500
-To: linux-kernel@vger.kernel.org
-Subject: VT6410 support
-Message-ID: <20030918132550.GA18933@telecomoptions.com>
+	Thu, 18 Sep 2003 09:17:59 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:33255 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261277AbTIRNR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 09:17:58 -0400
+Subject: Re: 2.4.23pre4 VM breaks in LTP
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+Cc: Andi Kleen <ak@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309180929260.2846-100000@logos.cnet>
+References: <Pine.LNX.4.44.0309180929260.2846-100000@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1063891072.3802.4.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Sep 2003 14:17:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm attempting to get the VT6410 controller to work on an Intel P4P800
-motherboard and I seem to be out of luck with both the 2.4.x and 2.6.x
-series.
+Hi,
 
-Does anyone has details concerning VT6410 (Via Raid Controller)?
+On Thu, 2003-09-18 at 13:42, Marcelo Tosatti wrote:
 
-n.b.: please CC to my email as I'm not subscribed to the ML.
+> Andi, about the ext3 BUG I'm waiting for Stephen. I remember he knew how
+> to fix the issue but didnt had the patch ready yet sometime ago.
 
----
-Dave Poirier
-Technology Integrator, Telecom Options Inc.
-ph: +1.204.233.6100
-fx: +1.204.257.2106
-cl: +1.204.997.6253
+Different issue.  The ext3 assert failure Andi is coming up against is
+something I haven't seen before, but I've sent him a debug patch to try
+to find out what's behind it.
+
+--Stephen
 

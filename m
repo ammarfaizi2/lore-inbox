@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTIPLDq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTIPLDq
+	id S261828AbTIPLLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTIPLLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:03:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60897 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261807AbTIPLDp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:03:45 -0400
-Date: Tue, 16 Sep 2003 16:39:26 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Kernel AIO Web Page
-Message-ID: <20030916110926.GA4217@in.ibm.com>
-Reply-To: suparna@in.ibm.com
+	Tue, 16 Sep 2003 07:11:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:9364 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S261811AbTIPLLv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 07:11:51 -0400
+Date: Tue, 16 Sep 2003 12:11:39 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, "Hu, Boris" <boris.hu@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split futex global spinlock futex_lock
+Message-ID: <20030916111139.GC26576@mail.jlokier.co.uk>
+References: <20030916010313.69E1F2C974@lists.samba.org> <3F66960E.7010703@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <3F66960E.7010703@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There have been several questions about the latest up-to-date
-status of AIO, and whether there is a recently updated AIO
-web page out there somewhere.
+Ulrich Drepper wrote:
+> After these changes the code still works but I couldn't really measure
+> any differences to the code without the extra attributes.  This is on a
+> 4p machine with 10 processes running in concurrently using mutexes and
+> condvars with 250 threads each.  This might be because either the hash
+> function is good or very bad (i.e., hashes all futexes in the same
+> bucket or far away).  I guess the extra attributes don't hurt.
 
-Well, Adam Litke helped us put together a simple web page 
-reflecting the current status of kernel AIO on Linux, available 
-tests and benchmarks and a few links to frequently asked for
-information.
+On a 4 CPU machine the hash table is plenty large enough without the
+extra attributes.  (Assuming 128 byte cache lines: 3072 bytes without
+(24 cache lines); 32768 bytes with).
 
-Its up there at http://lse.sf.net/io/aio.html
+The extra cache lines might hurt a bit when all the threads run on a
+single CPU, or on a HT, just because 32768 bytes is a lot more L1 than
+3072 bytes.
 
-Feedback and/or additional inputs to help make this more
-useful are welcome. 
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
-
+-- Jamie

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbTBYD3V>; Mon, 24 Feb 2003 22:29:21 -0500
+	id <S266135AbTBYD3U>; Mon, 24 Feb 2003 22:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266356AbTBYD3N>; Mon, 24 Feb 2003 22:29:13 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:30051 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S266135AbTBYD10>;
+	id <S266186AbTBYD2u>; Mon, 24 Feb 2003 22:28:50 -0500
+Received: from [24.77.48.240] ([24.77.48.240]:29539 "EHLO aiinc.aiinc.ca")
+	by vger.kernel.org with ESMTP id <S265711AbTBYD10>;
 	Mon, 24 Feb 2003 22:27:26 -0500
 Date: Mon, 24 Feb 2003 19:37:45 -0800
 From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200302250337.h1P3bj132710@aiinc.aiinc.ca>
+Message-Id: <200302250337.h1P3bjH32713@aiinc.aiinc.ca>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Spelling fixes for 2.5.63 - initial
+Subject: [PATCH] Spelling fixes for 2.5.63 - necessary
 Cc: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -18,396 +18,522 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Spelling fixes for 2.5.63:
 
 This patch fixes:
-    intial -> initial
-    intially -> initially
-    intiali[sz]e -> initiali[sz]e
-    intiali[sz]ed -> initiali[sz]ed
-    intiali[sz]es -> initiali[sz]es
-    intiali[sz]ation -> initiali[sz]ation
+    neccessary -> necessary
+    unneccessary -> unnecessary
 
-Fixes 32 occurrences in all.
+Fixes 46 occurrences in all.
 
-diff -ur 2.5.63a/arch/arm/mach-iop310/mm.c 2.5.63b/arch/arm/mach-iop310/mm.c
---- 2.5.63a/arch/arm/mach-iop310/mm.c	Mon Feb 24 11:05:11 2003
-+++ 2.5.63b/arch/arm/mach-iop310/mm.c	Mon Feb 24 17:55:42 2003
-@@ -1,7 +1,7 @@
- /*
-  * linux/arch/arm/mach-iop310/mm.c
+diff -ur 2.5.63a/arch/i386/kernel/cpu/cpufreq/longrun.c 2.5.63b/arch/i386/kernel/cpu/cpufreq/longrun.c
+--- 2.5.63a/arch/i386/kernel/cpu/cpufreq/longrun.c	Mon Feb 24 11:05:38 2003
++++ 2.5.63b/arch/i386/kernel/cpu/cpufreq/longrun.c	Mon Feb 24 18:28:38 2003
+@@ -133,7 +133,7 @@
+  * longrun_determine_freqs - determines the lowest and highest possible core frequency
   *
-- * Low level memory intialization for IOP310 based systems
-+ * Low level memory initialization for IOP310 based systems
-  *
-  * Author: Nicolas Pitre <npitre@mvista.com>
-  *
-diff -ur 2.5.63a/arch/ia64/sn/kernel/setup.c 2.5.63b/arch/ia64/sn/kernel/setup.c
---- 2.5.63a/arch/ia64/sn/kernel/setup.c	Mon Feb 24 11:05:14 2003
-+++ 2.5.63b/arch/ia64/sn/kernel/setup.c	Mon Feb 24 17:55:44 2003
-@@ -153,7 +153,7 @@
- /**
-  * early_sn_setup - early setup routine for SN platforms
-  *
-- * Sets up an intial console to aid debugging.  Intended primarily
-+ * Sets up an initial console to aid debugging.  Intended primarily
-  * for bringup, it's only called if %BRINGUP and %CONFIG_IA64_EARLY_PRINTK
-  * are turned on.  See start_kernel() in init/main.c.
+  * Determines the lowest and highest possible core frequencies on this CPU.
+- * This is neccessary to calculate the performance percentage according to
++ * This is necessary to calculate the performance percentage according to
+  * TMTA rules:
+  * performance_pctg = (target_freq - low_freq)/(high_freq - low_freq)
   */
-diff -ur 2.5.63a/arch/sh/kernel/pci-sh7751.c 2.5.63b/arch/sh/kernel/pci-sh7751.c
---- 2.5.63a/arch/sh/kernel/pci-sh7751.c	Mon Feb 24 11:05:37 2003
-+++ 2.5.63b/arch/sh/kernel/pci-sh7751.c	Mon Feb 24 17:55:51 2003
-@@ -285,7 +285,7 @@
- 	struct pci_ops *bios = NULL;
- 	struct pci_ops *dir = NULL;
+diff -ur 2.5.63a/arch/i386/kernel/suspend.c 2.5.63b/arch/i386/kernel/suspend.c
+--- 2.5.63a/arch/i386/kernel/suspend.c	Mon Feb 24 11:05:39 2003
++++ 2.5.63b/arch/i386/kernel/suspend.c	Mon Feb 24 18:30:22 2003
+@@ -113,7 +113,7 @@
+ 	int cpu = smp_processor_id();
+ 	struct tss_struct * t = init_tss + cpu;
  
--	PCIDBG(1,"PCI: Starting intialization.\n");
-+	PCIDBG(1,"PCI: Starting initialization.\n");
- #ifdef CONFIG_PCI_BIOS
- 	if ((pci_probe & PCI_PROBE_BIOS) && ((bios = pci_find_bios()))) {
- 		pci_probe |= PCI_BIOS_SORT;
-diff -ur 2.5.63a/drivers/acpi/events/evrgnini.c 2.5.63b/drivers/acpi/events/evrgnini.c
---- 2.5.63a/drivers/acpi/events/evrgnini.c	Mon Feb 24 11:05:06 2003
-+++ 2.5.63b/drivers/acpi/events/evrgnini.c	Mon Feb 24 17:55:53 2003
-@@ -410,7 +410,7 @@
-  *              Get the appropriate address space handler for a newly
-  *              created region.
+-	set_tss_desc(cpu,t);	/* This just modifies memory; should not be neccessary. But... This is neccessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
++	set_tss_desc(cpu,t);	/* This just modifies memory; should not be necessary. But... This is necessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
+         cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
+ 
+ 	load_TR_desc();				/* This does ltr */
+diff -ur 2.5.63a/arch/mips/au1000/common/serial.c 2.5.63b/arch/mips/au1000/common/serial.c
+--- 2.5.63a/arch/mips/au1000/common/serial.c	Mon Feb 24 11:05:14 2003
++++ 2.5.63b/arch/mips/au1000/common/serial.c	Mon Feb 24 18:28:52 2003
+@@ -2703,7 +2703,7 @@
+  *	port exists and is in use an error is returned. If the port
+  *	is not currently in the table it is added.
   *
-- *              This also performs address space specific intialization.  For
-+ *              This also performs address space specific initialization.  For
-  *              example, PCI regions must have an _ADR object that contains
-  *              a PCI address in the scope of the definition.  This address is
-  *              required to perform an access to PCI config space.
-diff -ur 2.5.63a/drivers/atm/iphase.c 2.5.63b/drivers/atm/iphase.c
---- 2.5.63a/drivers/atm/iphase.c	Mon Feb 24 11:05:46 2003
-+++ 2.5.63b/drivers/atm/iphase.c	Mon Feb 24 17:55:55 2003
-@@ -2071,7 +2071,7 @@
- 		- UBR Table size is 4K  
- 		- UBR wait queue is 4K  
- 	   since the table and wait queues are contiguous, all the bytes   
--	   can be intialized by one memeset.  
-+	   can be initialized by one memeset.  
- 	*/  
-         
-         vcsize_sel = 0;
-diff -ur 2.5.63a/drivers/i2c/i2c-adap-ite.c 2.5.63b/drivers/i2c/i2c-adap-ite.c
---- 2.5.63a/drivers/i2c/i2c-adap-ite.c	Mon Feb 24 11:05:12 2003
-+++ 2.5.63b/drivers/i2c/i2c-adap-ite.c	Mon Feb 24 17:55:56 2003
-@@ -265,7 +265,7 @@
- MODULE_PARM(i2c_debug,"i");
- 
- 
--/* Called when module is loaded or when kernel is intialized.
-+/* Called when module is loaded or when kernel is initialized.
-  * If MODULES is defined when this file is compiled, then this function will
-  * resolve to init_module (the function called when insmod is invoked for a
-  * module).  Otherwise, this function is called early in the boot, when the
-diff -ur 2.5.63a/drivers/i2c/i2c-algo-ite.c 2.5.63b/drivers/i2c/i2c-algo-ite.c
---- 2.5.63a/drivers/i2c/i2c-algo-ite.c	Mon Feb 24 11:05:43 2003
-+++ 2.5.63b/drivers/i2c/i2c-algo-ite.c	Mon Feb 24 17:55:58 2003
-@@ -860,7 +860,7 @@
-  * is loaded via insmod) when this file is compiled with MODULES defined.
-  * Otherwise (i.e. if you want this driver statically linked to the kernel),
-  * a pointer to this function is stored in a table and called
-- * during the intialization of the kernel (in do_basic_setup in /init/main.c) 
-+ * during the initialization of the kernel (in do_basic_setup in /init/main.c) 
+- *	The port is then probed and if neccessary the IRQ is autodetected
++ *	The port is then probed and if necessary the IRQ is autodetected
+  *	If this fails an error is returned.
   *
-  * All this functionality is complements of the macros defined in linux/init.h
+  *	On success the port is ready to use and the line number is returned.
+diff -ur 2.5.63a/arch/sh/kernel/pci-dma.c 2.5.63b/arch/sh/kernel/pci-dma.c
+--- 2.5.63a/arch/sh/kernel/pci-dma.c	Mon Feb 24 11:05:39 2003
++++ 2.5.63b/arch/sh/kernel/pci-dma.c	Mon Feb 24 18:28:56 2003
+@@ -24,7 +24,7 @@
+ 	ret = (void *) __get_free_pages(gfp, get_order(size));
+ 
+ 	if (ret != NULL) {
+-	        /* Is it neccessary to do the memset? */
++	        /* Is it necessary to do the memset? */
+ 		memset(ret, 0, size);
+ 		*dma_handle = virt_to_bus(ret);
+ 	}
+diff -ur 2.5.63a/arch/sh/stboards/pcidma.c 2.5.63b/arch/sh/stboards/pcidma.c
+--- 2.5.63a/arch/sh/stboards/pcidma.c	Mon Feb 24 11:05:31 2003
++++ 2.5.63b/arch/sh/stboards/pcidma.c	Mon Feb 24 18:28:58 2003
+@@ -24,7 +24,7 @@
+ 	ret = (void *) __get_free_pages(gfp, get_order(size));
+ 
+ 	if (ret != NULL) {
+-	        /* Is it neccessary to do the memset? */
++	        /* Is it necessary to do the memset? */
+ 		memset(ret, 0, size);
+ 		*dma_handle = virt_to_bus(ret);
+ 	}
+diff -ur 2.5.63a/drivers/char/ftape/zftape/zftape-write.c 2.5.63b/drivers/char/ftape/zftape/zftape-write.c
+--- 2.5.63a/drivers/char/ftape/zftape/zftape-write.c	Mon Feb 24 11:05:32 2003
++++ 2.5.63b/drivers/char/ftape/zftape/zftape-write.c	Mon Feb 24 18:28:59 2003
+@@ -357,7 +357,7 @@
+ 	*volume = zft_find_volume(pos->seg_pos);
+ 	DUMP_VOLINFO(ft_t_noise, "", *volume);
+ 	zft_just_before_eof = 0;
+-	/* now merge with old data if neccessary */
++	/* now merge with old data if necessary */
+ 	if (!zft_qic_mode && pos->seg_byte_pos != 0){
+ 		result = zft_fetch_segment(pos->seg_pos,
+ 					   zft_deblock_buf,
+diff -ur 2.5.63a/drivers/ide/ide-dma.c 2.5.63b/drivers/ide/ide-dma.c
+--- 2.5.63a/drivers/ide/ide-dma.c	Mon Feb 24 11:05:32 2003
++++ 2.5.63b/drivers/ide/ide-dma.c	Mon Feb 24 18:30:35 2003
+@@ -196,9 +196,9 @@
+  *	@drive: the drive to build the DMA table for
+  *	@rq: the request holding the sg list
+  *
+- *	Perform the PCI mapping magic neccessary to access the source or
++ *	Perform the PCI mapping magic necessary to access the source or
+  *	target buffers of a request via PCI DMA. The lower layers of the
+- *	kernel provide the neccessary cache management so that we can
++ *	kernel provide the necessary cache management so that we can
+  *	operate in a portable fashion
   */
-diff -ur 2.5.63a/drivers/ieee1394/dv1394-private.h 2.5.63b/drivers/ieee1394/dv1394-private.h
---- 2.5.63a/drivers/ieee1394/dv1394-private.h	Mon Feb 24 11:05:35 2003
-+++ 2.5.63b/drivers/ieee1394/dv1394-private.h	Mon Feb 24 17:56:00 2003
-@@ -488,7 +488,7 @@
- 	struct frame *frames[DV1394_MAX_FRAMES];
- 	
- 	/* n_frames also serves as an indicator that this struct video_card is
--	   intialized and ready to run DMA buffers */
-+	   initialized and ready to run DMA buffers */
- 
- 	int n_frames;
- 
-diff -ur 2.5.63a/drivers/isdn/eicon/adapter.h 2.5.63b/drivers/isdn/eicon/adapter.h
---- 2.5.63a/drivers/isdn/eicon/adapter.h	Mon Feb 24 11:05:44 2003
-+++ 2.5.63b/drivers/isdn/eicon/adapter.h	Mon Feb 24 17:56:02 2003
-@@ -185,7 +185,7 @@
- IDI_CALL	DivasIdiRequest[];
- 
- /*
-- * intialisation entry point
-+ * initialisation entry point
+  
+@@ -226,9 +226,9 @@
+  *	@drive: the drive to build the DMA table for
+  *	@rq: the request holding the sg list
+  *
+- *	Perform the PCI mapping magic neccessary to access the source or
++ *	Perform the PCI mapping magic necessary to access the source or
+  *	target buffers of a taskfile request via PCI DMA. The lower layers 
+- *	of the  kernel provide the neccessary cache management so that we can
++ *	of the  kernel provide the necessary cache management so that we can
+  *	operate in a portable fashion
   */
+  
+diff -ur 2.5.63a/drivers/ide/ide-io.c 2.5.63b/drivers/ide/ide-io.c
+--- 2.5.63a/drivers/ide/ide-io.c	Mon Feb 24 11:05:40 2003
++++ 2.5.63b/drivers/ide/ide-io.c	Mon Feb 24 18:30:38 2003
+@@ -379,7 +379,7 @@
+  *	@drive: drive the completion interrupt occurred on
+  *
+  *	drive_cmd_intr() is invoked on completion of a special DRIVE_CMD.
+- *	We do any neccessary daya reading and then wait for the drive to
++ *	We do any necessary daya reading and then wait for the drive to
+  *	go non busy. At that point we may read the error data and complete
+  *	the request
+  */
+@@ -652,7 +652,7 @@
+  *	@hwgroup: hardware group to select on
+  *
+  *	choose_drive() selects the next drive which will be serviced.
+- *	This is neccessary because the IDE layer can't issue commands
++ *	This is necessary because the IDE layer can't issue commands
+  *	to both drives on the same cable, unlike SCSI.
+  */
+  
+diff -ur 2.5.63a/drivers/ide/setup-pci.c 2.5.63b/drivers/ide/setup-pci.c
+--- 2.5.63a/drivers/ide/setup-pci.c	Mon Feb 24 11:05:16 2003
++++ 2.5.63b/drivers/ide/setup-pci.c	Mon Feb 24 18:30:40 2003
+@@ -470,7 +470,7 @@
+  *	@hwif: Hardware interface we are configuring
+  *
+  *	Set up the DMA base for the interface. Enable the master bits as
+- *	neccessary and attempt to bring the device DMA into a ready to use
++ *	necessary and attempt to bring the device DMA into a ready to use
+  *	state
+  */
+  
+@@ -573,7 +573,7 @@
+  *	@index: ata index to update
+  *
+  *	Scan the interfaces attached to this device and do any
+- *	neccessary per port setup. Attach the devices and ask the
++ *	necessary per port setup. Attach the devices and ask the
+  *	generic DMA layer to do its work for us.
+  *
+  *	Normally called automaticall from do_ide_pci_setup_device,
+diff -ur 2.5.63a/drivers/isdn/hisax/amd7930_fn.c 2.5.63b/drivers/isdn/hisax/amd7930_fn.c
+--- 2.5.63a/drivers/isdn/hisax/amd7930_fn.c	Mon Feb 24 11:05:35 2003
++++ 2.5.63b/drivers/isdn/hisax/amd7930_fn.c	Mon Feb 24 18:29:06 2003
+@@ -42,7 +42,7 @@
+  *
+  * Credits:
+  * Programming the driver for Formula-n enter:now ISDN PCI and
+- * neccessary this driver for the used Amd 7930 D-channel-controller
++ * necessary this driver for the used Amd 7930 D-channel-controller
+  * was spnsored by Formula-n Europe AG.
+  * Thanks to Karsten Keil and Petr Novak, who gave me support in
+  * Hisax-specific questions.
+diff -ur 2.5.63a/drivers/isdn/hisax/enternow_pci.c 2.5.63b/drivers/isdn/hisax/enternow_pci.c
+--- 2.5.63a/drivers/isdn/hisax/enternow_pci.c	Mon Feb 24 11:05:39 2003
++++ 2.5.63b/drivers/isdn/hisax/enternow_pci.c	Mon Feb 24 18:29:08 2003
+@@ -49,7 +49,7 @@
+  *
+  * Credits:
+  * Programming the driver for Formula-n enter:now ISDN PCI and
+- * neccessary the driver for the used Amd 7930 D-channel-controller
++ * necessary the driver for the used Amd 7930 D-channel-controller
+  * was spnsored by Formula-n Europe AG.
+  * Thanks to Karsten Keil and Petr Novak, who gave me support in
+  * Hisax-specific questions.
+diff -ur 2.5.63a/drivers/isdn/hysdn/hycapi.c 2.5.63b/drivers/isdn/hysdn/hycapi.c
+--- 2.5.63a/drivers/isdn/hysdn/hycapi.c	Mon Feb 24 11:05:06 2003
++++ 2.5.63b/drivers/isdn/hysdn/hycapi.c	Mon Feb 24 18:29:09 2003
+@@ -521,7 +521,7 @@
+ Receive a capi-message.
  
- int		DivasInit(void);
-diff -ur 2.5.63a/drivers/net/hamachi.c 2.5.63b/drivers/net/hamachi.c
---- 2.5.63a/drivers/net/hamachi.c	Mon Feb 24 11:06:02 2003
-+++ 2.5.63b/drivers/net/hamachi.c	Mon Feb 24 17:56:05 2003
-@@ -316,7 +316,7 @@
-     the new buffer or the function returns non-zero which should case the
-     scheduler to reschedule the buffer later.
+ All B3_DATA_IND are converted to 64K-extension compatible format.
+-New nccis are created if neccessary.
++New nccis are created if necessary.
+ *******************************************************************/
  
--01/15/1999 EPK Some adjustments were made to the chip intialization.  
-+01/15/1999 EPK Some adjustments were made to the chip initialization.  
-     End-to-end flow control should now be fully active and the interrupt 
-     algorithm vars have been changed.  These could probably use further tuning.
- 
-diff -ur 2.5.63a/drivers/net/sk_mca.c 2.5.63b/drivers/net/sk_mca.c
---- 2.5.63a/drivers/net/sk_mca.c	Mon Feb 24 11:05:36 2003
-+++ 2.5.63b/drivers/net/sk_mca.c	Mon Feb 24 17:56:07 2003
-@@ -45,7 +45,7 @@
-   May 23nd, 1999
- 	can receive frames, send frames
-   May 24th, 1999
--        modularized intialization of LANCE
-+        modularized initialization of LANCE
-         loadable as module
- 	still Tx problem :-(
-   May 26th, 1999
-diff -ur 2.5.63a/drivers/net/tokenring/lanstreamer.c 2.5.63b/drivers/net/tokenring/lanstreamer.c
---- 2.5.63a/drivers/net/tokenring/lanstreamer.c	Mon Feb 24 11:06:01 2003
-+++ 2.5.63b/drivers/net/tokenring/lanstreamer.c	Mon Feb 24 17:56:11 2003
-@@ -542,7 +542,7 @@
- 
- 	writew(readw(streamer_mmio + LAPWWO) + 6, streamer_mmio + LAPA);
- 	if (readw(streamer_mmio + LAPD)) {
--		printk(KERN_INFO "tokenring card intialization failed. errorcode : %x\n",
-+		printk(KERN_INFO "tokenring card initialization failed. errorcode : %x\n",
- 		       ntohs(readw(streamer_mmio + LAPD)));
- 		release_region(dev->base_addr, STREAMER_IO_SPACE);
- 		return -1;
-diff -ur 2.5.63a/drivers/net/tokenring/olympic.c 2.5.63b/drivers/net/tokenring/olympic.c
---- 2.5.63a/drivers/net/tokenring/olympic.c	Mon Feb 24 11:05:39 2003
-+++ 2.5.63b/drivers/net/tokenring/olympic.c	Mon Feb 24 17:56:15 2003
-@@ -384,7 +384,7 @@
+ void
+diff -ur 2.5.63a/drivers/md/dm-table.c 2.5.63b/drivers/md/dm-table.c
+--- 2.5.63a/drivers/md/dm-table.c	Mon Feb 24 11:06:01 2003
++++ 2.5.63b/drivers/md/dm-table.c	Mon Feb 24 18:29:11 2003
+@@ -499,7 +499,7 @@
  }
- #endif	
- 	if(readw(init_srb+6)) {
--		printk(KERN_INFO "tokenring card intialization failed. errorcode : %x\n",readw(init_srb+6));
-+		printk(KERN_INFO "tokenring card initialization failed. errorcode : %x\n",readw(init_srb+6));
- 		return -ENODEV;
- 	}
  
-diff -ur 2.5.63a/drivers/net/wan/sdlamain.c 2.5.63b/drivers/net/wan/sdlamain.c
---- 2.5.63a/drivers/net/wan/sdlamain.c	Mon Feb 24 11:05:38 2003
-+++ 2.5.63b/drivers/net/wan/sdlamain.c	Mon Feb 24 17:56:16 2003
-@@ -38,7 +38,7 @@
- *				replaced it with 'wandev->enable_tx_int'. 
- * May 29, 1997	Jaspreet Singh	Flow Control Problem
- *				added "wandev->tx_int_enabled=1" line in the
--*				init module. This line intializes the flag for 
-+*				init module. This line initializes the flag for 
- *				preventing Interrupt disabled with device set to
- *				busy
- * Jan 15, 1997	Gene Kozin	Version 3.1.0
-diff -ur 2.5.63a/drivers/net/wan/wanpipe_multppp.c 2.5.63b/drivers/net/wan/wanpipe_multppp.c
---- 2.5.63a/drivers/net/wan/wanpipe_multppp.c	Mon Feb 24 11:06:02 2003
-+++ 2.5.63b/drivers/net/wan/wanpipe_multppp.c	Mon Feb 24 17:56:18 2003
-@@ -2283,7 +2283,7 @@
+ /*
+- * Decrement a devices use count and remove it if neccessary.
++ * Decrement a devices use count and remove it if necessary.
+  */
+ void dm_put_device(struct dm_target *ti, struct dm_dev *dd)
+ {
+diff -ur 2.5.63a/drivers/message/i2o/i2o_core.c 2.5.63b/drivers/message/i2o/i2o_core.c
+--- 2.5.63a/drivers/message/i2o/i2o_core.c	Mon Feb 24 11:05:35 2003
++++ 2.5.63b/drivers/message/i2o/i2o_core.c	Mon Feb 24 18:29:12 2003
+@@ -2120,7 +2120,7 @@
+  *	@iop: controller
+  *
+  *	This function brings an I2O controller into HOLD state. The adapter
+- *	is reset if neccessary and then the queues and resource table
++ *	is reset if necessary and then the queues and resource table
+  *	are read. -1 is returned on a failure, 0 on success.
+  *	
+  */
+diff -ur 2.5.63a/drivers/net/3c527.c 2.5.63b/drivers/net/3c527.c
+--- 2.5.63a/drivers/net/3c527.c	Mon Feb 24 11:05:33 2003
++++ 2.5.63b/drivers/net/3c527.c	Mon Feb 24 18:29:14 2003
+@@ -1168,7 +1168,7 @@
+  * 	the stack or, if the packet is near MTU sized, we allocate
+  *	another buffer and flip the old one up the stack.
+  * 
+- *	We must succeed in keeping a buffer on the ring. If neccessary we
++ *	We must succeed in keeping a buffer on the ring. If necessary we
+  *	will toss a received packet rather than lose a ring entry. Once
+  *	the first uncompleted descriptor is found, we move the
+  *	End-Of-List bit to include the buffers just processed.
+diff -ur 2.5.63a/drivers/net/8390.c 2.5.63b/drivers/net/8390.c
+--- 2.5.63a/drivers/net/8390.c	Mon Feb 24 11:05:08 2003
++++ 2.5.63b/drivers/net/8390.c	Mon Feb 24 18:29:16 2003
+@@ -417,7 +417,7 @@
+  * Handle the ether interface interrupts. We pull packets from
+  * the 8390 via the card specific functions and fire them at the networking
+  * stack. We also handle transmit completions and wake the transmit path if
+- * neccessary. We also update the counters and do other housekeeping as
++ * necessary. We also update the counters and do other housekeeping as
+  * needed.
+  */
  
- 	Intr_test_counter = 0;
+diff -ur 2.5.63a/drivers/net/e100/e100_config.c 2.5.63b/drivers/net/e100/e100_config.c
+--- 2.5.63a/drivers/net/e100/e100_config.c	Mon Feb 24 11:05:15 2003
++++ 2.5.63b/drivers/net/e100/e100_config.c	Mon Feb 24 18:29:17 2003
+@@ -149,7 +149,7 @@
+ 	 * 32 from the RFD base address, instead of at offset 16. */
+ 	bdp->config[7] |= CB_CFIG_EXTENDED_RFD;
  
--	/* The critical flag is unset because during intialization (if_open) 
-+	/* The critical flag is unset because during initialization (if_open) 
- 	 * we want the interrupts to be enabled so that when the wpc_isr is
- 	 * called it does not exit due to critical flag set.
- 	 */ 
-diff -ur 2.5.63a/drivers/net/wireless/orinoco.c 2.5.63b/drivers/net/wireless/orinoco.c
---- 2.5.63a/drivers/net/wireless/orinoco.c	Mon Feb 24 11:06:02 2003
-+++ 2.5.63b/drivers/net/wireless/orinoco.c	Mon Feb 24 17:56:22 2003
-@@ -4166,7 +4166,7 @@
- 	e = create_proc_read_entry("buf", S_IFREG | S_IRUGO,
- 					       priv->dir_dev, orinoco_proc_get_hermes_buf, priv);
- 	if (! e) {
--		printk(KERN_ERR "Unable to intialize /proc/hermes/%s/buf\n", dev->name);
-+		printk(KERN_ERR "Unable to initialize /proc/hermes/%s/buf\n", dev->name);
- 		goto fail;
- 	}
+-	/* put the chip into D102 receive mode.  This is neccessary
++	/* put the chip into D102 receive mode.  This is necessary
+ 	 * for any parsing and offloading features. */
+ 	bdp->config[22] = CB_CFIG_RECEIVE_GAMLA_MODE;
  
+diff -ur 2.5.63a/drivers/net/pcmcia/axnet_cs.c 2.5.63b/drivers/net/pcmcia/axnet_cs.c
+--- 2.5.63a/drivers/net/pcmcia/axnet_cs.c	Mon Feb 24 11:05:33 2003
++++ 2.5.63b/drivers/net/pcmcia/axnet_cs.c	Mon Feb 24 18:29:19 2003
+@@ -1341,7 +1341,7 @@
+  * Handle the ether interface interrupts. We pull packets from
+  * the 8390 via the card specific functions and fire them at the networking
+  * stack. We also handle transmit completions and wake the transmit path if
+- * neccessary. We also update the counters and do other housekeeping as
++ * necessary. We also update the counters and do other housekeeping as
+  * needed.
+  */
+ 
+diff -ur 2.5.63a/drivers/net/sk98lin/h/skdrv1st.h 2.5.63b/drivers/net/sk98lin/h/skdrv1st.h
+--- 2.5.63a/drivers/net/sk98lin/h/skdrv1st.h	Mon Feb 24 11:05:05 2003
++++ 2.5.63b/drivers/net/sk98lin/h/skdrv1st.h	Mon Feb 24 18:29:21 2003
+@@ -72,7 +72,7 @@
+  * Description:
+  *
+  * This is the first include file of the driver, which includes all
+- * neccessary system header files and some of the GEnesis header files.
++ * necessary system header files and some of the GEnesis header files.
+  * It also defines some basic items.
+  *
+  * Include File Hierarchy:
+diff -ur 2.5.63a/drivers/net/sk98lin/h/skdrv2nd.h 2.5.63b/drivers/net/sk98lin/h/skdrv2nd.h
+--- 2.5.63a/drivers/net/sk98lin/h/skdrv2nd.h	Mon Feb 24 11:06:02 2003
++++ 2.5.63b/drivers/net/sk98lin/h/skdrv2nd.h	Mon Feb 24 18:29:22 2003
+@@ -85,7 +85,7 @@
+  * Description:
+  *
+  * This is the second include file of the driver, which includes all other
+- * neccessary files and defines all structures and constants used by the
++ * necessary files and defines all structures and constants used by the
+  * driver and the common modules.
+  *
+  * Include File Hierarchy:
+diff -ur 2.5.63a/drivers/net/sk98lin/skgehwt.c 2.5.63b/drivers/net/sk98lin/skgehwt.c
+--- 2.5.63a/drivers/net/sk98lin/skgehwt.c	Mon Feb 24 11:05:43 2003
++++ 2.5.63b/drivers/net/sk98lin/skgehwt.c	Mon Feb 24 18:30:56 2003
+@@ -61,14 +61,14 @@
+  *	fix: chg pAc -> pAC
+  *	
+  *	Revision 1.4  1998/08/10 14:14:52  gklug
+- *	rmv: unneccessary SK_ADDR macro
++ *	rmv: unnecessary SK_ADDR macro
+  *	
+  *	Revision 1.3  1998/08/07 12:53:44  gklug
+  *	fix: first compiled version
+  *	
+  *	Revision 1.2  1998/08/07 09:19:29  gklug
+  *	adapt functions to the C coding conventions
+- *	rmv unneccessary functions.
++ *	rmv unnecessary functions.
+  *	
+  *	Revision 1.1  1998/08/05 11:28:36  gklug
+  *	first version: adapted from SMT/FDDI
+diff -ur 2.5.63a/drivers/net/sk98lin/ski2c.c 2.5.63b/drivers/net/sk98lin/ski2c.c
+--- 2.5.63a/drivers/net/sk98lin/ski2c.c	Mon Feb 24 11:05:04 2003
++++ 2.5.63b/drivers/net/sk98lin/ski2c.c	Mon Feb 24 18:29:25 2003
+@@ -178,7 +178,7 @@
+  *	Revision 1.2  1998/08/11 07:27:15  gklug
+  *	add: functions of the interface
+  *	adapt rest of source to C coding Conventions
+- *	rmv: unneccessary code taken from Mona Lisa
++ *	rmv: unnecessary code taken from Mona Lisa
+  *
+  *	Revision 1.1  1998/06/19 14:28:43  malthoff
+  *	Created. Sources taken from ML Projekt.
+diff -ur 2.5.63a/drivers/net/sk98lin/skxmac2.c 2.5.63b/drivers/net/sk98lin/skxmac2.c
+--- 2.5.63a/drivers/net/sk98lin/skxmac2.c	Mon Feb 24 11:05:47 2003
++++ 2.5.63b/drivers/net/sk98lin/skxmac2.c	Mon Feb 24 18:29:27 2003
+@@ -596,7 +596,7 @@
+  *	none, National: 80ns).
+  *
+  * ATTENTION:
+- * 	It is absolutely neccessary to reset the SW_RST Bit first
++ * 	It is absolutely necessary to reset the SW_RST Bit first
+  *	before calling this function.
+  *
+  * Returns:
+diff -ur 2.5.63a/drivers/s390/block/dasd_3990_erp.c 2.5.63b/drivers/s390/block/dasd_3990_erp.c
+--- 2.5.63a/drivers/s390/block/dasd_3990_erp.c	Mon Feb 24 11:05:41 2003
++++ 2.5.63b/drivers/s390/block/dasd_3990_erp.c	Mon Feb 24 18:29:29 2003
+@@ -197,7 +197,7 @@
+  * DASD_3990_ERP_CLEANUP 
+  *
+  * DESCRIPTION
+- *   Removes the already build but not neccessary ERP request and sets
++ *   Removes the already build but not necessary ERP request and sets
+  *   the status of the original cqr / erp to the given (final) status
+  *
+  *  PARAMETER
 diff -ur 2.5.63a/drivers/scsi/FlashPoint.c 2.5.63b/drivers/scsi/FlashPoint.c
 --- 2.5.63a/drivers/scsi/FlashPoint.c	Mon Feb 24 11:05:12 2003
-+++ 2.5.63b/drivers/scsi/FlashPoint.c	Mon Feb 24 17:56:26 2003
-@@ -7529,7 +7529,7 @@
++++ 2.5.63b/drivers/scsi/FlashPoint.c	Mon Feb 24 18:29:30 2003
+@@ -10866,7 +10866,7 @@
+  * Function: DiagEEPROM
   *
-  *   $Workfile:   phase.c  $
+  * Description: Verfiy checksum and 'Key' and initialize the EEPROM if
+- *              neccessary.
++ *              necessary.
   *
-- *   Description:  Functions to intially handle the SCSI bus phase when
-+ *   Description:  Functions to initially handle the SCSI bus phase when
-  *                 the target asserts request (and the automation is not
-  *                 enabled to handle the situation).
-  *
-diff -ur 2.5.63a/drivers/scsi/aacraid/comminit.c 2.5.63b/drivers/scsi/aacraid/comminit.c
---- 2.5.63a/drivers/scsi/aacraid/comminit.c	Mon Feb 24 11:05:06 2003
-+++ 2.5.63b/drivers/scsi/aacraid/comminit.c	Mon Feb 24 17:56:29 2003
-@@ -210,7 +210,7 @@
+  *---------------------------------------------------------------------*/
  
- /**
-  *	aac_comm_init	-	Initialise FSA data structures
-- *	@dev:	Adapter to intialise
-+ *	@dev:	Adapter to initialise
+diff -ur 2.5.63a/drivers/scsi/oktagon_esp.c 2.5.63b/drivers/scsi/oktagon_esp.c
+--- 2.5.63a/drivers/scsi/oktagon_esp.c	Mon Feb 24 11:05:05 2003
++++ 2.5.63b/drivers/scsi/oktagon_esp.c	Mon Feb 24 18:29:33 2003
+@@ -245,7 +245,7 @@
+   if((code == SYS_DOWN || code == SYS_HALT) && (esp = current_esp))
+    {
+     esp_bootup_reset(esp,esp->eregs);
+-    udelay(500); /* Settle time. Maybe unneccessary. */
++    udelay(500); /* Settle time. Maybe unnecessary. */
+    }
+   return NOTIFY_DONE;
+ }
+diff -ur 2.5.63a/drivers/serial/8250.c 2.5.63b/drivers/serial/8250.c
+--- 2.5.63a/drivers/serial/8250.c	Mon Feb 24 11:05:06 2003
++++ 2.5.63b/drivers/serial/8250.c	Mon Feb 24 18:29:35 2003
+@@ -1989,7 +1989,7 @@
+  *	port exists and is in use an error is returned. If the port
+  *	is not currently in the table it is added.
   *
-  *	Initializes the data structures that are required for the FSA commuication
-  *	interface to operate. 
-diff -ur 2.5.63a/drivers/scsi/aacraid/commsup.c 2.5.63b/drivers/scsi/aacraid/commsup.c
---- 2.5.63a/drivers/scsi/aacraid/commsup.c	Mon Feb 24 11:05:38 2003
-+++ 2.5.63b/drivers/scsi/aacraid/commsup.c	Mon Feb 24 17:56:31 2003
-@@ -79,7 +79,7 @@
-  *	fib_setup	-	setup the fibs
-  *	@dev: Adapter to set up
+- *	The port is then probed and if neccessary the IRQ is autodetected
++ *	The port is then probed and if necessary the IRQ is autodetected
+  *	If this fails an error is returned.
   *
-- *	Allocate the PCI space for the fibs, map it and then intialise the
-+ *	Allocate the PCI space for the fibs, map it and then initialise the
-  *	fib area, the unmapped fib data and also the free list
+  *	On success the port is ready to use and the line number is returned.
+diff -ur 2.5.63a/drivers/usb/serial/kobil_sct.c 2.5.63b/drivers/usb/serial/kobil_sct.c
+--- 2.5.63a/drivers/usb/serial/kobil_sct.c	Mon Feb 24 11:05:42 2003
++++ 2.5.63b/drivers/usb/serial/kobil_sct.c	Mon Feb 24 18:29:37 2003
+@@ -159,7 +159,7 @@
+ 	}
+ 	usb_set_serial_port_data(serial->port, priv);
+ 
+-	// search for the neccessary endpoints
++	// search for the necessary endpoints
+ 	pdev = serial->dev;
+  	actconfig = pdev->actconfig;
+  	interface = actconfig->interface;
+diff -ur 2.5.63a/fs/reiserfs/lbalance.c 2.5.63b/fs/reiserfs/lbalance.c
+--- 2.5.63a/fs/reiserfs/lbalance.c	Mon Feb 24 11:06:02 2003
++++ 2.5.63b/fs/reiserfs/lbalance.c	Mon Feb 24 18:29:39 2003
+@@ -1192,7 +1192,7 @@
+   }
+ 
+ 
+-  /* change item key if neccessary (when we paste before 0-th entry */
++  /* change item key if necessary (when we paste before 0-th entry */
+   if (!before)
+     {
+ 	set_le_ih_k_offset (ih, deh_offset(new_dehs));
+diff -ur 2.5.63a/include/asm-arm/arch-sa1100/simpad.h 2.5.63b/include/asm-arm/arch-sa1100/simpad.h
+--- 2.5.63a/include/asm-arm/arch-sa1100/simpad.h	Mon Feb 24 11:05:14 2003
++++ 2.5.63b/include/asm-arm/arch-sa1100/simpad.h	Mon Feb 24 18:29:41 2003
+@@ -46,7 +46,7 @@
+ #define IRQ_GPIO_CF_IRQ         IRQ_GPIO1
+ #define IRQ_GPIO_CF_CD          IRQ_GPIO24      
+ 
+-// CS3 Latch is write only, a shadow is neccessary 
++// CS3 Latch is write only, a shadow is necessary 
+ 
+ #define CS3BUSTYPE unsigned volatile long           
+ #define CS3_BASE        0xf1000000
+diff -ur 2.5.63a/include/asm-m68k/page.h 2.5.63b/include/asm-m68k/page.h
+--- 2.5.63a/include/asm-m68k/page.h	Mon Feb 24 11:06:02 2003
++++ 2.5.63b/include/asm-m68k/page.h	Mon Feb 24 18:29:43 2003
+@@ -164,7 +164,7 @@
+  * NOTE: virtual isn't really correct, actually it should be the offset into the
+  * memory node, but we have no highmem, so that works for now.
+  * TODO: implement (fast) pfn<->pgdat_idx conversion functions, this makes lots
+- * of the shifts unneccessary.
++ * of the shifts unnecessary.
+  */
+ #define virt_to_pfn(kaddr)	(__pa(kaddr) >> PAGE_SHIFT)
+ #define pfn_to_virt(pfn)	__va((pfn) << PAGE_SHIFT)
+diff -ur 2.5.63a/include/asm-s390/types.h 2.5.63b/include/asm-s390/types.h
+--- 2.5.63a/include/asm-s390/types.h	Mon Feb 24 11:05:32 2003
++++ 2.5.63b/include/asm-s390/types.h	Mon Feb 24 18:29:45 2003
+@@ -32,7 +32,7 @@
+ typedef unsigned long long __u64;
+ #endif
+ /* A address type so that arithmetic can be done on it & it can be upgraded to
+-   64 bit when neccessary 
++   64 bit when necessary 
+ */
+ typedef __u32  addr_t; 
+ typedef __s32  saddr_t;
+diff -ur 2.5.63a/include/asm-s390x/types.h 2.5.63b/include/asm-s390x/types.h
+--- 2.5.63a/include/asm-s390x/types.h	Mon Feb 24 11:05:16 2003
++++ 2.5.63b/include/asm-s390x/types.h	Mon Feb 24 18:29:47 2003
+@@ -32,7 +32,7 @@
+ 
+ /* 
+  * A address type so that arithmetic can be done on it & it can be upgraded to
+- * 64 bit when neccessary 
++ * 64 bit when necessary 
   */
  
-diff -ur 2.5.63a/drivers/scsi/gdth.c 2.5.63b/drivers/scsi/gdth.c
---- 2.5.63a/drivers/scsi/gdth.c	Mon Feb 24 11:05:35 2003
-+++ 2.5.63b/drivers/scsi/gdth.c	Mon Feb 24 17:56:33 2003
-@@ -28,7 +28,7 @@
-  *                                                                      *
-  * $Log: gdth.c,v $
-  * Revision 1.61  2002/10/03 09:35:22  boji
-- * Fixed SCREENSERVICE intialisation in SMP cases.
-+ * Fixed SCREENSERVICE initialisation in SMP cases.
-  * Added checks for gdth_polling before GDTH_HA_LOCK
-  *
-  * Revision 1.60  2002/02/05 09:35:22  achim
-diff -ur 2.5.63a/drivers/usb/misc/auerswald.c 2.5.63b/drivers/usb/misc/auerswald.c
---- 2.5.63a/drivers/usb/misc/auerswald.c	Mon Feb 24 11:05:16 2003
-+++ 2.5.63b/drivers/usb/misc/auerswald.c	Mon Feb 24 17:56:34 2003
-@@ -1946,7 +1946,7 @@
-         if (intf->altsetting->desc.bInterfaceNumber != 0)
- 		return -ENODEV;
+ typedef unsigned long  addr_t; 
+diff -ur 2.5.63a/kernel/cpufreq.c 2.5.63b/kernel/cpufreq.c
+--- 2.5.63a/kernel/cpufreq.c	Mon Feb 24 11:05:12 2003
++++ 2.5.63b/kernel/cpufreq.c	Mon Feb 24 18:29:50 2003
+@@ -1078,11 +1078,11 @@
  
--	/* allocate memory for our device and intialize it */
-+	/* allocate memory for our device and initialize it */
- 	cp = kmalloc (sizeof(auerswald_t), GFP_KERNEL);
- 	if (cp == NULL) {
- 		err ("out of memory");
-diff -ur 2.5.63a/drivers/usb/usb-skeleton.c 2.5.63b/drivers/usb/usb-skeleton.c
---- 2.5.63a/drivers/usb/usb-skeleton.c	Mon Feb 24 11:05:31 2003
-+++ 2.5.63b/drivers/usb/usb-skeleton.c	Mon Feb 24 17:56:36 2003
-@@ -498,7 +498,7 @@
- 		goto exit;
+ 	down(&cpufreq_notifier_sem);
+ 
+-	/* adjust if neccessary - all reasons */
++	/* adjust if necessary - all reasons */
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_ADJUST,
+ 			    policy);
+ 
+-	/* adjust if neccessary - hardware incompatibility*/
++	/* adjust if necessary - hardware incompatibility*/
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_INCOMPATIBLE,
+ 			    policy);
+ 
+diff -ur 2.5.63a/kernel/suspend.c 2.5.63b/kernel/suspend.c
+--- 2.5.63a/kernel/suspend.c	Mon Feb 24 11:05:13 2003
++++ 2.5.63b/kernel/suspend.c	Mon Feb 24 18:29:52 2003
+@@ -961,7 +961,7 @@
+ 	printk("Relocating pagedir");
+ 
+ 	if(!does_collide_order(old_pagedir, (unsigned long)old_pagedir, pagedir_order)) {
+-		printk("not neccessary\n");
++		printk("not necessary\n");
+ 		return 0;
  	}
  
--	/* allocate memory for our device state and intialize it */
-+	/* allocate memory for our device state and initialize it */
- 	dev = kmalloc (sizeof(struct usb_skel), GFP_KERNEL);
- 	if (dev == NULL) {
- 		err ("Out of memory");
-diff -ur 2.5.63a/drivers/video/controlfb.c 2.5.63b/drivers/video/controlfb.c
---- 2.5.63a/drivers/video/controlfb.c	Mon Feb 24 11:05:12 2003
-+++ 2.5.63b/drivers/video/controlfb.c	Mon Feb 24 17:56:37 2003
-@@ -554,7 +554,7 @@
+diff -ur 2.5.63a/net/ipv4/netfilter/ip_conntrack_ftp.c 2.5.63b/net/ipv4/netfilter/ip_conntrack_ftp.c
+--- 2.5.63a/net/ipv4/netfilter/ip_conntrack_ftp.c	Mon Feb 24 11:05:39 2003
++++ 2.5.63b/net/ipv4/netfilter/ip_conntrack_ftp.c	Mon Feb 24 18:29:54 2003
+@@ -321,7 +321,7 @@
+ 	if (found == -1) {
+ 		/* We don't usually drop packets.  After all, this is
+ 		   connection tracking, not packet filtering.
+-		   However, it is neccessary for accurate tracking in
++		   However, it is necessary for accurate tracking in
+ 		   this case. */
+ 		if (net_ratelimit())
+ 			printk("conntrack_ftp: partial %s %u+%u\n",
+diff -ur 2.5.63a/net/ipv4/netfilter/ip_conntrack_irc.c 2.5.63b/net/ipv4/netfilter/ip_conntrack_irc.c
+--- 2.5.63a/net/ipv4/netfilter/ip_conntrack_irc.c	Mon Feb 24 11:05:39 2003
++++ 2.5.63b/net/ipv4/netfilter/ip_conntrack_irc.c	Mon Feb 24 18:29:55 2003
+@@ -199,7 +199,7 @@
+ 			LOCK_BH(&ip_irc_lock);
  
+ 			/* save position of address in dcc string,
+-			 * neccessary for NAT */
++			 * necessary for NAT */
+ 			DEBUGP("tcph->seq = %u\n", tcph->seq);
+ 			exp->seq = ntohl(tcph->seq) + (addr_beg_p - _data);
+ 			exp_irc_info->len = (addr_end_p - addr_beg_p);
+diff -ur 2.5.63a/net/ipv4/netfilter/ip_nat_core.c 2.5.63b/net/ipv4/netfilter/ip_nat_core.c
+--- 2.5.63a/net/ipv4/netfilter/ip_nat_core.c	Mon Feb 24 11:05:10 2003
++++ 2.5.63b/net/ipv4/netfilter/ip_nat_core.c	Mon Feb 24 18:29:57 2003
+@@ -288,7 +288,7 @@
+ 		saved_ip = tuple->src.ip;
+ 		other_ipp = &tuple->src.ip;
+ 	}
+-	/* Don't do do_extra_mangle unless neccessary (overrides
++	/* Don't do do_extra_mangle unless necessary (overrides
+            explicit socket bindings, for example) */
+ 	orig_dstip = tuple->dst.ip;
  
- /*
-- * Called from fbmem.c for probing & intializing
-+ * Called from fbmem.c for probing & initializing
-  */
- int __init control_init(void)
- {
-diff -ur 2.5.63a/fs/reiserfs/journal.c 2.5.63b/fs/reiserfs/journal.c
---- 2.5.63a/fs/reiserfs/journal.c	Mon Feb 24 11:05:34 2003
-+++ 2.5.63b/fs/reiserfs/journal.c	Mon Feb 24 17:56:39 2003
-@@ -1931,7 +1931,7 @@
- 			printk( "journal_init_dev: '%s' is not a block device", jdev_name );
- 			result = -ENOTBLK;
- 		} else if( jdev_inode -> i_bdev == NULL ) {
--			printk( "journal_init_dev: bdev unintialized for '%s'", jdev_name );
-+			printk( "journal_init_dev: bdev uninitialized for '%s'", jdev_name );
- 			result = -ENOMEM;
- 		} else  {
- 			/* ok */
-diff -ur 2.5.63a/net/irda/irsyms.c 2.5.63b/net/irda/irsyms.c
---- 2.5.63a/net/irda/irsyms.c	Mon Feb 24 11:05:44 2003
-+++ 2.5.63b/net/irda/irsyms.c	Mon Feb 24 17:56:41 2003
-@@ -254,7 +254,7 @@
- /*
-  * Function irda_init (void)
-  *
-- *  Protocol stack intialisation entry point.
-+ *  Protocol stack initialisation entry point.
-  *  Initialise the various components of the IrDA stack
-  */
- int __init irda_init(void)
-diff -ur 2.5.63a/net/sctp/sm_statefuns.c 2.5.63b/net/sctp/sm_statefuns.c
---- 2.5.63a/net/sctp/sm_statefuns.c	Mon Feb 24 11:05:06 2003
-+++ 2.5.63b/net/sctp/sm_statefuns.c	Mon Feb 24 17:56:43 2003
-@@ -1413,7 +1413,7 @@
-  *      at about the same time but the peer endpoint started its INIT
-  *      after responding to the local endpoint's INIT
-  */
--/* This case represents an intialization collision.  */
-+/* This case represents an initialization collision.  */
- static sctp_disposition_t sctp_sf_do_dupcook_b(const sctp_endpoint_t *ep,
- 					       const sctp_association_t *asoc,
- 					       sctp_chunk_t *chunk,
-diff -ur 2.5.63a/sound/core/seq/seq_midi_emul.c 2.5.63b/sound/core/seq/seq_midi_emul.c
---- 2.5.63a/sound/core/seq/seq_midi_emul.c	Mon Feb 24 11:05:44 2003
-+++ 2.5.63b/sound/core/seq/seq_midi_emul.c	Mon Feb 24 17:56:45 2003
-@@ -375,7 +375,7 @@
- 
- 
- /*
-- * intialize the MIDI status
-+ * initialize the MIDI status
-  */
- void
- snd_midi_channel_set_clear(snd_midi_channel_set_t *chset)
-diff -ur 2.5.63a/sound/oss/awe_wave.c 2.5.63b/sound/oss/awe_wave.c
---- 2.5.63a/sound/oss/awe_wave.c	Mon Feb 24 11:05:16 2003
-+++ 2.5.63b/sound/oss/awe_wave.c	Mon Feb 24 17:56:47 2003
-@@ -562,7 +562,7 @@
- 	/* clear all samples */
- 	awe_reset_samples();
- 
--	/* intialize AWE32 hardware */
-+	/* initialize AWE32 hardware */
- 	awe_initialize();
- 
- 	sprintf(awe_info.name, "AWE32-%s (RAM%dk)",
-diff -ur 2.5.63a/sound/oss/es1371.c 2.5.63b/sound/oss/es1371.c
---- 2.5.63a/sound/oss/es1371.c	Mon Feb 24 11:05:39 2003
-+++ 2.5.63b/sound/oss/es1371.c	Mon Feb 24 17:56:49 2003
-@@ -2863,7 +2863,7 @@
- 	if ((res=(s->dev_midi = register_sound_midi(&es1371_midi_fops, -1))<0 ))
- 		goto err_dev4;
- #ifdef ES1371_DEBUG
--	/* intialize the debug proc device */
-+	/* initialize the debug proc device */
- 	s->ps = create_proc_read_entry("es1371",0,NULL,proc_es1371_dump,NULL);
- #endif /* ES1371_DEBUG */
+diff -ur 2.5.63a/net/sched/sch_htb.c 2.5.63b/net/sched/sch_htb.c
+--- 2.5.63a/net/sched/sch_htb.c	Mon Feb 24 11:05:35 2003
++++ 2.5.63b/net/sched/sch_htb.c	Mon Feb 24 18:30:00 2003
+@@ -623,7 +623,7 @@
+ 	if (new_mode == cl->cmode)
+ 		return;	
  	
-diff -ur 2.5.63a/sound/oss/ite8172.c 2.5.63b/sound/oss/ite8172.c
---- 2.5.63a/sound/oss/ite8172.c	Mon Feb 24 11:05:11 2003
-+++ 2.5.63b/sound/oss/ite8172.c	Mon Feb 24 17:56:51 2003
-@@ -1780,7 +1780,7 @@
- 	goto err_dev2;
- 
- #ifdef IT8172_DEBUG
--    /* intialize the debug proc device */
-+    /* initialize the debug proc device */
-     s->ps = create_proc_read_entry(IT8172_MODULE_NAME, 0, NULL,
- 				   proc_it8172_dump, NULL);
- #endif /* IT8172_DEBUG */
-diff -ur 2.5.63a/sound/oss/nec_vrc5477.c 2.5.63b/sound/oss/nec_vrc5477.c
---- 2.5.63a/sound/oss/nec_vrc5477.c	Mon Feb 24 11:05:39 2003
-+++ 2.5.63b/sound/oss/nec_vrc5477.c	Mon Feb 24 17:56:53 2003
-@@ -1884,7 +1884,7 @@
- 		goto err_dev2;
- 
- #ifdef VRC5477_AC97_DEBUG
--	/* intialize the debug proc device */
-+	/* initialize the debug proc device */
- 	s->ps = create_proc_read_entry(VRC5477_AC97_MODULE_NAME, 0, NULL,
- 				       proc_vrc5477_ac97_dump, NULL);
- #endif /* VRC5477_AC97_DEBUG */
-diff -ur 2.5.63a/sound/usb/usbaudio.c 2.5.63b/sound/usb/usbaudio.c
---- 2.5.63a/sound/usb/usbaudio.c	Mon Feb 24 11:05:38 2003
-+++ 2.5.63b/sound/usb/usbaudio.c	Mon Feb 24 17:56:55 2003
-@@ -1717,7 +1717,7 @@
- 
- 
- /*
-- * intialize the substream instance.
-+ * initialize the substream instance.
-  */
- 
- static void init_substream(snd_usb_stream_t *as, int stream, struct audioformat *fp)
+-	if (cl->prio_activity) { /* not neccessary: speed optimization */
++	if (cl->prio_activity) { /* not necessary: speed optimization */
+ 		if (cl->cmode != HTB_CANT_SEND) 
+ 			htb_deactivate_prios(q,cl);
+ 		cl->cmode = new_mode;

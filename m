@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267203AbUFZRjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUFZRmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267203AbUFZRjC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 13:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267200AbUFZRjC
+	id S266344AbUFZRmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 13:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUFZRmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 13:39:02 -0400
-Received: from smtp807.mail.ukl.yahoo.com ([217.12.12.197]:2464 "HELO
-	smtp807.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S267203AbUFZRi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 13:38:58 -0400
+	Sat, 26 Jun 2004 13:42:19 -0400
+Received: from smtp809.mail.ukl.yahoo.com ([217.12.12.199]:1181 "HELO
+	smtp809.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S267194AbUFZRmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 13:42:04 -0400
 From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
 Reply-To: s0348365@sms.ed.ac.uk
 Organization: University of Edinburgh
-To: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Grzegorz Kulewski <kangur@polcom.net>
 Subject: Re: Assuming someone else called the IRQ
-Date: Sat, 26 Jun 2004 18:39:39 +0100
+Date: Sat, 26 Jun 2004 18:42:45 +0100
 User-Agent: KMail/1.6.52
-References: <200406261808.31860.s0348365@sms.ed.ac.uk> <20040626181552.C30532@flint.arm.linux.org.uk>
-In-Reply-To: <20040626181552.C30532@flint.arm.linux.org.uk>
-Cc: mcgrof@ruslug.rutgers.edu, linux-kernel@vger.kernel.org
+References: <200406261808.31860.s0348365@sms.ed.ac.uk> <Pine.LNX.4.58.0406261911530.30521@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0406261911530.30521@alpha.polcom.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406261839.39274.s0348365@sms.ed.ac.uk>
+Message-Id: <200406261842.45973.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 June 2004 18:15, Russell King wrote:
-> On Sat, Jun 26, 2004 at 06:08:31PM +0100, Alistair John Strachan wrote:
+On Saturday 26 June 2004 18:20, you wrote:
+> On Sat, 26 Jun 2004, Alistair John Strachan wrote:
+> > Hi,
+> >
 > > Every kernel in the 2.6 serious so far has exhibited the same problem;
 > > after some time of running my desktop system, I get:
 > >
 > > Assuming someone else called the IRQ
-> >...
+>
+> Maybe it is just some debug that can be safely ignored and removed from
+> source? If two or more devices share an IRQ this is normal that when IRQ
+> happens all of these drivers' IRQ routine is called. So maybe one of the
+> drivers checks that this is not its device and prints this debug?
+
+Yes, this sounds about right. It's the prism54 driver, as Russell identified 
+in another reply.
+
+>
 > >  19:    8748235   IO-APIC-level  ohci1394, yenta, eth0
 >
-> You don't say what eth0 is.  At a guess, it's a prism54 card, because the
-> only place I find that message in the kernel is in the prism54 driver:
->
-> drivers/net/wireless/prism54/islpci_dev.c:
-> 	printk(KERN_DEBUG "Assuming someone else called the IRQ\n");
+> Maybe you are using eth0 and yenta is printing this debug...
+> Do you think that assigning the same IRQ for eth0 and yenta is good idea?
+> Some network cards seem to raise _many_ IRQs...
 >
 
-Yes.
+Since the card is a PCMCIA prism3 card in a cardbus adaptor, any interrupt 
+sent to yenta will be destined for the eth0 wireless card. It's not really a 
+problem, I was just putting the driver under duress because I had the 
+firewire controller heavily loaded.
 
-> I'd imagine that the OHCI1394 generates a fair number of interrupts,
-> so... this highlights the problem of leaving debugging printk's,
-> even at KERN_DEBUG level in a driver interrupt path.
+Unfortunately these nForce2 boards crammed full of on-board hardware typically 
+assign at least firewire and the AGP slot IRQ 19, and the PCI slot I've got 
+the cardbus adaptor in is also sharing this IRQ line. I can't really do 
+anything about it, I'm afraid to say.
 
-I would agree.
-
->
-> At a guess, Luis R. Rodriguez may be the maintainer for prism54,
-> so...
-
-Luis, could you please look into removing this message from the sources. It 
-causes my kernel ring buffer to be wiped fairly quickly, which is annoying 
-for debugging development kernels.
-
-[OT] Thanks for the reply Russell. Any chance you could look over the BIOS 
-workaround on bugzilla while we're discussing PCMCIA? I put a patch on there 
-that's probably a load of nonsense, and we still haven't got your opinion on 
-the matter..
-
-http://bugzilla.kernel.org/show_bug.cgi?id=1840
-
-It affects very few people, but it's a safe enough workaround as I'm using it 
-successfully as I write this.
+Thanks for the reply Grzegorz.
 
 -- 
 Cheers,

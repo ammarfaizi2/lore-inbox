@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310258AbSCLBBL>; Mon, 11 Mar 2002 20:01:11 -0500
+	id <S310271AbSCLBCl>; Mon, 11 Mar 2002 20:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310264AbSCLBBG>; Mon, 11 Mar 2002 20:01:06 -0500
-Received: from marcy.nas.nasa.gov ([129.99.113.17]:46846 "EHLO
-	marcy.nas.nasa.gov") by vger.kernel.org with ESMTP
-	id <S310258AbSCLBAJ>; Mon, 11 Mar 2002 20:00:09 -0500
-Message-Id: <200203120100.RAA00468@marcy.nas.nasa.gov>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: Upgrading Headers?
+	id <S310264AbSCLBCg>; Mon, 11 Mar 2002 20:02:36 -0500
+Received: from [194.46.8.33] ([194.46.8.33]:47373 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S310271AbSCLBCV>;
+	Mon, 11 Mar 2002 20:02:21 -0500
+Date: Tue, 12 Mar 2002 01:13:58 +0000
+From: Dale Amon <amon@vnl.com>
+To: Dale Amon <amon@vnl.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        George Bonser <george@gator.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Pentium mobo fails on upgrade from 2.2 to 2.4
+Message-ID: <20020312011358.GB23544@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	George Bonser <george@gator.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020309134540.GZ13355@vnl.com> <E16jm3j-0002Ew-00@the-village.bc.nu> <20020311120631.GO3296@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 11 Mar 2002 17:00:08 -0800
-From: Brian S Queen <bqueen@nas.nasa.gov>
+Content-Disposition: inline
+In-Reply-To: <20020311120631.GO3296@vnl.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 11, 2002 at 12:06:31PM +0000, Dale Amon wrote:
+> It appears that it was turned on in my 2.2.18 kernel
 
-When a person switches to, or upgrades a kernel, how do they upgrade the
-associated header files?  The headers in /usr/include won't match the kernel.
-I don't see anything about that in the documentation.
+Hmmm, seems I left something out. The "it" was
 
-When I want to program with my new kernel I need to use the new headers, so I 
-have to use #include <linux/fcntl.h> instead of #include <fcntl.h>.  This 
-seems odd.
-
-Brian McQueen
-NAS Division
-NASA/Ames
+	CONFIG_IDEDMA_AUTO
 

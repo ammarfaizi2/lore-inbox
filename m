@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277713AbRKADuP>; Wed, 31 Oct 2001 22:50:15 -0500
+	id <S277758AbRKADlZ>; Wed, 31 Oct 2001 22:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277720AbRKADtz>; Wed, 31 Oct 2001 22:49:55 -0500
-Received: from mail11.speakeasy.net ([216.254.0.211]:42767 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S277713AbRKADtq>; Wed, 31 Oct 2001 22:49:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Alex Pennace <alex@pennace.org>
-Subject: Re: graphical swap comparison of aa and rik vm
-Date: Wed, 31 Oct 2001 22:50:23 -0500
-X-Mailer: KMail [version 1.3.2]
+	id <S277728AbRKADlP>; Wed, 31 Oct 2001 22:41:15 -0500
+Received: from smi-105.smith.uml.edu ([129.63.206.105]:21000 "HELO
+	buick.pennace.org") by vger.kernel.org with SMTP id <S277798AbRKADk6>;
+	Wed, 31 Oct 2001 22:40:58 -0500
+Date: Wed, 31 Oct 2001 22:41:34 -0500
+From: Alex Pennace <alex@pennace.org>
+To: safemode <safemode@speakeasy.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011101031823Z277713-17408+8578@vger.kernel.org> <20011031224134.A19557@buick.pennace.org>
-In-Reply-To: <20011031224134.A19557@buick.pennace.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011101034955Z277713-17408+8613@vger.kernel.org>
+Subject: Re: graphical swap comparison of aa and rik vm
+Message-ID: <20011031224134.A19557@buick.pennace.org>
+Mail-Followup-To: safemode <safemode@speakeasy.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011101031823Z277713-17408+8578@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011101031823Z277713-17408+8578@vger.kernel.org>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 October 2001 22:41, Alex Pennace wrote:
-> On Wed, Oct 31, 2001 at 10:18:29PM -0500, safemode wrote:
-> > Here is the graph   http://safemode.homeip.net/vm_swapcomparison.png   .
-> > It's about 4.6K.
->
-> The server says, "Wrong file name fool."
+On Wed, Oct 31, 2001 at 10:18:29PM -0500, safemode wrote:
+> Here is the graph   http://safemode.homeip.net/vm_swapcomparison.png   . It's 
+> about 4.6K. 
 
-Fixed it.   That's what you get  when you're creating the graph at the same 
-time as writing the email.    Sorry to all.  it will work now. 
+The server says, "Wrong file name fool."

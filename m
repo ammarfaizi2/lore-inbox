@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315258AbSEIX7H>; Thu, 9 May 2002 19:59:07 -0400
+	id <S315260AbSEJANR>; Thu, 9 May 2002 20:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315260AbSEIX7G>; Thu, 9 May 2002 19:59:06 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:61195 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315258AbSEIX7F>; Thu, 9 May 2002 19:59:05 -0400
-Date: Fri, 10 May 2002 00:58:52 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: alan@lxorguk.ukuu.org.uk, viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.19-pre8] FastWalk Dcache back port from 2.5
-Message-ID: <20020510005851.B21332@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hanna Linder <hannal@us.ibm.com>, alan@lxorguk.ukuu.org.uk,
-	viro@math.psu.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <16290000.1020988333@w-hlinder.des>
-Mime-Version: 1.0
+	id <S315288AbSEJANQ>; Thu, 9 May 2002 20:13:16 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:24073 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315260AbSEJANP>; Thu, 9 May 2002 20:13:15 -0400
+Message-ID: <3CDB108F.8B092095@linux-m68k.org>
+Date: Fri, 10 May 2002 02:13:03 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175wJO-0008Lz-00@starship> <3CDAFF7C.57A59FB8@linux-m68k.org> <E175xEi-0008Mi-00@starship>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 04:52:13PM -0700, Hanna Linder wrote:
-> Hello,
-> 
-> 	Please consider this new and improved fast walk patch for
-> inclusion in your 2.4.19 tree. This patch reduces cacheline bouncing 
-> due to numerous atomic increments and decrements of the d_count 
-> reference counter during path walking by holding the dcache_lock
-> as long as the dentries are in the cache. 
-> 	Linus included my original patch in 2.5.11. Al Viro made a 
-> few great changes in 2.5.12 and Paul Menage added one fix. The following
-> patch includes their changes as well. This code has been in 2.5 for 
-> almost 3 weeks and appears to be quite stable.
+Hi,
 
-The fixed code isn't there for a long time yet..  I'd rather see the
-path_lookup cleanup which already is in -ac go into 2.4.19 (and if I
-understood Marcelo right that'll be release in the next time) and wait
-for 2.4.20-pre<early> for the massive changes.
+Daniel Phillips wrote:
 
-Just my .5 (Euro-)Cent.
+> Show me where the 'physical' address is actually treated as a physical address.
+> You can't, because it isn't.  The 'physical' address is merely a zero-based
+> logical address, and the code *relies* on it being contiguous.
+
+Most of the code doesn't care about physical addresses, because they
+either work with virtual memory or with the page structure. Physical
+addresses are only interesting to pass them to the hardware or to put
+them into the page table.
+
+> Your code is going to do __pa there, and you are going to go walking into places
+> you don't expect.  Even you need my logical address space abstraction, or else you
+> want to go making global changes to the common kernel code that just add cruft.
+
+So far I've only seen a virtual address with some offset. You can maybe
+move that offset around, but you can't remove it. In the end it's the
+same.
+
+> I enjoy the feeling of removing cruft, even when it's an uphill battle.
+
+I'm happy to see patches.
+
+bye, Roman

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbTA2Fm0>; Wed, 29 Jan 2003 00:42:26 -0500
+	id <S264790AbTA2FtN>; Wed, 29 Jan 2003 00:49:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264790AbTA2Fm0>; Wed, 29 Jan 2003 00:42:26 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:59009 "EHLO
-	humilis.humilis.net") by vger.kernel.org with ESMTP
-	id <S264788AbTA2Fm0>; Wed, 29 Jan 2003 00:42:26 -0500
-Date: Wed, 29 Jan 2003 06:51:46 +0100
-From: Ookhoi <ookhoi@humilis.net>
+	id <S264853AbTA2FtN>; Wed, 29 Jan 2003 00:49:13 -0500
+Received: from holomorphy.com ([66.224.33.161]:24492 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264790AbTA2FtM>;
+	Wed, 29 Jan 2003 00:49:12 -0500
+Date: Tue, 28 Jan 2003 21:55:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: ookhoi@humilis.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 oops with modprobe lp
-Message-ID: <20030129065146.C953@humilis>
-Reply-To: ookhoi@humilis.net
-References: <20030128151219.A953@humilis> <20030129001948.5DAF52C07D@lists.samba.org>
+Cc: colpatch@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [patch][trivial] fix drivers/base/cpu.c
+Message-ID: <20030129055547.GL780@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, colpatch@us.ibm.com,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Michael Hohnbaum <hohnbaum@us.ibm.com>
+References: <3E2F2EC1.4090606@us.ibm.com> <20030129050522.316E32C63F@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030129001948.5DAF52C07D@lists.samba.org>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 12:08:18 up 10 min, 14 users,  load average: 0.47, 0.39, 0.20
+In-Reply-To: <20030129050522.316E32C63F@lists.samba.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote (ao):
-> In message <20030128151219.A953@humilis> you write:
-> > Just booted my fresh compiled 2.5.59 (patched with reiser4 and kexec),
-> > and did a 'modprobe lp'. It segfaulted. lsmod hangs.
-> 
-> Yep. This is due to a small bug in Kai's vmlinux.lds.h cleanup:
+In message <3E2F2EC1.4090606@us.ibm.com> Matt Dobson (?) wrote:
+>> Both drivers/base/node.c & memblk.c check the return values of the 
+>> devclass_register & driver_register calls.  cpu.c doesn't.  This little 
+>> patch remedies that omission.
 
-It does, tnx a lot :-)
+On Wed, Jan 29, 2003 at 03:51:04PM +1100, Rusty Russell wrote:
+> You'd want to to undo the devclass_register() on failure, too, I
+> imagine.
 
-(and sorry, a quick grep through my mail archives didn't catch the
-thread, but after someone kindly mailed me the patch, I saw it was a
-know issue).
+Ow, I forgot about that. Someone grind this out quick and take care of
+the other oopsing thingies. You know what I'm preoccupied with.
+
+
+-- wli

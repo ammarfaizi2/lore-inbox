@@ -1,73 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270111AbTGSRI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 13:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270197AbTGSRI2
+	id S270197AbTGSRT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 13:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270257AbTGSRT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 13:08:28 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:46295 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270111AbTGSRI1
+	Sat, 19 Jul 2003 13:19:57 -0400
+Received: from sea2-f21.sea2.hotmail.com ([207.68.165.21]:785 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270197AbTGSRTz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 13:08:27 -0400
-Date: Sat, 19 Jul 2003 10:23:11 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ga?l Le Mignot <kilobug@freesurf.fr>
-Cc: Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-       linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-Message-ID: <20030719172311.GA23246@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ga?l Le Mignot <kilobug@freesurf.fr>,
-	Christian Reichert <c.reichert@resolution.de>,
-	John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-	linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
-	Valdis.Kletnieks@vt.edu
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk> <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org>
+	Sat, 19 Jul 2003 13:19:55 -0400
+X-Originating-IP: [24.98.138.238]
+X-Originating-Email: [kambo77@hotmail.com]
+From: "Kambo Lohan" <kambo77@hotmail.com>
+To: Robert.Olsson@data.slu.se
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH pktgen hang, memleak, fixes
+Date: Sat, 19 Jul 2003 13:34:51 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <plopm3lluu8mv0.fsf@drizzt.kilobug.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
-	required 7)
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F21f3ednHM3SOl00002520@hotmail.com>
+X-OriginalArrivalTime: 19 Jul 2003 17:34:51.0628 (UTC) FILETIME=[0F1F82C0:01C34E1C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - GNU/Hurd, the  whole systems, is  actually GNU tools  (libc, linker,
->   ...)  on top  of the  GNU Hurd  (set of  servers) and  the  GNU Mach
->   microkernel.
+That patch is bad please use the updated patch ([PATCH] [UPDATED] pktgen 
+fixes on netdev)....I will attempt to repost while snipping the whitespace 
+change
 
-Mach wasn't written by GNU, it's a BSD based kernel pried apart into chunks
-by people at CMU.
 
-> - GNU Mach 1.x uses drivers from Linux 2.0.36 (IIRC)
-> 
-> - GNU  Mach 2.0  (actually 1.9,  as a  beta version),  uses  the OSKit
->   framework, and such drivers from Linux 2.2.12 
-> 
-> - pfinet (our  TCP/IP server)  comes from Linux  2.0 IP stack
-> 
-> I'm not aware  of other use of Linux code inside  the Hurd project, or
-> even inside the GNU project, but there may be.
 
-Drivers and networking account for about 50% of the total lines of code.
-The bulk of the work in any operating system is typically drivers.  The
-generic part of Linux (non-driver, non-file system) is tiny compared to 
-the rest.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-If the Hurd gets its drivers from Linux then it should rightfully be called
-Linux/HURD (or Linux/HURD/GNU).
+--- linux-2.4.21/net/core/pktgen.c	2002-11-28 18:53:15.000000000 -0500
++++ linux-2.4-kjp/net/core/pktgen.c	2003-07-10 13:22:17.000000000 -0400
+@@ -34,6 +34,7 @@
+  *   *  The new changes seem to have a performance impact of around 1%,
+  *       as far as I can tell.
+  *   --Ben Greear <greearb@candelatech.com>
++ * Fix refcount off by one if first packet fails, potential null deref,
+memleak 030710- KJP
+  *
+  * Renamed multiskb to clone_skb and cleaned up sending core for two
+distinct
+  * skb modes. A clone_skb=0 mode for Ben "ranges" work and a clone_skb != 0
+@@ -84,9 +85,9 @@
+#define cycles()	((u32)get_cycles())
 
-work /tmp/linux-2.5$ bk -rnet cat | wc -l
-326411
-work /tmp/linux-2.5$ bk -rdrivers cat | wc -l
-2605850
-work /tmp/linux-2.5$ bk -r cat | wc -l
-6618524
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+-#define VERSION "pktgen version 1.2"
++#define VERSION "pktgen version 1.2.1"
+static char version[] __initdata =
+-  "pktgen.c: v1.2: Packet Generator for packet performance testing.\n";
++  "pktgen.c: v1.2.1: Packet Generator for packet performance testing.\n";
+
+/* Used to help with determining the pkts on receive */
+
+@@ -613,12 +614,11 @@
+                                 kfree_skb(skb);
+                                 skb = fill_packet(odev, info);
+                                 if (skb == NULL) {
+-                                        break;
++					goto out_reldev;
+                                 }
+                                 fp++;
+                                 fp_tmp = 0; /* reset counter */
+                         }
+-                        atomic_inc(&skb->users);
+                 }
+
+                 nr_frags = skb_shinfo(skb)->nr_frags;
+@@ -626,7 +626,9 @@
+		spin_lock_bh(&odev->xmit_lock);
+		if (!netif_queue_stopped(odev)) {
+
++			atomic_inc(&skb->users);
+			if (odev->hard_start_xmit(skb, odev)) {
++				atomic_dec(&skb->users);
+				if (net_ratelimit()) {
+                                    printk(KERN_INFO "Hard xmit error\n");
+                                 }
+@@ -731,6 +733,8 @@
+			     (unsigned long long) info->errors
+			     );
+	}
++
++	kfree_skb(skb);
+
+out_reldev:
+         if (odev) {
+
+_________________________________________________________________
+The new MSN 8: advanced junk mail protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
+

@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbTDNSun (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbTDNSum (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:50:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32449 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263816AbTDNSuZ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 14:50:25 -0400
-Date: Mon, 14 Apr 2003 21:02:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>, alan@lxorguk.ukuu.org.uk,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-pre7 ide request races
-Message-ID: <20030414190206.GC9776@suse.de>
-References: <20030414093418.GQ9776@suse.de> <20030414030751.7bf17b04.akpm@digeo.com> <20030414101747.GR9776@suse.de> <20030414032339.27079dd8.akpm@digeo.com> <20030414102723.GS9776@suse.de> <20030414161508.GA1460@beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030414161508.GA1460@beaverton.ibm.com>
+	id S263696AbTDNTbn (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTDNTbn (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 15:31:43 -0400
+Received: from [195.60.21.2] ([195.60.21.2]:52167 "EHLO pluto.fastfreenet.com")
+	by vger.kernel.org with ESMTP id S263696AbTDNTbm (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 15:31:42 -0400
+Message-ID: <004301c302bd$ed548680$fe64a8c0@webserver>
+From: "Bryan Shumsky" <bzs@via.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       <linux-kernel@vger.kernel.org>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com>
+Subject: Re: Memory mapped files question
+Date: Mon, 14 Apr 2003 12:42:01 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14 2003, Mike Anderson wrote:
-> Jens Axboe [axboe@suse.de] wrote:
-> > On Mon, Apr 14 2003, Andrew Morton wrote:
-> > > Jens Axboe <axboe@suse.de> wrote:
-> > > >
-> > > > How would that solve the problem? The request could be gone even before
-> > > > end_that_request_last() is run, that is the issue.
-> > > 
-> > > In that case I didn't understand your description of the bug even the tiniest
-> > > little bit.
-> > > 
-> > > That request is sitting in the kernel stack of some process which is sleeping
-> > > in wait_for_completion().  Hence it is safe memory until someone runs
-> > > complete() against the completion struct.
-> > 
-> > Sorry you are right, that should fix the problem as well! Your fix is
-> > probably the better one for 2.4, less intrusive. I'll kill the stack
-> > requests in 2.5 then.
-> 
-> In 2.5 will you include the 2.4 end_that_request_last fix proposed in
-> this thread along with removal of requests on the stack?
+Hi, everyone.  Thanks for all your responses.  Our confusion is that in Unix
+environments, when we modify memory in memory-mapped files the underlying
+system flusher manages to flush the files for us before the files are
+munmap'ed or msysnc'ed.
 
-Yes of course. One is a good cleanup, the other prevents similar
-problems from other drivers.
+Rewriting all of our code to manually handle the flushing is a MAJOR
+undertaking, so I was hoping there might be some sneaky solution you could
+come up with.  Any ideas?
 
--- 
-Jens Axboe
+Thanks again,
+
+-- Bryan Shumsky
+Director of Engineering
+Via Systems, Inc.
+
+----- Original Message -----
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Bryan Shumsky'" <bzs@via.com>; <linux-kernel@vger.kernel.org>
+Sent: Monday, April 14, 2003 12:31 PM
+Subject: RE: Memory mapped files question
+
+
+>
+> > From: Bryan Shumsky [mailto:bzs@via.com]
+>
+> > Hi, everyone.  I'm running into a problem that I hope someone else has
+> seen,
+> > and maybe can help solve.  We're using the mmap system function for
+memory
+> > mapped files, but our updates never get flushed until we munmap or
+msysnc.
+>
+> I thought that was the way it was supposed to work.
+>
+> Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+> (and my fault)
+>
+>
+
 

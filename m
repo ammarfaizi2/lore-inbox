@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbTFAXW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 19:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFAXW6
+	id S264766AbTFAXkM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 19:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbTFAXkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 19:22:58 -0400
-Received: from imsantv30.netvigator.com ([210.87.253.77]:51410 "EHLO
-	imsantv30.netvigator.com") by vger.kernel.org with ESMTP
-	id S264762AbTFAXW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 19:22:57 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: "Lauro, John" <jlauro@umflint.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20, 2.4.21-rc6 both stalls - from low free memory
-Date: Mon, 2 Jun 2003 07:35:50 +0800
-User-Agent: KMail/1.5.2
-References: <37885B2630DF0C4CA95EFB47B30985FB0187FFE1@exchange-1.umflint.edu>
-In-Reply-To: <37885B2630DF0C4CA95EFB47B30985FB0187FFE1@exchange-1.umflint.edu>
-X-OS: GNU/Linux 2.5.70
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Jun 2003 19:40:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31440 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264765AbTFAXkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 19:40:09 -0400
+Date: Mon, 2 Jun 2003 00:53:33 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Adam J. Richter" <adam@yggdrasil.com>
+Subject: [FIX] Re: 2.5.70-bk[56] breaks disk partitioning with multiple IDE disks
+Message-ID: <20030601235333.GN9502@parcelfarce.linux.theplanet.co.uk>
+References: <200306012259.h51Mx2i14095@freya.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306020735.50368.mflt1@micrologica.com.hk>
+In-Reply-To: <200306012259.h51Mx2i14095@freya.yggdrasil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I need to get this system stable under heavy writes.  What kernel do
-> you
-> recommend?  The lowest (I think) I can go back to is 2.4.16 for driver
-> reasons. Support for >12GB is critical.  What kernel versions started
-> having
-> this problem?
+On Sun, Jun 01, 2003 at 03:59:02PM -0700, Adam J. Richter wrote:
+> 	Disk partition under linux-2.5.70-bk[56] systems with two
+> IDE disks is broken.  Under these kernels, the first disk gets
+> the partitioning of the second disk.  Reverting drivers/ide/ide.c
+> to the 2.5.70-bk4 version makes the problem go away.
 
-IIRC the list says it started in 2.4.19-preX.
+vi drivers/ide/ide.c -c'/drive->list.*driver->drives/s/list_add/&_tail/|x'
 
-If 2.4.21-rc6 causes problems try 2.4.18 plain first, 
-only if required add matching ACPI patch from SF.
-
-Regards
-Michael
-
+Now that we use idedefault_driver.drives instead of ata_unused, the order
+of drives on the driver->drives becomes significant; note that when we added
+to ata_unused, we had done that to the end of list.

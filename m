@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUJ2OiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbUJ2On0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbUJ2OiG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbUJ2Oel
+	id S263375AbUJ2On0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbUJ2Ols
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:34:41 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:5872
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263342AbUJ2O1T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:27:19 -0400
-From: "Andrew" <aathan-linux-kernel-1542@cloakmail.com>
-To: "Andrew" <aathan-linux-kernel-1542@cloakmail.com>,
-       <linux-kernel@vger.kernel.org>
-Cc: <roland@topspin.com>, "Andrew Morton" <akpm@osdl.org>
-Subject: RE: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
-Date: Fri, 29 Oct 2004 10:26:56 -0400
-Message-ID: <OMEGLKPBDPDHAGCIBHHJOELLFCAA.aathan-linux-kernel-1542@cloakmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <OMEGLKPBDPDHAGCIBHHJMEIDFCAA.aathan-linux-kernel-1542@cloakmail.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Fri, 29 Oct 2004 10:41:48 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43026 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263356AbUJ2Oho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:37:44 -0400
+Date: Fri, 29 Oct 2004 16:37:12 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, markh@osdl.org
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [patch] 2.6.10-rc1: SCSI aacraid warning
+Message-ID: <20041029143712.GM6677@stusta.de>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I have reproduced this hang on 2.6.10-rc1-bk7, and have also installed the sysrq-n patch.  Even after "SysRq : Nice All RT Tasks",
-the system is completely unresponsive as far as user mode is concerned, and will only react to SysRq.  It -does- respond to ICMP
-pings.  Sysrq-e, -k, -i do not stop the offending tt1 process.
-
-I do not have netdump available in 2.6.10-rc1-bk7, and so cannot provide a full sysrq-t output, but the visible section shows two
-tt1 threads with identical stacks:
-
-schedule_timeout+0xd0/0xd2
-futex_wait+0x140/0x1a9
-do_futex+0x33/0x78
-sys_futex+0xcd/0xd9
-sysenter_past_esp+0x52/0x71
-
-I then tried running this task as non-root user, which should prevent SCHED_RR and PRIO changes of the threads/tasks.  Under these
-conditions, the system does *not* hang.  I noticed that the app periodically ends up in a high-speed loop involving the
-ACE_Semaphore class in ACE; having checked the compilation flags, it seems ACE is simulating semaphors using below calls.  It is
-*not* using POSIX 1003.1b semaphores (sem_wait, etc.)
-
-pthread_mutex_lock()
-pthread_cond_wait()
-pthread_cond_signal()
-
-Although it appears I need to fix an applicaiton bug, is it normal/desirable for an application calling system mutex facilities to
-starve the system so completely, and/or become "unkillable"?
-
-A.
+On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.9 to v2.6.10-rc1
+> ============================================
+>...
+> Mark Haverkamp:
+>...
+>   o aacraid: dynamic dev update
+>...
 
 
------Original Message-----
-From: Andrew [mailto:aathan-linux-kernel-1542@cloakmail.com]
-Sent: Thursday, October 28, 2004 5:10 PM
-To: linux-kernel@vger.kernel.org
-Cc: roland@topspin.com; Andrew Morton
-Subject: Consistent lock up 2.6.8-1.521 (and 2.6.8.1 w/
-high-res-timers/skas/sysemu)
+This causes the following warning with a recent gcc:
+
+<--  snip  -->
+
+...
+  CC      drivers/scsi/aacraid/aachba.o
+drivers/scsi/aacraid/aachba.c: In function `aac_scsi_cmd':
+drivers/scsi/aacraid/aachba.c:1140: warning: integer constant is too large for "long" type
+...
+
+<--  snip  -->
 
 
+The fix is simple:
 
-Caveat:  This may be an infinite loop in a SCHED_RR process.  See very bottom of email for sysrq-t sysrq-p output.
 
-[LARGE EMAIL DELETED]
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+--- linux-2.6.10-rc1-mm2-full/drivers/scsi/aacraid/aachba.c.old	2004-10-29 16:16:52.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/scsi/aacraid/aachba.c	2004-10-29 16:22:14.000000000 +0200
+@@ -1137,7 +1137,7 @@
+ 		char *cp;
+ 
+ 		dprintk((KERN_DEBUG "READ CAPACITY command.\n"));
+-		if (fsa_dev_ptr[cid].size <= 0x100000000)
++		if (fsa_dev_ptr[cid].size <= 0x100000000ULL)
+ 			capacity = fsa_dev_ptr[cid].size - 1;
+ 		else
+ 			capacity = (u32)-1;
 

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130931AbRCFFFc>; Tue, 6 Mar 2001 00:05:32 -0500
+	id <S130929AbRCFFDm>; Tue, 6 Mar 2001 00:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130933AbRCFFFW>; Tue, 6 Mar 2001 00:05:22 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:12304 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130931AbRCFFFN>; Tue, 6 Mar 2001 00:05:13 -0500
-Message-ID: <3AA47000.5CE66D95@transmeta.com>
-Date: Mon, 05 Mar 2001 21:05:04 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130931AbRCFFDc>; Tue, 6 Mar 2001 00:03:32 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:37325 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130929AbRCFFDS>; Tue, 6 Mar 2001 00:03:18 -0500
+Message-ID: <3AA46E63.69A80EB3@coplanar.net>
+Date: Mon, 05 Mar 2001 23:58:11 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Kenn Humborg <kenn@linux.ie>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kmalloc() alignment
-In-Reply-To: <E14a6zQ-0008Gz-00@the-village.bc.nu>
+To: steve.snyder@philips.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How-To for PPPoE in v2.4.x?
+In-Reply-To: <0056910010694057000002L172*@MHS>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > It might be worth asking the question if larger blocks are more
-> > > aligned?
-> >
-> > OK, I'll bite...
-> > Are larger blocks more aligned?
-> 
-> Only get_free_page()
-> 
+steve.snyder@philips.com wrote:
 
-I wonder if it would be practical/reasonable to guarantee better
-alignment for larger allocations (at least for sizes that are powers of
-two); especially 8- and 16-byte alignment is sometimes necessary.
+> Is there a How-To for getting the Linux v2.4.x PPPoE support to work?
+> I've searched for info but have mostly found sketchy references on getting
+> PPPoE to work with the v2.2 kernel.
+>
 
-	-hpa
+I have been using PPPoE in the 2.4.0 kernel for about 2 months now.  It's
+very nice.  I used
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+http://www.math.uwaterloo.ca/~mostrows/
+
+just grab the tarball and compile.  I bet it will work under 2.4.2 also.
+
+>
+> My system is running RedHat v6.2 and the v2.4.2 Linux kernel.  I've built
+> PPP and PPPoE support into the kernel and I've installed the v2.4.0 PPP
+> software.  I've got the /dev/ppp created by the RedHat installation and I
+> see "pppoe" in the /proc/drivers list of drivers.
+>
+> I've got a (PCMCIA-based) NIC that I know works as a plain non-PPPoE
+> device under v2.4.x.
+>
+> So what do I do now?  Do I have to patch pppd to utilize the kernel's
+> new PPPoE support?  Do I have to create a /dev/pppoe devnode?
+>
+> While I have a lot of experience with Ethernet networking on Linux, I am a
+> total PPP (let alone PPPoE) newbie.  Please be gentle.  :-)
+

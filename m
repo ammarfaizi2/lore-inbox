@@ -1,143 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVCYFyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVCYFyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVCYFyi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVCYFyi
+	id S261366AbVCYFyp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 00:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVCYFyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:54:38 -0500
-Received: from digitalimplant.org ([64.62.235.95]:61394 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261345AbVCYFyb
+	Fri, 25 Mar 2005 00:54:44 -0500
+Received: from digitalimplant.org ([64.62.235.95]:64466 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261366AbVCYFyf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:54:31 -0500
-Date: Thu, 24 Mar 2005 21:54:24 -0800 (PST)
+	Fri, 25 Mar 2005 00:54:35 -0500
+Date: Thu, 24 Mar 2005 21:54:28 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: linux-kernel@vger.kernel.org
 cc: greg@kroah.com
-Subject: [0/12] More Driver Model Locking Changes 
-Message-ID: <Pine.LNX.4.50.0503242145200.29800-100000@monsoon.he.net>
+Subject: [1/12] More Driver Model Locking Changes
+Message-ID: <Pine.LNX.4.50.0503242149310.18863-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here is the next round of driver model locking changes. These build off of
-the previous set of changes, including the klist patch. They eradicate all
-of the uses of the subsystems' rwsem in the driver core.
-
-It does include the fix posted earlier that happened when removing the
-driver.
-
-A summary is listed below. The patches follow.
-
-Thanks,
+ChangeSet@1.2239, 2005-03-24 10:48:35-08:00, mochel@digitalimplant.org
+  [driver core] Remove the unused device_find().
 
 
-	Pat
+  Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
+
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	2005-03-24 20:34:00 -08:00
++++ b/drivers/base/core.c	2005-03-24 20:34:00 -08:00
+@@ -401,24 +401,6 @@
+ 	return error;
+ }
+
+-/**
+- *	device_find - locate device on a bus by name.
+- *	@name:	name of the device.
+- *	@bus:	bus to scan for the device.
+- *
+- *	Call kset_find_obj() to iterate over list of devices on
+- *	a bus to find device by name. Return device if found.
+- *
+- *	Note that kset_find_obj increments device's reference count.
+- */
+-struct device *device_find(const char *name, struct bus_type *bus)
+-{
+-	struct kobject *k = kset_find_obj(&bus->devices, name);
+-	if (k)
+-		return to_dev(k);
+-	return NULL;
+-}
+-
+ int __init devices_init(void)
+ {
+ 	return subsystem_register(&devices_subsys);
+@@ -434,7 +416,6 @@
+ EXPORT_SYMBOL_GPL(device_unregister);
+ EXPORT_SYMBOL_GPL(get_device);
+ EXPORT_SYMBOL_GPL(put_device);
+-EXPORT_SYMBOL_GPL(device_find);
+
+ EXPORT_SYMBOL_GPL(device_create_file);
+ EXPORT_SYMBOL_GPL(device_remove_file);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2005-03-24 20:34:00 -08:00
++++ b/include/linux/device.h	2005-03-24 20:34:00 -08:00
+@@ -376,7 +376,6 @@
+  */
+ extern struct device * get_device(struct device * dev);
+ extern void put_device(struct device * dev);
+-extern struct device *device_find(const char *name, struct bus_type *bus);
 
 
-You may pull from
-
-	bk://kernel.bkbits.net:/home/mochel/linux-2.6-core
-
-Which will update the following files:
-
- drivers/base/bus.c        |   12 -------
- drivers/base/core.c       |   51 ++++++++----------------------
- drivers/base/dd.c         |   77 +++++++++++++++++++++++++---------------------
- drivers/base/driver.c     |    3 -
- drivers/scsi/scsi_sysfs.c |   14 +++++---
- drivers/usb/core/usb.c    |    4 +-
- include/linux/device.h    |   13 +------
- include/linux/klist.h     |    2 +
- lib/klist.c               |   21 +++++++++++-
- 9 files changed, 92 insertions(+), 105 deletions(-)
-
-through these ChangeSets:
-
-<mochel@digitalimplant.org> (05/03/24 1.2250)
-   [driver core] Fix up bogus comment.
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2249)
-   [driver core] Use a klist for device child lists.
-
-   - Use klist iterator in device_for_each_child(), making it safe to use for
-     removing devices.
-   - Remove unused list_to_dev() function.
-   - Kills all usage of devices_subsys.rwsem.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2248)
-   [scsi] Use device_for_each_child() to unregister devices in scsi_remove_target().
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2247)
-   [klist] Don't reference NULL klist pointer in klist_remove().
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2246)
-   [driver core] Call klist_del() instead of klist_remove().
-
-   - Can't wait on removing the current item in the list (the positive refcount *because*
-     we are using it causes it to deadlock).
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2245)
-   [driver core] Remove struct device::driver_list.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2244)
-   [driver core] Remove struct device::bus_list.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2243)
-   [driver core] Fix up bus code and remove use of rwsem.
-
-   - Don't add devices to bus's embedded kset, since it's not used by anyone anymore.
-   - Don't need to take the bus rwsem when calling {device,driver}_attach(), since
-     those functions use the klists and the klists' spinlocks.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2242)
-   [usb] Fix up USB to use klist_node_attached() instead of list_empty() on lists that will go away.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2241)
-   [klist] add klist_node_attached() to determine if a node is on a list or not.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2240)
-   [driver core] Use bus_for_each_{dev,drv} for driver binding.
-
-   - Now possible, since the lists are locked using the klist lock and not the
-     global rwsem.
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
-<mochel@digitalimplant.org> (05/03/24 1.2239)
-   [driver core] Remove the unused device_find().
-
-
-   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
-
+ /* drivers/base/platform.c */

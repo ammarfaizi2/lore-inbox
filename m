@@ -1,70 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261952AbSIPOOm>; Mon, 16 Sep 2002 10:14:42 -0400
+	id <S261954AbSIPOOs>; Mon, 16 Sep 2002 10:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261954AbSIPOOl>; Mon, 16 Sep 2002 10:14:41 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:57094 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S261952AbSIPOOk>;
-	Mon, 16 Sep 2002 10:14:40 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209161419.g8GEJXF09937@oboe.it.uc3m.es>
-Subject: Re: end_request error procedure in 2.5?
-In-Reply-To: <20020916135444.GK12364@suse.de> from Jens Axboe at "Sep 16, 2002
- 03:54:44 pm"
-To: Jens Axboe <axboe@suse.de>
-Date: Mon, 16 Sep 2002 16:19:33 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S261960AbSIPOOs>; Mon, 16 Sep 2002 10:14:48 -0400
+Received: from puerco.nm.org ([129.121.1.22]:20488 "HELO puerco.nm.org")
+	by vger.kernel.org with SMTP id <S261954AbSIPOOp>;
+	Mon, 16 Sep 2002 10:14:45 -0400
+Date: Mon, 16 Sep 2002 08:16:47 -0600 (MDT)
+From: todd-lkml@osogrande.com
+X-X-Sender: todd@gp
+Reply-To: linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@redhat.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "hadi@cyberus.ca" <hadi@cyberus.ca>,
+       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
+       "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+       "pfeather@cs.unm.edu" <pfeather@cs.unm.edu>
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+In-Reply-To: <20020913.150439.27187393.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0209160805360.7184-100000@gp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Jens Axboe wrote:"
-> >  end_request( req, (req->errors == 0) ? 1 : 0 );
-> >  ..
-> > 
-> >  static void end_request(struct request *req, int uptodate) {
-> >  struct bio *bio;
-> >  while ((bio = req->bio) != NULL) {
-> >              blk_finished_io(bio_sectors(bio));
-> >              req->bio = bio->bi_next;
-> >              bio->bi_next = NULL;
-> >              bio_endio(bio, uptodate);
-> >      }
-> >      blk_put_request(req);
-> >  }
-> > 
-> > 
-> > It works fine except on error.  Kernel 2.5.31.  I understand that
-> > put_request adds the request back to a free list (if gotten from there
-> > via get_request).  The request is ordinary, except out of range ...
-> > it's produced by an e2fsck of the device when the device itself is
-> > unformatted, and the out of range request gets passed to the driver and
-> > is errored there, and "kapow" ..
+david,
+
+comments/questions below...
+
+On Fri, 13 Sep 2002, David S. Miller wrote:
+
+> 1) You register a IPV4 src_addr/dst_addr TCP src_port/dst_port cookie
+>    with the hardware when TCP connections are openned.
+
+intriguing architecture.  are there any standards in progress to support 
+this.  bascially, people doing high performance computing have been 
+customizing non-commodity nics (acenic, myrinet, quadrics, etc.) to do 
+some of this cookie registration/scanning.  it would be nice if there were 
+a standard API/hardware capability that took care of at least this piece.
+
+(frankly, it would also be nice if customizable, almost-commodity nics 
+based on processor/memory/firmware architecture rather than just asics
+(like the acenic) continued to exist).
+
+>    not also make the api for apps to allocate a buffer in userland that (for
+>    nics that support it) the nic can dma directly into?  it seems likely
+>    notification that the buffer was used would have to travel through the
+>    kernel, but it would be nice to save the interrupts altogether.
+>    
+> This is already doable with sys_sendfile() for send today.  The user
+> just does the following:
 > 
-> The error is most likely in the driver calling end_that_request_first(),
+> 1) mmap()'s a file with MAP_SHARED to write the data
+> 2) uses sys_sendfile() to send the data over the socket from that file
+> 3) uses socket write space monitoring to determine if the portions of
+>    the shared area are reclaimable for new writes
+> 
+> BTW Apache could make this, I doubt it does currently.
+> 
+> The corrolary with sys_receivefile would be that the use:
+> 
+> 1) mmap()'s a file with MAP_SHARED to write the data
+> 2) uses sys_receivefile() to pull in the data from the socket to that file
+> 
+> There is no need to poll the receive socket space as the successful
+> return from sys_receivefile() is the "data got received successfully"
+> event.
 
-Hmmm ... it's not called. The above is exactly all that is called
-and LOCAL_END_REQUEST is set. OK. I see what you are saying. Yes, I
-will direct my attention to that function instead ...
+the send case has been well described and seems work well for the people 
+for whom that is the bottleneck.  that has not been the case in HPC, since 
+sends are relatively cheaper (in terms of cpu) than receives.  
 
- ... and yes, I see a possible path in which the queue spinlock may be
-taken twice. OK!
+who is working on this architecture for receives?  i know quite a few 
+people who would be interested in working on it and willing to prototype 
+as well.
 
-Thanks!
+>    totally agreed.  this is a must for high-performance computing now (since 
+>    who wants to waste 80-100% of their CPU just running the network)?
+>    
+> If send side is your bottleneck and you think zerocopy sends of
+> user anonymous data might help, see the above since we can do it
+> today and you are free to experiment.
 
-> not the function itself. Maybe you can try to do at least some
-> debugging, I hope you are not expecting anyone to be able to help you
-> from the above report.
+for many of the applications that i care about, receive is the bottleneck, 
+so zerocopy sends are somewhat of a non-issue (not that they're not nice, 
+they just don't solve the primary waste of processor resources).
 
-!! :-)
+is there a beginning implementation yet of zerocopy receives as you
+describe above, or you you be interested in entertaining implementations
+that work on existing (1Gig-e) cards?
 
-Thanks, yes I know! However, it's taken me about 4 days to get it this
-far. As you know, complete lockups are hard to debug! There's a race
-condition between the printk appearing on the console and the machine
-stopping :-(. 
+what i'm thinking is something that prototypes the api to the nic that you 
+are proposing and implements the NIC-side functionality in firmware on the 
+acenic-2's (which have available firmware in at least two 
+implementations--the alteon version and pete wyckoff's version (which may 
+be less license-encumbered).
 
-Thanks again.
+this is obviously only feasible if there already exists some consensus on 
+what the os-to-hardware API should look like (or there is willingness to 
+try to build a consensus around that now).
 
-Peter
+t.
+
+-- 
+todd underwood, vp & cto
+oso grande technologies, inc.
+todd@osogrande.com
+
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin
+

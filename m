@@ -1,93 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132861AbQLJCcJ>; Sat, 9 Dec 2000 21:32:09 -0500
+	id <S132838AbQLJCjU>; Sat, 9 Dec 2000 21:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132860AbQLJCcA>; Sat, 9 Dec 2000 21:32:00 -0500
-Received: from smtp1.ihug.co.nz ([203.109.252.7]:64018 "EHLO smtp1.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S132859AbQLJCbu>;
-	Sat, 9 Dec 2000 21:31:50 -0500
-Message-ID: <3A32E3D5.915481C3@ihug.co.nz>
-Date: Sun, 10 Dec 2000 15:00:53 +1300
-From: Gerard Sharp <gsharp@ihug.co.nz>
-Reply-To: gsharp@ihug.co.nz
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132843AbQLJCjK>; Sat, 9 Dec 2000 21:39:10 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:18732 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S132838AbQLJCiz>; Sat, 9 Dec 2000 21:38:55 -0500
+Message-Id: <200012100208.eBA28GZ17065@emu.os2.ami.com.au>
+X-Mailer: exmh version 2.1.1 10/15/1999
 To: linux-kernel@vger.kernel.org
-Subject: [patch] modutils 2.3.22 and kernel 2.4.0-test12-pre7
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: Kernel 2.4.0-test11 does not build: 
+In-Reply-To: Your message of "Sat, 09 Dec 2000 18:33:33 EST."
+             <Pine.LNX.4.30.0012091832330.620-100000@asdf.capslock.lan> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Dec 2000 10:08:22 +0800
+From: John Summerfield <summer@OS2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I just upgraded to both of the above (from .21 and and test11-ac4
-respectively); and 8139too.o and ntfs.o both failled to insmod;
+mharris@opensourceadvocate.org said:
+>  Try doing a "make distclean" or "make mrproper" first.  Are you using
+> kgcc? 
 
-insmod: /lib/modules/2.4.0-test12/kernel/fs/ntfs/ntfs.o
-: symbol for parameter ntdebug not found
+Neither works. I'm using gcc 2.95-3 on RHL 6.2
 
-the problem in both cases appears to be a MODULE_PARM refering to a
-symbol that doesn't exist (because the symbol has been #define'd out)
+In desperation, I removed the source tree and started afresh from test1.
 
-The following patch addresses this by bracketing the MODULE_PARM's with
-#ifdef / #endif
-
-There may be more files affected; I don't have time to go hunting :(
-
-=== ntfs_nic.patch ===
-diff -dur linux-2.4.0-test12-clean/drivers/net/8139too.c
-linux-2.4.0-test12-fixe
-d/drivers/net/8139too.c
---- linux-2.4.0-test12-clean/drivers/net/8139too.c      Sun Dec 10
-12:55:42 2000
-+++ linux-2.4.0-test12-fixed/drivers/net/8139too.c      Sun Dec 10
-14:45:20 2000
-@@ -74,6 +74,8 @@
-
-                Tobias Ringström - Rx interrupt status checking
-suggestion
-
-+               Gerard Sharp - bug fix for MODULE_PARM
-+
-        Submitting bug reports:
-
-                "rtl8139-diag -mmmaaavvveefN" output
-@@ -536,7 +538,9 @@
- MODULE_DESCRIPTION ("RealTek RTL-8139 Fast Ethernet driver");
- MODULE_PARM (multicast_filter_limit, "i");
- MODULE_PARM (max_interrupt_work, "i");
-+#ifdef RTL8139_DEBUG
- MODULE_PARM (debug, "i");
-+#endif /*RTL8139_DEBUG*/
- MODULE_PARM (media, "1-" __MODULE_STRING(8) "i");
-
- static int read_eeprom (void *ioaddr, int location, int addr_len);
-diff -dur linux-2.4.0-test12-clean/fs/ntfs/fs.c
-linux-2.4.0-test12-fixed/fs/ntfs
-/fs.c
---- linux-2.4.0-test12-clean/fs/ntfs/fs.c       Sun Dec 10 12:55:47 2000
-+++ linux-2.4.0-test12-fixed/fs/ntfs/fs.c       Sun Dec 10 14:43:35 2000
-@@ -963,9 +963,10 @@
- EXPORT_NO_SYMBOLS;
- MODULE_AUTHOR("Martin von Löwis");
- MODULE_DESCRIPTION("NTFS driver");
-+#ifdef DEBUG
- MODULE_PARM(ntdebug, "i");
- MODULE_PARM_DESC(ntdebug, "Debug level");
--
-+#endif /*DEBUG*/
-+
- module_init(init_ntfs_fs)
- module_exit(exit_ntfs_fs)
- /*
-=== ===
+These are the commands I used:
 
 
-Good Day and Happy Hacking
-Gerard Sharp
-Two Penguins at 1024x768
+[summer@possum src]$ cat reinstall
+#!/bin/bash
+set -ex
+cd /usr/src
+rm -rf linux
+tar Ixf /u03/kernels/patches/linux-2.4.0-test1.tar.bz2
+dir -1rt `find /u03/kernels/patches/ -name patch-2.4.0-t\*.gz -newer 
+/u03/kernels/patches/patch-2.4.0-test1.gz` | xargs --max-lines=1 gzip -dc | 
+patch -p0
+find linux -name \*.rej
+cd linux
+make mrproper
+cp /u03/kernels/configs/possum-2.4.0-test11.config .config
+make dep bzImage modules
+
+
+and it still did not build.
+
+In a hunch, i tried this:
+
+set -ex
+cd /usr/src
+rm -rf linux
+tar Ixf /u03/kernels/patches/linux-2.4.0-test1.tar.bz2
+dir -1rt `find /u03/kernels/patches/ -name patch-2.4.0-t\*.gz -newer 
+/u03/kernels/patches/patch-2.4.0-test1.gz` | xargs --max-lines=1 gzip -dc | 
+patch -p0
+find linux -name \*.rej
+cd linux
+make mrproper
+cp /u03/kernels/configs/possum-2.4.0-test11.config .config
+make oldconfig dep bzImage modules
+
+and the oldconfig resulting in me bing asked three questions (and not those 
+new in test11).
+
+The result builds.
+
+It seems to me that some of the various "make *config" options have the 
+ability to create defective configurations in some circumstances.
+
+I'm off to enjoy my new kernel now;-)
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

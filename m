@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318022AbSHQRPG>; Sat, 17 Aug 2002 13:15:06 -0400
+	id <S318018AbSHQROU>; Sat, 17 Aug 2002 13:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318026AbSHQRPG>; Sat, 17 Aug 2002 13:15:06 -0400
-Received: from www.wotug.org ([194.106.52.201]:61496 "EHLO
-	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
-	id <S318022AbSHQRPC>; Sat, 17 Aug 2002 13:15:02 -0400
-Date: Sat, 17 Aug 2002 18:16:34 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: IDE?  IDE-TNG driver
-In-Reply-To: <Pine.LNX.4.10.10208170455050.23171-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0208171812400.2705-100000@sharra.ivimey.org>
+	id <S318020AbSHQROU>; Sat, 17 Aug 2002 13:14:20 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:41614 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318018AbSHQROU>;
+	Sat, 17 Aug 2002 13:14:20 -0400
+Date: Sat, 17 Aug 2002 19:18:49 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+       <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
+In-Reply-To: <3D5E8346.5010101@iram.es>
+Message-ID: <Pine.LNX.4.44.0208171915390.988-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Andre Hedrick wrote:
 
->
->I will hand it to you guys on a silver platter IDE-TNG.
->
->Below yields modular chipsets and channel index registration.
->Selectable IOPS for arch independent Taskfile Transport layers.
-...
->You have ide-cd registered on a cdrw and you want to burn a cd?
->open(/dev/hdX) transform_subdriver_scsi close(/dev/hdX)
->open(/dev/sg) and burn baby burn.
->close(/dev/sg) releases transform_subdriver_scsi
->open(/dev/hdX) load native atapi transport.
+On Sat, 17 Aug 2002, Gabriel Paubert wrote:
 
+> Hey no, it's cpu_gdt_table that must be aligned. That one does not
+> matter, it's only used once for the lgdt instruction...
 
-Andre, I see the thought, but surely this is prine to races and other 
-difficulties.
+you are right, i misread the System.map - cpu_gdt_table is aligned
+properly:
 
-Wouldn't it be better to provide an IDE ioctl() that enables the caller to use 
-set the SCSI transport on an open FD, so your sequence becomes:
+  c02a39e0 D cpu_gdt_table
 
- open(/dev/hdX)
- ioctl(transform_subdriver_scsi)
- ioctl(scsi_ops)
- write(data)
- close(/dev/hdX)
+so it must be something else that prevents booting on those boxes. Does 
+the boot BIOS code perhaps assume a certain GDT layout? A certain size? 
+Does it overwrite certain GDT entries perhaps?
 
-Ruth
+> Ingo, for the layout of the gdt also, the location of the TSS descriptor
+> is irrelevant AFAICT. It's only used when doing the initial LTR, after
+> that it's never referenced by the CPU.
 
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
+yes. Fortunately this makes no difference, the LDT and the default DS/CS
+are in a single cacheline still.
+
+	Ingo
 

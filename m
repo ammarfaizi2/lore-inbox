@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264219AbTFPT7x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTFPT7x
+	id S264203AbTFPUGL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 16:06:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFPUGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:59:53 -0400
-Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:52051 "EHLO
-	mars.elipse.com.br") by vger.kernel.org with ESMTP id S264219AbTFPT7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:59:52 -0400
-Message-ID: <3EEE25C1.5000905@elipse.com.br>
-Date: Mon, 16 Jun 2003 17:17:05 -0300
-From: Felipe W Damasio <felipewd@elipse.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+	Mon, 16 Jun 2003 16:06:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:4555 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264203AbTFPUGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 16:06:10 -0400
+Date: Mon, 16 Jun 2003 13:21:57 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: i8253 != rtc
+In-Reply-To: <20030616142340.GA369@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0306161319310.908-100000@cherise>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Felipe Wilhelms Damasio <felipe@elipse.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rodrigo Gressler <rodrigo@elipse.com.br>
-Subject: Re: Geode MediaGX CD-ROM detection problem
-References: <D818C01D3A571F49AAB829274DAF9E0402D225@mars.elipse.com.br> <1055545654.6592.6.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1055545654.6592.6.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jun 2003 20:17:06.0250 (UTC) FILETIME=[41C732A0:01C33444]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Alan,
 
-Alan Cox wrote:
-> Try booting with the option ide=nodma first of all
+On Mon, 16 Jun 2003, Pavel Machek wrote:
+
+> Hi!
 > 
+>  /* XXX this driverfs stuff should probably go elsewhere later -john
+> */
+>  static struct sys_device device_i8253 = {
+> -       .name           = "rtc",
+>         .id             = 0,
+> -       .dev    = {
+> -               .name   = "i8253 Real Time Clock",
+> -       },
+> +       .cls    = &rtc_sysclass,
+>  };
+> 
+> ...but i8253 is *not* real time clock. 
 
-	Just tried it. It didn't work.
+D'oh. Noted and changed to 'pit'.
 
-	I still get "not a valid block device".
 
-	dmesg doesn't tell me anything, either. Just the usual:
-
-CS5530: IDE controller on PCI bus 00 dev 92
-.
-.
-hda: GCR-8521B, ATAPI CD/DVD-ROM drive
-
-	Is there any more info I can provide? Or is there anything else I can 
-try?
-
-	Cheers,
-
-Felipe
+	-pat
 

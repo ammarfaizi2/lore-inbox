@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTFFO52 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 10:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTFFO52
+	id S261843AbTFFPBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 11:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTFFPBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 10:57:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1516 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261624AbTFFO51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 10:57:27 -0400
-Date: Fri, 06 Jun 2003 08:08:27 -0700 (PDT)
-Message-Id: <20030606.080827.118629638.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2) 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200306061507.h56F7PsG026811@ginger.cmf.nrl.navy.mil>
-References: <20030606.040410.54190551.davem@redhat.com>
-	<200306061507.h56F7PsG026811@ginger.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Fri, 6 Jun 2003 11:01:00 -0400
+Received: from almesberger.net ([63.105.73.239]:4361 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261843AbTFFPA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 11:00:28 -0400
+Date: Fri, 6 Jun 2003 12:13:39 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606121339.A3232@almesberger.net>
+References: <200306061100.h56B08sG024506@ginger.cmf.nrl.navy.mil> <20030606.040410.54190551.davem@redhat.com> <20030606105753.A3275@almesberger.net> <20030606.070747.48395512.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030606.070747.48395512.davem@redhat.com>; from davem@redhat.com on Fri, Jun 06, 2003 at 07:07:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Fri, 06 Jun 2003 11:05:37 -0400
+David S. Miller wrote:
+> If we move over to a more netdevice-based design for ATM,
+> this will not longer be acceptable.
 
-   so should i hold rtnl across add/remove atm addresses on atm dev's?
-   (but iw ouldnt hold rtnl across people just reading the list of
-   atm addresses right?)
-   
-Correct.
+Why, what's wrong with that ? It's simple, efficient, and it works.
 
-   i am planning (or have done) to move all the vcc's onto a global
-   list (ala many of the other protocol stacks).  this makes the code
-   for proc (and others) much cleaner since you just grab a read lock
-   on the global vcc sklist instead of locking and interating each atm
-   device.  further, this will let atm interrupt handlers block a race
-   with vcc close/removal.  is this a bad plan?
-   
-Sounds good.
+> Unregister of netdevices is %100 asynchronous, even if references
+> remain (and even if the device is UP!), we close then rip the device
+> out of the kernel.  As references go away we finally get to zero
+> and thus can finally kfree() up the netdevice.
+
+Well, that's similar in a synchronous design. Only that you make
+sure that the removal is only attempted from a context that can
+sleep. (That's one of the things the demons do. And no, I don't
+think you want them in the kernel :-)
+
+> This is a much better model than synchronizing everything, you tie
+> your hands when you do it that way and it tends to lead to module
+> unload deadlocks.
+
+Hmm, last time I tried to ignore circular dependencies in
+ansynchronous designs, they failed just as badly as in
+synchronous designs :-)
+
+There are certainly places where a synchronous design doesn't
+make sense. But in the case of ATM device and VCC handling, you
+already have all the synchronous code paths (because things are
+initiated by user space), they're not very timing-critical, and
+reuse before destruction has completed is unlikely.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

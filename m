@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUE0KFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUE0LBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUE0KFY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 06:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUE0KFX
+	id S261904AbUE0LBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 07:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUE0LBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 06:05:23 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:5003 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261880AbUE0KFT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 06:05:19 -0400
-Date: Thu, 27 May 2004 20:05:06 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: dag@bakke.com
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: xfsdump hangs - 2.6.6 && 2.6.7-rc1-bk3
-Message-ID: <20040527200506.A811659@wobbly.melbourne.sgi.com>
-References: <20040527010946.9778.h018.c000.wm@mail.bakke.com.criticalpath.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 May 2004 07:01:45 -0400
+Received: from nat-ph3-wh.rz.uni-karlsruhe.de ([129.13.73.33]:8320 "EHLO
+	au.hadiko.de") by vger.kernel.org with ESMTP id S261904AbUE0LBo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 07:01:44 -0400
+From: Jens =?iso-8859-1?q?K=FCbler?= <cleanerx@au.hadiko.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 keeps crashing with 2.4.27pre3
+Date: Thu, 27 May 2004 13:01:39 +0200
+User-Agent: KMail/1.5.3
+References: <200405261756.35333.cleanerx@au.hadiko.de> <20040526190735.A6244@electric-eye.fr.zoreil.com>
+In-Reply-To: <20040526190735.A6244@electric-eye.fr.zoreil.com>
+Cc: netdev@oss.sgi.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040527010946.9778.h018.c000.wm@mail.bakke.com.criticalpath.net>; from dag@bakke.com on Thu, May 27, 2004 at 01:09:46AM -0700
+Message-Id: <200405271301.39344.cleanerx@au.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 01:09:46AM -0700, dag@bakke.com wrote:
-> One failure, one success, one question  :-)
-> ...
-> But: his patch from hch Works For Me:
-> 
+> [r8169 dysfunction on 2.4.27-pre3]
+> http://www.fr.zoreil.com/people/francois/misc/20040526-2.4.27-pre3-r8169.c-
+>test.patch
+> Please report further success/failure on netdev@oss.sgi.com
 
-Yep, use that final patch from Christoph, thats got all of
-the bases covered.
+Hi
 
-> The one remaining question is: why does xfsrestore print
-> xfsrestore: WARNING: open_by_handle of mnt failed:Bad file descriptor
+I have applied the patch and my system is now stable even when heavy network 
+traffic appears. I enabled NAPI for the card. The network througput is still 
+a bit low (~12MB/s) but I guess this is due to the unpatched endpoint which 
+is also rtl8169 because bonnie told me both harddrives of the computers are 
+capable of more than that.
+System temperature dropped by 13° (from 55°) when idle for those interested in 
+test results.
 
-Thats familiar - I can't remember the exact cause anymore,
-but I think a more recent xfsdump solve that for you.
+Thanx for help
 
-cheers.
+Jens
 
--- 
-Nathan

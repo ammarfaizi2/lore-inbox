@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290814AbSAaBks>; Wed, 30 Jan 2002 20:40:48 -0500
+	id <S290817AbSAaBks>; Wed, 30 Jan 2002 20:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290822AbSAaBkb>; Wed, 30 Jan 2002 20:40:31 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:15109 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S290811AbSAaBjQ>;
-	Wed, 30 Jan 2002 20:39:16 -0500
-Message-Id: <5.1.0.14.0.20020131123411.0254f550@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 31 Jan 2002 12:39:11 +1100
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Larry McVoy <lm@bitmover.com>,
-        Rob Landley <landley@trommello.org>,
-        Rasmus Andersen <rasmus@jaquet.dk>, killeri@iki.fi,
-        patchbot-devel@killeri.net
-In-Reply-To: <E16W5zM-0000Jl-00@starship.berlin>
-In-Reply-To: <5.1.0.14.0.20020131114402.02653b10@mail.amc.localnet>
- <20020130162851.H9765@jaquet.dk>
- <5.1.0.14.0.20020131114402.02653b10@mail.amc.localnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S290811AbSAaBkf>; Wed, 30 Jan 2002 20:40:35 -0500
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:33926 "EHLO
+	Bluesong.NET") by vger.kernel.org with ESMTP id <S290817AbSAaBjj>;
+	Wed, 30 Jan 2002 20:39:39 -0500
+Message-Id: <200201310144.g0V1iJs26742@Bluesong.NET>
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@trane.bluesong.net>
+Reply-To: jfv@bluesong.net
+To: m.knoblauch@TeraPort.de
+Subject: Re: [PATCH]: O(1) 2.4.17-J7 Tuneable Parameters
+Date: Wed, 30 Jan 2002 17:44:18 -0800
+X-Mailer: KMail [version 1.3.1]
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        jfv@us.ibm.com
+In-Reply-To: <3C57F347.26527F73@TeraPort.de>
+In-Reply-To: <3C57F347.26527F73@TeraPort.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:26 AM 31/01/02 +0100, Daniel Phillips wrote:
->On January 31, 2002 01:49 am, Stuart Young wrote:
-> > Possibly, but then it'll reply to the spammer and you'll get bounces left
-> > and right. Perhaps it's a simple case that the patcher submitting will 
-> have
-> > to have registered the email address before submitting their patch. Only
-> > needs to be done once (not every time a patch is submitted, that's mad!),
-> > and weeds out the noise.
+On Wednesday 30 January 2002 05:21 am, Martin Knoblauch wrote:
+> > [PATCH]: O(1) 2.4.17-J7 Tuneable Parameters
 >
->Yes, that's a point for discussion.  Certainly, a patchbot list like
->patches-2.5-maintainer should require registration, and in fact, registration
->for this list will be by invitation.  It's not so clear what the policy
->should be on the patches-2.5 list.  Openness is a nice thing to be able to
->boast about.  Maybe the thing to do is try it open, and see how it works out.
+>
+>  How big is the actual degradation in your test? IIR, Ingo is afraid
+> that the tunables could easily screw things up, which of course is true.
+> What about adding a kernel-build option that leaves the sysctl interface
+> read-only by default and enables writing only if it is requested at
+> build time?
 
-True. But if it comes to it, a once off authentication to 'allow' an e-mail 
-address weeds out a hell of a lot of spambots.
+Running on a machine that I dont think I can really officially give numbers..
+However, lets say that without the tuneable code you got a run of hackbench
+doing 60 groups that took 8.27 secs, when the tuneable code is in it went
+to a whopping 8.6 secs :)
 
->We also have to worry about malicious spamming of the patch list.  I've heard
->this happened to kuro5hin's story submission queue - there is no accounting
->for all the forms of insect life out there.
+The results at least on this benchmark were all in that decimal noise.
 
-Malicious spamming will happen no matter what you do, unless you vet the 
-subscriptions manually.
+As for a build option, if the code were integrated I might see that as 
+making sense, but as this is a developmental patch the user is expected
+to know what they are doing. Only root can write anything to the parameters
+as well.
 
+Cheers,
 
-Stuart Young - sgy@amc.com.au
-(aka Cefiar) - cefiar1@optushome.com.au
-
-[All opinions expressed in the above message are my]
-[own and not necessarily the views of my employer..]
-
+-- 
+Jack F. Vogel
+IBM  Linux Solutions
+jfv@us.ibm.com  (work)
+jfv@Bluesong.NET (home)

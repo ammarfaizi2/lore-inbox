@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbTIPVUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 17:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbTIPVUV
+	id S262526AbTIPVXY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 17:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTIPVXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 17:20:21 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:26532 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262506AbTIPVUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 17:20:18 -0400
-Subject: Re: [PATCH] use seq_lock for monotonic time
-From: john stultz <johnstul@us.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030916140001.7027d6e5.shemminger@osdl.org>
-References: <20030916102706.26bc4516.shemminger@osdl.org>
-	 <20030916115935.64ebce3d.akpm@osdl.org>
-	 <20030916140001.7027d6e5.shemminger@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063747070.26723.15.camel@cog.beaverton.ibm.com>
+	Tue, 16 Sep 2003 17:23:24 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:2564 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262526AbTIPVXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 17:23:22 -0400
+Date: Tue, 16 Sep 2003 23:23:18 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: Another keyboard woes with 2.6.0...
+Message-ID: <20030916232318.A1699@pclin040.win.tue.nl>
+References: <20030912165044.GA14440@vana.vc.cvut.cz> <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Sep 2003 14:17:51 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Fri, Sep 12, 2003 at 01:45:14PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-16 at 14:00, Stephen Hemminger wrote:
-> On Tue, 16 Sep 2003 11:59:35 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > So timer_cyclone and timer_hpet need the same change?
-> 
-> Yes.
+On Fri, Sep 12, 2003 at 01:45:14PM -0400, Zwane Mwaikambo wrote:
 
-The cyclone bits match those I was testing to send. 
-Looks good.
+> 	I have the same problem with an Avocent SwitchView and Keytronic 
+> keyboard, although it doesn't sound as bad as your problem. Occasionally 
+> some keys just repeat until i press another key.
 
-thanks
--john
+In Petr's case it looks like his switch produces a single well-defined
+byte (0x41) when switching. What about you? Do you get garbage at the
+moment of switching, or always the same code(s)?
+Do you only get the spurious repeat when switching?
+Andrew gets spurious repeats together with mouse activity. Do you?
+
+I am especially interested in cases where people can reproduce
+an unwanted key repeat. The question is: is this a bug in our timer code
+or use of timers, or did the keyboard never send the key release code?
+
+(#define DEBUG in i8042.c)
+
+Andries
 

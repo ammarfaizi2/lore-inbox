@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbUCRN3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 08:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbUCRN3N
+	id S262609AbUCRNaS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 08:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbUCRNaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 08:29:13 -0500
-Received: from codeblau.walledcity.de ([212.84.209.34]:28168 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S262612AbUCRN2z (ORCPT
+	Thu, 18 Mar 2004 08:30:18 -0500
+Received: from [219.133.136.71] ([219.133.136.71]:22345 "ehlo citiz.net")
+	by vger.kernel.org with ESMTP id S262609AbUCRNaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 08:28:55 -0500
-Date: Thu, 18 Mar 2004 14:29:37 +0100
-From: Felix von Leitner <felix-kernel@fefe.de>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Remove kernel features (for embedded systems)
-Message-ID: <20040318132937.GB29111@codeblau.de>
-References: <20040318130640.GA28923@codeblau.de> <200403181311.i2IDB3dE000721@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403181311.i2IDB3dE000721@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.5.4i
+	Thu, 18 Mar 2004 08:30:08 -0500
+From: "Frank" <hytechnologyhk@citiz.net>
+Subject: Headset mp3 player comes out with a very good price!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hytechnologyhk@citiz.net
+Date: Thu, 18 Mar 2004 21:30:10 +0800
+X-Priority: 2
+X-Mailer: FoxMail 4.0 beta 2 [cn]
+Message-Id: <S262609AbUCRNaI/20040318133008Z+64@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake John Bradford (john@grabjohn.com):
-> > And if it is at all possible, I would like to be able to remove parts of
-> > the IP stack, e.g. routing.  In particular, I would like to be able to
-> > remove policy routing, if it is at all worth it from the code size point
-> > of view.
-> Why not just write your own IP stack in userspace, if you're doing a
-> heavily embedded system?
+Dear friends,
 
-People use Linux _because_ of the IP stack.
-They just normally don't need all of it.
-And I propose to let them remove the parts they don't need.
+Good day!
 
-Felix
+Just a short message from HY Technology Co, Ltd.
+ 
+We just updated our Mp3 players with internal FM radio function to support 8 languages, English, 
+Chinese, French, Italian, German, Spanish, Czech, Swede. 
+
+>From now on, our BX1002Na, BX1002Nd and BXKing can come with internal FM radio function and 
+support 8 languages also.
+
+The price is only 54 USD for 128M and 77 USD for 256M.
+ 
+By the way, did you get our introduction about our latest Mp3 player------Butterfly, the headset 
+Mp3 player?
+ 
+The Mp3 IC and pc board are already installed in headphone. 
+You can enjoy music completely free now, without any wire around you!
+
+The price is only 55 USD for 128M and 79 USD for 256M.
+
+We have 20 kings of mp3 players to satisfy your demand. And the smallest mp3 player in the 
+world- BXDIOMAND!
+ 
+If you need catalogue and price list, please kindly tell us and we will send them to you.
+ 
+Looking forward to any comment from you. 
+ 
+Have a nice day!
+
+
+Frank
+
+HY Technology (Hong Kong) Company Ltd.
+

@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265404AbTF3QnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 12:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbTF3QnI
+	id S265367AbTF3Qnj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 12:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbTF3Qnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 12:43:08 -0400
-Received: from post.pl ([212.85.96.51]:64269 "HELO matrix01b.home.net.pl")
-	by vger.kernel.org with SMTP id S265404AbTF3QnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 12:43:07 -0400
-Message-ID: <3F006C76.7010308@post.pl>
-Date: Mon, 30 Jun 2003 18:59:34 +0200
-From: "Leonard Milcin Jr." <thervoy@post.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Mon, 30 Jun 2003 12:43:39 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:31755
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S265367AbTF3Qnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 12:43:37 -0400
+Date: Mon, 30 Jun 2003 09:54:33 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Valdis.Kletnieks@vt.edu
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell vs. GPL 
+In-Reply-To: <200306301549.h5UFnvNS028059@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.10.10306300946190.5840-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: File System conversion -- ideas
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net> <bdpn3c$te5$1@tangens.hometree.net>
-In-Reply-To: <bdpn3c$te5$1@tangens.hometree.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henning P. Schmiedehausen wrote:
-> "David D. Hagood" <wowbagger@sktc.net> writes:
-> 
-> 
->>For example, suppose you have a 60G disk, 55G of data, in ext2, and you 
->>wish to convert to ReiserFS.
-> 
-> 
->>Step 1: Shrink the volume to 55G. This requires a "shrink disk" utility 
->>for the source file system (which exists for the major file systems in 
->>use today).
-> 
-> 
-> You have a 6 GB file. You lose. :-)
-> 
-> 	Regards
-> 		Henning
-> 
 
-Hey folk! I don't used LVM, but I think it allows file to be splitted 
-between diferent filesystems. Yes?
+There is a lot riding on untested, and you assume the vendors of today
+whom have gotten away with ripping off GPL since the beginning have any
+fear.  The very additude of don't go there gives them all the firepower
+they need to never do the right thing unless ordered and fined.
 
+Treat the GPL license as the Kernel, you trust what you have tested.
+I have ZERO trust in GPL, given all the violations I personally know about
+and have seen.  All of these are still blocked from revealing until NDA's
+expire.
 
--- 
-"Unix IS user friendly... It's just selective about who its friends are."
-                                                        -- Tollef Fog Heen
+These people need to pay the stupid tax now and not get a free ride any
+longer.
+
+Not you or anybody will stop me from taking GPL to court.
+Win, Lose, or Draw -- I will find the line.
+I do not give a damn period, what are you going to do now?
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Mon, 30 Jun 2003 Valdis.Kletnieks@vt.edu wrote:
+
+> On Sun, 29 Jun 2003 23:56:07 PDT, Andre Hedrick said:
+> 
+> > When they tell you they will not open a case on your behalf until a
+> > registered copyright is in hand, that point real hard.
+> 
+> The part you're missing here is the part where the offending vendor ends up
+> Doing The Right Thing, either because they've become enlightened or just
+> because they realize compliance is easier/cheaper than a lawsuit.
+> 
+> Remember *WHY* the GPL is still untested in court - things rarely progress that
+> far.
+> 
+> 
 

@@ -1,90 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUGFHby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUGFHfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263555AbUGFHby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 03:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUGFHby
+	id S263640AbUGFHfS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 03:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGFHfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 03:31:54 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:56207 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263555AbUGFHbv (ORCPT
+	Tue, 6 Jul 2004 03:35:18 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:31162 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263640AbUGFHfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 03:31:51 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: jhf@rivenstone.net (Joseph Fannin)
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       paulus@samba.org, benh@kernel.crashing.org, rusty@rustcorp.com.au
-Subject: Re: 2.6.7-mm6 - ppc32 inconsistent kallsyms data 
-In-reply-to: Your message of "Tue, 06 Jul 2004 12:06:08 +1000."
-             <2970.1089079568@kao2.melbourne.sgi.com> 
+	Tue, 6 Jul 2004 03:35:03 -0400
+Date: Tue, 6 Jul 2004 09:34:45 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Daniel Phillips <phillips@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040706073444.GB19892@marowsky-bree.de>
+References: <200407050209.29268.phillips@redhat.com> <200407051442.27397.phillips@redhat.com> <20040705191204.GE6845@marowsky-bree.de> <200407051627.51790.phillips@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Jul 2004 17:31:22 +1000
-Message-ID: <13859.1089099082@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200407051627.51790.phillips@redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Jul 2004 12:06:08 +1000, 
-Keith Owens <kaos@sgi.com> wrote:
->On Mon, 5 Jul 2004 16:38:18 -0400, 
->jhf@rivenstone.net (Joseph Fannin) wrote:
->>On Mon, Jul 05, 2004 at 02:31:20AM -0700, Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm6/
->>
->>  I'm getting this while building for ppc32:
->>    Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
->>
->>  This didn't happen with -mm6.
->>
->>  The help text for CONFIG_KALLSYMS_EXTRA_PASS says I should report a
->>bug, and reads like kallsyms is a utility or part of the toolchain;
->>I think it's talking about the kernel feature though, so I guess
->>I'll report it here.  I'll keep this tree around in case any more
->>information is needed.
->
->Run these commands on the tree that needed CONFIG_KALLSYMS_EXTRA_PASS=y
->(assumes Bourne shell)
->
->for i in 1 2 3; do nm .tmp_kallsyms$i.o > .tmp_mapk$i; nm .tmp_vmlinux$i > .tmp_mapv$i; done
->tar cjvf /var/tmp/kallsyms.tar.bz2 .tmp_kallsyms* .tmp_vmlinux* .tmp_map*
->
->Send the tarball to me, not the list.
+On 2004-07-05T16:27:51,
+   Daniel Phillips <phillips@redhat.com> said:
 
-This is a real linker problem on ppc32.  The linker automatically adds
-_SDA_BASE_ and _SDA2_BASE_ symbols, these symbols are not defined in
-vmlinux.lds.S.  The SDA symbols move around as kallsyms data is added
-between phases 1 and 2.  That movement, together with the stem
-compression (which depends on the immediately previous symbol) means
-that the compressed symbol table changes size between phases 1 and 2,
-which it is not supposed to do.
+> > Indeed. If your efforts in joining the infrastructure are more
+> > successful than ours have been, more power to you ;-)
+> 
+> What problems did you run into?
 
-This problem has been there all along.  It showed up now because I
-added a test to verify that the kallsyms data is consistent after phase
-2, instead of blindly assuming that it is stable.  jhf, can you verify
-that this patch removes the need for an extra kallsyms pass?
+The problems were mostly political. Maybe we tried to push too early,
+but 1-3 years back, people weren't really interested in agreeing on some
+common components or APIs. In particular a certain Linux vendor didn't
+even join the group ;-) And the "industry" was very reluctant too. Which
+meant that everybody spend ages talking and not much happening.
 
---- kallsyms-ppc32 ---
+However, times may have changed, and hopefully for the better. The push
+to get one solution included into the Linux kernel may be enough to
+convince people that this time its for real...
 
-PPC small data area base symbols shift between kallsyms phases 1 and 2,
-which makes the kallsyms data unstable.  Exclude them from the kallsyms
-list.
+There still is the Open Clustering Framework group though, which is a
+sub-group of the FSG and maybe the right umbrella to put this under, to
+stay away from the impression that it's a single vendor pushing.
 
-Signed-off-by: Keith Owens <kaos@sgi.com>
+If we could revive that and make real progress, I'd be as happy as a
+well fed penguin.
 
-Index: 2.6.7-mm6/scripts/kallsyms.c
-===================================================================
---- 2.6.7-mm6.orig/scripts/kallsyms.c	2004-07-06 17:26:14.000000000 +1000
-+++ 2.6.7-mm6/scripts/kallsyms.c	2004-07-06 17:26:33.000000000 +1000
-@@ -83,6 +83,11 @@ symbol_valid(struct sym_entry *s)
- 	    strcmp(s->sym, "kallsyms_names") == 0)
- 		return 0;
- 
-+	/* Exclude linker generated symbols which vary between passes */
-+	if (strstr(s->sym, "_SDA_BASE_") ||		/* ppc */
-+	    strcmp(s->sym, "_SDA2_BASE_") == 0)		/* ppc */
-+		return 0;
-+
- 	return 1;
- }
- 
+Now with OpenAIS on the table, the GFS stack, the work already done by
+OCF in the past (which is, admittedly, depressingly little, but I quite
+like the Resource Agent API for one) et cetera, there may be a good
+chance.
+
+I'll try to get travel approval to go to the meeting. 
+
+BTW, is the mailing list working? I tried subscribing when you first
+announced it, but the subscription request hasn't been approved yet...
+Maybe I shouldn't have subscribed with the suse.de address ;-)
+
+> On a quick read-through, it seems quite straightforward for quorum, 
+> membership and distributed locking.
+
+Believe me, you'd be amazed to find out how long you can argue on how to
+identify a node alone - node name, node number (sparse or continuous?),
+UUID...? ;-)
+
+And, how do you define quorum, and is it always needed? Some algorithms
+don't need quorum (ie, election algorithms can do fine without), so a
+membership service which only works with quorum isn't the right
+component etc...
+
+> The idea of having more than one node fencing system running at the same 
+> time seems deeply scary, we'd better make some effort to come up with 
+> something common.
+
+Yes. This is actually an important point, and fencing policies are also
+reasonably complex. The GFS stack seems to tie fencing quite deeply into
+the system (which is understandable, since you always have shared
+storage, otherwise a node wouldn't be part of the GFS domain in the
+first place).
+
+However, the new dependency based cluster resource manager we are
+writing right now (which we simply call "Cluster Resource Manager" for
+lack of creativity ;) decides whether or not it needs to fence a node
+based on the resources in the cluster - if it isn't affecting the
+resources we can run on the remaining nodes, or none of the resources
+requires node-level fencing, no such operation will be done. 
+
+This has advantages in larger clusters (where, if split, each partition
+could still continue to run resources which are unaffected by the split
+even the other nodes cannot be fenced), in shared nothing clusters or
+resources which are self-fencing and do not need STONITH etc.
+
+The ties between membership, quorum and fencing are not as strong in
+these scenarios, at least not mandatory. So a stack which enforced
+fencing at these levels, and w/o coordinating with the CRM first, would
+not work out.
+
+And by pushing for inclusion into the main kernel, you'll also raise all
+sleeping zom^Wbeauties. I hope you have a long breath for the
+discussions ;-)
+
+There's lots of work there.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
 

@@ -1,223 +1,724 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQKFEbM>; Sun, 5 Nov 2000 23:31:12 -0500
+	id <S130170AbQKFEbm>; Sun, 5 Nov 2000 23:31:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130175AbQKFEbC>; Sun, 5 Nov 2000 23:31:02 -0500
-Received: from getafix.lostland.net ([216.29.29.27]:35437 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S130170AbQKFEat>; Sun, 5 Nov 2000 23:30:49 -0500
-Date: Sun, 5 Nov 2000 23:30:48 -0500 (EST)
-From: adrian <jimbud@lostland.net>
+	id <S130175AbQKFEbb>; Sun, 5 Nov 2000 23:31:31 -0500
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:47884 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S130170AbQKFEbN>;
+	Sun, 5 Nov 2000 23:31:13 -0500
+Date: Sun, 05 Nov 2000 23:31:11 -0500
+From: Brad Corsello <bcorsello@usa.net>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] Bug in page_alloc.c
-Message-ID: <Pine.BSO.4.21.0011052212160.30593-100000@getafix.lostland.net>
+Subject: Re: PROBLEM: kernel oops on boot in 2.4.0 test10
+Reply-To: bcorsello@usa.net
+X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <0110c04400406b0NYCSMTP1@nyc.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hello folks,
-
-   I got these oopses after mounting an NFS share and copying ~1.3GB from
-it to a local partition.  The oopses happened 44 hours after the copy,
-during which time the system ran setiathome exclusively.  Previously,
-without first doing this copy, the system ran for a week doing setiathome,
-at which time I rebooted, did this copy, and left for the weekend.
-
-Here are the goods:
-
-I found this on the console:
-
-kernel BUG at page_alloc.c:82!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012965d>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: 0000001f   ebx: c145cca8   ecx: 00000000   edx: 0000001c
-esi: 00000000   edi: cd74e404   ebp: 00000000   esp: cd60de60
-ds: 0018   es: 0018   ss: 0018
-Process setiathome (pid: 1662, stackpage=cd60d000)
-Stack: c0233305 c02334d3 00000052 c145cca8 00000000 cd74e404 d1aff214 c1044010 
-       c0280520 00000216 ffffffff 0000a569 c0129fc3 c012a43d 0000037b 00000000 
-       c011eb86 c145cca8 d7e586c0 4014b000 d7306900 00c66000 00000084 00000000 
-Call Trace: [<c0233305>] [<c02334d3>] [<c0129fc3>] [<c012a43d>] [<c011eb86>] [<c01210e8>] [<c0115a85>] 
-       [<c0119669>] [<c010a4c7>] [<c0110be0>] [<c01e2c98>] [<c011d96e>] [<c011db77>] [<c010e952>] [<c010a76c>] 
-       [<c010a698>] [<c01e2c98>] [<c01e2c98>] 
-Code: 0f 0b 83 c4 0c 89 f6 83 7b 08 00 74 16 6a 54 68 d3 34 23 c0 
-
->>EIP; c012965d <__free_pages_ok+2d/340>   <=====
-Trace; c0233305 <tvecs+1cdd/1a9d8>
-Trace; c02334d3 <tvecs+1eab/1a9d8>
-Trace; c0129fc3 <__free_pages+13/20>
-Trace; c012a43d <free_page_and_swap_cache+7d/80>
-Trace; c011eb86 <zap_page_range+186/220>
-Trace; c01210e8 <exit_mmap+b8/110>
-Trace; c0115a85 <mmput+15/30>
-Trace; c0119669 <do_exit+a9/200>
-Trace; c010a4c7 <do_signal+207/2a4>
-Trace; c0110be0 <do_page_fault+0/3f0>
-Trace; c01e2c98 <isapnp_set_irq+8/c0>
-Trace; c011d96e <update_wall_time+e/40>
-Trace; c011db77 <timer_bh+27/260>
-Trace; c010e952 <timer_interrupt+72/120>
-Trace; c010a76c <error_code+34/3c>
-Trace; c010a698 <signal_return+14/18>
-Trace; c01e2c98 <isapnp_set_irq+8/c0>
-Trace; c01e2c98 <isapnp_set_irq+8/c0>
-Code;  c012965d <__free_pages_ok+2d/340>
-00000000 <_EIP>:
-Code;  c012965d <__free_pages_ok+2d/340>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012965f <__free_pages_ok+2f/340>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c0129662 <__free_pages_ok+32/340>
-   5:   89 f6                     mov    %esi,%esi
-Code;  c0129664 <__free_pages_ok+34/340>
-   7:   83 7b 08 00               cmpl   $0x0,0x8(%ebx)
-Code;  c0129668 <__free_pages_ok+38/340>
-   b:   74 16                     je     23 <_EIP+0x23> c0129680 <__free_pages_ok+50/340>
-Code;  c012966a <__free_pages_ok+3a/340>
-   d:   6a 54                     push   $0x54
-Code;  c012966c <__free_pages_ok+3c/340>
-   f:   68 d3 34 23 c0            push   $0xc02334d3
-
-I then tried an alt+sysrq+s, which gave:
-
-Syncing device 03:01 ... <1>Unable to handle kernel paging request at virtual address 080a5960
-c012e410
-*pde = 171db067
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c012e410>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 080a5940   ebx: 080a5940   ecx: 0005a416   edx: d1195e40
-esi: 00000301   edi: 00000000   ebp: 00000001   esp: c167ff88
-ds: 0018   es: 0018   ss: 0018
-Process kflushd (pid: 4, stackpage=c167f000)
-Stack: 00000301 00000000 c02f5740 0008e000 d1195e40 00000000 030110bf 080a5940 
-       c012e5de 00000301 00000000 d7e90400 c019943a 00000301 d7e90400 00000000 
-       c167e000 c0199490 d7e90400 00000000 00000000 c167e000 c01312c2 00010f00 
-Call Trace: [<c012e5de>] [<c019943a>] [<c0199490>] [<c01312c2>] [<c0108c03>] 
-Code: 8b 58 20 83 3d 30 74 2d c0 00 74 5b 66 83 7c 24 1a 00 74 0b 
-
->>EIP; c012e410 <sync_buffers+30/1c0>   <=====
-Trace; c012e5de <fsync_dev+e/40>
-Trace; c019943a <go_sync+10a/120>
-Trace; c0199490 <do_emergency_sync+40/a0>
-Trace; c01312c2 <bdflush+72/110>
-Trace; c0108c03 <kernel_thread+23/30>
-Code;  c012e410 <sync_buffers+30/1c0>
-00000000 <_EIP>:
-Code;  c012e410 <sync_buffers+30/1c0>   <=====
-   0:   8b 58 20                  mov    0x20(%eax),%ebx   <=====
-Code;  c012e413 <sync_buffers+33/1c0>
-   3:   83 3d 30 74 2d c0 00      cmpl   $0x0,0xc02d7430
-Code;  c012e41a <sync_buffers+3a/1c0>
-   a:   74 5b                     je     67 <_EIP+0x67> c012e477 <sync_buffers+97/1c0>
-Code;  c012e41c <sync_buffers+3c/1c0>
-   c:   66 83 7c 24 1a 00         cmpw   $0x0,0x1a(%esp,1)
-Code;  c012e422 <sync_buffers+42/1c0>
-  12:   74 0b                     je     1f <_EIP+0x1f> c012e42f <sync_buffers+4f/1c0>
+Jeff, thank you for responding.
 
 
-Then I tried a manual umount, resulting in:
+>Can you play the kernel shuffle, and narrow down exactly which kernel
+>version breaks for you? Read, from the linux source tree,
+>Documentation/BUG-HUNTING.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000032
-c012e410
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c012e410>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00000012   ebx: 00000012   ecx: 0005a4a9   edx: d00592c0
-esi: 00000341   edi: 00000000   ebp: 00000000   esp: d5b8df34
-ds: 0018   es: 0018   ss: 0018
-Process umount (pid: 2317, stackpage=d5b8d000)
-Stack: 00000341 d7bae000 00000000 08051fa8 d00592c0 00000000 03411fa8 00000012 
-       c012e5de 00000341 00000000 d7e685c0 c0132c40 00000341 d7bae000 ffffffff 
-       d7c36a40 d5b8df98 c0132db2 d7e685c0 00000000 00000000 d5b8c000 08051fa9 
-Call Trace: [<c012e5de>] [<c0132c40>] [<c0132db2>] [<c0132dec>] [<c010a64f>] 
-Code: 8b 58 20 83 3d 30 74 2d c0 00 74 5b 66 83 7c 24 1a 00 74 0b 
+OK.  I've compiled test1, and it also oopsed on boot.  (Which is confusing,
+since I know for sure I had test4 compiled and running.  I must have changed
+something in my system in the interim, but I can't remember what!)  I'm now
+compiling 2.2.17, to
+see if that works.  If so, I'll try some 2.3.x sources.
 
->>EIP; c012e410 <sync_buffers+30/1c0>   <=====
-Trace; c012e5de <fsync_dev+e/40>
-Trace; c0132c40 <do_umount+130/1e0>
-Trace; c0132db2 <sys_umount+c2/f0>
-Trace; c0132dec <sys_oldumount+c/10>
-Trace; c010a64f <system_call+33/38>
-Code;  c012e410 <sync_buffers+30/1c0>
-00000000 <_EIP>:
-Code;  c012e410 <sync_buffers+30/1c0>   <=====
-   0:   8b 58 20                  mov    0x20(%eax),%ebx   <=====
-Code;  c012e413 <sync_buffers+33/1c0>
-   3:   83 3d 30 74 2d c0 00      cmpl   $0x0,0xc02d7430
-Code;  c012e41a <sync_buffers+3a/1c0>
-   a:   74 5b                     je     67 <_EIP+0x67> c012e477 <sync_buffers+97/1c0>
-Code;  c012e41c <sync_buffers+3c/1c0>
-   c:   66 83 7c 24 1a 00         cmpw   $0x0,0x1a(%esp,1)
-Code;  c012e422 <sync_buffers+42/1c0>
-  12:   74 0b                     je     1f <_EIP+0x1f> c012e42f <sync_buffers+4f/1c0>
+>Are you certain you used the correct vmlinux and System.map here? Can
+>you present your .config for kernel building?
+
+I believe so, I used the vmlinux and System.map that were in the source tree
+following the build.  They should be correct.
+
+Here is the .config I used to build the test10 that oopsed:
+
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_M686FXSR is not set
+CONFIG_MK6=y
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_TSC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_IOAPIC is not set
+
+#
+# General setup
+#
+CONFIG_NET=y
+# CONFIG_VISWS is not set
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+# CONFIG_SYSVIPC is not set
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_PM is not set
+# CONFIG_ACPI is not set
+# CONFIG_APM is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=m
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+# CONFIG_PARPORT_1284 is not set
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_BLK_DEV_LVM is not set
+# CONFIG_LVM_PROC_FS is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+
+#
+#  
+#
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_IDEDMA_PCI is not set
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_IDEDMA_PCI_AUTO is not set
+# CONFIG_BLK_DEV_IDEDMA is not set
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD7409 is not set
+# CONFIG_AMD7409_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_PIIX_TUNING is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_OSB4 is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_AUTO is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=y
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=y
+# CONFIG_PCNET32 is not set
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DE4X5 is not set
+CONFIG_TULIP=m
+# CONFIG_DGRS is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_8139TOO is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+# CONFIG_UNIX98_PTYS is not set
+# CONFIG_PRINTER is not set
+# CONFIG_PPDEV is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+# CONFIG_I2C_PHILIPSPAR is not set
+# CONFIG_I2C_ELV is not set
+# CONFIG_I2C_VELLEMAN is not set
+# CONFIG_I2C_ALGOPCF is not set
+# CONFIG_I2C_CHARDEV is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+
+#
+# Input core support is needed for joysticks
+#
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+CONFIG_DRM=y
+CONFIG_DRM_TDFX=m
+# CONFIG_DRM_GAMMA is not set
+# CONFIG_DRM_R128 is not set
+# CONFIG_DRM_I810 is not set
+# CONFIG_DRM_MGA is not set
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_PROC_FS=y
+# CONFIG_I2C_PARPORT is not set
+
+#
+# Video Adapters
+#
+CONFIG_VIDEO_BT848=m
+# CONFIG_VIDEO_PMS is not set
+# CONFIG_VIDEO_BWQCAM is not set
+# CONFIG_VIDEO_CPIA is not set
+# CONFIG_VIDEO_SAA5249 is not set
+# CONFIG_TUNER_3036 is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_BUZ is not set
+# CONFIG_VIDEO_ZR36120 is not set
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_CADET is not set
+# CONFIG_RADIO_RTRACK is not set
+# CONFIG_RADIO_RTRACK2 is not set
+# CONFIG_RADIO_AZTECH is not set
+# CONFIG_RADIO_GEMTEK is not set
+# CONFIG_RADIO_MAESTRO is not set
+# CONFIG_RADIO_MIROPCM20 is not set
+# CONFIG_RADIO_SF16FMI is not set
+# CONFIG_RADIO_TERRATEC is not set
+# CONFIG_RADIO_TRUST is not set
+# CONFIG_RADIO_TYPHOON is not set
+# CONFIG_RADIO_ZOLTRIX is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=y
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_RAMFS is not set
+CONFIG_ISO9660_FS=y
+# CONFIG_JOLIET is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+# CONFIG_DEVPTS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_SYSV_FS_WRITE is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_NFS_FS is not set
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_SUNRPC is not set
+# CONFIG_LOCKD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_MOUNT_SUBDIR is not set
+# CONFIG_NCPFS_NDS_DOMAINS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_TRACEINIT=y
+# CONFIG_SOUND_DMAP is not set
+# CONFIG_SOUND_SGALAXY is not set
+# CONFIG_SOUND_ADLIB is not set
+# CONFIG_SOUND_ACI_MIXER is not set
+# CONFIG_SOUND_CS4232 is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_GUS is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_VMIDI is not set
+# CONFIG_SOUND_TRIX is not set
+# CONFIG_SOUND_MSS is not set
+# CONFIG_SOUND_MPU401 is not set
+# CONFIG_SOUND_NM256 is not set
+# CONFIG_SOUND_MAD16 is not set
+# CONFIG_SOUND_PAS is not set
+# CONFIG_PAS_JOYSTICK is not set
+# CONFIG_SOUND_PSS is not set
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_AWE32_SYNTH=m
+# CONFIG_SOUND_WAVEFRONT is not set
+# CONFIG_SOUND_MAUI is not set
+# CONFIG_SOUND_YM3812 is not set
+# CONFIG_SOUND_OPL3SA1 is not set
+# CONFIG_SOUND_OPL3SA2 is not set
+# CONFIG_SOUND_YMPCI is not set
+# CONFIG_SOUND_UART6850 is not set
+# CONFIG_SOUND_AEDSP16 is not set
+CONFIG_SOUND_TVMIXER=m
+
+#
+# USB support
+#
+CONFIG_USB=y
+CONFIG_USB_DEBUG=y
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+
+#
+# USB Controllers
+#
+# CONFIG_USB_UHCI is not set
+# CONFIG_USB_UHCI_ALT is not set
+CONFIG_USB_OHCI=y
+
+#
+# USB Devices
+#
+CONFIG_USB_PRINTER=y
+# CONFIG_USB_SCANNER is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_USS720 is not set
+# CONFIG_USB_DABUSB is not set
+
+#
+# USB Human Interface Devices (HID)
+#
+
+#
+#   Input core support is needed for USB HID
+#
+
+#
+# Kernel hacking
+#
+# CONFIG_MAGIC_SYSRQ is not set
 
 
-System is:
+>> Trace; c0194d36 <isapnp_proc_attach_device+36/94>
 
-Linux dogmatix 2.4.0-test10 #5 Sat Nov 4 01:10:07 EST 2000 i686 unknown
-Kernel modules         2.3.19
-Gnu C                  egcs-2.91.66
-Gnu Make               3.77
-Binutils               2.10
-Linux C Library        2.1.2
-Dynamic linker         ldd: version 1.9.9
-Procps                 2.0.2
-Mount                  2.10o
-Net-tools              1.52
-Kbd                    0.99
-Sh-utils               1.16
-Modules Loaded         NVdriver
+>Do you have any ISAPNP cards in your system?
 
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-007f : rtc
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0400-040f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-0cf8-0cff : PCI conf1
-8000-8fff : PCI Bus #01
-cc00-cc1f : Creative Labs SB Live! EMU10000
-  cc00-cc1f : EMU10K1
-d000-d07f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
-  d000-d07f : eth0
-d400-d403 : Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller
-d800-d8ff : Symbios Logic Inc. (formerly NCR) 53c895
-  d800-d87f : sym53c8xx
-dc00-dc07 : Creative Labs SB Live!
-ffa0-ffaf : VIA Technologies, Inc. Bus Master IDE
-  ffa0-ffa7 : ide0
-  ffa8-ffaf : ide1
-
-I'm not using the VIA IDE drivers, or DMA support.  I'm also not using the
-Irongate AGP driver, or USB.
-
-Since this all took place today, I haven't reproduced it, but I'm working
-on that right now.  With < test10, doing the copy over NFS alone would
-result in a complete lockup, so I'm fairly sure this'll repeat itself.
-
-Regards,
-Adrian
+Yes, a Soundblaster AWE64 that has never given me any problems.  I tried
+booting
+test10 and test1 with that card pulled, and they both still oopsed on boot.
 
 
 -

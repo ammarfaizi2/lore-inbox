@@ -1,89 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289872AbSAKFZT>; Fri, 11 Jan 2002 00:25:19 -0500
+	id <S289883AbSAKFuY>; Fri, 11 Jan 2002 00:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289881AbSAKFZK>; Fri, 11 Jan 2002 00:25:10 -0500
-Received: from svr3.applink.net ([206.50.88.3]:57607 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S289872AbSAKFYz>;
-	Fri, 11 Jan 2002 00:24:55 -0500
-Message-Id: <200201110524.g0B5OeSr000566@svr3.applink.net>
-Content-Type: text/plain;
-  charset="gb2312"
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "Pei Zheng" <zhengpei@msu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: strange kernel message when hacking the NIC driver
-Date: Thu, 10 Jan 2002 23:20:54 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <LIECKFOKGFCHAPOBKPECEEGCCNAA.zhengpei@msu.edu>
-In-Reply-To: <LIECKFOKGFCHAPOBKPECEEGCCNAA.zhengpei@msu.edu>
+	id <S289884AbSAKFuN>; Fri, 11 Jan 2002 00:50:13 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40144 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S289883AbSAKFuE>;
+	Fri, 11 Jan 2002 00:50:04 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15422.31996.630312.134775@napali.hpl.hp.com>
+Date: Thu, 10 Jan 2002 21:49:48 -0800
+To: torvalds@transmeta.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, davem@redhat.com, paulus@samba.org,
+        rth@redhat.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: can we make anonymous memory non-EXECUTABLE?
+In-Reply-To: <E16NwDj-0006LP-00@the-village.bc.nu>
+In-Reply-To: <200201080025.QAA26731@napali.hpl.hp.com>
+	<E16NwDj-0006LP-00@the-village.bc.nu>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 January 2002 22:19, Pei Zheng wrote:
-> Hi,
->
-> I've done some simple hackings to the network device driver. Basically
-> i want to connect two NICs as a point-to-point link,ie, packets sending
-> out from one NIC will be redirected to another NIC, sort of direct-link
-> cable between these two NICs.
-> So in the drivers of these two NICs, before hart_start_xmit(), the skb's
-> header will be forcibly set to its peer's MAC address, thus each packey
-> sending out from one NIC will be directly diverted to its peer NIC. This
-> works fine most of the case since tcpdump shows that packets traverse in
-> this way. However, i found errors in system log:
->
-> Jan 10 18:02:40 em2 kernel: 1130: 09 => cb
-> Jan 10 18:02:40 em2 kernel: 388: f4 => 45
-> Jan 10 18:02:40 em2 kernel: 26: c0 => 7d
-> Jan 10 18:02:40 em2 kernel: 149: 1f => 98
-> Jan 10 18:02:40 em2 kernel: After error applied:
-> Jan 10 18:02:40 em2 kernel: 00 80 c8 b9 6b b6 00 80 c8 b9 6b b6 08 00
-> 45 00
-> Jan 10 18:02:40 em2 kernel: 05 dc 73 cd 20 b9 3f 11 44 26 7d a8 0c 0a
-> c0 a8
-> Jan 10 18:02:40 em2 kernel: 10 0a e3 c1 4c 1f 6f 83 61 dc fc 5e 5c f4
-> 66 17
-> Jan 10 18:02:40 em2 kernel: 2c 73 19 ce cc 2d 69 69 bd 43 33 6d 82 de
-> 4a 87
-> Jan 10 18:02:40 em2 kernel: 8d 9d 81 f6 2e b2 8c 6a d5 e4 f2 e6 bc ab
-> 5a 01
-> Jan 10 18:02:40 em2 kernel: 34 d5 39 f8 d9 5b 16 bc dc 95 bd b4 08 a9
-> 5e 11
-> Jan 10 18:02:40 em2 kernel: df 38 80 8a ca d8 1c 53 65 97 91 4c 84 5a
-> a1 0e
-> Jan 10 18:02:40 em2 kernel: c2 5f d4 02 a1 9e 1c 35 d4 95 08 44 81 16
-> a3 e0
->
-> there are many this kind of messages. Don't understand what it is. the
-> beginning part of the data seems to be an icmp packet(00 80 c8 b9 6b
-> b6 is the MAC of one NIC). For some reason kernel thinks that this
-> packet is not correct. Any idea about this? If i want to modify a
-> packet's header before it goes to hard_strat_xmit(), what else should
-> i do except setting the skb header to the MAC of the NIC's peer only?
-> checksum stuff?
->
-> Any helps will be highly appreciated.
->
-> -Pei
+How about the attached patch?  It gives platform-dependent code the
+option to turn off execute permission on data pages by defining a
+suitable value for DATA_PAGE_DEFAULT_RIGHTS in asm/page.h.  If a
+platform doesn't define this macro, the old behavior applies (data
+pages continue to be executable by default).  For IA-64, the macro is
+defined such that data pages will be executable by default only for
+x86 processes (unlike real x86 CPUs, the x86 hardware emulator inside
+Itanium does check the execute bit, so this is really needed).
 
+I have booted an ia64 machine with this patch applied without any
+problems and also tested an x86 program that does dynamic code
+generation so the basics appear to be right.
 
-You have me confused about whether your trying to build some kind of
-ethernet bridge or some kind of secret packet sniffer or some other
-such thing.   It looks like you're mixing up TCP/IP and Ethernet.
+Oh, I dropped the call to calc_vm_flags() in do_brk().  I didn't see
+the point of it.  Perhaps I missed something, though.
 
-Ethernet is the link level protocol that addresses NICs by the MAC
-address.    There can only be one NIC on the network with the same
-MAC address.   TCP/IP uses IP addresses, not MAC addresses.  And you
-cannot have two IP addresses on the same link if they have the same
-network and broadcast address unless you do multipathing.  
+If it looks OK to you, would you mind applying this for 2.5?  (The
+patch is relative to 2.5.0, but it's trivial enough that this won't be
+a problem, hopefully).
 
+	--david
 
-I guess that I don't understand what you are trying to achieve.
+PS: Note that this patch does not solve the original bug I reported
+    for platforms that do have an EXECUTABLE permission bit.  If you
+    don't want to risk breaking backwards compatibility, your best bet
+    is probably to follow Paul's suggestion and modify binutils so the
+    data section gets mapped with RWX rights (won't help with existing
+    binaries, of course).
 
-
-
--- 
-timothy.covell@ashavan.org.
+--- linux-2.5.0/mm/mmap.c	Mon Nov  5 18:29:05 2001
++++ lia64-kdb/mm/mmap.c	Thu Jan 10 18:01:39 2002
+@@ -1046,10 +1052,7 @@
+ 	if (!vm_enough_memory(len >> PAGE_SHIFT))
+ 		return -ENOMEM;
+ 
+-	flags = calc_vm_flags(PROT_READ|PROT_WRITE|PROT_EXEC,
+-				MAP_FIXED|MAP_PRIVATE) | mm->def_flags;
+-
+-	flags |= VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
++	flags = DATA_PAGE_DEFAULT_RIGHTS | mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+ 
+ 	/* Can we just expand an old anonymous mapping? */
+ 	if (rb_parent && vma_merge(mm, prev, rb_parent, addr, addr + len, flags))
+--- linux-2.5.0/include/linux/mm.h	Mon Nov 26 21:29:07 2001
++++ lia64-kdb/include/linux/mm.h	Thu Jan 10 21:05:41 2002
+@@ -103,7 +103,14 @@
+ #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
+ 
+-#define VM_STACK_FLAGS	0x00000177
++#ifndef DATA_PAGE_DEFAULT_RIGHTS
++  /* Historically, Linux mapped data with execute rights, but some
++     platforms (e.g., ia64) use non-executable data by default.  Those
++     platforms define their own value for this macro.  */
++# define DATA_PAGE_DEFAULT_RIGHTS	(VM_READ|VM_WRITE|VM_EXEC)
++#endif
++
++#define VM_STACK_FLAGS	(0x00000170 | DATA_PAGE_DEFAULT_RIGHTS)
+ 
+ #define VM_READHINTMASK			(VM_SEQ_READ | VM_RAND_READ)
+ #define VM_ClearReadHint(v)		(v)->vm_flags &= ~VM_READHINTMASK
+--- linux-2.5.0/include/asm-ia64/page.h	Mon Nov 26 11:19:18 2001
++++ lia64-kdb/include/asm-ia64/page.h	Thu Jan 10 18:48:34 2002
+@@ -148,6 +148,13 @@
+ # define __pgprot(x)	(x)
+ #endif /* !STRICT_MM_TYPECHECKS */
+ 
+-#define PAGE_OFFSET		0xe000000000000000
++#define PAGE_OFFSET			0xe000000000000000
++
++#ifdef CONFIG_IA32_SUPPORT
++# define DATA_PAGE_DEFAULT_RIGHTS	(VM_READ|VM_WRITE |					\
++					 ((current->personality == PER_LINUX32) ? VM_EXEC : 0))
++#else
++# define DATA_PAGE_DEFAULT_RIGHTS	(VM_READ|VM_WRITE)
++#endif
+ 
+ #endif /* _ASM_IA64_PAGE_H */

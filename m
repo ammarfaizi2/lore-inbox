@@ -1,34 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265649AbSKTIJG>; Wed, 20 Nov 2002 03:09:06 -0500
+	id <S264712AbSKTIGG>; Wed, 20 Nov 2002 03:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbSKTIJG>; Wed, 20 Nov 2002 03:09:06 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27666 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265649AbSKTIJF>;
-	Wed, 20 Nov 2002 03:09:05 -0500
-Date: Wed, 20 Nov 2002 00:09:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] module device table restoration
-Message-ID: <20021120080933.GC22408@kroah.com>
-References: <20021120072654.322C02C087@lists.samba.org>
+	id <S265647AbSKTIGG>; Wed, 20 Nov 2002 03:06:06 -0500
+Received: from vitelus.com ([64.81.243.207]:32271 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S264712AbSKTIGF>;
+	Wed, 20 Nov 2002 03:06:05 -0500
+Date: Wed, 20 Nov 2002 00:13:05 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: the random driver
+Message-ID: <20021120081305.GF19767@vitelus.com>
+References: <3DDB3DED.A4C9DC56@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021120072654.322C02C087@lists.samba.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3DDB3DED.A4C9DC56@digeo.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 06:00:19PM +1100, Rusty Russell wrote:
-> Patch from Adam Richter.  I have a nicer solution based on aliases,
-> but it requires coordination with USB, PCI and PCMCIA maintainers,
-> which is taking time.
-
-Oops, was I supposed to be doing something?  :)
-
-I liked your patch that did the aliases, but had a few questions about
-it.  I guess I need to go dig up that email, sorry.
-
-greg k-h
+Speaking of the random driver, did the entropy calculation fixes ever
+get merged? Those seemed important.

@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318289AbSHUOCL>; Wed, 21 Aug 2002 10:02:11 -0400
+	id <S318345AbSHUOQ4>; Wed, 21 Aug 2002 10:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318293AbSHUOCL>; Wed, 21 Aug 2002 10:02:11 -0400
-Received: from codepoet.org ([166.70.99.138]:28375 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S318289AbSHUOCK>;
-	Wed, 21 Aug 2002 10:02:10 -0400
-Date: Wed, 21 Aug 2002 08:06:15 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.20-pre[234] hosed /proc/partitions fix
-Message-ID: <20020821140615.GA20137@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20020821022732.GA11503@codepoet.org> <20020821030430.GA11994@codepoet.org> <1029937506.26411.29.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1029937506.26411.29.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S318348AbSHUOQ4>; Wed, 21 Aug 2002 10:16:56 -0400
+Received: from [143.166.83.88] ([143.166.83.88]:46863 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S318345AbSHUOQy>; Wed, 21 Aug 2002 10:16:54 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CBA0@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: nagyt@otpbank.hu, linux-kernel@vger.kernel.org
+Subject: RE: Problem determining number of CPUs
+Date: Wed, 21 Aug 2002 09:20:55 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 117D7E42670764-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Aug 21, 2002 at 02:45:06PM +0100, Alan Cox wrote:
-> On Wed, 2002-08-21 at 04:04, Erik Andersen wrote:
-> > On Tue Aug 20, 2002 at 08:27:32PM -0600, Erik wrote:
-> > > Try compiling CONFIG_BLK_DEV_LVM into 2.4.20-pre4 and then run
-> > > 'cat /proc/partitions' for some amusement. I really like the way
-> > 
-> > It also seems to occur for md and ataraid.
+> Linux kernel versions 2.4.18, 2.4.19, 2.4.20pre4 do not determine
+> correctly the number of CPUs on our system. We see 8 CPUs 
+> instead of 4,
+> however the system works.
 > 
-> Fixed in -ac for a while - not had time to do another sync with Marcelo
-> though
+> Our machine: Dell PowerEdge 6600, 4 Xeon 1400 Mhz, 4GB RAM
 
-Sigh.  I wished I'd known an hour ago, since it would have
-saved me the bother of figuring it out myself.
+Yes, this is expected behavior due to hyperthreaded processors.
+http://lists.us.dell.com/pipermail/linux-poweredge/2002-July/003465.html
 
-Marcello,
-Please apply the following patch to 2.4.20-pre5.  The
-patch that went into -pre2 had a nasty bug in it that
-causes /proc/partitions to behave very badly.  This
-patch restores it to sanity.
-
- 
---- drivers/block/genhd.c.orig	Wed Aug 21 07:51:21 2002
-+++ drivers/block/genhd.c	Wed Aug 21 08:03:48 2002
-@@ -194,9 +194,7 @@
- 
- 	/* show the full disk and all non-0 size partitions of it */
- 	for (n = 0; n < (gp->nr_real << gp->minor_shift); n++) {
--		int mask = (1<<gp->minor_shift) - 1;
--
--		if (!(n & mask) || gp->part[n].nr_sects) {
-+		if (gp->part[n].nr_sects) {
- #ifdef CONFIG_BLK_STATS
- 			struct hd_struct *hd = &gp->part[n];
- 
-
- -Erik
+Thanks,
+Matt
 
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+

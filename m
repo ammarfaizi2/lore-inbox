@@ -1,294 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263460AbUECCPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263472AbUECCR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbUECCPx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 22:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbUECCPx
+	id S263472AbUECCR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbUECCR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 22:15:53 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:21482 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263460AbUECCPo (ORCPT
+	Sun, 2 May 2004 22:17:29 -0400
+Received: from holomorphy.com ([207.189.100.168]:13188 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263472AbUECCRQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 22:15:44 -0400
-Date: Sun, 2 May 2004 19:18:28 -0700
-From: Paul Jackson <pj@sgi.com>
-To: ashok.raj@intel.com
-Cc: rusty@rustcorp.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Revisited: ia64-cpu-hotplug-cpu_present.patch
-Message-Id: <20040502191828.7d22e599.pj@sgi.com>
-In-Reply-To: <20040428023238.76244ed2.pj@sgi.com>
-References: <20040428023238.76244ed2.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 2 May 2004 22:17:16 -0400
+Date: Sun, 2 May 2004 19:17:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [0/2] filtered wakeups
+Message-ID: <20040503021709.GF1397@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think it's time to become visible again on the kernel mailing list
-with this thread - instead of just conversing privately with Ashok on
-this.
+The thundering herd issue in waitqueue hashing has been seen in
+practice. In order to preserve the space footprint reduction while
+improving performance, I wrote "filtered wakeups", which discriminate
+between waiters based on a key.
 
-  ==> This is not ready for prime time yet, Andrew.
+The following patch series, vs. 2.6.6-rc3-mm1, drastically reduces the
+kernel cpu consumption of tiobench --threads 512 --size 16384 (fed to
+tiotest by hand since apparently the perl script is buggy) on a 6x336MHz
+UltraSPARC III Sun Enterprise 3000 with 3.5GB RAM, ESP-366HME HBA,
+10x10Krpm 18GB U160 SCSI disks configured for dm thusly:
+0 355655680 striped 10 64 /dev/sda 0 /dev/sdb 0 /dev/sdc 0 /dev/sdd 0 \
+	/dev/sde 0 /dev/sdf 0 /dev/sdg 0 /dev/sdh 0 /dev/sdi 0 /dev/sdj 0
+This was mkfs'd freshly to a single 171GB ext2 fs.
 
-      It still has one issue, still needs review by Ashok,
-      and has not been tested except to build and boot
-      one ia64 system.
+1/2, filtered page waitqueues, resolves the thundering herd issue with
+	hashed page waitqueues.
+2/2, filtered buffer_head waitqueues, resolves the thundering herd issue
+	with hashed buffer_head waitqueues.
+Futexes appear to have their own solution to this issue, which is
+necessarily different from this as it needs to discriminate based on a
+longer key. They could in principle be consolidated by passing a
+comparator instead of comparing a key field or some similar strategy at
+the cost of indirect function calls.
 
-      Ashok ... review required.
-      Rusty, Andrew, anyone else ... review welcome.
+I furthermore instrumented the calls to schedule(), possibly done
+indirectly, in patch 0.5/2 of the series, which isn't necessarily meant
+to be applied to anything, but merely shows how I collected some of the
+information in the runtime logs, which for space reasons I've posted as
+URL's instead of including them inline.
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/filtered_wakeup/virgin_mm.log.tar.bz2
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/filtered_wakeup/filtered_wakeup.log.tar.bz2
 
-On April 25, Andrew included several cpu-hotplug patches from
-Ashok Raj in his 2.6.6-rc2-mm2 patch set, including one named
-ia64-cpu-hotplug-cpu_present.patch
+Here "cpusec" represents 1 second of actual cpu consumed, counting cpu
+consumption of both user and kernel. Apart from regular sampling of
+profile data, no other load was running on the machine.
 
-On April 28, I posted Ashok's patch to lkml, with some concerns,
-under the subject:
+before:
+Tiotest results for 512 concurrent io threads:
+,----------------------------------------------------------------------.
+| Item                  | Time     | Rate         | Usr CPU  | Sys CPU |
++-----------------------+----------+--------------+----------+---------+
+| Write       16384 MBs | 1118.1 s |  14.654 MB/s |   1.6 %  | 280.9 % |
+| Random Write 2000 MBs |  336.2 s |   5.950 MB/s |   0.8 %  |  20.4 % |
+| Read        16384 MBs | 1717.1 s |   9.542 MB/s |   1.4 %  |  31.8 % |
+| Random Read  2000 MBs |  465.2 s |   4.300 MB/s |   1.1 %  |  36.1 % |
+`----------------------------------------------------------------------'
 
-  Concerns with ia64-cpu-hotplug-cpu_present.patch
+Throughput scaled by %cpu:
+Write:            5.1873MB/cpusec
+Random Write:    28.0660MB/cpusec
+Read:            28.7410MB/cpusec
+Random Read:     11.5591MB/cpusec
 
-My concerns were roughly:
+top 10 kernel cpu consumers:
+ 21733 finish_task_switch                       113.1927
+ 11976 __wake_up                                187.1250
+ 11433 generic_file_aio_write_nolock              5.0321
+  9730 read_sched_profile                        43.4375
+  9606 file_read_actor                           42.8839
+  9116 __do_softirq                              31.6528
+  8682 do_anonymous_page                         19.3795
+  3635 prepare_to_wait                           28.3984
+  2159 kmem_cache_free                           16.8672
+  1944 buffered_rmqueue                           3.3750
 
-    It didn't build for ia64 sn2_defconfig, it added another ARCH_specific
-    conditional compilation flag, it added more ifdef'd code, and it had
-    various cpu_present_map, phys_cpu_present_map, cpu_possible_map
-    variables, which were sometimes aliased to be the same thing, and
-    sometimes distinct.  And, the item that first caught my eye, it added
-    a critical #ifdef to the file asm-ia64/cpumask.h, which file I want
-    to remove in my pending bitmap/cpumask cleanup patch set.
-
-Here is an alternative proposal for this patch.  It cleans up the
-ifdef's and makes the present/possible names more consistent.  And
-it builds and boots ia64 sn2_defconfig.  And it doesn't add anything
-to the (soon to be nuked I hope) asm-ia64/cpumask.h file.
-
-The build/boot testing was done using 2.6.6-rc2-mm2, with this one
-ia64-cpu-hotplug-cpu_present.patch replaced, and a couple other
-unrelated fixes that are needed to build/boot this patch set on
-sn2, which have been persued on other lkml threads.
-
-The one known issue, as I described to Ashok a couple days ago:
-
-> I had to hack the setting of cpu_possible_map to _not_ set all
-> NR_CPUS bits, but only set the same bits as initially are set
-> in cpus_present_map.  If I didn't do that, then the boot hung
-> earlier, after displaying:
-> 
->   Total of 4 processors activated (4983.96 BogoMIPS).
-> 
-> before displaying:
-> 
->   Starting migration thread for cpu 0
-
-I have not had time yet to investigate this issue further.
-Perhaps Ashok will have some input here.
-
-Beware that I am not sufficiently clueful of this hot plug patch
-set to really be composing such a patch.  Ashok and/or others
-will have to examine it carefully to see that it actually does
-anything such as might be desired.  My feedback is more on code
-quality - it was easier to teach by example than it was to do so
-by berating further on the items of my concerns.
-
-=========== ia64-cpu-hotplug-cpu_present.patch, v2 ===========
-
-With a hotplug capable kernel, there is a requirement to distinguish a
-possible CPU from one actually present.  The set of possible CPU numbers
-doesn't change during a single system boot, but the set of present CPUs
-changes as CPUs are physically inserted into or removed from a system.
-The cpu_possible_map does not change once initialized at boot, but the
-cpu_present_map changes dynamically as CPUs are inserted or removed.
-
-
-Index: 2.6.6-rc2-cpu_present/arch/ia64/kernel/smpboot.c
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/arch/ia64/kernel/smpboot.c	2004-04-30 00:45:13.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/arch/ia64/kernel/smpboot.c	2004-05-02 16:24:28.000000000 -0700
-@@ -84,11 +84,12 @@
-  */
- DEFINE_PER_CPU(int, cpu_state) = { 0 };
- 
--/* Bitmask of currently online CPUs */
-+/* Bitmasks of currently online, present and possible CPUs */
- cpumask_t cpu_online_map;
- EXPORT_SYMBOL(cpu_online_map);
--cpumask_t phys_cpu_present_map;
--EXPORT_SYMBOL(phys_cpu_present_map);
-+extern cpumask_t cpu_present_map;
-+cpumask_t cpu_possible_map = CPU_MASK_NONE;
-+EXPORT_SYMBOL(cpu_possible_map);
- 
- /* which logical CPU number maps to which CPU (physical APIC ID) */
- volatile int ia64_cpu_to_sapicid[NR_CPUS];
-@@ -476,14 +477,16 @@
- 		ia64_cpu_to_sapicid[cpu] = -1;
- 
- 	ia64_cpu_to_sapicid[0] = boot_cpu_id;
--	cpus_clear(phys_cpu_present_map);
--	cpu_set(0, phys_cpu_present_map);
-+	cpus_clear(cpu_present_map);
-+	cpu_set(0, cpu_possible_map);
-+	cpu_set(0, cpu_present_map);
- 
- 	for (cpu = 1, i = 0; i < smp_boot_data.cpu_count; i++) {
- 		sapicid = smp_boot_data.cpu_phys_id[i];
- 		if (sapicid == boot_cpu_id)
- 			continue;
--		cpu_set(cpu, phys_cpu_present_map);
-+		cpu_set(cpu, cpu_possible_map);
-+		cpu_set(cpu, cpu_present_map);
- 		ia64_cpu_to_sapicid[cpu] = sapicid;
- 		cpu++;
- 	}
-@@ -564,9 +567,9 @@
- 	if (!max_cpus) {
- 		printk(KERN_INFO "SMP mode deactivated.\n");
- 		cpus_clear(cpu_online_map);
--		cpus_clear(phys_cpu_present_map);
-+		cpus_clear(cpu_present_map);
- 		cpu_set(0, cpu_online_map);
--		cpu_set(0, phys_cpu_present_map);
-+		cpu_set(0, cpu_present_map);
- 		return;
- 	}
- }
-Index: 2.6.6-rc2-cpu_present/fs/proc/proc_misc.c
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/fs/proc/proc_misc.c	2004-04-30 00:45:09.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/fs/proc/proc_misc.c	2004-04-30 00:55:01.000000000 -0700
-@@ -371,7 +371,7 @@
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
- 
--	for_each_cpu(i) {
-+	for_each_online_cpu(i) {
- 		int j;
- 
- 		user += kstat_cpu(i).cpustat.user;
-@@ -393,7 +393,7 @@
- 		(unsigned long long)jiffies_64_to_clock_t(iowait),
- 		(unsigned long long)jiffies_64_to_clock_t(irq),
- 		(unsigned long long)jiffies_64_to_clock_t(softirq));
--	for_each_cpu(i) {
-+	for_each_online_cpu(i) {
- 
- 		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
- 		user = kstat_cpu(i).cpustat.user;
-Index: 2.6.6-rc2-cpu_present/include/asm-ia64/smp.h
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/include/asm-ia64/smp.h	2004-04-30 00:45:13.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/include/asm-ia64/smp.h	2004-04-30 00:55:01.000000000 -0700
-@@ -38,7 +38,8 @@
- 
- extern char no_int_routing __devinitdata;
- 
--extern cpumask_t phys_cpu_present_map;
-+extern cpumask_t cpu_possible_map;
-+extern cpumask_t cpu_present_map;
- extern cpumask_t cpu_online_map;
- extern unsigned long ipi_base_addr;
- extern unsigned char smp_int_redirect;
-@@ -48,8 +49,6 @@
- 
- extern unsigned long ap_wakeup_vector;
- 
--#define cpu_possible_map phys_cpu_present_map
--
- /*
-  * Function to map hard smp processor id to logical id.  Slow, so don't use this in
-  * performance-critical code.
-Index: 2.6.6-rc2-cpu_present/include/linux/cpumask.h
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/include/linux/cpumask.h	2004-04-30 00:42:45.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/include/linux/cpumask.h	2004-04-30 00:55:01.000000000 -0700
-@@ -6,6 +6,8 @@
- #include <asm/cpumask.h>
- #include <asm/bug.h>
- 
-+extern cpumask_t cpu_present_map;
-+
- #ifdef CONFIG_SMP
- 
- extern cpumask_t cpu_online_map;
-@@ -13,8 +15,10 @@
- 
- #define num_online_cpus()		cpus_weight(cpu_online_map)
- #define num_possible_cpus()		cpus_weight(cpu_possible_map)
-+#define num_present_cpus()		cpus_weight(cpu_present_map)
- #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
- #define cpu_possible(cpu)		cpu_isset(cpu, cpu_possible_map)
-+#define cpu_present(cpu) 		cpu_isset((cpu), cpu_present_map)
- 
- #define for_each_cpu_mask(cpu, mask)					\
- 	for (cpu = first_cpu_const(mk_cpumask_const(mask));		\
-@@ -23,16 +27,20 @@
- 
- #define for_each_cpu(cpu) for_each_cpu_mask(cpu, cpu_possible_map)
- #define for_each_online_cpu(cpu) for_each_cpu_mask(cpu, cpu_online_map)
-+#define for_each_present_cpu(cpu) for_each_cpu_mask(cpu, cpu_present_map)
- #else
- #define	cpu_online_map			cpumask_of_cpu(0)
- #define	cpu_possible_map		cpumask_of_cpu(0)
- #define num_online_cpus()		1
- #define num_possible_cpus()		1
-+#define num_present_cpus()		1
- #define cpu_online(cpu)			({ BUG_ON((cpu) != 0); 1; })
- #define cpu_possible(cpu)		({ BUG_ON((cpu) != 0); 1; })
-+#define cpu_present(cpu)		({ BUG_ON((cpu) != 0); 1; })
- 
- #define for_each_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
- #define for_each_online_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
-+#define for_each_present_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
- #endif
- 
- #define cpumask_scnprintf(buf, buflen, map)				\
-Index: 2.6.6-rc2-cpu_present/init/main.c
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/init/main.c	2004-04-30 00:45:13.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/init/main.c	2004-04-30 00:55:01.000000000 -0700
-@@ -359,10 +359,10 @@
- 	unsigned j = 1;
- 
- 	/* FIXME: This should be done in userspace --RR */
--	for (i = 0; i < NR_CPUS; i++) {
-+	for_each_present_cpu(i) {
- 		if (num_online_cpus() >= max_cpus)
- 			break;
--		if (cpu_possible(i) && !cpu_online(i)) {
-+		if (!cpu_online(i)) {
- 			cpu_up(i);
- 			j++;
- 		}
-Index: 2.6.6-rc2-cpu_present/kernel/cpu.c
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/kernel/cpu.c	2004-04-30 00:42:47.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/kernel/cpu.c	2004-04-30 00:55:01.000000000 -0700
-@@ -169,7 +169,7 @@
- 	if ((ret = down_interruptible(&cpucontrol)) != 0)
- 		return ret;
- 
--	if (cpu_online(cpu)) {
-+	if (cpu_online(cpu) || !cpu_present(cpu)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-Index: 2.6.6-rc2-cpu_present/kernel/sched.c
-===================================================================
---- 2.6.6-rc2-cpu_present.orig/kernel/sched.c	2004-04-30 00:45:13.000000000 -0700
-+++ 2.6.6-rc2-cpu_present/kernel/sched.c	2004-05-02 16:22:42.000000000 -0700
-@@ -3030,6 +3030,9 @@
- 	return retval;
- }
- 
-+cpumask_t cpu_present_map = CPU_MASK_ALL;
-+EXPORT_SYMBOL(cpu_present_map);
-+
- /**
-  * sys_sched_setaffinity - set the cpu affinity of a process
-  * @pid: pid of the process
+top 10 callers of scheduling functions:
+9391185 wait_on_page_bit                         32608.2812
+7280055 cpu_idle                                 37916.9531
+1458446 __lock_page                              5064.0486
+258142 __handle_preemption                      16133.8750
+134815 worker_thread                            247.8217
+ 45989 __wait_on_buffer                         205.3080
+ 22294 do_exit                                   21.7715
+ 22187 generic_file_aio_write_nolock              9.7654
+ 14932 sys_wait4                                 25.9236
+ 14652 shrink_list                                7.8944
 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+after:
+Tiotest results for 512 concurrent io threads:
+,----------------------------------------------------------------------.
+| Item                  | Time     | Rate         | Usr CPU  | Sys CPU |
++-----------------------+----------+--------------+----------+---------+
+| Write       16384 MBs | 1099.5 s |  14.901 MB/s |   2.2 %  | 279.3 % |
+| Random Write 2000 MBs |  333.8 s |   5.991 MB/s |   1.0 %  |  14.9 % |
+| Read        16384 MBs | 1706.3 s |   9.602 MB/s |   1.4 %  |  19.1 % |
+| Random Read  2000 MBs |  460.3 s |   4.345 MB/s |   1.1 %  |  14.8 % |
+`----------------------------------------------------------------------'
+
+Throughput scaled by %cpu:
+Write:            5.2934MB/cpusec
+Random Write:    37.6792MB/cpusec
+Read:            46.8390MB/cpusec
+Random Read:     27.3270MB/cpusec
+
+top 10 kernel cpu consumers:
+ 11873 generic_file_aio_write_nolock              5.2258
+ 10245 file_read_actor                           45.7366
+ 10212 read_sched_profile                        45.5893
+ 10135 finish_task_switch                        52.7865
+  9171 do_anonymous_page                         20.4710
+  8619 __do_softirq                              29.9271
+  2905 wake_up_filtered                          18.1562
+  2325 __get_page_state                          10.3795
+  2278 del_timer_sync                             5.0848
+  2033 buffered_rmqueue                           3.5295
+
+top 10 callers of scheduling functions:
+3985424 cpu_idle                                 20757.4167
+2396754 wait_on_page_bit                         7489.8562
+209453 __handle_preemption                      13090.8125
+164071 worker_thread                            301.6011
+ 24321 do_exit                                   23.7510
+ 21272 generic_file_aio_write_nolock              9.3627
+ 16271 sys_wait4                                 28.2483
+ 11080 pipe_wait                                 86.5625
+  9634 compat_sys_nanosleep                      25.0885
+  7742 shrink_list                                4.1713
+
+
+-- wli

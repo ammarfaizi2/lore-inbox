@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288963AbSATXLP>; Sun, 20 Jan 2002 18:11:15 -0500
+	id <S288959AbSATXMH>; Sun, 20 Jan 2002 18:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSATXLG>; Sun, 20 Jan 2002 18:11:06 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:60938 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S288940AbSATXK6>; Sun, 20 Jan 2002 18:10:58 -0500
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: rm-ing files with open file descriptors
-Date: Sun, 20 Jan 2002 23:10:57 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <a2fiq1$ddk$3@ncc1701.cistron.net>
-In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net> <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu> <8HBE1o7mw-B@khms.westfalen.de> <843d119h0g.fsf@rjk.greenend.org.uk>
-X-Trace: ncc1701.cistron.net 1011568257 13748 195.64.65.67 (20 Jan 2002 23:10:57 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S288964AbSATXL4>; Sun, 20 Jan 2002 18:11:56 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:39173 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288959AbSATXLn>;
+	Sun, 20 Jan 2002 18:11:43 -0500
+Date: Sun, 20 Jan 2002 21:11:13 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.40.0201201744480.459-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.33L.0201202110290.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <843d119h0g.fsf@rjk.greenend.org.uk>,
-Richard Kettlewell  <rjk@terraraq.org.uk> wrote:
->If the file descriptor you have was opened O_RDONLY, but you have
->write permission on the file itself, then creating a new name for it
->would allow you to open it O_RDWR.
+On Sun, 20 Jan 2002, Shawn Starr wrote:
 
-/proc allows for this anyway.
+> But why should each filesystem have to have a different method of
+> buffering/caching? that just doesn't fit the layered model of the
+> kernel IMHO.
 
-open("knuth.txt", O_RDONLY)             = 3
-unlink("knuth.txt")                     = 0
-open("/proc/self/fd/3", O_RDWR)         = 4
+I think Hans will give up the idea once he realises the
+performance implications. ;)
 
-Mike.
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

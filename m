@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRBZFbz>; Mon, 26 Feb 2001 00:31:55 -0500
+	id <S130167AbRBZGRJ>; Mon, 26 Feb 2001 01:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130160AbRBZFbq>; Mon, 26 Feb 2001 00:31:46 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41880 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130155AbRBZFbX>;
-	Mon, 26 Feb 2001 00:31:23 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15001.59778.748224.602042@pizda.ninka.net>
-Date: Sun, 25 Feb 2001 21:28:34 -0800 (PST)
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Jan Rekorajski <baggins@sith.mimuw.edu.pl>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [UPDATE] zerocopy BETA 3
-In-Reply-To: <20010225163836.A12173@metastasis.f00f.org>
-In-Reply-To: <14998.2628.144784.585248@pizda.ninka.net>
-	<20010223114249.A27608@sith.mimuw.edu.pl>
-	<20010225163836.A12173@metastasis.f00f.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S130171AbRBZGRA>; Mon, 26 Feb 2001 01:17:00 -0500
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:13005 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S130167AbRBZGQt>; Mon, 26 Feb 2001 01:16:49 -0500
+Date: Sun, 25 Feb 2001 22:16:43 -0800
+From: Justin Huff <jjhuff@cs.washington.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2-ac4: eth0: interrupt(s) dropped!
+Message-ID: <20010225221643.Y22028@etna.cs.washington.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting this in my syslog:
 
-Chris Wedgwood writes:
- > --- linux-2.4.2/include/net/ip.h	Sun Feb 25 01:15:19 2001
- > +++ linux-2.4.2+zc-2/include/net/ip.h	Sun Feb 25 01:53:52 2001
+Feb 25 21:51:35 chimborazo kernel: eth0: interrupt(s) dropped!
+Feb 25 21:52:04 chimborazo last message repeated 2 times
+Feb 25 21:56:35 chimborazo kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 25 21:56:37 chimborazo kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 25 21:56:39 chimborazo kernel: eth0: interrupt(s) dropped!
+Feb 25 21:56:48 chimborazo last message repeated 4 times
+Feb 25 21:56:50 chimborazo kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 25 21:56:58 chimborazo last message repeated 4 times
+Feb 25 22:01:08 chimborazo kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 25 22:01:18 chimborazo kernel: eth0: interrupt(s) dropped!
+Feb 25 22:01:24 chimborazo kernel: eth0: interrupt(s) dropped!
 
-You need to part that adds "id" to the sock struct too.
-This won't build "as-is".
+I have CONFIG_APL_ALLOW_INTS set.  The NIC is a ne2k based pcmcia card. 
+I'm running 2.4.2-ac4, but this has been happening since 2.4.1.
+Ideas?
 
-Besides, I'd like people to have to test the zerocopy stuff
-for me, they'll get the ID fix if they do that :-)
+--Justin
 
-Later,
-David S. Miller
-davem@redhat.com

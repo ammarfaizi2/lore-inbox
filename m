@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUEVPYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUEVP0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUEVPYA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 11:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEVPX7
+	id S261631AbUEVP0v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 11:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEVP0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 11:23:59 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:44999 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S261582AbUEVPXw (ORCPT
+	Sat, 22 May 2004 11:26:35 -0400
+Received: from smtp3.libero.it ([193.70.192.127]:56488 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S261426AbUEVP0U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 11:23:52 -0400
-Message-ID: <40AF7080.50607@stanchina.net>
-Date: Sat, 22 May 2004 17:23:44 +0200
-From: Flavio Stanchina <flavio@stanchina.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Sat, 22 May 2004 11:26:20 -0400
+From: Cybermario <cybermario@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 
+Date: Sat, 22 May 2004 17:30:53 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: system <system@eluminoustechnologies.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hda Kernel error!!!
-References: <200405221257.28570.system@eluminoustechnologies.com>
-In-Reply-To: <200405221257.28570.system@eluminoustechnologies.com>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405221730.53890.cybermario@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-system wrote:
->    hda: drive_cmd: error=0x04 { DriveStat...:  1Time(s)
->    hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }...:  1Time(s)
-> 
-> What is this error?
+Linux cybermario 2.6.6 #1 SMP Mon May 10 00:15:32 PDT 2004 i686 unknown 
+unknown GNU/Linux
 
-You need to tell us:
-- kernel version
-- make and model of the hard disk
-- make and model of the controller (or chipset)
+Gnu C                  3.4.0
+Gnu make               3.80
+binutils               2.14
+util-linux             2.12a
+mount                  2.12a
+module-init-tools      0.9.14
+e2fsprogs              1.35
+PPP                    2.4.2
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      6.0.0
+Procps                 3.2.1
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+Modules Loaded         ppp_deflate zlib_deflate bsd_comp ppp_async 
+iptable_filter ip_tables pciehp pci_hotplug forcedeth ohci_hcd ppp_generic 
+slhc usb_storage parport_pc lp parport snd_seq_oss snd_seq_midi_event snd_seq 
+snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_pcm snd_timer 
+snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd 
+soundcore nvidia ide_floppy rtc ntfs nls_cp437 vfat fat
 
-If you are using kernel 2.6.6 and a Maxtor disk, then it's a known 
-problem. Search the LKML archives and look at the post-2.6.6 changes to 
-drivers/ide/ide-disk.c.
+I don't know if this could be e problem but my distro (the scsi version) 
+report this error in kernel.log:
 
+May 18 23:15:06 cybermario kernel:  /dev/ide/host0/bus0/target1/lun0: p1
+May 18 23:15:06 cybermario kernel: hdb: task_no_data_intr: status=0x51 
+{ DriveReady SeekComplete Error }
+May 18 23:15:06 cybermario kernel: hdb: task_no_data_intr: error=0x04 
+{ DriveStatusError }
+May 18 23:15:06 cybermario kernel: hdb: Write Cache FAILED Flushing!
+
+Thanks for your attention.
 -- 
-Ciao, Flavio
 
+Ciao Cybermario

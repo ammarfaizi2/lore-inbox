@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbUBYRQO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 12:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUBYRQO
+	id S261418AbUBYRTv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 12:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbUBYRTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:16:14 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:7633 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S261467AbUBYRQK (ORCPT
+	Wed, 25 Feb 2004 12:19:51 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:58798 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261418AbUBYRTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:16:10 -0500
-Message-ID: <403CD852.1060200@zytor.com>
-Date: Wed, 25 Feb 2004 09:16:02 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
+	Wed, 25 Feb 2004 12:19:47 -0500
+Message-ID: <403CD8E2.2060102@colorfullife.com>
+Date: Wed, 25 Feb 2004 18:18:26 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Intel vs AMD x86-64
-References: <7F740D512C7C1046AB53446D37200173EA2718@scsmsx402.sc.intel.com> <403CCBE0.7050100@techsource.com> <c1ihqh$e0r$1@terminus.zytor.com> <403CD900.6080003@techsource.com>
-In-Reply-To: <403CD900.6080003@techsource.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: "David S. Miller" <davem@redhat.com>, dsw@gelato.unsw.edu.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory
+ exceeds 2.5GB (correction)
+References: <403AF155.1080305@colorfullife.com>	<20040223225659.4c58c880.akpm@osdl.org>	<403B8C78.2020606@colorfullife.com>	<20040225005804.GE18070@cse.unsw.EDU.AU>	<403C3F04.20601@colorfullife.com>	<20040224230318.19a0e6b9.davem@redhat.com> <20040224232205.4fe87448.akpm@osdl.org>
+In-Reply-To: <20040224232205.4fe87448.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> 
-> I think we were talking about absolute branches when referring to "near 
-> branches".  For absolute branches, having a 32-bit address restricts you 
-> to the lower 4G of the address space.
-> 
+Andrew Morton wrote:
 
-You're talking about *indirect* near branches?  Those are the only 
-absolute near branches which exist...
+>Ah-hah.
+>
+>This should find it:
+>  
+>
+I think we should first check that skb->dataref is really the problem: 
+what about adding an unused field before the dataref? Something like
 
-	-hpa
+struct skb_shared_info {
++	int		unused;
+ 	atomic_t	dataref;
+	int		debug;
+
+If the dataref decrease causes the problem, then the affected offset should change to 0x628.
+
+--
+	Manfred
+
+

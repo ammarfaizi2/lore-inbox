@@ -1,52 +1,251 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267146AbSKMJov>; Wed, 13 Nov 2002 04:44:51 -0500
+	id <S267153AbSKMJxb>; Wed, 13 Nov 2002 04:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267152AbSKMJov>; Wed, 13 Nov 2002 04:44:51 -0500
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:18426 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S267146AbSKMJov>; Wed, 13 Nov 2002 04:44:51 -0500
-Date: Wed, 13 Nov 2002 10:51:34 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Adam Voigt <adam@cryptocomm.com>, linux-kernel@vger.kernel.org
-Subject: Re: File Limit in Kernel?
-Message-ID: <20021113095133.GC21446@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	Andreas Gruenbacher <agruen@suse.de>,
-	Adam Voigt <adam@cryptocomm.com>, linux-kernel@vger.kernel.org
-References: <1037115535.1439.5.camel@beowulf.cryptocomm.com> <200211121657.20437.agruen@suse.de>
+	id <S267152AbSKMJxb>; Wed, 13 Nov 2002 04:53:31 -0500
+Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:42408 "EHLO
+	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S267153AbSKMJx2>; Wed, 13 Nov 2002 04:53:28 -0500
+Date: Wed, 13 Nov 2002 10:00:18 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46 / Asus A7M266 - spontaneous reboots - CAUSE FOUND
+Message-ID: <20021113100018.GA1638@berserk.demon.co.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211121657.20437.agruen@suse.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 04:57:20PM +0100, Andreas Gruenbacher wrote:
-> On Tuesday 12 November 2002 16:38, Adam Voigt wrote:
-> > I have a directory with 39,000 files in it, and I'm trying to use the cp
-> > command to copy them into another directory, and neither the cp or the
-> > mv command will work, they both same "argument list too long" when I
-> > use:
-> >
-> > cp -f * /usr/local/www/images
-> >
-> > or
-> >
-> > mv -f * /usr/local/www/images
+If I boot with "nomce" the spontaneous reboots go away. This is odd as
+the 2.4.19 kernel I run has MCE enabled.
+
+The system is not overclocked, the CPU fan is spinning, and the box is
+rock solid with 2.4.19 (compiler is 2.95.4 [Debian]).
+
+Anyone else have problems with MCE?
+
+P.
+
+> I've just started testing 2.5.46 and am not getting very far. After
+> about five minutes of use the system spontaneously reboots.
 > 
-> Note that this is not a kernel related question. The * in the command line is 
-> expanded into a list of all entries in the current directory, which results 
-> in a command line longer than allowed. Try this instead:
+> Asus A7M266, Athlon XP2000, 512MB RAM, all partitions mounted as EXT2.
 > 
-> find -maxdepth 1 -print0 | \
-> 	xargs -0 --replace=% cp -f % /usr/local/www/images
-
-Find has an -exec operator in the first place, so this is a little:
-
-find -maxdepth 1 -exec cp -f '{}' /usr/local/www/images ';'
-
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+> Kernel config follows (ACPI is included but disabled from the kernel
+> command line). The only modules loaded are the sound and network
+> modules.
+> 
+> 2.4.19 works fine on this box.
+> 
+> P.
+> 
+> --x--x--x--x--x--x--
+> 
+> CONFIG_X86=y
+> CONFIG_MMU=y
+> CONFIG_SWAP=y
+> CONFIG_UID16=y
+> CONFIG_GENERIC_ISA_DMA=y
+> 
+> CONFIG_EXPERIMENTAL=y
+> 
+> CONFIG_NET=y
+> CONFIG_SYSVIPC=y
+> CONFIG_SYSCTL=y
+> 
+> CONFIG_MODULES=y
+> CONFIG_KMOD=y
+> 
+> CONFIG_MK7=y
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_X86_L1_CACHE_SHIFT=6
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> CONFIG_X86_TSC=y
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_X86_USE_3DNOW=y
+> CONFIG_X86_MCE=y
+> CONFIG_NOHIGHMEM=y
+> CONFIG_MTRR=y
+> 
+> CONFIG_ACPI=y
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_BUTTON=y
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_SYSTEM=y
+> 
+> CONFIG_PCI=y
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_PCI_NAMES=y
+> 
+> CONFIG_KCORE_ELF=y
+> CONFIG_BINFMT_ELF=y
+> 
+> CONFIG_PARPORT=m
+> CONFIG_PARPORT_PC=m
+> CONFIG_PARPORT_PC_CML1=m
+> CONFIG_PARPORT_PC_FIFO=y
+> CONFIG_PARPORT_PC_SUPERIO=y
+> CONFIG_PARPORT_1284=y
+> 
+> 
+> CONFIG_BLK_DEV_FD=y
+> CONFIG_BLK_DEV_LOOP=m
+> CONFIG_BLK_DEV_RAM=m
+> CONFIG_BLK_DEV_RAM_SIZE=8192
+> 
+> CONFIG_IDE=y
+> 
+> CONFIG_BLK_DEV_IDE=y
+> 
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_IDEDISK_MULTI_MODE=y
+> CONFIG_BLK_DEV_IDECD=m
+> CONFIG_BLK_DEV_IDESCSI=m
+> 
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_BLK_DEV_VIA82CXXX=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_BLK_DEV_IDE_MODES=y
+> 
+> CONFIG_SCSI=m
+> 
+> CONFIG_BLK_DEV_SD=m
+> CONFIG_BLK_DEV_SR=m
+> CONFIG_SR_EXTRA_DEVS=2
+> CONFIG_CHR_DEV_SG=m
+> 
+> CONFIG_SCSI_MULTI_LUN=y
+> CONFIG_SCSI_CONSTANTS=y
+> 
+> CONFIG_PACKET=y
+> CONFIG_UNIX=y
+> CONFIG_INET=y
+> CONFIG_IP_MULTICAST=y
+> 
+> CONFIG_IPV6_SCTP__=y
+> 
+> CONFIG_NETDEVICES=y
+> 
+> CONFIG_NET_ETHERNET=y
+> 
+> CONFIG_NET_PCI=y
+> CONFIG_EEPRO100=m
+> CONFIG_NE2K_PCI=m
+> CONFIG_8139TOO=m
+> CONFIG_VIA_RHINE=m
+> 
+> CONFIG_INPUT=y
+> 
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> 
+> CONFIG_SOUND_GAMEPORT=y
+> CONFIG_SERIO=y
+> CONFIG_SERIO_I8042=y
+> 
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> 
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_HW_CONSOLE=y
+> 
+> CONFIG_SERIAL_8250=y
+> 
+> CONFIG_SERIAL_CORE=y
+> CONFIG_UNIX98_PTYS=y
+> CONFIG_UNIX98_PTY_COUNT=256
+> CONFIG_PRINTER=m
+> 
+> CONFIG_I2C=m
+> CONFIG_I2C_ALGOBIT=m
+> 
+> CONFIG_AGP=m
+> CONFIG_AGP_AMD=y
+> CONFIG_DRM=y
+> CONFIG_DRM_RADEON=m
+> 
+> CONFIG_AUTOFS4_FS=m
+> CONFIG_FAT_FS=m
+> CONFIG_MSDOS_FS=m
+> CONFIG_VFAT_FS=m
+> CONFIG_TMPFS=y
+> CONFIG_RAMFS=y
+> CONFIG_ISO9660_FS=m
+> CONFIG_JOLIET=y
+> CONFIG_PROC_FS=y
+> CONFIG_DEVPTS_FS=y
+> CONFIG_EXT2_FS=y
+> CONFIG_UDF_FS=m
+> CONFIG_UDF_RW=y
+> 
+> CONFIG_NFS_FS=m
+> CONFIG_NFS_V3=y
+> CONFIG_NFSD=m
+> CONFIG_NFSD_V3=y
+> CONFIG_NFSD_TCP=y
+> CONFIG_SUNRPC=m
+> CONFIG_LOCKD=m
+> CONFIG_LOCKD_V4=y
+> CONFIG_EXPORTFS=m
+> 
+> CONFIG_MSDOS_PARTITION=y
+> CONFIG_NLS=y
+> 
+> CONFIG_NLS_DEFAULT="iso8859-1"
+> 
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_VIDEO_SELECT=y
+> 
+> CONFIG_SOUND=m
+> 
+> CONFIG_SND=m
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=m
+> CONFIG_SND_PCM_OSS=m
+> 
+> CONFIG_SND_ENS1371=m
+> 
+> CONFIG_USB=m
+> 
+> CONFIG_USB_STORAGE=m
+> CONFIG_USB_STORAGE_DATAFAB=y
+> CONFIG_USB_STORAGE_DPCM=y
+> CONFIG_USB_STORAGE_SDDR09=y
+> CONFIG_USB_STORAGE_JUMPSHOT=y
+> 
+> CONFIG_USB_SERIAL=m
+> CONFIG_USB_SERIAL_GENERIC=y
+> CONFIG_USB_SERIAL_FTDI_SIO=m
+> 
+> CONFIG_DEBUG_KERNEL=y
+> CONFIG_MAGIC_SYSRQ=y
+> CONFIG_KALLSYMS=y
+> 
+> CONFIG_SECURITY_CAPABILITIES=y
+> 
+> CONFIG_X86_BIOS_REBOOT=y

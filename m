@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVCGNPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVCGNWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVCGNPs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 08:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCGNPs
+	id S261175AbVCGNWk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 08:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCGNWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 08:15:48 -0500
-Received: from av9-1-sn3.vrr.skanova.net ([81.228.9.185]:50126 "EHLO
-	av9-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S261155AbVCGNPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 08:15:43 -0500
-Message-ID: <422C539A.4040407@fulhack.info>
-Date: Mon, 07 Mar 2005 14:14:02 +0100
-From: Henrik Persson <root@fulhack.info>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
-X-Accept-Language: en-us, en
+	Mon, 7 Mar 2005 08:22:37 -0500
+Received: from web41415.mail.yahoo.com ([66.218.93.81]:30375 "HELO
+	web41415.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261156AbVCGNWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 08:22:35 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=DuSIhurOvkVb8lP6kxtyp94jtI+DF1YMCooN8KZTpgDBrt1zeVLuBCOvz1XASj94ogvv+gVv/fggYmLkgtWWAbeiELfXmShF5BXgRJddLjhIaQ9cyT1zh/3qvu1FmXi0WsrUr9wSPizUe9ebgLO7iWyC09xGVNhNdoGfzis1/6A=  ;
+Message-ID: <20050307132234.65405.qmail@web41415.mail.yahoo.com>
+Date: Mon, 7 Mar 2005 05:22:34 -0800 (PST)
+From: cranium2003 <cranium2003@yahoo.com>
+Subject: which file functions can be used on /proc file?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: dtor@mail.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Touchpad "tapping" changes in 2.6.11?
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
+hello,
+    i found that in struct proc_dir_entry struct
+file_operations *proc_fops; is defined. and struct
+file_operations has defined  read, write,
+poll,llseek,ioctl,flush,release,lock etc functions. so
+can all these functions be used on any /proc entry in
+usermode as well as in kenrel mode?
+   Also can following functions be used on my own
+created /proc file kernel module and when to use them
+as i have alredy struct file_opereations read and
+write routine that read/write to/from /proc file.
+typedef int (read_proc_t)(char *page, char **start,
+off_t off,
+                          int count, int *eof, void
+*data);
+typedef int (write_proc_t)(struct file *file, const
+char *buffer,
+                           unsigned long count, void
+*data);
+typedef int (get_info_t)(char *, char **, off_t, int);
 
-I noticed that the ALPS driver was added to 2.6.11, a thing that alot of 
-people probably like, but since my touchpad (Acer Aspire 1300XV) worked 
-perfectly before (like, 2.6.10) and now the ALPS driver disables 
-'hardware tapping', wich makes it hard to tap. I commented out the 
-disable-tapping bits in alps.c and now it's working like a charm again.
+regards,
+cranium.
 
-Maybe the hardware tapping-thing should be configurable via some boot or 
-config option?
 
--- 
-Henrik Persson
+	
+		
+__________________________________ 
+Celebrate Yahoo!'s 10th Birthday! 
+Yahoo! Netrospective: 100 Moments of the Web 
+http://birthday.yahoo.com/netrospective/

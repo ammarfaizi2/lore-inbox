@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316193AbSEKCWI>; Fri, 10 May 2002 22:22:08 -0400
+	id <S316194AbSEKCaq>; Fri, 10 May 2002 22:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316194AbSEKCWH>; Fri, 10 May 2002 22:22:07 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:35078 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316193AbSEKCWG>;
-	Fri, 10 May 2002 22:22:06 -0400
+	id <S316195AbSEKCap>; Fri, 10 May 2002 22:30:45 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:36358 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316194AbSEKCap>;
+	Fri, 10 May 2002 22:30:45 -0400
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG() disassembly tweak 
-In-Reply-To: Your message of "Sat, 11 May 2002 03:07:51 +0100."
-             <Pine.LNX.4.21.0205110258480.2235-100000@localhost.localdomain> 
+To: Nathan <wfilardo@fuse.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AIC7XXX build broken in 2.5.15+Kbuild? 
+In-Reply-To: Your message of "Fri, 10 May 2002 21:47:39 -0400."
+             <3CDC783B.7040700@fuse.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 11 May 2002 12:21:55 +1000
-Message-ID: <3622.1021083715@ocs3.intra.ocs.com.au>
+Date: Sat, 11 May 2002 12:30:34 +1000
+Message-ID: <3691.1021084234@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002 03:07:51 +0100 (BST), 
-Hugh Dickins <hugh@veritas.com> wrote:
->On Sat, 11 May 2002, Keith Owens wrote:
->> 
->> IMNSHO the instructions _after_ the oops are almost useless.
->
->Oh, I agree: I'd be perfectly happy for ksymoops to abandon trying
->to disassemble the instructions after the oops, and I don't think
->it need try to disassemble the instructions before the oops either.
->
->It is important that it show the bytes (preferably before and)
->after the oops, so that an investigator can locate that sequence
->of bytes in a built object; and it is important that we have some
->tool (objdump) which can disassemble the built object despite ud2
->and its accompanying data; but ksymoops does not need to do it.
+On Fri, 10 May 2002 21:47:39 -0400, 
+Nathan <wfilardo@fuse.net> wrote:
+>Using Kbuild-2.5 core 12, common against 2.5.15-1, i386 against 
+>2.5.15-1, and some ACPI fixups in arch/i386/{pci,kernel}/Makefile.in to 
+>make their latest patch work.
+>$ make -f Makefile-2.5 drivers/scsi/aic7xxx/aic7xxx_core.o
+>make[1]: Nothing to be done for `drivers/scsi/aic7xxx/aic7xxx_core.o'.
 
-ksymoops does more than decode the instructions.  It does all the work
-required to build the dummy object ready for objdump to do the
-decoding.  It also massages the objdump output to make it more readable
-and does symbol lookup on the absolute addresses returned by objdump.
+While converting the aic7xxx mess to something sane, I missed a line.
+There is a secondary problem where the aic7xxx_{seq,reg}.h files are
+always rebuilt, I am tracking that down now.
+
+diff -ur 2.5.15-kbuild-2.5/drivers/scsi/aic7xxx/Makefile.in 2.5.15-kbuild-2.5.new/drivers/scsi/aic7xxx/Makefile.in
+--- 2.5.15-kbuild-2.5/drivers/scsi/aic7xxx/Makefile.in	Sat May 11 12:28:02 2002
++++ 2.5.15-kbuild-2.5.new/drivers/scsi/aic7xxx/Makefile.in	Sat May 11 12:23:07 2002
+@@ -15,6 +15,8 @@
+ 
+ objlink(aic7xxx.o $(AIC7XXX_OBJS))
+ 
++select(CONFIG_SCSI_AIC7XXX aic7xxx.o)
++
+ extra_cflags_all($(src_includelist /drivers/scsi))
+ 
+ # Only aic7xxx.c includes aic7xxx_seq.h.
+@@ -47,12 +49,12 @@
+   ifneq ($(KBUILD_SRCTREE_000),$(KBUILD_OBJTREE))
+     user_command(aic7xxx_seq.h
+ 	($(srcfile_base aic7xxx_seq.h))
+-	(cp -a $< $@)
++	(cp -fa $< $@)
+ 	()
+ 	)
+     user_command(aic7xxx_reg.h
+ 	($(srcfile_base aic7xxx_reg.h))
+-	(cp -a $< $@)
++	(cp -fa $< $@)
+ 	()
+ 	)
+   endif
 

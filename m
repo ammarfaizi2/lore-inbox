@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUIJGtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUIJGwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUIJGtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUIJGtI
+	id S266864AbUIJGwF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJGwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:49:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63688 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266193AbUIJGtC (ORCPT
+	Fri, 10 Sep 2004 02:52:05 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:38564 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S266539AbUIJGvK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:49:02 -0400
-Date: Thu, 9 Sep 2004 23:49:00 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix sigqueue accounting for posix-timers broken by new RLIMIT_SIGPENDING tracking code
-Message-ID: <20040909234900.Q1973@build.pdx.osdl.net>
-References: <200409100510.i8A5AVD7025919@magilla.sf.frob.com>
+	Fri, 10 Sep 2004 02:51:10 -0400
+Date: Fri, 10 Sep 2004 10:51:07 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netwinder or ARM build platform
+Message-ID: <20040910065107.GE692@pazke>
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <200409091759.i89HxHI2023135@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rqzD5py0kzyFAOWN"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200409100510.i8A5AVD7025919@magilla.sf.frob.com>; from roland@redhat.com on Thu, Sep 09, 2004 at 10:10:31PM -0700
+In-Reply-To: <200409091759.i89HxHI2023135@work.bitmover.com>
+User-Agent: Mutt/1.5.6+20040803i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Roland McGrath (roland@redhat.com) wrote:
-> 
-> The introduction of RLIMIT_SIGPENDING and the associated tracking code was
-> broken for the case of preallocated sigqueue elements, i.e. posix-timers.
-> It wrongly includes the timer's preallocated sigqueue structs in the count
-> towards the per-user when allocating them, but (rightly) does not decrement
-> the count when they are freed.  
 
-Are you sure?  IOW, are you seeing a leak of the count?  The sigqueue
-structure has a lifetime the same as the timer, IIRC.  So each time the
-signal is sent/received there's no accounting, because it's reused.
-But timer create/delete does sigqueue_alloc -> __sigqueue_alloc which
-does the inc. and sigqueue_free -> __sigqueue_free which does the dec.
-I'm fairly sure I had tested this.
+--rqzD5py0kzyFAOWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+On 253, 09 09, 2004 at 10:59:17AM -0700, Larry McVoy wrote:
+> BK found another bad hard drive today, on our netwinder.  The disk is die=
+ing
+> badly unfortunately and I don't have installation media for this beast.
+> I suspect I can go find it but does anyone know of a faster build platform
+> for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
+> continue to support it but that netwinder is just amazingly slow.  If the=
+re
+> is a faster platform we want one.
+
+What about these beasts http://www.iyonix.com/ ?
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--rqzD5py0kzyFAOWN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBQU7bby9O0+A2ZecRAs2KAKCxyvxmn7NRuVBcykmOZ//+ZFC2TACeJKx5
+ey2n/XIcxsKn6A386n5bH6g=
+=3uVr
+-----END PGP SIGNATURE-----
+
+--rqzD5py0kzyFAOWN--

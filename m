@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131237AbRCRQCP>; Sun, 18 Mar 2001 11:02:15 -0500
+	id <S131239AbRCRQnc>; Sun, 18 Mar 2001 11:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131238AbRCRQCF>; Sun, 18 Mar 2001 11:02:05 -0500
-Received: from web1302.mail.yahoo.com ([128.11.23.152]:16912 "HELO
-	web1302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131237AbRCRQBq>; Sun, 18 Mar 2001 11:01:46 -0500
-Message-ID: <20010318160105.11345.qmail@web1302.mail.yahoo.com>
-Date: Sun, 18 Mar 2001 08:01:05 -0800 (PST)
-From: Leandro Bernsmuller <leberns@yahoo.com>
-Subject: floppy programming
-To: linux-kernel@vger.kernel.org
+	id <S131244AbRCRQnX>; Sun, 18 Mar 2001 11:43:23 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22284 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131239AbRCRQnM>; Sun, 18 Mar 2001 11:43:12 -0500
+Date: Sun, 18 Mar 2001 11:43:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: sct@conectiva.com.br, linux-kernel@conectiva.com.br
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
+ information?)
+In-Reply-To: <Pine.LNX.4.33.0103181407520.1426-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0103181122480.13050-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 18 Mar 2001, Mike Galbraith wrote:
 
-Hi,
+> > No, this was make -j30 bzImage.  (nscd was running though...)
+> 
+> I rebooted, shut down nscd prior to testing and did 5 builds in a row
+> without a single gripe.  Started nscd for sixth run and instantly the
+> kernel griped.  Yup.. threaded apps pushing swap.
 
-some body know if exist or is possible to do one
-driver
-to makes floppy drive use some type of "balanced" bits
-distribution?
-The idea is simple: format a disk doing inner tracks
-with less bits than
-in external tracks.
-Maybe is better think in sectors and not bits
-banlancing?
+OK, I'll write some code to prevent multiple threads from
+stepping all over each other when they pagefault at the
+same address.
 
-I want opinions about the idea, pleace.
+What would be the preferred method of fixing this ?
 
-Where can I find information about floppy drivers
-programming, DMA setup,...?
+- fixing do_swap_page and all ->nopage functions
+- hacking handle_mm_fault to make sure no overlapping
+  pagefaults will be served at the same time
 
-Thanks,
+regards,
 
-Leandro
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
+

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130493AbRDGTcR>; Sat, 7 Apr 2001 15:32:17 -0400
+	id <S130487AbRDGTbh>; Sat, 7 Apr 2001 15:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRDGTcI>; Sat, 7 Apr 2001 15:32:08 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:37680 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130493AbRDGTbz>; Sat, 7 Apr 2001 15:31:55 -0400
-Date: Sat, 7 Apr 2001 20:31:42 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Gunther Mayer <Gunther.Mayer@t-online.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mj@suse.cz,
-        reinelt@eunet.at
-Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
-Message-ID: <20010407203142.G3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com> <3ACF6920.465635A1@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACF6920.465635A1@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 07, 2001 at 03:23:12PM -0400
+	id <S130493AbRDGTb1>; Sat, 7 Apr 2001 15:31:27 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:53937 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130487AbRDGTbP>;
+	Sat, 7 Apr 2001 15:31:15 -0400
+Message-ID: <3ACF6B02.3DE79321@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 15:31:14 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Michael Reinelt <reinelt@eunet.at>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-function PCI devices
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <3ACEFB05.C9C0AB3C@eunet.at> <20010407131631.A3280@redhat.com> <3ACF4D0F.9D15EB7F@mandrakesoft.com> <20010407200856.E3280@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim Waugh wrote:
+> 
+> On Sat, Apr 07, 2001 at 01:23:27PM -0400, Jeff Garzik wrote:
+> 
+> > You asked in your last message to show you code, here is a short
+> > example.  Note that I would love to rip out the SUPERIO code in parport
+> > and make it a separate driver like this short, contrived example.  Much
+> > more modular than the existing solution.
+> 
+> (The superio code is on its way out anyway, for different reasons..)
 
---UTZ8bGhNySVQ9LYl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think there will be further discussion on this :)
 
-On Sat, Apr 07, 2001 at 03:23:12PM -0400, Jeff Garzik wrote:
+> More modular?  Yes, it adds another module to support a card, so yes
+> there are more modules.
+> 
+> But with the multifunction_quirks approach, support is a question of
+> adding two lines in a table.
 
-> It's just ugly to keep hacking in special cases to handle hardware
-> that is multifunction like this.
+struct pci_driver is going to become struct driver, don't forget.  With
+that in mind, the "multifunction_quirks" patch appears even more of a
+bus-specific hack.
 
-I just don't want it to be a huge chore to add support for these
-cards.
+Why do you want to dirty the soon-to-be generic driver API for stupid
+hardware?
 
-Would everyone be happy if (say) drivers/parport/parport_serial.c had
-a table and a generic version of your example function, so that the
-table somehow described the multifunction cards out there?
+It takes two seconds to write a shim driver as I have described, and
+further a shim driver is not necessary on sensible hardware.
 
-Tim.
-*/
+	Jeff
 
---UTZ8bGhNySVQ9LYl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6z2sdONXnILZ4yVIRAsY+AJ9E7KjrUlYj1OgpLWUvklDB2ZPLFQCfQOcA
-JbOPFnnpHZWW5MWtadivOv8=
-=L2le
------END PGP SIGNATURE-----
-
---UTZ8bGhNySVQ9LYl--
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

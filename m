@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136642AbREJOFE>; Thu, 10 May 2001 10:05:04 -0400
+	id <S136668AbREJOVf>; Thu, 10 May 2001 10:21:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136613AbREJN7i>; Thu, 10 May 2001 09:59:38 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:54674 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136614AbREJN70>;
-	Thu, 10 May 2001 09:59:26 -0400
-Date: Wed, 9 May 2001 20:46:35 -0700
-From: Drew Bertola <drew@drewb.com>
-To: clameter@lameter.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB broken in 2.4.4? Serial Ricochet works, USB performance sucks.
-Message-ID: <20010509204635.B26723@drewb.com>
-In-Reply-To: <Pine.LNX.4.10.10105091739490.22715-100000@melchi.fuller.edu>
+	id <S136666AbREJOVZ>; Thu, 10 May 2001 10:21:25 -0400
+Received: from msp-26-178-183.mn.rr.com ([24.26.178.183]:21426 "HELO
+	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
+	id <S136663AbREJOVE>; Thu, 10 May 2001 10:21:04 -0400
+Date: Thu, 10 May 2001 09:21:10 -0500
+From: Shawn <z3rk@ahkbarr.dynip.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs, xfs, ext2, ext3
+Message-ID: <20010510092110.A15249@ahkbarr.dynip.com>
+In-Reply-To: <01050910381407.26653@bugs> <20010510134453.A6816@emma1.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10105091739490.22715-100000@melchi.fuller.edu>; from clameter@lameter.com on Wed, May 09, 2001 at 05:52:04PM -0700
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010510134453.A6816@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, May 10, 2001 at 01:44:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damn bad luck.  I love my ricochet, but have Metricom as the provider.
-I've used it in the bay area, LA and OC area, Boulder, and NYC.
-
-It was a snap to setup with the acm module, and I get almost full
-115kbit throughput.
-
-On Wed, May 09, 2001 at 05:52:04PM -0700, clameter@lameter.com wrote:
-> I recently got a ricochet 128k GS wireless modem and I am running it with
-> kernel 2.4.4 and ppp 2.4.1.
+On 05/10, Matthias Andree rearranged the electrons to read:
+> On Wed, 09 May 2001, Mart?n Marqu?s wrote:
 > 
-> Using the USB connection (configured to operatate at 460kbit)  I get up to
-> 2kbyte per second. With serial(at 115kbit) this goes up to 8kbyte per
-> second.
+> > There has also been lots of talks about reiserfs being the cause of
+> > some data lose and performance lose (not sure about this last one).
 > 
-> Why is this?
+> I never experienced ReiserFS data loss, but I did experience read
+> performance loss over ext2fs and switched that file system back to ext2.
+> The ReiserFS people could not reproduce the problem, so I'm not sure
+> what was the actual cause.
 > 
-> (Note to all prospective Ricochet/Earthlink buyers: Beware. It takes 10-20
-> successful connects before you can establish a connection that lets data
-> through. Tested on multiple OSe and my ricochet repeater is across the
-> street on a lamp).
+> ext3fs has never given me any problems, but I did not have it in
+> production use where I discovered major ReiserFS <-> kNFSd
+> incompatibilities. ext3 has a 0.0.x version number which suggests it's
+> not meant for production use. 
+> 
+> XFS is claimed to work with NFS, but not currently availabe for Linux
+> 2.4.4.
 
--- 
-Drew Bertola  | Send a text message to my pager or cell ... 
-              |   http://jpager.com/Drew
+$ uname -r
+2.4.4-ac5.xfs
+$ uptime
+  9:20am  up 1 day, 18:28,  4 users,  load average: 0.00, 0.00, 0.00
 
+--
+Hob Goblin
+z3rk@ahkbarr.dynip.com
+
+A society that will trade a little liberty for a little order will lose
+both and deserve neither. - Thomas Jefferson

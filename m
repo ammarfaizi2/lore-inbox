@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265443AbTFRSTl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 14:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTFRSTj
+	id S265489AbTFRS0v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 14:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbTFRSZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 14:19:39 -0400
-Received: from pat.uio.no ([129.240.130.16]:56527 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265438AbTFRSTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 14:19:09 -0400
+	Wed, 18 Jun 2003 14:25:56 -0400
+Received: from lvs00-fl.valueweb.net ([216.219.253.199]:52881 "EHLO
+	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S265474AbTFRSY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 14:24:26 -0400
+Message-ID: <3EF0B170.4040304@coyotegulch.com>
+Date: Wed, 18 Jun 2003 14:37:36 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Sco vs. IBM
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>	 <063301c32c47$ddc792d0$3f00a8c0@witbe>	 <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke>
+In-Reply-To: <1055957807.16818.12.camel@loke>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16112.45129.596389.443522@charged.uio.no>
-Date: Wed, 18 Jun 2003 11:32:41 -0700
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Support non reserved ports for NFS client
-In-Reply-To: <20030618145145.GA5204@wotan.suse.de>
-References: <20030618145145.GA5204@wotan.suse.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andi Kleen <ak@suse.de> writes:
+Martin List-Petersen wrote:
+> Ok .. here we got us a few more articles about the stuff going on.
+[snip]
 
-     > Currently you cannot have more than 1024 mounts for a single
-     > local IP address because the NFS client always tries to get a
-     > "secure" port <1024.
+I'll panic when Linus panics... or when IBM surrenders. ;}
 
-     > This patch adds a new noreserved mount option to disable this.
+Certainly, SCO will influence the ebb and flow of the universe; in the
+end, I suspect it will be much ado about nothing.
 
-Hi Andi,
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
 
-  I've already got a patch to accomplish most of this in
 
-  http://www.fys.uio.no/~trondmy/src/2.4.21/linux-2.4.21-11-fix_tcprace3.dif
-
-It's a backport of some patches that have already gone into 2.5.x to
-fix some TCP client reconnection issues. I was hoping to push these
-patches to Marcelo for 2.4.22.
-
-Could you therefore please just send me a patch for the
-NFS_MOUNT_NONRESERVED mount option alone. Then I'll append it to this
-patch series?
-
-This should also make it easy to port the whole thing forward to 2.5.x
-(although please note that for 2.5.x I'm also planning some other
-improvements that will allow us to share the struct xprt between
-different RPC clients).
-
-Cheers,
-  Trond

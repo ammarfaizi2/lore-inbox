@@ -1,26 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVBVRWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVBVRX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVBVRWc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 12:22:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVBVRWc
+	id S261191AbVBVRX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 12:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVBVRX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 12:22:32 -0500
-Received: from 24-151-229-220.chartertn.net ([24.151.229.220]:32517 "HELO
-	24-151-229-220.chartertn.net") by vger.kernel.org with SMTP
-	id S261168AbVBVRWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 12:22:30 -0500
-Date: Tue, 22 Feb 2005 11:21:43 +0000
-From: Yuriy_Kaminsky@24-151-229-220.chartertn.net
-Subject: 89.95$ = Microsoft Windows XP Pro + Microsoft Office XP Pro
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <FA85H8K01H08442E@vger.kernel.org>
-In-Reply-To: <FA85H8K01H08442E@vger.kernel.org>
-Message-ID: <27L48D827578C2F4@24-151-229-220.chartertn.net>
+	Tue, 22 Feb 2005 12:23:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:9191 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261193AbVBVRXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 12:23:18 -0500
+Date: Tue, 22 Feb 2005 17:23:03 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Dave Airlie <airlied@gmail.com>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       adaplas@pol.net, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Resource management.
+In-Reply-To: <9e47339105022121234d0f7f73@mail.gmail.com>
+Message-ID: <Pine.LNX.4.56.0502221719440.30102@pentafluge.infradead.org>
+References: <Pine.LNX.4.56.0502211908520.14500@pentafluge.infradead.org> 
+ <200502220653.01286.adaplas@hotpop.com>  <Pine.LNX.4.56.0502212313160.18148@pentafluge.infradead.org>
+  <9e473391050221170111610521@mail.gmail.com> 
+ <Pine.LNX.4.56.0502220319330.20949@pentafluge.infradead.org> 
+ <21d7e99705022120462cb9494c@mail.gmail.com> <9e47339105022121234d0f7f73@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://94912.ifmmmjfjf.com/?o7WZq9o2tYvNaoo41763
+
+> As far as I know none of the significant contributors on either fbdev
+> or DRM are being paid to work on the project.
+
+So I have noticed. There is much to do but no real man power. We are 
+talking about this merging but at our rate it will take 5 years to happen. 
+We don't have the man power to do this. So I'm not going to bother 
+merging. Its all pipe dreams here.
 

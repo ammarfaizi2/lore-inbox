@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272188AbRIEOgY>; Wed, 5 Sep 2001 10:36:24 -0400
+	id <S272193AbRIEOne>; Wed, 5 Sep 2001 10:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272191AbRIEOgP>; Wed, 5 Sep 2001 10:36:15 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:2061 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S272188AbRIEOf6>; Wed, 5 Sep 2001 10:35:58 -0400
-To: Michael Bacarella <mbac@nyct.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getpeereid() for Linux
-In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de>
-	<20010905093851.A24280@sync.nyct.net>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 05 Sep 2001 16:35:41 +0200
-In-Reply-To: <20010905093851.A24280@sync.nyct.net> (Michael Bacarella's message of "Wed, 5 Sep 2001 09:38:51 -0400")
-Message-ID: <tgsne1vh6q.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
-MIME-Version: 1.0
+	id <S272192AbRIEOnY>; Wed, 5 Sep 2001 10:43:24 -0400
+Received: from ns1.n-online.net ([195.30.220.100]:46609 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S272191AbRIEOnP>; Wed, 5 Sep 2001 10:43:15 -0400
+Date: Wed, 5 Sep 2001 16:36:21 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac6
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010905144317Z272191-760+9716@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Bacarella <mbac@nyct.net> writes:
+> christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr> writes:
 
-> There's no need. The equivalent functionality can already be
-> implemented in userspace.
+>>Would it not be possible with your scheme to package a closed source driver
+>>in an open source wrapper driver and then defeat your tainting technique.
 
-Well, it doesn't work with TCP.  Uh-oh, I see I forgot to mention the
-following: I need this functionality for local TCP connections, not
-just UNIX domain sockets.
+>>Is it legally possible to copyright a kind of magic number with a copyright
+>>allowing only it's used in open & public source driver ?
 
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+> Congratulations, you've just invented the Microsoft HW Labs
+> certification procedure with module signing. ;-)
+
+> I can really see it:
+
+> # insmod <module>
+> This module <module> is not signed with the Linus Torvalds Hardware
+> Certification Labs key.
+
+> Do you want to
+
+> a) insert the module anyway (Errors and Crashes from your kernel will
+> not be processed by major kernel developers
+> b) not insert the module
+> c) search for an alternative driver that is open source, download it,
+>    compile it and use that instead of <module>
+> d) download a skeleton driver to write your own driver
+> e) install Microsoft Windows XP
+> f) exit
+
+> -> f
+
+LOL, that's the point!
+
+What's about : linuxupdate.linux.org
+
+;-)
+
+Thomas
+

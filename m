@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUJGPKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUJGPJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUJGPKj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUJGPJv
+	id S267385AbUJGPJd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUJGPJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:09:51 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:44943 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S264085AbUJGPHg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 11:07:36 -0400
-Date: Thu, 7 Oct 2004 17:05:15 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: "Andrei A. Voropaev" <av@simcon-mt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: large auto variables cause segfault under 2.6
-Message-ID: <20041007150515.GA5590@thundrix.ch>
-References: <20041005132741.GD28160@avorop.local>
+	Thu, 7 Oct 2004 11:09:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:772 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264639AbUJGPCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 11:02:19 -0400
+Date: Thu, 7 Oct 2004 16:02:13 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: Richard Earnshaw <Richard.Earnshaw@arm.com>, linux-kernel@vger.kernel.org,
+       Catalin Marinas <Catalin.Marinas@arm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+Message-ID: <20041007160213.C8579@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Cox <adrian@humboldt.co.uk>,
+	Richard Earnshaw <Richard.Earnshaw@arm.com>,
+	linux-kernel@vger.kernel.org,
+	Catalin Marinas <Catalin.Marinas@arm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org> <20041005125324.A6910@flint.arm.linux.org.uk> <1096981035.14574.20.camel@pc960.cambridge.arm.com> <20041005141452.B6910@flint.arm.linux.org.uk> <1096983608.14574.32.camel@pc960.cambridge.arm.com> <20041005145140.E6910@flint.arm.linux.org.uk> <1097057299.5332.15.camel@newt>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041005132741.GD28160@avorop.local>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1097057299.5332.15.camel@newt>; from adrian@humboldt.co.uk on Wed, Oct 06, 2004 at 11:08:20AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 06, 2004 at 11:08:20AM +0100, Adrian Cox wrote:
+> On Tue, 2004-10-05 at 14:51, Russell King wrote:
+> > On Tue, Oct 05, 2004 at 02:40:08PM +0100, Richard Earnshaw wrote:
+> 
+> > > Looking at the output of nm -fsysv shows that currently the mapping
+> > > symbols are being incorrectly typed (the EABI requires them to be
+> > > STT_NOTYPE, but the previous ELF specification -- not supported by GNU
+> > > utils -- required them to be typed by the data they addressed.  I'll
+> > > submit a patch for that shortly).
+> > 
+> > Ugg - in that case, we need to go with the "match the name" version
+> > until these changes in binutils have matured (== 2 or 3 years time.)
+> 
+> Why does the Linux ARM ABI have to have any relation to the ARM EABI?
+> The PowerPC has had two different ABIs for years, and it's not caused us
+> any trouble. Can't we just leave the behaviour of binutils alone when
+> configured for an arm-linux target, and put all feature churn into an
+> arm-eabi target?
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'll suggest that Richard should answer this question.
 
-Salut,
-
-On Tue, Oct 05, 2004 at 03:27:41PM +0200, Andrei A. Voropaev wrote:
->   int main( int argc, char **argv )
->   {
->        unsigned char  bRet =3D 0;
->  =20
->        char tst[67123456];
->  =20
->  =20
->        const char* pcSupportedParams =3D "d:t:lV:C:cP:h";
->  =20
->        printf("pcSupportedParams =3D %s\n");
->        return 0;
->   }
-
-It might also crash because your printf is printing something odd.
-
-				Tonnerre
-
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBZVsq/4bL7ovhw40RAntxAJ0RxEaHq7uBaIzT7Do5nBk3voTbiwCgkC3T
-XVnBKGDIDpsHFitLClslAmk=
-=Dy+I
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

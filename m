@@ -1,43 +1,177 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130180AbQKIF0L>; Thu, 9 Nov 2000 00:26:11 -0500
+	id <S130180AbQKIFkk>; Thu, 9 Nov 2000 00:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130217AbQKIF0B>; Thu, 9 Nov 2000 00:26:01 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:1075 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S130180AbQKIFZy>; Thu, 9 Nov 2000 00:25:54 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "H. Peter Anvin" <hpa@zytor.com>
+	id <S130129AbQKIFka>; Thu, 9 Nov 2000 00:40:30 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:54535
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130209AbQKIFkV>; Thu, 9 Nov 2000 00:40:21 -0500
+Date: Wed, 8 Nov 2000 21:39:24 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Derrik Pates <dpates@andromeda.dsdk12.net>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design 
-In-Reply-To: Your message of "08 Nov 2000 21:09:49 -0800."
-             <8udbit$pne$1@cesium.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 Nov 2000 16:25:10 +1100
-Message-ID: <4983.973747510@kao2.melbourne.sgi.com>
+Subject: Re: B/W G3 - big IDE problems with 2.4.0-test10
+In-Reply-To: <Pine.LNX.4.30.0011082115050.27524-100000@andromeda.dsdk12.net>
+Message-ID: <Pine.LNX.4.10.10011082135360.6499-200000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="-1019260510-1189368350-973748364=:6499"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Nov 2000 21:09:49 -0800, 
-"H. Peter Anvin" <hpa@zytor.com> wrote:
->Remember that we cannot rely on ANY form of persistent storage to be
->available in the beginning; / may very well be readonly (on a ROM,
->say.)  Since that means that we can't rely on writable storage being
->available until at least one other filesystem has been mounted, it
->might as well be the standard for variable data, i.e. /var.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Agreed.  Default is /var/lib/modules-persist.  People who have a
-separate /var partition that is mounted after modules are loaded can
-use / and specify
+---1019260510-1189368350-973748364=:6499
+Content-Type: text/plain; charset=us-ascii
 
-persist /lib/modules/persist
 
-in /etc/modules.conf.  If you have a separate /var and you do not want
-to write to /, change your initialization scripts to load modules after
-mounting /var.
+My PPC with an ACARD addon PPC card.
 
+AEC6260R: IDE controller on PCI bus 00 dev 68
+AEC6260R: chipset revision 1
+AEC6260R: not 100% native mode: will probe irqs later
+AEC6260R: ROM enabled at 0x80810000
+    ide0: BM-DMA at 0x0800-0x0807, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x0808-0x080f, BIOS settings: hdc:pio, hdd:pio
+
+What is your chipset, CMD646 rev 5 Ultra DMA 33 ???
+
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
+
+---1019260510-1189368350-973748364=:6499
+Content-Type: text/plain; charset=us-ascii; name="boot.msg"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10011082139240.6499@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="boot.msg"
+
+Q2Fubm90IGZpbmQgbWFwIGZpbGUuDQpObyBtb2R1bGUgc3ltYm9scyBsb2Fk
+ZWQuDQprbG9nZCAxLjMtMywgbG9nIHNvdXJjZSA9IGtzeXNsb2cgc3RhcnRl
+ZC4NCjw0PlRvdGFsIG1lbW9yeSA9IDExMk1COyB1c2luZyA1MTJrQiBmb3Ig
+aGFzaCB0YWJsZSAoYXQgYzAzMDAwMDApDQo8ND5MaW51eCB2ZXJzaW9uIDIu
+NC4wLXRlc3Q5IChyb290QHBwYykgKGdjYyB2ZXJzaW9uIDIuOTUuMiAxOTk5
+MTAyNCAocmVsZWFzZSkpICMxIFRodSBPY3QgNSAwMjowMjo1MSBQRFQgMjAw
+MA0KPDY+UENJIGJ1cyAwIGNvbnRyb2xsZWQgYnkgYmFuZGl0IGF0IGYyMDAw
+MDAwDQo8Nj5DYWNoZSBjb2hlcmVuY3kgZW5hYmxlZCBmb3IgYmFuZGl0L1BT
+WCBhdCBmZGVmMTAwMA0KPDY+UENJIGJ1cyAxIGNvbnRyb2xsZWQgYnkgY2hh
+b3MgYXQgZjAwMDAwMDANCjw0Pk9uIG5vZGUgMCB0b3RhbHBhZ2VzOiAyODY3
+Mg0KPDQ+em9uZSgwKTogMjg2NzIgcGFnZXMuDQo8ND56b25lKDEpOiAwIHBh
+Z2VzLg0KPDQ+em9uZSgyKTogMCBwYWdlcy4NCjw0Pktlcm5lbCBjb21tYW5k
+IGxpbmU6IHJvb3Q9L2Rldi9oZGE3IGRldmZzPW5vbW91bnQNCjw0PlN5c3Rl
+bSBoYXMgMzIgcG9zc2libGUgaW50ZXJydXB0cw0KPDQ+R01UIERlbHRhIHJl
+YWQgZnJvbSBYUFJBTTogLTQyMCBtaW51dGVzLCBEU1Q6IG9uDQo8Nj52aWFf
+Y2FsaWJyYXRlX2RlY3I6IHRpY2tzIHBlciBqaWZmeSA9IDExMTIyNyAoNjY3
+MzY0IHRpY2tzKQ0KPDQ+Q29uc29sZTogY29sb3VyIGR1bW15IGRldmljZSA4
+MHgyNQ0KPDQ+Q2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiA1MzIuNDggQm9n
+b01JUFMNCjw0Pk1lbW9yeTogMTA5MDgwayBhdmFpbGFibGUgKDE4NzZrIGtl
+cm5lbCBjb2RlLCA5MDRrIGRhdGEsIDI2OGsgaW5pdCwgMGsgaGlnaG1lbSkN
+Cjw0PkRlbnRyeS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChv
+cmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KPDQ+QnVmZmVyLWNhY2hlIGhhc2gg
+dGFibGUgZW50cmllczogNDA5NiAob3JkZXI6IDIsIDE2Mzg0IGJ5dGVzKQ0K
+PDQ+UGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMyNzY4IChvcmRl
+cjogNSwgMTMxMDcyIGJ5dGVzKQ0KPDQ+SW5vZGUtY2FjaGUgaGFzaCB0YWJs
+ZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYgYnl0ZXMpDQo8NT5W
+RlM6IERpc2txdW90YXMgdmVyc2lvbiBkcXVvdF82LjQuMCBpbml0aWFsaXpl
+ZA0KPDQ+UE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBieSBVTklGSVgNCjw0
+PlBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUNCjw0Pk1hY2ludG9zaCBDVURB
+IGRyaXZlciB2MC41IGZvciBVbmlmaWVkIEFEQi4NCjw2PkxpbnV4IE5FVDQu
+MCBmb3IgTGludXggMi40DQo8Nj5CYXNlZCB1cG9uIFN3YW5zZWEgVW5pdmVy
+c2l0eSBDb21wdXRlciBTb2NpZXR5IE5FVDMuMDM5DQo8Nj5ORVQ0OiBVbml4
+IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAgZm9yIExpbnV4IE5FVDQuMC4NCjw2
+Pk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMA0KPDY+SVAgUHJv
+dG9jb2xzOiBJQ01QLCBVRFAsIFRDUCwgSUdNUA0KPDQ+SVA6IHJvdXRpbmcg
+Y2FjaGUgaGFzaCB0YWJsZSBvZiA1MTIgYnVja2V0cywgNEtieXRlcw0KPDQ+
+VENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCA4MTky
+IGJpbmQgODE5MikNCjw2Pk5FVDQ6IEFwcGxlVGFsayAwLjE4IGZvciBMaW51
+eCBORVQ0LjANCjw0PkluaXRpYWxpemluZyBSVCBuZXRsaW5rIHNvY2tldA0K
+PDQ+U3RhcnRpbmcga3N3YXBkIHYxLjgNCjw2PmNvbnRyb2xmYjogTWVtb3J5
+IGJhbmsgMSBwcmVzZW50LCBiYW5rIDIgcHJlc2VudCwgdG90YWwgVlJBTSA0
+TUINCjw2Pk1vbml0b3Igc2Vuc2UgdmFsdWUgPSAweDYyMywgdXNpbmcgdmlk
+ZW8gbW9kZSAxOCBhbmQgY29sb3IgbW9kZSAwLg0KPDQ+Q29uc29sZTogc3dp
+dGNoaW5nIHRvIGNvbG91ciBmcmFtZSBidWZmZXIgZGV2aWNlIDE0NHg1NA0K
+PDY+ZmIwOiBjb250cm9sIGRpc3BsYXkgYWRhcHRlcg0KPDY+TWFjT1MgZGlz
+cGxheSBpcyAvY2hhb3MvY29udHJvbA0KPDQ+UG93ZXJNYWMgWjg1MzAgc2Vy
+aWFsIGRyaXZlciB2ZXJzaW9uIDIuMA0KPDQ+dHR5MDAgYXQgMHhjODgwNTAy
+MCAoaXJxID0gMTUpIGlzIGEgWjg1MzAgRVNDQywgcG9ydCA9IG1vZGVtDQo8
+ND50dHkwMSBhdCAweGM4ODBjMDAwIChpcnEgPSAxNikgaXMgYSBaODUzMCBF
+U0NDLCBwb3J0ID0gcHJpbnRlcg0KPDQ+cHR5OiAyNTYgVW5peDk4IHB0eXMg
+Y29uZmlndXJlZA0KPDQ+UkFNRElTSyBkcml2ZXIgaW5pdGlhbGl6ZWQ6IDE2
+IFJBTSBkaXNrcyBvZiA0MDk2SyBzaXplIDEwMjQgYmxvY2tzaXplDQo8Nj5s
+b29wOiBlbmFibGluZyA4IGxvb3AgZGV2aWNlcw0KPDY+VW5pZm9ybSBNdWx0
+aS1QbGF0Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDYuMzENCjw0Pmlk
+ZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1v
+ZGVzOyBvdmVycmlkZSB3aXRoIGlkZWJ1cz14eA0KPDQ+QUVDNjI2MFI6IElE
+RSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2IDY4DQo8ND5BRUM2MjYw
+UjogY2hpcHNldCByZXZpc2lvbiAxDQo8ND5BRUM2MjYwUjogbm90IDEwMCUg
+bmF0aXZlIG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRlcg0KPDQ+QUVDNjI2
+MFI6IFJPTSBlbmFibGVkIGF0IDB4ODA4MTAwMDANCjw0PiAgICBpZGUwOiBC
+TS1ETUEgYXQgMHgwODAwLTB4MDgwNywgQklPUyBzZXR0aW5nczogaGRhOnBp
+bywgaGRiOnBpbw0KPDQ+ICAgIGlkZTE6IEJNLURNQSBhdCAweDA4MDgtMHgw
+ODBmLCBCSU9TIHNldHRpbmdzOiBoZGM6cGlvLCBoZGQ6cGlvDQo8ND5oZGE6
+IFFVQU5UVU0gRklSRUJBTEwgQ1gxMC4yQSwgQVRBIERJU0sgZHJpdmUNCjw0
+PmlkZTAgYXQgMHg4NDAtMHg4NDcsMHgwMDAgb24gaXJxIDIzDQo8ND5pZGU6
+IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rl
+czsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgNCjw2PmhkYTogMjAwNDQwODAg
+c2VjdG9ycyAoMTAyNjMgTUIpIHcvNDE4S2lCIENhY2hlLCBDSFM9MTk4ODUv
+MTYvNjMsIFVETUEoNjYpDQo8Nj5QYXJ0aXRpb24gY2hlY2s6DQo8Nj4gL2Rl
+di9pZGUvaG9zdDAvYnVzMC90YXJnZXQwL2x1bjA6IFttYWNdIHAxIHAyIHAz
+IHA0IHA1IHA2IHA3IHA4IHA5IHAxMA0KPDY+ZmQwOiBTV0lNMyBmbG9wcHkg
+Y29udHJvbGxlciANCjw1PnVkZjogcmVnaXN0ZXJpbmcgZmlsZXN5c3RlbQ0K
+PDY+TWFjaW50b3NoIEFEQiBtb3VzZSBkcml2ZXIgaW5zdGFsbGVkLg0KPDc+
+SU4gZnJvbSBiYWQgcG9ydCA3MSBhdCBjMDI2MDBhMA0KPDY+UmVhbCBUaW1l
+IENsb2NrIERyaXZlciB2MS4xMGMNCjw2PkxpbnV4IFR1bGlwIGRyaXZlciB2
+ZXJzaW9uIDAuOS4xMCAoU2VwdGVtYmVyIDYsIDIwMDApDQo8ND5QQ0k6IEVu
+YWJsaW5nIGRldmljZSAwMDowZi4wICgwMDA0IC0+IDAwMDcpDQo8Nj5ldGgw
+OiBMaXRlLU9uIDgyYzE2OCBQTklDIHJldiAzMiBhdCAweDQwMCwgMDA6MDA6
+QjU6OTQ6QUI6MzksIElSUSAyNS4NCjw2PmV0aDA6ICBNSUkgdHJhbnNjZWl2
+ZXIgIzEgY29uZmlnIDMxMDAgc3RhdHVzIDc4MjkgYWR2ZXJ0aXNpbmcgMDFl
+MS4NCjw2PmV0aDE6IE1BQ0UgYXQgMDA6MDU6MDI6NTg6OWQ6NDgsIGNoaXAg
+cmV2aXNpb24gMjUuNjQNCjw0PnNjc2kwIDogTUVTSA0KPDQ+bWVzaDogcmVq
+ZWN0aW5nIG1lc3NhZ2UgZnJvbSB0YXJnZXQgMTogMSAxIDMNCjw0Pm1lc2g6
+IGJzMD0yZiBpbiBtc2dfb3V0DQo8ND5tZXNoOiByZWplY3RpbmcgbWVzc2Fn
+ZSBmcm9tIHRhcmdldCAxOiAxIDEgMzINCjw0Pm1lc2g6IGJzMD0yZiBpbiBt
+c2dfb3V0DQo8ND5tZXNoOiByZWplY3RpbmcgbWVzc2FnZSBmcm9tIHRhcmdl
+dCAxOiBmDQo8ND4gIFZlbmRvcjogU0VBR0FURSAgIE1vZGVsOiBTVDMyNTUw
+TiAgICAgICAgICBSZXY6IDAwMTENCjw0PiAgVHlwZTogICBEaXJlY3QtQWNj
+ZXNzICAgICAgICAgICAgICAgICAgICAgIEFOU0kgU0NTSSByZXZpc2lvbjog
+MDINCjw2Pm1lc2g6IHRhcmdldCAzIHN5bmNocm9ub3VzIGF0IDUuMCBNQi9z
+DQo8ND4gIFZlbmRvcjogTUFUU0hJVEEgIE1vZGVsOiBDRC1ST00gQ1ItODAw
+OCAgICBSZXY6IDguMGgNCjw0PiAgVHlwZTogICBDRC1ST00gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIEFOU0kgU0NTSSByZXZpc2lvbjogMDINCjw0
+PnNjc2kxIDogNTNDOTQNCjw0PiAgVmVuZG9yOiBNQVhUT1IgICAgTW9kZWw6
+IExYVC0yMTNTIFNVTjAyMDcgIFJldjogNC4xNQ0KPDQ+ICBUeXBlOiAgIERp
+cmVjdC1BY2Nlc3MgICAgICAgICAgICAgICAgICAgICAgQU5TSSBTQ1NJIHJl
+dmlzaW9uOiAwMSBDQ1MNCjw0PkRldGVjdGVkIHNjc2kgZGlzayBzZGEgYXQg
+c2NzaTAsIGNoYW5uZWwgMCwgaWQgMSwgbHVuIDANCjw0PkRldGVjdGVkIHNj
+c2kgZGlzayBzZGIgYXQgc2NzaTEsIGNoYW5uZWwgMCwgaWQgNiwgbHVuIDAN
+Cjw0PlNDU0kgZGV2aWNlIHNkYTogNDE5NDMwMyA1MTItYnl0ZSBoZHdyIHNl
+Y3RvcnMgKDIxNDcgTUIpDQo8Nj4gL2Rldi9zY3NpL2hvc3QwL2J1czAvdGFy
+Z2V0MS9sdW4wOiBbbWFjXSBwMSBwMiBwMyBwNCBwNSBwNiBwNyBwOCBwOQ0K
+PDQ+c2RiOiBTcGlubmluZyB1cCBkaXNrLi4uLi4uLi4uLi4uLi5yZWFkeQ0K
+PDQ+U0NTSSBkZXZpY2Ugc2RiOiA0MTU0MzYgNTEyLWJ5dGUgaGR3ciBzZWN0
+b3JzICgyMTMgTUIpDQo8Nj4gL2Rldi9zY3NpL2hvc3QxL2J1czAvdGFyZ2V0
+Ni9sdW4wOiBbbWFjXSBwMSBwMiBwMyBwNA0KPDQ+RGV0ZWN0ZWQgc2NzaSBD
+RC1ST00gc3IwIGF0IHNjc2kwLCBjaGFubmVsIDAsIGlkIDMsIGx1biAwDQo8
+Nj5Vbmlmb3JtIENELVJPTSBkcml2ZXIgUmV2aXNpb246IDMuMTENCjw3PmFk
+YiBkZXZpY2VzOiBbMl06IDIgMiBbM106IDMgMQ0KPDQ+QURCIGtleWJvYXJk
+IGF0IDIsIGhhbmRsZXIgc2V0IHRvIDMNCjw0PkFEQiBtb3VzZSBhdCAzLCBo
+YW5kbGVyIHNldCB0byAyDQo8ND5kZXZmczogZGV2ZnNfcmVnaXN0ZXIoKTog
+ZGV2aWNlIGFscmVhZHkgcmVnaXN0ZXJlZDogInJ0YyINCjw2Pk1hY2ludG9z
+aCBub24tdm9sYXRpbGUgbWVtb3J5IGRyaXZlciB2MS4wDQo8ND5kZXZmczog
+djAuMTAyICgyMDAwMDYyMikgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0bmYu
+Y3Npcm8uYXUpDQo8ND5kZXZmczogYm9vdF9vcHRpb25zOiAweDINCjwzPmtt
+ZW1fY3JlYXRlOiBGb3JjaW5nIHNpemUgd29yZCBhbGlnbm1lbnQgLSBuZnNf
+ZmgNCjw0PlZGUzogTW91bnRlZCByb290IChleHQyIGZpbGVzeXN0ZW0pIHJl
+YWRvbmx5Lg0KPDQ+RnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjY4
+ayBpbml0IDhrIGNocnAgMzZrIHByZXANCktlcm5lbCBsb2dnaW5nIChrc3lz
+bG9nKSBzdG9wcGVkLg0KS2VybmVsIGxvZyBkYWVtb24gdGVybWluYXRpbmcu
+DQo=
+---1019260510-1189368350-973748364=:6499--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

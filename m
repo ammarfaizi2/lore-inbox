@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbTAaPTN>; Fri, 31 Jan 2003 10:19:13 -0500
+	id <S261370AbTAaPP5>; Fri, 31 Jan 2003 10:15:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbTAaPTN>; Fri, 31 Jan 2003 10:19:13 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:41736 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S261371AbTAaPTM>;
-	Fri, 31 Jan 2003 10:19:12 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301311527.h0VFRZrf001543@darkstar.example.net>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-To: davej@codemonkey.org.uk (Dave Jones)
-Date: Fri, 31 Jan 2003 15:27:34 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, szepe@pinerecords.com,
-       linux-kernel@vger.kernel.org, arodland@noln.com
-In-Reply-To: <20030131151224.GB15332@codemonkey.org.uk> from "Dave Jones" at Jan 31, 2003 03:12:24 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261371AbTAaPP5>; Fri, 31 Jan 2003 10:15:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:49882 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261370AbTAaPP4>;
+	Fri, 31 Jan 2003 10:15:56 -0500
+Date: Fri, 31 Jan 2003 15:21:56 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
+Message-ID: <20030131152156.GA15977@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Hans Reiser <reiser@namesys.com>, Con Kolivas <conman@kolivas.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200302010020.34119.conman@kolivas.net> <3E3A7C22.1080709@namesys.com> <200302010040.49141.conman@kolivas.net> <3E3A8077.9050409@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E3A8077.9050409@namesys.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > A lot of newer laptops do not have serial ports.
-> 
-> so use something sensible like a crashdump to floppy.
+On Fri, Jan 31, 2003 at 04:56:07PM +0300, Hans Reiser wrote:
+ > Try running with the -E option for gcc, it might be less CPU intensive, 
+ > and thus a better FS benchmark.
+ > 
+ > What do you think?
 
-A lot of newer laptops do not have floppy drives :-)
+It's hardly a realistic real-world benchmark if you start nobbling
+bits of it though.  Not reading the preprocessed output is sure
+to bump the benchmark points on an fs optimised for lots of small
+writes.
 
-Seriously, though, I agree that morse isn't the most ideal way to get
-data out of a crashed system.
+		Dave
 
->  > While morse code may
->  > be a little silly the general purpose hook  it needs to be done 
->  > cleanly is considerably more useful
-> 
-> sure. things like lkcd,netconsole etc could all use that
-> infrastructure.   The beyond-silly bit was the 'other machine
-> to decode morse' argument.
-
-Depends on how good your morse is, I suppose, I wouldn't really want
-to decode a oops from morse by ear.
-
->  > The exact method that a crashed machine, in a rack, in a datacentre,
->  > miles away from me, contacts me to let me know something is wrong
->  > doesn't matter, but if a member of the datacentre staff can get a
->  > detailed message to me, so much the better than just having the box
->  > rebooted.  On the other hand, I don't actually want to have to listen
->  > to ten minutes of morse code over the phone when another box could do
->  > it for me.
-> 
-> That must be a pretty quiet datacentre. And what happens when more than
-> one box starts beeping ?
-
-OK, point taken, that *was* a beyond-silly suggestion :-)
-
-John.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,71 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264416AbRGWXPP>; Mon, 23 Jul 2001 19:15:15 -0400
+	id <S264461AbRGWXRo>; Mon, 23 Jul 2001 19:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264432AbRGWXPF>; Mon, 23 Jul 2001 19:15:05 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:7200
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264416AbRGWXO7>; Mon, 23 Jul 2001 19:14:59 -0400
-Date: Mon, 23 Jul 2001 16:14:54 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>,
-        Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
-        rusty@rustcorp.com.au
-Subject: Re: Yet another linux filesytem: with version control
-Message-ID: <20010723161454.C14425@work.bitmover.com>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Jerome de Vivie <jerome.de-vivie@wanadoo.fr>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-	linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
-	rusty@rustcorp.com.au
-In-Reply-To: <3B5CA2EC.2498775@wanadoo.fr> <Pine.LNX.4.33L.0107231925040.20326-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S264489AbRGWXRY>; Mon, 23 Jul 2001 19:17:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53266 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264461AbRGWXRN>; Mon, 23 Jul 2001 19:17:13 -0400
+Subject: Re: user-mode port 0.44-2.4.7
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 24 Jul 2001 00:13:17 +0100 (BST)
+Cc: cfriesen@nortelnetworks.com (Chris Friesen),
+        andrea@suse.de (Andrea Arcangeli), jdike@karaya.com (Jeff Dike),
+        user-mode-linux-user@lists.sourceforge.net (user-mode-linux-user),
+        linux-kernel@vger.kernel.org (linux-kernel), jh@suse.cz (Jan Hubicka)
+In-Reply-To: <Pine.LNX.4.33.0107231552000.7916-100000@penguin.transmeta.com> from "Linus Torvalds" at Jul 23, 2001 03:53:38 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33L.0107231925040.20326-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Jul 23, 2001 at 07:29:36PM -0300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Oot3-0007eD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 23, 2001 at 07:29:36PM -0300, Rik van Riel wrote:
-> Now if you want to make this kernel-accessible, why
-> not make a userland NFS daemon which uses something
-> like bitkeeper or PRCS as its backend ?
-> 
-> The system would then look like this:
-> 
->  _____    _______    _____    _____
-> |     |  |       |  |     |  |     |
-> | SCM |--| UNFSD |--| NET |--| NFS |
-> |_____|  |_______|  |_____|  |_____|
-> 
-> 
-> And there, you have a transparent SCM filesystem
-> that works over the network ... without ever having
-> to modify the kernel or implement SCM.
+> PS. This has come up before. The old pre-Alan networking code had
+> "volatile" on just about every single network data structure. Every damn
+> single one of them was a bug. Without exception.
 
-I like the way you think, Rik.  About 2 years ago I did a very quick and ugly
-version of exactly this, just as a proof of concept.  You could mount old
-versions of the repositories and diff them, etc.  Quite cool.  It's long
-since out of date and it adds a layer of caching and performance loss that
-I wasn't willing to live with, but it's a cool idea.  When we have more time
-than problems I might get back to that.  I think it is the right approach.
+With due respect to Fred and Ross most of them were there because the
+gcc 2.4.5 compiler was buggy.
 
-As to the comments he made about mixing files, that's not a problem.  You
-do need some way to tell UNFDS that this file is to be revision controlled
-and that one is not, but with that you can let .o's be created and just 
-managed in the backing file system.  Works fine.  The interface to 
-revision control stuff seems ugly because you have to be explicit, but that
-can be made nice.  Suppose we used fake subdirectories as a way of doing
-operations, such that
+Nowdays we still have some volatile users - notably jiffies, and one or two
+of them make sense, but not many
 
-	mv *.c ./.checkin
-
-does a checkin, etc.  That's not so bad and you need the interface anyway 
-to tell the system you are ready to check things in. You don't want it to 
-check in a new version every time you modify the file, that's excessive.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Alan

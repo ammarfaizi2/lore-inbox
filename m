@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268461AbRG3KQU>; Mon, 30 Jul 2001 06:16:20 -0400
+	id <S268474AbRG3LDX>; Mon, 30 Jul 2001 07:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268457AbRG3KQK>; Mon, 30 Jul 2001 06:16:10 -0400
-Received: from druid.if.uj.edu.pl ([149.156.64.221]:4612 "HELO
-	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
-	id <S268468AbRG3KP7>; Mon, 30 Jul 2001 06:15:59 -0400
-Date: Mon, 30 Jul 2001 12:17:22 +0200 (CEST)
-From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-To: Steffen Persvold <sp@scali.no>
-Cc: Gav <gavbaker@ntlworld.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA KT133A / athlon / MMX
-In-Reply-To: <3B65099E.8004F9E5@scali.no>
-Message-ID: <Pine.LNX.4.33.0107301213440.15803-100000@druid.if.uj.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268477AbRG3LDN>; Mon, 30 Jul 2001 07:03:13 -0400
+Received: from ns.caldera.de ([212.34.180.1]:21927 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S268474AbRG3LC7>;
+	Mon, 30 Jul 2001 07:02:59 -0400
+Date: Mon, 30 Jul 2001 13:03:01 +0200
+Message-Id: <200107301103.f6UB31e20045@ns.caldera.de>
+From: Marcus Meissner <mm@ns.caldera.de>
+To: thierry@cri74.org (Thierry Laronde), linux-kernel@vger.kernel.org
+Subject: Re: [PCI] building PCI IDs/drivers DB from Linux kernel sources
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010730113319.A24939@pc04.cri.cur-archamps.fr>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Hmm, I think "DRAM Prefetch" is the one you _don't_ want to turn on, because (and correct
-> me if i'm wrong) it's causing all the problems with the IDE controller (data trashing).
+In article <20010730113319.A24939@pc04.cri.cur-archamps.fr> you wrote:
+> Please note that in the following, these are remarks _not_ bad criticism.
+> Maybe what is found by the script could be of some interest to people
+> coordinating the source writing.
 
-I think it was IDE Prefetch that should be off (I had this problem on a
-AMD 486DX4-133 with Award Bios, turning it on trashed the boot record in
-minutes (and many other sectors on the disk too).
+> GOAL
+> ----
 
-Anyone here care to give a link to that program to enable DRAM Prefetch?
-My sister has a Duron 750w with VIA motherboard and music and sound pop on
-any graphics changes, maybe this is it?
+> In order to allow a kind of light detection of hardware to be use during
+> installation, I wanted to build a database (for PCI: I start with the
+> easiest...) with the following format:
 
-Regards,
+> CLASS_ID	VENDOR_ID	DEVICE_ID	driver_name
 
-Maciej Zenczykowski
+> I have decided to write a script (you will find all the stuff attached)
+> parsing the Linux kernel sources in order to do that.
 
+Well, that was what I did 2 years ago for Caldera ;)
+
+Howevery this is no longer needed.
+
+Nearly all PCI kernel modules now export the ids they match for in the
+MODULE_DEVICE_TABLE, for PCI, ISAPNP and USB.
+
+So either read it from /lib/modules/<kernelver>/modules.*map, or 
+use the modutils code that extracts this information from the
+.o files itself.
+
+You need to compile those, but you usually do that anyway for a kernel
+build.
+
+Ciao, Marcus

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271791AbRHRHFT>; Sat, 18 Aug 2001 03:05:19 -0400
+	id <S270014AbRHTX5m>; Mon, 20 Aug 2001 19:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271792AbRHRHFJ>; Sat, 18 Aug 2001 03:05:09 -0400
-Received: from relay.germany.net ([151.189.0.100]:52632 "EHLO
-	relay.germany.net") by vger.kernel.org with ESMTP
-	id <S271791AbRHRHEy>; Sat, 18 Aug 2001 03:04:54 -0400
-Date: Fri, 17 Aug 2001 22:05:20 +0200 (MEST)
-To: <linux-kernel@vger.kernel.org>
-cc: Albrecht Jacobs <albrecht.jacobs@janglednerves.com>
-Subject: Q: 2.4.[37]-XFS: /dev/nst0m: cannot allocate memory
-Message-ID: <Pine.LNX.4.33.0108172200330.17813-100000@Schnecke.Windsbach.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-From: 100.179370@germanynet.de (Martin Jacobs)
+	id <S270012AbRHTX5c>; Mon, 20 Aug 2001 19:57:32 -0400
+Received: from [210.15.25.194] ([210.15.25.194]:37386 "HELO globaltexnet.com")
+	by vger.kernel.org with SMTP id <S269954AbRHTX5X>;
+	Mon, 20 Aug 2001 19:57:23 -0400
+Reply-To: =?ISO-8859-1?Q?=D6=D0=B9=FA=BB=AF=B9=A4=C9=E8=B1=B8=CD=F8<service@ccen.net>?=
+From: =?ISO-8859-1?Q? "=D6=D0=B9=FA=BB=AF=B9=A4=C9=E8=B1=B8=CD=F8" ?= 
+	<service@ccen.net>
+To: =?ISO-8859-1?Q?
+	 "=D6=D0=B9=FA=BB=AF=B9=A4=C9=E8=B1=B8=CD=F8=BB=E1=D4=B1" ?= 
+	<mj@atrey.karlin.mff.cuni.cz>
+Subject: =?ISO-8859-1?Q?=D6=D0=B9=FA=BB=AF=B9=A4=C9=E8=B1=B8=CD=F8(http://www.ccen.net?=)=?ISO-8859-1?Q?=BB=B6=D3=AD=C4=FA?=
+Date: Wed,21 Aug 2001 07:57:09 +0800
+X-Priority: 1
+X-MSMail-Priority: High
+X-Auto-Forward: To: =?ISO-8859-1?Q?"=D6=D0=B9=FA=BB=AF=B9=A4=C9=E8=B1=B8=CD=F8=BB=E1=D4=B1"<mj@atrey.karlin.mff.cuni.cz>?=
+X-Mailer: Mr.Lee
+Message-Id: <20010820235731Z269954-760+4045@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+若该邮件对您带来不便，请删除，谢谢
 
-I cannot read anything from my tape (Tandberg DLT8000, LVD
-interface, ID=5) connected to an aic7899 or an sym53c895 using
-kernel 2.4.3-XFS or 2.4.7-XFS. (Everything works fine on
-2.2.16.) Loading of st.o works. stinit works. mt (status, tape
-positioning) works. But when I try to read the amanda header
-from the tape (dd if=/dev/nst0m bs=32k count=1) I get the
-error
+  中国化工设备网(http://www.ccen.net)是化工设备类综合性电子商务网站，免费提供信息发布，信息查询，提供最新的供求信息，大量的化工企业.产品信息等等。
+  中国化工设备网是由我们与浙江省化工研究院与浙江大学化工系合作建立的化工设备类综合站点.网站主要目标是发展化工设备类电子商务,成为化工设备类产品的有形市场和无形市场的有机结合.同时为化工设备类产品开拓网上市场.
 
-dd: reading `/dev/nst0m': Cannot allocate memory
 
-The syslog says:
+-----------------------------------------------------------
+该邮件由《金锋邮件群发 2.4》发送，邮件内容与软件作者无关 
+-----------------------------------------------------------
+金锋软件，值得信赖的软件 http://www.jinfengnet.com
 
-Jul 29 17:49:28 depp kernel: sym53c895-0-<5,*>: FAST-10 WIDE SCSI 20.0MB/s (100.0 ns, offset 15)
-Jul 29 17:49:28 depp kernel: st0: Block limits 2 - 16777214 bytes.
-
-strace gives something like:
-
-...
-open("/dev/nst0m", O_RDONLY|O_LARGEFILE) = 0
-...
-read(0, 0x8052000, 32768)               = -1 ENOMEM (Cannot
-allocate
-memory)
-...
-
-Nearly the same for tar (with default block size of 512 byte).
-
-BUT: if I use bs=64k it works!!?
-
-TIA
-
--- 
-albrecht jacobs
-
-jangled nerves gmbh
-hallstrasse 25
-d-70376 stuttgart
-
-fon:   +49 711 550375-44
-fax:   +49 711 550375-22
-
-mailto:albrecht.jacobs@janglednerves.com
-http://www.janglednerves.com/
 
 
 

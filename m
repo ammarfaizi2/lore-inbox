@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135945AbREIJQF>; Wed, 9 May 2001 05:16:05 -0400
+	id <S135941AbREIJXa>; Wed, 9 May 2001 05:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135941AbREIJP4>; Wed, 9 May 2001 05:15:56 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:50754 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135952AbREIJPq>; Wed, 9 May 2001 05:15:46 -0400
-Date: Wed, 9 May 2001 05:14:19 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jwright@penguincomputing.com, redhat-devel-list@redhat.com,
-        linux-kernel@vger.kernel.org, Jeremy Hogan <jhogan@redhat.com>,
-        Mike Vaillancourt <mikev@redhat.com>,
-        Philip Pokorny <ppokorny@penguincomputing.com>
-Subject: Re: bug in redhat gcc 2.96
-Message-ID: <20010509051418.C9725@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0105081927320.1798-100000@foo.penguincomputing.com> <E14xPli-0001qP-00@the-village.bc.nu>
+	id <S135952AbREIJXT>; Wed, 9 May 2001 05:23:19 -0400
+Received: from pD9538DB1.dip.t-dialin.net ([217.83.141.177]:33020 "EHLO
+	tolot.escape.de") by vger.kernel.org with ESMTP id <S135941AbREIJXP>;
+	Wed, 9 May 2001 05:23:15 -0400
+Date: Wed, 9 May 2001 11:15:20 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: linux-kernel@vger.kernel.org
+Subject: AVM Fritz! PCI v2.0
+Message-ID: <20010509111520.B26016@tolot.escape.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14xPli-0001qP-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, May 09, 2001 at 09:56:24AM +0100
+User-Agent: Mutt/1.3.18i
+X-Editor: vim/5.7.30
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 09:56:24AM +0100, Alan Cox wrote:
-> > As this is with Red Hat's version of gcc, I'm not sending
-> > this to the gcc folks.  RPMs of gcc with this problem
-> 
-> (If you have the time check 3.0 CVS doesnt show the same problem, the RH tree
->  diverges from it so may well be unique in having the bug but many bugs are
->  shared)
 
-The bug was present in 3.0 and 3.1 as well, but has been fixed the day it
-was reported. Use gcc-2.96-82 or above, or gcc-3_0-branch newer than 2001-04-25
-(or CVS head newer than that).
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	Jakub
+        Hello,
+
+is there any Linux driver for the AVM Fritz! PCI v2.0 ISDN card
+available? Using vanilla 2.2.19's HiSax driver doesn't seem to work,
+and I found nothing at AVM's web page [1]. Did I miss someting?
+
+
+Greetings from Germany,
+and thanks in advance,
+
+Jochen.
+
+[1] http://www.avm.de/
+
+--=20
+To get something done, a committee should consist of no more than three
+men, two of them absent.
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQEVAwUBOvkKpqrOdlPj1wR/AQEhpQgAwFIWOzqyxIWXK3DSN7L9dQzM7y8dtQbd
+1i8UayBArtxpxaGpdyieOHUijBOSWPlZqsLSBSWjhPBcPA/aB5XNxUlwqNUyRScr
+9zaeuck5rpFuXM7HEP6JsJy3ksjkXoxS0UbcsfrvVz+jJt3gArYClAPYnZYMc/ET
+/OR6dyQiGH4O0B73ogB2FXYugVNkw5WVM1pH0DKTJmm4DoZJLEsGO1qdUR6juoBm
+P8N2Rna5l/7OA4ztHFgEuQ1+LT0iWSA/FFTf7Npdz07VlepEFMJfmKSkOjW/hzlO
+tkj69cC4L/XZaR3FNsXxyCCyKOjGAc/gPbmpKYC/z9QStXxQCUl6og==
+=NQni
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268766AbUJEDTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268765AbUJEDT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268766AbUJEDTY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 23:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268771AbUJEDTX
+	id S268765AbUJEDT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 23:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268759AbUJEDT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 23:19:23 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:63091 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268766AbUJEDSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 23:18:11 -0400
-Message-ID: <41621263.2000404@yahoo.com.au>
-Date: Tue, 05 Oct 2004 13:17:55 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug in sched.c:task_hot()
-References: <200410050237.i952bx620740@unix-os.sc.intel.com>
-In-Reply-To: <200410050237.i952bx620740@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Oct 2004 23:19:59 -0400
+Received: from ozlabs.org ([203.10.76.45]:57568 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268765AbUJEDQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 23:16:01 -0400
+Date: Tue, 5 Oct 2004 13:13:41 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Linas Vepstas <linas@austin.ibm.com>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: [PPC64] Squash EEH warnings
+Message-ID: <20041005031341.GA3695@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+	Anton Blanchard <anton@samba.org>,
+	Linas Vepstas <linas@austin.ibm.com>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
+Andrew, please apply:
 
->Current implementation of task_hot() has a performance bug in it
->that it will cause integer underflow.
->
->Variable "now" (typically passed in as rq->timestamp_last_tick)
->and p->timestamp are all defined as unsigned long long.  However,
->If former is smaller than the latter, integer under flow occurs
->which make the result of subtraction a huge positive number. Then
->it is compared to sd->cache_hot_time and it will wrongly identify
->a cache hot task as cache cold.
->
->This bug causes large amount of incorrect process migration across
->cpus (at stunning 10,000 per second) and we lost cache affinity very
->quickly and almost took double digit performance regression on a db
->transaction processing workload.  Patch to fix the bug.  Diff'ed against
->2.6.9-rc3.
->
->Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
->
+A slightly non-ideal version of the recent patch which fixed EEH being
+a no-op went in.  The srcsave variable in eeh_memcpy_to_io() is now
+never referenced on non-pSeries machines, and so spews hundreds of
+warnings.  The variable doesn't actually accomplish anything, so this
+patch gets rid of it.
 
-This one looks OK (the other may need a bit of rethinking).
-What kernel is the regression in relation to, out of interest?
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
->
->--- linux-2.6.9-rc3/kernel/sched.c.orig	2004-10-04 19:11:21.000000000 -0700
->+++ linux-2.6.9-rc3/kernel/sched.c	2004-10-04 19:19:27.000000000 -0700
->@@ -180,7 +180,8 @@ static unsigned int task_timeslice(task_
-> 	else
-> 		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-> }
->-#define task_hot(p, now, sd) ((now) - (p)->timestamp < (sd)->cache_hot_time)
->+#define task_hot(p, now, sd) ((long long) ((now) - (p)->timestamp)	\
->+				< (long long) (sd)->cache_hot_time)
->
-> enum idle_type
-> {
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Index: working-2.6/include/asm-ppc64/eeh.h
+===================================================================
+--- working-2.6.orig/include/asm-ppc64/eeh.h	2004-10-05 10:08:10.000000000 +1000
++++ working-2.6/include/asm-ppc64/eeh.h	2004-10-05 13:09:24.730992368 +1000
+@@ -196,7 +196,6 @@
+ static inline void eeh_memcpy_fromio(void *dest, const volatile void __iomem *src, unsigned long n) {
+ 	void *vsrc = (void __force *) src;
+ 	void *destsave = dest;
+-	const volatile void __iomem *srcsave = src;
+ 	unsigned long nsave = n;
+ 
+ 	while(n && (!EEH_CHECK_ALIGN(vsrc, 4) || !EEH_CHECK_ALIGN(dest, 4))) {
+@@ -227,7 +226,7 @@
+ 	 */
+ 	if ((nsave >= 4) &&
+ 		(EEH_POSSIBLE_ERROR((*((u32 *) destsave+nsave-4)), u32))) {
+-		eeh_check_failure(srcsave, (*((u32 *) destsave+nsave-4)));
++		eeh_check_failure(src, (*((u32 *) destsave+nsave-4)));
+ 	}
+ }
+ 
 
+
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266520AbSKOQYJ>; Fri, 15 Nov 2002 11:24:09 -0500
+	id <S266466AbSKOQVp>; Fri, 15 Nov 2002 11:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266507AbSKOQYJ>; Fri, 15 Nov 2002 11:24:09 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:13316 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S266520AbSKOQYH>; Fri, 15 Nov 2002 11:24:07 -0500
-Message-Id: <200211151630.gAFGUqfk024668@pincoya.inf.utfsm.cl>
-To: thockin@sun.com
+	id <S266473AbSKOQVp>; Fri, 15 Nov 2002 11:21:45 -0500
+Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:61962
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S266466AbSKOQVn>; Fri, 15 Nov 2002 11:21:43 -0500
+Date: Fri, 15 Nov 2002 16:28:33 +0000
+From: Ian Chilton <mailinglist@ichilton.co.uk>
+To: Leopold Gouverneur <lgouv@pi.be>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort) 
-In-reply-to: Your message of "Thu, 14 Nov 2002 15:26:13 -0800."
-             <200211142326.gAENQE231767@scl2.sfbay.sun.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Fri, 15 Nov 2002 13:30:51 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: Anyone use HPT366 + UDMA in Linux?
+Message-ID: <20021115162833.GA3717@buzz.ichilton.co.uk>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
+References: <20021115123541.GA1889@buzz.ichilton.co.uk> <20021115162704.GA1059@gouv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021115162704.GA1059@gouv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Hockin <th122948@scl2.sfbay.sun.com> said:
+Hello,
 
-[...]
+> I am using an IBM-DTLA-307030 with HPT366
 
-> +/* a simple shell-metzner sort */
-> +static void groupsort(gid_t *grouplist, int gidsetsize)
-> +{
-> +	int right, left, cur, max, stride;
-> +
-> +	stride = gidsetsize / 2;
+I am also using an IBM disk (can't rember the model number of hand but
+it's a 45GB) with an Abit BP6.
 
-This guarantees bad performance for certain gidgetsizes... customary wisdom
-(at least, Knuth sayeth so) is to go:
 
-        for(stride = 1; stride < gidgetsize; stride = 3 * stride + 1)
-		;
-        do {
-           stride /= 3;
-           ...
-        } while (stride > 1) {
+> transfer rate to udma3 (44MB/s) in the HPT bios. You can also do it with
+> hdparm if your boot disk is not on that controler. Trying udma4 resulted
+> in _massive_ corruption (never tried recently).
 
-> +	while (stride) {
-> +		max = gidsetsize - stride;
-> +
-> +		for (left = 0; left < max; left++) {
-> +			cur = left;
-> +			while (cur >= 0) {
-> +				right = cur + stride;
-> +				if (grouplist[right] < grouplist[cur]) {
-> +					gid_t tmp = grouplist[cur];
-> +					grouplist[cur] = grouplist[right];
-> +					grouplist[right] = tmp;
-> +					cur -= stride;
-> +				} else {
-> +					break;
-> +				}
-> +			}
+It seemed to work for a while but then things went screwy and I kept
+getting I/O errors all the time which needed a hard reset - could't even
+shut down.
 
-You should work by stuffing the new element in a temporary variable, and
-just shift the greater ones up, then stuff the one in
+I also noticed things like this in the log:
 
-My version of shellsort (h is stride, n is size) goes:
+Nov 14 23:26:40 buzz kernel: hda: status error:
+status=0x58 { DriveReady SeekComplete DataRequest }
+Nov 14 23:26:40 buzz kernel: hda: drive not ready for command
+Nov 14 23:28:47 buzz kernel: hda: status error:
+status=0x58 { DriveReady SeekComplete DataRequest }
+Nov 14 23:28:47 buzz kernel: hda: drive not ready for command
+Nov 14 23:29:00 buzz kernel: APIC error on CPU0: 02(02)
 
-  /*
-   * shellsort.c: Shell sort
-   */
+Is this anything like you got?
 
-  #include "sort.h"
+I'll try to drop it in the bios tonight (it is my boot drive). Are you
+using hdparm commands at all or just setting the bios to udma3?
 
-  void
-  sort(double a[], int n)
 
-  {
-    int i, j, h;
-    double tmp;
+> HPT366 support in kernel configuration.
 
-    for(h = 1; h < n; h = 3 * h + 1)
-      ;
+I am not sure I did this but I'll check. Maybe it's just working as a
+normal ide interface or something?
 
-    do {
-      h /= 3;
-      for(i = h; i < n; i++) {
-	tmp = a[i];
-	for(j = i - h; j >= 0 && tmp < a[j]; j -= h)
-	  a[j + h] = a[j];
-	a[j + h] = tmp;
-      }
-    } while(h > 1);
-  }
 
-This gets around bad h (stride) values, and does just a bit more than 1
-assignment per element moved in the inner loop (you do 3). Plus it is
-shorter ;-)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thanks!
+
+
+Bye for Now,
+
+Ian
+
+
+                                \|||/ 
+                                (o o)
+ /---------------------------ooO-(_)-Ooo---------------------------\
+ |  Ian Chilton                  Web: http://www.ichilton.co.uk    |
+ |  E-Mail: ian@ichilton.co.uk   Backup: ian@linuxfromscratch.org  | 
+ |-----------------------------------------------------------------|
+ |            There are 10 types of people in the world:           |
+ |        Those who understand binary, and those who don't.        |
+ \-----------------------------------------------------------------/
+

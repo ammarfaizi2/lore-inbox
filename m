@@ -1,144 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264460AbTEPPkD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 11:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTEPPkD
+	id S264463AbTEPPpg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 11:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTEPPpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 11:40:03 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:16076 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264460AbTEPPkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 11:40:01 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: ranty@debian.org
-Subject: Re: request_firmware() hotplug interface, third round.
-Date: Fri, 16 May 2003 17:53:17 +0200
-User-Agent: KMail/1.5.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
-       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
-References: <20030515200324.GB12949@ranty.ddts.net> <200305161007.31335.oliver@neukum.org> <20030516095624.GA30397@ranty.ddts.net>
-In-Reply-To: <20030516095624.GA30397@ranty.ddts.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 16 May 2003 11:45:36 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:53553 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264463AbTEPPpe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 11:45:34 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053100440.1948.17.camel@toshiba>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 May 2003 10:58:11 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305161753.17198.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 16. Mai 2003 11:56 schrieb Manuel Estrada Sainz:
-> On Fri, May 16, 2003 at 10:07:31AM +0200, Oliver Neukum wrote:
-> > >  How it works:
-> > > 	- Driver calls request_firmware()
-> > > 	- 'hotplug firmware' gets called with ACCTION=add
-> > > 	- /sysfs/class/firmware/dev_name/{data,loading} show up.
-> > >
-> > > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
-> > > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
-> > > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
-> > >
-> > > 	- The call to request_firmware() returns with the firmware in a
-> > > 	  memory buffer and the driver can finish loading.
-> > > 	- Driver loads the firmware.
-> > > 	- Driver calls release_firmware().
-> >
-> > So, if I understand you correctly, RAM is only saved if a device
-> > is hotpluggable and needs firmware only upon intial connection.
-> > Which, if you do suspend to disk correctly, is no device.
->
->  Hotpluggability is not required, it is the same for any module, which
->  gets loaded while the system is running. Drivers don't even need to be
->  aware of hotplug.
+On Fri, 2003-05-16 at 10:33, Alan Stern wrote:
 
-In that case they can contain the firmware and mark it __init.
-They need no RAM. They can even mark the code needed to put
-firmware into the device as __init.
+> You can probably find this information in your copy of the specs.  Bit 6 
+> of the PORTSC register is Resume Detect.  When that bit gets set, the host 
+> controller signals a global resume and presumably sets bit 2 of the USBSTS 
+> register.
 
->  And adding some kind of persistence in the mixture so firmware can be
->  included in the kernel image and later discarded/reconsidered even
->  in-kernel drivers (meaning non modules) can benefit. Coordinating with
->  initramfs as Pavel suggested should bring best results in this case.
->
->  Also, the hotplug event happens every time you call request_firmware(),
->  not just on device load or upon initial connection. It is not the
->  regular "device plug event" it is an special 'firmware' event. For
->  example, on usb devices you would get two invocations of hotplug, one
->  'hotplug usb' and one 'hotplug firmware'.
->
->  In the case of suspending to disk, you would have to make sure that the
->  firmware for the device that holds the rest of the firmware is already
->  in fwfs or whatever persistence method gets finally implemented.
+Yes, I see that now.
 
-How and what is the benefit? If you go low on battery you have to suspend,
-there's no choice. This means that you have to have it in RAM always.
+> > Con: you would be generating a lot of spurious interrupts
+> > as the global USBSTS_RD is set (incorrectly) by the OC ports.
+> > Even though you would not actually do the wake, you still
+> > burn cycles servicing the false interrupts.
+> 
+> I'm not sure about that.  For ports in a permanent OC state, the RD bit 
+> would get set just once, so a single interrupt would be generated.  When 
+> the host clears the Resume Detect bit in the USBSTS register, it shouldn't 
+> get set again (not until a different port signals a resume).  Otherwise a 
+> properly working system would generate continuous interrupts during the 
+> global resume sequence.
 
-> > And do I understand you correctly, you propose that request_firmware()
-> > wait for the hotplug script to write the firmware to sysfs?
->
->  Yes.
->
-> > That means that request_firmware() is unusuable from the usual
-> > probe() methods.
->
->  At least usb's probe() can sleep, but that is a good point. How about:
->
->  int request_firmware_nowait (
-> 		const char *name, const char *device, void *context,
-> 		void (*cont)(const struct firmware *fw, void context)
->  );
->
->  Then you can call request_firmware_nowait providing an appropriate
->  'cont' callback and 'context' pointer. Then when your callback gets
->  called with the firmware you finish device setup.
+Good point. The continuous interrupts I was seeing is because
+the wakeup was actually being carried out, followed by the
+thrashing between suspend and wakeup.
 
-In this form unworkable. Removing a module could kill the machine.
-That scheme requires that drivers formally register and unregister
-with fwfs and provide module pointers.
-An awful lot of overhead.
+If your interpretation is true (which I suspect it is)
+then global suspend could still be supported with only
+a couple of extra interrupts after each suspend.
 
-> > You cannot kill a part of the kernel if a script fails to perform
-> > correctly for some reason.
->
->  Good point. Since it is easily solvable by hand:
->
->  echo 1 > /sysfs/class/firmware/dev_name/loading
->  echo 0 > /sysfs/class/firmware/dev_name/loading
->
->  I thought that it was OK. (I'll do the timeout)
+> That's just guesswork on my part; the spec isn't sufficiently precise to 
+> be certain one way or the other.  You can find out pretty easily by 
+> testing the driver on your machine.  Just don't do anything in the ISR 
+> when USBSTS_RD is set.  Come to think of it, I can try the same thing 
+> here.
 
-No, it isn't. These writes must require CAP_HARDWARE, thus
-is no good.
+I'll test this.
 
-> > Even worse, you cannot detect the script terminating abnormally in
-> > that design.
->
->  Well, the device model doesn't provide that information :(
->
->  It would be great if it did.
->
->  Would a patch to wait for hotplug termination and provide termination
->  status be accepted?
+> By a nice coincidence, my system has a 8086:7112 controller -- wired up 
+> correctly and perfectly useable.  So I can easily test to make sure that 
+> the final proposed change works okay on a good system.
 
-No, you must not wait for user space.
+Good
 
->  Adding an 'struct completion' and 'int status' to the right place
->  should be just about it.
->
-> > You'd have to introduce some arbitrary timeout.
->
->  OK, I'll do that for now.
->
-> > It seems to me that you introduce three new problems to get rid of
-> > one old problem.
->
->  This is the kind of feedback I wanted, thanks a lot.
+> BTW, I'm not entirely pleased with the size of my test patch.  It's a bit 
+> lengthy for something intended mainly to move a delay loop outside an ISR.  
+> But I couldn't think of any simpler way to do it, and once the state 
+> transition code is there it's really no harder to add the 1-second "grace" 
+> periods.  So of the three ingredients we've got here (20ms delay outside 
+> of ISR, "grace" periods, checking for OC ports), I don't think we could 
+> make the patch much simpler by eliminating any.  What do you think?
 
-Sorry.
+Moving the wait out of the ISR and doing the wakeup
+only for RD on non-OC ports are winners.
 
-	Regards
-		Oliver
+I can't comment on the 1 second grace period. Was that
+in response to this investigation, or have you actually
+seen false RD indications due to noise?
+
+There is also the more trivial matter of removing the
+unnecessary setting of the FGR bit on wakeup.
+
+I'll check that the global RD interrupt does not
+keep repeating after a false RD by an OC port.
+
+So I suggest you build a patch that does all of
+the above (with the grace period at your discretion).
+Then we can both test it, and you can submit it
+for actual inclusion.
+
+Thanks,
+Paul
+
+
 

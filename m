@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281319AbRKVSJJ>; Thu, 22 Nov 2001 13:09:09 -0500
+	id <S281321AbRKVSK3>; Thu, 22 Nov 2001 13:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281277AbRKVSIt>; Thu, 22 Nov 2001 13:08:49 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:26849 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281239AbRKVSIp>; Thu, 22 Nov 2001 13:08:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: war <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-Date: Thu, 22 Nov 2001 18:08:43 +0000
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166xr9-0000Qy-00@mauve.csi.cam.ac.uk> <3BFD3C37.7C5BCCC4@starband.net>
-In-Reply-To: <3BFD3C37.7C5BCCC4@starband.net>
+	id <S281239AbRKVSKT>; Thu, 22 Nov 2001 13:10:19 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:24325 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S281321AbRKVSKI>; Thu, 22 Nov 2001 13:10:08 -0500
+Date: Thu, 22 Nov 2001 17:56:21 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Anton Petrusevich <casus@mail.ru>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: is netfilter broken in 2.4.15-pre8?
+In-Reply-To: <20011122111445.A9178@casus.tx>
+Message-ID: <Pine.LNX.4.33.0111221755330.4394-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E166yHC-000153-00@mauve.csi.cam.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 November 2001 5:56 pm, war wrote:
-> This is incorrect.
-> SWAP is used on a [1GB ram/2GB swap system].
+On Thu, 22 Nov 2001, Anton Petrusevich wrote:
 
-As it should be. Page out unused data to make room for more cache. This 
-*should* improve performance overall. (Yes, latency suffers to boost 
-throughput. A fairly common tradeoff; you'll be glad of it under heavier 
-load...)
+> I tried to use netfilter and was unable to do it. It can't resolve
+> nf_[un]register_hook, nf_[un]register_sockopt and some others symbols.
+> May be I did something wrong, here my .config goes:
 
-You have "enough" RAM in that the machine doesn't crash under load, but NOT 
-enough that swap would go unused.
+Skip pre8 and go to pre9. I'll be testing it later tonight as I use
+iptables on my sparc gateway box.
 
-> I talked to Rik about this.
-> He said generally SWAP is a good thing and increases performance.
->
-> However, in my case it does not.
+-- 
+Broken hearted, but not down.
 
-As I've said, the VM doesn't always make the right choice :)
+http://www.tahallah.demon.co.uk
 
-
-James.

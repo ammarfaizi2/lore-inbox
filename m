@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290481AbSAQWLe>; Thu, 17 Jan 2002 17:11:34 -0500
+	id <S290486AbSAQWNO>; Thu, 17 Jan 2002 17:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290486AbSAQWLY>; Thu, 17 Jan 2002 17:11:24 -0500
-Received: from f255.law11.hotmail.com ([64.4.16.130]:39954 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290481AbSAQWLM>;
-	Thu, 17 Jan 2002 17:11:12 -0500
-X-Originating-IP: [156.153.254.2]
-From: "Balbir Singh" <balbir_soni@hotmail.com>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-Date: Thu, 17 Jan 2002 14:11:06 -0800
+	id <S290487AbSAQWNE>; Thu, 17 Jan 2002 17:13:04 -0500
+Received: from zero.tech9.net ([209.61.188.187]:14853 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290486AbSAQWMq>;
+	Thu, 17 Jan 2002 17:12:46 -0500
+Subject: Re: [PATCH] 2.5.3-pre1 ata-253p1-2
+From: Robert Love <rml@tech9.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "Andre M. Hedrick" <andre@linux-ide.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020117153421.O20994@suse.de>
+In-Reply-To: <20020117144648.L20994@suse.de>
+	<5.1.0.14.2.20020117141843.02615430@pop.cus.cam.ac.uk>
+	<20020117152945.N20994@suse.de>  <20020117153421.O20994@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 17 Jan 2002 17:16:17 -0500
+Message-Id: <1011305784.2197.144.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F255p0VatC6ZUbPHiNK0001e34f@hotmail.com>
-X-OriginalArrivalTime: 17 Jan 2002 22:11:06.0738 (UTC) FILETIME=[DC499520:01C19FA3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, you are correct about that.
+On Thu, 2002-01-17 at 09:34, Jens Axboe wrote:
 
-The reasons why I wanted to pass the address is length
-is
+> Since the bug was cosmetic only, I won't include it here. Find the
+> updated version:
+> 
+> *.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.3-pre1/ata-253p1-2.bz2
 
-1. It gives more flexibility for any body implementing
-   the protocol specific code.
-2. We anyway copy the length in move_addr_to_user, we
-   might as well do it in the system call and pass the
-   length to the protocol.
-3. We can finally copy only the length specified back
-   to the  user as we do currently.
+I haven't seen any status reports, so here is a heads up: it works on my
+SMP machine, both with and without taskfile enabled.  Good job.
 
-I correct my self, it is not a BUG.
-
-But, consider a case where a user passes a negative value
-in len. The system call calls the protocol specific
-code and then later at the end in move_addr_to_user()
-catches the error. I feel the error should be
-caught first hand, we should not have spent the
-time and space calling the protocol specific code at all,
-we should catch the error and return immediately.
-
-I feel there are several instances of this in the
-socket system calls.
-
-Don't u feel they should be fixed.
-
-Balbir
-
-
-
->If move_addr_to_user() takes care of all of the issues, there is no
->reason for the protocol specific code to know anything about the
->user's len at all.
->
->You have to show me a purpose for it to get passed down.  What would
->it get used for?  All the protocol specific could should (and does)
->do is provide the data back to the top level routine and
->move_addr_to_user() takes care of the remaining details.
-
-
-
-
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
+	Robert Love
 

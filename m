@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRA2Uvq>; Mon, 29 Jan 2001 15:51:46 -0500
+	id <S129771AbRA2Uv4>; Mon, 29 Jan 2001 15:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRA2Uvg>; Mon, 29 Jan 2001 15:51:36 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:57846 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129172AbRA2UvU>; Mon, 29 Jan 2001 15:51:20 -0500
-Date: Mon, 29 Jan 2001 14:51:18 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0101292041390.22513-100000@athlon.local>
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <MKWhxB.A.jLF.Gfdd6@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S130110AbRA2Uvq>; Mon, 29 Jan 2001 15:51:46 -0500
+Received: from www.topmail.de ([212.255.16.226]:62102 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129175AbRA2Uvg> convert rfc822-to-8bit;
+	Mon, 29 Jan 2001 15:51:36 -0500
+Message-ID: <030301c08a35$43499750$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
+        "Andreas Huppert" <Andreas.Huppert@philosys.de>
+In-Reply-To: <200101292042.VAA22591@mail.philosys.de>
+Subject: Re: dos-partition mount bug
+Date: Mon, 29 Jan 2001 20:44:56 -0000
+Organization: eccesys.net Linux Distribution Development
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from davej@suse.de on Mon, 29 Jan 2001 20:44:55 +0000 (GMT)
+AFAICS the fs isn't corrupt.
+No further idea.
 
+-mirabilos
 
-> make pdfdocs
-
-[ttabi@one DocBook]$ make pdfdocs
-Makefile:140: /Rules.make: No such file or directory
-
-There's no Rules.make anywhere on my hard drive.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

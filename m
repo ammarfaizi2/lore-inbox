@@ -1,53 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272220AbTHIAjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 20:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272158AbTHIAjY
+	id S272169AbTHIAg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 20:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHIAcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 20:39:24 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:20114 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S272168AbTHIAiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 20:38:25 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E19lHbb-0005mY-00@calista.inka.de>
-References: <E19lHbb-0005mY-00@calista.inka.de>
-Content-Type: text/plain
-Message-Id: <1060389503.11983.39.camel@imladris.demon.co.uk>
+	Fri, 8 Aug 2003 20:32:53 -0400
+Received: from mail.kroah.org ([65.200.24.183]:64447 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272166AbTHIAcc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 20:32:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1060389134261@kroah.com>
+Subject: Re: [PATCH] More PCI fixes for 2.6.0-test2
+In-Reply-To: <1060389134592@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 8 Aug 2003 17:32:14 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Sat, 09 Aug 2003 01:38:23 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: ecki@calista.eckenfels.6bone.ka-ip.net, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This box is IPv4 only -- your email address with only an AAAA record is
-probably going to bounce again... :)
+ChangeSet 1.1119.1.4, 2003/08/08 17:03:19-07:00, ink@jurassic.park.msu.ru
 
-On Sat, 2003-08-09 at 01:29, Bernd Eckenfels wrote:
-> Is this needing some special hardware support, or is it kind of forcing
-> apm/apci power downs? Can you publish that script? I would need that for
-> some stress testing of applications and the kernel.
+[PATCH] PCI: pci_enable_device vs bridges bugs
 
-I didn't do it myself -- I just got to fix the bugs which turned up ;)
+Bug #1 (found by Jay Estabrook).
+On Alpha, under certain circumstances the firmware may close the IO
+window of PCI-to-PCI bridge even if there is IO behind.
+This wouldn't be a problem - linux PCI setup code does set up this
+window properly, but in addition the firmware clears the IO-enable
+bit in the PCI_COMMAND register of the bridge.
+Since we don't call pci_enable_* routines for bridges in non-hotplug
+path, we end up with disabled IO. Fixed by adding pci_enable_bridges()
+to pci_assign_unassigned_resources().
+Architectures which don't use the latter, but do use other setup-bus
+code (parisc?) also should call pci_enable_bridges() for each root bus.
 
-I think it was done with X10 automated power switching stuff.
+Bug #2 (closely related to #1).
+As it turns out, pci_enable_device() doesn't work for bridges at all,
+only for regular devices (header type 0) due to 0x3f mask passed to
+pci_enable_device_bars(). The mask should be (1 << PCI_NUM_RESOURCES) - 1.
 
-> I also wonder, what the best method is to test those hard crashes,
-> especially interesting is the case, where disks get power interruption at
-> write, to see if the filesystem and block layer recovers from things like
-> half written (format needing) blocks.
+Bug #3 (quite a few archs, including i386).
+pcibios_enable_device() does only check first 6 resources (regardless
+of the mask) to decide whether or not to enable IO and MEM.
+Bridge resources start at 7.
 
-Journal at application layer to external network-attached storage. Check
-on-device fs integrity against your network journal at boot, continue
-stress testing from where you left off.
+#2 and #3 affect hotplug. I wonder, has anybody ever tried *bridged*
+PCI card behind a hot-plug controller?
 
--- 
-dwmw2
 
+ drivers/pci/pci.c       |    2 +-
+ drivers/pci/setup-bus.c |    4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Fri Aug  8 17:25:03 2003
++++ b/drivers/pci/pci.c	Fri Aug  8 17:25:03 2003
+@@ -359,7 +359,7 @@
+ int
+ pci_enable_device(struct pci_dev *dev)
+ {
+-	return pci_enable_device_bars(dev, 0x3F);
++	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+ }
+ 
+ /**
+diff -Nru a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+--- a/drivers/pci/setup-bus.c	Fri Aug  8 17:25:03 2003
++++ b/drivers/pci/setup-bus.c	Fri Aug  8 17:25:03 2003
+@@ -530,6 +530,8 @@
+ 	for(ln=pci_root_buses.next; ln != &pci_root_buses; ln=ln->next)
+ 		pci_bus_size_bridges(pci_bus_b(ln));
+ 	/* Depth last, allocate resources and update the hardware. */
+-	for(ln=pci_root_buses.next; ln != &pci_root_buses; ln=ln->next)
++	for(ln=pci_root_buses.next; ln != &pci_root_buses; ln=ln->next) {
+ 		pci_bus_assign_resources(pci_bus_b(ln));
++		pci_enable_bridges(pci_bus_b(ln));
++	}
+ }
 

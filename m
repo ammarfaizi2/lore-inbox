@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUFPTie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUFPTjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUFPTie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 15:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUFPTid
+	id S264692AbUFPTjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 15:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUFPTjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 15:38:33 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:38417 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264665AbUFPTiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 15:38:22 -0400
-Message-ID: <40D0A5B4.7060007@techsource.com>
-Date: Wed, 16 Jun 2004 15:55:32 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: David Eger <eger@havoc.gtf.org>
-CC: Jurriaan <thunder7@xs4all.nl>, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] accelerated radeonfb produces artifacts on
- scrolling in 2.6.7
-References: <20040616182415.GA8286@middle.of.nowhere> <20040616184145.GA12673@havoc.gtf.org>
-In-Reply-To: <20040616184145.GA12673@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 15:39:45 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:44441 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264692AbUFPTjk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 15:39:40 -0400
+Date: Wed, 16 Jun 2004 21:49:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Wolfgang Denk <wd@denx.de>
+Subject: Re: [PATCH 0/5] kbuild
+Message-ID: <20040616194919.GA4384@mars.ravnborg.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk> <20040615191418.GD2310@mars.ravnborg.org> <20040615204616.E7666@flint.arm.linux.org.uk> <20040615205557.GK2310@mars.ravnborg.org> <20040615220646.I7666@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040615220646.I7666@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What about this much simpler approach?
+
+One extra assignment for each architecture added to get access to the
+kernel image (at least the default one) for that architecture.
+
+The sole purpose for this is to pass info what
+kernel image should be included in a deb, rpm or tar.gz package.
 
 
-David Eger wrote:
-> On Wed, Jun 16, 2004 at 08:24:15PM +0200, Jurriaan wrote:
-> 
->>The radeonfb driver in 2.6.7 produces some interesting artifacts on
->>scrolling, both scrolling horizontally and vertically.
-> 
-> 
-> The corruption you are talking about is, I believe, caused by a couple of things:
-> 
-> (1) we're not issuing enough fifo_wait()'s around our accel engine
->     and pan register writes.
-> (2) there's some disconnect between writing to fb memory, panning, and
->     copyarea()/fillrect() calls
-> 
-> I sent a hack of a fix for this to Ben a week ago, adding a call to radeonfb_sync()
-> at the end of radeonfb_copyarea() and radeonfb_fillrect().  This seems to fix the
-> problem for me, but you *shouldn't* have to do this.  
-> 
-> I haven't tracked it any further than this.  My next guess would be auditing register 
-> writes and making sure there are enough fifo_wait()'s...
+	Sam
 
-
-Is this the case even with the off-by-one error in the bitblt code 
-fixed?  In the 2.4 kernel, I got rid of all artifacts by fixing the 
-off-by-one error.
-
-In case, you don't know what I'm talking about, when you bitblt up or to 
-the left on Radeon, x and y need to be adjusted by (w-1) and/or (h-1), 
-respectively.  The code there, however, adjusted by w and/or h, which is 
-off-by-one.
-
+===== arch/arm/Makefile 1.66 vs edited =====
+--- 1.66/arch/arm/Makefile	2004-05-12 23:55:05 +02:00
++++ edited/arch/arm/Makefile	2004-06-16 21:47:11 +02:00
+@@ -130,6 +130,7 @@
+ all: zImage
+ 
+ boot := arch/arm/boot
++KERNEL_IMAGE := $(boot)/zImage
+ 
+ #	Update machine arch and proc symlinks if something which affects
+ #	them changed.  We use .arch to indicate when they were updated
+===== arch/i386/Makefile 1.68 vs edited =====
+--- 1.68/arch/i386/Makefile	2004-06-01 00:18:41 +02:00
++++ edited/arch/i386/Makefile	2004-06-16 21:43:50 +02:00
+@@ -120,6 +120,7 @@
+ 	zdisk bzdisk fdimage fdimage144 fdimage288 install
+ 
+ all: bzImage
++KERNEL_IMAGE := $(boot)/bzImage
+ 
+ BOOTIMAGE=arch/i386/boot/bzImage
+ zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
+===== arch/ppc/Makefile 1.50 vs edited =====
+--- 1.50/arch/ppc/Makefile	2004-06-09 10:52:22 +02:00
++++ edited/arch/ppc/Makefile	2004-06-16 21:44:01 +02:00
+@@ -49,6 +49,7 @@
+ .PHONY: $(BOOT_TARGETS)
+ 
+ all: zImage
++KERNEL_IMAGE := arch/ppc/boot/images/zImage
+ 
+ AFLAGS_vmlinux.lds.o	:= -Upowerpc
+ 

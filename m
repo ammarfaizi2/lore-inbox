@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUJ1XpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbUJ1XpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUJ1XpO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbUJ1XpA
+	id S263099AbUJ1XpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUJ1Xor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:45:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52966 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263100AbUJ1XiN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:38:13 -0400
-Date: Fri, 29 Oct 2004 01:38:05 +0200
-From: Andi Kleen <ak@suse.de>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clustered apic patch missing APIC_DFR_CLUSTER def
-Message-ID: <20041028233805.GA11384@wotan.suse.de>
-References: <20041028112715.D14339@build.pdx.osdl.net> <200410281635.23848.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 19:44:47 -0400
+Received: from siaag2aa.compuserve.com ([149.174.40.131]:54154 "EHLO
+	siaag2aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S263099AbUJ1XiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:38:11 -0400
+Date: Thu, 28 Oct 2004 19:33:22 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: My thoughts on the "new development model"
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Message-ID: <200410281937_MC3-1-8D69-AAD0@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410281635.23848.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 04:35:23PM -0700, James Cleverdon wrote:
-> Hmmm...  The patch containing APIC_DFR_CLUSTER and friends went
-> into the -mm tree in the June/July timeframe.  It must not have
-> been pushed with the main cluster patch.
+On Thu, 28 Oct 2004 at 08:03:29 -0700 William Lee Irwin III wrote:
 
-Andrew moved it into the x86-64 kexec APIC patch for some unknown
-reason.  And that obviously was not pushed ...
+> 99.99% of users use one arch, i386.
 
-I already sent a patch to Linus and will send patches for 
-the other known buglets too (warnings, safe_smp_processor_id())
+  You oversimplify.  For example, I have:
 
--Andi
+        1 uniprocessor IOAPIC (i440FX)
+        1 SMP IOAPIC (flat mode) (i440GX)
+        2 XT-PIC noapic (i440BX, VIA KT133)
+
+
+> 99.99% of users use one disk driver, IDE.
+
+  And again:
+
+        1 VIA VT82C686
+        1 HPT370A
+        1 PDC20267
+        1 PDC20268
+        1 PIIX3
+        2 PIIX4
+
+  So even in my 'simple' i386 environment there is a lot of variety in
+just those two things.
+
+
+> The intersection of these users is probably well over 99.999% of all
+> users.
+
+  If Linux had a billion users, how many would have something different?
+
+
+--Chuck Ebbert  28-Oct-04  19:04:08

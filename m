@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUBJTRP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 14:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266030AbUBJTRP
+	id S266308AbUBJSz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUBJSz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 14:17:15 -0500
-Received: from ns.suse.de ([195.135.220.2]:21954 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265999AbUBJTRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 14:17:12 -0500
-Date: Fri, 13 Feb 2004 00:23:58 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: torvalds@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-Message-Id: <20040213002358.1dd5c93a.ak@suse.de>
-In-Reply-To: <20040210173738.GA9894@mail.shareable.org>
-References: <1076384799.893.5.camel@gaston>
-	<Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
-	<20040210173738.GA9894@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Feb 2004 13:55:28 -0500
+Received: from bart.one-2-one.net ([217.115.142.76]:13075 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S266308AbUBJSzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:55:24 -0500
+Date: Tue, 10 Feb 2004 19:59:23 +0100 (CET)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] dma_sync_to_device
+In-Reply-To: <20040210104250.11e95c87.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0402101955060.2349-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004 17:37:38 +0000
-Jamie Lokier <jamie@shareable.org> wrote:
+On Tue, 10 Feb 2004, David S. Miller wrote:
 
- 
-> The real question is - why does malloc() break?  I'd expect malloc()
-> to use MAP_ANON these days, when brk() fails.  But it seems not.
+> Believe it or not your work still sits deep in my inbox waiting for my backlog
+> to work on back to it.
+> 
+> I'll try to get to this again.
 
-Yep, that's the real bug.
+Ok, Thanks.
 
--Andi
+It's not particularly urgent but my concern was just the patch wouldn't 
+apply any longer once colliding dma stuff gets in...
+And the dma_pool stuff might be a good motivation for arch maintainers to 
+adopt this in one go ;-)
+
+Martin
+

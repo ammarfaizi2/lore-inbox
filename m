@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTJREgM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 00:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbTJREgM
+	id S261342AbTJRFTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 01:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbTJRFTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 00:36:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20101 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261336AbTJREgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 00:36:09 -0400
-Date: Fri, 17 Oct 2003 21:34:48 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: VEROK Istvan <vi@inf.bme.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops when copying from IDE CD
-Message-Id: <20031017213448.3f013ca2.rddunlap@osdl.org>
-In-Reply-To: <Pine.GSO.4.00.10310180608050.11842-100000@kempelen.iit.bme.hu>
-References: <Pine.GSO.4.00.10310180608050.11842-100000@kempelen.iit.bme.hu>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Oct 2003 01:19:01 -0400
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:42370 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S261342AbTJRFS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 01:18:58 -0400
+Message-ID: <XFMail.20031018011826.f.duncan.m.haldane@worldnet.att.net>
+X-Mailer: XFMail 1.5.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Sat, 18 Oct 2003 01:18:26 -0400 (EDT)
+From: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test8: broken  /fs/proc/array.c  compilation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Oct 2003 06:16:46 +0200 (MET DST) VEROK Istvan <vi@inf.bme.hu> wrote:
+Hi 
+the changes in 2.6.0-test8 break compilation
+of /fs/proc/array.c with
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
 
-| I'm having reproducible oopses when copying from an IDE CD drive.  I saw
-| this first with 2.6.0-test5 (I didn't run 2.6.x much before then, so I'm
-| not saying that's when it appeared), and now with -test7 and -test8.
-| The following screen dump was taken down by hand from -test7:
-|  
-| -------------------------------
-| [<c0130f54>] update_process_times+0x44/0x50
-| [<c0130dc6>] update_wall_time+0x16/0x40
-| [<c01314d0>] do_timer+0xe0/0xf0
-| [<c011332b>] timer_interrupt+0x17f/0x3e0
-| [<c010ca6b>] handle_IRQ_event+0x3b/0x70
-| [<c010d124>] do_IRQ_0x1c4/0x3b0
-| [<c010af88>] common_interrupt+0x18/0x20
-| [<c0130f54>] update_process_times+0x44/0x50
-| [<c02d0889>] ide_intr+0x2d9/0x610
-| [<c011332b>] timer_interrupt+0x17b/0x3e0
-| [<c02e1440>] cdrom_read_intr+0x0/0x3e0
-| [<c010ca6b>] handle_IRQ_event+0x3b/0x70
-| [<c010d0a4>] do_IRQ+0x144/0x3b0
-| [<c0105000>] _stext+0x0/0x100
-| [<c010af88>] common_interrupt+0x18/0x20
-| [<c0105000>] _stext+0x0/0x100
-| [<c0107426>] default_idle+0x26/0x40
-| [<c01074b4>] cpu_idle+0x34/0x40
-| [<c048a836>] start_kernel+0x1c6/0x230
-| [<c048a520>] unknown_bootoption+0x0/0x110
-|  
-| Code: f3 66 6d 5f 5d c3 8d b6 00 00 00 00 8d bc 27 00 00 00 00 55
-|  <0>Kernel panic: Fatal exception in interrupt
-| In interrupt handler - not syncing
-| -------------------------------
-|  
-| With -test8, the only difference is that the update_process_times line
-| is missing from the middle, and
-| mark_offset_tsc+0x38d/0x550
-| is visible at the top instead.
-|  
-| Could this be the sign of malfunctioning hardware?
-| 
-| $ dmesg | grep CD
-| hdd: FX4830T, ATAPI CD/DVD-ROM drive
-| hdd: ATAPI 48X CD-ROM drive, 128kB Cache, UDMA(33)
-| Uniform CD-ROM driver Revision: 3.12
-| $ gcc -v
-| gcc version 3.3.2 20030908 (Debian prerelease)
-|  
-| I haven't got any experience in reporting kernel panics, so please tell
-| me what more info to include to make this a meaningful report.
-|  
-| TIA,
-| Istvan
-| 
-| 
-| PS: I'm not subscribed, please CC me.
 
-Can you supply any more of the oops message?  It's missing a good bit
-before the call trace that you listed.
-Maybe check the kernel message file for the rest of it?
 
-Thanks,
---
-~Randy
+
+CC      fs/proc/array.o
+fs/proc/array.c: In function `proc_pid_stat':
+fs/proc/array.c:398: Unrecognizable insn:
+(insn/i 1332 1672 1666 (parallel[
+            (set (reg:SI 0 eax)
+                (asm_operands ("") ("=a") 0[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (set (reg:SI 1 edx)
+                (asm_operands ("") ("=d") 1[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 1326 (nil))
+    (nil))
+fs/proc/array.c:398: confused by earlier errors, bailing out
+make[2]: *** [fs/proc/array.o] Error 1
+make[1]: *** [fs/proc] Error 2
+make: *** [fs] Error 2
+
+
+No problem in 2.6.0-test7
+
+
+

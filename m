@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270026AbUJHP2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270025AbUJHPcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270026AbUJHP2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270027AbUJHP2W
+	id S270025AbUJHPcY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270023AbUJHPcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:28:22 -0400
-Received: from hs-grafik.net ([80.237.205.72]:60652 "EHLO
-	ds80-237-205-72.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id S270026AbUJHP1c (ORCPT
+	Fri, 8 Oct 2004 11:32:23 -0400
+Received: from findaloan.ca ([66.11.177.6]:46471 "EHLO findaloan.ca")
+	by vger.kernel.org with ESMTP id S270022AbUJHPbR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:27:32 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: linux-kernel@vger.kernel.org
-Subject: pppoe broken in 2.6.9-rc2-mm1, working in 2.6.7-mm1 and 2.6.7-rc3
-Date: Fri, 8 Oct 2004 17:36:05 +0200
-User-Agent: KMail/1.7
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
-MIME-Version: 1.0
+	Fri, 8 Oct 2004 11:31:17 -0400
+Date: Fri, 8 Oct 2004 11:27:01 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041008152701.GB13183@mark.mielke.cc>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+References: <20041006193053.GC4523@pclin040.win.tue.nl> <003301c4abdc$c043f350$b83147ab@amer.cisco.com> <20041006200608.GA29180@dspnet.fr.eu.org> <20041006163521.2ae12e6d.davem@davemloft.net> <20041007001937.GA48516@dspnet.fr.eu.org> <20041006172959.47c25e3d.davem@davemloft.net> <20041008064104.GF19761@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410081736.05976@zodiac.zodiac.dnsalias.org>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20041008064104.GF19761@alpha.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Oct 08, 2004 at 08:41:04AM +0200, Willy Tarreau wrote:
+> On Wed, Oct 06, 2004 at 05:29:59PM -0700, David S. Miller wrote:
+> > It absolutely does help the programs not using select(), using
+> > blocking sockets, and not expecting -EAGAIN.
+> As I asked in a previous mail in this overly long thread, why not returning
+> zero bytes at all. It is perfectly valid to receive an UDP packet with 0
+> data bytes, and any application should be able to support this case anyway.
+> In case of TCP, this would be a problem because the app would think it
+> indicates the last byte has been received. But in case of UDP, there is no
+> problem.
 
-pppoe doesnot work for me on 2.6.9-rc2-mm1. It works with  2.6.7-mm1 and 
-2.6.7-rc3.
-The problem seems to be that one package is missing:
-2.6.7 does this:
-17:31:09.042999 PPPoE PADI
-17:31:09.358382 PPPoE PADO [AC-Name "AACX11-erx"] [Service-Name] [AC-Cookie 
-0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-17:31:09.358466 PPPoE PADR [Service-Name] [AC-Cookie 
-0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-17:31:09.651898 PPPoE PADS [ses 0x107d] [Service-Name] [AC-Name "AACX11-erx"] 
-[AC-Cookie 0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-17:31:10.037167 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 1, Magic-Num  
-0x0024067c, PFC , length 12
-        0x0000:  c021 0101 000c 0506 0024 067c 0702
-17:31:10.145315 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 96, MRU  
-1492, Auth-Prot  PAP, Magic-Num  0x718234ae, length 18
-        0x0000:  c021 0160 0012 0104 05d4 0304 c023 0506
-        0x0010:  7182 34ae
-17:31:10.145766 PPPoE  [ses 0x107d] LCP, Conf-Ack (0x02), id 96, MRU  1492, 
-Auth-Prot  PAP, Magic-Num  0x718234ae, length 18
-        0x0000:  c021 0260 0012 0104 05d4 0304 c023 0506
-        0x0010:  7182 34ae
-17:31:10.147435 PPPoE  [ses 0x107d] LCP, Conf-Ack (0x02), id 1, Magic-Num  
-0x0024067c, PFC , length 12
-        0x0000:  c021 0201 000c 0506 0024 067c 0702
-17:31:10.148875 PPPoE  [ses 0x107d] LCP, Echo-Request (0x09), id 0, Magic-Num 
-0x0024067c, length 8
-        0x0000:  c021 0900 0008 0024 067c
-17:31:10.148878 PPPoE  [ses 0x107d] Auth-Req(1), Peer 
-0002567923935200490773370001@t-online.de, Name 09856472
-17:31:10.260645 PPPoE  [ses 0x107d] LCP, Echo-Reply (0x0a), id 0, Magic-Num 
-0x718234ae, length 8
-        0x0000:  c021 0a00 0008 7182 34ae
-17:31:10.535034 PPPoE  [ses 0x107d] Auth-Ack(1), Msg
-17:31:10.535561 PPPoE  [ses 0x107d] unknown, Conf-Request (0x01), id 1, 
-Deflate, MVRCA, BSD-Comp, length 15
-        0x0000:  80fd 0101 000f 1a04 7800 1804 7800 1503
-        0x0010:  2f
+0 isn't correct either. No zero length packet was successfully received.
 
-2.6.9 does not send 
-17:31:10.037167 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 1, Magic-Num  
-0x0024067c, PFC , length 12
-        0x0000:  c021 0101 000c 0506 0024 067c 0702
-and than the AC does not respond to the follwoing packages.
+I agree with the current read() behaviour. It's the select() behaviour
+that I consider to be wrong. Patching return values is just a hacky way
+of avoiding the issue.
 
-regards
-Alex
+The issue can be more easily avoided by saying 'the Linux developers
+believe that the use of select() with blocking file descriptors is
+invalid or not recommended, and have chosen not to ensure that this
+use of system calls is reliable'. "We're not POSIX compliant in this
+case" isn't good enough for me. One acknowledges the issue. The other
+ignores it.
+
+Cheers,
+mark
 
 -- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

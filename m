@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTJCCn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 22:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbTJCCn5
+	id S263618AbTJCCyi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 22:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTJCCyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 22:43:57 -0400
-Received: from genericorp.net ([69.56.190.66]:27323 "EHLO
-	narbuckle.genericorp.net") by vger.kernel.org with ESMTP
-	id S263609AbTJCCnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 22:43:55 -0400
-Date: Thu, 2 Oct 2003 21:43:34 -0500 (CDT)
-From: Dave O <cxreg@pobox.com>
-X-X-Sender: count@narbuckle.genericorp.net
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       linux-hfsplus-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] new HFS(+) driver
-In-Reply-To: <20031003002608.GC13051@matchmail.com>
-Message-ID: <Pine.LNX.4.58.0310022142450.2887@narbuckle.genericorp.net>
-References: <Pine.LNX.4.44.0310021029110.17548-100000@serv>
- <Pine.LNX.4.58.0310021300220.31213@narbuckle.genericorp.net>
- <Pine.LNX.4.44.0310022028220.8124-100000@serv>
- <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
- <20031003002608.GC13051@matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Oct 2003 22:54:38 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43143 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263618AbTJCCyh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 22:54:37 -0400
+Date: Fri, 3 Oct 2003 03:53:38 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Message-ID: <20031003025338.GA15089@mail.shareable.org>
+References: <1065139380.736.109.camel@cube> <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310021720510.7833-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> And it may or may not make sense to not have a "/proc/<nn>/task/<yy>/fd"
+> directory at all if the thread shares file descriptors with the thread 
+> group leader. That would be a fairly easy optimization.
 
-On Thu, 2 Oct 2003, Mike Fedyk wrote:
+If you make /proc/.../fd return the same inode numbers for the
+identical file descriptor tables, that would be just as good for fuser
+performance.
 
-> On Thu, Oct 02, 2003 at 02:00:25PM -0500, Dave O wrote:
-> > This works, however du(1) seems to get the block size wrong:
-> >
-> > meatloop:/cdrom# ls -l
-> > total 393244
-> > -rwxr-xr-x    1 501      dialout  341952833 Sep 22 17:24 else.zip
-> > -rwxr-xr-x    1 501      dialout  450701627 Sep 22 20:07 outlook.zip
-> > -rwxr-xr-x    1 501      dialout  607534655 Sep 22 17:26 quick1.zip
-> > -rwxr-xr-x    1 501      dialout  431279243 Sep 22 17:26 quick2.zip
-> > -rwxr-xr-x    1 501      dialout  605501959 Sep 22 17:27 quick3.zip
-> > -rwxr-xr-x    1 501      dialout  403836898 Sep 22 17:28 quick4.zip
-> > -rwxr-xr-x    1 501      dialout  380636073 Sep 22 17:28 quick5.zip
-> >
-> > meatloop:/cdrom# du -sh
-> > 385M    .
->
-> Are you sure?  I haven't done the math, but you are comparing base 1000 to
-> base 1024 numbers.  Try comparing:
->
-> du -sh .
-> ls -lh
->
+fuser would stat() each of the /proc/<nn>/task/<yy>/fd entries and see
+that they're the same as the group leader.
 
-There's not that much to be sure about.  A single file there (else.zip) is
-over 300 megs itself, and the total of all the files is about 3 gigs
+It is the same number of operations as checking for the non-existence
+of /proc/<nn>/task/<yy>/fd entries, but more flexible.
+
+Alternatively you could make the task fd directories be symbolic
+links to the group leader fd directory.
+
+-- Jamie

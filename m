@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264531AbRFTSKQ>; Wed, 20 Jun 2001 14:10:16 -0400
+	id <S264532AbRFTSPE>; Wed, 20 Jun 2001 14:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264537AbRFTSKF>; Wed, 20 Jun 2001 14:10:05 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:30160 "EHLO
+	id <S264546AbRFTSOo>; Wed, 20 Jun 2001 14:14:44 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:38608 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264531AbRFTSJs>; Wed, 20 Jun 2001 14:09:48 -0400
+	id <S264542AbRFTSOh>; Wed, 20 Jun 2001 14:14:37 -0400
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
 Newsgroups: hometree.linux.kernel
 Subject: Re: [OT] Threads, inelegance, and Java
-Date: Wed, 20 Jun 2001 18:09:46 +0000 (UTC)
+Date: Wed, 20 Jun 2001 18:14:35 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9gqota$k36$1@forge.intermeta.de>
-In-Reply-To: <9gponv$j92$1@forge.intermeta.de> <20010620042544.E24183@vitelus.com>
+Message-ID: <9gqp6c$k41$1@forge.intermeta.de>
+In-Reply-To: <3B30C4D2.30915E4@247media.com> <XFMail.20010620093214.davidel@xmailserver.org>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 993060586 9462 212.34.181.4 (20 Jun 2001 18:09:46 GMT)
+X-Trace: tangens.hometree.net 993060876 9707 212.34.181.4 (20 Jun 2001 18:14:36 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 20 Jun 2001 18:09:46 +0000 (UTC)
+NNTP-Posting-Date: Wed, 20 Jun 2001 18:14:36 +0000 (UTC)
 X-Copyright: (C) 1996-2001 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann <aaronl@vitelus.com> writes:
+Davide Libenzi <davidel@xmailserver.org> writes:
 
->On Wed, Jun 20, 2001 at 09:00:47AM +0000, Henning P. Schmiedehausen wrote:
->> Just the fact that some people use Java (or any other language) does
->> not mean, that they don't care about "performance, system-design or
->> any elegance whatsoever" [2].
+>On 20-Jun-2001 Russell Leighton wrote:
+[...]
+>> I had a company that gaves us a tech briefing of their system.
+>> They dumped mega-bucks into multiple Sun E10000s they needed to run their
+>> Java apps...
+>> the were proud of their scalable design, just add more hardware!
+>> True, the high level design was fine and trivially scalable w/more hw BUT
+>> what a waste, if their app was done in C they could have
+>> had it run faster and it would have cost them significantly less (in the
+>> millions of $$).
 
->However, the very concept of Java encourages not caring about
->"performance, system-design or any elegance whatsoever". If you cared
+>1) HW is cheaper than software engineers time
 
-Care to elaborate? It's an application programming language, not a
-kernel hacker language, you know.
+>2) to find Java developers is easier than to find C developers
 
-I won't call Java the perfect solution for everything, but it's an
-useful tool for a certain type of applications.
+>3) the ETA of the same project developed in Java is shorter than the same
+>        project done in C
 
->for a reason). Need run-anywhere support? Distribute sources instead.
->Once they are compiled they won't need to be reinterpreted on every
->run.
+4) The Java project is easier ported from e.g. Windows to Linux or
+   Solaris to Windows.
 
-Thanks buddy. I've seen too many "#ifdef _SOLARIS_ || _LINUX &&
-!_X86_" definition deserts to not wanting to do this again. Portability 
-without os-specific tweaks for more than two or three platforms is a dream.
-
-And most if not all commercial platforms don't come with perl, python,
-tcl/tk or anything else installed. Many even without a (C-)compiler. 
-Most without a C++-compiler.
+Amen. You're right on spot. HW is cheap. Even E10K are cheap
+(relatively seen. ;-) )
 
 	Regards
 		Henning
+
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer

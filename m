@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTCDWqh>; Tue, 4 Mar 2003 17:46:37 -0500
+	id <S262449AbTCDWqd>; Tue, 4 Mar 2003 17:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbTCDWqh>; Tue, 4 Mar 2003 17:46:37 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:19599 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S262812AbTCDWqf>;
-	Tue, 4 Mar 2003 17:46:35 -0500
-Date: Tue, 4 Mar 2003 17:57:00 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-Message-ID: <20030304225659.GB7120@gtf.org>
-References: <1046753776.12441.92.camel@iguana> <Pine.LNX.4.44.0303041414270.23375-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262812AbTCDWqd>; Tue, 4 Mar 2003 17:46:33 -0500
+Received: from dsl-212-144-247-061.arcor-ip.net ([212.144.247.61]:64648 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S262449AbTCDWqd> convert rfc822-to-8bit; Tue, 4 Mar 2003 17:46:33 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: Harald Welte <laforge@netfilter.org>,
+       David =?iso-8859-1?q?Lagani=E8re?= <spanska@securinet.qc.ca>
+Subject: Re: A suggestion for the netfilter part of the sources
+Date: Tue, 4 Mar 2003 23:56:42 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+References: <3E64E1C8.9040309@securinet.qc.ca> <20030304182006.GI4880@sunbeam.de.gnumonks.org>
+In-Reply-To: <20030304182006.GI4880@sunbeam.de.gnumonks.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303041414270.23375-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200303042356.56722.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 02:22:13PM -0600, Kai Germaschewski wrote:
-> On 3 Mar 2003, Matt Domsch wrote:
-> 
-> > /sys
-> > `-- bus
-> >     `-- pci
-> >         `-- drivers
-> >             `-- 3c59x
-> >                 |-- dynamic_id_0  (these are simple DRIVER_ATTRs)
-> >                 |-- dynamic_id_1
-> >                 |-- dynamic_id_2
-> >                 `-- new_id
-> > 
-> > Where dynamic_id_[012] are new dynamic entries, created by writing
-> > values into new_id.  Both file types would be of the format (analogous
-> > to pci_show_resources):
-> > echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > new_id
-> > with fields being vendor, device, subvendor, subdevice, class,
-> > class_mask.
-> 
-> I dont' think what you actually want is changing the id table - after all, 
-> it's only walked when registering the driver (+ hotplug).
-> 
-> What you really want is a way to call the drivers' probe routine for a 
-> device which isn't in its tables.
-> 
-> So why not simply
-> 
-> echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > .../3c59x/probe
+On Tuesday 04 March 2003 19:20, Harald Welte wrote:
 
-I think there is value in decoupling the two operations:
+>
+> The suggestion is neither 'good' nor 'bad'.  Nobody has (until now)
+> asked us to raise this value, eight seems to be enough for most people.
+>
+> As long as your proposal is not backed by more other users who think the
+> default should be raised, I'd rather leave it the way it currently is.
+>
 
-	echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > .../3c59x/table
-	echo 1 > .../3c59x/probe_it
+Since this is meant to be tunable, how about turning it into a configuration 
+option (with 8 being the default)? I guess that would solve this problem 
+quite nicely.
 
-Because you want the id table additions to be persistant in the face of
-cardbus unplug/replug, and for the case where cardbus card may not be
-present yet, but {will,may} be soon.
-
-	Jeff
-
-
+Regards,
+  Dominik
+-- 
+Why should George W. Bush care what the American people think?
+After all they did not vote for him.
 

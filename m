@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261616AbSJINKj>; Wed, 9 Oct 2002 09:10:39 -0400
+	id <S261617AbSJIN37>; Wed, 9 Oct 2002 09:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261617AbSJINKj>; Wed, 9 Oct 2002 09:10:39 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:26383 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261616AbSJINKi>; Wed, 9 Oct 2002 09:10:38 -0400
-Date: Wed, 9 Oct 2002 14:16:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Luka Renko <luka.renko@hermes.si>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [RFC] [PATCH 3/4] Add extended attributes to ext 2/3
-Message-ID: <20021009141617.B22105@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Luka Renko <luka.renko@hermes.si>,
-	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net
-References: <A1C30C1C0FB8D5118D810004754C03756677C5@hsl-lj3x.hermes.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <A1C30C1C0FB8D5118D810004754C03756677C5@hsl-lj3x.hermes.si>; from luka.renko@hermes.si on Wed, Oct 09, 2002 at 10:53:47AM +0200
+	id <S261623AbSJIN37>; Wed, 9 Oct 2002 09:29:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19730 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261617AbSJIN36>;
+	Wed, 9 Oct 2002 09:29:58 -0400
+Message-ID: <3DA43094.8040104@pobox.com>
+Date: Wed, 09 Oct 2002 09:35:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+References: <Pine.LNX.4.44.0210091243240.338-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 10:53:47AM +0200, Luka Renko wrote:
-> Actually we are currently developing HSM application that stacks on top of
-> standard file system (ext3 and XFS today) and we are using EA to store HSM
-> specific information with each inode. However, we are not using registration
-> API, but rather store this in user EA (even if we don't like some
-> limitations of user EA), because registration API is not exported and
-> registration API is per-FS and not generic. This would mean that we would
-> need to have handlers defined for each supported filesystem (ext3 and XFS
-> today, reiserfs and JFS in near future). As we use user EA, we just call VFS
-> EA operations of the bottom FS (ext3 or XFS or any other FS that supports
-> EA).
+Roman Zippel wrote:
+> On Tue, 8 Oct 2002, Linus Torvalds wrote:
+>>Some things made me go eww (but on the whole details):
+>>
+>> - I'd prefer the Config.in name, since this has nothing to do with
+>>   building, and everything to do with configuration.
+> 
+> 
+> Fine with me.
+> (jgarzik, I think you're overruled now. :) )
 
-Yupp, that's exactly what I meant.
 
-> I think that we could also then have only single ACL code for both ext2 and
-> ext3 - currently ACL patch adds similar (same?) code to both ext2 and ext3
-> and this code could be shared for sure.
+Well, my basic preference is
 
-And JFS and reiserfs.  Yes, this code should be in a library, but e.g.
-XFS (different ondisk format) or NFSv4/NTFS/whatever need very different
-ACL rountines.  You can't easily plug the handler into different filesystems
-due to very different implementations below the VFS level.
+* something other than Config.new (the original name in your config system)
+* something other than Config.in
 
-BTW, do you have a pointer to your DSM system?  I'l like to look at something
-less broken them dmapi..
+I think it is a mistake to name a totally different format the same name 
+as an older format...  even "config.in" would be better than "Config.in"...
+
+

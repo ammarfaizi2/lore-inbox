@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130759AbRA3UwG>; Tue, 30 Jan 2001 15:52:06 -0500
+	id <S131324AbRA3Uwg>; Tue, 30 Jan 2001 15:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131324AbRA3Uv4>; Tue, 30 Jan 2001 15:51:56 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:55311
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130759AbRA3Uvn>; Tue, 30 Jan 2001 15:51:43 -0500
-Date: Tue, 30 Jan 2001 12:50:55 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Stephen Clark <sclark46@gte.net>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Tobias Ringstrom <tori@tellus.mine.nu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] No VIA IDE DMA unless configured
-In-Reply-To: <3A7720C3.FFE5C981@gte.net>
-Message-ID: <Pine.LNX.4.10.10101301250200.3259-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132105AbRA3UwT>; Tue, 30 Jan 2001 15:52:19 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:58123 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S131324AbRA3UwL>;
+	Tue, 30 Jan 2001 15:52:11 -0500
+Date: Tue, 30 Jan 2001 13:51:54 -0700
+From: yodaiken@fsmlabs.com
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Joe deBlaquiere <jadb@redhat.com>, yodaiken@fsmlabs.com,
+        Andrew Morton <andrewm@uow.edu.au>, Nigel Gamble <nigel@nrg.org>,
+        linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+Message-ID: <20010130135154.B27260@hq.fsmlabs.com>
+In-Reply-To: <3A75A70C.4050205@redhat.com> <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <20010129084410.B32652@hq.fsmlabs.com> <3A75A70C.4050205@redhat.com> <30672.980867280@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <30672.980867280@redhat.com>; from David Woodhouse on Tue, Jan 30, 2001 at 03:08:00PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, Stephen Clark wrote:
-
-> Guys,
+> The thing that really does concern me about the flash driver code is the
+> fact that it often wants to wait for about 100µs. On machines with
+> HZ==100, that sucks if you use udelay() and it sucks if you schedule(). So
+> we end up dropping the spinlock (so at least bottom halves can run again)
+> and calling:
 > 
-> from .config on 2.4.1
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> # CONFIG_BLK_DEV_OFFBOARD is not set
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> 
-> Shouldn' t the value be CONFIG_IDEDMA_PCI_AUTO instead of CONFIG_IDEDMA_AUTO
-> in the code below?
+> static inline void cfi_udelay(int us)
+> {
+>         if (current->need_resched)
+>                 schedule();
+>         else
+>                 udelay(us);
+> }
 
-No 'CONFIG_IDEDMA_AUTO' is a global config option across all platforms.
+So then a >100us delay is ok ?
 
-Andre Hedrick
-Linux ATA Development
+I have a dumb RT perspective: either you have to make the deadline or you don't.
+If you have to make the deadline, then why are you checking need_resched?
+
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

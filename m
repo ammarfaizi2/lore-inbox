@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284527AbRLERmb>; Wed, 5 Dec 2001 12:42:31 -0500
+	id <S284538AbRLERnw>; Wed, 5 Dec 2001 12:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284531AbRLERmW>; Wed, 5 Dec 2001 12:42:22 -0500
-Received: from [209.249.147.248] ([209.249.147.248]:38149 "EHLO
-	proxy1.addr.com") by vger.kernel.org with ESMTP id <S284527AbRLERmH>;
-	Wed, 5 Dec 2001 12:42:07 -0500
-Date: Wed, 5 Dec 2001 11:54:50 -0500
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: John Clemens <john@deater.net>
-Cc: cory.bell@usa.net, linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-Id: <20011205115450.6c66664d.dang@fprintf.net>
-In-Reply-To: <Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy>
-In-Reply-To: <1007541620.2340.2.camel@localhost.localdomain>
-	<Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S284536AbRLERnn>; Wed, 5 Dec 2001 12:43:43 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:20667 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S284535AbRLERne>; Wed, 5 Dec 2001 12:43:34 -0500
+Date: Wed, 05 Dec 2001 09:43:12 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: RE: Over 4-way systems considered harmful :-)
+Message-ID: <2523045146.1007545392@mbligh.des.sequent.com>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBMEPLECAA.znmeb@aracnet.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001 11:41:44 -0500 (EST)
-John Clemens <john@deater.net> wrote:
+> I don't see how this is a win for me. And it is a win for IBM only if it
+> gives them some advantage in serving their customers. I can certainly
+> *conceive* of workloads bursty enough to justify an 8-processor server, but
+> do they exist in the real world? And if they do, is a single 8-processor
+> server better than a pair of 4-processor servers when you take graceful
+> handling of faults into account? IBM has been building high-availability
+> systems for *decades*, preferring to field *slightly* slower but
+> *significantly* more reliable gear, which, legend has it, no one has ever
+> been fired for purchasing. :-)
 
-<snip>
+We (Sequent, now bought by IBM) sold 64 processor servers to people 
+who needed them (the main market was large databases) so, yes, there 
+is definitely a market for larger systems. It's cheaper to build a big processor 
+farm out of a Beowulf style cluster, but it's not always easy / possible to 
+split up your application over something like that. If you're generating 
+fractals, it's easy, for other applications, it's not.
+ 
+> Perhaps effort should be placed into software development processes and
+> tools that deny race conditions the right to be born, rather than depending
+> on testing on a 16-processor system to find them expeditiously :-). And
 
-> > ACPI seems to work on my laptop (detects ACPI resources, thermal
-> > zone, etc), but if I "cat /proc/acpi/events" and press the suspend or
-> > power buttons, I don't get anything. On my old NEC Versa LX, I'd get a
-> > few junk chars for each press (been a while since I tried it, though). I
-> > don't see any interrupts on IRQ 9, either.
-> 
-> I'm not 100% sure how ACPI works, period. I've got it up and running, but
-> about the only thing it does seem to report correctly is battery life
-> (and, I assume, it uses ACPI idle..)..  everything else appears to be just
-> window dressing for now.. not sure if that's a limitation of hardware or
-> the linux ACPI implementation.
+I wish you good fortune, sir. When you've acheived that, come back and
+tell me, and we'll stop testing stuff ;-) It's always better to not code bugs in
+the first place, but that's not the world we live in ...
 
-I have an N5415, and am using your k7 patch (thanks much!).  I don't use USB,
-so I didn't try or comment on your patch.  However, I was never able to get
-ACPI to work.  If I compiled it in without APM compiled in, it always hung on
-boot.  So, I have only APM, which doesn't even show the battery life
-correctly.  Whether or not I can suspend, knowing battery life would be an
-improvement.  Is there something special I have to do to get ACPI to work? 
-(I'm currently using 2.4.13-ac7-preempt-k7, but I've tried 2.4.1[56] also, as
-well as many earlier kernels.)
+> there is a whole discipline of software performance engineering to build
+> performance in from the start. Advances like that would be a *huge* win for
+> the Linux community, given our (relative) freedom from corporate-world
+> limitations like deadlines, sales quotas, programmer salaries, and
+> full-color brochures.
 
-Daniel
---- 
-Recursion n.:
-        See Recursion.
-                        -- Random Shack Data Processing Dictionary
+I'm all for encouraging good programming practices. In a way that's actually
+harder in the diverse Linux community with hundreds, nay, thousands of
+engineers putting code in. But we should still try - keeping the infrastructure
+simple helps, for example. Trying to bug fix badly designed / written code is 
+pissing into the wind.
+
+M.
 

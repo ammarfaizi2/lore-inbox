@@ -1,40 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270591AbRHIUgx>; Thu, 9 Aug 2001 16:36:53 -0400
+	id <S270582AbRHIUid>; Thu, 9 Aug 2001 16:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270582AbRHIUgn>; Thu, 9 Aug 2001 16:36:43 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41744 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270581AbRHIUga>; Thu, 9 Aug 2001 16:36:30 -0400
-Date: Thu, 9 Aug 2001 17:36:12 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: How/when to send patches - (was  Re: [PATCH] one of $BIGNUM
- devfs races)
-In-Reply-To: <Pine.LNX.4.33.0108082230480.7127-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0108091732380.1439-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270583AbRHIUiX>; Thu, 9 Aug 2001 16:38:23 -0400
+Received: from mail309.mail.bellsouth.net ([205.152.58.169]:40014 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S270582AbRHIUiO>; Thu, 9 Aug 2001 16:38:14 -0400
+Subject: ATI frame buffer
+From: Louis Garcia <louisg00@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 09 Aug 2001 16:37:29 -0400
+Message-Id: <997389450.7611.8.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Aug 2001, Linus Torvalds wrote:
 
-> Re-sending is always the right thing to do.
+Does the ATI rage 128 fb support the radeon chip? If not does a driver
+exist for this chip? I'm currently upgrading to have DRM support.
 
-So many VM patches, so little time ;)
+Thanks.
 
-I need to automate this ...
-
-cheers,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

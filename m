@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbRH0Tmh>; Mon, 27 Aug 2001 15:42:37 -0400
+	id <S267043AbRH0Toh>; Mon, 27 Aug 2001 15:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267196AbRH0Tm1>; Mon, 27 Aug 2001 15:42:27 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:1249 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S266977AbRH0TmT>;
-	Mon, 27 Aug 2001 15:42:19 -0400
-Message-ID: <3B8AA136.F1D0B4BE@osdlab.org>
-Date: Mon, 27 Aug 2001 12:36:22 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-CC: kplug-list@kernel-panic.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Linux Kernel 2.4.9 Docs. and Metrics
-In-Reply-To: <3.0.6.32.20010821162635.00a936c0@pop-server.san.rr.com> <3.0.6.32.20010821173148.00a7fac0@pop-server.san.rr.com> <3B832AB6.2DC46BE8@randomlogic.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S267009AbRH0To3>; Mon, 27 Aug 2001 15:44:29 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:27923 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267140AbRH0Tnk>; Mon, 27 Aug 2001 15:43:40 -0400
+Subject: Re: Updated Linux kernel preemption patches
+From: Robert Love <rml@tech9.net>
+To: J Sloan <jjs@toyota.com>
+Cc: Cliff Albert <cliff@oisec.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B8AA02D.6F7561AB@lexus.com>
+In-Reply-To: <998877465.801.19.camel@phantasy>
+	<20010827093835.A15153@oisec.net>  <3B8AA02D.6F7561AB@lexus.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 27 Aug 2001 15:44:21 -0400
+Message-Id: <998941465.1993.9.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul G. Allen" wrote:
+On Mon, 2001-08-27 at 15:31, J Sloan wrote:
+> I get the same error -
 > 
-> BTW, I too think the interface could be better, but the HTML is nothing compared to the graphical layout that is used in the program itself. I've been thinking
-> of posting a call tree that shows all (or at least some) of the functions from kernel boot through something like, say, complete hardware initialization.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> RH 7.1 + updates and bits of rawhide -
 
-Yes, you could improve greatly on this one:
+I am looking into this, but I do not have this problem (which is odd).
 
-http://home.att.net/~rddunlap/linit/lin240_init_x86-2.html
+The patch wraps one define of atomic_dec_and_lock in an #ifndef
+CONFIG_PREEMPT, but I assume there is another defination elsewhere.  For
+whatever reason, my kernel compiles fine.
 
-~Randy
+I am going to update the patch to 2.4.9-ac2, give that a try.
+
+Wait a second...you are _ENABLING_ the configure option, right?  Always
+run `make oldconfig' !!!  If you are not, in this case, the patch is
+breaking compiles where CONFIG_PREEMPT is not set...now I can fix that.
+Please let me know.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

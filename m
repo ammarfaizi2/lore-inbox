@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265210AbUELUHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUELUJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265210AbUELUHD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUELUHC
+	id S265214AbUELUJG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUELUJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:07:02 -0400
-Received: from main.gmane.org ([80.91.224.249]:36296 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265210AbUELUGy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:06:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: 2.6.6 breaks VMware compile..
-Date: Wed, 12 May 2004 22:06:52 +0200
-Message-ID: <yw1xd659v28z.fsf@kth.se>
-References: <407CF31D.8000101@rgadsdon2.giointernet.co.uk> <m365b15vls.fsf@ccs.covici.com>
- <20040512200322.GA4947@localhost>
+	Wed, 12 May 2004 16:09:05 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11989 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265214AbUELUIf (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 16:08:35 -0400
+Message-Id: <200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up... 
+In-Reply-To: Your message of "Wed, 12 May 2004 12:56:04 PDT."
+             <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu>
+            <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:ATpHiUNa84P4trZ7PMFTGvQTXmA=
+Content-Type: multipart/signed; boundary="==_Exmh_-846568836P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 May 2004 16:07:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose Luis Domingo Lopez <linux-kernel@24x7linux.com> writes:
+--==_Exmh_-846568836P
+Content-Type: text/plain; charset=us-ascii
 
-> On Wednesday, 12 May 2004, at 14:49:35 -0400,
-> John Covici wrote:
->
->> How do Iget that patch since its still broke in 2.6.6?
->> 
-> Maybe you forgot to "apply" the "patch" to VMware to allow it to compile
-> its interface and run OK in newer kernels. Check:
-> ftp://platan.vc.cvut.cz/pub/vmware
->
-> for the latest version of the "patch" (vmware-any-any-update66.tar.gz).
+On Wed, 12 May 2004 12:56:04 PDT, Davide Libenzi said:
 
-I don't know if it's just me, but I had to build the modules manually.
-The vmware-config.pl script didn't do the right thing.
+> > If the kernel jiffie is anything other than exactly 1 msec, you're screwed.
+.. 
+> 
+> I believe they were talking about include/asm-i386/param.h
+>                                           ^^^^^^^^
 
--- 
-Måns Rullgård
-mru@kth.se
+True.
 
+The problem is that even for the i386 family, there's no inherent reason why
+the value of HZ is nailed to 1000 - it was changed from the default 100 in the
+2.4 kernel for reasons that apply to most, but not all, machines, and there's
+almost certainly people who are changing it back to 100 for good and valid
+reasons.
+
+We're still seeing the occasional code that goes gonzo because it assumed that
+the default value of HZ was 100 (there's been more than a few bugs concerning
+HZ/USER_HZ) - it would be foolish to go back and re-hard-code the value and
+start the cycle all over again....
+
+
+--==_Exmh_-846568836P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAooP0cC3lWbTT17ARAn69AKCaN2cKcQLKOYh+/H6P2sH+HSsbtwCg5RjC
+cDKLLHf1nBvnDSW16FoqfKk=
+=u1/v
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-846568836P--

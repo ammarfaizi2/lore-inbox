@@ -1,77 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269187AbUICGt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268993AbUICGtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269187AbUICGt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 02:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUICGt0
+	id S268993AbUICGtT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 02:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUICGtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 02:49:26 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36543 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S269187AbUICGtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 02:49:21 -0400
-X-Comment: AT&T Maillennium special handling code - c
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: Albert Cahalan <albert@users.sf.net>
-To: george@mvista.com
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       tim@physik3.uni-rostock.de, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
-       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <4137CB3E.4060205@mvista.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <4137CB3E.4060205@mvista.com>
+	Fri, 3 Sep 2004 02:49:19 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46253 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268993AbUICGtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 02:49:16 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+In-Reply-To: <20040903063658.GA11801@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+	 <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu>
+	 <1094162812.1347.54.camel@krustophenia.net>
+	 <20040902221402.GA29434@elte.hu>
+	 <1094171082.19760.7.camel@krustophenia.net>
+	 <1094181447.4815.6.camel@orbiter>
+	 <1094192788.19760.47.camel@krustophenia.net>
+	 <20040903063658.GA11801@elte.hu>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1094193731.434.7232.camel@cube>
+Message-Id: <1094194157.19760.71.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 Sep 2004 02:42:12 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 03 Sep 2004 02:49:17 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 21:39, George Anzinger wrote:
-> john stultz wrote:
-
-> > +
-> > +static nsec_t jiffies_cyc2ns(cycle_t cyc, cycle_t* remainder)
-> > +{
-> > +
-> > +	cyc *= NSEC_PER_SEC/HZ;
+On Fri, 2004-09-03 at 02:36, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> Hm... This assumes that 1/HZ is what is needed here.  Today this value is 
-> 999898.  Not exactly reachable by NSEC_PER_SEC/HZ.  Or did I miss something, 
-> like the relationship of jiffie to 1/HZ and to real time.
+> > -Q and later use the current method, which is like the above except
+> > the second hump is discarded, as it is a function of the scheduling
+> > latency and the period size rather than just the scheduling latency:
+> > 
+> > 	http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6
+> > 
+> > So, don't be fooled by the numbers, the newest version of the patch is
+> > in fact the best.  I have been meaning to go back and measure the
+> > current patches with the old code but it's pretty low priority...
+> 
+> vanilla kernel 2.6.8.1 would be quite interesting to get a few charts of
+> - especially if your measurement methodology has changed.
 
-HZ not being HZ is the source of many foul problems.
+OK, I will give this a shot.  Now that the VP patches are stabilizing I
+will be doing more profiling.  I also want to try the -mm kernel, this
+has some interesting differences from the stock kernel.  For example I
+measured about a 10% improvement with the old method, which implies a
+big performance gain.
 
-NTP should be able to correct for the error. For systems
-not running NTP, provide a fake NTP to make corrections
-based on the expected frequency error.
+>  There's not
+> much sense in re-testing older VP patches.
+> 
 
-Based on that, skip or double-up on the ticks to make
-them be exactly HZ over long periods of time.
+Yup, my thoughts exactly, this would just tell us what we already know,
+that the latency gets better with each version.
 
-> > +int ntp_leapsecond(struct timespec now)
-> > +{
-> > +	/*
-> > +	 * Leap second processing. If in leap-insert state at
-> > +	 * the end of the day, the system clock is set back one
-> > +	 * second; if in leap-delete state, the system clock is
-> > +	 * set ahead one second. The microtime() routine or
-> > +	 * external clock driver will insure that reported time
-> > +	 * is always monotonic. The ugly divides should be
-> > +	 * replaced.
+> also, has the userspace workload you are using stayed constant during
+> all these tests?
+> 
 
-Don't optimize until the patch is in and stable.
-The divides can be removed much later. Wait months,
-if not forever, before making the code less readable.
+I am mostly just using normal desktop hacker workloads, web browsing,
+email, builds.  Lately I am using the box as a Samba server.  At first,
+I was stressing the system using every disk benchmark I could think of,
+but it never seemed to affect the worst case and did not even change the
+shape of the distribution much, so I don't bother.  For all practical
+purposes, it's impossible to change the shape of these graphs much by
+stressing the system.
 
-The same goes for arch-specific non-syscall hacks.
+I am able to induce large latencies by using up all available swap with
+make -j12 on a KDE program, and by pingflooding the broadcast address,
+but these are pathological enough that I have not worried about them.
 
+Lee
 

@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318077AbSGWOvp>; Tue, 23 Jul 2002 10:51:45 -0400
+	id <S318079AbSGWOx1>; Tue, 23 Jul 2002 10:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318079AbSGWOvp>; Tue, 23 Jul 2002 10:51:45 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:60151 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S318077AbSGWOvo>; Tue, 23 Jul 2002 10:51:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: axel@hh59.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.27: Software Suspend failure / JFS errors
-Date: Tue, 23 Jul 2002 09:54:35 -0500
-X-Mailer: KMail [version 1.4]
-Cc: jfs-discussion@www-124.southbury.usf.ibm.com
-References: <20020721122932.GA23552@neon.hh59.org> <20020721144212.GA23767@neon.hh59.org>
-In-Reply-To: <20020721144212.GA23767@neon.hh59.org>
+	id <S318080AbSGWOx1>; Tue, 23 Jul 2002 10:53:27 -0400
+Received: from pat.uio.no ([129.240.130.16]:1164 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318079AbSGWOx0>;
+	Tue, 23 Jul 2002 10:53:26 -0400
+To: Olaf Kirch <okir@suse.de>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] Locking patches (generic & nfs)
+References: <20020719101950.A15819@suse.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 23 Jul 2002 16:56:32 +0200
+In-Reply-To: <20020719101950.A15819@suse.de>
+Message-ID: <shsy9c27asf.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207230954.36039.shaggy@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 July 2002 09:42, axel@hh59.org wrote:
-> This oops occurred during build of gcc..
-> Kernel 2.4.19-rc2-ac2.
-> About the same happens with 2.5.27. I will post an oops of jfsCommit
-> of 2.5.27 as soon as I get one.
 
-I just built gcc on 2.4.19-rc3 + latest JFS and didn't have a problem.  
-I'll repeat it on 2.4.19-rc2-ac2, but there shouldn't be more than a 
-comsmetic difference in the JFS code.  I haven't tried 2.5.27 yet.
+Hi Olaf,
 
-> ksymoops 2.4.5 on i686 2.4.19-rc2-ac2.  Options used
-  --- ksymoops output deleted ---
->
-> Trace; c0190800 <txUpdateMap+2c0/2d0>
-> Trace; c0118486 <schedule+1a6/310>
-> Trace; c0190fb3 <txLazyCommit+23/f0>
-> Trace; c01911db <jfs_lazycommit+15b/250>
-> Trace; c0105000 <_stext+0/0>
-> Trace; c010739e <kernel_thread+2e/40>
-> Trace; c0191080 <jfs_lazycommit+0/250>
->
-> Code;  c018b565 <hold_metapage+15/70>
-> 00000000 <_EIP>:
-> Code;  c018b565 <hold_metapage+15/70>   <=====
->    0:   ff 41 18                  incl   0x18(%ecx)   <=====
-> Code;  c018b568 <hold_metapage+18/70>
->    3:   85 d2                     test   %edx,%edx
+>>>>> " " == Olaf Kirch <okir@suse.de> writes:
 
-It looks like tlck->mp was null in txUpdateMap, and hold_metapage was 
-called with the null pointer.  I haven't seen this before, but I am 
-looking at the code to see if I can figure out how it may have 
-happened.  I'm guessing that you have built the kernel without 
-CONFIG_JFS_DEBUG set.  If I'm right, can you set this before you try to 
-stress JFS again.  It may help find the problem earlier.
 
-> Regards,
-> Axel Siebenwirth
+     > --- linux/fs/lockd/svclock.c.locks Mon Jun 17 13:32:21 2002
+     > +++ linux/fs/lockd/svclock.c Mon Jun 17 13:37:36 2002
+     > @@ -62,8 +62,8 @@
+     >  		nlmsvc_remove_block(block);
+     >  	bp = &nlm_blocked; if (when != NLM_NEVER) {
+     > - if ((when += jiffies) == NLM_NEVER)
+     > - when ++;
+     > + if ((when += jiffies) > NLM_NEVER)
+     > + when = NLM_NEVER;
+     >  		while ((b = *bp) &&
+     >  		time_before_eq(b->b_when,when))
+     >  			bp = &b->b_next;
+     >  	} else
 
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+I disagree. As it stands, NLM_NEVER == (~(unsigned long)0), and "when"
+is unsigned long, so the only thing we need to protect against is if
+we hit the 'magic value' NLM_NEVER. Note that the time_before_eq()
+comparison ensures that we cope well with jiffy wraparound etc, so the
+entry should *not* in fact get put at the end of the list as you
+claimed.
 
+With the above change (plus your change to set NLM_NEVER=0x7fffffff),
+we end up never retrying locks that just happen to have been put on
+the list at a time when the value of 'jiffies' happens to be > 0x7fffffff.
+
+
+-
+
+The other fix for fs/locks.c looks reasonable AFAICS (but perhaps
+Matthew wants to take a look?)
+
+-
+
+Concerning the fix implementing GRANTED_RES: I fully agree we need
+it. I've just never had the time, and it's the sort of thing that
+the Connectathon tests don't keep nagging at you with ;-)...
+
+Patrice Dumas recently did some work on implementing this both for
+NLMv1,2,3 and NLM4, so I was planning on integrating his changes into
+2.4.20.
+
+Cheers,
+  Trond

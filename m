@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129347AbQKXIwi>; Fri, 24 Nov 2000 03:52:38 -0500
+        id <S129453AbQKXI6U>; Fri, 24 Nov 2000 03:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129453AbQKXIw2>; Fri, 24 Nov 2000 03:52:28 -0500
-Received: from adsl-63-194-96-244.dsl.snlo01.pacbell.net ([63.194.96.244]:51973
-        "HELO alpha.dyndns.org") by vger.kernel.org with SMTP
-        id <S129347AbQKXIwO>; Fri, 24 Nov 2000 03:52:14 -0500
-Message-ID: <3A1E2556.CC9B24B1@i.am>
-Date: Fri, 24 Nov 2000 00:22:46 -0800
-From: "Mark W. McClelland" <mwm@i.am>
-X-Mailer: Mozilla 4.61 [en] (OS/2; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert L Martin <robertlmarti@earthlink.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "Hyper-Mount" option possible???
-In-Reply-To: <3A1D3DF9.9199C744@earthlink.net>
+        id <S129971AbQKXI6J>; Fri, 24 Nov 2000 03:58:09 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:49160 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S129453AbQKXI57>;
+        Fri, 24 Nov 2000 03:57:59 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Steven Lembark <lembark@jeeves.wrkhors.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oddity introduced between 2.4.0-test10 & -test11 
+In-Reply-To: Your message of "Thu, 23 Nov 2000 13:36:35 CDT."
+             <200011231836.NAA22001@dizzy.wrkhors.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Nov 2000 19:27:42 +1100
+Message-ID: <944.975054462@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L Martin wrote:
-> 
-> Not on list just throwing an idea out.
-> One thing that "bugs" me is if a given drive has more than one partion
-> each partion has to be mounted seperatly.
-> With CDs this also means you can not mount "split" cds in full if you
-> want to. Soo  Given that Super-Mount is already taken, How about (in
-> 2.5??)  hashing out a Hypermount option.
+On Thu, 23 Nov 2000 13:36:35 -0500, 
+Steven Lembark <lembark@jeeves.wrkhors.com> wrote:
+>make[1]: Leaving directory `/usr/src/linux-2.4.0-test11/arch/i386/lib'
+>cd /lib/modules/2.4.0-test11; \
+>mkdir -p pcmcia; \
+>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.0-test11; fi
+>depmod: depmod.c:482: addksyms: Assertion `n_syms < 10000' failed.
+>make: *** [_modinst_post] Error 134
 
-This would also make it easier to mount media that only have one
-partition. For example, some of my Zip disks have to be mounted as
-"sdb", some as "sdb1", and some as "sdb4", depending on what OS
-formatted it.
+Upgrade modutils.
 
-I think this might also be good for multisession CDs, though I'm not
-really sure how they are currently handled.
-
-> The way it could work is if you mount a full drive say "hdd" and have
-> each partion mounted on a tree from the mount point
-> of the drive.
-
-This would require mount to check for a partition table first, since
-"hdd" could either mean "hdd as a partitionless device" or "all devices
-on hdd". This check could probably even be done in user space, along
-with "hyper-mount". Maybe someone has done it already; I'll have to
-check freshmeat :) 
-
--- 
-Mark McClelland
-mwm@i.am
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

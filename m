@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282122AbRLDGIF>; Tue, 4 Dec 2001 01:08:05 -0500
+	id <S282118AbRLDGKq>; Tue, 4 Dec 2001 01:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282121AbRLDGHz>; Tue, 4 Dec 2001 01:07:55 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:40320 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S282122AbRLDGHm>; Tue, 4 Dec 2001 01:07:42 -0500
-Message-ID: <3C0C682A.6030707@optonline.net>
-Date: Tue, 04 Dec 2001 01:07:38 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S282111AbRLDGKg>; Tue, 4 Dec 2001 01:10:36 -0500
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:56828 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S282109AbRLDGKS>; Tue, 4 Dec 2001 01:10:18 -0500
+From: junio@siamese.dhis.twinsun.com
+To: erik.tews@gmx.net (Erik Tews)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange messages with 2.4.16
+In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org>
+Date: 03 Dec 2001 22:10:13 -0800
+In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org>
+Message-ID: <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+>>>>> "Erik" == Erik Tews <erik.tews@gmx.net> writes:
 
->
-> Well, your second version of the file had the merge done right (my 
-> code didn't include S/PDIF support or PM support, so those parts were 
-> different, but the parts that were the same as my code were done 
-> correctly).  I'm attaching a patch that bumps the code from your 0.05b 
-> to a unified 0.06 and I'm also placing the 0.06 i810_audio.c.gz file 
-> on my web site in the same place that I put the 0.05 version.  If 
-> people could please test this and report problems back, I would like 
-> to get this one off my plate (aka, I don't want to hear any more about 
-> artsd not working ever again so I want testers to tell me that it's 
-> fixed ;-)
+Erik> invalidate: busy buffer
 
-You'll need to do something like add "clocking = 48000;" right before 
-the call to i810_set_dac_rate in i810_configure_clocking() to avoid a 
-divide by zero.
+Erik> ... What do they want to
+Erik> tell me? Has anybody else seen this messages?
+
+I see them during shutdown (or reboot); a quick grep shows that
+they are coming from fs/buffer.c: invalidate_bdev().  My kernel
+is with RAID-1, and without lvm.
 

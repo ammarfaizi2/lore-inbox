@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268088AbTBWJ0g>; Sun, 23 Feb 2003 04:26:36 -0500
+	id <S268085AbTBWJYa>; Sun, 23 Feb 2003 04:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268089AbTBWJ0f>; Sun, 23 Feb 2003 04:26:35 -0500
-Received: from [144.139.35.78] ([144.139.35.78]:1158 "EHLO portal.frood.au")
-	by vger.kernel.org with ESMTP id <S268088AbTBWJ0G>;
-	Sun, 23 Feb 2003 04:26:06 -0500
-Message-ID: <3E58960C.9060900@bigpond.com>
-Date: Sun, 23 Feb 2003 20:36:12 +1100
-From: James Harper <james.harper@bigpond.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG? SA_INTERRUPT and shared IRQs
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S268086AbTBWJY3>; Sun, 23 Feb 2003 04:24:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45533 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268085AbTBWJY3>;
+	Sun, 23 Feb 2003 04:24:29 -0500
+Date: Sun, 23 Feb 2003 01:18:16 -0800 (PST)
+Message-Id: <20030223.011816.108201183.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, kuznet@ms2.inr.ac.ru,
+       usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Functions Clean-up
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021103.115427.104445233.yoshfuji@linux-ipv6.org>
+References: <20021103.115427.104445233.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm having a problem with crashes which i think is to do with shared 
-irq's. i have too many things hanging off my PCI bus... dammit.
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Sun, 03 Nov 2002 11:54:27 +0900 (JST)
+   
+   This patch cleans up functions in ipv6 stack:
+   
+    - export route6_me_harder() as ip6_route_harder() and
+      use it from net/ipv6/netfilter/ip6_queue.c.
+    - make ip6_addr_prefix() to generate prefix of given address and
+      prefix length, instead of doing "ipv6_copy_addr() then
+      ipv6_wash_prefix()."
+   
+Please change new name to ip6_route_me_harder().  When one
+says "something me harder" is has amusing implications when
+heard by most english speakers and I'd like to keep this :-)
 
-on IRQ 19 i have:
-wlan0 (prism2 based wireless card running hostap)
-ens1371 (soundcard)
-uhci-hcd (USB driver)
+I will apply this patch once you make the change.  Would you
+like me to add it to 2.4.x as well?
 
-wlan0 and uhci-hcd call request_irq with SA_SHIRQ
-ens1371 calles request_irq with SA_SHIRQ | SA_INTERRUPT
+We really need to revisit USAGI patch backlog.  I have and will apply
+privacy extension 2.5.x patch you sent.  For all the others please
+feel free to "patch bomb" me :-) Please indicate with each patch
+whether the it is desired in 2.4.x as well.
 
-the code that calls the interrupt handlers appears to be: 
-(arch/i386/kernel/irq.c)
-
-int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct 
-irqaction * action)
-{
-        int status = 1; /* Force the "do bottom halves" bit */
-
-        if (!(action->flags & SA_INTERRUPT))
-                local_irq_enable();
-
-        do {
-                status |= action->flags;
-                action->handler(irq, action->dev_id, regs);
-                action = action->next;
-        } while (action);
-        if (status & SA_SAMPLE_RANDOM)
-                add_interrupt_randomness(irq);
-        local_irq_disable();
-
-        return status;
-}
-
-which looks to me that interrupts are going to get enabled if the 
-_first_ handler in the chain _doesn't_ have SA_INTERRUPT set, which 
-isn't the behaviour i'd expect. a later handler might freak if it makes 
-the assumption that interrupts are disabled (or maybe this doesn't 
-happen)...
-
-i'm not sure what the correct thing to do here is... is it okay to 
-enable or disable interrupts for each handler depending on their own 
-SA_INTERRUPT flag? if that's the case then the patch is trivial...
-
-thanks
-
-James
-
+If you wish to concentrate on ipv6 ipsec first, that is ok too. :-)
 

@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRJCJS0>; Wed, 3 Oct 2001 05:18:26 -0400
+	id <S271845AbRJCJXj>; Wed, 3 Oct 2001 05:23:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271777AbRJCJSP>; Wed, 3 Oct 2001 05:18:15 -0400
-Received: from t2.redhat.com ([199.183.24.243]:64507 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S271741AbRJCJSJ>; Wed, 3 Oct 2001 05:18:09 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011003063110.AAA11976@shell.webmaster.com@whenever> 
-In-Reply-To: <20011003063110.AAA11976@shell.webmaster.com@whenever> 
-To: David Schwartz <davids@webmaster.com>
-Cc: kaos@ocs.com.au, Linux-Kernel (E-mail) <linux-kernel@vger.kernel.org>
-Subject: Re: Getting system time in kernel.. 
+	id <S272122AbRJCJX3>; Wed, 3 Oct 2001 05:23:29 -0400
+Received: from [195.72.14.134] ([195.72.14.134]:59404 "HELO ipv6.isternet.sk")
+	by vger.kernel.org with SMTP id <S271845AbRJCJXP>;
+	Wed, 3 Oct 2001 05:23:15 -0400
+Date: Wed, 3 Oct 2001 11:23:42 +0200
+From: Jan Oravec <wsx@wsx6.net>
+To: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: IPv6 neighbor solicitation -> no response
+Message-ID: <20011003112342.B50545@ipv6.isternet.sk>
+Reply-To: Jan Oravec <wsx@wsx6.net>
+In-Reply-To: <20010930145627.A32407@ipv6.isternet.sk> <200110011923.XAA14289@ms2.inr.ac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Oct 2001 10:18:15 +0100
-Message-ID: <30732.1002100695@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110011923.XAA14289@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Mon, Oct 01, 2001 at 11:23:27PM +0400
+X-Operating-System: UNIX
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-davids@webmaster.com said:
+> > After upgrade from 2.2 to 2.4 kernel machine stopped answering IPv6 neighbor solicitation requests on pointtopoint interfaces.
 > 
-> 	2) Making local time offsets tuneable for each case where you need
-> one. The  physical location of the machine might or might not be
-> meaningful.
-
-Indeed. So you make the GMT offset a mount-time parameter for your 
-filesystem, and the question of how to find the current localtime in the 
-part of the world where the machine's primary console happens to stick out 
-remains meaningless.
-
-
---
-dwmw2
+> What kind of pointopont interface?
+sit tunnel (IPv6 over IPv4)
+> 
+> > 14:50:05.762924 fe80::201:2ff:fe0f:b5a2 > fe80::3e8c:1d09: icmp6: neighbor sol: who has fe80::3e8c:1d09
+> 
+> Are you sure that machine really has this address: fe80::3e8c:1d09?
+Yes, I am sure, because I am receiving packets from fe80::3e8c:1d09 thru this tunnel...
 
 
+Here is the example (another Linux (2.4.8), so address isn't fe80::3e8c:1d09):
+$ /sbin/ifconfig sit1
+sit1      Link encap:IPv6-in-IPv4
+          inet6 addr: fe80::c348:987/10 Scope:Link
+          inet6 addr: 3ffe:80e8:2::2/64 Scope:Global
+          inet6 addr: fe80::a00:1/10 Scope:Link
+          inet6 addr: fe80::c0a8:6401/10 Scope:Link
+          UP POINTOPOINT RUNNING NOARP  MTU:1480  Metric:1
+          RX packets:6050 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:6097 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:1083250 (1.0 Mb)  TX bytes:629382 (614.6 Kb)
+
+(server has multiple network cards, so it has multiple link-local addresses)
+
+When I am trying to send packets there (from another side of tunnel):
+11:13:45.520765 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
+11:13:46.520777 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
+11:13:47.520796 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
+
+packets arrive OK, I get answer from fe80::c348:987, but I don't receive answer from neighbor solicitation.
+other OS I tried (FreeBSD, Linux 2.2) are answering correctly:
+
+11:21:41.527954 fe80::201:2ff:fe0f:b5a2 > fe80::201:2ff:fea8:2f55: icmp6: neighbor sol: who has fe80::201:2ff:fea8:2f55
+11:21:41.541748 fe80::201:2ff:fea8:2f55 > fe80::201:2ff:fe0f:b5a2: icmp6: neighbor adv: tgt is fe80::201:2ff:fea8:2f55
+
+
+Regards,
+
+Jan

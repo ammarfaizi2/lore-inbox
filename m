@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVBBM3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVBBM3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVBBM3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 07:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVBBM3S
+	id S262381AbVBBM3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 07:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVBBM3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 07:29:18 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:37076 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S262553AbVBBM3F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 07:29:05 -0500
-Date: Wed, 02 Feb 2005 21:21:52 +0900 (JST)
-Message-Id: <20050202.212152.27799149.taka@valinux.co.jp>
-To: clameter@sgi.com
-Cc: kenneth.w.chen@intel.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V2 [3/8]: simple numa compatible
- allocator
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <Pine.LNX.4.58.0410251828060.12962@schroedinger.engr.sgi.com>
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
-	<Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0410251828060.12962@schroedinger.engr.sgi.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Wed, 2 Feb 2005 07:29:54 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:63909 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262525AbVBBM3k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 07:29:40 -0500
+References: <1107228501.41fef755e66e8@webmail.grupopie.com>
+            <84144f0205020108441679cbef@mail.gmail.com>
+            <41FFB5A1.20100@grupopie.com>
+            <84144f02050201232324bebb3f@mail.gmail.com>
+            <4200C4D3.9060805@grupopie.com>
+In-Reply-To: <4200C4D3.9060805@grupopie.com>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Pekka Enberg <penberg@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: 1/7 create kstrdup library function
+Date: Wed, 02 Feb 2005 14:29:39 +0200
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-ID: <courier.4200C7B3.00003E1B@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+Paulo Marques writes:
+> I agree with the "is like kcalloc" argument in the sense that it does an 
+> allocation + something else. But in this case the "something else" is in 
+> fact a string operation, so this just seem to be in the middle.
 
+Sure, but now you're forcing all users of <string.h> to depend on the slab 
+as well. Conceptually, kstrdup() is an initializing memory allocator, not a 
+string operation, which is why I think it should go into slab.c. 
 
-> Changelog
-> 	* Simple NUMA compatible allocation of hugepages in the nearest node
+Paulo Marques writes:
+> I don't like this approach. From a quick grep you get 4972 kmalloc's in .c 
+> files in the kernel tree and only 35 kstrdup's. Moving kstrdup around is 
+> still just 7 patches, kmalloc is a much bigger problem.
+
+Hmm? Yes, moving the declaration from slab.h to some other header is 
+painful. I only talked about moving the definition from slab.c. 
+
+Paulo Marques writes:
+> Anyway, as I said before, if more people believe that moving kstrdup into 
+> mm/slab.c is the way to go, then its fine by me. The problem I was trying 
+> to solve was having several versions of strdup-like functions all around 
+> the kernel, and this problem gets fixed either way. Right now, the poll 
+> goes something like this: 
 > 
-> Index: linux-2.6.9/mm/hugetlb.c
-> ===================================================================
-> --- linux-2.6.9.orig/mm/hugetlb.c	2004-10-22 13:28:27.000000000 -0700
-> +++ linux-2.6.9/mm/hugetlb.c	2004-10-25 16:56:22.000000000 -0700
-> @@ -32,14 +32,17 @@
->  {
->  	int nid = numa_node_id();
->  	struct page *page = NULL;
-> -
-> -	if (list_empty(&hugepage_freelists[nid])) {
-> -		for (nid = 0; nid < MAX_NUMNODES; ++nid)
-> -			if (!list_empty(&hugepage_freelists[nid]))
-> -				break;
-> +	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
-
-
-I think the previous line should be replaced with
-
-struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists + __GFP_HIGHMEM;
-
-because NODE_DATA(nid)->node_zonelists means a zonelist for __GFP_DMA zones.
-__GFP_HIGHMEM would be suitable for hugetlbpages.
-
-
-> +	struct zone **zones = zonelist->zones;
-> +	struct zone *z;
-> +	int i;
-> +
-> +	for(i=0; (z = zones[i])!= NULL; i++) {
-> +		nid = z->zone_pgdat->node_id;
-> +		if (!list_empty(&hugepage_freelists[nid]))
-> +			break;
->  	}
-> -	if (nid >= 0 && nid < MAX_NUMNODES &&
-> -	    !list_empty(&hugepage_freelists[nid])) {
-> +	if (z) {
->  		page = list_entry(hugepage_freelists[nid].next,
->  				  struct page, lru);
->  		list_del(&page->lru);
+> string.c: me, Rusty Russell
+> slab.c: Pekka Enberg 
 > 
-> -
+> I think we need more votes :)
 
-Thanks,
-Hirokazu Takahashi.
+Could we also get Rusty's confirmation on this? 
+
+       Pekka 
+

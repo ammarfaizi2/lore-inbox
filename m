@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136779AbREAXtN>; Tue, 1 May 2001 19:49:13 -0400
+	id <S136781AbREBAA7>; Tue, 1 May 2001 20:00:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136777AbREAXtD>; Tue, 1 May 2001 19:49:03 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:4748 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S136781AbREAXsz>;
-	Tue, 1 May 2001 19:48:55 -0400
-Date: Tue, 1 May 2001 16:48:53 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <15086.48447.264388.289216@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0105011644280.15751-100000@age.cs.columbia.edu>
+	id <S136775AbREBAAu>; Tue, 1 May 2001 20:00:50 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:37086 "EHLO
+	c0mailgw03.prontomail.com") by vger.kernel.org with ESMTP
+	id <S136777AbREBAAV>; Tue, 1 May 2001 20:00:21 -0400
+Message-ID: <3AEF4DCB.99D69E5B@mvista.com>
+Date: Tue, 01 May 2001 16:59:07 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+CC: Erik Hensema <erik@hensema.xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Meaning of major kernel version number
+In-Reply-To: <20010501224943.A21208@hensema.xs4all.nl> <01050123011105.04685@idun>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, Trond Myklebust wrote:
-
->      > I'll give your patch a spin tomorrow, after I catch some
->      > zzz's. :-)
+Oliver Neukum wrote:
 > 
-> Right you are.
-
-And indeed, the tcp-hang patch fixed the problem! Thanks a lot!
-
-> FYI I've now put up those patches of which I am aware against 2.2.19
-> on
+> On Tuesday,  1. May 2001 22:49, Erik Hensema wrote:
+> > Hi,
+> >
+> > A little question which may be a FAQ: what does the major version number
+> > [1] of the Linux kernel (still) mean? What is the policy on increasing the
+> > major version (eg. on what basis it is decided the next kernel isn't going
+> > to be 2.6 but 3.0)?
 > 
->   http://www.fys.uio.no/~trondmy/src/2.2.19
+> Our great fearless leader will talk with the penguin beyond the sky.
 > 
-> I'll try to keep that area updated with a brief explanation for each
-> patch...
+>         HTH
+>                 Oliver
+> -
+One definition might be that it changes when user code must be relinked
+to work with the next version.
 
-That's where I tried looking first, two days ago, but couldn't find 
-anything, and I must have overlooked the patch you sent to the list.
-
-Thanks for crediting me, btw. :-) Just one little nit: the readdir() 
-problem appears only when using glibc-2.0, glibc-2.1 seems to be fine.
-
-Thanks again to everybody,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+George

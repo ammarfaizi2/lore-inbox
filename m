@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSKKUDN>; Mon, 11 Nov 2002 15:03:13 -0500
+	id <S266010AbSKKUBz>; Mon, 11 Nov 2002 15:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261177AbSKKUDL>; Mon, 11 Nov 2002 15:03:11 -0500
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:45258 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S261173AbSKKUDI>; Mon, 11 Nov 2002 15:03:08 -0500
-Date: Mon, 11 Nov 2002 21:09:43 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: 2.5.47: Uninitialized timer in bttv code
-Message-Id: <20021111210943.57e10a14.us15@os.inf.tu-dresden.de>
-In-Reply-To: <3DCFF14F.3BAB81A6@digeo.com>
-References: <20021111182641.104131b6.us15@os.inf.tu-dresden.de>
-	<3DCFF14F.3BAB81A6@digeo.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.5claws117 (GTK+ 1.2.10; Linux 2.5.47)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.,Ijn8H.CcFzI7s"
+	id <S266015AbSKKUBy>; Mon, 11 Nov 2002 15:01:54 -0500
+Received: from ns.suse.de ([213.95.15.193]:20234 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266010AbSKKUBy>;
+	Mon, 11 Nov 2002 15:01:54 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Ray Lee <ray-lk@madrabbit.org>, <hps@intermeta.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+References: <Pine.LNX.4.33L2.0211111019300.23954-100000@dragon.pdx.osdl.net>
+X-Yow: Yow!  Are we wet yet?
+From: Andreas Schwab <schwab@suse.de>
+Date: Mon, 11 Nov 2002 21:08:41 +0100
+In-Reply-To: <Pine.LNX.4.33L2.0211111019300.23954-100000@dragon.pdx.osdl.net> ("Randy.Dunlap"'s
+ message of "Mon, 11 Nov 2002 11:09:28 -0800 (PST)")
+Message-ID: <je1y5rhnsm.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.,Ijn8H.CcFzI7s
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-On Mon, 11 Nov 2002 10:05:03 -0800 Andrew Morton (AM) wrote:
+|> Andreas Schwab wrote:
+|> |> IOW, asking for an unsigned number (in the format string)
+|> |> and getting "-123" does return 0.
+|> 
+|> | Not in C.  According to the standard scanf is supposed to convert the
+|> | value to unsinged and return that.
+|> OK, thanks, I found that in the C spec.
+|> 
+|> Now what does it mean to "convert the value to an unsigned and return
+|> that."  This is the same as above, isn't it?
+|> I.e., on the scanf() side, there is no conversion needed; just store the
+|> value.
 
-AM> Here you go.
-AM> 
-AM> I need to do another full pass across the tree to pick up the dynamically
-AM> allocated timers.
+The C standard also supports ones-complement and sign-magnitude
+representation of signed integers where signed<->unsigned conversion is a
+non-trivial operation in the sense that the bit representation does
+change.  And scanf knows the signedness of the destination due to the
+format spec.
 
-Thanks, works like a charm.
+Andreas.
 
-Regards,
--Udo.
-
---=.,Ijn8H.CcFzI7s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE90A6KnhRzXSM7nSkRAocQAJ9JDq711JsKNu749tddRBcMW4GgMQCggt6k
-HdRcpG32PL8+x+RxK2aY4kE=
-=7K+a
------END PGP SIGNATURE-----
-
---=.,Ijn8H.CcFzI7s--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

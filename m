@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316492AbSFEWbz>; Wed, 5 Jun 2002 18:31:55 -0400
+	id <S316503AbSFEWdv>; Wed, 5 Jun 2002 18:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316523AbSFEWby>; Wed, 5 Jun 2002 18:31:54 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:65272 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316492AbSFEWbx>; Wed, 5 Jun 2002 18:31:53 -0400
-Date: Wed, 5 Jun 2002 18:31:52 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Steve Lord <lord@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-Message-ID: <20020605183152.H4697@redhat.com>
-In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com>
+	id <S316533AbSFEWdt>; Wed, 5 Jun 2002 18:33:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:23948 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316503AbSFEWd0>;
+	Wed, 5 Jun 2002 18:33:26 -0400
+Date: Wed, 05 Jun 2002 15:29:59 -0700 (PDT)
+Message-Id: <20020605.152959.98861473.davem@redhat.com>
+To: ink@jurassic.park.msu.ru
+Cc: mochel@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020605182316.B3437@jurassic.park.msu.ru>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 05:15:23PM -0500, Steve Lord wrote:
-> Just what are the tasks you normally run - and how many code
-> paths do you think there are out there which you do not run. XFS
-> might get a bit stack hungry in places, we try to keep it down,
-> but when you get into file system land things can stack up quickly:
+   From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+   Date: Wed, 5 Jun 2002 18:23:16 +0400
 
-You already lose in that case today, as multiple irqs may come in 
-from devices and eat up the stack.  The whole thing that led me down 
-this line is seeing it happen in real life.  What remains to be done 
-is to write an automated stack depth checker based on possible call 
-chains that will calculate the maximum possible stack depth.  I've 
-already got scripts for dumping the top stack users, it's a matter 
-of writing code that can show us the possible call chains.
-
-		-ben
+   On Tue, Jun 04, 2002 at 03:03:33PM -0700, Patrick Mochel wrote:
+   > -subsys_initcall(pci_driver_init);
+   > +postcore_initcall(pci_driver_init);
+   
+   Fine, but my main objection was to pci_driver_init being an initcall
+   in general, no matter in what level. With current code we may have
+   pci_bus_type registered on a machine without PCI bus.
+   Real life example: jensen running generic alpha kernel.
+   
+Ok, then we should have pci_driver_init called from the beginning
+of pcibios_init if PCI controllers are found.

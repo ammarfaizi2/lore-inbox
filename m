@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUCKXHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 18:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUCKXHS
+	id S261809AbUCKXL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 18:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbUCKXL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 18:07:18 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:42892 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261807AbUCKXHQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 18:07:16 -0500
-Message-ID: <4050F26A.8050405@tmr.com>
-Date: Thu, 11 Mar 2004 18:12:42 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Thu, 11 Mar 2004 18:11:27 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:15370 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id S261809AbUCKXLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 18:11:17 -0500
+Date: Fri, 12 Mar 2004 00:10:47 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.local
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Adam Sampson <azz@us-lot.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: smbfs Oops with Linux 2.6.3
+In-Reply-To: <Pine.LNX.4.58.0403110124390.29087@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44.0403112355350.8470-100000@cola.local>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org> <52ad2o4j4b.fsf@topspin.com> <404F6BF8.9010405@blue-labs.org> <52y8q82y29.fsf@topspin.com> <yw1xk71sxsu9.fsf@kth.se>
-In-Reply-To: <yw1xk71sxsu9.fsf@kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> Roland Dreier <roland@topspin.com> writes:
-> 
-> 
->>    David> No, the problem is your mail reader or configuration is
->>    David> broken.  Both Pine and Mutt both wrap lines just fine,
->>    David> and all the GUI interface I've used (in recent years)
->>    David> wrap just fine.  a) they aren't recognizing soft line
->>    David> breaks or b) you're not acknowledging lines sent without
->>    David> any wraps.
->>
->>How do these mail readers wrap quotes like the above?
-> 
-> 
-> Don't know about those, but gnus does a good job.  BTW, quotes should
-> use the string "> " at column 0, nothing else.
+On Thu, 11 Mar 2004, Zwane Mwaikambo wrote:
 
-Feel free to do that. After about 3-4 levels of quote replacing ">>>>" 
-with a name makes it more readable. I'm not suggesting making that a 
-standard, but I certainly won't complain about someone making my life 
-easier, either.
--- 
-		-bill
+> Two patches applied in this order;
+> 
+> patch-smbfs-readdir-oops
+>  fs/smbfs/inode.c          |    1 +
+>  fs/smbfs/proc.c           |   45 ++++++++++++++++++++++++++++++++++++++++++---
+>  include/linux/smb_fs_sb.h |    2 +-
+>  3 files changed, 44 insertions(+), 4 deletions(-)
+> 
+> patch-smbfs-rcls-cleanup
+>  fs/smbfs/proc.c           |   12 ++++++------
+>  include/linux/smb_fs_sb.h |    3 ---
+>  2 files changed, 6 insertions(+), 9 deletions(-)
+> 
+> I avoided adding the BUG() placeholders, since we will PF# when we hit the
+> NULL pointer and the call trace should give us a decent idea of where it
+> is.
+
+Not quite there yet.
+
+I have added a sleep(10); in send_fs_socket (smbmount) to give me time to 
+send other requests to the fs. Here is what I get when I run the mount and 
+two 'ls' in parallel:
+
+1. smbmount mounts and goes to sleep
+2. ls 1 ends up in smb_proc_ops_wait
+3. ls 2 ends up in smb_proc_ops_wait
+4. smbmount wakes up and passes the socket to smbfs
+
+5a. ls 1 & 2 are woken and lists files
+
+5b. Everyone is waiting for ls 1 (or 2 I don't know) to timeout.
+6b. ls 1 lists nothing because of the timeout
+7b. ls 2 lists normally
+
+
+The difference between a and b is that in the first case I wait a few 
+seconds between the two ls' but in the second I run the within one second 
+of each other.
+
+Some debug printks give:
+
+a:
+smb_proc_getattr_null: 
+smb_proc_ops_wait: state: 1
+smb_proc_getattr_null: 
+smb_proc_ops_wait: state: 1
+(here it waits for smbmount to do the ioctl)
+smb_proc_ops_wait: result: 26192
+smb_proc_ops_wait: result: 23014
+
+b:
+smb_proc_readdir_null: 
+smb_proc_ops_wait: state: 1
+smb_proc_getattr_null: 
+smb_proc_ops_wait: state: 1
+(here it waits for smbmount to do the ioctl)
+smb_proc_ops_wait: result: 0
+smb_proc_ops_wait: result: 682
+
+
+The difference must be that in a the inode data for the root inode is not 
+considered current when the second ls runs, but I don't understand why the 
+readdir is printed before the getattr.
+
+/Urban
+

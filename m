@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUGHNId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263824AbUGHNIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbUGHNId (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 09:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUGHNDg
+	id S263824AbUGHNIe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 09:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUGHND1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 09:03:36 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:17339 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S263824AbUGHNBd (ORCPT
+	Thu, 8 Jul 2004 09:03:27 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:14779 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S264396AbUGHNBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 09:01:33 -0400
-Subject: [PATCH 4/5] 2.6.7-mm6, CRC16 renaming in PPP driver
-In-Reply-To: <10892916872918@donpac.ru>
+	Thu, 8 Jul 2004 09:01:32 -0400
+Subject: [PATCH 3/5] 2.6.7-mm6, CRC16 renaming in ISDN drivers
+In-Reply-To: <10892916843577@donpac.ru>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Thu, 8 Jul 2004 17:01:30 +0400
-Message-Id: <10892916902912@donpac.ru>
+Date: Thu, 8 Jul 2004 17:01:27 +0400
+Message-Id: <10892916872918@donpac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
@@ -25,41 +25,108 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
- drivers/net/ppp_async.c  |    2 +-
- include/linux/ppp_defs.h |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/isdn/hisax/isdnhdlc.c    |    6 +++---
+ drivers/isdn/hisax/st5481_hdlc.c |    6 +++---
+ drivers/isdn/tpam/tpam_crcpc.c   |    8 ++++----
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm5.vanilla/drivers/net/ppp_async.c linux-2.6.7-mm5/drivers/net/ppp_async.c
---- linux-2.6.7-mm5.vanilla/drivers/net/ppp_async.c	Thu Jul  1 20:58:12 2004
-+++ linux-2.6.7-mm5/drivers/net/ppp_async.c	Thu Jul  1 22:47:57 2004
-@@ -24,7 +24,7 @@
- #include <linux/tty.h>
- #include <linux/netdevice.h>
- #include <linux/poll.h>
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm5.vanilla/drivers/isdn/hisax/isdnhdlc.c linux-2.6.7-mm5/drivers/isdn/hisax/isdnhdlc.c
+--- linux-2.6.7-mm5.vanilla/drivers/isdn/hisax/isdnhdlc.c	Thu Jul  1 20:58:08 2004
++++ linux-2.6.7-mm5/drivers/isdn/hisax/isdnhdlc.c	Thu Jul  1 22:47:30 2004
+@@ -22,7 +22,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/init.h>
 -#include <linux/crc16.h>
 +#include <linux/crc-ccitt.h>
- #include <linux/ppp_defs.h>
- #include <linux/if_ppp.h>
- #include <linux/ppp_channel.h>
-diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm5.vanilla/include/linux/ppp_defs.h linux-2.6.7-mm5/include/linux/ppp_defs.h
---- linux-2.6.7-mm5.vanilla/include/linux/ppp_defs.h	Thu Jul  1 20:58:31 2004
-+++ linux-2.6.7-mm5/include/linux/ppp_defs.h	Thu Jul  1 22:45:25 2004
-@@ -42,7 +42,7 @@
- #ifndef _PPP_DEFS_H_
- #define _PPP_DEFS_H_
+ #include "isdnhdlc.h"
+ 
+ /*-------------------------------------------------------------------*/
+@@ -305,7 +305,7 @@ int isdnhdlc_decode (struct isdnhdlc_var
+ 			if(hdlc->data_bits==8){
+ 				hdlc->data_bits = 0;
+ 				hdlc->data_received = 1;
+-				hdlc->crc = crc16_byte(hdlc->crc, hdlc->shift_reg);
++				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
+ 
+ 				// good byte received
+ 				if (dsize--) {
+@@ -482,7 +482,7 @@ int isdnhdlc_encode(struct isdnhdlc_vars
+ 				break;
+ 			}
+ 			if(hdlc->bit_shift==8){
+-				hdlc->crc = crc16_byte(hdlc->crc, hdlc->shift_reg);
++				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
+ 			}
+ 			if(hdlc->shift_reg & 0x01){
+ 				hdlc->hdlc_bits1++;
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm5.vanilla/drivers/isdn/hisax/st5481_hdlc.c linux-2.6.7-mm5/drivers/isdn/hisax/st5481_hdlc.c
+--- linux-2.6.7-mm5.vanilla/drivers/isdn/hisax/st5481_hdlc.c	Thu Jul  1 20:58:08 2004
++++ linux-2.6.7-mm5/drivers/isdn/hisax/st5481_hdlc.c	Thu Jul  1 22:47:08 2004
+@@ -10,7 +10,7 @@
+  *
+  */
  
 -#include <linux/crc16.h>
 +#include <linux/crc-ccitt.h>
+ #include "st5481_hdlc.h"
  
- /*
-  * The basic PPP frame.
-@@ -97,7 +97,7 @@
  
- #define PPP_INITFCS	0xffff	/* Initial FCS value */
- #define PPP_GOODFCS	0xf0b8	/* Good final FCS value */
--#define PPP_FCS(fcs, c) crc16_byte(fcs, c)
-+#define PPP_FCS(fcs, c) crc_ccitt_byte(fcs, c)
+@@ -262,7 +262,7 @@ int hdlc_decode(struct hdlc_vars *hdlc, 
+ 			if(hdlc->data_bits==8){
+ 				hdlc->data_bits = 0;
+ 				hdlc->data_received = 1;
+-				hdlc->crc = crc16_byte(hdlc->crc, hdlc->shift_reg);
++				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
  
- /*
-  * Extended asyncmap - allows any character to be escaped.
+ 				// good byte received
+ 				if (dsize--) {
+@@ -439,7 +439,7 @@ int hdlc_encode(struct hdlc_vars *hdlc, 
+ 				break;
+ 			}
+ 			if(hdlc->bit_shift==8){
+-				hdlc->crc = crc16_byte(hdlc->crc, hdlc->shift_reg);
++				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
+ 			}
+ 			if(hdlc->shift_reg & 0x01){
+ 				hdlc->hdlc_bits1++;
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm5.vanilla/drivers/isdn/tpam/tpam_crcpc.c linux-2.6.7-mm5/drivers/isdn/tpam/tpam_crcpc.c
+--- linux-2.6.7-mm5.vanilla/drivers/isdn/tpam/tpam_crcpc.c	Thu Jul  1 20:58:09 2004
++++ linux-2.6.7-mm5/drivers/isdn/tpam/tpam_crcpc.c	Thu Jul  1 22:46:06 2004
+@@ -27,7 +27,7 @@ Revision History:
+ 
+ ---------------------------------------------------------------------------*/
+ 
+-#include <linux/crc16.h>
++#include <linux/crc-ccitt.h>
+ #include "tpam.h"
+ 
+ #define  HDLC_CTRL_CHAR_CMPL_MASK	0x20	/* HDLC control character complement mask */
+@@ -85,7 +85,7 @@ void hdlc_encode_modem(u8 *buffer_in, u3
+ 		/*
+ 		 *   FCS calculation
+ 		 */
+-		fcs = crc16_byte(fcs, data);
++		fcs = crc_ccitt_byte(fcs, data);
+ 
+ 		ESCAPE_CHAR(p_data_out, data);
+ 	}
+@@ -121,7 +121,7 @@ void hdlc_no_accm_encode(u8 *buffer_in, 
+ 	while (lng_in--) {
+ 		data = *buffer_in++;
+ 		/* calculate FCS */
+-		fcs = crc16_byte(fcs, data);
++		fcs = crc_ccitt_byte(fcs, data);
+ 		*p_data_out++ = data;
+ 	}
+ 
+@@ -151,7 +151,7 @@ u32 hdlc_no_accm_decode(u8 *buffer_in, u
+ 	while (lng_in--) {
+ 		data = *buffer_in++;
+ 		/* calculate FCS */
+-		fcs = crc16_byte(fcs, data);
++		fcs = crc_ccitt_byte(fcs, data);
+ 	}
+ 
+ 	if (fcs == HDLC_FCS_OK) 
 

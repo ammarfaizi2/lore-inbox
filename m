@@ -1,145 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVB0WLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVB0WPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVB0WLj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 17:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVB0WLj
+	id S261447AbVB0WPm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 17:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVB0WPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 17:11:39 -0500
-Received: from 81-223-104-78.krugerstrasse.xdsl-line.inode.at ([81.223.104.78]:27526
-	"EHLO mail.sk-tech.net") by vger.kernel.org with ESMTP
-	id S261423AbVB0WLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 17:11:16 -0500
-Date: Sun, 27 Feb 2005 23:11:13 +0100 (CET)
-From: Kianusch Sayah Karadji <kianusch@sk-tech.net>
-To: davej@codemonkey.org.uk, hpa@zytor.com
-cc: linux-kernel@vger.kernel.org
-Subject: Support for GEODE CPU's in Kernel 2.6.10.
-Message-ID: <Pine.LNX.4.61.0502272255090.1693@merlin.sk-tech.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463783569-906303254-1109542196=:1693"
-Content-ID: <Pine.LNX.4.61.0502272310550.1693@merlin.sk-tech.net>
+	Sun, 27 Feb 2005 17:15:42 -0500
+Received: from its-mu-mail2.its.rmit.edu.au ([131.170.2.22]:27300 "EHLO
+	its-mu-mail2.its.rmit.edu.au") by vger.kernel.org with ESMTP
+	id S261447AbVB0WPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 17:15:11 -0500
+Message-Id: <s22063ea.033@its-gw-inet57.its.rmit.edu.au>
+X-Mailer: Novell GroupWise Internet Agent 6.5.3 
+Date: Sat, 26 Feb 2005 11:56:05 +1100
+From: "Hepu Deng" <hepu.deng@rmit.edu.au>
+To: "Hepu Deng" <hepu.deng@rmit.edu.au>
+Subject: ICNC'05-FSKD'05 Final Call for Papers/Special
+	Sessions/Sponsorship: Changsha China
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Reply-To: "Hepu Deng" <hepu.deng@rmit.edu.au>
+X-LOOP: hepu-conference
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
----1463783569-906303254-1109542196=:1693
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; format=flowed
-Content-ID: <Pine.LNX.4.61.0502272310551.1693@merlin.sk-tech.net>
+----------------------------------------------------------------------
+    2005 International Conference on Natural Computation (ICNC'05)
+   International Conference on Fuzzy Systems and Knowledge Discovery 
+                          (FSKD'05)
+----------------------------------------------------------------------
 
-Hi!
+                27 - 29 August 2005, Changsha, China
 
-This is a small patch for GEODE CPU support in Kernel 2.6.10.
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               Home Page: http://www.xtu.edu.cn/nc2005
+              http://www.ntu.edu.sg/home/elpwang/nc2005
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Those CPU's are found mostly in embedded systems ... one of the most 
-prominent Hardware using GEODE CPU is probably soekris net4801 
-(http://www.soekris.com).
+             *** Submission Deadline: 15 March 2005 ***
 
-This patch has been on my homepage 
-(http://www.sk-tech.net/support/soekris.html) for quite a time - but I've 
-been asked several time to have it included in the main kernel.
+      FINAL CALL FOR PAPERS, SPECIAL SESSIONS, AND SPONSORSHIP
 
-Regards
-   Kianusch
----1463783569-906303254-1109542196=:1693
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="geode.patch.2.6.10"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0502272309560.1693@merlin.sk-tech.net>
-Content-Description: geode.patch.2.6.10
-Content-Disposition: ATTACHMENT; FILENAME="geode.patch.2.6.10"
+The ICNC'05-FSKD'05 will feature the most up-to-date research results 
+in computational algorithms inspired from nature, including biological,
 
-ZGlmZiAtTnVyIGxpbnV4LTIuNi4xMC9hcmNoL2kzODYvS2NvbmZpZyBsaW51
-eC0yLjYuMTBfZ2VvZGUvYXJjaC9pMzg2L0tjb25maWcNCi0tLSBsaW51eC0y
-LjYuMTAvYXJjaC9pMzg2L0tjb25maWcJRnJpIERlYyAyNCAyMjozNDowMSAy
-MDA0DQorKysgbGludXgtMi42LjEwX2dlb2RlL2FyY2gvaTM4Ni9LY29uZmln
-CVN1biBGZWIgMjcgMjI6Mzc6NDggMjAwNQ0KQEAgLTE4Myw2ICsxODMsNyBA
-QA0KIAkgIC0gIldpbmNoaXAtQzYiIGZvciBvcmlnaW5hbCBJRFQgV2luY2hp
-cC4NCiAJICAtICJXaW5jaGlwLTIiIGZvciBJRFQgV2luY2hpcCAyLg0KIAkg
-IC0gIldpbmNoaXAtMkEiIGZvciBJRFQgV2luY2hpcHMgd2l0aCAzZE5vdyEg
-Y2FwYWJpbGl0aWVzLg0KKwkgIC0gIk1lZGlhR1gvR2VvZGUiIGZvciBDeXJp
-eCBNZWRpYUdYIGFrYSBHZW9kZS4NCiAJICAtICJDeXJpeElJSS9WSUEgQzMi
-IGZvciBWSUEgQ3lyaXggSUlJIG9yIFZJQSBDMy4NCiAJICAtICJWSUEgQzMt
-MiBmb3IgVklBIEMzLTIgIk5laGVtaWFoIiAobW9kZWwgOSBhbmQgYWJvdmUp
-Lg0KIA0KQEAgLTMxMCw2ICszMTEsMTMgQEANCiAJICBzdG9yZXMgZm9yIHRo
-aXMgQ1BVLCB3aGljaCBjYW4gaW5jcmVhc2UgcGVyZm9ybWFuY2Ugb2Ygc29t
-ZQ0KIAkgIG9wZXJhdGlvbnMuDQogDQorY29uZmlnIE1HRU9ERQ0KKwlib29s
-ICJNZWRpYUdYL0dlb2RlIg0KKwloZWxwDQorCSAgU2VsZWN0IHRoaXMgZm9y
-IGEgQ3lyaXggTWVkaWFHWCBha2EgR2VvZGUgY2hpcC4gTGludXggYW5kIEdD
-Qw0KKyAgICAgICAgICB0cmVhdCB0aGlzIGNoaXAgYXMgYSA1ODZUU0Mgd2l0
-aCBzb21lIGV4dGVuZGVkIGluc3RydWN0aW9ucw0KKyAgICAgICAgICBhbmQg
-YWxpZ25tZW50IHJlcWlyZW1lbnRzLg0KKw0KIGNvbmZpZyBNQ1lSSVhJSUkN
-CiAJYm9vbCAiQ3lyaXhJSUkvVklBLUMzIg0KIAloZWxwDQpAQCAtMzYwLDcg
-KzM2OCw3IEBADQogCWludA0KIAlkZWZhdWx0ICI3IiBpZiBNUEVOVElVTTQg
-fHwgWDg2X0dFTkVSSUMNCiAJZGVmYXVsdCAiNCIgaWYgWDg2X0VMQU4gfHwg
-TTQ4NiB8fCBNMzg2DQotCWRlZmF1bHQgIjUiIGlmIE1XSU5DSElQM0QgfHwg
-TVdJTkNISVAyIHx8IE1XSU5DSElQQzYgfHwgTUNSVVNPRSB8fCBNRUZGSUNF
-T04gfHwgTUNZUklYSUlJIHx8IE1LNiB8fCBNUEVOVElVTUlJSSB8fCBNUEVO
-VElVTUlJIHx8IE02ODYgfHwgTTU4Nk1NWCB8fCBNNTg2VFNDIHx8IE01ODYg
-fHwgTVZJQUMzXzINCisJZGVmYXVsdCAiNSIgaWYgTVdJTkNISVAzRCB8fCBN
-V0lOQ0hJUDIgfHwgTVdJTkNISVBDNiB8fCBNQ1JVU09FIHx8IE1FRkZJQ0VP
-TiB8fCBNQ1lSSVhJSUkgfHwgTUs2IHx8IE1QRU5USVVNSUlJIHx8IE1QRU5U
-SVVNSUkgfHwgTTY4NiB8fCBNNTg2TU1YIHx8IE01ODZUU0MgfHwgTTU4NiB8
-fCBNVklBQzNfMiB8fCBNR0VPREUNCiAJZGVmYXVsdCAiNiIgaWYgTUs3IHx8
-IE1LOCB8fCBNUEVOVElVTU0NCiANCiBjb25maWcgUldTRU1fR0VORVJJQ19T
-UElOTE9DSw0KQEAgLTM3NSw3ICszODMsNyBAQA0KIA0KIGNvbmZpZyBYODZf
-UFBST19GRU5DRQ0KIAlib29sDQotCWRlcGVuZHMgb24gTTY4NiB8fCBNNTg2
-TU1YIHx8IE01ODZUU0MgfHwgTTU4NiB8fCBNNDg2IHx8IE0zODYNCisJZGVw
-ZW5kcyBvbiBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRTQyB8fCBNNTg2IHx8
-IE00ODYgfHwgTTM4NiB8fCBNR0VPREUNCiAJZGVmYXVsdCB5DQogDQogY29u
-ZmlnIFg4Nl9GMDBGX0JVRw0KQEAgLTQwNSw3ICs0MTMsNyBAQA0KIA0KIGNv
-bmZpZyBYODZfQUxJR05NRU5UXzE2DQogCWJvb2wNCi0JZGVwZW5kcyBvbiBN
-V0lOQ0hJUDNEIHx8IE1XSU5DSElQMiB8fCBNV0lOQ0hJUEM2IHx8IE1DWVJJ
-WElJSSB8fCBYODZfRUxBTiB8fCBNSzYgfHwgTTU4Nk1NWCB8fCBNNTg2VFND
-IHx8IE01ODYgfHwgTTQ4NiB8fCBNVklBQzNfMg0KKwlkZXBlbmRzIG9uIE1X
-SU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1XSU5DSElQQzYgfHwgTUNZUklY
-SUlJIHx8IFg4Nl9FTEFOIHx8IE1LNiB8fCBNNTg2TU1YIHx8IE01ODZUU0Mg
-fHwgTTU4NiB8fCBNNDg2IHx8IE1WSUFDM18yIHx8IE1HRU9ERQ0KIAlkZWZh
-dWx0IHkNCiANCiBjb25maWcgWDg2X0dPT0RfQVBJQw0KQEAgLTQzMCw3ICs0
-MzgsNyBAQA0KIA0KIGNvbmZpZyBYODZfT09TVE9SRQ0KIAlib29sDQotCWRl
-cGVuZHMgb24gKE1XSU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1XSU5DSElQ
-QzYpICYmIE1UUlINCisJZGVwZW5kcyBvbiAoTVdJTkNISVAzRCB8fCBNV0lO
-Q0hJUDIgfHwgTVdJTkNISVBDNiB8fCBNR0VPREUpICYmIE1UUlINCiAJZGVm
-YXVsdCB5DQogDQogY29uZmlnIEhQRVRfVElNRVINCkBAIC01NTUsNyArNTYz
-LDcgQEANCiANCiBjb25maWcgWDg2X1RTQw0KIAlib29sDQotCWRlcGVuZHMg
-b24gKE1XSU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1DUlVTT0UgfHwgTUVG
-RklDRU9OIHx8IE1DWVJJWElJSSB8fCBNSzcgfHwgTUs2IHx8IE1QRU5USVVN
-NCB8fCBNUEVOVElVTU0gfHwgTVBFTlRJVU1JSUkgfHwgTVBFTlRJVU1JSSB8
-fCBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRTQyB8fCBNSzggfHwgTVZJQUMz
-XzIpICYmICFYODZfTlVNQVENCisJZGVwZW5kcyBvbiAoTVdJTkNISVAzRCB8
-fCBNV0lOQ0hJUDIgfHwgTUNSVVNPRSB8fCBNRUZGSUNFT04gfHwgTUNZUklY
-SUlJIHx8IE1LNyB8fCBNSzYgfHwgTVBFTlRJVU00IHx8IE1QRU5USVVNTSB8
-fCBNUEVOVElVTUlJSSB8fCBNUEVOVElVTUlJIHx8IE02ODYgfHwgTTU4Nk1N
-WCB8fCBNNTg2VFNDIHx8IE1LOCB8fCBNVklBQzNfMiB8fCBNR0VPREUpICYm
-ICFYODZfTlVNQVENCiAJZGVmYXVsdCB5DQogDQogY29uZmlnIFg4Nl9NQ0UN
-CmRpZmYgLU51ciBsaW51eC0yLjYuMTAvYXJjaC9pMzg2L01ha2VmaWxlIGxp
-bnV4LTIuNi4xMF9nZW9kZS9hcmNoL2kzODYvTWFrZWZpbGUNCi0tLSBsaW51
-eC0yLjYuMTAvYXJjaC9pMzg2L01ha2VmaWxlCUZyaSBEZWMgMjQgMjI6MzQ6
-MzEgMjAwNA0KKysrIGxpbnV4LTIuNi4xMF9nZW9kZS9hcmNoL2kzODYvTWFr
-ZWZpbGUJU3VuIEZlYiAyNyAyMjo1MzoxOCAyMDA1DQpAQCAtMTQsNiArMTQs
-OCBAQA0KICMgMTk5OTA3MTMgIEFydHVyIFNrYXdpbmEgPHNrYXdpbmFAZ2Vv
-Y2l0aWVzLmNvbT4NCiAjICAgICAgICAgICBBZGRlZCAnLW1hcmNoJyBhbmQg
-Jy1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5JyBzdXBwb3J0DQogIw0KKyMg
-ICAgICAgICAgIEtpYW51c2NoIFNheWFoIEthcmFkamkgPGtpYW51c2NoQHNr
-LXRlY2gubmV0Pg0KKyMgICAgICAgICAgIEFkZGVkIHN1cHBvcnQgZm9yIEdF
-T0RFIENQVQ0KIA0KIExERkxBR1MJCTo9IC1tIGVsZl9pMzg2DQogT0JKQ09Q
-WUZMQUdTCTo9IC1PIGJpbmFyeSAtUiAubm90ZSAtUiAuY29tbWVudCAtUw0K
-QEAgLTUxLDYgKzUzLDkgQEANCiANCiAjIEFNRCBFbGFuIHN1cHBvcnQNCiBj
-ZmxhZ3MtJChDT05GSUdfWDg2X0VMQU4pCSs9IC1tYXJjaD1pNDg2DQorDQor
-IyBNZWRpYUdYIGFrYSBHZW9kZSBzdXBwb3J0DQorY2ZsYWdzLSQoQ09ORklH
-X01HRU9ERSkJCSs9ICQoY2FsbCBjYy1vcHRpb24sLW1hcmNoPXBlbnRpdW0t
-bW14LC1tYXJjaD1pNTg2KQ0KIA0KICMgLW1yZWdwYXJtPTMgd29ya3Mgb2sg
-b24gZ2NjLTMuMCBhbmQgbGF0ZXINCiAjDQpkaWZmIC1OdXIgbGludXgtMi42
-LjEwL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmggbGludXgtMi42LjEwX2dl
-b2RlL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmgNCi0tLSBsaW51eC0yLjYu
-MTAvaW5jbHVkZS9hc20taTM4Ni9tb2R1bGUuaAlGcmkgRGVjIDI0IDIyOjM0
-OjAwIDIwMDQNCisrKyBsaW51eC0yLjYuMTBfZ2VvZGUvaW5jbHVkZS9hc20t
-aTM4Ni9tb2R1bGUuaAlTdW4gRmViIDI3IDIyOjM0OjE5IDIwMDUNCkBAIC01
-Miw2ICs1Miw4IEBADQogI2RlZmluZSBNT0RVTEVfUFJPQ19GQU1JTFkgIkNZ
-UklYSUlJICINCiAjZWxpZiBkZWZpbmVkIENPTkZJR19NVklBQzNfMg0KICNk
-ZWZpbmUgTU9EVUxFX1BST0NfRkFNSUxZICJWSUFDMy0yICINCisjZWxpZiBD
-T05GSUdfTUdFT0RFDQorI2RlZmluZSBNT0RVTEVfUFJPQ19GQU1JTFkgIkdF
-T0RFICINCiAjZWxzZQ0KICNlcnJvciB1bmtub3duIHByb2Nlc3NvciBmYW1p
-bHkNCiAjZW5kaWYNCg==
+ecological, and physical systems. It is an exciting and emerging
+inter-
+disciplinary area in which a wide range of techniques and methods are 
+being studied for dealing with large, complex, and dynamic problems. 
+The joint conferences will also promote cross-fertilization over these
 
----1463783569-906303254-1109542196=:1693--
+exciting and yet closely-related areas. Registration to either 
+conference will entitle a participant to the proceedings and technical
+
+sessions of both conferences, as well as the conference banquet, 
+buffet lunches, and tours to some attractions in Changsha. 
+
+Specific areas include, but are not limited to neural computation, 
+evolutionary computation, quantum computation, DNA computation, 
+chemical computation, information processing in cells and tissues, 
+molecular computation, computation with words, fuzzy computation, 
+granular computation, artificial life, swarm intelligence, ants 
+colony, artificial immune systems, etc., with applications to 
+knowledge discovery, finance, operations research, and more.
+
+Publications
+------------
+The ICNC'05 and FSKD'05 conference proceedings will be published in 
+Springer's Lecture Notes in Computer Science (LNCS) and Lecture Notes 
+in Artificial Intelligence (LNAI), respectively. Both the LNCS and 
+LNAI are indexed in SCI-Expanded. A selected number of authors will be
+invited to expand and revise their papers for possible inclusions in 
+peer-reviewed international journals / edited books.
+
+Special Sessions
+----------------
+In addition to regular sessions, participants are encouraged to 
+organize special sessions on specialized topics. Each special session 
+should have at least 4 papers. Special session organizers will solicit
+
+submissions and conduct reviews on the submitted papers. Proposals for
+special sessions should be sent to the respective Program Chairs, 
+i.e., 
+        Ke Chen (neural computation, Ke.Chen@manchester.ac.uk)
+        Yew Soon Ong (other topics in ICNC'05, asysong@ntu.edu.sg)
+        Yaochu Jin (FSKD'05, yaochu.jin@honda-ri.de) 
+
+Keynote Speakers
+----------------
+        Shun-ichi Amari, Japan
+        Aike Guo, China
+        Nikhil R. Pal, India
+        Xin Yao, UK
+
+About Changsha, Hunan, China
+----------------------------
+Changsha, the capital of Hunan Province, is a historic and cultural 
+city in southern China and a busy port on the Xiangjiang River, with a
+
+population over 6 million. Founded 3000 years ago, the city became the
+
+capital of the Zhou state (951-960 AD) and a leading commercial center
+
+during the Song dynasty (960-1279 AD). Changsha International Airport 
+is easily accessible with direct flights to all major domestic and 
+some international destinations. Other famous tourist destinations in 
+Hunan include the Zhangjiajie National Park (natural heritage listed 
+by UN) and Fenghuang (Phoenix) Ancient City.
+
+Important Dates
+---------------
+        Paper Submission                    :   15 March 2005
+        Decision Notification               :   15 April 2005
+        Final Versions / Author Registration:   15 May 2005
+
+Contact
+-------
+        Email: nc2005@xtu.edu.cn 
+        Phone/Fax: +86 732 829 2201 / 829 3249 
+
+Submission of Papers 
+--------------------
+Authors are invited to submit a full paper as an electronic file 
+(postscript, pdf or Word format) at the conference website. Templates 
+are available at both the conference website and the Springer 
+website. 
+
+Sponsorship / Exhibition
+------------------------
+The conferences will offer product vendors a sponsorship package 
+and/or an opportunity to interact with conference participants. 
+Product demonstration and exhibition can also be arranged. For more 
+information, please visit the conference web page.  
+
+Sponsor / Organizer
+-------------------
+        Xiangtan University, China
+
+Technical Co-Sponsor
+--------------------
+        IEEE Circuits and Systems Society
+        IEEE Computational Intelligence Society
+        IEEE Control Systems Society
+
+In Co-operation with
+--------------------
+        International Neural Network Society
+        International Fuzzy Systems Association
+        Chinese Association for Artificial Intelligence
+        European Neural Network Society
+        Fuzzy Mathematics and Systems Association of China
+        Japanese Neural Network Society
+        Asia-Pacific Neural Network Assembly
+
+Honorary Conference Chairs
+--------------------------
+        Shun-ichi Amari, Japan
+        Lotfi A. Zadeh, USA
+
+International Advisory Board
+----------------------------
+        Toshio Fukuda, Japan  
+        Kunihiko Fukushima, Japan
+        Tom Gedeon, Australia
+        Aike Guo, China
+        Zhenya He, China  
+        Janusz Kacprzyk, Poland
+        Nik Kasabov, New Zealand
+        John A. Keane, UK
+        Soo-Young Lee, Korea
+        Erkki Oja, Finland 
+        Nikhil R. Pal, India
+        Witold Pedrycz, Canada
+        Jose Principe, USA
+        Harold Szu, USA
+        Shiro Usui, Japan
+        Xindong Wu, USA
+        Lei Xu, Hong Kong, China
+        Xin Yao, UK
+        Syozo Yasui, Japan
+        Bo Zhang, China
+        Yixin Zhong, China  
+        Jacek M. Zurada, USA
+
+General Chair
+-------------
+        He-An Luo, China
+
+General Co-Chairs
+-----------------
+        Lipo Wang, Singapore
+        Yunqing Huang, China
+
+Program Chairs
+--------------
+        ICNC'05: 	
+           Ke Chen, UK
+           Yew Soon Ong, Singapore
+        FSKD'05: 	
+           Yaochu Jin, Germany
+
+Local Arrangement Chairs
+------------------------
+        Renren Liu, China
+        Xieping Gao, China
+
+Proceedings Chair
+-----------------
+        Fen Xiao, China
+
+Publicity Chair
+---------------
+        Hepu Deng, Australia
+
+Sponsorship/Exhibits Chairs
+---------------------------
+        Shaoping Ling, China
+        Geok See Ng, Singapore
+
+Webmaster
+---------
+        Linai Kuang, China
+        Yanyu Liu, China
+

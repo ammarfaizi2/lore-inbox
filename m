@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263540AbRFNSH1>; Thu, 14 Jun 2001 14:07:27 -0400
+	id <S263605AbRFNSKS>; Thu, 14 Jun 2001 14:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263584AbRFNSHR>; Thu, 14 Jun 2001 14:07:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38413 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263540AbRFNSHD>; Thu, 14 Jun 2001 14:07:03 -0400
-Subject: Re: Minor "cleanup" patches for 2.4.5-ac kernels
-To: michal@harddata.com (Michal Jaegermann)
-Date: Thu, 14 Jun 2001 19:05:55 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20010612183832.A29923@mail.harddata.com> from "Michal Jaegermann" at Jun 12, 2001 06:38:32 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263597AbRFNSKH>; Thu, 14 Jun 2001 14:10:07 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1962 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263595AbRFNSKC>;
+	Thu, 14 Jun 2001 14:10:02 -0400
+Date: Thu, 14 Jun 2001 14:10:01 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Henderson <rth@redhat.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: unregistered changes to the user<->kernel API
+In-Reply-To: <20010614103249.A28852@redhat.com>
+Message-ID: <Pine.GSO.4.21.0106141406200.6049-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15AbVD-00053n-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.4.5ac/drivers/pci/quirks.c~	Tue Jun 12 16:31:12 2001
-> +++ linux-2.4.5ac/drivers/pci/quirks.c	Tue Jun 12 17:13:18 2001
-> @@ -18,6 +18,7 @@
->  #include <linux/pci.h>
->  #include <linux/init.h>
->  #include <linux/delay.h>
-> +#include <linux/sched.h>
 
-Ok
 
->  
-> This one is replacing a symbol in sg.c to one which is exported
-> so 'sg.o' can be compiled as a valid module.
+On Thu, 14 Jun 2001, Richard Henderson wrote:
 
-Export the right symbol on Alpha ?
+> Yes, I saw those.  What is the effect of O_NOFOLLOW?  To not
+> follow symbolic links when opening the file.  If you open a
+> regular file, in effect nothing happens.  Moreover, if these
+> opens were not finding files now, the system wouldn't work.
+> 
+> So: the effect, I suppose, is (1) disabling some security
+> within glibc, and (2) making these accesses slower since they
+> will be considered O_DIRECT after the change.
+> 
+> Which doesn't seem that life-threatening to me.
 
->  
-> +/* Forward declaration */
-> +struct mm_struct;
-> +
+O_NOFOLLOW is used to deal with symlink attacks. Breaking it means
+that for quite a few binaries you are opening security holes. And
+since it's a flagday change, you'll get the situation when no version
+will work for all kernels. Bad idea, IMO.
 
-Ok

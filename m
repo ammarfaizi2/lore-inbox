@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbUK0VFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUK0VL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbUK0VFr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbUK0VFr
+	id S261331AbUK0VL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 16:11:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUK0VL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:05:47 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:20093 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261339AbUK0VFf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:05:35 -0500
-Date: Sat, 27 Nov 2004 22:06:51 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 27 Nov 2004 16:11:56 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:5388 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261331AbUK0VLx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 16:11:53 -0500
+Message-ID: <41A8ED8F.5010402@domdv.de>
+Date: Sat, 27 Nov 2004 22:11:43 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
+X-Accept-Language: en-us, en, de
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
 Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041127210651.GC7857@mars.ravnborg.org>
-Mail-Followup-To: Dan Kegel <dank@kegel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41A8D8CA.9090309@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A8D8CA.9090309@kegel.com>
-User-Agent: Mutt/1.5.6i
+References: <19865.1101395592@redhat.com> <20041127210331.GB7857@mars.ravnborg.org>
+In-Reply-To: <20041127210331.GB7857@mars.ravnborg.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2004 at 11:43:06AM -0800, Dan Kegel wrote:
-> >
-> >for me i would install all those kernel realted files into 
-> >the well known /lib/modules/<kernel-version>. 
+Sam Ravnborg wrote:
+> On Thu, Nov 25, 2004 at 03:13:12PM +0000, David Howells wrote:
 > 
-> IMHO the script should let you install the headers
-> wherever you like.  In particular, in crosstool,
-> I would like to install the headers somewhere like
-> /opt/crosstool/$TARGET/include rather than /usr/include.
+>>We've been discussing splitting the kernel headers into userspace API headers
+>>and kernel internal headers and deprecating the __KERNEL__ macro. This will
+>>permit a cleaner interface between the kernel and userspace; and one that's
+>>easier to keep up to date.
+>>
+>>What we've come up with is this:
+>>
+>> (1) Create new directories in the linux sources to shadow existing include
+>>     directories:
+>>
+>>	NEW DIRECTORY		DIRECTORY SHADOWED
+>>	=============		==================
+>>	include/user/		include/linux/
+>>	include/user-*/		include/asm-*/
+>>
+>>     Note that this doesn't take account of the other directories under
+>>     include/, but I don't think they're relevant.
+> 
+> 
+> If we go for some resturcturing of include/ then we should get rid of
+> the annoying asm symlink. Following layout deals with that:
+> 
+> include/<arch>/asm		<= Files from include/asm-<arch>
+> include/<arch>/mach*		<= Files from include/mach-*
+> 
+> This layout solve the symlink issue in an elegant way.
+> We need to do trivial changes to compiler options to make it work. Changing
+> compiler options is much more relaible than using symlinks.
+> 
+> Then the userspace part would then be located in:
+> include/<arch>/user-asm
+> 
 
-Agreed and trivial to do.
-One should recall that for current kernel the following path is valid:
-/lib/modules/`uname -r`/source/include/*
+This complicates things for bi-arch architectures like x86_64 where one 
+can use a dispatcher directory instead of a symlink to suit include/asm 
+for 32bit as well as 64bit.
 
-This is valid for 2.6.7 or something.
-
-	Sam
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

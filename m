@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTKFVWj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 16:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTKFVWj
+	id S263822AbTKFVYW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 16:24:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTKFVYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 16:22:39 -0500
-Received: from mail2-116.ewetel.de ([212.6.122.116]:46062 "EHLO
-	mail2.ewetel.de") by vger.kernel.org with ESMTP id S263823AbTKFVWh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 16:22:37 -0500
-To: Linus Torvalds <torvalds@osdl.org>
+	Thu, 6 Nov 2003 16:24:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:26538 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263822AbTKFVX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 16:23:58 -0500
+Date: Thu, 6 Nov 2003 13:18:41 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: azarah@gentoo.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <OY9D.86A.29@gated-at.bofh.it>
-References: <OXZz.7Uj.3@gated-at.bofh.it> <OY9D.86A.29@gated-at.bofh.it>
-Date: Thu, 6 Nov 2003 22:22:25 +0100
-Message-Id: <E1AHraD-0000Rs-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+ defined (trivial)
+Message-Id: <20031106131841.4b68502e.davem@redhat.com>
+In-Reply-To: <1068153535.12287.355.camel@nosferatu.lan>
+References: <1068140199.12287.246.camel@nosferatu.lan>
+	<20031106093746.5cc8066e.davem@redhat.com>
+	<1068143563.12287.264.camel@nosferatu.lan>
+	<1068144179.12287.283.camel@nosferatu.lan>
+	<20031106113716.7382e5d2.davem@redhat.com>
+	<1068149368.12287.331.camel@nosferatu.lan>
+	<20031106120548.097ccc7c.davem@redhat.com>
+	<1068150552.12287.349.camel@nosferatu.lan>
+	<20031106122723.5cbe1b6d.davem@redhat.com>
+	<1068153535.12287.355.camel@nosferatu.lan>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Nov 2003 20:40:37 +0100, you wrote in linux.kernel:
+On Thu, 06 Nov 2003 23:18:55 +0200
+Martin Schlemmer <azarah@gentoo.org> wrote:
 
-> ide-scsi has always been broken. You should not use it, and indeed there 
-> was never any good reason for it existing AT ALL.
+> Ok - say for instance then you were to write the abi headers - how would
+> you handle a case like this that -ansi forbid type long long, but it
+> have to be in the struct userspace uses to pass data to the
+> kernel/device ?
 
-So, why is it that my ATAPI MO drive works perfectly with ide-scsi and
-sd but not with any of the IDE drivers (even if I hack them to accept
-an ATAPI OPTICAL device)?
+I can tell you what cannot happen.  You absolutely can't consider
+ideas like using '__u32 val[2];' and accessor macros, long long or
+whatever type the platform uses for __u64 has different alignment
+constraints than the '__u32 val[2]' array thing would.
 
-In 2.6, we have a patch allowing at least read-only use via ide-cd,
-but writing still requires ide-scsi. I did the read support part, but
-writing eludes me... and the read support is also unlikely to work on
-MO discs with a sector size other than 2048 or partitioned ones (I only
-use my discs as ext2 superfloppies).
+I believe there is a way to work around this by using the
+__extension__ keyword when defining the __u64 typedefs.  Someone
+should try playing with that.  But this is only going to work when
+the compiler is GCC.
 
--- 
-Ciao,
-Pascal

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277111AbRJDQ34>; Thu, 4 Oct 2001 12:29:56 -0400
+	id <S277152AbRJDQdP>; Thu, 4 Oct 2001 12:33:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277152AbRJDQ3r>; Thu, 4 Oct 2001 12:29:47 -0400
-Received: from zok.sgi.com ([204.94.215.101]:37589 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S277111AbRJDQ3j>;
-	Thu, 4 Oct 2001 12:29:39 -0400
-Date: Thu, 4 Oct 2001 11:30:00 -0500
-From: Nathan Straz <nstraz@sgi.com>
-To: "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ?
-Message-ID: <20011004113000.A1458@sgi.com>
-Mail-Followup-To: "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net>
-User-Agent: Mutt/1.3.22i
+	id <S277155AbRJDQdF>; Thu, 4 Oct 2001 12:33:05 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:62338 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S277152AbRJDQcv>;
+	Thu, 4 Oct 2001 12:32:51 -0400
+Date: Thu, 4 Oct 2001 18:33:31 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/fat/inode.c missing errorhandling
+Message-ID: <Pine.LNX.4.21.0110041826060.8923-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 03, 2001 at 02:00:35PM +0200, sebastien.cabaniols wrote:
-> With the availability of XFS,JFS,ext3 and ReiserFS I am a little lost
-> and I don't know which one I should use for entreprise class servers.
+Hi,
 
-I'd recommend reading:
+I found a problem with fat when I tried to mount a fat filesystem created
+with 'mkdosfs -F 32 -S 8192'. I tried mounting it as vfat and I got a
+panic() from set_blocksize() in fs/buffer.c
 
-       http://www.mandrakeforum.com/article.php?sid=1212&lang=en
+fs/fat/inode.c sets an error veriable if it detects an error but it
+doesn't bail out immediately, instead it tries to pass this sectorsize to
+set_blocksize() which checks if it's bigger than PAGE_SIZE and then
+panics.
 
-It's an article in the Mandrake forums concerning ext3, JFS, XFS, and
-ReiserFS, all of which are in Mandrake 8.1.
+The solution is to bail out before set_blocksize() is called.
+I checked with Al Viro on irc and he agreed.
+
+--- linux/fs/fat/inode.c.orig	Thu Oct  4 18:19:37 2001
++++ linux/fs/fat/inode.c	Thu Oct  4 18:20:39 2001
+@@ -712,6 +712,9 @@
+ 	}
+ 	brelse(bh);
+ 
++	if (error)
++		goto out_invalid;
++
+ 	sb->s_blocksize = logical_sector_size;
+ 	sb->s_blocksize_bits = ffs(logical_sector_size) - 1;
+ 	set_blocksize(sb->s_dev, sb->s_blocksize);
 
 
-> In terms of intergration into the kernel, functionnalities, stability
-> and performance which one is the best for entreprise class servers
+/Martin
 
-For enterprise stuff, I would recommend XFS based on the tools it
-provides.  XFS has a complete set of tools for dumping XFS, repairing a
-broken file system (should it every break), and debugging should you
-find something wrong with it.  
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
 
--- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/

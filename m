@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUHDX0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUHDX3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUHDX0X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 19:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUHDX0X
+	id S267505AbUHDX3N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 19:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUHDX3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 19:26:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30874 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267505AbUHDX0E (ORCPT
+	Wed, 4 Aug 2004 19:29:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49880 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267505AbUHDX3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 19:26:04 -0400
-Date: Wed, 4 Aug 2004 16:29:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: cciss update [1 of 6]
-Message-Id: <20040804162928.5c3d2262.akpm@osdl.org>
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107436092@cceexc23.americas.cpqcorp.net>
-References: <D4CFB69C345C394284E4B78B876C1CF107436092@cceexc23.americas.cpqcorp.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 4 Aug 2004 19:29:11 -0400
+Date: Wed, 4 Aug 2004 16:26:52 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: jgarzik@pobox.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: block layer sg, bsg
+Message-Id: <20040804162652.52213d04.davem@redhat.com>
+In-Reply-To: <20040804232116.GA30152@muc.de>
+References: <2ppN4-1wi-11@gated-at.bofh.it>
+	<2pvps-5xO-33@gated-at.bofh.it>
+	<2pvz2-5Lf-19@gated-at.bofh.it>
+	<2pwbQ-68b-43@gated-at.bofh.it>
+	<m33c32ke3f.fsf@averell.firstfloor.org>
+	<20040804191850.GA19224@havoc.gtf.org>
+	<20040804122254.3d52c2d4.davem@redhat.com>
+	<20040804232116.GA30152@muc.de>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Miller, Mike (OS Dev)" <mike.miller@hp.com> wrote:
->
-> Patch 1 of 6
-> Name: p001_ioctl32_fix_for_268rc2.patch
+On 5 Aug 2004 01:21:16 +0200
+Andi Kleen <ak@muc.de> wrote:
 
-It would make life easier for me if you could give each patch a nice
-Subject: which describes what it does.  "cciss update [N of 6]" isn't very
-meaningful.  And the name of the file into which you chose to place the
-patch isn't a suitable description either.  Thanks.
+> And it's pretty much unfixable because netlink is so adverse
+> to emulation layers.
 
-All of these patches are generating rejects for me - eager beavers have
-been patching your driver when you weren't looking.  Could you please redo
-and reissue the patch series against -rc3?
-
-Thanks.
+It is doable with is_compat_task() but you were against that.
+That's unfortunate, since is_compat_task() provides a neat
+solution for things like the USB device fs async stuff (ie.
+so 32-bit libusb would work on 64-bit systems)

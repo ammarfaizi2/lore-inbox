@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263400AbSJGVTh>; Mon, 7 Oct 2002 17:19:37 -0400
+	id <S263222AbSJGU6Y>; Mon, 7 Oct 2002 16:58:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263403AbSJGVTg>; Mon, 7 Oct 2002 17:19:36 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:35220 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S263400AbSJGVTf>; Mon, 7 Oct 2002 17:19:35 -0400
-Subject: Re: [PATCH] Make it possible to compile in the Bluetooth subsystem
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Maksim Krasnyanskiy <maxk@qualcomm.com>
-In-Reply-To: <Pine.LNX.4.33.0210071347470.10749-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0210071347470.10749-100000@penguin.transmeta.com>
-Content-Type: text/plain
+	id <S263223AbSJGU6Y>; Mon, 7 Oct 2002 16:58:24 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:58052 "EHLO
+	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S263222AbSJGU6W>; Mon, 7 Oct 2002 16:58:22 -0400
+Message-ID: <3DA1F58A.7030903@nortelnetworks.com>
+Date: Mon, 07 Oct 2002 16:58:50 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PC speaker dead in 2.5.40?
+References: <Pine.NEB.4.44.0210072225320.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Oct 2002 23:24:19 +0200
-Message-Id: <1034025872.861.81.camel@pegasus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-07 at 22:49, Linus Torvalds wrote:
-> 
-> On Mon, 7 Oct 2002, Marcel Holtmann wrote:
-> > 
-> > ChangeSet@1.709, 2002-10-07 22:08:56+02:00, marcel@holtmann.org
-> >   Make it possible to compile in the Bluetooth subsystem
-> 
-> Looks good, but you should _not_ remove the "static". Please keep the init
-> functions static, they will be explicitly exported to the stuff that cares
-> (and nobody else) by the "module_init()" thing anyway.
+Adrian Bunk wrote:
+ > Is it
+> perhaps possible to move the speaker support to "Character devices"?
 
-but when I try to compile in the Bluetooth subsystem I got the following
-error:
+Or how about putting it under "Sound"?  Seems logical to me.
 
-net/built-in.o: In function `sock_init':
-net/built-in.o(.text.init+0x5b): undefined reference to `bluez_init'
-make: *** [.tmp_vmlinux1] Error 1
-
-It seems like that I have missed some magic to understand, because
-"wanrouter_init" is also not declared static. But for netfilter or
-netlink init it seems to work this way. Can you please give me some
-infos how to fix this the right way.
-
-Regards
-
-Marcel
-
+Chris
 

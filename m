@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281046AbRKUNUv>; Wed, 21 Nov 2001 08:20:51 -0500
+	id <S281047AbRKUN2w>; Wed, 21 Nov 2001 08:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281028AbRKUNUl>; Wed, 21 Nov 2001 08:20:41 -0500
-Received: from [62.14.144.128] ([62.14.144.128]:5248 "EHLO ragnar-hojland.com")
-	by vger.kernel.org with ESMTP id <S280998AbRKUNU1>;
-	Wed, 21 Nov 2001 08:20:27 -0500
-Date: Wed, 21 Nov 2001 13:31:15 +0100
-From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Message-ID: <20011121133115.A1451@ragnar-hojland.com>
-In-Reply-To: <01112112401703.01961@nemo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	id <S281028AbRKUN2m>; Wed, 21 Nov 2001 08:28:42 -0500
+Received: from bbnrel4.hp.com ([155.208.254.68]:33297 "HELO
+	bbnrel4.net.external.hp.com") by vger.kernel.org with SMTP
+	id <S280998AbRKUN23>; Wed, 21 Nov 2001 08:28:29 -0500
+Message-ID: <3BFBABFA.9040200@hp.com>
+Date: Wed, 21 Nov 2001 14:28:26 +0100
+From: Francois-Xavier KOWALSKI <francois-xavier_kowalski@hp.com>
+Reply-To: francois-xavier_kowalski@hp.com
+Organization: HP
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux-Kernel Mailing-List <linux-kernel@vger.kernel.org>
+Subject: [2.4.14] wrong IPv4 listen syscall return code
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01112112401703.01961@nemo>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Nov 21, 2001 at 12:40:17PM +0000
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 21, 2001 at 12:40:17PM +0000, vda wrote:
-> Hi,
-> 
-> Upon random browsing in the kernel tree I noticed in accel.c:
->     *a++ = byte_rev[*a]
-> which isn't 100% correct C AFAIK. At least Stroustrup in his C++ book
-> warns that this kind of code has to be avoided.
-> Wrote a script to catch similar things all over the tree (attached).
+Hello kernel developpers,
 
-If you wanna do this type of cleanup, you can take it one step forward;
-remember that the order of evaluation of foo and bar doesn't have to be
-{foo => bar} so it can be {bar => foo}  I hope gcc's behaviour doesn't
-change under our feet.
+(please Cc: me in reply, since I am not on the ML).
 
-	a = foo (i) + bar (j);
+I am puzzled my a problem around the listen(2) system call.
 
-.. sprinkle some pointer arithmetic over there for fun ;)
+The man page states the following item, which make sense:
+
+ERRORS
+       EADDRINUSE
+              Another socket is already  listening  on  the  same
+              port.
+
+       EBADF  The argument s is not a valid descriptor.
+
+       ENOTSOCK
+              The argument s is not a socket.
+
+       EOPNOTSUPP
+              The  socket is not of a type that supports the lis­
+              ten operation.
+
+But when I go within the source code of listen implementation for STREAM 
+protocol (as specified for TCL in net/ipv4/af_inet.c) in the function 
+inet_listen() the default return code is EINVAL instead of EOPNOTSUPP.
+
+Who holds the truth? I believe source code is wrong, since EOPNOTSUPP is 
+much more explicit.
+
+BTW, where is the official & as much up-to-date as possible source for 
+kernel syscalls man pages?
 
 -- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."
+Francois-Xavier "FiX" KOWALSKI
+
+

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268230AbTBNGY7>; Fri, 14 Feb 2003 01:24:59 -0500
+	id <S268215AbTBNGT3>; Fri, 14 Feb 2003 01:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268231AbTBNGY7>; Fri, 14 Feb 2003 01:24:59 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:6416 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S268230AbTBNGY5>; Fri, 14 Feb 2003 01:24:57 -0500
-Date: Thu, 13 Feb 2003 22:32:38 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Larry Hileman <LHileman@snapappliance.com>
-cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "Linux Kernel \"Maillist (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Question about 48 bit IDE on 2.4.18 kernel
-In-Reply-To: <057889C7F1E5D61193620002A537E8690B5A2A@NCBDC>
-Message-ID: <Pine.LNX.4.10.10302132231510.6903-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268217AbTBNGT3>; Fri, 14 Feb 2003 01:19:29 -0500
+Received: from [196.41.29.142] ([196.41.29.142]:11016 "EHLO
+	andromeda.cpt.sahara.co.za") by vger.kernel.org with ESMTP
+	id <S268215AbTBNGT2>; Fri, 14 Feb 2003 01:19:28 -0500
+Subject: Re: Problems with 2.5.*'s SCSI headers and cdrtools
+From: Sahara Workshop <workshop@cpt.saharapc.co.za>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030214062109.A18761@infradead.org>
+References: <1045201685.5971.78.camel@workshop.saharact.lan>
+	 <20030214055822.A18415@infradead.org>
+	 <1045202851.5971.83.camel@workshop.saharact.lan>
+	 <20030214062109.A18761@infradead.org>
+X-scanner: scanned by Sistech VirusWall 2.3/cpt
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045204070.5971.92.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1- 
+Date: 14 Feb 2003 08:27:50 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-02-14 at 08:21, Christoph Hellwig wrote:
 
-If you want them back ported, you should do it your self of offer to pay
-someone.
+> Glibc's <scsi/scsi.h>
 
-On Thu, 13 Feb 2003, Larry Hileman wrote:
 
-> Do the 2.4.20/21 predrivers work on a 2.4.18 kernel?
-> Or have they been back ported?
-> 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> Sent: Thursday, February 13, 2003 4:47 PM
-> To: Larry Hileman
-> Cc: Linux Kernel "Maillist (E-mail)
-> Subject: Re: Question about 48 bit IDE on 2.4.18 kernel
-> 
-> 
-> On Thu, 2003-02-13 at 23:27, Larry Hileman wrote:
-> > I would expect that the CMD680 and CSB6 drivers have been updated since
-> > the 2.4.18 kernel.  Can someone let me know where I can find the most
-> > recent drivers.  I have checked the sources I know for the latest driver
-> and
-> > not had any luck.  I was hoping someone may have a better set of sources.
-> 
-> The 2.4.20/21predrivers support LBA48
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+If you looked at the patch, you would have seen that it
+does include 'scsi/scsi.h', but I'm guessing its changing the
+search order of includes then.  Ill have a look.
 
-Andre Hedrick
-LAD Storage Consulting Group
+
+-- 
+Sahara Workshop <workshop@cpt.saharapc.co.za>
+
+
+
+-  PLEASE NOTE -
+
+This email and any files transmitted with it are confidential and
+intended solely for the use of the individual or entity to whom they
+are addressed. If you have received this email in error please notify
+the system manager. Please note that any views or opinions presented
+in this email are solely those of the author and do not necessarily
+represent those of Sahara Distribution (Pty) Ltd. Finally, while Sahara
+Distribution attempts to ensure that all email is virus-free, Sahara
+Distribution accepts no liability for any damage caused by any virus
+transmitted by this email.
+
+Sahara Distribution (PTY) Ltd
+Unit G5-G12, Centurion Business Park, Milnerton, Cape Town, South Africa
+Private Bag X180, Halfway House, 1685, South Africa
+
+Scanned and protected by Sistech Viruswall 2.3
 

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263571AbSKCX3D>; Sun, 3 Nov 2002 18:29:03 -0500
+	id <S263320AbSKCX1X>; Sun, 3 Nov 2002 18:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263837AbSKCX3D>; Sun, 3 Nov 2002 18:29:03 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29839 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263571AbSKCX3C>; Sun, 3 Nov 2002 18:29:02 -0500
-Subject: Re: swsusp: don't eat ide disks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: benh@kernel.crashing.org, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021103222755.GL28704@atrey.karlin.mff.cuni.cz>
-References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
-	<20021103145735.14872@smtp.wanadoo.fr>
-	<1036340733.29642.41.camel@irongate.swansea.linux.org.uk>
-	<20021103201251.GE27271@elf.ucw.cz>
-	<1036359207.30629.31.camel@irongate.swansea.linux.org.uk>
-	<20021103220904.GE28704@atrey.karlin.mff.cuni.cz>
-	<1036363284.30679.33.camel@irongate.swansea.linux.org.uk> 
-	<20021103222755.GL28704@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
+	id <S263342AbSKCX1X>; Sun, 3 Nov 2002 18:27:23 -0500
+Received: from mta01bw.bigpond.com ([139.134.6.78]:35058 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S263320AbSKCX1W>; Sun, 3 Nov 2002 18:27:22 -0500
+Message-ID: <051b01c28391$47168530$41368490@archaic>
+From: "David McIlwraith" <quack@bigpond.net.au>
+To: <hanwen@cs.uu.nl>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3DC59E5B.2040007@yahoo.com><200211032253.gA3Mrw1B008818@smtpzilla1.xs4all.nl><1036365120.1540.11.camel@god.stev.org> <15813.44941.592105.853906@blauw.xs4all.nl>
+Subject: Re: [Help!] 2.4.20 IDE-SCSI / CD-writing crash
+Date: Mon, 4 Nov 2002 10:32:29 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Nov 2002 23:56:53 +0000
-Message-Id: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3663.0
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3663.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-03 at 22:27, Pavel Machek wrote:
-> Hi!
-> 
-> > > You are probably right that for ide disk quiescing a queue is enough,
-> > > but nothing prevents block device to do some DMA just for fun. Also I
-> > > want to spindown on suspend (andre wanted that, to flush caches), so I
-> > > guess that the patch is quite good as-is....
-> > 
-> > That will get done by the power down part of the process as its needed
-> > in both cases
-> 
-> At least in suspend-to-ram (S3), power down part is not even
-> called. [Its suspend, we are not powering off, after all.]
-> On S3 resume you should wait for disks to spin up, so you need resume
-> handler.
-> 
-> I used same stuff for S3 and S4, which means I do need to spin them
-> down even for S4. I believe same handlers for S3 and S4 suspend/resume
-> is right thing to do...
+You mean hdc not hdd, I hope?
 
-S4 the bios has spun the disks back up, S3 we may need to let the disks
-perform the IDE power on and diskware load. Ben has some possible code
-for that
+----- Original Message -----
+From: "Han-Wen Nienhuys" <hanwen@cs.uu.nl>
+To: "James Stevenson" <james-lists@stev.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, November 04, 2002 10:21 AM
+Subject: Re: [Help!] 2.4.20 IDE-SCSI / CD-writing crash
+
+
+> james-lists@stev.org writes:
+> > yeah this happens to me under certin combinations of hardware
+> > eg dont put a cd write on the same channel as a disk or
+> > you seem to run into problems.
+>
+> The writer is on 2nd IDE channel (hdd), the HD is on  the 1st (hda).
+>
+> > you saw 2.4.20 ? i dont think that kernel is out yet.
+>
+> 20-rc1
+>
+> FWIW, I also tried disabling DMA on the cdrom drive; no-go:   at the
+> 3rd burn, the ATAPI resets were all over the place.
+>
+> --
+>
+> Han-Wen Nienhuys   |   hanwen@cs.uu.nl   |   http://www.cs.uu.nl/~hanwen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

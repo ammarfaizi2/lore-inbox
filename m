@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267462AbUBSSR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:17:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUBSSRz
+	id S267464AbUBSSXH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUBSSXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:17:55 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:15378 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267462AbUBSSRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:17:53 -0500
-Message-ID: <4034FDCD.B4DEEC5C@SteelEye.com>
-Date: Thu, 19 Feb 2004 13:17:49 -0500
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] nbd: fix set_capacity call
-Content-Type: multipart/mixed;
- boundary="------------6272CEDA8A221EE13A1C3AC6"
+	Thu, 19 Feb 2004 13:23:07 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:13699 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S267464AbUBSSXD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:23:03 -0500
+Subject: Re: [PATCH] ppc64: fix debugger() warnings
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, anton@samba.org
+In-Reply-To: <200402190609.i1J69Hhl001602@hera.kernel.org>
+References: <200402190609.i1J69Hhl001602@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aIbscuTe4kLYUgiiNUT9"
+Organization: Red Hat, Inc.
+Message-Id: <1077214972.9115.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 19 Feb 2004 19:22:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6272CEDA8A221EE13A1C3AC6
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-This patch fixes the initial set_capacity call so that it matches nbd's
-internal device size (nbd_device->bytesize).
+--=-aIbscuTe4kLYUgiiNUT9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Paul
---------------6272CEDA8A221EE13A1C3AC6
-Content-Type: text/x-patch; charset=us-ascii;
- name="nbd_set_capacity_fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd_set_capacity_fix.diff"
+On Thu, 2004-02-19 at 05:45, Linux Kernel Mailing List wrote:
 
---- 2_6_3_rc2/drivers/block/nbd.c.PROC_PARTITIONS_FIXES	Thu Feb 19 11:49:15 2004
-+++ 2_6_3_rc2/drivers/block/nbd.c	Thu Feb 19 12:00:55 2004
-@@ -737,7 +737,7 @@ static int __init nbd_init(void)
- 		INIT_LIST_HEAD(&nbd_dev[i].queue_head);
- 		init_MUTEX(&nbd_dev[i].tx_lock);
- 		nbd_dev[i].blksize = 1024;
--		nbd_dev[i].bytesize = ((u64)0x7ffffc00) << 10; /* 2TB */
-+		nbd_dev[i].bytesize = 0x7ffffc00ULL << 10; /* 2TB */
- 		disk->major = NBD_MAJOR;
- 		disk->first_minor = i;
- 		disk->fops = &nbd_fops;
-@@ -745,7 +745,7 @@ static int __init nbd_init(void)
- 		disk->flags |= GENHD_FL_SUPPRESS_PARTITION_INFO;
- 		sprintf(disk->disk_name, "nbd%d", i);
- 		sprintf(disk->devfs_name, "nbd/%d", i);
--		set_capacity(disk, 0x3ffffe);
-+		set_capacity(disk, 0x7ffffc00ULL << 1); /* 2 TB */
- 		add_disk(disk);
- 	}
- 
+> +static inline int debugger(struct *pt_regs regs) { return 0; }
+> +static inline int debugger_bpt(struct *pt_regs regs) { return 0; }
+> +static inline int debugger_sstep(struct *pt_regs regs) { return 0; }
 
---------------6272CEDA8A221EE13A1C3AC6--
+I guess these work a LOT better if you type them as "struct pt_regs
+*regs) instead of 'struct *pt_regs regs'
 
+--=-aIbscuTe4kLYUgiiNUT9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBANP78xULwo51rQBIRAipDAKCAiqAiplESuH88g02aGoVp7l+VdACeJVn8
+ErfWTe1xSsYwrbWCCx2Lv/g=
+=1EO4
+-----END PGP SIGNATURE-----
+
+--=-aIbscuTe4kLYUgiiNUT9--

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264081AbRFNVpC>; Thu, 14 Jun 2001 17:45:02 -0400
+	id <S264087AbRFNVrC>; Thu, 14 Jun 2001 17:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264086AbRFNVoo>; Thu, 14 Jun 2001 17:44:44 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:15118 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264081AbRFNVoY>;
-	Thu, 14 Jun 2001 17:44:24 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106142143.f5ELhqm453893@saturn.cs.uml.edu>
-Subject: Re: unregistered changes to the user<->kernel API
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 14 Jun 2001 17:43:52 -0400 (EDT)
-Cc: andrea@suse.de (Andrea Arcangeli), jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org, rth@redhat.com (Richard Henderson)
-In-Reply-To: <E15AbaZ-00054p-00@the-village.bc.nu> from "Alan Cox" at Jun 14, 2001 07:11:27 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264080AbRFNVqo>; Thu, 14 Jun 2001 17:46:44 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:27284 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264087AbRFNVq2>;
+	Thu, 14 Jun 2001 17:46:28 -0400
+Message-ID: <3B2930B1.3E082883@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 17:46:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Tom Gall <tom_gall@vnet.ibm.com>
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <15145.6960.267459.725096@pizda.ninka.net> <20010614213021.3814@smtp.wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
+Benjamin Herrenschmidt wrote:
+> While we are at it, I'd be really glad if we could agree on a
+> way to abstract the current PIO scheme to understand the fact
+> that any domain can actually have "legacy ISA-like" devices.
 
-> I dont see why Tux should be merged. If we have people achieving the same
-> performance in user space with the core facilities tux added to the kernel
-> like the better irq/sendfile stuff why bother merging tux ?
+ioremap for outb/outw/outl.
 
-1. We have khttpd, which should be replaced by something faster.
-2. Tux makes a nice example.
-3. Tux can be the fastest. If it isn't, it needs more work.
+IMHO of course.
 
-Toward the end of the X15 discussion, Ingo Molnar mentioned
-something he'd not implemented yet. I don't recall exactly,
-but for sure Tux hasn't run out of optimizations to do.
+I think rth requested pci_ioremap also...
 
-Also the kernel-CGI feature has not been used in benchmarks.
-Tux has been running user code.
-
-IMHO the Tux server could be renamed "khttpd" and dropped in
-with whatever is needed to be compatible for existing setups.
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317115AbSFQWvw>; Mon, 17 Jun 2002 18:51:52 -0400
+	id <S317117AbSFQWwP>; Mon, 17 Jun 2002 18:52:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317117AbSFQWvv>; Mon, 17 Jun 2002 18:51:51 -0400
-Received: from web14604.mail.yahoo.com ([216.136.224.84]:25873 "HELO
-	web14604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317115AbSFQWvu>; Mon, 17 Jun 2002 18:51:50 -0400
-Message-ID: <20020617225149.56796.qmail@web14604.mail.yahoo.com>
-Date: Mon, 17 Jun 2002 23:51:49 +0100 (BST)
-From: =?iso-8859-1?q?F=20ker?= <f_ker@yahoo.co.uk>
-Subject: Re: [2.4.18] vfat doesn't support files > 2GB under Linux, under Windoze it does
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	id <S317119AbSFQWwP>; Mon, 17 Jun 2002 18:52:15 -0400
+Received: from monster.nni.com ([216.107.0.51]:19204 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S317117AbSFQWwN>;
+	Mon, 17 Jun 2002 18:52:13 -0400
+Date: Mon, 17 Jun 2002 18:50:34 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: Andre Tomt <andre@tomt.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87fzzwdxzh.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: invalidate: busy buffer
+Message-Id: <20020617185034.2a91d427.arodland@noln.com>
+In-Reply-To: <1024353974.32508.4.camel@slurv.tomt.lan>
+References: <000701c2164c$65630930$0501a8c0@Stev.org>
+	<20020617182137.5158103f.arodland@noln.com>
+	<1024353974.32508.4.camel@slurv.tomt.lan>
+X-Mailer: Sylpheed version 0.7.6claws16 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 18 Jun 2002 00:46:14 +0200
+Andre Tomt <andre@tomt.net> wrote:
 
+> On Tue, 2002-06-18 at 00:21, Andrew Rodland wrote:
+> > On Mon, 17 Jun 2002 23:14:48 +0100
+> > "James Stevenson" <mistral@stev.org> wrote:
+> > 
+> > Something tried to wipe out all of the caches for some device, but
+> > something else was using it at the time. For example, if you try to
+> > run parted on something mounted (and bypass/confuse its mountedness
+> > check) you'll see this. Were you doing anything like that?
 > 
-> This patch break some filesystems (adfs, affs, hfs, hpfs, qnx4).
-> And I haven't fixed them yet. So, I can't submit this patch.
+> or run for example hdparm -tT device to do a (imho pretty useless)
+> "benchmark" of io throughput.
 > 
-> If it's OK, I'll make the patch for 2.4.18.
+> -- 
+> André Tomt
+> andre@tomt.net
+> 
 
-
-Any update on the patch yet?
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+the first half of hdparm -Tt is useful as a benchmark of how quick other
+parts of the kernel are, though... changing the optimization level, or
+the difference between vanilla and rmap, non-preempt and preempt, etc,
+affects this a good bit. :)

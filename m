@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266776AbSKHIIv>; Fri, 8 Nov 2002 03:08:51 -0500
+	id <S266772AbSKHIHz>; Fri, 8 Nov 2002 03:07:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266779AbSKHIIv>; Fri, 8 Nov 2002 03:08:51 -0500
-Received: from dp.samba.org ([66.70.73.150]:37048 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266776AbSKHIIr>;
-	Fri, 8 Nov 2002 03:08:47 -0500
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] fix documentation in include_asm-i386_bitops.h
-Date: Fri, 08 Nov 2002 18:51:34 +1100
-Message-Id: <20021108081529.1BD922C37A@lists.samba.org>
+	id <S266774AbSKHIHy>; Fri, 8 Nov 2002 03:07:54 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:27151 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S266772AbSKHIHy>;
+	Fri, 8 Nov 2002 03:07:54 -0500
+Date: Fri, 8 Nov 2002 09:14:29 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Colin Burnett <cburnett@fractal.candysporks.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: pure raw eth sockets
+Message-ID: <20021108081429.GF879@alpha.home.local>
+References: <1036735964.3dcb55dc6f784@www.candysporks.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036735964.3dcb55dc6f784@www.candysporks.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  "Vitezslav Samel" <samel@mail.cz>
+On Fri, Nov 08, 2002 at 12:12:44AM -0600, Colin Burnett wrote:
+> I'm at a complete road block here and I appreciate any help!
+> 
+> I'm trying to write a packet generator that generates a packet down to the
+> destination/src mac address of an eth frame.  However, nothing I find seems to
+> explain how to do this let alone if it is possible.  As example (for
+> familiarity), implementing a RARP client (and server).  I first create a socket:
 
-    Whean I was searching for prototype for set_bit() I found IMHO wrong doc
-  entries in include/asm-i386/bitops.h. Please consider applying.
-  
-  	Cheers,
-  		Vita
+I wrote a tool which works exactly like this, to test network equipments to
+limits. It's slightly commented, and relatively basic. You can download it
+there :
 
---- trivial-2.5-bk/include/asm-i386/bitops.h.orig	2002-11-08 18:46:34.000000000 +1100
-+++ trivial-2.5-bk/include/asm-i386/bitops.h	2002-11-08 18:46:34.000000000 +1100
-@@ -89,7 +89,7 @@
- 
- /**
-  * __change_bit - Toggle a bit in memory
-- * @nr: the bit to set
-+ * @nr: the bit to change
-  * @addr: the address to start counting from
-  *
-  * Unlike change_bit(), this function is non-atomic and may be reordered.
-@@ -106,7 +106,7 @@
- 
- /**
-  * change_bit - Toggle a bit in memory
-- * @nr: Bit to clear
-+ * @nr: Bit to change
-  * @addr: Address to start counting from
-  *
-  * change_bit() is atomic and may not be reordered.
-@@ -162,7 +162,7 @@
- 
- /**
-  * test_and_clear_bit - Clear a bit and return its old value
-- * @nr: Bit to set
-+ * @nr: Bit to clear
-  * @addr: Address to count from
-  *
-  * This operation is atomic and cannot be reordered.  
-@@ -181,7 +181,7 @@
- 
- /**
-  * __test_and_clear_bit - Clear a bit and return its old value
-- * @nr: Bit to set
-+ * @nr: Bit to clear
-  * @addr: Address to count from
-  *
-  * This operation is non-atomic and can be reordered.  
-@@ -213,7 +213,7 @@
- 
- /**
-  * test_and_change_bit - Change a bit and return its new value
-- * @nr: Bit to set
-+ * @nr: Bit to change
-  * @addr: Address to count from
-  *
-  * This operation is atomic and cannot be reordered.  
--- 
-  Don't blame me: the Monkey is driving
-  File: "Vitezslav Samel" <samel@mail.cz>: fix documentation in include_asm-i386_bitops.h
+   http://w.ods.org/tools/ethforge/
+
+Just a tip: don't start it without args, by default it will bomb as many
+packets as possible on your network! Read it first :-)
+
+Cheers,
+Willy
+

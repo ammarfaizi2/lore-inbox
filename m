@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262915AbRFQV0K>; Sun, 17 Jun 2001 17:26:10 -0400
+	id <S262922AbRFQV3u>; Sun, 17 Jun 2001 17:29:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbRFQV0A>; Sun, 17 Jun 2001 17:26:00 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:63247 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S262915AbRFQVZr>; Sun, 17 Jun 2001 17:25:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: Newbie idiotic questions.
-Date: Sun, 17 Jun 2001 23:28:34 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        David Flynn <Dave@keston.u-net.com>, rjd@xyzzy.clara.co.uk,
-        Bill Pringlemeir <bpringle@sympatico.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0106171628350.15952-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0106171628350.15952-100000@weyl.math.psu.edu>
+	id <S262982AbRFQV3k>; Sun, 17 Jun 2001 17:29:40 -0400
+Received: from [193.132.149.202] ([193.132.149.202]:58377 "EHLO uk2.imdb.com")
+	by vger.kernel.org with ESMTP id <S262923AbRFQV3d>;
+	Sun, 17 Jun 2001 17:29:33 -0400
 MIME-Version: 1.0
-Message-Id: <0106172328340U.00879@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15149.8347.53385.459803@jim.imdb.com>
+Date: Sun, 17 Jun 2001 22:26:50 +0100 (BST)
+From: Jim Randell <jim@imdb.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Bug 2.4.{4,5} page_alloc.c:81
+In-Reply-To: <15148.32506.916604.938393@jim.imdb.com>
+In-Reply-To: <15148.32506.916604.938393@jim.imdb.com>
+X-Mailer: VM 6.75 (21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid)
+X-Missile-Address: 51 28 19 N / 02 35 41 W
+X-Location: Bristol, UK
+X-Face: 0i`dE&Q3d44YB<DfXUCR]+^L}0EAY(Lt}o%)3jE>g|yj*y0)|\a8KVbOdmkhW3Fgqy#oM1]JIV9VEO3$";)>8dpa}P8,R{(1<czOX27o7bK]q#GuwMpD2pgV4xj1\kUTVUo]ROa%aoNV,;.$P$@s#zuzpzw5B$KFYV)#5Cb1o8a&v$!gBRR;b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 June 2001 22:37, Alexander Viro wrote:
-> On Sun, 17 Jun 2001, Daniel Phillips wrote:
-> > Well, since we are still beating this one to death, I'd written a "knew"
-> > macro as well, and put it aside.  It does the assignment for you too:
-> >
-> >    #define knew(p) ((p) = (typeof(p)) kmalloc(sizeof(*(p)), GFP_KERNEL))
-> >
-> > Terse and clear at the same time, and type safe.  I still don't like it
-> > much.
->
-> And ungreppable, not to mention gratitious use of GNU extension.
+Jim Randell writes:
+> I've recently been getting strange system lock-ups - often my system
+> just dies, but occasionally I get messages in dmesg. I've tried to
+> isolate the problem by increasing the available swap (I now have > 2x
+> RAM), removing my reiserfs partitions (I'm now running with ext2) and
+> downgrading from kernel 2.4.5 to 2.4.4, but I'm still seeing the
+> problem.
 
-typeof?  It's rather popular in the kernel already.  Besides, who is going to 
-compile this with anything other than gcc?
+I think I've tracked this problem down to the D-Link DFE-530TX network
+card, via-rhine driver and SMP (at least I've removed the card and put
+the box through it's paces and not managed to get the problem to
+recur).
 
-I don't see your point about greppability.
-
---
-Daniel
+-- 
+Jim Randell  //  jim@imdb.com  //  +44.117.944.4227
+http://www.imdb.com/       Mobile: +44.779.087.6488
+                                                 :d

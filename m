@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264779AbUEKPC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUEKPFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264779AbUEKPC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUEKPC2
+	id S264781AbUEKPFX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEKPFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:02:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22675 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264779AbUEKPC0 (ORCPT
+	Tue, 11 May 2004 11:05:23 -0400
+Received: from zork.zork.net ([64.81.246.102]:16822 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S264781AbUEKPFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:02:26 -0400
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-From: Alexander Larsson <alexl@redhat.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, Nautilus <nautilus-list@gnome.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040511024701.GA19489@taniwha.stupidest.org>
-References: <1084152941.22837.21.camel@vertex>
-	 <20040510021141.GA10760@taniwha.stupidest.org>
-	 <1084227460.28663.8.camel@vertex>
-	 <20040511024701.GA19489@taniwha.stupidest.org>
-Content-Type: text/plain
-Message-Id: <1084287762.19104.135.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 11 May 2004 17:02:42 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 11:05:18 -0400
+To: Thiago Robert <robert@inf.ufsc.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Write-combining
+References: <40A0E808.2020602@inf.ufsc.br>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Thiago Robert <robert@inf.ufsc.br>,
+ linux-kernel@vger.kernel.org
+Date: Tue, 11 May 2004 16:05:16 +0100
+In-Reply-To: <40A0E808.2020602@inf.ufsc.br> (Thiago Robert's message of
+ "Tue, 11 May 2004 11:49:44 -0300")
+Message-ID: <6uk6zjypg3.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-11 at 04:47, Chris Wedgwood wrote:
-> On Mon, May 10, 2004 at 06:17:40PM -0400, John McCutchan wrote:
-> 
-> > According to everyone who uses dnotify it is.
-> 
-> I don't buy that.  I have used dnotify and signals where not an issue.
-> Why is this an issue for others?
+Thiago Robert <robert@inf.ufsc.br> writes:
 
-Its the single thing which forces users of dnotify to have an otherwise
-useless daemon. Signals are process global resources. As such, a library
-can't allocate them, so dnotify can't be used in a library.
+> Is the default behaviour of the Linux kernel to enable
+> write-combining? How can I be sure if it is enabled or not?
 
-> > > 3) dnotify cannot easily watch changes for a directory hierarchy
-> 
-> > People don't seem to really care about this one. Alexander Larsson
-> > has said he doesn't care about it. It might be nice to add in the
-> > future.
-> 
-> I don't know who that is and why it matters.
-> 
-> Without being able to watch a hierarchy, I'm not sure inotify buys
-> anything that we can't get from dnotify right now though.  It's also
-> more complex.
+My /proc/mtrr lists the following region:
 
-Hierarchical watches are not important to Nautilus, and the lack of them
-has not generally been a problem for Gnome. Furthermore, they are
-basically impossible to implement in a way that is sane wrt resource
-management in the kernel. Unlimited queues in the kernel is an instant
-DOS, and if the queue can overflow there is bascially no way to handle
-that correctly from userspace without keeping the entire subtree in
-memory (and even that breaks in the presence of aliases).
+reg03: base=0xf8000000 (3968MB), size=  64MB: write-combining, count=2
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- Alexander Larsson                                            Red Hat, Inc 
-                   alexl@redhat.com    alla@lysator.liu.se 
-He's a gun-slinging pirate gangster on the hunt for the last specimen of a 
-great and near-mythical creature. She's a manipulative winged Hell's Angel who 
-can talk to animals. They fight crime! 
-
+which I am guessing is the PCI space, although I'm not certain.

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131399AbRA3BXZ>; Mon, 29 Jan 2001 20:23:25 -0500
+	id <S131676AbRA3Bbw>; Mon, 29 Jan 2001 20:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131952AbRA3BXP>; Mon, 29 Jan 2001 20:23:15 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:31221 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S131399AbRA3BW5>;
-	Mon, 29 Jan 2001 20:22:57 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list 
-In-Reply-To: Your message of "Tue, 30 Jan 2001 12:05:41 +1100."
-Date: Tue, 30 Jan 2001 12:22:52 +1100
-Message-Id: <E14NPVU-0005nZ-00@halfway>
+	id <S131943AbRA3Bbm>; Mon, 29 Jan 2001 20:31:42 -0500
+Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:6207 "EHLO
+	tetsuo.applianceware.com") by vger.kernel.org with ESMTP
+	id <S131676AbRA3BbX>; Mon, 29 Jan 2001 20:31:23 -0500
+Date: Mon, 29 Jan 2001 17:31:57 -0800
+From: Mike Panetta <mpanetta@applianceware.com>
+To: Mike Panetta <mpanetta@applianceware.com>, linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMTAB and kernel 2.2.x
+Message-ID: <20010129173157.H11684@tetsuo.applianceware.com>
+Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010129170911.G11684@tetsuo.applianceware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010129170911.G11684@tetsuo.applianceware.com>; from mpanetta@applianceware.com on Mon, Jan 29, 2001 at 05:09:11PM -0800
+Organization: ApplianceWare
+X-Mailer: mutt (ruff!  ruff!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In message <3A74451F.DA29FD17@uow.edu.au> you write:
-> > 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0005.3/0269.html
-> > 
-> > A lot of the timer deletion races are hard to fix because of
-> > the deadlock problem.
+Nevermind... I figured it out...  I added the modules to the
+MX_OBJS list and it worked fine.
 
-Double take: we *did* fix the problems with del_timer_sync().  We
-should probably have renamed del_timer to del_time_async and make
-everyone fix their code though.  The `text vanishing under timer in
-module' problem is solved by the pending module cleanup for 2.5.
+Mike
 
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+-- 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

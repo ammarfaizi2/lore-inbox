@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUIUUOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIUUQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268054AbUIUUOh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 16:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUIUUOh
+	id S268055AbUIUUQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 16:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIUUQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 16:14:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6301 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268048AbUIUUOf (ORCPT
+	Tue, 21 Sep 2004 16:16:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:34690 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268055AbUIUUQG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 16:14:35 -0400
-Date: Tue, 21 Sep 2004 22:14:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, wli@holomorphy.com, davem@redhat.com,
-       raybry@sgi.com, ak@muc.de, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch V8: [4/7] universally available cmpxchg on i386
-Message-ID: <20040921201425.GH18938@wotan.suse.de>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua> <20040921154542.GB12132@wotan.suse.de> <200409212306.38800.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 21 Sep 2004 16:16:06 -0400
+Message-ID: <9e473391040921131650943dc7@mail.gmail.com>
+Date: Tue, 21 Sep 2004 16:16:03 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Michael Hunold <hunold@linuxtv.org>
+Subject: Re: Adding .class field to struct i2c_client (was Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Cc: Jean Delvare <khali@linux-fr.org>, sensors@stimpy.netroedge.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <415067CB.1020101@linuxtv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409212306.38800.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41500BED.8090607@linuxtv.org> <20040921115442.M18286@linux-fr.org>
+	 <415067CB.1020101@linuxtv.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like indirect jump is only slightly slower (on this CPU).
+An addition to the class idea would be for clients to have priorities.
+That would let me mark the bus as being for DDC. The highest priority
+client would be the DDC driver. If the DDC driver can't find valid
+EDID it could then fall back to letting the EEPROM driver try to find
+the chip.
 
-K7/K8 can predict indirect jumps. But most P3 and P4s can't (except for
-the new Prescotts and Centrinos). And in all cases their jump predictor works 
-worse.
+Something like this is important if we get a new EDID standard that
+the DDC driver doesn't recognize. By letting the EEPROM driver load at
+a lower priority you could still easily get to the ROM contents. Or
+does it bother people if we let both EEPROM and DDC load on DDC class
+buses?
 
--Andi
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263045AbTCSOlT>; Wed, 19 Mar 2003 09:41:19 -0500
+	id <S263030AbTCSOjw>; Wed, 19 Mar 2003 09:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263046AbTCSOlT>; Wed, 19 Mar 2003 09:41:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31620
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263045AbTCSOlS>; Wed, 19 Mar 2003 09:41:18 -0500
-Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED
-	UNTILL NOW!) - removed link
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrus Nomm <a.nomm@wap3.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <000701c2ee22$efe61fd0$0100a8c0@andrus>
-References: <000701c2ee22$efe61fd0$0100a8c0@andrus>
-Content-Type: text/plain
+	id <S263035AbTCSOjw>; Wed, 19 Mar 2003 09:39:52 -0500
+Received: from [203.197.168.150] ([203.197.168.150]:24079 "HELO
+	mailscanout256k.tataelxsi.co.in") by vger.kernel.org with SMTP
+	id <S263030AbTCSOjv>; Wed, 19 Mar 2003 09:39:51 -0500
+Message-ID: <3E7883C5.F298BA32@tataelxsi.co.in>
+Date: Wed, 19 Mar 2003 20:20:45 +0530
+From: "Peyush Agarwal" <peyush@tataelxsi.co.in>
+X-Mailer: Mozilla 4.6 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: riley@williams.name, linux-kernel@vger.kernel.org
+Subject: Regd inserting a NEW module
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048089782.30755.38.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Mar 2003 16:03:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-19 at 14:22, Andrus Nomm wrote:
-> Sorry but it was intended for kernel developers and not for other haxors
-> ;)
-> 
-> It is an linux kernel development team fault that they do not give any
-> direct instructions how to submit bug, now this eploit is very public
-> probably.
+Hello,
 
-I wouldn't worry. There is a very public implementation of it on bugtraq
-and a rather nicer portable one floating around too. 
+I am using "ixdp425-0.1.tar.gz" src code for Intel IXDP - 425 board. I
+want to insert a PCI driver module 'automatically' when the board boots
+up. Can anyone please suggest what changes has be done ?
 
-Alan
+Any response will be appreciated.
+Thanks & Regards.
+Peyush.
+
+--
+______________________________________________________________
+Peyush Agarwal
+Sr. Engineer, Networking and Communications, Tata Elxsi Ltd.
+Phone number :: 91-80-8410220/1/2 ex. 236.  Fax ::  91-80-8410219.
+www.tataelxsi.com
+______________________________________________________________
+
 

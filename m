@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317862AbSIOGer>; Sun, 15 Sep 2002 02:34:47 -0400
+	id <S317872AbSIOGjm>; Sun, 15 Sep 2002 02:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317865AbSIOGeq>; Sun, 15 Sep 2002 02:34:46 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:13061 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S317862AbSIOGeq>;
-	Sun, 15 Sep 2002 02:34:46 -0400
-Envelope-To: <linux-kernel@vger.kernel.org>
-From: Mark Hindley <mark@hindley.uklinux.net>
+	id <S317874AbSIOGjm>; Sun, 15 Sep 2002 02:39:42 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:19707 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317872AbSIOGjl>; Sun, 15 Sep 2002 02:39:41 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Greg KH <greg@kroah.com>, oliver@neukum.name
+Subject: Re: delay before open() works
+Date: Sun, 15 Sep 2002 16:38:32 +1000
+User-Agent: KMail/1.4.5
+Cc: Brian Craft <bcboy@thecraftstudio.com>, linux-kernel@vger.kernel.org
+References: <20020914094225.A1267@porky.localdomain> <200209151525.01920.bhards@bigpond.net.au> <20020915061026.GA484@kroah.com>
+In-Reply-To: <20020915061026.GA484@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15748.10939.882581.867430@titan.home.hindley.uklinux.net>
-Date: Sun, 15 Sep 2002 07:37:47 +0100 (BST)
-To: linux-kernel@vger.kernel.org
-Subject: oops in 2.4.19
-In-Reply-To: <20020914235316.A768@titan.home.hindley.uklinux.net>
-References: <20020914235316.A768@titan.home.hindley.uklinux.net>
-X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209151638.32883.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Further to my oops report, just had another. The only thing in the
-logs is
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sep 15 02:40:25 titan kernel: kernel BUG at page_alloc.c:206!
+On Sun, 15 Sep 2002 16:10, Greg KH wrote:
+> This "second" hotplug event will happen when the driver registers with
+> the "class".  So for the example of the USB scanner driver, it registers
+> itself with the USB "class" to set up the file_ops structure (this is
+> done in usb_register_dev().  At that point in time, /sbin/hotplug will
+> be called again.
+This is too soon, at least for the scanner driver. Look at how much code runs 
+in scanner_probe() between the fops registration and the devfs registration.
 
-Don't know if that is any help.
+Hmmm, that is probably a race anyway. Oliver?
 
-Mark
+Brad
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9hCroW6pHgIdAuOMRAgJpAJ9WpQ66Oj5v7zaXqxqqTvVVhiukqACeJ3IP
+T2oB/3+HODH36m9gSivzERw=
+=Ov+1
+-----END PGP SIGNATURE-----
+

@@ -1,116 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135593AbRDSUIT>; Thu, 19 Apr 2001 16:08:19 -0400
+	id <S135672AbRDSUKT>; Thu, 19 Apr 2001 16:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135603AbRDSUIC>; Thu, 19 Apr 2001 16:08:02 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:29836 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S135593AbRDSUHo>;
-	Thu, 19 Apr 2001 16:07:44 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        viro@math.psu.edu (Alexander Viro),
-        abramo@alsa-project.org (Abramo Bagnara), alonz@nolaviz.org (Alon Ziv),
-        linux-kernel@vger.kernel.org (Kernel Mailing List),
-        mkravetz@sequent.com (Mike Kravetz)
-Subject: Re: light weight user level semaphores
-In-Reply-To: <E14qKDi-0007sy-00@the-village.bc.nu>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 19 Apr 2001 13:06:45 -0700
-In-Reply-To: Alan Cox's message of "Thu, 19 Apr 2001 20:35:59 +0100 (BST)"
-Message-ID: <m3lmow1woa.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+	id <S135607AbRDSUKF>; Thu, 19 Apr 2001 16:10:05 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55744 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135603AbRDSUJu>;
+	Thu, 19 Apr 2001 16:09:50 -0400
+Message-ID: <3ADF45FC.EE7B2003@mandrakesoft.com>
+Date: Thu, 19 Apr 2001 16:09:32 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: AJ Lewis <lewis@sistina.com>
+Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        linux-openlvm@nl.linux.org
+Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
+In-Reply-To: <20010419142400.E10345@sistina.com> <200104191945.f3JJjKRn015661@webber.adilger.int> <20010419145337.K10345@sistina.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+AJ Lewis wrote:
+> Ok, the issue here is that we're trying to get a release out and so anything
+> that majorly changes the code is getting shunted aside for the moment.  It
+> would be stupid to just add everything that comes in on the ML without
+> review.  Linus does the exact same thing.  I've said this before to you
+> Andreas, but apparently you feel that you should have final say on whether
+> your patches go in or not.
 
-> mknod foo p. Or use sockets (although AF_UNIX sockets are higher latency)
-> Thats why I suggested using flock - its name based. Whether you mkstemp()
-> stuff and pass it around isnt something I care about
-> 
-> Files give you permissions for free too
+> As far as getting patches into the stock kernel, we've been sending patches
+> to Linus for over a month now, and none of them have made it in.  Maybe
+> someone has some pointers on how we get our code past his filters.
 
-I don't want nor need file permissions.  A program would look like this:
+Read Documentation/SubmittingPatches, and also listen to kernel hackers
+who know the block layer and want to fix lvm.
 
-
-  process 1:
-
-
-   fd = open("somefile")
-   addr = mmap(fd);
-   
-   pthread_mutexattr_init(&attr);
-   pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
-
-   pthread_mutex_init ((pthread_mutex_t *) addr, &attr);
-
-   pthread_mutex_lock ((pthread_mutex_t *) addr);
-
-   pthread_mutex_destroy((pthread_mutex_t *) addr);
-
-  process 2:
-
-   fd = open("somefile")
-   addr = mmap(fd);
-
-   pthread_mutex_lock ((pthread_mutex_t *) addr);
-
-
-The shared mem segment can be retrieved in whatever way.  The mutex in
-this case is anonymous.  Everybody who has access to the shared mem
-*must* have access to the mutex.
-
-
-For semaphores it looks similarly.  First the anonymous case:
-
- process 1:
-
-
-   fd = open("somefile")
-   addr = mmap(fd);
-
-   sem_init ((sem_t *) addr, 1, 10);	// 10 is arbitrary
-
-   sem_wait ((sem_t *) addr);
-
-   sem_destroy((sem_t *) addr);
-
-
-  process 2:
-
-   fd = open("somefile")
-   addr = mmap(fd);
-
-   sem_wait ((sem_t *) addr);
-
-Note that POSIX semaphores could be implemented with global POSIX
-mutexes.
-
-
-Finally, named semaphores:
-
-   semp = sem_open("somefile", O_CREAT|O_EXCL, 0600)
-
-   sem_wait (semp);
-
-   sem_close(semp);
-   sem_unlink(semp);
-
-
-This is the only semaphore kind which maps nicely to a pipe or socket.
-All the others don't.  And even for named semaphores it is best to
-have a separate name space like the shmfs.
-
-> So you have unix file permissions on them ?
-
-See above.  Permissions are only allowed for named semaphores.
+And I wonder, if kernel hackers are saying lvm is broken... why do you
+want to freeze it and ship it in that state?
 
 -- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+Jeff Garzik       | "The universe is like a safe to which there is a
+Building 1024     |  combination -- but the combination is locked up
+MandrakeSoft      |  in the safe."    -- Peter DeVries

@@ -1,42 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264018AbTH1NA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 09:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbTH1NA5
+	id S264026AbTH1NQV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 09:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbTH1NQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 09:00:57 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:4231 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S264018AbTH1NAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 09:00:55 -0400
-Date: Thu, 28 Aug 2003 14:00:44 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-Cc: Timo Sirainen <tss@iki.fi>, David Schwartz <davids@webmaster.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Lockless file reading
-Message-ID: <20030828130043.GE6800@mail.jlokier.co.uk>
-References: <20030828121823.GB6800@mail.jlokier.co.uk> <Pine.LNX.4.44.0308280556170.14580-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308280556170.14580-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Aug 2003 09:16:21 -0400
+Received: from bellini.kjist.ac.kr ([203.237.42.6]:14604 "EHLO
+	bellini.kjist.ac.kr") by vger.kernel.org with ESMTP id S264026AbTH1NQT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 09:16:19 -0400
+From: ghugh Song <ghugh@kjist.ac.kr>
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx_osm.c compilation failure in linux-2.4.22
+Message-Id: <20030828131615.A83F17497B@bellini.kjist.ac.kr>
+Date: Thu, 28 Aug 2003 22:16:15 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nagendra Singh Tomar wrote:
-> While the write had "12" in its buffers and it  would have grabbed the 
-> page lock to write it into the page cache, won't it set some flag saying 
-> that I don't want to be prempted now. I think there is a small primitive 
-> for it in from 2.5 onwards. I don't think it will be a good idea to prempt 
-> while it is holding the page lock. How is it possible that it just wrote 
-> "1" and did not write "2" though it had grabbed the page lock for that 
-> purpose. 
 
-Nope.  I don't see any disabling of preemption while the page is held.
+Compile failure as follows:
 
-It wouldn't make sense anyway, because the copies to/from userspace
-can sleep, so there's nothing to gain by disabling preemption.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe
+-mpreferred-stack-boundary=2 -march=pentium4
+-I/usr/src/linux-2.4.22/drivers/scsi -Werror -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=aic7xxx_osm  -c -o aic7xxx_osm.o aic7xxx_osm.c
+In file included from /usr/src/linux-2.4.22/include/linux/blk.h:4,
+                 from aic7xxx_osm.h:63,
+                 from aic7xxx_osm.c:122:
+/usr/src/linux-2.4.22/include/linux/blkdev.h: In function `blk_queue_bounce':
+/usr/src/linux-2.4.22/include/linux/blkdev.h:194: warning: comparison between
+signed and unsigned
+/usr/src/linux-2.4.22/include/linux/blkdev.h: In function
+`blk_finished_sectors':
+/usr/src/linux-2.4.22/include/linux/blkdev.h:335: warning: comparison between
+signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_setup_tag_info_global':
+aic7xxx_osm.c:1610: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_setup_tag_info':
+aic7xxx_osm.c:1622: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_setup_dv':
+aic7xxx_osm.c:1635: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `aic7xxx_setup':
+aic7xxx_osm.c:1687: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_platform_abort_scbs':
+aic7xxx_osm.c:2164: warning: comparison between signed and unsigned
+aic7xxx_osm.c:2171: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_user_tagdepth':
+aic7xxx_osm.c:3556: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_user_dv_setting':
+aic7xxx_osm.c:3585: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_send_async':
+aic7xxx_osm.c:4088: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_done':
+aic7xxx_osm.c:4209: warning: comparison between signed and unsigned
+aic7xxx_osm.c: In function `ahc_linux_handle_scsi_status':
+aic7xxx_osm.c:4334: warning: comparison between signed and unsigned
+make[4]: *** [aic7xxx_osm.o] Error 1
+make[4]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi/aic7xxx'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi/aic7xxx'
+make[2]: *** [_subdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.22/drivers'
+make: *** [_dir_drivers] Error 2
 
--- Jamie
+
+=======================================================
+
+
+However, I can't find the actual error message.  Strange.
+
+
+I have an off-topic question:
+
+What happened to sym-53c8xxx driver?  It appears that nobody is
+actively maintaining it.  Yet, there is not much complain traffic over 
+any malfunction for this LSI's SCSI card driver.  Does it mean
+that the latter is much more stable than aic7xxx driver for 
+Adaptec cards?
+
+Regards,
+
+Hugh

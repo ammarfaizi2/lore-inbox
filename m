@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265985AbUBPWya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 17:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265984AbUBPWy3
+	id S266004AbUBPW6p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 17:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUBPW6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 17:54:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265989AbUBPWxT (ORCPT
+	Mon, 16 Feb 2004 17:58:42 -0500
+Received: from gate.crashing.org ([63.228.1.57]:40097 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266011AbUBPW6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 17:53:19 -0500
-Date: Mon, 16 Feb 2004 14:52:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Marc Lehmann <pcg@schmorp.de>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
- JFS default behavior)
-In-Reply-To: <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402161447450.30742@home.osdl.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
- <200402150006.23177.robin.rosenberg.lists@dewire.com>
- <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
- <200402150107.26277.robin.rosenberg.lists@dewire.com>
- <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de>
- <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de>
- <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org>
- <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 17:58:23 -0500
+Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Eger <eger@theboonies.us>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
+References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
+	 <1076904084.12300.189.camel@gaston>
+	 <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
+	 <1076968236.3648.42.camel@gaston>
+	 <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
+	 <1076969892.3649.66.camel@gaston>
+	 <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1076972267.3649.81.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 17 Feb 2004 09:57:47 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Mon, 16 Feb 2004, Linus Torvalds wrote:
+> I don't see that anybody else can possibly care. In fact, I doubt even 
+> vgacon actually cares. It's just a regular unblank, but with the 
+> information that we came from graphics mode. I think it would be cleaner 
+> to add a new parameter to the "con_blank()" function, which would also 
+> cause compiler warnings for non-converted consoles, which is good.
 > 
-> Which, if you think about is, is 100% EXACTLY equivalent to what a UTF-8
-> program should do when it sees broken UTF-8. It can still access the file, 
-> it can still do everything else with it, but it can't print out the 
-> filename, and it should use some kind of escape sequence to show that 
-> fact.
+That's what I was talking about: what drivers should I convert :) On
+PPC, I don't build things like vgacon etc... Anyway, patch coming soon.
 
-Side note: a UTF-8 program needs to do escape handling _anyway_, because 
-even if the filename is 100% UTF-8 compliant, you still can't print out 
-all the characters as such. In particular, charcters like '\n' etc are 
-obviously perfectly fine UTF-8, yet they need to be escaped when printing 
-out filenames in a file selector.
+Note that a mode_switch separate from blank would have made sense
+too some way...
 
-So I claim (and yes, people are free to disagree with me) that a
-well-written UTF-8 program won't even have any real extra code to handle
-the "broken UTF-8" code. It's just another set of bytes that needs
-escaping, and they need escaping for _exactly_ the same reason some 
-regular utf-8 characters need escaping: because they can't be printed.
+> Right now we encode multiple things into the one existing "blank"
+> parameter, which is just confusing. We have
+> 
+>    -1: /* enter graphics mode (just save whatever state we need to save, 
+>           possibly clear state to be polite) */
 
-So it's all the same thing - it's just the reasons for "unprintability"  
-that are slightly different.
+And make sure accel engine is idle...
 
-Now, I'll agree that getting the escaping right (whether for things like 
-'\n' or for byte sequences that are invalid UTF-8) can be painful. I just 
-don't think that the pain is in any way specific for "invalid UTF-8". It's 
-just _hard_ to think of all the special cases, and most programs have bugs 
-because somebody forgot something.
+>     0: /* regular unblank (restore screen contents, enable backlight) */
+>     1: /* regular blank */
+>     2..x: VESA blank type x-1.
+> 
+> and I'd suggest that the new case would be the "regular unblank", but with 
+> the new parameter saying that we're coming from graphics mode. For 
+> example, I don't think the vgacon_blank() function would change at _all_ 
+> (except for the new parameter that it would just ignore).
+>
+> As far as I can tell, fbcon is the _only_ thing that wouldn't ignore the 
+> new information, exactly because fbcon might want to reset things like the 
+> graphics engine.
 
-		Linus
+Yup.
+
+Ben.
+
+

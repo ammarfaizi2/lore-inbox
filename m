@@ -1,73 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313421AbSEIPIc>; Thu, 9 May 2002 11:08:32 -0400
+	id <S313660AbSEIP1c>; Thu, 9 May 2002 11:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313492AbSEIPIb>; Thu, 9 May 2002 11:08:31 -0400
-Received: from WARSL402PIP7.highway.telekom.at ([195.3.96.94]:16476 "HELO
-	email02.aon.at") by vger.kernel.org with SMTP id <S313421AbSEIPIa>;
-	Thu, 9 May 2002 11:08:30 -0400
-Date: Thu, 9 May 2002 17:09:35 +0200
-From: byonic@gmx.net
-X-Mailer: The Bat! (v1.48f) Personal
-Reply-To: byonic@gmx.net
-X-Priority: 3 (Normal)
-Message-ID: <69165797043.20020509170935@gmx.net>
-To: linux-kernel@vger.kernel.org
-CC: byonic@gmx.net
-Subject: Problem with kdb kernel debugger patch against 2.2.19
-Mime-Version: 1.0
+	id <S313661AbSEIP1b>; Thu, 9 May 2002 11:27:31 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30836 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313660AbSEIP1b>; Thu, 9 May 2002 11:27:31 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Bjorn Wesen <bjorn.wesen@axis.com>, Paul Mackerras <paulus@samba.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE 58
+In-Reply-To: <Pine.LNX.4.44.0205081200340.5406-100000@home.transmeta.com>
+	<20020508191054.6282@smtp.wanadoo.fr>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 May 2002 09:19:12 -0600
+Message-ID: <m1znz9z6vj.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linux-kernel@vger.kernel.org,
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-  I patched my 2.2.19 kernel with the SGI kdb patch to have the
-  ability of kernel debugging and especially debugging of the kernel
-  modules I write.
-  I had to install libbfd and the kernel seems just to compile perfectly.
-  Lateron I get the following error :
-
-  /usr/src/linux # make bzImage
-
-  [...]
-  
-make[2]: Entering directory `/usr/src/kernel-source-2.2.19/lib'
-make[2]: Nothing to be done for `all_targets'.
-make[2]: Leaving directory `/usr/src/kernel-source-2.2.19/lib'
-make[1]: Leaving directory `/usr/src/kernel-source-2.2.19/lib'
-make -C  arch/i386/kernel
-make[1]: Entering directory `/usr/src/kernel-source-2.2.19/arch/i386/kernel'
-cc -D__KERNEL__ -I/usr/src/linux/include -D__ASSEMBLY__  -traditional -c entry.S -o entry.o
-/tmp/ccVx3zpC.s: Assembler messages:
-/tmp/ccVx3zpC.s:774: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:774: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:805: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:805: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:824: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:824: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:920: Warning: using `%ecx' instead of `%cx' due to `l' suffix
-/tmp/ccVx3zpC.s:929: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:930: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:943: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:943: Warning: using `%edx' instead of `%dx' due to `l' suffix
-/tmp/ccVx3zpC.s:1024: Fatal error: Symbol machine_check already defined.
-make[1]: *** [entry.o] Error 1
-make[1]: Leaving directory `/usr/src/kernel-source-2.2.19/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-
-   What does
-   "/tmp/ccVx3zpC.s:1024: Fatal error: Symbol machine_check already
-   defined." mean, how can I solve it to get my kernel with kdb ?
-
-   Note: I'm still using 2.2.19 because of module development to test
-   kernel modules for 2.2.x.
-
-   Thanks in advance, Markus
-
--- 
-Best regards,
- byonic                          mailto:byonic@gmx.net
+> >And done properly with per-controller (or drive - you may want to
+> >virtualize at the drive level just because you could separate out
+> >different kinds of drive accesses that way too) function pointers you can
+> >then _mix_ access methods, without getting completely idiotic run-time
+> >checks inside "ide_out()".
+> 
+> Which ends up basically into having function pointers in the
+> ata_channel (or ata_drive, but I doubt that would be really
+> necessary) a set of 4 access functions: taskfile_in/out for
+> access to taskfile registers (8 bits), and data_in/out for
+> steaming datas in/out of the data reg (16 bits).
+> 
+> That would cleanly solve my problem of mixing MMIO and PIO
+> controllers in the same machine, that would solve the crazy
+> byteswapping needed by some controllers for PIO at least,
+> etc...
+> 
+> I would even suggest not caring about the taskfile register
+> address at all (that is kill the array of port addresses) but
+> just pass the taskfile_in/out functions the register number
+> (cyl_hi, cyl_lo, select, ....) as a nice symbolic constant,
+> and let the channel specific implementation figure it out.
+> I haven't checked if you already killed all of the request/release
+> region crap done by the common ide code, that is matter is completely
+> internal to the host controller driver, etc...
+> 
+> Now, andre may tell us we need one more set for "slow IO"
+> versions for some HW, I don't know the details for these so
+> I'll let the old man speak up here.
 
 
+I'd suggest pointers in the ata_channel that abstract out the
+functions of the host controllers.  For most controllers we
+can have a common PCI IDE library that implements them, and provides
+a reference implementation for the weird cases.  
+
+>From the ata-6 draft there are the following protocols, that should
+be implementable on an IDE host controller.
+
+- Software reset protocol
+- Non-data command protocol
+- PIO data-in command protocol
+- PIO data-out command protocol
+- DMA command protocol
+- PACKET command protocol
+- READ/WRITE DMA QUEUED command protocol
+- EXECUTE DEVICE DIAGNOSTIC command protocol
+- DEVICE RESET command protocol
+- Ultra DMA data-in commands
+- Ultra DMA data-out commands
+
+Given the high level of the protocol abstraction we aren't
+likely to beat ourselves to death with extra cpu or io overhead.
+Nor is this an insane number of things to implement.
+
+Perhaps more can be factored out (controllers being so similiar) but
+that is the abstraction we need for the layer sending commands to ATA
+devices.  This allows the higher layers to focus on sending commands
+to ATA devices.
+
+Eric

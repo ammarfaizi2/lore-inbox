@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIOXRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIOXZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267767AbUIOXRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIOXRS
+	id S267721AbUIOXZA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIOXV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:17:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33441 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267767AbUIOXPq (ORCPT
+	Wed, 15 Sep 2004 19:21:56 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:33511 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S267720AbUIOWpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:15:46 -0400
-Date: Wed, 15 Sep 2004 19:15:18 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de
-Subject: Re: get_current is __pure__, maybe __const__ even
-Message-ID: <20040915231518.GB31909@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1095288600.1174.5968.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095288600.1174.5968.camel@cube>
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Sep 2004 18:45:12 -0400
+Message-ID: <4148C672.4050905@tomt.net>
+Date: Thu, 16 Sep 2004 00:47:14 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [sata] new libata-dev-2.6 queue created (AHCI, SATA bridges)
+References: <20040915161026.GA31360@havoc.gtf.org>
+In-Reply-To: <20040915161026.GA31360@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 06:50:00PM -0400, Albert Cahalan wrote:
-> Andi Kleen writes:
-> 
-> > Please CSE "current" manually. It generates
-> > much better code on some architectures
-> > because the compiler cannot do it for you.
-> 
-> This looks fixable.
-> 
-> At the very least, __attribute__((__pure__))
-> will apply to your get_current function.
-> 
-> I think __attribute__((__const__)) will too,
-> even though it's technically against the
-> documentation. While you do indeed read from
-> memory, you don't read from memory that could
-> be seen as changing. Nothing done during the
-> lifetime of a task will change "current" as
-> viewed from within that task.
+Jeff Garzik wrote:
 
-current will certainly change in schedule (),
-so either you'd need to avoid using current
-in schedule() and use some other accessor
-for the same without such attribute, or
-#ifdef the attribute out when compiling sched.c.
+> I have updated my SATA status page to reflect these updates:
+> 	http://linux.yyz.us/sata/sata-status.html
 
-	Jakub
+Good stuff :-)
+
+Is there any news on Marvell progress? I'll get my hands dirty on a 
+shipment with servers using the chips on friday, I may be able to sneak 
+in some testing before deployment (they will be rewired to use ICH5-R 
+for now)
+
+Hmm, I wonder if there is any AHCI PCI(-X/E) plug-in boards planned. 
+That would be nice indeed. Seems like SATAII-like features on PCI-boards 
+are bound to Marvell or hardware RAID cards like 3ware 9xxx or newer LSI 
+MegaRAID currently.

@@ -1,52 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266795AbRGHHrQ>; Sun, 8 Jul 2001 03:47:16 -0400
+	id <S266459AbRGHIX4>; Sun, 8 Jul 2001 04:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRGHHrG>; Sun, 8 Jul 2001 03:47:06 -0400
-Received: from outmail1.pacificnet.net ([207.171.0.246]:7848 "EHLO
-	outmail1.pacificnet.net") by vger.kernel.org with ESMTP
-	id <S266795AbRGHHqu>; Sun, 8 Jul 2001 03:46:50 -0400
-Message-ID: <004e01c10782$250c71c0$66b93604@molybdenum>
-From: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Unresolved symbols in 2.4.6
-Date: Sun, 8 Jul 2001 02:46:46 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S266480AbRGHIXq>; Sun, 8 Jul 2001 04:23:46 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:14859 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S266459AbRGHIXh>; Sun, 8 Jul 2001 04:23:37 -0400
+Date: Sun, 8 Jul 2001 10:23:23 +0200
+From: Joern Heissler <joern@heissler.de>
+To: linux-kernel@vger.kernel.org
+Subject: ide cdrom drive doesn't unlock in a special case
+Message-ID: <20010708102323.A17851@debian.heissler.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I apologize in advance for bringing up a recently discussed problem and
-being slightly off-topic, but I've been having problems similar to those in
-"Unresolved symbols since 2.4.5 ?" from July 5.
 
-I'm also running a Debian 2.2r3 box with kernel 2.2.17 and I've been having
-trouble running 2.4.6 due to unresolved symbols in my modules brought up by
-make modules_install. I had the latest version of modutils installed from
-Adrian Bunk's Debian packages, which was the recommended fix in "Unresolved
-symbols since 2.4.5 ?", but that didn't fix anything.
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I tried compiling the kernel with gcc 2.95.2 and egcs-1.1.2 and I still get
-the unresolved symbols. I used the Debian make-kpkg tool to make a kernel
-image and I went through the process manually, but still I get the errors.
+Hello!
+I'm having problems with my cdrom-drive:
+When I access the drive ("cat /dev/cdrom > /dev/null"), the tray is locked.
 
-The output of depmod -e -a 2.4.6 can be found at
-http://galaxy42.com/data/moderr.txt. I also have the recommended versions of
-all software in linux/Documentation/Changes. To make things even more
-puzzling, I have an almost identical box set up and it compiles just fine.
+joern:/# cat /dev/cdrom > /dev/zero
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: ATAPI reset complete
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: ATAPI reset complete
+end_request: I/O error, dev 16:40 (hdd), sector 42016
+cat: /dev/cdrom: Input/output error
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: ATAPI reset complete
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdd: cdrom_decode_status: error=0x34
+hdd: ATAPI reset complete
+end_request: I/O error, dev 16:40 (hdd), sector 42020
+joern:/#
 
-Does anyone know of anything that could possibly be causing this? Any help
-is appreciated. If you have anything, please Cc: V64@Galaxy42.com. Thanks in
-advance.
+For some reason, my cdrom drive keeps being locked.
+When I press ctrl-c before cat exits, the drive is unlocked.
 
-------
-Jahn Veach - Veachian64 <V64@Galaxy42.com>
-http://Galaxy42.com/
+I can reproduce it with 2.2.19, 2.4.6-ac2 and 2.4.5-ac13.
+When using 2.2.0, the tray is unlocked.
 
-Well, let's just say, if your VCR is still blinking 12:00, you don't want
-Linux.
---Bruce Perens
+My cdrom-drive is (according to system-bootup):
+hdd: CD-524EA-B, ATAPI CD/DVD-ROM drive
 
 
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjtIGHsACgkQs5jrxlfHa2bbzgCfa6IDQa5AjlRQcwHGnhfnjsoM
+AtAAn2vdYQfpkRqt3BkQM+YfBvshy5vo
+=KKod
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--

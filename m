@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267206AbTBIKsN>; Sun, 9 Feb 2003 05:48:13 -0500
+	id <S267208AbTBILBO>; Sun, 9 Feb 2003 06:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267208AbTBIKsN>; Sun, 9 Feb 2003 05:48:13 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32776 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267206AbTBIKsL>; Sun, 9 Feb 2003 05:48:11 -0500
-Date: Sun, 9 Feb 2003 11:57:52 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Larry McVoy <lm@work.bitmover.com>, Pavel Machek <pavel@suse.cz>,
-       Andrea Arcangeli <andrea@suse.de>, lm@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030209105752.GA26151@atrey.karlin.mff.cuni.cz>
-References: <20030205174021.GE19678@dualathlon.random> <20030207145651.GA345@elf.ucw.cz> <20030208182820.GA14035@work.bitmover.com>
+	id <S267209AbTBILBO>; Sun, 9 Feb 2003 06:01:14 -0500
+Received: from packet.digeo.com ([12.110.80.53]:58816 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267208AbTBILBN>;
+	Sun, 9 Feb 2003 06:01:13 -0500
+Date: Sun, 9 Feb 2003 03:10:54 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Florian Schmitt <florian@galois.de>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: routing oddity in 2.5.59-mm8
+Message-Id: <20030209031054.2b9ae2a2.akpm@digeo.com>
+In-Reply-To: <200302091154.13187.florian@galois.de>
+References: <200302091154.13187.florian@galois.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030208182820.GA14035@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Feb 2003 11:10:50.0203 (UTC) FILETIME=[E74512B0:01C2D02B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Florian Schmitt <florian@galois.de> wrote:
+>
+> in 2.5.59-mm8 the routing table behaves a bit strange:
 
-> > > Note, I'm using my own GPL software to checkout from the bitkeeper
-> > > servers (I don't want to miss the additional information stored in
-> > 
-> > Are you going to put up copy of that sw somewhere? I guess more people
-> > are interested...
-> 
-> Two things:
-> 
-> 1) We're going to make a CVS archive of Linus tree available, automatically
->    updated, and we'll rsync it to some public place like kernel.org so you
->    can get at the data in a way you want with no BK involved at all.
+me too:
 
-I like that.
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+vmm:/home/akpm# ip route show
+192.168.2.0/24 dev eth0  scope link 
+127.0.0.0/8 dev lo  scope link 
+default via 192.168.2.1 dev eth0 
+vmm:/home/akpm# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.2.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+127.0.0.0       0.0.0.0         255.0.0.0       U     0      0        0 lo
+vmm:/home/akpm# route del default
+vmm:/home/akpm# route del default
+SIOCDELRT: No such process
+
+So `ip' can see the default route, but `route' cannot.
+
+Reverting the spurious semicolon fix fixes it up.
+
+diff -puN net/ipv4/fib_hash.c~a net/ipv4/fib_hash.c
+--- 25/net/ipv4/fib_hash.c~a	2003-02-09 03:04:29.000000000 -0800
++++ 25-akpm/net/ipv4/fib_hash.c	2003-02-09 03:04:32.000000000 -0800
+@@ -941,7 +941,7 @@ static __inline__ struct fib_node *fib_g
+ 
+ 			if (!iter->zone)
+ 				goto out;
+-			if (iter->zone->fz_next)
++			if (iter->zone->fz_next);
+ 				break;
+ 		}
+ 		
+
+_
+

@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbULPUGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbULPUJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbULPUGH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULPUGH
+	id S261969AbULPUJf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbULPUJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:06:07 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:5529 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id S261957AbULPUGB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:06:01 -0500
-X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.100.99):. Processed in 0.193133 secs)
-Message-ID: <003901c4e3ab$d86c8580$0e25fe0a@pysiak>
-From: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6 flavours
-Date: Thu, 16 Dec 2004 21:13:56 +0100
+	Thu, 16 Dec 2004 15:09:35 -0500
+Received: from wanderer.mr.itd.umich.edu ([141.211.93.146]:28126 "EHLO
+	wanderer.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261969AbULPUJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 15:09:11 -0500
+Message-ID: <41C1E981.1030800@umich.edu>
+Date: Thu, 16 Dec 2004 15:01:05 -0500
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-2";
-	reply-type=original
+To: Werner Almesberger <werner@almesberger.net>
+CC: linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: [RFC] Generalized prio_tree, revisited
+References: <20041216053118.M1229@almesberger.net> <41C1A3F4.2090707@umich.edu> <20041216163816.X1229@almesberger.net>
+In-Reply-To: <20041216163816.X1229@almesberger.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Werner Almesberger wrote:
+> You mean to roll prio_tree_first and prio_tree_iter_init into a
+> single call, so that prio_tree_first would look similar to the
+> one in 2.6.7 ?
 
-AFAICS the -ac tree should be the most stable of all kernels, right?
-
--mm is totally bleeding edge
--bk the same
--ck is experimental
-
-Others are experimental too.
-
-Looking at the changelogs, the most reasonable kernel to use for
-generic use are the -ac kernels, which I am going to use since 2.6.10
-as long as Alan is kindly going to continue his fabulous work.
-
-I swear not to use 2.6.10 until Alan publishes 2.6.10-ac1 :-)
-
-Regards,
-Maciej
-
+Something like this...
+ 
+---
+ 
+ linux-2.6.9-testuser/include/linux/prio_tree.h |    1 +
+ linux-2.6.9-testuser/mm/prio_tree.c            |    3 +++
+ 2 files changed, 4 insertions(+)
+ 
+diff -puN include/linux/prio_tree.h~roll_prio_tree_first include/linux/prio_tree.h
+--- linux-2.6.9/include/linux/prio_tree.h~roll_prio_tree_first  2004-12-16 14:52:46.878268680 -0500
++++ linux-2.6.9-testuser/include/linux/prio_tree.h      2004-12-16 14:55:18.731183528 -0500
+@@ -29,6 +29,7 @@ static inline void prio_tree_iter_init(s
+        iter->root = root;
+        iter->r_index = r_index;
+        iter->h_index = h_index;
++       iter->cur = NULL;
+ }
+  
+ #define INIT_PRIO_TREE_ROOT(ptr)       \
+diff -puN mm/prio_tree.c~roll_prio_tree_first mm/prio_tree.c
+--- linux-2.6.9/mm/prio_tree.c~roll_prio_tree_first     2004-12-16 14:55:27.695820696 -0500
++++ linux-2.6.9-testuser/mm/prio_tree.c 2004-12-16 14:56:31.889061840 -0500
+@@ -457,6 +457,9 @@ static struct prio_tree_node *prio_tree_
+ {
+        unsigned long r_index, h_index;
+  
++       if (iter->cur == NULL)
++               return prio_tree_first(iter);
++
+ repeat:
+        while (prio_tree_left(iter, &r_index, &h_index))
+                if (overlap(iter, r_index, h_index))
+_

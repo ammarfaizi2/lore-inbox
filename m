@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVC2WqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVC2Wsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVC2WqN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVC2WqN
+	id S261589AbVC2Wsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVC2Wsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:46:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23247 "EHLO
+	Tue, 29 Mar 2005 17:48:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31695 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261589AbVC2Wou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:44:50 -0500
-Message-ID: <4249DA51.1070201@pobox.com>
-Date: Tue, 29 Mar 2005 17:44:33 -0500
+	id S261589AbVC2Wq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 17:46:59 -0500
+Message-ID: <4249DAD4.9020602@pobox.com>
+Date: Tue, 29 Mar 2005 17:46:44 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] s390: claw network device driver
-References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org> <20050329071002.GA16204@havoc.gtf.org> <20050329152057.GA27840@wohnheim.fh-wedel.de> <4249B52C.2000300@pobox.com> <20050329212543.GA432@wohnheim.fh-wedel.de>
-In-Reply-To: <20050329212543.GA432@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Herbert Xu <herbert@gondor.apana.org.au>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <1111731361.20797.5.camel@uganda><1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <4249D06F.30802@tmr.com>
+In-Reply-To: <4249D06F.30802@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Tue, 29 March 2005 15:06:04 -0500, Jeff Garzik wrote:
+Bill Davidsen wrote:
+> Herbert Xu wrote:
 > 
->>Jörn Engel wrote:
+>> You missed the point.  This has nothing to do with the crypto API.
+>> Jeff is saying that if this is disabled by default, then only a few
+>> users will enable it and therefore use this API.
 >>
->>>Just out of curiosity: why are there two mailing lists?  Especially if
->>>one of them is the Wrong One.
->>
->><shrug>
->>
->>linux-net is mostly dead.  I get the impression it is occasionally used 
->>by users.
->>
->>netdev (as, perhaps, the name implies) is where the network developers 
->>hang out.
+>> Since we can't afford to enable it by default as hardware RNG may
+>> fail which can lead to catastrophic consequences, there is no point
+>> for this API at all.
 > 
 > 
-> Ok, I figured as much.  But then, why is linux-net not just deleted?
-> Bouncing mails would be an indication that noone will read them,
-> right?
+> Wait a minute, if it fails the system drops back to software, which is 
+> not as good in a pedantic analysis, but perhaps falls a good bit short 
+> of "catastrophic consequences" as most people would characterize that 
+> phrase. And more to the point, now that many CPUs and chipsets are the 
+> RNG of choice, what is the actual probability of a failure of the RNG 
+> leaving a functional system (that's a real question seeking response 
+> from someone who has some actual data).
 
-<shrug>  It doesn't matter that much to me.  If you want to undertake 
-the removal of linux-net as your personal mission, I won't stop you :)
+As I've said, in the past the Intel RNGs in particular -have- failed, 
+but the rest of the system keeps on working just fine.
+
+It probably depends on the hardware implementation; I think the Intel 
+RNG was based on a thermal diode, or somesuch.
+
+In the cases where an RNG has failed in the past, the system has worked 
+as expected:  rngd stopped feeding data into the entropy pool.
+
+If the VIA RNG (on-CPU) fails, that's probably indicative of a larger 
+problem, though.
 
 	Jeff
-
 
 

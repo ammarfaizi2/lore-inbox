@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270035AbUIDDji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270037AbUIDDoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270035AbUIDDji (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 23:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270036AbUIDDji
+	id S270037AbUIDDoS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 23:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270036AbUIDDoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 23:39:38 -0400
-Received: from relay.pair.com ([209.68.1.20]:52494 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S270035AbUIDDjg (ORCPT
+	Fri, 3 Sep 2004 23:44:18 -0400
+Received: from relay.pair.com ([209.68.1.20]:18960 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S270037AbUIDDnx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 23:39:36 -0400
+	Fri, 3 Sep 2004 23:43:53 -0400
 X-pair-Authenticated: 66.188.111.210
-Message-ID: <413938F6.2020506@cybsft.com>
-Date: Fri, 03 Sep 2004 22:39:34 -0500
+Message-ID: <413939F8.1030806@cybsft.com>
+Date: Fri, 03 Sep 2004 22:43:52 -0500
 From: "K.R. Foley" <kr@cybsft.com>
 User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
 X-Accept-Language: en-us, en
@@ -44,11 +44,16 @@ Ingo Molnar wrote:
 > the -R3 patch has this feature:
 > 
 
-After hammering the system for a little more than an hour it gave up. I 
-don't have the serial logging setup yet because I haven't had time this 
-evening. I will be glad to do whatever I can to try to help debug this, 
+After hammering the system for a little more than an hour it gave up. I
+don't have the serial logging setup yet because I haven't had time this
+evening. I will be glad to do whatever I can to try to help debug this,
 but it will have to wait until tomorrow. The log is here:
 
 http://www.cybsft.com/testresults/crashes/2.6.9-rc1-vo-R3.txt
 
 kr
+
+Sorry I forgot to mention that this was triggered running the 
+stress-kernel package, minus the NFS-Compile, but it does include the 
+CRASHME test. In addition, amlat was running as well. The system was 
+pretty much 100% loaded.

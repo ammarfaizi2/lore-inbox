@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbQKGIqZ>; Tue, 7 Nov 2000 03:46:25 -0500
+	id <S130407AbQKGIqz>; Tue, 7 Nov 2000 03:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130303AbQKGIqP>; Tue, 7 Nov 2000 03:46:15 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:1481 "EHLO
-	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130289AbQKGIqD>; Tue, 7 Nov 2000 03:46:03 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-Date: Tue, 7 Nov 2000 08:44:22 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011062354.eA6NsT705093@sleipnir.valparaiso.cl>
-In-Reply-To: <200011062354.eA6NsT705093@sleipnir.valparaiso.cl>
-MIME-Version: 1.0
-Message-Id: <00110708454001.01218@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+	id <S130414AbQKGIqw>; Tue, 7 Nov 2000 03:46:52 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:39685 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130407AbQKGIqk>;
+	Tue, 7 Nov 2000 03:46:40 -0500
+Date: Tue, 7 Nov 2000 10:46:34 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Lyle Coder <x_coder@hotmail.com>
+Cc: David Schwartz <davids@webmaster.com>, RAJESH BALAN <atmproj@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: malloc(1/0) ??
+Message-ID: <20001107104634.G13151@mea-ext.zmailer.org>
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <OE28zGnClQwSaY2lsLR00001672@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OE28zGnClQwSaY2lsLR00001672@hotmail.com>; from x_coder@hotmail.com on Tue, Nov 07, 2000 at 12:09:09AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Nov 2000, Horst von Brand wrote:
-> "James A. Sutherland" <jas88@cam.ac.uk> said:
-> > On Mon, 06 Nov 2000, Horst von Brand wrote:
-> 
-> [...]
-> 
-> > > The problem (AFAIU) is that if the levels aren't set on startup, they are
-> > > random in some cases.
-> 
-> > So set them on startup. NOT when the driver is first loaded. Put it in
-> > the rc.d scripts.
-> 
-> There is a noticeable delay between to moment the module is insmod(8)ed,
-> and the moment when its settings are set by the startup script. Not funny
-> if it is going full blast ATM.
+On Tue, Nov 07, 2000 at 12:09:09AM -0800, Lyle Coder wrote:
+> When a program does a malloc... the glibc gets atleast on page (brk)
+> [actually, glibs determins of it needs to brk more memory from the kernel...
+> because it maintains it;s own pool].. so if you malloc 4 byts, you can copy
+> to that pointer more than 4 bytes (upto a page size, ex 4K)... hope that
+> answers one of your questions... as far as why malloc(0) works... I dunno
 
-Yes, I know. That's why the driver MUST NOT change the volume settings when
-insmod(8)ed, waiting instead until it gets specific settings from the script,
-at which point it can initialise the card to the correct settings without a
-delay.
+Maybe following extract from  glibc's malloc/malloc.c  beginning
+comments can help you there:
 
 
-James.
+  Minimum overhead per allocated chunk: 4 or 8 bytes
+       Each malloced chunk has a hidden overhead of 4 bytes holding size
+       and status information.
+
+  Minimum allocated size: 4-byte ptrs:  16 bytes    (including 4 overhead)
+                          8-byte ptrs:  24/32 bytes (including, 4/8 overhead)
+
+       When a chunk is freed, 12 (for 4byte ptrs) or 20 (for 8 byte
+       ptrs but 4 byte size) or 24 (for 8/8) additional bytes are
+       needed; 4 (8) for a trailing size field
+       and 8 (16) bytes for free list pointers. Thus, the minimum
+       allocatable size is 16/24/32 bytes.
+
+       Even a request for zero bytes (i.e., malloc(0)) returns a
+       pointer to something of the minimum allocatable size.
+
+  Maximum allocated size: 4-byte size_t: 2^31 -  8 bytes
+                          8-byte size_t: 2^63 - 16 bytes
+
+
+
+Other systems (malloc libraries) may have different strategies on this
+allocation management issue, thus allocating anything smaller than the
+needed size is bound to get user burned.   malloc(0)  is insane thing
+(IMO), but at least glibc supports it for some reason.  Likely just due
+to padding and minimum size issues.
+
+> Best Wishes,
+> Lyle
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

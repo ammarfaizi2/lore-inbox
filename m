@@ -1,35 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVB1Nri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVB1NuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVB1Nri (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 08:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVB1NrY
+	id S261607AbVB1NuF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 08:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVB1Nsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 08:47:24 -0500
-Received: from extgw-uk.mips.com ([62.254.210.129]:47378 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261600AbVB1Nks
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 08:40:48 -0500
-Date: Mon, 28 Feb 2005 13:40:38 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: tglx@linutronix.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/10] MIPS:  C99 initializers for hw_interrupt_type structures
-Message-ID: <20050228134038.GB14603@linux-mips.org>
-References: <20050227005956.1.patchmail@tglx> <20050227010017.5.patchmail@tglx>
+	Mon, 28 Feb 2005 08:48:47 -0500
+Received: from [194.90.79.130] ([194.90.79.130]:13834 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S261606AbVB1Nqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 08:46:44 -0500
+Subject: [PATCH][x86-64] fix pit delay accounting in timer_interrupt()
+From: Avi Kivity <avi@argo.co.il>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-+A8YHDQhcjs1HNw3XMbX"
+Message-Id: <1109598397.4081.5.camel@avik.scalemp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050227010017.5.patchmail@tglx>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 28 Feb 2005 15:46:37 +0200
+X-OriginalArrivalTime: 28 Feb 2005 13:46:40.0122 (UTC) FILETIME=[EE11FDA0:01C51D9B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 12:56:30AM +0100, tglx@linutronix.de wrote:
 
-> Convert the initializers of hw_interrupt_type structures to C99 initializers.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+--=-+A8YHDQhcjs1HNw3XMbX
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks, applied.
+timer_interrupt() measures the delay from an interrupt to its handling
+in a variable called 'delay', but accounts every unit of delay as 1/HZ
+seconds, instead of 1/CLOCK_TICK_RATE seconds.
 
-  Ralf
+on ordinary cpus this doesn't matter as delay is usually zero, but on my
+10MHz bochs cpu this causes divide overflows later on.
+
+(patch against 2.6.9 but should apply)
+
+Signed-off-by: Avi Kivity <avi@argo.co.il>
+
+
+
+--=-+A8YHDQhcjs1HNw3XMbX
+Content-Disposition: attachment; filename=pit-delay.patch
+Content-Type: text/plain; name=pit-delay.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.9/arch/x86_64/kernel/time.c~time	2005-02-28 14:26:52.000000000 +0200
++++ linux-2.6.9/arch/x86_64/kernel/time.c	2005-02-28 14:28:46.000000000 +0200
+@@ -409,7 +409,7 @@
+ 
+ 		monotonic_base += (tsc - vxtime.last_tsc)*1000000/cpu_khz ;
+ 
+-		vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
++		vxtime.last_tsc = tsc - vxtime.quot * delay / (LATCH * vxtime.tsc_quot);
+ 
+ 		if ((((tsc - vxtime.last_tsc) *
+ 		      vxtime.tsc_quot) >> 32) < offset)
+
+--=-+A8YHDQhcjs1HNw3XMbX--
+

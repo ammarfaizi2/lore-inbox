@@ -1,146 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUHMPNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUHMPYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUHMPNv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 11:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUHMPNv
+	id S265966AbUHMPYs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 11:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUHMPYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 11:13:51 -0400
-Received: from netmail01.eng.net ([213.130.128.38]:29144 "EHLO
-	netmail01.eng.net") by vger.kernel.org with ESMTP id S265909AbUHMPNq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 11:13:46 -0400
-From: Chris Clayton <chris@theclaytons.giointernet.co.uk>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: CDMRW in 2.6
-Date: Fri, 13 Aug 2004 16:15:24 +0000
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408091625.31210.chris@theclaytons.giointernet.co.uk> <200408131435.17362.chris@theclaytons.giointernet.co.uk> <20040813135036.GR2663@suse.de>
-In-Reply-To: <20040813135036.GR2663@suse.de>
+	Fri, 13 Aug 2004 11:24:48 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:36876 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S265966AbUHMPYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 11:24:43 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [ix86,x86_64] cpu features.
+Date: Fri, 13 Aug 2004 17:24:34 +0200
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408131615.24613.chris@theclaytons.giointernet.co.uk>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_z0NHBKf3LNnIjvX"
+Message-Id: <200408131724.35573.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 Aug 2004 13:50, Jens Axboe wrote:
-> On Fri, Aug 13 2004, Chris Clayton wrote:
-> > > > I'll try a full (as opposed to quick) blank with cdrwtool plus a
-> > > > forced format with cdmrw and report back when that has finished.
-> > >
-> > > Yes please do that, if that doesn't work it's really screwed.
-> >
-> > Ok, here's the results:
-> >
-> > [chris:~]$ cdrwtool -t 10 -d /dev/hdc -b full
-> > setting speed to 10
-> > using device /dev/hdc
-> > full blank
-> > 1386KB internal buffer
-> > setting write speed to 10x
-> >
-> > <<no new messages from dmesg>>
-> >
-> > [chris:~]$ cdmrw -d /dev/hdc -f full -F
-> > not a mrw formatted disc
-> > LBA space: DMA
-> >
-> > <<no new messages from dmesg>>
-> >
-> > [chris:~]$ while cdmrw -d /dev/hdc -f full | grep "mrw format running" ;
-> > do sleep 20; done
-> > mrw format running
-> > <snip>
-> > mrw format running
-> >
-> > <<no new messages from dmesg>>
-> >
-> > [chris:~]$ mkudffs --media-type=cdrw /dev/hdc
-> > start=0, blocks=16, type=RESERVED
-> > start=16, blocks=3, type=VRS
-> > start=19, blocks=237, type=USPACE
-> > start=256, blocks=1, type=ANCHOR
-> > start=257, blocks=31, type=USPACE
-> > start=288, blocks=32, type=PVDS
-> > start=320, blocks=32, type=LVID
-> > start=352, blocks=32, type=STABLE
-> > start=384, blocks=1024, type=SSPACE
-> > start=1408, blocks=256480, type=PSPACE
-> > start=257888, blocks=31, type=USPACE
-> > start=257919, blocks=1, type=ANCHOR
-> > start=257920, blocks=160, type=USPACE
-> > start=258080, blocks=32, type=STABLE
-> > start=258112, blocks=32, type=RVDS
-> > start=258144, blocks=31, type=USPACE
-> > start=258175, blocks=1, type=ANCHOR
-> >
-> > <<the following new messages from dmesg>>
-> >
-> > cdrom: hdc: mrw address space DMA selected
-> > cdrom open: mrw_status 'mrw complete'
-> > hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> > hdc: command error: error=0x54
->
-> Ok yes, same error. It's the drive doing something odd, I have no idea
-> what...
->
-> > I'll try the same process (except the blanking) with a brand new piece of
-> > media and report when that is complete.
->
-> I doubt it'll help.
+--Boundary-00=_z0NHBKf3LNnIjvX
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-You were right Jens, it didn't :(
+Hi,
 
-mkudffs resulted in the following new messages in dmesg:
+Attached patch fix/add several cpu features.
 
-cdrom: hdc: mrw address space DMA selected
-cdrom open: mrw_status 'mrw complete'
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev hdc, sector 1048576
-Buffer I/O error on device hdc, logical block 262144
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev hdc, sector 1048580
-Buffer I/O error on device hdc, logical block 262145
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x30
-end_request: I/O error, dev hdc, sector 917504
-Buffer I/O error on device hdc, logical block 229376
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x30
-end_request: I/O error, dev hdc, sector 917508
-Buffer I/O error on device hdc, logical block 229377
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x30
-end_request: I/O error, dev hdc, sector 917120
-Buffer I/O error on device hdc, logical block 229280
-lost page write due to I/O error on hdc
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x30
-end_request: I/O error, dev hdc, sector 917500
-Buffer I/O error on device hdc, logical block 229375
-lost page write due to I/O error on hdc
+refs:
 
-One perhaps interesting thing is that, although there were fewer instances of 
-the error, the first two instances on this new media were for exactly the 
-same sectors/logical block as on the previously-used-and-blanked media. 
-Although I'm relatively inexperienced in Linux, I have worked in IT for over 
-25 years, and that's just too much of a coincidence for me. I guess it 
-supports Jens' belief that the drive is doing something odd. One other 
-interesting thing is that when it ran cdmrw, it reported that the media was 
-already cdmrw formatted, even though I know it was blank, because I'd just 
-removed the selophane wrapping from the jewel case! Oh well, Mt Rainier would 
-be nice to have, but I'll just have to be content with packet writing, 
-unless...
+[1] Intel Processor Identification and the CPUID instruction
+    Application Note 485.
+    http://developer.intel.ru/download/design/Xeon/applnots/24161826.pdf
 
-Slightly off-topic I guess, but can anyone name an IDE drive that does support 
-Mt Rainier with a 2.6 kernel, please. Mail me off-list if that would be the 
-correct (netiquette) thing to do - although there could well be at least two 
-other folks interested in the reply.
+[2] http://www.sandpile.org/ia32/cpuid.htm
 
 -- 
-Chris
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)
+
+--Boundary-00=_z0NHBKf3LNnIjvX
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="cpu_feature.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="cpu_feature.patch"
+
+--- linux-2.6.8-rc4/arch/i386/kernel/cpu/proc.c.orig	2004-08-10 04:23:46.000000000 +0200
++++ linux-2.6.8-rc4/arch/i386/kernel/cpu/proc.c	2004-08-13 16:48:53.971370504 +0200
+@@ -44,8 +44,8 @@
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Intel-defined (#2) */
+-		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
+-		"est", NULL, "cid", NULL, NULL, NULL, NULL, NULL,
++		"sse3", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
++		"tm2", NULL, "cid", NULL, NULL, NULL, "xtpr", NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+--- linux-2.6.8-rc4/arch/x86_64/kernel/setup.c.orig	2004-08-10 04:22:11.000000000 +0200
++++ linux-2.6.8-rc4/arch/x86_64/kernel/setup.c	2004-08-13 16:59:14.729001000 +0200
+@@ -1042,8 +1042,8 @@
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Intel-defined (#2) */
+-		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
+-		"est", NULL, "cid", NULL, NULL, "cmpxchg16b", NULL, NULL,
++		"sse3", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
++		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 	};
+--- linux-2.6.8-rc4/include/asm-i386/cpufeature.h.orig	2004-08-10 04:23:22.000000000 +0200
++++ linux-2.6.8-rc4/include/asm-i386/cpufeature.h	2004-08-13 16:49:19.439498760 +0200
+@@ -71,9 +71,13 @@
+ #define X86_FEATURE_P4		(3*32+ 7) /* P4 */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+-#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
++#define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+ #define X86_FEATURE_MWAIT	(4*32+ 3) /* Monitor/Mwait support */
+-
++#define X86_FEATURE_DSCPL	(4*32+ 4) /* CPL Qualified Debug Store */
++#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
++#define X86_FEATURE_TM2		(4*32+ 8) /* Thermal Monitor 2 */
++#define X86_FEATURE_CID		(4*32+10) /* Context ID */
++#define X86_FEATURE_XTPR	(4*32+14) /* Send Task Priority Messages */
+ 
+ /* VIA/Cyrix/Centaur-defined CPU features, CPUID level 0xC0000001, word 5 */
+ #define X86_FEATURE_XSTORE	(5*32+ 2) /* on-CPU RNG present (xstore insn) */
+--- linux-2.6.8-rc4/include/asm-x86_64/cpufeature.h.orig	2004-08-10 04:23:13.000000000 +0200
++++ linux-2.6.8-rc4/include/asm-x86_64/cpufeature.h	2004-08-13 16:53:48.776553304 +0200
+@@ -63,8 +63,14 @@
+ #define X86_FEATURE_K8_C	(3*32+ 4) /* C stepping K8 */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+-#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
++#define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+ #define X86_FEATURE_MWAIT	(4*32+ 3) /* Monitor/Mwait support */
++#define X86_FEATURE_DSCPL	(4*32+ 4) /* CPL Qualified Debug Store */
++#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
++#define X86_FEATURE_TM2		(4*32+ 8) /* Thermal Monitor 2 */
++#define X86_FEATURE_CID		(4*32+10) /* Context ID */
++#define X86_FEATURE_CX16	(4*32+13) /* CMPXCHG16B */
++#define X86_FEATURE_XTPR	(4*32+14) /* Send Task Priority Messages */
+ 
+ #define cpu_has(c, bit)                test_bit(bit, (c)->x86_capability)
+ #define boot_cpu_has(bit)      test_bit(bit, boot_cpu_data.x86_capability)
+
+--Boundary-00=_z0NHBKf3LNnIjvX--

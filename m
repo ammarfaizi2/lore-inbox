@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136429AbRD3Bgp>; Sun, 29 Apr 2001 21:36:45 -0400
+	id <S133025AbRD3B2p>; Sun, 29 Apr 2001 21:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136428AbRD3Bgg>; Sun, 29 Apr 2001 21:36:36 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:62402 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S136433AbRD3BgT>; Sun, 29 Apr 2001 21:36:19 -0400
-Message-Id: <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 30 Apr 2001 02:36:17 +0100
-To: esr@thyrsus.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Cc: John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010429183526.B32748@thyrsus.com>
-In-Reply-To: <15084.12152.956561.490805@gargle.gargle.HOWL>
- <20010427193501.A9805@thyrsus.com>
- <15084.12152.956561.490805@gargle.gargle.HOWL>
+	id <S136429AbRD3B2g>; Sun, 29 Apr 2001 21:28:36 -0400
+Received: from [63.95.87.168] ([63.95.87.168]:61959 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S133025AbRD3B22>;
+	Sun, 29 Apr 2001 21:28:28 -0400
+Date: Sun, 29 Apr 2001 21:28:27 -0400
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Andres Salomon <dilinger@mp3revolution.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: deregister?
+Message-ID: <20010429212826.H17539@xi.linuxpower.cx>
+In-Reply-To: <20010429211049.A17111@mp3revolution.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010429211049.A17111@mp3revolution.net>; from dilinger@mp3revolution.net on Sun, Apr 29, 2001 at 09:10:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:35 29/04/2001, Eric S. Raymond wrote:
->John Stoffel <stoffel@casc.com>:
-> > Also, the buttons on the right hand side for HELP, are wider when they
-> > have text in them, but slightly narrower when they are blank.  They
-> > should be the same width no matter what.  It looks ragged and ugly.
->
->I know.  Sadly, I couldn't find a way to coerce Tcl into doing this right.
+On Sun, Apr 29, 2001 at 09:10:49PM -0400, Andres Salomon wrote:
+[snip]
+> Not to mention in various comments and documentation.  Deregister,
+> according to www.m-w.com (and many other dictionaries), is not a word.
+> Is there some sort of historical significance to this being used, in
+> place of "unregister"?
 
-I don't know about whether this is possible with Tcl but have you tried A) 
-invisible text and/or B) white space character text (e.g. one or more 
-spaces)? That's the kind of thing I usually try in this situation... Just 
-an idea...
+I purpose that we fix this horrible spelling error right away and get it
+into 2.4.5! :)
 
-Best regards,
-
-         Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+(up yours binary-only module authors! :) )

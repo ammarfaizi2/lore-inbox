@@ -1,72 +1,105 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314126AbSEAXqx>; Wed, 1 May 2002 19:46:53 -0400
+	id <S314132AbSEAXyq>; Wed, 1 May 2002 19:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314132AbSEAXqw>; Wed, 1 May 2002 19:46:52 -0400
-Received: from jalon.able.es ([212.97.163.2]:9666 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314126AbSEAXqv>;
-	Wed, 1 May 2002 19:46:51 -0400
-Date: Thu, 2 May 2002 01:46:44 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] intel eths for 2.4 [was: Plan for e100-e1000 in mainline]
-Message-ID: <20020501234644.GA1698@werewolf.able.es>
-In-Reply-To: <20020501010828.GA1753@werewolf.able.es> <3CCF796C.5090401@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.5
+	id <S314137AbSEAXyq>; Wed, 1 May 2002 19:54:46 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:32474 "EHLO
+	postfix2-1.free.fr") by vger.kernel.org with ESMTP
+	id <S314132AbSEAXyp>; Wed, 1 May 2002 19:54:45 -0400
+From: Willy Tarreau <wtarreau@free.fr>
+Message-Id: <200205012354.g41NsgH20820@ns.home.local>
+Subject: [PATCH] ide conflicts with floppy
+To: andre@linux-ide.org
+Date: Thu, 2 May 2002 01:54:42 +0200 (CEST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andre,
 
-On 2002.05.01 Jeff Garzik wrote:
->J.A. Magallon wrote:
->
->>Hi.
->>
->>Well, subject says it all. Which is the status/plans for inclussion
->>of those drivers in mainline kernel ? AFAIR, e1000 had been licensed,
->>but e100 was not clear yet.
->>
->
->e100 has been in 2.5.x for quite a long time.  All license issues have 
->similarly been resolved a long time ago.
->
->I expect Intel's Q/A to green light their current driver.  With a few 
->patches it should be ready for 2.4.x soon.
->
->You can easily copy drivers/net/e100[0] into a 2.4.x kernel, it likely 
->compiles without modification.
->
+I don't know if you received my last mail about ide-2.4.19-p7.all.convert.6.
+I encountered two problems with it (even with convert.7) :
+  - it doesn't compile on alpha because of a typo (fix attached)
+  - when the IDE chipset is an ALI M5229, the floppy cannot get its resources.
+Although the first one was trivial, it took me about a day to find that a
+piece of patch to arch/i386/pci-pc.c disabled a resource fixup in 
+pci_fixup_ide_bases() if the pci function was not 1. The fact is that my
+notebook, my k6 server and even an alpha server (with the same chipset) use
+this chipset with a pci function 0, but all my other systems have their IDE
+controller at 1. So it seems particular to that chipset anyway, but I don't
+know for others (tested only sis, via and amd).
 
-I did it, taking drivers from 2.5.12, and at least it compiles.
-I have to try in the real box, but I don't think there were any problems,
-at least the same than 2.5....
+I don't know what this test was intended for, but after removing it,
+everything's OK again. So I attach it here for those who also have trouble
+getting their floppy to work with certain IDE chipset after applying your IDE
+patch. Except for this, the rest of your patch seems to work well on several
+systems.
 
-Marcelo, is there any chance to get this in next -pre or in .19 ?
-Patches are big, so I put them at:
+Cheers,
+Willy
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/intel/e100-2.0.27-pre3.bz2
-http://giga.cps.unizar.es/~magallon/linux/kernel/intel/e1000-4.2.8.bz2
+>>>>> compile fix for alpha
+--- ./include/asm-alpha/system.h-orig	Sun Apr 28 20:16:55 2002
++++ ./include/asm-alpha/system.h	Sun Apr 28 20:18:34 2002
+@@ -309,7 +309,7 @@
+ #define __sti()			do { barrier(); setipl(IPL_MIN); } while(0)
+ #define __save_flags(flags)	((flags) = rdps())
+ #define __save_and_cli(flags)	do { (flags) = swpipl(IPL_MAX); barrier(); } while(0)
+-#define __save_and_sti(flags)	do { (flags) = setipl(IPL_MIN); barrier(); } while(0)
++#define __save_and_sti(flags)	do { (flags) = swpipl(IPL_MIN); barrier(); } while(0)
+ #define __restore_flags(flags)	do { barrier(); setipl(flags); barrier(); } while(0)
+ 
+ #define local_irq_save(flags)		__save_and_cli(flags)
 
-(note, second gives some offsets and a fail if applied without the first
-one...)
 
-Some notes/questions:
 
-- e100 has no help text.
-- Versions are far newer than those listen in intel web pages:
-  * e100: Intel web is 1.8.35, the driver taken from 2.5.12 is 2.0.27-pre3
-  * e1000: Intel web is 4.1.7, driver in 2.5 is 4.2.8
+>>>> fix for floppy
+--- linux-2.4.19-p7/arch/i386/kernel/pci-pc.c	Sat Apr 20 01:21:17 2002
++++ linux-2.4.19-p7-pristine/arch/i386/kernel/pci-pc.c	Tue Apr 16 03:14:15 2002
+@@ -1143,12 +1143,6 @@
+ 	 */
+ 	if ((d->class >> 8) != PCI_CLASS_STORAGE_IDE)
+ 		return;
+-	/*
+-	 * PCI IDE controllers who are not function 1 off the south bridge
+-	 * need to be skipped.
+-	 */
+-	if (!(PCI_FUNC(d->devfn) & 1))
+-		return;
+ 	DBG("PCI: IDE base address fixup for %s\n", d->slot_name);
+ 	for(i=0; i<4; i++) {
+ 		struct resource *r = &d->resource[i];
 
-Thanks for all the info.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam9 #2 SMP mié may 1 12:09:38 CEST 2002 i686
+>>>>> lspci -vvv with ALI M5229 before second patch
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
+        Subsystem: Acer Laboratories Inc. [ALi] M5229 IDE
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0 (500ns min, 1000ns max)
+        Interrupt: pin A routed to IRQ 0
+        Region 0: I/O ports at 01f0 [size=16]
+        Region 1: I/O ports at 03f4 [size=4]
+        Region 2: I/O ports at 0170 [size=16]
+        Region 3: I/O ports at 0374 [size=4]
+        Region 4: I/O ports at fcf0 [size=16]
+
+
+
+>>>>> lspci -vvv with ALI M5229 after second patch
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
+        Subsystem: Acer Laboratories Inc. [ALi] M5229 IDE
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0 (500ns min, 1000ns max)
+        Interrupt: pin A routed to IRQ 0
+        Region 0: I/O ports at 01f0 [size=16]
+        Region 1: I/O ports at 03f4
+        Region 2: I/O ports at 0170 [size=16]
+        Region 3: I/O ports at 0374
+        Region 4: I/O ports at fcf0 [size=16]
+

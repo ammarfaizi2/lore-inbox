@@ -1,96 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262615AbREVKLA>; Tue, 22 May 2001 06:11:00 -0400
+	id <S261230AbREVKe6>; Tue, 22 May 2001 06:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbREVKKw>; Tue, 22 May 2001 06:10:52 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:51726 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S262605AbREVKKo>;
-	Tue, 22 May 2001 06:10:44 -0400
-Date: Tue, 22 May 2001 13:10:31 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
+	id <S261242AbREVKei>; Tue, 22 May 2001 06:34:38 -0400
+Received: from bsd.ite.com.tw ([210.208.198.222]:7442 "EHLO bsd.ite.com.tw")
+	by vger.kernel.org with ESMTP id <S261230AbREVKeY>;
+	Tue, 22 May 2001 06:34:24 -0400
+From: Rich.Liu@ite.com.tw
+Message-ID: <412C066DD818D3118D4300805FD4667902090B88@ITEMAIL>
 To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-ppp@vger.kernel.org
-Subject: ECN is on!
-Message-ID: <20010522131031.C5947@mea-ext.zmailer.org>
-Reply-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: [newbie] some problem in my new hardware (serial)
+Date: Tue, 22 May 2001 18:32:24 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="Big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... and immediately I have been able to verify a bunch of
-domains/servers which won't get thru when incoming connection
-has ECN.    I tested all of these with Linux running ECN, and
-Solaris 2.6 without ECN.  When Solaris got connection, and
-ECN-Linux didn't, domain and its server got listed.
+I went to port a new hardware into linux kernel.
 
-Amazing share of these troubled destination systems run some
-firewall which thinks it is cool to fuck SMTP protocol.
-(I mean obscuring responses given by the remote system,
- frobbing incoming protocol if some particular detail doesn't
- please the rules it presumes to play with, etc..)
+this is a generic SuperIO chip . have 2serial port 1parallel
 
-I am contemplating to periodically turn off the ECN bit to
-let email out, but DaveM has veto there.
+in serial.c 's struct
+static struct pci_board pci_boards[] __devinitdata = {
 
-This list is NOT exhaustive of domains with problems, it
-primarily lists only those who are subscribers of linux-kernel,
-and thus accumulated (al lot) more than 1 email with "connection
-timed out" status into vger's queue.
+add my code 
+
+	{	PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8872,
+		PCI_ANY_ID, PCI_ANY_ID,
+		SPCI_FL_BASE1| SPCI_FL_BASE_TABLE, 2, 115200,
+		0, 0, pci_ite8872_fn, 0 },
+
+pci_ite8872_fn don't have code ... it's a null function
+
+after this , I load my kernel modules
+this function will clean hardware's Interrupt Request Register.
+
+void ite8872_requestirq(int irq,void *dev_id,struct pt_regs *regs){
+	u8 itmp;
+	itmp = inb(ITE8872_INTC+2);
+    outb(itmp,ITE8872_INTC); // Clean Interrupt
+}
+
+when I configure hardware , i reload serial.o , I can get those message
+May 22 18:21:43 sddlinux kernel: PCI: Found IRQ 10 for device 00:0b.0
+May 22 18:21:43 sddlinux kernel: Setup PCI/PNP port: port b400, irq 10, type
+0
+May 22 18:21:43 sddlinux kernel: Testing ttyS4 (0xb400, 0x0000)...
+May 22 18:21:43 sddlinux kernel: ttyS04 at port 0xb400 (irq = 10) is a
+16550A
+May 22 18:21:43 sddlinux kernel: Setup PCI/PNP port: port b000, irq 10, type
+0
+May 22 18:21:43 sddlinux kernel: Testing ttyS5 (0xb000, 0x0000)...
+May 22 18:21:43 sddlinux kernel: ttyS05 at port 0xb000 (irq = 10) is a
+16550A
+I think this is would setup my hardware correct ....
+
+but if I use minicom to access this comport .  will give me a message
+"starting up ttys5 (irq 10)...rs_open ttys0 success"
+
+and repeat this message 
+"rs_interrupt_single(10)... status = 60 ...IIR = c1 ...end.
+many times, and kernel hangs .
+I must use hardware restart to reboot my computer .
+
+I have no idea to programming next step , could anyone can help me to
+program it ?
 
 
-  DEST. DOMAIN                     SERVER NAME
+--                                                      
+Integrated Technology Express, INC.
+Rich Liu
+E-mail : rich.liu@ite.com.tw
+Tel : +886 (3) 579-8658 Ext : 28221            
 
-ic.sunysb.edu                   -> bartman.ic.sunysb.edu
-olympus.phys.wesleyan.edu       -> olympus.phys.wesleyan.edu
-imap.reed.edu                   -> imogen.reed.edu
-aplcomm.jhuapl.edu              -> dallas.jhuapl.edu
-mail.utexas.edu                 -> mx2.mail.utexas.edu
-cs.jhu.edu                      -> hops.cs.jhu.edu
-judy.indstate.edu       - gets connected, but then freezes.
-cc.usu.edu                      -> cc.usu.edu
-aubi.de                         -> mail.aubi-online.de
-opensource.se                   -> mail.carambole.com
-routemeister.net		-> mail.carambole.com
-*.swipnet.se                    -> smtp-ext.swip.net
-swipnet.se                      -> smtp-ext.swip.net
-get2net.dk			-> smtp-ext.swip.net
-dina.kvl.dk			-> sheridan.dina.kvl.dk
-enea.se				-> ruff.enea.se
-able.es				-> jalon.able.es
-vadoc.state.va.us		-> mail.vadoc.state.va.us
-libero.it			-> smtp-in.libero.it
-ra.cit.alcatel.fr		-> mail.alcatel.fr
-csse.monash.edu.au		-> ld-mx.it.monash.edu.au
-galactica.it			-> mail.galactica.it
-ds.catv.ne.jp			-> cs14.catv.ne.jp
-mailbox.dsnet.it		-> mailin.dsnet.it
-lee.k12.nc.us			-> shomer.lee.k12.nc.us
-sh.bel.alcatel.be		-> mx001.alcatel.be
-quantum.cicese.mx		-> quantum.cicese.mx
-isuzu.pl			-> isztye02.isuzu.pl
-gruppocredit.it			-> mext.gruppocredit.it
-debitel.net			-> mail.dnsg.net
-optical.lvl.pri.bms.com		-> chimera.bms.com
-us.celoxica.com			-> mail.us.embeddedsol.com
-ford.com			-> mail0.allegro.net
-vnnews.com			-> mail.cinet.vnn.vn
-echostar.com			-> rf-mail1.echostar.com
-jetform.com			-> mail.jetform.com
-half.com			-> mailhub.half.com
-pa.dec.com			-> ztxmail01.ztx.compaq.com
-compaq.com			-> ztxmail01.ztx.compaq.com
-zk3.dec.com			-> ztxmail01.ztx.compaq.com
-allaire.com			-> smtp.allaire.com
-catalog-international.com	-> ciexchange.catalog-international.com
-lcr-m.com			-> mail1.lcr-m.net
-logica.com			-> mail4.messagelabs.com
-missioncriticallinux.com	-> mail.missioncriticallinux.com
-msdw.com			-> mx1.ms.com
-honeywell.com			-> tmpsmtp702.honeywell.com
-austin.ibm.com			-> mg02.austin.ibm.com
-btinternet.com			-> moongate.btinternet.com
-geeksimplex.org			-> DNS A: 24.18.90.197 (home.com cable)

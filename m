@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264389AbRFOMyb>; Fri, 15 Jun 2001 08:54:31 -0400
+	id <S264399AbRFONMa>; Fri, 15 Jun 2001 09:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264395AbRFOMyU>; Fri, 15 Jun 2001 08:54:20 -0400
-Received: from mail.ftr.nl ([212.115.175.146]:57337 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S264389AbRFOMyD>; Fri, 15 Jun 2001 08:54:03 -0400
-Message-ID: <27525795B28BD311B28D00500481B7601F1477@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
-Subject: RE: Client receives TCP packets but does not ACK
-Date: Fri, 15 Jun 2001 14:53:59 +0200
+	id <S264401AbRFONMT>; Fri, 15 Jun 2001 09:12:19 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:38115 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264399AbRFONMJ>; Fri, 15 Jun 2001 09:12:09 -0400
+Subject: Re: [Jfs-discussion] Re: severe FS corruption with 2.4.6-pre2 + IBM jfs 0.3.4
+ patch
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jfs-discussion@dwoss.lotus.com,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        David Mansfield <lkml@dm.ultramaster.com>
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF336B3F96.2AD61AA8-ON85256A6C.0047D9E1@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 15 Jun 2001 08:11:54 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 06/15/2001 09:11:54 AM
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> TCP is NOT a guaranteed protocol -- you can't just blast data from one
-port
-> to another and expect it to work.
+On Fri, Jun 15, 2001 at 01:55:05AM Andi Kleen wrote:
+> On Thu, Jun 14, 2001 at 02:25:06PM -0400, Jeff Garzik wrote:
+>> Alan Cox wrote:
+>> >
+>> > > It's probably a JFS issue, but I thought I'd report this in case
+someone
+>> > > is collecting and correlating filesystem corruption messages
+(Alan?).
+>> > > Here is my sad story.
+>> >
+>> > I get as far as 'using jfs' and delete them
+>>
+>> Understandable but FWIW they have apparently passed a night of
+>> stress-kernel (cerberus) testing on the latest jfs..
 
-Isn't it? Are you really sure about that? I thought UDP was the
-not-guaranteed-one and TCP was the one guaranting that all data reaches the
-other end in order and all. Please enlighten me.
+> rm -rf not working correctly is a kind of show stopper bug ATM though.
+> Hopefully it can be fixed soon.
+
+Andi,
+
+The rm -rf problem is our topic priority and should be fixed in less
+that a week.
+
+Steve
 

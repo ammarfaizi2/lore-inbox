@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293397AbSCEPsU>; Tue, 5 Mar 2002 10:48:20 -0500
+	id <S293396AbSCEPuK>; Tue, 5 Mar 2002 10:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293396AbSCEPsK>; Tue, 5 Mar 2002 10:48:10 -0500
-Received: from DIRTY-BASTARD.MIT.EDU ([18.241.0.136]:1920 "EHLO
-	dirty-bastard.pthbb.org") by vger.kernel.org with ESMTP
-	id <S293395AbSCEPsH>; Tue, 5 Mar 2002 10:48:07 -0500
-Message-Id: <200203060425.g264PaO00901@dirty-bastard.pthbb.org>
-To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-Subject: Re: Tulip bug? 
-Date: Tue, 05 Mar 2002 23:25:36 -0500
-From: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
+	id <S293402AbSCEPuB>; Tue, 5 Mar 2002 10:50:01 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7552 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293396AbSCEPts>;
+	Tue, 5 Mar 2002 10:49:48 -0500
+Date: Tue, 05 Mar 2002 07:47:22 -0800 (PST)
+Message-Id: <20020305.074722.25911127.davem@redhat.com>
+To: sp@scali.com
+Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: Does kmalloc always return address below 4GB?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C84E785.1D102FF9@scali.com>
+In-Reply-To: <200203051112.DAA03159@adam.yggdrasil.com>
+	<20020305.031636.63129004.davem@redhat.com>
+	<3C84E785.1D102FF9@scali.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I managed to switch the console to the 8x9 font which gave 42 lines of
-spew... No mention of tulip this time, at least not in what was visible.
-Also none of these ever get logged to messages so ksymoops wouldn't help?
-Most of it is Call Trace and Stack, which I am guessing is useless without
-knowing the exact state of the machine before hand (I do have Call Trace and
-Stack available if useful)?
+   From: Steffen Persvold <sp@scali.com>
+   Date: Tue, 05 Mar 2002 16:43:01 +0100
 
-Other than that I got:
+   "David S. Miller" wrote:
+   > Just use pci_alloc_consistent, it never gives you
+   > anything larger than 32-bit addresses, please read the
+   > documentation :-)
+   
+   What about memory for streaming mappings
 
-reference at virtual address 00000070 printing eip: c0120095
-*pde=00000000
-Oops: 0
-CPI=0
-EIP: 0010:[<c0120095>] Not tainted
-...
+That's a different story.
 
-AND
+   I know pci_map_single (and _sg) will
+   use bounce buffers on platforms without an IOMMU,
 
-<1> Unable to hande kernel NULL pointer dereference at virtual address
-00000000 printing eip: c010ee96
-*pde=00000000
-Oops=0000
-CPU=0
-EIP: 0010:[<c010ee96>] Not tainted
-...
+64-bit platforms without IOMMU use HIGHMEM.
 
-AND
-
-<0> Kernel panic: Aieee, killing interrupt controller!
-
-Thanks!
+   It could for example be solved with a GFP_32BIT flag or something (on IA64 I
+   know GFP_DMA is used in pci_alloc_consistent() to get memory below 4GB but that
+   can't be used on all platforms).
+   
+IA64 was broken, it now uses HIGHMEM.
+   
+Franks a lot,
+David S. Miller
+davem@redhat.com

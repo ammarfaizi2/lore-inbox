@@ -1,75 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUAMGza (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 01:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUAMGza
+	id S263702AbUAMGuU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 01:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUAMGuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 01:55:30 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:43661 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263777AbUAMGzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 01:55:24 -0500
-Date: Mon, 12 Jan 2004 22:51:59 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: thomasz@hostmaster.org
-Subject: [Bug 1855] New: de4x5 does not work with SMP 
-Message-ID: <901390000.1073976719@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 13 Jan 2004 01:50:20 -0500
+Received: from stinkfoot.org ([65.75.25.34]:20923 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S263702AbUAMGuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 01:50:13 -0500
+Message-ID: <40039529.2040709@stinkfoot.org>
+Date: Tue, 13 Jan 2004 01:50:17 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031224
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       piggin@cyberone.com.au, "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+Subject: Re: 2.6.1 and irq balancing
+References: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1855
+Nakajima, Jun wrote:
 
-           Summary: de4x5 does not work with SMP
-    Kernel Version: 2.6.1
-            Status: NEW
-          Severity: high
-             Owner: jgarzik@pobox.com
-         Submitter: thomasz@hostmaster.org
+>> Admittedly, the machine's load was not high when I took this sample.
+>> However, creating a great deal of load does not change these statistics 
+>> at all.  Being that there are patches available for 2.4.x kernels to 
+>> fix this, I don't think this at all by design, but what do I know? =)
+>>  
 
+> 2.6 kernels don't need a patch to it as far as I understand. Are you
+> saying that with significant amount of load, you did not see any
+> distribution of interrupts? Today's threshold in the kernel is high
+> because we found moving around interrupts frequently rather hurt the
+> cache and thus lower the performance compared to "do nothing". Can you
+> try to create significant load with your network (eth0 and eh1) and see
+> what happens? 
+> 
+> Jun 
 
-I am successfully using a "Digital Equipment Corporation DECchip 21041[Tulip
-Pass 3] (rev 11)" with the de4x5 driver under linux 2.4.*. Linux 2.6.1 works
-fine when compiled for UP but when compiled for SMP it does lockup within
-milliseconds after bringing up the network interface. After enabling the NMI
-watchdog I received the following oops message (copied manually, case not
-preserved, typos possible):
-
-NMI watchdog detected lockup on cpu0, eip e29a1528, registers:
-cpu0: 0
-eip: 0060:[<e29a1528>] not tainted
-eflags: 00000086
-eip is at .text.lock.de4x5+0x30/0x78 [de4x5]
-eax: 00000040 ebx: 00000282 ecx: c03ef194 edx: 00000000
-esi: df5a1200 edi: df5a1000 ebp: 0000c400 esp: c047bee0
-ds: 007b es: 007b ss: 0068
-process swapper (pid: 0, threadinfo=c047a000 task=c03ec980)
-Stack: df5a1000 df5a1200 00000001 df5a1000 000000fa e299a873 df5a1000 00001010
-00001010 0000ef01 0000ff3f 00000008 00000960 df5a1200 df5a1000 000000fa
-c047bf50 e299955c df5a1000 00000007 e29994d0 df5a16f8 c150b520 c0127717
-call trace:
-e299a873 dc21041_autoconf+0x223/0x630 de4x5
-e299955c de4x5_ast+0x8c/0xb0 de4x5
-e29994d0 de4x5_ast+0x0/0xb0 de4x5
-c0127717 run_timer_softirq+0xd7/0x190
-c0122fc7 do_softirq+0xc7/0xd0
-c0115bfd smp_apic_timer_interrupt+0xcd/0x140
-c0105000 rest_init+0x0/0x50
-c0109a0e apic_timer_interrupt+0x1a/0x20
-c0106cb0 default_idle+0x0/0x40
-c0105000 rest_init+0x0/0x50
-c0106cdc default_idle+0x2c/0x40
-c0106d6b cpu_idle+0x3b/0x50
-c047c8ed start_kernel+0x15d/0x170
-c047c4a0 unknown_bootoption+0x0/0x120
-code: f3 90 80 be 0c 02 00 00 00 7e f5 e9 6a b3 ff ff f3 90 80 bb
-
-Using the de2104x driver is not an option as it fails to receive or transmit any
-packets according to tcpdump and even in UP mode.
+Here's the situation two days later, I created some brief periods of 
+high load on eth1 and I see we have some change:
 
 
+            CPU0       CPU1       CPU2       CPU3
+   0:  184932542          0    2592511          0    IO-APIC-edge  timer
+   1:       1875          0          0          0    IO-APIC-edge  i8042
+   2:          0          0          0          0          XT-PIC  cascade
+   3:    3046103          0          0          0    IO-APIC-edge  serial
+   8:          2          0          0          0    IO-APIC-edge  rtc
+   9:          0          0          0          0   IO-APIC-level  acpi
+  14:         76          0          0          0    IO-APIC-edge  ide0
+  16:    2978264          0          0          0   IO-APIC-level  sym53c8xx
+  22:    7838940          0          0          0   IO-APIC-level  eth0
+  48:     916078          0     125150          0   IO-APIC-level  aic79xx
+  49:    1099375          0          0          0   IO-APIC-level  aic79xx
+  54:   51484241        316   50560879        279   IO-APIC-level  eth1
+NMI:          0          0          0          0
+LOC:  187530735  187530988  187530981  187530986
+ERR:          0
+MIS:          0
+
+
+My argument is (see below).  This is an old 2x pentium2 @400, also 
+running 2.6, an old Compaq Proliant to be exact.  This machine obviously 
+has no HT, so why the balanced load?
+
+
+            CPU0       CPU1
+   0: 1066522197 1117196193    IO-APIC-edge  timer
+   1:         42         19    IO-APIC-edge  i8042
+   2:          0          0          XT-PIC  cascade
+   5:   23523428   23510845   IO-APIC-level  TLAN
+   8:          0          4    IO-APIC-edge  rtc
+   9:         15         15   IO-APIC-level  sym53c8xx
+  10:    6874323    6809042   IO-APIC-level  sym53c8xx
+  11:    7545802    7509034   IO-APIC-level  ida0
+  14:          8          2    IO-APIC-edge  ide0
+NMI:          0          0
+LOC: 2183867261 2183867237
+ERR:          0
+MIS:          0
+
+
+
+Ethan

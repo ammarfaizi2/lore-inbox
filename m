@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbTDQRqn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbTDQRqm
+	id S261743AbTDQRuw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDQRuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:46:42 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6784 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261821AbTDQRqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:46:40 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304171800.h3HI0e97000255@81-2-122-30.bradfords.org.uk>
-Subject: Re: Help with virus/hackers
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 17 Apr 2003 19:00:40 +0100 (BST)
-Cc: john@grabjohn.com (John Bradford), root@chaos.analogic.com,
-       jbriggs@briggsmedia.com (joe briggs),
-       linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <1050596810.31414.103.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 17, 2003 05:26:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Thu, 17 Apr 2003 13:50:51 -0400
+Received: from opersys.com ([64.40.108.71]:33028 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261743AbTDQRut (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:50:49 -0400
+Message-ID: <3E9EB30B.511F93DD@opersys.com>
+Date: Thu, 17 Apr 2003 13:58:35 +0000
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Martin Hicks <mort@wildopensource.com>
+CC: Daniel Stekloff <dsteklof@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, hpa@zytor.com, pavel@ucw.cz,
+       jes@wildopensource.com, linux-kernel@vger.kernel.org, wildos@sgi.com,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [patch] printk subsystems
+References: <200304141533.18779.dsteklof@us.ibm.com> <Pine.LNX.4.44.0304161140160.912-100000@cherise> <20030416191619.GA3413@bork.org> <200304161243.58291.dsteklof@us.ibm.com> <20030417155604.GC543@bork.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've often wondered whether it would be worth connecting a very large
-> > serial EEPROM to a serial port interface, and have it effectively
-> > appear as a solid state printer, (to that you could cheaply log to an
-> > unmodifyable device).  Has anybody ever tried this?
-> 
-> Linux supports console on printer. Its not totally foolproof (there is
-> a famous story of someone who simply reprinted the past two days of logs
-> edited so the admins wouldnt realise when they looked)
 
-!!!  You can't be serious :-)
+Martin Hicks wrote:
+> I don't think relayfs solves the problem either.  This just adds an
+> extra dependency for yet another pseudo-filesystem.  printk is something
+> that needs to "just work" even if the kernel is in the midst of
+> crashing.  Adding the extra complexity of all printk going out through a
+> filesystem/buffer layer is not desirable, IMHO.
 
-> but it works pretty well. Just use a dot-matrix printer save keeping
-> HP, Lexmark or Xerox in business 8)
+I beg to differ. There's a point where we've got to stop saying "oh,
+this buffering mechanism is special and it requires its own code."
+relayfs is there to provide a unified light-weight mechanism for
+transfering large amounts of data from the kernel to user space.
 
-Aren't you concerned with all of the trees that will be cut down to
-make that paper, though?
+> It seems that the relayfs solution for buffer overflows in the printk
+> buffer is to just make lots of buffers.  I really want to be able to
+> turn off prink logging for stuff I don't care about, without the
+> complexity of having fifteen different logs to look in and changing
+> how get get log info from the kernel to syslog.
 
-I think 1 tree = about 50 reams.  Let's say you get through a ream a
-day, that's a tree every couple of months!
+Again, as I said earlier, relayfs doesn't care about filtering. That's
+to the upper layers to take care of. It so happens that relayfs simplifies
+filtering by allowing the upper layers to mux their data using separate
+channels. In no way is anyone forced to do that, though. It's there if
+you need it, and if you need to simply have a is_this_message_logged()
+function, then so be it, but that's yours to implement.
 
-Maybe there is a way to encode the data in the rings of the tree while
-it's still growing, that would be the ultimate WORM device :-) :-)
-:-).
+As for buffer overflows and printk, automatically resizeable log buffers
+using a water-mark scheme are on the relayfs to-do list.
 
-John.
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

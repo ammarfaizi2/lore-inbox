@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310424AbSCLFVX>; Tue, 12 Mar 2002 00:21:23 -0500
+	id <S310423AbSCLFcR>; Tue, 12 Mar 2002 00:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310428AbSCLFVM>; Tue, 12 Mar 2002 00:21:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26377 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310424AbSCLFVF>; Tue, 12 Mar 2002 00:21:05 -0500
-Date: Mon, 11 Mar 2002 21:20:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <3C8D8C9C.3060208@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0203112108140.1547-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310428AbSCLFcI>; Tue, 12 Mar 2002 00:32:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28945 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310423AbSCLFby>;
+	Tue, 12 Mar 2002 00:31:54 -0500
+Date: Tue, 12 Mar 2002 05:31:52 +0000
+From: wli@holomorphy.com
+To: wli@parcelfarce.linux.theplanet.co.uk, andrea@suse.de,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020312053152.D687@holomorphy.com>
+Mail-Followup-To: wli@holomorphy.com, wli@parcelfarce.linux.theplanet.co.uk,
+	andrea@suse.de, "Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+	phillips@bonn-fries.net
+In-Reply-To: <20020312041958.C687@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020312041958.C687@holomorphy.com>; from wli@parcelfarce.linux.theplanet.co.uk on Tue, Mar 12, 2002 at 04:19:58AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 12, 2002 at 04:19:58AM +0000, wli@parcelfarce.linux.theplanet.co.uk wrote:
+> 	http://www.samba.org/~anton/linux/pagecache/pagecache_before.png
+> 
+> 	is a histogram of the pagecache hash function's bucket distribution
+> 	on an SMP ppc64 machine after some benchmark run.
+> 
+> 	http://www.samba.org/~anton/linux/pagecache/pagecache_after.png
+> 
+> 	has a histogram of a Fibonacci hashing hash function's bucket
+> 	distribution on the same machine after an identical benchmark run.
+
+akpm just pointed out to me these histograms are not quite the best
+comparisons as the tables differ in size. I'll get something webabble
+soon with head-to-head comparisons. OTOH the general nature of things
+should be clear and the behavior of that hash function visible.
 
 
-On Tue, 12 Mar 2002, Jeff Garzik wrote:
->
-> Dumb question, why create a separate request?
-
-Because you need to anyway. Things like shutdown/suspend need to sync the
-caches, and that's a command that needs to go down the pipe to the disk.
-
-> Why not just have some way to wait for request X (and flag it for
-> no-merge/barrier treatment, etc.)?  bios have end_io callbacks...
-
-The bio's are just fragment descriptors, they don't really stand on their
-own. A bio needs a request in order to move down to the driver.
-
-The request is the place where you find the actual command - the bio just
-contains the fragment data of the command.
-
-Of course, the "just" is a big simplification. Since a block command can
-be a chain of hundreds of blocks which each actually have a lifetime of
-their own, unlike the network later, the fragments are a lot more
-complicated than a "skb_frag_t".
-
-So bio's are complex entities in themselves, and they have a life of their
-own. It's just that you cannot send a raw bio to a device - the device
-wouldn't know what to do with it.
-
-		Linus
-
+Cheers,
+Bill

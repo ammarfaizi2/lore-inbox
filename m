@@ -1,140 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVARVJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVARVPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVARVJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 16:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVARVJy
+	id S261425AbVARVPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 16:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVARVPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 16:09:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23732 "EHLO
+	Tue, 18 Jan 2005 16:15:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59828 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261421AbVARVJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 16:09:34 -0500
-Date: Tue, 18 Jan 2005 15:55:51 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Frank van Maarseveen <frankvm@frankvm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.28 Oops in fs/locks.c:time_out_leases()
-Message-ID: <20050118175551.GA28618@logos.cnet>
-References: <20050118123253.GA31499@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050118123253.GA31499@janus>
-User-Agent: Mutt/1.5.5.1i
+	id S261425AbVARVPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 16:15:02 -0500
+Message-ID: <41ED7C38.3080201@pobox.com>
+Date: Tue, 18 Jan 2005 16:14:32 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Martins Krikis <mkrikis@yahoo.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: iswraid and 2.4.x?
+References: <41ED56B5.8000603@pobox.com>	 <20050118195621.15879.qmail@web30202.mail.mud.yahoo.com> <58cb370e050118125536c17538@mail.gmail.com>
+In-Reply-To: <58cb370e050118125536c17538@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 01:32:53PM +0100, Frank van Maarseveen wrote:
-> got an Oops the same time for 9 days, at the same EIP:
+Bartlomiej Zolnierkiewicz wrote:
+> Hi,
 > 
-> ksymoops 2.4.9 on i686 2.4.28-x97.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.28-x97/ (default)
->      -m /boot/System.map-2.4.28-x97 (default)
+> On Tue, 18 Jan 2005 11:56:21 -0800 (PST), Martins Krikis
+> <mkrikis@yahoo.com> wrote:
 > 
-> kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 0000003c
-> kernel: c0153cb8
-> kernel: *pde = 00000000
-> kernel: Oops: 0000
-> kernel: CPU:    0
-> kernel: EIP:    0010:[time_out_leases+24/128]    Not tainted
-> kernel: EFLAGS: 00010202
-> kernel: eax: c1b42a14   ebx: 00000010   ecx: 00000000   edx: c349139c
-> kernel: esi: c1b42ad0   edi: c06f6000   ebp: c06f7f0c   esp: c06f7f04
-> kernel: ds: 0018   es: 0018   ss: 0018
-> kernel: Process find (pid: 17476, stackpage=c06f7000)
-> kernel: Stack: c1b42a14 00018801 c06f7f38 c0153d79 c1b42a14 00000000 00000000 c06f7f38 
-> kernel:        00000000 c349139c ffffffff 00018801 c1b42a14 c06f7f64 c014d8c7 c1b42a14 
-> kernel:        00018801 00000000 00000000 00000004 c2f51898 00018800 c160f000 080665cb 
-> kernel: Call Trace:    [__get_lease+89/640] [open_namei+487/1376] [filp_open+47/80] [sys_open+61/160] [system_call+51/64]
-> kernel: Code: f6 43 2c 20 74 23 f6 43 2d 10 74 1d 8b 53 50 85 d2 75 1d 89 
-> Using defaults from ksymoops -t elf32-i386 -a i386
-
-Frank,
-
-I strongly suspect you are hitting a physical memory problem:
-
-> Hi Frank,                                                                                                                                                                      
-> Can you please do                                                                                                                                                              
-> gdb vmlinux                                                                                                                                                                    
-> disassemble time_out_leases                                                                                                                                                    
-
-(gdb) disas time_out_leases
-Dump of assembler code for function time_out_leases:
-0xc0153ca0 <time_out_leases+0>: push   %ebp
-0xc0153ca1 <time_out_leases+1>: mov    %esp,%ebp
-0xc0153ca3 <time_out_leases+3>: push   %esi
-0xc0153ca4 <time_out_leases+4>: push   %ebx
-0xc0153ca5 <time_out_leases+5>: mov    0x8(%ebp),%eax
-0xc0153ca8 <time_out_leases+8>: mov    0xbc(%eax),%ebx
-0xc0153cae <time_out_leases+14>:        lea    0xbc(%eax),%esi
-0xc0153cb4 <time_out_leases+20>:        test   %ebx,%ebx
-0xc0153cb6 <time_out_leases+22>:        je     0xc0153ce1 <time_out_leases+65>
-0xc0153cb8 <time_out_leases+24>:        testb  $0x20,0x2c(%ebx)  <---------- (1)
-0xc0153cbc <time_out_leases+28>:        je     0xc0153ce1 <time_out_leases+65>
-0xc0153cbe <time_out_leases+30>:        testb  $0x10,0x2d(%ebx)	 <---------- (2)
-0xc0153cc2 <time_out_leases+34>:        je     0xc0153ce1 <time_out_leases+65>
-0xc0153cc4 <time_out_leases+36>:        mov    0x50(%ebx),%edx   <---------  (OOPS)
-0xc0153cc7 <time_out_leases+39>:        test   %edx,%edx
-
-The ebx register holds the "struct file_lock *fl" pointer, which is accessed twice
-a few instructions before at (1) and (2).
-
-Suddenly %ebx contains "00000010" (zero with fifth bit flipped) and the kernel crashes.
-
-
-static void time_out_leases(struct inode *inode)
-{
-        struct file_lock **before;
-        struct file_lock *fl;
-
-        before = &inode->i_flock;
-        while ((fl = *before) && (fl->fl_flags & FL_LEASE)
-                        && (fl->fl_type & F_INPROGRESS)) {
-                if ((fl->fl_break_time == 0)
-                                || time_before(jiffies, fl->fl_break_time)) {
-                        before = &fl->fl_next;
-                        continue;
-                }
-
-
-I suggest you to run memtest86 on this box.
-
-
+>>--- Jeff Garzik <jgarzik@pobox.com> wrote:
+>>
+>>
+>>>Check your inbox from months ago ;-)  AFAICS his current version
+>>>addresses all the comments from Alan and myself, from when it hit
+>>>lkml 6
+>>>months(?) ago...
+>>>
+>>>I'll give it another quick lookover though, sure.
+>>
+>>Jeff,
+>>
+>>As long as 2.4.30 is planned at all, I have no more
+>>worries for the moment. But if so, then please don't
+>>waste your time looking over the current version. In
+>>about a week there should really be another one out.
+>>It will add RAID10, and get rid of the "claim disks
+>>for RAID" mis-feature. I'll let everybody know, of course.
 > 
 > 
-> >>eax; c1b42a14 <_end+164147c/4347ac8>
-> >>edx; c349139c <_end+2f8fe04/4347ac8>
-> >>esi; c1b42ad0 <_end+1641538/4347ac8>
-> >>edi; c06f6000 <_end+1f4a68/4347ac8>
-> >>ebp; c06f7f0c <_end+1f6974/4347ac8>
-> >>esp; c06f7f04 <_end+1f696c/4347ac8>
-> 
-> Code;  00000000 Before first symbol
-> 00000000 <_EIP>:
-> Code;  00000000 Before first symbol
->    0:   f6 43 2c 20               testb  $0x20,0x2c(%ebx)
-> Code;  00000004 Before first symbol
->    4:   74 23                     je     29 <_EIP+0x29>
-> Code;  00000006 Before first symbol
->    6:   f6 43 2d 10               testb  $0x10,0x2d(%ebx)
-> Code;  0000000a Before first symbol
->    a:   74 1d                     je     29 <_EIP+0x29>
-> Code;  0000000c Before first symbol
->    c:   8b 53 50                  mov    0x50(%ebx),%edx
-> Code;  0000000f Before first symbol
->    f:   85 d2                     test   %edx,%edx
-> Code;  00000011 Before first symbol
->   11:   75 1d                     jne    30 <_EIP+0x30>
-> Code;  00000013 Before first symbol
->   13:   89 00                     mov    %eax,(%eax)
-> 
-> 
-> Details:
-> -	compiled with gcc version 3.3.4 (Debian 1:3.3.4-3)
-> -	only ext3 and NFSv3 mounts (and automounter). 
-> -	The "find" causing the oops appears to be started from cron.daily
-> 	and only touches local filesystems.
-> -	SMP kernel running on UP (pentium II)
+> I'm just curious.  Is there already a possibility to use
+> RAID10 metadata in 2.6.x kernels?
+
+Intel or 'md' metadata?
+
+You need dmraid to use the Intel proprietary format.  I'm not sure if it 
+supports RAID10 yet, but it supports the other levels.
+
+	Jeff
+
+
+

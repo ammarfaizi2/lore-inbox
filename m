@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281067AbRKTOFy>; Tue, 20 Nov 2001 09:05:54 -0500
+	id <S281072AbRKTO2K>; Tue, 20 Nov 2001 09:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281069AbRKTOFe>; Tue, 20 Nov 2001 09:05:34 -0500
-Received: from t2.redhat.com ([199.183.24.243]:31219 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S281067AbRKTOF3>; Tue, 20 Nov 2001 09:05:29 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200111201303.OAA17296@post.webmailer.de> 
-In-Reply-To: <200111201303.OAA17296@post.webmailer.de> 
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre6 compile errors 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Nov 2001 14:05:24 +0000
-Message-ID: <16761.1006265124@redhat.com>
+	id <S281069AbRKTO2A>; Tue, 20 Nov 2001 09:28:00 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:56077 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S280872AbRKTO1w>; Tue, 20 Nov 2001 09:27:52 -0500
+Date: Tue, 20 Nov 2001 14:23:22 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3Com 3c905c invalid checksum? [FOLLOW-UP]
+In-Reply-To: <Pine.LNX.4.33.0111192234340.9417-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0111201422190.20041-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Nov 2001, Alex Buell wrote:
 
-arnd@bergmann-dalldorf.de said:
->  CONFIG_PPP_DEFLATE && (CONFIG_CRAMFS || CONFIG_ZISOFS): Symbol
-> clashes from two zlib copies (again...). I suppose the symbols in
-> drivers/net/zlib.c could all be made static unless a merge of both
-> zlib  copies is already planned. 
+> The network card in the docking station I plug my Inspirion 8100 in,
+> is a 3Com 3c905C Tornado but apparently at boot time when it is
+> identified, it prints "***INVALID CHECKSUM 00e0**. I can't ping other
+> boxes on the network, nor can I ping other boxes from the laptop. I've
+> double checked and triple checked, and the configuration is indeed
+> correct.
 
-JFFS2 will conflict too. JFFS2 and PPP can't use the separate zlib at the
-moment, because they require compression support and it only does
-decompression. PPP may even have trouble when that's fixed, although I think
-we eventually concluded it would be OK.
+Thanks to all who replied. It was indeed, caused by an old kernel on a
+distribution.  I really should have thrown it out and used a more up to
+date distribution!
 
-JFFS2 and PPP can share though. 
+-- 
+Broken hearted, but not down.
 
---
-dwmw2
-
+http://www.tahallah.demon.co.uk
 

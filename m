@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263422AbTIWU6k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 16:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTIWU6k
+	id S262015AbTIWUhK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 16:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTIWUhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 16:58:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44765 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263415AbTIWU6h (ORCPT
+	Tue, 23 Sep 2003 16:37:10 -0400
+Received: from nan-smtp-03.noos.net ([212.198.2.72]:36154 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id S262015AbTIWUhH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 16:58:37 -0400
-Date: Tue, 23 Sep 2003 13:45:29 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Grant Grundler <iod00d@hp.com>
-Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-Id: <20030923134529.7ea79952.davem@redhat.com>
-In-Reply-To: <20030923203819.GB8477@cup.hp.com>
-References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
-	<20030923142925.A16490@kvack.org>
-	<20030923185104.GA8477@cup.hp.com>
-	<20030923115122.41b7178f.davem@redhat.com>
-	<20030923203819.GB8477@cup.hp.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 23 Sep 2003 16:37:07 -0400
+Subject: 2.6.0.test5-bk10 bio too big
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fFSFv3d4uU7tibRNLNAQ"
+Organization: Adresse personnelle
+Message-Id: <1064347633.3469.8.camel@rousalka.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Tue, 23 Sep 2003 22:07:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Sep 2003 13:38:19 -0700
-Grant Grundler <iod00d@hp.com> wrote:
 
-> Given misaligned accesses are infrequent enough to affect
-> performance, it makes sense to do this in SW because
-> it reduces cost of the HW design/test/mfg cycles.
+--=-fFSFv3d4uU7tibRNLNAQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Intel actually optimizes this on the P4, what is your
-response to that?  Is Intel wasting they time? :-)
+Hi,
 
-> Ok. If the kernel networking stack used get_unaligned() in the one place
-> Peter originally found, x86/sparc64?/et al wouldn't see a difference.
-> It would avoid traps on ia64 and parisc.  Bad idea?
-> Any other arches it might help/hurt on?
+Since switching from 2.6.0-test5-bk9 to 2.6.0-test5-bk10 my logs are
+flooded with :
 
-It's needed on every access to every TCP and IP header portion
-for the case we're talking about in this thread, where the network
-device driver gives the networking a packet that ends up with
-unaligned IP and TCP headers.
+Sep 23 21:58:27 rousalka kernel: bio too big device hdc1 (248 > 128)
+Sep 23 21:58:27 rousalka kernel: bio too big device hdc1 (248 > 128)
+Sep 23 21:58:27 rousalka kernel: raid1: hdc1: rescheduling sector
+150669680
+Sep 23 21:58:27 rousalka kernel: raid1: hdc1: redirecting sector
+150669680 to another mirror
 
-I once considered adding some get_unaligned() uses to the TCP option
-parsing code, guess who rejected that patch?  It wasn't me, it was
-Linus himself and I came to learn that he's right on this one.
+Should I worry ?
+
+--=20
+Nicolas Mailhot
+
+--=-fFSFv3d4uU7tibRNLNAQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/cKfwI2bVKDsp8g0RAt08AKDpp/9CVmx95Chq4OctfHvaBya66gCfYxRN
+QlicZmy2UuKzvFixPRhUPHc=
+=vQg3
+-----END PGP SIGNATURE-----
+
+--=-fFSFv3d4uU7tibRNLNAQ--
+

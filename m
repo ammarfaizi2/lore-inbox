@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267223AbSLEFHg>; Thu, 5 Dec 2002 00:07:36 -0500
+	id <S267225AbSLEFPW>; Thu, 5 Dec 2002 00:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267224AbSLEFHg>; Thu, 5 Dec 2002 00:07:36 -0500
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:37104 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S267223AbSLEFHf>; Thu, 5 Dec 2002 00:07:35 -0500
-Date: Wed, 4 Dec 2002 21:15:07 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Orion Poplawski <orion@cora.nwra.com>
-Cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS - IRIX client issues
-Message-ID: <20021205051507.GA17498@ip68-4-86-174.oc.oc.cox.net>
-References: <3DEE85D3.6070009@cora.nwra.com> <3DEE8EC2.2040305@rackable.com> <3DEE9425.40204@cora.nwra.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEE9425.40204@cora.nwra.com>
-User-Agent: Mutt/1.4i
+	id <S267226AbSLEFPW>; Thu, 5 Dec 2002 00:15:22 -0500
+Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:28827 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267225AbSLEFPU>; Thu, 5 Dec 2002 00:15:20 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 4 Dec 2002 21:20:49 -0800
+Message-Id: <200212050520.VAA03472@adam.yggdrasil.com>
+To: david@gibson.dropbear.id.au
+Subject: Re: [RFC] generic device DMA implementation
+Cc: davem@redhat.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, miles@gnu.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 04:47:49PM -0700, Orion Poplawski wrote:
-> The mount comes up fine and works for quite a while and then crashes. 
-> This is under relatively heavy load (tar files being unpacked, data 
-> files manipulated, etc.).  No iptables/chains.
+At the risk of beating a dead horse, I'd like to clarify a potential
+ambiguity.
 
-I'm having the same problem, with Solaris 8 on SPARC for the NFS server
-(as opposed to Linux), on one of my machines. For some reason it only
-happens when it's plugged into a 100MBps Netgear non-switching (i.e, "old
-fashioned" in a sense -- half-duplex) hub. If I plug it straight into
-the wall at work (this is connected directly to a 10MBps (I know),
-full-duplex (I think) port on some kind of switch whose other details I
-have no idea about), the problem instantly disappears.
+David Gibson wrote:
+>It seems the "try to get consistent memory, but otherwise give me
+>inconsistent" is only useful on machines which:
+>	(1) Are not fully consisent, BUT
+>	(2) Can get consistent memory without disabling the cache, BUT
+>	(3) Not very much of it, so you might run out.
 
-At least, I think it's the same problem. When your connection collapses,
-does IRIX complain about timeouts trying to contact the NFS server,
-almost as if the NFS server fell off the face of the planet?
+>The point is, there has to be an advantage to using consistent memory
+>if it is available AND the possibility of it not being available.
 
-I just noticed this patch (4808: "NFS3 hangs with delayed writes, panics
-with imon") for IRIX 6.5.17m. The following page has more detail
-(although just reading the following page, as well as downloading the
-actual patch, requires an SGI support contract or warranty -- and I can't
-look at it and summarize it because TPTB at work have canceled the SGI
-support contracts with the intent of eventually replacing all the SGI
-boxes with Linux-based x86's or the like):
-http://support.sgi.com/colls/patches/docs/browse/support/pinfo/pinfo4808.html
+	It is enough that there is an advantage to using consistent
+memory on one platform (such as sparc64?) and the possibility of it
+not being available on another platform (such as parisc), given that
+you want the driver on both platforms (such as 53c700).  In that case,
+we have identified three possible choices so far:
 
-So, that patch might help, if you have access to it. I also found
-another document, "Pipeline: [Oct-Dec 2002] IRIX 6.5.17 NFS Changes and
-Tuning", which also cannot be accessed without a support contract or
-warranty:
-http://support.sgi.com/search/?cmd=getdoc&db=pipeline&locale=C&coll=0650&highlight=type,pipeline,PipelineYear,2002,PipelineIssue,OctoberDecember&fname=content/pipeline/html/20020402NFS.html
+APPROACH				PROBLEMS
 
-Finally, I have no idea if IRIX 6.5.18m fixes any NFS bugs. If it does,
-it can be obtained with an M Series Access contract that costs $500 per
-workstation per year (servers not eligible, that is, they can only get
-6.5.18m through support contracts AFAIK). A tiny bit more info on that
-here:
-http://support.sgi.com/news/support/IRIX_M_Stream_Implementation.html
-http://support.sgi.com/news/support/IRIX_M_Stream_Implementation1.html
+1. Use both memory allocators.		Increased source and object size,
+   (as 53c700 currently does)		rarely used code branches, unneeded
+					"if (!consistent)" tests on platforms
+					where the answer is constant.
 
-I hope this helps. It might not help as much as other suggestions (such
-as trying NFSv2), but it might be better than nothing (especially if the
-machine is still covered by an SGI support contract or warranty).
+2. Assume only inconsistent memory.	Slower on platforms where consistent
+					memory has speed advantage
 
--Barry K. Nathan <barryn@pobox.com>
+3. Have "maybe consistent" allocation
+   and {w,r}mb_maybe(addr,len) macros.
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+

@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269257AbRH0Vzp>; Mon, 27 Aug 2001 17:55:45 -0400
+	id <S269318AbRH0V7F>; Mon, 27 Aug 2001 17:59:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269318AbRH0Vzf>; Mon, 27 Aug 2001 17:55:35 -0400
-Received: from mail.cdlsystems.com ([207.228.116.20]:59658 "EHLO
-	cdlsystems.com") by vger.kernel.org with ESMTP id <S269257AbRH0Vz0>;
-	Mon, 27 Aug 2001 17:55:26 -0400
-Message-ID: <00c101c12f42$921d3820$160e10ac@hades>
-From: "Mark Cuss" <mcuss@cdlsystems.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Files missing from filesystem?  (2.4.9)
-Date: Mon, 27 Aug 2001 15:52:30 -0600
+	id <S269387AbRH0V6z>; Mon, 27 Aug 2001 17:58:55 -0400
+Received: from falcon.etf.bg.ac.yu ([147.91.8.233]:1411 "EHLO
+	falcon.etf.bg.ac.yu") by vger.kernel.org with ESMTP
+	id <S269318AbRH0V6n>; Mon, 27 Aug 2001 17:58:43 -0400
+Date: Mon, 27 Aug 2001 23:58:41 +0200 (CEST)
+From: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with 2.4.9
+In-Reply-To: <E15bS70-0004WY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Return-Path: mcuss@cdlsystems.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: mcuss@cdlsystems.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
 
-I just upgraded the kernel on our server to 2.4.9 last friday.  We made some
-changes to some script files that night, and discovered that the changes
-were gone this morning.  A check of the backup tape that ran friday night
-verifies that the changes were made, and a poll around the office yields
-that noone changed them....
+On Mon, 27 Aug 2001, Alan Cox wrote:
 
-I had a dig through the kernel log and turned up the following message:
+> Does this help
 
-Aug 26 03:02:37 chaos kernel: (scsi0:A:0:0): Locking max tag count at 64
+Nope :(
 
-Does this have anything to do with it?  It seemed wierd to me - I had never
-seen it before.  If anyone can enlighten me as
-to what it means I'd really appreciate it.
+But, I am able to boot that machine with 2.4.5 generic kernel with
+builtin Adaptec AIC 7xxx support that comes with Slackware 8.0.
 
-Thanks
+Oops output is now a little bit different ;)
 
-Mark
+SCSI subsystem driver Revision: 1.00
+Unable to handle kernel NULL pointer dereference at virtual address 0000003c
+ printing eip:
+c01a31c0
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01a31c0>]
+EFLAGS: 00010082
+eax: 00000000   ebx: c1124340   ecx: 00000000 edx: ffffffff
+esi: c1155600   edi: c1155700   ebp: c1155600 esp: c1121e70
+ds: 0018   es: 0018  ss: 0018
 
-Mark Cuss, B. Sc.
-Junior Real Time Systems Analyst
-CDL Systems Ltd
-3553 - 31 Street NW
-Calgary, Alberta
-(403) 289-1733 ext 226
-mcuss@cdlsystems.com
+Process swapper (pid: 1, stackpage=c1121000)
+Stack: c0187d2a 00000000 ffffffff 00000000 00000200 c1124340 00000200 000000fc
+       0000000f c0192b0c c1155600 c1124320 c1155700 00000001 c1155758 c1155600
+       000000fc 0000000f c022e4a4 c1155600 c022e4a4 c11242ac c022e4a4 00000026
+Call Trace: [<c0187d2d>] [<c0192b0c>] [<c0197c49>] [<c018b925>] [<c01a3f14>]
+   [<c01a2f94>] [<c018bb6b>] [<c018826c>] [<c017f82e>] [<c0141d6b>] [<c0142095>]
+
+   [<c018007d>] [<c0105037>] [<c010545c>]
+
+Code: 89 50 3c 31 c0 c3 b8 fb ff ff ff c3 8b 54 24 08 23 54 24 04
+Kernel panic: Attempted to kill init!
+
+
+Greetings,
+Bosko
 
 

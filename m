@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbUBXUXq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbUBXUXq
+	id S262442AbUBXU22 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbUBXU22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:23:46 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:60055 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262436AbUBXUXo
+	Tue, 24 Feb 2004 15:28:28 -0500
+Received: from a213-22-30-111.netcabo.pt ([213.22.30.111]:59534 "EHLO
+	r3pek.homelinux.org") by vger.kernel.org with ESMTP id S262442AbUBXU2X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:23:44 -0500
-Date: Tue, 24 Feb 2004 18:16:57 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Sid Stautzenberger <sstautzenberger@htshq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernels 2.4.21 and Subsequent and Toshiba XM-1702B CDROMs
-In-Reply-To: <001901c3f7f1$051a6220$10a8a8c0@htshq.com>
-Message-ID: <Pine.LNX.4.58L.0402241816190.23951@logos.cnet>
-References: <001901c3f7f1$051a6220$10a8a8c0@htshq.com>
+	Tue, 24 Feb 2004 15:28:23 -0500
+Message-ID: <37630.62.229.71.110.1077654498.squirrel@webmail.r3pek.homelinux.org>
+Date: Tue, 24 Feb 2004 20:28:18 -0000 (WET)
+Subject: Re: A Layered Kernel: Proposal
+From: "Carlos Silva" <r3pek@r3pek.homelinux.org>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 20 Feb 2004, Sid Stautzenberger wrote:
-
-> Linux-Kernel.Org:
 >
-> I'm not sure where to ask help for this problem. I have installed and tested
-> many Linux distros on my Dell Inspiron 3200 which uses a Toshiba XM-1702B
-> CDROM. I have had no problem with installing any distro from CD iso images.
-> Now I have discovered that all distros built on kernels 2.4.21 or subsequent
-> no longer support the Toshiba XM-1702B drive. I've tried reading thru the
-> kernel source programs and information, and it leads one to believe that
-> this CDROM is still supported. This can't be the case. Who can I ask for
-> help getting a fix. I am presently using Slackware based on 2.4.20 and
-> Xandros based on 2.4.19.
-> Ditributions based on 2.4.21/22/24 and 2.6.1/2 will attempt to read the
-> CDROM (/dev/hdc) but after nearly a minute an error will be displayed
-> indicating dirctory not found. I think the problem is in the ide code in the
-> kernel source. Exactly where I haven't a clue. I'm stuck not being able to
-> upgrade to newer kernels.
+> A Layered Kernel
+> Proposal
+>
+> (...)
 
-Hi Sid,
 
-What are the error messages from both 2.4 and 2.6 ?
+i really like the idea. maybe it will be in the 2.7 branch of the kernel...
+
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRAINly>; Tue, 9 Jan 2001 08:41:54 -0500
+	id <S129324AbRAINrE>; Tue, 9 Jan 2001 08:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbRAINlp>; Tue, 9 Jan 2001 08:41:45 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:32231 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130013AbRAINl3>; Tue, 9 Jan 2001 08:41:29 -0500
-Message-ID: <3A5B168B.A5CCA889@uow.edu.au>
-Date: Wed, 10 Jan 2001 00:47:55 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: Stephen Landamore <stephenl@zeus.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.10.10101091301170.18208-100000@phaedra.cam.zeus.com> <Pine.LNX.4.30.0101091418300.3375-100000@e2>
+	id <S129562AbRAINqy>; Tue, 9 Jan 2001 08:46:54 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:26889 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S129324AbRAINqm>;
+	Tue, 9 Jan 2001 08:46:42 -0500
+Date: Tue, 9 Jan 2001 08:46:40 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Steven N. Hirsch" <shirsch@adelphia.net>,
+        Helge Hafting <helgehaf@idb.hist.no>,
+        Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel network problem ?
+Message-ID: <20010109084640.A29867@xi.linuxpower.cx>
+In-Reply-To: <Pine.LNX.4.21.0101090853250.27322-100000@pii.fast.net> <E14FytQ-0006cr-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <E14FytQ-0006cr-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 01:32:49PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Tue, Jan 09, 2001 at 01:32:49PM +0000, Alan Cox wrote:
+> > If I were packaging a Linux distribution, I'd be sure to have ECN disabled
+> > by default, FWIW.
 > 
-> On Tue, 9 Jan 2001, Stephen Landamore wrote:
+> Probably the case. However the more people who pester the faulty sites the
+> better. Did you ask the person how many reports he needed ....
 > 
-> > >> Sure.  But sendfile is not one of the fundamental UNIX operations...
+> I certainly intend to run ECN on my mailhost once I trust 2.4 a bit more.
 > 
-> > > Neither were eg. kernel-based semaphores. So what? Unix wasnt
-> 
-> > Ehh, that's not correct. HP-UX was the first to implement sendfile().
-> 
-> i dont think we disagree. What i was referring to was the 'original' Unix
-> idea, the 30 years old one, which did not include sendfile() :-) We never
-> claimed that sendfile() first came up in Linux [that would be a blatant
-> lie] - and the Linux API itself was indeed influenced by existing
-> sendfile()/copyfile() interfaces. (at the time Linus implemented
-> sendfile() there already existed several similar interfaces.)
-> 
+> Alan
 
-y'know our pals have patented it?
+Is anyone maintaing an automated sweep of sites that I can complain to all
+at once (for each 2.4 ecn system I install of course) rather then finding
+them one at a time as my connections fail?
 
-http://www.delphion.com/details?pn=US05845280__
+:)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

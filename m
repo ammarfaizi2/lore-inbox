@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265963AbUFTWRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265967AbUFTWUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265963AbUFTWRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUFTWRf
+	id S265967AbUFTWUg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUFTWUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:17:35 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:20957 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265963AbUFTWRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:17:32 -0400
-Date: Sun, 20 Jun 2004 23:17:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix typos in ATM_FORE200E_USE_TASKLET help text
-Message-ID: <20040620221713.GA9238@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, chas@cmf.nrl.navy.mil,
-	linux-atm-general@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20040620220752.GB27822@fs.tum.de>
+	Sun, 20 Jun 2004 18:20:36 -0400
+Received: from main.gmane.org ([80.91.224.249]:51601 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265966AbUFTWUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:20:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH] FAT: don't use "utf8" charset and NLS_DEFAULT
+Date: Mon, 21 Jun 2004 00:09:32 +0200
+Message-ID: <MPG.1b402989dd27af149896d0@news.gmane.org>
+References: <200406201807.i5KI7qNT004770@hera.kernel.org> <1087767944.2805.20.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040620220752.GB27822@fs.tum.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-20-141.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 12:07:52AM +0200, Adrian Bunk wrote:
-> The trivial patch below fixes two typos in the ATM_FORE200E_USE_TASKLET 
-> help text.
+Arjan van de Ven wrote:
+> On Sun, 2004-06-20 at 18:59, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1770, 2004/06/20 09:59:33-07:00, hirofumi@mail.parknet.co.jp
+> > 
+> > 	[PATCH] FAT: don't use "utf8" charset and NLS_DEFAULT
+> > 	
+> > 	Recently, some distributors have set "utf8" to NLS_DEFAULT, therefore,
+> > 	FAT uses the "iocharset=utf8" as default.  But, since "iocharset=utf8"
+> > 	doesn't provide the function (lower <-> upper conversion) which FAT
+> > 	needs, so FAT can't provide suitable behavior.
 > 
-> Please apply
-> Adrian
-> 
-> --- linux-2.6.7/drivers/atm/Kconfig.old	2004-06-21 00:03:30.000000000 +0200
-> +++ linux-2.6.7/drivers/atm/Kconfig	2004-06-21 00:07:29.000000000 +0200
-> @@ -391,8 +391,8 @@
->  	default n
->  	help
->  	  This defers work to be done by the interrupt handler to a
-> -	  tasklet instead of hanlding everything at interrupt time.  This
-> -	  may improve the responsive of the host.
-> +	  tasklet instead of handling everything at interrupt time.  This
-> +	  may improve the responsiveness of the host.
+> does Microsoft store UTF8 in vfat ?
 
-Btw, this isn't exactly something that should be a config option.  Either
-it's an improvement and should always be on or not.  But the arm drivers
-seem to like gazillions of options for just about everything..
+Long names are UTF16-encoded IIRC.
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

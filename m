@@ -1,88 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSLZJF3>; Thu, 26 Dec 2002 04:05:29 -0500
+	id <S262808AbSLZJSd>; Thu, 26 Dec 2002 04:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSLZJFK>; Thu, 26 Dec 2002 04:05:10 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:60858 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S262807AbSLZJEc> convert rfc822-to-8bit; Thu, 26 Dec 2002 04:04:32 -0500
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S262813AbSLZJSd>; Thu, 26 Dec 2002 04:18:33 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:26285 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S262808AbSLZJSc>; Thu, 26 Dec 2002 04:18:32 -0500
+Message-ID: <20021226092641.12371.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] TIObench results for kernel 2.5.53, latency reduces
-Date: Thu, 26 Dec 2002 12:10:25 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867204427F@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] TIObench results for kernel 2.5.53, latency reduces
-Thread-Index: AcKsmjABXIY96/V1QHmxJGjDOCrbvAAD3KxA
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Dec 2002 06:40:25.0895 (UTC) FILETIME=[AC3D6370:01C2ACA9]
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com, ciarrocchi@linuxmail.org
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, conma@kolivas.net,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+Date: Thu, 26 Dec 2002 17:26:41 +0800
+Subject: Re: Poor performance with 2.5.52, load and process in D state
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Here are the results of comparison of kernel 2.5.53 and 2.5.52. 
-on TIObench. key findings are listed in the table. Values in the table indicate approximate percentage change with respect to previous result. Please see the mail in full window to see the formatted results.
+From: Andrew Morton <akpm@digeo.com>
 
+> Paolo Ciarrocchi wrote:
+> > 
+> > Hi Andrew/Rik/Con/all
+> > 
+> > Andrew, I promised you to run a few tests
+> > using osdb (www.osdb.org with 40M of data)against both
+> > 2.4.19 and 2.5.52 booting the kernel with the
+> > mem=XXM paramter.
+> > 
+> > I also played with the /proc/sys/vm/swappiness
+> > parameter, I've ran all the tests with the standard
+> > swappiness value (60), with 80 and 100.
+> > 
+> > 100 means the 2.4 behaviour, isn't it ?
+> 
+> Not really.  swappiness=100 is strict LRU, treating pagecache and
+> mapped-into-process-memory pages identically.  Smaller values will
+> make the kernel prefer to preserve mapped-into-process-memory.
+> 
+> > Looking at the results it seems that the "standard"
+> > value is too low, probably 80 is the best one.
+> > What do you think ?
+> 
+> I would agree with that.
+>  
+> > ...
+> > 
+> > 2.4.19  all     x               778.65 seconds  (0:12:58.65)
+> > 2.5.52  all     60              768.98 seconds  (0:12:48.98)
+> > 2.5.52  all     80              770.43 seconds  (0:12:50.43)
+> > 2.5.52  all     100             771.76 seconds  (0:12:51.76)
+> 
+> Only 1% difference.  On my 4xPIII with mem=128M, 2.4.20-pre2 took
+> 1080.55 seconds and 2.5.52-mm3 took 991.03.  That's 9% faster, and
+> from the profile:
+> 
+> c010a858 system_call                                 192   4.3636
+> c011e518 current_kernel_time                         201   3.3500
+> c012cdbc __generic_file_aio_read                     214   0.4652
+> c012bba0 kallsyms_lookup                             219   0.8295
+> c012ccec file_read_actor                             230   1.1058
+> c0145abc fget                                        318   4.1842
+> c01d3ed4 radix_tree_lookup                           384   3.8400
+> c0144be0 vfs_read                                    409   1.3279
+> c01315f4 check_poison_obj                            695   7.8977
+> c012c964 do_generic_mapping_read                    1007   1.1988
+> c01d7ae0 __copy_user_intel                         34130 213.3125
+> c0108a58 poll_idle                                299231 3562.2738
+> 
+> it appears that this benefit came from the special usercopy code.
+> What sort of CPU are you using?
 
--------------------------------------------------------------
-test					2.5.53 (as compared to
-					2.5.52) APPRXIMATE % change
--------------------------------------------------------------
-rate (megabytes per second)	10% increase
-CPU % utilization			10% increase
-Average Latency			15% decrease
-Maximum latency			20+ % decrease 
-CPU efficiency			less than 5% increase
--------------------------------------------------------------
+It is a PIII@800.
 
-Here are the complete results.
-***************************************************************
-			TIObench
-			kernel 2.5.53
-***************************************************************
+Ciao,
+      Paolo
+ 
 
-No size specified, using 252 MB
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
 
-Unit information
-================
-File size = megabytes
-Blk Size  = bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
-
-Sequential Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.53                        252   4096   10    9.79 5.844%    10.318      849.54   0.00000  0.00000   168
-
-Random Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.53                        252   4096   10    0.53 0.747%   199.206      829.67   0.00000  0.00000    71
-
-Sequential Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.53                        252   4096   10   18.47 34.87%     3.460    23116.35   0.05312  0.00000    53
-
-Random Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.53                        252   4096   10    0.80 1.154%     1.692     2037.52   0.00000  0.00000    69
-
-Aniruddha Marathe
-WIPRO Technologies, India
-aniruddha.marathe@wipro.com
-+91-80-5502001 to 2008 extn 5092
+Powered by Outblaze

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbTEDVK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 17:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTEDVK3
+	id S261757AbTEDVMN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 17:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTEDVMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 17:10:29 -0400
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:13319 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S261741AbTEDVK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 17:10:28 -0400
-Date: Sun, 4 May 2003 16:22:56 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Subject: Latest GCC-3.3 is much quieter about sign/unsigned comparisons
-Message-ID: <20030504212256.GE24907@debian>
+	Sun, 4 May 2003 17:12:12 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:53774 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S261757AbTEDVK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 17:10:56 -0400
+Date: Sun, 4 May 2003 17:29:59 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Mikhail Kruk <meshko@cs.brandeis.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fcntl file locking and pthreads
+Message-ID: <20030504212959.GB12243@mark.mielke.cc>
+References: <Pine.LNX.4.33.0305040206270.20509-100000@iole.cs.brandeis.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.33.0305040206270.20509-100000@iole.cs.brandeis.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, May 04, 2003 at 02:13:25AM -0400, Mikhail Kruk wrote:
+> on 2.4 kernels fcntl-based file locking does not work with 
+> clone-based threads as expected (by me): two threads of the same process 
+> can acquire exclusive lock on a file at the same time.
+> flock()-based locks work as expected, i.e. only one thread can have an 
+> exclusive lock at a time.
+> What would it take to make fcntl work as flock?
 
-This change ...
+I don't think per-thread locks is entirely reasonable. The file descriptor
+is shared between threads, which means that attributes (including locks)
+attached to the file descriptor, are shared between threads.
 
-2003-05-02  Zack Weinberg  <zack@codesourcery.com>
+I would suggest that system resources such as advisory locks be considered
+per process, and inter-thread synchronization be performed using thread
+synchronization primitives such as the mutex. Feel free to quote from POSIX
+to tell me that this suggestion is wrong.
 
-	PR c/10604
-	* c-opts.c (c_common_decode_option <OPT_Wall>): Set
-	warn_sign_compare for C++ only.
-	* doc/invoke.texi: Clarify documentation of -Wsign-compare.
+mark
 
-... has eliminated all the warnings that GCC-3.3 by default printed
-with regards to signed/unsigned comparisons. A build of today's BK
-with this compiler is much quieter than those previously done
-with the 3.3 snapshots.
-
-Art Haas
 -- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
- -- Theodore Roosevelt, Kansas City Star, 1918
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

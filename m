@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130177AbQKVMbH>; Wed, 22 Nov 2000 07:31:07 -0500
+	id <S129851AbQKVMba>; Wed, 22 Nov 2000 07:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbQKVMa6>; Wed, 22 Nov 2000 07:30:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54112 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129851AbQKVMaw>; Wed, 22 Nov 2000 07:30:52 -0500
-Subject: Re: ECN causing problems
-To: mrwizard@psu.edu (Joseph Gooch)
-Date: Wed, 22 Nov 2000 12:00:45 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <006301c05433$feb8c0c0$0200020a@wizws> from "Joseph Gooch" at Nov 21, 2000 10:26:24 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13yYZz-0005sd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130069AbQKVMbT>; Wed, 22 Nov 2000 07:31:19 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:7685 "HELO kabuki.eyep.net")
+	by vger.kernel.org with SMTP id <S129851AbQKVMbH>;
+	Wed, 22 Nov 2000 07:31:07 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Rik's bad process killer - how to kill _IT_?
+Date: Wed, 22 Nov 2000 23:02:53 +1100
+From: Daniel Stone <daniel@kabuki.eyep.net>
+Message-Id: <20001122123115Z129851-8303+80@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My RaptorNT 6.5 firewall rejects all connections from my linux box when ECN
-> is enabled.  The error is attached.  Perhaps this feature should be disabled
-> by default?  Or is there already an option of the sort that i'm missing?  I
-> only got the idea to disable it after a search of linux-kernel.
+Hi,
+I've been having a bit of a problem with Rik's new VM, in particular the bad
+process-killer. Basically put, I have a reasonably underpowered system
+(P166) running Helix GNOME & Sawfish, and half the time when I load my Eterm
+(admittedly, transparent, but it looks cool, damnit!), or Netscape (or
+both!) it seems to be Rik's VM killer slaying them. No error message is
+logged anywhere, not even if I start 'em from the console.
+Is there a /proc hack or something?
+Thanks a lot!
+:) d
 
-Your raptorNT 6.5 firewall is faulty, its as simple as that. Check if they have
-an upgrade to fix their error.
+--
+Daniel Stone
+Linux Kernel Developer
+daniel@kabuki.eyep.net
 
-Alan
-
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
+K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
+D+ G e->++ h!(+) r+(%) y? UF++
+------END GEEK CODE BLOCK------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

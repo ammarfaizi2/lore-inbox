@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbULYNPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbULYNX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbULYNPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 08:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbULYNPV
+	id S261412AbULYNX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 08:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbULYNX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 08:15:21 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:25034 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S261410AbULYNOo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 08:14:44 -0500
-Message-ID: <41CD67D8.6080001@verizon.net>
-Date: Sat, 25 Dec 2004 08:15:04 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Graeme T Ford <gtford@gmail.com>
-CC: linux lover <linux.lover2004@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Understanding how kernel functions works and adding new one
-References: <72c6e3790412242020482eadbe@mail.gmail.com> <31f2b71904122501096a8b787@mail.gmail.com>
-In-Reply-To: <31f2b71904122501096a8b787@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [209.158.220.243] at Sat, 25 Dec 2004 07:14:43 -0600
+	Sat, 25 Dec 2004 08:23:26 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:47255 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261412AbULYNXW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 08:23:22 -0500
+Subject: Re: Ho ho ho - Linux v2.6.10
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1103977161.22646.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 25 Dec 2004 12:19:24 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-12-24 at 22:39, Linus Torvalds wrote:
+> Ok, with a lot of people taking an xmas break, here's something to play
+> with over the holidays (not to mention an excuse for me to get into the
+> Glögg for real ;)
 
-> Lastly, I've noticed you've been asking some questions over the past
-> few days which are easily answered by a simple Google search - may I
-> suggest that as a first point of call in future. You'd probably learn
-> a lot more by searching for stuff yourself.
-> 
+Merry Yule to you too.
 
-I'll second that.  Google is probably the closest thing to Microsoft's Knowlege 
-Base that Linux has for quick questions ;) .
+Not wishing to be too ungrateful to Santa but 
 
-There are a number of good books written on the kernel - Linux Device Drivers is 
-due to have its third edition released in February.  I'm glad - my second edition 
-copy is starting to look a little ragged from constant reference.
+- The broken AX.25 patches are not reverted so that doesn't work on some
+networks
 
-Check this website:
+- It seems the security hole inducing exec_id change was not reverted
+and I've not yet found any other changes that fix the same problem
+(setuid_app >/proc/self/mem) in 2.6.10. It was actually quite nasty as a
+hole because you can seek the fd to the right target address before
+execing. With the other /proc changes did I miss something on this one
 
-http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+I'll check it all over in more detail when I generate 2.6.10-ac
+(probably tomorrow), which will be nice as the patch will be a _lot_
+shorter and USB storage a lot happier than 2.6.9 based systems.
 
-It has a good listing of on- and off-line resources, and was updated recently.
+Alan
 
-Jim

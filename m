@@ -1,84 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265416AbSIWKpD>; Mon, 23 Sep 2002 06:45:03 -0400
+	id <S265453AbSIWKt3>; Mon, 23 Sep 2002 06:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265453AbSIWKpD>; Mon, 23 Sep 2002 06:45:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30097 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265416AbSIWKpC>;
-	Mon, 23 Sep 2002 06:45:02 -0400
-Date: Mon, 23 Sep 2002 12:49:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pawel Bernadowski <pbern@wilnet.info>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.36 - trm290
-Message-ID: <20020923104955.GE15479@suse.de>
-References: <Pine.LNX.4.44L.0209202301190.13443-100000@niunius.wilnet.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0209202301190.13443-100000@niunius.wilnet.info>
+	id <S265457AbSIWKt3>; Mon, 23 Sep 2002 06:49:29 -0400
+Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:33922 "EHLO
+	www.veltzer.org") by vger.kernel.org with ESMTP id <S265453AbSIWKt2>;
+	Mon, 23 Sep 2002 06:49:28 -0400
+Message-Id: <200209231106.g8NB63d10555@www.veltzer.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Veltzer <mark@veltzer.org>
+Organization: Meta Ltd.
+To: Con Kolivas <conman@kolivas.net>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] gcc3.2 v 2.95.3 (contest and linux-2.5.38)
+Date: Mon, 23 Sep 2002 14:06:01 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <1032750261.3d8e84b5486a9@kolivas.net> <1032750631.966.1003.camel@phantasy> <1032751018.3d8e87aa99cc2@kolivas.net>
+In-Reply-To: <1032751018.3d8e87aa99cc2@kolivas.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20 2002, Pawel Bernadowski wrote:
-> i didn`t compile 2.5.36(& 37).. error :
-> 
->  gcc -Wp,-MD,./.trm290.o.d -D__KERNEL__ 
-> -I/home/users/builder/rpm/BUILD/linux-2.5.37/include -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2
-> -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
-> -mpreferred-stack-boundary=2 -march=i686
-> -I/home/users/builder/rpm/BUILD/linux-2.5.37/arch/i386/mach-generic 
-> -nostdinc -iwithprefix include  -I../  -DKBUILD_BASENAME=trm290   -c -o 
-> trm290.o    
-> trm290.c
-> trm290.c: In function `trm290_ide_dma_write':
-> trm290.c:195: too many arguments to function `ide_build_dmatable'
-> trm290.c: In function `trm290_ide_dma_read':
-> trm290.c:239: too many arguments to function `ide_build_dmatable'
-> make[3]: *** [trm290.o] Error 1
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Might fix this differently later, but this should make it work for now.
-The reason for the error is that 2.4.20-pre-ac has the extra argument to
-indicate data direction, however this isn't needed on 2.5 since the
-request has a data direction bit.
+On Monday 23 September 2002 06:16, Con Kolivas wrote:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.603   -> 1.604  
-#	drivers/ide/pci/trm290.c	1.5     -> 1.6    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/23	axboe@burns.home.kernel.dk	1.604
-# Bad merge from 2.4.20-pre-ac, ide_build_dmatable() does not need data
-# direction argument in 2.5 (it's implicit in the request)
-# --------------------------------------------
-#
-diff -Nru a/drivers/ide/pci/trm290.c b/drivers/ide/pci/trm290.c
---- a/drivers/ide/pci/trm290.c	Mon Sep 23 12:48:51 2002
-+++ b/drivers/ide/pci/trm290.c	Mon Sep 23 12:48:51 2002
-@@ -192,7 +192,7 @@
- 	trm290_prepare_drive(drive, 0);	/* select PIO xfer */
- 	return 1;
- #endif
--	if (!(count = ide_build_dmatable(drive, rq, PCI_DMA_TODEVICE))) {
-+	if (!(count = ide_build_dmatable(drive, rq))) {
- 		/* try PIO instead of DMA */
- 		trm290_prepare_drive(drive, 0); /* select PIO xfer */
- 		return 1;
-@@ -236,7 +236,7 @@
- 	task_ioreg_t command	= WIN_NOP;
- 	unsigned int count, reading = 2, writing = 0;
- 
--	if (!(count = ide_build_dmatable(drive, rq, PCI_DMA_FROMDEVICE))) {
-+	if (!(count = ide_build_dmatable(drive, rq))) {
- 		/* try PIO instead of DMA */
- 		trm290_prepare_drive(drive, 0); /* select PIO xfer */
- 		return 1;
+> >
+> > Ugh??  Something is _seriously_ messed up here.
+>
 
--- 
-Jens Axboe
+The most important question to ask here is: What flags did you compile both 
+?!? I wouldn't count on the flags that were designed for gcc 2.95 to be any 
+good for 3.2... Could the original poster comment on this ?
 
+Any GCC maintainers on this list to comment ? Is there any set of flags to be 
+passed to gcc 3.2 to replicate 2.95 behaviour ? I wouldn't rule out gcc 3.2 
+having a totaly different set of optimizations geared towards user space C++. 
+Again, any gcc maintainers comments ?!? 
+
+Since most of the code in gcc is for C++ most of the changes in gcc should 
+have been geared towards C++ (yes - quite a monstrous language). It seems to 
+me that the changes in C compilation between 2.95 and 3.2 should be minor 
+EXCEPT in terms of C optimization. Can anyone with assembly knowledge take 
+apart two identical drivers and see the better machine code produced by 2.95 
+as compared to 3.2 ? If so - can this be reported to the gcc folk ?
+
+It seems to me that the difference is so huge that even user space 
+applications could show the difference. I suggest compiling a large C program 
+(emphasis on the C) in user space and doing the comparison... I would guess 
+that this should have been done by the gcc folk but because of the 
+hideousness of the C++ language I would guess that they mostly concentrated 
+on C++ and didn't bother to benchmark regular C optimization. This is quite 
+awful as the bulk of lower level open source code is in C and not C++ so this 
+kind of test has a lot of meaning for any distribution that is going to be 
+based on gcc 3.2...
+
+If this benchmark turns out to be right then it seems to me that the only 
+conclusion is that the gcc folk let their interest in aesoteric features of 
+C++ (which has about 1/2 a billion of those) override the basic need for 
+strong C optimization. Yes - it now seems that the C++ language (which is 
+quite an abomination in terms of engineering and the KISS principle) is 
+actually hurting open source (which has been my conclusion for quite some 
+time).
+
+Mark
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9jvWZxlxDIcceXTgRAnxpAKDYz61RWvceqD13Z889rwtZLOaomwCggmmj
+ixt6x1e+zXewlrYCCHbiN9Y=
+=snOl
+-----END PGP SIGNATURE-----

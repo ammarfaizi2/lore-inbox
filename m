@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUK0V4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbUK0WBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbUK0V4T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 16:56:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUK0V4T
+	id S261345AbUK0WBu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 17:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbUK0WBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 16:56:19 -0500
-Received: from ctb-mesg1.saix.net ([196.25.240.73]:12780 "EHLO
-	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S261343AbUK0V4N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 16:56:13 -0500
-Subject: Re: *** Announcement: dmraid 1.0.0-rc5f *** [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: mauelshagen@redhat.com
+	Sat, 27 Nov 2004 17:01:50 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64468 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261345AbUK0WBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 17:01:48 -0500
+Subject: Re: RivaFB and GeForce FX
+From: Lee Revell <rlrevell@joe-job.com>
+To: Oded Shimon <ods15@ods15.dyndns.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041124142633.GA16708@redhat.com>
-References: <20041124142633.GA16708@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zUq0wMHWVBGJEizDpMgC"
-Date: Sat, 27 Nov 2004 23:56:21 +0200
-Message-Id: <1101592581.11949.50.camel@nosferatu.lan>
+In-Reply-To: <200411242347.07911.ods15@ods15.dyndns.org>
+References: <200411242347.07911.ods15@ods15.dyndns.org>
+Content-Type: text/plain
+Date: Sat, 27 Nov 2004 17:01:46 -0500
+Message-Id: <1101592907.15635.5.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-11-24 at 23:47 +0200, Oded Shimon wrote:
+> I'm currently working on getting complete support for Geforce FX for RivaFB.
 
---=-zUq0wMHWVBGJEizDpMgC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> The 
+> only working reference I have for that though is the binary, closed source, 
+> official Nvidia X module.
+> 
 
-On Wed, 2004-11-24 at 15:26 +0100, Heinz Mauelshagen wrote:
->                *** Announcement: dmraid 1.0.0-rc5f ***
->=20
+> I would like some advice 
+> about what actions I should take next in getting more complete support.
 
-Hi,
+Are you asking "how do I reverse engineer a binary driver"?  One method
+is to run it under an emulator, and capture the PCI bus traffic.  Then
+there are tried and true methods like IDA Pro.
 
-Firstly, it seems my 'make loops forever' issue have been solved
-somewhere along the line (sorry, have not checked much after rc3 I
-think, so not sure when).
+Lee
 
-Then, I tried to build it against klibc, but eventually ended up
-hacking configure.in, some Makefiles, some more source files, and
-generally butchered it to submission, followed by manual linking
-to actually get a working binary.  Is this a known issue, or does
-it currently only work against some special (RH?) version of klibc?
-Also, what about including klibc/libdevmapper trees like udev, etc
-to make this a bit more painless?
-
-Lastly, is it planned to enable the user to specify his own dm
-volume names ?
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-zUq0wMHWVBGJEizDpMgC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBqPgFqburzKaJYLYRAl0uAJwPSPWsn82+6tC4+oOjiN2cTYj1HgCeIx6c
-P2R3sws1by0jmnVo9AksWm4=
-=ULJH
------END PGP SIGNATURE-----
-
---=-zUq0wMHWVBGJEizDpMgC--
 

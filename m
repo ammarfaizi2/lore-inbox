@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278587AbRKRUcM>; Sun, 18 Nov 2001 15:32:12 -0500
+	id <S277564AbRKRUnz>; Sun, 18 Nov 2001 15:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277564AbRKRUcC>; Sun, 18 Nov 2001 15:32:02 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:32896 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S278587AbRKRUbu>;
-	Sun, 18 Nov 2001 15:31:50 -0500
-Date: Sun, 18 Nov 2001 13:30:02 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andy Spiegl <kernel.Andy@spiegl.de>, linux-kernel@vger.kernel.org
-Subject: Re: CPU crashes on Asus L8400 Laptop
-Message-ID: <20011118133002.B47@toy.ucw.cz>
-In-Reply-To: <20011116001851.B32720@radiomaranon.org.pe>
+	id <S278592AbRKRUng>; Sun, 18 Nov 2001 15:43:36 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:7564 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S277564AbRKRUn0>; Sun, 18 Nov 2001 15:43:26 -0500
+Date: Sun, 18 Nov 2001 21:43:15 +0100
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: I turned swap off, and wow!
+Message-ID: <20011118214315.A12704@lisa.links2linux.home>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3BF81069.A8C89CE0@starband.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011116001851.B32720@radiomaranon.org.pe>; from kernel.Andy@spiegl.de on Fri, Nov 16, 2001 at 12:18:51AM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF81069.A8C89CE0@starband.net>; from war@starband.net on Sun, Nov 18, 2001 at 02:47:53PM -0500
+X-Operating-System: Linux 2.4.7 i586
+X-Editor: VIM 5.7.24
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Now I have search all the FAQs and the whole web, but couldn't find
-> anything on my problem, so I dare to ask you guys. :-)
+* war schrieb am 18.11.01 um 20:47 Uhr:
+> According to /rpoc/meminfo, I still have about 360MB free as well.
+> Normally when I have 2GB of swap on, I would have about 150MB used.
+> Interesting!
 > 
-> I own an ASUS L8400 laptop with 850MHz, 256MB Ram and am running a Debian
-> (woody) linux with kernel 2.4.12. (after trying older ones)
+> For a `ps auxww` list:
+> http://war.htmlplanet.com/log.txt
+> 
 
-APM or ACPI? Vanilla kernel?
-								Pavel
+
+This link does not work.
+
+****
+Forbidden
+Remote Host: [217.228.xx.xx]
+
+You do not have permission to access
+http://war.htmlplanet.com/log.txt 
+Data files must be stored on the same site they are linked from. 
+
+Thank you for using FreeServers
+****
+
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
++-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
+| Ein neuer Service von Links2Linux.de:   /  o\   RPMs for SuSE   |
+| --> PackMan! <-- naeheres unter        |   __|   and  others    |
+| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |

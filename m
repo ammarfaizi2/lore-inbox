@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbTEYR7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 13:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTEYR7g
+	id S261743AbTEYSJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 14:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTEYSJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 13:59:36 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:50153 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261651AbTEYR7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 13:59:35 -0400
-Date: Sun, 25 May 2003 19:31:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] fix do_fork() return value
-Message-ID: <20030525173119.GA26077@elf.ucw.cz>
-References: <20030520024801.535E02C002@lists.samba.org>
+	Sun, 25 May 2003 14:09:43 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:33178 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261743AbTEYSJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 14:09:42 -0400
+Date: Sun, 25 May 2003 13:34:06 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix snd_seq_queue_find_name()
+Message-ID: <20030525173406.GC602@phunnypharm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030520024801.535E02C002@lists.samba.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+While going through sound/ for strncpy replacing, I came across this
+routine:
 
-> # Noticed by Julie DeWandel <jdewand@redhat.com>.
-> # 
-> # do_fork() needs to return the pid (or error), not the pointer to the
-> # resulting process structure.  The process structure may not even be
-> # valid any more, since do_fork() has already woken the process up (and as
-> # a result it might already have done its thing and gone away).
-> # 
-> # Besides, doing it this way cleans up the users, which all really just
-> # wanted the pid or error number _anyway_.
-> 
-> Just FYI: the change was done in the first place to allow spawning a
-> new init thread as CPUs come up.  But now we have copy_process it can
-> be done neatly (it should also be done out of keventd so we get a
-> clean thread, but that's another story).
-> 
-> Note that this version also has a (theoretical) race, except hidden
-> by the time to wrap PIDs ie. "never happens".
+/* return the (first) queue matching with the specified name */
+queue_t *snd_seq_queue_find_name(char *name)
+{
+        int i;
+        queue_t *q;
 
-We have more such wrappers. IIRC, it is possible to go into
-/proc/PID/something, and just stay there, kill the process, and wait
-for PIDs to wrap around, fun stuff happens...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+        for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+                if ((q = queueptr(i)) != NULL) {
+                        if (strncpy(q->name, name, sizeof(q->name)) == 0)
+                                return q;
+                        queuefree(q);
+                }
+        }
+        return NULL;
+}
+
+
+I'm _really_ sure that they meant to use strncmp() here instead. Patch
+below fixes it.
+
+
+Index: sound/core/seq/seq_queue.c
+===================================================================
+--- sound/core/seq/seq_queue.c	(revision 10041)
++++ sound/core/seq/seq_queue.c	(working copy)
+@@ -241,7 +241,7 @@
+ 
+ 	for (i = 0; i < SNDRV_SEQ_MAX_QUEUES; i++) {
+ 		if ((q = queueptr(i)) != NULL) {
+-			if (strncpy(q->name, name, sizeof(q->name)) == 0)
++			if (strncmp(q->name, name, sizeof(q->name)) == 0)
+ 				return q;
+ 			queuefree(q);
+ 		}

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTBJReo>; Mon, 10 Feb 2003 12:34:44 -0500
+	id <S261799AbTBJRkJ>; Mon, 10 Feb 2003 12:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTBJReo>; Mon, 10 Feb 2003 12:34:44 -0500
-Received: from phobos.hpl.hp.com ([192.6.19.124]:11715 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261868AbTBJRen>;
-	Mon, 10 Feb 2003 12:34:43 -0500
-Date: Mon, 10 Feb 2003 09:36:03 -0800
-To: Cory Bell <cory.bell@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem w/2.5.59 & orinoco_pci (works w/2.4.18)
-Message-ID: <20030210173603.GE14364@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <1044773002.3709.52.camel@localhost>
+	id <S261907AbTBJRkJ>; Mon, 10 Feb 2003 12:40:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46347 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261799AbTBJRkI>; Mon, 10 Feb 2003 12:40:08 -0500
+Date: Mon, 10 Feb 2003 17:49:49 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Trivial Russell <rusty@rustcorp.com.au>,
+       GertJan Spoelman <kl@gjs.cc>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.59-bk4 finish job of trimming ".o" module extension in Kconfig help texts.
+Message-ID: <20030210174949.A15661@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Rusty Trivial Russell <rusty@rustcorp.com.au>,
+	GertJan Spoelman <kl@gjs.cc>, linux-kernel@vger.kernel.org
+References: <1044898222.25378.890.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1044773002.3709.52.camel@localhost>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
-X-MailScanner: Found to be clean
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1044898222.25378.890.camel@localhost.localdomain>; from elenstev@mesatop.com on Mon, Feb 10, 2003 at 10:30:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 08, 2003 at 10:43:21PM -0800, Cory Bell wrote:
-> This is on an old Dell Pentium/100. This may or may not be related, but
-> it requires pci=conf1 (for 2.4) or pci=conf2 (for 2.5) to get proper
-> lspci output. I get similar results with Jouni Malinen's hostap_pci
-> driver (works in 2.4, not in 2.5), which makes me think something
-> changed in 2.5 that broke both drivers. This is a Linksys WMP11 PCI
-> wireless adapter.
+On Mon, Feb 10, 2003 at 10:30:20AM -0700, Steven Cole wrote:
+> In 2.5.59-bk4 in the Kconfig files, most of the instances of <module>.o
+> have had the ".o" extension trimmed.  This change came from GertJan
+> Spoelman through Rusty "Trivial" Russell.
 > 
-> I don't have anything fancy (himem, preempt, etc) compiled into the
-> kernel, just the basics for a wireless AP/firewall.
-> 
-> Thanks for any help you can provide! I'm happy to supply any additional
-> information or test solutions upon request. I'm not subscribed, so
-> please cc me.
-> 
-> -Cory Bell
+> However, I had some Kconfig help additions queued up through Rusty,
+> which still had the ".o" extensions and which did not get trimmed.  And
+> for some reason the Kconfig files in arch/s390 and arch/s390x also did
+> not get trimmed.
 
-	This hardware never worked in my computer (tool old). I would
-suggest complaining on the kernel mailing list with the details above
-(and below - plus lspci -v), as it seems to point out to a generic PCI
-problem, not a driver problem.
+Pah, it was useful having the .ko extension - easy to copy all the
+modules from a remote build machine back to the local machine by
+just giving rsync the appropriate --include and --exclude patterns.
 
-	Regards,
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-	Jean

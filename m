@@ -1,75 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275315AbTHSDAt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 23:00:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275316AbTHSDAt
+	id S275313AbTHSCym (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 22:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275315AbTHSCyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 23:00:49 -0400
-Received: from dyn-ctb-203-221-74-179.webone.com.au ([203.221.74.179]:57860
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S275315AbTHSDAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 23:00:47 -0400
-Message-ID: <3F4192AD.1020305@cyberone.com.au>
-Date: Tue, 19 Aug 2003 12:59:57 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] new scheduler policy
-References: <3F4182FD.3040900@cyberone.com.au> <20030819023536.GZ32488@holomorphy.com> <3F418F7A.7090007@cyberone.com.au>
-In-Reply-To: <3F418F7A.7090007@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 22:54:32 -0400
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:43430 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S275313AbTHSCy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 22:54:28 -0400
+Subject: scheduler interactivity: timeslice calculation seem wrong
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-7Ug6ip5t3N8n3b/DwklW"
+Message-Id: <1061261666.2094.15.camel@orbiter>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 18 Aug 2003 22:54:26 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-7Ug6ip5t3N8n3b/DwklW
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Nick Piggin wrote:
+currently, nicer tasks (nice value toward -20) get larger timeslices,
+and less nice tasks (nice value toward 19) get small timeslices.
 
->
->
-> William Lee Irwin III wrote:
->
->> On Tue, Aug 19, 2003 at 11:53:01AM +1000, Nick Piggin wrote:
->>
->>> As per the latest trend these days, I've done some tinkering with
->>> the cpu scheduler. I have gone in the opposite direction of most
->>> of the recent stuff and come out with something that can be nearly
->>> as good interactivity wise (for me).
->>> I haven't run many tests on it - my mind blanked when I tried to
->>> remember the scores of scheduler "exploits" thrown around. So if
->>> anyone would like to suggest some, or better still, run some,
->>> please do so. And be nice, this isn't my type of scheduler :P
->>> It still does have a few things that need fixing but I thought
->>> I'd get my first hack a bit of exercise.
->>> Its against 2.6.0-test3-mm1
->>>
->>
->> Say, any chance you could spray out a brief explanation of your new
->> heuristics?
->>
->
-> Oh alright. BTW, this one's not for your big boxes yet! It does funny
-> things with timeslices. But they will be (pending free time) made much
-> more dynamic, so it should _hopefully_ context switch even less than
-> the normal scheduler in a compute intensive load.
->
-> OK. timeslices: they are now dynamic. Full priority tasks will get
-> 100ms, minimum priority tasks 10ms (this is what needs fixing, but
-> should be OK to test "interactiveness")
->
-> interactivity estimator is gone: grep -i interactiv sched.c | wc -l
-> gives 0.
->
-> priorities are much the same, although processes are supposed to be
-> able to change priority much more quickly.
->
-> backboost is back. that is what (hopefully) prevents X from starving
-> due to the quickly changing priorities thing.
+this is contrary to all process scheduling theory i've read, and also
+contrary to my intuition.
 
-  And lack of interactivity estimator.
+maybe it was done this way for fairness reasons, but that's another
+story...
+
+high priority (interactive) tasks should get small timeslices for best
+interactive feeling, and low priority (cpu hog) tasks should get large
+timeslices for best efficiency, anyway they can be preempted by higher
+priority tasks if needed.
+
+also, i think dynamic priority should be used for timeslice calculation
+instead of static priority. the reason is, if a low priority task get a
+priority boost (to prevent starvation, for example) it should use the
+small timeslice corresponding to it's new priority level, instead of
+using it's original large timeslice that can ruin the interactive feel.
+
+something like this: (Sorry, not tested...)
+
+PS: i've attached a small program to calculate and print the timeslices
+length from code ripped from linux-2.6.0-test3
+
+
+
+--- sched-orig.c	Sat Aug 09 00:39:34 2003
++++ sched.c	Mon Aug 18 10:52:22 2003
+@@ -126,8 +126,8 @@
+  * task_timeslice() is the interface that is used by the scheduler.
+  */
+ 
+-#define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
+-	((MAX_TIMESLICE - MIN_TIMESLICE)
+*(MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
++#define BASE_TIMESLICE(p)	((p)->prio < MAX_RT_PRIO ? MIN_TIMESLICE :
+(MAX_TIMESLICE - \
++	((MAX_TIMESLICE - MIN_TIMESLICE) *
+(MAX_PRIO-1-(p)->prio)/(MAX_USER_PRIO - 1))))
+ 
+ static inline unsigned int task_timeslice(task_t *p)
+ {
+
+
+
+Best regards,
+
+Eric St-Laurent
+
+
+--=-7Ug6ip5t3N8n3b/DwklW
+Content-Disposition: attachment; filename=diff.txt
+Content-Type: text/plain; name=diff.txt; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- sched-orig.c	Sat Aug 09 00:39:34 2003
++++ sched.c	Mon Aug 18 10:52:22 2003
+@@ -126,8 +126,8 @@
+  * task_timeslice() is the interface that is used by the scheduler.
+  */
+ 
+-#define BASE_TIMESLICE(p) (MIN_TIMESLICE + \
+-	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->static_prio)/(MAX_USER_PRIO - 1)))
++#define BASE_TIMESLICE(p)	((p)->prio < MAX_RT_PRIO ? MIN_TIMESLICE : (MAX_TIMESLICE - \
++	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-(p)->prio)/(MAX_USER_PRIO - 1))))
+ 
+ static inline unsigned int task_timeslice(task_t *p)
+ {
+
+--=-7Ug6ip5t3N8n3b/DwklW
+Content-Disposition: attachment; filename=ts26.cpp
+Content-Type: text/x-c++; name=ts26.cpp; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+#include <stdio.h>
+
+#define HZ			1000
+#define MIN_TIMESLICE		( 10 * HZ / 1000)
+#define MAX_TIMESLICE		(200 * HZ / 1000)
+#define MAX_USER_RT_PRIO	100
+#define MAX_RT_PRIO		MAX_USER_RT_PRIO
+#define MAX_PRIO		(MAX_RT_PRIO + 40)
+#define NICE_TO_PRIO(nice)	(MAX_RT_PRIO + (nice) + 20)
+#define USER_PRIO(p)		((p)-MAX_RT_PRIO)
+#define MAX_USER_PRIO		(USER_PRIO(MAX_PRIO))
+
+#define BASE_TIMESLICE(p)	(MIN_TIMESLICE + \
+	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-p)/(MAX_USER_PRIO - 1)))
+
+#define BASE_TIMESLICE2(p)	(MAX_TIMESLICE - \
+	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-p)/(MAX_USER_PRIO - 1)))
+
+#define BASE_TIMESLICE3(p)	(prio < MAX_RT_PRIO ? MIN_TIMESLICE : (MAX_TIMESLICE - \
+	((MAX_TIMESLICE - MIN_TIMESLICE) * (MAX_PRIO-1-p)/(MAX_USER_PRIO - 1))))
+
+int main(int argc, char *argv[])
+{
+	// original timeslice calculation
+	for (int nice = -20; nice <= 19; nice++)
+		printf("nice: %d, timeslice: %d ms\n", nice, BASE_TIMESLICE(NICE_TO_PRIO(nice)) * 1000 / HZ);
+
+	printf("\n");
+
+	// reversed timeslice calculation
+	for (int nice = -20; nice <= 19; nice++)
+		printf("nice: %d, timeslice: %d ms\n", nice, BASE_TIMESLICE2(NICE_TO_PRIO(nice)) * 1000 / HZ);
+
+	printf("\n");
+
+	// dynamic priority based timeslice calculation
+	for (int prio = 0; prio < MAX_PRIO; prio++)
+		printf("prio: %d, timeslice: %d ms\n", prio, BASE_TIMESLICE3(prio) * 1000 / HZ);
+
+	return 0;
+}
+
+--=-7Ug6ip5t3N8n3b/DwklW--
 

@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269479AbUICBXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269494AbUICBXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269479AbUICBXw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 21:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269487AbUICBRp
+	id S269494AbUICBXv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 21:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269490AbUICBR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:17:45 -0400
-Received: from ozlabs.org ([203.10.76.45]:21666 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269494AbUICBOp (ORCPT
+	Thu, 2 Sep 2004 21:17:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58261 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269475AbUICArq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:14:45 -0400
+	Thu, 2 Sep 2004 20:47:46 -0400
+Date: Thu, 2 Sep 2004 17:47:30 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][1/8] Arch agnostic completely out of line locks / generic
+In-Reply-To: <Pine.LNX.4.58.0409022021100.4481@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0409021745530.2295@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409021208310.4481@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0409021703440.2295@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409022021100.4481@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16695.50554.389435.137893@cargo.ozlabs.ibm.com>
-Date: Fri, 3 Sep 2004 11:14:34 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC 2.6.9-rc1 2/2] zlib_inflate: Add __BOOTER__ around zlib_inflate_trees_fixed(...)
-In-Reply-To: <20040902174707.GC26144@smtp.west.cox.net>
-References: <20040901231659.GA20624@smtp.west.cox.net>
-	<20040902173626.GB26144@smtp.west.cox.net>
-	<20040902174707.GC26144@smtp.west.cox.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini writes:
 
-> This is the second part of what I found.  zlib_inflate_trees_fixed(...)
-> isn't called in decompressing a kernel.  Dropping this, and the call to
 
-I think it is just luck that gzip hasn't used the fixed table in
-compressing the kernel.  I don't think we have any guarantee that gzip
-won't use the fixed table.
+On Thu, 2 Sep 2004, Zwane Mwaikambo wrote:
+>
+> I'm a moron, unfortunately CONFIG_REGPARM saved my ass :/ The following
+> works without CONFIG_REGPARM.
 
-Just out of interest, how big is a bzip2 decompressor?
+I really think you should have the __lockfunc define in only one place. If 
+I was a compiler, I'd complain about seeing different section attributes 
+on the definition than on the prototype. 
 
-Regards,
-Paul.
+Exactly why did you put the __lockfunc only on the definitions, and 
+something else on the declaration?
+
+		Linus

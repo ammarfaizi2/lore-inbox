@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbUJ0Rhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbUJ0Rr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbUJ0Rhz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbUJ0Rg6
+	id S262583AbUJ0Rr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUJ0Ro6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:36:58 -0400
-Received: from waste.org ([209.173.204.2]:39808 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262577AbUJ0Rat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:30:49 -0400
-Date: Wed, 27 Oct 2004 12:30:31 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netpoll_setup questions
-Message-ID: <20041027173031.GO31237@waste.org>
-References: <16767.50093.59665.83462@segfault.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16767.50093.59665.83462@segfault.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 27 Oct 2004 13:44:58 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:51082 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S262548AbUJ0RmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 13:42:24 -0400
+Message-ID: <32865.192.168.1.5.1098898770.squirrel@192.168.1.5>
+In-Reply-To: <1098891035.1448.21.camel@krustophenia.net>
+References: <20041019124605.GA28896@elte.hu> 
+    <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> 
+    <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> 
+    <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> 
+    <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> 
+    <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> 
+    <20041027135309.GA8090@elte.hu> 
+    <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+    <1098891035.1448.21.camel@krustophenia.net>
+Date: Wed, 27 Oct 2004 18:39:30 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 27 Oct 2004 17:42:22.0837 (UTC) FILETIME=[50900A50:01C4BC4C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 11:50:05AM -0400, Jeff Moyer wrote:
-> Hi, Matt,
-> 
-> The section of code in the body of this if statement:
-> 
-> 	if (!(ndev->flags & IFF_UP)) {
-> 
-> is a bit broken.  First, upon discussion with jgarzik, it seems we should
-> not check for IFF_UP, but instead do netif_running.
 
-Well I cribbed it from the nfsroot code, which is perhaps not up on
-fashion.
+> Lee Revell
+> On Wed, 2004-10-27 at 16:26 +0100, Rui Nuno Capela wrote:
+>> On RT-V0.4.1, xruns seems slighly reduced, but plenty enough for my
+>> taste.
+>>
+>
+> Have you tried making ksoftirqd SCHED_OTHER?  This drastically reduced
+> xruns on my system with an earlier version.
+>
+> Lee
+>
 
-> However, I'm wondering why we try to force the interface up in the
-> first place?
+Hmm... ksoftirqd/0 (or also ksoftirqd/1 on 2cpu SMP) are already
+SCHED_OTHER by default, at least on both of my boxes that are running
+RT-V0.4.1 now.
 
-Uh, so we can send packets before userspace has configured the network?
+Should I try the other way around? Lets see... 'chrt -p -f 90 `pidof
+ksoftirwd/0`',... yes, apparentely the xrun rate seems to decrease into
+half, but IMHO not conclusive enough, thought.
 
-> Just because we force it up doesn't mean that it will get an IP
-> address.
-
-I don't expect it does. Usually we have our own IP address from the
-command line, but if we don't, we will check if there's an in_dev
-connected to the device and if so, look up the device's IP. This is
-useful for the modular case where the network is up before we start
-and we have a handy default for local IP.
-
-> And, in the case where it doesn't, you will get an oops further on
-> when dereferencing the ifa_list.
-
-Does this actually happen? I'm checking in_dev for null already, but
-perhaps I need to check ifa_list as well.
-
-> So, why does this section of code exist at all? If it has a good
-> purpose, can we replace it with a call to ndev->open?
-
-Maybe. We should probably revisit the nfsroot code as well.
-
+CU
 -- 
-Mathematics is the supreme nostalgia of our time.
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

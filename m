@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTILF5j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 01:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTILF5j
+	id S261409AbTILGvY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 02:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTILGvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 01:57:39 -0400
-Received: from waste.org ([209.173.204.2]:21989 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261683AbTILF5a (ORCPT
+	Fri, 12 Sep 2003 02:51:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29103 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261409AbTILGvW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 01:57:30 -0400
-Date: Fri, 12 Sep 2003 00:57:25 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [PATCH 2/3] netpoll: netconsole
-Message-ID: <20030912055725.GV4489@waste.org>
-References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel> <p73znhdhxkx.fsf@oldwotan.suse.de> <20030910082435.GG4489@waste.org> <20030910082908.GE29485@wotan.suse.de> <20030910090121.GH4489@waste.org> <20030910160002.GB84652@gaz.sfgoth.com> <20030912053335.GJ41254@gaz.sfgoth.com>
+	Fri, 12 Sep 2003 02:51:22 -0400
+Date: Fri, 12 Sep 2003 08:51:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
+       =?iso-8859-1?Q?S=E9bastien?= Hinderer 
+	<Sebastien.Hinderer@libertysurf.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Impossible to read files from a CD-Rom
+Message-ID: <20030912065116.GA16813@suse.de>
+References: <20030818163520.GA413@galois> <20030908152800.GA5224@bouh.famille.thibault.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030912053335.GJ41254@gaz.sfgoth.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030908152800.GA5224@bouh.famille.thibault.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 10:33:35PM -0700, Mitchell Blank Jr wrote:
-> Mitchell Blank Jr wrote:
-> > The netconsole problem is only if the net driver calls printk() with
-> > its spinlock held (but when not called from netconsole).  Then printk()
-> > won't know that it's unsafe to re-enter the network driver.
+On Mon, Sep 08 2003, Samuel Thibault wrote:
+> Hi,
 > 
-> BTW, this isn't neccesarily a netconsole-only thing.  For instance, has
-> anyone ever audited all of the serial and lp drivers to make sure that
-> nothing they call can call printk() while holding a lock?  This sounds
-> fairly serious - we could have any number of simple error cases that would
-> cause a deadlock with the right "console=" setting.
+> On Mon 18 aug 2003 18:35:22 GMT, Sébastien Hinderer wrote:
+> > I'm using a vanila linux-2.6.0-test3.
+> > When I try to use a CD-Rom, the mount is successful, so are the calls to
+> > ls.
+> > However, as soon as I try to read a file, I get a lot of messages such as :
+> > 
+> > hdc: rw=0, want=505092, limit=31544
+> > Buffer I/O error on device hdc, logical block 126272
+> > attempt to access beyond end of device
+> 
+> We dug a little bit this Monday with Sebastien, and found out some
+> troubles: the call to set_capacity at the end of cdrom_read_toc() writes a
+> strange value, which is not always the same, even for the same reinserted
+> CD-ROM, seemingly because it came from cdrom_get_last_written():
+> 
+> cdrom_get_last_written() calls cdrom_get_disc_info(), then
+> cdrom_get_track_info() and uses the track_start and track_size to
+> compute the limit of the disk. The trouble seems to come from the fact
+> that in cdrom_get_track_info(), the info size is got from the drive, but
+> no check is done to ensure that it will fill up the whole
+> track_information structure, which is not reset to 0 either, so that
+> random values remain:
+> 
+> (linux-2.6.0-test4/drivers/cdrom/cdrom.c:2214)
+> 	if ((ret = cdo->generic_packet(cdi, &cgc)))
+> 		return ret;
+> 	
+> 	cgc.buflen = be16_to_cpu(ti->track_information_length) +
+> 		     sizeof(ti->track_information_length);
+> 
+> 	if (cgc.buflen > sizeof(track_information))
+> 		cgc.buflen = sizeof(track_information);
+> 
+> 	cgc.cmd[8] = cgc.buflen;
+> 	return cdo->generic_packet(cdi, &cgc);
+> 
+> The solution would be to return an error if 
+> cgc.buflen != sizeof(track_information) after the truncation to
+> sizeof(track_information), so that cdrom_get_last_written() will
+> correctly fail, and make cdrom_read_toc() use cdrom_read_capacity()
+> instead, which gives the correct answer.
 
-I have a spinlock debugging patch somewhere that builds a list of
-locks held by each process. It could easily be extended to do
-detecting of recursive locking.
+It isn't that easy, if that were the case there would be no need for the
+above code would there?
+
+This basically boils down to a typical problem with CDROM/DVD drives -
+some specific structure may vary a little in size depending on when in
+the spec cycle they were implemented. Some drives barf if you try and
+read to much, some when you read too little. So the approach that
+typically works the best is to just read the very first of the
+structure, check the length, and issue a read for the complete data.
+
+I'd be more interested in fixing the real bug: why does your drive
+return zero length, and only sporadically?
 
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Jens Axboe
+

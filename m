@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315259AbSEKX7Q>; Sat, 11 May 2002 19:59:16 -0400
+	id <S316288AbSELAEX>; Sat, 11 May 2002 20:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315261AbSEKX7P>; Sat, 11 May 2002 19:59:15 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:45648 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S315259AbSEKX7O>; Sat, 11 May 2002 19:59:14 -0400
-Date: Sun, 12 May 2002 01:07:09 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Changelogs on kernel.org
-Message-Id: <20020512010709.7a973fac.spyro@armlinux.org>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.7.5cvs1 (GTK+ 1.2.10; )
+	id <S316289AbSELAEW>; Sat, 11 May 2002 20:04:22 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:49157 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316288AbSELAEV>; Sat, 11 May 2002 20:04:21 -0400
+Date: Sun, 12 May 2002 01:01:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit jiffies, a better solution take 2
+Message-ID: <20020512010121.A23946@flint.arm.linux.org.uk>
+In-Reply-To: <20020511191118.F1574@flint.arm.linux.org.uk> <15591.1021160328@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 12, 2002 at 09:38:48AM +1000, Keith Owens wrote:
+> Any reason that you are using sed and not cpp like the other
+> architectures?
 
-Hi.
+Only historical and a hatred of cpp's "# line file" stuff, and the fact
+that ARM needs to use sed elsewhere in the build to get around broken
+GCC %c0 stuff.
 
-I dont know who to write to about this, but the changelogs for
-2.4.19-pre on kernel.org are COMPLETELY illegible.
+I think we could actually get rid of the preprocessing of the linker
+files - see ld's defsym argument.
 
-Can we 'tweak' them so that instead of:
+> The use and name of linker scripts varies across architectures, some
+> use cpp, some use sed, some do not pre-process at all.  This makes it
+> awkward for repositories and dont-diff lists, they need special rules
+> for every architecture.  In kbuild 2.5 I am trying to standardize on
+> arch/$(ARCH)/vmlinux.lds.S which is always pre-processed by cpp to
+> vmlinux.lds.i which is used to link vmlinux.
 
-<stelian@popies.net> (02/04/17 1.383.12.1)
-	Fix meye driver request_irq bug.
+Eww, so I can't use "find . -name '*.[cS]'" to find all the C source and
+assembly source with kbuild 2.5 because we've got pollution of the .S
+extension?
 
-<stelian@popies.net> (02/04/17 1.383.12.2)
-	Enable the meye driver to get parameters on the kernel command line.
+> Using .S -> .i has three benefits.  The file name and the code for
+> converting the file is standardized.  Dont-diff lists exclude *.[oais]
+> files, no need for special cases for each architecture.
 
-<akpm@zip.com.au> (02/04/17 1.383.13.1)
-	[PATCH] add __LINE__ to out_of_line_bug()
+I'm not a fan of dont-diff stuff myself - I'd rather ensure a clean
+source tree and then diff rather than diffing a dirty built tree.
+dont-diff stuff needs to be maintained and extended as stuff changes
+in the kernel tree, and lets face it, no amount of extension pollution
+will prevent it from being updated over time.
 
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.2)
-	[PATCH] PATCH: some configure.help updates
-
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.3)
-	[PATCH] PATCH: more configure.help
-
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.4)
-	[PATCH] PATCH: More configure.help
-
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.5)
-	[PATCH] PATCH: more Configure.help
-
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.6)
-	[PATCH] PATCH: maintainers update
-
-<alan@lxorguk.ukuu.org.uk> (02/04/17 1.383.13.7)
-	[PATCH] PATCH: make cpu names clearer for new VIA
-
-
-We get something nice like:
-
-<stelian@popies.net>
-   Fix meye driver request_irq bug.
-   Enable the meye driver to get parameters on the kernel command line.
-
-<akpm@zip.com.au>
-   [PATCH] add __LINE__ to out_of_line_bug()
-
-<alan@lxorguk.ukuu.org.uk>
-   [PATCH] PATCH: some configure.help updates
-   [PATCH] PATCH: more configure.help
-   ... above repeated 2 times
-   [PATCH] PATCH: maintainers update
-   [PATCH] PATCH: make cpu names clearer for new VIA
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

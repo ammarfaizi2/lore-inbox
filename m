@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131477AbRDJLZz>; Tue, 10 Apr 2001 07:25:55 -0400
+	id <S131480AbRDJLgF>; Tue, 10 Apr 2001 07:36:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131479AbRDJLZp>; Tue, 10 Apr 2001 07:25:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:22534 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131477AbRDJLZY>;
-	Tue, 10 Apr 2001 07:25:24 -0400
-Date: Tue, 10 Apr 2001 13:25:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Joao Paulo Martins <martinsj@lip.pt>, linux-kernel@vger.kernel.org
-Subject: Re: i2o & Promise SuperTrak100
-Message-ID: <20010410132512.F493@suse.de>
-In-Reply-To: <20010410092226.M2754@suse.de> <E14mwEf-00042b-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S131483AbRDJLfz>; Tue, 10 Apr 2001 07:35:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56580 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131480AbRDJLfr>; Tue, 10 Apr 2001 07:35:47 -0400
+Subject: Re: Problems with Adaptec in 2.4.3
+To: datageo@terra.com.br (Christoph Simon)
+Date: Tue, 10 Apr 2001 12:37:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010410082250.0c207f75.datageo@terra.com.br> from "Christoph Simon" at Apr 10, 2001 08:22:50 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14mwEf-00042b-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 12:22:58PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mwSX-00044f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10 2001, Alan Cox wrote:
-> > > 	I purchase a Promise SuperTrak100 RAID controler and
-> > [snip, SuperTrak not working]
-> > 
-> > I tried talking to Promise recently to get a sample SuperTrak to
-> > make this work, but no such luck. So bother Promise and ask what
-> > they intend to do about it.
+> board. This worked well, but when I ran into a hang with the 2.4.2
+> loop device, testing a CD image, I decided to switch to 2.4.3.  But
+> then I get strange error messages during boot, and the machine reacts
+> (kind of once a day) in a very strange way, like programs failing
+> which never fail. Might those errors have lead to a subtile kind of
+
+Simple way to test if its the new aic7xxx driver - build 2.4.3 with 
+the old driver (say N to the new one and it'll offer you the old one) and
+repeat the experiment
+
 > 
-> I've been talking constructively to promise about the i2o on the supertrak
-> not working straight off with the kernel i2o driver. Currently it looks
-> promising
-
-Good, glad someone is having more luck than I. I'd love to see it
-work, hence my interest in getting it working.
-
--- 
-Jens Axboe
-

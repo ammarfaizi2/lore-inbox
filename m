@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSFDQfx>; Tue, 4 Jun 2002 12:35:53 -0400
+	id <S314929AbSFDQfg>; Tue, 4 Jun 2002 12:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSFDQfw>; Tue, 4 Jun 2002 12:35:52 -0400
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:54486 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S315191AbSFDQft>; Tue, 4 Jun 2002 12:35:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml] Patch for broken Dell C600 and I5000
-In-Reply-To: <20020604010756.A32059@devserv.devel.redhat.com>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 04 Jun 2002 12:35:43 -0400
-Message-ID: <9cfit4zovc0.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315192AbSFDQff>; Tue, 4 Jun 2002 12:35:35 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:6916 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315191AbSFDQfd>; Tue, 4 Jun 2002 12:35:33 -0400
+Subject: 2.5.20-dj1 + fbcmap.c patch -- neofb.c:71: video/neomagic.h: No
+	such file or directory
+From: Miles Lane <miles@megapathdsl.net>
+To: linux-kernel@vger.kernel.org, jsimmons@transvirtual.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5.99 
+Date: 04 Jun 2002 09:56:14 -0700
+Message-Id: <1023209774.20260.24.camel@agate>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Pete Zaitcev <zaitcev@redhat.com> writes:
 
-> Greetings.
-> 
-> Some time ago I had to work around broken BIOS in Dell C600
-> and Linus accepted the patch (it was before Marcelo, IIRC). All this
-> time BIOS writers continued to search for the bottom in the barrel
-> of brokenness and now we have I5000 brain damaged in a similar way.
-> Since I5000 is broken even before it sleeps, I made a different
-> workaround.
-> 
-> Attached patch implements the new workaround and removes the old one.
-> 
-> Please comment. If nobody objects I'll resend it for Marcelo
-> and do an equivalent patch for Linus tree.
 
-What is the problem this fixes?  I don't have any problems with my
-C600 suspending and resuming (2.4.19pre7-ac4).  Some of the comments
-look BIOS-version-specific... why not just upgrade the BIOS?  (The
-comment I saw referred to version A06, but I have A17!)
-
-Correct me if I'm missing something here... I didn't read the patch
-too carefully...
-
-ian
+gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   
+-DKBUILD_BASENAME=neofb  -c -o neofb.o neofb.c
+neofb.c:71: video/neomagic.h: No such file or directory
+neofb.c:108: parse error before `bios8'
+neofb.c:108: warning: type defaults to `int' in declaration of `bios8'
+neofb.c:109: warning: braces around scalar initializer
+neofb.c:109: warning: (near initialization for `bios8[0]')
+neofb.c:109: warning: excess elements in scalar initializer
+...
+neofb.c: In function `neoFindMode':
+neofb.c:145: `biosMode' undeclared (first use in this function)
+neofb.c:145: (Each undeclared identifier is reported only once
+neofb.c:145: for each function it appears in.)
+neofb.c:145: `mode' undeclared (first use in this function)
+neofb.c:145: warning: statement with no effect
+neofb.c:182: warning: control reaches end of non-void function
+neofb.c: In function `neoCalcVCLK':
+neofb.c:228: dereferencing pointer to incomplete type
+neofb.c:229: dereferencing pointer to incomplete type
+neofb.c:231: dereferencing pointer to incomplete type
+neofb.c:233: dereferencing pointer to incomplete type
+neofb.c: At top level:
+neofb.c:252: warning: `struct xtimings' declared inside parameter list
+neofb.c:252: warning: its scope is only this definition or declaration,
+which is probably not what you want.
+neofb.c: In function `vgaHWInit':
+neofb.c:254: dereferencing pointer to incomplete type
+...
 

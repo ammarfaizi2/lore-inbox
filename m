@@ -1,65 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310637AbSCPUsL>; Sat, 16 Mar 2002 15:48:11 -0500
+	id <S310642AbSCPUsb>; Sat, 16 Mar 2002 15:48:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310642AbSCPUsC>; Sat, 16 Mar 2002 15:48:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35081 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310637AbSCPUrw>; Sat, 16 Mar 2002 15:47:52 -0500
-Date: Sat, 16 Mar 2002 12:46:08 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <davidm@hpl.hp.com>
-cc: <yodaiken@fsmlabs.com>, Paul Mackerras <paulus@samba.org>,
-        <linux-kernel@vger.kernel.org>
+	id <S310646AbSCPUsY>; Sat, 16 Mar 2002 15:48:24 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:21261 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310642AbSCPUsR>;
+	Sat, 16 Mar 2002 15:48:17 -0500
+Date: Sat, 16 Mar 2002 13:47:32 -0700
+From: yodaiken@fsmlabs.com
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: yodaiken@fsmlabs.com, Andi Kleen <ak@suse.de>,
+        Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <15507.44228.577059.711997@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.33.0203161238510.32013-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020316134732.C21439@hq.fsmlabs.com>
+In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de> <20020316131219.C20436@hq.fsmlabs.com> <200203162027.g2GKRqf13432@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200203162027.g2GKRqf13432@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, Mar 16, 2002 at 01:27:52PM -0700
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 16 Mar 2002, David Mosberger wrote:
+On Sat, Mar 16, 2002 at 01:27:52PM -0700, Richard Gooch wrote:
+> yodaiken@fsmlabs.com writes:
+> > On Sat, Mar 16, 2002 at 09:05:04PM +0100, Andi Kleen wrote:
+> > > That will hopefully change eventually because 2M pages are a bit help for
+> > > a lot of applications that are limited by TLB thrashing, but needs some 
+> > > thinking on how to avoid the fragmentation trap (e.g. I'm considering
+> > > to add a highmem zone again just for that and use rmap with targetted
+> > > physical freeing to allocating them) 
+> > 
+> > To me, once you have a G of memory, wasting a few meg on unused
+> > process memory seems no big deal.
 > 
-> Yes, Itanium has a two-level DTLB, McKinley has both ITLB and DTLB
-> split into two levels.  Not quite as big though: "only" on the order
-> of hundreds of entries (partially offset by larger page sizes).  Of
-> course, operating the hardware walker in hashed mode can give you an
-> L3 TLB as large as you want it to be.
+> I'm not happy to throw away 2 MiB per process. My workstation has 1
+> GiB of RAM, and 65 processes (and that's fairly low compared to your
+> average desktop these days, because I just use olwm and don't have a
+> fancy desktop or lots of windows). You want me to throw over 1/8th of
+> my RAM away?!?
 
-The problem with caches is that if they are not coherent (and TLB's
-generally aren't) you need to invalidate them by hand. And if they are 
-in main memory, that invalidation can be expensive.
+Why not?  If you just ran vim on console you'd be more productive and
+not need all those worthless processes. 
 
-Which brings us back to the whole reason for the discussion: this is not a 
-theoretical argument. Look at the POWER4 numbers, and _shudder_ at the 
-expense of cache invalidation.
+At 4KB/page and 8bytes/pte a
+1G process will need at least 2MB of pte alone ! Add in the 4 layers,
+the software VM struct, ...
 
-NOTE! The goodness of a cache is not in its size, but how quickly you can 
-fill it, and what the hitrate is. I'd be very surprised if you get 
-noticeably higher hitrates from "as large as you want it to be" than from 
-"a few thousand entries that trivially fit on the die".
 
-And I will guarantee that the on-die ones are faster to fill, and much
-faster to invalidate (on-die it is fairly easy to do content-
-addressability if you limit the addressing to just a few ways - off-chip 
-memory is not).
-
->   Linus>  - ability to fill multiple entries in one go to offset the
->   Linus> cost of taking the trap.
 > 
-> The software fill can definitely do that.  I think it's one area where
-> some interesting experimentation could happen.
+> And in fact, isn't it going to be more than 2 MiB wasted per process?
+> For each shared object loaded, only partial pages are going to be
+> used. *My* libc is less than 700 KiB, so I'd be wasting most of a page
+> to map it in.
 
-If you can do it, and you don't do it already, you're just throwing away
-cycles. If that was your comparison with the "superior hardware fill", it
-really wasn't very fair.
+You're using a politically incorrect libc. 
+But sure, big pages are not always good.
 
-Note that by "multiple entry support" I don't mean just a loop that adds 
-noticeable overhead for each entry - I mean something which can fairly 
-efficiently load contiguous entries pretty much in "one go". A TLB fill 
-routine can't afford to spend time setting up tag registers etc.
 
-		Linus
+> I want that 1 GiB of RAM to be used to cache most of my data. Those
+> NASA 1km/pixel satellite mosaics of the world are pretty big, you know
+> (21600x21600x3 per hemisphere:-).
+
+
+> 
+> 				Regards,
+> 
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,69 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbUJ0QQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUJ0QPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbUJ0QQa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QQ3
+	id S262499AbUJ0QPw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:16:29 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:52623 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262494AbUJ0QOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:14:41 -0400
-Message-ID: <417FC96B.8030402@grupopie.com>
-Date: Wed, 27 Oct 2004 17:14:35 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>	 <417FB7BA.9050005@grupopie.com> <1098892587.8313.5.camel@krustophenia.net>
-In-Reply-To: <1098892587.8313.5.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 27 Oct 2004 12:15:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8879 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262497AbUJ0QOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:14:45 -0400
+Date: Wed, 27 Oct 2004 09:16:01 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.9 SMP: via-rhine cannot be upped
+Message-Id: <20041027091601.476ee3ca@guest-251-240.pdx.osdl.net>
+In-Reply-To: <200410271000.24390.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <200410271000.24390.vda@port.imtp.ilyichevsk.odessa.ua>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.11; VDF: 6.28.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Wed, 2004-10-27 at 15:59 +0100, Paulo Marques wrote:
+On Wed, 27 Oct 2004 10:00:24 +0300
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+
+> [sorry, threading will be broken]
 > 
->>I am one of the members of the robotic soccer team from the University 
->>of Oporto, and a couple of months ago we were looking for new 
->>motherboards for our robots, because we are starting to need new 
->>hardware (on-board lan, usb2.0, etc.).
->>
->>We really don't need excepcional performance, but we really, really need 
->>low power consumption, so lowering the clock on a standard mainboard 
->>seemed to be the best cost/performance scenario.
->>
->>Could this driver be used to keep a standard p4 processor at say 25% 
->>clock speed at all times?
->>
+> >>I have an onboard VIA eth:
+> >>
+> >># lspci
+> >>00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+> >>
+> >>It cannot be upped:
+> >>
+> >># ip l set dev if up
+> >>SIOCSIFFLAGS: Function not implemented
+> >># ifconfig if up
+> >>SIOCSIFFLAGS: Function not implemented
+> >># busybox ip l set dev if up
+> >>SIOCSIFFLAGS: Function not implemented
+> >
+> >My suspicion is that the eth0 device is not actually the VIA driver
+> >at all. Since your config builds many drivers directly into the kernel,
+> >probably one of the others created an eth0 device.  There is no
+> >guarantee of initialization order about which device gets created first
+> >(at least the way network devices are done in 2.6). 
+> >
+> >You should investigate if there are multiple devices present
+> >(ifconfig -a or ls /sys/class/net).  Perhaps one of the other drivers
+> >does not correctly handle the case of hardware not being present
+> >and leaves a ghost behind..
+> >
+> >One way to find out would be to look at:
+> >	/sys/class/net/eth0/device/vendor
+> >	/sys/class/net/eth0/device/device
+> >	/sys/class/net/eth0/device/subsystem_vendor
+> >	/sys/class/net/eth0/device/subsystem_device
 > 
+> Thanks! This was an excellent advice.
 > 
-> Why don't you try the VIA EPIA mini-ITX boards?  These are designed for
-> low power applications like yours.  I am running the M-6000 which has a
-> fanless 600Mhz C3 processor, the newer fanless models run at 1Ghz.  And,
-> on top of that they support speed scaling so you can slow it down even
-> more.
+> 2.6.9-smp did get right the device as Via Rhine, but IRQ is 16
+> now! This must be source of my problems.
+> 
+> I had to check dmesg in the first place instead of
+> mailing lkml...
 
-Yes, we tried those, but floating point calculations completely kill the 
-performance on those boards.
+So the summary is the via-rhine could not get irq so it
+was not any attempt bring it up would fail.
 
-Even at 25% speed a P4 2.8GHz gives a 700MHz clock which completely 
-toasts a 600MHz (or even a 1GHz) C3 in floating point calculations... :(
+> +eth0: VIA Rhine II at 0xe400, 00:0a:e6:7c:dd:79, IRQ 16.
+...
+> +eth0: could not install IRQ handler
+> +prism54: probe of 0000:00:0c.0 failed with error -5
 
-Even more, I can get a Asus mainboard with integrated VGA, LAN, USB, 
-Audio, for half the price of a VIA EPIA mini-ITX with comparable integer 
-performance. As we always have to buy these things in quantities of 5, 
-this can make some difference.
+The failure -ENOSYS comes from:
 
--- 
-Paulo Marques - www.grupopie.com
+int setup_irq(unsigned int irq, struct irqaction * new)
+{
+        struct irq_desc *desc = irq_desc + irq;
+        struct irqaction *old, **p;
+        unsigned long flags;
+        int shared = 0;
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+        if (desc->handler == &no_irq_type)
+                return -ENOSYS;
+
+Looks like IRQ 16 is not a valid interrupt source.  Since SMP
+kernel needs an APIC (an UP doesn't). 
+
++PCI->APIC IRQ transform: (B0,I12,P0) -> 16
+
+Maybe either your motherboard APIC support doesn't work, or
+ACPI is confused.
+
+Do you really need to run SMP kernels on this board?
+

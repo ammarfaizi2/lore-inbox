@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272229AbTHRSQK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 14:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272230AbTHRSQJ
+	id S272219AbTHRSVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 14:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHRSVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 14:16:09 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:35847 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S272229AbTHRSQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 14:16:05 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3: ACPI still doesn't work
-Date: Mon, 18 Aug 2003 18:34:29 +0100
-User-Agent: KMail/1.5.3
-References: <3F40C9C3.8090105@comcast.net>
-In-Reply-To: <3F40C9C3.8090105@comcast.net>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
+	Mon, 18 Aug 2003 14:21:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1472 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272219AbTHRSVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 14:21:14 -0400
+Date: Mon, 18 Aug 2003 11:21:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up riscom8 driver to use work queues instead of task queueing.
+In-Reply-To: <20030818180941.GJ24693@gtf.org>
+Message-ID: <Pine.LNX.4.44.0308181117540.5929-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308181834.29879.gothick@gothick.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 Aug 2003 13:42, David van Hoose wrote:
-> Have the ACPI and IOAPIC patches for 2.4.22-rc2 been applied to 2.6? I
-> believe these patches fixed ACPI under 2.4 for my system.
 
-I am not a kernel developer, but for what it's worth, I applied the ACPI 
-patch from acpi.sourceforge.net for 2.6.0-test2 to my test2 kernel, then 
-patched it up to test3, and my ACPI works at least as well as it did under 
-2.4.21.
+On Mon, 18 Aug 2003, Jeff Garzik wrote:
+> 
+> Should we just make schedule_delayed_work(foo, 1) the default for a 
+> schedule_work() call?
 
-I imagine that you could cleanly apply the test2 ACPI patch to the test3 
-sources, so that might be worth a try for you, or you could wait a couple of 
-days and see if the ACPI folks produce a new patch for test3...
+Why? There are cases where you may really want to get the work done asap,
+so the regular "schedule_work()" is the right thing. While the "delayed"  
+thing is for stuff that explicitly doesn't want to happen immediately,
+because we expect to aggregate more into it.
 
-Cheers,
+Having done a few serial drivers (not because I want to, but because 
+nobody else seems to be doing them), I definitely see the need for both. 
 
-Matt
+For example, the hangup case wants to be done asap, not delayed.
 
--- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon
+		Linus
+

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130072AbRCAWxN>; Thu, 1 Mar 2001 17:53:13 -0500
+	id <S129084AbRCAXCd>; Thu, 1 Mar 2001 18:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130079AbRCAWwy>; Thu, 1 Mar 2001 17:52:54 -0500
-Received: from mercury.ultramaster.com ([208.222.81.163]:63917 "EHLO
-	mercury.ultramaster.com") by vger.kernel.org with ESMTP
-	id <S130072AbRCAWww>; Thu, 1 Mar 2001 17:52:52 -0500
-Message-ID: <3A9ED281.90C5F7CB@dm.ultramaster.com>
-Date: Thu, 01 Mar 2001 17:51:45 -0500
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+	id <S129398AbRCAXCY>; Thu, 1 Mar 2001 18:02:24 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:40444 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129084AbRCAXCH>; Thu, 1 Mar 2001 18:02:07 -0500
+Message-ID: <3A9ED4D8.B3465722@uow.edu.au>
+Date: Thu, 01 Mar 2001 23:01:44 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-mm@kvack.org,
-        " Xos… V·zquez" <xose@smi-ps.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom-killer trigger
-In-Reply-To: <Pine.LNX.4.33.0103011904140.1304-100000@duckman.distro.conectiva>
+To: Caleb Epstein <cae@bklyn.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NETDEV WATCHDOG: eth0: transmit timed out
+In-Reply-To: <20010301115938.A8178@tela.bklyn.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Caleb Epstein wrote:
 > 
-> 1. the OOM killer never triggers if we have > freepages.min
->    of free memory
-> 2. __alloc_pages() never allocates pages to < freepages.min
->    for user allocations
+>         I am seeing the following error after my machine has been up
+>         for a while.  My eth0 is connected to a switched, local
+>         subnet.  There is not a lot of traffic on the interface, maybe
+>         a few 100 Mbytes or so.  Taking the interface down and then up
+>         again fixes the problem (until it happens again :)
 > 
-> ==> the OOM killer never gets triggered under some workloads;
->     the system just sits around with nr_free_pages == freepages.min
+>         Here is the relevant section from my kernel log
 > 
-> The patch below trivially fixes this by upping the OOM kill limit
-> by a really small number of pages ...
+> Mar  1 10:48:44 tela kernel: NETDEV WATCHDOG: eth0: transmit timed out
 
-> +       if (nr_free_pages() > freepages.min + 4)
+My guess would be that the driver has decided there's no
+link beat on the 10baseT interface and has flopped over
+to using 10base2.  A fix for this exists in 2.4.2-ac5+,
+in the zerocopy patch and in
+
+	http://www.uow.edu.au/~andrewm/linux/3c59x.c-2.4.2-pre4.gz
+
+but not in 2.4.2.
+
+You'll need to use
+
+	options 3c59x options=0
+
+in /etc/modules.conf to pin the driver down to using a 
+particular physical interface - disable autoselection.
 
 
-Call me stupid, but why not just change the > to >= (or < to <=) rather
-than introducing a magic number (4).  Or at least make the magic number
-interesting, like:
+So could you please upgrade the driver?  If problems
+remain, please send me a report, as described in the
+final section of Documentation/networking/vortex.txt.
 
-+       if (nr_free_pages() > freepages.min + 42)
+Thanks.
 
-:-)
-
-Thanks for the bugfix,
-David
-
--- 
-David Mansfield                                           (718) 963-2020
-david@ultramaster.com
-Ultramaster Group, LLC                               www.ultramaster.com
+-

@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267765AbTADBQZ>; Fri, 3 Jan 2003 20:16:25 -0500
+	id <S267769AbTADBT3>; Fri, 3 Jan 2003 20:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267767AbTADBQY>; Fri, 3 Jan 2003 20:16:24 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:32970 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S267765AbTADBQX>; Fri, 3 Jan 2003 20:16:23 -0500
-Date: Sat, 04 Jan 2003 14:24:46 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>, linux-kernel@vger.kernel.org,
-       derek@indranet.co.nz
-Subject: Re: build failure 2.5.54+
-Message-ID: <76180000.1041643486@localhost.localdomain>
-In-Reply-To: <m3bs2xu3db.fsf@lugabout.jhcloos.org>
-References: <m3bs2xu3db.fsf@lugabout.jhcloos.org>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S267771AbTADBT3>; Fri, 3 Jan 2003 20:19:29 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:7105 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S267769AbTADBT0>; Fri, 3 Jan 2003 20:19:26 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Andrew Walrond <andrew@walrond.org>, Larry McVoy <lm@bitmover.com>,
+       Samuel Flory <sflory@rackable.com>,
+       David Schwartz <davids@webmaster.com>, Marco Monteiro <masm@acm.org>,
+       linux-kernel@vger.kernel.org
+Date: Fri, 3 Jan 2003 17:15:23 -0800 (PST)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <20030104013011.GC4472@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0301031712100.23270-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of our developers (Derek Smithies, derek@indranet.co.nz) has been 
-overhauling ixj anyway, with access to all the info Quicknet could provide 
-him on the hardware, and he's got a driver that uses about half as many 
-cycles and 2/3 the memory to get far better sound quality.  But his driver 
-won't compile any more either, for the same reason, so if someone can fix 
-that, we'll get the new version submitted with the compilation fix included.
+if the server is just a comm relay this is true, but if the server
+implements real game logic then it's much less of a problem (show me the
+copycat everquest servers for example)
 
-Derek's on holiday till about the 14th.
+as for validating license keys, if you want that to happen you have to
+make the validation code public (which is possible if you use the right
+algorithm)
 
-Andrew
+David Lang
 
---On Friday, January 03, 2003 20:10:08 -0500 "James H. Cloos Jr." 
-<cloos@jhcloos.com> wrote:
 
-> Sometime between the csets
+ On Fri, 3 Jan 2003, Mark Mielke wrote:
+
+> Date: Fri, 3 Jan 2003 20:30:11 -0500
+> From: Mark Mielke <mark@mark.mielke.cc>
+> To: Andrew Walrond <andrew@walrond.org>
+> Cc: Larry McVoy <lm@bitmover.com>, Samuel Flory <sflory@rackable.com>,
+>      David Schwartz <davids@webmaster.com>, Marco Monteiro <masm@acm.org>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: Why is Nvidia given GPL'd code to use in closed source
+>     drivers?
 >
->     rddunlap@osdl.org|ChangeSet|20021218224440|38837
+> On Fri, Jan 03, 2003 at 10:55:13PM +0000, Andrew Walrond wrote:
+> > Of course I and probably many others are moving to a new model for our
+> > games. I'm probably being more radical than most; Open Source client
+> > software. Useless of course without a connection to my server side code :)
+> > It's the first game I've produced that is pirate proof.
 >
-> and
+> If the game is good enough, it isn't pirate proof. I believe that Blizzard
+> and other such companies have pursued this course in the past. The result?
+> The hackers watch the communication between the client and the server and
+> write their own servers. They even go so far as to pretend as if the practice
+> is legal by putting disclaimers on the "public servers" that state that
+> "you may only connect to this service if you have purchased a valid license
+> for this game." Of course, they don't verify license keys...
 >
->     sfr@canb.auug.org.au|ChangeSet|20030103190613|05701
+> mark
 >
-> compilation of ixj.ko broke.
+> --
+> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   |
+> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 >
-> (That is OTOO 520 csets of difference; I didn't try a compile during
-> the 2.5.53 timeframe.)
+>   One ring to rule them all, one ring to find them, one ring to bring them all
+>                        and in the darkness bind them...
 >
-> It looks isapnp related:
->
-> make -f scripts/Makefile.build obj=drivers/telephony
->    rm -f drivers/telephony/built-in.o; ar rcs drivers/telephony/built-in.o
->   gcc -Wp,-MD,drivers/telephony/.phonedev.o.d -D__KERNEL__ -Iinclude
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-> -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE
-> -DKBUILD_BASENAME=phonedev -DKBUILD_MODNAME=phonedev -DEXPORT_SYMTAB  -c
-> -o drivers/telephony/phonedev.o drivers/telephony/phonedev.c   ld -m
-> elf_i386  -r -o drivers/telephony/phonedev.ko drivers/telephony/phonedev.o
->   gcc -Wp,-MD,drivers/telephony/.ixj.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=i686
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE
-> -DKBUILD_BASENAME=ixj -DKBUILD_MODNAME=ixj -DEXPORT_SYMTAB  -c -o
-> drivers/telephony/ixj.o drivers/telephony/ixj.c drivers/telephony/ixj.c:
-> In function `cleanup':
-> drivers/telephony/ixj.c:7581: structure has no member named `deactivate'
-> drivers/telephony/ixj.c:7582: structure has no member named `deactivate'
-> drivers/telephony/ixj.c: In function `ixj_probe_isapnp':
-> drivers/telephony/ixj.c:7715: warning: implicit declaration of function
-> `isapnp_find_dev' drivers/telephony/ixj.c:7716: warning: assignment makes
-> pointer from integer without a cast drivers/telephony/ixj.c:7719:
-> structure has no member named `prepare' drivers/telephony/ixj.c:7731:
-> structure has no member named `activate' drivers/telephony/ixj.c:7762:
-> structure has no member named `serial' drivers/telephony/ixj.c:7712:
-> warning: `result' might be used uninitialized in this function make[2]:
-> *** [drivers/telephony/ixj.o] Error 1
-> make[1]: *** [drivers/telephony] Error 2
-> make: *** [drivers] Error 2
->
-> (I'd try w/o ISAPNP, but the last time I did, I ended up w/o a working
-> kb or mouse....)
->
-> -JimC
+>                            http://mark.mielke.cc/
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -92,6 +76,3 @@ Andrew
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 >
->
-
-

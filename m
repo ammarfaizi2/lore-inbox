@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131644AbQLYQzk>; Mon, 25 Dec 2000 11:55:40 -0500
+	id <S129595AbQLYREn>; Mon, 25 Dec 2000 12:04:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130475AbQLYQzb>; Mon, 25 Dec 2000 11:55:31 -0500
-Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:53905 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S131755AbQLYQzT>; Mon, 25 Dec 2000 11:55:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: dep <dennispowell@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Subject: serial mouse - lockup connection 2.4.0-t12
-Date: Mon, 25 Dec 2000 11:27:39 -0500
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <00122511273900.01170@depoffice.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S129799AbQLYREd>; Mon, 25 Dec 2000 12:04:33 -0500
+Received: from cicero0.cybercity.dk ([212.242.40.52]:63493 "HELO
+	cicero0.cybercity.dk") by vger.kernel.org with SMTP
+	id <S129595AbQLYRET>; Mon, 25 Dec 2000 12:04:19 -0500
+Date: Mon, 25 Dec 2000 17:34:33 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: test13-pre4... udf problem with dvd access vs test12
+Message-ID: <20001225173433.I303@suse.de>
+In-Reply-To: <3A47212D.F9F119C3@xmission.com> <3A476C7D.1952EDB4@haque.net> <3A477014.CE908BFC@haque.net> <20001225171305.G303@suse.de> <3A477333.1BC64D4C@haque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A477333.1BC64D4C@haque.net>; from mhaque@haque.net on Mon, Dec 25, 2000 at 11:17:55AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-greetings!
+On Mon, Dec 25 2000, Mohammad A. Haque wrote:
+> Fix confirmed. Am i supposed to get some DriveSense errors? I probably
+> am just don't recall.
 
-the lockup of test12 leaves no droppings i can find, but in the 
-course of a half-dozen lockups in the last few days i've made an 
-observation or two that may be of diagnostic help.
+Good. The whole idea of cdrom_log_sense is to be able to cleanly
+limit the (often) sense-less (yes, haha :) ide-cd verbosity. Some of the
+css stuff are obvious candidates. We want users to be aware of the
+error, but often we end up flooding the logs with the same stuff over
+and over again. This is often a source of confusion for the casual
+user.
 
-system is a k6-2 on a via chipset mb with onboard everything but 
-video (fic va-503a). kernel built with gcc-2.95.2. glibc is 2.2.
-
-the lockups occur during mouse movement -- mouse is kensington 
-emulating microsoft. the peculiar thing is that the mouse 
-acceleration seems to slow a little in the seconds before the lockup. 
-i don't know that this is a useful datum, but it seemed as if it 
-might be significant.
-
-the lockups are otherwise neither predictable or reproducible.
 -- 
-dep
---
-bipartisanship: an illogical construct not unlike the idea that
-if half the people like red and half the people like blue, the 
-country's favorite color is purple.
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

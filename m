@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269227AbUJKUXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269233AbUJKUgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269227AbUJKUXL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 16:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUJKUXL
+	id S269233AbUJKUgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 16:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUJKUgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 16:23:11 -0400
-Received: from 106.80-203-35.nextgentel.com ([80.203.35.106]:36976 "EHLO
-	home.gnome.no") by vger.kernel.org with ESMTP id S269227AbUJKUXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 16:23:06 -0400
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-From: Kjartan Maraas <kmaraas@broadpark.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Brice.Goglin@ens-lyon.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0410110752380.3897@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-	 <416A4D67.9070108@ens-lyon.fr>
-	 <Pine.LNX.4.58.0410110752380.3897@ppc970.osdl.org>
+	Mon, 11 Oct 2004 16:36:23 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:37860 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269233AbUJKUgV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 16:36:21 -0400
+Subject: Re: 2.6.9-rc4-mm1 HPET compile problems on AMD64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20041011125421.106eff07.akpm@osdl.org>
+References: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
+	 <20041011125421.106eff07.akpm@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 11 Oct 2004 22:22:47 +0200
-Message-Id: <1097526167.10001.0.camel@home.gnome.no>
+Organization: 
+Message-Id: <1097526413.12861.374.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-4) 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Oct 2004 13:26:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 11,.10.2004 kl. 07.57 -0700, skrev Linus Torvalds:
-> 
-> On Mon, 11 Oct 2004, Brice Goglin wrote:
-> > 
-> > Well, I have one (N600c).
-> > What am I supposed to see ? Is there anything special to do ?
-> 
-> Different Evo, different BIOS, different AML bug. You might try to update 
-> your BIOS, it might be fixed.
-> 
-The latest BIOS didn't make a difference for me at least.
+On Mon, 2004-10-11 at 12:54, Andrew Morton wrote:
 
-> > I don't know exactly how fan control is supposed to be fixed.
-> > Automatic wakeup/stop of these fans depending on the temperature
-> > was already working.
 > 
-> It wasn't on the N620c.. That one had errors like
+> I assume you have CONFIG_HPET=n and CONFIG_HPET_TIMER=n?
 > 
->     ACPI-1133: *** Error: Method execution failed [\_TZ_.C202] (Node c1926af0), AE_AML_NO_RETURN_VA
->     ACPI-1133: *** Error: Method execution failed [\_TZ_.C20C._STA] (Node c1926cd4), AE_AML_NO_RETU
-> 
-> but yours are different:
-> 
-> > By the way, I still see these errors during the boot, don't know if it's
-> > supposed to be fixed :
-> > 
-> >   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C12E] (Node e7f9a3a8), AE_AML_UNINITIALIZED_LOCAL
-> >   psparse-1133: *** Error: Method execution failed [\_SB_.C03E.C053.C0D1.C13D] (Node e7f9bd68), AE_AML_UNINITIALIZED_LOCAL
-> >   psparse-1133: *** Error: Method execution failed [\_SB_.C19F._BTP] (Node e7fa3348), AE_AML_UNINITIALIZED_LOCAL
-> 
-> Have you made a acpi bugzilla entry for this?
-> 
-I made one a while ago:
+> Andi, what's going on here?  Should the hpet functions in
+> arch/x86_64/kernel/time.c be inside CONFIG_HPET_TIMER?
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1404
+I haven't enable HPET, but autoconf.h gets 
 
-Cheers
-Kjartan
+# grep HPET autoconf.h
+#define CONFIG_HPET_TIMER 1
+#define CONFIG_HPET_EMULATE_RTC 1
+
+# grep HPET .config
+# CONFIG_HPET is not set
+
+Thanks,
+Badari
 

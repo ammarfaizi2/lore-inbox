@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276150AbRJGGJn>; Sun, 7 Oct 2001 02:09:43 -0400
+	id <S276190AbRJGH02>; Sun, 7 Oct 2001 03:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276170AbRJGGJe>; Sun, 7 Oct 2001 02:09:34 -0400
-Received: from robur.slu.se ([130.238.98.12]:11020 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S276150AbRJGGJS>;
-	Sun, 7 Oct 2001 02:09:18 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S276208AbRJGH0S>; Sun, 7 Oct 2001 03:26:18 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:16140 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S276190AbRJGH0H> convert rfc822-to-8bit; Sun, 7 Oct 2001 03:26:07 -0400
+Date: Sun, 7 Oct 2001 09:21:05 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: <paulus@samba.org>, "David S. Miller" <davem@redhat.com>,
+        <James.Bottomley@HansenPartnership.com>, <linuxopinion@yahoo.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <d3adz4u1gx.fsf@lxplus014.cern.ch>
+Message-ID: <20011007091404.X953-100000@gerard>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15295.61967.701804.309307@robur.slu.se>
-Date: Sun, 7 Oct 2001 08:11:27 +0200
-To: kuznet@ms2.inr.ac.ru
-Cc: adilger@turbolabs.com (Andreas Dilger), Robert.Olsson@data.slu.se,
-        mingo@elte.hu, hadi@cyberus.ca, linux-kernel@vger.kernel.org,
-        bcrl@redhat.com, netdev@oss.sgi.com, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <200110051917.XAA23007@ms2.inr.ac.ru>
-In-Reply-To: <20011005124824.F315@turbolinux.com>
-	<200110051917.XAA23007@ms2.inr.ac.ru>
-X-Mailer: VM 6.92 under Emacs 19.34.1
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-kuznet@ms2.inr.ac.ru writes:
 
- > "some hysteresis" is right word. This loop is an experiment with still
- > unknown result yet. Originally, Jamal proposed to spin several times.
- > I killed this. Robert proposed to check inifinite loop yet. (Note,
- > jiffies check is just a way to get rid of completely idle devices,
- > one jiffie is enough lonf time to be considered infinite).
- > 
+On 6 Oct 2001, Jes Sorensen wrote:
 
- And from our discussion about packet-reordering we get even more motivation
- for the "extra-polls" not only to save IRQ's 
+> >>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+>
+> Paul> David S. Miller writes:
+> >> I can not even count on one hand how many people I've helped
+> >> converting, who wanted a bus_to_virt() and when I showed them how
+> >> to do it with information the device provided already they said "oh
+> >> wow, I never would have thought of that".  That process won't
+> >> happen as often with the suggested feature.
+>
+> Paul> Well, let's see if we can come up with a way to achieve this
+> Paul> goal as well as the other.
+>
+> Paul> I look at all the hash-table stuff in the usb-ohci driver and I
+> Paul> think to myself about all the complexity that is there (and I
+> Paul> haven't managed to convince myself yet that it is actually
+> Paul> SMP-safe) and all the time wasted doing that stuff, when on
+> Paul> probably 95% of the machines that use the usb-ohci driver, the
+> Paul> hashing stuff is totally unnecessary.  I am talking about
+> Paul> powermacs, which don't have an iommu, and where the reverse
+> Paul> mapping is as simple as adding a constant.
+>
+> I haven't looked at the ohci driver at all, however doesn't it return
+> anything but the dma address? No index, no offset, no nothing? If
+> thats the case, someone really needs to go visit the designers with a
+> large bat ;-(
 
- We may expand this to others too...
+I would apply the bat to people that wants such a dma to virtual general
+translation. This thing is obviously gross shit.
 
- As polling-lists are per CPU and consecutive polls stays within the same
- CPU the device becomes bound to one CPU. We are protected against packet 
- reordering as long there are consecutive polls.
+I would also apply the bat to people that look into stuff of other people
+and, instead of trying to actually understand the code, just give a look
+and send inappropriate statements to the list.
 
- I've consulted some CS people who has worked with this issues and I have
- understood packet reordering is non-trivial problem at least with a general 
- approach.
+  Gérard.
 
- So to me it seems we do very well with a very simple scheme and as I 
- understand all SMP networking will benefit from this.
-
- Our "field-test" indicates that the packet load is still well distributed 
- among the CPU's.
-
- So maybe the showstopper comes out as a showwinner. :-)
-
- Cheers.
-
-						--ro

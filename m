@@ -1,106 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288789AbSAEMIp>; Sat, 5 Jan 2002 07:08:45 -0500
+	id <S288791AbSAEMS2>; Sat, 5 Jan 2002 07:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288790AbSAEMIf>; Sat, 5 Jan 2002 07:08:35 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:13841 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S288789AbSAEMIc>;
-	Sat, 5 Jan 2002 07:08:32 -0500
-Message-ID: <XFMail.20020105125812.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <1010174181.2530.2.camel@localhost.localdomain>
-Date: Sat, 05 Jan 2002 12:58:12 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-Subject: Re: APM driver patch summary
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
-        Thomas Hood <jdthood@mail.com>
+	id <S288793AbSAEMSS>; Sat, 5 Jan 2002 07:18:18 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:17896 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S288791AbSAEMSG>; Sat, 5 Jan 2002 07:18:06 -0500
+Date: Sat, 5 Jan 2002 04:18:05 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: eokerson@quicknet.net, linux-kernel@vger.kernel.org
+Subject: linux-2.5.2-pre8/drivers/telephony kdev_t compilation fixes
+Message-ID: <20020105041805.A24306@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 04-Jan-2002 Borsenkow Andrej wrote:
-> Sorry for the delay, I was off before New Year and then could not test
-> it ...
-> 
-> 
-> On óÂÔ, 2001-12-22 at 17:44, Andreas Steinmetz wrote:
->> Hi,
->> I merged 2., 3. and 4. (attached) with some modifications.
->> 
->> 1. There is now a module parameter apm-idle-threshold which allows to
->> override
->>    the compiled in idle percentage threshold above which BIOS idle calls are
->>    done.
->> 
->> 2. I modified Andrej's mechanism to detect a defunct BIOS (stating 'does
->> stop
->>    CPU' when it actually doesn't) to take into account that there's other
->>    interrupts than the timer interrupt that could reactivate the cpu.
->>    As there's 16 hardware interrupts on x86 (apm is arch specific anyway) I
->>    do
->>    use a leaky bucket counter for a maximum of 16 idle rounds until jiffies
->>    is
->>    increased. When the counter reaches zero it stays at this value and the
->>    system idle routine is called. If BIOS idle is a noop then the counter
->>    reaches zero fast, thus effectively halting the cpu.
->> 
-> 
-> I do not think you need it. Either interrupt waked up somebody and set
-> need_resched and we exit loop or nobody is ready to run and we can sleep
-> again. Why complicate things any more than needed? 
-> 
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-NIC interrupt with fragmented packet, usb, sound, ... - there's interrupts with
-nobody ready to run. Have a look at /proc/interrupts from time to time while
-your system is idle.
+	Here is a patch to make linux-2.5.2-pre8/drivers/telephony
+compile.  It changes some MINOR() calls to minor().  gcc-3.0.2
+also identified two places that could produce undefined behavior
+under the C standard, so I fixed those too.
 
->> Andrej, could you please test the patch if it works for your laptop?
->> 
-> 
-> It does not work and I am very surprised it works for somebody (well,
-> there are conditios when it will work). By default pm_idle is always
-> NULL so we *never* actually call kernel function that really stops CPU.
-> Main idle task is cpu_idle that does
-> 
+	I only know that this code compiles.  I don't know that it
+works.
 
-Well, if your BIOS is not broken it works. That's why I asked you to test the
-patch.
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-> if (pm_idle)
->    pm_idle()
-> or
->    default_idle
-> 
-> and CPU is halted in default_idle. So your patch just enters busy loop
-> calling BIOS APM Idle over and over again just like it was before.
-> 
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="telephony.diff"
 
-Granted.
+diff -u -r linux-2.5.2-pre8/drivers/telephony/ixj.c linux/drivers/telephony/ixj.c
+--- linux-2.5.2-pre8/drivers/telephony/ixj.c	Fri Jan  4 19:40:37 2002
++++ linux/drivers/telephony/ixj.c	Sat Jan  5 04:09:23 2002
+@@ -274,8 +274,8 @@
+ 
+ #include "ixj.h"
+ 
+-#define TYPE(dev) (MINOR(dev) >> 4)
+-#define NUM(dev) (MINOR(dev) & 0xf)
++#define TYPE(dev) (minor(dev) >> 4)
++#define NUM(dev) (minor(dev) & 0xf)
+ 
+ static int ixjdebug;
+ static int hertz = HZ;
+@@ -2805,8 +2835,10 @@
+ 		0xD6, 0xD6, 0xD7, 0xD7, 0xD4, 0xD4, 0xD5, 0xD5
+ 	};
+ 
+-	while (len--)
+-		*buff++ = table_ulaw2alaw[*(unsigned char *)buff];
++	while (len--) {
++		*buff = table_ulaw2alaw[*(unsigned char *)buff];
++		buff++;
++	}
+ }
+ 
+ static void alaw2ulaw(unsigned char *buff, unsigned long len)
+@@ -2847,8 +2879,10 @@
+ 		0xCF, 0xCF, 0xCE, 0xCE, 0xD2, 0xD3, 0xD0, 0xD1
+ 	};
+ 
+-        while (len--)
+-                *buff++ = table_alaw2ulaw[*(unsigned char *)buff];
++        while (len--) {
++                *buff = table_alaw2ulaw[*(unsigned char *)buff];
++		buff++;
++	}
+ }
+ 
+ static ssize_t ixj_read(struct file * file_p, char *buf, size_t length, loff_t * ppos)
+@@ -6202,7 +6236,7 @@
+ 	IXJ_FILTER_RAW jfr;
+ 
+ 	unsigned int raise, mant;
+-	unsigned int minor = MINOR(inode->i_rdev);
++	unsigned int index = minor(inode->i_rdev);
+ 	int board = NUM(inode->i_rdev);
+ 
+ 	IXJ *j = get_ixj(NUM(inode->i_rdev));
+@@ -6218,8 +6252,8 @@
+ 		schedule_timeout(1);
+ 	}
+ 	if (ixjdebug & 0x0040)
+-		printk("phone%d ioctl, cmd: 0x%x, arg: 0x%lx\n", minor, cmd, arg);
+-	if (minor >= IXJMAX) {
++		printk("phone%d ioctl, cmd: 0x%x, arg: 0x%lx\n", index, cmd, arg);
++	if (index >= IXJMAX) {
+ 		clear_bit(board, &j->busyflags);
+ 		return -ENODEV;
+ 	}
+@@ -6746,7 +6780,7 @@
+ 		break;
+ 	}
+ 	if (ixjdebug & 0x0040)
+-		printk("phone%d ioctl end, cmd: 0x%x, arg: 0x%lx\n", minor, cmd, arg);
++		printk("phone%d ioctl end, cmd: 0x%x, arg: 0x%lx\n", index, cmd, arg);
+ 	clear_bit(board, &j->busyflags);
+ 	return retval;
+ }
+diff -u -r linux-2.5.2-pre8/drivers/telephony/phonedev.c linux/drivers/telephony/phonedev.c
+--- linux-2.5.2-pre8/drivers/telephony/phonedev.c	Fri Sep  7 09:28:37 2001
++++ linux/drivers/telephony/phonedev.c	Sat Jan  5 04:09:23 2002
+@@ -46,26 +46,26 @@
+ 
+ static int phone_open(struct inode *inode, struct file *file)
+ {
+-	unsigned int minor = MINOR(inode->i_rdev);
++	unsigned int index = minor(inode->i_rdev);
+ 	int err = 0;
+ 	struct phone_device *p;
+ 	struct file_operations *old_fops, *new_fops = NULL;
+ 
+-	if (minor >= PHONE_NUM_DEVICES)
++	if (index >= PHONE_NUM_DEVICES)
+ 		return -ENODEV;
+ 
+ 	down(&phone_lock);
+-	p = phone_device[minor];
++	p = phone_device[index];
+ 	if (p)
+ 		new_fops = fops_get(p->f_op);
+ 	if (!new_fops) {
+ 		char modname[32];
+ 
+ 		up(&phone_lock);
+-		sprintf(modname, "char-major-%d-%d", PHONE_MAJOR, minor);
++		sprintf(modname, "char-major-%d-%d", PHONE_MAJOR, index);
+ 		request_module(modname);
+ 		down(&phone_lock);
+-		p = phone_device[minor];
++		p = phone_device[index];
+ 		if (p == NULL || (new_fops = fops_get(p->f_op)) == NULL)
+ 		{
+ 			err=-ENODEV;
 
-> Attached patch makes apm_cpu_idle do the same and call either old
-> pm_idle (a.k.a. sys_idle) or default_idle. I removed your interrupt
-> handling - it does not actually affect the problem but it still is not
-> needed IMHO. t1, t2 are changed from int into long because jiffies is
-> long - not sure if it is really needed.
-> 
-
-Please don't  do it like this. It breaks apm module build for sure. I would
-suggest to implement the functionality of default_idle() into apm_cpu_idle().
-Though I could do this right now I'd ask all participating parties to agree on
-a current code status on which to work on.
-
-> cheers and sorry for delay
-> 
-> -andrej
-> 
-> 
-> 
-
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+--45Z9DzgjV8m4Oswq--

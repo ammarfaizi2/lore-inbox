@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266533AbUGQMNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266630AbUGQMqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266533AbUGQMNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 08:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGQMNg
+	id S266630AbUGQMqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 08:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266658AbUGQMqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 08:13:36 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:60141 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266533AbUGQMNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 08:13:32 -0400
-Message-ID: <40F917E7.2010406@t-online.de>
-Date: Sat, 17 Jul 2004 14:13:27 +0200
-From: "Harald Dunkel" <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040717
-X-Accept-Language: en-us, en
+	Sat, 17 Jul 2004 08:46:48 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:59321 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S266630AbUGQMqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 08:46:47 -0400
+Subject: Re: Atmel at76c50x PCMCIA 2.6.6 kernel panic
+In-Reply-To: <20040717035922.GA2415@espresso> "from Andrew Lau at Jul 17, 2004
+ 01:59:22 pm"
+To: Andrew Lau <netsnipe@users.sourceforge.net>
+Date: Sat, 17 Jul 2004 07:46:45 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Firmware updates using Linux?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-ID: ECXf7ZZHQeoT+AGX94-WnqQ20NvJ8l-XhKMG-5qtu10ESqoV6AW-Zt
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20040717124645.C3D0BDBDB@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Andrew Lau wrote:
+> Is this patch still necessary? It wasn't merged in with 2.6.7 and I
+> haven't noticed it in the 2.6.8-rc1 changelog either. I'd test it
+> myself, but I don't have access to a wireless access point at the
+> moment.
 
-I've got a DVD drive, which seems to have some problems.
-There is a new firmware available, but (as usual) it requires
-Windows to install. An update via DOS is not supported. But
-I would like to keep my PC Windows-free.
+There's a new version of the patch for 2.6.7 available at the firmware
+download location.
 
-Before I step on the toes of my vendor: Would it be possible
-to do a firmware update (IDE, SCSI, USB) within Linux?
-
-
-Regards
-
-Harri
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269389AbUI3SO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269384AbUI3SPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269389AbUI3SO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 14:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269384AbUI3SO5
+	id S269384AbUI3SPe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 14:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbUI3SPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 14:14:57 -0400
-Received: from viefep17-int.chello.at ([213.46.255.23]:5138 "EHLO
-	viefep17-int.chello.at") by vger.kernel.org with ESMTP
-	id S269389AbUI3SOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 14:14:11 -0400
-Date: Thu, 30 Sep 2004 20:14:05 +0200 (CEST)
-From: peter.gantner@stud.uni-graz.at
-X-X-Sender: nephros@scourge.crownest.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
-Message-ID: <Pine.LNX.4.61.0409301414020.18259@scourge.crownest.net>
-X-Iron-Prison: The Empire never ended.
+	Thu, 30 Sep 2004 14:15:34 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:4279 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S269384AbUI3SPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 14:15:25 -0400
+Message-ID: <415C4D79.6060608@t-online.de>
+Date: Thu, 30 Sep 2004 20:16:25 +0200
+From: franz_pletz@t-online.de (Franz Pletz)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040917 Thunderbird/0.8 Mnenhy/0.6.0.103
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Michal Rokos <michal@rokos.info>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info> <415C37D8.20203@t-online.de> <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: r1DUIUZEgeVaVUzWdcvebQ6Bj94h8iwSoCDSY9d9nIAPM+c9DKaWY9
+X-TOI-MSGID: 4a194644-b984-4ada-a7eb-4f3ac413ec76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Linus Torvalds wrote:
+> It's definitely not in _my_ -rc3. Which kernel are you looking at?
 
-The problem seems to affect more chipsets than suspected.
-Is it possible that it is indeed not a quirk as David Brownell suspects?
-I am getting this:
+Hmm, I just unpacked fresh sources from kernel.org, patched them up to 
+rc3 and everything is now working fine. Seems like my kernel sources 
+were in some way damaged from patching too much although I didn't 
+experience any rejects.
 
-ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ACPI: PCI interrupt 0000:02:00.0[D] -> GSI 19 (level, low) -> IRQ 19
-ohci_hcd 0000:02:00.0: Advanced Micro Devices [AMD] AMD-768 [Opus] USB
-ohci_hcd 0000:02:00.0: irq 19, pci mem 0xd3000000
-ohci_hcd 0000:02:00.0: new USB bus registered, assigned bus number 1
-ohci_hcd 0000:02:00.0: init err (00002edf 0000)
-ohci_hcd 0000:02:00.0: can't start
-ohci_hcd 0000:02:00.0: init error -75
-ohci_hcd 0000:02:00.0: remove, state 0
-ohci_hcd 0000:02:00.0: USB bus 1 deregistered
-ohci_hcd: probe of 0000:02:00.0 failed with error -75
+Sorry for the noise.
 
+Well, I guess next time I should really make sure that everything's sane 
+before reporting something.
 
-the deviceinfo from lspci -n/-v:
+> This patch should clean up natsemi.c a bit, and makes the warnings go 
+> away. Does it work for you? (It really should, it's just a basic 
+> search-and-replace fix).
 
-0000:02:00.0 Class 0c03: 1022:7449 (rev 07)
+Yes, this one works well without any problems or warnings. Thanks.
 
-0000:02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 07) (prog-if 10 [OHCI])
-         Subsystem: Asustek Computer, Inc.: Unknown device 8044
-         Flags: medium devsel, IRQ 19
-         Memory at d3000000 (32-bit, non-prefetchable)
-
-
-If wanted I will test with a USB debug enabled kernel as soon as I physically 
-get to my box.
-
-It would be nice if you'd cc me on Reply as I'm not subscribed.
-
-Greets,
- 	Peter G.
-
--- 
-"I do not think the way you think I think."
-     -- Kai, last of the Brunnen G
+Franz

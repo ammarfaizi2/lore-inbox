@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261562AbREOVYS>; Tue, 15 May 2001 17:24:18 -0400
+	id <S261558AbREOVYS>; Tue, 15 May 2001 17:24:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbREOVYM>; Tue, 15 May 2001 17:24:12 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:3079 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S261558AbREOVWr>; Tue, 15 May 2001 17:22:47 -0400
-Date: Tue, 15 May 2001 14:22:26 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10105151418160.22038-100000@www.transvirtual.com>
+	id <S261562AbREOVYL>; Tue, 15 May 2001 17:24:11 -0400
+Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:41522 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id <S261559AbREOVW7>;
+	Tue, 15 May 2001 17:22:59 -0400
+Message-ID: <3B019E1C.9D9CE388@violin.dyndns.org>
+Date: Tue, 15 May 2001 23:22:36 +0200
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+Reply-To: dusty@strike.wu-wien.ac.at
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Interrupted sound with 2.4.4-ac6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> I want to ease people into this notion. I'm personally perfectly happy to
-> make it a real filesystem, if you are willing to write the code. But I've
-> become convinced that the transition has to be really simple, with no
-> administrative work.
+At first I have to apologize if you get this mail double, I sent it
+yesterday once but I did not get it from the list and it seems it
+vanished for some reason, so I try it a second time:
 
-Just one thing. Since we would end up with a system where each device is a
-filesystem of some type how does this fit into devfs. I can't imagine
-having a fstab file with 20 some filesystems for different types of
-devices. I like to see the ability to mount device filesystems but I like
-to have them all mounted at one time at boot time. Of course their might
-be some users who don't feel this way. They might want to count what gets
-mounted where. I guess devfsd could be expaned to handle this.
+I built a nice mp3 player out of a AMD 486-DX133 and a soundblaster
+es1371. I always used 2.2.16 and it worked properly. Due to several
+reasons I want to switch to 2.4, so I tried my luck with 2.4.4-ac6.
 
+Basically it works but the sound gets interrupted (around 0.5 - 5seconds
+silence) from time to time although the system is around 44% idle. This
+never happened with 2.2.16. These interrupts are not periodically,
+sometimes there are none for a minute, sometimes there are even
+interrupts around 5 seconds long.
+
+I have to state that the data comes from an nfs-mounted directory -
+perhaps this is a reason? (There is no network load).
+
+Another interesting thing is that during those interrupts the processor
+usage of mpg123 decreases from 53% to around 20%, so it looks as if
+mpg123 can either not get data or not output data.
+
+Do you have any clues? Are there perhaps some kernel parameters to tune
+(buffer size, dma...)?
+
+                Best Regards,
+                Hermann
+-- 
+ ,_,
+(O,O)     "There is more to life than increasing its speed."
+(   )     -- Gandhi
+-"-"--------------------------------------------------------------

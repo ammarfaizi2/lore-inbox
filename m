@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280999AbRKLVOn>; Mon, 12 Nov 2001 16:14:43 -0500
+	id <S280998AbRKLVSV>; Mon, 12 Nov 2001 16:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280997AbRKLVOc>; Mon, 12 Nov 2001 16:14:32 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:49376 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S280998AbRKLVOU>; Mon, 12 Nov 2001 16:14:20 -0500
+	id <S281005AbRKLVSM>; Mon, 12 Nov 2001 16:18:12 -0500
+Received: from a59178.upc-a.chello.nl ([62.163.59.178]:10502 "EHLO
+	www.unternet.org") by vger.kernel.org with ESMTP id <S280998AbRKLVSF>;
+	Mon, 12 Nov 2001 16:18:05 -0500
+Date: Mon, 12 Nov 2001 22:16:28 +0100
+From: Frank de Lange <lkml-frank@unternet.org>
 To: linux-kernel@vger.kernel.org
-Subject: Slow down problems (VM related?) with 2.4.1x kernels
-Message-ID: <1005599658.3bf03baaa786b@imp.free.fr>
-Date: Mon, 12 Nov 2001 22:14:18 +0100 (MET)
-From: =?ISO-8859-1?Q?J=E9r=F4me_Marant?= <jerome.marant@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: IMP/PHP IMAP webmail program 2.2.42
-X-Originating-IP: 212.198.0.94
+Subject: Re: Abysmal interactive performance on 2.4.linus
+Message-ID: <20011112221628.A16035@unternet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Please CC: me on reply since I'm not a linux-kernel subscriber ]
+Also sprach Jeff Garzik:
+>Can you try 2.4.13ac6 (not 7/8), and 2.2.20, and post a comparison?
 
-Hi,
+Well, as the system is partly reiserfs-based, 2.2.20 is a bit difficult. I've
+run the -ac series before trying the 'linus' kernels, and noticed similar
+performance problems (but not as severe). I don't have any hard numbers yet,
+will try to get some if at all possible (it would be like comparing apples to
+reiserfs-oranges).
 
-  I often watch DVDs with the vlc program (http://www.videolan.org) and
-  it worked perfectly until I switched to 2.4.10 and greater kernels.
-  I can no longer what DVDs with current kernels (that is the reason
-  why I kept a 2.4.9) since I do experience interruptions of the video
-  and the audio quite every second. I tried first to modify parameters
-  of the player: lowering audio quality, switching from 32 bbp to 16 bbp
-  but nothing changed. Furthermore, the harddisc is not used at all
-  during the decoding.
+ [ given the nature of the problem - weird delays during file system activity -
+   those numbers will be more or less meaningless. This is not a matter of
+   'better' performance on a given hardware platform, but one of 'abysmal'
+   performance versus 'normal' performance. It doesn't really matter how long
+   the observed delays are, the problem lies in the fact that those delays are
+   there in the first place... ]
 
-  It obvious that it does come from vlc since the same version of the
-  program behaves differently on 2.4.9 and 2.4.1x.
-
-  The only major change I'm aware of between 2.4.9 and following kernels
-  is the VM and I'm a bit worried about the fact that it has been chosen
-  as the final VM for 2.4 kernels: I don't want to go back to 2.4.9 foverer
-  when I want to watch DVDs. I have no clue about if this is really a VM
-  problem or not and I'm not a kernel hacker. I also know that some people
-  experienced the same problem in the same conditions.
-
-  My system is:
-  - Athlon 1,2 GHz
-  - Asus A7V133 / 266 FSB motherboard
-  - 512 Megs of SDRam
-  - ATI Radeon VE video card.
-
-  I hope this helps.
-
-  Regards,
-
-  PS: If I can help with investingating in some way, please tell me.
-
---------------
-Jérôme Marant <jerome.marant@free.fr>
-
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]

@@ -1,133 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133064AbRDRJVi>; Wed, 18 Apr 2001 05:21:38 -0400
+	id <S133067AbRDRKFK>; Wed, 18 Apr 2001 06:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133065AbRDRJV3>; Wed, 18 Apr 2001 05:21:29 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:57000 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S133064AbRDRJVR>; Wed, 18 Apr 2001 05:21:17 -0400
-Date: Tue, 17 Apr 2001 23:00:59 -0700
-From: Scott Maxwell <maxwell@ScottMaxwell.org>
-Subject: [PATCH] SysV IPC loop speedups, kernel 2.4.3
+	id <S133068AbRDRKFB>; Wed, 18 Apr 2001 06:05:01 -0400
+Received: from cad2.me.ccu.edu.tw ([140.123.121.3]:2485 "EHLO
+	cad2.me.ccu.edu.tw") by vger.kernel.org with ESMTP
+	id <S133067AbRDRKEu>; Wed, 18 Apr 2001 06:04:50 -0400
+Message-ID: <3ADD68F1.69DC083E@cs.ccu.edu.tw>
+Date: Wed, 18 Apr 2001 18:14:09 +0800
+From: lmc83 <lmc83@cs.ccu.edu.tw>
+X-Mailer: Mozilla 4.5 [zh-TW] (WinNT; I)
+X-Accept-Language: zh-TW
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: manfreds@colorfullife.com
-Message-id: <3ADD2D9B.75927E9C@ScottMaxwell.org>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.12-20 i686)
-Content-type: multipart/mixed; boundary="------------1823B5F00D0D214EF46A04BE"
-X-Accept-Language: en
+Subject: some question about ramdisk
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1823B5F00D0D214EF46A04BE
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+hi,
+    I have some question about initrd.
+    If I have a compressed ramdisk image: initrd.gz put at a memory location
+    for example: 0x00070000 (in fact, in my application, it is flash)
 
-This patch contains a couple of micro-optimizations for the loops in
-ipc/msg.c's load_msg() and store_msg().  It works fine for me under
-2.4.3.
+    1. what is the meaning of initrd_start in rd.c (linux-2.4.0)?
+       Is it means 0x00070000?
+       or is it means the initrd.gz will be decompressed to the
+       location initrd_start?
 
--- 
--------------------------+--------------------------------------------
-R H L U  Scott Maxwell:  | ``Life results from the non-random survival
-E A I X     maxwell@     |   of randomly varying replicators.''
-D T N 6 ScottMaxwell.org |     -- Richard Dawkins
---------------1823B5F00D0D214EF46A04BE
-Content-Type: text/plain; charset=us-ascii;
- name="ipc-msg-loop.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipc-msg-loop.patch"
+    2. I'm tracing the rd.c and found that initrd_load() will be
+       called only if initrd_start != 0, but for my testing
+       case, it seems always initrd_start==0.
+       Which kernel parameter can modify the initrd_start?
 
-diff -urN linux-2.4.3/ipc/msg.c linux/ipc/msg.c
---- linux-2.4.3/ipc/msg.c	Mon Feb 19 10:18:18 2001
-+++ linux/ipc/msg.c	Tue Apr 17 22:34:36 2001
-@@ -177,28 +177,30 @@
- 		goto out_err;
- 	}
- 
--	len -= alen;
--	src = ((char*)src)+alen;
--	pseg = &msg->next;
--	while(len > 0) {
--		struct msg_msgseg* seg;
--		alen = len;
--		if(alen > DATALEN_SEG)
--			alen = DATALEN_SEG;
--		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
--		if(seg==NULL) {
--			err=-ENOMEM;
--			goto out_err;
--		}
--		*pseg = seg;
--		seg->next = NULL;
--		if(copy_from_user (seg+1, src, alen)) {
--			err = -EFAULT;
--			goto out_err;
-+	if (len > DATALEN_MSG) {
-+		pseg = &msg->next;
-+		while(len > alen) {
-+			struct msg_msgseg* seg;
-+
-+			len -= alen;
-+			src = ((char*)src)+alen;
-+
-+			alen = len;
-+			if(alen > DATALEN_SEG)
-+				alen = DATALEN_SEG;
-+			seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
-+			if(seg==NULL) {
-+				err=-ENOMEM;
-+				goto out_err;
-+			}
-+			*pseg = seg;
-+			seg->next = NULL;
-+			if(copy_from_user (seg+1, src, alen)) {
-+				err = -EFAULT;
-+				goto out_err;
-+			}
-+			pseg = &seg->next;
- 		}
--		pseg = &seg->next;
--		len -= alen;
--		src = ((char*)src)+alen;
- 	}
- 	return msg;
- 
-@@ -218,18 +220,20 @@
- 	if(copy_to_user (dest, msg+1, alen))
- 		return -1;
- 
--	len -= alen;
--	dest = ((char*)dest)+alen;
--	seg = msg->next;
--	while(len > 0) {
--		alen = len;
--		if(alen > DATALEN_SEG)
--			alen = DATALEN_SEG;
--		if(copy_to_user (dest, seg+1, alen))
--			return -1;
--		len -= alen;
--		dest = ((char*)dest)+alen;
--		seg=seg->next;
-+	if (len > DATALEN_MSG) {
-+		seg = msg->next;
-+		while(len > alen) {
-+			len -= alen;
-+			dest = ((char*)dest)+alen;
-+
-+			alen = len;
-+			if(alen > DATALEN_SEG)
-+				alen = DATALEN_SEG;
-+			if(copy_to_user (dest, seg+1, alen))
-+				return -1;
-+
-+			seg=seg->next;
-+		}
- 	}
- 	return 0;
- }
 
---------------1823B5F00D0D214EF46A04BE--
+    3. How to tell the kernel that I have a initrd who's image
+       is located 0x00070000?
+       I saw the Document/kernel-parameters.txt, is seems doesn't
+       have suitable parameter for me to use.
+       
+       Should I modify the kernel source code to fit my requirement?
+       I've saw the "How-To: make root/boot disk", it use floppy's
+       specific sector as ramdisk image, 
+       I think is's a little similar to my application,
+       I will try to just specify memory location instead of 
+       reading from floppy's specific sector.
 
+    Thanks in advance for you help
+
+    Liang Ming-Chung

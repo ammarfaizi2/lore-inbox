@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131477AbRDSRLp>; Thu, 19 Apr 2001 13:11:45 -0400
+	id <S131484AbRDSRRG>; Thu, 19 Apr 2001 13:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131497AbRDSRLg>; Thu, 19 Apr 2001 13:11:36 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26704 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131477AbRDSRLX>; Thu, 19 Apr 2001 13:11:23 -0400
-Date: Thu, 19 Apr 2001 19:33:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Takanori Kawano <t-kawano@ebina.hitachi.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panics on raw I/O stress test
-Message-ID: <20010419193322.F752@athlon.random>
-In-Reply-To: <20010419210153Z.t-kawano@ebina.hitachi.co.jp>
+	id <S131497AbRDSRQ6>; Thu, 19 Apr 2001 13:16:58 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:39690 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S131481AbRDSRQp>;
+	Thu, 19 Apr 2001 13:16:45 -0400
+Date: Thu, 19 Apr 2001 13:17:38 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Good example of the kind of thing the cross-referencer turns up.
+Message-ID: <20010419131738.A2970@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010419210153Z.t-kawano@ebina.hitachi.co.jp>; from t-kawano@ebina.hitachi.co.jp on Thu, Apr 19, 2001 at 09:01:53PM +0900
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 09:01:53PM +0900, Takanori Kawano wrote:
-> 
-> When I ran raw I/O SCSI read/write test with 2.4.1 kernel 
-> on our IA64 8way SMP box, kernel paniced and following 
-> message was displayed.
+Go on.  Tell me this isn't an error...
 
-Could you try again with 2.4.4pre4 plus the below patch?
+CONFIG_ARCH_CLPS7110: arch/arm/kernel/arch.c
+CONFIG_ARCH_CLPS711X: arch/arm/Makefile arch/arm/config.in arch/arm/kernel/Makefile arch/arm/kernel/entry-armv.S arch/arm/kernel/debug-armv.S arch/arm/def-configs/ebsa110 arch/arm/def-configs/footbridge arch/arm/def-configs/rpc arch/arm/def-configs/integrator
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre2/rawio-3
+Somebody forgot an edit.  I wonder what bits got permanently conditioned out?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-You should experience also a quite noticeable improvement on both CPU usage and
-disk I/O (also depends on the max size of a I/O request for your hardware disk
-controller).
-
-Andrea
+"The great object is, that every man be armed. [...] 
+Every one who is able may have a gun."
+        -- Patrick Henry, speech of June 14 1788

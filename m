@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288804AbSBDJgk>; Mon, 4 Feb 2002 04:36:40 -0500
+	id <S288814AbSBDJlU>; Mon, 4 Feb 2002 04:41:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288814AbSBDJga>; Mon, 4 Feb 2002 04:36:30 -0500
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:2433 "EHLO
-	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S288804AbSBDJgR>; Mon, 4 Feb 2002 04:36:17 -0500
-Message-Id: <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
-Content-Type: text/plain; charset=US-ASCII
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Networkadministrator WH8/DD/Germany
-To: Jens Axboe <axboe@suse.de>, Erik Andersen <andersen@codepoet.org>,
-        "Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-Date: Mon, 4 Feb 2002 10:33:44 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <20020204070414.GA19268@codepoet.org> <20020204085712.O29553@suse.de>
-In-Reply-To: <20020204085712.O29553@suse.de>
-X-PGP-fingerprint: 5A65 E2CC EB06 F110 4F45  AB34 DE58 C135 1361 35BD
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
+	id <S288821AbSBDJlL>; Mon, 4 Feb 2002 04:41:11 -0500
+Received: from [62.245.135.174] ([62.245.135.174]:65217 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S288814AbSBDJlI>;
+	Mon, 4 Feb 2002 04:41:08 -0500
+Message-ID: <3C5E572D.FF98495A@TeraPort.de>
+Date: Mon, 04 Feb 2002 10:41:01 +0100
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Reply-To: m.knoblauch@TeraPort.de
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-pre4-J0-VM-22-preempt-lock i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: wli@holomorphy.com
+Subject: Re: should I trust 'free' or 'top'?
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 02/04/2002 10:41:01 AM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 02/04/2002 10:41:08 AM,
+	Serialize complete at 02/04/2002 10:41:08 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 4. Februar 2002 08:57 schrieb Jens Axboe:
-> Yep, _no_ drives to date support queued event notification. However, a
-> polled approach is really not too bad -- it simply means that we'll push
-> it to user space instead. I've written a small utility for reference.
+> Re: should I trust 'free' or 'top'?
+> 
+> 
+> On Fri, Feb 01, 2002 at 11:24:16AM -0800, Adam McKenna wrote:
+> > adam@xpdb:~$ uptime
+> > 11:21am up 42 days, 18:53, 3 users, load average: 54.72, 21.21, 17.60
+> > adam@xpdb:~$ free
+> > total used free shared buffers cached
+> > Mem: 5528464 5522744 5720 0 476 5349784
+> > -/+ buffers/cache: 172484 5355980
+> > Swap: 2939804 1302368 1637436
+> > As you can see, there are supposedly 5.3 gigs of memory free (not counting
+> > memory used for cache). However, the box is swapping like mad (about 10 megs
+> > every 2 seconds according to vmstat) and the load is skyrocketing.
+> 
+> That 5.3GB is without kernel caches. I see 5.7MB...
+> 
 
-You're wrong.
+ And this is the problem. Caches should make the system behave better
+and not get into its ways ...
 
-PLEXTOR CD-R PX-W2410A
-media removal
-eject request
-media removal
-media removal
+ It is time that one of the approches gets accepted for the current
+"stable" mainline. I do not care much which it is for 2.4.x. Both rmap
+and -aa seem to fix most of the problems. Having one of them accepted
+should make it easier to fix-up the remaining pathological cases.
 
-HITACHI DVD-ROM GD-2500
-no media change
-new media
-media removal
-
-Just my 2 cents.
-
--Gregor
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

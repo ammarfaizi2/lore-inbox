@@ -1,108 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264123AbTDJRxj (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 13:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264122AbTDJRxj (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 13:53:39 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:55784 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264118AbTDJRxf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 13:53:35 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Isn't sd_major() broken ?
-Date: Thu, 10 Apr 2003 10:01:44 -0800
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_WE35UDLQRP2F7W0TSKLT"
-Message-Id: <200304101101.44493.pbadari@us.ibm.com>
+	id S264126AbTDJSAL (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTDJSAL (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 14:00:11 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:38121 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S264126AbTDJSAJ (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 14:00:09 -0400
+Subject: Re: glibc+sysenter sources..?
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030409211042.GA29819@nevyn.them.org>
+References: <1049913600.18782.24.camel@sparky>
+	 <20030409211042.GA29819@nevyn.them.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049998110.1263.50.camel@sparky>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Apr 2003 14:08:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-04-09 at 17:10, Daniel Jacobowitz wrote:
+> On Wed, Apr 09, 2003 at 02:40:00PM -0400, Disconnect wrote:
+> > I found the binaries (ftp://people.redhat.com/drepper/glibc/2.3.1-25/)
+> > but the sources don't seem to be available.  (That makes it hard to
+> > test, since my 2.5 system is running debian..)
+> Just get a recent version of glibc.  2.3.2 includes the patches, I
+> think.  That'll be in Debian/unstable in another week or so I bet.
 
---------------Boundary-00=_WE35UDLQRP2F7W0TSKLT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Probably, but I'm running testing (I like it to at least -mostly- work
+;) ..) and still would prefer the 2.3.1 patches.  (Among other things,
+its easier to test changes if you do them in small batches; a libc
+upgrade from 2.3.1 to 2.3.2 is hardly 'small'. And the 2.3.2 changelog
+doesn't mention sysenter specifically, although I haven't read it in 
+detail to see if its mentioned obliquely.)
 
-Hi,
+Since the binaries are being distributed there, I had expected to find
+sources in the same place.. or at least -somewhere-..
 
-I am little confused about the correctness of sd_major() in drivers/scsi/=
-sd.c.
-
-static int sd_major(int major_idx)
-{
-        switch (major_idx) {
-        case 0:
-                return SCSI_DISK0_MAJOR;
-        case 1 ... 7:
-                return SCSI_DISK1_MAJOR + major_idx - 1;
-        case 8 ... 15:
-                return SCSI_DISK8_MAJOR + major_idx;
-        default:
-                BUG();
-                return 0;       /* shut up gcc */
-        }
-}
-
-So, if major_idx =3D 8, It returns 143.=20
-But according to major.h, scsi has 128-135 reserved
-majors. But it is registering 136 - 143 as its majors.
-
-#define SCSI_DISK8_MAJOR        128
-#define SCSI_DISK9_MAJOR        129
-#define SCSI_DISK10_MAJOR       130
-#define SCSI_DISK11_MAJOR       131
-#define SCSI_DISK12_MAJOR       132
-#define SCSI_DISK13_MAJOR       133
-#define SCSI_DISK14_MAJOR       134
-#define SCSI_DISK15_MAJOR       135
-
-Isn't sd_major() broken ? Here is the patch to fix it.
-
-Thanks,
-Badari
-
-# cat /proc/devices
-=2E..
-Block devices:
-  2 fd
-  3 ide0
-  8 sd
- 11 sr
- 65 sd
- 66 sd
- 67 sd
- 68 sd
- 69 sd
- 70 sd
- 71 sd
-136 sd
-137 sd
-138 sd
-139 sd
-140 sd
-141 sd
-142 sd
-143 sd
-
---------------Boundary-00=_WE35UDLQRP2F7W0TSKLT
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="major"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="major"
-
---- drivers/scsi/sd.c.org	Wed Apr  9 13:12:38 2003
-+++ drivers/scsi/sd.c	Thu Apr 10 11:01:45 2003
-@@ -123,7 +123,7 @@ static int sd_major(int major_idx)
- 	case 1 ... 7:
- 		return SCSI_DISK1_MAJOR + major_idx - 1;
- 	case 8 ... 15:
--		return SCSI_DISK8_MAJOR + major_idx;
-+		return SCSI_DISK8_MAJOR + major_idx - 8;
- 	default:
- 		BUG();
- 		return 0;	/* shut up gcc */
-
---------------Boundary-00=_WE35UDLQRP2F7W0TSKLT--
+-- 
+Disconnect <lkml@sigkill.net>
 

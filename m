@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266507AbSKORaZ>; Fri, 15 Nov 2002 12:30:25 -0500
+	id <S266586AbSKORet>; Fri, 15 Nov 2002 12:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266512AbSKORaZ>; Fri, 15 Nov 2002 12:30:25 -0500
-Received: from dhcp80ff2399.dynamic.uiowa.edu ([128.255.35.153]:8320 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S266507AbSKORaX>;
-	Fri, 15 Nov 2002 12:30:23 -0500
-Date: Fri, 15 Nov 2002 11:37:03 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.47 bug - PnPBIOS GPFs and kernel panics
-Message-ID: <20021115173703.GA2828@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S266585AbSKORet>; Fri, 15 Nov 2002 12:34:49 -0500
+Received: from [130.88.200.94] ([130.88.200.94]:26640 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S266584AbSKORep>;
+	Fri, 15 Nov 2002 12:34:45 -0500
+Date: Fri, 15 Nov 2002 17:41:22 +0000
+From: John Levon <levon@movementarian.org>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Corey Minyard <cminyard@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: NMI handling rework for x86
+Message-ID: <20021115174122.GA83229@compsoc.man.ac.uk>
+References: <20021115134338.C5088@in.ibm.com> <Pine.LNX.4.44.0211150307240.2750-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <Pine.LNX.4.44.0211150307240.2750-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *18CkT4-000NSM-00*iai.7rUdd8U* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Fri, Nov 15, 2002 at 03:18:22AM -0500, Zwane Mwaikambo wrote:
 
-Upon enabling PnPBIOS in the kernel, compiling, and rebooting into it,
-  I get greeted with the following:
-PnPBIOS: Found PnPBIOS installation structure at 0xc00f7d50
-PnPBIOS: PnPBIOS version 1.0 entry 0xf0000:0xaa05, dseg 0x400
-pnp: 00:03: ioport range 0x4d0-0x4d1 has been reserved
-pnp: 00:03: ioport range 0x40b-0x40b has been reserved
-pnp: 00:03: ioport range 0x480-0x48f has been reserved
-pnp: 00:03: ioport range 0x4db-0x4db has been reserved
-pnp: 00:03: ioport range 0x1000-0x105f has been reserved
-general protection fault: 0040
+> > Once you remove a handler from the list, any subsequent NMI is *not*
+> > going to see the handler. So even if another CPU is executing the same
+> > handler, if you wait for the RCU callback, you can guarantee that
+> > no-one is executing the deleted handler. RCU will wait for all the
+> > CPUs to context switch or execute user-level code atleast once.
+> 
+> I think you're confusing NMI handling, they aren't like your normal 
+> interrupts. You're not going to see that context switch.
 
-CPU: 0
-EIP: 0088:[<00009dff>]	Not tainted
-EIP is at E Using_Versions+0x9dfe/0xc0116caf
-eax: 00000040	ebx: 0000alcl	ecx: 00150000	edx: 00000005
-esi: 0000b942	edi: 00000000	ebp: c11d9e0c	esp: c11d9db8
-ds: 0090	es: 00a0	ss: 0068
-Process swapper (pid: 1, threadinfo=c11d8000 task=c1d6040
-Stack: b9870090 a1c10005 b9613032 b9250003 0a110011 0018b8e8 b8d5a1bb 0000b8c1
-       b8aca1ba 0000b89a 00030000 9e0c0000 9dfec11d          00000000 00180000
-       00010015 be0b0000 02f8b415 b5a3b490 b55b0000 be70b580 00000000 ae840000
+The dangerous part is when a particular NMI interrupt is holding a
+reference to the removed item on the list. Now, after *every* CPU has
+been through a normal schedule, none of them can still be running /that
+particular/ NMI interrupt: the fact they can be running other NMIs
+constantly is neither here nor there, as newly generated NMIs can't see
+the deleted element anyway.
 
-Call Trace:
- [<c013033a>] kmem_cache_alloc+0x2e/0x38
- [<c0237fcc>] __pnp_bios_get_dev_node+0x11c/0x17c
- [<c0238040>] np_bios_get_dev_node+0x14/0x34
- [<c0105086>] init+0x2e/0x178
- [<c0105058>] init+0x0/0x178
- [<c0106e3d>] kernel_thread_helper+0x5/0xc
+> > Corey's code doesn't rely on completion() to ensure this, it relies
+> > on RCU to make sure that nobody is running the handler. The key is
+> > that once the pointers between the prev and the next of the deleted
+> 
+> Can you change prev and next atomically?
 
-Code: Bad EIP value
-  <0> Kernel panic: Attempted to kill init!
+As long as they're naturally aligned.
 
-Another two error reports on the way, unrelated to this one.
+> > NMI handler are set, subsequent NMIs aren't going to see that handler.
+> > context switch/user-level means that CPU must have exited any
+> > NMI handler it may have been executing at the time of deletion.
+> 
+> Again, are you mistaking this for a normal interrupt?
 
--Joseph
+Zwane you're going to have describe a race if you think you can see one
+- neither I nor Dipankar follow your point
+
+> At a fair interrupt rate i'd rather have that fill my caches, less time 
+> spent in the NMI handler means more overall system time.
+
+-EPARSE. You will spend more time in the NMI handlers bouncing the line
+across. 
+
+regards
+john
 -- 
-Joseph===============================================trelane@digitasaru.net
-"[The question of] copy protection has long been answered, and it's only
-  a matter of months until more or less all CDs will be published with
-  copy protection."  --"Ihr EMI Team" 
-    http://www.theregister.co.uk/content/54/27960.html
+Khendon's Law: If the same point is made twice by the same person,
+the thread is over.

@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264007AbTE3WNL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WNL
+	id S264010AbTE3WNv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:13:11 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:19627 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264007AbTE3WNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:13:10 -0400
-Date: Sat, 31 May 2003 00:26:30 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Message-ID: <20030530222630.GF3308@wohnheim.fh-wedel.de>
-References: <20030530212013.GE3308@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
+	Fri, 30 May 2003 18:13:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24056 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264026AbTE3WNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:13:48 -0400
+Date: Sat, 31 May 2003 00:27:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Fabio Bracci <fabio@hoendiep.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.70 compilation fails
+Message-ID: <20030530222701.GC2536@fs.tum.de>
+References: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.53.0305302318530.31546@hoendiep.ath.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 14:38:07 -0700, Linus Torvalds wrote:
-> On Fri, 30 May 2003, Jörn Engel wrote:
-> > 
-> > How about an all or nothing approach?  If you really want to get rid
-> > of K&R, change indentation as well, rip out some of the rather
-> > tasteless macros (ZEXPORT, ZEXPORTVA, ZEXTERN, FAR, ...) and so on.
+On Fri, May 30, 2003 at 11:32:21PM +0200, Fabio Bracci wrote:
 > 
-> I'd love to, but I suspect we lack the motivation to do so, and there 
-> aren't any obvious upsides. Yes, the code is ugly, but it's also fairly 
-> stable so people seldom need to look at it.
+> [1.] One line summary of the problem:
+> 	The compilation of the kernel 2.5.70 fails
+> [2.] Full description of the problem/report:
+> 	While making the bzImage, the process exits with the following
+> messages:
+> ...
+>   CC      arch/i386/lib/usercopy.o
+>   AS      arch/i386/lib/getuser.o
+>   CC      arch/i386/lib/memcpy.o
+>   CC      arch/i386/lib/strstr.o
+>   CC      arch/i386/lib/dec_and_lock.o
+>   AR      arch/i386/lib/lib.a
+>   CPP     arch/i386/vmlinux.lds.s
+>   GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      vmlinux
+> sound/built-in.o(.text+0x9abb): In function `snd_rawmidi_dev_register':
+> : undefined reference to `snd_seq_device_new'
+> make: *** [vmlinux] Error 1
+>...
 
-Well, since I'm currently working on the zlib anyway...
+Please send your .config.
 
-> The motivation for doing the ANSI-fication is just that there is now a 
-> sanity checker tool that will complain loudly about bad typing, and since 
-> I wrote it and I hate old-style K&R sources, it doesn't parse them. 
-
-Sounds nice.  Did I miss it on lkml, or haven't you made it public
-yet?
-
-> I wouldn't mind syncing more, but one reason _against_ syncing the zlib 
-> sources have been the ugliness of them. Is there any reason for the 
-> K&R'ness any more, or the strange allocators?
-
-The allocaters could be useful when lots of zlibs are fighting over
-scarce memory, at least when operating in userspace.  K&R and
-indentation seem to be personal style (inflate and deflate also have a
-different style, when you look closely).  FAR, uInt and friends should
-be portability wrappers, there was even a turboc bugfix in the code
-before 1.1.4.
-
-Who knows, the performance might even slightly improve after shaving
-off some of the useless wrappers.
-
-Jörn
+TIA
+Adrian
 
 -- 
-Geld macht nicht glücklich.
-Glück macht nicht satt.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

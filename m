@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262272AbSIZKVa>; Thu, 26 Sep 2002 06:21:30 -0400
+	id <S262269AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262273AbSIZKV3>; Thu, 26 Sep 2002 06:21:29 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:2639 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S262272AbSIZKV3>;
-	Thu, 26 Sep 2002 06:21:29 -0400
-Date: Thu, 26 Sep 2002 12:26:40 +0200 (MEST)
-From: Marco Schwarz <marco.schwarz@gmx.net>
-To: linux-kernel@vger.kernel.org
+	id <S262272AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:37105 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S262269AbSIZKTE>; Thu, 26 Sep 2002 06:19:04 -0400
+Message-ID: <3D92E090.4030504@drugphish.ch>
+Date: Thu, 26 Sep 2002 12:25:20 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-References: <20020926095957.GC42048@niksula.cs.hut.fi>
-Subject: Serious Problems with diskless clients
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0012086198@gmx.net
-X-Authenticated-IP: [153.95.95.95]
-Message-ID: <3489.1033036000@www51.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org, hadi@cyberus.ca
+Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
+References: <p73n0q5sib2.fsf@oldwotan.suse.de>	<20020925.172931.115908839.davem@redhat.com>	<3D92CCC5.5000206@drugphish.ch> <20020926.020602.75761707.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> About using syslog to record messages, that is doomed to failure,
+> implement log messages via netlink and use that to log the events
+> instead.
 
-my diskless clients have some severe problems on one of my servers.
-Sometimes (right now most of the time) everything just hangs at the same place when
-starting up the kernel. Here are the last messages I get (right before this
-IP-Config is running and looks OK):
+<maybe stupid thought>
+Another thing would be to use netconsole to send event messages over the 
+network to a central loghost. This would eliminate the buffer overwrite 
+problem unless you sent more messages than the backlog queue is able to 
+hold before the packets are being processed. But you could theoretically 
+send 10 MB messages per seconds that could also be stored.
+</maybe stupid thought>
 
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
-ds: no socket drivers loaded !
-Looking up port of RPC 100003/2 on 192.168.0.235
-portmap: server 192.168.0.235 mot responding, timed out !
-Root-NFS: Unable to get nfsd port number from server, using default
-Looking up port of RPC 100005/1 on 192.168.0.235
-portmap: server 192.168.0.235 mot responding, timed out !
-Root-NFS: Unable to get mountd port number from server, using default
-mount: server 192.168.0.235 not responding, timed out
-Root-NFS: Server returned error -5 while mounting /netclients/192.168.0.87
-VFS: Unable to mount root fs via NFS, trying floppy
-VFS: Insert root floppy and press ENTER
+I will shut up now as I do not want to waste your and the others 
+precious time with my extensive schmoozing ;).
 
-I am thinking right now that we have some problems with network hardware,
-but maybe its a Software problem. Could someone tell me what the 'Looking up
-port of RPC 100003/2 on 192.168.0.235' in kernel startup is doing an why it
-could fail ?
-
-We have Kernel 2.4.10 on both server and clients (I also tried 2.4.19, but
-it changed nothing).
-
-Thanks,
-Marco Schwarz
+Best regards,
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

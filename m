@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbUBYQM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 11:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUBYQM5
+	id S261368AbUBYQN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 11:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUBYQN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 11:12:57 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:26898 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261383AbUBYQM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 11:12:56 -0500
-Message-ID: <403CCBE0.7050100@techsource.com>
-Date: Wed, 25 Feb 2004 11:22:56 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-CC: Chris Wedgwood <cw@f00f.org>, Pavel Machek <pavel@ucw.cz>,
-       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-References: <7F740D512C7C1046AB53446D37200173EA2718@scsmsx402.sc.intel.com>
-In-Reply-To: <7F740D512C7C1046AB53446D37200173EA2718@scsmsx402.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 Feb 2004 11:13:28 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:22727 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261368AbUBYQN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 11:13:26 -0500
+Subject: Re: cryptoapi highmem bug
+From: Christophe Saout <christophe@saout.de>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040225154453.GB4218@certainkey.com>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net>
+	 <20040224223425.GA32286@certainkey.com>
+	 <1077663682.6493.1.camel@leto.cs.pocnet.net>
+	 <20040225043209.GA1179@certainkey.com>
+	 <20040224220030.13160197.akpm@osdl.org>
+	 <20040225153126.GA7395@leto.cs.pocnet.net>
+	 <20040225155121.GA7148@leto.cs.pocnet.net>
+	 <20040225154453.GB4218@certainkey.com>
+Content-Type: text/plain
+Message-Id: <1077725621.7221.0.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 25 Feb 2004 17:13:41 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mi, den 25.02.2004 schrieb Jean-Luc Cooke um 16:44:
 
+> Could you make this change against my patch at:
+>   http://jlcooke.ca/lkml/crypto_28feb2004.patch
 
-Nakajima, Jun wrote:
-> No, it's not a problem. Branches with 16-bit operand size are not useful
-> for compilers.
+The link is broken.
 
- From AMD's documentation, I got the impression that 66H caused near 
-branches to be 32 bits in long mode (default is 64).
-
-So, Intel makes it 16 bits, and AMD makes it 32 bits?
-
-Either way, I don't see much use for either one.
-
-> 
-> Jun 
-> 
->>-----Original Message-----
->>From: Chris Wedgwood [mailto:cw@f00f.org]
->>Sent: Tuesday, February 24, 2004 5:53 PM
->>To: Nakajima, Jun
->>Cc: Pavel Machek; Linus Torvalds; Adrian Bunk; Herbert Poetzl; Mikael
->>Pettersson; Kernel Mailing List
->>Subject: Re: Intel vs AMD x86-64
->>
->>On Tue, Feb 24, 2004 at 03:15:18PM -0800, Nakajima, Jun wrote:
->>
->>
->>>Near branch with 66H prefix:
->>>  As documented in PRM the behavior is implementation specific and
->>>  should avoid using 66H prefix on near branches.
->>
->>Presumably this isn't a problem with current gcc's right?
->>
 

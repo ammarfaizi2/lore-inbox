@@ -1,85 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUCQUCW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 15:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCQUCW
+	id S262019AbUCQT6h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 14:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCQT6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 15:02:22 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:28804 "EHLO smtp02.uc3m.es")
-	by vger.kernel.org with ESMTP id S262020AbUCQUCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 15:02:19 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200403172002.i2HK2GV10366@oboe.it.uc3m.es>
-Subject: floppy driver 2.6.3 question
-To: paul@paulbristow.net
-Date: Wed, 17 Mar 2004 21:02:16 +0100 (MET)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Wed, 17 Mar 2004 14:58:37 -0500
+Received: from mailgw1.bmwgroup.com ([192.109.190.190]:4273 "EHLO
+	mailgw1.bmwgroup.com") by vger.kernel.org with ESMTP
+	id S262019AbUCQT6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 14:58:35 -0500
+Message-Id: <iss.32a00e55.7ac3.4058ade9.c77e2.8c@lp0056.muc>
+Date: Wed, 17 Mar 2004 20:58:33 +0100
+From: Postmaster@bmwgroup.com
+To: linux-kernel@vger.kernel.org
+Subject: Undeliverable mail
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status;
+              boundary="=_mh.ndn.7ac3.4058ade9_="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=_mh.ndn.7ac3.4058ade9_=
+Content-Type: text/plain; charset=us-ascii
+
+Attention: no reply address,it was generated automaticly
+
+Ihre Mail wurde an den folgenden Empfaenger nicht geliefert:
+Your message was not delivered to the following recipients:
+
+                     aier@bmw.de: Nonlocal address
+
+--=_mh.ndn.7ac3.4058ade9_=
+Content-Type: message/delivery-status
+Content-Transfer-Encoding: 7bit
+
+Reporting-MTA: dns;lp0056.muc
+
+Original-Recipient: rfc822;aier@bmw.de
+Final-Recipient: rfc822;aier@bmw.de
+Action: failed
+Status: 5.1.1
+
+--=_mh.ndn.7ac3.4058ade9_=
+Content-Type: text/rfc822-headers
+Content-Transfer-Encoding: 7bit
+
+Return-Path: <linux-kernel@vger.kernel.org>
+Received: from mx2.bmwgroup.com ([192.109.190.179] [192.109.190.179]) by lp0056.muc with ESMTP for aier@bmw.de; Wed, 17 Mar 2004 20:58:33 +0100
+Received: from mx.expurgate.net ([195.190.135.10] [195.190.135.10]) by mx2.bmwgroup.com with ESMTP for aier@bmw.de; Wed, 17 Mar 2004 20:58:33 +0100
+Received: from [62.46.65.169] (helo=bmw.de)
+	by mx.expurgate.net with esmtp (Exim 3.36 #3)
+	id 1B3hBI-0006J4-00
+	for aier@bmw.de; Wed, 17 Mar 2004 20:58:25 +0100
+From: linux-kernel@vger.kernel.org
+To: aier@bmw.de
+Subject: [VIRUS] You are infected. Read the details!
+Date: Wed, 17 Mar 2004 21:05:24 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+Message-Id: <E1B3hBI-0006J4-00@mx.expurgate.net>
+X-purgate-ID: expurgator21/1B3hBI-0006J4-00 0:0
+X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eXpurgate.net
+X-purgate: This mail is considered clean     (see http://www.eXpurgate.net/support/expurgate_headers for details)
+X-purgate: clean
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_0011_000067F0.0000226E"
 
 
-In the 2.6.3 floppy driver, when the driver is asked to revalidate by
-kernel check_disk_change (after the latter asks and the floppy signalled
-media_changed), the floppy driver constructs a read bio for the first
-block and submits it via submit_bio, and waits for completion of the
-bio.
-
-However, the bio's embedded completion only signals back if the
-submitted bio was successful, as far as I can tell:
-
-
-static int floppy_rb0_complete(struct bio *bio, unsigned int bytes_done, int err)
-{
-	if (bio->bi_size)
-		return 1;
-
-	complete((struct completion*)bio->bi_private);
-	return 0;
-}
-
-Note that if the bi_size is nonzero, we return without signalling. Now
-bi_size starts out nozero
-
-    bio.bi_size = size;
-
-but I _think_ bi_size is zeroed along the way somewhere in end_request
-(who knows?) if all goes well, so that nonzero means we still have more
-to do in this bio. So if things go badly, completion is never signalled
-and the submitted read is waited for forever? (and the result is never
-tested).
-
-	submit_bio(READ, &bio);
-	generic_unplug_device(bdev_get_queue(bdev));
-	process_fd_request();
-	wait_for_completion(&complete);
-
-	__free_page(page);
-
-My reading therefore is that we cannot do revalidation until we are
-sure that the floppy is there. If we feel sure, but are wrong, the 
-test read of the first block will hang during the revalidation.
-
-media_changed is tested using poll_drive(0,0). It's triggered by
-kernel check_disk_change, which is run in open on the device.
-Therefore I feel that opens may hang if the floppy is not there
-when we think it is, such as if we yank it out just after it has been
-polled, or if the floppy has bad sectors, or something like that.
-
-Can somebody clear up my worry/confusion over how floppy_rb0_complete
-can be correct to sometimes not signal completion?  How can it risk
-leaving us waiting forever?  How can it even be called when the bio is
-not yet complete?  And if the bio is ended when not complete, don't we
-want to know about it, because then we will be able to say that the
-floppy is not there, or is invalid? Surely we don't want to wait!?
-
-
-
-
-Peter
-
-
+--=_mh.ndn.7ac3.4058ade9_=--

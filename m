@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292980AbSBVUCx>; Fri, 22 Feb 2002 15:02:53 -0500
+	id <S292982AbSBVUHN>; Fri, 22 Feb 2002 15:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292982AbSBVUCe>; Fri, 22 Feb 2002 15:02:34 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:53002 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S292980AbSBVUCW>;
-	Fri, 22 Feb 2002 15:02:22 -0500
-Date: Fri, 22 Feb 2002 11:56:31 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <20020216015834.D28176@devcon.net>
-Message-ID: <Pine.LNX.4.33L2.0202221150420.2938-100000@dragon.pdx.osdl.net>
+	id <S292976AbSBVUHD>; Fri, 22 Feb 2002 15:07:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64264 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292966AbSBVUGu>;
+	Fri, 22 Feb 2002 15:06:50 -0500
+Message-ID: <3C76A4D8.A7838605@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 15:06:48 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <Pine.LNX.4.10.10202221143290.2519-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Feb 2002, Andreas Ferber wrote:
+Andre Hedrick wrote:
+> Also not that ATA/IDE drivers were not using 2.4 PCI API and likewise was
+> stable for a while.
 
-| On Fri, Feb 15, 2002 at 03:51:43PM -0700, Andreas Dilger wrote:
-| >
-| > Note also that it is enough to store the config options without the
-| > leading CONFIG_ part, and then use 'grep "[A-Z0-9]*=[ym]$"' to get
-| > the actual config strings.  You can add a final 'sed "s/^/CONFIG_/"'
-| > step to return it to the original format.  So:
+Stable?  Yes.  But it's not modular nor compatible with current efforts
+like 2.4 cardbus or 2.4 hotplug pci or 2.5 device mode.  If one cannot
+do
+	modprobe piix4_ide
+and have the right things happen automatically, the system is not
+modular.  If it doesn't use the PCI API, it's implementing CardBus
+support in a non-standard way if at all.
 
-except that not all options are "=[ynm]$"; some are string values.
 
-| Note that you also need some way to keep the config symbols which are
-| set to "n" and commented out in the .config. Otherwise you will have
-| to answer a lot of questions on "make oldconfig" ("yes n | make
-| oldconfig" isn't an option, as this doesn't tell you which config
-| symbols have been added).
+> > This is need for transparented support for cardbus and hotplug PCI, not
+> 
+> This is HOST level operation not DEVICE, and you do not see the differenc.
 
-Oh, thanks for pointing that out.
+I do.  I am talking about a HOST api here.
 
-Will
-  yes n | make oldconfig
-build a kernel with the current y/m options still intact,
-but any new or missing options set to 'n'?
-That doesn't sound so bad, but not optimal either.
 
-| I have actually done my own patch to include the .config into the
-| kernel image some time ago. It provides the .config via
-| /proc/config{,.gz,.bz2} (the compression method to use is
-| configurable). Apart from compression, it doesn't try to do anything
-| special to reduce size, because I don't have any machines where it
-| actually matters if the kernel needs some kB more or less memory.
-|
-| I didn't bother to submit the patch because of the discussions on this
-| topic in the past, instead I keep patching kernel sources myself
-| before compiling a kernel. Anyone interested can get the patch from
-| <http://www.myipv6.de/patches/kconfig/>. Patches for new kernel
-| versions are uploaded occasionally, everytime I don't forget to rediff
-| it before applying other patches to the source tree ;-) (possibly
-| conflicting parts for other kernel versions are Makefiles, config.in
-| or Configure.help, which can all be hand-applied easily, even if you
-| are not a kernel hacker ;-). It works for both 2.2 and 2.4 (probably
-| 2.5 also, didn't test yet).
-|
-| Any comments on the patch are welcome ;-)
+> It is a shame that I will now have to start from scratch to create another
+> API for hotplug device for ATA/ATAPI that was migrating into SCSI because
+> of the ide-scsi driver.
 
-I looked.  It does nicely if that's where you want to store and find
-the .config.  I'd rather have it associated with a kernel image file
-and accessible even if the kernel isn't running.
+Why not work with Patrick to make sure his device model properly
+supports disks?
 
-Thanks,
+	Jeff
+
+
 -- 
-~Randy
-
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

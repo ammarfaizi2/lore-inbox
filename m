@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTJULku (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 07:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263061AbTJULku
+	id S263054AbTJULie (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 07:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTJULid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 07:40:50 -0400
-Received: from main.gmane.org ([80.91.224.249]:25788 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263015AbTJULkt (ORCPT
+	Tue, 21 Oct 2003 07:38:33 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:43493 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263054AbTJULic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 07:40:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 21 Oct 2003 07:38:32 -0400
+Date: Tue, 21 Oct 2003 13:37:10 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [2.6.0-test8] Difference between Software Suspend and
- Suspend-to-disk?
-Date: Tue, 21 Oct 2003 13:40:44 +0200
-Message-ID: <yw1xy8veddj7.fsf@kth.se>
-References: <200310211315.58585.lkml@kcore.org> <20031021113444.GC9887@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:c667u1DquqN1SpfIWS94EDiTOYY=
+Subject: [patch] updated exec-shield patch, 2.4/2.6 -G4
+Message-ID: <Pine.LNX.4.56.0310211330290.6034@earth>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe <szepe@pinerecords.com> writes:
 
->> Software Suspend (EXPERIMENTAL)
->> Suspend-to-Disk Support
->
-> They're competing implementations of the same mechanism.
+Here's the latest, -G4 update of the exec-shield patches, against various
+kernels:
 
-And neither one works reliably, I might add.  They both appear to save
-the current state to disk, but no matter what I try, I can't make it
-resume properly.
+	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-G4
+	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-mm1-G4
+	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-G4
+	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-ac1-nptl-G4
 
--- 
-Måns Rullgård
-mru@kth.se
+Changes in -G4:
 
+ - bugfix in the 2.6 patches, certain applications segfaulted when the 
+   stack limit was set to unlimited. (Roland McGrath)
+
+ - PIE bugfix: for certain ELF layouts the kernel loader ended up 
+   overmapping ld.so resulting in broken applications. (Jakub Jelinek, me)
+
+ - port to 2.6.0-test8-mm1. (Valdis Kletnieks, me)
+
+reports, comments welcome. Enjoy it,
+
+	Ingo

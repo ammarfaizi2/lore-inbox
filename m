@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266578AbSLJFw1>; Tue, 10 Dec 2002 00:52:27 -0500
+	id <S266609AbSLJGAT>; Tue, 10 Dec 2002 01:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266584AbSLJFw1>; Tue, 10 Dec 2002 00:52:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44149 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266578AbSLJFwZ>; Tue, 10 Dec 2002 00:52:25 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
-       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-Subject: Re: /proc/pci deprecation?
-References: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
-	<1039458577.10470.49.camel@irongate.swansea.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Dec 2002 22:57:26 -0700
-In-Reply-To: <1039458577.10470.49.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m13cp6wh4p.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266615AbSLJGAT>; Tue, 10 Dec 2002 01:00:19 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:15120 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S266609AbSLJGAS>; Tue, 10 Dec 2002 01:00:18 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: capable open_port() check wrong for kmem
+Date: 10 Dec 2002 05:45:09 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <at3v15$mur$1@abraham.cs.berkeley.edu>
+References: <20021210032242.GA17583@net-ronin.org>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1039499109 23515 128.32.153.211 (10 Dec 2002 05:45:09 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 10 Dec 2002 05:45:09 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+carbonated beverage  wrote:
+>	I found that I can't open /dev/kmem O_RDONLY.  The open_mem
+>and open_kmem calls (open_port()) in drivers/char/mem.c checks for
+>CAP_SYS_RAWIO.
+>
+>	Is there a possibility of splitting that off into a read and
+>write pair, i.e. CAP_SYS_RAWIO_WRITE, CAP_SYS_RAWIO_READ?
 
-> On Mon, 2002-12-09 at 17:00, Linus Torvalds wrote:
-> > On 9 Dec 2002, Alan Cox wrote:
-> > > I wonder if this is why we have all these problems with VIA chipset
-> > > interrupt handling. According to VIA docs they _do_ use
-> > > PCI_INTERRUPT_LINE on integrated devices to select the IRQ routing
-> > > between APIC and PCI/ISA etc, as well as 0 meaning "IRQ disabled"
-> > 
-> > Whee.. That sounds like a load of crock in the first place, since the
-> > PCI_INTERRUPT_LINE thing should be just a scratch register as far as I
-> > know. However, it doesn't really matter - we definitely should never write
-> > to it anyway, so the VIA behaviour while strange should still be
-> > acceptable.
-> 
-> Tested and verified. If I leave it alone non apic mode works. To use
-> APIC mode I have to write the new IRQ value into that register. I've
-> shoved that into the driver for now, since its a demented chip specific
-> horror.
-
-Think you can put in a reboot notifier/device shutdown method to restore
-it to it's old value, so kexec has a chance of working correctly with
-this hardware.
-
-
-Eric
+Read-only access to /dev/kmem is probably enough to get root access
+(maybe you can snoop root's password, for instance).  This would make
+the power of the two capabilities roughly equivalent, so if this is true,
+I'm not sure I understand the point of splitting them in two this way.

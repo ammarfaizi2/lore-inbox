@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVA1UTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVA1UTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262739AbVA1UTw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVA1UPU
+	id S262728AbVA1UTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVA1UKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:15:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9940 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262751AbVA1UOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:14:00 -0500
-Date: Fri, 28 Jan 2005 20:13:59 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: sr.c kobject refcounting got buggered [Re: Ooops unmounting a defect DVD]
-Message-ID: <20050128201359.GP8859@parcelfarce.linux.theplanet.co.uk>
-References: <200501281842.44881.oliver@neukum.org>
+	Fri, 28 Jan 2005 15:10:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49419 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262748AbVA1UH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:07:27 -0500
+Date: Fri, 28 Jan 2005 20:07:13 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Grant Grundler <grundler@parisc-linux.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Message-ID: <20050128200713.A19657@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
+	Grant Grundler <grundler@parisc-linux.org>,
+	Jesse Barnes <jbarnes@sgi.com>, Jon Smirl <jonsmirl@gmail.com>,
+	Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+	linux-pci@atrey.karlin.mff.cuni.cz,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com> <20050128173222.GC30791@colo.lackof.org> <200501281041.42016.jbarnes@sgi.com> <20050128193320.GB32135@colo.lackof.org> <20050128200010.GJ28246@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501281842.44881.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050128200010.GJ28246@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Fri, Jan 28, 2005 at 08:00:10PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 06:42:44PM +0100, Oliver Neukum wrote:
-> I got this oops unmounting by "eject" a defect DVD on a genuine
-> SCSI drive.
+On Fri, Jan 28, 2005 at 08:00:10PM +0000, Matthew Wilcox wrote:
+> I've been thinking for a while that we should mark the 10-bit aliases
+> of ISA devices as used
 
-Looks like failing IO + close afterwards - umount is irrelevant here.
-And oops itself looks like cdrom_release((void *)0x18, whatever),
-called from sr_block_release().  Which is
-static int sr_block_release(struct inode *inode, struct file *file)
-{
-        int ret;
-        struct scsi_cd *cd = scsi_cd(inode->i_bdev->bd_disk);
-        ret = cdrom_release(&cd->cdi, file);
-and since cdi is at offset 0x18 on i386, we have
-	scsi_cd(inode->i_bdev->bd_disk) == NULL
-IOW,
-	inode->i_bdev->bd_disk->private_data == NULL
-at the time of sr_block_release().  Which would be a problem, indeed.
-AFAICS, the only place that could cause that crap is
-static void sr_kref_release(struct kref *kref)
-{
-        struct scsi_cd *cd = container_of(kref, struct scsi_cd, kref);
-        struct gendisk *disk = cd->disk;
+ISTR that windows does this.
 
-        spin_lock(&sr_index_lock);
-        clear_bit(disk->first_minor, sr_index_bits);
-        spin_unlock(&sr_index_lock);
+> Russell, would that allay your issues with the kernel io resource database?
 
-        unregister_cdrom(&cd->cdi);
+It makes the situation a whole lot clearer from the point of working
+out what is free and what isn't, making it less likely that we'll
+trample over some magic port which your VGA card needs.
 
-        disk->private_data = NULL;
+This, along with throwing in the ports found via ACPI (which Dominik
+has hinted) should (maybe that's the wrong word) give us a complete
+picture and allow things like PCMCIA to do reliable resource
+allocation.  The same goes for Cardbus/PCI as well of course.
 
-        put_disk(disk);
+Maybe at this point the idea that you need to tell PCMCIA about which
+resources it can validly use can finally be eliminated, which is a
+big step towards eliminating it's dependence on userspace.
 
-        kfree(cd);
-}
+(I hope this is what you were talking about and I haven't just produced
+a load of unrelated waffle!)
 
-so we have scsi_cd refcount reaching zero (and scsi_cd being freed) before
-the final close of /dev/sr<whatever>...
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

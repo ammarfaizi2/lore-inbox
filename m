@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261430AbSJMCFW>; Sat, 12 Oct 2002 22:05:22 -0400
+	id <S261426AbSJMCEd>; Sat, 12 Oct 2002 22:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261431AbSJMCFW>; Sat, 12 Oct 2002 22:05:22 -0400
-Received: from f32.law8.hotmail.com ([216.33.241.32]:62480 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261430AbSJMCFU>;
-	Sat, 12 Oct 2002 22:05:20 -0400
-X-Originating-IP: [24.44.249.150]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: hahn@physics.mcmaster.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT400 & VT8235 support
-Date: Sat, 12 Oct 2002 22:11:05 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F32VpMmOlbcrYP0QzBx00016e42@hotmail.com>
-X-OriginalArrivalTime: 13 Oct 2002 02:11:05.0871 (UTC) FILETIME=[C98BE9F0:01C2725D]
+	id <S261429AbSJMCEd>; Sat, 12 Oct 2002 22:04:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:6565 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261426AbSJMCEb>;
+	Sat, 12 Oct 2002 22:04:31 -0400
+Message-ID: <3DA8D5E6.8090201@us.ibm.com>
+Date: Sat, 12 Oct 2002 19:09:42 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Ingo Molnar <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Structure clobbering causes timer oopses
+References: <3DA8C585.1030600@us.ibm.com> <3DA8C75C.C38F840B@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Dave Hansen wrote:
+>>...
+>>timer magic check failed timer:__run_timers():351
+>>begin: 0xc035fbc8 end:0xc035fbe8
+> 
+> Can you look these up in System.map?
 
+Inside tvec_bases, just like eip, because of timer_t->function.
+c035fa80 d tvec_bases
+c037fe80 d pidmap_lock
+c037fea0 D page_states
 
+>>BTW, I found lots of users who aren't using init_timer().  Should I
+>>publicly humiliate them?
+> 
+> If they're initially using add_timer(), that works out
+> OK.  It they start out using mod_timer() (or del_timer) then bug.
 
->From: Mark Hahn <hahn@physics.mcmaster.ca>
->To: sean darcy <seandarcy@hotmail.com>
->Subject: Re: VIA KT400 & VT8235 support
->Date: Sat, 12 Oct 2002 17:34:42 -0400 (EDT)
->
-> > Before spending money on a new VIA motherboard with the KT400 and VT8235
-> > south bridge, I'd like to know if they're supported in 2.4 and 2.5. Are
-> > they?
-> >
-> > Is there anyplace that lists supported chipsets, at least for 2,4?
->
->chipset vendors are astonishingly uninventive.  that one, for instance,
->is basically the same as the kt133.  to "support" one of these new spins,
->generally all that's required is adding its PCI ids to a few tables
->(for the ide controller, etc.)
+The init_timer() comment says otherwise, but I imagine that not using 
+it shouldn't _cause_ any bugs.
 
+* init_timer() must be done to a timer prior calling *any* of the
+* other timer functions.
 
-Actually, I tried one tonight. It turns out that agpgart is not supported by 
-2.4 or 2.5.
+> I assume you tried all the memory debugging options?
 
-Do you mean I can just stick a PCI id (where do I find it?) in some table 
-(filename?)? How?
+No luck there.  I can't even get the oops to trigger with all the 
+debugging on.
 
-thanks
-
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

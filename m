@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280856AbRKYMq1>; Sun, 25 Nov 2001 07:46:27 -0500
+	id <S280857AbRKYNJ1>; Sun, 25 Nov 2001 08:09:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280857AbRKYMqQ>; Sun, 25 Nov 2001 07:46:16 -0500
-Received: from AGrenoble-101-1-6-196.abo.wanadoo.fr ([80.11.197.196]:21120
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S280856AbRKYMqH> convert rfc822-to-8bit; Sun, 25 Nov 2001 07:46:07 -0500
-Message-ID: <3C00E8EB.4060908@wanadoo.fr>
-Date: Sun, 25 Nov 2001 13:49:47 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
-In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com> <9tpiio$n4u$1@cesium.transmeta.com> <20011125224259.A4844@higherplane.net> <EXCH01SMTP011Np7vXe00002de9@smtp.netcabo.pt>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S280872AbRKYNJS>; Sun, 25 Nov 2001 08:09:18 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:49927 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280857AbRKYNJH>;
+	Sun, 25 Nov 2001 08:09:07 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: rgooch@atnf.csiro.au, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [patch] 2.4.15 drivers/block/floppy.c devfs out by one
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Nov 2001 00:08:50 +1100
+Message-ID: <12713.1006693730@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Maria Godinho de Matos wrote:
+No obvious floppy maintainer to send this to.  Out by one bug in
+register_devfs_entries, on machines that return floppy type 7 (IBM
+Thinkpad i1200/1300 Model 1161-43M), floppy.o gets an oops while
+evaluating table[table_sup[UDP->cmos][i]].
 
+BTW, this breaks RH 7.x and Mandrake 8.x installs on this laptop.
 
-> My question is, which kernel version support the ext3 partition format?
-
-
-2.4.15pre2 onwards
-
-I would wait for 2.4.16 to be out though, or try 2.4.16pre1.
-
-> ext3 had lots of advantages over 
-> ext2, i choosen ext3!
-> 
-> I want to know whether i did the right or the wrong thing, and which are the 
-> main differences between these two types!!!
-
-
-Well ext3 is a journalled file system... See 
-http://www.linuxdoc.org/LDP/LG/issue68/dellomodarme.html
-for a good explanation of this.
-
-
-> ha, and before saying goodbye, where can read the complete information about 
-> each and every kernel release?
-
-
-Read the Changelogs.
-kernels released until yesterday :
-ftp://ftp.kernel.org/pub/linux/kernel/testing/old/
-from now on :
-ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing/
-ftp://ftp.kernel.org/pub/linux/kernel/v2.5/testing/
-
-François
+Index: 15.1/drivers/block/floppy.c
+--- 15.1/drivers/block/floppy.c Sat, 24 Nov 2001 05:28:08 +1100 kaos (linux-2.5/Y/b/32_floppy.c 1.1 644)
++++ 15.1(w)/drivers/block/floppy.c Sun, 25 Nov 2001 23:58:32 +1100 kaos (linux-2.5/Y/b/32_floppy.c 1.1 644)
+@@ -3917,7 +3917,7 @@ static void __init register_devfs_entrie
+     {NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in};
+ 
+     base_minor = (drive < 4) ? drive : (124 + drive);
+-    if (UDP->cmos <= NUMBER(default_drive_params)) {
++    if (UDP->cmos < NUMBER(default_drive_params)) {
+ 	i = 0;
+ 	do {
+ 	    char name[16];
 

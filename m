@@ -1,104 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbULMCVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbULMCpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbULMCVa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 21:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbULMCVa
+	id S262195AbULMCpV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 21:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbULMCpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 21:21:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61391 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262194AbULMCUx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 21:20:53 -0500
-Message-ID: <41BCFB86.30205@osdl.org>
-Date: Sun, 12 Dec 2004 18:16:38 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Sun, 12 Dec 2004 21:45:21 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:27910 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262195AbULMCpM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 21:45:12 -0500
+Date: Mon, 13 Dec 2004 02:45:09 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide-iops: Use platform-dependent port I/O operations
+Message-ID: <Pine.LNX.4.58L.0412130227420.8571@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: dummy help on io
-References: <200412121854.48898.gene.heskett@verizon.net> <41BCDE26.9030309@osdl.org> <200412122050.34610.gene.heskett@verizon.net>
-In-Reply-To: <200412122050.34610.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> On Sunday 12 December 2004 19:11, Randy.Dunlap wrote:
-> 
->>Gene Heskett wrote:
->>
->>>Greetings;
->>>
->>>I've ordered the device drivers book from O-Reilly but it will be
->>>a few days getting here.
->>
->>Get it online:
->>http://lwn.net/Kernel/LDD2/
-> 
-> 
-> Thanks, but my printer is down, I mde the mistake of installing
-> cups-1.1.22.  But I'll go get it anyway.
+Hello,
 
-Sure, just look at it on-screen (or print very selected
-pages of it).
+ Given the contents of <asm-generic/ide_iops.h> and platform-specific
+peculiarities (like address-dependent hardware byte lane swappers), I
+believe ide-iops should use __ide_* for port I/O string operations,
+similarly to __ide_mm_* that are already used for memory-mapped I/O ones.  
 
->>>I'm trying to mod the GPL'd archive PIO.tar.gz, so it will build a
->>>driver for a pci card with 3 each 82C55's on it, and I *think* I'd
->>>have it working with the first of the 3 chips if I could figure
->>>out what to do about using the call "iopl(3);" on installing
->>>the driver, and conversely an "iopl(0);" at rmmod time.
->>
->>Where is that coming from?  I don't see it in the tarball
->>or the web site (if I'm looking at the right place).
->>  http://ieee.uow.edu.au/~daniel/software/robotd/
-> 
-> 
-> <http://ieee.uow.edu.au/~daniel/software/PIO/>
-> 
->>>I'm told this is required to gain access perms to addresses above
->>>0x3FF.  The call "ioperm" is used below that I've been told.
->>
->>iopl() and ioperm() are userspace calls that call (g)libc.
->>The kernel doesn't call them.
-> 
-> 
-> So my driver module does need them?
+ Please consider.
 
-A kernel driver (whether built into vmlinux or a loadable
-module) cannot use them and does not need them.
+  Maciej
 
->>>Unforch, an "insmod PIO io=0xf100" (where the card is addressed
->>>at currently) is spitting out an "unresolved symbol" error for the
->>>iopl call.
->>>
->>>Being a rank beginner at "pc" hardware, can someone give me a
->>>checklist of things I've probably left out please?
->>
->>Can you put the iopl() call into your app instead?
-> 
-> 
-> I can try it in the examples demo.c which I've modified to run
-> the motor 10 revolutions, if it runs.  1 step/sec.  That runs
-> without any errors *if* I take the iopl() back out of the driver
-> and insmod it.
-> 
-> 
->>or into a shell script that forks the app (since the iopl
->>man page says:  Permissions are inherited by fork and exec.)
->>
->>
->>>Kernel is 2.4.25-adeos.  With the module "rtai" inserted when emc
->>>is running for realtime control purposes.
->>>
->>>The card is pure hardware, no bios, only address decoding that
->>>can set the base address anyplace in the first 64k of address
->>>space in a step of 4 sequence from 0xnn00-0xnn0C for the 4
->>>ports of chip 1, 0xnn10-1C for chip 2, etc, where the nn is the
->>>dipswitch setting.
+Signed-off-by: Maciej W. Rozycki <macro@mips.com>
 
-
--- 
-~Randy
+patch-mips-2.6.10-rc3-20041212-ide-iops-0
+diff -up --recursive --new-file linux-mips-2.6.10-rc3-20041212.macro/drivers/ide/ide-iops.c linux-mips-2.6.10-rc3-20041212/drivers/ide/ide-iops.c
+--- linux-mips-2.6.10-rc3-20041212.macro/drivers/ide/ide-iops.c	Tue Nov 16 05:56:44 2004
++++ linux-mips-2.6.10-rc3-20041212/drivers/ide/ide-iops.c	Mon Dec 13 01:33:39 2004
+@@ -46,7 +46,7 @@ static u16 ide_inw (unsigned long port)
+ 
+ static void ide_insw (unsigned long port, void *addr, u32 count)
+ {
+-	insw(port, addr, count);
++	__ide_insw(port, addr, count);
+ }
+ 
+ static u32 ide_inl (unsigned long port)
+@@ -56,7 +56,7 @@ static u32 ide_inl (unsigned long port)
+ 
+ static void ide_insl (unsigned long port, void *addr, u32 count)
+ {
+-	insl(port, addr, count);
++	__ide_insl(port, addr, count);
+ }
+ 
+ static void ide_outb (u8 val, unsigned long port)
+@@ -76,7 +76,7 @@ static void ide_outw (u16 val, unsigned 
+ 
+ static void ide_outsw (unsigned long port, void *addr, u32 count)
+ {
+-	outsw(port, addr, count);
++	__ide_outsw(port, addr, count);
+ }
+ 
+ static void ide_outl (u32 val, unsigned long port)
+@@ -86,7 +86,7 @@ static void ide_outl (u32 val, unsigned 
+ 
+ static void ide_outsl (unsigned long port, void *addr, u32 count)
+ {
+-	outsl(port, addr, count);
++	__ide_outsl(port, addr, count);
+ }
+ 
+ void default_hwif_iops (ide_hwif_t *hwif)

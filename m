@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314379AbSEMTCB>; Mon, 13 May 2002 15:02:01 -0400
+	id <S314380AbSEMTFC>; Mon, 13 May 2002 15:05:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314380AbSEMTCA>; Mon, 13 May 2002 15:02:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30479 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314379AbSEMTCA>;
-	Mon, 13 May 2002 15:02:00 -0400
-Message-ID: <3CE00D53.8000503@mandrakesoft.com>
-Date: Mon, 13 May 2002 15:00:35 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <abmi0f$ugh$1@penguin.transmeta.com> <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE> <abn6q9$umv$1@penguin.transmeta.com> <3CDF4AAE.1020605@mandrakesoft.com> <3CDF9760.FF53DDF7@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314381AbSEMTFB>; Mon, 13 May 2002 15:05:01 -0400
+Received: from angband.namesys.com ([212.16.7.85]:44160 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S314380AbSEMTFA>; Mon, 13 May 2002 15:05:00 -0400
+Date: Mon, 13 May 2002 23:05:00 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
+Cc: "John O'Donnell" <johnnyo@mindspring.com>, linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs has killed my root FS!?!
+Message-ID: <20020513230500.A1897@namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0205121613430.4369-100000@hawkeye.luckynet.adm> <Pine.GSO.4.21.0205121838230.27629-100000@weyl.math.psu.edu> <20020512225623.GG1020@louise.pinerecords.com> <3CDF1F1B.1090302@mindspring.com> <20020513104615.A10664@namesys.com> <3CDFE8DC.1090803@gointernet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
+Hello!
 
->Jeff Garzik wrote:
->
->>(speaking more to the crowd...)
->>Changeset comments need to be written as if they stand alone, without
->>any other context -- including the author.  A reader should not need to
->>know that (for examples) James Simmons hacks on fbdev stuff.
->>
->
->I think it is nice to have the names.  A new kernel
->might break something,  It is then nice to know
->where to send the bug report. (It is usually, but not
->necessarily the maintainer that did it.)
->
+On Mon, May 13, 2002 at 05:25:00PM +0100, Eugenio Mastroviti wrote:
 
-Having the name is fine -- I agree it should not be removed.
+> >build it somewhere, boot off rescue media of some kind, and then run
+> >reiserfsck with --rebuild-tree argument (and a path to your partition of
+> Sorry to bother you, but are you sure you spelled it correctly? The 
 
-However, that was not the point of my message.  The point is, each 
-changeset comment comes with -no context at all-.  If the author of the 
-comment assumes that, by his name, we can figure out what a comment like 
-"minor fixes" mean, that author is making a mistake.  Each cset comment 
-needs to tell exactly what the change is, and should not require 
-knowledge of the author's identity to determine what is in the changeset.
+I am.
 
-    Jeff
+> latest I could find was 3.x.1c-pre3 on the namesys ftp server.
 
+Hm. -pre4 is not public yet, it seems.
 
+> I have the same problem on a machine (made worse by the fact that the 
+> filesystem was a RAID0 partition).
+> I keep getting "wrong superblock", even after I told reiserfsck to 
+> rebuild the superblock.
 
+You mean, after the --rebuild-sb command?
+
+What exactly have happened to your FS, BTW?
+
+> I won't pretend I know much about filesystems, so - is my situation 
+> hopeless? (meaning, does RAID mess things up even worse?) Am I doing 
+> something wrong? Is there a difference between -pre3 and -pre4 which 
+> might change the response of --rebuild-tree?
+
+--rebuild-tree needs valid superblock, I think.
+
+Bye,
+    Oleg

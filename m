@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbUJ1G3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262812AbUJ1Gj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbUJ1G3V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbUJ1G10
+	id S262812AbUJ1Gj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbUJ1Ggb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:27:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15270 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262799AbUJ1GZm (ORCPT
+	Thu, 28 Oct 2004 02:36:31 -0400
+Received: from cantor.suse.de ([195.135.220.2]:40330 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262811AbUJ1GdK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:25:42 -0400
-Date: Thu, 28 Oct 2004 08:26:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Darren Hart <darren@dvhart.com>
-Cc: Matt Dobson <colpatch@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] active_load_balance() fixlet
-Message-ID: <20041028062656.GA9781@elte.hu>
-References: <1098921429.20183.27.camel@arrakis> <1098921793.17741.8.camel@farah.beaverton.ibm.com>
-Mime-Version: 1.0
+	Thu, 28 Oct 2004 02:33:10 -0400
+To: Sorav Bansal <sbansal@stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: User/Kernel Pointer bug in sys_poll
+References: <20041028052218.52478.qmail@web50207.mail.yahoo.com.suse.lists.linux.kernel>
+	<Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Oct 2004 08:32:58 +0200
+In-Reply-To: <Pine.GSO.4.44.0410272246240.7124-100000@elaine9.Stanford.EDU.suse.lists.linux.kernel>
+Message-ID: <p73d5z31het.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098921793.17741.8.camel@farah.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorav Bansal <sbansal@stanford.edu> writes:
 
-* Darren Hart <darren@dvhart.com> wrote:
+> Older x86 architectures (386 and before) allow the kernel to write to any
+> user location regardless of the write-protect bits.
 
-> On Wed, 2004-10-27 at 16:57 -0700, Matthew Dobson wrote:
-> > Darren, Andrew, and scheduler folks,
-> > 
-> > There is a small problem with the active_load_balance() patch that
-> > Darren sent out last week.
-> 
-> This cleans up some awkward tests in my patch as well.  Looks good to
-> me.
+Actually it's only some early steppings of 386 and Linux never ran on
+a 286 or earlier. I think the best would be to just ignore it, the affected
+user base is very likely zero or very near it. I suspect the 
+probability of one of these machines still used as a multiuser
+machine is very definitely nil.
 
-could you send a combined patch for review?
+Cue is that 386 got occassionally broken, and it often took 
+months to be noticed.
 
-	Ingo
+These machines already have other exploitable bugs BTW that have been
+ignored for a long time and only been fixed in 2.6.
+
+So just ignore it. It's a non issue, really.
+
+-Andi

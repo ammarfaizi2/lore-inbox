@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261534AbSJMPQF>; Sun, 13 Oct 2002 11:16:05 -0400
+	id <S261271AbSJMQNK>; Sun, 13 Oct 2002 12:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261568AbSJMPQF>; Sun, 13 Oct 2002 11:16:05 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:12811 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S261534AbSJMPQE>;
-	Sun, 13 Oct 2002 11:16:04 -0400
-Date: Sun, 13 Oct 2002 17:21:38 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-Message-Id: <20021013172138.0e394d96.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261529AbSJMQNK>; Sun, 13 Oct 2002 12:13:10 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:7848 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S261271AbSJMQNJ>; Sun, 13 Oct 2002 12:13:09 -0400
+Message-ID: <3DA99CEC.8040208@metaparadigm.com>
+Date: Mon, 14 Oct 2002 00:18:52 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Trond, 
-hello all,
+On 10/13/02 23:35, Christoph Hellwig wrote:
+> _I_ don't want to get EVMS in, sorry.
 
-just to drop a note: I am experiencing a rather dramatic slowdown of the
-nfs-server in kernel 2.4.20-pre10 in conjunction with nfs-clients kernel
-2.2.19. To be more specific, the server is a SMP machine and runs always the
-latest 2.4.x  kernels. Upto 2.4.20-pre9 everything was quite ok, but pre10
-brought an incredible loss. The setup did not change, only the kernel on the
-server side. Merely all nfs action is writing to the server, reading from it is
-next to zero in this setup.
--- 
-Regards,
-Stephan
+You've made your intentions crystal clear. Lucky you're not the
+one you decides. At the end of the day it is just another 'driver'
+and I don't think it's fair to place a higher benchmark of quality
+on EVMS than all the other drivers in the kernel (although your
+criticism does serve as a good way of disguising your motives of
+blocking its inclusion).
+
+We all know you 'you can't please all of the people all of the time'
+and its always the dissenters who have the loudest voice.
+
+ > I _do_ want a proper volume managment framework, but I can live with
+ > it not beeing in before 2.8.
+
+Some of us have large arrays and SANs where the absence a volume
+manager is a big thing. I'm glad to see the distros picking it up
+- i guess they have customers who need this sort of stuff.
+
+How about feedback from other kernel developers on EVMS. Does anyone
+think 'its good enough for inclusion now as long as a few cleanups
+are done after the freeze'?
+
+~mc
+

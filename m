@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVBPB7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVBPCGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVBPB7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 20:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVBPB7i
+	id S261971AbVBPCGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 21:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVBPCGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 20:59:38 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10144 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261970AbVBPB71 (ORCPT
+	Tue, 15 Feb 2005 21:06:38 -0500
+Received: from orb.pobox.com ([207.8.226.5]:1254 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261971AbVBPCGg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 20:59:27 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-Date: Tue, 15 Feb 2005 17:57:58 -0800
-User-Agent: KMail/1.7.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200502151557.06049.jbarnes@sgi.com> <1108515632.13394.59.camel@gaston> <9e473391050215170874051b29@mail.gmail.com>
-In-Reply-To: <9e473391050215170874051b29@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 21:06:36 -0500
+Date: Tue, 15 Feb 2005 20:06:28 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] kthread_bind new worker threads when onlining cpu
+Message-ID: <20050216020628.GA25596@otto>
+References: <20050211232821.GA14499@otto> <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com> <20050214215948.GA22304@otto> <20050215070217.GB13568@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502151757.58731.jbarnes@sgi.com>
+In-Reply-To: <20050215070217.GB13568@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, February 15, 2005 5:08 pm, Jon Smirl wrote:
-> There is a new io resource flag as part of the pci rom code,
-> IORESOURCE_ROM_SHADOW, that is used on x86. If IORESOURCE_ROM_SHADOW
-> is set, you should ignore the physical ROM and use the copy at C000:0.
-> Can we build an equivalent flag for PPC? On x86 arch specific code
-> determines the boot video device and sets the flag.
->
-> Acutally, if radeon and rage fb drivers were using the PCI ROM support
-> (drivers/pci/rom.c) would they be having this problem? The 55AA check
-> is in the PCI ROM support too.
+Hi Andrew-
 
-They're using it, they just do additional checks.
+On Tue, Feb 15, 2005 at 08:02:17AM +0100, Ingo Molnar wrote:
+> 
+> * Nathan Lynch <ntl@pobox.com> wrote:
+> 
+> > 
+> > It looks as if we need to explicitly bind worker threads to a newly
+> > onlined cpu.  This gets rid of the smp_processor_id warnings from
+> > cache_reap.  Adding a little more instrumentation to the debug
+> > smp_processor_id showed that new worker threads were actually running
+> > on the wrong cpu...
+> > 
+> > Does this look ok?
+> 
+> indeed - looks much better than the 'turn off the warning' solution.
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Jesse
+We weren't binding new worker threads to their cpu when onlining.
+Using preempt and the debug version of smp_processor_id found this.
+
+Signed-off-by: Nathan Lynch <ntl@pobox.com>
+
+Index: linux-2.6.11-rc4-bk2/kernel/workqueue.c
+===================================================================
+--- linux-2.6.11-rc4-bk2.orig/kernel/workqueue.c	2005-02-14 11:13:08.000000000 -0600
++++ linux-2.6.11-rc4-bk2/kernel/workqueue.c	2005-02-14 15:18:35.000000000 -0600
+@@ -485,8 +485,10 @@
+ 
+ 	case CPU_ONLINE:
+ 		/* Kick off worker threads. */
+-		list_for_each_entry(wq, &workqueues, list)
++		list_for_each_entry(wq, &workqueues, list) {
++			kthread_bind(wq->cpu_wq[hotcpu].thread, hotcpu);
+ 			wake_up_process(wq->cpu_wq[hotcpu].thread);
++		}
+ 		break;
+ 
+ 	case CPU_UP_CANCELED:

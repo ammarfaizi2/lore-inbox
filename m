@@ -1,51 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292903AbSCDUtf>; Mon, 4 Mar 2002 15:49:35 -0500
+	id <S292904AbSCDUxj>; Mon, 4 Mar 2002 15:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292902AbSCDUsk>; Mon, 4 Mar 2002 15:48:40 -0500
-Received: from web12305.mail.yahoo.com ([216.136.173.103]:58634 "HELO
-	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292901AbSCDUsd>; Mon, 4 Mar 2002 15:48:33 -0500
-Message-ID: <20020304204832.79585.qmail@web12305.mail.yahoo.com>
-Date: Mon, 4 Mar 2002 12:48:32 -0800 (PST)
-From: Raghu Angadi <raghuangadi@yahoo.com>
-Subject: Re: Fw: memory corruption in tcp bind hash buckets on SMP?
-To: kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, raghuangadi@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200203011907.WAA08216@ms2.inr.ac.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292907AbSCDUx3>; Mon, 4 Mar 2002 15:53:29 -0500
+Received: from hermes.toad.net ([162.33.130.251]:58091 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S292904AbSCDUxV>;
+	Mon, 4 Mar 2002 15:53:21 -0500
+Subject: Re: [PATCH] apm bootparam 2.4.18
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 04 Mar 2002 15:54:15 -0500
+Message-Id: <1015275257.4452.532.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Krennwallner wrote:
+> Bootparam handling in apm.c is broken. apm=on and apm=off
+> turns APM off, no bootparam turns apm on.
 
-We have been load testing the kernel with this patch (reverse the insertion
-order in __tcp_tw_hashdance(). It seems to work fine till now.
+That's not true.  The existing code looks correct to me.
 
---- kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> The mess happens while concurrent remove and insert: insert adds
-> socket to established table and then to binding table. Racing remove
-> removes it from established table, but cannot satisfy invariant
-> because socket is still not in binding table. (This place should
-> be asserted with a BUG() for future)
-
-I think we should just remove the conditional for tw->tb in
-tcp_timewait_kill(). That way its clear to the reader that we expect tb to be
-set by this time. If it is NULL the code will anyway oops there.. we dont
-need BUG().
-
-Raghu.
- 
-> The second statement, which completes the proof: removing is possible
-> only after the socket is added to established hash table (it is evident,
-> until this time bucket is private to creator).
-> 
-> Alexey
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - sign up for Fantasy Baseball
-http://sports.yahoo.com

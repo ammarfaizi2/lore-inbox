@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTLKBdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLKBcu
+	id S264294AbTLKBjW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:39:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264347AbTLKBjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:32:50 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:59310 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264281AbTLKBb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:31:59 -0500
-Date: Wed, 10 Dec 2003 20:31:40 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Roger Luethi <rl@hellgate.ch>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       Con Kolivas <kernel@kolivas.org>,
-       Chris Vine <chris@cvine.freeserve.co.uk>,
-       <linux-kernel@vger.kernel.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-In-Reply-To: <20031210231729.GC28912@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.44.0312102027001.25222-100000@chimarrao.boston.redhat.com>
+	Wed, 10 Dec 2003 20:39:19 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32651 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264294AbTLKBfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 20:35:22 -0500
+Message-Id: <200312110135.hBB1ZHK11266@zeus.kernel.org>
+Reply-To: "Patrick Noel" <patrick@wineparis.com>
+From: "Patrick Noel" <patrick@wineparis.com>
+To: linux-kernel@vger.kernel.org
+Subject: OUHAOU !!!!!!!!!!!
+Date: Thu, 11 Dec 2003 02:35:12 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii";
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003, Roger Luethi wrote:
 
-Hmmm, those definitions have changed a little from the
-OS books I read ;))
+*** French ***
+Vous savez pourquoi la litière de votre chat sent mauvais ?
+Vous savez pourquoi votre chien n'a pas la forme ?
+Vous aimeriez éliminer les odeurs nauséabondes de la fumée de cigarettes ?
+Vous aimeriez avoir un chauffeur personnel 24h/24/ 7j/7 chauffeur/guide/homme à tout faire ? (pas chers) pour 1,2,3 personnes par voiture
+les prix restent identiques !!
+Venez voir ce tout nouveau site mais SERIEUX !!
+Et bien visitez nous !!
+http://www.wineparis.com
+PATRICK NOEL
 
-> - It is light thrashing when load control has no advantage.
-
-This used to be called "no thrashing" ;)
-
-> - It is medium thrashing when using load control is a toss-up. Probably
->   better throughput, but somewhat higher latency.
-
-This would be when the system load is so high that
-decreasing the multiprocessing level would increase
-system load, but performance would still be within
-acceptable limits (say, 30% of top performance).
-
-> - It is heavy thrashing when load control is a winner in both regards.
-
-Heavy thrashing would be "no work gets done by the
-processes in the system, nobody makes good progress".
-
-In that case load control is needed to make the system
-survive in a useful way.
-
-> I just made this up. It neatly resolves all arguments about when load
-> control is appropriate. Yeah, so it's a circular definition. Sue me.
-
-Knowing what your definitions are has definately made it
-easier for me to understand your previous mails.
-
-Still, sticking to the textbook definitions might make it
-even easier to talk about things, and compare the plans
-for Linux with what's been done for other OSes.
-
-Also, it would make the job of a load control mechanism
-really easy to define:
-
-	"Prevent the system from thrashing"
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+***english***
+Do you know what your dog and cat nedds ?
+You would like having a driver/guide in paris 7 days on 7 24hours on 24hours ? (cheap !) for 1,2,3 persons on a car the prices
+are the same !!!
+Well, visit this new but serious site !!!
+http://www.wineparis.com
+PATRICK NOEL

@@ -1,92 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318022AbSFSVjy>; Wed, 19 Jun 2002 17:39:54 -0400
+	id <S318024AbSFSVkk>; Wed, 19 Jun 2002 17:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318023AbSFSVjx>; Wed, 19 Jun 2002 17:39:53 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:61197 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318022AbSFSVjx>;
-	Wed, 19 Jun 2002 17:39:53 -0400
-Date: Wed, 19 Jun 2002 14:38:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5 patch] drivers/hotplug/cpqphp.h must include tqueue.h
-Message-ID: <20020619213838.GB27552@kroah.com>
-References: <Pine.NEB.4.44.0206192327530.10290-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318025AbSFSVkj>; Wed, 19 Jun 2002 17:40:39 -0400
+Received: from ns.suse.de ([213.95.15.193]:42502 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318024AbSFSVkf>;
+	Wed, 19 Jun 2002 17:40:35 -0400
+Date: Wed, 19 Jun 2002 23:40:35 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rvandijk@science.uva.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.23-dj2
+Message-ID: <20020619234035.R29373@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rvandijk@science.uva.nl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020619205136.GA18903@suse.de> <200206192133.g5JLXH814796@mail.science.uva.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0206192327530.10290-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 22 May 2002 20:35:03 -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200206192133.g5JLXH814796@mail.science.uva.nl>; from rvandijk@science.uva.nl on Wed, Jun 19, 2002 at 11:36:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 11:31:50PM +0200, Adrian Bunk wrote:
-> Hi,
-> 
-> another tqueue.h compile problem: It's needed in drivers/hotplug/cpqphp.h,
-> otherwise compilation fails:
+On Wed, Jun 19, 2002 at 11:36:20PM +0200, Rudmer van Dijk wrote:
+ > Ok I can run -dj2, but I cannot use X 8-( although this time no BUG or panic.
 
-Thanks, but I prefer this fix:
+1, any agpgart related messages in the logs/dmesg ?
+2. Can you disable agpgart, and try again. I'm fairly certain this
+   is the cause, but just in case..
 
-greg k-h
+        Dave
 
-
-diff -Nru a/drivers/hotplug/cpqphp_core.c b/drivers/hotplug/cpqphp_core.c
---- a/drivers/hotplug/cpqphp_core.c	Wed Jun 19 14:38:54 2002
-+++ b/drivers/hotplug/cpqphp_core.c	Wed Jun 19 14:38:54 2002
-@@ -33,6 +33,7 @@
- #include <linux/proc_fs.h>
- #include <linux/miscdevice.h>
- #include <linux/slab.h>
-+#include <linux/tqueue.h>
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <asm/uaccess.h>
-diff -Nru a/drivers/hotplug/cpqphp_ctrl.c b/drivers/hotplug/cpqphp_ctrl.c
---- a/drivers/hotplug/cpqphp_ctrl.c	Wed Jun 19 14:38:54 2002
-+++ b/drivers/hotplug/cpqphp_ctrl.c	Wed Jun 19 14:38:54 2002
-@@ -31,6 +31,7 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/slab.h>
-+#include <linux/tqueue.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <linux/wait.h>
-diff -Nru a/drivers/hotplug/cpqphp_nvram.c b/drivers/hotplug/cpqphp_nvram.c
---- a/drivers/hotplug/cpqphp_nvram.c	Wed Jun 19 14:38:54 2002
-+++ b/drivers/hotplug/cpqphp_nvram.c	Wed Jun 19 14:38:54 2002
-@@ -33,6 +33,7 @@
- #include <linux/proc_fs.h>
- #include <linux/miscdevice.h>
- #include <linux/slab.h>
-+#include <linux/tqueue.h>
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <asm/uaccess.h>
-diff -Nru a/drivers/hotplug/cpqphp_pci.c b/drivers/hotplug/cpqphp_pci.c
---- a/drivers/hotplug/cpqphp_pci.c	Wed Jun 19 14:38:54 2002
-+++ b/drivers/hotplug/cpqphp_pci.c	Wed Jun 19 14:38:54 2002
-@@ -31,6 +31,7 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/slab.h>
-+#include <linux/tqueue.h>
- #include <linux/proc_fs.h>
- #include <linux/pci.h>
- #include "cpqphp.h"
-diff -Nru a/drivers/hotplug/cpqphp_proc.c b/drivers/hotplug/cpqphp_proc.c
---- a/drivers/hotplug/cpqphp_proc.c	Wed Jun 19 14:38:54 2002
-+++ b/drivers/hotplug/cpqphp_proc.c	Wed Jun 19 14:38:54 2002
-@@ -31,6 +31,7 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
-+#include <linux/tqueue.h>
- #include <linux/pci.h>
- #include "cpqphp.h"
- 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

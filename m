@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUGGVAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUGGVBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265490AbUGGVAK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 17:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUGGVAD
+	id S265500AbUGGVBk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 17:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265495AbUGGVA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 17:00:03 -0400
-Received: from smtp-out4.xs4all.nl ([194.109.24.5]:56079 "EHLO
-	smtp-out4.xs4all.nl") by vger.kernel.org with ESMTP id S265492AbUGGU7Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 16:59:25 -0400
-In-Reply-To: <1089233317.2026.37.camel@gaston>
-References: <20040707203934.GA19145@lst.de> <1089233317.2026.37.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-5--742396465"
-Message-Id: <8006C25C-D058-11D8-A46B-000A95CD704C@wagland.net>
+	Wed, 7 Jul 2004 17:00:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:50391 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265489AbUGGU7t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 16:59:49 -0400
+Subject: Re: Unnecessary barrier in sync_page()?
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040707184202.GN28479@dualathlon.random>
+References: <20040707175724.GB3106@logos.cnet>
+	 <20040707182025.GJ28479@dualathlon.random>
+	 <20040707112953.0157383e.akpm@osdl.org>
+	 <20040707184202.GN28479@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1089233823.3956.80.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Jul 2004 16:57:04 -0400
 Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@lst.de>
-From: Paul Wagland <paul@wagland.net>
-Subject: Re: [PATCH] modular swim3
-Date: Wed, 7 Jul 2004 22:59:13 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-07-07 at 14:42, Andrea Arcangeli wrote:
+> On Wed, Jul 07, 2004 at 11:29:53AM -0700, Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > >
+> > > however the smp_mb() isn't needed in sync_page, simply because it's
+> > >  perfectly ok if we start running sync_page before reading pagelocked.
+> > >  All we care about is to run sync_page _before_ io_schedule() and that we
+> > >  read PageLocked _after_ prepare_to_wait_exclusive.
+> > > 
+> > >  So the locking in between PageLocked and sync_page is _absolutely_
+> > >  worthless and the smp_mb() can go away.
+> > 
+> > IIRC, Chris added that barrier (and several similar) for the reads in
+> > page_mapping().
+> 
+> how does it help to know the page is not locked before executing
+> page_mapped?
 
---Apple-Mail-5--742396465
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+I wasn't worried about the locked bit when I added the barrier, my goal
+was to order things with people that set page->mapping to null.
 
+-chris
 
-On Jul 7, 2004, at 22:48, Benjamin Herrenschmidt wrote:
-
-> On Wed, 2004-07-07 at 15:39, Christoph Hellwig wrote:
->> Needs one magic mediabay symbol exported.  I've also moved the Kconfig
->> entry to where it belongs.
->
-> Hrm... I wouldn't recommend anybody to try to rmmod it though ...
-
-This is an interesting concept, is it possible to mark a module such 
-that it should not be removed. There have been many instances on the 
-list where it has been said that rmmod is the enemy of stability, and 
-so long as only modules that you need are loaded then there should not 
-be much pressure to unload them...
-
-Cheers,
-Paul
-
---Apple-Mail-5--742396465
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFA7GQmtch0EvEFvxURAq3CAJ9+r5xhiFlERldq9eR2KixqOK6X7QCggDbV
-yh9VSRPvUIMTNTedVFahpDk=
-=myaA
------END PGP SIGNATURE-----
-
---Apple-Mail-5--742396465--
 

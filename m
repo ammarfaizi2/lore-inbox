@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263901AbTJFAAh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 20:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTJFAAh
+	id S263903AbTJFACb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 20:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTJFACa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 20:00:37 -0400
-Received: from karnickel.franken.de ([193.141.110.11]:44811 "EHLO
-	karnickel.franken.de") by vger.kernel.org with ESMTP
-	id S263901AbTJFAAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 20:00:36 -0400
-Date: Mon, 6 Oct 2003 01:51:49 +0200
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs one user DoS?
-Message-ID: <20031005235149.GA3993@debian.franken.de>
-References: <20031004120625.GA41175@colocall.net> <3F7EF082.3020702@namesys.com> <3F804234.9070606@g-house.de>
+	Sun, 5 Oct 2003 20:02:30 -0400
+Received: from hacksaw.org ([66.92.70.107]:13236 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id S263903AbTJFAC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 20:02:28 -0400
+Message-Id: <200310060002.h9602LCY009821@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: swap and 2.4.20 
+In-reply-to: Your message of "Sun, 05 Oct 2003 16:49:37 PDT."
+             <20031005234937.GG1205@matchmail.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F804234.9070606@g-house.de>
-User-Agent: Mutt/1.5.4i
-From: erik@debian.franken.de (Erik Tews)
+Date: Sun, 05 Oct 2003 20:02:21 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 06:09:24PM +0200, Christian Kujau wrote:
-> Hans Reiser schrieb:
-> >>I have found such strange thing:
-> >>
-> >>pseudo@avalon at 14:04:00  ~> dd if=/dev/zero of=file bs=1 count=0 
-> >>seek=1000000000000
-> >>
-> >>After that my Intel Celeron 800 MHz/384M RAM 60G/Seagate U6 under
-> >>Linux-2.4.22-grsec on reiserfs was utilized 100% for more than 2 hours.
-> >>dd process can't be killed.
-> >>
-> >>Is this my flow or real bug?
-> >>
-> >it is fixed in reiser4.  linux has a lot of DOS vulerabilities to logged 
-> >in users, mostly due to the ability to consume all of some resource or 
-> >another.  forgive me for not discussing them publicly.;-)
-> 
-> perhaps "ulimit" could help here.
+>What you are talking about is equivalent to binary patching.
 
-Really? If I got a process which is unkillable, how can the kernel kill
-this process if it runs out of cpu-time?
+Sure, just a bit safer.
+
+>If you have an app that needs to be available every second, then you need a
+>failover system, and why not just have three where you can take one down at
+>any time for updates(and still have one for failover during the update,
+>though you could get by with only two, and take down the fail-over machine
+>during the update)? 
+
+Well, the most obvious reason is that there is a unique state in the program 
+that you wish to preserve. A possibly pathological scenario is this:
+
+You have a machine controlling a physical process, say a robotic crane. It's 
+currently holding up a big piece of work, and moving it the wrong way would be 
+very bad.
+
+You have just discovered that the movement routine fails to take some physical 
+circumstance into account. If you could replace the routine in situ, there's 
+no serious loss. However, stopping and restart the program is no good, because 
+it automatically homes the crane, and more importantly, can't restart a 
+movement routine in the middle.
+
+A design failure? Sure, but a realistic scenario.
+
+
+-- 
+Signposts are useful when you know where you're going.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

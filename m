@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314325AbSGDVeU>; Thu, 4 Jul 2002 17:34:20 -0400
+	id <S313711AbSGDVxB>; Thu, 4 Jul 2002 17:53:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSGDVeT>; Thu, 4 Jul 2002 17:34:19 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:42371 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S314325AbSGDVeT>;
-	Thu, 4 Jul 2002 17:34:19 -0400
-Date: Thu, 4 Jul 2002 23:36:52 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to make a kernel thread sleep for a short amount of time?
-Message-ID: <20020704213652.GA24947@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Ben Greear <greearb@candelatech.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3D24BC95.3030006@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D24BC95.3030006@candelatech.com>
-User-Agent: Mutt/1.3.28i
+	id <S314284AbSGDVxB>; Thu, 4 Jul 2002 17:53:01 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:11475 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S313711AbSGDVxA>; Thu, 4 Jul 2002 17:53:00 -0400
+Date: Thu, 4 Jul 2002 23:55:09 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.24 IDE 97
+In-Reply-To: <20020704175126.29120@192.168.4.1>
+Message-ID: <Pine.SOL.4.30.0207042353140.7744-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 02:22:29PM -0700, Ben Greear wrote:
 
-> I believe the answer may be to use some sort of timer and have my
-> thread sleep on this timer, but I cannot find any examples or
-> documentation on how to do this on the web.
 
-The only generally available timer is the timer interrupt, sadly, which
-ticks once every 10ms (or soon once every ms, according to Linus' bitkeeper
-tree) on i386.
+On Thu, 4 Jul 2002, Benjamin Herrenschmidt wrote:
 
-At OLS I was told of the existence of 'firm timers':
-http://www.cse.ogi.edu/~luca/firm.html
+> >My tuning scheme satisfies your both demands, by ch->dma_base,
+> >ch->autodma and ch->modes_map host informs generic code about its
+> >capabilities.
+>
+> Just keep in mind that some chipsets don't use dma_base
+> but still can do DMA (typically ide-pmac, and some embedded
+> controllers). They do DMA their own way, not using the PRD
+> tables. Actually, I would love beeing able to use that same
+> dma_base (and others) fields for my own stuffs, but the common
+> layer, last I looked at it, still does assumptions that when
+> those are filled, they match a legacy controller.
+>
+> Ben.
 
-These might have use in the shaping world too.
+Yep, I'm aware of them.
 
-Regards,
+--
+Bartlomiej
 
-bert hubert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVC3I4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVC3I6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVC3I4L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 03:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVC3I4L
+	id S261549AbVC3I6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 03:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVC3I6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 03:56:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19979 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261789AbVC3I4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 03:56:10 -0500
-Date: Wed, 30 Mar 2005 09:56:04 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc1-mm3] m32r: m32r_sio driver update (was Re: [PATCH] Re: Bitrotting serial drivers)
-Message-ID: <20050330095604.A6239@flint.arm.linux.org.uk>
-Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050324.191424.233669632.takata.hirokazu@renesas.com> <20050324121746.A4189@flint.arm.linux.org.uk> <20050330.095948.412902706.takata.hirokazu@renesas.com>
+	Wed, 30 Mar 2005 03:58:11 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:58069 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261549AbVC3I6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 03:58:09 -0500
+Subject: Re: Network Performance Ingo's RT-Preempt
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Christensen Tom <paveraware@hotmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050330084209.GF25554@waste.org>
+References: <BAY104-F21CE6F100043D58186803FDF430@phx.gbl>
+	 <20050330084209.GF25554@waste.org>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 03:58:07 -0500
+Message-Id: <1112173087.5598.62.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050330.095948.412902706.takata.hirokazu@renesas.com>; from takata@linux-m32r.org on Wed, Mar 30, 2005 at 09:59:48AM +0900
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 09:59:48AM +0900, Hirokazu Takata wrote:
-> Here is an additional patch to update m32r_sio driver.
-> This patch is against 2.6.12-rc1-mm3.
+On Wed, 2005-03-30 at 00:42 -0800, Matt Mackall wrote:
+> On Sun, Mar 27, 2005 at 10:27:40PM +0000, Christensen Tom wrote:
+> > I'm running 2.6.11 with Ingo's Preempt patch 
+> > (realtime-preempt-2.6.11-final-V0.7.40-04).  The system is SMP with a 
+> > broadcom NIC (tg3 driver).  I am seeing truly appalling network performance 
+> > (2-4kbps on a 1gbps network).  Is this a known issue?  I know this patch is 
+> > not production ready, what traces/logs do you need/want to be able to 
+> > debug/fix this?
 > 
-> m32r_sio driver updates:
-> - Move m32r_sio specific description from asm-m32r/serial.h to 
->   driver/serial/m32r_sio.c.
-> - Remove __register_m32r_sio, register_m32r_sio and unregister_m32r_sio
->   from driver/serial/m32r_sio.c.
+> What is your test app and what protocol does it use?
 > 
-> Thank you.
+> What performance do you get with mainline?
+> 
+> A tcpdump log is probably a good place to start. You might consider
+> cc:ing Ingo and possibly netdev.
+> 
 
-Applied, thanks.
+Before you even bother, try the latest version.  That version is too old
+to be useful for debugging.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Lee
+

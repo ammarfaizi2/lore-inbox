@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUKENaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbUKENhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbUKENaP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 08:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbUKENaP
+	id S262678AbUKENhp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 08:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUKENhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 08:30:15 -0500
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:59084 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261614AbUKENaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 08:30:05 -0500
-Message-ID: <418B8047.5050902@kolivas.org>
-Date: Sat, 06 Nov 2004 00:29:43 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Fri, 5 Nov 2004 08:37:45 -0500
+Received: from imap3.nextra.sk ([195.168.1.92]:46864 "EHLO tic.nextra.sk")
+	by vger.kernel.org with ESMTP id S262678AbUKENhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 08:37:40 -0500
+Message-ID: <418B8239.6080108@rainbow-software.org>
+Date: Fri, 05 Nov 2004 14:38:01 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Fix for vmalloc problem was Re: 2.6.10-rc1-mm3
-References: <20041105001328.3ba97e08.akpm@osdl.org.suse.lists.linux.kernel> <418B5C70.7090206@kolivas.org.suse.lists.linux.kernel> <p73sm7o7br3.fsf@verdi.suse.de> <418B6F18.9090404@kolivas.org> <20041105131232.GA1030@wotan.suse.de>
-In-Reply-To: <20041105131232.GA1030@wotan.suse.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3EA85199C83F3AD6A7860949"
+To: "=?ISO-8859-1?Q?J=FCrgen_Erhard?=" <jae+vger.kernel@jerhard.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CPU selection "typo"
+References: <E1CQ3l3-00011j-00@sanctum.jerhard.org>
+In-Reply-To: <E1CQ3l3-00011j-00@sanctum.jerhard.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3EA85199C83F3AD6A7860949
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Andi Kleen wrote:
-> On Fri, Nov 05, 2004 at 11:16:24PM +1100, Con Kolivas wrote:
+Jürgen Erhard wrote:
+> In M586, it says "Intel 6x86MX", while there's no such thing, what it
+> means is "*Cyrix* 6x86MX".
 > 
->>Andi Kleen wrote:
->>
->>>Con Kolivas <kernel@kolivas.org> writes:
->>>
->>>
->>>
->>>>It's life Jim but not as we know it...
->>>>
->>>>
->>>>This happened during modprobe of alsa modules. Keyboard still alive,
->>>>everything else dead; not even sysrq would do anything, netconsole had
->>>>no output, luckily this made it to syslog:
->>>
->>>
->>>I just tested modprobing of alsa (snd_intel8x0) and it works for me.
->>>Also vmalloc must work at least to some point.
->>>
->>>Can you confirm it's really caused by 4level by reverting all the 
->>>4level-* patches from broken out? 
->>
->>I dont recall blaming 4level. When I get a chance I'll try.
+> Hasn't been spotted for a year?  Probably since no-one uses such a
+> beast anymore.
 > 
+> Bye, J
 > 
-> This patch should fix it. Can you please test? Thanks.
-> 
-> -Andi
-> 
-> Fix silly typo in mm/vmalloc.c and some minor cleanups.
+I'm running Cyrix MII PR300 CPU, which is a bit newer than 6x86MX but I 
+never noticed this :)
 
-Boots fine now thanks.
+It says this:
+Select this for an 586 or 686 series processor such as the AMD K5,
+the Intel 5x86 or 6x86, or the Intel 6x86MX.  This choice does not
+assume the RDTSC (Read Time Stamp Counter) instruction.
 
-Con
+The "Intel 5x86 or 6x86, or the Intel 6x86MX" is wrong. Intel CPUs have 
+their own CONFIG_ options. 6x86 and 6x86MX are Cyrix CPUs. AFAIK, the 
+AMD 5x86 is 486-class CPU.
+And I wonder if this is really the correct option for 6x86MX and MII 
+CPUs...they have TSC and MMX.
 
---------------enig3EA85199C83F3AD6A7860949
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBi4BMZUg7+tp6mRURAmriAKCJQEeonCIUtlv3TDHNgOy7JOIXWgCeJHWw
-YdA7FYxAEKm+DXNuHl6R3Ss=
-=XYCB
------END PGP SIGNATURE-----
-
---------------enig3EA85199C83F3AD6A7860949--
+-- 
+Ondrej Zary

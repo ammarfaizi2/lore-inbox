@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264018AbTDOAnN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264020AbTDOAnN (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 20:43:13 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:38848 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S264018AbTDOAnM (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 20:43:12 -0400
-Date: Mon, 14 Apr 2003 20:51:01 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Problem: 2.4.20, 2.5.66 have different IDE channel order
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304142054_MC3-1-3463-6D74@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	id S264020AbTDOAvn (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbTDOAvn (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 20:51:43 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:17026 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP id S264020AbTDOAvm (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 20:51:42 -0400
+Date: Mon, 14 Apr 2003 18:03:28 -0700
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: 2.5.67-mm3
+Message-ID: <20030415010328.GA3299@gnuppy.monkey.org>
+References: <20030414015313.4f6333ad.akpm@digeo.com> <20030414110326.GA19003@gnuppy.monkey.org> <200304141707.45601@gandalf>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200304141707.45601@gandalf>
+User-Agent: Mutt/1.5.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I just added an HPT370A IDE controller to this machine:
+On Mon, Apr 14, 2003 at 05:13:05PM +0200, Rudmer van Dijk wrote:
+> this patch fixes it. Maybe it is better to move the call to store_edid up 
+> inside the already avilable #ifdef but I'm not sure if that is possible
 
+Now I'm getting console warning "anticipatory scheduler" at boot time
+and then having it freeze after mounting root read-only.
 
-00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
-00:0d.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-00:0d.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-00:0e.0 PCI bridge: Digital Equipment Corporation DECchip 21052 (rev 01)
-00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 02)
-00:11.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 (rev 0b)
-01:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
-01:0a.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
-01:0b.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 03)
+bill
 
-
-
-  2.4 (RH 7.3 rescue mode and 2.4.20 non-modular) sees this order:
-
-    PIIX3, PDC20268, HPT370
-
-  2.5 sees this:
-
-    PIIX3, HPT370, PDC20268
-
-  Obviously reversing order isn't going to help here.
-
-  I edited the Makefile to change the link order but that didn't help.
-
-
---
- Chuck

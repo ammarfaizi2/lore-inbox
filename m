@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbTC3XGb>; Sun, 30 Mar 2003 18:06:31 -0500
+	id <S261326AbTC3XIY>; Sun, 30 Mar 2003 18:08:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261313AbTC3XGb>; Sun, 30 Mar 2003 18:06:31 -0500
-Received: from [12.47.58.85] ([12.47.58.85]:61781 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S261312AbTC3XGb>;
-	Sun, 30 Mar 2003 18:06:31 -0500
-Date: Sun, 30 Mar 2003 15:17:46 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Shawn Starr" <spstarr@sh0n.net>
-Cc: roland@topspin.com, rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings - New
- OOPS w/ timer
-Message-Id: <20030330151746.4394dd2e.akpm@digeo.com>
-In-Reply-To: <000701c2f703$58f50390$030aa8c0@unknown>
-References: <000b01c2f6d6$f843eab0$030aa8c0@unknown>
-	<52he9k4lgc.fsf@topspin.com>
-	<000701c2f703$58f50390$030aa8c0@unknown>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261327AbTC3XIY>; Sun, 30 Mar 2003 18:08:24 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55680
+	"EHLO x30.random") by vger.kernel.org with ESMTP id <S261326AbTC3XIX>;
+	Sun, 30 Mar 2003 18:08:23 -0500
+Date: Mon, 31 Mar 2003 01:19:45 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030330231945.GH2318@x30.local>
+References: <20030328040038.GO1350@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Mar 2003 23:17:44.0709 (UTC) FILETIME=[91C84B50:01C2F712]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030328040038.GO1350@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Shawn Starr" <spstarr@sh0n.net> wrote:
->
-> drivers/char/tty_io.c - Only
-> 
-> I bet it's this function, there's only a kfree, not destruction of any
-> timers.
-> 
+Didn't you break the linux x86 ABI in mmap? the file offset must be a
+multiple of the softpagesize and binary apps can break with -EINVAL with
+pgcl. The workaround is to allocate it in anon mem but it's not coherent
+if somebody does a change to the binary with MAP_SHARED, so still broken
+semantics. In theory we could also have aliasing in the cache, but it
+doesn't seem a good idea.
 
-This is fairly foul.
+Since you have access to such a machine, can you please try to boot
+2.4.21pre5aa2 on such a machine? That must boot just fine too according
+to my math, however, there will be little normal zone left, compared to
+your kernel with pgcl. But 700M of normal zone are still nothing versus
+the 64G of ram, what I mean is that even pgcl isn't guaranteeing general
+purpose usability of the box (despite making it much more usable).
 
---- 25/drivers/char/tty_io.c~a	2003-03-30 15:12:37.000000000 -0800
-+++ 25-akpm/drivers/char/tty_io.c	2003-03-30 15:16:59.000000000 -0800
-@@ -1288,6 +1288,8 @@ static void release_dev(struct file * fi
- 	/*
- 	 * Make sure that the tty's task queue isn't activated. 
- 	 */
-+	clear_bit(TTY_DONT_FLIP, &tty->flags);
-+	del_timer_sync(&tty->flip.work.timer);
- 	flush_scheduled_work();
- 
- 	/* 
+Note that 2.5 mem_map is bigger due rmap, my 2.4 w/o the rmap slowdown
+should boot just fine w/o pgct that breaks the linux x86 ABI and in turn
+binary apps at runtime.
 
-_
+I believe pgcl is very interesting for x86 long term, and for all archs
+not providing a flexible hard-page-size. The larger softpagesize can
+increase performance, 4k page size is too small these days, especially
+on a 64bit arch, infact this softpagesize feature would be most
+interesting for x86-64 even in the long term (for a totally different
+reason of why you find it most interesting today on the 32bit x86 64G
+boxes ;). so it sounds like a good thing to have for mainline >=2.5
+regardless. All it matters is that you don't try to make the page
+allocator returning anything smaller than the softpagesize to avoid
+losing reliability of allocations for core data structures.
 
+Andrea

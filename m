@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbTJ1WNx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 17:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTJ1WNx
+	id S261782AbTJ1WWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 17:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTJ1WWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 17:13:53 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:15260 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261762AbTJ1WNu
+	Tue, 28 Oct 2003 17:22:49 -0500
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:42909 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S261782AbTJ1WWr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 17:13:50 -0500
-Subject: [BK PATCH] ACPI x86_64 build fix for 2.4
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067379189.2637.79.camel@dhcppc4>
+	Tue, 28 Oct 2003 17:22:47 -0500
+Subject: Re: CPU-Test similar to Memtest?
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031028160550.GA855@rdlg.net>
+References: <20031028160550.GA855@rdlg.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZrbSHT+NPHkpyC02PGli"
+Organization: Linux Networx
+Message-Id: <1067379433.6281.575.camel@tubarao>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Oct 2003 17:13:10 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 28 Oct 2003 15:17:14 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, please do a 
 
-	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.4.23
+--=-ZrbSHT+NPHkpyC02PGli
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Thanks to Jeff Garzik @ Red Hat for helping me see the errors
-	of my ways, and to Andy Kleen @ SuSE for helping me fix them --
-	by providing an x86_64 cross build env.
+On Tue, 2003-10-28 at 09:05, Robert L. Harris wrote:
+> I'm going to run MEMTEST today when I get home and get a chance to make
+> a bootable CD
 
-thanks,
--Len
+Memtest86 is good, but it isn't as good as it could be.  Many times I
+have seen it run 24 hours without error even though the the system has
+bad memory.
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.23-pre8/acpi-20031002-2.4.23-pre8.diff.gz
+>  but I'm wondering if there might be a "CPUTEST" or such
+> utility anyone knows of that'll poke and prod a dual athalon real well
+> and make sure I don't have a flaky cpu.
 
-This will update the following files:
-
- arch/x86_64/kernel/acpi.c |   56 +++++++++++++++++++++++++++++++++-
- 1 files changed, 55 insertions(+), 1 deletion(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (03/10/28 1.1063.44.32)
-   [ACPI] fix x86_64 build (Jeff Garzik)
-
+Run Linpack (or other computationally intensive program) while
+monitoring ECC errors with either
+http://www.anime.net/~goemon/linux-ecc/files/
+or
+ftp://ftp.lnxi.com/pub/bluesmoke
 
 
+--=20
+Thayne Harbaugh
+Linux Networx
+
+--=-ZrbSHT+NPHkpyC02PGli
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/nurpfsBPTKE6HMkRAl+8AJ9AviU/zpTafOvV1nDh3GLfjrh9jgCdHzH0
+URqGGj0Gr1vy7txuRKXRo+w=
+=HORO
+-----END PGP SIGNATURE-----
+
+--=-ZrbSHT+NPHkpyC02PGli--
 

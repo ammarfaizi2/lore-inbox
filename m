@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbTJUILZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 04:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTJUILZ
+	id S262882AbTJUISg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 04:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTJUISg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 04:11:25 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:50441 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263012AbTJUILY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 04:11:24 -0400
-Date: Tue, 21 Oct 2003 09:11:18 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Mike Christie <mikenc@us.ibm.com>
-Subject: Re: [patch] qlogic_cs: init legacy_hosts
-Message-ID: <20031021091118.A22761@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-	Mike Christie <mikenc@us.ibm.com>
-References: <20031020232523.GD473@cathedrallabs.org>
+	Tue, 21 Oct 2003 04:18:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5789 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262882AbTJUISf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 04:18:35 -0400
+Date: Tue, 21 Oct 2003 01:13:20 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: lists@mdiehl.de, noah@caltech.edu, irda-users@lists.sourceforge.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [irda-users] [PATCH] Make VLSI FIR depend on X86
+Message-Id: <20031021011320.3fa6888f.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310210929350.4246-100000@notebook.home.mdiehl.de>
+References: <20031021001241.390a16df.davem@redhat.com>
+	<Pine.LNX.4.44.0310210929350.4246-100000@notebook.home.mdiehl.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031020232523.GD473@cathedrallabs.org>; from aris@cathedrallabs.org on Mon, Oct 20, 2003 at 09:25:23PM -0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 09:25:23PM -0200, Aristeu Sergio Rozanski Filho wrote:
-> -- 
-> aris
-> 
+On Tue, 21 Oct 2003 09:33:24 +0200 (CEST)
+Martin Diehl <lists@mdiehl.de> wrote:
 
-> --- linux/drivers/scsi/pcmcia/qlogic_stub.c.orig	2003-10-20 21:04:02.000000000 -0200
-> +++ linux/drivers/scsi/pcmcia/qlogic_stub.c	2003-10-20 21:05:02.000000000 -0200
-> @@ -249,6 +249,8 @@
->  	else
->  		qlogicfas_preset(link->io.BasePort1, link->irq.AssignedIRQ);
->  
-> +	INIT_LIST_HEAD(&qlogicfas_driver_template.legacy_hosts);
-> +
+> One more question: Shouldn't the i386 implementation instead of being NOP 
+> just call flush_write_buffers() - at least this is what the vlsi-private 
+> implementation is doing at the moment?
 
-qlogic_cs is a newstyle driver, no need to initialize it.
-
+That seems right, yes.

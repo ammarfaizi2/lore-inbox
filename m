@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316906AbSFKHzk>; Tue, 11 Jun 2002 03:55:40 -0400
+	id <S316898AbSFKHzT>; Tue, 11 Jun 2002 03:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316909AbSFKHzj>; Tue, 11 Jun 2002 03:55:39 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:18572 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S316906AbSFKHzh>; Tue, 11 Jun 2002 03:55:37 -0400
-Date: Tue, 11 Jun 2002 09:54:26 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
+	id <S316906AbSFKHzS>; Tue, 11 Jun 2002 03:55:18 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:15836 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316898AbSFKHzR>; Tue, 11 Jun 2002 03:55:17 -0400
+Date: Tue, 11 Jun 2002 09:26:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
 To: DervishD <raul@pleyades.net>
-Cc: linux-kernel@vger.kernel.org
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: bandwidth 'depredation'
-Message-Id: <20020611095426.59a8b717.kristian.peters@korseby.net>
 In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
-X-Mailer: Sylpheed version 0.7.6claws (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.19-pre10-ac1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.44.0206110924370.17198-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <raul@pleyades.net> wrote:
->     Hello all :))
->     
->     I've noticed that, when using certain programs like 'wget', the
-> bandwidth seems to be 'depredated' by them. When I download a file
-> with lukemftp or with links, the bandwidth is then distributed
-> between all IP clients, but when using wget or some ftp clients, it
-> is not distributed. BTW, I'm using an ADSL line (128 up / 256 down).
+On Tue, 11 Jun 2002, DervishD wrote:
 
-Maybe QoS (Quality of Service) is the answer. It does a lot of things for you, i.e. enabling a scheduler for your network, that shares your traffic correctly. But please don't ask me how it exactly works. I haven't enough time yet to get this nice piece working. You need iproute2-utils for this. (They should be shipped with your distri, "which tc" tells you.)
+>     IMHO, the IP layer (well, in this case the TCP layer) should
+> distribute the bandwidth (although I don't know how to do this), and
+> the kernel seems to be not doing it.
+> 
+>     I don't know if this is the intended behaviour or even if this is
+> a kernel fault or not, but I think that is not good ;)
 
-There're several HOWTOs about this topic. A good address is netfilter.kernelnotes.org where you can find the "Advanced Routing HOWTO" or the Unreliable Guides from Rusty.
+QoS (CONFIG_NET_SCHED)?
 
-Hope this helps.
+-- 
+http://function.linuxpower.ca
+		
 
-*Kristian
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

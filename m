@@ -1,103 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263336AbSJFEwc>; Sun, 6 Oct 2002 00:52:32 -0400
+	id <S263343AbSJFFAX>; Sun, 6 Oct 2002 01:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263339AbSJFEwc>; Sun, 6 Oct 2002 00:52:32 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:28831 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S263336AbSJFEwb>;
-	Sun, 6 Oct 2002 00:52:31 -0400
-Message-ID: <3D9FC2D9.8010805@candelatech.com>
-Date: Sat, 05 Oct 2002 21:58:01 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
-References: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>	<20021004.181537.104336257.davem@redhat.com>	<3D9F46A2.6050004@candelatech.com> <20021005.212355.122592301.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263344AbSJFFAX>; Sun, 6 Oct 2002 01:00:23 -0400
+Received: from adsl-66-136-198-157.dsl.austtx.swbell.net ([66.136.198.157]:3714
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S263343AbSJFFAV>; Sun, 6 Oct 2002 01:00:21 -0400
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Shawn <core@enodev.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alexander Viro <viro@math.psu.edu>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9C6099.9060504@metaparadigm.com>
+References: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu>
+	 <3D9BDA8D.5080700@metaparadigm.com>
+	 <1033648730.28022.8.camel@irongate.swansea.linux.org.uk>
+	 <3D9C4FA8.10201@metaparadigm.com> <20021003100702.C32461@q.mn.rr.com>
+	 <3D9C6099.9060504@metaparadigm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1033880752.6387.13.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 06 Oct 2002 00:05:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Sat, 05 Oct 2002 13:08:02 -0700
->    
->    With raw ethernet packets, sent from user-space, at around 40Mbps bi-directional,
->    I see loads of these messages:
->    
->    tg3: eth3: Error, poll already scheduled
+On Thu, 2002-10-03 at 10:22, Michael Clark wrote:
+> On 10/03/02 23:07, Shawn wrote:
+> > On 10/03, Michael Clark said something like:
+> > 
+> >>On 10/03/02 20:38, Alan Cox wrote:
+> >>
+> >>>On Thu, 2002-10-03 at 06:50, Michael Clark wrote:
+> >>>
+> >>>
+> >>>>>... and you don't need EVMS for that.
+> >>>>
+> >>>>But EVMS would be an excellent substitute in the mean time.
+> >>>>
+> >>>>Better to having something excellent now than something perfect but
+> >>>>too late.
+> >>>
+> > 
+> > This statement is misleading; in no way is EVMS intended as an
+> > interim solution to a problem addressed easier in other ways. It's
+> > a fundamental change which happens to address certain critical issues
+> > and also adds functionality whiz-bangs.
 > 
-> This, frankly, isn't possible.
+> Yes, i agree. It's not the original intention of EVMS to be used
+> as a unified interface to all linux block devices. Although it
+> could be used in that way if desired by any individual user -
+> to provide a solution to the consistent block device naming issue.
+
+This is true, but the major problem comes of upgrading and compatibility
+issues with old versions of LVM, etc. The usual stuff, IMHO. 
+
+> >>>You can see who around here has maintained kernel code and who hasnt.
+> >>>You don't want a substitute in the mean time, because then you have to
+> >>>get rid of it
+> >>
+> >>Like LVM ;)
+> > 
+> > 
+> > Not quite...
 > 
-> When we get the first interrupt, we hold the spinlock and have IRQs
-> disabled, in that environment we invoke netif_rx_schedule_prep(dev)
-> and then disable device interrupts....
+> Well, existing LVM does appear to be a subsitute for a better solution
+> (dm or EVMS) for which it's time has come to be removed.
+
+
+I'm not sure what you're saying here. EVMS is good, but I believe that
+LVM and EVMS serve two different purposes, mainly with regard to the
+type of environments each is used in. 
+
+I've attempted to contact Heinz twice, I hope he responds about this
+soon. I like LVM for it's simplicity, and ease of use. Simple tools, and
+methods that get the job done. 
+
+> ~mc
 > 
-> is the tg3 sharing it's IRQ with something else?  That might be
-> an important clue.  In that case what you report might be possible.
-
-Here is what the interrupts look like:
-
-[root@localhost lanforge]# cat /proc/interrupts
-            CPU0       CPU1
-   0:      14734      19562    IO-APIC-edge  timer
-   1:          3          1    IO-APIC-edge  keyboard
-   2:          0          0          XT-PIC  cascade
-   4:       1163       1124    IO-APIC-edge  serial
-   5:          0          0   IO-APIC-level  eth1
-   8:          0          1    IO-APIC-edge  rtc
-   9:        558          0   IO-APIC-level  eth2, eth4
-  10:          0          0   IO-APIC-level  usb-ohci
-  11:       1385       1454   IO-APIC-level  eth0, eth3, eth5
-  12:         20         12    IO-APIC-edge  PS/2 Mouse
-  14:       3958       4169    IO-APIC-edge  ide0
-  15:          7         13    IO-APIC-edge  ide1
-NMI:          0          0
-LOC:      34138      34183
-ERR:          0
-MIS:          0
-[root@localhost lanforge]#
-
-
-eth0-1 is the 3com built-in nics
-eth2-3 is the e1000 dual nic
-eth4-5 is the tg3
-
-Oct  5 21:42:10 localhost kernel: tg3.c:v1.1 (Aug 30, 2002)
-Oct  5 21:42:11 localhost kernel: eth4: Tigon3 [partno(AC91002A1) rev 0105 PHY(5701)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:40:f4:47:22:fd
-Oct  5 21:42:11 localhost kernel: eth5: Tigon3 [partno(AC91002A1) rev 0105 PHY(5701)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:40:f4:47:20:56
-
-
-Upon starting a user-space TCP connection to myself (no traffic running on eth2-3,
-eth1 is not plugged in to a cable.  eth0 is handling a small amount of traffic,
-no more than about 25 packets per second on average):
-
-[root@localhost lanforge]# tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-tg3: eth5: Error, poll already scheduled
-
-
-Please let me know what other debugging info I can get you.
-
-> Otherwise the message you see appears to be totally impossible.
-
-I told the machine that...but it only blinked it's little leds in mirth!  ;)
-
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

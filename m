@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265495AbTLKS4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265496AbTLKS4Z
+	id S265214AbTLKS6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTLKS6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:56:25 -0500
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:37080 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id S265495AbTLKS4X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:56:23 -0500
-Message-ID: <3FD8BE9D.9000701@isg.de>
-Date: Thu, 11 Dec 2003 19:59:41 +0100
-From: Lutz Vieweg <lkv@isg.de>
-Organization: IS Innovative Software AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030613
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mlock() "bogus check" (locked > num_physpages/2) _does_ hurt!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Dec 2003 13:58:11 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:65460 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S265214AbTLKS6I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 13:58:08 -0500
+Date: Thu, 11 Dec 2003 12:58:06 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: Hua Zhong <hzhong@cisco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Message-ID: <20031211125806.B2422@hexapodia.org>
+References: <200312041432.23907.rob@landley.net> <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>; from hzhong@cisco.com on Wed, Dec 10, 2003 at 09:13:49PM -0800
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Wed, Dec 10, 2003 at 09:13:49PM -0800, Hua Zhong wrote:
+> This would be a tremendous enhancement to Linux filesystems, and one of
+> my current projects actually needs this capability badly.
+> 
+> The project is a lightweight user-space library which implements a
+> file-based database. Each database has several files. The files are all
+> block-based, and each block is always a multiple of 512 byte (and we
+> could make it a multiple of 4K, in case this feature existed).
+> 
+> Blocks are organized as a B+ tree, so we have a root block, which points
+> to its child blocks, and in turn they point to the next level. There is
+> a free block list too.
+> 
+> The problem is with a lot of add/delete, there are a lot of free blocks
+> inside the file. So essentially we'd have to manually shrink these files
+> when it grows too big and eats up too much space. If we could just "dig
+> a hole", it would be trivial to return those blocks to the filesystem
+> without doing an expensive defragmentation.
 
-in kernel 2.4.23, file mm/mlock.c, line 215, there's the following
-piece of code:
+The abstract interface for make_hole() is simple, but it turns into a
+pretty expensive filesystem operation, I think.  After many cycles of
+free/allocate, your file would be badly fragmented across the
+filesystem.  You'll probably get better overall performance by keeping
+track of how "sparse" your file is (you could compare st_blocks versus
+how many blocks you have allocated in your tree structure) and re-write
+it when you're wasting more than, say, 20% of the allocated space.
 
-         /* we may lock at most half of physical memory... */
-         /* (this check is pretty bogus, but doesn't hurt) */
-         if (locked > num_physpages/2)
-                 goto out;
+It turns into an interesting problem if you don't want to double your
+space requirements during the re-write process.  You could write the
+new file "backwards", one MB at a time, truncating the previous file at
+each step to free up the blocks.  You'd end up with contiguous 1MB
+chunks, which given your tree organization is probably good enough.  If
+you wanted really good streaming performance you'd want to do bigger
+chunks (or just write the file from the beginning, or use the
+pre-allocation APIs that I think XFS provides).
 
-Obviously, the author already realized this check is bogus,
-but the assumption that it doesn't hurt is very wrong... at least
-for me: I'm writing a server application that uses much more virtual memory
-than there's physical memory (and on 64bit systems, there can be a lot more
-virtual memory!). The application needs to access only a small fraction of
-the memory used during normal operation, the rest of the virtual memory used
-is used for (slowly) rebuilding indicies in the background. So it is completely
-ok for me that most of the applications memory is swapped out, and to make sure
-that response times are low even after much of the memory is on disk, I use
-mlock() to lock the interesting pages in memory.
-
-And yes, I would very much like to use more than half of the physical memory
-for that purpose!
-
-Is there any good reason to keep this check in the 2.4 kernel sources?
-Is there any good reason to not use a different default value
-for the RLIMIT_MEMLOCK value (which is currently 0xffffffffffffffff), instead?
-
-It's good to know the check is not present in the 2.6 sources, but I would
-like to get rid of it in 2.4, too...
-
-Regards,
-
-Lutz Vieweg
-
-
-
-
+-andy

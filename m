@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266716AbTBQEL6>; Sun, 16 Feb 2003 23:11:58 -0500
+	id <S266795AbTBQESa>; Sun, 16 Feb 2003 23:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266718AbTBQEL6>; Sun, 16 Feb 2003 23:11:58 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:31629 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S266716AbTBQEL6>;
-	Sun, 16 Feb 2003 23:11:58 -0500
-Date: Sun, 16 Feb 2003 20:21:56 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Mark J Roberts <mjr@znex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Annoying /proc/net/dev rollovers.
-Message-ID: <20030217042156.GA2759@f00f.org>
-References: <20030216221616.GA246@znex> <20030217014111.GA2244@f00f.org> <20030217024605.GB246@znex>
+	id <S266796AbTBQESa>; Sun, 16 Feb 2003 23:18:30 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:21632 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S266795AbTBQES2>; Sun, 16 Feb 2003 23:18:28 -0500
+Date: Mon, 17 Feb 2003 04:31:08 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: David Lang <david.lang@digitalinsight.com>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+Message-ID: <20030217043108.GA16137@bjl1.jlokier.co.uk>
+References: <Pine.LNX.4.44.0302152104500.6594-100000@dlang.diginsite.com> <Pine.LNX.4.44.0302160027390.17241-100000@xanadu.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030217024605.GB246@znex>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+In-Reply-To: <Pine.LNX.4.44.0302160027390.17241-100000@xanadu.home>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2003 at 08:46:05PM -0600, Mark J Roberts wrote:
+Nicolas Pitre wrote:
+> > CVS
+> > rsync
+> > FTP
+> > HTTP
+> > 
+> > is there anything else people want?
+> 
+> If you can manage to have a CVS repository that is always updated to the 
+> minute with full history info etc. then this should be suficient to satisfy 
+> all needs.  Public CVS repositories are common enough so people should know 
+> how to use them already.
 
-> When the windows box behind my NAT is using all of my 640kbit/sec
-> downstream to download movies, it takes a little over 14 hours to
-> download four gigabytes and roll over the byte counter.
+I expect most people would prefer read-only CVS for keeping up to date.
 
-Therefore userspace needs to check the counters more often... say ever
-30s or so and detect rollover.  Most of this could be simply
-encapsulated in a library and made transparent to the upper layers.
+However, rsync from the repository is generally _much_ faster than CVS
+if you are tracking changes, so I (an impatient modem user) prefer rsync.
 
+Also the SCCS repository is more fun for analysis and browsing
+programs than a CVS equivalent because some of the metadata would be
+lost converting to CVS.
 
+So I vote for rsync read-only access to the actual SCCS-ish repository
+files that BK manages.
 
-  --cw
+Ideally you'd ensure the tree offered through rsync was a consistent
+snapshot, offer a method of atomically updating the tree seen by rsync
+is a consistent snapshot.  (Although this isn't crucial; BK's
+changeset files let you detect that at the client I believe).
 
+-- Jamie

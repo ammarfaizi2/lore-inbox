@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUF3DTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266419AbUF3DhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266294AbUF3DTm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 23:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUF3DTl
+	id S266419AbUF3DhR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 23:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266448AbUF3DhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 23:19:41 -0400
-Received: from mail.shareable.org ([81.29.64.88]:64172 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266277AbUF3DTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 23:19:10 -0400
-Date: Wed, 30 Jun 2004 04:18:22 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc-dev@lists.linuxppc.org, Anton Blanchard <anton@au.ibm.com>,
-       linuxppc64-dev@lists.linuxppc.org
+	Tue, 29 Jun 2004 23:37:17 -0400
+Received: from penguin.linuxhardware.org ([63.173.68.170]:29613 "EHLO
+	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
+	id S266419AbUF3Dg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 23:36:28 -0400
+Date: Tue, 29 Jun 2004 23:38:54 -0400 (EDT)
+From: augustus@penguin.linuxhardware.org
+To: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: A question about PROT_NONE on PPC and PPC64
-Message-ID: <20040630031821.GB25149@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: [PATCH] K8T800Pro AGP Support
+Message-ID: <Pine.LNX.4.58.0406292326480.24803@penguin.linuxhardware.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Patch to add support for the K8T800Pro chip in the AGPGART driver for 
+amd64-agp.
 
-I'm doing a survey of the different architectural implementations of
-PROT_* flags for mmap() and mprotect().  I'm looking at linux-2.6.5.
+Signed-off-by: Kris Kersey <augustus@linuxhardware.org>
 
-The PPC and PPC64 implementations are very similar to plain x86:
-read implies exec, exec implies read and write implies read.
+Let me know if there are any problems.  Please reply to sender on this 
+one.
 
-(Aside: Is the patch for making exec permission separate on its way
-into the tree?)
+Kris Kersey (Augustus)
+LinuxHardware.org Site Manager
+augustus@linuxhardware.org
+Gentoo Linux AMD64 Developer
+augustus@gentoo.org
 
-I see a potential bug with PROT_NONE.  I'm not sure if it's real, so
-could you please confirm?
+diff -uprN linux-2.6.7/drivers/char/agp/amd64-agp.c linux-2.6.7-K8T800Pro/drivers/char/agp/amd64-agp.c
+--- linux-2.6.7/drivers/char/agp/amd64-agp.c    2004-06-21 00:01:41.000000000 -0400
++++ linux-2.6.7-K8T800Pro/drivers/char/agp/amd64-agp.c  2004-06-29 23:27:02.474431400 -0400
+@@ -536,6 +536,15 @@ static struct pci_device_id agp_amd64_pc
+        .subvendor      = PCI_ANY_ID,
+        .subdevice      = PCI_ANY_ID,
+        },
++       /* VIA K8T800Pro */
++       {
++       .class          = (PCI_CLASS_BRIDGE_HOST << 8),
++       .class_mask     = ~0,
++       .vendor         = PCI_VENDOR_ID_VIA,
++       .device         = PCI_DEVICE_ID_VIA_K8T800PRO_0,
++       .subvendor      = PCI_ANY_ID,
++       .subdevice      = PCI_ANY_ID,
++       },
+        /* VIA K8T800 */
+        {
+        .class          = (PCI_CLASS_BRIDGE_HOST << 8),
+diff -uprN linux-2.6.7/include/linux/pci_ids.h linux-2.6.7-K8T800Pro/include/linux/pci_ids.h
+--- linux-2.6.7/include/linux/pci_ids.h 2004-06-21 00:01:41.000000000 -0400
++++ linux-2.6.7-K8T800Pro/include/linux/pci_ids.h       2004-06-29 23:27:02.475431248 -0400
+@@ -1174,6 +1174,7 @@
+ #define PCI_DEVICE_ID_VIA_8763_0       0x0198
+ #define PCI_DEVICE_ID_VIA_8380_0       0x0204
+ #define PCI_DEVICE_ID_VIA_PX8X0_0      0x0259
++#define PCI_DEVICE_ID_VIA_K8T800PRO_0  0x0282
+ #define PCI_DEVICE_ID_VIA_8363_0       0x0305 
+ #define PCI_DEVICE_ID_VIA_8371_0       0x0391
+ #define PCI_DEVICE_ID_VIA_8501_0       0x0501
 
-PPC32
-=====
-
-In include/asm-ppc/pgtable.h, there's:
-
-#define PAGE_NONE	__pgprot(_PAGE_BASE)
-#define PAGE_READONLY	__pgprot(_PAGE_BASE | _PAGE_USER)
-
-It appears the only difference betwen PROT_READ and PROT_NONE is
-whether _PAGE_USER is set.
-
-Thus PROT_NONE pages aren't readable from userspace, but it appears
-they _are_ readable from kernel space.  Is this correct?
-
-This means that calling write() with a PROT_NONE region would succeed,
-instead of returning EFAULT as it should, wouldn't it?
-
-If so, this is a bug.  A minor bug, perhaps, but nonetheless I wish to
-document it.
-
-I don't know if you would be able to rearrange the pte bits so that a
-PROT_NONE page is not accessible to the kernel either.  E.g. on i386
-this is done by making PROT_NONE not set the hardware's present bit
-but a different bit, and "pte_present()" tests both of those bits to
-test the virtual present bit.
-
-PPC64
-=====
-
-In include/asm-ppc64/pgtable.h, there's:
-
-#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_COHERENT)
-#define PAGE_NONE	__pgprot(_PAGE_PRESENT | _PAGE_ACCESSED)
-#define PAGE_READONLY	__pgprot(_PAGE_BASE | _PAGE_USER)
-
-This looks very similar to PPC32: the main difference between
-PROT_NONE and PROT_READ appears to be the _PAGE_USER flag.
-
-So does this mean that PROT_NONE pages, although they aren't readable
-from userspace, are readable from kernel space?  I.e. that write()
-with a PROT_NONE region would succeed, instead of returning EFAULT as
-it should?
-
-I don't know whether the _PAGE_COHERENT flag is significant here.
-Perhaps you use it in some clever way in the TLB handler to prevent
-these pages from being present in the TLB?
-
-Thanks,
--- Jamie

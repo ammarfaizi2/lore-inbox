@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVBYAWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVBYA0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVBYAWd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVBYAUc
+	id S262637AbVBYA0c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:26:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVBYAXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:20:32 -0500
-Received: from news.suse.de ([195.135.220.2]:37074 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262620AbVBYARs (ORCPT
+	Thu, 24 Feb 2005 19:23:00 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:28465 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262624AbVBYAVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:17:48 -0500
-To: hpa@zytor.com
-Cc: linux-kernel@vger.kernel.org
-Subject: raid6altivec does not compile on ppc32
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I feel real SOPHISTICATED being in FRANCE!
-Date: Fri, 25 Feb 2005 01:17:46 +0100
-Message-ID: <jebra9fq6t.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 24 Feb 2005 19:21:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Pvo6bHVyhxf33MstGAd1CI6BdHXhidFyVidAQYgu9MQ/wqAj8IqtfKC4+crGxM852pHewr3h4csT8rnS9s42bwSPFTsBFHV/X9nTrLg0c0Qk2fI8jN2hO2EFsL0ucXydtJdq59a+lilyijKhABv2Up5mpmH3AzkpJDicqH6IpDA=
+Message-ID: <6f6293f10502241620ec0477f@mail.gmail.com>
+Date: Fri, 25 Feb 2005 01:20:59 +0100
+From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
+Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+In-Reply-To: <20050223162539.2bd605b4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	 <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org>
+	 <421CFF5E.4030402@mesatop.com> <421D09AE.4090100@mesatop.com>
+	 <20050223161653.7cb966c3.akpm@osdl.org>
+	 <20050223162539.2bd605b4.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ppc32 cur_cpu_spec is an array of pointers, not just a pointer like on
-ppc64.
+On Wed, 23 Feb 2005 16:25:39 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Could someone try this?
+> 
+> Let's turn that into a real patch.
+> 
+> --- 25/drivers/ide/ide-probe.c~ide_init_disk-fix        Wed Feb 23 16:24:44 2005
+> +++ 25-akpm/drivers/ide/ide-probe.c     Wed Feb 23 16:24:55 2005
+> @@ -1269,7 +1269,7 @@ EXPORT_SYMBOL_GPL(ide_unregister_region)
+>  void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
+>  {
+>         ide_hwif_t *hwif = drive->hwif;
+> -       unsigned int unit = drive->select.all & (1 << 4);
+> +       unsigned int unit = (drive->select.all >> 4) & 1;
+> 
+>         disk->major = hwif->major;
+>         disk->first_minor = unit << PARTN_BITS;
+> _
+> 
+> -
 
-drivers/md/raid6altivec1.c: In function `raid6_have_altivec':
-drivers/md/raid6altivec1.c:111: error: request for member `cpu_features' in something not a structure or union
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Works for me.
+Thanks.

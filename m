@@ -1,86 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTJGCeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 22:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTJGCeT
+	id S261779AbTJGCz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 22:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTJGCz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 22:34:19 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54290
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261773AbTJGCeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 22:34:17 -0400
-Date: Mon, 6 Oct 2003 19:31:59 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pascal Schmidt <der.eremit@email.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <Pine.LNX.4.44.0310070215470.32013-100000@neptune.local>
-Message-ID: <Pine.LNX.4.10.10310061921220.2266-100000@master.linux-ide.org>
+	Mon, 6 Oct 2003 22:55:29 -0400
+Received: from mail.midmaine.com ([66.252.32.202]:3281 "HELO mail.midmaine.com")
+	by vger.kernel.org with SMTP id S261779AbTJGCz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 22:55:28 -0400
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ide problem in newer kernel or disc failure
+X-Eric-Conspiracy: There Is No Conspiracy
+References: <1064881613.811.8.camel@simulacron>
+	<200309301357.15548.bzolnier@elka.pw.edu.pl>
+	<1064926083.2511.4.camel@simulacron>
+From: Erik Bourget <erik@midmaine.com>
+Date: Mon, 06 Oct 2003 22:54:20 -0400
+In-Reply-To: <1064926083.2511.4.camel@simulacron> (Andreas Jellinghaus's
+ message of "Tue, 30 Sep 2003 14:48:04 +0200")
+Message-ID: <87fzi5vjtv.fsf@loki.odinnet>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Pascal Schmidt wrote:
+Andreas Jellinghaus <aj@dungeon.inka.de> writes:
 
-> On Mon, 6 Oct 2003, Andre Hedrick wrote:
-> 
-> > No it can not, by only using the headers as the functional API for that
-> > snapshot verson of the kernel release, it is the standard means for
-> > functionality.
-> 
-> Well, I don't see "standard means for functionality" mentioned anywhere
-> in the GPL or copyright law (though I'm no expert on that).
+> On Di, 2003-09-30 at 13:57, Bartlomiej Zolnierkiewicz wrote:
+>> On Tuesday 30 of September 2003 02:26, Andreas Jellinghaus wrote:
+>> > Hi,
+>> >
+>> > my disc starts showing problems. a few weeks ago it was fine.
+>> > could that be a problem with latest 2.6.0-test* kernels
+>> > or is my disc failing?
+>> 
+>> <...>
+>> 
+>> Looks like a failing disk (errors logged by SMART).
+>
+> thanks. however I wonder: smart extended test does not
+> find any error, and this morning the disc was fine again.
+>
+> the machine was turned off, and it's a laptop. so could this
+> be related to temperature or something like that? 
+>
+> Regards, Andreas
 
-You should pay a lawyer and learn something then.
+Andreas -
 
-> If a header contains a macro that expands to real code and a module
-> has to use that, it means that it absolutely needs that part of kernel
-> source code to function and then it is a derived work because it
-> includes GPL'ed code and would not work without it.
+I am beginning to think that the entire line of Hitachi deskstar drives are
+faulty.  I just returned THIRTY of them.  The Western Digital drives do not
+share the Hitachi tendency for failing after 300 hours of constant heavy use.
 
-Sorry but usage of headers the functional api is an unprotectable work.
-To follow up on the point of boundaries, it is abstract interface to
-properly work as a driver in the given space.
-
-Alternative view, using the MS DDK and the associated headers for running
-in MicroSoft.  Because a driver uses MicroSoft Headers, does it make it a
-derived work belonging to MicroSoft?
-
-> > If the macro is require for any driver and or one in the
-> > kernel to function, and is listed in the headers, it is generally deemed
-> > to part of the unportected API.
-> 
-> Says who? Who defines what is unprotected API and what is not?
-
-US Copyright and courts the rest of the pathetic world is lame and brain
-dead and even follows our stupidity with DMCA laws also.
-
-<see flame bait, above>
-
-Lawyers who make up the meaning of the laws.  You should really decide to
-spend some money to get an expensive education.  $10,000 USD or Euro
-should be enough to rudely open your eyes to how the courts operate.
-Copyright law is so strange and painful.
-
-I know it was an expensive lesson for me to start writing checks to
-lawyers, but less costly than making mistakes based on ignorance.
-
-> > Again it is very simple declare, all modules which are not GPL and reject
-> > loading, and we can watch the death of linux as nobody will use it.  Again
-> > who cares, because it started out as fun for a Finn in 1991, and should
-> > never be of use or value outside of academics.
-> 
-> Well, silly me, I only buy hardware with open source drivers available.
-> I wouldn't agree that something is good and has to be done just because
-> it would improve Linux' "success" (I wouldn't define that to be
-> commercial success, either).
-
-Does tongue in cheek mean anything?
-
-Cheers,
-
-Andre
-
-PS one day I will figure out how to enable the spell check in pine, sigh.
+- Erik
 

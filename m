@@ -1,99 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbULaNSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbULaN0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbULaNSR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 08:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbULaNSR
+	id S262040AbULaN0I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 08:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbULaN0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 08:18:17 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:43670 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S262034AbULaNSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 08:18:05 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-ac1
-Date: Fri, 31 Dec 2004 08:18:03 -0500
-User-Agent: KMail/1.7
-Cc: Jan Dittmer <jdittmer@ppp0.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <1104103881.16545.2.camel@localhost.localdomain> <200412310705.52976.gene.heskett@verizon.net> <41D5485A.4060709@ppp0.net>
-In-Reply-To: <41D5485A.4060709@ppp0.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 31 Dec 2004 08:26:08 -0500
+Received: from mail.codeweavers.com ([216.251.189.131]:5349 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S262040AbULaN0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 08:26:02 -0500
+From: Mike Hearn <mh@codeweavers.com>
+To: Thomas Sailer <sailer@scs.ch>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, the3dfxdude@gmail.com,
+       pouech-eric@wanadoo.fr, dan@debian.org, roland@redhat.com,
+       linux-kernel@vger.kernel.org, wine-devel@winehq.com,
+       wine-patches@winehq.com, mingo@elte.hu
+In-Reply-To: <200412311413.16313.sailer@scs.ch>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	 <1104401393.5128.24.camel@gamecube.scs.ch>
+	 <1104411980.3073.6.camel@littlegreen>  <200412311413.16313.sailer@scs.ch>
+Organization: Codeweavers, Inc
+Date: Fri, 31 Dec 2004 13:31:00 +0000
+Message-Id: <1104499860.3594.5.camel@littlegreen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-SPF-Flag: YES
+X-SA-Exim-Connect-IP: 81.97.76.53
+X-SA-Exim-Mail-From: mh@codeweavers.com
+Subject: Re: ptrace single-stepping change breaks Wine
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412310818.03720.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.52.185] at Fri, 31 Dec 2004 07:18:04 -0600
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on mail.codeweavers.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 December 2004 07:38, Jan Dittmer wrote:
-[...]
-Thanks, now if I can remember that..
+On Fri, 2004-12-31 at 14:13 +0100, Thomas Sailer wrote:
+> No this doesn't work. The decision which address space layout to use is done 
+> in arch/i386/mm/mmap.c:arch_pick_mmap_layout, and this function is called by 
+> the elf loader in fs/binfmt_elf.c:load_elf_binary, i.e. the decision which 
+> address space layout to use for the current wine process is already done long 
+> time before your personality syscall takes effect.
+> 
+> I hoped there was some ELF section magic to turn this off (like execshield), 
+> but there doesn't seem to be.
 
->Try
->
->$ ./parsemce -e 0xba -b 2 -s d40040000000017a -a 0
->Status: (ba) Error IP valid
->Restart IP invalid.
->parsebank(2): d40040000000017a @ 0
->        External tag parity error
->        Correctable ECC error
->        Address in addr register valid
->        Error enabled in control register
->        Error overflow
->        Memory heirarchy error
->        Request: Generic error
->        Transaction type : Generic
->        Memory/IO : I/O
->
->See [1] for a possible explanation. I hope the link works. It's a
-> message from DaveJ about the same error:
->"Looks like the L2 cache ECC checking spotted something going wrong,
->and fixed it up. This can happen in cases where there is inadequate
->cooling, power, or overclocking (or in rare circumstances, flaky
-> CPUs)"
->
->Jan
+So it has to be done before an exec then? I had assumed changing the
+personality would affect all mmaps from that point onwards, too bad.
 
-Is 132F too hot for an XP-2800?  Based on my experience with an 
-XP1400, which ran for several years well above 165F, I'd think not. 
-And its running at about 2150 mhz.  My previous XP1400 ran, and is 
-running at 1400 mhz in a new board, ran near 170F in the old board, 
-but now in a Mach Speed board with a 233mhz fsb, its only running at 
-34C.  There is a Zalman flower with a 4" fan turning at 1834 rpms on 
-this XP2800, and a glaciator on the XP1400 turning about 6 grand, 
-noisy.
+We do some execs as part of the Wine startup code so it shouldn't be too
+much of an issue. Anyway, all the setarch program does is do this
+syscall then exec the program so it shouldn't be too hard to do the
+equivalent in Wine.
 
-This ones running setiathome of course, and so was the XP1400 when it 
-was in this machine.
+What about this patch?
 
->[1]
+--- libs/wine/config.c  (revision 14)
++++ libs/wine/config.c  (local)
+@@ -35,6 +35,10 @@
+ #endif
+ #include "wine/library.h"
+ 
++#ifdef HAVE_SYSCALL_H
++#include <syscall.h>
++#endif
++
+ static const char server_config_dir[] = "/.wine";        /* config dir relative to $HOME */
+ static const char server_root_prefix[] = "/tmp/.wine-";  /* prefix for server root dir */
+ static const char server_dir_prefix[] = "/server-";      /* prefix for server dir */
+@@ -289,8 +293,13 @@ static void preloader_exec( char **argv,
+         new_argv = xmalloc( (last_arg - argv + 2) * sizeof(*argv) );
+         memcpy( new_argv + 1, argv, (last_arg - argv + 1) * sizeof(*argv) );
+         new_argv[0] = full_name;
++
++        /* set the abi personality */
++        syscall(136, 0x8 /* PER_LINUX32 */ | 0x0200000 /* ADDR_COMPAT_LAYOUT */);
++        
+         if (envp) execve( full_name, new_argv, envp );
+         else execv( full_name, new_argv );
++        
+         free( new_argv );
+         free( full_name );
+         return;
 
-Yikes, I'll have to save this out, and make it all into one line with 
-vim & give it a try.  ATM though, I've got a cold & headed back to 
-bed.  Friggin miserable.
 
-Thanks again.
-
-> http://groups-beta.google.com/group/linux.kernel/browse_thread/thre
->ad/bbf1d32da11eb369/8b2300b83ac0ab9e?q=%22Restart+IP+invalid%22&_don
->e=%2Fgroups%3Fq%3D%22Restart+IP+invalid%22%26hl%3Den%26lr%3D%26clien
->t%3Dfirefox%26rls%3Dorg.mozilla:en-US:unofficial%26sa%3DN%26tab%3Dwg
->%26&_doneTitle=Back+to+Search&&d#8b2300b83ac0ab9e -
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.31% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,99 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbUJ1JSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbUJ1JVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbUJ1JSg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUJ1JSg
+	id S262845AbUJ1JVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUJ1JVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:18:36 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:22790 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262847AbUJ1JSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:18:30 -0400
-Message-ID: <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
-In-Reply-To: <20041028085656.GA21535@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
-    <5225.195.245.190.94.1098880980.squirrel@195.245.190.94>
-    <20041027135309.GA8090@elte.hu>
-    <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
-    <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu>
-    <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
-    <20041028063630.GD9781@elte.hu>
-    <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
-    <20041028085656.GA21535@elte.hu>
-Date: Thu, 28 Oct 2004 10:17:31 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Thu, 28 Oct 2004 05:21:25 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:34510 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262845AbUJ1JUv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 05:20:51 -0400
+Message-ID: <4180B9E9.3070801@andrew.cmu.edu>
+Date: Thu, 28 Oct 2004 05:20:41 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 28 Oct 2004 09:18:29.0020 (UTC) FILETIME=[16376DC0:01C4BCCF]
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Roman Zippel <zippel@linux-m68k.org>, Andrea Arcangeli <andrea@novell.com>,
+       Larry McVoy <lm@work.bitmover.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Linus Torvalds wrote:
+
+>On Wed, 27 Oct 2004, Roman Zippel wrote:
+>  
 >
-> * Rui Nuno Capela wrote:
->
->> The following table compares the state between my RT-U3 and RT-V0.4.3
->> configurations, regarding only the mentioned options:
+>>Linus, what disturbs me here is that I don't see that you don't even try 
+>>to acknowledge that the bk license might be part of problem
+>>    
 >>
->>   option                       RT-U3.0    RT-V0.4.3
->>   ---------------------------- ---------- ---------
->>   CONFIG_DEBUG_SLAB              n          n
->>   CONFIG_DEBUG_PREEMPT           y          y
->>   CONFIG_DEBUG_SPINLOCK_SLEEP    n          -
->>   CONFIG_PREEMPT_TIMING          n          n
->>   CONFIG_RWSEM_DEADLOCK_DETECT   -          y
->>   CONFIG_FRAME_POINTER           y          y
->>   CONFIG_DEBUG_STACKOVERFLOW     y          y
->>   CONFIG_DEBUG_STACK_USAGE       n          n
->>   CONFIG_DEBUG_PAGEALLOC         n          n
->>
->> (dash "-" means that the option is not available in the config).
->>
->> As you can see, it can only be CONFIG_RWSEM_DEADLOCK_DETECT, being new
->> in RT-V0.4.3, that is probably affecting on RT-V0.4.3. I'll try to
->> rebuild and test all over without it, and see if it gets any better.
 >
-> note that DEBUG_PREEMPT got more expensive in the -V kernels. I'd
-> suggest to disable all the 'y' ones in both the -U and -V kernel and
-> compare them then.
+>Why?
 >
-> but especially the userspace overhead seems to be significantly higher
-> in the -V kernel so i'm not quite sure it can all be attributed to
-> debugging overhead. We'll see.
+>What's the problem? You don't like it, you don't use it. It's literally 
+>that simple.
 >
-> also, how does the context-switching rate compare between the two tests?
-> This test is pretty steady when it's running, so the context-switch
-> rates can be directly compared, correct?
+>This is the same thing as with the GPL. I absolutely _detest_ people who 
+>whine about the GPL - and there are more GPL haters out there than BK 
+>haters. It's _their_ problem. 
+>
+>EXACT SAME THING. Nobody has the right to whine about another persons
+>choice of license. You have a choice: use it or don't. Complaining about
+>the license to the author isn't part of it.
+>  
 >
 
-OK. That was it. After switching off CONFIG_RWSEM_DEADLOCK_DETECT on
-RT-V0.4.3, I can say that it's now on par to RT-U3.
+Actually it's not that simple.  With the free BK license it's not _your_ 
+choice that affects validity; It's the choice of any person at your 
+company deciding for everyone else.  So if one OSDL employee uses the 
+free BK licence, *nobody else* at OSDL can work on an SCM, even at home 
+in their spare time.  Technically, if any one of the other 10,000 people 
+at my university work on an SCM, I can't use it either since they pay 
+me.  I try to bury my head in the sand and think that they aren't.  In 
+reality however, I can't vouch for what the other 9,999 people are 
+doing.  Here's the relevant sentence in the license:
 
-Later today, I will conduct some extendeded testing, where I'll able to
-compare the jackd performance between vanilla, RT-U3 and RT-V0.4.3, on my
-UP laptop. All kernel configurations will be stripped off from all the
-debug options.
+3(d) Notwithstanding  any  other  terms  in  this  License, this License 
+is not available to You if You and/or your employer develop,  produce, 
+sell, and/or resell a product which contains substantially similar 
+capabilities of  the  BitKeeper Software, or, in the reasonable opinion 
+of BitMover, competes with the BitKeeper Software.
 
-I will take note of xrun rate, jackd scheduling delay histogram, and cpu
-usage. Context switch rate will be also acquainted.
+IOW: "Not available to You if your employer develops anything 
+substantially similar."
 
-Anything else?
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+At least 90% of the whining/hate comes from this single clause in the 
+license.  We know from the past that Larry won't budge on it, and that 
+is of course his right.  However it is not true to say that this is like 
+the GPL, or any MSFT license even.  None of them go that far in 
+regulating what *other* people can do, especially what they can do at 
+home, away from work.  My uni just opened a branch campus in Qatar;  If 
+a student earns $10 to add some feature to SVN, it affects whether I can 
+use BK for free at home on an open source project.  The alternative is 
+paying a $2,600 per year seat license.
 
+Imagine if in 1991, DOS/Windows cost $2,600 a year, unless you promised 
+that neither you nor your employer would work on an operating system.  
+That would cause a lot of argument, with pragmatic people trying to use 
+the system for ordinary development of non-OSes, and others screaming 
+about the "corrupt principles" and pushing alternatives, even if they 
+suck in a features comparison.  Why is anyone surprised that this is 
+happening now with BK?
+
+BK is by far the best SCM I have ever used, and the only one that 
+supports distributed development both sanely and robustly.  But frankly, 
+it has a clause in its license that will generate arguments without end, 
+ones which will *not* go away with time.
+
+Larry, if anything is wrong in my analysis of the meaning of clause 3c, 
+I would love to stand corrected.  Preferably that would take the form of 
+an updated license.  I believe the analysis to be consistent with the 
+wording of the clause; Several of my colleagues also analyzed the 
+license and came to the exact same conclusions.
+
+Jim Bruce
+(Sorry for being OT.  Having said my only point on this topic, which 
+I've held since the BK thing began, I will return to only reading these 
+threads, after this one.  I welcome off-list discussions and/or flames too.)

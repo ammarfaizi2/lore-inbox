@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbUCZFYI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 00:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbUCZFYI
+	id S263150AbUCZFZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 00:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbUCZFZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 00:24:08 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:21442 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263943AbUCZFYF (ORCPT
+	Fri, 26 Mar 2004 00:25:37 -0500
+Received: from zero.aec.at ([193.170.194.10]:36360 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263150AbUCZFZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 00:24:05 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 26 Mar 2004 00:25:33 -0500
+To: John Lee <johnl@aurema.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O(1) Entitlement Based Scheduler v1.1
+References: <1DQZ8-3XZ-5@gated-at.bofh.it> <1DRLx-4Ag-7@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 26 Mar 2004 02:26:12 +0100
+In-Reply-To: <1DRLx-4Ag-7@gated-at.bofh.it> (John Lee's message of "Fri, 26
+ Mar 2004 06:10:07 +0100")
+Message-ID: <m3brmkbdqj.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16483.48754.946636.475447@napali.hpl.hp.com>
-Date: Thu, 25 Mar 2004 21:24:02 -0800
-To: Matt Mackall <mpm@selenic.com>
-Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: potential /dev/urandom scalability improvement
-In-Reply-To: <20040326051532.GA4754@waste.org>
-References: <20040325141923.7080c6f0.akpm@osdl.org>
-	<20040325224726.GB8366@waste.org>
-	<16483.35656.864787.827149@napali.hpl.hp.com>
-	<20040325180014.29e40b65.akpm@osdl.org>
-	<20040326041926.GG8366@waste.org>
-	<16483.46826.466847.77987@napali.hpl.hp.com>
-	<20040326051532.GA4754@waste.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 25 Mar 2004 23:15:32 -0600, Matt Mackall <mpm@selenic.com> said:
+John Lee <johnl@aurema.com> writes:
+>
+> On the contrary, any reports of strange/bad behaviour are useful. It 
+> probably is related to the scheduler, as no one seems to have reported 
+> this problem with stock 2.6.4.
 
-  Matt> Ok, previous observation made no sense; I should really be taking a
-  Matt> nap right now. Hopefully this next one will make more sense: it ought
-  Matt> to be ____cacheline_aligned_in_smp as the zero-byte spinlock struct
-  Matt> still forces alignment.
+Actually I saw it on 2.6.5rc2 with your scheduler patch merged
+(and my x86-64 patchkit, but that is unlikely to affect scheduling
+decisions). 
 
-Makes tons of sense, agreed.
+-Andi
 
-	--david

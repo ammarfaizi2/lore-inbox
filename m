@@ -1,79 +1,94 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315887AbSEGQOA>; Tue, 7 May 2002 12:14:00 -0400
+	id <S315888AbSEGQPa>; Tue, 7 May 2002 12:15:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315888AbSEGQN7>; Tue, 7 May 2002 12:13:59 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:33408 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S315887AbSEGQN6>;
-	Tue, 7 May 2002 12:13:58 -0400
-Date: Tue, 7 May 2002 18:13:57 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: NLS mappings for iso-8859-* encodings
-Message-ID: <20020507161357.GC15298@vana.vc.cvut.cz>
+	id <S315889AbSEGQPa>; Tue, 7 May 2002 12:15:30 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:5124 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S315888AbSEGQPZ>; Tue, 7 May 2002 12:15:25 -0400
+Date: Tue, 7 May 2002 20:15:11 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@transmeta.com, mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI reorg changes for 2.5.14
+Message-ID: <20020507201511.A766@jurassic.park.msu.ru>
+In-Reply-To: <20020506222506.GA8718@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I sent message below to linux-fsdevel yesterday, but I received no
-feedback. Meanwhile I also created patch which does changes proposed
-below (map 0x80-0x9F to unicode 0x80-0x9F for ISO encodings).
-Patch is available at http://platan.vc.cvut.cz/nls3.patch (39KB).
+On Mon, May 06, 2002 at 03:25:07PM -0700, Greg KH wrote:
+> Here is a series of changesets that reorganize the core and i386 PCI
+> files.  It splits the current big files up into smaller pieces,
+> according to the different function and platform type (removing lots of
+> #ifdefs in the process.)  Pat Mochel did 99.9% of this work, and I've
+> tested it out and forward ported it to your most recent kernel version.
 
-  If I'll not receive any feedback, I plan to send it to Linus soon.
-Currently if you'll mount NCP filesystem with accented characters
-without proper iocharset/codepage options, you'll not see filenames
-with accented characters at all, as they will not pass through
-char2uni of default (iso8859-1) NLS (there was warning printk,
-but it was way to DoS...).
+There are missing #includes which will break compilation on some non-x86
+platforms. With following patch this compiles and works on alpha.
 
-  I do not want to use way SMB does (map unknown characters to
-:x## string) as it is not trivial to map them back. But if you
-think that it is correct that some NLS tables contain characters
-without unicode equivalents...
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Ivan.
 
------ Forwarded (typos cleared) message -----
-
-Resent-Message-Id: <200205071658.RAA26606@zikova.cvut.cz>
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization:  CC CTU Prague
-To: linux-fsdevel@vger.kernel.org
-Subject:       NLS mappings for iso-8859-* encodings
-X-Mailing-List: 	linux-fsdevel@vger.kernel.org
-
-Hi,
-  today it was pointed to me (see Debian bugreport #145654,
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=145654) that
-all nls_iso8859-* mappings available in kernel refuse to map
-characters in range 0x80-0x9F to anything reasonable.
-
-  This behavior means, that with NLS default set to any of
-iso8859-* encoding (including default iso-8859-1) filesystems
-which contain data in cp850/852/437 codepages will have bad
-problems, as majority of accented characters live in 0x80-0x9F
-range in these codepages.
-
-  And worse is that old 2.2.x kernels defaulted to 1:1 mapping,
-so people were used to see wrong accented characters, but all filenames.
-Now they see nothing :-( 
-
-  Is there any reason why 0x80-0x9F range is not mapped identically
-to 0x80-0x9F unicode range? I believe that unicode is even defined
-as having first 256 characters identical to iso8859-1.
-                                                Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
--
-To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
------ End forwarded message -----
+--- 2.5.14-reorg/arch/alpha/kernel/pci.c	Tue May  7 18:38:42 2002
++++ linux/arch/alpha/kernel/pci.c	Tue May  7 19:40:04 2002
+@@ -193,13 +193,15 @@ pcibios_align_resource(void *data, struc
+ #undef MB
+ #undef GB
+ 
+-void __init
++static void __init
+ pcibios_init(void)
+ {
+ 	if (!alpha_mv.init_pci)
+ 		return;
+ 	alpha_mv.init_pci();
+ }
++
++subsys_initcall(pcibios_init);
+ 
+ char * __init
+ pcibios_setup(char *str)
+--- 2.5.14-reorg/drivers/pci/probe.c	Tue May  7 18:15:54 2002
++++ linux/drivers/pci/probe.c	Tue May  7 19:02:38 2002
+@@ -2,7 +2,9 @@
+  * probe.c - PCI detection and setup code
+  */
+ 
++#include <linux/init.h>
+ #include <linux/pci.h>
++#include <linux/slab.h>
+ #include <linux/module.h>
+ 
+ #undef DEBUG
+--- 2.5.14-reorg/drivers/pci/pci.c	Tue May  7 18:15:54 2002
++++ linux/drivers/pci/pci.c	Tue May  7 19:05:28 2002
+@@ -9,6 +9,8 @@
+  *	Copyright 1997 -- 2000 Martin Mares <mj@ucw.cz>
+  */
+ 
++#include <linux/delay.h>
++#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+--- 2.5.14-reorg/drivers/pci/pool.c	Tue May  7 19:07:51 2002
++++ linux/drivers/pci/pool.c	Tue May  7 19:07:15 2002
+@@ -1,4 +1,5 @@
+ #include <linux/pci.h>
++#include <linux/slab.h>
+ #include <linux/module.h>
+ 
+ /*
+--- 2.5.14-reorg/drivers/pci/proc.c	Tue May  7 18:15:54 2002
++++ linux/drivers/pci/proc.c	Tue May  7 19:09:13 2002
+@@ -6,6 +6,7 @@
+  *	Copyright (c) 1997--1999 Martin Mares <mj@ucw.cz>
+  */
+ 
++#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/proc_fs.h>

@@ -1,79 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271337AbTG2Hxa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 03:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271341AbTG2Hx3
+	id S271311AbTG2HzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 03:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271312AbTG2HzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 03:53:29 -0400
-Received: from luli.rootdir.de ([213.133.108.222]:42707 "HELO luli.rootdir.de")
-	by vger.kernel.org with SMTP id S271337AbTG2HxY (ORCPT
+	Tue, 29 Jul 2003 03:55:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40374 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271311AbTG2HzP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 03:53:24 -0400
-Date: Tue, 29 Jul 2003 09:53:07 +0200
-From: Claas Langbehn <claas@rootdir.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 has i8042 mux problems
-Message-ID: <20030729075307.GA914@rootdir.de>
-References: <20030728210910.GA832@rootdir.de> <20030728225838.GA1845@win.tue.nl>
+	Tue, 29 Jul 2003 03:55:15 -0400
+Date: Tue, 29 Jul 2003 00:54:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "S. Anderson" <sa@xmission.com>
+Cc: sa@xmission.com, pavel@xal.co.uk, linux-kernel@vger.kernel.org,
+       adaplas@pol.net
+Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
+Message-Id: <20030729005456.495c89c4.akpm@osdl.org>
+In-Reply-To: <20030729012417.A18449@xmission.xmission.com>
+References: <20030728171806.GA1860@xal.co.uk>
+	<20030728201954.A16103@xmission.xmission.com>
+	<20030728202600.18338fa9.akpm@osdl.org>
+	<20030728231812.A20738@xmission.xmission.com>
+	<20030728225914.4f299586.akpm@osdl.org>
+	<20030729012417.A18449@xmission.xmission.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728225838.GA1845@win.tue.nl>
-Reply-By: Fre Aug  1 09:50:27 CEST 2003
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.0-test1-ac3 i686
-X-No-archive: yes
-X-Uptime: 09:50:27 up 1 min,  2 users,  load average: 1.12, 0.30, 0.10
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+"S. Anderson" <sa@xmission.com> wrote:
+>
+> Jul 29 00:33:48 localhost kernel: pci_bus_match: bus=0, devfn=232 8086 2482
+>  Jul 29 00:33:48 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
+>  Jul 29 00:33:48 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
+>  [..snip..]
+> 
+>  then when i insert my card again this is when the oops occurs:
+> 
+>  Jul 29 00:40:12 localhost kernel:  (pci_bus_add_devices) bus 3 devfn 0  1260 3890
+>  Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
+>  Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (serial)  ((( &ids->vendor = c0397314 )))
+>  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c0397314
+>  Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
+>  Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (eepro100)  ((( &ids->vendor = c0398a60 )))
+>  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c0398a60
+>  Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
+>  Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (PCI IDE)  ((( &ids->vendor = c039a630 )))
+>  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c039a630
+>  Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
+>  Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (yenta_cardbus)  ((( &ids->vendor = c039df98 )))
+>  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c039df98
+>  Jul 29 00:40:12 localhost pci.agent: ... no modules for PCI slot 0000:03:00.0
+>  Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
+>  Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
+>  Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
+>  Jul 29 00:40:12 localhost kernel: Unable to handle kernel paging request at virtual address d094ee7c
 
+wtf?  So the memory at d094ee7c (which contains i810fb's pci table) became
+unmapped from kernel virtual address space as a result of you inserting
+your carbus card.
 
+I am impressed.
 
-> [It would also be nice to see a log where things failed.
-> Probably syslog would still work.]
+Jsut as a crazy test, could you delete /sbin/rmmod and see if it still
+happens?  Maybe something is removing the module at an embarrassing time or
+something.
 
-I cannot reproduce the error any more :(
-It seems to work now. But dont ask my why.
-
-
-> So far the story of your debug file.
-> What is your actual hardware? Is there a mouse?
-
-There is no PS/2 mouse. There is only the Keytronic KT-452
-keyboard. Its about 14 years old and its switchable between
-AT and XT. And it has a DIN-Plug. I am using an adaptor.
-I just opend it and now i write you the chips inside it:
-
-K450A/452A R.O.C.
-PCB NO.P1.810133.01
-EIC-8 94HB
-
-big chip:
-1. COPAM-8649B
-   2204R14 9018KE
-   SCN8049H
-   (c) Intel 1977
-   (m) signetics
-   
-smaller chips:
-2. TI 035 CS
-   SN74LS125AN
-   MALAYSIA
-   
-3. 74LS138N
-   2103J30
-   9018EG
-
-The other keyboard that always worked has this chip inside:
-   P8052AH 9706
-   9419
-   STC-02A
-   INTEL (c) 1980
-
-
--- claas

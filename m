@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132726AbRAZJQT>; Fri, 26 Jan 2001 04:16:19 -0500
+	id <S132672AbRAZJQJ>; Fri, 26 Jan 2001 04:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132562AbRAZJQJ>; Fri, 26 Jan 2001 04:16:09 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:18565 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S132726AbRAZJP7>; Fri, 26 Jan 2001 04:15:59 -0500
-Date: Fri, 26 Jan 2001 14:43:37 +0530 (IST)
-From: V Ganesh <ganesh@veritas.com>
-Message-Id: <200101260913.OAA06269@vxindia.veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: inode->i_dirty_buffers redundant ?
+	id <S132562AbRAZJP7>; Fri, 26 Jan 2001 04:15:59 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:44805 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S132672AbRAZJPs>; Fri, 26 Jan 2001 04:15:48 -0500
+Date: Fri, 26 Jan 2001 22:15:45 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: "Steven N. Hirsch" <shirsch@adelphia.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+Message-ID: <20010126221545.F11097@metastasis.f00f.org>
+In-Reply-To: <14960.31423.938042.486045@pizda.ninka.net> <Pine.LNX.4.21.0101252152370.27798-100000@pii.fast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101252152370.27798-100000@pii.fast.net>; from shirsch@adelphia.net on Thu, Jan 25, 2001 at 09:55:00PM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie <sct@redhat.com> wrote:
+On Thu, Jan 25, 2001 at 09:55:00PM -0500, Steven N. Hirsch wrote:
 
-: That would only complicate things: it would mean we'd have to scan
-: both lists on fsync instead of just the one, for example.  There are a
+    Adelphia Communications just blew off my problem complaint (they
+    have a router between me and the POP server that DENY's ECN),
+    telling me that they "..won't upgrade the router on the basis of
+    one complaint on a Linux (read: non-supported by them)
+    system...".
 
-we already do; filemap_fdatasync() is called first in sys_fsync(), though
-it usually doesn't have much work I guess.
+With treatment like this, I would get a new ISP.
 
-: number of places where we need buffer lists for dirty data anyway,
-: such as for bdflush's background sync to disk.  We also maintain the
-: per-page buffer lists as caches of the virtual-to-physical mapping to
-: avoid redundant bmap()ping.  So, removing the buffer_heads which alias
-: the page cache data isn't an option.  Given that, it's as well to keep
-: all the inode's dirty buffers in the one place.
 
-keeping dirty pages in the address space list doesn't preclude any of the
-above. the pages could still have buffer_heads attached to them, and
-these would cache the block location and be a part of the dirty buffer
-list used by bdflush.
-I guess both approaches would be roughly the same from a performance
-point of view. I feel that keeping all data pages in the address space is more
-elegant from a design point of view, but that's quite subjective, of course.
 
-ganesh
-
+  --cw (who works for an ISP, and has done so for a long time)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

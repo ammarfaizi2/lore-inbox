@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVBIQeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVBIQjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVBIQeP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 11:34:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbVBIQeP
+	id S261846AbVBIQjH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 11:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVBIQjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 11:34:15 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:45285 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261845AbVBIQeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 11:34:10 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume
-Date: Wed, 9 Feb 2005 17:35:07 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20050204103350.241a907a.akpm@osdl.org> <200502071353.57660.rjw@sisk.pl> <20050208110418.GA878@elte.hu>
-In-Reply-To: <20050208110418.GA878@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Feb 2005 11:39:06 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:41932 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261846AbVBIQjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 11:39:03 -0500
+Date: Wed, 9 Feb 2005 17:38:56 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, Jirka Bohac <jbohac@suse.cz>,
+       lkml <linux-kernel@vger.kernel.org>, roman@augan.com, hch@nl.linux.org
+Subject: Re: [rfc] keytables - the new keycode->keysym mapping
+Message-ID: <20050209163856.GH12100@apps.cwi.nl>
+References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl> <20050209160345.GA16487@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502091735.07834.rjw@sisk.pl>
+In-Reply-To: <20050209160345.GA16487@ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 8 of February 2005 12:04, Ingo Molnar wrote:
+On Wed, Feb 09, 2005 at 05:03:45PM +0100, Vojtech Pavlik wrote:
+
+> > It seems very unlikely that you cannot handle Czech with all
+> > combinations of 8 keys pressed, and need 9.
 > 
-> * Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> A czech keyboard has the letters 'escrzyaie' with accents on the number
+> row of keys. With a Shift, they are supposed to produce the original
+> numbers, but with a CapsLock, they're supposed to produce the uppercase.
+> With a right alt or one of three czech dead keys they should produce
+> the !@#$%^&*() symbols.
 > 
-> > The warning is printed right after the image is restored (ie somewhere
-> > around the local_irq_enable() above, but it goes before the "PM: Image
-> > restored successfully." message that is printed as soon as the return
-> > is executed).  Definitely, less than 1 s passes between the resoring
-> > of the image and the warining.
-> > 
-> > BTW, I've also tried to put touch_softlockup_watchdog() before
-> > device_power_up(), but it didn't change much.
+> It's kind of logical, kind of stupid, but anyway it's the national standard.
 > 
-> this is a single-CPU box, right?
+> You can't do that currently. The main problem is that CapsLock is
+> hardcoded to work as a Shift on keys and you can't make it work
+> differently for normal letter keys and for the upper row of keys.
 
-Yes.
+I think the fallacy in that reasoning is the idea that the key
+labeled CapsLock has to be bound to the kernel function named capslock.
 
-OK, I think I've sorted it out.  The solution is to use your patch and the
-following change against swsusp.c:
-
---- linux-2.6.11-rc3-mm1-orig/kernel/power/swsusp.c	2005-02-08 18:16:34.000000000 +0100
-+++ new/kernel/power/swsusp.c	2005-02-09 17:31:16.000000000 +0100
-@@ -870,7 +870,9 @@
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
- 	restore_highmem();
-+	touch_softlockup_watchdog();
- 	device_power_up();
-+	touch_softlockup_watchdog();
- 	local_irq_enable();
- 	return error;
- }
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Andries

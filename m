@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131549AbQKQAKb>; Thu, 16 Nov 2000 19:10:31 -0500
+	id <S131557AbQKQALb>; Thu, 16 Nov 2000 19:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131557AbQKQAKW>; Thu, 16 Nov 2000 19:10:22 -0500
-Received: from vega.services.brown.edu ([128.148.19.202]:55701 "EHLO
-	vega.brown.edu") by vger.kernel.org with ESMTP id <S131549AbQKQAKG>;
-	Thu, 16 Nov 2000 19:10:06 -0500
-Message-Id: <4.3.2.7.2.20001116184203.00b45100@postoffice.brown.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 16 Nov 2000 18:43:20 -0500
-To: linux-kernel@vger.kernel.org
-From: David Feuer <David_Feuer@brown.edu>
-Subject: Re: [BUG] Inconsistent behaviour of rmdir
-In-Reply-To: <Pine.GSO.4.21.0011161801380.13047-100000@weyl.math.psu.edu
- >
-In-Reply-To: <8v1ng9$omi$1@cesium.transmeta.com>
+	id <S131625AbQKQALV>; Thu, 16 Nov 2000 19:11:21 -0500
+Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:521 "EHLO
+	mail.neruo.com") by vger.kernel.org with ESMTP id <S131557AbQKQALP>;
+	Thu, 16 Nov 2000 19:11:15 -0500
+Subject: Re: APM oops with Dell 5000e laptop
+From: Brad Douglas <brad@neruo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dax@gurulabs.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <E13wWoN-0008PC-00@the-village.bc.nu>
+Content-Type: text/plain
+X-Mailer: Evolution 0.6 (Developer Preview)
+Date: 17 Nov 2000 07:40:49 +0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Message-Id: <20001117001119Z131557-521+765@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:10 PM 11/16/2000 -0500, you wrote:
->Here's one more: you can't rename across the binding boundary. They _are_
->mounts, so they avoid all that crap with loop creation on rename, etc.
->Take a generic DAG and try to implement rename() analog on it. Have fun
->catching the cases that would make the graph disconnected.
+> > I do not believe so.  I tend to think that detecting these broken models is a waste of kernel code (especially, if there's an effort to correct the problem).
+> 
+> One idea the Dell folks suggested is walking the SMBIOS data table. That happens
+> to be something I want to do as its the only good way I know to get
+> 
+>       o       Cache sizes on older machines
+>       o       The type of monitoring device (lm78 etc) attached
+>       o       slot information
 
-How could the graph become disconnected?  What does connectedness have to 
-do with naming?
+You cannot base this on the Type 1: System Information as a method of identifying the system.
 
---
-This message has been brought to you by the letter alpha and the number pi.
-Open Source: Think locally, act globally.
-David Feuer
-David_Feuer@brown.edu
+I have in front of me a Dell 5000e and a Compal N30W2, which are the exact same machines.  A SMBIOS dump shows different identification information for both machines.  In the System Information struct, one says Compal Electronics and the other says Dell Computer Corporation for the manufacturer.  The Product Names are also (obviously) different as well.
+So far, I have been unable to find anything in the dump that identifies the two machines as the same.
+
+I don't believe doing this just to make a Dell detect properly is the right way to go (regardless of my bias).  I think the best we can do build a list of the systems that are the same, but it's certainly not a preferred way.
+
+Any suggestions?
+
+Brad Douglas
+brad@neruo.com
+brad@tuxtops.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

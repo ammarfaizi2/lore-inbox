@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTDGOqS (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbTDGOqR (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:46:17 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:20492 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263466AbTDGOp7 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 10:45:59 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Interactivity backport to 2.4.20-ck*
-Date: Mon, 7 Apr 2003 16:57:23 +0200
-User-Agent: KMail/1.5.1
-References: <200304072353.47664.kernel@kolivas.org> <200304080015.11111.kernel@kolivas.org> <200304080024.22323.kernel@kolivas.org>
-In-Reply-To: <200304080024.22323.kernel@kolivas.org>
+	id S263461AbTDGOo4 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTDGOo4 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:44:56 -0400
+Received: from pat.uio.no ([129.240.130.16]:34434 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263461AbTDGOox (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 10:44:53 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304071657.23718.m.c.p@wolk-project.de>
+Message-ID: <16017.37263.648356.201846@charged.uio.no>
+Date: Mon, 7 Apr 2003 16:56:15 +0200
+To: SteveD@RedHat.com
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] [PATCH] mmap corruption
+In-Reply-To: <20030407140052.GA1471@RedHat.com>
+References: <3E8DDB13.9020009@RedHat.com>
+	<shsistt7wip.fsf@charged.uio.no>
+	<20030405164741.GA6450@RedHat.com>
+	<16016.7633.982870.860147@charged.uio.no>
+	<20030407140052.GA1471@RedHat.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 April 2003 16:24, Con Kolivas wrote:
+>>>>> " " == Steve Dickson <SteveD@RedHat.com> writes:
 
-Hi Con,
+     > OK, I understand your point.  And Yes, ndirty and ncommit
+     > always seem to be zero when nfs_wb_all() returns. Only when
+     > npages != 0 is when I get the corruption.
 
-> > > Why isn't this patch completely backed out from the main O(1) so we can
-> > > see what is new?
-> > Yeah sure here:
-> Oops I mean here:
-> http://kernel.kolivas.org/scheda3_ck4.bz2
-ty :) I'll take a look.
+     > I didn't realize that npages != 0 meant there are only pending
+     > reads *not* pending writes... Thanks for that clarification....
 
-ciao, Marc
+My mistake. npages counts only writes...
+
+However, I still stand by my statement that nfs_wb_all() is supposed
+to ensure that *all* pending writes have been cleared.
+The only explanation for npages != 0 is if
+
+  a) an error occurred with nfs_wb_all() (we should perhaps test the
+     return value of nfs_wb_all() there). Under normal circumstances,
+     an error should only occur if you're using soft mounts, though.
+
+  b) somebody redirtied the page *after* nfs_wb_all() was done.
+
+Cheers,
+  Trond

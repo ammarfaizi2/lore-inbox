@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSH0Xak>; Tue, 27 Aug 2002 19:30:40 -0400
+	id <S317334AbSH0Xd4>; Tue, 27 Aug 2002 19:33:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317334AbSH0Xak>; Tue, 27 Aug 2002 19:30:40 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:32954 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S317023AbSH0Xaj>;
-	Tue, 27 Aug 2002 19:30:39 -0400
-Date: Wed, 28 Aug 2002 01:32:29 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: "John L. Males" <jlmales@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPG/PGP-signatures
-Message-ID: <20020827233229.GC12587@khan.acc.umu.se>
-References: <20020827125914.2eae144a.jlmales@yahoo.com>
+	id <S317354AbSH0Xd4>; Tue, 27 Aug 2002 19:33:56 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:11272 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317334AbSH0Xd4>; Tue, 27 Aug 2002 19:33:56 -0400
+Date: Wed, 28 Aug 2002 00:38:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] XFree v4.2.x DRM/DRI Support for 2.4.20-pre4
+Message-ID: <20020828003812.A10395@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Willy Tarreau <willy@w.ods.org>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org
+References: <200208272247.26637.m.c.p@gmx.net> <20020827222740.A6591@infradead.org> <20020827222440.GC28513@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020827125914.2eae144a.jlmales@yahoo.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020827222440.GC28513@alpha.home.local>; from willy@w.ods.org on Wed, Aug 28, 2002 at 12:24:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 12:59:14PM -0400, John L. Males wrote:
-> David,
-> 
-> I just discovered your eMail posting on "GPG/PGP-signatures" of 14
-> August 2002.  Your eMail indicated that I was BCC'ed in.  I can advise
-> you I did not receive a copy of this posting.
+On Wed, Aug 28, 2002 at 12:24:40AM +0200, Willy Tarreau wrote:
+> why do you always feel the need to discourage people who offer their
+> contribution ? Your two first sentences are quite enough to let Marc-Christian
+> understand that his patch isn't as good as YOURS.
 
-Sorry, probably missed you out.
+It's not MY patch.  It's Alan & Arjans works, and I stated that clearly in
+the thread a few days ago, where someone posted a patch to bring the XFree
+crap in.  I expect from someone who thinks of himself as kerneltree
+maintainer that he atleast follows lkml, and watching the most important
+secondary tree (-ac) won't hurt either.
 
-> I have checked the key server and find the key for the ID of this
-> eMail note to be there.  I did eMAil you back after loading my key to
-> confirm that I had correctly uploaded my GPG key to the key server. 
-> My PGP keys have been on the keyserver for some time.  I use PGP on
-> Windows NT when it is working (Been down since Mid may), and GPG on
-> Linux.  At some point I will manage to move over to GPG keys on NT.  I
-> would be happy to upload my other GPG keys to the key server once I am
-> certain I have uploaded my keys correctly.
-> 
-> Would you be so kind as to confirm I have uploaded my key for the
-> below noted eMail address ID.  Sorry of the manner I am using for
-> hiding my eMail address makes things difficult, but at 20- 30 SPAM
-> eMails a day I had to take action to prevent further abuse of my eMail
-> addresses.
-
-The key you signed this e-mail with (6eeaf716) is available on
-wwwkeys.pgp.net, but I cannot find your other key (99ed3565), and this
-was the key listed as missing in my original post.
-
-Spam is something that affects us all. Use procmail and/or spamassassin.
-Probably works better anyway, because sooner or later your address will
-end up in some e-mail...
-
-
-Regards: David Weinehall
--- 
- /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

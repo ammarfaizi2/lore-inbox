@@ -1,47 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269381AbUJFT2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269366AbUJFTdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269381AbUJFT2y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269367AbUJFT2y
+	id S269366AbUJFTdY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 15:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269384AbUJFTdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:28:54 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:19690 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S269381AbUJFT2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:28:00 -0400
-Message-Id: <200410061927.i96JRU607630@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, "Nick Piggin" <nickpiggin@yahoo.com.au>
-Cc: <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Default cache_hot_time value back to 10ms
-Date: Wed, 6 Oct 2004 12:27:44 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcSrYGGe/eUC0tBtSvSByCX71PqbLAAeDhwA
-In-Reply-To: <20041005215116.3b0bd028.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 6 Oct 2004 15:33:24 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:65284 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S269366AbUJFTaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 15:30:55 -0400
+Date: Wed, 6 Oct 2004 21:30:53 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Joris van Rantwijk <joris@eljakim.nl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041006193053.GC4523@pclin040.win.tue.nl>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> <1097080873.29204.57.camel@localhost.localdomain> <Pine.LNX.4.58.0410061955230.7057@eljakim.netsystem.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410061955230.7057@eljakim.netsystem.nl>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote on Tuesday, October 05, 2004 9:51 PM
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> >  I'd say it is probably too low level to be a useful tunable (although
-> >  for testing I guess so... but then you could have *lots* of parameters
-> >  tunable).
->
-> This tunable caused an 11% performance difference in (I assume) TPCx.
-> That's a big deal, and people will want to diddle it.
->
-> If one number works optimally for all machines and workloads then fine.
->
-> But yes, avoiding a tunable would be nice, but we need a tunable to work
-> out whether we can avoid making it tunable ;)
->
-> Not that I'm soliciting patches or anything.  I'll duck this one for now.
+On Wed, Oct 06, 2004 at 08:04:29PM +0200, Joris van Rantwijk wrote:
 
-Andrew, can I safely interpret this response as you are OK with having
-cache_hot_time set to 10 ms for now?  And you will merge this change for
-2.6.9?  I think Ingo and Nick are both OK with that change as well. Thanks.
+> > On Mer, 2004-10-06 at 15:52, Joris van Rantwijk wrote:
+> > > My understanding of POSIX is limited, but it seems to me that a read call
+> > > must never block after select just said that it's ok to read from the
+> > > descriptor. So any such behaviour would be a kernel bug.
 
-- Ken
+Alan answers - and I don't like his answer a bit:
+
+> > Select indicates there may be data. That is all - it might also be an
+> > error, it might turn out to be wrong.
+> >
+> > You should always combine select with nonblocking I/O
+
+Joris replies again:
+
+> Sorry about my wrongly blaming the kernel. I do think this issue shows hat
+> the select(2) manual needs fixing.
+
+It may need fixing in the sense that it must point out that the Linux kernel
+might not conform to POSIX in its handling of select on sockets.
+
+We now not only have "man 2 select", but also "man 3p select".
+This is the POSIX text:
+
+       A  descriptor shall be considered ready for reading when a
+       call to an input function with O_NONBLOCK clear would  not
+       block,  whether  or  not  the function would transfer data
+       successfully. (The function might return data, an  end-of-
+       file  indication,  or  an  error other than one indicating
+       that it is  blocked,  and  in  each  of  these  cases  the
+       descriptor shall be considered ready for reading.)
+
+As far as I can interpret these sentences, Linux does not conform.
+
+Andries
 
 
+Neil Horman wrote:
+
+>> I think you could also pass the MSG_ERRQUEUE flag to the recvfrom call 
+>> and receive the errored frame, eliminating the case where errored frames 
+>> might cause you to block on a read after a good return from a select call.
+
+davem wrote:
+
+>> There is no such guarentee.
+
+>> Incorrect UDP checksums could cause the read data to
+>> be discarded.  We do the copy into userspace and checksum
+>> computation in parallel.  This is totally legal and we've
+>> been doing it since 2.4.x first got released.
+
+
+ahu wrote:
+
+>> This can happen, and is fully to be expected. For a host of reasons the
+>> packet might not in fact appear. Whenever using select for non-blocking IO
+>> always set your sockets to non-blocking as well.
+
+>> One of the legitimate reasons is the reception of packets which, on copying,
+>> turn out to have a bad checksum.
+
+>> Stevens has a section on this, recommended reading.
+
+Reference?

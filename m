@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273791AbRI0S0Z>; Thu, 27 Sep 2001 14:26:25 -0400
+	id <S273794AbRI0S3F>; Thu, 27 Sep 2001 14:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273792AbRI0S0P>; Thu, 27 Sep 2001 14:26:15 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:10248 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S273791AbRI0SZ6>; Thu, 27 Sep 2001 14:25:58 -0400
-Message-ID: <3BB36F4C.B33A517@delusion.de>
-Date: Thu, 27 Sep 2001 20:26:20 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac14 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	id <S273795AbRI0S2z>; Thu, 27 Sep 2001 14:28:55 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:51462 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273794AbRI0S2q>;
+	Thu, 27 Sep 2001 14:28:46 -0400
+Date: Thu, 27 Sep 2001 15:28:51 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
 To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.9-ac16
 In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33L.0109271523080.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> 
+On Thu, 27 Sep 2001, Alan Cox wrote:
+
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
+
+> *	Update the VM to Rik's latest bits
+
 > 2.4.9-ac16
+> o	Fix VM breakage from my merge error		(Rik van Riel)
 
-Hi Alan,
+... which I didn't notice until I tried to merge an unrelated
+patch for our kernel RPM yesterday.
 
-Not really a big issue, but still worth mentioning:
+This certainly explains the bad reports some people have sent
+in about 2.4.9-ac15 ;)
 
-In file included from /usr/src/linux-2.4.9-ac/include/linux/modversions.h:5,
-                 from btaudio.c:1:
-/usr/src/linux-2.4.9-ac/include/linux/modules/53c700.ver:1: warning: `__ver_NCR_700_detect' redefined
-/usr/src/linux-2.4.9-ac/include/linux/modules/53c700-mem.ver:1: warning: this is the location of the previous definition
-/usr/src/linux-2.4.9-ac/include/linux/modules/53c700.ver:3: warning: `__ver_NCR_700_release' redefined
-/usr/src/linux-2.4.9-ac/include/linux/modules/53c700-mem.ver:3: warning: this is the location of the previous definition
+Because of the now correct merge, I'm _very_ interested in
+any test results with this VM.
 
-This is just one of many occurances.
+regards,
 
--Udo.
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

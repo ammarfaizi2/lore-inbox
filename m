@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318419AbSGSBkl>; Thu, 18 Jul 2002 21:40:41 -0400
+	id <S318430AbSGSBtk>; Thu, 18 Jul 2002 21:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318422AbSGSBkl>; Thu, 18 Jul 2002 21:40:41 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:10402 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318419AbSGSBkk>;
-	Thu, 18 Jul 2002 21:40:40 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-cpu patch 2/3 
-In-reply-to: Your message of "18 Jul 2002 10:05:26 MST."
-             <1027011926.1086.118.camel@sinai> 
-Date: Fri, 19 Jul 2002 11:36:20 +1000
-Message-Id: <20020719014425.9F57E4109@lists.samba.org>
+	id <S318431AbSGSBtk>; Thu, 18 Jul 2002 21:49:40 -0400
+Received: from dsl-65-189-106-249.telocity.com ([65.189.106.249]:651 "EHLO
+	mail.temp123.org") by vger.kernel.org with ESMTP id <S318430AbSGSBtj>;
+	Thu, 18 Jul 2002 21:49:39 -0400
+Date: Thu, 18 Jul 2002 21:52:32 -0400
+From: Josh Litherland <fauxpas@temp123.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB Keypad
+Message-ID: <20020719015232.GA20956@temp123.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1027011926.1086.118.camel@sinai> you write:
-> On Wed, 2002-07-17 at 20:48, Rusty Russell wrote:
-> > Given the ongoing races with smp_processor_id() and preempt, this
-> > makes sense to me.  this_cpu() was too generic a name anyway.
-> 
-> Very nice, although:
-> 
-> How do you reenable preemption?
 
-I think you are confused: this patch is an enhancement of the per-cpu
-variable infrastructure.  I was making an analogy with
-smp_processor_id().
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-+#define get_cpu_var(var) ({ preempt_disable(); __get_cpu_var(var); })
-+#define put_cpu_var(var) preempt_enable()
+I want to simultaneously use a PS/2 keyboard (This is a laptop, so
+switching that out is not an option) and a USB numeric keypad, which=20
+works perfectly as a usb HID keyboard.  Is there any way to do this
+with the current keyboard driver ?
 
-Clear?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--=20
+Josh Litherland (fauxpas@temp123.org)
+public key: temp123.org/fauxpas.pgp
+fingerprint: CFF3 EB2B 4451 DC3C A053  1E07 06B4 C3FC 893D 9228
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj03cOAACgkQBrTD/Ik9kigt/QCfYMFk8JxrnHabLxo1nDRuAwWH
+NlkAn0xDVWItCN0as/tQOaLRwM0lcXWN
+=+hw7
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

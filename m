@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313743AbSEVNmk>; Wed, 22 May 2002 09:42:40 -0400
+	id <S313867AbSEVNp2>; Wed, 22 May 2002 09:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313773AbSEVNmj>; Wed, 22 May 2002 09:42:39 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:41227 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S313743AbSEVNmg>;
-	Wed, 22 May 2002 09:42:36 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Date: Wed, 22 May 2002 15:40:57 +0200
+	id <S313773AbSEVNp1>; Wed, 22 May 2002 09:45:27 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:3847 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313589AbSEVNp0>; Wed, 22 May 2002 09:45:26 -0400
+Date: Wed, 22 May 2002 15:45:22 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.17
+In-Reply-To: <Pine.LNX.4.44.0205211752350.3589-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0205221523450.23394-100000@serv>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-CC: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-X-mailer: Pegasus Mail v3.50
-Message-ID: <5E8AE8C18EA@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[trimmed cc a bit]
+Hi,
 
-On 22 May 02 at 14:23, Denis Vlasenko wrote:
-> > On 22 May 02 at 12:27, Denis Vlasenko wrote:
-> > > > As Linus and others pointed out, copy_{to_from}_user has its uses and
-> > > > will stay, but something like:
-> > >
-> > > I don't say 'kill it', I say 'rename it so that its name tells users what
-> > > return value to expect'. However, one have to weigh
+On Tue, 21 May 2002, Linus Torvalds wrote:
+
+> > > x86, to be exact ;(
 > >
-> > Why?
+> > IMO that's not really problem, the pmd tables are created and destroyed
+> > with the pgd table.
 > 
-> Why what? Why rename copy_to_user? Because in its current form people
+> unmap()?
 
-Why rename it. 
+We already don't let the general vm touch the pgd entries for the same
+reason, so I don't think that's really a big problem.
+Using the present bit has another consequence. unmap() had to be done in
+two phases:
+1. Disable the table entries at the highest possible level. Using the
+previous and following vma avoids scanning the tables (something like
+free_pgtables already does, only more accurate).
+2. Scan the tables and free all the disabled entries. At this point we
+don't have worry about any tlb issues anymore.
 
-> misunderstand its return value and misuse it.
-> We can keep unmodified version of copy_to_user for some time for
-> compatibility.
+I can see a few advantages doing it this way. The first phase could be
+quite fast even for large unmaps and so reducing the time holding the
+page_table_lock. It avoids the race mentioned by Paul (although a
+ptep_clear_present() would still be needed). It would also free up more
+unused tables. The tlb shootdown stuff would be simpler as well.
+On the other hand it's a rather rough idea and I don't know how feasible
+it really is, but without the exit case it should become easier and IMO
+worth a try. 
 
-Function name is not documentation. Documentation documents function
-API, or, in case documentation is not available, source does it.
-copy_to_user_dude_I_return_uncopied_length_on_error_not_EFAULT_parameters_are_same_as_for_memcpy() 
-is unacceptable name, and anything shorter does not document things 
-you must know.
+bye, Roman
 
-> > From copyin/out descriptions sent yesterday if you want same source code
-> > running on all (BSD,SVR4,OSF/1) platforms, you must do
-> >
-> > if (copyin()) return [-]EFAULT;
-> 
-> But if I am new to Linux and just want to write my first piece of kernel
-> code, copyout() is even worse than copy_to_user(): 
-> it too lacks info of what it can return (0/1, 0/-EFAULT, # of copied bytes,
-
-Hey, please change sys_read(). I'm used that read() returns -1 on error,
-but now in kernel it returns some strange negative value. Please fix it.
-
-I'm not sure that I want to use kernel which contains code written
-by people who do not read API documentation. I expect that everyone 
-here tests every branch in code he writes at least once - and such test
-would (f.e.) quickly reveal that read(fd, NULL, 1000) does not return -1 &
-set errno to EFAULT, but instead returns complete success (1000) on
-affected sound drivers.
-
-No. copy_*_user interface is documented since 2.1.0, only bad old
-verify_area() in older kernels returned -EFAULT on error, and I do
-not believe that coders who coded for 2.0.x did not notice completely
-different interface (copy_from_user instead of verify_area + memcpy_fromfs)
-during last almost 6 years.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                

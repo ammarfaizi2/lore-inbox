@@ -1,31 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUD2JEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUD2JR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUD2JEf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 05:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUD2JEf
+	id S263736AbUD2JR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 05:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUD2JR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 05:04:35 -0400
-Received: from sand.lyris.net ([64.62.197.91]:61189 "HELO sand.lyris.net")
-	by vger.kernel.org with SMTP id S263770AbUD2JEe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 05:04:34 -0400
-Message-Id: <LYRIS0-1083229466--7044-lyris-admin@sand.lyris.net>
-X-lyris-type: command-notify
-From: "Lyris ListManager" <lyris-admin@sand.lyris.net>
-Reply-To: "Lyris ListManager" <lyris-admin@sand.lyris.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: your subscribe request
-Date: Thu, 29 Apr 2004 02:04:26 -0700
+	Thu, 29 Apr 2004 05:17:26 -0400
+Received: from brmail2.brassring.com ([216.52.51.143]:35589 "EHLO
+	brmail2.brassring.com") by vger.kernel.org with ESMTP
+	id S263736AbUD2JRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 05:17:24 -0400
+Message-ID: <1083230240.811344@brassring.com>
+From: Brassring@vger.kernel.org, Mail@vger.kernel.org, System@vger.kernel.org
+To: Undisclosed@vger.kernel.org, Recipient@vger.kernel.org
+Subject: Anti-Virus Notification
+Date: Thu, 29 Apr 2004 05:17:20 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re: your subscribe request
-> subscribe
+This is an automatically generated Anti-Virus notification. A virus (W32/Netsky-P) has been detected by the AV engine(Sophos). The action triggered and data are given below. Message is dropped.
 
-Sorry, but the email address 'linux-kernel@vger.kernel.org' is already a
-member of 'linux-mag-news'.
+Message details are as follows.
 
-Because you are already subscribed, Lyris ListManager did not subscribe you again.
+*****
+From: linux-kernel@vger.kernel.org
+Subject: You cannot do that!
+Date: 2004-04-29 05:17:02
+*****
 
-To unsubscribe, send a blank email to leave-linux-mag-news-3591433W@sand.lyris.net
 

@@ -1,99 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281841AbRLLTdt>; Wed, 12 Dec 2001 14:33:49 -0500
+	id <S281817AbRLLTqk>; Wed, 12 Dec 2001 14:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281843AbRLLTdk>; Wed, 12 Dec 2001 14:33:40 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:57385 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S281841AbRLLTdf> convert rfc822-to-8bit; Wed, 12 Dec 2001 14:33:35 -0500
-Date: Wed, 12 Dec 2001 17:39:20 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jens Axboe <axboe@suse.de>
-cc: "David S. Miller" <davem@redhat.com>, <gibbs@scsiguy.com>,
-        <LB33JM16@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping
-In-Reply-To: <20011212093654.GA13498@suse.de>
-Message-ID: <20011212170821.K1853-100000@gerard>
+	id <S281818AbRLLTqb>; Wed, 12 Dec 2001 14:46:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25360 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281817AbRLLTqY>; Wed, 12 Dec 2001 14:46:24 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: IP -> hostname lookup in kernel module?
+Date: 12 Dec 2001 11:46:09 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9v8c61$gcn$1@cesium.transmeta.com>
+In-Reply-To: <1008174218.3c17848ab4b69@home.hjc.edu.sg> <Pine.LNX.4.33.0112130035070.2697-100000@localhost.localdomain> <20011212173517.G17064@blu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20011212173517.G17064@blu>
+By author:    antirez <antirez@invece.org>
+In newsgroup: linux.dev.kernel
+> 
+> There isn't, but you can create an UDP socket and to the query..
+> 
 
+No you can't.  There is no way that you can find out which nameservers
+are configured.
 
-On Wed, 12 Dec 2001, Jens Axboe wrote:
+> or run an userspace resolver daemon that talks with your
+> module, or some other trick.
+> 
+> BTW it isn't the kind of stuff to do in kernelspace.
+> You may think about do it in a post-processing stage
+> if possible, or to write a module that exports to userspace
+> what you need from the kernel and do the rest in userspace.
 
-> On Tue, Dec 11 2001, Gérard Roudier wrote:
+Indeed.
 
-[...]
-
-> > As you know, low-level drivers on Linux announce some maximum length for
-> > the sg array. As you guess, in the worst case, each sg entry may have to
-> > be cut into several real entry (hoped 2 maximum) due to boundary
-> > limitations. At a first glance, low-level drivers should announce no more
-> > than half their real sg length capability and also would have to rewalk
-> > the entire sg list.
->
-> That's why these boundary limitations need to be known by the layer
-> build the requests for you.
-
-How can I tell the layer about boundaries ?
-Will check if I missed some important change.
-
-> > I used and was happy to do so when the scatter process was not generic.
-> > If we want it to be generic, then we want it to do the needed work. If
-> > generic means 'just bloated and clueless' then generic is a extreme bad
-> > thing.
-> >
-> > 'virt_to_bus' + 'flat addressing model' was the 'just as complex as
-> > needed' for DMA model and most (may-be > 99%) of existing physical
-> > machines are just happy with such model. The DMA/BUS complexity all O/Ses
-> > have invented nowadays is a useless misfeature when based on the reality,
-> > in my opinion. So, I may just be dreaming, at the moment. :-)
-> >
-> > If one really wants for some marketing reason to support these ugly and
-> > stinky '32 bit machines that want to provide more than 4GB of memory by
-> > shoe-horning complexity all over the place', one should use his brain,
-> > when so-featured, prior to writing clueless code.
->
-> First of all, virt_to_bus just cannot work on some archetectures that
-> are just slightly more advanced than x86. I'm quite sure Davem is ready
-> to lecture you on this.
->
-> Second, you are misunderstanding the need of a page/offset instead of
-> virtua_address model. It's _not_ for > 4GB machines, it's for machines
-> with highmem. You'll need this on the standard kernel to I/O above
-> 860MB, that that is definitely a much bigger part of the market. Heck,
-> lots of home users have 1GB or more with the RAM prices these days.
-
-I didn't misunderstand anything here, but have probably been unclear. The
-3GB user + 1 GB kernel - some room for vremap/vmalloc looks a Linuxish
-issue to me and I wanted to be more general here. By the way, speaking for
-meyself, I donnot use bloaty applications and hence, at least in theory,
-it will be possible for me to use at least 2GB of physical memory without
-need of any kind of higmem crap. My guess is that 2GB of physical memory
-still encompasses 99% of physically machines in use.
-
-About what I call '32 bit machine', the sparc64 with its s****d IOMMU does
-falls in this category. The CPU can do 64 bit operations and addressing,
-but as seen from IO, the silicium is some 32 bit out-of-age thing hacked
-for 64 bit memory addressing capability and some proprietary BUS streaming
-protocol.
-
-FYI, my personnal machine uses a ServerWorks LE chipset. The thing is 32
-bit, but it is clean design regarding buses. It is possible for example
-for a device on one PCI BUS to master another device on the other PCI BUS.
-And the PCI BUses bandwidth seems quite good.
-
-For your memory refresh, virtual memory has been invented for programs to
-be allowed to be larger than the physical memory. OTOH, all archs based on
-memory segmentations have been replaced by a flat model since this led to
-unbearable complexity. The current 32 bit to 64 bit transition resembles
-the 8/16 bit and 16 bit/32 bit transition, adding same kind of useless
-complexity in software. This stinks a lot. Let me not encourage this a
-single second.
-
-  Gérard.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

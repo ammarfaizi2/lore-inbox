@@ -1,91 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265303AbTL0DNK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 22:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbTL0DNK
+	id S265302AbTL0DgY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 22:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbTL0DgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 22:13:10 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:45250
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265303AbTL0DNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 22:13:00 -0500
-Date: Fri, 26 Dec 2003 19:12:57 -0800
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-Message-ID: <20031227031257.GG12871@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3FECD2FB.4070008@ntlworld.com>
+	Fri, 26 Dec 2003 22:36:24 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44427
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265302AbTL0DgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 22:36:22 -0500
+Date: Sat, 27 Dec 2003 04:36:21 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Craig-Wood <ncw1@axis.demon.co.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohit.seth@intel.com>
+Subject: Re: 2.6.0 Huge pages not working as expected
+Message-ID: <20031227033620.GG1676@dualathlon.random>
+References: <20031226105433.GA25970@axis.demon.co.uk> <20031226115647.GH27687@holomorphy.com> <20031226201011.GA32316@axis.demon.co.uk> <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DO5DiztRLs659m5i"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FECD2FB.4070008@ntlworld.com>
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+In-Reply-To: <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 26, 2003 at 12:33:58PM -0800, Linus Torvalds wrote:
+> This, btw, is why I don't like page coloring: it does give nicely
+> reproducible results, but it does not necessarily improve performance.  
 
---DO5DiztRLs659m5i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+static page coloring doesn't mean you've to map 1:1 (though with the
+largepages there's no choice but 1:1 ;).
 
-On Sat, Dec 27, 2003 at 12:31:55AM +0000, Matt wrote:
-> If you are on debian i have noticed recently that gnomevfs (on unstable)=
-=20
-> requires famd. famd will open /cdrom after it is mounted and run a dir=20
-> notification on it. now i think famd needs some fixing, firstly to not=20
-> bother running dir notice on ro filesystems, and secondly allow an=20
-> authorised user (other than the original program (in this case=20
-> nautilus)) to drop specific mount point dirs from the notification list.=
-=20
-> so yes this is a userland problem as far as i can see.
+the best algorithm giving three digit percent improvements I tested with
+Sebastien Cabaniols on some alpha last year is the below mode == 1 (the
+mode is selectable both at runtime or boot time):
 
-I am using Debian. This is a good point. However, I have no component of
-fam installed on this Debian machine at all.
++       /*
++        * If pfn is negative just try to distribute the page colors globally
++        * with a dynamic page coloring.
++        */
++       color = pfn;
++       switch (page_coloring_mode) {
++       case 0:
++               break;
++       case 1:
++               /* when == 1 optimize FFT (avoids some cache trashing) */
++               color = color + (color / page_colors);
++               break;
++       }
++       if (pfn < 0)
++               color = global_color;
 
-And why does the eject command work? I decided to strace it to see where
-it gets this invalid argument from..
 
-open("/dev/hdc", O_RDONLY|O_NONBLOCK)   =3D 3
-ioctl(3, 0x5309, 0xbffff948)            =3D -1 EIO (Input/output error)
-ioctl(3, FIBMAP, 0xbffff7f0)            =3D 0
-ioctl(3, FIBMAP, 0xbffff7f0)            =3D 0
-ioctl(3, FIBMAP, 0xbffff7f0)            =3D 0
-ioctl(3, BLKRRPART, 0xbffff7f0)         =3D -1 EINVAL (Invalid argument)
-ioctl(3, FDEJECT, 0xbffff948)           =3D -1 EINVAL (Invalid argument)
-ioctl(3, SNDCTL_MIDI_MPUMODE, 0xbffff900) =3D -1 EINVAL (Invalid argument)
+the perfect static page coloring 1:1 (mode == 0) was the worst IIRC at
+some math algorithm walking matrix horizontally and vertically at the
+same time, especially if every raw is a page or similar multiple, for
+the reasons you just said. But the mode == 1 was the very best, much
+better than random and 1:1.
 
-It wasn't as revealing as I thought it would be, but does this mean
-anything to someone more knowledgeable than I?
+> Random placement has a lot of advantages, one of which is a lot smoother
 
-Note that as mentioned in a previous message, eject _does_ eject the CD.
+well, at least on the alpha the above mode = 1 is reproducibly a lot
+better (we're talking about a wall time 2/3 times shorter IIRC) than
+random placement. The l2 is huge and one way cache associative, we
+couldn't reproduce the same results on a alpha with tiny caches and
+16-way set associative or similar. Note the above has nothing to do with
+the patches I've seen floating around for the last years.  Those are all
+dynamic page coloring, the above does dynamic coloring of the kernel
+code only, and it makes sure the dynamic coloring of the kernel is never
+strict, while it can be strict for userspace optionally (strict means,
+shrink the cache hard until if finds the asked color, which is a must
+have feature on the alpha for the math apps with tiny vm working set and
+lots of ram, though I'm sure the 'strict' mode would make no sense on
+the x86, except during pure benchmarking where reproducible results are
+valuable). It also colors the pagecache with the inode offset (plus a
+random offset from the inode pointer IIRC).
 
---=20
-Joshua Kwan
+I guess gcc developers and most other cpu-benchmarking efforts would
+benefit from an algorithm like the above (plus the strict mode in the
+same patch), so they can remove some (at least theoretical) noise from
+the nightly spec runs. this ignoring the benfits on the non x86 archs.
 
---DO5DiztRLs659m5i
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQIVAwUBP+z4t6OILr94RG8mAQLWrQ//dBcRFusQG9QOmzq6S+yQrRGZdC0Yfe55
-YbHm1Hm6/Oj3CLs6U3qYwhr7gGqESLRSiXC4IHyWnTb7Bg1OPHbPhjmldUfuTCvA
-Gt90WyD+3GZIOsBbdULN2N4mF0ymJow1kSfbA7CteDYXNqXT6PpOEn++agQIz/HF
-h8v/Napup1r+yrevXUX6nk5jUlTBcGbBkvZH4xndIHY4j77yYrPB6kF/vOndK9tr
-q9wVSNvzNeQRELHby8y2xIS6KxcphSk6Uy38qV7b+ySTAsAYBXPr9bGL1sm9to8j
-ERK1tUmsHyybRDXWJQnm/GjYzLC6qUa93L6OBWws6YbIrcGtF2jzP6pSlCZiKbuK
-DsaFLRRMzqh5hnpjduOaiX2gaUDt5zmPGkmQxoYpRKlEWOkwCfhEwaE5fB7juuoS
-l3ky3N/CCmpecYQlSaZjULSVjGJJmaDyh1Y0LAhLuFllvfqmch2EhcHJUbJ45wvZ
-gsayxSTjXNRI1XWyEDQ43BURaozf0FonWH2QQuFjy0fgve6t/mtnA4NO17A1+whG
-LpvhJGVNDjvAEUfyhe5LA5Q1TjajF4DYHHazUQ5shIaJ9qUAjgUclTBEsQbObZoQ
-8egVmbRAQMz4vanRBPfUrAgpKlhOgMv6ID4yw6J/z+uiQHJQJmmsEufs5HegSjxe
-uFWvW17WGzQ=
-=CFtv
------END PGP SIGNATURE-----
-
---DO5DiztRLs659m5i--
+The current patch is for 2.2 with an horrible API (it uses a kernel
+module to set those params instead of a sysctl, despite all the real
+code is linked into the kernel), while developing it I only focused on
+the algorithms and the final behaviour in production. the engine to ask
+the allocator a page of the right color works O(1) with the number of
+free pages and it's from Jason.  the allocator engine is completely
+shared between my implementation and the other patches floating around.
+The engine was so well designed and correctly implemented that there was
+no reason for me to touch it.  Really the implementation of the engine
+could be cleaner but I didn't bother to clean it up.

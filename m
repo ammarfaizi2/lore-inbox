@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUJDN0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUJDNjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUJDN0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 09:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJDNXT
+	id S267362AbUJDNjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 09:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUJDNjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 09:23:19 -0400
-Received: from gprs214-62.eurotel.cz ([160.218.214.62]:22400 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266619AbUJDNUW (ORCPT
+	Mon, 4 Oct 2004 09:39:03 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37032 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267362AbUJDNjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 09:20:22 -0400
-Date: Mon, 4 Oct 2004 14:24:22 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: lkml@kcore.org, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: swsusp: fix suspending with mysqld
-Message-ID: <20041004122422.GA2601@elf.ucw.cz>
+	Mon, 4 Oct 2004 09:39:01 -0400
+Date: Mon, 4 Oct 2004 15:36:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org
+Subject: Re: [bug] 2.6.8: CDROM_SEND_PACKET ioctls failing as non-root on ide scsi drives
+Message-ID: <20041004133610.GT2287@suse.de>
+References: <20041004130941.GE19341@lkcl.net> <6u4qlaehlw.fsf@zork.zork.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <6u4qlaehlw.fsf@zork.zork.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Oct 04 2004, Sean Neakums wrote:
+> CDROM_SEND_PACKET calls down to sg_io, which calls verify_command,
+> which will not permit anyone but root to use any unrecognised
+> commands.  GET CONFIGURATION does not seems to be one of those
+> recognised.  This check for unrecognised commands is a fairly recent
+> addition, IIRC.
 
-mysqld does signal calls in pretty tight loop, and swsusp is not able
-to stop processes in such case. This should fix it. Please apply,
-								Pavel
-
-
-Index: linux/kernel/signal.c
-===================================================================
---- linux.orig/kernel/signal.c	2004-10-01 12:24:26.000000000 +0200
-+++ linux/kernel/signal.c	2004-10-01 01:00:26.000000000 +0200
-@@ -1483,8 +1483,7 @@
- 	unsigned long flags;
- 	struct sighand_struct *psig;
- 
--	if (sig == -1)
--		BUG();
-+	BUG_ON(sig == -1);
- 
-  	/* do_notify_parent_cldstop should have been called instead.  */
-  	BUG_ON(tsk->state & (TASK_STOPPED|TASK_TRACED));
-@@ -2260,6 +2259,8 @@
- 			ret = -EINTR;
- 	}
- 
-+	if (current->flags & PF_FREEZE)
-+		refrigerator(1);
- 	return ret;
- }
- 
+2.6.8 didn't have any command granularity, you must be root to issue any
+comand there.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jens Axboe
+

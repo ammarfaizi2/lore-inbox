@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTIZM04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 08:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTIZM04
+	id S262063AbTIZMNq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTIZMNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 08:26:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:15004 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262128AbTIZM0w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 08:26:52 -0400
-Date: Fri, 26 Sep 2003 14:26:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Steven Dake <sdake@mvista.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG using multipath on 2.6.0-test5
-Message-ID: <20030926122646.GA15415@suse.de>
-References: <1064541435.4763.51.camel@persist.az.mvista.com> <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
+	Fri, 26 Sep 2003 08:13:46 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:52773 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262063AbTIZMNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 08:13:45 -0400
+Date: Fri, 26 Sep 2003 14:14:06 +0200
+Message-Id: <200309261214.h8QCE6iG004999@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 088] Sun-3 SBUS updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26 2003, Matthew Wilcox wrote:
-> On Thu, Sep 25, 2003 at 06:57:15PM -0700, Steven Dake wrote:
-> > kernel BUG at drivers/scsi/scsi_lib.c:544!
-> 
->         BUG_ON(!cmd->use_sg);
-> 
-> >  [<c01f631d>] scsi_init_io+0x7a/0x13d
-> 
-> static int scsi_init_io(struct scsi_cmnd *cmd)
->         struct request     *req = cmd->request;
->         cmd->use_sg = req->nr_phys_segments;
->         sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
-> 
-> >  [<c01f6455>] scsi_prep_fn+0x75/0x171
-> 
-> static int scsi_prep_fn(struct request_queue *q, struct request *req)
->         struct scsi_cmnd *cmd;
->         cmd->request = req;
->         ret = scsi_init_io(cmd);
-> 
-> .. this is getting outside my area of confidence.  Ask axboe why we might
-> get a zero nr_phys_segments request passed in.
+Sun-3 SBUS updates: Rename remaining occurrencies of struct linux_sbus_device
+to struct sbus_dev for source code compatibility with SPARC
 
-Looks like an mp bug. I'd suggest adding something ala
+--- linux-2.4.23-pre5/include/asm-m68k/dvma.h	2 Mar 2003 20:58:23 -0000	1.1.1.1.2.1
++++ linux-m68k-2.4.23-pre5/include/asm-m68k/dvma.h	14 Jun 2003 11:40:33 -0000
+@@ -110,7 +110,7 @@
+ /* Linux DMA information structure, filled during probe. */
+ struct Linux_SBus_DMA {
+ 	struct Linux_SBus_DMA *next;
+-	struct linux_sbus_device *SBus_dev;
++	struct sbus_dev *SBus_dev;
+ 	struct sparc_dma_registers *regs;
+ 
+ 	/* Status, misc info */
 
-	if (!rq->nr_phys_segments || !rq->nr_hw_segments) {
-		blk_dump_rq_flags(req, "scsi_init_io");
-		return BLKPREP_KILL;
-	}
+Gr{oetje,eeting}s,
 
-inside the first
+						Geert
 
-	} else if (req->flags & (REQ_CMD | REQ_BLOCK_PC)) {
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-drivers/scsi/scsi_lib.c:scsi_prep_fn(). That will show the state of such
-a buggy request. I'm pretty sure this is an mp bug though.
-
--- 
-Jens Axboe
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

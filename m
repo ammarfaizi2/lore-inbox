@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbRHKNnc>; Sat, 11 Aug 2001 09:43:32 -0400
+	id <S267615AbRHKNvc>; Sat, 11 Aug 2001 09:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbRHKNnW>; Sat, 11 Aug 2001 09:43:22 -0400
-Received: from CPE-61-9-149-76.vic.bigpond.net.au ([61.9.149.76]:61422 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S267602AbRHKNnO>;
-	Sat, 11 Aug 2001 09:43:14 -0400
-Message-ID: <3B7533FE.4A8EC734@eyal.emu.id.au>
-Date: Sat, 11 Aug 2001 23:32:46 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-ac8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8aa1
-In-Reply-To: <20010811145813.B19169@athlon.random>
+	id <S267620AbRHKNvM>; Sat, 11 Aug 2001 09:51:12 -0400
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:12561 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267615AbRHKNvI>; Sat, 11 Aug 2001 09:51:08 -0400
+Date: Sat, 11 Aug 2001 14:47:29 +0100
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Writes to mounted devices containing file-systems.
+Message-ID: <20010811144729.B31614@wyvern>
+Reply-To: adrian.bridgett@iname.com
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.3.20i
+From: Adrian Bridgett <adrian.bridgett@iname.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Fri, Aug 10, 2001 at 08:43:58 -0400 (+0000), Richard B. Johnson wrote:
 > 
-> Only in 2.4.8pre8aa1: 40_blkdev-pagecache-11
-> Only in 2.4.8aa1: 40_blkdev-pagecache-12
+> Is it possible that Linux could decline to write to a device that
+> contains mounted file-systems? OTW, don't allow raw writes to
+> devices or partitions if they are mounted; writes could only
+> be through the file-systems themselves.
+[snip]
 
-Everything possible selected as a module.
+Personally I'd prefer AIX's approach - let the write through (if the user
+wants to shoot themselves in the foot...), but report an error about it (to
+syslog). 
 
-The relevant DRM part of .config:
+Adrian
 
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=m   
-CONFIG_DRM_GAMMA=m
-CONFIG_DRM_R128=m 
-CONFIG_DRM_RADEON=m  
-CONFIG_DRM_I810=m
-CONFIG_DRM_MGA=m
-
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
-r128_drv.o r128_drv.c
-In file included from r128_drv.c:36:
-ati_pcigart.h: In function `r128_ati_pcigart_init':
-ati_pcigart.h:114: structure has no member named `virtual'
-make[3]: *** [r128_drv.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4/drivers/char/drm'
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+Email: adrian.bridgett@iname.com
+Windows NT - Unix in beta-testing. GPG/PGP keys available on public key servers
+Debian GNU/Linux  -*-  By professionals for professionals  -*-  www.debian.org

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbRAKPFm>; Thu, 11 Jan 2001 10:05:42 -0500
+	id <S129790AbRAKPKe>; Thu, 11 Jan 2001 10:10:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131514AbRAKPFd>; Thu, 11 Jan 2001 10:05:33 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28946 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129927AbRAKPFO>;
-	Thu, 11 Jan 2001 10:05:14 -0500
-Message-ID: <3A5DCB9D.2DAF83AF@mandrakesoft.com>
-Date: Thu, 11 Jan 2001 10:05:01 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
-X-Accept-Language: en
+	id <S129927AbRAKPKZ>; Thu, 11 Jan 2001 10:10:25 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:53258 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S129790AbRAKPKT>; Thu, 11 Jan 2001 10:10:19 -0500
+To: David <davidge@jazzfree.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: es1371 module dependencies problem
+In-Reply-To: <Pine.LNX.4.21.0201051729040.952-100000@localhost>
+From: Doug McNaught <doug@wireboard.com>
+Date: 11 Jan 2001 10:10:12 -0500
+In-Reply-To: David's message of "Sat, 5 Jan 2002 17:35:15 +0100 (CET)"
+Message-ID: <m38zoirup7.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: Nathan Thompson <nate@thebog.net>
-CC: Robert Lowery <cangela@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: ACPI lockup on boot in 2.4.0
-In-Reply-To: <001801c07bc4$e95ee250$0201a8c0@vaio> <20010111095853.A4442@eliot.thebog.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Thompson wrote:
+David <davidge@jazzfree.com> writes:
+
+> kernel: 2.4.0
+> modutils: 2.3.23
 > 
-> On Thu, Jan 11, 2001 at 10:51:59PM +1100, Robert Lowery wrote:
-> 
-> > I compiled it with ACPI compiled as a module and APM not compiled in at all, but on booting I get the following.
-> > ACPI: System description tables found
-> > ACPI: System description tables loaded
-> >
-> > and then the system locks up..
-> 
-> I have a Sony Vaio PCG-F350 that behaves the same way.  I compiled in
-> ACPI (not a module) and never got further than this.  When I enabled APM
-> and disabled ACPI everything started to work.
+> loading the es1371 module gives me the following error:
+> /lib/modules/2.4.0/kernel/drivers/sound/es1371.o: unresolved symbol
+> ac97_probe_codec_Rsmp_1c61c357
 
-To get a more verbose failure scenario, grab the ACPI debug version from
-http://developer.intel.com/technology/IAPC/acpi/downloads.htm
+It works for me (tm).  Kernel 2.4.0, modutils 2.3.23-2 (Debian
+woody).  'modprobe' loads the module quite happily.  I'm running UP,
+not SMP, so maybe that's the issue.
 
-	Jeff
+You might try a complete rebuild starting from 'make mrproper', and
+turn off SMP if you only have one processor. 
 
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+-Doug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

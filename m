@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbREFBxq>; Sat, 5 May 2001 21:53:46 -0400
+	id <S130485AbREFCCQ>; Sat, 5 May 2001 22:02:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130487AbREFBxh>; Sat, 5 May 2001 21:53:37 -0400
-Received: from [203.167.188.69] ([203.167.188.69]:20422 "HELO tapu")
-	by vger.kernel.org with SMTP id <S130485AbREFBx2>;
-	Sat, 5 May 2001 21:53:28 -0400
-Date: Sun, 6 May 2001 13:53:22 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Mitch Adair <mitch@theneteffect.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
-Message-ID: <20010506135322.B11201@tapu.f00f.org>
-In-Reply-To: <20010506033746.A30690@metastasis.f00f.org> <200105051634.LAA02026@mako.theneteffect.com>
+	id <S130487AbREFCCH>; Sat, 5 May 2001 22:02:07 -0400
+Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:7367 "EHLO
+	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S130485AbREFCBw>; Sat, 5 May 2001 22:01:52 -0400
+Date: Sat, 5 May 2001 22:01:50 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: pci_map_sg() failure on alpha
+Message-ID: <20010505220150.A3611@zero>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <200105051634.LAA02026@mako.theneteffect.com>; from mitch@theneteffect.com on Sat, May 05, 2001 at 11:34:16AM -0500
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 05, 2001 at 11:34:16AM -0500, Mitch Adair wrote:
+has anyone else had problems with pci_map_sg() in 2.4.4-ac*? i get the
+message from line 512 in pci_iommu.c, "pci_map_sg failed: could not
+allocate dma page tables" printed about 10 times, then a second or two
+later, it kills the interrupt handler. it's being called by the sym53c8xx
+driver. it's easily reproducible, by bunzip linux.tar.bz | tar x.
 
-    Wouldn't that be lot of the same issues as a "swapoff" with some
-    portion of that in use?  (except for the kernel data case of
-    course...)
+this is on a pws 500ua, btw.
 
-No. Swapoff makes pages allocated to userland applications in swap
-move back into main memory -- this is much easier because:
-
-   - the pages are on disk, we _know_ the aren't locked my mlock or
-     pinned for IO (kiobufs, whatever)
-
-   - there are no kernel pages/buffers in this area, even harder than
-     the above to deal with
-
-
-
-  --cw
-
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

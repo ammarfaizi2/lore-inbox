@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313529AbSDYXqf>; Thu, 25 Apr 2002 19:46:35 -0400
+	id <S313533AbSDYXxO>; Thu, 25 Apr 2002 19:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313533AbSDYXqe>; Thu, 25 Apr 2002 19:46:34 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64707 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S313529AbSDYXqd>; Thu, 25 Apr 2002 19:46:33 -0400
-Date: Thu, 25 Apr 2002 19:46:33 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200204252346.g3PNkXb00413@devserv.devel.redhat.com>
+	id <S313555AbSDYXxN>; Thu, 25 Apr 2002 19:53:13 -0400
+Received: from pc2-redb4-0-cust106.bre.cable.ntl.com ([213.107.133.106]:33014
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S313533AbSDYXxN>; Thu, 25 Apr 2002 19:53:13 -0400
+Date: Fri, 26 Apr 2002 00:52:41 +0100
+From: Mark Zealey <mark@zealos.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic while booting on a P2 with linux-2.5.10
-In-Reply-To: <mailman.1019767440.8207.linux-kernel2news@redhat.com>
+Cc: Szekeres Istvan <szekeres@webvilag.com>
+Subject: Re: Assembly question
+Message-ID: <20020425235240.GA28851@itsolve.co.uk>
+In-Reply-To: <20020425083225.GA30247@webvilag.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pentium2 266MHz,
-> Intel 440LX Chipset, Gigabyte mainboard,
-> Advansys SCSI OEM card (bundled with TEAC8x burner)
-> nVidia riva128 graphic card 4MB RAM,
-> 8GB IDE HDD,
-> USB ACM modem, USB scanner, ...
+On Thu, Apr 25, 2002 at 10:32:25AM +0200, Szekeres Istvan wrote:
 
-Same trace here. I've got P-III/733, no SCSI or other unusual
-peripherals. Works like a charm with all sorts of 2.4.x.
+> void p_memset_dword( void *d, int b, int l )
+> {
+>     __asm__ ("rep\n\t"
+>              "stosl\n\t"
+>              :
+>              : "D" (d), "a" (b), "c" (l)
+>              : "memory","edi", "eax", "ecx"
 
-Can add EIP points to __ide_end_requiest
-> Trace; c01b9f41 <ide_end_request+11/20>
-> Trace; c01c1d83 <cdrom_pc_intr+d3/1e0>
-> Trace; c01b7e5d <ide_intr+ed/1a0>
-> Trace; c01c1cb0 <cdrom_pc_intr+0/1e0>
-> Trace; c010856a <handle_IRQ_event+3a/70>
-> Trace; c0108761 <do_IRQ+91/f0>
-> Trace; c010728e <common_interrupt+22/28>
-> Trace; c0110018 <mtrr_add_page+2c8/370>
-> Trace; c011139e <apm_bios_call+6e/80>
-> Trace; c0111446 <apm_get_event+26/70>
-> Trace; c01116a0 <apm_cpu_idle+130/140>
+An input or output operand is implicitly clobbered, so it should be written as:
 
-My trace is the same interrupt, but it starts at some unrelated
-thread, so I do not think it's APM. Probably IDE.
+	: "D" (d), "a" (b), "c" (l)
+	: "memory"
 
--- Pete
+Or so.
+
+-- 
+
+Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
+mark@zealos.org; mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a17! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ !w--- r++ !t---?@ !X---?  !R- !tv b+ G+++ e>+++++ !h++* r!-- y--

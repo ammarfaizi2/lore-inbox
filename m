@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUFVJaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUFVJet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUFVJaY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 05:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFVJaX
+	id S261937AbUFVJet (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 05:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUFVJet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 05:30:23 -0400
-Received: from guardian.hermes.si ([193.77.5.150]:38160 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S261857AbUFVJaV convert rfc822-to-8bit
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 05:30:21 -0400
-Message-ID: <600B91D5E4B8D211A58C00902724252C01BC0700@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: "'Linux-Kernel@vger.kernel.org'" <Linux-Kernel@vger.kernel.org>
-Subject: Disk copy, last sector problem
-Date: Tue, 22 Jun 2004 11:30:04 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="ISO-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Jun 2004 05:34:49 -0400
+Received: from catv-5062fad2.catv.broadband.hu ([80.98.250.210]:48397 "EHLO
+	balabit.hu") by vger.kernel.org with ESMTP id S261981AbUFVJeg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 05:34:36 -0400
+Subject: Re: kernel oops on ia64 (2.6.6 + 0521 ia64 patch)
+From: KOVACS Krisztian <hidden@balabit.hu>
+To: David Mosberger <davidm@napali.hpl.hp.com>
+Cc: Balazs Scheidler <bazsi@balabit.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <16593.62204.126371.863028@napali.hpl.hp.com>
+References: <1087420973.4345.19.camel@bzorp.balabit>
+	 <16592.60876.886257.165633@napali.hpl.hp.com>
+	 <1087489727.30553.0.camel@bzorp.balabit>
+	 <16593.62204.126371.863028@napali.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-2
+Message-Id: <1087896874.2358.12.camel@nienna.balabit>
+Mime-Version: 1.0
+Date: Tue, 22 Jun 2004 11:34:34 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-cat /dev/hda > /dev/hdc
+  Hi,
 
-This would not copy the entire disk as expected, but miss the last sector if
-the number of
-sectors on hda is odd. ( I used "cat" becasue it has the simplest syntax,
-"dd" and other behave the same ).
-Has this been fixed recently ?
-What about suppport of other sectors sizes, like 8kb ?
+2004-06-17, cs keltezéssel 21:37-kor David Mosberger ezt írta:
+> >>>>> On Thu, 17 Jun 2004 18:28:48 +0200, Balazs Scheidler <bazsi@balabit.hu> said:
+> 
+>   >>  Does the oops go away with an SMP kernel?
+> 
+>   Balazs> yes, it does.
+> 
+> Does the attached patch fix the UP problem for you?
 
-Regards,
-David Bala¾ic
+  No, it still dies while running the ./configure script...
 
-----------------------------------------------------------------------------
------------
-http://noepatents.org/           Innovation, not litigation !
----
-David Balazic                      mailto:david.balazic@hermes.si
-HERMES Softlab                 http://www.hermes-softlab.com
-Zagrebska cesta 104            Phone: +386 2 450 8851 
-SI-2000 Maribor
-Slovenija
-----------------------------------------------------------------------------
------------
-"Be excellent to each other." -
-Bill S. Preston, Esq. & "Ted" Theodore Logan
-----------------------------------------------------------------------------
------------
+> ===== include/asm-ia64/gcc_intrin.h 1.5 vs edited =====
+> --- 1.5/include/asm-ia64/gcc_intrin.h	Mon May 10 23:44:41 2004
+> +++ edited/include/asm-ia64/gcc_intrin.h	Thu Jun 17 12:10:52 2004
+> @@ -581,7 +587,7 @@
+>  
+>  #define ia64_intrin_local_irq_restore(x)			\
+>  do {								\
+> -	asm volatile ("     cmp.ne p6,p7=%0,r0;;"		\
+> +	asm volatile (";;   cmp.ne p6,p7=%0,r0;;"		\
+>  		      "(p6) ssm psr.i;"				\
+>  		      "(p7) rsm psr.i;;"			\
+>  		      "(p6) srlz.d"				\
 
-
-
-
-
-
-
+-- 
+ Regards,
+   Krisztian KOVACS
 

@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSDBMyz>; Tue, 2 Apr 2002 07:54:55 -0500
+	id <S311587AbSDBMJH>; Tue, 2 Apr 2002 07:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311900AbSDBMyp>; Tue, 2 Apr 2002 07:54:45 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:46845 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S311752AbSDBMyb>; Tue, 2 Apr 2002 07:54:31 -0500
-Message-ID: <3CA9A9FE.8B200EF5@redhat.com>
-Date: Tue, 02 Apr 2002 13:54:22 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.51smp i686)
-X-Accept-Language: en
+	id <S311752AbSDBMI5>; Tue, 2 Apr 2002 07:08:57 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:32015 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S311587AbSDBMIp>; Tue, 2 Apr 2002 07:08:45 -0500
+Date: Tue, 2 Apr 2002 14:08:30 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Tom Holroyd <tomh@po.crl.go.jp>, Andreas Schwab <schwab@suse.de>,
+        kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+In-Reply-To: <200204010828.g318SUH430119@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.33.0204021402280.494-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UP IO-APIC with ACPI table but no MP table?
-In-Reply-To: <15529.39198.444056.901156@kim.it.uu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> 
-> Is it possible to get the kernel to recognise and utilise the
-> chipset's IO-APIC if the BIOS has no MP table but does list the
-> IO-APIC in the ACPI table(s)?
+On Mon, 1 Apr 2002, Albert D. Cahalan wrote:
 
-the mini acpi does this or at least can do it; right now it's not
-compiled in for UP though
+> Tim Schmielau writes:
+> 
+> > I'd still prefer to export only 32 bit of user, nice, and system. This
+> > way they overflow in a clearly defined way - the 32 bits we export are
+> > exact, only the higher bits are missing.
+> 
+> The higher bits are absolutely required.
+At least on Alpha (with HZ=1024) I definitely agree. At HZ=100 I'm a bit 
+uncertain. What I don't want is exporting higher bits that sometimes wrap
+and sometimes not.
+> 
+> There are ways to push the work of doing a 64-bit counter out into the
+> proc filesystem and a timer that goes off every 31 bits worth of time.
+> I've posted an explanation before; you may search for it if you like.
+> 
+
+Like I did for idle time in the >497 days uptime patch? Then I'll include 
+a chunk for user, nice, and system time in the next version and we can see
+if Linus takes it.
+
+Tim
+

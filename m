@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273019AbTHFXvL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 19:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275017AbTHFXs2
+	id S275011AbTHFXsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 19:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275017AbTHFXsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 19:48:28 -0400
-Received: from b.smtp-out.sonic.net ([208.201.224.39]:42932 "HELO
-	b.smtp-out.sonic.net") by vger.kernel.org with SMTP id S275016AbTHFXsA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 19:48:00 -0400
-X-envelope-info: <dhinds@sonic.net>
-Date: Wed, 6 Aug 2003 16:35:27 -0700
-From: David Hinds <dhinds@sonic.net>
-To: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] xircom CBE2-100(faulty) hangs kernel 2.4.{21, 22-pre8} (fwd)
-Message-ID: <20030806163527.A27113@sonic.net>
-References: <20030806124759.C30485@sonic.net> <Pine.LNX.4.21.0308061514470.2297-100000@linux08.ece.utexas.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0308061514470.2297-100000@linux08.ece.utexas.edu>
-User-Agent: Mutt/1.3.22.1i
+	Wed, 6 Aug 2003 19:48:14 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:61569 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S275011AbTHFXr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 19:47:57 -0400
+Date: Wed, 06 Aug 2003 19:47:39 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: GeForce 4 MX440
+In-reply-to: <1060213293.384.4.camel@shitbox>
+To: Lucas Lain <lainl@inf.net.ar>, linux-kernel@vger.kernel.org
+Message-id: <200308061947.47185.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <1060213293.384.4.camel@shitbox>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 03:55:02PM -0500, Hmamouche, Youssef wrote:
-> 
-> I'm a user. When I insert a card "into my laptop" I'd like it to
-> work as advertised. If it doesn't work as advertised(because of some
-> hardware failure in this case), I'd like the kernel to more or less
-> let me know that something went wrong so I can return it. I wouldn't
-> expect the kernel to freeze.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I accept this...
+On Wednesday 06 August 2003 19:41, Lucas Lain wrote:
+> Hello everyone ! i have this video card and the NVIDIA_kernel package. I
+> installed the 2.6.0-test2 kernel but the nvidia driver is not for this
+> kernel. Is there a nvidia.patch to apply to the nvidia sources?
+> Thanks !
 
-> Faulty hardware is very common in the PC era. I agree that it is
-> hard to pin down hardware malfunctions when you don't know what to
-> check for. However, There should be concern when it takes your whole
-> system down.
+Look at http://minion.de.
 
-I'd agree, that drivers should be made to not screw up when an
-unexpected condition arises, where that's possible.  Like, not
-crashing the OS if a device returns an unexpected value.
+Jeff.
 
-This particular problem (what seems to be an unacknowledged interrupt,
-but that could be a symptom of something else) is troublesome and
-likely impossible for the driver to detect and handle sanely.  Because
-PCI interrupts are shared, and a driver cannot assume that its device
-was responsible for any particular interrupt.
+- -- 
+It used to be said [...] that AIX looks like one space alien discovered
+Unix, and described it to another different space alien who then
+implemented AIX. But their universal translators were broken and they'd
+had to gesture a lot.
+		- Paul Tomblin 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-I believe that the 2.6 kernel provides a general central mechanism for
-detecting and throttling unacknowledged interrupts, if that really is
-the problem.  That's where this particular fix belongs, not in the
-driver (and every other driver).
-
--- Dave
+iD8DBQE/MZOewFP0+seVj/4RAll6AKCdk5Z1ABqQLFkNbwXTsVZY2eij2gCfTwQn
+oTsVfvpuYXAYOqf0jOYJWHQ=
+=tplg
+-----END PGP SIGNATURE-----
 

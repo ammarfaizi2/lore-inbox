@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263294AbTIVUrK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 16:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTIVUrK
+	id S263150AbTIVUgb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 16:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTIVUgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 16:47:10 -0400
-Received: from continuum.cm.nu ([216.113.193.225]:32640 "EHLO continuum.cm.nu")
-	by vger.kernel.org with ESMTP id S263294AbTIVUrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 16:47:07 -0400
-Date: Mon, 22 Sep 2003 13:47:03 -0700
-From: Shane Wegner <shane@cm.nu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre5 crash
-Message-ID: <20030922204703.GA1490@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-No-Archive: yes
-User-Agent: Mutt/1.5.4i
+	Mon, 22 Sep 2003 16:36:31 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:5894 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S263150AbTIVUga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 16:36:30 -0400
+Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F6B6@mail-sc-6.nvidia.com>
+From: Allen Martin <AMartin@nvidia.com>
+To: "'Witold Krecicki'" <adasi@kernel.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: SiI3112: problemes with shared interrupt line?
+Date: Mon, 22 Sep 2003 13:35:53 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > I've tried disabeling APIC - it did not help.
+> >
+> > I'll try 2.6.something tomorrow.
+> Try to disable both ACPI and APIC, it helped in my case.
 
-Just a quick note to report that my system does not run
-stably under 2.4.23-pre5 where pre4 worked fine.  The
-system locks up usually during the execution of the rc
-scripts.  It's gotten fully booted a couple times but never
-lasts longer than 5 minutes.  When the lockup occurs, there
-is no oops, panic, or the like, system just stops
-responding.
+You can look at /proc/interrupts and see if any PCI devices have interrupts
+in edge triggered mode, if so your system will be unstable unless you
+disable ACPI.  If not, disabling ACPI / APIC probably won't help.
 
-The system is an Intel sds2 mainboard in a dual Pentium III
-configuration with acpi enabled.  If you need any other
-information, lspci, dmesg, etc.  Let me know.
-
-S
+-Allen

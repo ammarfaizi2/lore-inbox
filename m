@@ -1,76 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136502AbREIOj2>; Wed, 9 May 2001 10:39:28 -0400
+	id <S136503AbREIOo3>; Wed, 9 May 2001 10:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136501AbREIOjT>; Wed, 9 May 2001 10:39:19 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:64143 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S136502AbREIOjF>; Wed, 9 May 2001 10:39:05 -0400
-Date: Thu, 10 May 2001 00:49:59 +1000
-From: john slee <indigoid@higherplane.net>
-To: Mart?n Marqu?s <martin@bugs.unl.edu.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3
-Message-ID: <20010510004959.B7653@higherplane.net>
-In-Reply-To: <01050910381407.26653@bugs>
-Mime-Version: 1.0
+	id <S136506AbREIOoJ>; Wed, 9 May 2001 10:44:09 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:38928 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S136503AbREIOnx>; Wed, 9 May 2001 10:43:53 -0400
+Message-ID: <3AF95789.CCF70FD9@evision-ventures.com>
+Date: Wed, 09 May 2001 16:43:21 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Jens Axboe <axboe@suse.de>
+Subject: Re: blkdev in pagecache
+In-Reply-To: <20010509043456.A2506@athlon.random> <3AF90A3D.7DD7A605@evision-ventures.com> <20010509151612.D2506@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <01050910381407.26653@bugs>; from martin@bugs.unl.edu.ar on Wed, May 09, 2001 at 10:38:14AM +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 09, 2001 at 10:38:14AM +0300, Mart?n Marqu?s wrote:
-> We are waiting for a server with dual PIII, RAID 1,0 and 5 18Gb scsi disks to
-> come so we can change our proxy server, that will run on Linux with Squid.
-> One disk will go inside (I think?) and the other 4 on a tower conected to the
-> RAID, which will be have the cache of the squid server.
+Andrea Arcangeli wrote:
+> 
+> On Wed, May 09, 2001 at 11:13:33AM +0200, Martin Dalecki wrote:
+> > >   (buffered and direct) to work with a 4096 bytes granularity instead of
+> >
+> > You mean PAGE_SIZE :-).
+> 
+> In my first patch it is really 4096 bytes, but yes I agree we should
+> change that to PAGE_CACHE_SIZE. The _only_ reason it's 4096 fixed bytes is that
+> I wasn't sure all the device drivers out there can digest a bh->b_size of
+> 8k/32k/64k (for the non x86 archs) and I checked the minimal PAGE_SIZE
+> supported by linux is 4k. If Jens says I can sumbit 64k b_size without
+> any problem for all the relevant blkdevices then I will change that in a
+> jiffy ;). Anyways changing that is truly easy, just define
+> BUFFERED_BLOCKSIZE to PAGE_CACHE_SIZE instad of 4096 (plus the .._BITS as
+> well) and it should do the trick automatically. So for now I only cared
+> to make it easy to change that.
+> 
+> > Exactly, please see my former explanation... BTW.> If you are gogin into
+> > the range of PAGE_SIZE, it may be very well possible to remove the
+> > whole page assoociated mechanisms of a buffer_head?
+> 
+> I wouldn't be that trivial to drop it, not much different than dropping
+> it when a fs has a 4k blocksize. I think the dynamic allocation of the
+> bh is not that a bad thing, or at least it's an orthogonal problem to
+> moving the blkdev in pagecache ;).
 
-that's a pretty huge cache, have you considered using 8*9gb disks
-instead of 4*18?  what sort of request throughput/latency are you
-aiming for?  as the number of requests grows, disk seek times are
-a very real problem.
+I think the only guys which will have a hard time on this will be ibm's 
+AS/390 people and maybe a far fainter pille of problems will araise in
+lvm and raid
+code... As I stated already in esp the AS/390 are the ones most confused
+about
+blksize_size ver. hardsect_size bh->b_size and so on semantics.
+find /usr/src/linux -exec grep blksize_size /dev/null {} \;
+shows this fine as well as the corresponding BLOCK_SIZE redefinition in
+the
+lvm.h file! Well not much worth of caring about I think... (It will just
+*force*
+them to write cleaner code 8-).
 
-> One of my partners thinks that we should use reiserfs on all the server (the
-> partitions of the Linux distro, and the cache partitions), and I found out
-> that reiserfs has had lots of bugs, and is marked as experimental in kernel
+> 
+> > Basically this is something which should come down to the strategy
+> > routine
+> > of the corresponding device and be fixed there... And then we have this
+> 
+> so you mean the device driver should make sure blk_size is PAGE_CACHE_SIZE
+> aligned and to take care of writing zero in the pagecache beyond the end
+> of the device? That would be fine from my part but I'm not yet sure
+> that's the cleanest manner to handle that.
 
-well, lots of bugs in reiserfs have been fixed.. obviously there are
-more bugs to come (as always), but on the whole a lot of people are very
-happy with it.  there certainly haven't been many posts of reiserfs
-corruption lately at all on linux-kernel.
+Yes that's about it. We *can* afford to expect that the case of access
+behind
+a device should be handled as an exception and not by checks
+beforeahead.
+This should greatly simplify the main code...
 
-> 2.4.4. Not to mention that the people of RH discourage there users from using
-> it.
+> 
+> > Some notes about the code:
+> >
+> >       kdev_t dev = inode->i_rdev;
+> > -     struct buffer_head * bh, *bufferlist[NBUF];
+> > -     register char * p;
+> > +     int err;
+> >
+> > -     if (is_read_only(dev))
+> > -             return -EPERM;
+> > +     err = -EIO;
+> > +     if (iblock >= (blk_size[MAJOR(dev)][MINOR(dev)] >>
+> > (BUFFERED_BLOCKSIZE_BITS - BLOCK_SIZE_BITS)))
+> >                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> >
+> > blk_size[MAJOR(dev)] can very well be equal NULL! In this case one is
+> > supposed to assume blk_size[MAJOR(dev)][MINOR(dev)] to be INT_MAX.
+> > Are you shure it's guaranteed here to be already preset?
+> >
+> > Same question goes for calc_end_index and calc_rsize.
+> 
+> that's a bug indeed (a minor one at least because all the relevant
+> blkdevices initialize such array and if it's not initialized you notice
+> before you can make any damage ;), thanks for pointing it out!
 
-they do?
-
-> So what I want is to know which is the status of this 3 journaling FS. Which
-> is the one we should look for?
-
-xfs, while wonderful, probably isn't what you're looking for.  AFAIK it
-is intended more for very very very large files.
-
-> I think that the data lose is not significant in a proxy cache, if the FS is
-> really fast, as is said reiserfs is.
-
-data loss is always significant.  consider the case where you are forced
-to rebuild the filesystem squid's cache directories reside on...
-admittedly it is an extreme case, but it is a possibility all the same.
-
-reiserfs is supposed to be very good with lots of small files, which is
-the typical case for a squid cache.  however there's no substitute for
-actual testing.  benchmark your squid server (use polygraph, from the
-squid website) with each fs, and remember to test each of squid's
-cache_dir options (diskd, aufs, coffs, ufs).
-
-also appropriate could be ext2 with daniel phillips' directory indexing
-patches.
-
-test.  test.  test.  good luck.
-
-j.
-
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+This kind of problem slipery in are the reasons for the last tinny
+encapsulation patch I sendid
+to Linus and Alan (for inclusion into 2.4.5)....

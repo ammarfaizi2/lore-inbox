@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUIEONr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUIEOZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266705AbUIEONr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 10:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUIEONq
+	id S266717AbUIEOZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 10:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUIEOZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 10:13:46 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:52378 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S266687AbUIEONm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 10:13:42 -0400
-Date: Sun, 5 Sep 2004 16:13:33 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <264532836.20040905161333@tnonline.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: Helge Hafting <helge.hafting@hist.no>, Oliver Hunt <oliverhunt@gmail.com>,
-       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-In-Reply-To: <20040905134428.GN26560@thundrix.ch>
-References: <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
- <4136A14E.9010303@slaphack.com>
- <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
- <4136C876.5010806@namesys.com>
- <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
- <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com>
- <4136E756.8020105@hist.no> <4699bb7b0409020245250922f9@mail.gmail.com>
- <413829DF.8010305@hist.no> <20040905134428.GN26560@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 5 Sep 2004 10:25:27 -0400
+Received: from nysv.org ([213.157.66.145]:38601 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S266717AbUIEOZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 10:25:25 -0400
+Date: Sun, 5 Sep 2004 17:25:02 +0300
+To: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler experiences
+Message-ID: <20040905142502.GQ26192@nysv.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094386464.18114.0.camel@localhost>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kasper Sandberg wrote:
 
-  
+>Hey, i wonder which scheduler you people have the best experiences with,
+>staircase or nicksched?
 
-> Salut,
+I've been a fan of Staircase's for a long time; it simply responded faster
+and launched progs faster.
 
-> On Fri, Sep 03, 2004 at 10:22:55AM +0200, Helge Hafting wrote:
->> Requiring another syscall to open forks other than the primary
->> breaks _all_ existing software because it obviously don't use that
->> syscall yet.  And then it doesn't provide any advantages over the
->> file-as-plain-directory way. . .
+I haven't tried nicksched in a while, but it didn't perform as well as
+Staircase.
 
-> Actually...
+Having a batched mprime torture test in the background still allows me to
+play a movie in mplayer, compile a kernel, listen to a CD and browse
+the web without glitches. Not that I'd normally watch a movie and listen to
+a CD at the same time ;)
 
-> We might tune the sys_open()  call to take an additional argument (the
-> stream ID),  and introduce a compatibility interface  into *libc which
-> chooses strid=0 by default if the plain old open call is being used.
+Going to try Nicksched again RSN to see if it handles the same load, but
+still I have to say I'm mighty pleased with Staircase and the rest of
+Con's patches.
 
-> Maybe this can be handled transparently by cpp..
+(Running 2.6.8.1-cko3 with the lenient patch of -ck6 at the moment)
+(This is in an Athlon 1.3GHz with 512MB of RAM and roughly the same of swap)
 
-  How are things like copy handled today? Is it just some code linked
-  in during compilation (ie, the application handles the copy itself)
-  or is it a library function in libc? If it is in libc then it ought
-  to be enough if libc is patched to support the new semantics with
-  file-as-dir etc.
-
-  ~S
-
-
-> 		Tonnerre
+-- 
+mjt
 

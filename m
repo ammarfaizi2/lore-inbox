@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUHEOGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267707AbUHEOHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267734AbUHEOGg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbUHEOFy
+	id S267707AbUHEOHI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbUHEOHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:05:54 -0400
-Received: from cantor.suse.de ([195.135.220.2]:3502 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267722AbUHEOE5 (ORCPT
+	Thu, 5 Aug 2004 10:07:07 -0400
+Received: from [193.112.238.6] ([193.112.238.6]:58846 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S267707AbUHEOE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:04:57 -0400
-Date: Thu, 5 Aug 2004 16:04:55 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: Hugetlb demanding paging for -mm tree
-Message-ID: <20040805140455.GE16763@wotan.suse.de>
-References: <20040805133637.GG14358@holomorphy.com> <200408051342.i75DgGY26555@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Aug 2004 10:04:29 -0400
+From: John M Collins <jmc@xisl.com>
+Organization: Xi Software Ltd
+To: linux-kernel@vger.kernel.org
+Subject: Program-invoking Symbolic Links?
+Date: Thu, 5 Aug 2004 15:04:26 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408051342.i75DgGY26555@unix-os.sc.intel.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408051504.26203.jmc@xisl.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 06:42:15AM -0700, Chen, Kenneth W wrote:
-> +int hugetlb_acct_memory(long delta)
-> +{
-> +	atomic_add(delta, &hugetlbzone_resv);
-> +	if (delta > 0 && atomic_read(&hugetlbzone_resv) >
-> +			VMACCTPG(hugetlb_total_pages())) {
-> +		atomic_add(-delta, &hugetlbzone_resv);
-> +		return -ENOMEM;
-> +	}
-> +	return 0;
+(Please CC any reply to jmc AT xisl.com as I'm not subbed - thanks).
 
-Wouldn't this be safer with a bit of locking? 
-Even if the current code works lockless it would be more safer
-for long term mainteance.
+I wondered if anyone had ever thought of implementing an alternative form of 
+symbolic link which was in fact an invocation of a program?
 
-> +}
-> +
-> +struct file_region {
-> +	struct list_head link;
-> +	int from;
-> +	int to;
+Such a symbolic link would "do all the necessary" to fork off a new process 
+running the specified program with input or output from or to a pipe 
+depending on whether the link was opened for writing or reading respectively. 
+RW access would probably have to be banned and the link would usually be 
+read-only or write-only.
 
-Shouldn't these be long instead of int? 
+What I originally wanted was symbolic links (with "=>" as a possible 
+notation).
 
+latest_version.tar => "tar cf - /latest/and/greatest"
+latest_version.tgz => "gzip -c latest_version"
 
-> +	/* Check for and consume any regions we now overlap with. */
+and the like, which I could link on a website so I didn't have to run around 
+updating tar files/zip files/gzipped tar files etc each time I fix a bug in 
+some package.
 
-[...]
+Such a scheme would let you implement things like hit counts on web sites "for 
+free" without you having to rush out and run a CGI program as at present.
 
-I remember writing very similar, but simpler code for NUMA API
-regions. The PAT patches also have similar code. 
-It's also tricky to get right.
+Obviously, a whole lot of semantics and options for signal handling $PATH name 
+search etc would have to be built into the kernel (or possibly handled like 
+ld-nnn.so), but the idea would seem to me to close one arguable "lack of 
+orthogonality" between files and pipes.
 
-Maybe it would be time to move variable length region list handling
-into a nice library in lib/, so that it can be used by other users.
+You could argue that /proc is halfway there - I'd just like a user-specific 
+version.
 
--Andi
+-- 
+John Collins Xi Software Ltd www.xisl.com

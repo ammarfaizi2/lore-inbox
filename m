@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSD3JzN>; Tue, 30 Apr 2002 05:55:13 -0400
+	id <S313184AbSD3J5t>; Tue, 30 Apr 2002 05:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313184AbSD3JzM>; Tue, 30 Apr 2002 05:55:12 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.93]:55560 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S313181AbSD3JzL>; Tue, 30 Apr 2002 05:55:11 -0400
-Subject: Re: [ANNOUNCE] LDM 0.0.6 (Windows Dynamic Disks)
-From: Richard Russon <ntfs@flatcap.org>
-To: Martin Eriksson <nitrax@giron.wox.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        sf <Linux-NTFS-Dev@lists.sourceforge.net>
-In-Reply-To: <002e01c1ec76$1864a670$0201a8c0@homer>
-Content-Type: text/plain
+	id <S313187AbSD3J5s>; Tue, 30 Apr 2002 05:57:48 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:10504 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313184AbSD3J5r>; Tue, 30 Apr 2002 05:57:47 -0400
+Message-ID: <3CCE5BED.9010809@evision-ventures.com>
+Date: Tue, 30 Apr 2002 10:55:09 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: ivangurdiev@linuxfreemail.com
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.11 ide kernel panic
+In-Reply-To: <02042920011502.00813@cobra.linux>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4.99 
-Date: 30 Apr 2002 10:54:44 +0100
-Message-Id: <1020160485.9650.55.camel@addlestones>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+Uz.ytkownik Ivan G. napisa?:
+> Here's my next attempt to get the kernel working.
+> This is 2.5.11 + framebuffer patch for compilation + framebuffer patch for 
+> kernel panic (both from James Simmons).
+> 
+> Oops portion below was copied from the screen. 
+> It's a portion since the rest scrolled off the screen.
+> Inaccuracies are possible but unlikely ( I double-checked). 
+> 
 
-Sorry for the slow reply, I made the announcement and went on holiday.
 
-> It it in any way possible that by using the Linux-LDM patch be able to
-> convert dynamic disks to basic disks?
+Coudl you please remove the following code (or similar)
+from the ata_irq_request() function and see whatever the crash still
+happens? It could very well we that hwgroup->drive isn't
+initialized during boot under seom cirumstances.
 
-The LDM patch just allows the kernel to understand Windows new
-partitioning.  Without it you'll just see one BIG partition of type
-0x42.
 
-If you only have simple disks on a dynamic disk, then it shouldn't be
-too hard to convert a dynamic disk back to a basic disk.  We don't
-have a tool to do this yet.
 
-Cheers,
-    FlatCap (Rich)
-    ntfs@flatcap.org
+		if (hwgroup->drive->channel->sharing_irq && ch != hwgroup->drive->channel && 
+ch->io_ports[IDE_CONTROL_OFFSET]) {
+			/* set nIEN for previous channel */
+			/* FIXME: check this! It appears to act on the current channel! */
 
-WWW: http://linux-ntfs.sf.net
-IRC: #ntfs on irc.openprojects.net
+			if (ch->intrproc)
+				ch->intrproc(drive);
+			else
+				OUT_BYTE((drive)->ctl|2, ch->io_ports[IDE_CONTROL_OFFSET]);
+		}
 

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264500AbSIVT1l>; Sun, 22 Sep 2002 15:27:41 -0400
+	id <S264498AbSIVT0D>; Sun, 22 Sep 2002 15:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264503AbSIVT1l>; Sun, 22 Sep 2002 15:27:41 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48528 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264500AbSIVT1k>;
-	Sun, 22 Sep 2002 15:27:40 -0400
-Date: Sun, 22 Sep 2002 21:40:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <3D8E179B.FCD06E7@opersys.com>
-Message-ID: <Pine.LNX.4.44.0209222124580.28832-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264500AbSIVT0C>; Sun, 22 Sep 2002 15:26:02 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:59121 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S264498AbSIVT0B>; Sun, 22 Sep 2002 15:26:01 -0400
+Date: Sun, 22 Sep 2002 21:30:31 +0200
+From: Martin Hermanowski <martin@martin.mh57.net>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UML error message clone failed/new thread failed
+Message-ID: <20020922193031.GP15310@martin.mh57.net>
+References: <20020922175617.GO15310@martin.mh57.net> <200209221857.g8MIvmh14890@karaya.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
+Content-Disposition: inline
+In-Reply-To: <200209221857.g8MIvmh14890@karaya.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 22 Sep 2002, Karim Yaghmour wrote:
+--+JUInw4efm7IfTNU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Source bloat is certainly not desirable, as I said to my reply to Ingo.
+On Sun, Sep 22, 2002 at 02:57:47PM -0400, Jeff Dike wrote:
+> martin@martin.mh57.net said:
+>> I had problems with to many processes inside the UML before, but not
+>> like this. Processes in the UML timed out (exim pipe delivery) and new
+>> ones could not be started, but I cannot see the reason.
+>=20
+> Since then, I've fixed some problems with lots of processes inside UML.
 
-(then how should i interpret 90% of the patches you sent to lkml today?)
+That is good to hear. Which version should I use? I prefer Debian
+packages, user-mode-linux 2.4.18.48um-1 from testing was created on 30
+Jul 2002. Were the fixes before that date or should I use a newer
+version? Were are using UML productively, so we need some reliability.
 
-> What is desirable, however, is to have a uniform tracing mechanism
-> replace the ad-hoc tracing mechanisms already implemented in many
-> drivers and subsystems.
+Regards,
+Martin
 
-exactly what is the problem with keeping intrusive debugging patches
-separate, just like all the other ones are kept separate? It's not like
-this came out of the blue, per-CPU trace buffers (and other tracers) were
-done years ago for Linux.
+--+JUInw4efm7IfTNU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> The lockless scheme is pretty simple, instead of using a spinlock to
-> ensure atomic allocation of buffer space, the code does an
-> allocate-and-test routine where it tries to allocate space in the buffer
-> and tests if it succeeded in doing so. If so, then it goes on to write
-> the data in the event buffer, otherwise it tries again. In most cases,
-> it does this loop only once and in most worst cases twice.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-(this is in essence a moving spinlock at the tail of the trace buffer -
-same problem.)
+iD8DBQE9jhpXV3BRtc7IW1wRAnqOAJ9fW2IRs3DVPLyOMDLAlW5X4hUCQACdGp79
+DZtvKXkaRRbMXdcErY8iLow=
+=3XNq
+-----END PGP SIGNATURE-----
 
-	Ingo
-
+--+JUInw4efm7IfTNU--

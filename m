@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312582AbSELLYl>; Sun, 12 May 2002 07:24:41 -0400
+	id <S312581AbSELL1M>; Sun, 12 May 2002 07:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSELLYk>; Sun, 12 May 2002 07:24:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59912 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312582AbSELLYj>; Sun, 12 May 2002 07:24:39 -0400
-Subject: Re: IRQ > 15 for Athlon SMP boards
-To: hugh@nospam.com (Hugh)
-Date: Sun, 12 May 2002 12:18:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CDE48CC.9050003@nospam.com> from "Hugh" at May 12, 2002 07:49:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E176rMX-0003Gu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S312619AbSELL1K>; Sun, 12 May 2002 07:27:10 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:9779 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312581AbSELL1D>; Sun, 12 May 2002 07:27:03 -0400
+Message-Id: <5.1.0.14.2.20020512122442.0204d740@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 12 May 2002 12:27:05 +0100
+To: Thunder from the hill <thunder@ngforever.de>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: Linus' BK repository out of date? Moved?
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205120512440.4369-100000@hawkeye.luckynet.a
+ dm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Bus  1, device   5, function  0:
->     VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 4).
->       IRQ 16.
+At 12:19 12/05/02, Thunder from the hill wrote:
+>Hi,
+>
+>For several days now whenever I try to pull from
+>http://linux.bkbits.net/linux-2.5 or ~1/linux-2.4, I get no news. Even if
+>I clone to a new tree, check out and do a diff to the old tree, I get no
+>changes. version.h says:
+>
+>#define UTS_RELEASE "2.5.14"
+>#define LINUX_VERSION_CODE 132366
+>
+>Did the tree move, or what's up?
 
-Looks fine to me. IRQ 0-15 limitations are the ancient world of ISA bus
+Use Jeff Garzik's copy of Linus' tree. That is usually as uptodate as 
+Linus'  tree.
 
-> The results were the same.  The consequence is that X does not
-> start because of an error that reads like
-> 
-> =============================================================
-> (WW) MGA No matching device section for instance (BusID PCI:1:5:0) found
-> (EE) No devices detected
-> ==================================================================
+bk://gkernel.bkbits.net/linus-2.5
 
-I don't know why X is not running but I don't think the IRQ is related at
-all
+Cheers,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

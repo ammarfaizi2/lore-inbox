@@ -1,110 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVCXSLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbVCXSO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVCXSLr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 13:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVCXSLr
+	id S263141AbVCXSO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 13:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbVCXSO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 13:11:47 -0500
-Received: from rev.193.226.232.24.euroweb.hu ([193.226.232.24]:61849 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262898AbVCXSLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 13:11:33 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] FUSE: trivial cleanups
-Message-Id: <E1DEWnd-0007JC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 24 Mar 2005 19:11:17 +0100
+	Thu, 24 Mar 2005 13:14:27 -0500
+Received: from byterapers.com ([195.156.109.210]:6602 "EHLO byterapers.com")
+	by vger.kernel.org with ESMTP id S263141AbVCXSOO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 13:14:14 -0500
+Date: Thu, 24 Mar 2005 20:13:59 +0200 (EET)
+From: Jakemuksen spammiosote <jhroska@byterapers.com>
+To: David Brownell <david-b@pacbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usbnet.c, buf.overrun crash-bugfix, Kernel 2.6.12-rc1
+In-Reply-To: <200503240857.28594.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.61.0503242006160.767@byterapers.com>
+References: <Pine.LNX.4.61.0503241722160.30661@byterapers.com>
+ <200503240857.28594.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes check for non-null inode before calling iput(), and uses
-iov_length() to calculate number of bytes in iovec.
+On Thu, 24 Mar 2005, David Brownell wrote:
+> On Thursday 24 March 2005 8:05 am, Jakemuksen spammiosote wrote:
+>> Atleast versions 2.6.5 - 2.6.12-rc1 crash if an USB device using usbnet
+>> sends oversized packet. Such packets occur most likely with broken
+> Care to mention what device(s) you saw this with?   And what HCD?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+I can't tell about the device(NDA), and don't remember the HCD and I can 
+check it only after holidays.
 
- dev.c |   30 +++++++++---------------------
- 1 files changed, 9 insertions(+), 21 deletions(-)
+>> +       if (unlikely((skb->tail + urb->actual_length) > skb->end)) {
+> This logic looks wrong.  If that ever happens, surely the problem is
+> that the rx_submit() code submitted an urb with transfer_size that
+> mismatched the SKB.  The host controller isn't allowed to overrun the
 
-diff -ru linux-2.6.12-rc1-mm2/fs/fuse/dev.c linux-fuse/fs/fuse/dev.c
---- linux-2.6.12-rc1-mm2/fs/fuse/dev.c	2005-03-24 18:46:37.000000000 +0100
-+++ linux-fuse/fs/fuse/dev.c	2005-03-24 18:49:04.000000000 +0100
-@@ -142,10 +142,8 @@
- 
- void fuse_release_background(struct fuse_req *req)
- {
--	if (req->inode)
--		iput(req->inode);
--	if (req->inode2)
--		iput(req->inode2);
-+	iput(req->inode);
-+	iput(req->inode2);
- 	if (req->file)
- 		fput(req->file);
- 	spin_lock(&fuse_lock);
-@@ -397,24 +395,15 @@
- 	unsigned len;
- };
- 
--static unsigned fuse_copy_init(struct fuse_copy_state *cs, int write,
--			       struct fuse_req *req, const struct iovec *iov,
--			       unsigned long nr_segs)
-+static void fuse_copy_init(struct fuse_copy_state *cs, int write,
-+			   struct fuse_req *req, const struct iovec *iov,
-+			   unsigned long nr_segs)
- {
--	unsigned i;
--	unsigned nbytes;
--
- 	memset(cs, 0, sizeof(*cs));
- 	cs->write = write;
- 	cs->req = req;
- 	cs->iov = iov;
- 	cs->nr_segs = nr_segs;
--
--	nbytes = 0;
--	for (i = 0; i < nr_segs; i++)
--		nbytes += iov[i].iov_len;
--
--	return nbytes;
- }
- 
- static inline void fuse_copy_finish(struct fuse_copy_state *cs)
-@@ -578,7 +567,6 @@
- 	struct fuse_req *req;
- 	struct fuse_in *in;
- 	struct fuse_copy_state cs;
--	unsigned nbytes;
- 	unsigned reqsize;
- 
- 	spin_lock(&fuse_lock);
-@@ -600,9 +588,9 @@
- 
- 	in = &req->in;
- 	reqsize = req->in.h.len;
--	nbytes = fuse_copy_init(&cs, 1, req, iov, nr_segs);
-+	fuse_copy_init(&cs, 1, req, iov, nr_segs);
- 	err = -EINVAL;
--	if (nbytes >= reqsize) {
-+	if (iov_length(iov, nr_segs) >= reqsize) {
- 		err = fuse_copy_one(&cs, &in->h, sizeof(in->h));
- 		if (!err)
- 			err = fuse_copy_args(&cs, in->numargs, in->argpages,
-@@ -683,7 +671,7 @@
- 			       unsigned long nr_segs, loff_t *off)
- {
- 	int err;
--	unsigned nbytes;
-+	unsigned nbytes = iov_length(iov, nr_segs);
- 	struct fuse_req *req;
- 	struct fuse_out_header oh;
- 	struct fuse_copy_state cs;
-@@ -691,7 +679,7 @@
- 	if (!fc)
- 		return -ENODEV;
- 
--	nbytes = fuse_copy_init(&cs, 0, NULL, iov, nr_segs);
-+	fuse_copy_init(&cs, 0, NULL, iov, nr_segs);
- 	if (nbytes < sizeof(struct fuse_out_header))
- 		return -EINVAL;
- 
+Sounds reasonable. So, I'll go thru the HCD code instead if the 
+responsibility is there. Am i the first one to run into such crash 
+situation? If so, perhaps it's not ever worthy to fix in mainstream 
+kernel, as the device causes the crash under very specific - 
+'abusing' one might say, situation only.
+

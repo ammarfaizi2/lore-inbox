@@ -1,79 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274118AbSITARK>; Thu, 19 Sep 2002 20:17:10 -0400
+	id <S274117AbSITAOc>; Thu, 19 Sep 2002 20:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274119AbSITARK>; Thu, 19 Sep 2002 20:17:10 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:40853 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S274118AbSITARJ>; Thu, 19 Sep 2002 20:17:09 -0400
-Date: Thu, 19 Sep 2002 20:21:49 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre7-ac2 ide-scsi
-Message-ID: <20020920002149.GA11605@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S274118AbSITAOb>; Thu, 19 Sep 2002 20:14:31 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:37533 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S274117AbSITAOY>; Thu, 19 Sep 2002 20:14:24 -0400
+Date: Thu, 19 Sep 2002 19:35:12 -0400
+From: Nicholas <TheUnforgiven@attbi.com>
+To: Daniel Pittman <daniel@rimspace.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
+Message-Id: <20020919193512.31f3d8c9.TheUnforgiven@attbi.com>
+In-Reply-To: <87znuhxn80.fsf@enki.rimspace.net>
+References: <1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
+	<20020916.121423.109699832.davem@redhat.com>
+	<8765x5z9go.fsf@enki.rimspace.net>
+	<20020916.182924.50846771.davem@redhat.com>
+	<87znuhxn80.fsf@enki.rimspace.net>
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 17 Sep 2002 14:18:55 +1000
+Daniel Pittman <daniel@rimspace.net> wrote:
 
- Is ide-scsi supposed to be broke in -pre7-ac2?
- 
- [grimau@Master grimau]$ cdrecord --scanbus
- Cdrecord 1.11a32 (i586-mandrake-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
- Linux sg driver version: 3.1.24
- Using libscg version 'schily-0.6'
- scsibus0:
- (garbage characters) Removable unsupported Disk <-- this line changes each time
-         0,1,0     1) *
- ...
- 
- in dmesg I have:
- ...
- Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
- ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
- SIS5513: IDE controller at PCI slot 00:02.5
- SIS5513: chipset revision 208
- SIS5513: not 100% native mode: will probe irqs later
- SiS646    ATA 133 controller
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
- hda: Maxtor 4G100J5, ATA DISK drive
- blk: queue c03d4400, I/O limit 4095Mb (mask 0xffffffff)
- hdc: LG CD-RW CED-8120B, ATAPI CD/DVD-ROM drive
- hdd: SAMSUNG DVD-ROM SD-616T, ATAPI CD/DVD-ROM drive
- ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
- ide1 at 0x170-0x177,0x376 on irq 15
- hda: host protected area => 1
- hda: 200108160 sectors (102455 MB) w/2048KiB Cache, CHS=12456/255/63, UDMA(133)
- hdd: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
- Uniform CD-ROM driver Revision: 3.12
- Partition check:
-  /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 p11 >
- SCSI subsystem driver Revision: 1.00
- ...
- <bunch of not-scsi & not-IDE stuff>
- ...
- scsi0 : SCSI host adapter emulation for IDE ATAPI devices
- scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0x12 00 00 00 ff 00 
- hdc: lost interrupt
-   Vendor:  TÐ÷0123  Model: 456789abcdefghij  Rev: klmn
-   Type:   Direct-Access                      ANSI SCSI revision: 07
- ...
- 
- I'm sure I missed some info that may be helpful, so lemme know if/what you need.
- 
+> On Mon, 16 Sep 2002, David S. Miller wrote:
+> >    From: Daniel Pittman <daniel@rimspace.net>
+> >    Date: Tue, 17 Sep 2002 11:33:11 +1000
+> > 
+> >    ...which might explain why my machine has occasional DRM related
+> >    hangs, since there is no way for me to match the XFree86 AGP speed
+> >    and the BIOS set AGP speed -- my BIOS will not tell me what it set,
+> >    nor does it have a toggle to adjust it.
+> > 
+> > There's a value in the PCI config space, check out the AGP gart
+> > code in the kernel.  I don't know it offhand.
+> 
+> lspci -vv shows the details of it, in case anyone else is wondering what
+> their AGP bridge is configured for. Now to see if that solves my DRI
+> hangs...
+> 
+>         Daniel
+> 
+> -- 
+> A psychatrist is someone who hopefully finds out what
+> makes a person tick before they explode.
+>         -- Alfred E. Neuman
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.openprojects.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
 
+
+
+It fixed ALL of my lockups and open gl works.  Sorry to post this originally to the list ithought it was a kernel bug :(

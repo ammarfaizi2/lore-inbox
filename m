@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUG2T0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265031AbUG2T14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265134AbUG2T0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2TTJ
+	id S265031AbUG2T14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2T1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:19:09 -0400
-Received: from scrye.com ([216.17.180.1]:9119 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S264542AbUG2TRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:17:33 -0400
-MIME-Version: 1.0
+	Thu, 29 Jul 2004 15:27:12 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:30991 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S264973AbUG2TZ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:25:26 -0400
+Date: Thu, 29 Jul 2004 12:25:10 -0700
+To: Scott Wood <scott@timesys.com>
+Cc: Bill Huey <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
+       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040729192510.GA11917@nietzsche.lynx.com>
+References: <20040721214534.GA31892@elte.hu> <20040722022810.GA3298@yoda.timesys> <20040722074034.GC7553@elte.hu> <20040722185308.GC4774@yoda.timesys> <20040722194513.GA32377@nietzsche.lynx.com> <20040728064547.GA16176@elte.hu> <20040728205211.GC6685@yoda.timesys> <20040729182110.GA16419@elte.hu> <20040729183626.GA11652@nietzsche.lynx.com> <20040729191752.GB27701@yoda.timesys>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Thu, 29 Jul 2004 13:17:23 -0600
-From: Kevin Fenzi <kevin-kernel@scrye.com>
-To: linux-kernel@vger.kernel.org
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Subject: Re: [PATCH] reduce swsusp casting
-X-Draft-From: ("scrye.linux.kernel" 52985)
-References: <1091043436.2871.320.camel@nighthawk>
-	<Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
-	<1091049624.2871.464.camel@nighthawk>
-	<1091125918.2871.1874.camel@nighthawk>
-Message-Id: <20040729191726.5669BBE886@voldemort.scrye.com>
+Content-Disposition: inline
+In-Reply-To: <20040729191752.GB27701@yoda.timesys>
+User-Agent: Mutt/1.5.6+20040722i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jul 29, 2004 at 03:17:52PM -0400, Scott Wood wrote:
+> On Thu, Jul 29, 2004 at 11:36:26AM -0700, Bill Huey wrote:
+> There are legitimate reasons to use smp_processor_id() outside of a
+> non-preemptible region, though.  These include debugging
+> printks/logging, and situations where the awareness of CPU is for
+> optimization rather than correctness (for example, using per-cpu data
+> with per-cpu locks, which are only contended if preemption occurs, or
+> per-cpu counters incremented with atomic operations (or where counter
+> accuracy is not critical)).
+> 
+> The detection mechanism we used in 2.4 was simply to grep for
+> smp_processor_id and check/fix everything manually (which is somewhat
+> tedious, but there aren't *too* many instances in core code, and many
+> uses are similar to one another).
 
->>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
+That's a better method. But if there's a need for a kind of runtime
+detector, I guess you could do that. The use of smp_processor_id() should
+be seldom enough that manually fixing all of the points really should
+be the solution.
 
-Dave> On Wed, 2004-07-28 at 14:20, Dave Hansen wrote:
->> On Wed, 2004-07-28 at 14:07, Patrick Mochel wrote: > I don't
->> understand - have you really tested it or just compile-tested it?
->> > If not, please do try it out for real. There is no reason to be
->> scared of > swsusp, and the more people that use it, the more
->> stable it will get.
->> 
->> I'm not scared, just lazy :) I'll give it a shot.
+bill
 
-Dave> Well, I tried with both 2.6.8-rc2-mm1 with and without my patch
-Dave> and got the exact same results:
-
-Dave> # echo disk > /sys/power/state Stopping tasks: =
-
-Dave> Then it freezes.
-
-Does it work if you do: 
-
-echo "shutdown" > /sys/power/disk
-echo "disk" > /sys/power/state
-
-?
-
-You might also try using the hibernate script to handle unloading
-modules, etc: 
-
-http://developer.berlios.de/project/showfiles.php?group_id=1412
-
-(It can handle softwaresuspend2 or the pmdisk /sys/power/state)
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQFBCU1G3imCezTjY0ERAmDXAJ9i1uGiL4IatUh+Y+0BQwFeUtQ5oQCffrXM
-Q09L8TP9siOomsR5aWWqMsw=
-=IRfk
------END PGP SIGNATURE-----

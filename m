@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272583AbTHEIE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 04:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272584AbTHEIE2
+	id S272567AbTHEIGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 04:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHEIGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 04:04:28 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:38379 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272583AbTHEIEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 04:04:25 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 10:04:22 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Andrew Pimlott <andrew@pimlott.net>
-Cc: aia21@cam.ac.uk, aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805100422.3765252b.skraw@ithnet.com>
-In-Reply-To: <20030805011820.GB23512@pimlott.net>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<20030804134415.GA4454@win.tue.nl>
-	<20030804155604.2cdb96e7.skraw@ithnet.com>
-	<Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk>
-	<20030804165002.791aae3d.skraw@ithnet.com>
-	<20030805011820.GB23512@pimlott.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 5 Aug 2003 04:06:43 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23567 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S272567AbTHEIGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 04:06:37 -0400
+Date: Tue, 5 Aug 2003 09:06:31 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Make yenta work
+Message-ID: <20030805090631.A28546@flint.arm.linux.org.uk>
+Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030726225915.GA537@elf.ucw.cz> <Pine.LNX.4.44.0308041804020.23977-100000@cherise>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0308041804020.23977-100000@cherise>; from mochel@osdl.org on Mon, Aug 04, 2003 at 06:04:37PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 21:18:20 -0400
-Andrew Pimlott <andrew@pimlott.net> wrote:
+On Mon, Aug 04, 2003 at 06:04:37PM -0700, Patrick Mochel wrote:
+> I believe I saw a patch from Russell get in over the weekend that did 
+> this, right? 
 
-> On Tue, Aug 05, 2003 at 02:19:38AM +0200, Stephan von Krawczynski wrote:
+Correct.
 
-> Wouldn't bind mounts solve your problem?  Why are you still
-> interested in hard links?
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Because mount -bind cannot be exported over nfs (to my current knowledge and
-testing). Else I would be very pleased to use it.
-
-Regards,
-Stephan

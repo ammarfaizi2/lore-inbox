@@ -1,81 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUCCGeI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 01:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbUCCGeI
+	id S261338AbUCCGa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 01:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUCCGa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 01:34:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16077 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261401AbUCCGeC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 01:34:02 -0500
-Date: Tue, 2 Mar 2004 22:30:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: wa1ter@myrealbox.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.x]  USB Zip drive kills ps2 mouse.
-Message-Id: <20040302223001.463b947f.rddunlap@osdl.org>
-In-Reply-To: <20040302164756.6e41a3c6.rddunlap@osdl.org>
-References: <20040302164756.6e41a3c6.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 3 Mar 2004 01:30:58 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21935 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261338AbUCCGa4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 01:30:56 -0500
+Message-ID: <40457B9E.3060706@namesys.com>
+Date: Wed, 03 Mar 2004 09:30:54 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dax Kelson <dax@gurulabs.com>
+CC: Peter Nelson <pnelson@andrew.cmu.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com>	 <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com>
+In-Reply-To: <1078266793.8582.24.camel@mentor.gurulabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| Randy.Dunlap wrote:
-| > | From: walt
-| > | To: Linux Kernel <linux-kernel@vger.kernel.org>
-| > | Subject: [2.6.x]  USB Zip drive kills ps2 mouse.
-| > | 
-| > | 
-| > | Could I ask anyone with a USB Zip drive and a ps2 mouse to try
-| > | to confirm this bizarre bug for me?
-| > | 
-| > | To reproduce it should be simple:
-| > | 
-| > | 1)  Compile USB support as modular, *not* compiled in.
-| > | 
-| > | 2)  The USB Zip drive *must* be plugged in during boot.
-| > |      This bug won't show if you plug in the drive later.
-| > | 
-| > | 3)  Reboot and see if your ps2 mouse works.
-| > 
-| > Hi,
-| > 
-| > I'm not seeing a problem with this.  I'm using 2.6.4-rc1.
-| > 
-| > However, you didn't mention what modules were being loaded
-| > automatically, so we could have a difference in that area.
-| > If you care to specify a module list, I can test it again.
-| > 
-| > And is your USB Zip drive on a UHCI or OHCI controller?
-| > I have both, so I can test it either way.
-| 
-| I've narrowed it down to the uhci_hcd module -- all the rest can
-| be compiled in or as modules, doesn't matter.
-| 
-| Just in case I was vague:  the Zip drive works great regardless --
-| it's only the ps2 mouse which is affected by this weird problem.
-| No cursor movement at all if the Zip is plugged in during boot.
-| 
-| ASUS A7V8X mobo, in case it matters:
-| 00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-| 00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-| 00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-| 00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-| 
-| Things that make no difference to this problem:  ACPI, PnP, udev versus devfs.
-| I'm also using 2.6.4-rc1.  I have not tested for this bug on any 2.6.x prior
-| to a week ago, but I have tried recent 2.4.x kernels and I do not see this bug
-| with them.
+Unfortunately it is a bit more complex, and the truth is less 
+complementary to us than what you write.  Reiser4's CPU usage has come 
+down a lot, but it still consumes more CPU than V3.  It should consume 
+less, and Zam is currently working on making writes more CPU efficient.  
+As soon as I get funding from somewhere and can stop worrying about 
+money, I will do a complete code review, and CPU usage will go way 
+down.  There are always lots of stupid little things that consume a lot 
+of CPU that I find whenever I stop chasing money and review code.
 
-Is VIA (still) UHCI for USB 1.1?
-Maybe it's a VIA UHCI controller problem.
+We are shipping because CPU usage is not as important as IO efficiency 
+for a filesystem, and while Reiser4 is not as fast as it will be in 3-6 
+months, it is faster than anything else available so it should be shipped.
 
-I suggest taking it up on <linux-usb-devel@lists.sf.net>.
+Hans
 
---
-~Randy
+Dax Kelson wrote:
+
+>On Tue, 2004-03-02 at 09:34, Peter Nelson wrote:
+>  
+>
+>>Hans Reiser wrote:
+>>
+>>I'm confused as to why performing a benchmark out of cache as opposed to 
+>>on disk would hurt performance?
+>>    
+>>
+>
+>My understanding (which could be completely wrong) is that reieserfs v3
+>and v4 are algorithmically more complex than ext2 or ext3. Reiserfs
+>spends more CPU time to make the eventual ondisk operations more
+>efficient/faster.
+>
+>When operating purely or mostly out of ram, the higher CPU utilization
+>of reiserfs hurts performance compared to ext2 and ext3.
+>
+>When your system I/O utilization exceeds cache size and your disks
+>starting getting busy, the CPU time previously invested by reiserfs pays
+>big dividends and provides large performance gains versus more
+>simplistic filesystems.  
+>
+>In other words, the CPU penalty paid by reiserfs v3/v4 is more than made
+>up for by the resultant more efficient disk operations. Reiserfs trades 
+>CPU for disk performance.
+>
+>In a nutshell, if you have more memory than you know what do to with,
+>stick with ext3. If you spend all your time waiting for disk operations
+>to complete, go with reiserfs.
+>
+>Dax Kelson
+>Guru Labs
+>
+>
+>
+>  
+>
+
+
+-- 
+Hans
+
+

@@ -1,124 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbULOBF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbULOAS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbULOBF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 20:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbULOBEq
+	id S261770AbULOAS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 19:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbULOARX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 20:04:46 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:50192 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261836AbULOBBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 20:01:43 -0500
-Message-ID: <41BF7F55.4090906@conectiva.com.br>
-Date: Tue, 14 Dec 2004 22:03:33 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Organization: Conectiva S.A.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-net@vger.kernel.or, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/ipx/: make some code static
-References: <20041215005925.GC11972@stusta.de>
-In-Reply-To: <20041215005925.GC11972@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Dec 2004 19:17:23 -0500
+Received: from unthought.net ([212.97.129.88]:25749 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261787AbULNXkO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:40:14 -0500
+Date: Wed, 15 Dec 2004 00:40:12 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Christoph Hellwig <hch@infradead.org>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
+Subject: Re: XFS: inode with st_mode == 0
+Message-ID: <20041214234012.GX347@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Christoph Hellwig <hch@infradead.org>, Jan Kasprzak <kas@fi.muni.cz>,
+	linux-kernel@vger.kernel.org, kruty@fi.muni.cz
+References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041209215414.GA21503@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACKed, this was because a long time ago I planned to ressurect the SPX code.
+On Thu, Dec 09, 2004 at 09:54:14PM +0000, Christoph Hellwig wrote:
+...
+> 
+> If it's really st_mode I suspect it's a different problem.  Can you retry
+> with current oss.sgi.com CVS (or the patch below).  Note that this patch
+> breaks xfsdump unfortunately, we're looking into a fix.
 
-- Arnaldo
+I'm running plain 2.6.9 plus the patch you sent now.
 
-Adrian Bunk wrote:
-> The patch below makes some needlessly global code static.
+So far, the server hasn't hosed itself (and it's been running for almost
+half an hour - woohoo)
+
+Now I can check out CVS trees without getting files with weird ownership
+and undeletable directories  (which as *extremely* common before - in
+fact, earlier today before I applied the patch, I was unable to complete
+a cvs checkout of a moderately large software project).
+
+I guess this is a thumbs up for your patch so far  :)
+
+
+> > > Maybe some data is flushed in an incorrect order?
+> > 
+> > Maybe  :)
 > 
-> 
-> diffstat output:
->  include/net/ipx.h  |    8 --------
->  net/ipx/af_ipx.c   |   10 ++++++++--
->  net/ipx/ipx_proc.c |    6 +++---
->  3 files changed, 11 insertions(+), 13 deletions(-)
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-rc3-mm1-full/include/net/ipx.h.old	2004-12-14 14:55:42.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/include/net/ipx.h	2004-12-14 14:57:03.000000000 +0100
-> @@ -139,14 +139,6 @@
->  		ipxitf_down(intrfc);
->  }
->  
-> -extern void __ipxitf_down(struct ipx_interface *intrfc);
-> -
-> -static __inline__ void __ipxitf_put(struct ipx_interface *intrfc)
-> -{
-> -	if (atomic_dec_and_test(&intrfc->refcnt))
-> -		__ipxitf_down(intrfc);
-> -}
-> -
->  static __inline__ void ipxrtr_hold(struct ipx_route *rt)
->  {
->  	        atomic_inc(&rt->refcnt);
-> --- linux-2.6.10-rc3-mm1-full/net/ipx/af_ipx.c.old	2004-12-14 14:56:12.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipx/af_ipx.c	2004-12-14 14:57:28.000000000 +0100
-> @@ -291,7 +291,7 @@
->  }
->  #endif
->  
-> -void __ipxitf_down(struct ipx_interface *intrfc)
-> +static void __ipxitf_down(struct ipx_interface *intrfc)
->  {
->  	struct sock *s;
->  	struct hlist_node *node, *t;
-> @@ -335,6 +335,12 @@
->  	spin_unlock_bh(&ipx_interfaces_lock);
->  }
->  
-> +static __inline__ void __ipxitf_put(struct ipx_interface *intrfc)
-> +{
-> +	if (atomic_dec_and_test(&intrfc->refcnt))
-> +		__ipxitf_down(intrfc);
-> +}
-> +
->  static int ipxitf_device_event(struct notifier_block *notifier,
->  				unsigned long event, void *ptr)
->  {
-> @@ -1629,7 +1635,7 @@
->  	return rc;
->  }
->  
-> -int ipx_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt)
-> +static int ipx_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt)
->  {
->  	/* NULL here for pt means the packet was looped back */
->  	struct ipx_interface *intrfc;
-> --- linux-2.6.10-rc3-mm1-full/net/ipx/ipx_proc.c.old	2004-12-14 14:57:40.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipx/ipx_proc.c	2004-12-14 14:57:56.000000000 +0100
-> @@ -287,21 +287,21 @@
->  	return 0;
->  }
->  
-> -struct seq_operations ipx_seq_interface_ops = {
-> +static struct seq_operations ipx_seq_interface_ops = {
->  	.start  = ipx_seq_interface_start,
->  	.next   = ipx_seq_interface_next,
->  	.stop   = ipx_seq_interface_stop,
->  	.show   = ipx_seq_interface_show,
->  };
->  
-> -struct seq_operations ipx_seq_route_ops = {
-> +static struct seq_operations ipx_seq_route_ops = {
->  	.start  = ipx_seq_route_start,
->  	.next   = ipx_seq_route_next,
->  	.stop   = ipx_seq_route_stop,
->  	.show   = ipx_seq_route_show,
->  };
->  
-> -struct seq_operations ipx_seq_socket_ops = {
-> +static struct seq_operations ipx_seq_socket_ops = {
->  	.start  = ipx_seq_socket_start,
->  	.next   = ipx_seq_socket_next,
->  	.stop   = ipx_seq_interface_stop,
-> 
-> 
+> No, the problem I've fixed was related to XFS getting the inode version
+> number wrong - or at least different than NFSD expects.
+
+I have seen problems that your patch probably won't fix (like
+undeletable directories randomly occuring on ext3 filesystems as well -
+seems that once the dcache gets confused, it *really* gets confused).
+
+Let's see how the box fares with your patch - I'll report back on new
+bugs as I find them.
+
+-- 
+
+ / jakob
+

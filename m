@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbUATUgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 15:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265751AbUATUgO
+	id S265698AbUATUrI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 15:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265713AbUATUrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 15:36:14 -0500
-Received: from SMTP1.andrew.cmu.edu ([128.2.10.81]:32727 "EHLO
-	smtp1.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S265750AbUATUgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 15:36:08 -0500
-Subject: 2.6.1 "clock preempt"?
-From: Steinar Hauan <steinhau@andrew.cmu.edu>
-Reply-To: hauan@cmu.edu
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	Tue, 20 Jan 2004 15:47:08 -0500
+Received: from painless.aaisp.net.uk ([217.169.20.17]:25263 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S265698AbUATUrA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 15:47:00 -0500
+Subject: Interrupt errors and dvd pausing under 2.6
+From: Andrew Clayton <andrew@digital-domain.net>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: Carnegie Mellon University
-Message-Id: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
+Message-Id: <1074631617.1765.27.camel@alpha.digital-domain.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
-Date: Tue, 20 Jan 2004 15:36:08 -0500
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 20 Jan 2004 20:46:57 +0000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+I'm seeing some interrupt errors in /proc/interrupts and the message
+'spurious 8259A interrupt: IRQ7.' in dmesg,/var/log/messages. 
 
-  i've started to test the 2.6 series of kernels and observed a
-  strange thing: with moderate background load, the system clock
-  (i.e. time) seems to slow down to about 60% of normal speed
-  and the normally reliable ntp process (v4.2.0)
 
-  details: working interactively with a couple of background dummy
-  processes (*1), my system clock slowed down approx 90 mins over
-  a period of approx 4 hrs real time.
- 
-(*1) infinite loop: 1 rip, 1 encode -- both run at nice 10
+I am also seeing dvd pauses, which seems to last for about 5-10 seconds,
+these happen about every 20 minutes. The rest of the system is OK. When
+these pauses happen the number of interrupt errors increases. I have
+seen this with 2.6.1-mm[1345]. With 2.6.1 and 2.6.1-bk[45] I am unable
+to play a dvd at all, don't remember the error message (can reproduce it
+if need be). Using libxine1-1_rc3a
 
-  the kernel logs show messages on the form:
+Running a vmstat in the background shows nothing abnormal during the
+pauses.
 
-localhost kernel: Losing too many ticks!
-localhost kernel: TSC cannot be used as a timesource.
-                       (Are you running with SpeedStep?)
-localhost kernel: Falling back to a sane timesource.
-localhost kernel: set_rtc_mmss: can't update from 5 to 58
 
-  without the background load, the system keeps perfect time.
+This is under Fedora Core 1 on a AMD Athlon 1800+ XP with 512MB ram.
+There is 2 hard drives on ide0 and a cdrom and dvdrom on ide1
 
-==> any ideas of what could be going on would be appreciated.
+I don't have any APIC support in the kernel, preempt is disabled and and
+everything is built in. 
 
-  hardware details
-    Intel P4 2.53gz on Supermicro P4SAA mobo (Intel 7205 chipset)
-    1gb memory; multiple drives; Promise Ultra/133 raid controller
-  software
-    kernel 2.6.1 w/APIC and PREEMPT options turned on.
-    Fedora Core 1 + selected development packages (verified on 2.4).
 
-  more info available on request.
+2.4 works fine. 2.4.25-pre4 is the last 2.4 kernel I've been running.
 
-regards,
--- 
-  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
-  Carnegie Mellon University, Pittsburgh PA, USA
 
+Just ask if you want any more info.
+
+I'd appreciate it if you could CC me in any replies.
+
+Thanks, 
+
+Andrew Clayton
 

@@ -1,145 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbTJDGyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 02:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTJDGyZ
+	id S261920AbTJDGty (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 02:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTJDGty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 02:54:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4779 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261925AbTJDGyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 02:54:21 -0400
-Date: Fri, 3 Oct 2003 23:55:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: [updated patch] for efi support in ia32 kernels
-Message-Id: <20031003235559.3ca10b33.akpm@osdl.org>
-In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE713@fmsmsx406.fm.intel.com>
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE713@fmsmsx406.fm.intel.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 4 Oct 2003 02:49:54 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:24547 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S261920AbTJDGtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 02:49:52 -0400
+Date: Sat, 4 Oct 2003 08:49:52 +0200
+From: Sander <sander@humilis.net>
+To: "Leech, Christopher" <christopher.leech@intel.com>
+Cc: ookhoi@humilis.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: e1000 -> 82540EM on linux 2.6.0-test[45] very slow in one direction
+Message-ID: <20031004064952.GA27027@favonius>
+Reply-To: sander@humilis.net
+References: <E3A930D59AFC3345AEBA35189102A8A6193289@orsmsx404.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E3A930D59AFC3345AEBA35189102A8A6193289@orsmsx404.jf.intel.com>
+X-Uptime: 07:59:12 up 117 days,  7:32, 34 users,  load average: 1.32, 1.07, 1.02
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Tolentino, Matthew E" <matthew.e.tolentino@intel.com> wrote:
->
->  Attached is another patch that enables EFI boot-up support in ia32 kernels.
+Leech, Christopher wrote (ao):
+> > Btw, I had to compile the e1000 driver as a module. Compiled in it
+> > doesn't work, as is stated on the intel support page:
+> 
+> > This is not clear from the kernel config help. A patch against
+> > 2.6.0-test6 is attached (I don't know how to only give n/m as an
+> > option).
+> 
+> This patch is not necessary or desired. The version of e1000 that ships
+> with the kernel source should work fine statically linked, and the
+> comment on the Intel support web page applies to the separate download
+> of the e1000 source. If you download the driver source from Intel and
+> do the work to add it into a kernel source tree yourself, Intel customer
+> support may not help you when you have problems.
+> 
+> If you are having problems compiling in the version of e1000 that ships
+> with the kernel, please report it on netdev and we'll try and help.
 
-When I enable CONFIG_ACPI_EFI on a fairly vanilla PC, the ethernet card
-fails to generate any interrupts.  See below for the unpromising changes
-which CONFIG_ACPI_EFI made to my dmesg output.
+I'm sorry for the patch. The problem I had with e1000 compiled into the
+kernel was that the interface resets every 60(?) seconds, and there was
+no network connection. After a google search I came onto the intel
+support page, saw the module-only text, tried e1000 as a module and it
+worked. This all is with the e1000 driver which is in the 2.6.0-test6
+kernel, which I thought was the intel provided driver.
+The server is co-located now, so I'm sorry to say that I can't try
+again to give more details.
 
-Yes, this needs to be fixed - EFI-capable kernels should run unaffected on
-hardware with older BIOSes.
+> > Btw2, can somebody please explain what the option E1000_NAPI does?
+> 
+> NAPI is a network driver polling mode interface.  It enables a form of
+> software managed interrupt moderation, and may result in better
+> performance under some traffic patterns (specifically sustained high
+> packet rate reception).
 
-
- ACPI: Subsystem revision 20030918
--IOAPIC[0]: Set PCI routing entry (2-9 -> 0x71 -> IRQ 9 Mode:1 Active:0)
--ACPI: Interpreter enabled
--ACPI: Using IOAPIC for interrupt routing
--ACPI: PCI Root Bridge [PCI0] (00:00)
-+ACPI: System description tables not found
-+    ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, AE_NOT_FOUND
-+    ACPI-0134: *** Error: acpi_load_tables: Could not load tables: AE_NOT_FOUND
-+ACPI: Unable to load the System Description Tables
-+PCI: Probing PCI hardware
- PCI: Probing PCI hardware (bus 00)
- Transparent bridge - 0000:00:1e.0
--ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
--ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
--ACPI: Power Resource [FDDP] (off)
--ACPI: Power Resource [URP1] (off)
--ACPI: Power Resource [URP2] (off)
--ACPI: Power Resource [LPTP] (off)
--ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
--ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
--ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
--ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
--ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
--ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11 12 14 15)
--ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 9 10 11 12 14 15)
--ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
--IOAPIC[0]: Set PCI routing entry (2-17 -> 0xa9 -> IRQ 17 Mode:1 Active:1)
--00:00:1f[B] -> 2-17 -> IRQ 17
--IOAPIC[0]: Set PCI routing entry (2-23 -> 0xb1 -> IRQ 23 Mode:1 Active:1)
--00:00:1f[C] -> 2-23 -> IRQ 23
--IOAPIC[0]: Set PCI routing entry (2-19 -> 0xb9 -> IRQ 19 Mode:1 Active:1)
--00:00:1f[D] -> 2-19 -> IRQ 19
--IOAPIC[0]: Set PCI routing entry (2-16 -> 0xc1 -> IRQ 16 Mode:1 Active:1)
--00:00:01[A] -> 2-16 -> IRQ 16
--Pin 2-17 already programmed
--IOAPIC[0]: Set PCI routing entry (2-21 -> 0xc9 -> IRQ 21 Mode:1 Active:1)
--00:02:09[A] -> 2-21 -> IRQ 21
--IOAPIC[0]: Set PCI routing entry (2-22 -> 0xd1 -> IRQ 22 Mode:1 Active:1)
--00:02:09[B] -> 2-22 -> IRQ 22
--Pin 2-23 already programmed
--Pin 2-17 already programmed
--Pin 2-22 already programmed
--Pin 2-23 already programmed
--Pin 2-17 already programmed
--Pin 2-21 already programmed
--Pin 2-23 already programmed
--Pin 2-17 already programmed
--Pin 2-21 already programmed
--Pin 2-22 already programmed
--Pin 2-17 already programmed
--Pin 2-21 already programmed
--Pin 2-22 already programmed
--Pin 2-23 already programmed
--Pin 2-21 already programmed
--Pin 2-22 already programmed
--Pin 2-23 already programmed
--Pin 2-17 already programmed
--Pin 2-22 already programmed
--Pin 2-23 already programmed
--Pin 2-17 already programmed
--Pin 2-21 already programmed
--Pin 2-17 already programmed
--IOAPIC[0]: Set PCI routing entry (2-20 -> 0xd9 -> IRQ 20 Mode:1 Active:1)
--00:02:08[A] -> 2-20 -> IRQ 20
--Pin 2-19 already programmed
--IOAPIC[0]: Set PCI routing entry (2-18 -> 0xe1 -> IRQ 18 Mode:1 Active:1)
--00:02:01[B] -> 2-18 -> IRQ 18
--Pin 2-23 already programmed
--PCI: Using ACPI for IRQ routing
--PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-+PCI: Using IRQ router PIIX [8086/2440] at 0000:00:1f.0
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 1!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 2!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 2!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 2!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 2!
-+PCI BIOS passed nonexistent PCI bus 0!
-+PCI BIOS passed nonexistent PCI bus 2!
-+PCI BIOS passed nonexistent PCI bus 0!
- Machine check exception polling timer started.
- Starting balanced_irq
- Total HugeTLB memory allocated, 0
-@@ -785,9 +744,6 @@
- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
- 6355ac22e890d0a3c8481a5ca4825bc884d3e7a1ff98a2fc2ac7d8e064c3b2e6
- pass
--ACPI: Power Button (FF) [PWRF]
--ACPI: Processor [CPU1] (supports C1)
--ACPI: Processor [CPU2] (supports C1)
- pty: 256 Unix98 ptys configured
- Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
- ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-@@ -830,11 +786,10 @@
- NET: Registered protocol family 1
- NET: Registered protocol family 17
- NET: Registered protocol family 15
--ACPI: (supports S0 S1 S4 S5)
- EXT3-fs: INFO: recovery required on readonly filesystem.
- EXT3-fs: write access will be enabled during recovery.
-
+Aha, tnx. Can you please provide a patch to get this text in the 2.6
+help?

@@ -1,227 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUJ3SGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbUJ3SJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbUJ3SGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 14:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUJ3SGD
+	id S261233AbUJ3SJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 14:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUJ3SHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 14:06:03 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38152 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261248AbUJ3SDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 14:03:36 -0400
-Date: Sat, 30 Oct 2004 20:03:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: aia21@cantab.net
-Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] some NTFS cleanups
-Message-ID: <20041030180304.GR4374@stusta.de>
+	Sat, 30 Oct 2004 14:07:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:33204 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261262AbUJ3SGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 14:06:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=G0I6UDb4+/v2sHBc5g0C3NhH0FZENML9rR3Vh2IidJPs9UVWOOqkVTOYXUQ9nMIieA8xfyPnXzOkbcgDEzZBNA6T9Hj04gurkkiMwPidoCG82M21jBRhM9pryPrkp4oxmZO877UwFHrIxOU5/Y+k7j/kVd5bVmHU4DjyG9VjDq0=
+Message-ID: <58cb370e04103011065c265ce4@mail.gmail.com>
+Date: Sat, 30 Oct 2004 20:06:11 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: CaT <cat@zip.com.au>
+Subject: Re: PDC20267 bug and corruption (was: Re: [BK PATCHES] ide-2.6 update)
+Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20041030034745.GA1287@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <58cb370e04102706074c20d6d7@mail.gmail.com>
+	 <20041027133431.GF1127@zip.com.au>
+	 <58cb370e04102706512283405@mail.gmail.com>
+	 <20041030034745.GA1287@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does the following cleanups for the NTFS code:
-- remove three currently unused global functions
-- make several functions and variables static (yes, I've read the
-  comment before ntfs_readpage before making it static - but I couldn't
-  see it being actually true)
+On Sat, 30 Oct 2004 13:47:45 +1000, CaT <cat@zip.com.au> wrote:
+> On Wed, Oct 27, 2004 at 03:51:14PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > http://bugme.osdl.org/show_bug.cgi?id=2494
+> 
+> Tried it via bk7, wasn't it.
+> 
+> Looks like I have found a bug relating to the pdc driver though.
+> 
+> The situation is such: I have 2 HDs connected to a PDC20267 PCI card,
+> one on each channel, with a master on the primary channel and a slave on
+> the secondry channel. Accessing each drive individually causes no
+> problems at all but accessing them simultaneously (like copying data off
+> one drive onto the other) causes the IDE layer to go to hell in a hand
+> basket. I can duplicate this each and every time by doing the following:
+> 
+> 1. copying a few gig from hde to hdh
+> 2. dd if=/dev/hde of=/dev/null
+>    dd if=/dev/zero of=/dev/hdh
+> 
+> With method #1 I get the following:
+> 
+> Oct 27 00:37:39 nessie kernel: attempt to access beyond end of device
+> Oct 27 00:37:39 nessie kernel: hdh1: rw=1, want=3034756264, limit=390716802
+> Oct 27 00:37:40 nessie kernel: Aborting journal on device hdh1.
+> Oct 27 00:37:40 nessie kernel: ext3_abort called.
+> Oct 27 00:37:40 nessie kernel: EXT3-fs error (device hdh1): ext3_journal_start: Detected aborted journal
+> Oct 27 00:37:40 nessie kernel: Remounting filesystem read-only
+> Oct 27 00:37:40 nessie kernel: EXT3-fs error (device hdh1) in start_transaction: Journal has aborted
 
-Is this patch OK or does it conflict with your future plans for the NTFS 
-code?
+This comes from the block layer, generic_make_request(),
+request is screwed up before it hits IDE layer.
 
+> With method #2, a whole lot more fun occurs. The logfile I have is big
+> (almost 400k) so I've compressed it and included it as an attachment.
+> This is with kernel 2.6.10-rc1-bk7 (no logs survived from me testing
+> this with rc1-mm2).
 
-diffstat output:
- fs/ntfs/aops.c   |    4 +---
- fs/ntfs/inode.c  |    4 ++--
- fs/ntfs/ntfs.h   |   14 --------------
- fs/ntfs/super.c  |   11 ++++++-----
- fs/ntfs/unistr.c |   39 +++++++--------------------------------
- 5 files changed, 16 insertions(+), 56 deletions(-)
+Indeed, this is a lot more fun. ;)
 
+Is this bug new/old?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Is it pdc202xx_old specific?  Does the same havoc happen
+if you connect drives to the on-board Intel IDE controller?
 
---- linux-2.6.10-rc1-mm2-full/fs/ntfs/aops.c.old	2004-10-30 14:06:06.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/ntfs/aops.c	2004-10-30 14:10:51.000000000 +0200
-@@ -348,10 +348,8 @@
-  * for it to be read in before we can do the copy.
-  *
-  * Return 0 on success and -errno on error.
-- *
-- * WARNING: Do not make this function static! It is used by mft.c!
-  */
--int ntfs_readpage(struct file *file, struct page *page)
-+static int ntfs_readpage(struct file *file, struct page *page)
- {
- 	s64 attr_pos;
- 	ntfs_inode *ni, *base_ni;
---- linux-2.6.10-rc1-mm2-full/fs/ntfs/inode.c.old	2004-10-30 14:13:06.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/ntfs/inode.c	2004-10-30 14:14:17.000000000 +0200
-@@ -352,7 +352,7 @@
- 	return NULL;
- }
- 
--void ntfs_destroy_extent_inode(ntfs_inode *ni)
-+static void ntfs_destroy_extent_inode(ntfs_inode *ni)
- {
- 	ntfs_debug("Entering.");
- 	BUG_ON(ni->page);
-@@ -2133,7 +2133,7 @@
- 	}
- }
- 
--void __ntfs_clear_inode(ntfs_inode *ni)
-+static void __ntfs_clear_inode(ntfs_inode *ni)
- {
- 	/* Free all alocated memory. */
- 	down_write(&ni->runlist.lock);
---- linux-2.6.10-rc1-mm2-full/fs/ntfs/super.c.old	2004-10-30 14:19:10.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/ntfs/super.c	2004-10-30 14:24:39.000000000 +0200
-@@ -44,6 +44,10 @@
- /* Number of mounted file systems which have compression enabled. */
- static unsigned long ntfs_nr_compression_users;
- 
-+/* A global default upcase table and a corresponding reference count. */
-+static ntfschar *default_upcase = NULL;
-+static unsigned long ntfs_nr_upcase_users = 0;
-+
- /* Error constants/strings used in inode.c::ntfs_show_options(). */
- typedef enum {
- 	/* One of these must be present, default is ON_ERRORS_CONTINUE. */
-@@ -62,6 +66,7 @@
- 	{ 0,			NULL }
- };
- 
-+
- /**
-  * simple_getbool -
-  *
-@@ -2175,7 +2180,7 @@
- /**
-  * The complete super operations.
-  */
--struct super_operations ntfs_sops = {
-+static struct super_operations ntfs_sops = {
- 	.alloc_inode	= ntfs_alloc_big_inode,	  /* VFS: Allocate new inode. */
- 	.destroy_inode	= ntfs_destroy_big_inode, /* VFS: Deallocate inode. */
- 	.put_inode	= ntfs_put_inode,	  /* VFS: Called just before
-@@ -2593,10 +2598,6 @@
- kmem_cache_t *ntfs_attr_ctx_cache;
- kmem_cache_t *ntfs_index_ctx_cache;
- 
--/* A global default upcase table and a corresponding reference count. */
--ntfschar *default_upcase = NULL;
--unsigned long ntfs_nr_upcase_users = 0;
--
- /* Driver wide semaphore. */
- DECLARE_MUTEX(ntfs_lock);
- 
---- linux-2.6.10-rc1-mm2-full/fs/ntfs/unistr.c.old	2004-10-30 14:25:40.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/ntfs/unistr.c	2004-10-30 14:29:49.000000000 +0200
-@@ -49,6 +49,11 @@
- 	0x17, 0x17, 0x04, 0x16, 0x18, 0x16, 0x18, 0x18,
- };
- 
-+static int ntfs_ucsncmp(const ntfschar *s1, const ntfschar *s2, size_t n);
-+static int ntfs_ucsncasecmp(const ntfschar *s1, const ntfschar *s2, size_t n,
-+			const ntfschar *upcase, const u32 upcase_size);
-+
-+
- /**
-  * ntfs_are_names_equal - compare two Unicode names for equality
-  * @s1:			name to compare to @s2
-@@ -144,7 +149,7 @@
-  * if @s1 (or the first @n Unicode characters thereof) is found, respectively,
-  * to be less than, to match, or be greater than @s2.
-  */
--int ntfs_ucsncmp(const ntfschar *s1, const ntfschar *s2, size_t n)
-+static int ntfs_ucsncmp(const ntfschar *s1, const ntfschar *s2, size_t n)
- {
- 	u16 c1, c2;
- 	size_t i;
-@@ -180,7 +185,7 @@
-  * if @s1 (or the first @n Unicode characters thereof) is found, respectively,
-  * to be less than, to match, or be greater than @s2.
-  */
--int ntfs_ucsncasecmp(const ntfschar *s1, const ntfschar *s2, size_t n,
-+static int ntfs_ucsncasecmp(const ntfschar *s1, const ntfschar *s2, size_t n,
- 		const ntfschar *upcase, const u32 upcase_size)
- {
- 	size_t i;
-@@ -201,36 +206,6 @@
- 	return 0;
- }
- 
--void ntfs_upcase_name(ntfschar *name, u32 name_len, const ntfschar *upcase,
--		const u32 upcase_len)
--{
--	u32 i;
--	u16 u;
--
--	for (i = 0; i < name_len; i++)
--		if ((u = le16_to_cpu(name[i])) < upcase_len)
--			name[i] = upcase[u];
--}
--
--void ntfs_file_upcase_value(FILE_NAME_ATTR *file_name_attr,
--		const ntfschar *upcase, const u32 upcase_len)
--{
--	ntfs_upcase_name((ntfschar*)&file_name_attr->file_name,
--			file_name_attr->file_name_length, upcase, upcase_len);
--}
--
--int ntfs_file_compare_values(FILE_NAME_ATTR *file_name_attr1,
--		FILE_NAME_ATTR *file_name_attr2,
--		const int err_val, const IGNORE_CASE_BOOL ic,
--		const ntfschar *upcase, const u32 upcase_len)
--{
--	return ntfs_collate_names((ntfschar*)&file_name_attr1->file_name,
--			file_name_attr1->file_name_length,
--			(ntfschar*)&file_name_attr2->file_name,
--			file_name_attr2->file_name_length,
--			err_val, ic, upcase, upcase_len);
--}
--
- /**
-  * ntfs_nlstoucs - convert NLS string to little endian Unicode string
-  * @vol:	ntfs volume which we are working with
---- linux-2.6.10-rc1-mm2-full/fs/ntfs/ntfs.h.old	2004-10-30 14:20:31.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/fs/ntfs/ntfs.h	2004-10-30 14:29:06.000000000 +0200
-@@ -53,7 +53,6 @@
- extern kmem_cache_t *ntfs_index_ctx_cache;
- 
- /* The various operations structs defined throughout the driver files. */
--extern struct super_operations ntfs_sops;
- extern struct address_space_operations ntfs_aops;
- extern struct address_space_operations ntfs_mst_aops;
- 
-@@ -86,8 +85,6 @@
- 
- /* From fs/ntfs/super.c */
- #define default_upcase_len 0x10000
--extern ntfschar *default_upcase;
--extern unsigned long ntfs_nr_upcase_users;
- extern struct semaphore ntfs_lock;
- 
- typedef struct {
-@@ -110,17 +107,6 @@
- 		const ntfschar *name2, const u32 name2_len,
- 		const int err_val, const IGNORE_CASE_BOOL ic,
- 		const ntfschar *upcase, const u32 upcase_len);
--extern int ntfs_ucsncmp(const ntfschar *s1, const ntfschar *s2, size_t n);
--extern int ntfs_ucsncasecmp(const ntfschar *s1, const ntfschar *s2, size_t n,
--		const ntfschar *upcase, const u32 upcase_size);
--extern void ntfs_upcase_name(ntfschar *name, u32 name_len,
--		const ntfschar *upcase, const u32 upcase_len);
--extern void ntfs_file_upcase_value(FILE_NAME_ATTR *file_name_attr,
--		const ntfschar *upcase, const u32 upcase_len);
--extern int ntfs_file_compare_values(FILE_NAME_ATTR *file_name_attr1,
--		FILE_NAME_ATTR *file_name_attr2,
--		const int err_val, const IGNORE_CASE_BOOL ic,
--		const ntfschar *upcase, const u32 upcase_len);
- extern int ntfs_nlstoucs(const ntfs_volume *vol, const char *ins,
- 		const int ins_len, ntfschar **outs);
- extern int ntfs_ucstonls(const ntfs_volume *vol, const ntfschar *ins,
-
+Please post /proc identify data for both drives and PCI config
+space dump for PDC20267 so someone can verify them.

@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132559AbRAVQnS>; Mon, 22 Jan 2001 11:43:18 -0500
+	id <S132565AbRAVQsU>; Mon, 22 Jan 2001 11:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132702AbRAVQnH>; Mon, 22 Jan 2001 11:43:07 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:28331 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132559AbRAVQnB> convert rfc822-to-8bit; Mon, 22 Jan 2001 11:43:01 -0500
-Date: Mon, 22 Jan 2001 17:26:42 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jorge Nerin <comandante@zaralinux.com>
-cc: Dominik Kubla <dominik.kubla@uni-mainz.de>, linux-kernel@vger.kernel.org
-Subject: Re: APIC errors
-In-Reply-To: <3A674160.A6621B8C@zaralinux.com>
-Message-ID: <Pine.GSO.3.96.1010119212502.19533D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S132606AbRAVQsL>; Mon, 22 Jan 2001 11:48:11 -0500
+Received: from postfix.conectiva.com.br ([200.250.58.155]:9234 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132441AbRAVQrw>; Mon, 22 Jan 2001 11:47:52 -0500
+Message-ID: <3A6C642E.2DF49CC0@conectiva.com.br>
+Date: Mon, 22 Jan 2001 14:47:42 -0200
+From: Andrew Clausen <clausen@conectiva.com.br>
+Organization: Conectiva
+X-Mailer: Mozilla 4.76 [pt_BR] (X11; U; Linux 2.2.17-14cl i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-fsdevel@vger.kernel.org, bug-parted@gnu.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Partition IDs in the New World TM
+In-Reply-To: <3A6C5D12.99704689@conectiva.com.br> <3A6C609F.F135DB0@didntduck.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Jorge Nerin wrote:
+Brian Gerst wrote:
+> For compatability with dual booting other operating systems.  Would you
+> want Windows walking over your ext2 filesystems?  Linux didn't invent
+> the partition table schemes, it just borrows from those that are most
+> common for a given architecture (ie. msdos on PC compatable systems,
+> etc.)
 
-> >  It's the first report of APIC errors on a P5 system I have seen, so it's
-> > probably not a result of a bad motherboard design.  I'd recommend to check
-> > if the system doesn't get overheated.  You may also be unlucky to have a
-> > faulty board.
-> 
-> Hey, it's not the first, some time ago when it began to be reported a
-> lot of people with various systems asked at the same time about the same
-> thing :)
+Of course, we need to be careful of this kind of stuff.  (That's the
+only reason we have partition tables in the first place!)
 
- I've seen a lot of reports but they were from P6 systems' owners.
+But, for "well behaved operating systems", can't we do it this way?
+(For the dos partition table scheme, 0x83 could be our "file system
+type", 0x82 our "swap type", or whatever)
 
-> LOC:    1620963    1620962 
-> ERR:       2697
-> [coma@quartz coma]$ uptime 
->   8:14pm  up  4:30,  0 users,  load average: 0.19, 0.11, 0.09
-
- This rate of errors is alarming.  You get an error every six seconds on
-the average. 
-
-> but my system works ok, mostly, now I have just upgraded a Realtek 8029
-> (10Mb) because it gets hung to a Realtek 8139 (100Mb) just to found the
-> mobo has some kind of busmastering problems, but that's another story.
-
- The hangs might actually be a result of interrupt delivery problems (just
-as other people report).
-
-> P.D. And as you suggested it runs very hot, about 50ºC at the cpus when
-> both are at full use.
-
- Well, 50 degrees is not that hot -- CPUs are actually speced for up to 70
-degrees ambient temperature (that means the maximum temperature of the
-case, not the heatsink!), but you need to ensure proper cooling. 
-
- After one and a half year since the error reporting is enabled I have yet
-to see a hardware error to be reported by an APIC in my system.
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
-
+Tchau,
+Andrew Clausen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270020AbUIDC6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270022AbUIDC7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270020AbUIDC6l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 22:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbUIDC6l
+	id S270022AbUIDC7L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 22:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270023AbUIDC7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 22:58:41 -0400
-Received: from main.gmane.org ([80.91.224.249]:32936 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270020AbUIDC6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 22:58:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: The argument for fs assistance in handling archives
-Date: Sat, 4 Sep 2004 04:58:15 +0200
-Message-ID: <MPG.1ba2816bae8677619896e0@news.gmane.org>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <20040902175034.GA18861@lst.de> <Pine.LNX.4.58.0409021059230.2295@ppc970.osdl.org> <wn5k6vc6ufp.fsf@linhd-2.ca.nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+	Fri, 3 Sep 2004 22:59:11 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:61117 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S270022AbUIDC7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 22:59:05 -0400
+Message-ID: <41392FA1.6040700@comcast.net>
+Date: Fri, 03 Sep 2004 22:59:45 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: isofs switch for ziso?
+References: <4138A47E.3090909@comcast.net> <1094256432.6575.112.camel@krustophenia.net>
+In-Reply-To: <1094256432.6575.112.camel@krustophenia.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-33-131.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linh Dang wrote:
-> On such a system, one would have multiple virtual views mounted (by
-> root) under:
-> 
->         /view/tar, /view/dpkg, /view/rpm, etc.
-> 
-> for every regular file /home/joe/blah.tar
-> 
-> the path /view/tar/home/joe/blah.tar/ is a directory where member of
-> the archives directly accessible.
-> 
-> old tools continue work as is. new tools can take a look on virtual
-> views for virtual access. 
-> 
-> Not sure how such a system would work with the dentry cache.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-How does it cope with 'view withint view'? Say you have a 
-.zipped ISO. Can you do
+Nah, splitting up Gentoo images.
 
-cd /view/iso/view/zip/home/joe/mycd.zip/mycd.iso/
+Lee Revell wrote:
+| On Fri, 2004-09-03 at 13:06, John Richard Moser wrote:
+|
+|>I find myself needing to extract an ISO image without altering its
+|>contents' MD5's as in the image.  When I mount an isofs with a zisofs
+|>file in it, it gets automatically translated to non-compressed data :/
+|>Is there a switch for this?  Can you make one?
+|>
+|
+|
+| Cracking copy protection on games, huh?
+|
+| Lee
+|
+|
 
-?
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
--- 
-Giuseppe "Oblomov" Bilotta
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+iD4DBQFBOS+ghDd4aOud5P8RAjw8AJIDQBUItmY6LeByVDXQPz2pfoKsAJ4vY0UU
+cQFfqZVWlrgrqgqt8lkdgw==
+=rMfh
+-----END PGP SIGNATURE-----

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVAYXyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVAYXyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262242AbVAYXyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 18:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVAYXvy
+	id S262243AbVAYXyK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 18:54:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVAYXwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 18:51:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:45513 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262242AbVAYXvC (ORCPT
+	Tue, 25 Jan 2005 18:52:13 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44489 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262243AbVAYXt6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 18:51:02 -0500
-Subject: Re: driver model u32 -> pm_message_t conversion: help needed
+	Tue, 25 Jan 2005 18:49:58 -0500
+Subject: Re: Problem with cpu_rest() change
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel-janitors@osdl.org, kernel list <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org
-In-Reply-To: <20050125194710.GA1711@elf.ucw.cz>
-References: <20050125194710.GA1711@elf.ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050125090131.GA4986@elte.hu>
+References: <1106534442.5272.10.camel@gaston>
+	 <20050125090131.GA4986@elte.hu>
 Content-Type: text/plain
-Date: Wed, 26 Jan 2005 10:50:15 +1100
-Message-Id: <1106697015.6250.24.camel@gaston>
+Date: Wed, 26 Jan 2005 10:49:12 +1100
+Message-Id: <1106696952.6244.22.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 20:47 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> Two Long time ago, BenH said that making patches is easy, so I hope to
-> get his help now... And will probably need more.
+On Tue, 2005-01-25 at 10:01 +0100, Ingo Molnar wrote:
 
-I will. I'm still a bit dealing with backlog of stuffs after my long
-vacations, but I will asap.
+> it can be bad for the idle task to hold the BKL and to have preemption
+> enabled - in such a situation the scheduler will get confused if an
+> interrupt triggers a forced preemption in that small window. But it's
+> not necessary to keep IRQs disabled after the BKL has been dropped. In
+> fact i think IRQ-disabling doesnt have to be done at all, the patch
+> below ought to solve this scenario equally well, and should solve the
+> PPC side-effects too.
+> 
+> Tested ontop of 2.6.11-rc2 on x86 PREEMPT+SMP and PREEMPT+!SMP (which
+> IIRC were the config variants that triggered the original problem), on
+> an SMP and on a UP system.
+
+Excellent, thanks.
 
 Ben.
 

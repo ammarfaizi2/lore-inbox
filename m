@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbULHEce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbULHEcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbULHEce (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 23:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbULHEcd
+	id S262016AbULHEcW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 23:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbULHEcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 23:32:33 -0500
-Received: from ozlabs.org ([203.10.76.45]:28839 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262019AbULHEcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 23:32:18 -0500
-Subject: Re: [PATCH][1/2] fix unchecked returns from kmalloc() (in
-	kernel/module.c)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Katrina Tsipenyuk <ytsipenyuk@fortifysoftware.com>,
-       katrina@fortifysoftware.com
-In-Reply-To: <Pine.LNX.4.61.0412072203070.3320@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0412072203070.3320@dragon.hygekrogen.localhost>
+	Tue, 7 Dec 2004 23:32:21 -0500
+Received: from mx01.cybersurf.com ([209.197.145.104]:129 "EHLO
+	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S262016AbULHEcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 23:32:08 -0500
+Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Karsten Desler <kdesler@soohrt.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       Robert Olsson <Robert.Olsson@data.slu.se>, P@draigBrady.com
+In-Reply-To: <20041207211035.GA20286@quickstop.soohrt.org>
+References: <20041206205305.GA11970@soohrt.org>
+	 <20041207211035.GA20286@quickstop.soohrt.org>
 Content-Type: text/plain
-Date: Wed, 08 Dec 2004 12:57:54 +1100
-Message-Id: <1102471074.20129.14.camel@localhost.localdomain>
+Organization: jamalopolous
+Message-Id: <1102480318.1050.16.camel@jzny.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Dec 2004 23:31:58 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-07 at 22:23 +0100, Jesper Juhl wrote:
-> Problem reported by Katrina Tsipenyuk and the Fortify Software engineering 
-> team in thread with subject "PROBLEM: unchecked returns from kmalloc() in 
-> linux-2.6.10-rc2".
+On Tue, 2004-12-07 at 16:10, Karsten Desler wrote:
+> Karsten Desler <kdesler@soohrt.org> wrote:
+> > Current packetload on eth0 (and reversed on eth1):
+> >   115kpps tx
+> >   135kpps rx
+> 
+> I totally forgot to mention: There are approximately 100k concurrent
+> flows.
 
-IMHO a better fix is to
-(1) mark percpu_modinit() as __init.
-(2) ignore unhandled failures in __init functions.
+;-> Aha. That would make a huge difference. I know of noone
+who has actually done this level of testing. I have tried upto about 50K
+flows myself in early 2.6.x and was eventually compute bound.
+Really try compiling out totaly iptables/netfilter - it will make a
+difference.
+You may also want to try something like LC trie algorithm that Robert
+and co are playing with to see if it makes a difference with this many
+flows. 
 
-With some exceptions, I would prefer to see a not_on_init(cond) macro
-inside kmalloc et. al. which barfs in a consistent way when allocations,
-registrations, etc. fail on boot.
-
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+cheers,
+jamal
 

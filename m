@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUDILHf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 07:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUDILHf
+	id S261204AbUDILiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 07:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUDILiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 07:07:35 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:61162 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S261184AbUDILHd
+	Fri, 9 Apr 2004 07:38:55 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:39690 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S261204AbUDILix
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 07:07:33 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.5-mm3, cdrom gotcha
-Date: Fri, 9 Apr 2004 07:07:32 -0400
-User-Agent: KMail/1.6
+	Fri, 9 Apr 2004 07:38:53 -0400
+Date: Fri, 9 Apr 2004 13:38:51 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: fledely <fledely@bgumail.bgu.ac.il>
+Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Accessing odd last partition sector (was: [Linux-NTFS-Dev] mkntfs
+ dirty volume marking)
+In-Reply-To: <001601c41db7$aa0a02e0$0100000a@p667>
+Message-ID: <Pine.LNX.4.21.0404091247430.22481-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404090707.32577.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.9.226] at Fri, 9 Apr 2004 06:07:32 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all;
 
-I just rebooted to 2.6.5-mm3 while a cd with the Planet CCRMA image on 
-it was in the writer.  It took the boot about 5 seconds to get past 
-the IDE1 piece of the scan, and it squawked about the drive having 
-'incompatible media'.  I have a line in my rc.local that uses hdparm 
-to turn the dma back on after the kernel decides to turn it off, and 
-that also spit out a media error although an hdparm -d indicates dma 
-is on.  dma works just fine with that drive.
+On Fri, 9 Apr 2004, fledely wrote:
 
-After bootup, I tried to mount the disk, but again got the media error 
-and fail message.  Removing the disk and rebooting again, and its all 
-working again.
+> TODO.ntfsprogs conatins the following TODO item under mkntfs:
+>  - We don't know what the real last sector is, thus we mark the volume
+> dirty and the subsequent chkdsk (which will happen on reboot into
+> Windows automatically) recreates the backup boot sector if the Linux
+> kernel lied to us about the number of sectors.
 
-Is this a bug?  Seems like it to me.  Its not something I've noted 
-before, but then the drive is usually empty, so this is a new error 
-to me and I cannot say when it started happening.
+ntfsresize, ntfsclone and others have the same problem due to this kernel
+limitation.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+>  Now that we know about the extended/legacy BIOS geometry, and
+> assuming kernel version 2.6.5+ Is it possible to finally get fixed, or
+> totally unrelated?
+
+I'm afraid unrelated. There are two main issues two consider if you want
+to fix this:
+
+ 1) You must know the exact, _real_ partition size.
+
+ 2) You must be able to access it.
+
+Firstly, I don't think EDD tells anything about the partitions but maybe
+I'm wrong, I didn't have time to check it out.
+
+Secondly the kernel doesn't always allow access to the last sector via the
+partition (longstanding kernel bug). We could access it via the full
+device (e.g. /dev/hda, etc) but that's quite messy, error-prone and this
+should be fixed in the _kernel_.
+
+Other people are also disturbed by this for a long time,
+
+ - they can't make a full partition backup (dd)
+	
+ - just like NTFS, the new partitioning format, GPT, also stores
+   backup data in the last sectors. 
+
+There were attempts to fix this in 2.6 but I don't know if it was
+completed. Maybe somebody knows or have the time to investigate it?
+
+	Szaka
+

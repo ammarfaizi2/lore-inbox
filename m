@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267689AbTA1SoW>; Tue, 28 Jan 2003 13:44:22 -0500
+	id <S267466AbTA1S4R>; Tue, 28 Jan 2003 13:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267690AbTA1SoW>; Tue, 28 Jan 2003 13:44:22 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:1247 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267689AbTA1SoV>;
-	Tue, 28 Jan 2003 13:44:21 -0500
-Date: Tue, 28 Jan 2003 10:47:35 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Martin Mares <mj@ucw.cz>
-cc: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Vojtech Pavlik <vojtech@ucw.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] in drivers/char/joystick/magellan.c
-In-Reply-To: <20030128175757.GA22145@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33L2.0301281045250.30636-100000@dragon.pdx.osdl.net>
+	id <S267473AbTA1S4R>; Tue, 28 Jan 2003 13:56:17 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:530 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267466AbTA1S4Q>; Tue, 28 Jan 2003 13:56:16 -0500
+Date: Tue, 28 Jan 2003 19:05:34 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Faik Uygur <faikuygur@ttnet.net.tr>
+cc: linux-kernel@vger.kernel.org, <andreashappe@gmx.net>
+Subject: Re: [PATCH] 2.5.59: radeonfb, no visible cursor at the fb console
+In-Reply-To: <20030127220655.GA7650@ttnet.net.tr>
+Message-ID: <Pine.LNX.4.44.0301281905260.12076-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003, Martin Mares wrote:
 
-| Hi!
-|
-| > Without the patch below, the \0 terminating the string is written
-| > anywhere. nibbles[] would be even better, I guess.
-| > Can you check for stupidity on my side?
-|
-| As far as I remember, the ANSI C permits initialization of a char array
-| with a string of the same length and defines that the trailing \0 is
-| dropped in such cases. However, I cannot quote the right chapter and
-| verse by heart nor am I sure it's still permitted by C99, so better
-| check yourself.
+Applied. Thanks.
 
-The closest that I find in a quick scan is:
-
-ANSI/ISO/IEC 9899-1999, page 126, section 6.7.8, constraint 14:
-
-An array of character type may be initialized by a character string
-literal, optionally enclosed in braces. Successive characters of the
-character string literal (including the terminating null character if
-there is room or if the array is of unknown size) initialize the
-elements of the array.
-
--- 
-~Randy
+> This trivial patch fixes the cursor problem at radeonfb.c, reported at
+> http://bugme.osdl.org/show_bug.cgi?id=292
+> 
+> --- linux-2.5.59-vanilla/drivers/video/radeonfb.c       Mon Jan 27 23:25:39 2003
+> +++ linux-2.5.59/drivers/video/radeonfb.c       Mon Jan 27 23:44:02 2003
+> @@ -2212,6 +2212,7 @@
+>         .fb_copyarea    = cfb_copyarea,
+>         .fb_imageblit   = cfb_imageblit,
+>  #endif
+> +       .fb_cursor      =  soft_cursor,
+>  };
+> 
 

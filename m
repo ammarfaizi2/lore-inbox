@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSLCMfv>; Tue, 3 Dec 2002 07:35:51 -0500
+	id <S261206AbSLCMnz>; Tue, 3 Dec 2002 07:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261205AbSLCMfv>; Tue, 3 Dec 2002 07:35:51 -0500
-Received: from twister.ispgateway.de ([62.67.200.3]:7685 "HELO
-	twister.ispgateway.de") by vger.kernel.org with SMTP
-	id <S261173AbSLCMfu>; Tue, 3 Dec 2002 07:35:50 -0500
-Date: Tue, 3 Dec 2002 13:44:00 +0100
-From: Steffen Moser <lists@steffen-moser.de>
-To: Fridtjof Busse <fridtjof@fbunet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile error with 2.4.20-ac1
-Message-ID: <20021203124359.GA19242@steffen-moser.de>
-Mail-Followup-To: Fridtjof Busse <fridtjof@fbunet.de>,
-	linux-kernel@vger.kernel.org
-References: <200212031135.49423@fbunet.de>
+	id <S261218AbSLCMnz>; Tue, 3 Dec 2002 07:43:55 -0500
+Received: from johanna5.ux.his.no ([152.94.1.25]:50603 "EHLO
+	johanna5.ux.his.no") by vger.kernel.org with ESMTP
+	id <S261206AbSLCMnz>; Tue, 3 Dec 2002 07:43:55 -0500
+Date: Tue, 3 Dec 2002 13:51:20 +0100
+From: Erlend Aasland <erlend-a@ux.his.no>
+To: Trivial Patch Monkey <trivial@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (i386)
+Message-ID: <20021203125120.GA2417@johanna5.ux.his.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212031135.49423@fbunet.de>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I noticed that CONFIG_UDF_RW is not used anywhere, so I removed it from all
+the defconfigs.
 
-* On Tue, Dec 03, 2002 at 11:35 AM (+0100), Fridtjof Busse wrote:
+Regards
+	Erlend Aasland
 
-> If I change an option (make menuconfig) and run 'make dep && make clean 
-> bzImage modules modules_install' afterwards, I get:
-
-You can try doing the "make clean" at first and the "mape dep" 
-then, i.e.:
-
-  make clean dep bzImage modules modules_install
-
-HTH!
-
-Regards,
-Steffen
+diff -urN linux-2.5.50/arch/i386/defconfig linux-2.5.50-eaa/arch/i386/defconfig
+--- linux-2.5.50/arch/i386/defconfig	Tue Oct 22 00:13:57 2002
++++ linux-2.5.50-eaa/arch/i386/defconfig	Tue Dec  3 00:48:05 2002
+@@ -804,7 +804,6 @@
+ CONFIG_EXT2_FS=y
+ # CONFIG_SYSV_FS is not set
+ CONFIG_UDF_FS=y
+-# CONFIG_UDF_RW is not set
+ # CONFIG_UFS_FS is not set
+ # CONFIG_UFS_FS_WRITE is not set
+ # CONFIG_XFS_FS is not set

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313562AbSDUQpW>; Sun, 21 Apr 2002 12:45:22 -0400
+	id <S313564AbSDUQpg>; Sun, 21 Apr 2002 12:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313564AbSDUQpV>; Sun, 21 Apr 2002 12:45:21 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43154 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313562AbSDUQpU>; Sun, 21 Apr 2002 12:45:20 -0400
-Date: Sun, 21 Apr 2002 10:45:18 -0600
-Message-Id: <200204211645.g3LGjIr20144@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S313567AbSDUQpf>; Sun, 21 Apr 2002 12:45:35 -0400
+Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:29075 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313564AbSDUQpf>;
+	Sun, 21 Apr 2002 12:45:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>, Roman Zippel <zippel@linux-m68k.org>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16yxqh-0000k6-00@starship>
+Date: Sat, 20 Apr 2002 18:46:11 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16ya3u-0000RG-00@starship> <3CC201F7.B3AC3FDF@linux-m68k.org> <20020421123257.A4479@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16yy03-0000kI-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Sunday 21 April 2002 18:27, Richard Gooch wrote:
-> > Daniel Phillips writes:
-> > > On Saturday 20 April 2002 18:13, Anton Altaparmakov wrote:
-> > > > Daniel,
-> > > > 
-> > > > This is not documentation for bitkeeper but how to use bitkeeper 
-> > > > effectively for kernel development. It happens to be DAMN USEFULL 
-> > > > documentation at that for anyone wanting to use bitkeeper for kernel 
-> > > > development so IMO it fully belongs in the kernel. Just like the 
-> > > > SubmittingPatches document does, too. Or are you going to remove that as well?
-> > > 
-> > > By that logic, we should also include the lkml FAQ in the kernel
-> > > tree.  Should we?
-> > 
-> > No. A pointer to the lkml FAQ is sufficient.
-> 
-> Was that a hint?
+On Sunday 21 April 2002 18:32, Jeff Garzik wrote:
+> On Sun, Apr 21, 2002 at 02:04:07AM +0200, Roman Zippel wrote:
+> Since Linus uses BK, and the document is there in the first place
+> to make life easier, Daniel is therefore making life more difficult
+> because of ideology, and no other reason.
 
-Not really. I'm just answering your question about whether the lkml
-FAQ should be distributed with the kernel sources. As far as I know,
-there is a pointer, but I haven't looked. If there isn't feel free to
-send Linus and Marcelo a patch.
+Yup, that's me.  No, I don't always check my conscience at the door.  If
+that were my habit I'd have spent the past three years comfortably
+programming big, expensive machines under Windows.
 
-> Then certainly, a pointer to the BK documentation would be
-> sufficient, and save download bandwidth as well.
+N.B., not implying you're morally bankrupt, no suggestion of that at
+all.  Still, since you just dumps on all those who prefer to follow
+their hearts, you deserve to be publically challenged.
 
-I wasn't talking about that. And I won't O:-) But I wonder if I added
-something to the lkml FAQ whether we might avoid some rounds of this
-repeat flamewar?
+Let's pull back a little from the proselytizing, shall we?  I'll modify
+my proposal to 'include just a pointer to the bk documentation in the
+kernel tree itself'.  This should satisfy everybody.
 
-Nah.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Daniel

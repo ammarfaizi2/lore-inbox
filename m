@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269411AbRHQBln>; Thu, 16 Aug 2001 21:41:43 -0400
+	id <S269404AbRHQBle>; Thu, 16 Aug 2001 21:41:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269412AbRHQBlf>; Thu, 16 Aug 2001 21:41:35 -0400
-Received: from unthought.net ([212.97.129.24]:9354 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S269411AbRHQBlY>;
-	Thu, 16 Aug 2001 21:41:24 -0400
-Date: Fri, 17 Aug 2001 03:41:37 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: David Ford <david@blue-labs.org>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: "VM watchdog"? [was Re: VM nuisance]
-Message-ID: <20010817034137.B2188@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	David Ford <david@blue-labs.org>, Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3B748AA8.4010105@blue-labs.org> <20010814140011.B38@toy.ucw.cz> <20010817002420.C30521@unthought.net> <3B7C72CE.60601@blue-labs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <3B7C72CE.60601@blue-labs.org>; from david@blue-labs.org on Thu, Aug 16, 2001 at 09:26:38PM -0400
+	id <S269412AbRHQBlX>; Thu, 16 Aug 2001 21:41:23 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:41223 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S269404AbRHQBlE>; Thu, 16 Aug 2001 21:41:04 -0400
+Message-ID: <3B7B03F5.4020E4C@didntduck.org>
+Date: Wed, 15 Aug 2001 19:21:25 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Airlie <airlied@skynet.ie>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: old_select vs sys_select
+In-Reply-To: <Pine.LNX.4.32.0108152359270.1907-100000@skynet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 16, 2001 at 09:26:38PM -0400, David Ford wrote:
-> I think it is an excellent way to do it.  Nobody said you have to run 
-> the program and nobody forces you to use a particular program with a 
-> particular policy.  It puts the OOM policy in userland where -you- 
-> decide when and how things happen.
+Dave Airlie wrote:
 > 
-
-Sure - what I was trying to say was, that I don't think the solution
-will work very well.
-
-...
+> On the VAX port I'm updating my syscalls to match some of the other
+> platforms,
 > 
-> The kernel allocates memory within itself.  We will still reach OOM 
-> conditions.  It can't be avoided.
+> why do some platforms defined old_select and some just use sys_ni_syscall
+> for the system call number for the old_select... is this purely to deal
+> with old applications that were compiled against old kernels, and so this
+> means I don't have to implement old_select on the VAX at all..
+> 
+> Dave.
 
-Good point.
+It's for handling older versions of libc (or applications that are
+statically linked).  If you're starting from ground zero, forget about
+any of that compatability cruft, as you will never encounter it for a
+new port.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+--
+
+				Brian Gerst

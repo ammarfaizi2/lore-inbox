@@ -1,148 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130758AbRAGLyA>; Sun, 7 Jan 2001 06:54:00 -0500
+	id <S131015AbRAGMBl>; Sun, 7 Jan 2001 07:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130668AbRAGLxu>; Sun, 7 Jan 2001 06:53:50 -0500
-Received: from limes.hometree.net ([194.231.17.49]:45844 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S130758AbRAGLxk>; Sun, 7 Jan 2001 06:53:40 -0500
-To: linux-kernel@vger.kernel.org
-Date: Sun, 7 Jan 2001 11:40:10 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <939kiq$11s$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <Pine.GSO.4.30.0101062253440.18916-100000@shell.cyberus.ca>, <200101070543.VAA24689@pizda.ninka.net>
-Reply-To: hps@tanstaafl.de
-Subject: [little bit OT] ip _IS_ _NOT_ ifconfig and route ! (was Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission policy!))
+	id <S130880AbRAGMBc>; Sun, 7 Jan 2001 07:01:32 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:29961 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130668AbRAGMBX>; Sun, 7 Jan 2001 07:01:23 -0500
+Message-ID: <000f01c078a2$09d34650$0201a8c0@p3x2nt>
+From: oliver.kowalke@t-online.de (Oliver Kowalke)
+To: "Neil Brown" <neilb@cse.unsw.edu.au>, <linux-kernel@vger.kernel.org>,
+        <linux-raid@vger.kernel.org>
+In-Reply-To: <001b01c0789c$f10398f0$0201a8c0@p3x2nt> <14936.22249.574655.722591@notabene.cse.unsw.edu.au>
+Subject: Re: kernel 2.4.0 + software RAID causes problems - SOLVED
+Date: Sun, 7 Jan 2001 13:04:50 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davem@redhat.com (David S. Miller) writes:
+Hello Neil,
 
->   Date:   Sat, 6 Jan 2001 23:00:10 -0500 (EST)
->   From: jamal <hadi@cyberus.ca>
+thank you for your help - devfs=nomount fixed my problem.
 
->   I think someone should just flush ifconfig down some toilet. a wrapper
->   around "ip" to to give the same look and feel as ifconfig would be a good
->   thing so that some stupid program that depends on ifconfig look and feel
->   would be a good start.
+with regards,
+Oliver
 
->I could not agree more.  This reminds me to do something I could not
->justify before, making netlink be enabled in the kernel and
->non-configurable.
+> On Sunday January 7, oliver.kowalke@t-online.de wrote:
+> > Hi,
+> >
+> > on my machine (x86) I've debian2.2r2 with kernel 2.2.16 + raidtools 0.9
+> > running. No problems. Yesterday I installed kern 2.4.0 with the same
+> > configuration like 2.2.16. I added following to the boot params:
+> >
+> > root=/dev/md0 md=0,/dev/hde1,/dev/hdg1
+> >
+> > If I boot 2.4.0 I can see following:
+> >
+> > ...
+> > <init of raid>
+> > raid:0 md-size is 249728 blocks
+> > raid0: conf->smallest->size is 249728 blocks
+> > raid0: nb_zone is 1
+> > raid0: blocking 8 bytes for hash
+> > md: updating md0 RAID superblock on device                <<<------
+> > <...>
+> > ... autorun DONE
+> > md: loading md0
+> > ... md0 already autodetected -use raid=noautodetect
+> > <...>
+> > Parallelizing fsck version 1.18
+> > fsck.ext2: No such file or directory while trying to open /dev/md0
+(null):
+> > The superblock could not be read or does not describe a correct ext2
+> > filesystem.
+> >
+> >
+> > The filessystem is clean because I can mount it with kernel 2.2.16
+without
+> > problems. Maybe kernel 2.4.0 does the wrong in updating the RAIS
+superblock
+> > on md0.
+> > Please help!
+> >
+>
+> My guess - based on incomplete info - is that you have compiled in
+> devfs and told it to automount /dev.
+> If this could be the case, try booting with the extra option:
+>
+>    devfs=nomount
+>
+> The problem would be that /etc/fstab expects to find /dev/md0, but
+> devfs only provides /dev/md/0 - until devfsd is running, which
+> presumbly isn't until after fsck completes.
+>
+> If that isn't the case I need more detail:
+>
+> 1/ I assume that your root filesystem is a raid0 array of /dev/hde1
+>    and /dev/hdg1.   Is that correct?
+> 2/ What happens when you add the "raid=noautodetect" boot option as
+>    suggested in the log?
+> 3/ What happens if you boot *without* the md=0,.... option?
+>
+> NeilBrown
+>
+>
+> > with regards,
+> > Oliver
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> > the body of a message to majordomo@vger.kernel.org
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
 
-The fact there there are no man pages, no backward compatibility and
-no information for people coming from other unixes (and pretty much
-everything else _has_ ifconfig and friends), that iproute does not
-work with older kernels, that everyone that reads the docs and looks
-for ifconfig and that booting another kernel completely breaks your ip
-configuration (which is, in the times of co-located, headless servers
-some 3,000 miles away somehow a concern to administrators and users)
-should IMNSVHO count at least a little towards keeping the older
-tools.
-
-As long as "man ip" on my machines returns "ip(7) - ip - Linux IPv4
-protocol implementation", using "ip" exclusively instead of ifconfig
-and route is IMHO not an option for anyone else than bleeding edge
-hackers and linux gurus.
-
-ip is an ultra-powerful command for the linux ip routing
-subsystem. But at least IMHO it introduces so many new and different
-concepts that there should be an "ip_lite" config command that at
-least related semantically to the ifconfig/route/arp combo, so that
-you can tell newbies (and I consider in this case people with 10+
-years of Solaris experience as "linux routing command newbies") that
-
-ifconfig eth0 ----> ip link show eth0
-
-and so on. Give a small command with a small man page for these
-"normal" cases and give all-powerful "ip" for all the cool, advanced
-stuff.
-
-Maybe the major distribution vendors should pay a decent technical
-writer to work with Alexey to whip up man pages for these tools. There
-are none in the iproute-current package (I looked) which contains all
-the informations in an unix-compatible format. 
-
-And yes, I don't consider HTML, tex, texinfo or info or (horrors) PS
-and PDF format "decent documentation", Unix-style wise. At least as
-long as we don't have a man command that understands HTML like Solaris
-man does.
-
-yes, it _is_ cool to type "ip route show" and pretend to be on level
-with Cisco. But where is the documentation to _parse_ the displayed
-information aside from reading lots of mailing list articles and code?
-And don't tell me it's in the docs in the package. There is a
-reference with at best terse examples. 
-
-To quote a randomly picked part (p.25):
-
---- cut ---
-scope SCOPE_VAL
-
-- scope of the destinations covered by the route prefix. SCOPE_VAL may
-  be a number or a string from the file /etc/iproute2/rt_scopes. If
-  this parameter is omitted, ip assumes scope global for all gatewayed
-  unicast routes, scope link for direct unicast routes and broadcasts
-  and scope host for local routes.
-
---- cut ---
-
-% ip route show
-192.168.2.4 dev eth0  scope link 
-192.168.2.0/24 dev eth0  proto kernel  scope link  src 192.168.2.4 
-127.0.0.0/8 dev lo  scope link 
-default via 192.168.2.1 dev eth0 
-
-fine. Why is the last route (which is IMHO a gatewayed unicast route)
-not
-
-0.0.0.0/0 vial 192.168.2.1 dev eth0 scope global
-
-?
-
-In fact it behaves like this:
-
-% ip route show scope global
-default via 192.168.2.1 dev eth0 
-
-I didn't find any "the default route is displayed different and scope
-global is normally omitted" in the documentation. And the list goes
-on.
-
-And, please, convert all this "link" "route" "show" with abreviations
-and abiguities into either getopt "-l" "-r" "s" or long_getopts
-"--link" "--route" "--show" command line options. Why? Easy: consider
-
-link == "-t link"   and show == "-s"
-
-then
-
-"ip -t link -s"  yields the same result as "ip -s -t link"
-
-but
-
-% ip link show
-1: lo: <LOOPBACK,UP> mtu 3924 qdisc noqueue 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:50:04:48:b9:f0 brd ff:ff:ff:ff:ff:ff
-% ip show link
-Object "show" is unknown, try "ip help".
-
-any further questions? If you write scripts where you push your
-arguments on a stack and then do a " join arguments into line, execute
-line", having position independend argument order is a clear win over
-every syntactic sugar. But then again, it is a real world use.
-
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

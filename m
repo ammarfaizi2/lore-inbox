@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUHHTSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUHHTZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUHHTSi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 15:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUHHTSi
+	id S266157AbUHHTZi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 15:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUHHTZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 15:18:38 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:945 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S266188AbUHHTS1 (ORCPT
+	Sun, 8 Aug 2004 15:25:38 -0400
+Received: from gprs214-77.eurotel.cz ([160.218.214.77]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266157AbUHHTZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 15:18:27 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: block layer sg, bsg
-Date: Sun, 8 Aug 2004 15:18:25 -0400
-User-Agent: KMail/1.6.2
-Cc: "David S. Miller" <davem@redhat.com>, yoshfuji@linux-ipv6.org,
-       jgarzik@pobox.com, axboe@suse.de, linux-kernel@vger.kernel.org
-References: <20040804191850.GA19224@havoc.gtf.org> <200408060303.40261.phillips@arcor.de> <20040806150416.GA90652@muc.de>
-In-Reply-To: <20040806150416.GA90652@muc.de>
-MIME-Version: 1.0
+	Sun, 8 Aug 2004 15:25:36 -0400
+Date: Sun, 8 Aug 2004 21:23:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: highmem handling again
+Message-ID: <20040808192300.GA659@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408081518.25522.phillips@arcor.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 August 2004 11:04, Andi Kleen wrote:
-> > Somewhere I got the idea that if a structure is declared with attribute
-> > PACKED, gcc will generate alignment-independent code (e.g., access each
-> > field byte by byte) on alignment-restricted architectures.  So if what I
-> > imagine about gcc is true, what issues remain?  These structs have to be
-> > declared packed anyway and with fixed field sizes, or the layout will
-> > vary across architectures.
->
-> With packed things should be fine for x86-64/i386. However it may
-> generate bad code for other architectures.
+Hi!
 
-That's the question.  From talking to gcc developers in the former Cygnus 
-office, it's thought that alignment-restricted architectures are supposed to 
-do bytewise access (or equivalent) to PACKED fields, but nobody was sure if 
-every architecture implements this, or even if it's the formally defined 
-behavior for PACKED.  That's a subset of GCC developers of course.
+I agree that swsusp_free is not the right place to restore_highmem(),
+but I can't find "right" place to do it... Best I could come up is
+with is:
 
-As far as I can see, if PACKED doesn't work this way on all architectures then 
-it's broken and needs to be fixed.
+It did not work at the end of swsusp_resume, or at the end of
+swsusp_restore, IIRC.
 
-Regards,
+								Pavel
 
-Daniel
+--- clean-mm/kernel/power/disk.c	2004-07-28 23:39:49.000000000 +0200
++++ linux-mm/kernel/power/disk.c	2004-08-08 21:11:38.000000000 +0200
+@@ -184,8 +187,11 @@
+ 			error = power_down(pm_disk_mode);
+ 			pr_debug("PM: Power down failed.\n");
+ 		}
+-	} else
++	} else {
++		extern int restore_highmem(void);
++		restore_highmem();
+ 		pr_debug("PM: Image restored successfully.\n");
++	}
+ 	swsusp_free();
+  Done:
+ 	finish();
+--- clean-mm/kernel/power/swsusp.c	2004-07-28 23:39:49.000000000 +0200
++++ linux-mm/kernel/power/swsusp.c	2004-08-08 20:55:59.000000000 +0200
+@@ -523,7 +523,7 @@
+ 	return 0;
+ }
+ 
+-static int restore_highmem(void)
++int restore_highmem(void)
+ {
+ 	while (highmem_copy) {
+ 		struct highmem_page *save = highmem_copy;
+
+
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

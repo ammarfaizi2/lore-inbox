@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289277AbSBJEmL>; Sat, 9 Feb 2002 23:42:11 -0500
+	id <S289288AbSBJEnV>; Sat, 9 Feb 2002 23:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289288AbSBJEmC>; Sat, 9 Feb 2002 23:42:02 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60621 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289277AbSBJElz>; Sat, 9 Feb 2002 23:41:55 -0500
-From: "Nivedita Singhvi" <nivedita@us.ibm.com>
-Importance: Normal
-Sensitivity: 
-Subject: Re: tcp_keepalive_intvl vs tcp_keepalive_time?
-To: landley@trommello.org
+	id <S289293AbSBJEnN>; Sat, 9 Feb 2002 23:43:13 -0500
+Received: from iggy.triode.net.au ([203.63.235.1]:10967 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S289288AbSBJEm4>; Sat, 9 Feb 2002 23:42:56 -0500
+Date: Sun, 10 Feb 2002 15:42:09 +1100
+From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF46DAF8B5.5C736002-ON65256B5C.0018A2C8@boulder.ibm.com>
-Date: Sun, 10 Feb 2002 10:10:15 +0530
-X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 5.0.9 |November 16, 2001) at
- 02/09/2002 09:41:53 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: Re: ALI 15X3 DMA Freeze
+Message-ID: <20020210154209.A15150@iggy.triode.net.au>
+In-Reply-To: <20020210124207.C5191@iggy.triode.net.au> <E16Zjlb-0000Bh-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16Zjlb-0000Bh-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 10, 2002 at 02:30:59AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've picked up ide.2.4.17.02072002.patch from www.linux-ide.org
+and compiled it with 2.4.17. I presume that this was the patch
+you were referring to?
 
-> Would someone be kind enough to explain the difference between
-> tcp_keepalive_intvl and tcp_keepalive_time?
-> Documentation/filesystems/proc.txt says tcp_keepalive_time is the
-interval
-> between sending keepalive probes, but doesn't mention
-tcp_keepalive_intvl...
+With Andre's IDE patch and 2.4.17, my machine locked up when 
+compiling 2.4.17 with both the DMA on and the DMA off.
 
-tcp starts a keepalive timer for each connection. if the connection is idle
-for tcp_keepalive_time seconds, it starts sending probes to the other end.
-It sends a maximum of tcp_keepalive_probes each tcp_keepalive_intvl
-seconds apart, and if the other end hasnt responded by then, it drops the
-connection.
+With patch-2.4.18-pre9, the machine only locked up when
+DMA was set on, with DMA off, I could recompile the kernel
+as many times as I wanted. 
 
-default values:
+Following are kernel messages from the kernel boot with
+Andre's IDE patch.
 
-tcp_keepalive_intvl = 75 seconds
-tcp_keepalive_probes = 9
-tcp_keepalive_time = 7200 seconds (2 hours)
+Feb 10 15:25:10 solaris kernel: Calibrating delay loop... 3158.83 BogoMIPS
+Feb 10 15:25:10 solaris kernel: PCI: Using IRQ router ALI [10b9/1533] at 00:07.0
+Feb 10 15:25:10 solaris kernel: ALI15X3: IDE controller on PCI bus 00 dev 20
+Feb 10 15:25:10 solaris kernel: ALI15X3: chipset revision 196
+Feb 10 15:25:10 solaris kernel: ALI15X3: not 100%% native mode: will probe irqs later
+Feb 10 15:25:10 solaris kernel: ALI15X3: ATA-66/100 forced bit set (WARNING)!!
+Feb 10 15:25:10 solaris kernel: ALI15X3: simplex device:  DMA disabled
+Feb 10 15:25:10 solaris kernel: ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+Feb 10 15:25:10 solaris kernel: ALI15X3: simplex device:  DMA disabled
+Feb 10 15:25:10 solaris kernel: ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+Feb 10 15:25:11 solaris random: Initializing random number generator:  succeeded
 
-> The problem I'm trying to track down is ssh connections where the
-connection
-> times out but the session doesn't go away until a key is pressed.  (I.E.
-> blocking reads don't notice the connection going down underneath them,
-not
-> even if left overnight.)
+Feb 10 15:25:10 solaris kernel: ide_setup: ide0=ata66
+Feb 10 15:25:10 solaris kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
+Feb 10 15:25:10 solaris kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Feb 10 15:25:10 solaris kernel: ALI15X3: IDE controller on PCI bus 00 dev 20
+Feb 10 15:25:10 solaris kernel: ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+Feb 10 15:25:10 solaris kernel: ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+Feb 10 15:25:10 solaris kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Feb 10 15:25:10 solaris kernel: ide1 at 0x170-0x177,0x376 on irq 15
 
-not clear from the info here whats happening in your case...
-(stats?)
+Please let me know what to try to test next.
 
-> Rob
+Regards.  Paul
 
-thanks,
-Nivedita
 
+
+On Sun, Feb 10, 2002 at 02:30:59AM +0000, Alan Cox wrote:
+> > I'm using kernel 2.4.18-pre9, which has a problem when I switch DMA on 
+> > the IDE hard drive. With DMA enabled, I cannot complete a kernel
+> > compile without the machine locking up. The motherboard is an
+> 
+> Start by picking up the ide updates either from the -ac kernel or from
+> Andre's web site. 
 

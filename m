@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264456AbRFOR4m>; Fri, 15 Jun 2001 13:56:42 -0400
+	id <S264436AbRFOSBN>; Fri, 15 Jun 2001 14:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264436AbRFOR4c>; Fri, 15 Jun 2001 13:56:32 -0400
-Received: from laird.ocp.internap.com ([64.94.114.35]:2572 "EHLO
-	laird.ocp.internap.com") by vger.kernel.org with ESMTP
-	id <S264456AbRFOR4S>; Fri, 15 Jun 2001 13:56:18 -0400
-Date: Fri, 15 Jun 2001 10:56:06 -0700 (PDT)
-From: Scott Laird <laird@internap.com>
-X-X-Sender: <laird@laird.ocp.internap.com>
-To: <chuckw@altaserv.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.2.19 -> 80% Packet Loss 
-In-Reply-To: <Pine.LNX.4.33.0106150711350.20189-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0106151054040.2642-100000@laird.ocp.internap.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264460AbRFOSBD>; Fri, 15 Jun 2001 14:01:03 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61707 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264436AbRFOSA5>; Fri, 15 Jun 2001 14:00:57 -0400
+Date: Fri, 15 Jun 2001 14:58:56 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Michael Nguyen" <mnguyen@ariodata.com>
+Cc: "David S. Miller" <davem@redhat.com>, "Petko Manolov" <pmanolov@Lnxw.COM>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: RE2: kmalloc
+Message-ID: <20010615145856.C960@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Michael Nguyen" <mnguyen@ariodata.com>,
+	"David S. Miller" <davem@redhat.com>,
+	"Petko Manolov" <pmanolov@Lnxw.COM>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01A9A2@orion.ariodata.com>; from mnguyen@ariodata.com on Fri, Jun 15, 2001 at 10:41:59AM -0700
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Fri, Jun 15, 2001 at 10:41:59AM -0700, Michael Nguyen escreveu:
+> Hi David,
+> 
+> >>Petko Manolov writes:
+> >> kmalloc fails to allocate more than 128KB of
+> >> memory regardless of the flags (GFP_KERNEL/USER/ATOMIC)
+> >> 
+> >> Any ideas?
+> 
+> >Yes, this is the limit.
+> 
+> Im relatively new to Linux. I would like to ask.
+> Is this limit per kmalloc()? Can I do this multiple times?
 
+the limit is for a single invocation of kmalloc, yes, you can do it multiple
+times.
 
-
-On Fri, 15 Jun 2001 chuckw@altaserv.net wrote:
->
-> > You can fix this by upping the socket buffer that ping asks for (look
-> > for setsockopt( ... SO_RCVBUF ...)) and then tuning the kernel to
-> > allow larger socket buffers.  The file to fiddle with is
-> > /proc/sys/net/core/rmem_max.
->
-> Currently it is set to 65535. I doubled it several times and each time saw
-> no change when I sent it a ping flood with packet size 64590 or higher.
-> What sort of magnitude were you thinking?
-
-Did you change both /proc/sys/net/core/rmem_max *and* ping's setsockopt?
-Do an strace on ping and see what's happening.
-
-
-Scott
-
+- Arnaldo

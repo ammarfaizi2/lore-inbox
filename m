@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSIOUgA>; Sun, 15 Sep 2002 16:36:00 -0400
+	id <S316684AbSIOUk2>; Sun, 15 Sep 2002 16:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318255AbSIOUgA>; Sun, 15 Sep 2002 16:36:00 -0400
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:40676 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S318253AbSIOUgA>;
-	Sun, 15 Sep 2002 16:36:00 -0400
-Message-ID: <3D84F043.1070409@candelatech.com>
-Date: Sun, 15 Sep 2002 13:40:35 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jamal <hadi@cyberus.ca>
-CC: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  Enable sending network traffic to local machine over
- external interfaces.
-References: <Pine.GSO.4.30.0209151616280.22001-100000@shell.cyberus.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318255AbSIOUk2>; Sun, 15 Sep 2002 16:40:28 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:63119 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S316684AbSIOUk1>; Sun, 15 Sep 2002 16:40:27 -0400
+Date: Sun, 15 Sep 2002 22:06:51 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] binfmt_script: interpreted interpreter doesn't work
+Message-ID: <20020915220651.C642@nightmaster.csn.tu-chemnitz.de>
+Reply-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+References: <Pine.GSO.4.30.0209151910220.22107-100000@balu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.30.0209151910220.22107-100000@balu>; from pozsy@uhulinux.hu on Sun, Sep 15, 2002 at 07:15:38PM +0200
+X-Spam-Score: -13.0 (-------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17qgGh-00043K-00*Q/D0wLW0YDM*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> What bad stuff are you smoking lately? Trying to turn linux into a traffic
-> generator OS? ;-> Havent you been accused of that already?
-> Actually, this is probably one of the few times i agree with you because i
-> may have use for this; i dont think the maintainers may. Infact i think
-> you are just about to be shot.
-> How about putting ifdefs so that the code only gets activated if
-> packetgen is active?
+Hi Pozsar,
+
+On Sun, Sep 15, 2002 at 07:15:38PM +0200, Pozsar Balazs wrote:
+> This may well not be bug, rather an intended feature, but please enlighten
+> me why the following doesn't work:
 > 
-> cheers,
-> jamal
+> I have two scripts:
+> /home/pozsy/a:
+> #!/bin/sh
+> echo "Hello from a!"
 > 
+> /home/pozsy/b:
+> #!/home/pozsy/a
+> echo "hello from b!"
+> 
+> Both of them has +x permissions.
+> But I cannot execute the /home/pozsy/b script:
+> 
+> Isn't this "indirection" allowed?
 
-Pktgen is independent of this particular hack.  One of the flag #defines is in the
-patch to make my life easier, but it can be removed if that makes someone happier...
+Right, this isn't allowed to avoid eating kernel resources
+without getting anything done.
 
-Right now, I am getting panics after 30 minutes running at around 250Mbps of tcp traffic to
-myself over GigE nics.  But, I'm running NAPI e1000, the send-to-self hack, and
-had the pktgen module loaded....  Trying to narrow it down...but so far, it looks
-like memory corruption, perhaps somewhere in tcp/ip...
+Solution is to always compile an interpreter or to write 
+a wrapper in C, which is compiled and calls the perl interpreter
+with your perl script. This wrapper would be ANSI-C with really
+basic POSIX extensions and should thus be as portable as perl ;-)
 
-It can still be #ifdef'd, but some of the code just fixes the SO_BINDTODEVICE
-feature, so I think that may be worth putting in anyway...
+So you hide the indirection from the kernel this way.
 
-Ben
+Of course you now define the wrapper as the interpreter for your
+perl scripts.
 
+Hope that helps.
+
+Regards
+
+Ingo Oeser
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

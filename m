@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbTB0ICU>; Thu, 27 Feb 2003 03:02:20 -0500
+	id <S261857AbTB0IOi>; Thu, 27 Feb 2003 03:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbTB0ICU>; Thu, 27 Feb 2003 03:02:20 -0500
-Received: from daimi.au.dk ([130.225.16.1]:54185 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S261689AbTB0ICT>;
-	Thu, 27 Feb 2003 03:02:19 -0500
-Message-ID: <3E5DC86C.93AFA6CB@daimi.au.dk>
-Date: Thu, 27 Feb 2003 09:12:28 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dominik Kubla <dominik@kubla.de>
-CC: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-References: <20030219112111.GD130@DervishD> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <200302270808.21035.dominik@kubla.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S261868AbTB0IOi>; Thu, 27 Feb 2003 03:14:38 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:3855 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261857AbTB0IOh>; Thu, 27 Feb 2003 03:14:37 -0500
+Date: Thu, 27 Feb 2003 08:24:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, bergner@vnet.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre5
+Message-ID: <20030227082448.A27178@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>, bergner@vnet.ibm.com,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 27, 2003 at 03:14:44AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Kubla wrote:
-> 
-> I would recommend to replace /etc/mtab with a pseudo-FS like Sun did
-> for /etc/mnttab:
-> 
-> # uname -rs
-> SunOS 5.8
-> # mount -p
-> ...
-> mnttab - /etc/mnttab mntfs - no dev=39c0000
-> ...
+> <bergner@vnet.ibm.com>:
+>   o Remove kdb from PowerPC-64
+>   o ppc64 updates to 2.4.21-pre4
 
-How does that thing behave? I have considered a /proc/mtab implementation,
-that might be slightly similar. It would have to be like /proc/mounts, but
-differ in a few fields. The mountpoint and filesystem fields should be
-exactly like /proc/mounts, while the device and options fields should be
-strings initialized with the same values as /proc/mounts, but otherwise
-writable from userspace.
+This removes the *xattr and tkill syscalls from ppc64 which is bogus.
+It would be really nice if arch maintainers could actually follow mainline
+instead of some vendor tree and do blind "fixups"..
 
-Every line written to /proc/mtab should be parsed into the fields, and
-the mountpoints should be searched for a match, if a match is found, the
-device and options fields are updated, otherwise the write is simply
-ignored.
-
-How does people like this idea? Should something more be done about the
-options field? Should they be checked for obvious inconsistencies, or
-should a write attempt to remount the filesystem with the new options?
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

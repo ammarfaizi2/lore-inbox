@@ -1,64 +1,151 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSE2USe>; Wed, 29 May 2002 16:18:34 -0400
+	id <S315461AbSE2UWy>; Wed, 29 May 2002 16:22:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315462AbSE2USd>; Wed, 29 May 2002 16:18:33 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:25617 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315459AbSE2USb>; Wed, 29 May 2002 16:18:31 -0400
-Message-ID: <3CF5377C.777FB41D@linux-m68k.org>
-Date: Wed, 29 May 2002 22:18:04 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S315463AbSE2UWx>; Wed, 29 May 2002 16:22:53 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:50569 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S315461AbSE2UWv>; Wed, 29 May 2002 16:22:51 -0400
+Date: Wed, 29 May 2002 15:22:52 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.19 - What's up with the kernel build?
+Message-ID: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-In-Reply-To: <Pine.LNX.4.21.0205291440420.17583-100000@serv> <1022684357.4123.219.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Alan Cox wrote:
 
-> > 1. We are talking about a free software project here!
-> > 2. They asked a lawyer, here is the result:
-> >    http://lwn.net/2002/0131/a/rtai-24.1.8.php3
-> 
-> So why is he still moaning. He's got a legal opinion that he can use
-> binary apps on RTAI without paying the license. What else does he want ?
+Okay, as people probably already noticed, I touched quite a lot of
+Makefiles lately. Contrary to what the patches (which touched many
+files) might imply, not much did actually change, in particular not
+much visible outside of the kernel build process.
 
-That Victor acknowledges that this is correct legal advice and he will
-accept that?
-Instead we see statements like this: "it would still not be permitted to
-link binary modules into the derived program without our permission. 
-RTAI "user space"  to me, does not escape this issue."
-How will he do this? To our knowledge applications don't infringe the
-patent and he can't change the kernel license. What does he know that we
-don't know?
+There is still quite a bit left to do (in particular improving
+dependency generation and modversions handling), but I think it makes
+sense to explain what happened so far.
 
-Let me quote from Victor's FAQ:
-"If you want to mix GPL and non-GPL software under unmodified Open
-RTLinux, you may be able to do so as well, but we suggest caution. The
-intent of our license and the GPL itself is to permit reciprocal sharing
-of software technology. If you have software that you prefer not to make
-available to others, then you may be able to take advantage of the
-"unmodified Open RTLinux" provisions of our license or you may need to
-use RTLinux/Pro."
-In other word: if you want to be safe, use the license or buy our
-product. Other options are not mentioned. What has the user to be
-cautioned of, when he mixes the GPL with the LGPL? In my understanding
-these are subtle, but clear threats against unauthorized use of the
-patent.
-It's nice that he wants to help the GPL, but we should refuse such help.
-I would do quite a lot to promote the GPL, but I would never force
-people to use the GPL. It's very important that people do this out of
-their free will and Victor doesn't offer much choice here. A patent is a
-very dangerous tool, it gives you an exclusive right, which must not be
-abused.
+There's also some points (marked with >>>) where I'd like to get
+feedback on how things should be handled in the future.
 
-bye, Roman
+
+For users (i.e. people who compile kernels)
+-------------------------------------------
+Not much changed at all. Do what you always did, it should still work
+the same.
+
+o vmlinux/(b)zImage etc. and modules can now be built in the same
+  pass.
+  For testing this feature, please use
+
+      make BUILD_MODULES=1 vmlinuz/(b)zImage/whatever,
+
+  i.e. add the "BUILD_MODULES=1" to the command line you normally use,
+  and you save the additional "make modules" run.
+
+>>> What do you guys think how this should be handled in the future? -
+>>> my suggestion would be to make this behavior the default, and, in
+>>> case someone needs it, add the option to say "BUILD_MODULES=0".
+  
+o you can ask to build a single target, like 
+
+      make some/dir/foo.[iso]
+
+  and it'll give you preprocessed/assembler/object file output, provided
+  that some/dir/foo.c or some/dir/foo.S exists. It should get all cases
+  correct (well, except for arch/i386/kernel/{head.o,init_task.o}, which
+  will cause an entire recursive run), with adding the right flags,
+  compiling as modular etc.
+
+o when your source tree changed only little or not at all, performance
+  should be quite a bit improved. If you do "make BUILD_MODULES=1 
+  vmlinux", the number of "make" invocations should be down by about a 
+  factor of three compared to a previous "make vmlinux modules". Also, 
+  vmlinux will not be relinked if nothing actually changed. (If lots of 
+  files changed, the time make consumes will be down in the noise, the 
+  build time will be dominated by gcc).
+
+>>> It's possible with only small changes to provide a quiet mode now,
+>>> which would not print the entire command lines but only
+>>>
+>>>	  Descending into drivers/isdn/kcapi
+>>>	  Compiling kcapi.o
+>>>	  Compiling capiutil.o
+>>>	  Linking kernelcapi.o
+>>>	  ...
+>>>
+>>> Is that considered useful?
+
+For developers:
+---------------
+
+If you had clean Makefiles for your subsystem/driver/whatever before,
+again, not much changed.
+
+o "list-multi" + associated link rules are gone for good. It's been
+  like that for a couple of months now, so that's probably no news
+  for you.
+
+o Descending into and linking subdirs was often handled with constructs
+  like the following:
+
+       subdir-$(CONFIG_E100) += e100
+       ifeq ($(CONFIG_E100),y)
+         obj-y += e100/e100.o
+       endif 
+
+  This can now be expressed in a much more compact way as
+
+       obj-$(CONFIG_E100) += e100/
+
+  which basically means the exact same thing:
+  - if CONFIG_E100=y, descend into the subdir and link the result
+  - if CONFIG_E100=m, descend into the subdir and build the modules there
+  - otherwise, ignore that subdir
+
+  Only requirement is that the O_TARGET in the subdir (that's what getting
+  linked in, "e100.o" in the example above) is named "built-in.o". To
+  simplify things even further, just leaving out the "O_TARGET := ..."
+  line does the right thing, it uses "built-in.o" as default. Anyway,
+  the conversion is mostly done now, so you don't have to actually deal
+  with it.
+
+o Once we make "module and built-in in one pass" default, the
+
+       mod-subdirs := ...
+
+  lines can go, too. Nobody understood what they're there for anyway,
+  right? ;-)
+
+For arch maintainers:
+---------------------
+
+o In the arch specific Makefiles, you needed to build not only 
+  O_TARGET (or L_TARGET) out of $(obj-y) and the modules 
+  in $(obj-m), but also additional objects, e.g. for i386: 
+  "head.o" and "init_task.o"
+
+  This can (and should) be done cleanly now, by adding such targets to
+  the variable EXTRA_TARGETS instead of playing games with overriding
+  Rules.make's "first_rule:"
+
+  The conversion is basically done, so you don't really need to
+  bother.
+
+o Rules.make provides standard rules for assembling files now,
+
+  So use them - again, the conversion is done already, just don't undo
+  it.
+
+
+
+BTW, yeah, I know, Documentation/kbuild/makefiles.txt could use an
+update. Will do that...
+
+
+--Kai
+
+

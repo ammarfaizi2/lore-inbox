@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSJZVVZ>; Sat, 26 Oct 2002 17:21:25 -0400
+	id <S261523AbSJZVUx>; Sat, 26 Oct 2002 17:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261552AbSJZVVY>; Sat, 26 Oct 2002 17:21:24 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7686 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id <S261541AbSJZVVV>;
-	Sat, 26 Oct 2002 17:21:21 -0400
-Date: Sat, 26 Oct 2002 23:27:31 +0200
-From: romieu@fr.zoreil.com
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: AX.25 in 2.5.43
-Message-ID: <20021026232731.A19434@electric-eye.fr.zoreil.com>
-References: <1035666228.1504.7.camel@aurora.localdomain>
+	id <S261541AbSJZVUx>; Sat, 26 Oct 2002 17:20:53 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:50577 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S261523AbSJZVUw>; Sat, 26 Oct 2002 17:20:52 -0400
+Date: Sat, 26 Oct 2002 14:27:04 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
+Message-ID: <20021026142704.A13207@lucon.org>
+References: <20021024163945.A21961@lucon.org> <3DB88715.7070203@pobox.com> <20021024165631.A22676@lucon.org> <1035540031.13032.3.camel@irongate.swansea.linux.org.uk> <20021025091102.A15082@lucon.org> <20021025202600.A3293@lucon.org> <3DBB0553.5070805@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035666228.1504.7.camel@aurora.localdomain>; from tadams-lists@myrealbox.com on Sat, Oct 26, 2002 at 05:03:48PM -0400
-X-Organisation: Marie's fan club - III
+In-Reply-To: <3DBB0553.5070805@pobox.com>; from jgarzik@pobox.com on Sat, Oct 26, 2002 at 05:12:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trever L. Adams <tadams-lists@myrealbox.com> :
-> I haven't tried this in 2.5.44 yet.   I am just beginning to play with
-> this myself.  Has this been fixed or should I dig into it?
+On Sat, Oct 26, 2002 at 05:12:51PM -0400, Jeff Garzik wrote:
+> Well, WRT your implementation, the function you add is dead code if your 
+> new config variable is not set, which is not desireable at all.
 
-[undeclared AX25_P_IP]
+I am not sure if I understand what you were trying to say. If
+CONFIG_PCI_SORT_BY_BUS_SLOT_FUNC is not set, you should be able to 
+pass "pci=bussort" to kernel to sort the PCI device by bus, slot and
+function. Did I miss something?
 
-Fixed. No need to dig. Upgrade.
+> 
+> WRT the overall idea, I would prefer to see what Linus and Martin Mares 
+> (and Ivan K) thought about it, before merging it.  The x86 PCI code is 
+> very touchy, and your patch has the potential to change driver probe 
+> order for little gain.
+> 
 
---
-Ueimor
+The whole purpose of my patch is to change PCI driver probe order in
+such a way that is BIOS independent.
+
+
+H.J.

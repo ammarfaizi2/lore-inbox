@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVAHRSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVAHRXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVAHRSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 12:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVAHRSQ
+	id S261243AbVAHRXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 12:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVAHRWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 12:18:16 -0500
-Received: from holomorphy.com ([207.189.100.168]:47592 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261230AbVAHRRt (ORCPT
+	Sat, 8 Jan 2005 12:22:38 -0500
+Received: from orb.pobox.com ([207.8.226.5]:8155 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261220AbVAHRW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 12:17:49 -0500
-Date: Sat, 8 Jan 2005 09:17:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andy Isaacson <adi@hexapodia.org>, Linus Torvalds <torvalds@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, akpm@osdl.org
-Subject: Re: VM fixes [->used_math to PF_USED_MATH] [6/4]
-Message-ID: <20050108171711.GW9636@holomorphy.com>
-References: <20041224174156.GE13747@dualathlon.random> <20041224100147.32ad4268.davem@davemloft.net> <20041224182219.GH13747@dualathlon.random> <Pine.LNX.4.58.0412241533170.2353@ppc970.osdl.org> <20041225022721.GR13747@dualathlon.random> <20041225032430.GT13747@dualathlon.random> <20041225145321.GU13747@dualathlon.random> <20041227070309.GA28907@hexapodia.org> <20050102154148.GA5164@dualathlon.random>
+	Sat, 8 Jan 2005 12:22:29 -0500
+Date: Sat, 8 Jan 2005 09:22:21 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ncunningham@linuxmail.org
+Subject: Re: 2.6.10-mm2: swsusp regression [update]
+Message-ID: <20050108172221.GA4306@ip68-4-98-123.oc.oc.cox.net>
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501081049.02862.rjw@sisk.pl> <20050108131909.GA7363@elf.ucw.cz> <200501081610.57625.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050102154148.GA5164@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <200501081610.57625.rjw@sisk.pl>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 26, 2004 at 11:03:09PM -0800, Andy Isaacson wrote:
->> I can't find any authoritative source for that assertion, but google
->> supports it:
->> http://sources.redhat.com/ml/libc-alpha/2002-09/msg00328.html
+On Sat, Jan 08, 2005 at 04:10:57PM +0100, Rafael J. Wysocki wrote:
+> If I comment out only the modification of jiffies in timer_resume() in 
+> arch/x86_64/kernel/time.c (ie line 986), everything seems to work, but I get 
+> "APIC error on CPU0: 00(00)" after device_power_up(), which seems strange to 
+> me, because I boot with "noapic".  On the other hand, if it's not commented 
 
-On Sun, Jan 02, 2005 at 04:41:48PM +0100, Andrea Arcangeli wrote:
-> This is a nice reference, thanks for the info (I personally only worked
-> with ev6 so I probably never run in the exact features and history of
-> the older chips).
-> All issues with ev4+smp/preempt and ev5+smp/preempt should be fixed with
-> the two incremental patches I posted last week that make PF_MEMDIE a
-> TIF_MEMDIE and used_math a PF_USED_MATH and that fixes the PF_MEMDIE
-> race that existed on all archs in mainline 2.6 and that AFIK Wli even
-> managed to reproduce once.
+Actually, I saw this APIC error too (on i386, with "noapic"), but I
+ignored it because, aside from that message, all of my interrupt
+problems were gone and I had fully working swsusp for the first time in
+recorded history.
 
-Reproduced only once ever on x86-64, but reliably reproducible on all
-other 64-bit architectures. 32-bit architectures have resource
-scalability issues that make the particular exploit I wrote ineffective.
+I should see what happens if I recompile with APIC support. Hopefully
+I'll be able to get to that today.
 
+-Barry K. Nathan <barryn@pobox.com>
 
--- wli

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVC3IDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVC3IL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVC3IDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 03:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVC3IDh
+	id S261820AbVC3IL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 03:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVC3IL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 03:03:37 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:16324 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261815AbVC3IDc (ORCPT
+	Wed, 30 Mar 2005 03:11:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:9627 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261820AbVC3ILy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 03:03:32 -0500
-Date: Wed, 30 Mar 2005 10:03:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-Message-ID: <20050330080322.GC19683@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <1112135516.5386.27.camel@mindpipe>
+	Wed, 30 Mar 2005 03:11:54 -0500
+Date: Wed, 30 Mar 2005 10:11:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
+Message-ID: <20050330081146.GF16636@suse.de>
+References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com> <20050329080646.GE16636@suse.de> <42491DBE.6020303@yahoo.com.au> <20050329092819.GK16636@suse.de> <424928A1.8060400@yahoo.com.au> <4249F98D.9040706@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112135516.5386.27.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <4249F98D.9040706@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Fri, 2005-03-25 at 15:59 +0100, Ingo Molnar wrote:
-> > i have released the -V0.7.41-10 Real-Time Preemption patch, which can be 
-> > downloaded from the usual place:
-> > 
-> >    http://redhat.com/~mingo/realtime-preempt/
-> > 
+On Wed, Mar 30 2005, Nick Piggin wrote:
+> Nick Piggin wrote:
+> >Jens Axboe wrote:
+> >
+> >>Looks good, I've been toying with something very similar for a long time
+> >>myself.
+> >>
+> >
+> >Here is another thing I just noticed that should further reduce the
+> >locking by at least 1, sometimes 2 lock/unlock pairs per request.
+> >At the cost of uglifying the code somewhat. Although it is pretty
+> >nicely contained, so Jens you might consider it acceptable as is,
+> >or we could investigate how to make it nicer if Kenneth reports some
+> >improvement.
+> >
+> >Note, this isn't runtime tested - it could easily have a bug.
+> >
 > 
-> Ingo,
+> OK - I have booted this on a 4-way SMP with SCSI disks, and done
+> some IO tests, and no hangs.
 > 
-> -15 has a typo that prevents building with my config.
-> 
-> Lee
-> 
-> --- include/linux/mm.h~	2005-03-29 17:28:57.000000000 -0500
-> +++ include/linux/mm.h	2005-03-29 17:30:05.000000000 -0500
-> @@ -845,7 +845,7 @@
->  #else
->   static inline int check_no_locks_freed(const void *from, const void *to)
->   {
-> -	return 0
-> +	return 0;
+> So Kenneth if you could look into this one as well, to see if
+> it is worthwhile, that would be great.
 
-thanks - applied this to 41-20.
+I think it is definitely worth while. It might not be the prettiest, but
+it isn't as bad as you originally stated :-)
 
-	Ingo
+-- 
+Jens Axboe
+

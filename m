@@ -1,157 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315627AbSFYTI2>; Tue, 25 Jun 2002 15:08:28 -0400
+	id <S315792AbSFYTLd>; Tue, 25 Jun 2002 15:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSFYTI2>; Tue, 25 Jun 2002 15:08:28 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:45275 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S315627AbSFYTI0>;
-	Tue, 25 Jun 2002 15:08:26 -0400
-Date: Tue, 25 Jun 2002 21:08:27 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCEMENT] Linux-kernel v2.0.40-rc6
-Message-ID: <20020625210827.Y8523@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S315785AbSFYTLc>; Tue, 25 Jun 2002 15:11:32 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:11164 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315754AbSFYTLa>;
+	Tue, 25 Jun 2002 15:11:30 -0400
+Date: Tue, 25 Jun 2002 12:06:14 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: David Brownell <david-b@pacbell.net>
+cc: Nick Bellinger <nickb@attheoffice.org>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+Subject: Re: driverfs bus_id, name (was: [PATCH] /proc/scsi/map)
+In-Reply-To: <3D18AC9B.8050306@pacbell.net>
+Message-ID: <Pine.LNX.4.33.0206251159040.8496-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another SuS compliance fix, this time by Stephen Rothwell.
 
+> I've been wondering about that.  Right now PCI and USB both use fairly
+> unfriendly/unpretty values in device.name ... "{PCI,USB} device VVVV:PPPP".
+> 
+> Let me make sure I understand you right here, by examples of two
+> changes I'd like to see.  Correct me if these seem wrong:
+> 
+> - It'd be more appropriate for PCI devices to copy pci_device.name into
+>    device.name and get the user-friendly names from the PCI device name
+>    database (when available), and only fallback to those nasty strings
+>    when the more user-friendly names aren't available.
 
-2.0.40-rc6
+That is what happens with PCI devices. They're not appearing as meaningful 
+names probably because CONFIG_PCI_NAMES isn't set. Whether or not that 
+information belongs in the kernel is another debate. 
 
-o	Make sys_utime and sys_utimes		(Stephen Rothwell, me)
-	perform the same permission checking
-	| Again, I did some whitespace changes
-	| while at it; Stephen's innocent.
-o	Remy Card no longer maintains ext2	(me)
+I believe the SCSI people mentioned something about being able to set 
+those from userspace. I'm not opposed to such an idea. You just need a 
+writable name file. 
 
+> - Likewise it'd be more appropriate for USB devices to take the
+>    descriptive strings from the devices, like "Philips USB Digital
+>    Speaker System", than "USB device 0471:0104".
 
-2.0.40-rc5
+Those are in the devices themselves, right? There is nothing stopping the 
+USB people from doing that... ;)
 
-o	Ignore SIGURG in SIG_DFL, as per SUSv3	(Christopher Yeoh, me)
-o	Fix ipc/sem.c SuS/LSB compliance	(Christopher Yeoh)
-	| Both these fixes contains whitespace
-	| changes. Don't blame poor Chris for
-	| this; I made them.
-o	Changes to MAINTAINERS			(Riley Williams, me)
-	| Added Riley Williams
-	| Various tidying
-	| Updated the address to the
-	| Appletalk mailing-list
-	| Updated Christoph Lameter's
-	| e-mail address
-	| Updated Andre Hedrick's entry
-	| Updated Thomas Bogendörfer's entry
-	| Updated Martin Mares' e-mail address
+	-pat
 
-
-2.0.40-rc4
-
-o	Commented out a printk in fs/buffer.c   (Michael Deutschmann)
-	that complains about mismatching
-	blocksizes
-
-
-2.0.40-rc3
-
-o	Fix memory-leak in af_unix		(Jon Nelson, Alan Cox, me)
-
-
-2.0.40-rc2
-
-o	Fix ICMP bug				(David S. Miller)
-o	Add autodetection for wd1002s-wx2	(Paul, who appears to
-	in the xd-driver			 have no last name =])
-o	Fix path MTU discovery for		(Kirk Petersen)
-	transparent TCP sockets
-o	Revert array-size change in		(me, on advise from
-	include/linux/module.h			 Jari Ruusu)
-o	Remove workaround for gcc-2.4.5		(Adrian Bunk)
-	| This is basically a whitespace-
-	| change, since it removes code
-	| inside an #ifdef #endif clause
-
-
-2.0.40-rc1
-
-o	Fix possible vmalloc bug for		(Ralf Baechle)
-	architectures with virtually
-	indexed caches
-o	Micro-optimization in vmalloc		(Ralf Baechle)
-o	Fix group descriptor corruption		(Daniel Phillips,
-	in ext2fs				 Ville Herva,
-						 Samuli Kärkkäinen)
-o	Fix some missing includes		(me)
-o	Change array-size from 0 to 1 for	(me)
-	two arrays in the symbol-table
-	in include/linux/module.h
-o	Fix type of struct timeval xtime in	(me)
-	include/linux/sched.h
-o	Fix warnings in include/linux/skbuff.h	(me)
-o	Fix a few typos in Configure.help	(me)
-o	Various small whitespace changes	(me)
-	and fixes of strange indentation
-	| I know some of you won't like this
-	| and I don't give a damn ;-)
-
-
-2.0.40-pre3
-
-o	Fix typo in sched.c			(Tim Sutherland)
-	| this time for real; I applied this
-	| patch to the wrong kernel-tree last
-	| time, hence the reject
-o	IDE probe patch for some ATAPI drives	(Geert Van der Plas)
-
-
-2.0.40-pre2
-
-o	Make pci2000 compile			(Joseph Martin)
-o	Use KERNELRELEASE in module		(me)
-	installpath as well
-o	Removed unused variable in		(me)
-	ext2/super.c
-o	Fixed warning in ext2/dir.c		(me)
-o	Fix a blunder of my own in		(me)
-	arch/kernel/i386/traps.c
-o	Fix typo in sched.c			(Tim Sutherland)
-o	Fix bug in mkdep.c			(Tim Sutherland)
-o	Fix bug in autoirq.c			(Michael Deutschmann)
-o	Add allocation debugging code		(Michael Deutschmann)
-o	Fix bugs in the math-emu code		(Bill Metzenthen,
-						 Michael Deutschmann)
-
-2.0.40-pre1
-
-o	Fixed the ordering of			(Philipp Rumpf)
-	watchdog initialising, to make sure
-	hardware watchdogs takes precedence
-	over the softdog driver
-o	Fix the CREDITS-entry for		(Kai Petzke)
-	Kai Petzke
-o	Updated the MAINTAINERS-file a little	(me)
-o	Fix "dumpable"-race			(Solar Designer)
-o	Fix theoretical exploit in printk	(Solar Designer)
-o	Backported checkconfig.pl,		(me)
-	checkhelp.pl and checkincludes.pl
-	from v2.4
-o	Backported support for tags and		(me)
-	TAGS
-o	Added an extra-version entry to		(me)
-	the version#, to keep track of
-	the prepatches etc.
-o	Fix all occurences of			(me)
-	#endif BLABLA type; don't forget
-	that it should be /* BLABLA */ !!!
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

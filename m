@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265890AbUFISJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUFISNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265890AbUFISJc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 14:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUFISJb
+	id S265887AbUFISNq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 14:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265892AbUFISNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 14:09:31 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:4862 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265886AbUFISJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 14:09:17 -0400
-Message-ID: <40C75273.7020508@namesys.com>
-Date: Wed, 09 Jun 2004 11:09:55 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Chris Mason <mason@suse.com>, reiserfs-dev@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <20040609172843.GB2950@wohnheim.fh-wedel.de>
-In-Reply-To: <20040609172843.GB2950@wohnheim.fh-wedel.de>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 9 Jun 2004 14:13:46 -0400
+Received: from waste.org ([209.173.204.2]:61078 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265887AbUFISNn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 14:13:43 -0400
+Date: Wed, 9 Jun 2004 13:13:07 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org, John Bradford <john@grabjohn.com>,
+       Rik van Riel <riel@redhat.com>,
+       Lasse K?rkk?inen / Tronic <tronic2@sci.fi>
+Subject: Re: Some thoughts about cache and swap
+Message-ID: <20040609181307.GE5414@waste.org>
+References: <Pine.LNX.4.44.0406051935380.29273-100000@chimarrao.boston.redhat.com> <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk> <200406061038.29470.linux-kernel@borntraeger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406061038.29470.linux-kernel@borntraeger.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
+On Sun, Jun 06, 2004 at 10:38:25AM +0200, Christian Borntraeger wrote:
+> John Bradford wrote:
+> > Quote from Rik van Riel <riel@redhat.com>:
+> > > I wonder if we should just bite the bullet and implement
+> > > LIRS, ARC or CART for Linux.  These replacement algorithms
+> > > should pretty much detect by themselves which pages are
+> > > being used again (within a reasonable time) and which pages
+> > > aren't.
+> > Is there really much performance to be gained from tuning the 'limited'
+> > cache space, or will it just hurt as many or more systems than it helps?
+> 
+> Thats a very good question. 
+> Most of the time the current algorithm works quite well.
+> On the other hand, I definitely know what people mean when they complain 
+> about cachingand all this stuff. By just copying a big file that I dont use 
+> afterwards or watching an video I have 2 wonderful scenarios.
 
->On Wed, 9 June 2004 10:06:16 -0700, Hans Reiser wrote:
->  
->
->>Can you give me some background on whether this is causing real problems 
->>for real users?
->>    
->>
->
->It's not [yet].  This was done with statical analysis and keeping a
->little extra room for safety.  If you prefer to wait for real bug
->reports, go ahead...
->
->...but note that my signature ai has proven it's merits once again...
->  
->
-what is your signature ai?
+Perhaps people should read about the referenced algorithms. LRU
+(including the hybrid LRU that Linux uses) is vulnerable to
+"scanning" of the sort you're describing, while the above algorithms
+have varying degrees of scan-resistance. As lack of scan-resistance
+seems to be "the big problem" in the current VM, this looks like an
+interesting direction to go in.
 
->Jörn
->
->  
->
-Unless it is really necessary, or a small code change, I would prefer to 
-spend our cycles worrying about this in reiser4, because code changes in 
-V3 are to be avoided if possible.
-
-I am open to arguments that it is really necessary.
+-- 
+Mathematics is the supreme nostalgia of our time.

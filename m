@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbUKKUjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbUKKUkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbUKKUjC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 15:39:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUKKUjC
+	id S262358AbUKKUkj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 15:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUKKUki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 15:39:02 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60131 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262354AbUKKUiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 15:38:54 -0500
-Subject: Re: IO_APIC NMI Watchdog not handled by suspend/resume.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041110233045.GB1099@elf.ucw.cz>
-References: <1099643612.3793.3.camel@desktop.cunninghams>
-	 <20041110233045.GB1099@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1100205177.4579.7.camel@desktop.cunninghams>
+	Thu, 11 Nov 2004 15:40:38 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:20915 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262358AbUKKUjt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 15:39:49 -0500
+Subject: [PATCH] Add pci_save_state() to ALSA
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: perex@suse.cz
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1fZhgTC89D0309YJy1ik"
+Message-Id: <1100205586.6496.31.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 12 Nov 2004 07:32:57 +1100
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 11 Nov 2004 21:39:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Thu, 2004-11-11 at 10:30, Pavel Machek wrote:
-> Hi!
-> 
-> > Tracking down SMP problems, I've found that if you boot with
-> > nmi_watchdog=1 (IO_APIC), the watchdog continues to run while suspend is
-> > doing sensitive things like restoring the original kernel. I don't know
-> > enough to provide a patch to disable it so thought I'd ask if someone
-> > could volunteer to fix this?
-> 
-> When we debated this at x86-64 lists, our conclusion was 'critical
-> section should take less than 5 seconds, and watchdog only touches its
-> own variables, so stopping it should not be needed'. [on x86-64,
-> watchdog is enabled even on up].
+--=-1fZhgTC89D0309YJy1ik
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Oh... oops... Must be too early in the morning!
+Hi
 
-It's not merged, so I don't have to send the fix.
+Some time ago, a patch was merged that removed pci_save_state() and
+pci_restore_state() from various drivers. That patch also added
+pci_restore_state() to sound/core/init.c but didn't add pci_save_state()
+anywhere.
 
-By the way, the slowness caused by sysdev is because of time.c; I'm
-about to try reducing the number of get_cmos_time() calls, which should
-speed it up by at least 2 seconds.
+My laptop doesn't resume (gets what I assume is an ACPI timeout and
+hangs solid) without this small obvious patch.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Signed-off-by: Martin Josefsson <gandalf@wlug.westbo.se>
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+--- linux-2.6.10-rc1-bk21.orig/sound/core/init.c	2004-11-11 18:51:17.000000=
+000 +0100
++++ linux-2.6.10-rc1-bk21/sound/core/init.c	2004-11-11 20:57:52.000000000 +=
+0100
+@@ -789,6 +789,8 @@ int snd_card_pci_suspend(struct pci_dev=20
+ 		return 0;
+ 	if (card->power_state =3D=3D SNDRV_CTL_POWER_D3hot)
+ 		return 0;
++	/* save the PCI config space */
++	pci_save_state(dev);
+ 	/* FIXME: correct state value? */
+ 	return card->pm_suspend(card, 0);
+ }
 
+--=20
+/Martin
+
+--=-1fZhgTC89D0309YJy1ik
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBk84SWm2vlfa207ERAtkdAKCx4Tcl3dHSJP9pyDm2ET5quTI6XwCfST0s
+Irgnmf0OtbCqauNgbJ1crnI=
+=P2oc
+-----END PGP SIGNATURE-----
+
+--=-1fZhgTC89D0309YJy1ik--

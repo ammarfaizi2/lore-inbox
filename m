@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSEJPTu>; Fri, 10 May 2002 11:19:50 -0400
+	id <S316024AbSEJPUA>; Fri, 10 May 2002 11:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316025AbSEJPTt>; Fri, 10 May 2002 11:19:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32704 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316023AbSEJPTp>;
-	Fri, 10 May 2002 11:19:45 -0400
-Date: Fri, 10 May 2002 08:07:25 -0700 (PDT)
-Message-Id: <20020510.080725.94585622.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: chen_xiangping@emc.com, linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CDBE34A.8050806@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316025AbSEJPT7>; Fri, 10 May 2002 11:19:59 -0400
+Received: from gateway.ukaea.org.uk ([194.128.63.73]:12672 "EHLO
+	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
+	id <S316024AbSEJPT5>; Fri, 10 May 2002 11:19:57 -0400
+Message-ID: <3CDBE510.18FDA219@ukaea.org.uk>
+Date: Fri, 10 May 2002 16:19:44 +0100
+From: Neil Conway <nconway.list@ukaea.org.uk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-31 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: amiller@nada.kth.se
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ide dma timeout error, linux 2.4.9, PIIX4 Ultra 100
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Fri, 10 May 2002 11:12:10 -0400
-   
-   Linux TCP implementation will always be more powerful and more flexible 
-   than any NIC, too.  I doubt they have netlink and netfilter on NICs, for 
-   example :)
+Hello Andrew...
 
-It has the same problem as proprietary implementations of the BSD
-stack, same bugs and same enhancements done N-times instead of once.
+Just came across your message.  Your problem looks more or less
+identical to the one I had, which corrupted some of my partitions.
 
-Anyone who thinks that having a different TCP implementation on each
-different kind of network card installed on your system is sane, would
-you please pass it on brotha so I can smoke some of it too! :-)
+The following sequence in particular appears to be the signature of the
+bug that I have sort-of "fixed":
+kernel: hda: status error: status=0x58 { DriveReady SeekComplete
+DataRequest }
+kernel: hda: drive not ready for command
+kernel: hdb: ATAPI 24X DVD-ROM drive, 128kB Cache, UDMA(33)
 
-On a more serious note, it might be at some level considerable (the
-maintainence nightmare et al.) if there was some real life
-demonstrable performance gain with current systems.
+The notable bit is that the 0x58 error + "drive not ready" error are
+immediately followed by the ATAPI....UDMA message.  Is this always the
+case?
 
-For example, do a SpecWEB run with TUX both using on-chip-TCP and
-without, same networking card.  Show a demonstrable gain from the
-on-chip-TCP implementation.  I bet you can't.  If you can make such a
-claim using a setup that other people could reproduce themselves by
-buying your card and running the test, I'll eat all of my words.
+My "fix" doesn't cure the root problem but does cure the corruption
+issues for me at least.  Can you try it please and see if your 0x58
+errors go away?
+
+I posted it from my other email address (nconway_kernel@yahoo.co.uk) but
+you should find it easily on any archive browser (this URL should work
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102098499900453&w=2 with
+any luck).  You want the "updated" patch that I posted last night.  I
+believe it should apply cleanly against the old 2.4.9 kernel.
+
+cheers
+Neil

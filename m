@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271754AbTGRPM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268548AbTGRPMl
+	id S271839AbTGRPGu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTGRPDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:12:41 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42452
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S267363AbTGRPLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 11:11:30 -0400
-Subject: Re: [PATCH] PATCH: typo bits
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, geert@linux-m68k.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030718170400.A3094@pclin040.win.tue.nl>
-References: <Pine.GSO.4.21.0307181221390.22944-100000@vervain.sonytel.be>
-	 <1058528165.19558.3.camel@dhcp22.swansea.linux.org.uk>
-	 <20030718152947.B3019@pclin040.win.tue.nl>
-	 <20030718073319.37d7863f.rddunlap@osdl.org>
-	 <20030718170400.A3094@pclin040.win.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058541832.19558.53.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 18 Jul 2003 11:03:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4844 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272740AbTGROXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 10:23:07 -0400
+Date: Fri, 18 Jul 2003 07:35:36 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.72 insmod question
+Message-Id: <20030718073536.5e60cc3d.rddunlap@osdl.org>
+In-Reply-To: <20030718115045.GW8160@louise.pinerecords.com>
+References: <334DD5C2ADAB9245B60F213F49C5EBCD05D55212@axcs03.cos.agilent.com>
+	<1173.4.4.25.4.1058489266.squirrel@www.osdl.org>
+	<20030718115045.GW8160@louise.pinerecords.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Jul 2003 16:23:53 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-18 at 16:04, Andries Brouwer wrote:
-> Ah, yes, you are right. I did a grep on the USB docs directory
-> and it is full of isosynchronous, but those are all fragments
-> from the net. The actual standards correctly use isochronous
+On Fri, 18 Jul 2003 13:50:45 +0200 Tomas Szepe <szepe@pinerecords.com> wrote:
 
-Cool.. I just wanted the typo fixed 8)
+| > [rddunlap@osdl.org]
+| > 
+| > And you probably should read over the 2.6 migration document:
+| >   http://www.codemonkey.org.uk/post-halloween-2.5.txt
+| 
+| Wouldn't it be a good idea to print a similar note during
+| "make *config" in the 2.6.0-test series?  I mean, this must
+| be the 80th or so post of its kind this week.
 
+Sure, that sounds good to me.  Some way to get that message to
+the masses, since putting it in an email signature doesn't get
+the message to the right people... :(
+
+--
+~Randy
+For Linux-2.6:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+  or http://lwn.net/Articles/39901/
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

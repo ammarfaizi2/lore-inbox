@@ -1,32 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262207AbSKYA2d>; Sun, 24 Nov 2002 19:28:33 -0500
+	id <S262210AbSKYAxa>; Sun, 24 Nov 2002 19:53:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSKYA2c>; Sun, 24 Nov 2002 19:28:32 -0500
-Received: from louise.pinerecords.com ([212.71.160.16]:43018 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S262207AbSKYA1X>; Sun, 24 Nov 2002 19:27:23 -0500
-Date: Mon, 25 Nov 2002 01:34:26 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Murray J. Root" <murrayr@brain.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.49 kernel panic - cannot load root fs from 3:0a
-Message-ID: <20021125003426.GE21852@louise.pinerecords.com>
-References: <20021124215113.GC1597@Master.Wizards>
+	id <S262214AbSKYAxa>; Sun, 24 Nov 2002 19:53:30 -0500
+Received: from twhszms1.wistron.com.tw ([203.65.214.119]:63751 "EHLO
+	twhszms1.wistron.com.tw") by vger.kernel.org with ESMTP
+	id <S262210AbSKYAx3>; Sun, 24 Nov 2002 19:53:29 -0500
+X-Lotus-FromDomain: WISTRON
+From: paul_wu@wnexus.com.tw
+To: Tommy Reynolds <reynolds@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <48256C7C.0005853D.00@TWHSZDS1.WISTRON.COM.TW>
+Date: Mon, 25 Nov 2002 09:01:05 +0800
+Subject: Re: Which embedded linux is better for being a router? eCos?
+	 uclinux?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20021124215113.GC1597@Master.Wizards>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get the message referred to in the subject when trying to boot
-> 2.5.49.
-> My entire drive is reiserfs. kernel compiled with reiserfs.
-> Does resierfs (v4) not work with older reiserfs?
 
-'reiser4' is an entirely new fs.  you have to compile in 'reiserfs'
-to be able to mount v3.[56] volumes.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+
+CPU will be MIPS. Does uclinux support multi-processes? Or there is 3rd choice
+for such embedded Linux?
+
+Paul
+
+
+
+
+
+Tommy Reynolds <reynolds@redhat.com> on 2002/11/22 11:25:49 PM
+                                                                                
+                                                                                
+                                                                                
+
+
+                                                              
+                                                              
+                                                              
+ To:      Paul Wu/WNI/Wistron@Wistron                         
+                                                              
+                                                              
+ cc:      linux-kernel@vger.kernel.org                        
+                                                              
+                                                              
+                                                              
+                                                              
+ Subject: Re: Which embedded linux is better for being a      
+          router? eCos? uclinux?                              
+                                                              
+
+
+This document is classified as     Normal
+
+
+
+Overcoming an impressive lethardy, paul_wu@wnexus.com.tw mumbled:
+
+>  Try to make a router running a embedded linux OS, but don't know select which
+>  one is better, eCos? uclinux?
+>  Does anyone have such experiences?
+
+By far the easiest solution is to use ordinary Linux on a really old,
+cheap PC, or a PC-on-a-board.
+
+eCos can be built with the smallest memory and resource footprint of
+any of the other techniques, but may not already support the Ethernet
+cards or other devices you need: eCos just doesn't have the sheer
+number of device drivers as does Linux.
+
+uCLinux would work well enough, as it's intended for cheap-as-dirt
+CPU's that lack an MMU. The features it lacks (there is no "fork()"
+only "vfork()") can be easily worked around but your application
+software may need tweaking.
+
+Without knowing your engineering requirements it is impossible to say
+what you need.
+
+
+

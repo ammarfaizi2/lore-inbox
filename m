@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136238AbREJUNg>; Thu, 10 May 2001 16:13:36 -0400
+	id <S136411AbREJUVH>; Thu, 10 May 2001 16:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136197AbREJUNV>; Thu, 10 May 2001 16:13:21 -0400
-Received: from sanrafael.dti2.net ([195.57.112.5]:6417 "EHLO dti2.net")
-	by vger.kernel.org with ESMTP id <S136114AbREJUM4>;
-	Thu, 10 May 2001 16:12:56 -0400
-Message-ID: <012301c0d98d$a190ee60$061010ac@dti2.net>
-From: "Jorge Boncompte [DTI2]" <jorge@dti2.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.2 - Locked keyboard
-Date: Thu, 10 May 2001 22:13:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S136915AbREJUU7>; Thu, 10 May 2001 16:20:59 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:58780 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136411AbREJUUt>; Thu, 10 May 2001 16:20:49 -0400
+Date: Thu, 10 May 2001 21:19:13 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Mark Hemment <markhe@veritas.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] allocation looping + kswapd CPU cycles
+Message-ID: <20010510211913.R16590@redhat.com>
+In-Reply-To: <20010510205204.O16590@redhat.com> <Pine.LNX.4.21.0105101517050.19732-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105101517050.19732-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, May 10, 2001 at 03:22:57PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all!
+Hi,
 
-    I have a squid server box (~150 users) that has been running without
-problems since 2.4.0-test10. Now with 2.4.2 it has had an uptime of 29 days
-(power loss). After the reboot, the keyboard was working 5 minutes and then
-it locked. The console was working. I rebooted the machine again and has
-been working for 2 days, that the keyboard gets locked again.
+On Thu, May 10, 2001 at 03:22:57PM -0300, Marcelo Tosatti wrote:
 
-    I changed the keyboard and looked at the keyboard plugs unsucessfully.
+> Initially I thought about __GFP_FAIL to be used by writeout routines which
+> want to cluster pages until they can allocate memory without causing any
+> pressure to the system. Something like this: 
+> 
+> while ((page = alloc_page(GFP_FAIL))
+> 	add_page_to_cluster(page);
+> write_cluster(); 
 
-    Could this be related to a kernel bug or an userspace issue??? How can I
-debug it?
+Isn't that an orthogonal decision?  You can use __GFP_FAIL with or
+without __GFP_WAIT or __GFP_IO, whichever is appropriate.
 
-    -Jorge
-
-MB Tyan K7 - K7 800Mhz
-Kernel 2.4.2 - Compiled for Athlon/K7 (no problems)
-Modules: via-rhine - sundance - osst - ide-scsi scsi-mod - ip_tables -
-iptable_mangle - ip_conntrack - iptable_nat - ipt_MARK - ipt_REDIRECT
-Debian Woody
-gcc 2.95.2
-Libc 2.2.2
-==============================================================
-Jorge Boncompte - Técnico de sistemas
-DTI2 - Desarrollo de la Tecnología de las Comunicaciones
---------------------------------------------------------------
-C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
-Tlf: +34 957 761395 / FAX: +34 957 450380
---------------------------------------------------------------
-jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
-==============================================================
-- Sin pistachos no hay Rock & Roll...
-- Without wicker a basket cannot be done.
-==============================================================
-
-
+Cheers,
+ Stephen

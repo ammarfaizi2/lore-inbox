@@ -1,75 +1,207 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSEXWBA>; Fri, 24 May 2002 18:01:00 -0400
+	id <S312381AbSEXWHa>; Fri, 24 May 2002 18:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSEXWBA>; Fri, 24 May 2002 18:01:00 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:23280 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S312296AbSEXWA6>; Fri, 24 May 2002 18:00:58 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 24 May 2002 15:57:30 -0600
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
-        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020524215730.GF9997@turbolinux.com>
-Mail-Followup-To: Karim Yaghmour <karim@opersys.com>,
-	Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
-	Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
-	Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0204292127480.1709-100000@localhost.localdomain> <3CEDF94C.592636A6@kegel.com> <3CEDFCED.D10CD618@zip.com.au> <3CEE806D.D52FBEA5@kegel.com> <20020524202658.GI15703@dualathlon.random> <3CEEAE3D.EB64A3AA@opersys.com>
+	id <S312411AbSEXWH3>; Fri, 24 May 2002 18:07:29 -0400
+Received: from [62.58.50.103] ([62.58.50.103]:945 "EHLO relay6.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S312381AbSEXWH1>;
+	Fri, 24 May 2002 18:07:27 -0400
+Subject: Re: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
+From: Hilbert Barelds <hilbert@hjb-design.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E17BGqL-0006YL-00@the-village.bc.nu>
+Content-Type: multipart/mixed; boundary="=-fWuHgcyifKI0VUA5aujg"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 May 2002 00:06:03 +0200
+Message-Id: <1022277963.1591.11.camel@calvin.hjblocal.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 24, 2002  17:18 -0400, Karim Yaghmour wrote:
-> Just wanting to put the record straight here about the rtlinux patent.
 
-IANAL or an embedded software expert, but...
+--=-fWuHgcyifKI0VUA5aujg
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> I've been involved in fighting this patent for the last 2 years. During
-> this time, I have met and talked with many people about this issue. Today,
-> I can assure you that the rtlinux patent is definitely a show-stopper for
-> Linux.
+On Fri, 2002-05-24 at 17:19, Alan Cox wrote:
+> > Since I installed the 2.4.19-pre8 kernel on my Athlon 1,3 GHz machine.
+> > The machine wont halt and poweroff any more it just reboots.
+> > Systemhardware
+> > AMD Irongate chipset
+> > NVidia 2MX (nvidia drivers 2880)
 > 
-> It is no wonder that the established embedded vendors (WindRiver, QNX,
-> etc.) feel no threat from Linux. They know that every time Linux will
-> be evaluated, it will be put aside because of the patent.
+> The Nvidia drivers are not supported by the open source community.
 
-What, so there are _no_ patents or other restrictions on any of the
-commercial embedded OS vendor products?  I would imagine that you need
-to pay some sort of license fee to those vendors in order to use their
-code for products you sell.
+I know, I have seen this before in the list.
 
-I imagine that the rtlinux patent is also available for license, and
-will only have a small per-usage fee <= other commercial license fees.
-If not then the patent holder is foolish and there is no point in having
-the patent in the first place.
+> Firstly please boot without the Nvidia drivers getting loaded at all. If the
+> problem still occurs check you built both the old and new kernel with the
+> same APM options.
 
-Cheers, Andreas
+I did quite a lot of reboots. I could reproduce it in the pre4 kernel.
+My last try at the kernels. When I coppied the pre8 .config in the pre4
+tree, and remade the kernel I got the same problem.
 
-PS - I'm not in favour of patents for Linux at all, but saying "you
-     can't use rtlinux because of the patent" doesn't make sense.
+So after quite a bit of fiddeling I blame it on a non fully functional
+ACPI so I switched back to the APM and the shutdown -h is functioning as
+it should.
 
-PPS- I also think "defensive patents" on Linux are also a bad idea,
-     because (a) the Linux source code is surely "published" and any
-     ideas therein already constitute prior art for the sake of
-     defending a patent infringement suit, and (b) since patents can
-     be bought and sold any "defensive patents" might fall into the
-     wrong hands if the patent holder goes bankrupt and the assets are
-     sold off to the highest bidder - bad news for the entire Linux
-     community.
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Attached are the configuration files of the 2.4.18-pr4 kernel with a
+working and with a diff to the not working kernel (working meaning yes
+or no powerdown).
 
+I can not find anything that indicates a possibility.
+I switched back to APM and it is working. with nvidia drivers and 4front
+drivers.
+
+Reason for switching to 2.4.19-pre8 is stability, I had random freezes.
+I did not have them again in this series.
+
+Hilbert
+
+
+--=-fWuHgcyifKI0VUA5aujg
+Content-Disposition: attachment; filename=diff.working.notworking.txt.gz
+Content-Type: application/x-gzip; name=diff.working.notworking.txt.gz
+Content-Transfer-Encoding: base64
+
+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
+
+--=-fWuHgcyifKI0VUA5aujg
+Content-Disposition: attachment; filename=config-2.4.19-pre4.gz
+Content-Type: application/x-gzip; name=config-2.4.19-pre4.gz
+Content-Transfer-Encoding: base64
+
+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
+ax/wFS/gZ/pBkPF+5f8BZ0SYKqZMAAA=
+
+--=-fWuHgcyifKI0VUA5aujg--

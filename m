@@ -1,54 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261394AbSJMAsV>; Sat, 12 Oct 2002 20:48:21 -0400
+	id <S261392AbSJMAyp>; Sat, 12 Oct 2002 20:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261395AbSJMAsV>; Sat, 12 Oct 2002 20:48:21 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:8452 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261394AbSJMAsU>;
-	Sat, 12 Oct 2002 20:48:20 -0400
-Date: Sat, 12 Oct 2002 17:49:39 -0700
-From: Greg KH <greg@kroah.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] pl2303 oops in 2.4.20-pre10 (and 2.5 too)
-Message-ID: <20021013004938.GF12469@kroah.com>
-References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net> <20021009235332.GA19351@kroah.com> <20021011023925.GA9142@ip68-4-86-174.oc.oc.cox.net> <20021011170623.GB4123@kroah.com> <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net> <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net>
-User-Agent: Mutt/1.4i
+	id <S261395AbSJMAyp>; Sat, 12 Oct 2002 20:54:45 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:38390 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261392AbSJMAyo>;
+	Sat, 12 Oct 2002 20:54:44 -0400
+Message-ID: <3DA8C585.1030600@us.ibm.com>
+Date: Sat, 12 Oct 2002 17:59:49 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Structure clobbering causes timer oopses
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 01:56:04PM -0700, Barry K. Nathan wrote:
-> The following patch (which reverts part of 2.4.20-pre2) seems to fix my
-> pl2303 oopsing (and let me use the device properly again) in 2.4.20-pre2
-> through -pre5. This patch doesn't work with -pre6 or up though (due to
-> white space differences and, more importantly, the removal of all 6
-> variables referenced in the if-statement).
+It put some extrace checks in timer_t, including a tripwire at the 
+beginning and end, just in case the timer was just trampled by 
+something.  It was.
+
+I added begin, and end:
+> struct timer_list {
+>+        unsigned int begin;
+>         struct list_head entry;
+>         unsigned long expires;
 > 
-> Anyway, I'm posting this in case it provides another clue as to what's
-> not working.
+>         void (*function)(unsigned long);
+>         unsigned long data;
+> 
+>         struct tvec_t_base_s *base;
+>+        unsigned int end;
+> };
 
-Ah, thanks for finding this.  Yes this does help, a bit.  Hm.  What /dev
-device are you trying to write to, ttyUSB0 or ttyUSB1?  Yeah, I think we
-need this kind of check back in to fix this problem, but I don't see off
-the top of my head how to add it back...
+> static inline void init_timer(struct timer_list * timer)
+> {
+>+        timer->begin = TIMER_BEG_MAGIC;
+>+        timer->end = TIMER_END_MAGIC;
+>         timer->base = NULL;
+> }
 
-And yes, the problem in 2.5 where you see the device register itself
-twice is a known bug (to me at least), it goes away if you disable
-CONFIG_USB_SERIAL_GENERIC.  It's on my TODO list, which seems to be
-getting longer every day...
+then this beast:
+(yeah, yeah, it ain't pretty, but it worked)
+> #define CHECK_TIMER(timer) do {\
+>                 if (((timer)->begin!=TIMER_BEG_MAGIC) || \
+>                     ((timer)->end!=TIMER_END_MAGIC)) {\
+>                         printk("timer magic check failed %s:%s():%d\n",
+ >                __stringify(KBUILD_BASENAME),__FUNCTION__,__LINE__);\
+>                         printk("begin: 0x%x end:0x%x\n", (timer)->begin, 
+ >                         (timer)->end);\
+>                         dump_stack();\
+>                 }} while (0)
 
-Any suggestions on how to fix this are appreciated.  Basically we don't
-want to claim the interface that only has the interrupt endpoint on it
-for this device, as we kinda already did in the section entitled END
-HORRIBLE HACK FOR PL2303.  I guess we could just mark that interface as
-claimed already, and then probe() would not get called again.  Want to
-throw a call to usb_driver_claim_interface() into that section, grabbing
-that interface, and see if that works?
 
-thanks,
+Just before a crash, I got:
 
-greg k-h
+timer magic check failed timer:__run_timers():351
+begin: 0xc035fbc8 end:0xc035fbe8
+Call Trace:
+  [<c0120d53>] run_timer_tasklet+0xf7/0x188
+  [<c011d945>] tasklet_hi_action+0x85/0xe0
+  [<c011d64a>] do_softirq+0x5a/0xac
+  [<c01117ed>] smp_apic_timer_interrupt+0x111/0x118
+  [<c0105334>] poll_idle+0x0/0x48
+  [<c0107a7a>] apic_timer_interrupt+0x1a/0x20
+  [<c0105334>] poll_idle+0x0/0x48
+  [<c010535d>] poll_idle+0x29/0x48
+  [<c01053b3>] cpu_idle+0x37/0x48
+  [<c011898d>] printk+0x125/0x140
+
+
+Then, the full crash:
+
+general protection fault: fbe0
+
+CPU:    4
+EIP:    0060:[<c035fbe9>]    Not tainted
+EFLAGS: 00010287
+EIP is at tvec_bases+0x169/0x20400
+eax: d18deac0   ebx: c035dbcc   ecx: c035fbe0   edx: c0363f70
+esi: c035fbd8   edi: c0363b00   ebp: 00000001   esp: f77c7f1c
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=f77c6000 task=f77c5060)
+Stack: c0120d9b c035fbe0 cb1101c8 00000000 f77c6000 c011d945 00000000
+        00000001 c035f960 fffffffe 00000080 c03443e4 c03443e4 c011d64a
+        c035f960 00000010 00000004 00000000 00000000 00000046 c01117ed
+        f77c6000 c0105334 00000000
+Call Trace:
+  [<c0120d9b>] run_timer_tasklet+0x13f/0x188
+  [<c011d945>] tasklet_hi_action+0x85/0xe0
+  [<c011d64a>] do_softirq+0x5a/0xac
+  [<c01117ed>] smp_apic_timer_interrupt+0x111/0x118
+  [<c0105334>] poll_idle+0x0/0x483
+  [<c0107a7a>] apic_timer_interrupt+0x1a/0x20
+  [<c0105334>] poll_idle+0x0/0x48
+  [<c010535d>] poll_idle+0x29/0x48
+  [<c01053b3>] cpu_idle+0x37/0x48
+  [<c011898d>] printk+0x125/0x140
+
+
+APIC error on CPU4: 08(08)
+APIC error on CPU4: 08(08)
+APIC error on CPU4: 08(08)
+APIC error on CPU4: 08(08)
+...
+
+Notice that the junk that got put in begin, end, and function, are 
+fairly close values, like something was trying to fill out an array.
+
+Can anyone think of clever ways to figure out what is doing the 
+trampling?
+
+BTW, I found lots of users who aren't using init_timer().  Should I 
+publicly humiliate them?
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

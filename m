@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272199AbSISScb>; Thu, 19 Sep 2002 14:32:31 -0400
+	id <S272328AbSISSrG>; Thu, 19 Sep 2002 14:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272315AbSISScb>; Thu, 19 Sep 2002 14:32:31 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:30456
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S272199AbSISScb>; Thu, 19 Sep 2002 14:32:31 -0400
-Subject: Re: 2.4.18 serial drops characters with 16654
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dchristian@mail.arc.nasa.gov
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209191124.24964.dchristian@mail.arc.nasa.gov>
-References: <11E89240C407D311958800A0C9ACF7D13A7992@EXCHANGE>
-	<200209191027.46127.dchristian@mail.arc.nasa.gov>
-	<1032457132.27721.45.camel@irongate.swansea.linux.org.uk> 
-	<200209191124.24964.dchristian@mail.arc.nasa.gov>
-Content-Type: text/plain
+	id <S272329AbSISSrF>; Thu, 19 Sep 2002 14:47:05 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:4359 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S272328AbSISSrF>; Thu, 19 Sep 2002 14:47:05 -0400
+Message-ID: <3D8A1CC0.8070407@didntduck.org>
+Date: Thu, 19 Sep 2002 14:51:44 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Richard Henderson <rth@twiddle.net>
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919113048.A22520@twiddle.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Sep 2002 19:42:13 +0100
-Message-Id: <1032460933.27721.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-19 at 19:24, Dan Christian wrote:
-> This still isn't getting at the core problem.  I'm sending data out the 
-> port and dropping characters.  The receive works fine.
+Richard Henderson wrote:
+> On Thu, Sep 19, 2002 at 02:04:43PM -0400, Brian Gerst wrote:
 > 
-> It can't be a problem with the receiving device being over-run, since 
-> the 16550 works (even though it sends several bytes after CTS drops), 
-> and the 16654 doesn't (it stops after the current byte).
+>>Now that I've thought about it more, I think the best solution is to go 
+>>through all the syscalls (a big job, I know), and declare the parameters 
+>>as const, so that gcc knows it can't modify them, and will throw a 
+>>warning if we try.
+> 
+> 
+> The parameter area belongs to the callee, and it may *always* be modified.
+> 
+> 
+> r~
+> 
 
-What happens if you setserial it to a 16450 ?
+The parameters can not be modified if they are declared const though, 
+that's my point.
+
+--
+				Brian Gerst
 

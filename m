@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbQKQMaK>; Fri, 17 Nov 2000 07:30:10 -0500
+	id <S132004AbQKQMev>; Fri, 17 Nov 2000 07:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132176AbQKQMaA>; Fri, 17 Nov 2000 07:30:00 -0500
-Received: from 62-6-231-42.btconnect.com ([62.6.231.42]:49802 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S129111AbQKQM3x>;
-	Fri, 17 Nov 2000 07:29:53 -0500
-Date: Fri, 17 Nov 2000 11:58:27 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
+	id <S132175AbQKQMel>; Fri, 17 Nov 2000 07:34:41 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:18437 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132004AbQKQMeU>;
+	Fri, 17 Nov 2000 07:34:20 -0500
+Date: Fri, 17 Nov 2000 13:04:18 +0100
+From: Andi Kleen <ak@suse.de>
 To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Jordan <ledzep37@home.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Jordan <ledzep37@home.com>, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Error in x86 CPU capabilities starting with test5/6
-In-Reply-To: <14869.6415.500026.432150@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.21.0011171154250.8176-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001117130418.B3572@gruyere.muc.suse.de>
+In-Reply-To: <3A14FF48.E554BE1B@home.com> <14869.6415.500026.432150@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14869.6415.500026.432150@harpo.it.uu.se>; from mikpe@csd.uu.se on Fri, Nov 17, 2000 at 12:39:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Mikael Pettersson wrote:
-> You have a user-space program which parses /proc/cpuinfo instead of
-> executing CPUID itself, so it breaks.
+On Fri, Nov 17, 2000 at 12:39:59PM +0100, Mikael Pettersson wrote:
+> Jordan writes:
+>  > I have been running a plug in for xmms for some time that uses the
+>  > aviplay program and avifile library...then when upgrading to test5/6 I
+>  > start getting this error message when running xmms:
+>  > 
+>  > ERROR: no time-stamp counter found! Quitting.
+>  > ...
+>  > contents of /proc/cpuinfo:
+>  > ...
+>  > features        : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+> 
+> The 'flags' line in /proc/cpuinfo was recently renamed 'features', due to
+> some semantic changes. You have a user-space program which parses /proc/cpuinfo
+> instead of executing CPUID itself, so it breaks.
 
-Hi Mikael,
+The program would be broken if it executed CPUID itself, because it has no way to guarantee
+that the CPUID is executed on all CPUs the scheduler may later move the task too.
 
-Arguably, it is always better to parse /proc/cpuinfo instead of executing
-CPUID directly (think PCI -- drivers should _NOT_ get their irq/io/etc
-values from config space directly but only what the kernel puts on a plate
-for them in the struct pci_dev).
+I think it is also nasty to break non broken programs this way, looking for 
+flags in /proc/cpuinfo is the only reliable way to do the checks on 2.2.
 
-So, one could imagine the kernel which emulates in software some of the
-processor features and then CPUID would lie but /proc/cpuinfo would tell
-the truth.
-
-Also, Linux is very stable wrt to application interfaces (I compare Linux
-with Linux and not Linux with "non-Linux", cf 1Cor 2:13) so one can safely
-rely on the exported data formats to stay always the same (to a reasonable
-extent).
-
-Regards,
-Tigran
-
+-Andi (proud owner of an AMP system with one CPU implementing FXSR and one not,
+which causes lots of interesting problems) 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268767AbRG3Wvr>; Mon, 30 Jul 2001 18:51:47 -0400
+	id <S269136AbRG3Wxh>; Mon, 30 Jul 2001 18:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269079AbRG3Wvh>; Mon, 30 Jul 2001 18:51:37 -0400
-Received: from ns.caldera.de ([212.34.180.1]:8367 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S268754AbRG3WvY>;
-	Mon, 30 Jul 2001 18:51:24 -0400
-Date: Tue, 31 Jul 2001 00:50:49 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: Kip Macy <kmacy@netapp.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Hans Reiser <reiser@namesys.com>,
-        Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org,
-        Vitaly Fertman <vitaly@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010731005048.A29237@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Kip Macy <kmacy@netapp.com>, Rik van Riel <riel@conectiva.com.br>,
-	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-	Vitaly Fertman <vitaly@namesys.com>
-In-Reply-To: <Pine.LNX.4.33L.0107301858350.5582-100000@duckman.distro.conectiva> <Pine.GSO.4.10.10107301538410.3195-100000@orbit-fe.eng.netapp.com>
+	id <S269121AbRG3Wx1>; Mon, 30 Jul 2001 18:53:27 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:10504 "HELO dvmwest.gt.owl.de")
+	by vger.kernel.org with SMTP id <S269092AbRG3WxH>;
+	Mon, 30 Jul 2001 18:53:07 -0400
+Date: Tue, 31 Jul 2001 00:53:14 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+Message-ID: <20010731005314.D19713@lug-owl.de>
+Mail-Followup-To: Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B65D3DA.D70B48A0@fc.hp.com> <200107302240.f6UMeWg2001230@webber.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.10.10107301538410.3195-100000@orbit-fe.eng.netapp.com>; from kmacy@netapp.com on Mon, Jul 30, 2001 at 03:41:16PM -0700
+In-Reply-To: <200107302240.f6UMeWg2001230@webber.adilger.int>; from adilger@turbolinux.com on Mon, Jul 30, 2001 at 04:40:31PM -0600
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 30, 2001 at 03:41:16PM -0700, Kip Macy wrote:
-> How does compiling in debug infrastructure protect the user's data? By
-> making the file system so slow that he won't use it? :-)
+On Mon, Jul 30, 2001 at 04:40:31PM -0600, Andreas Dilger wrote:
+> There was some talk about using a low level IP console over ethernet,
+> but I would imagine this is more complex than the same thing on a
+> parallel-port.  I could be wrong.  Of course, an IP console has the
+> advantage of being useful over a longer distance than a parallel cable,
+> but may have the disadvantage of poor security.
 
-The <<reiserfs debugging code>> isn't debugging code in a strict sense.
-It mostly it consists of sequences in the form of:
+Well, you could use IP (If you use IP autoconfig you could even
+route it), but also a proprietary protocol like MOP did centuries
+ago. That would only give you access as long as you've on the
+same physical network.
 
- (sometimes there is also code that the documentation states as deadlock-
- avoidance, why it is not enabled without _CHECK defined is left as
- exercise to the reader)
+However - I'd love to see a networked console.
 
-#ifdef CONFIG_REISERFS_CHECK
-	if (condition_that_should_not_happen)
-		reiserfs_panic (sb, "some_obscure_error_code");
-#endif
+MfG, JBG
+PS: And I'd like to see ~22 Am7990 Lance drivers to go away!!! Bloat...
 
-This way the system stops with a indication of the failing component
-instead of silently corrupting disk contents.  As reiserfs maintains
-a log the recovery from that panic shouldn't take that long either.
-
-(On the other hand I've seen some reiserfs systems that destroyed their
- disk contents while trying to recover.  That's a reason why I still
- can't recomend using reiserfs for anything but /tmp, test machines
- or proxy caches).
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

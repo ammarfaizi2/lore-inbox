@@ -1,82 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVCPAQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVCPATp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVCPAQH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 19:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVCPAQH
+	id S262192AbVCPATp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 19:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCPATn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 19:16:07 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:41951 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262183AbVCPALl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 19:11:41 -0500
-Date: Tue, 15 Mar 2005 16:10:54 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Rohit Seth <rohit.seth@intel.com>
-Subject: Re: [PATCH] Reading deterministic cache parameters and exporting it in /sysfs
-Message-ID: <20050315161054.A2251@unix-os.sc.intel.com>
-References: <20050315152448.A1697@unix-os.sc.intel.com> <20050315233620.GC14380@redhat.com>
+	Tue, 15 Mar 2005 19:19:43 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:56020 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262182AbVCPATP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 19:19:15 -0500
+Subject: Re: Capabilities across execve
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: rmk+lkml@arm.linux.org.uk, alexn@dsv.su.se, chrisw@osdl.org, akpm@osdl.org,
+       pavel@ucw.cz
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 19:04:57 -0500
+Message-Id: <1110931497.1949.269.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050315233620.GC14380@redhat.com>; from davej@redhat.com on Tue, Mar 15, 2005 at 06:36:20PM -0500
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 06:36:20PM -0500, Dave Jones wrote:
-> On Tue, Mar 15, 2005 at 03:24:48PM -0800, Venkatesh Pallipadi wrote:
->  >  
->  > The attached patch adds support for using cpuid(4) instead of cpuid(2), to get 
->  > CPU cache information in a deterministic way for Intel CPUs, whenever 
->  > supported. The details of cpuid(4) can be found here
->  > 
->  > IA-32 Intel Architecture Software Developer's Manual (vol 2a)
->  > (http://developer.intel.com/design/pentium4/manuals/index_new.htm#sdm_vol2a)
->  > and
->  > Prescott New Instructions (PNI) Technology: Software Developer's Guide
->  > (http://www.intel.com/cd/ids/developer/asmo-na/eng/events/43988.htm)
->  >  
->  > The advantage of using the cpuid(4) ('Deterministic Cache Parameters Leaf') are:
->  > * It provides more information than the descriptors provided by cpuid(2)
->  > * It is not table based as cpuid(2). So, we will not need changes to the 
->  >   kernel to support new cache descriptors in the descriptor table (as is the 
->  >   case with cpuid(2)).
->  >  
->  > The patch also adds a bunch of interfaces under 
->  > /sys/devices/system/cpu/cpuX/cache, showing various information about the
->  > caches.
-> 
-> Why does this need to be in kernel-space ? 
+Russell King, the latest person to notice defects, writes:
 
-Currently, the CPU cache information is printed as a part of kernel bootup
-messages and /proc/cpuinfo using cpuid(2). This patch is trying to use cpuid(4)
-to print the messages in these places. I think this part of the patch is
-required. Otherwise, we may end up printing 0 cache sizes on some CPUs.
-It will also reduce the zero_cache_size_complaints on lkml :-).
+> However, the way the kernel is setup today, this seems
+> impossible to achieve, which tends to make the whole
+> idea of capabilities completely and utterly useless.
+>
+> How is this stuff supposed to work?  Are my ideas of
+> what's supposed to be achievable completely wrong,
+> although they look completely reasonable to me.
+>
+> Don't get me wrong - the capability system seems great at
+> permanently revoking capabilities via /proc/sys/kernel/cap-bound,
+> and dropping them within an application provided it remains UID0.
+> Apart from that, capabilities seem completely useless.
+...
+> it seems to be something of a lost cause.
+...
+> my goal of running the script with minimal capabilities
+> was completely *impossible* to achieve.
 
-> Is there some reason that prevents
-> you from enhancing x86info for example ?  I really want to live to see the
-> death of /proc/cpuinfo one day, and reinventing it in sysfs seems pointless
-> if it can all be done in userspace.
-> Given that the most useful field is of limited use to a majority of users,
-> and those that are interested can read this from userspace, this has me very puzzled.
+Uh huh. First, some history.
 
-Agreed. Exporting it in /sysfs is debatable. And some of the information like,
-'Which CPUs are sharing what caches' may not be useful today. But,
-with CPUs with HT and multiple cores and combinations of it, sharing different
-caches, having this information will be useful inside the kernel as well. 
-scheduler for example. We can setup some of the scheduler domain parameters 
-based on whether L2 is shared or not. 
-Also, we felt, exporting this information to userspace in a consistent way will
-help userspace apps to do various things like binding to specific CPUs, using
-the working set size based on cache size, etc, to optimize the performance. 
-Again, this can be done in userspace as well. But, if kernel is already doing
-it, it may be better to export it from the kernel space.
+Capability bits were implemented in DG-UX and IRIX.
+The two systems did not agree on operation. The draft
+POSIX standard, withdrawn for good reason, greatly
+changed between draft 16 and draft 17. Settings that
+work for one draft are horribly insecure on the other.
+Linux capabilities were partly done by the IRIX crew,
+working from draft 16. Everyone else had draft 17 or
+even draft 13. (and DG-UX had a better system anyway)
 
-Thanks,
-Venki
+Tytso put things well when he wrote: "A lot of innocent
+bits have been deforested  while trying work out the
+differences between what Linux is doing (which is basically
+following Draft 17), and what Trusted Irix is doing (which 
+apparently is following Draft 16)."
+
+Then along comes a sendmail exploit. An emergency fix
+was produced, breaking an already-defective capability
+design.
+
+Note that, unlike DG-UX, our IRIX-inspired design did
+not reserve any capability bits for non-kernel use.
+This causes an inconsistent security model, with things
+like the X server relying on UID. Inconsistency is bad.
+
+OK, so that's how we got into this mess.
+
+Now, how do we get out?
+
+We will always have to deal with old-style apps. Those
+few apps that handle capabilities can handle the bad
+system we have now, and can handle a system without the
+capability syscalls. (for old kernels) These apps can
+not handle a changed setup though; to change things we
+must make the old syscalls return failure. ANYTHING ELSE
+IS VERY UNSAFE.
+
+There is exactly one capability system in popular use.
+That would be the one that comes with Solaris. Moving
+toward that, via a kernel config option, appears to be
+a sane way to get ourselves unstuck from this big mess.
+An added advantage that that the Solaris-style method
+instantly becomes the standard, especially if Linux is
+strongly compatible. This helps with admin training and
+portable software.
+
+See if you can find any holes:
+http://docs.sun.com/app/docs/doc/816-5175/6mbba7f39?a=view
+
 

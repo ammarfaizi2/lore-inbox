@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbUKDQ6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbUKDRBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbUKDQ6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbUKDQ6Z
+	id S262295AbUKDRBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUKDRBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:58:25 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:31506 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262294AbUKDQ6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:58:23 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Germano <germano.barreiro@cyclades.com>, greg@kroah.com,
-       Scott_Kilau@digi.com, linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <1099487348.1428.16.camel@tsthost>
-	<20041104102505.GA8379@logos.cnet>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 04 Nov 2004 08:58:21 -0800
-In-Reply-To: <20041104102505.GA8379@logos.cnet> (Marcelo Tosatti's message
- of "Thu, 4 Nov 2004 08:25:05 -0200")
-Message-ID: <52fz3po8k2.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Thu, 4 Nov 2004 12:01:48 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7085 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262295AbUKDRBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:01:16 -0500
+Message-ID: <418A603A.3030806@nortelnetworks.com>
+Date: Thu, 04 Nov 2004 11:00:42 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: patch for sysfs in the cyclades driver
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 04 Nov 2004 16:58:21.0558 (UTC) FILETIME=[7D8AD960:01C4C28F]
+To: Adam Heath <doogie@debian.org>
+CC: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+In-Reply-To: <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Marcelo> The problem was class_simple only contains the "dev"
-    Marcelo> attribute. You can't add other attributes to it.
+Adam Heath wrote:
 
-I believe, based on the comment in class_simple.c:
+> I didn't deny the speed difference of older and newer compilers.
+> 
+> But why is this an issue when compiling a kernel?  How often do you compile
+> your kernel?
 
-  Any further sysfs files that might be required can be created using this pointer.
+You're posting to the kernel development list--many people here recompile dozens 
+of times a day.
 
-and the implementation in in drivers/scsi/st.c, that there's no
-problem adding attributes to a device in a simple class.  You can just
-use class_set_devdata() on your class_device to set whatever context
-you need to get back to your internal structures, and then use
-class_device_create_file() to add the attributes.
-
-I assume this is OK (since there is already one in-kernel driver doing
-it), but Greg, can you confirm that it's definitely OK for a driver to
-use class_set_devdata() on a class_device from class_simple_device_add()?
-
-Thanks,
-  Roland
+Chris

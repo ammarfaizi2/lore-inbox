@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285792AbRLYUWe>; Tue, 25 Dec 2001 15:22:34 -0500
+	id <S285812AbRLYU1e>; Tue, 25 Dec 2001 15:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285812AbRLYUWZ>; Tue, 25 Dec 2001 15:22:25 -0500
-Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:13952
-	"HELO tabris.net") by vger.kernel.org with SMTP id <S285792AbRLYUWK>;
-	Tue, 25 Dec 2001 15:22:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Schrotenboer <adam@tabris.net>
-Organization: Dome-S-Isle Data
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17rc2aa1 - blocking(?) in /proc
-Date: Tue, 25 Dec 2001 15:22:05 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011219161610.I1395@athlon.random>
-In-Reply-To: <20011219161610.I1395@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011225202206.EEBC6FB81B@tabris.net>
+	id <S285841AbRLYU1O>; Tue, 25 Dec 2001 15:27:14 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:41744 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S285812AbRLYU1I>; Tue, 25 Dec 2001 15:27:08 -0500
+Message-ID: <000701c18d82$57158ea0$0801a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: <linux-kernel@vger.kernel.org>, <netfilter-devel@lists.samba.org>
+Subject: file names ?
+Date: Tue, 25 Dec 2001 20:25:48 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I booted into 2.4.17-rc2aa1(compiled w/ gcc-3.0.3), and after an hour of 
-uptime or so, was unable to read anything in /proc (top locked, procinfo, and 
-I couldn't kill them b/c killall and pidof would lock as well)
+Hi
 
-I made only one mod. I changed HZ to 1024, but I don't think that should have 
-done it.
+i could not help but notice in the kernel source
+in both the ipv4/netfilter and ipv6/netfilter
+dirs there are files the same name which can cause problems
+under certin conditions like non-case sensitive file systems.
 
-I figure either a problem in gcc 3.0.3, or a kernel bug.
+like
+ipt_mark.c
+ipt_MARK.c
 
-Ideas?
+ipt_tos.c
+ipt_TOS.c
 
----
-tabris
+this does not cause a problem for me but i do
+know people who it does cause a problem for
+
+a small example is a smallish ext2 / filesystem
+and the rest being a fat filesystem to that
+it can be accessed from both windows and linux.
+and there is not enough space on the ext2 to compile a kernel anymore.
+
+anyone got any suggestions ?
+
+thanks
+    James
+
+--------------------------
+Mobile: +44 07779080838
+http://www.stev.org
+  8:10pm  up 7 days,  3:40,  1 user,  load average: 0.00, 0.00, 0.00
+
+
+

@@ -1,68 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264956AbTGBMMk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 08:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTGBMMk
+	id S264960AbTGBMVL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 08:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbTGBMVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 08:12:40 -0400
-Received: from indyio.rz.uni-saarland.de ([134.96.7.3]:2314 "EHLO
-	indyio.rz.uni-saarland.de") by vger.kernel.org with ESMTP
-	id S264956AbTGBMMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 08:12:39 -0400
-From: Michael Bellion and Thomas Heinz <nf@hipac.org>
-Reply-To: nf@hipac.org
-To: Pekka Savola <pekkas@netcore.fi>
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-Date: Wed, 2 Jul 2003 14:26:56 +0200
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi>
-In-Reply-To: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	Wed, 2 Jul 2003 08:21:10 -0400
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:33271 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S264960AbTGBMVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 08:21:06 -0400
+Subject: Re: crypto API and IBM z990 hardware support
+To: James Morris <jmorris@intercode.com.au>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF014BDDD3.522D4623-ONC1256D57.003FFD79-C1256D57.0044F37D@de.ibm.com>
+From: "Thomas Spatzier" <TSPAT@de.ibm.com>
+Date: Wed, 2 Jul 2003 14:35:04 +0200
+X-MIMETrack: Serialize by Router on D12ML041/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 02/07/2003 14:35:09
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307021426.56138.nf@hipac.org>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka
 
-> Thanks for your clarification.  We've also conducted some tests with
-> bridging firewall functionality, and we're very pleased with nf-hipac's
-> performance!  Results below.
+> Are there any details available on how all of this is implemented?  Are
+> these instructions synchronous?
 
-Great, thanks a lot. Your tests are very interesting for us as we haven't done 
-any gigabit or SMP tests yet. 
+Yes, the instructions are sunchronous.
 
-> In the measurements, tests were run through a bridging Linux firewall,
-> with a netperf UDP stream of 1450 byte packets (launched from a different
-> computer connected with gigabit ethernet), with a varying amount of
-> filtering rules checks for each packet.
-> I don't have the specs of the Linux PC hardware handy, but I recall
-> they're *very* highend dual-P4's, like 2.4Ghz, very fast PCI bus, etc.
+> The plan is to provide crypto/arch/ subdirectories where arch optimized
+> versions of the crypto algorithms are implemented, and built
+automatically
+> (via configuration defaults) instead of the generic C versions.
+>
+> So, there might be:
+>
+> crypto/aes.c
+> crypto/arch/i386/aes.s
+>
+> where on i386, aes.s would be built into aes.o and aes.c would not be
+> built.
+>
+> The simple solution for you might be something like:
+>
+> crypto/aes.c -> aes.o
+> crypto/arch/s390/aes_z990.c -> aes_z990.o
+>
+> and the administrator of the system could configure modprobe.conf to
+alias
+> aes to aes_z990 if the latter is supported in hardware.
 
-Since real world network traffic always consists of a lot of different sized 
-packets taking maximum sized packets is very euphemistic. 1450 byte packets 
-at 950 Mbit/s correspond to approx. 80,000 packets/sec.
-We are really interested in how our algorithm performs at higher packet rates. 
-Our performance tests are based on 100 Mbit hardware so we coudn't test with 
-more than approx. 80,000 packets/sec even with minimum sized packets. At this 
-packet rate we were hardly able to drive the algorithm to its limit, even 
-with more than 25000 rules involved (and our test system was 1.3 GHz 
-uniprocessor).
+I agree on having arch-specific implementations in crypto/arch directories.
+However, I've got some problems with having this kind of 'static' aliasing
+in modules.conf. In my case I do not know beforehand, whether a specific
+crypto instruction is enabled. I query some processor status flags during
+runime. If the check fails, I'd like to switch back to the original
+software implementation.
+I read in your autoconf.c file that a more sophisticated version of
+crypto_alg_autoload is planned. I would suggest first trying to load the
+arch-specific aes_z990.ko in crypto_alg_autoload. In my init_module
+function i could query the processor. If init_module for my implementation
+fails -> request_module fails -> load the standard module aes.ko.
+Something similar to this:
 
-We'd appreciate it very much if you could run additional tests with smaller 
-packet sizes (including minimum packet size). This way we can get an idea of 
-whether our SMP optimizations work and whether our algorithm in general would 
-benefit from further fine tuning.
+#ifndef CRYPTO_ARCH      //defined in arch makefile as "_z990"
+#define CRYPTO_ARCH ""
+#endif
+
+void crypto_alg_autoload(const char *name)
+{
+      if (request_module("%s%s", name, CRYPTO_ARCH) != 0){
+            request_module("%s", name);
+      }
+}
 
 
-Regards
+Regards,
 
-+-----------------------+----------------------+
-|   Michael Bellion     |     Thomas Heinz     |
-| <mbellion@hipac.org>  |  <creatix@hipac.org> |
-+-----------------------+----------------------+
+Thomas Spatzier
+--------------------------------------------------
++49-7031-16-1219
+TSPAT@de.ibm.com
 

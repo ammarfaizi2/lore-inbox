@@ -1,88 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVCQWdC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVCQWfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVCQWdC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 17:33:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVCQWcx
+	id S261274AbVCQWfz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVCQWd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 17:32:53 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:9162 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261313AbVCQWbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 17:31:48 -0500
-Date: Thu, 17 Mar 2005 14:31:40 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prezeroing V8
-In-Reply-To: <20050317140831.414b73bb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
- <20050317140831.414b73bb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Mar 2005 17:33:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261293AbVCQWaC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 17:30:02 -0500
+Date: Thu, 17 Mar 2005 14:29:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: sameer.abhinkar@intel.com, linux-kernel@vger.kernel.org,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: KGDB question
+Message-Id: <20050317142958.462822d2.akpm@osdl.org>
+In-Reply-To: <200503171409.07290.jbarnes@engr.sgi.com>
+References: <D30E01168D637641AA9D3667F3BB741603F9125F@orsmsx403.amr.corp.intel.com>
+	<20050317135417.6cee8336.akpm@osdl.org>
+	<200503171409.07290.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Mar 2005, Andrew Morton wrote:
-
-> Christoph Lameter <clameter@sgi.com> wrote:
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+>
+> > kgdb patches are maintained in -mm kernels.
 > >
-> > Adds management of ZEROED and NOT_ZEROED pages and a background daemon
-> > called scrubd. /proc/sys/vm/scrubd_load, /proc/sys/vm_scrubd_start and
-> > /proc/sys/vm_scrubd_stop control the scrub daemon. See Documentation/vm/
-> > scrubd.txt
->
-> It's hard to know what to think about this without benchmarking numbers.
->
-> It would help if you could briefly describe the implementation and design
-> decisions when sending patches.
+> > Patches are in
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11
+> >-mm1/broken-out/*kgdb*
+> >
+> > And the patch application order is described in
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11
+> >-mm1/patch-series -
+> 
+> What's the latest status on these?  Last I heard, some cleanup was going to 
+> happen to make kgdb suitable for the mainline, did that ever happen?
 
-Oh. This was discussed so many times that I thought it would not be
-necessary anymore. The discussion is attached.
+It part-happened, then the effort seemed to die.
 
-> For example, one area where we could use this is in pagetable management,
-> where we need zeroed pages and we tend to free up known-to-be-zero and
-> probably cache-warm pages.  Right now some architectures are maintaining
-> their own quicklists, or using a slab cache, both of which are suboptimal.
+>  Also, 
+> it would be nice if I could connect to a remote kernel running the kgdb stubs 
+> w/o having to run gdb on the same ethernet segment.  Would that be difficult 
+> to fix?
 
-Right.
+<tries to remember how ethernet works>
 
-> But afaict the patch doesn't differentiate between cache-cold and cache-hot
-> zeroed pages, and doesn't have an API with which clients can free up a
-> known-to-be-zero page.
+Maybe we'd have to teach kgdboe to arp for the remote debug host.  I think
+Matt was talking about that a while back.
 
-end_zero_page(page, 0) would do put a zeroed page back on the zeroed list.
-But we may have to define a cleaner API for it. Plus this is a hot zero
-page. So I would need to add a hot zero hotlist to the existing cold zero
-hotlist.
+<tries to remember how ethernet switches work>
 
----- Description ----
-
-The most expensive operation in the page fault handler is (apart of SMP
-locking overhead) the touching of all cache lines of a page by
-zeroing the page. This zeroing means that all cachelines of the faulted
-page (on Altix that means all 128 cachelines of 128 byte each) must be
-handled and later written back. This patch allows to avoid having to
-use all cachelines  if only a part of the cachelines of that page is
-needed immediately after the fault. Doing so will only be effective for
-sparsely accessed memory which is typical for anonymous memory and pte
-maps.
-
-The patch makes prezeroing very effective by also allowing the use
-of hardware support for offloading zeroing from the cpu. This avoids
-the invalidation of the cpu caches by extensive zeroing operations.
-
-The scrub daemon is invoked when the number of zeroed pages falls below a
-lower threshhold (defined by setting /proc/sys/vm/scrub_start) so
-that its worth running it. kscrubd then zeroes free pages until the upper
-threshold is reached (set by /proc/sys/vm/scrub_stop). The zeroing
-is performed on a percentage of pages at each order of freed pages.
-
-kscrubd performs short bursts of zeroing when needed and tries to stay out
-off the processor as much as possible. Kscrubd will only run when the load
-is less than set in /proc/sys/vm/scrub_load (defaults to 1).
-
-The benefits of prezeroing are reduced to minimal quantities if all
-cachelines of a page are touched. Prezeroing can only be effective
-if the whole page is not immediately used after the page fault.
+If switches send the destination MAC address through unchanged then maybe
+the problem is that the switch simply doesn't know the MAC address of the
+remote debug host yet?  If the switch has its own MAC address (it doesn't,
+does it), or if it's actually a router then perhaps you should specify the
+router's MAC address and not the remote debug host's.

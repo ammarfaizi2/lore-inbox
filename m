@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbUJWUCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUJWXKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUJWUCm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 16:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUJWUCR
+	id S261331AbUJWXKr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbUJWXKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 16:02:17 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:62160 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S261298AbUJWUBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 16:01:03 -0400
-Date: Sat, 23 Oct 2004 21:58:11 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: espenfjo@gmail.com, Adrian Bunk <bunk@stusta.de>
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041023195811.GA11735@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041023014004.GG22558@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 23 Oct 2004 19:10:47 -0400
+Received: from gizmo11ps.bigpond.com ([144.140.71.21]:56551 "HELO
+	gizmo11ps.bigpond.com") by vger.kernel.org with SMTP
+	id S261331AbUJWXKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:10:38 -0400
+Message-ID: <417AE4EA.6070107@bigpond.net.au>
+Date: Sun, 24 Oct 2004 09:10:34 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+Subject: Re: Writing linux kernel specification
+References: <Pine.LNX.4.44.0410231118570.25612-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0410231118570.25612-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> ha scritto:
-> IMHO Andrew+Linus should open a short-living 2.7 tree soon and Andrew 
-> (or someone else) should maintain a 2.6 tree with less changes
+Rik van Riel wrote:
+> On Sat, 23 Oct 2004, Karel Kulhavy wrote:
+> 
+> 
+>>3) Is Linux kernel meant to have a specification and just a lack of time
+>>   prevented it, or is Linux kernel meant to not have a specification?
+>>4) If I produce a specification that is valid, correct and complete enough
+>>   to be useful for general public, will it be included on the Linux kernel
+>>   homepage http://www.kernel.org under a link "Linux kernel official
+>>   specification" upon my request?
+> 
+> 
+> You can write a specification, but I can guarantee you that
+> it will be out of date the moment you run your spell checker
+> on it.
+> 
+> Linux kernel development continues at a very high speed, and
+> things inside the kernel change all the time.  The only thing
+> that's stable is the user space ABI (the system calls), since
+> the behaviour of those (mostly) follows POSIX and the Single
+> Unix Standard (SUS).
 
-Suppose that Linus or Andrew starts a new tree to develop some new and
-and very big and intrusive feature. Once it's done the tree will be
-merged back with 2.6 (should be easy with bk) or will become 2.8?
-Just Curious.
+Maybe that (the mostly bit) is what needs to be documented/specified 
+i.e. any differences between the Linux user space ABI and those two 
+standards.  Surely that difference is reasonably stable and having it 
+documented in a single place would be useful.
 
-Luca
+Peter
 -- 
-Home: http://kronoz.cjb.net
-"L'abilita` politica e` l'abilita` di prevedere quello che
- accadra` domani, la prossima settimana, il prossimo mese e
- l'anno prossimo. E di essere cosi` abili, piu` tardi,
- da spiegare  perche' non e` accaduto."
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

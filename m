@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290789AbSAYSv5>; Fri, 25 Jan 2002 13:51:57 -0500
+	id <S290779AbSAYSwT>; Fri, 25 Jan 2002 13:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSAYSvj>; Fri, 25 Jan 2002 13:51:39 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:47885 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S290787AbSAYSuH>; Fri, 25 Jan 2002 13:50:07 -0500
-Message-ID: <3C51A7EE.1010108@namesys.com>
-Date: Fri, 25 Jan 2002 21:46:06 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: John Levon <movement@marcelothewonderpenguin.com>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
-In-Reply-To: <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290787AbSAYSwB>; Fri, 25 Jan 2002 13:52:01 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:54473 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S290786AbSAYSvz>;
+	Fri, 25 Jan 2002 13:51:55 -0500
+Message-Id: <m16UBRc-000OVeC@amadeus.home.nl>
+Date: Fri, 25 Jan 2002 18:51:24 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16UBUl-0003J9-00@the-village.bc.nu>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are preparing a large set of patches (each to be sent as a separate 
-email per your SOP, but all tested together in a thorough testing 
-procedure), which includes this patch, plus the kdev fix, plus all 2.4 
-fixes.  We expect to send it out on monday, we just found a bug in the 
-patches as a set that was not present in them individually.
+In article <E16UBUl-0003J9-00@the-village.bc.nu> you wrote:
+> As Dave pointed out I was mixing them
 
-Hans
+>> just not do it on the right CPU (you're _not_ supposed to read to see if
+>> you are writing the same value: MTRR's can at least in theory have
+>> side-effects, so it's not the same check as for the microcode update).
 
+> So why not just set it twice - surely that is harmless ? Why add complex
+> code ?
+
+mtrr code does
+
+"read value" -> store in variable
+"set uncached"
+<do lots of fiddling>
+"write stored value"
+
+on all cpus precisely in parallel.
+
+Now... on HT the second half will store the value the first half just set to
+uncached. and worse: it will RESTORE that into the final mtrr..
 

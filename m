@@ -1,86 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbUKWBrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbUKWBpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbUKWBrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 20:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbUKWBqM
+	id S262544AbUKWBpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 20:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUKWBi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 20:46:12 -0500
-Received: from mpls-qmqp-01.inet.qwest.net ([63.231.195.112]:40716 "HELO
-	mpls-qmqp-01.inet.qwest.net") by vger.kernel.org with SMTP
-	id S262522AbUKWBjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 20:39:10 -0500
-Date: Mon, 22 Nov 2004 18:47:17 -0700
-Message-ID: <DHEOJAHAGKDLCDOHPMIECEFNCCAA.stuart@ken-caryl.net>
-From: "Stuart Macdonald" <stuart@ken-caryl.net>
-To: "Henrik Nordstrom" <hno@marasystems.com>,
-       "cranium2003" <cranium2003@yahoo.com>
-Cc: kernelnewbies@nl.linux.org, netfilter-devel@lists.netfilter.org,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Reply-To: <stuart@ken-caryl.net>
-Subject: RE: netfilter query
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.61.0411221245470.20973@filer.marasystems.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Mon, 22 Nov 2004 20:38:29 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46095 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261212AbUKWBhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 20:37:25 -0500
+Date: Tue, 23 Nov 2004 02:37:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: why use ACPI (Re: 2.6.10-rc2 doesn't boot (if no floppy device))
+Message-ID: <20041123013720.GA4371@stusta.de>
+References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de> <1101148138.20008.6.camel@d845pe> <20041123004619.GQ19419@stusta.de> <1101172056.20006.153.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101172056.20006.153.camel@d845pe>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a parallel thought here,
+On Mon, Nov 22, 2004 at 08:07:36PM -0500, Len Brown wrote:
+> On Mon, 2004-11-22 at 19:46, Adrian Bunk wrote:
+> 
+> > Not needed "pressing the power button when you halt the system" is the
+> > "killer application" for using ACPI for me...
+> 
+> Yes, thats certainly one that people notice right away.  Laptops have
+> had soft poweroff with APM for a while, but desktops and servers never
+> adopted APM, so soft-power-off is generally a new feature with ACPI for
+> them.
 
-A different approach is to implement the Netfilter Bridge hooks and run a
-box as a bridge. This requires a kernel parameter for Bridge to be enabled
-when the kernel is built and then the brctl utility to setup the bridge. In
-this manner, your bridge netfilter hooks always receive packets starting at
-the MAC headers. You can parse from there to derive subsequent protocols:
-IP, IPX, LLC, SNAP, NETBEUI...
+That's wrong.
 
-Stuart
+My old desktop computer (with a VIA MVP3 chipset and an AMD K6 cpu) 
+I bought in 1998 did power off fine under Linux using APM.
 
+> Enabling IOAPIC is one that a lot of people like, because it results in
+> less interrupt sharing and better performance than PIC mode.  But if you
+> don't load your system much you may not notice any difference.
 
+I saw
 
------Original Message-----
-From: kernelnewbies-bounce@nl.linux.org
-[mailto:kernelnewbies-bounce@nl.linux.org]On Behalf Of Henrik Nordstrom
-Sent: Monday, November 22, 2004 5:03 AM
-To: cranium2003
-Cc: kernelnewbies@nl.linux.org; netdev@oss.sgi.com;
-netfilter-devel@lists.netfilter.org; linux-kernel@vger.kernel.org
-Subject: Re: netfilter query
+  kernel: APIC error on CPU0: 00(02)
+...
+  kernel: APIC error on CPU0: 02(02)
 
+on my computer and decided disabling APIC was the easiest way to solve 
+them...
 
-On Sun, 21 Nov 2004, cranium2003 wrote:
+> Next people tend to notice fan speed, because they can hear it.
+> If you load processor and thermal, you'll probably see some
+> /proc/acpi/thermal/thermal_zone/*/temperature and you'll
+> probably find that it stays lower if you keep processor
+> loaded versus when you do not.
 
-> Also,which headers are added when packet
-> reaches to netfilter hook NF_IP_LOCAL_OUT? I found
-> TCP/UDP/ICMP ,IP. Is that correct?
+/proc/acpi/thermal/thermal_zone is empty on my computer.
 
-Yes.
+> This is usually because of power-saving c-csates in idle,
+> which you can observe in /proc/acpi/processor/*/power
+> and the higher the C-state, the more power you save.
 
-netfilter is running at the IP layer and only reliably have access to IP
-headers and up. Lower level headers such as Ethernet MAC header is
-transport dependent and not always available, and certainly not available
-in NF_IP_LOCAL_OUT as it is not yet known the packet will be sent to an
-Ethernet.
+active state:            C1
+default state:           C1
+bus master activity:     00000000
+states:
+   *C1:                  promotion[--] demotion[--] latency[000] usage[00000000]
+    C2:                  <not supported>
+    C3:                  <not supported>
 
-In some netfilter hooks it is possible to rewind back to the Ethernet MAC
-header but one must be careful to verify that it really is an Ethernet
-packet one is looking at when doing this. Unfortunately there is no
-perfect solution how to detect this.. For an example of how one may try to
-look at the Ethernet MAC header see ipt_mac.c. But be warned that it is
-possible for non-Ethernet frames to pass the simple checks done there..
+> Also, CPUFREQ usually often on ACPI, and that can save
+> power even when the system is not idle, and this results
+> in lower temperatures and hopefully slower fan speeds.
 
-Regards
-Henrik
+My computer has a desktop Athlon...
 
---
-Kernelnewbies: Help each other learn about the Linux kernel.
-Archive:       http://mail.nl.linux.org/kernelnewbies/
-FAQ:           http://kernelnewbies.org/faq/
+> cheers,
+> -Len
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

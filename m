@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUITLnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUITLni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUITLnd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUITLnd
+	id S266292AbUITLni (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUITLnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:43:33 -0400
-Received: from cantor.suse.de ([195.135.220.2]:45249 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266291AbUITLnb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:43:31 -0400
-To: Olaf Hering <olh@suse.de>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-	<20040920094602.GA24466@suse.de> <jeoek1xn9p.fsf@sykes.suse.de>
-	<20040920105409.GH5482@DervishD>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If a person is FAMOUS in this country, they have to go on the ROAD
- for MONTHS at a time and have their name misspelled on the SIDE
- of a GREYHOUND SCENICRUISER!!
-Date: Mon, 20 Sep 2004 13:43:29 +0200
-In-Reply-To: <20040920105409.GH5482@DervishD> (DervishD's message of "Mon,
- 20 Sep 2004 12:54:09 +0200")
-Message-ID: <jek6upxj1a.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Mon, 20 Sep 2004 07:43:37 -0400
+Received: from mail.convergence.de ([212.227.36.84]:53638 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S266292AbUITLne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 07:43:34 -0400
+Message-ID: <414EC236.3040206@linuxtv.org>
+Date: Mon, 20 Sep 2004 13:42:46 +0200
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6][0/14] DVB subsystem update
+References: <414AF2CA.3000502@linuxtv.org> <20040917164135.7951c6d9.akpm@osdl.org>
+In-Reply-To: <20040917164135.7951c6d9.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <lkml@dervishd.net> writes:
+Hi,
 
->     Hi Andreas :)
->
->  * Andreas Schwab <schwab@suse.de> dixit:
->> > - fix all broken apps that still rely on mtab. like GNU df(1)
->> df does not rely on /etc/mtab.  It relies on getmntent.
->
->     Then my GNU df has any problem :???
+On 18.09.2004 01:41, Andrew Morton wrote:
+> I'm getting lots of rejects from these.  At the fifth patch I gave up.  The
+> rejects appear to be against stock 2.6.9-rc2.
 
-No, if any then getmntent.
+The patchset was against 2.6.8(.1), the rejects come from the janitor 
+cleanups for msleep() in the saa7146 driver and from the 
+sys_read()/errno mess in the frontend drivers, which loaded the firmware 
+directly.
 
-Andreas.
+> Please regenerate these patches and double-check that they apply to latest
+> -linus tree.  Or against next -mm if they are dependent upon Gerd's
+> patches:
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+I'll send you a new patchset against 2.6.9-rc2-mm1 in private right now. 
+  The patches have been adopted or re-generated to fit against your 
+latest tree, so I don't post them in public any more.
+
+CU
+Michael.

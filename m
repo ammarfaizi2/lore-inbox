@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130150AbQLUKjV>; Thu, 21 Dec 2000 05:39:21 -0500
+	id <S130315AbQLUKka>; Thu, 21 Dec 2000 05:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130315AbQLUKjL>; Thu, 21 Dec 2000 05:39:11 -0500
-Received: from fe000.worldonline.dk ([212.54.64.194]:14354 "HELO
-	fe000.worldonline.dk") by vger.kernel.org with SMTP
-	id <S130150AbQLUKix>; Thu, 21 Dec 2000 05:38:53 -0500
-Date: Thu, 21 Dec 2000 11:07:09 +0000 (/etc/localtime)
-From: "Jesper Juhl <juhl@eisenstein.dk>" <jju@eisenstein.dk>
-Reply-To: Jesper Juhl <juhl@eisenstein.dk>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Strange warnings about .modinfo when compiling 2.2.18 on Alpha
-In-Reply-To: <5806.977381800@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.30.0012211104580.6659-100000@juhl.eisenstein.dk>
+	id <S131041AbQLUKkK>; Thu, 21 Dec 2000 05:40:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57611 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130315AbQLUKkA>;
+	Thu, 21 Dec 2000 05:40:00 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012211007.eBLA7ad25114@flint.arm.linux.org.uk>
+Subject: Re: set_rtc_mmss: can't update from 0 to 59
+To: p_gortmaker@yahoo.com (Paul Gortmaker)
+Date: Thu, 21 Dec 2000 10:07:36 +0000 (GMT)
+Cc: mdharm-kernel@one-eyed-alien.net (Matthew Dharm), Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A41CD4F.1259FB08@yahoo.com> from "Paul Gortmaker" at Dec 21, 2000 04:28:47 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Gortmaker writes:
+> It smells like policy in the kernel to me.  What if a user wants to run NTP
+> but wants the CMOS RTC time as an independent clock to do something else
+> (possibly with the option of having a meaningful /etc/adjtime too) ?
 
+NTP and adjtime are synomonous - NTP uses the adjtimex call to adjust the
+local clock.  Therefore, when running NTP, leave adjtime well alone
+(unless you want to break NTP).  You either use NTP or adjtime, not both.
 
-On Thu, 21 Dec 2000, Keith Owens wrote:
+> Can't the people who want the current behaviour simply have a crontab
+> that runs (hw)clock -[u]w from util-linux at whatever interval they want?
 
-> The way .modinfo is created is a kludge to prevent the .modinfo section
-> being loaded as part of the module.  The initial reference to .modinfo
-> creates it as non-allocated, later references try to allocate data in
-> the section.  Older versions of gcc silently ignored the mismatch,
-> newer ones warn about the mismatch.
->
-> modutils >= 2.3.19 makes sure that .modinfo is not loaded so the kernel
-> kludge is no longer required.  Alan Cox (quite rightly) will not force
-> 2.2 users to upgrade modutils, but if you jump to modutils 2.3.23 and
-> apply this patch against kernel 2.2.18 then the warnings will disappear.
-
-
-Thank you very much for your reply. I'll try upgrading modutils and apply
-the patch.
-
-
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
-
+And how do you handle the situation where NTP hasn't synchronised, and
+therefore the local hardware clock should not be updated?  Sometimes
+the hardware clock is higher precision than the kernels idea of time
+(ok, not in cheap PCs).
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280556AbRKNMsJ>; Wed, 14 Nov 2001 07:48:09 -0500
+	id <S280583AbRKNM7n>; Wed, 14 Nov 2001 07:59:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280583AbRKNMru>; Wed, 14 Nov 2001 07:47:50 -0500
-Received: from picard.csihq.com ([204.17.222.1]:18583 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S280577AbRKNMrj>;
-	Wed, 14 Nov 2001 07:47:39 -0500
-Message-ID: <041101c16d0a$703c8700$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Odd meminfo 2.4.14
-Date: Wed, 14 Nov 2001 07:46:53 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S280577AbRKNM7d>; Wed, 14 Nov 2001 07:59:33 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:63498 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S280570AbRKNM7Q>; Wed, 14 Nov 2001 07:59:16 -0500
+Message-Id: <200111141259.fAECx6KZ012150@pincoya.inf.utfsm.cl>
+To: Thorsten Kukuk <kukuk@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        sparclinux@vger.kernel.org
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan 
+In-Reply-To: Message from Thorsten Kukuk <kukuk@suse.de> 
+   of "Tue, 13 Nov 2001 16:21:02 BST." <20011113162102.A2305@suse.de> 
+Date: Wed, 14 Nov 2001 09:59:06 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.14 (upgraded from 2.4.10) first time I've seen this (I run vmstat all
-the time).
+Thorsten Kukuk <kukuk@suse.de> said:
+> On Tue, Nov 13, Horst von Brand wrote:
+> 
+> > On CVS as of today for sparc64 I get:
+> > 
+> > sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-pr
+> oto
+> > types -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-commo
+> n -
+> > m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5
+>  -f
+> > call-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o ioctl32.o ioctl
+> 32.
+> > c
+> > ioctl32.c: In function `do_lvm_ioctl':
+> > ioctl32.c:2636: warning: assignment makes pointer from integer without a cast
+> > ioctl32.c:2670: structure has no member named `inode'
+> > ioctl32.c:2711: warning: assignment from incompatible pointer type
+> > ioctl32.c:2712: structure has no member named `inode'
+> > ioctl32.c:2719: structure has no member named `inode'
+> > ioctl32.c:2732: structure has no member named `inode'
+> > ioctl32.c:2611: warning: `v' might be used uninitialized in this function
+> > make[1]: *** [ioctl32.o] Error 1
+> > make[1]: Leaving directory `/usr/src/linux-2.4/arch/sparc64/kernel'
+> > make: *** [_dir_arch/sparc64/kernel] Error 2
+> 
+> Please try the both attached patches. I'm using them with 
+> 2.4.15pre1aa1 (which has the same lvm version as now 2.2.15pre4).
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  526016512 519815168  6201344        0 653324288 18446744073256501248
-Swap: 524279808 68616192 455663616
-MemTotal:       513688 kB
-MemFree:          6056 kB
-MemShared:           0 kB
-Buffers:        638012 kB
-Cached:       4294515120 kB
-SwapCached:       9744 kB
-Active:          61300 kB
-Inactive:       143752 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       513688 kB
-LowFree:          6056 kB
-SwapTotal:      511992 kB
-SwapFree:       444984 kB
+Whatever patches went into CVS since yesterday fixed that one (in a
+different way).
 
-I've got this exact same kernel on two other machines and they don't show
-the funky cache #'s (yet).
-
-I see in proc_misc.c that cache is printed with B(pg_size) in the first line
-whereas it's printed with K(pg_size - swapper_space.nrpages) on the
-"Cached:" line.
-Both of them are wrong so it looks like pg_size is hosed somehow.
-
-Also...pg_size is:
-pg_size = atomic_read(&page_cache_size) - i.bufferram ;
-
-What does pg_size have to do with bufferram????
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
-
+Thanks!
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbTITGss (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 02:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbTITGss
+	id S261569AbTITHHr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 03:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTITHHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 02:48:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51385 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261442AbTITGsr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 02:48:47 -0400
-Date: Fri, 19 Sep 2003 23:36:15 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: lm@bitmover.com, andrea@suse.de, bless@tm.uka.de, miquels@cistron.nl,
-       linux-kernel@vger.kernel.org, walter@tm.uka.de, winter@tm.uka.de,
-       doll@tm.uka.de
-Subject: Re: Formal complaint ,  Re: Fix for wrong OOM killer trigger?
-Message-Id: <20030919233615.0c3f5634.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0309191657300.16296@filesrv1.baby-dragons.com>
-References: <20030919191613.36750de3.bless@tm.uka.de>
-	<20030919192544.GC1312@velociraptor.random>
-	<20030919203538.D1919@flint.arm.linux.org.uk>
-	<20030919200117.GE1312@velociraptor.random>
-	<20030919205220.GA19830@work.bitmover.com>
-	<Pine.LNX.4.58.0309191657300.16296@filesrv1.baby-dragons.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sat, 20 Sep 2003 03:07:47 -0400
+Received: from mail-06.iinet.net.au ([203.59.3.38]:13188 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261569AbTITHHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 03:07:46 -0400
+Subject: Re: Problems with airo/airo_cs since test4-bk2
+From: Sven Dowideit <svenud@ozemail.com.au>
+To: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030919030037.GA5581@UnderGrid.net>
+References: <20030919030037.GA5581@UnderGrid.net>
+Content-Type: text/plain
+Message-Id: <1064077301.14771.1.camel@sven>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sun, 21 Sep 2003 03:01:41 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Sep 2003 17:05:41 -0400 (EDT)
-"Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+On Fri, 2003-09-19 at 13:00, Jeremy T. Bouse wrote:
+> 	Since test4-bk2 I've still had increasing problems with the
+> airo/airo_cs driver... test4-bk2 operates but generates an awful lot of
+> frame errors... I've tried test5-bk1 , bk3 and bk5 and they fail to even
+> be able to associate with the AP at all and totally unusable... As soon
+> as the driver and/or card are removed it causes an oops unlike earlier
+> test versions which would just lock the whole machine up...
+i have a cisco 340 in my thinkpad t21 that has been fine so far
+(especially after Rusty fixed the detection problems)
+> 
+> 	Has anyone else been noticing these problems with a Cisco Aironet 350?
+> I've got it in a Sony Vaio PCG-C1MWP and use it on two networks which
+> use either a LinkSys WAP11 or an Orinoco AP-1000 with the same
+> results...
+> 
+> 	Regards,
+> 	Jeremy
 
-> 	Hello Dave ,  I am well aware that you are not the keeper of the
-> 	responsible individuals of the ilk that keeps this thread cropping
-> 	up every so often .  Please have a few words with them .
-
-I see nothing wrong with Larry's posting that you're showing
-me here.

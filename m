@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312426AbSDNTNw>; Sun, 14 Apr 2002 15:13:52 -0400
+	id <S312442AbSDNT23>; Sun, 14 Apr 2002 15:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312427AbSDNTNv>; Sun, 14 Apr 2002 15:13:51 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:57960 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S312426AbSDNTNu>; Sun, 14 Apr 2002 15:13:50 -0400
-Date: Sun, 14 Apr 2002 20:21:13 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci *BUG*
-Message-Id: <20020414202113.12136578.spyro@armlinux.org>
-In-Reply-To: <3CB9D20C.30000@wanadoo.fr>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+	id <S312443AbSDNT22>; Sun, 14 Apr 2002 15:28:28 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26888 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S312442AbSDNT22>; Sun, 14 Apr 2002 15:28:28 -0400
+Date: Sun, 14 Apr 2002 21:28:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jerry Sievert <jerry@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19pre5-ac3 swsusp panic
+Message-ID: <20020414192829.GD2341@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200204060109.g36199g10373@devserv.devel.redhat.com> <1018114652.7477.2.camel@psuedomode> <1018116297.7477.21.camel@psuedomode> <20020407095844.GA216@elf.ucw.cz> <1018546314.32748.9.camel@caffeine.pdx.osdl.net> <20020412074948.GA26389@atrey.karlin.mff.cuni.cz> <1018626124.2078.16.camel@caffeine.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet Awoke this dragon, who will now respond:
+Hi!
 
+> i finally found it, thank you ;-)
 > 
->  The oops doesn't come when the driver is exiting in this case (as the 
->  patch was for), it "occurs randomly". The problem might be with the usb 
->  hardware.
+> suspend worked great, restore had some issues, though ... X didn't come
+> back correctly, and after going to console 7 (X), the machine ended up
+> freezing up ... no OOPS tho, which was odd ... i didn't try to diagnose
+> the problem, just powered off and decided to go back to my
+> non-suspending kernel ...
 
->  > Ian Molton wrote:
->  >>>What were you doing when the BUG() call happened?
->  >> 
->  >> surfin' the net ;) it appears to occur randomly - its been fine the
->  >> whole day today, although less stressed than yesterday.
-> 
->  What is the motherboard, is it an usb add-on card ?
-
-Its a VIA based board, and it /is/ an add-on card. its a 4 port OPTi based
-card.
-
-Mobo stuff:
-  Bus  0, device   0, function  0:
-    Host bridge: VIA Technologies, Inc. VT82C597 [Apollo VP3] (rev 4).
-      Master Capable.  Latency=16.  
-      Prefetchable 32 bit memory at 0xe0000000 [0xe07fffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x
-AGP] (rev 0).      Master Capable.  No bursts.  Min Gnt=4.
-
-USB controller:
-  Bus  0, device  10, function  0:
-    USB Controller: OPTi Inc. 82C861 (rev 32).
-      IRQ 10.
-      Master Capable.  Latency=16.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xe0800000 [0xe0800fff].
-  Bus  0, device  10, function  1:
-    USB Controller: OPTi Inc. 82C861 (#2) (rev 32).
-      IRQ 12.
-      Master Capable.  Latency=16.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xe0801000 [0xe0801fff].
+Always suspend when normal console (not X) is active. That should work
+better.
+							Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

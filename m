@@ -1,140 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316503AbSGQSe3>; Wed, 17 Jul 2002 14:34:29 -0400
+	id <S316465AbSGQSxs>; Wed, 17 Jul 2002 14:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSGQSe3>; Wed, 17 Jul 2002 14:34:29 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:28435 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316503AbSGQSe1>;
-	Wed, 17 Jul 2002 14:34:27 -0400
-Date: Wed, 17 Jul 2002 11:36:15 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] agpgart changes for 2.5.26
-Message-ID: <20020717183615.GB9589@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S316545AbSGQSxr>; Wed, 17 Jul 2002 14:53:47 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62471 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316465AbSGQSxr>; Wed, 17 Jul 2002 14:53:47 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Date: 17 Jul 2002 18:51:25 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <ah4ebd$2vc$1@gatekeeper.tmr.com>
+References: <1026490866.5316.41.camel@thud> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr> <20020716125301.GI4576@merlin.emma.line.org>
+X-Trace: gatekeeper.tmr.com 1026931885 3052 192.168.12.62 (17 Jul 2002 18:51:25 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20020716125301.GI4576@merlin.emma.line.org>,
+Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
 
-These changesets have the latest agpgart code from the -dj tree, and
-I've tried to rename the files to something that makes more sense.
+| dsmc fstat()s the file it is currently reading regularly and retries the
+| dump as the changes, and gives up if it is updated too often. Not sure
+| about the server side, and certainly not a useful option for sequential
+| devices that you directly write on. Looks like a cache for the biggest
+| file is necessary.
 
+Which doesn't address the issue of data in files A, B and C, with
+indices in X and Y. This only works if you flush and freeze all the
+files at one time, making a perfect backup of one at a time results in
+corruption if the database is busy.
 
-Pull from:  http://linuxusb.bkbits.net/agpgart-2.5
+My favorite example is usenet news on INN, a bunch of circular spools, a
+linear history with two index files, 30-40k overview files, and all of
+it changing with perhaps 3.5MB/sec data and 20-50/sec index writes. Far
+better done with an application backup!
 
- drivers/char/agp/agp.c               | 1664 +++++++++++++
- drivers/char/agp/agpgart_be-ali.c    |  265 --
- drivers/char/agp/agpgart_be-ali.c    |  265 ++
- drivers/char/agp/agpgart_be-amd.c    |  408 ---
- drivers/char/agp/agpgart_be-amd.c    |  408 +++
- drivers/char/agp/agpgart_be.c        | 1662 -------------
- drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
- drivers/char/agp/agpgart_be-hp.c     |  394 ---
- drivers/char/agp/agpgart_be-hp.c     |  394 +++
- drivers/char/agp/agpgart_be-i460.c   |  595 ----
- drivers/char/agp/agpgart_be-i460.c   |  595 ++++
- drivers/char/agp/agpgart_be-i810.c   |  594 ----
- drivers/char/agp/agpgart_be-i810.c   |  594 ++++
- drivers/char/agp/agpgart_be-i8x0.c   |  726 -----
- drivers/char/agp/agpgart_be-i8x0.c   |  728 +++++
- drivers/char/agp/agpgart_be-sis.c    |  142 -
- drivers/char/agp/agpgart_be-sis.c    |  142 +
- drivers/char/agp/agpgart_be-sworks.c |  626 ----
- drivers/char/agp/agpgart_be-sworks.c |  626 ++++
- drivers/char/agp/agpgart_be-via.c    |  151 -
- drivers/char/agp/agpgart_be-via.c    |  151 +
- drivers/char/agp/agpgart_fe.c        | 1086 --------
- drivers/char/agp/agpgart_fe.c        |   15 
- drivers/char/agp/agp.h               |  348 +-
- drivers/char/agp/ali.c               |  265 ++
- drivers/char/agp/amd.c               |  408 +++
- drivers/char/agp/Config.help         |   88 
- drivers/char/agp/Config.in           |   14 
- drivers/char/agp/frontend.c          | 1086 ++++++++
- drivers/char/agp/hp.c                |  394 +++
- drivers/char/agp/i460.c              |  595 ++++
- drivers/char/agp/i810.c              |  594 ++++
- drivers/char/agp/i8x0.c              |  726 +++++
- drivers/char/agp/Makefile            |   35 
- drivers/char/agp/sis.c               |  142 +
- drivers/char/agp/sworks.c            |  626 ++++
- drivers/char/agp/via.c               |  151 +
- include/linux/agp_backend.h          |    6 
- include/linux/agpgart.h              |   10 
- 39 files changed, 11400 insertions(+), 10789 deletions(-)
-------
-
-ChangeSet@1.643, 2002-07-15 11:54:20-07:00, greg@kroah.com
-  agpgart: added agp prefix to the debug printk
-
- drivers/char/agp/agp.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.642, 2002-07-15 11:46:17-07:00, greg@kroah.com
-  agpgart: renamed the agp files to make more sense
-
- drivers/char/agp/agpgart_be-ali.c    |  265 -----
- drivers/char/agp/agpgart_be-amd.c    |  408 --------
- drivers/char/agp/agpgart_be-hp.c     |  394 --------
- drivers/char/agp/agpgart_be-i460.c   |  595 ------------
- drivers/char/agp/agpgart_be-i810.c   |  594 ------------
- drivers/char/agp/agpgart_be-i8x0.c   |  726 ---------------
- drivers/char/agp/agpgart_be-sis.c    |  142 --
- drivers/char/agp/agpgart_be-sworks.c |  626 -------------
- drivers/char/agp/agpgart_be-via.c    |  151 ---
- drivers/char/agp/agpgart_be.c        | 1662 -----------------------------------
- drivers/char/agp/agpgart_fe.c        | 1086 ----------------------
- drivers/char/agp/Makefile            |   22 
- drivers/char/agp/agp.c               | 1662 +++++++++++++++++++++++++++++++++++
- drivers/char/agp/ali.c               |  265 +++++
- drivers/char/agp/amd.c               |  408 ++++++++
- drivers/char/agp/frontend.c          | 1086 ++++++++++++++++++++++
- drivers/char/agp/hp.c                |  394 ++++++++
- drivers/char/agp/i460.c              |  595 ++++++++++++
- drivers/char/agp/i810.c              |  594 ++++++++++++
- drivers/char/agp/i8x0.c              |  726 +++++++++++++++
- drivers/char/agp/sis.c               |  142 ++
- drivers/char/agp/sworks.c            |  626 +++++++++++++
- drivers/char/agp/via.c               |  151 +++
- 23 files changed, 6660 insertions(+), 6660 deletions(-)
-------
-
-ChangeSet@1.641, 2002-07-15 10:33:27-07:00, greg@kroah.com
-  agpgart: fix syntax error in the i8x0 file.
-
- drivers/char/agp/agpgart_be-i8x0.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.640, 2002-07-15 10:26:18-07:00, greg@kroah.com
-  agpgart: Split agpgart code into separate files.
-  
-  The majority of this work was done by Dave Jones, I merely converted the
-  driver to the "new" pci api.
-
- drivers/char/agp/Config.help         |   88 
- drivers/char/agp/Config.in           |   14 
- drivers/char/agp/Makefile            |   13 
- drivers/char/agp/agp.h               |  348 +-
- drivers/char/agp/agpgart_be-ali.c    |  265 ++
- drivers/char/agp/agpgart_be-amd.c    |  408 +++
- drivers/char/agp/agpgart_be-hp.c     |  394 +++
- drivers/char/agp/agpgart_be-i460.c   |  595 ++++
- drivers/char/agp/agpgart_be-i810.c   |  594 ++++
- drivers/char/agp/agpgart_be-i8x0.c   |  726 +++++
- drivers/char/agp/agpgart_be-sis.c    |  142 +
- drivers/char/agp/agpgart_be-sworks.c |  626 ++++
- drivers/char/agp/agpgart_be-via.c    |  151 +
- drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
- drivers/char/agp/agpgart_fe.c        |   15 
- include/linux/agp_backend.h          |    6 
- include/linux/agpgart.h              |   10 
- 17 files changed, 4738 insertions(+), 4127 deletions(-)
-------
-
+The point is, backups are hard, for many systems dump is optimal because
+it's fast. After that I like cpio (-Hcrc) but that's personal
+preference. All have fail cases on volatile data.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

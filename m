@@ -1,558 +1,427 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267144AbSK2UPV>; Fri, 29 Nov 2002 15:15:21 -0500
+	id <S267146AbSK2UNb>; Fri, 29 Nov 2002 15:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267143AbSK2UPV>; Fri, 29 Nov 2002 15:15:21 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:40680 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267144AbSK2UPK>; Fri, 29 Nov 2002 15:15:10 -0500
-Date: Fri, 29 Nov 2002 12:18:11 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       linux-kernel@vger.kernel.org
-cc: wli@holomorphy.com, mochel@osdl.org, johnstul@us.ibm.com,
-       Erich Focht <efocht@ess.nec.de>, colpatch@us.ibm.com
-Subject: Re: [RFC] rethinking the topology functions
-Message-ID: <1669249734.1038572290@[10.10.2.3]>
-In-Reply-To: <200211291918.gATJIUQ03127@localhost.localdomain>
-References: <200211291918.gATJIUQ03127@localhost.localdomain>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1669261060=========="
+	id <S267145AbSK2UNa>; Fri, 29 Nov 2002 15:13:30 -0500
+Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:51978 "EHLO
+	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id <S267143AbSK2UNU>; Fri, 29 Nov 2002 15:13:20 -0500
+Subject: UDMA causes IDE corruption on Shuttle AK32L mobo (VIA KT266A),
+	kernel 2.4.1[89]
+From: Jim Halfpenny <jimvin@lineone.net>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 29 Nov 2002 20:15:01 +0000
+Message-Id: <1038600903.2074.2.camel@fox>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1669261060==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi,
+I'm experiencing corrupted writes to IDE disks using a Shuttle AK32
+V2.1 motherboard, Athlon XP1800+, 256Mb DDR RAM when DMA is enabled.
+Disabling DMA using `hdparm -d0 /dev/hda` fixes this. I have tried
+two different hard disks, so I don't think that it is a fault with
+the drive itself.
 
-> I'd like to rework the current sysfs cpu/node pieces to provide 
-> two separate topologies (one for CPU and one for memory).
+I have seen the behaviour using the stock 2.4.18 kernel from Mandrake
+8.2. and the 2.4.19 kernel from Mandrake 9.0:
+Linux version 2.4.19-16mdk (quintela@bi.mandrakesoft.com) (gcc version
+3.2 (Mandrake Linux 9.0 3.2-1mdk)) #1 Fri Sep 20 18:15:05 CEST 2002
 
-There are two other sets of patches that are floating around that
-will interact with this. The first (from Matt) makes the topo 
-functions cache results, instead of recalculating each time. 
-I'm thinking that we may want the generic front end to do that and
-read from arrays, whilst only the *_init backend gets moved into
-the subarch stuff ? (looking back at the patch right now, I can't
-quite see what it's doing in 30s, but that's what it was meant to do).
+There are no log entries in /var/log/messages or /var/log/syslog when
+these faulty writes take place to indicate that there are any problems
+but copying a large file and checking it's md5sum shows it to be
+damaged.
 
-The second is the start of breaking things out into the numaq
-subarch - the attatched bits seem to work & are written with the
-intent of being mergeable. It's just pieces torn off the big patch
-by James Cleverdon and John Stultz (which isn't really mergeable
-as is) and tweaked around by me. I'm going to test them a little 
-more before submission, but they're pretty much there, I think. 
-They're based on top of John's subarch reshuffle (the stuff you had
-under generic is really NUMA-Q)
+Below is the output of various commands / logs which may be relevant.
 
-> Ultimately, the scheduler could be tuned to use the topologies to 
-> make scheduling decisions.  
+Regards,
+Jim Halfpenny
 
-We kind of have that already. There are NUMA sceduler patches that
-do this kind of thing in 2.5.47-mjb3 ... earlier versions of Erich's
-scheduler had a pooling abstraction - this got ripped out for 
-simplicity in the hope of getting something merged before the 2.5
-freeze, but it'd be nice to put them back if that's not going to 
-happen (still vaguely hoping).
+########################
 
-> When that happens, we can probably fold 
-> the current Pentium Hyperthreading stuff into a simple topology map 
-> as well.
+Startup log messages (/var/log/messages):
+Nov 24 12:24:47 fox kernel: ide: Assuming 33MHz system bus speed for PIO
+modes; override with idebus=xx
+Nov 24 12:24:47 fox kernel: VP_IDE: IDE controller on PCI bus 00 dev 89
+Nov 24 12:24:47 fox kernel: PCI: No IRQ known for interrupt pin A of
+device 00:11.1. Please try using pci=biosirq.
+Nov 24 12:24:47 fox kernel: VP_IDE: chipset revision 6
+Nov 24 12:24:47 fox kernel: VP_IDE: not 100%% native mode: will probe
+irqs later
+Nov 24 12:24:47 fox kernel: VP_IDE: VIA vt8233 (rev 00) IDE UDMA100
+controller on pci00:11.1
+Nov 24 12:24:47 fox kernel:     ide0: BM-DMA at 0xe000-0xe007, BIOS
+settings: hda:DMA, hdb:pio
+Nov 24 12:24:47 fox kernel:     ide1: BM-DMA at 0xe008-0xe00f, BIOS
+settings: hdc:DMA, hdd:DMA
+Nov 24 12:24:47 fox kernel: hda: FUJITSU MPD3130AT, ATA DISK drive
+Nov 24 12:24:47 fox kernel: hdc: YAMAHA CRW8824E, ATAPI CD/DVD-ROM drive
+Nov 24 12:24:47 fox kernel: hdd: MATSHITADVD-ROM SR-8585, ATAPI
+CD/DVD-ROM drive
+Nov 24 12:24:47 fox kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Nov 24 12:24:47 fox kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Nov 24 12:24:47 fox kernel: hda: 25431840 sectors (13021 MB) w/512KiB
+Cache, CHS=2909/141/62, UDMA(66)
+Nov 24 12:24:47 fox kernel: Partition check:
+Nov 24 12:24:47 fox kernel:  /dev/ide/host0/bus0/target0/lun0:<6> [PTBL]
+[1583/255/63] p1 p2
 
-Not sure about that ... the HT stuff I believe created one queue
-per pair of CPUs, which isn't going to work well for multiple real
-CPUs per nodes, though is kind of a nice trick for a shared cache
-SMT like HT .... things like the PPC64 chip multi-chip-on-1-die 
-may feel differently about that.
+########################
 
-> I believe Martin Bligh and Bill Irwin are working (or at least 
-> thinking) somewhat along these lines, so I thought I'd gather 
-> feedback before jumping into a wholesale rewrite.
+$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(tm) XP 1800+
+stepping        : 2
+cpu MHz         : 1535.230
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3060.53
 
-cc'ed John, Erich, Matt ... 
+########################
 
-M.
---==========1669261060==========
-Content-Type: text/plain; charset=us-ascii; name=21-i386_topo-11
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=21-i386_topo-11; size=5254
+$ cat /proc/ide/via (With DMA disabled for /dev/hda)
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.34
+South Bridge:                       VIA vt8233
+Revision:                           ISA 0x0 IDE 0x6
+Highest DMA rate:                   UDMA100
+BM-DMA base:                        0xe000
+PCI clock:                          33.3MHz
+Master Read  Cycle IRDY:            0ws
+Master Write Cycle IRDY:            0ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:              yes                 yes
+Post Write Buffer:            yes                 yes
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   80w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:        PIO       PIO       PIO       PIO
+Address Setup:       30ns     120ns      30ns      30ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      30ns      30ns
+Data Active:         90ns     330ns      90ns      90ns
+Data Recovery:       30ns     270ns      30ns      30ns
+Cycle Time:         120ns     600ns     120ns     120ns
+Transfer Rate:   16.6MB/s   3.3MB/s  16.6MB/s  16.6MB/s
 
-diff -purN -X /home/mbligh/.diff.exclude 11-noearlyirq-01/arch/i386/kernel/smpboot.c 21-i386_topo-11/arch/i386/kernel/smpboot.c
---- 11-noearlyirq-01/arch/i386/kernel/smpboot.c	Tue Nov 19 16:32:31 2002
-+++ 21-i386_topo-11/arch/i386/kernel/smpboot.c	Tue Nov 19 16:33:30 2002
-@@ -502,6 +502,46 @@ static struct task_struct * __init fork_
- 	return do_fork(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL);
- }
- 
-+#ifdef CONFIG_X86_NUMAQ
-+/* which logical CPUs are on which nodes */
-+volatile unsigned long node_2_cpu_mask[MAX_NR_NODES];
-+/* which node each logical CPU is on */
-+volatile int cpu_2_node[NR_CPUS];
-+
-+/* Initialize all maps between cpu number and node */
-+static inline void init_cpu_to_node_mapping(void)
-+{
-+	int node, cpu;
-+
-+	for (node = 0; node <
-MAX_NR_NODES; node++) {
-+		node_2_cpu_mask[node] = 0;
-+	}
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpu_2_node[cpu] = -1;
-+	}
-+}
-+
-+/* set up a mapping between cpu and node. */
-+static inline void map_cpu_to_node(int cpu, int node)
-+{
-+	node_2_cpu_mask[node] |= (1 << cpu);
-+	cpu_2_node[cpu] = node;
-+}
-+
-+/* undo a mapping between cpu and node. */
-+static inline void unmap_cpu_to_node(int cpu, int node)
-+{
-+	node_2_cpu_mask[node] &= ~(1 << cpu);
-+	cpu_2_node[cpu] = -1;
-+}
-+#else /* !CONFIG_X86_NUMAQ */
-+
-+#define init_cpu_to_node_mapping()	({})
-+#define map_cpu_to_node(cpu, node)	({})
-+#define unmap_cpu_to_node(cpu, node)	({})
-+
-+#endif /* CONFIG_X86_NUMAQ */
-+
- /* which physical APIC ID maps to which logical CPU number */
- volatile int
-physical_apicid_2_cpu[MAX_APICID];
- /* which logical CPU number maps to which physical APIC ID */
-@@ -525,6 +565,7 @@ static inline void init_cpu_to_apicid(vo
- 		cpu_2_physical_apicid[cpu] = -1;
- 		cpu_2_logical_apicid[cpu] = -1;
- 	}
-+	init_cpu_to_node_mapping();
- }
- 
- static inline void map_cpu_to_boot_apicid(int cpu, int apicid)
-@@ -536,6 +577,7 @@ static inline void map_cpu_to_boot_apici
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_logical_apicid[cpu] = apicid;
-+		map_cpu_to_node(cpu, apicid >> 4);
- 	} else {
- 		physical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_physical_apicid[cpu] = apicid;
-@@ -551,6 +593,7 @@ static inline void unmap_cpu_to_boot_api
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] =
--1;	
- 		cpu_2_logical_apicid[cpu] = -1;
-+		unmap_cpu_to_node(cpu, apicid >> 4);
- 	} else {
- 		physical_apicid_2_cpu[apicid] = -1;	
- 		cpu_2_physical_apicid[cpu] = -1;
-diff -purN -X /home/mbligh/.diff.exclude 11-noearlyirq-01/include/asm-i386/smpboot.h 21-i386_topo-11/include/asm-i386/smpboot.h
---- 11-noearlyirq-01/include/asm-i386/smpboot.h	Sun Nov 10 19:28:31 2002
-+++ 21-i386_topo-11/include/asm-i386/smpboot.h	Tue Nov 19 16:33:30 2002
-@@ -23,6 +23,14 @@
-  #define boot_cpu_apicid boot_cpu_physical_apicid
- #endif /* CONFIG_CLUSTERED_APIC */
- 
-+#ifdef CONFIG_X86_NUMAQ
-+/*
-+ * Mappings between logical cpu number and node number
-+ */
-+extern volatile unsigned long node_2_cpu_mask[];
-+extern volatile int cpu_2_node[];
-+#endif /* CONFIG_X86_NUMAQ */
-+
- /*
+########################
 
- * Mappings between logical cpu number and logical / physical apicid
-  * The first four macros are trivial, but it keeps the abstraction consistent
-diff -purN -X /home/mbligh/.diff.exclude 11-noearlyirq-01/include/asm-i386/topology.h 21-i386_topo-11/include/asm-i386/topology.h
---- 11-noearlyirq-01/include/asm-i386/topology.h	Sun Nov 10 19:28:05 2002
-+++ 21-i386_topo-11/include/asm-i386/topology.h	Tue Nov 19 16:33:30 2002
-@@ -32,7 +32,7 @@
- #include <asm/smpboot.h>
- 
- /* Returns the number of the node containing CPU 'cpu' */
--#define __cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
-+#define __cpu_to_node(cpu) (cpu_2_node[cpu])
- 
- /* Returns the number of the node containing MemBlk 'memblk' */
- #define __memblk_to_node(memblk) (memblk)
-@@ -41,44
-+41,11 @@
-    so it is a pretty simple function! */
- #define __parent_node(node) (node)
- 
--/* Returns the number of the first CPU on Node 'node'.
-- * This should be changed to a set of cached values
-- * but this will do for now.
-- */
--static inline int __node_to_first_cpu(int node)
--{
--	int i, cpu, logical_apicid = node << 4;
-+/* Returns a bitmask of CPUs on Node 'node'. */
-+#define __node_to_cpu_mask(node) (node_2_cpu_mask[node])
- 
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, return it to caller */
--			return cpu;
--
--	BUG(); /* couldn't find a cpu on given node */
--	return -1;
--}
--
--/* Returns a bitmask of CPUs on Node 'node'.
-- * This
-should be changed to a set of cached bitmasks
-- * but this will do for now.
-- */
--static inline unsigned long __node_to_cpu_mask(int node)
--{
--	int i, cpu, logical_apicid = node << 4;
--	unsigned long mask = 0UL;
--
--	if (sizeof(unsigned long) * 8 < NR_CPUS)
--		BUG();
--
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, add to bitmask */
--			mask |= 1 << cpu;
--
--	return mask;
--}
-+/* Returns the number of the first CPU on Node 'node'. */
-+#define __node_to_first_cpu(node) (__ffs(__node_to_cpu_mask(node)))
- 
- /* Returns the number of the first MemBlk on Node 'node' */
- #define __node_to_memblk(node) (node)
+$ cat /proc/modules
+floppy                 49340   0 (autoclean)
+snd-seq-midi            3680   0 (autoclean) (unused)
+snd-emu10k1-synth       4220   0 (autoclean) (unused)
+snd-emux-synth         25532   0 (autoclean) [snd-emu10k1-synth]
+snd-seq-midi-emul       4880   0 (autoclean) [snd-emux-synth]
+snd-seq-virmidi         2888   0 (autoclean) [snd-emux-synth]
+snd-seq-oss            26176   0 (unused)
+snd-seq-midi-event      3208   0 [snd-seq-midi snd-seq-virmidi
+snd-seq-oss]
+snd-seq                33264   2 [snd-seq-midi snd-emux-synth
+snd-seq-midi-emul snd-seq-virmidi snd-seq-oss snd-seq-midi-event]
+snd-pcm-oss            36932   0
+snd-mixer-oss           9016   1 [snd-pcm-oss]
+snd-emu10k1            56592   1 [snd-emu10k1-synth]
+snd-pcm                55808   0 [snd-pcm-oss snd-emu10k1]
+snd-timer               9964   0 [snd-seq snd-pcm]
+snd-util-mem            1280   0 [snd-emux-synth snd-emu10k1]
+snd-rawmidi            12864   0 [snd-seq-midi snd-seq-virmidi
+snd-emu10k1]
+snd-seq-device          3836   0 [snd-seq-midi snd-emu10k1-synth
+snd-emux-synth snd-seq-oss snd-seq snd-emu10k1 snd-rawmidi]
+snd-ac97-codec         25508   0 [snd-emu10k1]
+snd-hwdep               3840   0 [snd-emu10k1]
+snd                    24804   0 [snd-seq-midi snd-emux-synth
+snd-seq-virmidi snd-seq-oss snd-seq-midi-event snd-seq snd-pcm-oss
+snd-mixer-oss snd-emu10k1 snd-pcm snd-timer snd-util-mem snd-rawmidi
+snd-seq-device snd-ac97-codec snd-hwdep]
+soundcore               3780   0 [snd]
+ppp_async               7456   0 (unused)
+ppp_generic            20064   0 [ppp_async]
+slhc                    5072   0 [ppp_generic]
+af_packet              13000   0 (autoclean)
+8139too                14472   1 (autoclean)
+mii                     1152   0 (autoclean) [8139too]
+supermount             14340   1 (autoclean)
+isofs                  25652   0 (autoclean)
+inflate_fs             17892   0 (autoclean) [isofs]
+sr_mod                 15096   0 (autoclean)
+ide-cd                 28712   0
+cdrom                  26848   0 [sr_mod ide-cd]
+ide-scsi                8212   0
+usb-uhci               21676   0 (unused)
+usbcore                58304   1 [usb-uhci]
+rtc                     6560   0 (autoclean)
+reiserfs              169776   5
+sd_mod                 11612   8
+eata                   20472   4
+scsi_mod               91140   4 [sr_mod ide-scsi sd_mod eata]
 
---==========1669261060==========
-Content-Type: text/plain; charset=us-ascii; name=numaq_makefile
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=numaq_makefile; size=2969
+########################
 
-diff -urpN -X /home/fletch/.diff.exclude 01-subarch_reorg/arch/i386/Makefile 11-numaq_makefile-01/arch/i386/Makefile
---- 01-subarch_reorg/arch/i386/Makefile	Tue Nov 26 08:07:12 2002
-+++ 11-numaq_makefile-01/arch/i386/Makefile	Tue Nov 26 08:27:58 2002
-@@ -49,6 +49,9 @@ CFLAGS += $(cflags-y)
- #VISWS subarch support
- mflags-$(CONFIG_VISWS) := -Iinclude/asm-i386/mach-visws
- mcore-$(CONFIG_VISWS)  := mach-visws
-+#NUMAQ subarch support
-+mflags-$(CONFIG_X86_NUMAQ) := -Iinclude/asm-i386/mach-numaq
-+mcore-$(CONFIG_X86_NUMAQ)  := mach-default
- #default subarch support
- mflags-y += -Iinclude/asm-i386/mach-default
- ifndef mcore-y
-diff -urpN -X /home/fletch/.diff.exclude 01-subarch_reorg/include/asm-i386/mach-default/mach_apic.h
-11-numaq_makefile-01/include/asm-i386/mach-default/mach_apic.h
---- 01-subarch_reorg/include/asm-i386/mach-default/mach_apic.h	Tue Nov 26 08:07:22 2002
-+++ 11-numaq_makefile-01/include/asm-i386/mach-default/mach_apic.h	Tue Nov 26 08:53:37 2002
-@@ -12,7 +12,7 @@ static inline unsigned long calculate_ld
- #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
- 
- #ifdef CONFIG_SMP
-- #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
-+ #define TARGET_CPUS (cpu_online_map)
- #else
-  #define TARGET_CPUS 0x01
- #endif
-@@ -27,15 +27,12 @@ static inline void summit_check(char *oe
- static inline void clustered_apic_check(void)
- {
- 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
--		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
-+					"Flat",
-nr_ioapics);
- }
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
- {
--	if (clustered_apic_mode)
--		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
--	else
--		return mps_cpu;
-+	return mps_cpu;
- }
- 
- static inline unsigned long apicid_to_cpu_present(int apicid)
-diff -urpN -X /home/fletch/.diff.exclude 01-subarch_reorg/include/asm-i386/mach-numaq/mach_apic.h 11-numaq_makefile-01/include/asm-i386/mach-numaq/mach_apic.h
---- 01-subarch_reorg/include/asm-i386/mach-numaq/mach_apic.h	Wed Dec 31 16:00:00 1969
-+++ 11-numaq_makefile-01/include/asm-i386/mach-numaq/mach_apic.h	Tue Nov 26 08:52:30 2002
-@@ -0,0 +1,39 @@
-+#ifndef __ASM_MACH_APIC_H
-+#define __ASM_MACH_APIC_H
-+
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long
-id;
-+
-+	id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
-+
-+#define TARGET_CPUS (0xf)
-+
-+#define APIC_BROADCAST_ID      0x0F
-+#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
-+
-+static inline void summit_check(char *oem, char *productid) 
-+{
-+}
-+
-+static inline void clustered_apic_check(void)
-+{
-+	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
-+		"NUMA-Q", nr_ioapics);
-+}
-+
-+static inline int cpu_present_to_apicid(int mps_cpu)
-+{
-+	return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
-+}
-+
-+static inline unsigned long apicid_to_cpu_present(int apicid)
-+{
-+	return (1ul << apicid);
-+}
-+
-+#endif /* __ASM_MACH_APIC_H */
+$ cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+03c0-03df : vesafb
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+d000-d01f : Distributed Processing Technology SmartCache/Raid I-IV
+Controller
+  d010-d018 : EATA
+d400-d4ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C
+  d400-d4ff : 8139too
+d800-d81f : Creative Labs SB Live! EMU10k1
+  d800-d81f : EMU10K1
+dc00-dc07 : Creative Labs SB Live! MIDI/Game Port
+e000-e00f : VIA Technologies, Inc. Bus Master IDE
+  e000-e007 : ide0
+  e008-e00f : ide1
+e400-e41f : VIA Technologies, Inc. UHCI USB
+  e400-e41f : usb-uhci
+e800-e81f : VIA Technologies, Inc. UHCI USB (#2)
+  e800-e81f : usb-uhci
+ec00-ec1f : VIA Technologies, Inc. UHCI USB (#3)
+  ec00-ec1f : usb-uhci
 
---==========1669261060==========
-Content-Type: text/plain; charset=us-ascii; name=numaq_apic
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=numaq_apic; size=6557
 
-diff -urpN -X /home/fletch/.diff.exclude 11-numaq_makefile-01/arch/i386/kernel/apic.c 12-numaq_apic-11/arch/i386/kernel/apic.c
---- 11-numaq_makefile-01/arch/i386/kernel/apic.c	Tue Nov 26 08:07:12 2002
-+++ 12-numaq_apic-11/arch/i386/kernel/apic.c	Tue Nov 26 09:09:42 2002
-@@ -311,11 +311,9 @@ void __init setup_local_APIC (void)
- 		__error_in_apic_c();
- 
- 	/*
--	 * Double-check wether this APIC is really registered.
--	 * This is meaningless in clustered apic mode, so we skip it.
-+	 * Double-check whether this APIC is really registered.
- 	 */
--	if (!clustered_apic_mode && 
--	    !test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map))
-+	if (!apic_id_registered())
- 		BUG();
- 
- 	/*
-@@ -323,21 +321,7 @@ void __init setup_local_APIC (void)
- 	 * an
-APIC.  See e.g. "AP-388 82489DX User's Manual" (Intel
- 	 * document number 292116).  So here it goes...
- 	 */
--
--	if (!clustered_apic_mode) {
--		/*
--		 * In clustered apic mode, the firmware does this for us 
--		 * Put the APIC into flat delivery mode.
--		 * Must be "all ones" explicitly for 82489DX.
--		 */
--		apic_write_around(APIC_DFR, APIC_DFR_VALUE);
--
--		/*
--		 * Set up the logical destination ID.
--		 */
--		value = apic_read(APIC_LDR);
--		apic_write_around(APIC_LDR, calculate_ldr(value));
--	}
-+	init_apic_ldr();
- 
- 	/*
- 	 * Set Task Priority to 'accept all'. We never change this
-diff -urpN -X /home/fletch/.diff.exclude 11-numaq_makefile-01/arch/i386/kernel/io_apic.c 12-numaq_apic-11/arch/i386/kernel/io_apic.c
----
-11-numaq_makefile-01/arch/i386/kernel/io_apic.c	Tue Nov 26 08:07:12 2002
-+++ 12-numaq_apic-11/arch/i386/kernel/io_apic.c	Tue Nov 26 09:06:30 2002
-@@ -256,7 +256,7 @@ static inline void balance_irq(int irq)
- 	irq_balance_t *entry = irq_balance + irq;
- 	unsigned long now = jiffies;
- 
--	if (clustered_apic_mode)
-+	if (no_balance_irq)
- 		return;
- 
- 	if (unlikely(time_after(now, entry->timestamp + IRQ_BALANCE_INTERVAL))) {
-@@ -272,7 +272,7 @@ static inline void balance_irq(int irq)
- 		new_cpu = move(entry->cpu, allowed_mask, now, random_number);
- 		if (entry->cpu != new_cpu) {
- 			entry->cpu = new_cpu;
--			set_ioapic_affinity(irq, 1 << new_cpu);
-+			set_ioapic_affinity(irq, cpu_present_to_apicid(new_cpu));
- 		}
- 	}
- }
-@@ -734,7 +734,6 @@ void __init
-setup_IO_APIC_irqs(void)
- 		if (irq_trigger(idx)) {
- 			entry.trigger = 1;
- 			entry.mask = 1;
--			entry.dest.logical.logical_dest = TARGET_CPUS;
- 		}
- 
- 		irq = pin_2_irq(idx, apic, pin);
-@@ -742,7 +741,7 @@ void __init setup_IO_APIC_irqs(void)
- 		 * skip adding the timer int on secondary nodes, which causes
- 		 * a small but painful rift in the time-space continuum
- 		 */
--		if (clustered_apic_mode && (apic != 0) && (irq == 0))
-+		if (multi_timer_check(apic, irq))
- 			continue;
- 		else
- 			add_pin_to_irq(irq, apic, pin);
-diff -urpN -X /home/fletch/.diff.exclude 11-numaq_makefile-01/include/asm-i386/mach-default/mach_apic.h 12-numaq_apic-11/include/asm-i386/mach-default/mach_apic.h
----
-11-numaq_makefile-01/include/asm-i386/mach-default/mach_apic.h	Tue Nov 26 08:53:37 2002
-+++ 12-numaq_apic-11/include/asm-i386/mach-default/mach_apic.h	Tue Nov 26 09:31:11 2002
-@@ -17,6 +17,8 @@ static inline unsigned long calculate_ld
-  #define TARGET_CPUS 0x01
- #endif
- 
-+#define no_balance_irq (0)
-+
- #define APIC_BROADCAST_ID      0x0F
- #define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
- 
-@@ -24,10 +26,38 @@ static inline void summit_check(char *oe
- {
- }
- 
-+static inline int apic_id_registered(void)
-+{
-+	return (test_bit(GET_APIC_ID(apic_read(APIC_ID)), 
-+						&phys_cpu_present_map));
-+}
-+
-+/*
-+ * Set up the logical destination ID.
-+ *
-+ * Intel recommends to set DFR, LDR and TPR before enabling
-+ * an APIC.  See e.g. "AP-388
-82489DX User's Manual" (Intel
-+ * document number 292116).  So here it goes...
-+ */
-+static inline void init_apic_ldr(void)
-+{
-+	unsigned long val;
-+
-+	apic_write_around(APIC_DFR, APIC_DFR_VALUE);
-+	val = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
-+	val |= SET_APIC_LOGICAL_ID(1UL << smp_processor_id());
-+	apic_write_around(APIC_LDR, val);
-+}
-+
- static inline void clustered_apic_check(void)
- {
- 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
- 					"Flat", nr_ioapics);
-+}
-+
-+static inline int multi_timer_check(int apic, int irq)
-+{
-+	return 0;
- }
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
-diff -urpN -X /home/fletch/.diff.exclude 11-numaq_makefile-01/include/asm-i386/mach-numaq/mach_apic.h
-12-numaq_apic-11/include/asm-i386/mach-numaq/mach_apic.h
---- 11-numaq_makefile-01/include/asm-i386/mach-numaq/mach_apic.h	Tue Nov 26 08:52:30 2002
-+++ 12-numaq_apic-11/include/asm-i386/mach-numaq/mach_apic.h	Tue Nov 26 09:32:21 2002
-@@ -13,6 +13,8 @@ static inline unsigned long calculate_ld
- 
- #define TARGET_CPUS (0xf)
- 
-+#define no_balance_irq (1)
-+
- #define APIC_BROADCAST_ID      0x0F
- #define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
- 
-@@ -20,10 +22,25 @@ static inline void summit_check(char *oe
- {
- }
- 
-+static inline int apic_id_registered(void)
-+{
-+	return (1);
-+}
-+
-+static inline void init_apic_ldr(void)
-+{
-+	/* Already done in NUMA-Q firmware */
-+}
-+
- static inline void clustered_apic_check(void)
- {
- 	printk("Enabling APIC
-mode:  %s.  Using %d I/O APICs\n",
- 		"NUMA-Q", nr_ioapics);
-+}
-+
-+static inline int multi_timer_check(int apic, int irq)
-+{
-+	return (apic != 0 && irq == 0);
- }
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
-diff -urpN -X /home/fletch/.diff.exclude 11-numaq_makefile-01/include/asm-i386/mach-summit/mach_apic.h 12-numaq_apic-11/include/asm-i386/mach-summit/mach_apic.h
---- 11-numaq_makefile-01/include/asm-i386/mach-summit/mach_apic.h	Tue Nov 26 08:07:22 2002
-+++ 12-numaq_apic-11/include/asm-i386/mach-summit/mach_apic.h	Tue Nov 26 09:31:41 2002
-@@ -23,6 +23,8 @@ static inline unsigned long calculate_ld
- #define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
- #define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK :
-cpu_online_map)
- 
-+#define no_balance_irq (1)
-+
- #define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
- #define check_apicid_used(bitmap, apicid) (0)
- 
-@@ -32,10 +34,25 @@ static inline void summit_check(char *oe
- 		x86_summit = 1;
- }
- 
-+static inline int apic_id_registered(void)
-+{
-+	return (1);
-+}
-+
-+
-+static inline void init_apic_ldr(void)
-+{
-+}
-+
- static inline void clustered_apic_check(void)
- {
- 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
- 		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
-+}
-+
-+static inline int multi_timer_check(int apic, int irq)
-+{
-+	return 0;
- }
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
 
---==========1669261060==========--
+$ cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000cc000-000ccfff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-0fffffff : System RAM
+  00100000-0022614c : Kernel code
+  0022614d-0029547f : Kernel data
+e0000000-e3ffffff : VIA Technologies, Inc. VT8367 [KT266]
+e4000000-e5ffffff : PCI Bus #01
+  e4000000-e5ffffff : nVidia Corporation Vanta [NV6]
+    e4000000-e4ffffff : vesafb
+e6000000-e7ffffff : PCI Bus #01
+  e6000000-e6ffffff : nVidia Corporation Vanta [NV6]
+e9000000-e90000ff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C
+  e9000000-e90000ff : 8139too
+ffff0000-ffffffff : reserved
+
+
+
+# lspci -vvv
+00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
+        Subsystem: VIA Technologies, Inc. VT8367 [KT266]
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR+
+        Latency: 8
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2,x4
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP] (prog-if
+00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: e6000000-e7ffffff
+        Prefetchable memory behind bridge: e4000000-e5ffffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.0 SCSI storage controller: Distributed Processing Technology
+SmartCache/Raid I-IV Controller (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (1000ns min, 2000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        BIST result: 00
+        Region 0: I/O ports at d000 [size=32]
+        Expansion ROM at <unassigned> [disabled] [size=32K]
+
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at d400 [size=256]
+        Region 1: Memory at e9000000 (32-bit, non-prefetchable)
+[size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
+PME(D0-,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+07)
+        Subsystem: Creative Labs CT4780 SBLive! Value
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 5000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at d800 [size=32]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.1 Input device controller: Creative Labs SB Live! MIDI/Game Port
+(rev 07)
+        Subsystem: Creative Labs Gameport Joystick
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 0: I/O ports at dc00 [size=8]
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+        Subsystem: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+(prog-if 8a [Master SecP PriP])
+        Subsystem: VIA Technologies, Inc. Bus Master IDE
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 0
+        Region 4: I/O ports at e000 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 9
+        Region 4: I/O ports at e400 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 9
+        Region 4: I/O ports at e800 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.4 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00
+[UHCI])
+        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 9
+        Region 4: I/O ports at ec00 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: nVidia Corporation NV6 [Vanta] (rev
+15) (prog-if 00 [VGA])
+        Subsystem: Micro-star International Co Ltd MSI-8808
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (1250ns min, 250ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e6000000 (32-bit, non-prefetchable)
+[size=16M]
+        Region 1: Memory at e4000000 (32-bit, prefetchable) [size=32M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [60] Power Management version 1
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [44] AGP version 2.0
+                Status: RQ=31 SBA- 64bit- FW- Rate=x1,x2,x4
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
 

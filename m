@@ -1,37 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUFLMk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264756AbUFLMpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264734AbUFLMk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 08:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbUFLMk2
+	id S264756AbUFLMpe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 08:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264749AbUFLMpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 08:40:28 -0400
-Received: from nepa.nlc.no ([195.159.31.6]:62395 "HELO nepa.nlc.no")
-	by vger.kernel.org with SMTP id S264734AbUFLMk1 (ORCPT
+	Sat, 12 Jun 2004 08:45:34 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:47036 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264748AbUFLMpd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 08:40:27 -0400
-Message-ID: <1191.83.109.11.80.1087044017.squirrel@nepa.nlc.no>
-Date: Sat, 12 Jun 2004 14:40:17 +0200 (CEST)
-Subject: Re: new kernel bug
-From: stian@nixia.no
-To: linux-kernel@vger.kernel.org
-Cc: "Manuel Arostegui Ramirez" <manuel@todo-linux.com>
-User-Agent: SquirrelMail/1.4.0-1
+	Sat, 12 Jun 2004 08:45:33 -0400
+From: frj11@ev1.net
+Date: Sat, 12 Jun 2004 11:59:58 GMT
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
+Subject: Paradies Bundesrepublik - Rente fuer die Welt -
 Importance: Normal
+X-Priority: 3 (Normal)
+Message-ID: <f6a07ca6429b05.f3522.qmail@ev1.net>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can keep an eye on the
-"timer + fpu stuff locks my console race"
-thread I orignaly created when I found the bug or see here for web version:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108704334308688&w=2
-
-
-I'll put on a quick 2.4.26 fix that should work (can't test, since my
-linux box that I have physical access to isn't wired to the Internett
-currently)
-
-
-Stian Skjelstad
+Lese selbst:
+http://www.auslaenderstopp.net/aktuell/rente-fur-alle.htm

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265259AbSJWWeO>; Wed, 23 Oct 2002 18:34:14 -0400
+	id <S265247AbSJWWi2>; Wed, 23 Oct 2002 18:38:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265276AbSJWWeO>; Wed, 23 Oct 2002 18:34:14 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:34692 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265259AbSJWWeN> convert rfc822-to-8bit;
-	Wed, 23 Oct 2002 18:34:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: James Stevenson <james@stev.org>
-Subject: Re: One for the Security Guru's
-Date: Wed, 23 Oct 2002 15:39:43 -0700
-User-Agent: KMail/1.4.1
-Cc: Gilad Ben-ossef <gilad@benyossef.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021023130251.GF25422@rdlg.net> <200210231514.07192.jamesclv@us.ibm.com> <1035411422.5377.11.camel@god.stev.org>
-In-Reply-To: <1035411422.5377.11.camel@god.stev.org>
+	id <S265211AbSJWWi2>; Wed, 23 Oct 2002 18:38:28 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:60833 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265247AbSJWWiX>; Wed, 23 Oct 2002 18:38:23 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 23 Oct 2002 15:53:31 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: linux-aio <linux-aio@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: async poll
+In-Reply-To: <Pine.LNX.4.44.0210231528580.1581-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0210231551230.1581-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231539.43167.jamesclv@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 03:17 pm, James Stevenson wrote:
-> > Be surprised:  I run "gpg --verify foo.tgz.sign foo.tgz" every time I
-> > download from kernel.org.  And, "rpm --checksig *.rpm" on stuff from
-> > redhat.com too.
->
-> and when an attacker looks into your .bash_history see this and modifies
-> gpg and rpm ?
+On Wed, 23 Oct 2002, Davide Libenzi wrote:
 
-First, I use ksh, so the kiddie is looking into the wrong history.   ;^)
+> It'll take 2 minutes to do such a thing. Actually the pollfd struct
+> contains the "events" field that is wasted when returning events and it
+> could be used for something more useful.
 
-Second, I'm trying to keep him/her/git out by not loading a trojaned package.  
-Once the scumbag is inside your box, it's much harder to throw them out.  In 
-fact, a reinstall is usually in order.
+Also, I was just wondering if this might be usefull :
 
-Third, if they don't do it already, I'd like kpackage, gnorpm, and similar 
-tools to always check signatures before loading a package.  (And, for the GPG 
-public keys used to have come with trust signatures from the installation 
-CD.)  That would really help with all the newbies to *nix coming on board 
-now.
+asmlinkage int sys_epoll_wait(int epfd, int minevents, struct pollfd **events, int timeout);
 
-PS:  If you don't trust your gpg or rpm, boot off install CD # 1, switch to a 
-text console, and use the ones on the CD.  QED.    :^)
+Where "minevents" rapresent the minimum number of events returned by
+sys_epoll ...
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+
+
+- Davide
+
 

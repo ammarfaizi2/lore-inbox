@@ -1,127 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269717AbUJHKdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269738AbUJHKlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269717AbUJHKdN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUJHKdN
+	id S269738AbUJHKlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbUJHKlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:33:13 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:62698 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S269717AbUJHKdD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:33:03 -0400
-Message-ID: <41666CF9.4040207@sdl.hitachi.co.jp>
-Date: Fri, 08 Oct 2004 19:33:29 +0900
-From: Hideo AOKI <aoki@sdl.hitachi.co.jp>
-Organization: Systems Development Lab., Hitachi, Ltd.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: ja
+	Fri, 8 Oct 2004 06:41:12 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:45196 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269738AbUJHKlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:41:07 -0400
+Message-ID: <41666E90.2000208@yahoo.com.au>
+Date: Fri, 08 Oct 2004 20:40:16 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3: vm-thrashing-control-tuning
-References: <20041007015139.6f5b833b.akpm@osdl.org>
-In-Reply-To: <20041007015139.6f5b833b.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------030208040203050500000807"
+To: Erich Focht <efocht@hpce.nec.com>
+CC: lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
+       Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
+       frankeh@watson.ibm.com
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+References: <1097110266.4907.187.camel@arrakis> <200410081214.20907.efocht@hpce.nec.com>
+In-Reply-To: <200410081214.20907.efocht@hpce.nec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030208040203050500000807
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Erich Focht wrote:
 
-Andrew Morton wrote:
-
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/
-[...]
+> more flexibility in building the sched_domains is badly needed, so
+> your effort towards providing this is the right step. I'm not sure
+> yet whether your big change is really (and already) a simplification,
+> but what you described sounded for me like getting the chance to
+> configure the sched_domains at runtime, dynamically, from user
+> space. I didn't notice any user interface in your patch, or overlooked
+> it. Could you please describe the API you had in mind for that?
 > 
-> Changes since 2.6.9-rc3-mm2:
-> 
-[...]
->  
-> +vm-thrashing-control-tuning.patch
-> 
->  /proc/sys/vm/swap_token_timeout
 
-Hello, Andrew,
+OK, what we have in -mm is already close to what we need to do
+dynamic building. But let's explore the other topic. User interface.
 
-Thank you for applying my patch.
+First of all, I think it may be easiest to allow the user to specify
+which cpus belong to which exclusive domains, and have them otherwise
+built in the shape of the underlying topology. So for example if your
+domains look like this (excuse the crappy ascii art):
 
-Since I made the patch for 2.6.9-rc3, the patch caused trouble 
-to sysctl code in -mm tree.
+0 1  2 3  4 5  6 7
+---  ---  ---  ---  <- domain 0
+  |    |    |    |
+  ------    ------   <- domain 1
+     |        |
+     ----------      <- domain 2 (global)
 
-Attached patch fixes this issue.
+And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
+for some crazy reason, the new domains would look like this:
 
-I am very sorry for the trouble.
+0 1  2  4 5    3  6 7
+---  -  ---    -  ---  <- 0
+  |   |   |     |   |
+  -----   -     -   -   <- 1
+    |     |     |   |
+    -------     -----   <- 2 (global, partitioned)
 
+Agreed? You don't need to get fancier than that, do you?
 
-Best regards,
+Then how to input the partitions... you could have a sysfs entry that
+takes the complete partition info in the form:
 
-Hideo AOKI
+0,1,2,3 4,5,6 7,8 ...
 
-Systems Development Laboratory, Hitachi, Ltd.
-
---------------030208040203050500000807
-Content-Type: text/plain;
- name="vm-thrashing-control-tuning-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vm-thrashing-control-tuning-fix.patch"
-
-Signed-off-by: Hideo Aoki <aoki@sdl.hitachi.co.jp>
-
- include/linux/sysctl.h |    2 +-
- kernel/sysctl.c        |   18 +++++++++---------
- 2 files changed, 10 insertions(+), 10 deletions(-)
-
-diff -uprN linux-2.6.9-rc3-mm3/include/linux/sysctl.h linux-2.6.9-rc3-mm3-fix/include/linux/sysctl.h
---- linux-2.6.9-rc3-mm3/include/linux/sysctl.h	2004-10-08 14:42:27.000000000 +0900
-+++ linux-2.6.9-rc3-mm3-fix/include/linux/sysctl.h	2004-10-08 14:53:33.000000000 +0900
-@@ -168,7 +168,7 @@ enum
- 	VM_VFS_CACHE_PRESSURE=26, /* dcache/icache reclaim pressure */
- 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
-  	VM_HEAP_STACK_GAP=28,	/* int: page gap between heap and stack */
--	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
-+	VM_SWAP_TOKEN_TIMEOUT=29, /* default time for token time out */
- };
- 
- 
-diff -uprN linux-2.6.9-rc3-mm3/kernel/sysctl.c linux-2.6.9-rc3-mm3-fix/kernel/sysctl.c
---- linux-2.6.9-rc3-mm3/kernel/sysctl.c	2004-10-08 14:42:28.000000000 +0900
-+++ linux-2.6.9-rc3-mm3-fix/kernel/sysctl.c	2004-10-08 18:16:25.000000000 +0900
-@@ -624,15 +624,6 @@ static ctl_table kern_table[] = {
- 		.proc_handler   = &proc_unknown_nmi_panic,
- 	},
- #endif
--	{
--		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
--		.procname	= "swap_token_timeout",
--		.data		= &swap_token_default_timeout,
--		.maxlen		= sizeof(swap_token_default_timeout),
--		.mode		= 0644,
--		.proc_handler	= &proc_dointvec_jiffies,
--		.strategy	= &sysctl_jiffies,
--	},
- 	{ .ctl_name = 0 }
- };
- 
-@@ -822,6 +813,15 @@ static ctl_table vm_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+	{
-+		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
-+		.procname	= "swap_token_timeout",
-+		.data		= &swap_token_default_timeout,
-+		.maxlen		= sizeof(swap_token_default_timeout),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec_jiffies,
-+		.strategy	= &sysctl_jiffies,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
-
---------------030208040203050500000807--
-
+Pretty dumb and simple.

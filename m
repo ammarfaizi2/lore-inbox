@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUFBMzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUFBM5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUFBMzY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 08:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFBMzY
+	id S262503AbUFBM5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 08:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFBM5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 08:55:24 -0400
-Received: from bay18-f8.bay18.hotmail.com ([65.54.187.58]:5388 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262453AbUFBMzI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 08:55:08 -0400
-X-Originating-IP: [62.23.212.62]
-X-Originating-Email: [ericphoto@hotmail.com]
-From: "eric photo" <ericphoto@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: react on gas price increase - reduce by 10% your consumption 
-Date: Wed, 02 Jun 2004 12:55:07 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <BAY18-F8eRaNgEpTX5V00035626@hotmail.com>
-X-OriginalArrivalTime: 02 Jun 2004 12:55:08.0204 (UTC) FILETIME=[D5327EC0:01C448A0]
+	Wed, 2 Jun 2004 08:57:32 -0400
+Received: from tag.witbe.net ([81.88.96.48]:57770 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S262503AbUFBM5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 08:57:16 -0400
+Message-Id: <200406021257.i52CvEX31840@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: TCP retransmission : how to detect from an application ?
+Date: Wed, 2 Jun 2004 14:57:11 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRIoR6je/XkQ3h9TO+dPHUfs7QeBQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux is one thing that a community has created and maintained based on 
-mailing list.
-I know i'm out of scope but let's take some time to react to gas price 
-increase and
-environment destruction.
+Hello,
 
-I would like to ask you to reduce by 10 % your gas / petrol consumption by 
-car.
-yes this is possible ! Just relax and drive slowly and this possible , i 
-have tried and
-now i use 15 % less than before just by driving smoothly.
+I've an application that is establishing TCP connection, and exchanges some
+data.
+However, from time to time, I suspect there are some packet loss, which are
+corrected by the kernel (hell, TCP is reliable, isn't it :-), but I'd like
+to know if an application can detect this (well, I don't want to be notified
+of a packet loss once detected, but I'd like to get some stats before
+closing
+the connection).
 
-So let's try and forward this idea to your knowledge in your country, this 
-will probably
-start a new power against the petrol business price policy and it would 
-enable less
-air polution and better security.
+Is there something possible ? Some ioctl ? Some /proc/magic-interface ?
 
-This is possible , try it first !
+Regards,
+Paul
 
-Eric
+Paul Rolland, rol(at)as2917.net
+ex-AS2917 Network administrator and Peering Coordinator
 
-_________________________________________________________________
-Dialoguez en direct et gratuitement avec vos amis sur 
-http://g.msn.fr/FR1001/866 MSN Messenger !
+--
+
+Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+
+"Some people dream of success... while others wake up and work hard at it" 
+
+ 
+
 

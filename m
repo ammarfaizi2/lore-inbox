@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbTKKUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 15:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTKKUYH
+	id S263765AbTKKU0K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbTKKU0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 15:24:07 -0500
-Received: from ppp-62-245-162-69.mnet-online.de ([62.245.162.69]:41856 "EHLO
-	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
-	id S263439AbTKKUYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 15:24:04 -0500
-To: Erik Andersen <andersen@codepoet.org>
-Cc: Julien Oster <lkml-20031111@mc.frodoid.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 11 Nov 2003 15:26:10 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:59400 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S263765AbTKKU0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:26:06 -0500
+Date: Tue, 11 Nov 2003 21:25:55 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Julien Oster <lkml-20031111@mc.frodoid.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: A7N8X (Deluxe) Madness
-From: Julien Oster <lkml-20031111@mc.frodoid.org>
-Organization: FRODOID.ORG
-X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
-Date: Tue, 11 Nov 2003 21:24:03 +0100
-In-Reply-To: <20031111200922.GA9276@codepoet.org> (Erik Andersen's message
- of "Tue, 11 Nov 2003 13:09:22 -0700")
-Message-ID: <frodoid.frodo.87k766zmak.fsf@usenet.frodoid.org>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org>
-	<20031111200922.GA9276@codepoet.org>
+In-Reply-To: <frodoid.frodo.87n0b2zmk1.fsf@usenet.frodoid.org>
+Message-ID: <Pine.LNX.4.44.0311112120450.30654-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen <andersen@codepoet.org> writes:
+> > I'd guess one is locking up due to hard disk load,
+> > and the other is locking up due to automatic suspend/standby issues.
+> > Can you verify that the ac kernel isn't locking up due to a 'screensaver' 
+> > type problem?
+> 
+> Interesting question. I also thought about that one. However,
+> regarding X, the machine sometimes crashes before the X Server
+> screensaver (nothing special there, just the built in one that turns
+> the screen black) is clearing the screen and sometimes afterwards. If
+> it crashes afterwards, I can of course not see when it crashed, since
+> I don't see the clock on the screen anymore.
+> 
+> And there's nothing else which I could think of. I have resetted the
+> spinout time for the harddisks to "never" (for different reasons) and
+> I don't think that there's any power saving stuff enabled in BIOS
+> setup. I'll check that. However, I'm afraid there really isn't any
+> screensaver or powersaving thing within my system, of course for the
+> standard X screensaver, which doesn't seem related to it.
 
-Hello Erik,
+Indeed however I didn't mean the X server xscreensaver and family - I 
+meant the BIOS DPMS, kernel console saver, etc functionality.  I had this 
+kind of problem with my stationary computer (it locked solid when the 
+screen was blanked) with some older kernel version (around 2.4.9).  I 
+think kernel screen saveing can be turned off with some sort of escape 
+code...
 
->> I have an ASUS A7N8X Deluxe mainboard. Yeah, right, that thing causing
->> serious trouble. I'm getting hard lockups all the time. No panic, no
->> message, no sysrq, no blinking cursor in the framebuffer. Gone for good.
+indeed:
+$ man console_codes
+  /timeout
+gives:
+  ESC [ 9 ; n ] where n is screen blank timeout in minutes
+  ESC [ 13 ] to unblank
+  ESC [ 14 ; n ] to set the VESA powerdown interval in minutes
+so try something like
+  echo -e "\e[13]\e[9;10080]\e[14;10080]"
+to make it blank after a week and see if it still locks.
+You can also try turning of VESA/DPMS blanking in the Bios.
 
-> Does it help if you go into the BIOS and set the IDE controller
-> to "Compatible Mode" rather than "Enhanced Mode"?
+Cheers,
+MaZe.
 
-I'm sorry, but I just can't find that option... it's the newest BIOS
-version, however?
 
-Regards,
-Julien

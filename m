@@ -1,43 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267274AbTBDMzh>; Tue, 4 Feb 2003 07:55:37 -0500
+	id <S267259AbTBDNCO>; Tue, 4 Feb 2003 08:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267275AbTBDMzh>; Tue, 4 Feb 2003 07:55:37 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:30908 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S267274AbTBDMzg> convert rfc822-to-8bit; Tue, 4 Feb 2003 07:55:36 -0500
-Date: Tue, 4 Feb 2003 14:04:38 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH *] use 64 bit jiffies
-In-Reply-To: <20030204092936.GA14495@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.33.0302041401010.1267-100000@gans.physik3.uni-rostock.de>
+	id <S267257AbTBDNCM>; Tue, 4 Feb 2003 08:02:12 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:57739 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267254AbTBDNCH>;
+	Tue, 4 Feb 2003 08:02:07 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15935.48132.280312.291631@harpo.it.uu.se>
+Date: Tue, 4 Feb 2003 14:11:32 +0100
+To: linux-kernel@ton.iguana.be (Ton Hospel)
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, alan@lxorguk.ukuu.org.uk
+Subject: Re: two x86_64 fixes for 2.4.21-pre3
+In-Reply-To: <b1nb4i$crp$1@post.home.lunix>
+References: <15921.37163.139583.74988@harpo.it.uu.se>
+	<b1nb4i$crp$1@post.home.lunix>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Feb 2003, [iso-8859-1] Jörn Engel wrote:
+Ton Hospel writes:
+ > In article <15921.37163.139583.74988@harpo.it.uu.se>,
+ > 	Mikael Pettersson <mikpe@csd.uu.se> writes:
+ > >  #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+ > >  
+ > > +#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0);
+ > > +#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0);
+ > > +
+ > 
+ > The extra ; after the while(0) look wrong.
+ > 
+ > >  #define restore_flags(x) __global_restore_flags(x)
+ > > +#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
+ > > +#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
+ > 
+ > Same here
 
-> On Tue, 4 February 2003 08:41:13 +0200, Denis Vlasenko wrote:
-> >
-> > 		Jiffy Wrap Bugs
-> >
-> > There is a better solution to ensure correct jiffy wrap handling in
-> > *ALL* kernel code: make jiffy wrap in first five minutes of uptime.
-> > Tim has a patch for such config option. This is almost right.
->
-> This sounds very interesting. Is this patch availlable somewhere? If
-> not, could you send a copy to me, Tim?
+Good catch. Those #defines were copied from include/asm-i386/system.h which
+contains the same extraneous semicolons. The patch below cleans this up.
 
-A patch for 2.4.20-pre7 (and maybe later) is at
-  http://www.physik3.uni-rostock.de/tim/kernel/2.4/
+/Mikael
 
-I still need to forward port it to 2.5 (which should be easy).
-
-Tim
-
+--- linux-2.4.21-pre4/include/asm-i386/system.h.~1~	2003-01-31 15:20:56.000000000 +0100
++++ linux-2.4.21-pre4/include/asm-i386/system.h	2003-02-04 14:04:48.000000000 +0100
+@@ -322,8 +322,8 @@
+ /* used in the idle loop; sti takes one instruction cycle to complete */
+ #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+ 
+-#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0);
+-#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0);
++#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0)
++#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0)
+ 
+ /* For spinlocks etc */
+ #if 0
+@@ -348,8 +348,8 @@
+ #define sti() __global_sti()
+ #define save_flags(x) ((x)=__global_save_flags())
+ #define restore_flags(x) __global_restore_flags(x)
+-#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
+-#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
++#define save_and_cli(x) do { save_flags(x); cli(); } while(0)
++#define save_and_sti(x) do { save_flags(x); sti(); } while(0)
+ 
+ #else
+ 
+--- linux-2.4.21-pre4/include/asm-x86_64/system.h.~1~	2003-01-31 15:22:57.000000000 +0100
++++ linux-2.4.21-pre4/include/asm-x86_64/system.h	2003-02-04 14:05:07.000000000 +0100
+@@ -246,8 +246,8 @@
+ /* used in the idle loop; sti takes one instruction cycle to complete */
+ #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+ 
+-#define __save_and_cli(x)      do { __save_flags(x); __cli(); } while(0);
+-#define __save_and_sti(x)      do { __save_flags(x); __sti(); } while(0);
++#define __save_and_cli(x)      do { __save_flags(x); __cli(); } while(0)
++#define __save_and_sti(x)      do { __save_flags(x); __sti(); } while(0)
+ 
+ /* For spinlocks etc */
+ #define local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
+@@ -266,8 +266,8 @@
+ #define sti() __global_sti()
+ #define save_flags(x) ((x)=__global_save_flags())
+ #define restore_flags(x) __global_restore_flags(x)
+-#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
+-#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
++#define save_and_cli(x) do { save_flags(x); cli(); } while(0)
++#define save_and_sti(x) do { save_flags(x); sti(); } while(0)
+ 
+ #else
+ 

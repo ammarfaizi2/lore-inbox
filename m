@@ -1,60 +1,342 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278285AbRJMNO0>; Sat, 13 Oct 2001 09:14:26 -0400
+	id <S278287AbRJMNZS>; Sat, 13 Oct 2001 09:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278287AbRJMNOP>; Sat, 13 Oct 2001 09:14:15 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:52644 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278285AbRJMNOJ>; Sat, 13 Oct 2001 09:14:09 -0400
-Message-ID: <3BC83E3F.6010203@Informatik.FH-Hamburg.de>
-Date: Sat, 13 Oct 2001 15:14:39 +0200
-From: Nico Dummer <Nico.Dummer@Informatik.FH-Hamburg.de>
-Reply-To: Nico.Dummer@T-Online.de
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:0.9.5+) Gecko/20011011
-X-Accept-Language: de,en
+	id <S278288AbRJMNZI>; Sat, 13 Oct 2001 09:25:08 -0400
+Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:4600 "EHLO
+	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S278287AbRJMNYv>; Sat, 13 Oct 2001 09:24:51 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Duncan Sands <duncan.sands@math.u-psud.fr>
+Subject: Re: xine pauses with recent (not -ac) kernels
+Date: Sat, 13 Oct 2001 15:24:55 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01101208552800.00838@baldrick> <01101300085600.00832@baldrick> <20011013001553.F714@athlon.random>
+In-Reply-To: <20011013001553.F714@athlon.random>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: write/read cache raid5
-In-Reply-To: <Pine.LNX.4.40.0110082309400.28345-100000@ddx.a2000.nu> <E15qhyE-0001ws-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <01101315245500.01180@baldrick>
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> can you send me a `vmstat 1` during the skips?
 
->>>protected, battery backed, ECC'd etc. That is one place where things like
->>>the DPT (now Adaptec) millenium hardware raid can do a lot better than
->>>software solutions
+Here you are.  The last few seconds are while xine is stuck.
+I started it when I started reading the DVD.
 
->>So there is no way i can Speedup write to the raid5 array ?
->>(memory will be ecc and the server will be on ups)
 
-> And you have no ECC on the PCI bus, nor will a UPS protect against a crash.
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 0  0  0      0 105492   2720  34556   0   0   624    22  170   263  27  12  
+61
+ 1  0  0      0 105484   2720  34556   0   0     0     0  368  1498   8   3  
+89
+ 0  1  0      0 105284   2720  34644   0   0    84     0  238   598   4   4  
+92
+ 0  1  0      0 105172   2720  34748   0   0   104     0  140   122   0   2  
+98
+ 0  1  0      0 105172   2720  34748   0   0     0     0  112    62   1   0  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  102    39   0   0 
+100
+ 0  1  0      0 105172   2720  34748   0   0     0     0  104    42   0   2  
+98
+ 0  1  0      0 105172   2720  34748   0   0     0     0  102    37   0   0 
+100
+ 0  1  0      0 105172   2720  34748   0   0     0     0  104    47   0   2  
+98
+ 0  1  0      0 105172   2720  34748   0   0     0     0  102    40   0   0 
+100
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    43   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    39   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    43   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    39   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    44   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  106    47   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  106    49   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    39   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    40   0   1  
+99
+ 0  1  0      0 105172   2720  34748   0   0     0     0  103    37   0   1  
+99
+ 0  1  0      0 105268   2720  34620   0   0    40   128  192   783   6   7  
+87
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 0  1  0      0 105080   2720  34768   0   0   148     0  111    58   0   2  
+98
+ 0  1  0      0 105080   2720  34768   0   0     0     0  102    40   0   0 
+100
+ 0  1  0      0 105080   2720  34768   0   0     0     0  103    37   0   1  
+99
+ 0  1  0      0 105080   2720  34768   0   0     0     0  103    43   0   1  
+99
+ 2  0  0      0  93500   2720  46140   0   0  5000   128  213  1586  56  28  
+16
+ 1  0  0      0  86684   2720  52880   0   0   768     0  108  2083  90  10   
+0
+ 1  0  0      0  85788   2720  53776   0   0   896     0  110  2135  98   2   
+0
+ 2  0  0      0  85020   2720  54544   0   0   768     0  214  2270  93   7   
+0
+ 1  0  0      0  84252   2720  55312   0   0   768     0  261  2155  92   8   
+0
+ 2  0  0      0  83352   2720  56208   0   0   896     0  160  2212  90  10   
+0
+ 2  0  0      0  82456   2720  57104   0   0   896     0  111  2466  91   9   
+0
+ 1  0  0      0  81560   2720  58000   0   0   896     0  109  2163  91   9   
+0
+ 2  0  0      0  80664   2720  58896   0   0   896     0  111  2412  92   8   
+0
+ 1  0  0      0  79768   2720  59792   0   0   896     0  109  2095  93   7   
+0
+ 1  0  0      0  79000   2720  60560   0   0   768     0  110  2146  93   7   
+0
+ 1  0  0      0  78104   2720  61456   0   0   896     0  109  2086  96   4   
+0
+ 4  0  0      0  77336   2720  62224   0   0   768     0  110  2032  84  10   
+6
+ 2  0  0      0  76568   2720  62992   0   0   768     0  110  1976  86   6   
+8
+ 4  0  0      0  75800   2720  63760   0   0   768     0  109  1961  79   6  
+15
+ 1  0  0      0  75160   2720  64400   0   0   640     0  107  1799  88   2  
+10
+ 2  0  0      0  74264   2720  65296   0   0   896     0  111  2045  86  10   
+4
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 3  0  0      0  73624   2720  65936   0   0   640     0  142  2044  88   6   
+6
+ 4  0  0      0  72856   2720  66704   0   0   768     0  111  1947  90   4   
+6
+ 1  0  0      0  71960   2720  67600   0   0   896     0  109  2078  87   4   
+9
+ 2  0  0      0  71192   2720  68368   0   0   768     0  110  1990  80  11  
+10
+ 1  0  0      0  70416   2720  69140   0   0   768     0  108  1984  87   3  
+10
+ 2  0  0      0  69520   2720  70036   0   0   896     0  114  2343  88  10   
+2
+ 1  0  0      0  68624   2720  70932   0   0   896     0  109  2122  95   5   
+0
+ 2  0  0      0  67728   2720  71828   0   0   896     0  111  2168  91   8   
+1
+ 1  0  0      0  66960   2720  72596   0   0   768     0  108  2197  93   3   
+4
+ 1  0  0      0  66064   2720  73492   0   0   896     0  110  2059  83  14   
+3
+ 1  0  0      0  65296   2720  74260   0   0   768     0  109  2130  93   3   
+4
+ 2  0  0      0  64400   2720  75156   0   0   896     0  111  2175  88   5   
+7
+ 1  0  0      0  63632   2720  75924   0   0   768   112  130  2000  88   6   
+6
+ 2  0  0      0  62860   2720  76692   0   0   768     0  110  2015  84   6  
+10
+ 1  0  0      0  62092   2720  77460   0   0   768     0  108  2048  85   3  
+12
+ 1  0  0      0  61324   2720  78228   0   0   768     0  110  1975  85   4  
+11
+ 2  0  0      0  60428   2720  79124   0   0   896     0  110  2283  94   6   
+0
+ 1  1  0      0  59788   2720  79764   0   0   640     0  107  1788  98   2   
+0
+ 1  1  0      0  59788   2720  79764   0   0     0     0  103   602  90   2   
+8
+ 1  1  0      0  59788   2720  79764   0   0     0     0  104   602  86   5   
+9
+ 1  1  0      0  59788   2720  79764   0   0     0     0  102   563  83   1  
+16
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 0  1  0      0  59788   2720  79764   0   0     0     0  103   375  19   2  
+79
+ 0  1  0      0  59788   2720  79764   0   0     0     0  103   240   1   0  
+99
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   238   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   238   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   239   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  103   241   0   1  
+99
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   238   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   236   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   234   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   237   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   241   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   240   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   238   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   240   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  103   240   0   1  
+99
+ 0  1  0      0  59788   2720  79764   0   0     0     0  102   238   0   0 
+100
+ 0  1  0      0  59788   2720  79764   0   0     0     0  267   595   1   1  
+98
+ 0  1  0      0  59788   2720  79764   0   0     0     0  121   296   1   1  
+98
+ 0  1  0      0  59788   2720  79764   0   0     0     0  221   486   0   1  
+99
 
-You have this Problem anyway with or without Writecaching, the only 
-difference is that it will exist longer with Writecaching turned on than 
-without it.
+#########################################
+#########################################
 
-Something to think about:
+For comparison purposes, here is the same thing with 2.4.9:
 
-A possible Solution for this Problem is to get 2 Raid5 Arrays, a Primary 
-Array for fast writing and a Secondary for fast reading.
-All incoming Data will be written to a Rambuffer and the Primary Array 
-while Reads are handled by the Secondary (or by the Rambuffer for Data 
-not written to the Secondary). In times with fewer load on the Secondary 
-Array the Data can be written from Rambuffer to it.
-The Data is save at the Point where it´s on the Primary Array while you 
-have unblocked Performance for Reads, in case of a crash the Secondary 
-Array need to be synced with the Primary.
-A list with unsynced blocks can replace the Writebuffer to take more 
-Cachebuffers for Reads and so reduce load on the Secondary Array that 
-can be used for syncing.
-You will get the Security of 1 Raid5 Array if the Data is unsynced and 
-the Security of a mirrored Raid5 Array during low load times so the 
-Money wont be completely wasted only for Performance.
-Would be nice if you guys consider Writecaching as an Option for this 
-configuration too if most possible Security isnt needed or can be low 
-for a few Seconds between buffering and writing. Let the People choose, 
-they will do the right decision for themselves.
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 0  0  0  25864  21988   4248 106672   3   3   308   377  155   655  49   4  
+47
+ 1  0  0  25864  21988   4248 106672   0   0     0     0  303  1601   6   5  
+89
+ 0  1  0  25864  21840   4264 106712  16   0    58     0  272   520   2   4  
+94
+ 0  1  0  25864  21824   4272 106712   0   0    10     0  229   302   1   2  
+97
+ 0  1  0  25864  21696   4328 106724   0   0    58     0  184  1047   6   8  
+86
+ 2  0  0  25864  11672   7520 113176   0   0  3320     0 1036  2650  53  28  
+19
+ 2  0  0  25864   4180   9956 118040   0   0  2436     0  942  2339  71  29   
+0
+ 1  0  0  25864   3104  10792 118292   0   0   836     0  422  2407  91   9   
+0
+ 2  0  0  25864   3056  11520 117612   0   0   728     0  383  2134  87  13   
+0
+ 1  0  0  25864   3092  12304 116828   0   0   784     0  395  2307  88  12   
+0
+ 2  0  0  25864   3056  13164 116000   0   0   860     0  415  2403  86  14   
+0
+ 2  0  0  25864   3056  14052 115076   0   0   888     0  422  2425  94   6   
+0
+ 2  0  0  25864   3056  14908 114216   0   0   856     0  413  2340  90  10   
+0
+ 3  0  0  25864   3056  15876 113320   0   0   972   136  472  2602  87  13   
+0
+ 3  0  0  25864   3056  16760 112420   0   0   884     0  420  2398  88  12   
+0
+ 1  0  0  25864   3056  17536 111644   0   0   776     0  396  2312  89  11   
+0
+ 3  0  0  25864   3056  18292 110888   0   0   756     0  389  2242  91   9   
+0
+ 2  0  0  25864   3056  19156 110004   0   0   864     0  418  2461  88  12   
+0
+ 2  0  0  25864   3056  19972 109180   0   0   816     0  402  2336  92   8   
+0
+ 2  0  0  25864   3056  20728 108396   0   0   756     0  390  2234  92   8   
+0
+ 2  0  0  25864   3056  21528 107584   0   0   800     0  398  2352  87  13   
+0
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 4  0  0  25864   3056  22320 106772   0   0   792     0  399  2294  88  12   
+0
+ 1  0  0  25864   3056  23056 106028   0   0   736     0  461  2307  93   7   
+0
+ 3  0  0  25864   3056  23840 105216   0   0   784     0  397  2256  87  13   
+0
+ 2  0  0  25864   3056  24640 104404   0   0   800     0  399  2315  92   8   
+0
+ 2  0  0  25864   3056  25464 103568   0   0   824     0  406  2359  92   8   
+0
+ 2  0  0  25864   3056  26316 102700   0   0   852   128  432  2450  87  13   
+0
+ 1  0  0  25864   3056  27108 101900   0   0   792     0  402  2228  91   9   
+0
+ 2  0  0  25864   3056  28044 100944   0   0   936     0  432  2566  94   6   
+0
+ 3  0  0  25864   3056  28856 100220   0   0   812     0  406  2281  90  10   
+0
+ 2  0  0  25864   3056  29784  99268   0   0   928     0  431  2583  93   7   
+0
+ 2  0  0  25864   3056  30612  98428   0   0   828    44  415  2310  86  14   
+0
+ 2  0  0  25760   3056  31516  97600   0   0   904     0  425  2479  91   9   
+0
+ 1  0  0  25684   3056  32368  96812   0   0   852     0  413  2374  96   4   
+0
+ 3  0  0  25684   3056  33236  95916   0   0   868     0  416  2431  92   8   
+0
+ 2  0  0  25684   3056  33996  95140   0   0   760     0  391  2249  94   6   
+0
+ 1  0  0  25684   3056  34852  94260   0   0   856     0  412  2459  95   5   
+0
+ 2  0  0  25684   3056  35640  93472   0   0   788     0  398  2332  94   6   
+0
+ 1  0  0  25684   3056  36500  92584   0   0   860     0  414  2380  89  11   
+0
+ 1  0  0  25684   3056  37444  91556   0   0   946     0  493  1662  92   8   
+0
+ 2  0  0  25684   3056  38356  90664   0   0   912     0  427  2478  89  11   
+0
+ 1  0  0  25684   3056  39308  89676   0   0   952     0  439  2515  85  15   
+0
+   procs                      memory    swap          io     system         
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  
+id
+ 3  0  0  25684   3056  40232  88744   0   0   924     0  429  2492  92   8   
+0
+ 2  0  0  25684   3056  41112  87824   0   0   880     0  421  2420  90  10   
+0
+ 1  0  0  25684   3056  42140  86788   0   0  1028     0  455  2638  88  12   
+0
+ 2  0  0  25684   3056  43184  85696   0   0  1044     0  462  2518  87  13   
+0
+ 1  0  0  25684   3056  44144  84732   0   0   960     0  439  2501  94   6   
+0
+ 1  0  0  25684   3112  45096  83756   0   0   952     0  440  2351  89   4   
+7
+ 0  0  0  25684  27260  45096  70380   0   0     0     0  178   283   0   6  
+94
+ 0  0  0  25684  27260  45096  70380   0   0     0     0  122   127   0   2  
+98
+
+xé÷@r7¢6
+#######################################
+#######################################
+
+> are you swapping or making use of applications that uses MAP_SHARED?
+
+I am not swapping.  How do I tell if an app uses MAP_SHARED?
+I had the minimum running: Xwindows (icewm window manager)
+and some daemons.
+
+Duncan.
 

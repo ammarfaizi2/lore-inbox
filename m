@@ -1,44 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282492AbRLWWuP>; Sun, 23 Dec 2001 17:50:15 -0500
+	id <S283771AbRLWWzP>; Sun, 23 Dec 2001 17:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282502AbRLWWuF>; Sun, 23 Dec 2001 17:50:05 -0500
-Received: from bexfield.research.canon.com.au ([203.12.172.125]:18262 "HELO
-	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S282492AbRLWWtw>;
-	Sun, 23 Dec 2001 17:49:52 -0500
-Date: Mon, 24 Dec 2001 09:46:04 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Chris Wedgwood <cw@f00f.org>, Rik van Riel <riel@conectiva.com.br>,
-        "Eric S. Raymond" <esr@thyrsus.com>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Anonymous List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011224094604.B15930@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <20011221153136.G15926@redhat.com> <Pine.LNX.4.33L.0112211835440.28489-100000@duckman.distro.conectiva> <20011221154750.I15926@redhat.com> <20011221210017.GB32465@weta.f00f.org> <20011221161030.L15926@redhat.com>
+	id <S283724AbRLWWy4>; Sun, 23 Dec 2001 17:54:56 -0500
+Received: from grootstal.nijmegen.internl.net ([217.149.192.7]:63120 "EHLO
+	grootstal.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id <S284147AbRLWWyp>; Sun, 23 Dec 2001 17:54:45 -0500
+Date: Sun, 23 Dec 2001 23:53:15 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: linux-kernel@vger.kernel.org
+Subject: <=2.4.17 deadlock (RedHat 7.2, SMP)
+Message-ID: <20011223235315.A9071@iapetus.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011221161030.L15926@redhat.com>; from bcrl@redhat.com on Fri, Dec 21, 2001 at 04:10:30PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 04:10:30PM -0500, Benjamin LaHaise <bcrl@redhat.com> wrote:
-| On Sat, Dec 22, 2001 at 10:00:17AM +1300, Chris Wedgwood wrote:
-| > But what Rik points out shows that right now there is ambiguity
-| > BECAUSE OF LACK OF STANDARDIZATION --- because GB is vague at the very
-| > best, disk manufactures get to claim nice marketing numbers.
-| 
-| GiB is not a useful standard because NOBODY USES IT.  When it's in 
-| common use, then consider applying it to the kernel, but please, 
-| not before then.
+The problem occurs only when I disconnect a PPP dialup to an ISP. It
+results in a box which only listens to alt-sysrq or a power cycle. The
+userland setup is a bit complicated (two pppd instances, a zebra routing
+daemon) but below there should be a clue about the cause.  This is all
+on a RedHat 7.2 distro running on a dual PIII box. My brain decoded the
+following JPEG picture I took from the screen after typing alt-sysrq-p
+3 times:
 
-This is poor motivation.
+Pid: 5613, comm                 pppd
+EIP: 0010: [<c0403068>] CPU: 1 EFLAGS 00000286  not tainted
+Call Trace: c0273cae c028ee04 c0293ac8 c0155879 c013f063
+   c0150bc6 c028eac8 c01076cb
 
-s/GiB/linux/
+Pid: 5613, comm                 pppd
+EIP: 0010: [<c040306f>] CPU: 1 EFLAGS 00000286  not tainted 
+Call Trace: c0273cae c028ee04 c0293ac8 c0155879 c013f063
+   c0150bc6 c028eac8 c01076cb
 
-We can all go to using Windows then... Thus is progress made.
+Pid: 18, comm                   kjournald
+EIP: 0010: [<c03fca5b>] CPU: 0 EFLAGS 00000286  not tainted
+Call Trace: c02ad897 c011f1ea c0140af5 c0179dde c011560c
+   c017ca4d c017c7e0 c010590f
+
+cat /proc/version says:
+Linux version 2.4.17-b65 (fvm@iapetus.localdomain) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 SMP Sun Dec 23 22:16:27 CET 2001
+
+ksymoops says:
+ksymoops 2.4.1 on i686 2.4.17-b65.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17-b65/ (default)
+     -m /boot/System.map-2.4.17-b65 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
+EIP: 0010: [<c0403068>] CPU: 1 EFLAGS 00000286  not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Call Trace: c0273cae c028ee04 c0293ac8 c0155879 c013f063
+   c0150bc6 c028eac8 c01076cb
+EIP: 0010: [<c040306f>] CPU: 1 EFLAGS 00000286  not tainted
+Call Trace: c0273cae c028ee04 c0293ac8 c0155879 c013f063
+   c0150bc6 c028eac8 c01076cb
+EIP: 0010: [<c03fca5b>] CPU: 0 EFLAGS 00000286  not tainted
+Call Trace: c02ad897 c011f1ea c0140af5 c0179dde c011560c
+   c017ca4d c017c7e0 c010590f
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+>>EIP; c0403068 <stext_lock+6c30/e9ac>   <=====
+Trace; c0273cae <rs_wait_until_sent+b6/c4>
+Trace; c028ee04 <ppp_ioctl+33c/d84>
+Trace; c0293ac8 <ppp_destroy_channel+1bc/1c4>
+Trace; c0155879 <dput+19/214>
+Trace; c013f063 <filp_close+133/140>
+>>EIP; c040306f <stext_lock+6c37/e9ac>   <=====
+Trace; c0273cae <rs_wait_until_sent+b6/c4>
+Trace; c028ee04 <ppp_ioctl+33c/d84>
+Trace; c0293ac8 <ppp_destroy_channel+1bc/1c4>
+Trace; c0155879 <dput+19/214>
+Trace; c013f063 <filp_close+133/140>
+>>EIP; c03fca5b <stext_lock+623/e9ac>   <=====
+Trace; c02ad897 <do_ide_request+f/14>
+Trace; c011f1ea <__run_task_queue+d2/e0>
+Trace; c0140af5 <__wait_on_buffer+55/9c>
+Trace; c0179dde <journal_commit_transaction+114a/181c>
+Trace; c011560c <schedule+640/818>
+
+
+3 warnings issued.  Results may not be reliable.
+
 -- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
+Frank

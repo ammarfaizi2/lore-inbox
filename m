@@ -1,137 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVAJSwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVAJTF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbVAJSwn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVAJSuQ
+	id S262452AbVAJTF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 14:05:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVAJTFC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:50:16 -0500
-Received: from coderock.org ([193.77.147.115]:55228 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262428AbVAJSpm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:45:42 -0500
-Subject: [patch 4/5] fs/devpts: use lib/parser
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
-From: domen@coderock.org
-Date: Mon, 10 Jan 2005 19:45:33 +0100
-Message-Id: <20050110184534.5E2721F206@trashy.coderock.org>
+	Mon, 10 Jan 2005 14:05:02 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:44978 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262286AbVAJS45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 13:56:57 -0500
+To: akpm@osdl.org, torvalds@osdl.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/11] FUSE - MAINTAINERS, Kconfig and Makefile changes
+Message-Id: <E1Co4iU-00043y-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 10 Jan 2005 19:56:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds FUSE filesystem to MAINTAINERS, fs/Kconfig and
+fs/Makefile.
 
-
-
-Hi.
-
-Use lib/parser.c for parsing mount options (item from "2.6 should fix").
- 1 files changed, 49 insertions(+), 27 deletions(-)
-
-Compile & boot tested.
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/fs/devpts/inode.c |   76 +++++++++++++++++++++++++++++----------------
- 1 files changed, 49 insertions(+), 27 deletions(-)
-
-diff -puN fs/devpts/inode.c~lib-parser-fs_devpts_inode fs/devpts/inode.c
---- kj/fs/devpts/inode.c~lib-parser-fs_devpts_inode	2005-01-10 18:00:22.000000000 +0100
-+++ kj-domen/fs/devpts/inode.c	2005-01-10 18:00:22.000000000 +0100
-@@ -19,6 +19,7 @@
- #include <linux/tty.h>
- #include <linux/devpts_fs.h>
- #include <linux/xattr.h>
-+#include <linux/parser.h>
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+--- a/fs/Kconfig	2004-11-20 21:14:44.000000000 +0100
++++ b/fs/Kconfig	2004-11-20 12:50:30.000000000 +0100
+@@ -492,6 +492,19 @@ config AUTOFS4_FS
+ 	  local network, you probably do not need an automounter, and can say
+ 	  N here.
  
- #define DEVPTS_SUPER_MAGIC 0x1cd1
++config FUSE
++	tristate "Filesystem in Userspace support"
++	help
++	  With FUSE it is possible to implement a fully functional filesystem
++	  in a userspace program.  
++
++	  There's also companion library: libfuse.  This library along with
++	  utilities is available from the FUSE homepage:
++	  <http://fuse.sourceforge.net/>
++
++	  If you want to develop a userspace FS, or if you want to use
++	  a filesystem based on FUSE, answer Y or M.
++
+ menu "CD-ROM/DVD Filesystems"
  
-@@ -51,39 +52,60 @@ static struct {
- 	umode_t mode;
- } config = {.mode = 0600};
+ config ISO9660_FS
+--- a/fs/Makefile	2004-11-20 21:14:51.000000000 +0100
++++ b/fs/Makefile	2004-11-20 13:41:14.000000000 +0100
+@@ -94,3 +94,4 @@ obj-$(CONFIG_AFS_FS)		+= afs/
+ obj-$(CONFIG_BEFS_FS)		+= befs/
+ obj-$(CONFIG_HOSTFS)		+= hostfs/
+ obj-$(CONFIG_HPPFS)		+= hppfs/
++obj-$(CONFIG_FUSE)		+= fuse/
+--- a/MAINTAINERS	2004-11-20 21:14:30.000000000 +0100
++++ b/MAINTAINERS	2004-11-17 10:15:45.000000000 +0100
+@@ -867,6 +867,13 @@ L:	linux-tape@vger.kernel.org
+ W:	http://sourceforge.net/projects/ftape
+ S:	Orphan
  
-+enum {
-+	Opt_uid, Opt_gid, Opt_mode,
-+	Opt_err
-+};
++FUSE: FILESYSTEM IN USERSPACE
++P:	Miklos Szeredi
++M:	miklos@szeredi.hu
++L:	fuse-devel@lists.sourceforge.net
++W:	http://fuse.sourceforge.net/
++S:	Maintained
 +
-+static match_table_t tokens = {
-+	{Opt_uid, "uid=%u"},
-+	{Opt_gid, "gid=%u"},
-+	{Opt_mode, "mode=%o"},
-+	{Opt_err, NULL}
-+};
-+
- static int devpts_remount(struct super_block *sb, int *flags, char *data)
- {
--	int setuid = 0;
--	int setgid = 0;
--	uid_t uid = 0;
--	gid_t gid = 0;
--	umode_t mode = 0600;
--	char *this_char;
--
--	this_char = NULL;
--	while ((this_char = strsep(&data, ",")) != NULL) {
--		int n;
--		char dummy;
--		if (!*this_char)
-+	char *p;
-+
-+	config.setuid  = 0;
-+	config.setgid  = 0;
-+	config.uid     = 0;
-+	config.gid     = 0;
-+	config.mode    = 0600;
-+
-+	while ((p = strsep(&data, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+		int option;
-+
-+		if (!*p)
- 			continue;
--		if (sscanf(this_char, "uid=%i%c", &n, &dummy) == 1) {
--			setuid = 1;
--			uid = n;
--		} else if (sscanf(this_char, "gid=%i%c", &n, &dummy) == 1) {
--			setgid = 1;
--			gid = n;
--		} else if (sscanf(this_char, "mode=%o%c", &n, &dummy) == 1)
--			mode = n & ~S_IFMT;
--		else {
--			printk("devpts: called with bogus options\n");
-+
-+		token = match_token(p, tokens, args);
-+		switch (token) {
-+		case Opt_uid:
-+			if (match_int(&args[0], &option))
-+				return -EINVAL;
-+			config.uid = option;
-+			config.setuid = 1;
-+			break;
-+		case Opt_gid:
-+			if (match_int(&args[0], &option))
-+				return -EINVAL;
-+			config.gid = option;
-+			config.setgid = 1;
-+			break;
-+		case Opt_mode:
-+			if (match_octal(&args[0], &option))
-+				return -EINVAL;
-+			config.mode = option & ~S_IFMT;
-+			break;
-+		default:
-+			printk(KERN_ERR "devpts: called with bogus options\n");
- 			return -EINVAL;
- 		}
- 	}
--	config.setuid  = setuid;
--	config.setgid  = setgid;
--	config.uid     = uid;
--	config.gid     = gid;
--	config.mode    = mode;
- 
- 	return 0;
- }
-_
+ FUTURE DOMAIN TMC-16x0 SCSI DRIVER (16-bit)
+ P:	Rik Faith
+ M:	faith@cs.unc.edu

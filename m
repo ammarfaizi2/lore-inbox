@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbULRAJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbULRAQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbULRAJf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 19:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbULRAHx
+	id S262245AbULRAQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 19:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbULRAQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 19:07:53 -0500
-Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:37950 "EHLO
-	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S262244AbULRAGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 19:06:09 -0500
-Message-ID: <41C3746D.8090308@blueyonder.co.uk>
-Date: Sat, 18 Dec 2004 00:06:05 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3 vs clock
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Dec 2004 00:06:38.0436 (UTC) FILETIME=[71D68240:01C4E495]
+	Fri, 17 Dec 2004 19:16:51 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:8709 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262245AbULRAM4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 19:12:56 -0500
+Date: Sat, 18 Dec 2004 01:12:54 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Michelle Konzack <linux4michelle@freenet.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3TB disk hassles
+Message-ID: <20041218001254.GA8886@pclin040.win.tue.nl>
+References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com> <200412161537.02804.m.watts@eris.qinetiq.com> <20041216155216.GA3854@freenet.de> <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr> <1103212832.21920.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103212832.21920.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-Gene Heskett wrote:
+On Thu, Dec 16, 2004 at 04:00:36PM +0000, Alan Cox wrote:
 
- >>    At -rc2 my clock kept fairly decent time, but -rc3 is running 
-fast, about 30 seconds an hour fast.
- >>
- >>    I've been using ntpdate, is that now officially deprecated?
+> Remember you don't need a partition table. You can just leave the volume
+> unpartitioned. You can also use other partition formats providing you
+> don't need the BIOS boot gunk to boot off that volume. 
 
- > Running ntpd used to keep the clock dead on, now my 2.6 systems all 
-drift one way or the other. I suspect that the system calls used by ntpd 
- > have changed somehow, but until I find the time to look harder I 
-can't > say that except as conjecture.
- >
- > The sad thing is that most of the systems have quite good hardware 
-clocks...
+Yes, indeed.
 
-Gene Heskett suggested I play around with tickadj and I found that a 
-value of 9962 on this SuSE 9.2/XP3000+ has kept it rock solid over the 
-last 4 days. On the x86_64 laptop with XP3000+-Mobile, it's never been 
-out, both of them running 2.6.10-rc3 and using ntpd to keep in step. On 
-the other box with Mandrake 10.1/XP2800+ and 2.6.10-rc3, I had to set it 
-to 9958. Something has definitely changed with 2.6.10-rc3.
-Regards
-Sid.
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
+One can use a standard DOS-type partition table, and pick a new type -
+I reserved 88 for this purpose today - where type 88 indicates a
+plaintext partition table found elsewhere on the disk.
+Where is elsewhere? In the starting sector of the type 88 partition
+(that can have length 1).
+This allows one to have the initial part of the disk (at most 2 TB)
+partitioned in old-fashioned manner.
+
+The plaintext partition table is just a table with lines
+	<start> <size>
+that one can edit with emacs or vi.
+
+There is magic to recognize it, namely the line
+	"# Plaintext partition table"
+and magic to indicate the end of the table, namely "# end".
+
+That is all. If anybody wants it I can send the trivial code.
+(Am using it now, but unfortunately I do not have 3 TB disks.)
+
+Comments welcome.
+
+Andries

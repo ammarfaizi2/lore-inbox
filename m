@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVCOTa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVCOTbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVCOTa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVCOTa4
+	id S261795AbVCOTbS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCOTbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:30:56 -0500
-Received: from mailfe03.swip.net ([212.247.154.65]:53959 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261793AbVCOT0P (ORCPT
+	Tue, 15 Mar 2005 14:31:18 -0500
+Received: from fire.osdl.org ([65.172.181.4]:45259 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261802AbVCOT0G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:26:15 -0500
-X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
-Subject: [PATCH] add gfp_mask to page owner
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 21:25:23 +0100
-Message-Id: <1110918323.1210.8.camel@localhost.localdomain>
+	Tue, 15 Mar 2005 14:26:06 -0500
+Date: Tue, 15 Mar 2005 11:25:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: davej@redhat.com, airlied@linux.ie, andrew@digital-domain.net,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: drm lockups since 2.6.11-bk2
+Message-Id: <20050315112530.21bb0922.akpm@osdl.org>
+In-Reply-To: <200503151003.39636.jbarnes@engr.sgi.com>
+References: <Pine.LNX.4.58.0503151033110.22756@skynet>
+	<20050315143629.GA27654@redhat.com>
+	<200503151003.39636.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+>
+> I'd be happy to test and fix things, but the page table walker patches broke 
+>  ia64...  Once that's cleared up I can go digging.
 
-After looking at the recent memory leak thread I think it might have
-helped having the gfp mask of the allocated pages. This makes that
-available, no changes needed for the user-space sorter, same trace with
-different gfp masks will be in separate chunks.
-
-Output looks like:
-
-4819 times:
-Page allocated via order 0, mask 0x50
-[0xc012b7b9] find_lock_page+25
-[0xc012b8c8] find_or_create_page+152
-[0xc0147d74] grow_dev_page+36
-[0xc0148164] __find_get_block+84
-[0xc0147ebc] __getblk_slow+124
-[0xc0148164] __find_get_block+84
-[0xc01481e7] __getblk+55
-[0xc0185d14] do_readahead+100
+We're hoping that davem's fix (committed yesterday) fixed that.
 
 
-If you think it might be a good idea then here it is.
+ChangeSet 1.2181.1.2, 2005/03/14 21:16:17-08:00, davem@sunset.davemloft.net
+
+	[MM]: Restore pgd_index() iteration to clear_page_range().
+	
+	Otherwise ia64 and sparc64 explode with the new ptwalk
+	iterators.  The pgd level stuff does not handle virtual
+	address space holes (sparc64) and region based PGD indexing
+	(ia64) properly.  It only matters in functions like
+	clear_page_range() which potentially walk over more than
+	a single VMA worth of address space.
+	
+	Signed-off-by: David S. Miller <davem@davemloft.net>
 
 
-Index: linux-2.6.11/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.11.orig/fs/proc/proc_misc.c	2005-03-15 21:13:43.000000000 +0100
-+++ linux-2.6.11/fs/proc/proc_misc.c	2005-03-15 21:17:20.000000000 +0100
-@@ -571,7 +571,8 @@
- 	if (!kbuf)
- 		return -ENOMEM;
+
+ memory.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/mm/memory.c b/mm/memory.c
+--- a/mm/memory.c	2005-03-15 00:06:50 -08:00
++++ b/mm/memory.c	2005-03-15 00:06:50 -08:00
+@@ -182,15 +182,19 @@
+ 				unsigned long addr, unsigned long end)
+ {
+ 	pgd_t *pgd;
+-	unsigned long next;
++	unsigned long i, next;
  
--	ret = snprintf(kbuf, 1024, "Page allocated via order %d\n", page->order);
-+	ret = snprintf(kbuf, 1024, "Page allocated via order %d, mask 0x%x\n",
-+			page->order, page->gfp_mask);
+ 	pgd = pgd_offset(tlb->mm, addr);
+-	do {
++	for (i = pgd_index(addr); i <= pgd_index(end-1); i++) {
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+ 		clear_pud_range(tlb, pgd, addr, next);
+-	} while (pgd++, addr = next, addr != end);
++		pgd++;
++		addr = next;
++		if (addr == end)
++			break;
++	}
+ }
  
- 	for (i = 0; i < 8; i++) {
- 		if (!page->trace[i])
-Index: linux-2.6.11/mm/page_alloc.c
-===================================================================
---- linux-2.6.11.orig/mm/page_alloc.c	2005-03-15 21:13:43.000000000 +0100
-+++ linux-2.6.11/mm/page_alloc.c	2005-03-15 21:14:32.000000000 +0100
-@@ -1050,6 +1050,7 @@
- 	asm ("movl %%ebp, %0" : "=r" (bp) : );
- #endif
- 	page->order = (int) order;
-+	page->gfp_mask = gfp_mask;
- 	__stack_trace(page, &address, bp);
- 	}
- #endif /* CONFIG_PAGE_OWNER */
-Index: linux-2.6.11/include/linux/mm.h
-===================================================================
---- linux-2.6.11.orig/include/linux/mm.h	2005-03-15 21:13:43.000000000 +0100
-+++ linux-2.6.11/include/linux/mm.h	2005-03-15 21:14:32.000000000 +0100
-@@ -266,6 +266,7 @@
- #endif /* WANT_PAGE_VIRTUAL */
- #ifdef CONFIG_PAGE_OWNER
- 	int order;
-+	unsigned int gfp_mask;
- 	unsigned long trace[8];
- #endif
- };
-
-
+ pte_t fastcall * pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
 
 

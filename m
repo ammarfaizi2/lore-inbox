@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292854AbSCFBQS>; Tue, 5 Mar 2002 20:16:18 -0500
+	id <S292859AbSCFBQI>; Tue, 5 Mar 2002 20:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292858AbSCFBQI>; Tue, 5 Mar 2002 20:16:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57867 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292854AbSCFBP5>; Tue, 5 Mar 2002 20:15:57 -0500
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-To: jdike@karaya.com (Jeff Dike)
-Date: Wed, 6 Mar 2002 01:30:19 +0000 (GMT)
-Cc: hpa@zytor.com (H. Peter Anvin), bcrl@redhat.com (Benjamin LaHaise),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200203051812.NAA03363@ccure.karaya.com> from "Jeff Dike" at Mar 05, 2002 01:12:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292858AbSCFBPs>; Tue, 5 Mar 2002 20:15:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41604 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292854AbSCFBPr>;
+	Tue, 5 Mar 2002 20:15:47 -0500
+Date: Tue, 05 Mar 2002 17:13:33 -0800 (PST)
+Message-Id: <20020305.171333.72710637.davem@redhat.com>
+To: adam@yggdrasil.com
+Cc: sp@scali.com, linux-kernel@vger.kernel.org
+Subject: Re: Does kmalloc always return address below 4GB?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200203051708.JAA05742@adam.yggdrasil.com>
+In-Reply-To: <200203051708.JAA05742@adam.yggdrasil.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16iQG3-000578-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> maximum memory exceeding the available tmpfs as long as they don't all need
-> all that memory at once.  And, if they do, the patch I just posted will let
-> them deal fairly sanely with the situation.
+   From: "Adam J. Richter" <adam@yggdrasil.com>
+   Date: Tue, 5 Mar 2002 09:08:20 -0800
 
-And the address space management stuff in the -ac tree will do all that and
-more without force allocating pages and regardless of what other apps do
-including without allowing your rude app to kill them.
+   Steffen Persvold writes:
+   >I know pci_map_single (and _sg) will
+   >use bounce buffers on platforms without an IOMMU [...]
+   
+   	For a moment I thought that must be the point that I
+   was missing, but I don't see any such bounce buffer support
+   in linux-2.5.6-pre2/include/asm-i386/pci.h or arch/i386/kernel/pci-dma.c.
+   I do not see how this is currently implemented on x86 systems with >4GB
+   of RAM.
 
-You are using an axe to batter down a door. Worse than that I fitted a
-perfectly good door handle.
+You won't get HIGHMEM pages in your driver unless you are using
+2.5.x and tell the scsi layer you are capable to DMA to/from
+HIGHMEM pages.
+
+Similarly for networking drivers, and setting NETIF_F_HIGHDMA in
+the net device feature flags.

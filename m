@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVAMXVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVAMXZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVAMXVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVAMXT6
+	id S261739AbVAMXZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVAMXWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:19:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46003 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261739AbVAMWMa (ORCPT
+	Thu, 13 Jan 2005 18:22:18 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:65186 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261774AbVAMXUf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:12:30 -0500
-Date: Thu, 13 Jan 2005 14:12:29 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: security contact draft
-Message-ID: <20050113141229.G24171@build.pdx.osdl.net>
-References: <20050113125503.C469@build.pdx.osdl.net> <87mzvd9f9a.fsf@deneb.enyo.de>
+	Thu, 13 Jan 2005 18:20:35 -0500
+Date: Thu, 13 Jan 2005 13:32:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Message-ID: <20050113213251.GB31723@kroah.com>
+References: <200501132014.34558.arekm@pld-linux.org> <200501132030.33996.arekm@pld-linux.org> <20050113193403.GA29645@kroah.com> <200501132049.29969.arekm@pld-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87mzvd9f9a.fsf@deneb.enyo.de>; from fw@deneb.enyo.de on Thu, Jan 13, 2005 at 10:43:29PM +0100
+In-Reply-To: <200501132049.29969.arekm@pld-linux.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Florian Weimer (fw@deneb.enyo.de) wrote:
-> * Chris Wright:
+On Thu, Jan 13, 2005 at 08:49:29PM +0100, Arkadiusz Miskiewicz wrote:
+> On Thursday 13 of January 2005 20:34, Greg KH wrote:
 > 
-> > To keep the conversation concrete, here's a pretty rough stab at
-> > documenting the policy.
+> > But you lost the description of the patch and the Signed-off-by: line :(
+> > Third time's a charm.
+> Copy from first mail?
 > 
-> Looks fine.  Maybe you can add the following section?
+> Ok, here it goes once again with description everywhere.
 > 
->   3) Non-disclosure agreements
+> This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
+> Patch was tested on pre-2.6.10 kernel.
 > 
->   The Linux kernel security contact is not a formal body and therefore
->   unable to enter any non-disclosure agreements.
-> 
-> UNIRAS and probably others require NDAs from affected software vendors
-> before they share vulnerability information.  It makes things easier
-> if you state upfront that you won't play such games.
+> Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
 
-Fair point, I can add that easily.
+Next time can you create the patch so I can apply it with -p1 on the
+patch command line.  I fixed up this one already.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Applied, thanks.
+
+greg k-h

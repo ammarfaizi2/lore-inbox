@@ -1,109 +1,332 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVCNHxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVCNH6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVCNHxf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 02:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVCNHxf
+	id S261293AbVCNH6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 02:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVCNH6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 02:53:35 -0500
-Received: from kishna.firstlight.net ([63.80.208.5]:43214 "EHLO
-	kishna.firstlight.net") by vger.kernel.org with ESMTP
-	id S261270AbVCNHx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 02:53:26 -0500
-Date: Sun, 13 Mar 2005 23:53:23 -0800 (PST)
-From: Neil Whelchel <koyama@firstlight.net>
-To: linux-kernel@vger.kernel.org
-Subject: Crash V4L + SATA ?
-Message-ID: <Pine.LNX.4.44.0503132335170.810-100000@kishna.firstlight.net>
+	Mon, 14 Mar 2005 02:58:33 -0500
+Received: from mf01.sitadelle.com ([212.94.174.80]:52825 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261293AbVCNH6C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 02:58:02 -0500
+Message-ID: <42354400.7070500@tremplin-utc.net>
+Date: Mon, 14 Mar 2005 08:57:52 +0100
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
+X-Accept-Language: en, fr, ja, es
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org, cpufreq@zenii.linux.org.uk, davej@redhat.com,
+       linux@dominikbrodowski.net
+Subject: Re: cpufreq on-demand governor up_treshold?
+References: <200503140829.04750.lkml@kcore.org>
+In-Reply-To: <200503140829.04750.lkml@kcore.org>
+Content-Type: multipart/mixed;
+ boundary="------------080008090506010309000209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have ran into a crash that seems to occur when I use my BT848 card along
-with a Promise TX4 SATA card. (I have not been able to reproduce the crash
-when I don't use the drives that are attached to the TX4 card.)
-The BT848 and the TX4 are the only add-on cards attached to the system
-which is a VIA VT8377 / VT8237 based Athlon board. I have had similar
-crashes since 2.6.8 (maybe even before), I am currently using 2.6.11.2
-with RAID 5 on six drives. (Four on the TX4 and two more on the built-in
-controller on the MB.)
-Every crash that I am aware of occurs between 30 seconds and 2 minutes
-after I see the following lines in the kernel message buffer.
+This is a multi-part message in MIME format.
+--------------080008090506010309000209
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-bttv0: OCERR @ 0c0d3014,bits: HSYNC OFLOW OCERR*
-ata3: status=0x51 { DriveReady SeekComplete Error }
-ata3: error=0x40 { UncorrectableError }
-bttv0: OCERR @ 0c0d3014,bits: HSYNC OFLOW OCERR*
+Jan De Luyck a écrit :
+> Hello lists,
+> 
+> (please cc me from cpufreq list)
+> 
+> I've since yesterday started using the ondemand governor. Seems to work fine, 
+> tho I can't seem to find a reason why it keeps scaling my processor speed 
+> upwards tho the processor use never exceeds 30% (been watching top -d 1). 
+:
+:
+> Any hints?
+You can try the three attached patches in the order :
+ondemand-cleanup-factorise-idle-measurement-2.6.11.patch
+ondemand-save-idle-up-for-all-cpu-2.6.11.patch
+ondemand-automatic-downscaling-2.6.11-accepted.patch
 
+They are available on the cpufreq list but as it's difficult to access 
+it I'm sending them again, all together. These are the last things that 
+Venki and I have been working on. It should solve your problem 
+(actually, only the last patch, but it depends on the two previous 
+patches). Please, let me know if it works.
 
-Unable to handle kernel paging request at virtual address 10101010
- printing eip:
-d0a816f6
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: bttv video_buf firmware_class btcx_risc tveeprom
-CPU:    0
-EIP:    0060:[<d0a816f6>]    Not tainted VLI
-EFLAGS: 00210202   (2.6.11.2)
-EIP is at videobuf_dma_free+0x36/0xf0 [video_buf]
-eax: 00000000   ebx: c97bf000   ecx: 00000208   edx: 10101010
-esi: 00000000   edi: cc63ed04   ebp: d0ac7e60   esp: c328bbec
-ds: 007b   es: 007b   ss: 0068
-Process mythbackend (pid: 1232, threadinfo=c328a000 task=cf1aa550)
-Stack: d0ac7e60 d0a81670 c3ef8000 cc63ed04 cc63ece0 d0ac7e60 d0ab6630 cc63ed04
-       cc63ed04 00000000 cc63ece0 00000000 cc63ca00 d0aaee44 d0ac7e60 cc63ece0
-       00000001 000001e0 000001e0 00000004 cc63ca00 cc63e7e0 c1384a20 00000008
-Call Trace:
- [<d0a81670>] videobuf_dma_pci_unmap+0x30/0x80 [video_buf]
- [<d0ab6630>] bttv_dma_free+0x60/0xa0 [bttv]
- [<d0aaee44>] bttv_do_ioctl+0x1214/0x1790 [bttv]
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c0115814>] activate_task+0x64/0x80
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c0115814>] activate_task+0x64/0x80
- [<c011590a>] try_to_wake_up+0x8a/0xc0
- [<c0116478>] __wake_up_common+0x38/0x60
- [<c01164f5>] __wake_up+0x55/0x80
- [<c01230d2>] del_timer+0x92/0xc0
- [<c041706b>] svc_sock_enqueue+0x14b/0x2d0
- [<c02d7943>] scsi_delete_timer+0x13/0x30
- [<c02d4f40>] scsi_done+0x10/0x30
- [<c02e46bb>] ata_scsi_qc_complete+0x2b/0x50
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c0115814>] activate_task+0x64/0x80
- [<c011590a>] try_to_wake_up+0x8a/0xc0
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c0115814>] activate_task+0x64/0x80
- [<c011590a>] try_to_wake_up+0x8a/0xc0
- [<c0116478>] __wake_up_common+0x38/0x60
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c0225db6>] copy_from_user+0x46/0x80
- [<c02add66>] video_usercopy+0xf6/0x170
- [<c0116478>] __wake_up_common+0x38/0x60
- [<c01164f5>] __wake_up+0x55/0x80
- [<c01156dc>] recalc_task_prio+0x8c/0x160
- [<c010e470>] mark_offset_tsc+0x270/0x370
- [<d0aaf3fb>] bttv_ioctl+0x3b/0x60 [bttv]
- [<d0aadc30>] bttv_do_ioctl+0x0/0x1790 [bttv]
- [<c016c7d0>] do_ioctl+0x70/0xb0
- [<c016ca25>] vfs_ioctl+0x65/0x200
- [<c0159a99>] fget_light+0x89/0xa0
- [<c016cc05>] sys_ioctl+0x45/0x70
- [<c010330f>] syscall_call+0x7/0xb
-Code: 07 3d 12 11 72 19 0f 85 aa 00 00 00 8b 47 18 85 c0 0f 85 92 00 00 00
-8b 5f 08 85 db 74 3f 8b 4f 1c 31 f6 83 f9 00 7e 26 8b 14 b3 <8b> 02 f6 c4
-08 75 17 8b 42 04 40 74 67 83 42 04 ff 0f 98 c0 84
+BTW, DaveJ, Dominik, I couldn't find them in the daily-snapshot 
+available at codemonkey.org.uk. Should I worry, or is it just due to 
+some latency between your private trees and the public one?
 
+Eric
 
-Any ideas or suggestions would be greatly appreciated.
--Neil Whelchel-
-First Light Internet Services
-760 366-0145
-- We don't do Window$, that's what the janitor is for -
+--------------080008090506010309000209
+Content-Type: text/x-patch;
+ name="ondemand-automatic-downscaling-2.6.11-accepted.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ondemand-automatic-downscaling-2.6.11-accepted.patch"
 
-Bubble Memory, n.:
-        A derogatory term, usually referring to a person's
-intelligence.  See also "vacuum tube".
+diff -purN linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c linux-2.6.11-new/drivers/cpufreq/cpufreq_ondemand.c
+--- linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c	2005-03-07 17:57:31.000000000 -0800
++++ linux-2.6.11-new/drivers/cpufreq/cpufreq_ondemand.c	2005-03-07 17:53:17.000000000 -0800
+@@ -34,13 +34,9 @@
+  */
+ 
+ #define DEF_FREQUENCY_UP_THRESHOLD		(80)
+-#define MIN_FREQUENCY_UP_THRESHOLD		(0)
++#define MIN_FREQUENCY_UP_THRESHOLD		(10)
+ #define MAX_FREQUENCY_UP_THRESHOLD		(100)
+ 
+-#define DEF_FREQUENCY_DOWN_THRESHOLD		(20)
+-#define MIN_FREQUENCY_DOWN_THRESHOLD		(0)
+-#define MAX_FREQUENCY_DOWN_THRESHOLD		(100)
+-
+ /* 
+  * The polling frequency of this governor depends on the capability of 
+  * the processor. Default polling frequency is 1000 times the transition
+@@ -78,12 +74,10 @@ struct dbs_tuners {
+ 	unsigned int 		sampling_rate;
+ 	unsigned int		sampling_down_factor;
+ 	unsigned int		up_threshold;
+-	unsigned int		down_threshold;
+ };
+ 
+ static struct dbs_tuners dbs_tuners_ins = {
+ 	.up_threshold 		= DEF_FREQUENCY_UP_THRESHOLD,
+-	.down_threshold 	= DEF_FREQUENCY_DOWN_THRESHOLD,
+ 	.sampling_down_factor 	= DEF_SAMPLING_DOWN_FACTOR,
+ };
+ 
+@@ -115,7 +109,6 @@ static ssize_t show_##file_name						\
+ show_one(sampling_rate, sampling_rate);
+ show_one(sampling_down_factor, sampling_down_factor);
+ show_one(up_threshold, up_threshold);
+-show_one(down_threshold, down_threshold);
+ 
+ static ssize_t store_sampling_down_factor(struct cpufreq_policy *unused, 
+ 		const char *buf, size_t count)
+@@ -161,8 +154,7 @@ static ssize_t store_up_threshold(struct
+ 
+ 	down(&dbs_sem);
+ 	if (ret != 1 || input > MAX_FREQUENCY_UP_THRESHOLD || 
+-			input < MIN_FREQUENCY_UP_THRESHOLD ||
+-			input <= dbs_tuners_ins.down_threshold) {
++			input < MIN_FREQUENCY_UP_THRESHOLD) {
+ 		up(&dbs_sem);
+ 		return -EINVAL;
+ 	}
+@@ -173,26 +165,6 @@ static ssize_t store_up_threshold(struct
+ 	return count;
+ }
+ 
+-static ssize_t store_down_threshold(struct cpufreq_policy *unused, 
+-		const char *buf, size_t count)
+-{
+-	unsigned int input;
+-	int ret;
+-	ret = sscanf (buf, "%u", &input);
+-
+-	down(&dbs_sem);
+-	if (ret != 1 || input > MAX_FREQUENCY_DOWN_THRESHOLD || 
+-			input < MIN_FREQUENCY_DOWN_THRESHOLD ||
+-			input >= dbs_tuners_ins.up_threshold) {
+-		up(&dbs_sem);
+-		return -EINVAL;
+-	}
+-
+-	dbs_tuners_ins.down_threshold = input;
+-	up(&dbs_sem);
+-
+-	return count;
+-}
+ 
+ #define define_one_rw(_name) \
+ static struct freq_attr _name = \
+@@ -201,7 +173,6 @@ __ATTR(_name, 0644, show_##_name, store_
+ define_one_rw(sampling_rate);
+ define_one_rw(sampling_down_factor);
+ define_one_rw(up_threshold);
+-define_one_rw(down_threshold);
+ 
+ static struct attribute * dbs_attributes[] = {
+ 	&sampling_rate_max.attr,
+@@ -209,7 +180,6 @@ static struct attribute * dbs_attributes
+ 	&sampling_rate.attr,
+ 	&sampling_down_factor.attr,
+ 	&up_threshold.attr,
+-	&down_threshold.attr,
+ 	NULL
+ };
+ 
+@@ -222,8 +192,8 @@ static struct attribute_group dbs_attr_g
+ 
+ static void dbs_check_cpu(int cpu)
+ {
+-	unsigned int idle_ticks, up_idle_ticks, down_idle_ticks;
+-	unsigned int freq_down_step;
++	unsigned int idle_ticks, up_idle_ticks, total_ticks;
++	unsigned int freq_next;
+ 	unsigned int freq_down_sampling_rate;
+ 	static int down_skip[NR_CPUS];
+ 	struct cpu_dbs_info_s *this_dbs_info;
+@@ -290,7 +260,12 @@ static void dbs_check_cpu(int cpu)
+ 	down_skip[cpu]++;
+ 	if (down_skip[cpu] < dbs_tuners_ins.sampling_down_factor)
+ 		return;
++	down_skip[cpu] = 0;
+ 
++	/* don't try to decrease the frequency if it's already the min */
++	if (policy->cur == policy->min)
++		return;
++	
+ 	idle_ticks = UINT_MAX;
+ 	for_each_cpu_mask(j, policy->cpus) {
+ 		unsigned int tmp_idle_ticks, total_idle_ticks;
+@@ -308,27 +283,23 @@ static void dbs_check_cpu(int cpu)
+ 			idle_ticks = tmp_idle_ticks;
+ 	}
+ 
+-	/* Scale idle ticks by 100 and compare with up and down ticks */
+-	idle_ticks *= 100;
+-	down_skip[cpu] = 0;
+-
++	/* Compute how many ticks there are between two measurements */
+ 	freq_down_sampling_rate = dbs_tuners_ins.sampling_rate *
+ 		dbs_tuners_ins.sampling_down_factor;
+-	down_idle_ticks = (100 - dbs_tuners_ins.down_threshold) *
+-			sampling_rate_in_HZ(freq_down_sampling_rate);
+-
+-	if (idle_ticks > down_idle_ticks) {
+-		freq_down_step = (5 * policy->max) / 100;
+-
+-		/* max freq cannot be less than 100. But who knows.... */
+-		if (unlikely(freq_down_step == 0))
+-			freq_down_step = 5;
++	total_ticks = sampling_rate_in_HZ(freq_down_sampling_rate);
++	
++	/* 
++	 * The optimal frequency is the frequency that is the lowest that
++	 * can support the current CPU usage without triggering 
++	 * the up policy. To be safe, we focus 10 points under the threshold.
++	 */
++	freq_next = ((total_ticks - idle_ticks) * 100) / total_ticks;
++	freq_next = freq_next * policy->cur / (dbs_tuners_ins.up_threshold-10);
+ 
++	if (freq_next <= ((policy->cur * 95) / 100))
+ 		__cpufreq_driver_target(policy,
+-			policy->cur - freq_down_step, 
+-			CPUFREQ_RELATION_H);
+-		return;
+-	}
++			freq_next, 
++			CPUFREQ_RELATION_L);
+ }
+ 
+ static void do_dbs_timer(void *data)
 
+--------------080008090506010309000209
+Content-Type: text/x-patch;
+ name="ondemand-cleanup-factorise-idle-measurement-2.6.11.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ondemand-cleanup-factorise-idle-measurement-2.6.11.patch"
+
+--- linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c.bak	2005-02-06 23:35:41.000000000 +0100
++++ linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c	2005-03-06 19:04:12.000000000 +0100
+@@ -223,7 +223,6 @@ static struct attribute_group dbs_attr_g
+ static void dbs_check_cpu(int cpu)
+ {
+ 	unsigned int idle_ticks, up_idle_ticks, down_idle_ticks;
+-	unsigned int total_idle_ticks;
+ 	unsigned int freq_down_step;
+ 	unsigned int freq_down_sampling_rate;
+ 	static int down_skip[NR_CPUS];
+@@ -252,20 +251,11 @@ static void dbs_check_cpu(int cpu)
+ 	 */
+ 
+ 	/* Check for frequency increase */
+-	total_idle_ticks = kstat_cpu(cpu).cpustat.idle +
+-		kstat_cpu(cpu).cpustat.iowait;
+-	idle_ticks = total_idle_ticks -
+-		this_dbs_info->prev_cpu_idle_up;
+-	this_dbs_info->prev_cpu_idle_up = total_idle_ticks;
+-	
+-
++	idle_ticks = UINT_MAX;
+ 	for_each_cpu_mask(j, policy->cpus) {
+-		unsigned int tmp_idle_ticks;
++		unsigned int tmp_idle_ticks, total_idle_ticks;
+ 		struct cpu_dbs_info_s *j_dbs_info;
+ 
+-		if (j == cpu)
+-			continue;
+-
+ 		j_dbs_info = &per_cpu(cpu_dbs_info, j);
+ 		/* Check for frequency increase */
+ 		total_idle_ticks = kstat_cpu(j).cpustat.idle +
+@@ -287,7 +277,7 @@ static void dbs_check_cpu(int cpu)
+ 		__cpufreq_driver_target(policy, policy->max, 
+ 			CPUFREQ_RELATION_H);
+ 		down_skip[cpu] = 0;
+-		this_dbs_info->prev_cpu_idle_down = total_idle_ticks;
++		this_dbs_info->prev_cpu_idle_down = this_dbs_info->prev_cpu_idle_up;
+ 		return;
+ 	}
+ 
+@@ -296,19 +286,11 @@ static void dbs_check_cpu(int cpu)
+ 	if (down_skip[cpu] < dbs_tuners_ins.sampling_down_factor)
+ 		return;
+ 
+-	total_idle_ticks = kstat_cpu(cpu).cpustat.idle +
+-		kstat_cpu(cpu).cpustat.iowait;
+-	idle_ticks = total_idle_ticks -
+-		this_dbs_info->prev_cpu_idle_down;
+-	this_dbs_info->prev_cpu_idle_down = total_idle_ticks;
+-
++	idle_ticks = UINT_MAX;
+ 	for_each_cpu_mask(j, policy->cpus) {
+-		unsigned int tmp_idle_ticks;
++		unsigned int tmp_idle_ticks, total_idle_ticks;
+ 		struct cpu_dbs_info_s *j_dbs_info;
+ 
+-		if (j == cpu)
+-			continue;
+-
+ 		j_dbs_info = &per_cpu(cpu_dbs_info, j);
+ 		/* Check for frequency increase */
+ 		total_idle_ticks = kstat_cpu(j).cpustat.idle +
+@@ -330,7 +312,7 @@ static void dbs_check_cpu(int cpu)
+ 	down_idle_ticks = (100 - dbs_tuners_ins.down_threshold) *
+ 			sampling_rate_in_HZ(freq_down_sampling_rate);
+ 
+-	if (idle_ticks > down_idle_ticks ) {
++	if (idle_ticks > down_idle_ticks) {
+ 		freq_down_step = (5 * policy->max) / 100;
+ 
+ 		/* max freq cannot be less than 100. But who knows.... */
+
+--------------080008090506010309000209
+Content-Type: text/x-patch;
+ name="ondemand-save-idle-up-for-all-cpu-2.6.11.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ondemand-save-idle-up-for-all-cpu-2.6.11.patch"
+
+--- linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c.clean2	2005-03-06 19:04:12.000000000 +0100
++++ linux-2.6.11/drivers/cpufreq/cpufreq_ondemand.c	2005-03-06 19:09:52.000000000 +0100
+@@ -277,7 +277,12 @@
+ 		__cpufreq_driver_target(policy, policy->max, 
+ 			CPUFREQ_RELATION_H);
+ 		down_skip[cpu] = 0;
+-		this_dbs_info->prev_cpu_idle_down = this_dbs_info->prev_cpu_idle_up;
++		for_each_cpu_mask(j, policy->cpus) {
++			struct cpu_dbs_info_s *j_dbs_info;
++
++			j_dbs_info = &per_cpu(cpu_dbs_info, j);
++			j_dbs_info->prev_cpu_idle_down = j_dbs_info->prev_cpu_idle_up;
++		}
+ 		return;
+ 	}
+ 
+
+--------------080008090506010309000209--

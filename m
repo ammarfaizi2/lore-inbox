@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268837AbRHKVOm>; Sat, 11 Aug 2001 17:14:42 -0400
+	id <S268859AbRHKVgo>; Sat, 11 Aug 2001 17:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268856AbRHKVOc>; Sat, 11 Aug 2001 17:14:32 -0400
-Received: from mail47-s.fg.online.no ([148.122.161.47]:12753 "EHLO
-	mail47.fg.online.no") by vger.kernel.org with ESMTP
-	id <S268837AbRHKVOP>; Sat, 11 Aug 2001 17:14:15 -0400
-Subject: Re: GRUB boot loader
-From: Kjartan Maraas <kmaraas@online.no>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010811205504.ILPA846.imf00bis.bellsouth.net@[127.0.0.1]>
-In-Reply-To: <20010811205504.ILPA846.imf00bis.bellsouth.net@[127.0.0.1]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 11 Aug 2001 23:02:35 +0200
-Message-Id: <997563756.20233.2.camel@hoth>
+	id <S268858AbRHKVgZ>; Sat, 11 Aug 2001 17:36:25 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9101 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S268857AbRHKVgW>; Sat, 11 Aug 2001 17:36:22 -0400
+Date: Sat, 11 Aug 2001 14:35:59 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1.1 is available.
+Message-ID: <20010811143559.E4657@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <1904.997542180@ocs3.ocs-net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1904.997542180@ocs3.ocs-net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Den 11 Aug 2001 16:55:04 -0400, skrev louisg00@bellsouth.net:
-> I am playing around with RH beta roswell and noticed that is has GRUB instead of lilo. I know lilo is still available but I like GRUB's boot screen. My question is how do you upgrade kernels with this thing? Is there a howto somewhere? Also, I have a duel boot system with win98 but I can't boot it. The two os's show up on the boot screen but only linux boots.
-> 
-> Anyone can show me where to get docs.
-> 
+On Sun, Aug 12, 2001 at 01:03:00AM +1000, Keith Owens wrote:
 
-Look in /boot/grub/grub.conf
+> Release 1.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+> http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+> release 1.1.
 
-Cheers
-Kjartan
+Okay, I think I found some wierd problem.
+$ make -f Makefile-2.5 ARCH=i386
+Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc -E' AR='ar'
+Generating global Makefile
+phase 1 (find all inputs)
+phase 2 (evaluate selections)
+pp_makefile2: drivers/char/defkeymap.o is selected but is not part of vmlinux, missing link_subdirs?
+pp_makefile2: drivers/char/pc_keyb.o is selected but is not part of vmlinux, missing link_subdirs?
+make: *** [/home/trini/work/kernel/kbuild/linux-2.4.8/.tmp_targets] Error 2
 
-
+Prior to this i did make -f Makefile-2.5 ARCH=i386 oldconfig and said 'n' to
+all new questions.
+    
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

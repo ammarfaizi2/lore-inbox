@@ -1,93 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129996AbRAaQkE>; Wed, 31 Jan 2001 11:40:04 -0500
+	id <S130539AbRAaQnp>; Wed, 31 Jan 2001 11:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131234AbRAaQj5>; Wed, 31 Jan 2001 11:39:57 -0500
-Received: from venus.postmark.net ([207.244.122.71]:15632 "HELO
-	venus.postmark.net") by vger.kernel.org with SMTP
-	id <S129996AbRAaQjq>; Wed, 31 Jan 2001 11:39:46 -0500
-Message-ID: <20010131174231.12356.qmail@venus.postmark.net>
-Mime-Version: 1.0
-From: J Brook <jbk@postmark.net>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Matrox G450 problems with 2.4.0 and xfree
-Date: Wed, 31 Jan 2001 17:41:39 +0000
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S131234AbRAaQnh>; Wed, 31 Jan 2001 11:43:37 -0500
+Received: from 3ff8be8d.dsl.flashcom.net ([63.248.190.141]:7940 "EHLO
+	vader.supremedesigns.com") by vger.kernel.org with ESMTP
+	id <S130539AbRAaQnW>; Wed, 31 Jan 2001 11:43:22 -0500
+Message-ID: <3A7840C8.17841498@supremedesigns.com>
+Date: Wed, 31 Jan 2001 11:43:52 -0500
+From: Lukasz Gogolewski <lucas@supremedesigns.com>
+Organization: SupremeDesigns
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: problem with compiling kernel 2.4.1 on top of 2.2.14
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Petr,
+Hello,
 
- I think I might have something to add to this discussion, but then
-again you probably know this already!
+Just recently I've tried to compile kernel 2.4.1 on my RH 6.2 machine
+that runs 2.2.14.
+All my utilities needed in order to compile that kernel are up to date.
 
-On Tue Jan 30 2001 Petr Vandrovec wrote:
-> > > > Installed a Matrox G450 on my linux system. Now it has
-> > > > problems booting. The kernel is compiled with framebuffer
-> > > > support so is supposed to boot up with the Linux logo.
-> > > > Unfortunately the systems hangs when the kernel switches to
-> > > > the graphics mode. When I first boot into windoze and the
-> > > > reboot to linux it works fine. So it looks like an
-> > > > initialisation problem...
+When I got thru xmake config and I configure all the options. I try to
+compile it.
 
-<snip>
+When I do make dep I dont' get any error messages.
 
-> Windows drivers works around somehow, as after booting
-> to Windows matroxfb works fine - but without Windows it is just
-> pure luck.
-
- I have a similar problem to the one outlined above with kernel 2.4.x
-(hardware details below).
-
- I don't have Windows installed on my machine, but I find that if I
-cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
-1.00.04 compiled in), I am then able to "shutdown -r now" and warm
-restart to 2.4 with FB acceleration enabled. This generally works
-fine
-for me.
-
- The 2.2 kernel I have (2.2.16 Redhat 7.0 standard) does not have FB
-enabled
-
- This isn't generally too much of a problem because 2.4.x is so
-stable
-I don't have to reboot for weeks!
-
-> It looks like that if you compile 'agpgart' into kernel, chances
-> that it will work are better, but I have also reports that it did
-> not changed anything.
-
- I have agpgart compiled directly in (not as a module) to the kernel,
-but this does not seem to relieve any of the cold boot problems :-(
-
- I'm willing to try out some patches if that would be useful.
-
-Note: Please CC me as I'm not subscribed to l-k.
+When I do either make bzImage or make zImage I get the following errors
+at the very beginning:
 
 
-My hardware is:
-  Matrox G450
-  Duron 750
-  128 Mb Ram
-  Aopen AK33 m/b with VIA KT133 / 686A chipset
+                 from /usr/src/linux/include/asm/hardirq.h:6,
+                 from /usr/src/linux/include/linux/interrupt.h:45,
+                 from /usr/src/linux/include/asm/string.h:296,
+                 from /usr/src/linux/include/linux/string.h:21,
+                 from /usr/src/linux/include/linux/fs.h:23,
+                 from /usr/src/linux/include/linux/capability.h:17,
+                 from /usr/src/linux/include/linux/binfmts.h:5,
+                 from /usr/src/linux/include/linux/sched.h:9,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/slab.h:14,
+                 from /usr/src/linux/include/linux/malloc.h:4,
+                 from /usr/src/linux/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux/include/asm/hw_irq.h:198: `current' undeclared (first use
+in this function)
+/usr/src/linux/include/asm/hw_irq.h:198: (Each undeclared identifier is
+reported only once
+/usr/src/linux/include/asm/hw_irq.h:198: for each function it appears
+in.)
+/usr/src/linux/include/linux/interrupt.h: In function `raise_softirq':
+In file included from /usr/src/linux/include/asm/string.h:296,
+                 from /usr/src/linux/include/linux/string.h:21,
+                 from /usr/src/linux/include/linux/fs.h:23,
+                 from /usr/src/linux/include/linux/capability.h:17,
+                 from /usr/src/linux/include/linux/binfmts.h:5,
+                 from /usr/src/linux/include/linux/sched.h:9,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/slab.h:14,
+                 from /usr/src/linux/include/linux/malloc.h:4,
+                 from /usr/src/linux/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux/include/linux/interrupt.h:89: `current' undeclared (first
+use in this function)
+/usr/src/linux/include/linux/interrupt.h: In function
+`tasklet_schedule':
+/usr/src/linux/include/linux/interrupt.h:160: `current' undeclared
+(first use in this function)
+/usr/src/linux/include/linux/interrupt.h: In function
+`tasklet_hi_schedule':
+/usr/src/linux/include/linux/interrupt.h:174: `current' undeclared
+(first use in this function)
+/usr/src/linux/include/asm/string.h: In function `__constant_memcpy3d':
+In file included from /usr/src/linux/include/linux/string.h:21,
+                 from /usr/src/linux/include/linux/fs.h:23,
+                 from /usr/src/linux/include/linux/capability.h:17,
+                 from /usr/src/linux/include/linux/binfmts.h:5,
+                 from /usr/src/linux/include/linux/sched.h:9,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/slab.h:14,
+                 from /usr/src/linux/include/linux/malloc.h:4,
+                 from /usr/src/linux/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux/include/asm/string.h:305: `current' undeclared (first use
+in this function)
+/usr/src/linux/include/asm/string.h: In function `__memcpy3d':
+/usr/src/linux/include/asm/string.h:312: `current' undeclared (first use
+in this function)
+make: *** [init/main.o] Error 1
 
-relevant lspci output:
+This is just a part of the error messages that appear. It happens at the
+very beginning.
+Can someone help. I don't know what I'm doing wrong. Since in the past
+I've compiled kernel 2.4.0
+w/o any problems. I even reinstalled RH 6.2 just to make sure that
+everything is clean prior to compiling kernel 2.4.1
 
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
-(rev 82) (prog-if 00 [VGA])
-	Subsystem: Matrox Graphics, Inc.: Unknown device 0641
-	Flags: bus master, medium devsel, latency 64, IRQ 10
-	Memory at d8000000 (32-bit, prefetchable) [size=32M]
-	Memory at da000000 (32-bit, non-prefetchable) [size=16K]
-	Memory at db000000 (32-bit, non-prefetchable) [size=8M]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-	Capabilities: [f0] AGP version 2.0
+Someone please help. I need my USB and Sound Card to work.
 
-    John
-----------------
-jbk@postmark.net
+Thanks,
+
+- Lucas
 
 
 -

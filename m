@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317262AbSGCVwv>; Wed, 3 Jul 2002 17:52:51 -0400
+	id <S317263AbSGCWH6>; Wed, 3 Jul 2002 18:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSGCVwu>; Wed, 3 Jul 2002 17:52:50 -0400
-Received: from 89dyn229.com21.casema.net ([62.234.20.229]:4059 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S317262AbSGCVwt>; Wed, 3 Jul 2002 17:52:49 -0400
-Message-Id: <200207032154.XAA02758@cave.bitwizard.nl>
-Subject: Re: sync slowness. ext3 on VIA vt82c686b
-In-Reply-To: <20020703181929.GA6240@lnuxlab.ath.cx> from khromy at "Jul 3, 2002
- 02:19:29 pm"
-To: khromy <khromy@lnuxlab.ath.cx>
-Date: Wed, 3 Jul 2002 23:54:25 +0200 (MEST)
-CC: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org,
-       ext3-users@redhat.com
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-notice: Read http://www.bitwizard.nl/cou.html for the licence to my Emailaddr.
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S317264AbSGCWH5>; Wed, 3 Jul 2002 18:07:57 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40456
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317263AbSGCWH5>; Wed, 3 Jul 2002 18:07:57 -0400
+Date: Wed, 3 Jul 2002 15:09:15 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Eduard Bloch <edi@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <200207032018.g63KIis03950@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.10.10207031500390.19028-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-khromy wrote:
-> On Wed, Jul 03, 2002 at 07:43:40PM +0200, Tomas Szepe wrote:
-> > Checking out $(smartctl -l /dev/hda) might be advisable too.
+
+OIC, then it is clear that SCSI can deal with DSC overlap and granting
+bandwidth to the other device on the chain which is not ATAPI.
+Sorry Pete, but this is the typical mind set of people who do not
+understand all the specification from the past that current hardware is
+bound to.  Gadi was very clever in making DSC work.  I understand the
+principles but seriously doubt I could have derived what Gadi did.
+
+
+
+Cheers,
+
+
+On Wed, 3 Jul 2002, Pete Zaitcev wrote:
+
+> >[...]
+> > To be honest - why keep ide-[cd,floppy,tape] when they can be almost
+> > completely replaced with ide-scsi?
 > 
-> # smartctl -l /dev/hda
-> SMART Error Log:
-> SMART Error Logging Version: 1
-> Error Log Data Structure Pointer: 05
-> ATA Error Count: 1038
-                ^^^^^^^^
+> James Bottomley was going to take care of this, so I did not
+> even bother with ide-tape cleanups in 2.5. Good riddance for
+> that crap.
+> 
+> Note though, ide-tape is not anywhere near semantically
+> to the ide-scsi+st, because of its "sophisticated" (e.g. utterly
+> broken) internal pipeline. It does a lot of work underneath
+> the /dev boundary. Apparently, the author had a bad case of streaming
+> stoppages on his 386, so instead of fixing the root cause he
+> wrote the monster we have today. Getting rid of ide-tape may
+> cause problems on 386's. But then again, perhaps not.
+> 
+> -- Pete
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Whoa! That "dying" drive that I had on my desk today, had a similar
-error count. 
+Andre Hedrick
+LAD Storage Consulting Group
 
-Speaking of "SMART": Does anybody know where to get the specs for
-SMART?
-
-The "product manuals" for the maxtor drives re-specify the ATA specs
-by fully explaining every command, but when it comes to "SMART" it
-just lists something like "READ SMART DATA: 512 bytes".
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

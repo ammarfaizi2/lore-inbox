@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282096AbRK1XDR>; Wed, 28 Nov 2001 18:03:17 -0500
+	id <S281932AbRK1XB1>; Wed, 28 Nov 2001 18:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282115AbRK1XDH>; Wed, 28 Nov 2001 18:03:07 -0500
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:15584 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S282096AbRK1XCt>; Wed, 28 Nov 2001 18:02:49 -0500
-Date: Wed, 28 Nov 2001 15:02:31 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Anthony DeRobertis <asd@suespammers.org>, Keith Owens <kaos@ocs.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Changed message for GPLONLY symbols
-In-Reply-To: <20011113174052.A24864@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0111281502000.23481-100000@sol.compendium-tech.com>
+	id <S282096AbRK1XBH>; Wed, 28 Nov 2001 18:01:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47881 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281932AbRK1XA5>; Wed, 28 Nov 2001 18:00:57 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Kernel's X86 ffs() doesn't work on constants.
+Date: 28 Nov 2001 15:00:38 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9u3qam$75c$1@cesium.transmeta.com>
+In-Reply-To: <200111282239.fASMdMY82422@aslan.scsiguy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Mike Fedyk wrote:
+Followup to:  <200111282239.fASMdMY82422@aslan.scsiguy.com>
+By author:    "Justin T. Gibbs" <gibbs@scsiguy.com>
+In newsgroup: linux.dev.kernel
+>
+> If you attempt to call ffs(SOME_CONSTAT) in an x86 kernel under
+> Linux, you get messages like this:
+> 
+> {standard input}: Assembler messages:
+> {standard input}:14864: Error: suffix or operands invalid for `bsf'
+> 
+> I'm not enough of a GCC asm syntax guru to understand why the
+> compiler/assembler doesn't handle this, but it is hightly anoying.
+> 
+> "Why not just code in the constant bit offset?", you ask?  If
+> the constant the bit offset is based on is ever changed, I must
+> recognize that the change occured and change the second constant.
+> For constants that are maintained outside of my code, I'd rather
+> code the dependency once and let the compiler ensure that the constants
+> are in sync.
+> 
 
-> Somebody would have to be *trying* to be an idiot with this new message...
+Try changing the "g" in the definition of ffs() (asm/bitops.h) to
+"rm"; the "g" constrains incorrectly allows immediate operands.
 
-The problem with most idiots, however, is that they don't *have* to try. 
-:)
-
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

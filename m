@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292423AbSBZRmB>; Tue, 26 Feb 2002 12:42:01 -0500
+	id <S292429AbSBZRmv>; Tue, 26 Feb 2002 12:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292429AbSBZRlw>; Tue, 26 Feb 2002 12:41:52 -0500
-Received: from p3EE267C0.dip.t-dialin.net ([62.226.103.192]:32992 "EHLO
-	artus.fbunet.de") by vger.kernel.org with ESMTP id <S292423AbSBZRki>;
-	Tue, 26 Feb 2002 12:40:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Fridtjof Busse <fridtjof.busse@gmx.de>
-Message-Id: <200202261834.39908@fbunet.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: [2.4.18-ac1] Unable to mount root fs
-Date: Tue, 26 Feb 2002 18:40:59 +0100
-In-Reply-To: <200202261722.13431@fbunet.de> <20020226164509.GI4393@matchmail.com>
-In-Reply-To: <20020226164509.GI4393@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-X-OS: Linux on i686
+	id <S292447AbSBZRmq>; Tue, 26 Feb 2002 12:42:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50949 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292429AbSBZRmK>;
+	Tue, 26 Feb 2002 12:42:10 -0500
+Message-ID: <3C7BC897.8D607D08@zip.com.au>
+Date: Tue, 26 Feb 2002 09:40:39 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: christophe =?iso-8859-1?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x and cardbus
+In-Reply-To: <20020226173038.GD803@ufies.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 26. February 2002 17:45, Mike Fedyk wrote:
-> What was the last version of -ac that worked for you?
+christophe barbé wrote:
+> 
+> When you remove a 3c59x-based cardbus, the fonction vortex_remove_one
+> is called and this function end with kfree(dev).
+> 
+> I was looking why enable_wol loose its value after a remove/insert cycle
+> but this value is store in the private part of dev so it's free with
+> dev.
+> 
+> The driver is not unloaded during the remove/insert cycle so it's a
+> kernel space problem.
 
-I didn't use any ac-Patches of the 2.4.18-pre series, sorry. But I can 
-try some of the pre-ac-patches if that helps you.
-The latest ac I run on my machine was a 2.4.9-ac (don't remember which 
-one exactly).
-The precompiled RH-errata kernel also runs without problems (2.4.9-21).
+Yes, all driver state is destroyed when the hardware is removed.
+Look at it the other way: if this was not done, the driver would
+have a memory leak.
 
--- 
-Fridtjof Busse
-"Mosaic is the 1990's equivalent of forcing friends to sit through
-slides of your trip to Florida - painful for everyone but the host." 
- -Steve G. Steinberg
+I guess it would be possible to retain some state across insertion
+cycles, keyed off the MAC address or something.  What's it needed
+for?
+
+
+-

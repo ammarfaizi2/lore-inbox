@@ -1,108 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVC3EHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVC3EOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVC3EHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 23:07:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVC3EHD
+	id S261524AbVC3EOl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 23:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVC3EOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 23:07:03 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:18612 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261534AbVC3EG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 23:06:57 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Date: Wed, 30 Mar 2005 14:06:39 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Mar 2005 23:14:41 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51138 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261524AbVC3EOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 23:14:39 -0500
+Subject: Re: Mac mini sound woes
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Takashi Iwai <tiwai@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe>
+	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+	 <1112084311.5353.6.camel@gaston>
+	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
+	 <s5h7jjqkazy.wl@alsa2.suse.de>
+	 <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 23:14:37 -0500
+Message-Id: <1112156077.5598.10.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16970.9679.874919.876412@cse.unsw.edu.au>
-Cc: vherva@viasys.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-In-Reply-To: message from Marcelo Tosatti on Tuesday March 29
-References: <20050326162801.GA20729@logos.cnet>
-	<20050328073405.GQ16169@viasys.com>
-	<20050328165501.GR16169@viasys.com>
-	<16968.40186.628410.152511@cse.unsw.edu.au>
-	<20050329215207.GE5018@logos.cnet>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday March 29, marcelo.tosatti@cyclades.com wrote:
+On Wed, 2005-03-30 at 03:45 +0200, Marcin Dalecki wrote:
+> > I think your misunderstanding is that you beliieve user-space can't do
+> > RT.  It's wrong.  See JACK (jackit.sf.net), for example.
 > 
-> Attached is the backout patch, for convenience.
+> I know JACK in and out. It doesn't provide what you claim.
+> 
 
-Thanks.  I had another look, and think I may be able to see the
-problem.  If I'm right, it is a problem with this patch.
+This was just an example, to prove the point that user space can do RT
+just fine.  JACK can do low latency sample accurate audio, and mixing
+and volume control are fairly trivial compared to what some JACK clients
+do.  If it works well enough for professional hard disk recording
+systems, then it can certainly handle system sounds and playing movies
+and MP3s.
 
-> diff -Nru a/fs/jbd/commit.c b/fs/jbd/commit.c
-> --- a/fs/jbd/commit.c	2005-03-29 18:50:55 -03:00
-> +++ b/fs/jbd/commit.c	2005-03-29 18:50:55 -03:00
-> @@ -92,7 +92,7 @@
->  	struct buffer_head *wbuf[64];
->  	int bufs;
->  	int flags;
-> -	int err = 0;
-> +	int err;
->  	unsigned long blocknr;
->  	char *tagp = NULL;
->  	journal_header_t *header;
-> @@ -299,8 +299,6 @@
->  			spin_unlock(&journal_datalist_lock);
->  			unlock_journal(journal);
->  			wait_on_buffer(bh);
-> -			if (unlikely(!buffer_uptodate(bh)))
-> -				err = -EIO;
->  			/* the journal_head may have been removed now */
->  			lock_journal(journal);
->  			goto write_out_data;
+And as a matter of fact you can implement all the audio needs of a
+desktop system with JACK, this is what Linspire is doing for the next
+release, even though it wasn't designed for this.  The system mixer is
+just a JACK mixing client and each app opens ports for I/O, and only
+JACK talks to the hardware (through ALSA).
 
+The fact that OSX and Windows do this in the kernel is not a good
+argument, those kernels are bloated.  Windows drivers also do things
+like AC3 decoding in the kernel.  And the OSX kernel uses 16K stacks.
 
-I think the "!buffer_update(bh)" test is not safe at this point as,
-after the wait_on_buffer which could cause a schedule, the bh may
-no longer exist, or be for the same block.  There doesn't seem to be
-any locking or refcounting that would keep it valid.
+If audio does not work as well OOTB as on those other OSes, it's an
+indication of their relative maturity vs JACK/ALSA, not an inherently
+superior design.  Most audio people consider JACK + ALSA a better design
+than anything in the proprietary world (CoreAudio, ASIO).
 
-Note the comment "the journal_head may have been removed now".
-If the journal_head is gone, the associated buffer_head is likely gone
-as well. 
-
-I'm not certain that this is right, but it seems possible and would
-explain the symptoms.  Maybe Stephen or Andrew could comments?
+Lee
 
 
-> --- a/mm/filemap.c	2005-03-29 18:50:55 -03:00
-> +++ b/mm/filemap.c	2005-03-29 18:50:55 -03:00
-> @@ -3261,12 +3261,7 @@
->  			status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
->  	}
->  	
-> -	/*
-> -	 * generic_osync_inode always returns 0 or negative value.
-> -	 * So 'status < written' is always true, and written should
-> -	 * be returned if status >= 0.
-> -	 */
-> -	err = (status < 0) ? status : written;
-> +	err = written ? written : status;
->  out:
->  
->  	return err;
 
-As an aside, this looks extremely dubious to me.
-
-There is a loop earlier in this routine (do_generic_file_write) that
-passes a piece-at-a-time of the write request to prepare_write /
-commit_write.
-Successes are counted in 'written'.  A failure causes the loop to
-abort with a status in 'status'.
-
-If some of the write succeeded and some failed, then I believe the
-correct behaviour is to return the number of bytes that succeeded.
-However this change to the return status (remember the above patch is
-a reversal) causes any failure to over-ride any success. This, I
-think, is wrong.
-
-NeilBrown

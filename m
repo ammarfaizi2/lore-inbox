@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVCIESH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVCIEXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVCIESH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 23:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCIESH
+	id S261594AbVCIEXX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 23:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCIEXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 23:18:07 -0500
-Received: from rgminet04.oracle.com ([148.87.122.33]:49810 "EHLO
-	rgminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S261491AbVCIESB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 23:18:01 -0500
-Date: Tue, 8 Mar 2005 20:07:57 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Daniel McNeil <daniel@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       S?bastien Dugu? <sebastien.dugue@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-Message-ID: <20050309040757.GY27331@ca-server1.us.oracle.com>
-Mail-Followup-To: Badari Pulavarty <pbadari@us.ibm.com>,
-	Daniel McNeil <daniel@osdl.org>,
-	Suparna Bhattacharya <suparna@in.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	S?bastien Dugu? <sebastien.dugue@bull.net>,
-	"linux-aio@kvack.org" <linux-aio@kvack.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com> <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com> <1110324434.6521.23.camel@ibm-c.pdx.osdl.net> <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
+	Tue, 8 Mar 2005 23:23:23 -0500
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:9643 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261594AbVCIEXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 23:23:17 -0500
+Subject: [PATCH][Documentation update]Re: diff command line?
+From: John Kacur <jkacur@rogers.com>
+Reply-To: jkacur@rogers.com
+To: Jim Nelson <james4765@cwazy.co.uk>
+Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+In-Reply-To: <4229E219.20100@cwazy.co.uk>
+References: <200503051048.00682.gene.heskett@verizon.net>
+	 <20050305161822.H3282@flint.arm.linux.org.uk>  <4229E219.20100@cwazy.co.uk>
+Content-Type: text/plain
+Message-Id: <1110342199.5533.24.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.6+20040907i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 08 Mar 2005 23:23:19 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 03:54:04PM -0800, Badari Pulavarty wrote:
-> > 1. return EINVAL if the DIO goes past EOF.
-> > 
-> > 2. truncate the request to file size (which is what your patch does)
-> >     and if it works, it works.
-> > 
-> > 3. truncate the request to a size that actually works - like a multiple
-> >     of 512.
-> > 
-> > 4. Do the full i/o since the user buffer is big enough, truncate the
-> >     result returned to file size (and clear out the user buffer where it
-> >     read past EOF).
-> > 
-> > Number 4 would make it easy on the user-level code, but AIO DIO might be
-> > a bit tricky and might be a security hole since the data would be dma'ed
-> > there and then cleared.  I need to look at the code some more.
+On Sat, 2005-03-05 at 11:45, Jim Nelson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Russell King wrote:
+> | On Sat, Mar 05, 2005 at 10:48:00AM -0500, Gene Heskett wrote:
+> |
+> |>What are the options normally used to generate a diff for public
+> |>consumption on this list?
+> |
+> |
+> | diff -urpN orig new
+> |
+> | where "orig" and "new" both contain the top level "linux" directory,
+> | so the resulting patch can be applied with patch -p1.
+> |
+> 
+> You'd also want to add "-x dontdiff", using
+> 
+> http://developer.osdl.org/rddunlap/scripts/dontdiff-osdl
+> 
+> That way, you can do a diff, even if you have run a compile in one of the
+> directory trees.
 
-	Solaris, which does forcedirectio as a mount option, actually
-will do buffered I/O on the trailing part.  Consider it like a bounce
-buffer.  That way they don't DMA the trailing data and succeed the I/O.
-The I/O returns actual bytes till EOF, just like read(2) is supposed to.
-	Either this or a fully DMA'd number 4 is really what we should
-do.  If security can only be solved via a bounce buffer, who cares?  If
-the user created themselves a non-aligned file to open O_DIRECT, that's
-their problem if the last part-sector is negligably slower.
+Hey, why isn't that is the documentation? I didn't hear of it until now.
+Is this what most developers are using for 2.6, if so then we need the
+following trivial documentation update. Created against the Docs in
+2.6.11
 
-Joel
+--- SubmittingPatches.orig      2005-03-08 23:09:19.496223848 -0500
++++ SubmittingPatches   2005-03-08 23:18:52.192160832 -0500
+@@ -60,6 +60,9 @@
+ the build process, and should be ignored in any diff(1)-generated
+ patch.  dontdiff is maintained by Tigran Aivazian <tigran@veritas.com>
 
--- 
++For 2.6 kernels you can fetch dontdiff-osdl maintained by Randy Dunlap.
++wget http://developer.osdl.org/rddunlap/scripts/dontdiff-osdl
++
 
-Life's Little Instruction Book #3
 
-	"Watch a sunrise at least once a year."
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+
+

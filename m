@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbUBWIYT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 03:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUBWIYT
+	id S261880AbUBWIaf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 03:30:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUBWIae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 03:24:19 -0500
-Received: from catv-5062a04e.szolcatv.broadband.hu ([80.98.160.78]:12046 "EHLO
-	catv-5062a04e.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
-	id S261881AbUBWIYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 03:24:18 -0500
-Message-ID: <4039B8AF.9060002@freemail.hu>
-Date: Mon, 23 Feb 2004 09:24:15 +0100
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu; rv:1.6) Gecko/20040115
-X-Accept-Language: hu, en
+	Mon, 23 Feb 2004 03:30:34 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:24075 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S261880AbUBWIad (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 03:30:33 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: marogge@onlinehome.de
+Subject: Re: Badness in pci_find_subsys
+Date: Mon, 23 Feb 2004 09:30:31 +0100
+User-Agent: KMail/1.6.1
+Cc: vishwas.manral@lycos.com, "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <DMOCIEPNKDKOLIAA@mailcity.com> <200402230639.00737.robin.rosenberg.lists@dewire.com> <200402230830.45003.marogge@onlinehome.de>
+In-Reply-To: <200402230830.45003.marogge@onlinehome.de>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Promise TX2plus PATA port?
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402230930.31706.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 23 February 2004 08.30, Martin wrote:
+> Reading the documentation (ie. source code) it appears the problem is 
+> triggered by the line
+> 
+> WARN_ON(in_interrupt());
+> 
+> Looks like the driver calls pci_find_subsys() from inside an interrupt on 
+> occasions which apparently it shouldn't. The problem seems to be on 
+> nvidia's side, not kernel development. I have emailed nvidia about it some 
+> time ago, so far no reaction... 
 
-how can I make it work? The BIOS recognizes the drive
-(jumpered as master) but 2.6.3-mm2 does not. Device id is 0x3373.
-pdc202xx_new, pdc202xx_old and sata_promise drivers
-are compiled in. Motherboard is an MSI K8T Neo FIS2R.
-The 120GB Samsung and the Sony CRX300E DVD/CDRW combo
-are recognized by both the BIOS and the kernel.
+Tracing the stack, I see:
 
--- 
-Best regards,
-Zoltán Böszörményi
+pci_find_subsys is deprecated which is called from
+pci_find_device which is deprecated which is called from
+pci_find_slot, which is NOT deprecated.
 
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
+-- robin

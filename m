@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVBXTBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVBXTEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVBXTBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 14:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVBXTBd
+	id S261820AbVBXTEe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 14:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVBXTEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 14:01:33 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:56776 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261645AbVBXTB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 14:01:27 -0500
-Subject: Re: [PATCH 4/4][RESEND] readahead: cleanup
-	blockable_page_cache_readahead()
-From: Ram <linuxram@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <421E2CE9.8B5E4DE7@tv-sign.ru>
-References: <421E2CE9.8B5E4DE7@tv-sign.ru>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1109271683.6140.120.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 24 Feb 2005 11:01:23 -0800
+	Thu, 24 Feb 2005 14:04:34 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:9895 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261820AbVBXTE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 14:04:27 -0500
+Message-ID: <421E2528.8060305@grupopie.com>
+Date: Thu, 24 Feb 2005 19:04:08 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chad N. Tindel" <chad@tindel.net>
+Cc: Chris Friesen <cfriesen@nortel.com>, Mike Galbraith <EFAULT@gmx.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+References: <20050224075756.GA18639@calma.pair.com> <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com> <421E1AC1.1020901@nortel.com> <20050224183851.GA24359@calma.pair.com>
+In-Reply-To: <20050224183851.GA24359@calma.pair.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, 
-	I have verified the patches against my standard benchmarks
-	and did not see any bad effects.
-
-	Also I have reviewd the patch and it looked clean and correct.
-
-RP
-
-On Thu, 2005-02-24 at 11:37, Oleg Nesterov wrote:
-> I think that do_page_cache_readahead() can be inlined
-> in blockable_page_cache_readahead(), this makes the
-> code a bit more readable in my opinion.
+Chad N. Tindel wrote:
+>>Low-latency userspace apps.  The audio guys, for instance, are trying to 
+>>get latencies down to the 100us range.
+>>
+>>If random kernel threads can preempt userspace at any time, they wreak 
+>>havoc with latency as seen by userspace.
 > 
-> Also makes check_ra_success() static inline.
 > 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.11-rc5/mm/readahead.c~	2005-01-29 15:51:04.000000000 +0300
-> +++ 2.6.11-rc5/mm/readahead.c	2005-01-29 16:37:05.000000000 +0300
-> @@ -348,8 +348,8 @@ int force_page_cache_readahead(struct ad
->   * readahead isn't helping.
->   *
->   */
-> -int check_ra_success(struct file_ra_state *ra, unsigned long nr_to_read,
-> -				 unsigned long actual)
-> +static inline int check_ra_success(struct file_ra_state *ra,
-> +			unsigned long nr_to_read, unsigned long actual)
->  {
->  	if (actual == 0) {
->  		ra->cache_hit += nr_to_read;
-> @@ -394,15 +394,11 @@ blockable_page_cache_readahead(struct ad
->  {
->  	int actual;
->  
-> -	if (block) {
-> -		actual = __do_page_cache_readahead(mapping, filp,
-> -						offset, nr_to_read);
-> -	} else {
-> -		actual = do_page_cache_readahead(mapping, filp,
-> -						offset, nr_to_read);
-> -		if (actual == -1)
-> -			return 0;
-> -	}
-> +	if (!block && bdi_read_congested(mapping->backing_dev_info))
-> +		return 0;
-> +
-> +	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
-> +
->  	return check_ra_success(ra, nr_to_read, actual);
->  }
+> Come now.  There is no such thing as a random kernel thread.  Any General
+> Purpose kernel needs the ability to do work that keeps the entire system from 
+> grinding to a halt.  
 
+FYI most kernel threads do background work, that doesn't have hard 
+real-time constraints. Why should my audio recording session get 
+interrupted (read: "sent to the trashcan") just because the swap daemon 
+decided that it was a good time to write some pages out? Couldn't it 
+have waited just a few more milliseconds?
+
+You don't seem to realize that you have just arrived to this mailing 
+list and missed years of discussions on kernel architecture.
+
+If you keep a learning attitude, there is a chance for this discussion 
+to go on. However, if you keep the "Come now, don't bullshit me, this is 
+a broken architecture and you're just trying to cover up" attitude, 
+you're just going to get discarded as a troll.
+
+I personally like the linux way: "root has the ability to shoot himself 
+in the foot if he wants to". This is my computer, damn it, I am the one 
+who tells it what to do.
+
+This is much, much better than the "users are stupid, we must protect 
+them from themselves" kind of way that other OS'es use.
+
+Just my 0.02 euros,
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

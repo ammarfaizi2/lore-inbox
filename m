@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277127AbRJDExJ>; Thu, 4 Oct 2001 00:53:09 -0400
+	id <S277130AbRJDFFJ>; Thu, 4 Oct 2001 01:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277126AbRJDExA>; Thu, 4 Oct 2001 00:53:00 -0400
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:64773 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S277127AbRJDEwt>;
-	Thu, 4 Oct 2001 00:52:49 -0400
-Date: Thu, 4 Oct 2001 01:53:16 -0300
-From: =?us-ascii?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Michel =?us-ascii?Q?D=E4nzer?= <daenzer@debian.org>
-Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
-Subject: Re: Panic on PowerPC
-Message-ID: <20011004015316.A1082@iname.com>
-Mail-Followup-To: Michel =?us-ascii?Q?D=E4nzer?= <daenzer@debian.org>,
-	linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
-In-Reply-To: <20011003222219.A487@iname.com> <1002159607.2363.16.camel@pismo>
-Mime-Version: 1.0
+	id <S277131AbRJDFE7>; Thu, 4 Oct 2001 01:04:59 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:34323 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S277130AbRJDFEm>; Thu, 4 Oct 2001 01:04:42 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Keith Owens <kaos@ocs.com.au>
+Date: Thu, 4 Oct 2001 15:04:39 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <1002159607.2363.16.camel@pismo>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15291.60903.127755.574686@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH - gameport_{,un}register_port must be static when inline 
+In-Reply-To: message from Keith Owens on Thursday October 4
+In-Reply-To: <15291.58177.900493.276071@notabene.cse.unsw.edu.au>
+	<11147.1002169889@kao2.melbourne.sgi.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 04 2001, Michel Dänzer wrote:
-> On Thu, 2001-10-04 at 03:22, =?us-ascii?Q?Rog=E9rio?= Brito wrote:
+On Thursday October 4, kaos@ocs.com.au wrote:
+> On Thu, 4 Oct 2001 14:19:13 +1000 (EST), 
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> >Linus,
+> > 2.4.11-pre2 wont compile with some combinations of sound card drivers
+> > if CONFIG_INPUT_GAMEPORT is not defined, as every driver than include
+> > gameport.h causes "gameport_register_port" to be defined as a symbol
+> > and there is a conflict.
+> >
+> > This patch makes the relevant inline functions "static" to avoid this
+> > problem.
 > 
-> > >>NIP; c0005d58 <__sti+8/50>   <=====
-> > Trace; c01758c8 <rtc_init+b8/16c>
-> > Trace; c016576c <do_initcalls+30/50>
-> > Trace; c01657b8 <do_basic_setup+2c/3c>
-> > Trace; c00038a4 <init+14/1b0>
-> > Trace; c00062a4 <kernel_thread+34/40>
-> 
-> Disable CONFIG_RTC, only enable CONFIG_PPC_RTC in the kernel config.
+> Please don't.  This was fixed in the -ac trees several weeks ago, the
+> correct fix is to move the input rewrite from -ac to Linus's tree.
+> That is up to the maintainer, Vojtech Pavlik.
 
-	Thank you very much, Michel.
+Are you sure?  2.4.10 seems to have a big input rewrite, and
+patch-2.4.10-ac4 doesn't change gameport.h and makes only minimal
+changes to esssolo1.c, one of the drivers in question.
 
-	That was it. I recompiled the kernel and it worked fine. I
-	guess that that was my first traps of the PPC platform. :-)
-
-	OTOH, just to document this on the archives, now that I can
-	run a 2.4 kernel, the IMS TT card is showing up in lspci.
-
-
-	Thanks you very much, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+NeilBrown

@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265172AbTLZM2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 07:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbTLZM2H
+	id S265174AbTLZM2F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 07:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbTLZM1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 07:28:07 -0500
-Received: from ssmtp.aster.pl ([212.76.33.23]:39293 "EHLO mail1.astercity.net")
-	by vger.kernel.org with ESMTP id S265172AbTLZM1v (ORCPT
+	Fri, 26 Dec 2003 07:27:48 -0500
+Received: from sina187-158.sina.com.cn ([202.106.187.158]:41736 "HELO sina.com")
+	by vger.kernel.org with SMTP id S265172AbTLZM1r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 07:27:51 -0500
-Date: Fri, 26 Dec 2003 13:27:53 +0100
-From: =?iso-8859-2?Q?=A3ukasz?= Osipiuk <l.osipiuk@zodiac.mimuw.edu.pl>
-To: Lawrence Bowie <thesource@ldb-jab.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Pasza <pasza@zodiac.mimuw.edu.pl>, Paulinka <ofca@astercity.net>
-Subject: Re: Strange process hangs on 2.6.0
-Message-ID: <20031226122753.GA31325@lucash.localdomain>
-References: <20031225211556.GA26469@lucash.localdomain> <3FEB8D95.2080803@ldb-jab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FEB8D95.2080803@ldb-jab.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 26 Dec 2003 07:27:47 -0500
+Date: Fri, 26 Dec 2003 20:27:12 +0800
+From: dlion <dlion2004@sina.com.cn>
+X-Mailer: The Bat! (v2.00)
+Reply-To: dlion2004@sina.com.cn
+X-Priority: 3 (Normal)
+Message-ID: <10333176453.20031226202712@sina.com.cn>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+In-Reply-To: <7624288781.20031226175905@sina.com.cn>
+References: <3FDD7DFD.7020306@labs.fujitsu.com>
+ <7624288781.20031226175905@sina.com.cn>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Thu, Dec 25, 2003 at 08:23:33PM -0500, Lawrence Bowie napisa³(a):
-> Can you please share an strace of executing this as root?
+Hello ,
 
-I'd love to but as I've written when i call this script with strace
-i dont get any hung at all :(.
+d> I tried your script on ext2 and ext3 filesystem on a ramdisk. I got errors,
+d> too. It seems that this problem is unrelated to device driver or
+d> hardware.
+
+d> The mozilla tarball is too big for a ramdisk. I use a
+d> zhcon-0.2.1.tar.gz (4,991,350 bytes) instead.
+
+d> I only got one kind of error on ext2 filesystem. That is, the script
+d>  said the read-only directory zhcon-0.2.1 is missing, but it _is_ there.
+d> I used e2fsck to check the ramdisk and found no error.
+
+d> I got other errors on ext3 filesystem include:
+d> 1. missing file
+d> 2. corrupted file
+d> but when I used fsck.ext3 to check the ramdisk, the result was clean.
+
+d> My system is:
+d> CPU:  AMD Athlon XP 1800+
+d> RAM:  256M DDR333
+d> Chipset: VIA KT400A
+d> Linux Distribution: Fedora Core 1
+d> Linux Kernel: kernel-2.4.22-1.2115.nptl.athlon.rpm
+
+I did the same on the kernel-2.4.22-1.2135.nptl.athlon.rpm and got the
+same result.
+
 
 -- 
-Lucash
-mailto: l.osipiuk@zodiac.mimuw.edu.pl
+Best regards,
+ dlion                            mailto:dlion2004@sina.com.cn
+
 

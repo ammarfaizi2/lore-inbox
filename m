@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267424AbUBRO13 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 09:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267426AbUBROZ7
+	id S266204AbUBRNGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 08:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUBRNEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 09:25:59 -0500
-Received: from smtp0.libero.it ([193.70.192.33]:47801 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S267424AbUBROZv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 09:25:51 -0500
-Date: Wed, 18 Feb 2004 15:25:38 +0100
-From: Domenico Andreoli <cavok@3.14freemail.it.minus.pi>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: linux 2.6.3 problem with e1000 nic
-Message-ID: <20040218142538.GA3131@raptus>
+	Wed, 18 Feb 2004 08:04:08 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:27653 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S266905AbUBRNCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 08:02:52 -0500
+Date: Wed, 18 Feb 2004 05:02:45 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Klaus Ethgen <Klaus@Ethgen.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [KERNEL] Re: [KERNEL] Re: TCP: Treason uncloaked DoS ??
+Message-ID: <20040218130245.GA8482@dingdong.cryptoapps.com>
+References: <20040218102725.GB3394@hathi.ethgen.de> <20040218105508.GA7320@dingdong.cryptoapps.com> <20040218124141.GA11303@hathi.ethgen.de> <20040218124859.GA8382@dingdong.cryptoapps.com> <20040218125731.GB11303@hathi.ethgen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040218125731.GB11303@hathi.ethgen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, Feb 18, 2004 at 01:57:31PM +0100, Klaus Ethgen wrote:
 
-i just upgraded to kernel version 2.6.3 and my e1000 NIC cheesed to work.
-in 2.6.2 it gave no problems.
+> After this tip that it could be tu do with the TC on the other
+> interface I will try this out this night.
 
-e1000 support is compiled as module. i'm able to load module but as
-soon as i do a "ifconfig eth0 10.0.0.1" system freezes and i have to
-hit reset button.
+Last I checked the TC doesn't mess with the window size...  has this
+changed?
 
-let me know if i need to provide more information or test any patch.
 
-cheers
-domenico
-
------[ Domenico Andreoli, aka cavok
- --[ http://filibusta.crema.unimi.it/~cavok/gpgkey.asc
-   ---[ 3A0F 2F80 F79C 678A 8936  4FEE 0677 9033 A20E BC50

@@ -1,95 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbTIUW6l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 18:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTIUW6l
+	id S262598AbTIUXQl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 19:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTIUXQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 18:58:41 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:6837 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S262597AbTIUW6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 18:58:39 -0400
-Date: Mon, 22 Sep 2003 02:58:32 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       mauelshagen@sistina.com
-Subject: [PATCH] [2.4] fix LVM memleaks.
-Message-ID: <20030921225832.GA12040@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Sep 2003 19:16:41 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:45640 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262598AbTIUXQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 19:16:40 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>
+Subject: Re: Broken synaptics mouse..
+Date: Sun, 21 Sep 2003 18:16:36 -0500
+User-Agent: KMail/1.5.3
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0309110744030.28410-100000@home.osdl.org> <m2fziqukhi.fsf@p4.localdomain> <20030921172758.GA21014@ucw.cz>
+In-Reply-To: <20030921172758.GA21014@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309211816.36783.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sunday 21 September 2003 12:27 pm, Vojtech Pavlik wrote:
+> On Sun, Sep 21, 2003 at 07:20:09PM +0200, Peter Osterlund wrote:
+> > > I'd really prefer to contain the ugliness in mousedev.c, which then
+> > > could be removed completely in 2.8 or so, when XFree and GPM is already
+> > > well adapted to the event interface.
+> >
+> > That's certainly possible too. See patch below. Note though that this
+> > patch has the disadvantage mentioned by Dmitry:
+> >
+> >         We also can't just emulate relative events as everything is
+> >         multiplexed into /dev/input/mice and I can see many people
+> >         using Synaptics via /dev/input/eventX and everything else via
+> >         /dev/input/mice as it nicely handles hot plugging (at least I
+> >         use it this way).
+>
+> You can use EVIOCGRAB for the time being in the XFree86 synaptics
+> driver, this way you'll prevent its events coming into mousedev the
+> moment it's opened by XFree86, which is probably exactly what one wants.
+>
 
-   There are two error patchs in lvm code, that leads to leaking memory.
-   One if creating too many volume gropups and one if incorrect
-   buffer from userspace was passed.
-   Fixes are trivial. Please apply.
+Will that allow 2 processes to have access to the same event device 
+simultaneously? I am thinking about XFree and GPM. We just got away from
+that mess caused by psaux providing only exclusive access to step into
+the same problem again.
 
-   Found with help of smatch.
-
-
-===== drivers/md/lvm.c 1.20 vs edited =====
---- 1.20/drivers/md/lvm.c	Mon Mar 10 17:55:46 2003
-+++ edited/drivers/md/lvm.c	Mon Sep 22 02:53:54 2003
-@@ -1584,8 +1584,10 @@
- 		minor = vg_ptr->vg_number;
- 
- 	/* check limits */
--	if (minor >= ABS_MAX_VG)
-+	if (minor >= ABS_MAX_VG) {
-+		kfree(vg_ptr);
- 		return -EFAULT;
-+	}
- 
- 	/* Validate it */
- 	if (vg[VG_CHR(minor)] != NULL) {
-@@ -1653,8 +1655,7 @@
- 				P_IOCTL
- 				    ("ERROR: copying LV ptr %p (%d bytes)\n",
- 				     lvp, sizeof(lv_t));
--				lvm_do_vg_remove(minor);
--				return -EFAULT;
-+				goto copy_fault;
- 			}
- 			if (lv.lv_access & LV_SNAPSHOT) {
- 				snap_lv_ptr[ls] = lvp;
-@@ -1665,8 +1666,7 @@
- 			vg_ptr->lv[l] = NULL;
- 			/* only create original logical volumes for now */
- 			if (lvm_do_lv_create(minor, lv.lv_name, &lv) != 0) {
--				lvm_do_vg_remove(minor);
--				return -EFAULT;
-+				goto copy_fault;
- 			}
- 		}
- 	}
-@@ -1676,12 +1676,10 @@
- 	for (l = 0; l < ls; l++) {
- 		lv_t *lvp = snap_lv_ptr[l];
- 		if (copy_from_user(&lv, lvp, sizeof(lv_t)) != 0) {
--			lvm_do_vg_remove(minor);
--			return -EFAULT;
-+			goto copy_fault;
- 		}
- 		if (lvm_do_lv_create(minor, lv.lv_name, &lv) != 0) {
--			lvm_do_vg_remove(minor);
--			return -EFAULT;
-+			goto copy_fault;
- 		}
- 	}
- 
-@@ -1696,6 +1694,10 @@
- 	vg_ptr->vg_status |= VG_ACTIVE;
- 
- 	return 0;
-+copy_fault:
-+	lvm_do_vg_remove(minor);
-+	vfree(snap_lv_ptr);
-+	return -EFAULT;
- }				/* lvm_do_vg_create() */
- 
- 
+Dmitry 

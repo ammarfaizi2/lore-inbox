@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTIEAXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 20:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTIEAXO
+	id S261369AbTIEAfz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 20:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTIEAfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 20:23:14 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:1514 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261380AbTIEAXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 20:23:11 -0400
-Message-ID: <3F57D776.4050404@ameritech.net>
-Date: Thu, 04 Sep 2003 19:23:18 -0500
-From: watermodem <aquamodem@ameritech.net>
-Reply-To: aquamodem@ameritech.net
-Organization: not at all
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4  on to mpegs and DVB
-References: <3F560DC6.2090709@ameritech.net>
-In-Reply-To: <3F560DC6.2090709@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 20:35:55 -0400
+Received: from postino4.prima.com.ar ([200.42.0.162]:39685 "HELO
+	postino4.prima.com.ar") by vger.kernel.org with SMTP
+	id S261369AbTIEAfx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 20:35:53 -0400
+Subject: Re: [PATCH] ide_cs w/TCQ
+From: Matias Alejo Garcia <kernel@matiu.com.ar>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <200309042304.30885.bzolnier@elka.pw.edu.pl>
+References: <1062710823.1794.30.camel@runner>
+	 <200309042304.30885.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1062724903.4325.5.camel@runner>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 04 Sep 2003 21:21:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok...
+On Thu, 2003-09-04 at 17:04, Bartlomiej Zolnierkiewicz wrote:
 
-So I switched to the following suggested utilities:
+> 3) initialize ide_dma_queued_on to __ide_dma_queued_on()
+> 
+> because drive->using_dma is checked inside __ide_dma_queud_on,
+> but that looks stupid to assign it in DMA-unaware driver :-).
 
-module-init-tools-0.9.13-0.2bor.src.rpm
-hotplug-2003_08_05-0.1bor.src.rpm
-initscripts-7.06-18mdk.1bor.src.rpm
+Ok :-) then How it should be done? 3)?
 
-then did a merge on modprobe.conf/rpmnew and added one little directory 
-to the path in the sysinit file.
+I just found that when I eject the CF I get <see below>
+I that already corrected, should I try to solve that?
 
-The printer is still hosed but I do see the usb tree under proc now.
-Everything else needed excepting the BT848 card (i2 stuff and video) 
-probed and loaded.  So I insmoded the rest to continue testing.
+thanks!
+matías
 
-Mandrake will need to get their SUPERMOUNT working for DVDs, CDs and floppy.
-
-Now for some performance reports.  I have a server, in the basement, 
-with mp3s, mpegs and such being served via samba to the local net.
-MP3's seemed to be ok but mpeg was awful.  Now the local net is a 24 
-port switch that should be able to do 100mbits/full duplex (it does 
-under 2.4). So, to see if it was networking at fault (I, also, had to 
-switch to E100 as the eepro100 driver doesn't seem to work in 2.6), I 
-played a local DVD.  The DVD looked and sounded great, but, it was using 
-98% of the CPU!  2.4 never used that much.   I am wondering if the 
-timing in the dispatcher is a tad off for video or if the different 
-timeslices that are generated are not able to resonate with video 
-display/capture/frame frequencies.  Should the timing for desktops tend 
-to have some sort of natural resonance with motion video display 
-critical timing?  (lots of folks watch mpegs and dvi and dvd ...)
+-- 
+matías <-> http://matiu.com.ar
 
 
+Sep  4 16:55:32 runner kernel: Device 'ide2' does not have a release()
+function, it is broken and must be fixed.
+Sep  4 16:55:32 runner kernel: Badness in device_release at
+drivers/base/core.c:85
+Sep  4 16:55:32 runner kernel: Call Trace:
+Sep  4 16:55:32 runner kernel:  [<c021e9f1>] device_release+0x41/0x50
+Sep  4 16:55:32 runner kernel:  [<c01d88e9>] kobject_cleanup+0x29/0x40
+Sep  4 16:55:32 runner kernel:  [<c021ed0b>] device_unregister+0xb/0x20
+Sep  4 16:55:32 runner kernel:  [<c0238b14>] ide_unregister+0x314/0x850
+Sep  4 16:55:32 runner kernel:  [<c0121847>] printk+0x127/0x150
+[bla bla bla]
 
 

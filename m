@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266520AbTAFKZ6>; Mon, 6 Jan 2003 05:25:58 -0500
+	id <S266438AbTAFKWo>; Mon, 6 Jan 2003 05:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266514AbTAFKZ6>; Mon, 6 Jan 2003 05:25:58 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:46591 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S266520AbTAFKZ5>;
-	Mon, 6 Jan 2003 05:25:57 -0500
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       grundler@cup.hp.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S266443AbTAFKWo>; Mon, 6 Jan 2003 05:22:44 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:19217 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S266438AbTAFKWn>; Mon, 6 Jan 2003 05:22:43 -0500
+Message-ID: <3E195B19.3AE6FAF8@aitel.hist.no>
+Date: Mon, 06 Jan 2003 11:31:53 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org> <3E159336.F249C2A1@aitel.hist.no> <20030103193353.GA3514@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041849069.666.6.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 06 Jan 2003 11:31:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-06 at 05:14, Linus Torvalds wrote:
+Mark Mielke wrote:
+> 
+> On Fri, Jan 03, 2003 at 02:42:14PM +0100, Helge Hafting wrote:
+> > This is very much like selling cars were the gas tank is locked, and
+> > you don't have the key.  The gas stations have keys, but only
+> > some of them.  So you can't fill anywhere.
+> > Or a tv that don't work on thursdays. Silly in the extreme,
+> > annoying for the user and no benefit for the manufacturer.
+> 
+> Balderdash! It is like selling a car with free professional
+> maintenance, but no manuals to allow you to repair your own car. :-)
 
-> Alternatively, we could even have a very limited phase #1 that only 
-> enumerates _reachable_ devices (ie it doesn't even try to create bus 
-> numbers, it only enumerates devices and buses that have already been set 
-> up by the firmware, and ignores bridges that aren't set up yet). A pure 
-> discovery phase, without any configuration at all.
+You get free maintenance on your nvidia drivers?  _Enough_ maintenance?
+> 
+> It might be true that nVidia is actually limiting their market. Since
+> that results in loss of money to nVidia, and not to you, it really isn't
+> any of our call. 
 
-That would only work for cases where the kernel isn't responsible for
-the actual bus numbering/renumbering. For example, since we do not quite
-deal with PCI domains yet, I have to force pcibios_assign_all_busses()
-on pmac so that my 3 root busses get re-numbered (else I get 3 trees
-with conflicting bus numbers all starting at 0). Another case is embedded
-which can deal with completely unassigned bus numbers.
+It is a loss to me too - I might want to use that hardware - _if_
+they would release the specs at zero cost to them.
 
-Ben.
-
+Helge Hafting

@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292325AbSBBQxK>; Sat, 2 Feb 2002 11:53:10 -0500
+	id <S292324AbSBBQ7D>; Sat, 2 Feb 2002 11:59:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292324AbSBBQxC>; Sat, 2 Feb 2002 11:53:02 -0500
-Received: from mustard.heime.net ([194.234.65.222]:52908 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S292323AbSBBQwo>; Sat, 2 Feb 2002 11:52:44 -0500
-Date: Sat, 2 Feb 2002 17:52:32 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Roger Larsson <roger.larsson@norran.net>
-cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Errors in the VM - detailed (or is it Tux? or rmap? or those
- together...)
-In-Reply-To: <Pine.LNX.4.30.0202021736520.11143-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.30.0202021751430.11143-100000@mustard.heime.net>
+	id <S292326AbSBBQ6u>; Sat, 2 Feb 2002 11:58:50 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31761 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292324AbSBBQ6i>; Sat, 2 Feb 2002 11:58:38 -0500
+Subject: Re: should I trust 'free' or 'top'?
+To: blumpkin@attbi.com (Buddy Lumpkin)
+Date: Sat, 2 Feb 2002 17:11:43 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        adam-dated-1013023458.e87e05@flounder.net (Adam McKenna),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <FJEIKLCALBJLPMEOOMECMECBCFAA.blumpkin@attbi.com> from "Buddy Lumpkin" at Feb 01, 2002 11:18:30 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16X3hX-0008Rj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Roy, did you notice the mail from Andrew Morton:
-> > > heh.  Yep, Roger finally nailed it, I think.
-> > >
-> > > Roy says the bug was fixed in rmap11c.  Changelog says:
-> > >
-> > >
-> > > rmap 11c:
-> > >   ...
-> > >   - elevator improvement                                  (Andrew Morton)
-> > >
-> > > Which includes:
-> > >
-> > > -       queue_nr_requests = 64;
-> > > -       if (total_ram > MB(32))
-> > > -               queue_nr_requests = 128;
-> > >                              +       queue_nr_requests = (total_ram >> 9) &
-> > > ~15;     /* One per half-megabyte */
-> > > +       if (queue_nr_requests < 32)
-> > > +               queue_nr_requests = 32;
-> > > +       if (queue_nr_requests > 1024)
-> > > +               queue_nr_requests = 1024;
-> >
-> > rmap11c changed the queue_nr_requests, that problem went away.
-> > But another one showed its ugly head...
-> >
-> > Could you please try this part of rmap11c only? Or the very simple one
-> > setting queue_nr_request to = 2048 for a test drive...
->
-> u mean - on a 2.4.1[18](-pre.)? kernel?
->
-> I'll try
+> >The base VM in Linus tree has been broken since before 2.4.0 and while
+> >somewhat better is still that - broken. The major vendors don't ship it for
+> >a reason.
+> 
+> Why is this?
 
-er..
+Linus kept ignoring Rik's patches and making other changes, then at 2.4.10
+switched to Andrea's VM and ignored most of the follow up changes that
+made that one work
 
-# grep queue_nr_requests /usr/src/packed/k/2.4.17-rmap-11c
-#
+> Believe it or not, im not trying to start a flame war, just trying to
+> understand the logic.
 
+You've got me there. I don't understand either. 
 
----
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Alan
 

@@ -1,34 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262095AbSIYUCy>; Wed, 25 Sep 2002 16:02:54 -0400
+	id <S262092AbSIYT7B>; Wed, 25 Sep 2002 15:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262098AbSIYUCy>; Wed, 25 Sep 2002 16:02:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46798 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262095AbSIYUCx>;
-	Wed, 25 Sep 2002 16:02:53 -0400
-Date: Wed, 25 Sep 2002 12:57:34 -0700 (PDT)
-Message-Id: <20020925.125734.32605968.davem@redhat.com>
-To: zaitcev@redhat.com
-Cc: benh@kernel.crashing.org, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] fix ide-iops for big endian archs
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020925141946.A14230@devserv.devel.redhat.com>
-References: <mailman.1032957359.10217.linux-kernel2news@redhat.com>
-	<20020925141946.A14230@devserv.devel.redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262093AbSIYT7B>; Wed, 25 Sep 2002 15:59:01 -0400
+Received: from thunk.org ([140.239.227.29]:159 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262092AbSIYT7A>;
+	Wed, 25 Sep 2002 15:59:00 -0400
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Add ext3 indexed directory (htree) support
+From: tytso@mit.edu
+Phone: (781) 391-3464
+Message-Id: <E17uINs-0003bG-00@think.thunk.org>
+Date: Wed, 25 Sep 2002 16:03:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pete Zaitcev <zaitcev@redhat.com>
-   Date: Wed, 25 Sep 2002 14:19:46 -0400
-   
-   IDE uses ide_insw instead of plain insw specifically to
-   resolve this kind of issue, and you are trying to defeat
-   the mechanism designed to help you. I smell a fish here.
+Hi Linus,
 
-They're trying to abstract out as much as possible in 2.5.x, maybe a
-bit too much :-)
+This changeset contains Daniel Phillip's indexed directory changes,
+ported to 2.5 by Christopher Li and Andrew Morton, and then extensively
+cleaned up by me.  I also implemented the enhanced dx_readdir code which
+returns files would be returned in hash order.  This was necessary so
+that concurrent tree splits would not result in filenames to be
+erroneously returned twice or not at all when the b-tree splits
+reorganized the directory out from underneath readdir().
+
+This patch significantly increases the speed of using large directories.
+Creating 100,000 files in a single directory took 38 minutes without
+directory indexing... and 11 seconds with the directory indexing turned on.
+
+I've given this code a good bit of testing, under both 2.4 and 2.5
+kernels, and believe that it is ready for prime-time.  Please pull it
+from:
+
+	bk://extfs.bkbits.net/for-linus-htree-2.5
+
+In order to use the new directory indexing feature, please update your
+e2fsprogs to 1.29.  Existing filesystem can be updated to use directory
+indexing using the command "tune2fs -O dir_index /dev/hdXXX".  This can
+be done while the filesystem is mounted, and subsequent new directories
+or directories fit within a single block will be use the new (backwards
+compatible) dirctory indexing format when they grow beyond a single
+block.
+
+Existing large directories on the filesystem can be converted to use the
+new indexed directory format by running the following command on an
+unmounted filesystem "e2fsck -fD /dev/hdXXX".  
+
+							- Ted
+
+ fs/ext3/Makefile           |    2 
+ fs/ext3/dir.c              |  298 ++++++++++
+ fs/ext3/file.c             |    3 
+ fs/ext3/hash.c             |  215 +++++++
+ fs/ext3/namei.c            | 1305 ++++++++++++++++++++++++++++++++++++++++-----
+ fs/ext3/super.c            |    6 
+ include/linux/ext3_fs.h    |   86 ++
+ include/linux/ext3_fs_sb.h |    2 
+ include/linux/ext3_jbd.h   |    2 
+ include/linux/rbtree.h     |    1 
+ lib/rbtree.c               |   16 
+ 11 files changed, 1797 insertions(+), 139 deletions(-)
+
+(The changes to rbtree.c were to add a new function rb_first(), which
+returns the first node in the rbtree.)

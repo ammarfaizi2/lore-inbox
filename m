@@ -1,94 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136374AbRD2VRe>; Sun, 29 Apr 2001 17:17:34 -0400
+	id <S136373AbRD2VRO>; Sun, 29 Apr 2001 17:17:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136375AbRD2VRZ>; Sun, 29 Apr 2001 17:17:25 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:28179 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S136374AbRD2VRQ>; Sun, 29 Apr 2001 17:17:16 -0400
-Date: Sun, 29 Apr 2001 23:13:12 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: Duncan Gauld <duncan@gauldd.freeserve.co.uk>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: Re: question regarding cpu selection
-Message-ID: <20010429231312.I24579@arthur.ubicom.tudelft.nl>
-In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429145608.A703@better.net> <20010429223641.K3529@niksula.cs.hut.fi> <01042921284803.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429233250.G3682@niksula.cs.hut.fi>
+	id <S136374AbRD2VRG>; Sun, 29 Apr 2001 17:17:06 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:63751 "HELO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S136373AbRD2VQy> convert rfc822-to-8bit; Sun, 29 Apr 2001 17:16:54 -0400
+From: jg@pa.dec.com (Jim Gettys)
+Date: Sun, 29 Apr 2001 14:16:43 -0700 (PDT)
+Message-Id: <200104292116.f3TLGhu07016@pachyderm.pa.dec.com>
+X-Mailer: Pachyderm (client pachyderm.pa-x.dec.com, user jg)
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0104290914260.14261-100000@twinlark.arctic.org>
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010429233250.G3682@niksula.cs.hut.fi>; from vherva@mail.niksula.cs.hut.fi on Sun, Apr 29, 2001 at 11:32:51PM +0300
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 11:32:51PM +0300, Ville Herva wrote:
-> On Sun, Apr 29, 2001 at 09:28:48PM -0400, you [Duncan Gauld] claimed:
-> > I would supply a patch, but I don't know how to write such a thing :)
-> 
-> It seems Erik Mouw already submitted a patch, altough I agree that "Celeron
-> II" might be a better name for the thing than "Celeron (Coppermine)".
+The "put the time into a magic location in shared memory" goes back, as
+far as I know, to Bob Scheifler or myself for the X Window System, sometime
+around 1984 or 1985: we put it into a page of shared memory where we used
+a circular buffer scheme to put input events (keyboard/mice), so that
+we could avoid the read system call overhead to get these events (and
+more importantly, check between each request if there was input to
+process).  I don't think we ever claimed it was novel, just that we did
+it that way (I'd have to ask Bob if he had heard of that before we did
+it).  We put it into the same piece of memory we put the circular event
+buffer, avoiding both the get-time-of day calls, but also the much more
+expensive reads that would have been required (we put the events into a
+circular buffer, with the kernel only updating one value, and user space
+updating the other value defining the circular buffer).
 
-So what about this one? This time I had to change Configure.help and
-setup.c as well to reflect the changes in config.in :)
+In X, it is important for interactivity to get input events and send them
+to clients ASAP: just note the effect of Keith Packard's recent implementation
+of "silken mouse", where signals are used to deliver events to the X server.
+This finally has made mouse tracking (done in user space on Linux; generally
+done by kernel drivers on most UNIX boxes) what we were getting on 1 mip machines
+under load (Keith has also done more than this with his new internal X
+scheduler, which prevents clients from monopolizing the X server anywhere
+like the old implementation).
 
+This shared memory technique is very powerful to allow a client application to know if
+it needs to do a system call, and is very useful for high performance servers
+(like X), where a system call is way too expensive.
 
-Erik
+I've certainly mentioned this technique in the past in the Web community
+(but HTTP servers are processing requests about 1/100-1/1000 the rate of
+an X server, which gets into the millions of requests/second on current machines.
 
-Index: arch/i386/config.in
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/arch/i386/config.in,v
-retrieving revision 1.1.1.38
-diff -u -r1.1.1.38 config.in
---- arch/i386/config.in	2001/04/26 12:31:41	1.1.1.38
-+++ arch/i386/config.in	2001/04/29 20:52:43
-@@ -33,7 +33,7 @@
- 	 Pentium-Classic		CONFIG_M586TSC \
- 	 Pentium-MMX			CONFIG_M586MMX \
- 	 Pentium-Pro/Celeron/Pentium-II	CONFIG_M686 \
--	 Pentium-III			CONFIG_MPENTIUMIII \
-+	 Pentium-III/Celeron II		CONFIG_MPENTIUMIII \
- 	 Pentium-4			CONFIG_MPENTIUM4 \
- 	 K6/K6-II/K6-III		CONFIG_MK6 \
- 	 Athlon/Duron/K7		CONFIG_MK7 \
-Index: arch/i386/kernel/setup.c
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/arch/i386/kernel/setup.c,v
-retrieving revision 1.1.1.51
-diff -u -r1.1.1.51 setup.c
---- arch/i386/kernel/setup.c	2001/04/28 13:24:25	1.1.1.51
-+++ arch/i386/kernel/setup.c	2001/04/29 21:01:10
-@@ -1841,7 +1841,7 @@
- 			
- 		case 8:
- 			if (l2 == 128)
--				p = "Celeron (Coppermine)";
-+				p = "Celeron II (Coppermine)";
- 			break;
- 		}
- 	}
-Index: Documentation/Configure.help
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/Documentation/Configure.help,v
-retrieving revision 1.1.1.108
-diff -u -r1.1.1.108 Configure.help
---- Documentation/Configure.help	2001/04/26 12:44:35	1.1.1.108
-+++ Documentation/Configure.help	2001/04/29 20:53:32
-@@ -3033,7 +3033,7 @@
-    - "Pentium-MMX" for the Intel Pentium MMX.
-    - "Pentium-Pro" for the Intel Pentium Pro/Celeron/Pentium II.
-    - "Pentium-III" for the Intel Pentium III
--     and Celerons based on the coppermine core.
-+     and Celerons based on the coppermine core (Celeron II).
-    - "Pentium-4" for the Intel Pentium 4.
-    - "K6" for the AMD K6, K6-II and K6-III (aka K6-3D).
-    - "Athlon" for the AMD K7 family (Athlon/Duron/Thunderbird).
+So if you want to get user space to really go fast, sometimes you resort
+to such trickery....  I think the technique has real value: the interesting
+question is should there be general kernel facilities to make this easy
+(we did it via ugly hacks on VAX and MIPS boxes) for kernel facilities
+to provide.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+"X is an exercise in avoiding system calls".  I think I said this around
+1984-1985.  
+				- Jim
+
+--
+Jim Gettys
+Technology and Corporate Development
+Compaq Computer Corporation
+jg@pa.dec.com
+

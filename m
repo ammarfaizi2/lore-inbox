@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUBTX4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 18:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUBTX4P
+	id S261434AbUBTX5P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 18:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUBTX5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 18:56:15 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:50839 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261429AbUBTX4N (ORCPT
+	Fri, 20 Feb 2004 18:57:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:31467 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261436AbUBTX5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 18:56:13 -0500
-Date: Sat, 21 Feb 2004 00:56:02 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GFS requirements (was: Non-GPL export of invalidate_mmap_range)
-Message-ID: <20040220235602.GD6280@marowsky-bree.de>
-References: <20040216190927.GA2969@us.ibm.com> <200402201535.47848.phillips@arcor.de> <20040220211732.A10079@infradead.org> <200402201715.34315.phillips@arcor.de>
+	Fri, 20 Feb 2004 18:57:06 -0500
+Date: Fri, 20 Feb 2004 15:57:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: James Simmons <jsimmons@infradead.org>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: HOWTO use udev to manage /dev
+Message-ID: <20040220235700.GB17875@kroah.com>
+References: <20040219194610.GB13934@kroah.com> <Pine.LNX.4.44.0402192020100.26894-100000@phoenix.infradead.org> <20040220005237.GA7079@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200402201715.34315.phillips@arcor.de>
+In-Reply-To: <20040220005237.GA7079@pclin040.win.tue.nl>
 User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-20T17:16:02,
-   Daniel Phillips <phillips@arcor.de> said:
+On Fri, Feb 20, 2004 at 01:52:37AM +0100, Andries Brouwer wrote:
+> On the other hand, if the goal is to find and eradicate all such
+> ugly uses of explicit device numbers, Linus' idea to make it all
+> random will certainly help.
+> (But a big grep for st_rdev might be more efficient.)
 
-I'm trimming the mm list, because this isn't relevant to them.
+That will be one goal of 2.7 :)
 
-> Again, we (everybody who cared to jump in) now agree on what is sane
-> here, it's quite logical.  As for supplying background material so
-> this makes sense to a wider group of people, sorry it's been on my
-> to-do list for a while.  Getting a DFS, namely Sistina GFS, into the
-> tree is underway as you know from the press release, however turning
-> the ship takes time.  Meanwhile, the api discussion can't wait because
-> the rudder on that ship is even smaller.
+thanks,
 
-Surely, such a GFS needs a cluster infrastructure - membership,
-messaging, DLM - in the kernel.
-
-Can you or anyone else from Sistina/RHAT clarify on the details of
-this?
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+greg k-h

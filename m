@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129176AbRBHWmY>; Thu, 8 Feb 2001 17:42:24 -0500
+	id <S129352AbRBEMoU>; Mon, 5 Feb 2001 07:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129213AbRBHWmO>; Thu, 8 Feb 2001 17:42:14 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:26119 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S129176AbRBHWmA>;
-	Thu, 8 Feb 2001 17:42:00 -0500
-From: tytso@snap.thunk.org
-Date: Thu, 1 Feb 2001 08:39:39 -0500
-To: "W. Michael Petullo" <mike@flyn.org>
-Cc: edschulz@lucent.com, linux-kernel@vger.kernel.org
-Subject: Re: Lucent Microelectronics Venus Modem, serial 5.05, and Linux 2.4.0
-Message-ID: <20010201083939.A12285@think>
-In-Reply-To: <20010114201045.A1787@dragon.flyn.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010114201045.A1787@dragon.flyn.org>; from mike@flyn.org on Sun, Jan 14, 2001 at 08:10:45PM +0100
+	id <S129694AbRBEMoK>; Mon, 5 Feb 2001 07:44:10 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:14487 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129352AbRBEMoC>; Mon, 5 Feb 2001 07:44:02 -0500
+Message-ID: <3A8141FA.8040202@sympatico.ca>
+Date: Wed, 07 Feb 2001 07:39:22 -0500
+From: David Pyke <loftwyr@sympatico.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problems with a Magik1 chipset board
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 08:10:45PM +0100, W. Michael Petullo wrote:
-> > In serial.c, you seem to perform a check by writing to a possible
-> > modem's interrupt enable register and reading the result.  This seems to
-> > be one of the points at which the auto-configuration process occasionally
-> > fails.  If I make the following change to this code my modem seems to
-> > be auto-detected correctly all of the time:
-> 
-> >                scratch = serial_inp(info, UART_IER);
-> >		serial_outp(info, UART_IER, 0);
-> > #ifdef __i386__
-> >		outb(0xff, 0x080);
-> > #endif
-> >		scratch2 = serial_inp(info, UART_IER);
-> >		serial_outp(info, UART_IER, 0x0F);
-> > #ifdef __i386__
-> >		outb(0, 0x080);
-> > #endif
-> > -             scratch3 = serial_inp(info, UART_IER); /* REMOVE */
-> > +             scratch3 = 0x0f                        /* ADD */
-> > 		serial_outp(info, UART_IER, scratch);
+I own a Iwill KA266 which uses the ALi M1647 northbridge and M1535D+ 
+south.  I'm getting errors on startup and thought I should see if this 
+is an issue with the set or kernel 2.4.1
 
-The problem is that if this doesn't work, there are some serious
-questions about the correctness of the Lucent Microelectronic Venus
-modem.  I've forwarded this to someone in the Lucent Modem group, who
-can hopefully look at this (and maybe can ship me a sample hardware so
-I can play with it, although I'd much rather that he tell me how to
-work around the hardware bug, or tell me that all you need is a
-firmware upgrade to fix the bug in the modem).....
+First, during the ALI15X3 starup I get:
 
-							- Ted
+PCI: No IRQ known for interrupt pin A of device 00:04.0.  Please try 
+pci=biosirq
+
+according to /proc/pci,00:04.0 is an ALi M5229 IDE (rev 196).
+
+Second, for agpgart I have to use try_agp_unsupported=1 which gets me
+
+agpgart: Trying generic Ali routines for device id: 1647
+
+according to my nvidia driver proc entry, agp is not enabled.
+
+Is there more information I should provide?
+
+Thanks
+Dave Pyke
+
+-- 
+No disclaimer shall be read or observed.  Any person (either corporate 
+or individual) making any statement shall be held civily and criminally 
+liable as a party to any act I may do while following the intentional, 
+implied or inferred (whether correctly or not) directions from said 
+statement.  So there.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

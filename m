@@ -1,45 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbUFFFwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUFFGAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUFFFwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 01:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUFFFwa
+	id S262927AbUFFGAi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 02:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUFFGAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 01:52:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40398 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262909AbUFFFw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 01:52:29 -0400
-Date: Sun, 6 Jun 2004 07:53:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable scheduler debugging
-Message-ID: <20040606055336.GA15350@elte.hu>
-References: <20040606033238.4e7d72fc.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040606033238.4e7d72fc.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 6 Jun 2004 02:00:38 -0400
+Received: from relay01.kbs.net.au ([203.220.32.149]:57242 "EHLO
+	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S262927AbUFFGAe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 02:00:34 -0400
+Date: Sun, 6 Jun 2004 16:00:32 +1000
+From: "Pods" <pods@dodo.com.au>
+To: linux-kernel@vger.kernel.org
+Reply-to: "Pods" <pods@dodo.com.au>
+Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
+X-Priority: 3
+X-Mailer: Dodo Internet Webmail Server 
+X-Original-IP: 203.221.30.76
+Content-Transfer-Encoding: 7BIT
+X-MSMail-Priority: Medium
+Importance: Medium
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <E1BWqhq-0004wj-00@mail.kbs.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i'll get to your suggestions soon, infact the RAM was my next plan of
+attack. But meanwhile, why dont you have a look at some new oops output from
+a new kernel with lots of debug info turned on.
 
-* Andi Kleen <ak@suse.de> wrote:
+http://users.quickfox.org/~pods/linux-issues/kernel-debug-oops.txt
 
-> The domain scheduler spews out a lot of information at boot up, but it
-> looks mostly redundant because it's just a transformation of what is
-> in /proc/cpuinfo anyways. Also it is well tested now. Disable it.
 
-i'd rather keep it some more, there are still open issues and if there's
-a boot failure or early crash it makes it easier for us to see the
-actual domain setup. Also, the messages are KERN_DEBUG.
+--------- Original Message --------
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Pods <pods@dodo.com.au>, linux-kernel@vger.kernel.org
+<linux-kernel@vger.kernel.org>
+Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address +
+more?)
+Date: 06/06/04 05:28
 
-	Ingo
+>
+> On Saturday 05 June 2004 18:27, Pods wrote:
+> &gt; &gt;&gt; Run memtest86
+> &gt; Tried once before, didnt boot... died :( memtest page says this
+happens on
+> &gt; some hardware and they're not sure why.
+>
+> Ho hum. Looks like good starting point to debug.
+> Remove RAM until you have &lt;= 2 GB, then run memtest86
+> (or modified versions of it with debug prints)
+> until you know where it dies.
+>
+> &gt; &gt;&gt; Underclock your system
+> &gt; its not over clocked :/
+>
+> I mean, underclock below normal conditions.
+>
+> &gt; &gt;&gt; lower IDE DMA mode and see whether it stops oopsing.
+> &gt;
+> &gt; tried setting dma = off in hdparm, didnt work, still got crashes
+compiling
+> &gt; firebird.. infact, it didnt even get passed the ./configure stage :(
+>
+> Use hdparm to set, say, udma0.
+>
+> &gt; Each time (just about, didnt do it once out of 6ish times) i set the
+dma to
+> &gt; off (either at boot or runtime) i got a &quot;spurious 8259A
+interript: IRQ 7&quot;..
+> &gt; apparantly, iirc that debug message has been taken out of 2.6.6
+>
+> I have 'em too. Not a real issue on lots of systems.
+>
+> &gt; Please guys, CC me your responces, otherwise i have to look at some
+> &gt; archives, and reply via webmail... it took 2 firefox crashes (one of
+which
+> &gt; brought down X) to just right this message... now im going to take a
+chance
+> &gt; and hit the submit
+> &gt; button
+> --
+> vda
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+> 
+
+________________________________________________
+
+Message sent using
+Dodo Internet Webmail Server
+

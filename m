@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTKQIGW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 03:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTKQIGW
+	id S263388AbTKQIaW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 03:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTKQIaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 03:06:22 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:32732 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263203AbTKQIGV convert rfc822-to-8bit (ORCPT
+	Mon, 17 Nov 2003 03:30:22 -0500
+Received: from holomorphy.com ([199.26.172.102]:12963 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263388AbTKQIaU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 03:06:21 -0500
-Message-ID: <32926358.1069056306140.JavaMail.ngmail@webmail06.arcor-online.net>
-Date: Mon, 17 Nov 2003 09:05:06 +0100 (CET)
-From: thomas.mey3r@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: TI PC1410 PC Cardbus hardlocks
+	Mon, 17 Nov 2003 03:30:20 -0500
+Date: Mon, 17 Nov 2003 00:30:07 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: seq_file and exporting dynamically allocated data
+Message-ID: <20031117083007.GA22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-kernel@vger.kernel.org
+References: <20031117054820.GT24159@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0311170745170.1089-100000@einstein.homenet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-ngMessageSubType: MessageSubType_MAIL
-X-WebmailclientIP: : 193.150.166.43, 193.150.166.43
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311170745170.1089-100000@einstein.homenet>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Nov 17, 2003 at 08:21:34AM +0000, Tigran Aivazian wrote:
+> Now, since there is no way to detect EOF, other than by reading an extra 
+> page and discovering that it belongs to the next iteration, we have to do 
+> the lseek(fd, 0, SEEK_SET) anyway.
+> So, the "auto-rewinding" read would only help the cases where application 
+> doesn't need to differentiate between samples and is happy to just 
+> continuously read chunks packed into pages one by one as fast as 
+> possible. In this case it doesn't need to lseek to 0, so auto-rewinding on 
+> kernel side would prevent it from slowing down.
 
-this happens on 2.4.22 and 2.6.0-test9-bk20.
-I only did investigate this error on 2.6.0-test9-bk20. System is really hard locked. nmi oopser doesn´t help. yenta_socket driver is compiled as modul. after loading the driver the system hard locks after an undefined period of time (between few secounds and 10 minutes - this is strange!) 
-
-i enabled debug info in yenta_socket driver. i had a quick look at the init sequence that is done to config space and cb_registers. looks ok, but i will have a closer look at this, spec is available. 
-I already did some basic testings, so for example the last entry written to syslog has got a to differnet time compared with time system crashes.
-i disabled the register_socket call (in probe), so i only got the init seqeunce -> still crashes.
-i did a printk(" i am in this function") in various places, so in the interrupt handler. -> still no entries in syslog.
-
-Next thing I want to known: Does this driver work for someone? It is this device:
-
-"CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_1410, TI1250),"
-
-This happens on an acer laptop.
-
-with kind regards
-Thomas Meyer
+If you're going to repeatedly read from 0 pread() sounds like a good
+alternative to read() + lseek(), plus no kernel changes required to
+get rid of the lseek().
 
 
-
-
-
-
-
+-- wli

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbRAVHey>; Mon, 22 Jan 2001 02:34:54 -0500
+	id <S129413AbRAVHxs>; Mon, 22 Jan 2001 02:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRAVHee>; Mon, 22 Jan 2001 02:34:34 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:41990 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129842AbRAVHeX>; Mon, 22 Jan 2001 02:34:23 -0500
-Date: Mon, 22 Jan 2001 07:34:09 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Rainer Mager <rmager@vgkk.com>
-cc: <linux-kernel@vger.kernel.org>
+	id <S129532AbRAVHx2>; Mon, 22 Jan 2001 02:53:28 -0500
+Received: from 13dyn249.delft.casema.net ([212.64.76.249]:1554 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129413AbRAVHxR>; Mon, 22 Jan 2001 02:53:17 -0500
+Message-Id: <200101220753.IAA12360@cave.bitwizard.nl>
 Subject: Re: Is this kernel related (signal 11)?
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGOEJOCNAA.rmager@vgkk.com>
-Message-ID: <Pine.LNX.4.30.0101220725550.8352-100000@imladris.demon.co.uk>
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGOEJOCNAA.rmager@vgkk.com> from Rainer Mager
+ at "Jan 22, 2001 02:17:53 pm"
+To: Rainer Mager <rmager@vgkk.com>
+Date: Mon, 22 Jan 2001 08:53:13 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2001, Rainer Mager wrote:
+Rainer Mager wrote:
 
-> 	I brought up this issue last month and had some response but as
-> of yet my particular problem still exists. In brief, X windows dies
-> with signal 11. I have done quite a bit of testing and this does not
-> seem to be a hardware issue. Also, I have never managed to get a
-> signal 11 error when not running X.
+> that it is likely a hardware or kernel problem. So, my question is,
+> how can I pin point the problem? Is this likely to be a kernel
+> issue?
 
-Would this be an SMP IA32 box with glibc 2.2? I have two such boxen 
-showing exactly the same behaviour, although I can't reproduce it at will.
+No, not hardware. No not kernel. 
 
-It happens even when I use the same kernel and XFree86 binaries which were
-working perfectly before the upgrade. The LDT handling fixes which were
-added between 2.4.0-prerelease and the real 2.4.0 appeared to make this
-_slightly_ less frequent, but I still rarely have an X server uptime of
-more than a few days.
+Harware problems are normally not reproducable. Can you attach a
+debugger to your X server, and catch it when things go bad? (And
+give the Xfree86 people a backtrace)
+
+		Roger. 
 
 -- 
-dwmw2
-
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

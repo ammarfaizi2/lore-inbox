@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVCAPgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVCAPi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVCAPgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 10:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCAPgo
+	id S261943AbVCAPi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 10:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVCAPi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 10:36:44 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:1721 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261941AbVCAPgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 10:36:42 -0500
-Message-ID: <42248BA1.8080206@grupopie.com>
-Date: Tue, 01 Mar 2005 15:34:57 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Writng daemon and wake up on demand.
-References: <Pine.LNX.4.60.0503012038170.13310@lantana.cs.iitm.ernet.in>
-In-Reply-To: <Pine.LNX.4.60.0503012038170.13310@lantana.cs.iitm.ernet.in>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 10:38:58 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:54622 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S261943AbVCAPhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 10:37:22 -0500
+Date: Tue, 1 Mar 2005 10:37:21 -0500
+From: Jeffrey Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH 2/4] selinux: internal inode loop needs IS_PRIVATE test
+Message-ID: <20050301153721.GC18215@locomotive.unixthugs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.111.19-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Payasam Manohar wrote:
-> 
-> I have two doubts,
->    1) Can we design a linux daemon which will call some shell scripts.
->    2) How to call this daemon from the keyboard driver  and how
->       to kill it on demand.
+This patch applies the IS_PRIVATE test to the selinux internal inode loop.
 
-I don't want to be impolite, but you're not following the mailing list 
-etiquette *at all*.
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 
-In the last five days you sent 15 messages to the list, and you still 
-haven't been able to tell what you're trying to accomplish.
-
-So I can only recommend a few urls:
-
-http://www.tux.org/lkml/
-
-http://www.kernelnewbies.org/
-
-http://linuxconsole.sourceforge.net/input/input.html
-
+diff -ruNpX dontdiff linux-2.6.9.base/security/selinux/hooks.c linux-2.6.9.private/security/selinux/hooks.c
+--- linux-2.6.9.base/security/selinux/hooks.c	2004-11-19 14:40:58.000000000 -0500
++++ linux-2.6.9.private/security/selinux/hooks.c	2004-12-01 14:38:50.000000000 -0500
+@@ -595,7 +595,8 @@ next_inode:
+ 		spin_unlock(&sbsec->isec_lock);
+ 		inode = igrab(inode);
+ 		if (inode) {
+-			inode_doinit(inode);
++			if (!IS_PRIVATE (inode))
++				inode_doinit(inode);
+ 			iput(inode);
+ 		}
+ 		spin_lock(&sbsec->isec_lock);
 -- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+Jeff Mahoney
+SuSE Labs

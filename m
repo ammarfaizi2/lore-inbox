@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbUA0Kkg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 05:40:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbUA0Kkg
+	id S263290AbUA0KdX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 05:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbUA0KdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 05:40:36 -0500
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:20734 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S263452AbUA0Kke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 05:40:34 -0500
-From: johann lombardi <johann.lombardi@bull.net>
-Reply-To: johann.lombardi@bull.net
-Organization: BULL S.A.
-To: Robert van Herk <rherk@students.cs.uu.nl>, linux-kernel@vger.kernel.org
-Subject: Re: PS/2 Mouse problems with kernel 2.6.2_rc2
-Date: Tue, 27 Jan 2004 11:39:17 +0100
-User-Agent: KMail/1.5.4
-References: <40163820.9070105@students.cs.uu.nl>
-In-Reply-To: <40163820.9070105@students.cs.uu.nl>
+	Tue, 27 Jan 2004 05:33:23 -0500
+Received: from web40614.mail.yahoo.com ([66.218.78.151]:54952 "HELO
+	web40614.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263290AbUA0KdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 05:33:22 -0500
+Message-ID: <20040127103321.70935.qmail@web40614.mail.yahoo.com>
+Date: Tue, 27 Jan 2004 11:33:21 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: [uPATCH] ufs.txt update
+To: linux-kernel@vger.kernel.org
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	=?ISO-8859-1?Q?=20=22Fr=E9d=E9ric=5FL.=5FW.=5F?==?ISO-8859-1?Q?Meunier=22?= <1@pervalidus.net>
+									^-missing end of address
+In-Reply-To: <Pine.LNX.4.58.0401270409450.949@pervalidus.dyndns.org>
 MIME-Version: 1.0
-Message-Id: <200401271139.17761.johann.lombardi@bull.net>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/01/2004 11:42:52,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/01/2004 11:46:02,
-	Serialize complete at 27/01/2004 11:46:02
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone have any clues? For example: am I doing wrong or is it a
-> kernel bug ;-)?
-Are you using DMA with your disk?
-For my part, "hdparm -d1 /dev/xxx" solves the problem.
+ --- Frédéric_L._W._Meunier <1@pervalidus.net> a écrit : > On
+Tue, 27 Jan 2004, GOTO Masanori wrote:
+> 
+> > At Sun, 25 Jan 2004 09:26:21 +0100,
+> > Jochen Hein wrote:
+>
+> > This patch updates typos and HP-UX description in
+> > Documentation/filesystems/ufs.txt, suggested by
+> Andries.Brouwer@cwi.nl
+> > and Jochen Hein <jochen@jochen.org>.
+> 
+> Someone could also add some notes to ufs.txt and the Configure
+> entry for 2.4 and 2.6 about the lack of UFS2 support, which is
+> the default since FreeBSD 5.1.
+> 
 
-Johann
+yeah.
+... and about the missing write support for solaris x86 ufs 
+partition ... :-(
 
+
+
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
+
+_________________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSJOPQW>; Tue, 15 Oct 2002 11:16:22 -0400
+	id <S264655AbSJOP26>; Tue, 15 Oct 2002 11:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSJOPQU>; Tue, 15 Oct 2002 11:16:20 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:43531 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S262924AbSJOPQR>;
-	Tue, 15 Oct 2002 11:16:17 -0400
-Date: Tue, 15 Oct 2002 17:22:01 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, kai.germaschewski@gmx.de,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.5.42 broke ARM zImage/Image
-Message-ID: <20021015172201.A1406@mars.ravnborg.org>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org, kai.germaschewski@gmx.de,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20021012123256.C12955@flint.arm.linux.org.uk> <20021012233818.A9394@mars.ravnborg.org> <20021015002243.F2902@flint.arm.linux.org.uk>
+	id <S264656AbSJOP26>; Tue, 15 Oct 2002 11:28:58 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:23745 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S264655AbSJOP2z>; Tue, 15 Oct 2002 11:28:55 -0400
+Subject: Problem with jfs and dbench 80 (ext3, reiserfs, xfs are OK)
+From: Steven Cole <elenstev@mesatop.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 15 Oct 2002 09:29:54 -0600
+Message-Id: <1034695794.13083.27.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021015002243.F2902@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Oct 15, 2002 at 12:22:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:22:43AM +0100, Russell King wrote:
-> Sam & Kai, lkml and others who join us on this happy day.
-> 
-> So, basically, I'm screwed at the moment, unless someone has anything
-> else to suggest.
-How about a simple workaround for now:
+I have run into problems running dbench with 80 clients
+on a jfs partition.
 
-$(obj)/vmlinux: $(obj)/$(HEAD) $(obj)/piggy.o $(obj)/vmlinux.lds \
-                $(addprefix $(obj)/, $(OBJS))
-	cp $(obj)/piggy.o .
-        $(call if_changed,ld)
-	rm piggy.o
+Using 2.5.41-bk2 over the weekend, I ran dbench with up
+to 128 clients on a single PIII, IDE machine running X.
 
-I onther words just make a temporary copy of piggy.o in current directory.
-No changes needed in .lds file.
+Dbench runs on ext3, reiserfs, and xfs partitions were
+completely successful.  I was able to run dbench with
+1,2,3,4,6,10,12,16,20,24,28,32,36,40,44,48,52,56,64,80,96,112
+and 128 clients.
 
-Untested!
+However on the jfs partition, the maxiumum dbench run was 64 clients.
+At 80 clients, the dbench output stopped for many hours. This was
+repeatable. Twice, the increasing client dbench script stopped at 80.
 
-I do not know the linker command language, but I assume there is some
-way to do this even with piggy.o located somewhere else than current
-directory.
+Here is a snippet from running ps with these options:
 
-My suggestion is a simple workaround to make the arm kernel compile, not
-something I would like to see as a permanent solution.
+ps -ewo user,pid,priority,%cpu,stat,command,wchan
 
-	Sam
+root     11058  15  0.0 DW   [pdflush]        lmGroupCommit
+steven   11060  16  0.0 S    time -v ./dbench wait4
+steven   11061  15  0.0 S    ./dbench 80      wait4
+steven   11062  15  0.0 D    ./dbench 80      TXN_SLEEP_DROP_LOCK
+steven   11065  15  0.0 D    ./dbench 80      TXN_SLEEP_DROP_LOCK
+steven   11068  15  0.0 D    ./dbench 80      lmGroupCommit
+
+This was with dbench running on a jfs partition (/dev/hda11).
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+/dev/hda1     ext3    236M   56M  168M  25% /
+/dev/hda9     ext3     20G  7.3G   13G  38% /home
+/dev/hda11     jfs    3.9G  478M  3.5G  13% /share_jfs
+/dev/hda10
+          reiserfs    4.0G   37M  3.9G   1% /share_reiser
+/dev/hda12     xfs    4.8G  253M  4.6G   6% /share_xfs
+/dev/hda8     ext3    236M  4.7M  219M   3% /tmp
+/dev/hda6     ext3    2.9G  1.3G  1.5G  47% /usr
+/dev/hda7     ext3    479M   60M  395M  14% /var
+
+I now find that if I try to ls the dbench directory on
+/share_jfs, the ls command hangs.  I was able to ls directories
+above /share_jfs/steven/dbench earlier but now any ls command
+on /share_jfs hangs.  If I know the filename, I can cat the file,
+for example my log of the dbench run, so reading of individual files
+is still working.
+
+Steven
+
+
+
+

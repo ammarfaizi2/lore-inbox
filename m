@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269639AbUJAAlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUJAAnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbUJAAlH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269643AbUJAAlH
+	id S269641AbUJAAnL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbUJAAnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:41:07 -0400
-Received: from pop.gmx.net ([213.165.64.20]:63959 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269639AbUJAAlB (ORCPT
+	Thu, 30 Sep 2004 20:43:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:12928 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269641AbUJAAnC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:41:01 -0400
-X-Authenticated: #135941
-Message-ID: <415CA7A9.2070703@gmx.de>
-Date: Fri, 01 Oct 2004 02:41:13 +0200
-From: Arik Funke <arik.funke@gmx.de>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Via VT82C597: Possible to get USB to work reliably?
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 30 Sep 2004 20:43:02 -0400
+Message-ID: <7f800d9f04093017435b303f6e@mail.gmail.com>
+Date: Thu, 30 Sep 2004 17:43:00 -0700
+From: Andre Eisenbach <int2str@gmail.com>
+Reply-To: Andre Eisenbach <int2str@gmail.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: USB (OHCI) not working without pci=routeirq
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409241033.09289.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <7f800d9f040923102315e8d400@mail.gmail.com>
+	 <200409241033.09289.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Sorry for the late reply ... 
 
-Please CC any replys to be personally as the volume of this mailinglist
-is unfortunately too much for my free account. Thanks.
+On Fri, 24 Sep 2004 10:33:09 -0600, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> Can you try this whitespace-damaged patch to see whether you're
+> seeing the same issue I was?  If this patch fixes it, please post
+> the "lspci -n" output for your USB controller, so we can add a
+> quirk for it.
 
-Hello together,
+Yes, this patch fixes the problem.
+I've submitted a different patch based on the testing results (Email
+subject: [PATCH] ohci_hcd: ALi USB M5237 host controller init quirk),
+which enables the quirk for my USB controller. That hopefully will
+save you some work.
 
-during the last 1.5 weeks I have lost a lot of hair over following .
+The lspci -n output (for reference) is:
+0000:00:02.0 Class 0c03: 10b9:5237 (rev 03)
 
-BACKGROUND: I have a FIC 2012 mainboard with uses the VIA VT82C597
-chipset. Attached to the usb port is a usb memory pen drive which serves
-as the root device.
+Which equals:
+PCI_VENDOR_ID_AL / PCI_DEVICE_ID_AL_M5237
 
-PROBLEM: USB produces gets bulk transfer message timeouts for earlier
-kernels ~2.4.6. Or inconsistent links (looses link after some time) for
-newer kernels ~2.6.7 (messages similar to "refusing I/O to device being
-removed" or "refusing I/O to dead device"). I have tried kernels until
-2.6.9-rc2 (could not get to run at all).
-
-After lots of research I realized that usb problems with via seem to be
-a very common problem but could not find anything definitive.
-
-Can anybody tell me whether this chipset works with any kernel - and if
-yes with which? I guess I have to use a different mainboard!?
-
-Thank you very much in advace!
-
-Cheers,
-Arik
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBXKep//PXyz2NiW8RAjeDAJ9WhgHaSGb7DzFB3PzlLXPvg0OemwCdHOEF
-Z+lbtYIt49KOjEy1X58asaE=
-=kL2X
------END PGP SIGNATURE-----
+Thanks,
+    Andre Eisenbach

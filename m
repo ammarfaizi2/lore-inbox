@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSE2CtC>; Tue, 28 May 2002 22:49:02 -0400
+	id <S313201AbSE2C5F>; Tue, 28 May 2002 22:57:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313201AbSE2CtB>; Tue, 28 May 2002 22:49:01 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:51617 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S313190AbSE2CtB>;
-	Tue, 28 May 2002 22:49:01 -0400
-Date: Wed, 29 May 2002 12:48:44 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Stephan von Krawczynski <skraw@ithnet.com>
+	id <S313202AbSE2C5E>; Tue, 28 May 2002 22:57:04 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38894 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S313201AbSE2C5D>; Tue, 28 May 2002 22:57:03 -0400
+Subject: Re: [PATCH] updated O(1) scheduler for 2.4
+From: Robert Love <rml@mvista.com>
+To: "J.A. Magallon" <jamagallon@able.es>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: file locks in 2.4.18
-Message-Id: <20020529124844.7adb15b4.sfr@canb.auug.org.au>
-In-Reply-To: <20020528163358.51e33760.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20020524160223.GA1761@werewolf.able.es>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 May 2002 19:57:00 -0700
+Message-Id: <1022641021.23427.329.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephan,
+On Fri, 2002-05-24 at 09:02, J.A. Magallon wrote:
 
-On Tue, 28 May 2002 16:33:58 +0200 Stephan von Krawczynski <skraw@ithnet.com> wrote:
->
-> what is the preferred way to increase the maximum number of locks per
-> file in 2.4.18 (and above :-)? Is this fs-type-dependant? My concern is
-> reiserfs 3.6. I found out the hard way that there is a max of around 128
-> currently...
+> I had to make this to get it built:
+> <snip>
 
-Are you referring to fcntl locks?  If so what are the symptoms of not
-being able to get a lock?  As far as I am aware, there should be no limit
-on the number of locks per file (except memory, of course).  There is a
-per process limit on the number of file locks, but it is infinite by default.
+Thanks, I have put these changes into the 2.4.19-pre9 version of the
+patch which is available at:
 
-The file system can place restrictions on file locking, but I am
-pretty sure that reiserfs does not.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+	http://www.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/sched-O1-rml-2.4.19-pre9-1.patch
+
+Hopefully Alan will put out a 2.4.19-pre9-ac1 with the last of the bits
+I pushed him.
+
+	Robert Love
+

@@ -1,71 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTIZKYL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 06:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTIZKYK
+	id S261368AbTIZK23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 06:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTIZK23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 06:24:10 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:12433 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262051AbTIZKYH (ORCPT
+	Fri, 26 Sep 2003 06:28:29 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:42385 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S261368AbTIZK20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 06:24:07 -0400
-Date: Fri, 26 Sep 2003 12:24:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Keyboard oddness.
-Message-ID: <20030926102403.GA8864@ucw.cz>
-References: <1064569422.21735.11.camel@ulysse.olympe.o2t>
+	Fri, 26 Sep 2003 06:28:26 -0400
+Date: Fri, 26 Sep 2003 12:28:22 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: mru@users.sourceforge.net (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmware in Linux 2.6
+Message-Id: <20030926122822.27a7332d.martin.zwickel@technotrend.de>
+In-Reply-To: <yw1xwubvq3vq.fsf@users.sourceforge.net>
+References: <yw1xwubvq3vq.fsf@users.sourceforge.net>
+Organization: TechnoTrend AG
+X-Mailer: Sylpheed version 0.9.4claws17 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.0-test4 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064569422.21735.11.camel@ulysse.olympe.o2t>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__26_Sep_2003_12_28_22_+0200_sXN+t2NA2wYkX./6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 11:43:43AM +0200, Nicolas Mailhot wrote:
-> Vojtech Pavlik  wrote:
-> 
-> |> Many people have reported missing key releases, and, as a consequence
-> | of that,
-> | > stuck keys. Your reports feel a bit different: the e0 is sometimes lost from
-> | > a key press, sometimes from a key release.
-> 
-> | I'm wondering if it could be a bug in the i8042.c driver ...
-> 
-> This is worse than that. I'm seing the same kind of bug on a pure HID+EHCI setup 
-> and I've seen other reports of USB problems on the lists these past months.
+--Signature=_Fri__26_Sep_2003_12_28_22_+0200_sXN+t2NA2wYkX./6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Well, the autorepeat-gone-bonkers is just a symptom, and a likely one,
-not a cause. Few people will notice a missed keypress, just assume a bad
-contact on the key, but a missing key release simply must cause infinite
-autorepeat until another (or the same) key is pressed and released.
+On Fri, 26 Sep 2003 11:46:01 +0200
+mru@users.sourceforge.net (M=E5ns Rullg=E5rd) bubbled:
 
-> I can't just believe everyone and his cat has suddenly a faulty/broken keyboard.
-> 
-> The fact is software autorepeat seems extremely brittle in 2.6 and goes nuts every
-> once in a while for *everyone* (and I also seem to remember this was not always the 
-> case - the first 2.5 I tried didn't go mad on my setup this only happened later in 
-> 2.5.7x times I think). Now maybe the underlying keyboard drivers are feeding it junk
-> I don't know but this is no justification for the way it's been misbehaving (crap 
-> hardware happens, glitchy hardware is common but the autorepeat code seems to expect
-> ideal behaviour that only happens on paper)
-> 
-> Couldn't it at least detect there's a problem ? Most people I know do not press a key
-> 2000+ times in a row during normal activity.
+>=20
+> Is it possible to use vmware with Linux 2.6?  The kernel modules
+> (obviously) fail to compile.
+>=20
 
-You do. Scrolling up/down in a document is one example. And there is no
-point to limit the repeat to say 80 or 200 characters. You would still
-hate having 80 repeated characters and then it stopping.
+Yes, it is.
+I use vmware 4.0.2.5592 with 2.6.0-t3.
+You just need the vmware-any-any-update40.tar.gz.
+Get it here: http://ftp.cvut.cz/vmware/vmware-any-any-update40.tar.gz
+unpack and copy it to vmware-src/lib/modules/source/
 
-The problem really is there is no way to detect it. My latest patches
-should fix this for AT keyboards by not using software autorepeat for
-them.
+hope this helps!
 
-Of course this won't fix any problems with USB, if there are still any.
-My USB keyboard works just perfectly, no problems with the autorepeat.
+Regards,
+Martin
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ps.: i use gentoo, and i just looked at the package build scripts.
+
+--=20
+MyExcuse:
+Terrorists crashed an airplane into the server room, have to remove /bin/la=
+den.
+(rm -rf /bin/laden)
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature=_Fri__26_Sep_2003_12_28_22_+0200_sXN+t2NA2wYkX./6
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/dBTGmjLYGS7fcG0RAh0LAKCxnhQO10p2BNfpaq6iFgF7kUwV7gCfayJM
+84gLkEM1juEeoMxGwdRaG7w=
+=acio
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__26_Sep_2003_12_28_22_+0200_sXN+t2NA2wYkX./6--

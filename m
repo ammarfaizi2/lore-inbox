@@ -1,69 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287040AbSALOxQ>; Sat, 12 Jan 2002 09:53:16 -0500
+	id <S287045AbSALO7p>; Sat, 12 Jan 2002 09:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287029AbSALOxF>; Sat, 12 Jan 2002 09:53:05 -0500
-Received: from waikiki.onda.com.br ([200.195.192.7]:957 "HELO
-	waikiki.onda.com.br") by vger.kernel.org with SMTP
-	id <S287011AbSALOxC>; Sat, 12 Jan 2002 09:53:02 -0500
-Reply-To: nada@onda.com.br
-From: nada@onda.com.br (Marco Casaroli)
-To: linux-kernel@vger.kernel.org
-Subject: Re:  Re: 2.4.17 oops - ext2/ext3 fs corruption (?)
-Date: Sat, 12 Jan 2002 12:52:57 -200
-Message-Id: <3c404dc90cf760.97643772@onda.com.br>
-In-Reply-To: <Pine.LNX.4.33.0201120619330.2686-100000@fire.dragonglen.invalid>
-X-Authenticated-IP: [200.192.166.240]
-X-Mailer: PHPost 1.07 (http://webgadgets.com/phpost/)
-MIME-version: 1.0
-Content-type: text/plain; charset="iso-8859-1"
+	id <S287048AbSALO7g>; Sat, 12 Jan 2002 09:59:36 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:21011 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S287045AbSALO7S>;
+	Sat, 12 Jan 2002 09:59:18 -0500
+Date: Sat, 12 Jan 2002 07:56:38 -0700
+From: yodaiken@fsmlabs.com
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, Rob Landley <landley@trommello.org>,
+        Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        nigel@nrg.org, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020112075638.A5098@hq.fsmlabs.com>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> <20020111220051.A2333@hq.fsmlabs.com> <3C4023A2.8B89C278@linux-m68k.org> <20020112052802.A3734@hq.fsmlabs.com> <3C40392F.C4E1EFF3@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C40392F.C4E1EFF3@linux-m68k.org>; from zippel@linux-m68k.org on Sat, Jan 12, 2002 at 02:25:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 6 Jan 2002, Daniel Phillips wrote:
+On Sat, Jan 12, 2002 at 02:25:03PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> > On January 6, 2002 12:31 am, Eric wrote:
-> > > On Sat, 5 Jan 2002, Andrew Morton wrote:
-> > > > Eric wrote:
-> > > > >
-> > > > > I seem to be having a reoccurring problem with my Red Hat 7.2 system
-> > > > > running kernel 2.4.17.  Four times now, I have seen the kernel generate an
-> > > > > oops.  After the oops, I find that one of file systems is no longer sane.
-> > > > > The effect that I see is a Segmentation Fault when things like ls or du
-> > > > > some directory (the directory is never the same).  Also, when the system
-> > > > > is going down for a reboot, it is unable to umount the file system.  The
-> > > > > umount command returns a "bad lseek" error.
-> > > >
-> > > > Everything here points at failing hardware.  Probably memory errors.
-> > > > People say that memtest86 is good at detecting these things.  Another
-> > > > way to verify this is to move the same setup onto a different computer...
+> yodaiken@fsmlabs.com wrote:
+> 
+> > > > SCHED_FIFO leads to
+> > > >                 niced app 1 in K mode gets Sem A
+> > > >                 SCHED_FIFO app prempts and blocks on  Sem A
+> > > >                 whoops! app 2 in K more preempts niced app 1
 > > >
-> > > I ran memtest86 on the system and let it complete 4 passes before I
-> > > stopped it.  It found no errors.  Unfortunately, I do not have another
-> > > system available to test this on.  Are there any other diagnostics I can
-> > > run to determine if this is truly a hardware problem?
+> > > Please explain what's different without the preempt patch.
+> > 
+> > See that "preempt" in line 2 . Linux does not
+> > preempt kernel mode processes otherwise. The beauty of the
+> > non-preemptive kernel is that "in K mode every process makes progress"
+> > and even the "niced app" will complete its use of SemA and
+> > release it in one run.
+> 
+> The point of using semaphores is that one can sleep while holding them,
+> whether this is forced by preemption or voluntary makes no difference.
+
+No. The point of using semaphores is that one can sleep while
+_waiting_ for the resource. Sleeping while holding semaphores is
+a different kettle of lampreys entirely.
+And it makes a very big difference
+A:
+	get sem on memory pool
+		do something horrible to pool
+	release sem on memory pool
+
+In a preemptive kernel this can cause a deadlock. In a non
+preemptive it cannot. You are correct in that 
+B:
+	get sem on memory pool
+		do potentially blocking operations
+	release sem
+is also dangerous - but I don't think that helps your case.
+To fix B, we can enforce a coding rule - one of the reasons why
+we have all those atomic ops in the kernel is to be able to 
+avoid this problem.
+To fix A in a preemptive kernel we need to start messing about with
+priorities and that's a major error.
+"The current kernel has too many places where processes
+can sleep while holding semaphores so we should always have the 
+potential of blocking with held semaphores" is, to me, a backwards
+argument.
+
+> > If you have a reasonably fair scheduler you
+> > can make very useful analysis with Linux now of the form
 > >
-> > This doesn't smell like hardware to me, since your two backtraces are identical:
+> >         Under 50 active proceses in the system means that in every
+> >         2 second interval every process
+> >         will get at least 10ms of time to run.
+> > 
+> > That's a very valuable property and it goes away in a preemptive kernel
+> > to get you something vague.
 > 
-> In an attempt to try a get more information about what is going on, I
-> tried compiling a new kernel with the options CONFIG_DEBUG_KERNEL and
-> CONFIG_DEBUG_BUGVERBOSE turned on.  However, this seems to have made
-> things worse.  Now, in about 6-12 hours from boot-up, the system will hang
-> completely with no information from the kernel on the console.  The only
-> way to get out it is to use the reset button on the front of the box.
-> 
-> Is there anything else I can do to try and determine if this is a kernel
-> problem?  Or at least get more information about what is going on?
-> 
-> Thanks,
-> 
-> Eric
+> How is that changed? AFAIK inserting more schedule points does not
+> change the behaviour of the scheduler. The niced app will still get its
+> time.
 
-I had the same problem with ext3fs
-The problem was when trying to READ from the partition and not when trying to write. That was interesting.
-I copied a lot of files to my ext3 partition (5 gig) and when I tried to copy it back to the other partition(vfat) there were some input-output errors and i got all the data lost, I had to format the ext3 partition and install linux again.
-So, the problem does not seem to be hardware problem.
-I am traveling now, not in my house, so I can't test it one more time, and when I'll be back probably there will be a fixed kernel, but if not, I'll test it again anyway.
+How many times can an app be preempted? In a non preempt kernel
+is can be preempted during user mode at timer frequency and no more
+and it cannot be preempted during kernel mode. So
+	while(1){
+		read mpeg data
+		process
+		write bitmap
+		}
 
-Marco
+Assuming Andrew does not get too ambitious about read/write granularity, once this
+process is scheduled on a non-preempt system it will always make progress. The non
+preempt kernel says, "your kernel request will complete - if we have resources".
+A preempt kernel says: "well, if nobody more important activates you get some time"
+Now you do the analysis based on the computation of "goodness" to show that there is
+a bound on preemption count during an execution of this process. I don't want to 
+have to think that hard. 
+Let's suppose the Gnome desktop constantly creates and 
+destroys new fresh i/o bound tasks to do something. So with the old fashioned non
+preempt (ignoring Andrew) we get
+			wait no more than 1 second
+			I'm scheduled and start a read 
+			wait no more than one second
+			I'm scheduled and in user mode for at least 10milliseconds
+			wait no more than 1 second
+			I'm scheduled and do my write
+			...
+with preempt we get
+			wait no more than 1 second
+			I'm scheduled and start a read 
+				I'm preempted
+				read not done
+				come back for 2 microseconds
+				preempted again
+				haven't issued the damn read request yet 
+				ok a miracle happens, I finish the read request
+				go to usermode and an interrupt happens
+						well it would be stupid to have a goodness
+						function in a preempt kernel that lets a low
+						priority task finish its time slice so preempt
+				...
+
+> 
+> > So your argument is that I'm advocating Andrew Morton's patch which
+> > reduces latencies more than the preempt patch because I have a
+> > financial interest in not reducing latencies? Subtle.
+> 
+> Andrew's patch requires constant audition and Andrew can't audit all
+> drivers for possible problems. That doesn't mean Andrew's work is
+> wasted, since it identifies problems, which preempting can't solve, but
+> it will always be a hunt for the worst cases, where preempting goes for
+> the general case.
+
+the preempt requires constant auditing too - and more complex auditing.
+After all, a missed audit in Andrew will simply increase worst case timing.
+A missed audit in preempt will hang the system.
+
+> 
+> > In any case, motive has no bearing on a technical argument.
+> > Your motive could be to make the 68K look better by reducing
+> > performance on other processors for all I know.
+> 
+> I am more than busy to keep it running (together with a few others, who
+> are left) and more important I make no money of it.
+
+Come on! First of all, you are causing me a great deal of pain by making
+me struggle not to make some bad joke about the economics of Linux companies.
+More important, not making money has nothing to do with purity of motivation -
+don't you read this list?
+And how do I know that you haven't got a stockpile of 68K boards that may
+be worth big money once it's known that 68K linux is at the top of the heap?
+Much less plausible money making schemes have been tried.
+
+Seriously: for our business, a Linux kernel that can reliably run at millisecond
+level latencies is only good. If you could get a Linux kernel to run at 
+latencies of 100 microseconds worst case on a 486, I'd be a little more
+worried  but even then ...
+On a 800Mhz Athlon, RTLinux scheduling jitter is 17microseconds worst case right now.
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289192AbSASOV6>; Sat, 19 Jan 2002 09:21:58 -0500
+	id <S282967AbSASOvP>; Sat, 19 Jan 2002 09:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSASOVi>; Sat, 19 Jan 2002 09:21:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11279 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289192AbSASOV3>; Sat, 19 Jan 2002 09:21:29 -0500
-Subject: Re: kswapd kills linux box with kernel 2.4.17
-To: anishs@vsnl.com
-Date: Sat, 19 Jan 2002 14:33:29 +0000 (GMT)
-Cc: riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org,
-        vda@port.imtp.ilyichevsk.odessa.ua
-In-Reply-To: <001a01c1a0f0$c8416a50$3c00a8c0@baazee.com> from "Anish Srivastava" at Jan 19, 2002 07:24:10 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16RwYj-0001J3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S284144AbSASOvI>; Sat, 19 Jan 2002 09:51:08 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:59845 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S282967AbSASOut>; Sat, 19 Jan 2002 09:50:49 -0500
+Message-Id: <200201191450.g0JEoi75002538@tigger.cs.uni-dortmund.de>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors 
+In-Reply-To: Message from Miquel van Smoorenburg <miquels@cistron.nl> 
+   of "Sat, 19 Jan 2002 00:50:24 GMT." <a2afsg$73g$2@ncc1701.cistron.net> 
+Date: Sat, 19 Jan 2002 15:50:44 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mem:  8263740K av, 2967608K used, 5296132K free,       0K shrd,    6120K
-> buff
-> Swap: 2048248K av,       0K used, 2048248K free                 2530948K
-> cached
-> 
-> Now the cached part never gets freed and just keeps piling up & so does the
-> used memory.
+Miquel van Smoorenburg <miquels@cistron.nl> said:
 
-That is what I would expect up to a point. "Free" memory is wasted memory so
-it is better to let all the free memory fill up with any bits of disk data
-we have seen and might want again.
+[...]
 
-What actually matters (and sounds like 2.4.13 didnt do) is that at the point
-you need memory for other things like applications and disk buffers that are
-relevant to current usage the old stuff should rapidly get replaced by it.
+> There is no way to recreate a file with a nlink count of 0,
+> well that is until someone adds flink(fd, newpath) to the kernel.
 
+It stays around under /proc/<pid>/fd/<xxx>, so you could grab it there. It
+is _announced_ as a symlink to the deleted file, but you get its contents
+anyway. [2.4.18pre4]
+-- 
+Horst von Brand			     http://counter.li.org # 22616

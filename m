@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265068AbUEYTfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265079AbUEYThY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265068AbUEYTfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 15:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUEYTfe
+	id S265079AbUEYThY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 15:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYThY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 15:35:34 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46511 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265068AbUEYTfY (ORCPT
+	Tue, 25 May 2004 15:37:24 -0400
+Received: from cantor.suse.de ([195.135.220.2]:36052 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265079AbUEYTge (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 15:35:24 -0400
-Subject: how to safely not grab a semaphore when you already have it
-	(rename sem)
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1085513665.11307.56.camel@stevef95.austin.ibm.com>
+	Tue, 25 May 2004 15:36:34 -0400
+Date: Tue, 25 May 2004 21:34:58 +0200
+From: Olaf Hering <olh@suse.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: very low performance on SCSI disks if device node is in tmpfs
+Message-ID: <20040525193458.GA21120@suse.de>
+References: <20040525184732.GB26661@suse.de> <Pine.LNX.4.53.0405251457450.582@chaos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 25 May 2004 14:34:26 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0405251457450.582@chaos>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do you safely test and not grab a semaphore (ie if the kernel above
-you already has it ...) - without deadlock?
+ On Tue, May 25, Richard B. Johnson wrote unrelated stuff:
 
-Al Viro correctly noted that walking a tree to build a full path can not
-be safely done due to races with rename.   Unfortunately for some
-filesystems (including cifs), the only obvious way to protect against
-this would be to grab the rename sem for the superblock everywhere a
-full path is built e.g.
+did you actually try it?
 
-	down(&i_sb->s_vfs_rename_sem);
-
-but of course this would deadlock (vfs_rename calls at least 3 path
-based operations in a filesystem, all while holding the rename sem - in
-particular rename can make two lookup calls and a rename call into a vfs
-while holding the sem).   At least the lookup/revalidate path in the
-filesystem would require a check such as: 
-
-if(!we_are_called_from_sys_rename)
-	down(&i_sb->s_vfs_rename_sem);
-
-build_fullpath_from_dentry(dentry);
-
-if(!we_are_called_from_sys_rename)
-	up(&_sb->s_vfs_rename_sem);
-
-and there is no need to grab the semaphore in cifs_rename at all (it is
-already held by the caller).  Unfortuantely I don't know of any way to
-tell that we are in lookup/revalidate called from sys_rename other than
-trying to grab the rename sem and deadlocking.
-
-Alternatively, is there were a way to do something like:
-
-if(our task is not owner of rename sem) {
-	down(&i_sb->s_vfs_rename_sem);
-	build_fullpath_from_dentry(dentry);
-	up(&_sb->s_vfs_rename_sem); 
-} else /* our caller had already gotten rename sem */
-	build_fullpath_from_dentry(dentry);
-	
+(none):~ # /usr/bin/time dd if=/dev/sdb bs=1M count=123  of=/dev/null
+123+0 records in
+123+0 records out
+0.00user 0.75system 0:17.13elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
+(none):~ # /usr/bin/time dd if=/dev/sdb bs=1M count=123  of=/dev/null 
+123+0 records in
+123+0 records out
+0.00user 0.74system 0:15.66elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
+(none):~ # /usr/bin/time dd if=/dev/sdb bs=1M count=123  of=/dev/null 
+123+0 records in
+123+0 records out
+0.00user 0.78system 0:15.67elapsed 5%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
+(none):~ # /usr/bin/time dd if=/tmp/sdb bs=1M count=123  of=/dev/null 
+123+0 records in
+123+0 records out
+0.00user 0.47system 0:06.44elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
+(none):~ # /usr/bin/time dd if=/tmp/sdb bs=1M count=123  of=/dev/null 
+123+0 records in
+123+0 records out
+0.00user 0.47system 0:06.44elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
+(none):~ # /usr/bin/time dd if=/tmp/sdb bs=1M count=123  of=/dev/null 
+123+0 records in
+123+0 records out
+0.00user 0.50system 0:06.44elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+426minor)pagefaults 0swaps
 
 
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

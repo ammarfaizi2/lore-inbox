@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbTIHNlk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbTIHNlf
+	id S262443AbTIHNiz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbTIHNgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:41:35 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45186 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262399AbTIHNkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:40:05 -0400
-Subject: Re: Scaling noise
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Larry McVoy <lm@work.bitmover.com>, CaT <cat@zip.com.au>,
-       Larry McVoy <lm@bitmover.com>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030906150817.GB3944@openzaurus.ucw.cz>
-References: <20030903040327.GA10257@work.bitmover.com>
-	 <20030903041850.GA2978@krispykreme>
-	 <20030903042953.GC10257@work.bitmover.com>
-	 <20030903043355.GC2019@zip.com.au>
-	 <20030903050859.GD10257@work.bitmover.com>
-	 <20030906150817.GB3944@openzaurus.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063028321.21050.28.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 14:38:42 +0100
+	Mon, 8 Sep 2003 09:36:35 -0400
+Received: from ns.suse.de ([195.135.220.2]:38551 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262201AbTIHNdK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 09:33:10 -0400
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+References: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
+	<200309081503.20459.arnd@arndb.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: If I am elected, the concrete barriers around the WHITE HOUSE
+ will be replaced by tasteful foam replicas of ANN MARGARET!
+Date: Mon, 08 Sep 2003 15:33:08 +0200
+In-Reply-To: <200309081503.20459.arnd@arndb.de> (Arnd Bergmann's message of
+ "Mon, 8 Sep 2003 15:03:20 +0200")
+Message-ID: <jeptibxv57.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-09-06 at 16:08, Pavel Machek wrote:
-> Hi!
-> 
-> > Maybe this is a better way to get my point across.  Think about more CPUs
-> > on the same memory subsystem.  I've been trying to make this scaling point
-> 
-> The point of hyperthreading is that more virtual CPUs on same memory
-> subsystem can actually help stuff.
+Arnd Bergmann <arnd@arndb.de> writes:
 
-Its a way of exposing asynchronicity keeping the old instruction set.
-Its trying to make better use of the bandwidth available by having
-something else to schedule into stalls. Thats why HT is really good for
-code which is full of polling I/O, badly coded memory accesses but is
-worthless on perfectly tuned hand coded stuff which doesnt stall.
+> --- 1.1/include/asm-i386/ioctl.h	Tue Feb  5 18:39:44 2002
+> +++ edited/include/asm-i386/ioctl.h	Mon Sep  8 13:21:28 2003
+> @@ -52,11 +52,21 @@
+>  	 ((nr)   << _IOC_NRSHIFT) | \
+>  	 ((size) << _IOC_SIZESHIFT))
+>  
+> +/* provoke compile error for invalid uses of size argument */
+> +extern int __invalid_size_argument_for_IOC;
+> +#define _IOC_TYPECHECK(t) \
+> +	((sizeof(t) == sizeof(t[1]) && \
+> +	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
+> +	  sizeof(t) : __invalid_size_argument_for_IOC)
 
-Its great feature is that HT gets *more* not less useful as the CPU gets
-faster..
+This will fail when compiled unoptimized, which means that glibc could not
+use <asm/ioctls.h> any more.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbTF2Tln (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTF2Tlg
+	id S264144AbTF2Tn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 15:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTF2Tn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:41:36 -0400
-Received: from oak.sktc.net ([64.71.97.14]:21981 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id S264235AbTF2Tlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:41:32 -0400
-Message-ID: <3EFF4443.8080507@sktc.net>
-Date: Sun, 29 Jun 2003 14:55:47 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rmoser <mlmoser@comcast.net>
-CC: linux-kernel@vger.kernel.org
+	Sun, 29 Jun 2003 15:43:56 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2176 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263782AbTF2Tne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:43:34 -0400
+Date: Sun, 29 Jun 2003 21:06:22 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200306292006.h5TK6MsN000182@81-2-122-30.bradfords.org.uk>
+To: jamie@shareable.org, john@grabjohn.com
 Subject: Re: File System conversion -- ideas
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net> <200306291431080580.01CF24BF@smtp.comcast.net>
-In-Reply-To: <200306291431080580.01CF24BF@smtp.comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, mlmoser@comcast.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmoser wrote:
+> > > > that the only reason to do it would be if you
+> > > > could do it on a read-write filesystem without unmounting it.
+> > >
+> > > IMHO even if it requires the filesystem to be unmounted, it would
+> > > still be useful.  More challenging to use - you'd have to boot and run
+> > > from ramdisk, but much more useful than not being able to convert at all.
+> > 
+> > Only if it is the root filesystem, the filesystem of which generally
+> > isn't going to affect overall performance that much.
+>
+> ...now use a single "/" filesystem on most systems, with a tiny
+> "/boot" one to ensure booting.  With journalling, this risk of losing
+> data this way is much lower than it used to be, and the old reason for
+> using multiple partitions - to avoid having to fsck /usr - no longer applies.
 
-> Ass yourself for hours, each time risking making a typo and killing both
-> filesystems, or risking having the LVM resize die from a powerdrop or a kick
-> to the power button (sorry we don't all have immortal fault tolerance).  I actually
-> though about this one and figured it was too rediculously annoying to actually
-> bring up :-p
-> 
+Well, I prefer to have separate patitions to reduce fragmentation and
+increase flexibility, but I can see there are reasons for having a
+single root filesystem.
 
-> I've never used LVM, but I'll look at it one day.  If it's stable, that's good; I
-> don't use Windows.  I don't know exactly what LVM is but I have a pretty
-> good idea; it's been forever since I read the doc on it, I forgot what it said!
-> 
+> > > But useless unless you have a second disk lying around that you don't
+> > > use for anything but filesystem conversions.
+> > 
+> > Not at all.  You can just use unpartitioned space on your existing
+> > disk.
+>
+> So you have as much space unpartitioned on your disks as you are
+> actually using to store data?  I generally don't.
 
+I probably average about 20% of the disk partitioned in my single disk
+desktop boxes.
 
-Funny how, having never used LVM you have an opinion about it.
-
-I have. I have done EXACTLY what I described.
-
-First of all, do you REALLY think my way is any less failure prone, 
-especially in the presence of the possiblilty of power failure than any 
-other method? My method preserves a mountable, valid file system at each 
-step of the way - the resized downward of the old file system, the 
-resize upward of the new, the file copy.
-
-Secondly, if you are REALLY concerned about the manual aspect of what I 
-suggested, you can write a simple shell script to do the work.
-
-Third of all, the longest parts of the process I describe will be the 
-resize downward of the old file system and the copy of the data - the 
-LVM parts of this operation are pretty damn quick.
-
+John.

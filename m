@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264958AbUD2UNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUD2UUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264958AbUD2UNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 16:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUD2UNJ
+	id S264957AbUD2UUY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 16:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbUD2UUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:13:09 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20889 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264958AbUD2UND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:13:03 -0400
-Date: Thu, 29 Apr 2004 21:43:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: locking in psmouse
-Message-ID: <20040429194344.GB468@openzaurus.ucw.cz>
-References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net> <20040429095830.GD390@elf.ucw.cz> <200404290740.18182.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404290740.18182.dtor_core@ameritech.net>
-User-Agent: Mutt/1.3.27i
+	Thu, 29 Apr 2004 16:20:24 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:22278 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S264957AbUD2UUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:20:20 -0400
+Message-ID: <40916495.1060805@techsource.com>
+Date: Thu, 29 Apr 2004 16:24:53 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Giuliano Colla <copeca@copeca.dsnet.it>
+CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       hsflinux@lists.mbsi.ca, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
+ their	license
+References: <408DC0E0.7090500@gmx.net> <40914C35.1030802@copeca.dsnet.it>
+In-Reply-To: <40914C35.1030802@copeca.dsnet.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Anyway, locking still seems to be needed: 
-> > 
-> >         while (psmouse->cmdcnt && timeout--) {
-> > 
-> >                 if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_RESET_BAT &&
-> >                                 timeout > 100000) /* do not run in a endless loop */
-> >                         timeout = 100000; /* 1 sec */
-> > 
-> >                 if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_GETID &&
-> >                     psmouse->cmdbuf[1] != 0xab && psmouse->cmdbuf[1] != 0xac) {
-> >                         psmouse->cmdcnt = 0;
-> >                         break;
-> >                 }
-> > 
-> >                 spin_unlock_irq(&psmouse_lock);
-> >                 udelay(1);
-> >                 spin_lock_irq(&psmouse_lock);
-> >         }
-> > 
-> > racing with
-> > 
-> >         if (psmouse->cmdcnt) {
-> >                 psmouse->cmdbuf[--psmouse->cmdcnt] = data;
-> >                 goto out;
-> >         }
-> > 
-> > now... if each runs on different CPU, it can be possible that
-> > psmouse->cmdcnt is seen as 1 but data are not yet in
-> > psmouse->cmdbuf... Locking seems neccessary here.
+
+Giuliano Colla wrote:
+
+> As an end user, if I buy a full fledged modem, I get some amount of 
+> proprietary, non GPL, code  which executes within the board or the 
+> PCMCIA card of the modem. The GPL driver may even support the 
+> functionality of downloading a new version of *proprietary* code into 
+> the flash Eprom of the device. The GPL linux driver interfaces with it, 
+> and all is kosher.
+> On the other hand, I have the misfortune of being stuck with a 
+> soft-modem, roughly the *same* proprietary code is provided as a binary 
+> file, and a linux driver (source provided) interfaces with it. In that 
+> case the kernel is flagged as "tainted".
 > 
-> I see.. but this particular case can be resolved but rearranging the code to
-> write command response first and then decrementing the counter... and putting
-> a barrier? Or just make cmdcnt atomic... spin_lock_irq feels heavier than
-> absolutely necessary.
+> But in both cases, if the driver is poorly written, because of 
+> developer's inadequacy, or because of the proprietary code being poorly 
+> documented and/or implemented, my kernel may go nuts, be it tainted or not.
+> 
+> Can you honestly tell apart the two cases, if you don't make a it a case 
+> of "religion war"?
+> 
 
-cmdcnt would have to be atomic_t, ack too, state too, and
-you'd have to be very carefull with memory barriers...
-I guess spinlock is better solution.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+
+Firmware downloaded into a piece of hardware can't corrupt the kernel in 
+the host.
+
+(Unless it's a bus master which writes to random memory, which might be 
+possible, but there is hardware you can buy to watch PCI transactions.)
 

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129192AbRBUPt3>; Wed, 21 Feb 2001 10:49:29 -0500
+	id <S129051AbRBUQS3>; Wed, 21 Feb 2001 11:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129541AbRBUPtT>; Wed, 21 Feb 2001 10:49:19 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:6419 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129192AbRBUPtM>;
-	Wed, 21 Feb 2001 10:49:12 -0500
-To: Markus Germeier <mager@tzi.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        davem@redhat.com
-Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
-In-Reply-To: <E14VZCs-00023R-00@the-village.bc.nu> <d3g0h8nou5.fsf@lxplus015.cern.ch> <941yss9m3k.fsf@religion.informatik.uni-bremen.de>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 21 Feb 2001 16:48:27 +0100
-In-Reply-To: Markus Germeier's message of "21 Feb 2001 14:55:43 +0100"
-Message-ID: <d37l2knik4.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S129104AbRBUQSU>; Wed, 21 Feb 2001 11:18:20 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:4335 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129051AbRBUQSD>; Wed, 21 Feb 2001 11:18:03 -0500
+Date: Wed, 21 Feb 2001 17:16:56 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Matthias Kleine <Kleine_Matthias@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Maybe a bug
+In-Reply-To: <01021922344107.10203@orka>
+Message-ID: <Pine.GSO.3.96.1010221170212.4012B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Markus" == Markus Germeier <mager@tzi.de> writes:
+On Mon, 19 Feb 2001, Matthias Kleine wrote:
 
-Markus> Jes Sorensen <jes@linuxcare.com> writes:
->> I only see this for connections with incoming traffic where I don't
->> send something out (like irc), whereas unused ssh connections seem
->> to survive fine.
+> The problem appears on a machine using the pretty new ASUS CUVX-D Dual Socket 
+> 370 Motherboard, so there may be a chance for an unknown bug ;-). With NMI 
+> watchdog activated, a 2.4.x Kernel is not willing to boot on this machine, it 
+> just stops booting at a very early time, giving the latest message 
+> "activating NMI watchdog ..." and then blocking completely. Therefore, I set 
 
-Markus> Just for the record: My example was an idle ssh connection!
+ Hmm, you state the watchdog works from time to time and the log you
+provided confirms the statement -- it reports: 
 
-Markus> I believe Alan is correct. I can't remember having this
-Markus> problem with another linux box. I'll try to reproduce this
-Markus> with a linux box.
+> ..TIMER: vector=49 pin1=2 pin2=0
+> activating NMI Watchdog ... done.
 
-Hmmm I am seeing this with Linux boxes at the other end. Haven't tried
-talking to non Linux.
+What chipset do you use (check with lspci)?
 
-Jes
+ In any case the code should not hang there in any case -- it the watchdog
+appears stuck, it reports it and goes on.  A hang almost surely means
+hardware locked up. 
+
+> nmi_watchdog = 0, when the system boots properly, but leaves some crucial 
+> message in /var/log/messages:
+> 
+> Feb 19 19:37:17 delphin kernel: testing the IO APIC.......................
+> Feb 19 19:37:17 delphin kernel: 
+> Feb 19 19:37:17 delphin kernel:  WARNING: unexpected IO-APIC, please mail
+> Feb 19 19:37:17 delphin kernel:           to linux-smp@vger.kernel.org
+> Feb 19 19:37:17 delphin kernel: .................................... done.
+
+ No need to worry.  The code finds an unknown bit set in the version
+register (well, the bit is unknown to the code -- the bit is documented
+and we should mark it as such in the code soon, probably as a part of P4
+support).
+
+> Let me say, that the system seems to be usable after the boot, but when 
+> starting X, some strange drawings hush over the screen. Afterwards, X is 
+> running properly. Using a 2.2.x kernel this behaviour doesn't appear, with a 
+> 2.4.x kernel, it is reproducable.
+
+ Various reports seem to indicate XFree86 cannot cope with 2.4 SMP as it
+should.  It's possible they do not handle synchronization well. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272154AbTGYPgB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272155AbTGYPgA
+	id S272162AbTGYPnI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTGYPnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:36:00 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:50349 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S272154AbTGYPf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:35:59 -0400
-Date: Fri, 25 Jul 2003 17:51:01 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: John Bradford <john@grabjohn.com>, ecki-lkm@lina.inka.de,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: why the current kernel config menu layout is a mess
-Message-ID: <20030725155101.GE29152@louise.pinerecords.com>
-References: <200307251458.h6PEwAMD001065@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.53.0307251114590.26545@localhost.localdomain>
+	Fri, 25 Jul 2003 11:43:08 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:5536 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S272161AbTGYPnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:43:03 -0400
+Date: Fri, 25 Jul 2003 11:47:15 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
+       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725154715.GH1512@phunnypharm.org>
+References: <1059095616.1897.34.camel@torrey.et.myrio.com> <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725155355.GJ23196@ruvolo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307251114590.26545@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030725155355.GJ23196@ruvolo.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [rpjday@mindspring.com]
+On Fri, Jul 25, 2003 at 08:53:55AM -0700, Chris Ruvolo wrote:
+> On Fri, Jul 25, 2003 at 10:29:26AM -0400, Ben Collins wrote:
+> > Yeah. Which is usually the case for a successful ack packet. Something
+> > is clearing the list of pending packets, but I'm not sure what. Please
+> > revert the patches thus far and apply this patch. It should tell us
+> > where pending_packets is getting changed.
+> > 
+> > My best guess right now is that abort_timedouts is killing packets from
+> > the pending list too quickly. We'll cross that bridge when we see the
+> > results here.
 > 
-> > Maybe a completely new, out of kernel tree configurator would be worth
-> > thinking about, leaving the in-kernel configurator as a legacy option.
-> > I know the config system underwent a major overhaul during 2.5, but I
-> > think we could go even further.
-> 
-> that does it.  it's .procmailrc time for mr. bradford.  life is too
-> short to listen to people criticize things they don't even
-> understand.
+> Interesting.  I think you forgot the patch.  I'm guessing that this is what
+> it would have looked like.  Output follows.
 
-With all due respect, where tf do you get your pot?
+That's exactly what it looked like, and the info is exactly what I
+thought would be produced. Could you tell me the value for HZ on your
+system? Also try the patch I sent just prior to this email.
+
+
+Thanks, your testing is very helpful.
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/

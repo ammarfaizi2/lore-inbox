@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288342AbSACWVW>; Thu, 3 Jan 2002 17:21:22 -0500
+	id <S288344AbSACWYD>; Thu, 3 Jan 2002 17:24:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288343AbSACWVO>; Thu, 3 Jan 2002 17:21:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29706 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288342AbSACWU5>; Thu, 3 Jan 2002 17:20:57 -0500
-Subject: Re: ISA slot detection on PCI systems?
-To: mochel@osdl.org (Patrick Mochel)
-Date: Thu, 3 Jan 2002 22:31:30 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mail_ker@xarch.tu-graz.ac.at (Alex),
-        vonbrand@inf.utfsm.cl (Horst von Brand), davej@suse.de (Dave Jones),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <Pine.LNX.4.33.0201031419400.826-100000@segfault.osdlab.org> from "Patrick Mochel" at Jan 03, 2002 02:20:16 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288346AbSACWX6>; Thu, 3 Jan 2002 17:23:58 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:28166 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S288344AbSACWWy>;
+	Thu, 3 Jan 2002 17:22:54 -0500
+Date: Thu, 3 Jan 2002 15:17:20 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Who uses hdx=bswap or hdx=swapdata?
+Message-ID: <20020103151720.E20821@ftsoj.fsmlabs.com>
+In-Reply-To: <3C34D6FC.9090207@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16MGOY-0001Hj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C34D6FC.9090207@colorfullife.com>; from manfred@colorfullife.com on Thu, Jan 03, 2002 at 11:11:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > PnPBIOS also enumerates the legacy hardware that can be known about (ie
-> > is soldered down)
-> 
-> How do you derive that information? Some table, right? (Sorry, I haven't
-> RTFS yet).
+It used to be necessary on the IBM 830 CDROM but I think those have fallen
+into disrepair and have undergone many changes.  The 830's likely need that
+still but probably can't boot for other reasons now, though.
 
-You make BIOS32 calls
+} Is the hdx=bswap or hdx=swapdata option actually in use?
+} When is it needed?
+} The current implementation can cause data corruptions on SMP with PIO 
+} transfers:
+} It modifies the source buffer during disk writes, and these temporary
+} modifications (within the irq handler) are visible with mmap on SMP.
+} 
+} Is it possible to remove the option entirely, or should it be fixed?
+} 
+} --
+}     Manfred
+} 
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTAaPI1>; Fri, 31 Jan 2003 10:08:27 -0500
+	id <S261364AbTAaPLq>; Fri, 31 Jan 2003 10:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261370AbTAaPI0>; Fri, 31 Jan 2003 10:08:26 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:43994 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261368AbTAaPIZ>;
-	Fri, 31 Jan 2003 10:08:25 -0500
-Date: Fri, 31 Jan 2003 15:13:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, szepe@pinerecords.com,
-       linux-kernel@vger.kernel.org, arodland@noln.com
-Subject: Re: [PATCH] 2.5.59 morse code panics
-Message-ID: <20030131151348.GC15332@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	John Bradford <john@grabjohn.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, szepe@pinerecords.com,
-	linux-kernel@vger.kernel.org, arodland@noln.com
-References: <1044025785.1654.13.camel@irongate.swansea.linux.org.uk> <200301311429.h0VETx2h001209@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301311429.h0VETx2h001209@darkstar.example.net>
-User-Agent: Mutt/1.4i
+	id <S261398AbTAaPLq>; Fri, 31 Jan 2003 10:11:46 -0500
+Received: from relay01.valueweb.net ([216.219.253.235]:49597 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S261364AbTAaPLp>; Fri, 31 Jan 2003 10:11:45 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.5.59 morse code panics
+Date: Fri, 31 Jan 2003 10:21:06 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJKEBBEIAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030131132221.GA12834@codemonkey.org.uk>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 31, 2003 at 02:29:59PM +0000, John Bradford wrote:
+John Bradford wrote:
+>> Actually the Soundblaster idea might not be so funny as it originally
+>> sounds, (pun intended :-) ), because if you've got another machine
+>> nearby, with a microphone, you could actually turn up the volume, and
+>> de-code the morse on the other box.
 
- > The exact method that a crashed machine, in a rack, in a datacentre,
- > miles away from me, contacts me to let me know something is wrong
- > doesn't matter, but if a member of the datacentre staff can get a
- > detailed message to me, so much the better than just having the box
- > rebooted.  On the other hand, I don't actually want to have to listen
- > to ten minutes of morse code over the phone when another box could do
- > it for me.
+And Dave Jones replied:
+> Or you could put down the crackpipe and run a serial console between
+> the two boxes. Or even netconsole would make more sense
+> (and be a lot more reliable).
 
-That must be a pretty quiet datacentre. And what happens when more than
-one box starts beeping ?
+Oh, come now, Dave; be nice! This is fun stuff.
 
-		Dave
+A voice synthesizer would be even better than morse code.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+"I'm sorry Dave. I can't boot."
+
+Think Hal 9000, from 2001/2010! The kernel could detect a sound card at
+boot, and then tell us what broke. Very 22nd century, if you ask me.
+
+If sound is broken or nonexistent, we could fall back to Morse! Or electric
+shocks via a serial connection! The possibilities are endless.
+
+...Scott (Who thinks people here are much too serious sometimes)
+

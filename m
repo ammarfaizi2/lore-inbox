@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136478AbREGRwO>; Mon, 7 May 2001 13:52:14 -0400
+	id <S136463AbREGRpe>; Mon, 7 May 2001 13:45:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136468AbREGRwF>; Mon, 7 May 2001 13:52:05 -0400
-Received: from t2.redhat.com ([199.183.24.243]:3579 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136478AbREGRvz>; Mon, 7 May 2001 13:51:55 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE26F@orsmsx31.jf.intel.com> 
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE26F@orsmsx31.jf.intel.com> 
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-Date: Mon, 07 May 2001 18:51:40 +0100
-Message-ID: <12757.989257900@redhat.com>
+	id <S136466AbREGRpY>; Mon, 7 May 2001 13:45:24 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38665 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136463AbREGRpU>; Mon, 7 May 2001 13:45:20 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH][RFT] smbfs bugfixes for 2.4.4
+Date: 7 May 2001 10:44:59 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9d6mur$df1$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0103162326530.28939-200000@cola.teststation.com> <3AF4974C.D5D85498@baldauf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3AF4974C.D5D85498@baldauf.org>,
+Xuan Baldauf  <xuan--lkml@baldauf.org> wrote:
+>
+>it does not fix|work around the bug completely:
+>
+>1. windows: Create a file, e.g. with 741 bytes.
+>2. linux: "ls -la" will show you the file with the correct size (741)
+>3. linux: read the file into your smbfs cache (e.g. "less file")
+>4. windows: add some contents to the file, e.g. so that it is now 896 bytes
+>long
+>5. linux: "ls -la" will show you the file with the correct size (896)
+>6. linux: read the file (e.g. "less file")
+>
+>What you should see, on the linux box, are the new contents of the file. What
+>you will see are the old contents of the file plus a lot "^@^@^@^@^@^@^@"
+>(which mean null bytes) at the end of the old contents.
 
-randy.dunlap@intel.com said:
-> > echo "unsigned long main=0xf00fc7c8;" > f00fbug.c ; make f00fbug
+This is a different problem. Apparently the Linux client does not
+invalidate its caches sufficiently often. The smb client should at least
+do a "invalidate_inode_pages(inode);" when it notices that the file size
+has changed.
 
-> Yes, that's what the (SGI) program uses: 
-> http://lwn.net/2001/0329/a/ltp-f00f.php3
+It has code to do that in smb_revalidate_inode(), but it may be that
+something else refreshes the inode size _without_ doing the proper
+invalidation checks. Or maybe Urban broke that logic by mistake while
+fixing the other one ;)
 
-Restated on l-k for the benefit of anyone naïve enough to expect me to have 
-got it right... my original version would only work on the bigendian models. 
-For the rest, try:
-
-echo "unsigned main = 0xc8c70ff0;" > f00fbug.c ; make f00fbug
-
---
-dwmw2
-
-
+		Linus

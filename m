@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbTDUTud (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 15:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTDUTud
+	id S262258AbTDUT7F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 15:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTDUT7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 15:50:33 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29191 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261942AbTDUTub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 15:50:31 -0400
-Date: Mon, 21 Apr 2003 13:02:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Christoph Hellwig <hch@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "David S. Miller" <davem@redhat.com>, <Andries.Brouwer@cwi.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new system call mknod64
-In-Reply-To: <20030421193510.GQ10374@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0304211259120.17221-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Apr 2003 15:59:05 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:57579 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262258AbTDUT7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 15:59:04 -0400
+Message-Id: <200304212014.h3LKE4bP002830@pasta.boston.redhat.com>
+To: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.68 fs/ext3/super.c fix for orphan recovery error path
+Date: Mon, 21 Apr 2003 16:14:04 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen/Andrew, please consider applying this patch to reverse the order
+of checks in ext3_orphan_cleanup() for read-only mounts and prior errors.
 
-On Mon, 21 Apr 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> stat() family, ustat(2), quota syscall, ioctls that pass device numbers,
-> /dev/raw, RAID, probably process accounting.
-> 
-> FWIW, I believe that you are overestimating the amount of internal code
-> that cares about device numbers.
+The problem resolved by this patch is that if a root file system has an
+error recorded from a previous mount, and then (when rebooting) the orphan
+recovery procedure is initiated, the recovery is correctly skipped but the
+file system is incorrectly left in a writable state.
 
-I don't think so. I agree that it's not very many places, and in fact the 
-reason we currently do _not_ do dev_t replacement at system call boundary 
-is that it looks to be so rare that it's easier to always use the user 
-representation, and then always do the explicit MINOR/MAJOR in the places 
-that use dev_t.
+This causes the subsequent fsck to fail due to the root file system
+being dirty, and then requires manual intervention to get the system
+fully booted.
 
-I don't really care which way it is done (ie system call boundary or in 
-usage), and I'm happy with either - as long as it always _does_ get done, 
-and nobody ever uses the user representation that can have aliases for 
-anything important.
+Thanks in advance.  -ernie
 
-(My preference, quite frankly, is to always have major/minor be explicit, 
-and never deal with "dev_t" at all. Especially with a 64-bit dev_t it is 
-actually often _faster_ and _simpler_ to just carry major/minor around 
-explicitly because then gcc won't ever have to worry it's small deficient 
-brain about "unsigned long long".)
 
-		Linus
 
+diff -urpN linux-2.5.68/fs/ext3/super.c{.orig,}
+--- linux-2.5.68/fs/ext3/super.c.orig	2003-04-19 22:50:47.000000000 -0400
++++ linux-2.5.68/fs/ext3/super.c	2003-04-21 15:18:08.000000000 -0400
+@@ -982,12 +982,6 @@ static void ext3_orphan_cleanup (struct 
+ 		return;
+ 	}
+ 
+-	if (s_flags & MS_RDONLY) {
+-		printk(KERN_INFO "EXT3-fs: %s: orphan cleanup on readonly fs\n",
+-		       sb->s_id);
+-		sb->s_flags &= ~MS_RDONLY;
+-	}
+-
+ 	if (EXT3_SB(sb)->s_mount_state & EXT3_ERROR_FS) {
+ 		if (es->s_last_orphan)
+ 			jbd_debug(1, "Errors on filesystem, "
+@@ -997,6 +991,12 @@ static void ext3_orphan_cleanup (struct 
+ 		return;
+ 	}
+ 
++	if (s_flags & MS_RDONLY) {
++		printk(KERN_INFO "EXT3-fs: %s: orphan cleanup on readonly fs\n",
++		       sb->s_id);
++		sb->s_flags &= ~MS_RDONLY;
++	}
++
+ 	while (es->s_last_orphan) {
+ 		struct inode *inode;
+ 

@@ -1,40 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282959AbRK0VuI>; Tue, 27 Nov 2001 16:50:08 -0500
+	id <S282968AbRK0Vy6>; Tue, 27 Nov 2001 16:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282967AbRK0Vt6>; Tue, 27 Nov 2001 16:49:58 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:7870 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S282959AbRK0Vtx>; Tue, 27 Nov 2001 16:49:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Joachim.Franek@t-online.de (Joachim Franek)
-Reply-To: joachim.franek@t-online.de
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Date: Tue, 27 Nov 2001 17:30:33 +0100
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
-In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
-Organization: IBJF
+	id <S282973AbRK0Vyt>; Tue, 27 Nov 2001 16:54:49 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60166
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S282968AbRK0Vyk>; Tue, 27 Nov 2001 16:54:40 -0500
+Date: Tue, 27 Nov 2001 13:52:23 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <200111272128.fARLS6k02556@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Message-ID: <Pine.LNX.4.10.10111271342450.12581-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Message-Id: <01112717285101.03103@k72>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 27. November 2001 15:38 schrieb Martin A. Brooks:
-> > As far as I remember this was talked about earlier. Different mobos,
-> > chipsets, processor brands, but always IRQ 7. /me wonders.
->
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
->
-> Martin A. Brooks
->
->
 
-yes on my laptop: Mitac Mi6020 (with suse73)
+I strongly suggest you execute the extend tests in the smart-suite
+authored by a friend of mine that I have listed on my www.linux-ide.org.
 
-Joachim Franek
-Email: joachim.franek@t-online.de
-www.de-franek.de
+What you have done is trigger a process to have the device go into a
+selftest mode to perform a block test.  I would tell you more but I may
+have exposed myself already.
+
+Regards, you need to execute an extend smart offline test.
+Also be sure to query the smart logs.
+
+Respectfully,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+ 
+On Tue, 27 Nov 2001, Wayne Whitney wrote:
+
+> In mailing-lists.linux-kernel, Andre Hedrick wrote:
+> 
+> > By the time an ATA device gets to generating this message, either the bad
+> > block list is full or all reallocation sectors are used.  Unlike SCSI
+> > which has to be hand held, 90% of all errors are handle by the device.
+> 
+> Perhaps you or one of the other gurus could explain the following
+> observations, which I am sure that I and many other readers would find
+> very enlightening:
+> 
+> I have an IBM-DTLA-307045 drive connected to a PDC20265 controller on
+> an ia32 machine running 2.4.16.  After reading this discussion and
+> hearing about the problems that others have had with the IBM 75GXP
+> series, I thought that I should test out my drive to see if it is OK.
+> So I ran 'dd if=/dev/hde of=/dev/null bs=128k'.  Every thing went
+> fine, except for about five seconds in the middle, when the disk made
+> a lot of grinding sounds and the system was unresponsive.  That
+> generated the log messages messages appended below.
+> 
+> However, running the dd command again (after a reboot) produced no
+> errors.  So the drive remapped some bad sectors the first time
+> through?  The common wisdom here is that once you get to the point
+> where the drive reports a bad sector, you are in trouble.  If so, why
+> did the second dd command work OK?  I have had no other problems with
+> this drive.
+> 
+> Thanks, Wayne
+> 
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12939888, sector=12939804
+> end_request: I/O error, dev 21:00 (hde), sector 12939804
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12939888, sector=12939806
+> end_request: I/O error, dev 21:00 (hde), sector 12939806
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12939888, sector=12939808
+> end_request: I/O error, dev 21:00 (hde), sector 12939808
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12939888, sector=12939810
+> end_request: I/O error, dev 21:00 (hde), sector 12939810
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12939888, sector=12939812
+> end_request: I/O error, dev 21:00 (hde), sector 12939812
+> 
+

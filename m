@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312917AbSDTQo6>; Sat, 20 Apr 2002 12:44:58 -0400
+	id <S312962AbSDTQvs>; Sat, 20 Apr 2002 12:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312962AbSDTQo5>; Sat, 20 Apr 2002 12:44:57 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:60041 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S312917AbSDTQo5>;
-	Sat, 20 Apr 2002 12:44:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <garzik@havoc.gtf.org>
+	id <S312970AbSDTQvr>; Sat, 20 Apr 2002 12:51:47 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:14370 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312962AbSDTQvq>; Sat, 20 Apr 2002 12:51:46 -0400
+Message-Id: <5.1.0.14.2.20020420174422.00ad1390@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 20 Apr 2002 17:51:49 +0100
+To: Daniel Phillips <phillips@bonn-fries.net>
+From: Anton Altaparmakov <aia21@cantab.net>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Fri, 19 Apr 2002 18:45:32 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204200930360.11450-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ybVt-0000UV-00@starship>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16yb92-0000Tk-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 18:37, Linus Torvalds wrote:
-> On Sat, 20 Apr 2002, Jeff Garzik wrote:
-> > 
-> > Take your closed mind elsewhere.  I'm pretty sure Linus has more sense
-> > than to apply this patch.
-> 
-> Absolutely.
-> 
-> Like it or not, I personally use BK. I don't use CVS, and I don't use 
-> subversion. 
-> 
-> If anybody wants to maintain his own kernel, feel free to remove the 
-> documentation on how to interact with _me_. In such a kernel, those docs 
-> would obviously be meaningless. 
-> 
-> In fact, Daniel, if you had bothered to just even grep for CVS, you would 
-> have noticed that we've had CVS information for some other subprojects 
-> too, because _they_ happen to use CVS. Would you argue for removal of the 
-> CVS information in Documentation/filesystems/jfs.txt file?
-> 
-> And if not, then you're a hypocritical bastard with a religious agenda.
+At 17:21 19/04/02, Daniel Phillips wrote:
+>On Saturday 20 April 2002 18:13, Anton Altaparmakov wrote:
+> > Daniel,
+> >
+> > This is not documentation for bitkeeper but how to use bitkeeper
+> > effectively for kernel development. It happens to be DAMN USEFULL
+> > documentation at that for anyone wanting to use bitkeeper for kernel
+> > development so IMO it fully belongs in the kernel. Just like the
+> > SubmittingPatches document does, too. Or are you going to remove that 
+> as well?
+>
+>By that logic, we should also include the lkml FAQ in the kernel tree.  Should
+>we?
 
-Err, and if I to argue for it then I'm not?  That's easy I argue for it.
-Do you think the jfs team will object?
+The lkml FAQ is aimed at users, not developers. The bitkeeper and the 
+SubmittingPatches document are aimed at developers. I see a fundamental 
+difference here...
 
-Anyway, that was not serious, I will not argue for the removal of
-information on how to use CVS, and gpl'd tool, from the tree.  Even though
-I think the tree would be better off without it.  This is not an issue.
-A steady slide toward proprietary tools and behind-the-scenes development
-in cathedral-style is an issue.  This is not the Linux I knew, or thought
-I knew, it is more like FreeBSD.
+> > If you don't want to use bitkeeper you don't need to read this
+> > documentation. Just ignore it and stick with what is SubmittingPatches
+> > document.
+> >
+> > What's your problem?
+>
+>I am worried that a creeping takeover of the Linux hitherto-successful
+>development process is in progress, that concensus on this topic has not been
+>achieved, and that there is a split coming.  That would not be good.
+>
+>As always, what I do is in the interest of Linux and freedom.  That interest
+>is not served by driving a wedge firmly between two groups of Linux 
+>developers.
+>I hope you understand that I am a *moderate* with respect to this issue.
+
+The fact that some developers use bitkeeper has no effect on other 
+developers. Well ok, it means that the bk using developers can work faster 
+but that is not at issue here...
+
+I don't see why there should be any kind of split or anything like that. 
+Everything continues as before. It's just that some developers now have a 
+much easier life...
+
+Anton
+
 
 -- 
-Daniel
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

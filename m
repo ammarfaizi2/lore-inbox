@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbTDKQbW (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbTDKQbV (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:31:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56081 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261165AbTDKQbV (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 12:31:21 -0400
-Date: Fri, 11 Apr 2003 09:00:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel support for non-English user messages
-In-Reply-To: <200304110919_MC3-1-33FD-6E7@compuserve.com>
-Message-ID: <Pine.LNX.4.44.0304110859070.4153-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261258AbTDKQfk (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTDKQfk (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:35:40 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:28066 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261258AbTDKQfi (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 12:35:38 -0400
+Date: Fri, 11 Apr 2003 09:47:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Vagn Scott <vagn@ranok.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.67-bk2] depmod: *** Unresolved symbols in /lib/modules/2.5.67-bk2/kernel/drivers/usb/serial/visor.ko
+Message-ID: <20030411164745.GA1606@kroah.com>
+References: <E193fnx-0004Zp-00@Maya.ny.ranok.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E193fnx-0004Zp-00@Maya.ny.ranok.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 10, 2003 at 01:25:41PM -0400, Vagn Scott wrote:
+> config is below
+> Thu Apr 10 12:55:02 EDT 2003
+> 2.5.67
+> patch-2.5.67-bk2.bz2
 
-On Fri, 11 Apr 2003, Chuck Ebbert wrote:
-> 
->  (Of course there were drawbacks, too... when the leather belt driving
-> the Difference Engine broke, for example, it was every man for himself!)
+Does 2.5.67 work ok?
+There have not been any USB patches in -bk2 so I don't know what would
+be causing this.
 
-Before that last thing, you had me really worried for a while. I thought 
-you might be seriously in need of some mental evaluation when you claimed 
-that users "liked looking up error numbers in manuals".
+thanks,
 
-Whee. April first is long gone, but the jokers stay around.
-
-		Linus
-
+greg k-h

@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314468AbSDRVo7>; Thu, 18 Apr 2002 17:44:59 -0400
+	id <S314471AbSDRVpw>; Thu, 18 Apr 2002 17:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314471AbSDRVo6>; Thu, 18 Apr 2002 17:44:58 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:47620 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S314468AbSDRVo5>;
-	Thu, 18 Apr 2002 17:44:57 -0400
-Date: Thu, 18 Apr 2002 13:43:50 -0700
+	id <S314472AbSDRVpv>; Thu, 18 Apr 2002 17:45:51 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:48900 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314471AbSDRVps>;
+	Thu, 18 Apr 2002 17:45:48 -0400
+Date: Thu, 18 Apr 2002 13:44:40 -0700
 From: Greg KH <greg@kroah.com>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1 of 2] PCI Hotplug Config.in fix
-Message-ID: <20020418204350.GA7762@kroah.com>
+Subject: [PATCH 2 of 2] IBM PCI Hotplug fix
+Message-ID: <20020418204439.GB7762@kroah.com>
+In-Reply-To: <20020418204350.GA7762@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,27 +23,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Here's a patch against 2.4.19-pre7 that fixes the pci hotplug Config.in
-file so as to not build the IBM PCI Hotplug driver unless
-CONFIG_X86_IO_APIC is enabled.
+Here's a patch against 2.4.19-pre7 that allows the IBM PCI Hotplug
+driver to be built into the kernel properly.
 
 thanks,
 
 greg k-h
 
 
-diff -Nru a/drivers/hotplug/Config.in b/drivers/hotplug/Config.in
---- a/drivers/hotplug/Config.in	Thu Apr 18 09:15:02 2002
-+++ b/drivers/hotplug/Config.in	Thu Apr 18 09:15:02 2002
-@@ -8,7 +8,9 @@
+diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
+--- a/drivers/hotplug/ibmphp_core.c	Thu Apr 18 09:15:05 2002
++++ b/drivers/hotplug/ibmphp_core.c	Thu Apr 18 09:15:05 2002
+@@ -56,7 +56,7 @@
+ MODULE_DESCRIPTION (DRIVER_DESC);
  
- dep_tristate '  Compaq PCI Hotplug driver' CONFIG_HOTPLUG_PCI_COMPAQ $CONFIG_HOTPLUG_PCI $CONFIG_X86
- dep_mbool '    Save configuration into NVRAM on Compaq servers' CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM $CONFIG_HOTPLUG_PCI_COMPAQ
--dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
-+if [ "$CONFIG_X86_IO_APIC" = "y" ]; then
-+   dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
-+fi
- dep_tristate '  ACPI PCI Hotplug driver' CONFIG_HOTPLUG_PCI_ACPI $CONFIG_ACPI $CONFIG_HOTPLUG_PCI
+ static int *ops[MAX_OPS + 1];
+-static struct pci_ops *ibmphp_pci_root_ops;
++struct pci_ops *ibmphp_pci_root_ops;
+ static int max_slots;
  
- endmenu
+ static int irqs[16];    /* PIC mode IRQ's we're using so far (in case MPS tables don't provide default info for empty slots */
+
 

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136856AbREJQwT>; Thu, 10 May 2001 12:52:19 -0400
+	id <S136851AbREJQ7c>; Thu, 10 May 2001 12:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136854AbREJQwJ>; Thu, 10 May 2001 12:52:09 -0400
-Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:13137 "HELO
-	email02.aon.at") by vger.kernel.org with SMTP id <S136852AbREJQvw>;
-	Thu, 10 May 2001 12:51:52 -0400
-Message-ID: <3AFAC71F.3E6734FE@violin.dyndns.org>
-Date: Thu, 10 May 2001 18:51:44 +0200
-From: Hermann Himmelbauer <dusty@violin.dyndns.org>
-Reply-To: dusty@strike.wu-wien.ac.at
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S136857AbREJQ7W>; Thu, 10 May 2001 12:59:22 -0400
+Received: from www.topmail.de ([212.255.16.226]:11446 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S136851AbREJQ7L>;
+	Thu, 10 May 2001 12:59:11 -0400
+Message-ID: <013401c0d972$87982c50$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: <lar@cs.york.ac.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <NEBBKCNHIKGLMACGICIGMEBCCKAA.lar@cs.york.ac.uk>
+Subject: Re: [OT] Linux on ENIAC...
+Date: Thu, 10 May 2001 16:53:33 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Curious boot problem: linux-2.4.4SMP/AsusTek MB
-In-Reply-To: <3AFAC3E2.6BA7D8C0@vbfx.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-A friend of mine uses linux-2.4.4 on his nice dual P3-1000 machine
-(AsusTek Motherboard). The problem is that the kernel gets stuck at the
-initialization of the APIC during boottime. The real weird thing is that
-if he boots linux-2.2.18 and afterwards 2.4.4, the kernel boots
-properly. So it seems that kernel 2.2 does some "initalization" that
-helps 2.4.4 to boot.
+> of the ENIAC Linux machine.  We hope that the next-generation EDSAC, 
 
-Does anyone have a clue?
+Wasn't it EDVAC IIRC?
 
-		Best Regards,
-		Hermann
-
+-mirabilos
 -- 
- ,_,
-(O,O)     "There is more to life than increasing its speed."
-(   )     -- Gandhi
--"-"--------------------------------------------------------------
+EA F0 FF 00 F0 #$@%CARRIER LOST
+

@@ -1,100 +1,103 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315936AbSENRy1>; Tue, 14 May 2002 13:54:27 -0400
+	id <S315941AbSENR6P>; Tue, 14 May 2002 13:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315935AbSENRy0>; Tue, 14 May 2002 13:54:26 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35186 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S315936AbSENRxs>; Tue, 14 May 2002 13:53:48 -0400
-Date: Tue, 14 May 2002 12:53:47 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200205141753.MAA70930@tomcat.admin.navo.hpc.mil>
-To: elladan@eskimo.com, Christoph Hellwig <hch@infradead.org>,
-        Elladan <elladan@eskimo.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-X-Mailer: [XMailTool v3.1.2b]
+	id <S315942AbSENR6O>; Tue, 14 May 2002 13:58:14 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:63000 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S315941AbSENR5k>;
+	Tue, 14 May 2002 13:57:40 -0400
+Date: Tue, 14 May 2002 18:57:47 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Dead2 <dead2@circlestorm.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Initrd or Cdrom as root
+In-Reply-To: <009701c1fb6f$68282e90$0d01a8c0@studio2pw0bzm4>
+Message-ID: <Pine.LNX.4.33.0205141853390.1577-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elladan <elladan@eskimo.com>:
-> I went to google and attempted to find information about the root
-> reserve space for ext2, as a user wondering about the feature would.  I
-> couldn't find any documentation that states it's purely a fragmentation
-> and convenience feature.  I did, however, find documents stating
-> otherwise.  Note how even Documentation/filesystems/ext2.txt states that
-> it's a security feature?
-> 
-> If this is not a security feature, Documentation/filesystems/ext2.txt
-> needs to be changed.  Eg., 
-> 
-> "In ext2, there is a mechanism for reserving a certain number of blocks
-> for a particular user (normally the super-user).  This is intended to
-> keep the filesystem from filling up entirely, which helps combat
-> fragmentation.  The super-user may still use this space.  Note that this
-> is not a security feature, and is only provided for convenience -
-> various methods exist where a user may circumvent this reservation and
-> use the space if they so wish.  Quotas or separate filesystems should be
-> used if reliable space limits are needed."
-> 
+ok, what's your CD-ROM attached to?
+is it an IDE or a SCSI CD-ROM?
+If scsi, which HBA is it connected to?
+And have you compiled kernel support for that HBA?
 
-If the root file system is ext2, it does become a security issue since
-currently active logs will continue to record log entries until the
-filesystem is absolutly filled. I should say, if the log device fills up,
-since the log directory is usually /var/log, or /var/adm. Some logs show
-up in etc, but that really depends on the configuration. It IS usefull if the
-filesystem is "full" due to attacks - daemons tend to terminate themselves,
-and their log entry indicates what the problem was. If it is an attack, then
-it's a security issue.
+The major=0x48 is really 72 which is some exotic hardware called
+"Compaq Intelligent Drive Array". Do you have an instance of such hardware
+in your machine?
 
-The only reason it helps fragmentation (subject to actual implementor
-statements) is that the filesystem code will use every scavanged block
-possible under saturation. When the filesystem gets cleand up later,
-these excessively fragmented files will remain, and continue to cause
-access delays.
+And why are you passing "enableapic" boot parameter if it doesn't exist?
+(unless it is some new 2.5.x thing)
 
-Naturally, deleting (or backup/restore) the file(s) cleans up the fragmentation.
+I assume you are booting Linux 2.4.18, because that is what the patch was
+supposed to apply to.
 
-> 
-> 1. http://web.mit.edu/tytso/www/linux/ext2intro.html
-> 
-> Design and Implementation of the Second Extended Filesystem
-> 
-> [....] Ext2fs reserves some blocks for the super user (root). Normally,
-> 5% of the blocks are reserved. This allows the administrator to recover
-> easily from situations where user processes fill up filesystems.
-> 
-> 
-> 2. Documentation/filesystems/ext2.txt
-> 
-> Reserved Space
-> --------------
-> 
-> In ext2, there is a mechanism for reserving a certain number of blocks
-> for a particular user (normally the super-user).  This is intended to
-> allow for the system to continue functioning even if non-priveleged
-> users fill up all the space available to them (this is independent of
-> filesystem quotas).  It also keeps the filesystem from filling up
-> entirely which helps combat fragmentation.
+On Tue, 14 May 2002, Dead2 wrote:
 
-True, but this is a side effect caused by stopping user allocations.
- 
-> 3. Note what mke2fs prints:
-> 
-> 3275 blocks (5.00%) reserved for the super user
-> 
-> It does not say "reserved to combat fragmentation"
-> 
+> Unfortunately it boots too fast for me to see that message..
+>
+> This is my isolinux.cfg file:
+> ---
+> DEFAULT zoac
+>
+> LABEL zoac
+>     KERNEL /boot/bzImage
+>     APPEND "enableapic rootcd=1"
+> ---
+> >From what I know, that should work.. right?
+>
+> -=Dead2=-
+>
+> ----- Original Message -----
+> From: "Tigran Aivazian" <tigran@veritas.com>
+> To: "Dead2" <dead2@circlestorm.org>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, May 14, 2002 7:41 PM
+> Subject: Re: Initrd or Cdrom as root
+>
+>
+> > did you forget to pass "rootcd=1" in the boot command line?
+> >
+> > When the kernel boots it shows the command line like this:
+> >
+> >   Kernel command line: BOOT_IMAGE=linux-nopae ro root=305
+> BOOT_FILE=/boot/vmlinuz-2.4.18 rootcd=1
+> >
+> > What does it look like in your case?
+> >
+> > On Tue, 14 May 2002, Dead2 wrote:
+> >
+> > > I tested the patch, but it still does not work..
+> > >
+> > > These are the error messages I get:
+> > > (lines 1,2,3,6 and 7 are prolly not relevant)
+> > >
+> > > ---
+> > > SCSI subsystem driver Revision: 1.00
+> > > 3ware Storage Controller device driver for Linux v1.02.00.016.
+> > > 3w-xxxx: No cards with valid units found.
+> > > request_module[scsi_hostadapter]: Root fs not mounted
+> > > request_module[scsi_hostadapter]: Root fs not mounted
+> > > pci_hotplug: PCI Hot Plug PCI Core version: 0.3
+> > > cpqphp.o: Compaq Hot Plug PCI Controller Driver version 0.9.6
+> > > VFS: Cannot open root device "" or 48:03
+> > > Please append a correct "root=" boot option
+> > > Kernel panic: VFS: Unable to mount root fs on 48:03
+> > > ---
+> > >
+> > > I have compiled in a lot of scsi drivers that are not used, so
+> > > the kernel will be able to boot on just about any system.
+> > > The cdrom on the test computer is on /dev/hdc. But I have
+> > > also tested it on several other computers with no luck.
+> > >
+> > > Attached: My kernel .config
+> > >
+> > > -=Dead2=-
+> > >
+> >
+> >
+>
+>
 
-It shouldn't have to. This is a tuneable value, and can be set to 0.
-(tune2fs).
-
-The "super user" is also an option. It defaults to the user "root", but
-can be specified to be a user OR a group by tune2fs (-g option for group,
--u option for user).
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

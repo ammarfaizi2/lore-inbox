@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318223AbSHMQQ1>; Tue, 13 Aug 2002 12:16:27 -0400
+	id <S318977AbSHMQ0D>; Tue, 13 Aug 2002 12:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318224AbSHMQQ1>; Tue, 13 Aug 2002 12:16:27 -0400
-Received: from surf.cadcamlab.org ([156.26.20.182]:59271 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S318223AbSHMQQ0>; Tue, 13 Aug 2002 12:16:26 -0400
-Date: Tue, 13 Aug 2002 11:20:04 -0500
-To: Greg Banks <gnb@alphalink.com.au>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-Message-ID: <20020813162004.GH761@cadcamlab.org>
-References: <20020808151432.GD380@cadcamlab.org> <Pine.LNX.4.44.0208081142390.23063-100000@chaos.physics.uiowa.edu> <20020808164742.GA5780@cadcamlab.org> <20020809041543.GA4818@cadcamlab.org> <3D53D50D.7FA48644@alphalink.com.au> <20020809161046.GB687@cadcamlab.org> <3D579629.32732A73@alphalink.com.au> <20020812154721.GA761@cadcamlab.org> <3D587BA7.1D640926@alphalink.com.au> <20020813180415.B1357@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020813180415.B1357@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S318979AbSHMQ0D>; Tue, 13 Aug 2002 12:26:03 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:38557 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S318977AbSHMQ0C>; Tue, 13 Aug 2002 12:26:02 -0400
+Date: Tue, 13 Aug 2002 09:24:04 -0700 (PDT)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK PATCH] fbdev updates.
+Message-ID: <Pine.LNX.4.33.0208130923000.3180-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Sam Ravnborg]
-> How about extending the language (side effect) to automagically
-> append (EXPERIMENTAL) or (OBSOLETE) to the menu line, if dependent
-> on those special tags?
+Hi!
 
-I've thought about that too.  Menuconfig already has magic code to
-append ' (NEW)' if it hasn't seen a symbol before.
+   Please pull the fbdev BK repository. It has many bug fixes as well as
+updates.
 
-Your proposed change, however, cannot be easily parsed until we make
-'$' optional (and deprecated) in dep_* tags.  The existing Configure
-and Menuconfig borrow the /bin/sh parser which, if allowed to see
-"$CONFIG_EXPERIMENTAL", will expand it too early to be of use.
+http://fbdev.bkbits.net/fbdev-2.5
 
-Peter
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
+

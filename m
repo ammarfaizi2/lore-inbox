@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262598AbSJGTI4>; Mon, 7 Oct 2002 15:08:56 -0400
+	id <S262583AbSJGTBN>; Mon, 7 Oct 2002 15:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262603AbSJGTI4>; Mon, 7 Oct 2002 15:08:56 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:28289 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262598AbSJGTIz>;
-	Mon, 7 Oct 2002 15:08:55 -0400
-Date: Mon, 7 Oct 2002 21:14:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Steve Dover <swdlinunx@earthlink.net>, linux-kernel@vger.kernel.org
-Subject: Re: PC speaker dead in 2.5.40?
-Message-ID: <20021007211427.A833@ucw.cz>
-References: <3DA1BD31.4040707@earthlink.net> <20021007070857.GA1927@rivenstone.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021007070857.GA1927@rivenstone.net>; from jhf@rivenstone.net on Mon, Oct 07, 2002 at 03:08:57AM -0400
+	id <S262584AbSJGTBN>; Mon, 7 Oct 2002 15:01:13 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:17540
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S262583AbSJGTBK>; Mon, 7 Oct 2002 15:01:10 -0400
+Date: Mon, 7 Oct 2002 15:06:38 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Pavel Machek <pavel@suse.cz>
+cc: Ulrich Drepper <drepper@redhat.com>, Larry McVoy <lm@bitmover.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021007011512.B6352@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0210071451150.913-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 03:08:57AM -0400, Joseph Fannin wrote:
+On Mon, 7 Oct 2002, Pavel Machek wrote:
 
-> > Configuring a kernel with Sound support with either
-> > OSS or ALSA, I still get nothing from my PC speaker.
-> > Works fine under 2.4.18.
+> > You can do this today.  rsync a BK tree and use GNU CSSC to check out
+> > the sources.  We maintained SCCS compat for exactly that reason.
+> > You've had the ability to ignore the BKL since day one if you aren't
+> > running the BK binaries.
 > 
->     Look under all the submenus in the Input section of
->     "menuconfig" for the speaker entry and enable it.
+> Would someone write nice HOWTO do this?
 > 
->     There's a good technical reason why the speaker is an input
->     device, but hiding it in the menus is *bad*.
+> And where's guarantee that you are not migrating BK to proprietary
+> format to cut this off once someone writes the HOWTO?
 
-Send me a patch that fixes this - if you know how.
+Please stop the paranoia and have faith.  Where's guarantee you won't be hit 
+by a bus today?
 
--- 
-Vojtech Pavlik
-SuSE Labs
+If BK migrates to proprietary format everybody will notice and you'll still
+have the opportunity to rescue a not too old repository and carry on with
+life using whatever alternate SCM you wish.  If such a thing happened Lary
+would be publicly and universally discredited and he's not looking for that
+I'm sure.
+
+
+Nicolas
+

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbSKXNbO>; Sun, 24 Nov 2002 08:31:14 -0500
+	id <S261310AbSKXNwX>; Sun, 24 Nov 2002 08:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbSKXNbO>; Sun, 24 Nov 2002 08:31:14 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18131 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261295AbSKXNbK>;
-	Sun, 24 Nov 2002 08:31:10 -0500
-Date: Sun, 24 Nov 2002 08:38:22 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Patrick Mochel <mochel@osdl.org>, Rusty Lynch <rusty@linux.co.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] sysfs on 2.5.48 unable to remove files while in use
-In-Reply-To: <20021124100445.Q1407@almesberger.net>
-Message-ID: <Pine.GSO.4.21.0211240832460.9014-100000@steklov.math.psu.edu>
+	id <S261305AbSKXNwX>; Sun, 24 Nov 2002 08:52:23 -0500
+Received: from services.cam.org ([198.73.180.252]:31507 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S261310AbSKXNwX>;
+	Sun, 24 Nov 2002 08:52:23 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Invalid module format - how does one fix this?
+Date: Sun, 24 Nov 2002 08:59:35 -0500
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211240859.35516.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+2.5.49-mm1 works ok here (shpte enabled too).  I see two frustrating problems left
+with the modules change (user perspective).  The most irratating one is messages like:
 
-On Sun, 24 Nov 2002, Werner Almesberger wrote:
+FATAL: Error inserting /lib/modules/2.5.49-mm1/kernel/ac97_codec.o: Invalid module format
 
-> do you really need a "magic" file for this ? I don't know how
-> well sysfs supports mkdir/rmdir (if at all), but they would
-> seem to provide a much more natural interface. (VFS allows
-> rmdir to remove non-empty directories, so you wouldn't have
-> to rm -r.)
+I get this on about 10% of the modules I want to load.  How do I fix it?
 
-a) sysfs doesn't allow mkdir/rmdir and thus avoids an imperial buttload
-of races - witness the crap in devfs.
+The second is that automatic loading is not working.  Manually loading modules is a PITA.
+What plans are there to fix this?
 
-b) rmdir of non-empty directory pretty much guarantees another buttload of
-races.
-
-c) mkdir creating non-empty directory or rmdir removing non-empty directory
-is *ugly*.  BTW, Roman's "filesystem" for modules in its current form is
-vetoed, as far as I'm concerned - this sort of magic is just plain wrong.
-
+TIA
+Ed Tomlinson

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUCXUCP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUCXUCO
+	id S261161AbUCXUDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUCXUCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:02:14 -0500
-Received: from pirx.hexapodia.org ([65.103.12.242]:64115 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S263811AbUCXUBX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:01:23 -0500
-Date: Wed, 24 Mar 2004 14:01:21 -0600
-From: Andy Isaacson <adi@hexapodia.org>
-To: ameer armaly <ameer@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: missing files in bk trees?
-Message-ID: <20040324200121.GF20793@hexapodia.org>
-References: <Pine.LNX.4.58.0403232140160.7713@debian>
+	Wed, 24 Mar 2004 15:02:21 -0500
+Received: from holomorphy.com ([207.189.100.168]:18565 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261161AbUCXUCB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 15:02:01 -0500
+Date: Wed, 24 Mar 2004 12:01:56 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040324200156.GK791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]> <20040324061957.GB2065@dualathlon.random> <24560000.1080143798@[10.10.2.4]> <20040324162116.GQ2065@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403232140160.7713@debian>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <20040324162116.GQ2065@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 09:41:46PM -0500, ameer armaly wrote:
-> I got the latest kernel tree from linux.bkbits.net, and I try to make
-> config, and it complains about a missing zconf.tab.h.  However, it has
-> decrypted the other sccs files, but for some oodd reason it can't find
-> this particular one.  Suggestions would be appriciated.
+On Wed, Mar 24, 2004 at 05:21:16PM +0100, Andrea Arcangeli wrote:
+> it's one of the -mm patches probably that boosts those bits (the
+> cost page_add_rmap and the page faults should be the same with both
+> anon-vma and anonmm). as for the regression, the pgd_alloc slowdown is
+> the unslabify one from andrew that releases 8 bytes per page in 32bit
+> archs and 16 bytes per page in 64bit archs.
+> My current page_t is now 36 bytes (compared to 48bytes of 2.4) in 32bit
+> archs, and 56bytes on 64bit archs (hope I counted right this time, Hugh
+> says I'm counting wrong the page_t, methinks we were looking different
+> source trees instead but maybe I was really counting wrong ;).
 
-The build fails on this file because the kernel makefiles don't have
-complete dependency information.  Make is smart enough to automatically
-check out foo.c and foo.h if you say
+Don't confuse unslabify and the ->list removal. The ->list removal went
+around insisting the known universe stop using ->lru because of the
+relatively arbitrary choice that slab.c use ->lru. The unslabify patch
+attempts to update one user of ->lru by backing out the code using it.
+Do note that non-list-heads like ->index, ->private, or ->mapping are
+also unused on slab pages, and could have saved some pain for this
+former user of ->list had they been chosen.
 
-foo.o: foo.c foo.h
-	$(CC) -c foo.c -o foo.o
 
-but in the absence of that information, make cannot deduce it.
-
-The work-around is to simply check out everything before running make:
-% bk -Ur get -S
-
--andy
+-- wli

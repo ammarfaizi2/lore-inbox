@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318827AbSG0VcA>; Sat, 27 Jul 2002 17:32:00 -0400
+	id <S318825AbSG0Vhd>; Sat, 27 Jul 2002 17:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318830AbSG0VcA>; Sat, 27 Jul 2002 17:32:00 -0400
-Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:17678 "HELO
-	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S318827AbSG0VcA>; Sat, 27 Jul 2002 17:32:00 -0400
-X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
-Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBBB8396D@AUSXMPS308.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: austin@digitalroadkill.net, linux-kernel@vger.kernel.org
-Subject: RE: Dell hardware sensors.
-Date: Sat, 27 Jul 2002 16:35:07 -0500
+	id <S318831AbSG0Vhc>; Sat, 27 Jul 2002 17:37:32 -0400
+Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:8432
+	"EHLO mythical") by vger.kernel.org with ESMTP id <S318825AbSG0Vhc>;
+	Sat, 27 Jul 2002 17:37:32 -0400
+Date: Sat, 27 Jul 2002 17:40:12 -0400 (EDT)
+From: Ryan Anderson <ryan@michonline.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       "David D. Hagood" <wowbagger@sktc.net>,
+       Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
+Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
+In-Reply-To: <1027809643.21511.0.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10207271735000.579-100000@mythical.michonline.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 115DCD9B20366-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was curious if there were any Dell server hardware sensor 
-> patches, for
-> things such as power supply failures, fan outages, etc. Specifically
-> anything available for the 6650 and such newer type series servers. 
+> > Morse doesn't do "<" and other common characters. For those
+> > who know it, morse is useful. For well over 99% of the users,
+> > morse is gibberish anyway.
+> 
+> I spent a long time suffering to learn morse. Now for once in my life
+> it'll actually be -useful-
 
-Dell provides our OpenManage Server Administrator software which does this.
-http://www.dell.com/openmanage/ has the marketing info.
+I suspect that the speaker twiddling portion of the code is 100 times
+more important than the LED blinking part of it.  Everyone I know (as a
+Radio Amateur) that knows Morse learned it by hearing it - seeing
+blinking lights is a totally different part of the brain that needs to
+learn how to interpret the input.
 
-OMSA version 1.1.0 is the latest released, and is available on
-support.dell.com (this URL requires cookies - you can search for R43374 on
-support.dell.com and find it too).
-http://support.dell.com/us/en/filelib/download/index.asp?fileid=R43374
-
-
-You'll probably find our public mailing list Linux-PowerEdge@dell.com
-(subscribe, read archvies at http://lists.us.dell.com) helpful.
-
-
-Thanks,
-Matt
+My gut feeling says that this patch falls into the "cool hack" category,
+more than anything else - but the best part about cool hacks is that
+they are occassionally really really useful to someone.
 
 --
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+Ryan Anderson
+  sometimes Pug Majere
+
 

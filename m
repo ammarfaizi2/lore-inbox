@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbTELRSX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 13:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTELRSX
+	id S262328AbTELRcv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 13:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTELRcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 13:18:23 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:53004 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262348AbTELRSW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 13:18:22 -0400
-Date: Mon, 12 May 2003 19:25:47 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>, marcelo@conectiva.com.br
-Cc: Willy Tarreau <willy@w.ods.org>, gibbs@scsiguy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-Message-ID: <20030512172547.GA15233@alpha.home.local>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com> <20030509145738.GB17581@alpha.home.local> <20030512110218.4bbc1afe.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030512110218.4bbc1afe.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	Mon, 12 May 2003 13:32:50 -0400
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:17860 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262328AbTELRct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 13:32:49 -0400
+Date: Mon, 12 May 2003 13:45:30 -0400
+From: Mace Moneta <mmoneta@optonline.net>
+Subject: Re: [bug] 2.4.21-rc2 kernel panic USB sched.c:564
+In-reply-to: <20030512164948.GA28136@kroah.com>
+To: linux-kernel@vger.kernel.org
+Reply-to: mmoneta@optonline.net
+Message-id: <1052761529.25189.21.camel@optonline.net>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1052600695.12657.4.camel@optonline.net>
+ <20030511054554.GB7729@kroah.com> <1052661635.30223.26.camel@optonline.net>
+ <20030512164948.GA28136@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+I replaced usb-uhci with uhci, and tried to recreate the problem.  While
+this is easily recreated with usb-uhci, even after 30 attempts uhci
+operated without error.
 
-On Mon, May 12, 2003 at 11:02:18AM +0200, Stephan von Krawczynski wrote:
+It definitely appears to be a problem with usb-uhci.
 
-> I have tried 2.4.21-rc2 with aic79xx-linux-2.4-20030502-tar.gz for three days
-> now and have to say it performs well. I had no freezes any more and nothing
-> weird happening. Everything is smooth and ok. This is the best performance I
-> have seen comparing all 2.4.21-X versions tested.
+Mace
 
-Same here, it seems rock solid on my dual athlon and has survived several
-hours of 5 simultaneous make -j 8 bzImage modules with swapping. Definitely the
-most stable for me since I've switched from Doug's to Justin's driver.
-
-Marcelo, would it be unreasonable to include it in -rc3 ? After all, it would
-not be a radical update, since it was removed from -rc2 ? Just a few bug fixes.
-
-What do you think ?
-
-Regards,
-Willy
+On Mon, 2003-05-12 at 12:49, Greg KH wrote: 
+> On Sun, May 11, 2003 at 10:00:36AM -0400, Mace Moneta wrote:
+> > On Sun, 2003-05-11 at 01:45, Greg KH wrote:
+> > > On Sat, May 10, 2003 at 05:04:56PM -0400, Mace Moneta wrote:
+> > > > When Attempting to sync a Handspring Visor (PalmOS USB device), I
+> > > > sometimes (about 1 time out of 4) get the following panic.  
+> > > 
+> > > can you run that oops through ksymoops so that we can see where it died
+> > > at?
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > Here you go:
+> 
+> Does the same thing happen if you use the uhci.o driver instead of the
+> usb-uhci.o driver?
+> 
+> thanks,
+> 
+> greg k-h
 

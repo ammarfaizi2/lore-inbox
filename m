@@ -1,49 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUIBIWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUIBIcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267799AbUIBIWM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 04:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUIBIWM
+	id S267859AbUIBIcC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 04:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUIBIcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 04:22:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45961 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267799AbUIBIWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 04:22:10 -0400
-Date: Thu, 2 Sep 2004 10:23:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-Message-ID: <20040902082324.GA27031@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040902065549.GA18860@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 2 Sep 2004 04:32:02 -0400
+Received: from imo-m24.mx.aol.com ([64.12.137.5]:20873 "EHLO
+	imo-m24.mx.aol.com") by vger.kernel.org with ESMTP id S267859AbUIBIb5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 04:31:57 -0400
+From: JobHunts02@aol.com
+Message-ID: <1a9.284c240d.2e683477@aol.com>
+Date: Thu, 2 Sep 2004 04:31:51 EDT
+Subject: Sending siginfo from kernel to user space
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: AOL 5.0 for Mac sub 11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am sending a signal from kernel space to user space with Linux 2.4.20-8.  
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> this release fixes an artificial 0-1msec delay between hardirq arrival
-> and softirq invocation. This should solve some of the ALSA artifacts
-> reported by Mark H Johnson. It should also solve the rtl8139 problems
-> - i've put such a card into a testbox and with -Q7 i had similar
-> packet latency problems while with -Q8 it works just fine.
 
-the rtl8139 problems are not fixed yet - i can still reproduce the
-delayed packet issues.
+In user space, I have installed a signal handler:
 
-	Ingo
+
+    saio.sa_handler = signal_handler_IO;
+
+    sigemptyset(&saio.sa_mask);
+
+    saio.sa_flags = SA_SIGINFO;
+
+    saio.sa_restorer = NULL;
+
+    sigaction(SA_SIGINFO, &saio, NULL);
+
+
+
+In kernel space:
+
+
+    info.si_errno = 1212;
+
+    info.si_code  = SI_KERNEL;
+
+    send_sig_info(SA_SIGINFO, &info, find_task_by_pid(pid));
+
+
+
+This results in the signal handler, 
+
+
+    void signal_handler_IO (int status, struct siginfo *info, void *p) 
+
+
+being called in user space, which gives the following values in info:
+
+
+    info->si_signo = 4  /* corresponds to SA_SIGINFO */
+
+    info->si_errno = 0  /* expect 1212               */
+
+    info->si_code  = 0  /* expect SI_KERNEL (128)    */ 
+
+ 
+
+
+Note that the values I put in si_errno and si_code do not get passed to the 
+user.  si_signo has the correct value, but the user can know this from the 
+original sigaction call.
+
+
+
+If instead, I call send_sig_info(SA_SIGINFO, (struct siginfo*)0, 
+find_task_by_pid(pid)), as expected I get:
+
+
+    info->si_signo = 4  
+
+    info->si_errno = 0
+
+    info->si_code  = 0  /* corresponds to SI_USER, as expected */
+
+
+
+If I call send_sig_info(SA_SIGINFO, (struct siginfo*)1, 
+find_task_by_pid(pid)), as expected I get:
+
+
+    info->si_signo = 4  
+
+    info->si_errno = 0
+
+    info->si_code  = 128    /* corresponds to SI_KERNEL, as expected */
+
+
+
+Apparently, there is a problem copying the info structure.  I need to pass 
+info to the kernel.  Any ideas?
+
+
+
+Thank you.
+
+

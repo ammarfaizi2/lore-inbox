@@ -1,90 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270621AbTHETBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 15:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTHETBv
+	id S269628AbTHETYM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 15:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbTHETYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 15:01:51 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:230 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S270621AbTHETBp (ORCPT
+	Tue, 5 Aug 2003 15:24:12 -0400
+Received: from codepoet.org ([166.70.99.138]:45711 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S270608AbTHETYC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 15:01:45 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: pci_alloc_consistent() and/or dma_free_coherent() bug?
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 05 Aug 2003 19:14:38 +0200
-Message-ID: <m3r84010xt.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Tue, 5 Aug 2003 15:24:02 -0400
+Date: Tue, 5 Aug 2003 13:23:55 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Ruben Puettmann <ruben@puettmann.net>
+Cc: linux-kernel@vger.kernel.org, dri-users@lists.sourceforge.net
+Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with Radeon 7500
+Message-ID: <20030805192355.GA9098@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Ruben Puettmann <ruben@puettmann.net>, linux-kernel@vger.kernel.org,
+	dri-users@lists.sourceforge.net
+References: <20030805164925.GA6646@puettmann.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030805164925.GA6646@puettmann.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I'm doing something like:
-        pci_set_dma_mask(pdev, 0xFFFFFFFF) /* 32 bits */
-	pci_set_consistent_dma_mask(pdev, 0x0FFFFFFF); /* 28 bits only */
-
-as this card is able to do 32-bit PCI (bus master) addressing on memory
-returned by pci_map_single() but it needs "consistent" region in the first
-256 MB of RAM.
-
-On i386, pci_alloc_consistent() calls dma_alloc_coherent().
-
-Now:
-void *dma_alloc_coherent(struct device *dev, size_t size,
-                           dma_addr_t *dma_handle, int gfp)
-{
-        void *ret;
-        /* ignore region specifiers */
-        gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
-
-        if (dev == NULL || (*dev->dma_mask < 0xffffffff))
-                gfp |= GFP_DMA;
-        ret = (void *)__get_free_pages(gfp, get_order(size));
-
-        if (ret != NULL) {
-                memset(ret, 0, size);
-                *dma_handle = virt_to_phys(ret);
-        }
-        return ret;
-}
-
-while:
-
-pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
-{
-        if (!pci_dma_supported(dev, mask))
-                return -EIO;
-
-        dev->consistent_dma_mask = mask;
-
-        return 0;
-}
-
-pci_set_consistent_dma_mask() sets dev->consistent_dma_mask while
-dma_alloc_coherent() (and thus pci_alloc_consistent()) expects the mask
-to be in dev->dma_mask.
+On Tue Aug 05, 2003 at 06:49:25PM +0200, Ruben Puettmann wrote:
+> DRI doesn't work with Radeon 7500 on IBM Thinkpad R40 (2722).
+[-----------snip---------------]
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility
+[-----------snip---------------]
+> XFree86 : 4.2.1
+> 
+> 
+> Both glxgears and tuxracer crashes with the Illegal instruction error
+> message. the strace output of glxgears is:
+[-----------snip---------------]
+> ioctl(3, FIONREAD, [0])                 = 0
+> ioctl(5, 0x40186448, 0xbffffb30)        = 0
+> --- SIGILL (Illegal instruction) @ 0 (0) ---
+> +++ killed by SIGILL +++
 
 
-The "obvious" fix seems to be:
+I get this too, with vanilla 2.4.22-pre10....
 
---- arch/i386/kernel/pci-dma.c.orig	2003-05-27 03:00:25.000000000 +0200
-+++ arch/i386/kernel/pci-dma.c	2003-08-05 18:55:42.000000000 +0200
-@@ -20,7 +20,7 @@
- 	/* ignore region specifiers */
- 	gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
- 
--	if (dev == NULL || (*dev->dma_mask < 0xffffffff))
-+	if (dev == NULL || (*dev->consistent_dma_mask < 0xffffffff))
- 		gfp |= GFP_DMA;
- 	ret = (void *)__get_free_pages(gfp, get_order(size));
- 
+$ lspci | grep VGA
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
+$ lspci | grep AGP
+00:01.0 PCI bridge: Intel Corp. 82865G/PE/P Processor to AGP Controller (rev 02)
 
-but I'm not sure if we need to adjust dev->consistent_dma_mask in
-pci_set_dma_mask() (not only in pci_set_consistent_dma_mask()), in case
-a driver only calls pci_set_dma_mask() and assumes it will work for
-pci_alloc_consistent() as well.
--- 
-Krzysztof Halasa
-Network Administrator
+$ strace glxgears
+[-----------snip---------------]
+ioctl(3, FIONREAD, [0])                 = 0
+ioctl(4, 0x40186448, 0xbffff4d0)        = 0
+--- SIGILL (Illegal instruction) @ 0 (0) ---
++++ killed by SIGILL +++
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVBSCwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVBSC6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVBSCwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 21:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVBSCwa
+	id S261429AbVBSC6j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 21:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVBSC6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 21:52:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:20682 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261611AbVBSCwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 21:52:16 -0500
-Subject: Re: I wrote a kernel tool for monitoring / web page
-From: Lee Revell <rlrevell@joe-job.com>
-To: sylvanino b <sylvanino@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d14685de05021817333c563cc9@mail.gmail.com>
-References: <d14685de050218164127828b06@mail.gmail.com>
-	 <1108774916.6040.4.camel@krustophenia.net>
-	 <d14685de05021817333c563cc9@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 21:52:14 -0500
-Message-Id: <1108781534.6040.36.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 18 Feb 2005 21:58:39 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:64358 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261429AbVBSC6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 21:58:36 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Date: Fri, 18 Feb 2005 21:58:33 -0500
+User-Agent: KMail/1.7.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Oliver Neukum <oliver@neukum.org>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <047401c515bb$437b5130$0f01a8c0@max> <20050218213801.GA3544@ucw.cz> <20050218233148.GA1628@elf.ucw.cz>
+In-Reply-To: <20050218233148.GA1628@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502182158.34910.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-19 at 02:33 +0100, sylvanino b wrote:
-> Sorry, it's meant to run on linux.
-> Actually, patch provided is for linux 2.6.9 + kdb 4.4
+On Friday 18 February 2005 18:31, Pavel Machek wrote:
+> Hi!
 > 
+> > > What is the benefit of splitting the flow of information so?
+> > 
+> > It's split already. You get some from input (power and sleep keys on
+> > keyboards, sound volume keys and display brightness on some notebooks),
+> > some from ACPI events (power keys on notebooks and desktop cases, sound
+> > volume, display brightness on other notebooks), some from /proc/acpi/*
+> > (battery status, fan status), some from APM, from platform specific
+> > devices, from hotplug, from userspace daemons (UPS status).
+> > 
+> > The question is how to unify it.
+> > 
+> > Using power.c to simply pass power/sleep keys to the ACPI event pipe
+> > could get the input subsystem out of the loop at least. Maybe we could
+> > even pass sound keys to it. 
+> 
+> I do not think passing sound keys through acpi is good idea. acpid
+> does not know how to handle them, and X already know how to get them
+> from input subsystem.
 
-Cool program.  It has an annoying bug where every time you go to "Open
-Log File", it starts you in your home directory again.  Otherwise it's a
-nice utility.
+What X? I am not saying that sound events should go through acpid, but
+why bringing X here? One may not even run X...
 
-I actually have a problem that this might help with.  The issue is that
-the scheduler seems to treat Evolution as a CPU bound rather than an
-event driven, I/O bound process.  The most obvious symptom is that a
-real CPU bound activity like a kernel compile will cause navigating the
-message list in Evolution to slow to a crawl.  Evolution is perfectly
-usable when no other CPU hogs are running, or when the CPU hogs are
-niced, so it's definitely a scheduler issue.
+> 
+> I believe power and suspend keys should definitely go through
+> input. I'm not that sure about battery... Lid is somewhere in
+> between...
+>
 
-My understanding of Unix schedulers is that the basic idea is to
-penalize CPU bound and reward I/O bound processes by giving the former
-lower dynamic priority with longer timeslice and the latter high
-priority with shorter timeslice.  I suspect the scheduler does not
-handle interactive, event driven apps that also consume a lot of CPU due
-to bloat very well.  These would seem to need high priority and long
-timeslices, which would require the scheduler to distinguish a process
-like a kernel compile that will continually exhaust its timeslice no
-matter how long, and a process like evolution that if given a long
-enough timeslice will finish rendering the message and go back to sleep.
+I think we need a generic way of delivering system status changes to
+userspace. Something like acpid but bigger than that, something not
+so heavily oriented on ACPI. I wonder if that kernel connector patch
+should be looked at.
 
-Anyway, that's my hypothesis, I'll let you know what I find out.
-
-Lee
-
-
+-- 
+Dmitry

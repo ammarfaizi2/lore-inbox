@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274675AbRIYWs1>; Tue, 25 Sep 2001 18:48:27 -0400
+	id <S274674AbRIYWr7>; Tue, 25 Sep 2001 18:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274677AbRIYWsS>; Tue, 25 Sep 2001 18:48:18 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47631 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274675AbRIYWsF>; Tue, 25 Sep 2001 18:48:05 -0400
-Date: Tue, 25 Sep 2001 18:25:10 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Paul Larson <plars@austin.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        Jacek =?iso-8859-1?Q?=5Biso-8859-2=5D_Pop=B3awski?= 
-	<jpopl@interia.pl>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages: 0-order allocation failed
-In-Reply-To: <20010926000922.I8350@athlon.random>
-Message-ID: <Pine.LNX.4.21.0109251823550.2193-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274675AbRIYWrs>; Tue, 25 Sep 2001 18:47:48 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:55427 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S274674AbRIYWrj>;
+	Tue, 25 Sep 2001 18:47:39 -0400
+Date: Wed, 26 Sep 2001 00:47:55 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Kapr Johnik <kapr.johnik@seznam.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.2.19] bug in cs89x0
+Message-ID: <20010926004755.A968@khan.acc.umu.se>
+In-Reply-To: <3BB03C3E.3080906@seznam.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3BB03C3E.3080906@seznam.cz>; from kapr.johnik@seznam.cz on Tue, Sep 25, 2001 at 10:11:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
-
-> On Mon, Sep 24, 2001 at 09:38:24AM -0300, Marcelo Tosatti wrote:
-> > --- linux.orig/mm/vmscan.c	Mon Sep 24 10:36:40 2001
-> > +++ linux/mm/vmscan.c	Mon Sep 24 10:54:01 2001
-> > @@ -567,6 +567,9 @@
-> >  		if (nr_pages <= 0)
-> >  			return 1;
-> >  
-> > +		if (nr_pages < SWAP_CLUSTER_MAX)
-> > +			ret |= 1;
-> > +
+On Tue, Sep 25, 2001 at 10:11:42AM +0200, Kapr Johnik wrote:
+> Hi to all.
 > 
-> too much permissive (vm-tweaks-1 does something similar but not that
-> permissive)
+> I think I've found bug in the cs89x0 network driver in 2.2.19, which we 
+> are using in an embedded network router. The driver does not use 
+> skb_put(), instead it writes directly to skb->len and leaves skb->tail 
+> incorrect. Patch follows.
 
-Andrea,
+The same error exists in the v2.4-kernel, drivers/net/mac89x0.c
 
-Does vm-tweaks-1 fixes the current problem we're seeing? 
 
-Also, we have to make sure _all_ progress accounting is being done
-correctly (i/dcache, etc). I'll make sure that happens as soon as the OOM
-problem is gone.
+/David Weinehall
 
-> >  		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
-> >  	} while (--priority);
-> >  
-> > --- linux.orig/mm/page_alloc.c	Mon Sep 24 10:36:40 2001
-> > +++ linux/mm/page_alloc.c	Mon Sep 24 10:44:12 2001
-> > @@ -400,7 +400,7 @@
-> >  			if (!z)
-> >  				break;
-> >  
-> > -			if (zone_free_pages(z, order) > z->pages_high) {
-> > +			if (zone_free_pages(z, order) > z->pages_min) {
-> 
-> that breaks oom detection.
-
-Why? 
-
+--- linux-2.4.10/drivers/net/mac89x0.c.old	Wed Sep 26 00:45:44 2001
++++ linux-2.4.10/drivers/net/mac89x0.c	Wed Sep 26 00:46:34 2001
+@@ -524,7 +524,7 @@
+ 		lp->stats.rx_dropped++;
+ 		return;
+ 	}
+-	skb->len = length;
++	skb_put(skb, length);
+ 	skb->dev = dev;
+ 
+ 	memcpy_fromio(skb->data, dev->mem_start + PP_RxFrame, length);

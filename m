@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264033AbRFEQUr>; Tue, 5 Jun 2001 12:20:47 -0400
+	id <S264036AbRFEQim>; Tue, 5 Jun 2001 12:38:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264037AbRFEQUi>; Tue, 5 Jun 2001 12:20:38 -0400
-Received: from mx2out.umbc.edu ([130.85.253.52]:29371 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S264034AbRFEQU1>;
-	Tue, 5 Jun 2001 12:20:27 -0400
-Date: Tue, 5 Jun 2001 12:20:25 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>, <kdb@oss.sgi.com>
+	id <S264039AbRFEQib>; Tue, 5 Jun 2001 12:38:31 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:20741 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264037AbRFEQiS>;
+	Tue, 5 Jun 2001 12:38:18 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Jasen <jjasen1@umbc.edu>
+cc: linux-kernel@vger.kernel.org, kdb@oss.sgi.com
 Subject: Re: strange network hangs using kdb 
-In-Reply-To: <18623.991756548@ocs3.ocs-net>
-Message-ID: <Pine.SGI.4.31L.02.0106051217130.11523908-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: Your message of "Tue, 05 Jun 2001 12:20:25 -0400."
+             <Pine.SGI.4.31L.02.0106051217130.11523908-100000@irix2.gl.umbc.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 06 Jun 2001 02:38:08 +1000
+Message-ID: <19199.991759088@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001, Keith Owens wrote:
-
-> On Tue, 5 Jun 2001 11:20:26 -0400,
-> John Jasen <jjasen1@umbc.edu> wrote:
-> >When we use kdb on one of the systems, the other system stops receiving
-> >packets.
+On Tue, 5 Jun 2001 12:20:25 -0400, 
+John Jasen <jjasen1@umbc.edu> wrote:
+>On Wed, 6 Jun 2001, Keith Owens wrote:
+>> On Tue, 5 Jun 2001 11:20:26 -0400,
+>> John Jasen <jjasen1@umbc.edu> wrote:
+>> >When we use kdb on one of the systems, the other system stops receiving
+>> >packets.
+>>
+>> man linux/Documentation/kdb/kdb.mm, section Interrupts and KDB.
 >
-> man linux/Documentation/kdb/kdb.mm, section Interrupts and KDB.
+>I would expect one system to fall off the network, when it is put into
+>kdb. However, why does it have any effect on the other system, which may
+>or may not be in kdb?
 
-I would expect one system to fall off the network, when it is put into
-kdb. However, why does it have any effect on the other system, which may
-or may not be in kdb?
-
-Let's say we have two test servers (A and B); and four test clients (1-4).
-1 and 2 are being used to test performance on A, while 3 and 4 are being
-inflicted on B.
-
-kdb is activated on A, and from that moment, no network traffic passes
-between B and its clients, 3 and 4.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+It does not.  kdb is intrusive when it trips but even it cannot reach
+across a network and stop another machine.  Look for a networking
+problem on the other system.
 

@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbTBPLtw>; Sun, 16 Feb 2003 06:49:52 -0500
+	id <S266434AbTBPLzu>; Sun, 16 Feb 2003 06:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTBPLtw>; Sun, 16 Feb 2003 06:49:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:55238 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266431AbTBPLtv>;
-	Sun, 16 Feb 2003 06:49:51 -0500
-Date: Sun, 16 Feb 2003 12:59:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] elv_former_request reversion
-Message-ID: <20030216115908.GY26738@suse.de>
-References: <20030215161236.67ce3f24.akpm@digeo.com> <20030216093244.GP26738@suse.de>
+	id <S266443AbTBPLzu>; Sun, 16 Feb 2003 06:55:50 -0500
+Received: from holomorphy.com ([66.224.33.161]:36745 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266434AbTBPLzt>;
+	Sun, 16 Feb 2003 06:55:49 -0500
+Date: Sun, 16 Feb 2003 04:04:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make jiffies wrap 5 min after boot
+Message-ID: <20030216120447.GN29983@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de> <20030216020808.GF9833@krispykreme> <20030216024317.GM29983@holomorphy.com> <1045377459.2175.0.camel@phantasy> <20030216071659.GB6417@actcom.co.il> <871y281m2d.fsf@student.uni-tuebingen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030216093244.GP26738@suse.de>
+In-Reply-To: <871y281m2d.fsf@student.uni-tuebingen.de>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16 2003, Jens Axboe wrote:
-> On Sat, Feb 15 2003, Andrew Morton wrote:
-> > 
-> > This morning's fix for elv_former_request() is causing oopses all over the
-> > place in the IO scheduler.
-> > 
-> > Jens, remember that I did try that fix a while ago, and the same happened.
-> > 
-> > I believe it has exposed a new problem at the
-> > __make_request/attempt_front_merge level: if attempt_front_merge()
-> > actually succeeds, the wrong request gets freed up in
-> > elv_merged_request().
-> > 
-> > It may be best to back this change out until it can be fixed up for
-> > real.
-> 
-> Yes agreed, I had forgotten about that point... Will fix.
+Muli Ben-Yehuda <mulix@mulix.org> writes:
+>> I have no idea if that's what wli meant, but -1UL is only "all ones"
+>> in a 2's complement binary representation. 
 
-Andrew, does this work for you?
+On Sun, Feb 16, 2003 at 12:50:34PM +0100, Falk Hueffner wrote:
+> No. Wraparound of unsigned types is well-defined. -1UL must be the
+> largest possible unsigned long value, which must consist of only 1
+> bits (except for possible padding bits).
+> Of course, no machines with ones-complement (or padding bits, or
+> integer trap representations, or any of the other ISO braindamages)
+> exist, so this is mostly irrelevant anyway.
 
-===== drivers/block/deadline-iosched.c 1.14 vs edited =====
---- 1.14/drivers/block/deadline-iosched.c	Fri Feb 14 13:57:15 2003
-+++ edited/drivers/block/deadline-iosched.c	Sun Feb 16 12:57:35 2003
-@@ -297,6 +297,9 @@
- 		deadline_del_drq_rb(dd, drq);
- 	}
- 
-+	if (q->last_merge == &rq->queuelist)
-+		q->last_merge = NULL;
-+
- 	list_del_init(&rq->queuelist);
- }
- 
-@@ -424,12 +427,7 @@
- {
- 	request_queue_t *q = drq->request->q;
- 
--	if (q->last_merge == &drq->request->queuelist)
--		q->last_merge = NULL;
--
--	deadline_del_drq_hash(drq);
--	deadline_del_drq_rb(dd, drq);
--	list_del_init(&drq->fifo);
-+	deadline_remove_request(q, drq->request);
- 	list_add_tail(&drq->request->queuelist, dd->dispatch);
- }
- 
-===== drivers/block/elevator.c 1.39 vs edited =====
---- 1.39/drivers/block/elevator.c	Sun Feb 16 00:57:09 2003
-+++ edited/drivers/block/elevator.c	Sun Feb 16 11:32:35 2003
-@@ -399,7 +399,7 @@
- 	elevator_t *e = &q->elevator;
- 
- 	if (e->elevator_former_req_fn)
--		return e->elevator_latter_req_fn(q, rq);
-+		return e->elevator_former_req_fn(q, rq);
- 
- 	prev = rq->queuelist.prev;
- 	if (prev != &q->queue_head && prev != &rq->queuelist)
+In the "obvious" sense, -1UL is an oxymoron, as -1 is inherently signed,
+and the "UL" says "unsigned".
 
--- 
-Jens Axboe
+It's aesthetic. It's a violation of what I consider good taste to
+do signed bit twiddling on an unsigned value and/or vice-versa.
+Regardless of what ISO and/or Linux may or may not support, the habits
+ingrained in me wrt. portability say the assumption must not be made.
 
+YMMV.
+
+-- wli

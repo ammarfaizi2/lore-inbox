@@ -1,372 +1,830 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbTKNFOF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 00:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264529AbTKNFOF
+	id S264537AbTKNFQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 00:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTKNFQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 00:14:05 -0500
-Received: from smtp4.hy.skanova.net ([195.67.199.133]:52942 "EHLO
-	smtp4.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S264527AbTKNFNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 00:13:51 -0500
-From: Roger Larsson <roger.larsson@norran.net>
-To: linux-audio-dev@music.columbia.edu
-Subject: [CODE RFC] redefining sched_setscheduler using LD_PRELOAD
-Date: Fri, 14 Nov 2003 06:15:06 +0100
-User-Agent: KMail/1.5.93
-Cc: "Jack O'Quin" <joq@io.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 14 Nov 2003 00:16:30 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:8953 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264537AbTKNFPr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 00:15:47 -0500
+Date: Fri, 14 Nov 2003 10:52:04 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: lkcd-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com, suparna@in.ibm.com,
+       prasanna@in.ibm.com
+Subject: Re: LKCD Network dump over netpoll patch (2.6.0-test9)
+Message-ID: <20031114052204.GC18584@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20031110140742.GJ1409@in.ibm.com> <20031111005233.GV13246@waste.org> <20031114045714.GB18584@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_aTGt/o5l1l03GNF"
-Message-Id: <200311140615.06606.roger.larsson@norran.net>
+In-Reply-To: <20031114045714.GB18584@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_aTGt/o5l1l03GNF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
 Hi,
 
-(Jack O'Quin got me thinking about rt_monitor again - thanks!)
-
-This is an alternative to capabilities / SCHED_SOFTRR...
-
-I use my old rt_monitor=20
-* protects the system on RT overload
-* performs the actual setting of scheduler type
-* it does not even have to be visible for lusers!
-
-My old testprogram RT has been converted to
-a library fit for preloading.
-
-It works like this.
-
-As root start
-# rt_monitor
-
-As normal user start latencytest
-$ ./rts path/to/latencytest none 2 128 10
-
-rts has two options
-	-i	do not raise the priority.
-	-v	be more verbose.
-* It does also limit the effective min/max range.
-
-Do also try (don't try this as root unless rt_monitor is running)
-$ ./rts path/to/latencytest none 2 1024 99
-* In this case rt_monitor captures the process and renices it.
-  (SCHED_OTHER + nice)
-
-BUGS:
-* better build and installation system
-* could ignore RT processes already running when rt_monitor starts
-* rt_monitor functionallity has not been reverified...
-* it can't lock memory :-( No PIDs in calls.
-* code that checks uid before using the redefined functions won't work
-  (I have an modified latencytest)
-* client get stuck if there is no monitor running.
-
-/RogerL
-
-=2D-=20
-Roger Larsson
-Skellefte=E5
-Sweden
+Below is the lkcd-netdump.patch. This patch includes changes as suggested by 
+Matt Mackall to define a new routine netdump_send_packet().
 
 
+diff -urNp linux.orig/drivers/dump/dump_netdev.c linux+np/drivers/dump/dump_netdev.c
+--- linux.orig/drivers/dump/dump_netdev.c	2003-11-13 05:56:01.000000000 +0530
++++ linux+np/drivers/dump/dump_netdev.c	2003-11-14 13:47:39.147245304 +0530
+@@ -11,6 +11,8 @@
+  * Nov 2002 - Bharata B. Rao <bharata@in.ibm.com>
+  * 	Innumerable code cleanups, simplification and some fixes.
+  *	Netdump configuration done by ioctl instead of using module parameters.
++ * Oct 2003 - Prasanna S Panchamukhi <prasanna@in.ibm.com>
++ *	Netdump code modified to use Netpoll API's.
+  *
+  * Copyright (C) 2001  Ingo Molnar <mingo@redhat.com>
+  * Copyright (C) 2002 International Business Machines Corp. 
+@@ -26,23 +28,13 @@
+ #include <linux/module.h>
+ #include <linux/dump.h>
+ #include <linux/dump_netdev.h>
+-#include <linux/percpu.h>
+ 
+ #include <asm/unaligned.h>
+ 
+ static int startup_handshake;
+ static int page_counter;
+-static struct net_device *dump_ndev;
+-static struct in_device *dump_in_dev;
+-static u16 source_port, target_port;
+-static u32 source_ip, target_ip;
+-static unsigned char daddr[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff} ;
+-static spinlock_t dump_skb_lock = SPIN_LOCK_UNLOCKED;
+-static int dump_nr_skbs;
+-static struct sk_buff *dump_skb;
+ static unsigned long flags_global;
+ static int netdump_in_progress;
+-static char device_name[IFNAMSIZ];
+ 
+ /*
+  * security depends on the trusted path between the netconsole
+@@ -52,311 +44,27 @@ static char device_name[IFNAMSIZ];
+  */
+ static u64 dump_magic;
+ 
+-#define MAX_UDP_CHUNK 1460
+-#define MAX_PRINT_CHUNK (MAX_UDP_CHUNK-HEADER_LEN)
+-
+ /*
+  * We maintain a small pool of fully-sized skbs,
+  * to make sure the message gets out even in
+  * extreme OOM situations.
+  */
+-#define DUMP_MAX_SKBS 32
+-
+-#define MAX_SKB_SIZE \
+-		(MAX_UDP_CHUNK + sizeof(struct udphdr) + \
+-				sizeof(struct iphdr) + sizeof(struct ethhdr))
+-
+-static void
+-dump_refill_skbs(void)
+-{
+-	struct sk_buff *skb;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&dump_skb_lock, flags);
+-	while (dump_nr_skbs < DUMP_MAX_SKBS) {
+-		skb = alloc_skb(MAX_SKB_SIZE, GFP_ATOMIC);
+-		if (!skb)
+-			break;
+-		if (dump_skb)
+-			skb->next = dump_skb;
+-		else
+-			skb->next = NULL;
+-		dump_skb = skb;
+-		dump_nr_skbs++;
+-	}
+-	spin_unlock_irqrestore(&dump_skb_lock, flags);
+-}
+-
+-static struct
+-sk_buff * dump_get_skb(void)
+-{
+-	struct sk_buff *skb;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&dump_skb_lock, flags);
+-	skb = dump_skb;
+-	if (skb) {
+-		dump_skb = skb->next;
+-		skb->next = NULL;
+-		dump_nr_skbs--;
+-	}
+-	spin_unlock_irqrestore(&dump_skb_lock, flags);
+-        
+-	return skb;
+-}
+-
+-/*
+- * Zap completed output skbs.
+- */
+-static void
+-zap_completion_queue(void)
+-{
+-	int count;
+-	unsigned long flags;
+-	struct softnet_data *sd;
+-
+-        count=0;
+-	sd = &__get_cpu_var(softnet_data);
+-	if (sd->completion_queue) {
+-		struct sk_buff *clist;
+-	
+-		local_irq_save(flags);
+-		clist = sd->completion_queue;
+-		sd->completion_queue = NULL;
+-		local_irq_restore(flags);
+-
+-		while (clist != NULL) {
+-			struct sk_buff *skb = clist;
+-			clist = clist->next;
+-			__kfree_skb(skb);
+-			count++;
+-			if (count > 10000)
+-				printk("Error in sk list\n");
+-		}
+-	}
+-}
+-
+-static void
+-dump_send_skb(struct net_device *dev, const char *msg, unsigned int msg_len,
+-		reply_t *reply)
+-{
+-	int once = 1;
+-	int total_len, eth_len, ip_len, udp_len, count = 0;
+-	struct sk_buff *skb;
+-	struct udphdr *udph;
+-	struct iphdr *iph;
+-	struct ethhdr *eth; 
+-
+-	udp_len = msg_len + HEADER_LEN + sizeof(*udph);
+-	ip_len = eth_len = udp_len + sizeof(*iph);
+-	total_len = eth_len + ETH_HLEN;
+-
+-repeat_loop:
+-	zap_completion_queue();
+-	if (dump_nr_skbs < DUMP_MAX_SKBS)
+-		dump_refill_skbs();
+-
+-	skb = alloc_skb(total_len, GFP_ATOMIC);
+-	if (!skb) {
+-		skb = dump_get_skb();
+-		if (!skb) {
+-			count++;
+-			if (once && (count == 1000000)) {
+-				printk("possibly FATAL: out of netconsole "
+-					"skbs!!! will keep retrying.\n");
+-				once = 0;
+-			}
+-			dev->poll_controller(dev);
+-			goto repeat_loop;
+-		}
+-	}
+-
+-	atomic_set(&skb->users, 1);
+-	skb_reserve(skb, total_len - msg_len - HEADER_LEN);
+-	skb->data[0] = NETCONSOLE_VERSION;
+-
+-	put_unaligned(htonl(reply->nr), (u32 *) (skb->data + 1));
+-	put_unaligned(htonl(reply->code), (u32 *) (skb->data + 5));
+-	put_unaligned(htonl(reply->info), (u32 *) (skb->data + 9));
+-
+-	memcpy(skb->data + HEADER_LEN, msg, msg_len);
+-	skb->len += msg_len + HEADER_LEN;
+-
+-	udph = (struct udphdr *) skb_push(skb, sizeof(*udph));
+-	udph->source = source_port;
+-	udph->dest = target_port;
+-	udph->len = htons(udp_len);
+-	udph->check = 0;
+-
+-	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
+-
+-	iph->version  = 4;
+-	iph->ihl      = 5;
+-	iph->tos      = 0;
+-	iph->tot_len  = htons(ip_len);
+-	iph->id       = 0;
+-	iph->frag_off = 0;
+-	iph->ttl      = 64;
+-	iph->protocol = IPPROTO_UDP;
+-	iph->check    = 0;
+-	iph->saddr    = source_ip;
+-	iph->daddr    = target_ip;
+-	iph->check    = ip_fast_csum((unsigned char *)iph, iph->ihl);
+-
+-	eth = (struct ethhdr *) skb_push(skb, ETH_HLEN);
+-
+-	eth->h_proto = htons(ETH_P_IP);
+-	memcpy(eth->h_source, dev->dev_addr, dev->addr_len);
+-	memcpy(eth->h_dest, daddr, dev->addr_len);
+-
+-	count=0;
+-repeat_poll:
+-	spin_lock(&dev->xmit_lock);
+-	dev->xmit_lock_owner = smp_processor_id();
+-
+-	count++;
+-
+-
+-	if (netif_queue_stopped(dev)) {
+-		dev->xmit_lock_owner = -1;
+-		spin_unlock(&dev->xmit_lock);
+-
+-		dev->poll_controller(dev);
+-		zap_completion_queue();
+-
+-
+-		goto repeat_poll;
+-	}
+-
+-	dev->hard_start_xmit(skb, dev);
+-
+-	dev->xmit_lock_owner = -1;
+-	spin_unlock(&dev->xmit_lock);
+-}
+-
+-static unsigned short
+-udp_check(struct udphdr *uh, int len, unsigned long saddr, unsigned long daddr,
+-	       	unsigned long base)
+-{
+-	return csum_tcpudp_magic(saddr, daddr, len, IPPROTO_UDP, base);
+-}
+-
+-static int
+-udp_checksum_init(struct sk_buff *skb, struct udphdr *uh,
+-			     unsigned short ulen, u32 saddr, u32 daddr)
+-{
+-	if (uh->check == 0) {
+-		skb->ip_summed = CHECKSUM_UNNECESSARY;
+-	} else if (skb->ip_summed == CHECKSUM_HW) {
+-		skb->ip_summed = CHECKSUM_UNNECESSARY;
+-		if (!udp_check(uh, ulen, saddr, daddr, skb->csum))
+-			return 0;
+-		skb->ip_summed = CHECKSUM_NONE;
+-	}
+-	if (skb->ip_summed != CHECKSUM_UNNECESSARY)
+-		skb->csum = csum_tcpudp_nofold(saddr, daddr, ulen,
+-				IPPROTO_UDP, 0);
+-	/* Probably, we should checksum udp header (it should be in cache
+-	 * in any case) and data in tiny packets (< rx copybreak).
+-	 */
+-	return 0;
+-}
+-
+-static __inline__ int
+-__udp_checksum_complete(struct sk_buff *skb)
+-{
+-	return (unsigned short)csum_fold(skb_checksum(skb, 0, skb->len,
+-				skb->csum));
+-}
+-
+-static __inline__
+-int udp_checksum_complete(struct sk_buff *skb)
+-{
+-	return skb->ip_summed != CHECKSUM_UNNECESSARY &&
+-		__udp_checksum_complete(skb);
+-}
+ 
++static void rx_hook(struct netpoll *np, int port, char *msg, int size);
+ int new_req = 0;
+ static req_t req;
+ 
+-static int
+-dump_rx_hook(struct sk_buff *skb)
++static void rx_hook(struct netpoll *np, int port, char *msg, int size)
+ {
+-	int proto;
+-	struct iphdr *iph;
+-	struct udphdr *uh;
+-	__u32 len, saddr, daddr, ulen;
+-	req_t *__req;
+-
++	req_t * __req = (req_t *) msg;
+ 	/* 
+ 	 * First check if were are dumping or doing startup handshake, if
+ 	 * not quickly return.
+ 	 */
+-	if (!netdump_in_progress)
+-		return NET_RX_SUCCESS;
+-
+-	if (skb->dev->type != ARPHRD_ETHER)
+-		goto out;
+-
+-	proto = ntohs(skb->mac.ethernet->h_proto);
+-	if (proto != ETH_P_IP)
+-		goto out;
+-
+-	if (skb->pkt_type == PACKET_OTHERHOST)
+-		goto out;
+-
+-	if (skb_shared(skb))
+-		goto out;
+-
+-	 /* IP header correctness testing: */
+-	iph = (struct iphdr *)skb->data;
+-	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+-		goto out;
+-
+-	if (iph->ihl < 5 || iph->version != 4)
+-		goto out;
+-
+-	if (!pskb_may_pull(skb, iph->ihl*4))
+-		goto out;
+-
+-	if (ip_fast_csum((u8 *)iph, iph->ihl) != 0)
+-		goto out;
+-
+-	len = ntohs(iph->tot_len);
+-	if (skb->len < len || len < iph->ihl*4)
+-		goto out;
+-
+-	saddr = iph->saddr;
+-	daddr = iph->daddr;
+-	if (iph->protocol != IPPROTO_UDP)
+-		goto out;
+-
+-	if (source_ip != daddr)
+-		goto out;
+-
+-	if (target_ip != saddr)
+-		goto out;
+ 
+-	len -= iph->ihl*4;
+-	uh = (struct udphdr *)(((char *)iph) + iph->ihl*4);
+-	ulen = ntohs(uh->len);
+-
+-	if (ulen != len || ulen < (sizeof(*uh) + sizeof(*__req)))
+-		goto out;
+-
+-	if (udp_checksum_init(skb, uh, ulen, saddr, daddr) < 0)
+-		goto out;
+-
+-	if (udp_checksum_complete(skb))
+-		goto out;
+-
+-	if (source_port != uh->dest)
+-		goto out;
+-
+-	if (target_port != uh->source)
+-		goto out;
++	if (!netdump_in_progress)
++		return ;
+ 
+-	__req = (req_t *)(uh + 1);
+ 	if ((ntohl(__req->command) != COMM_GET_MAGIC) &&
+ 	    (ntohl(__req->command) != COMM_HELLO) &&
+ 	    (ntohl(__req->command) != COMM_START_WRITE_NETDUMP_ACK) &&
+@@ -371,27 +79,43 @@ dump_rx_hook(struct sk_buff *skb)
+ 	req.nr = ntohl(__req->nr);
+ 	new_req = 1;
+ out:
+-	return NET_RX_DROP;
++	return ;
++}
++static char netdump_membuf[1024 + HEADER_LEN + 1];
++/*
++ * Fill the netdump_membuf with the header information from reply_t structure 
++ * and send it down to netpoll_send_udp() routine.
++ */
++static void 
++netdump_send_packet(struct netpoll *np, reply_t *reply, size_t data_len) {
++	char *b;
++
++	b = &netdump_membuf[1];
++	netdump_membuf[0] = NETCONSOLE_VERSION;
++	put_unaligned(htonl(reply->nr), (u32 *) b);
++	put_unaligned(htonl(reply->code), (u32 *) (b + sizeof(reply->code)));
++	put_unaligned(htonl(reply->info), (u32 *) (b + sizeof(reply->code) + 
++		sizeof(reply->info)));
++	netpoll_send_udp(np, netdump_membuf, data_len + HEADER_LEN);
+ }
+ 
+ static void
+-dump_send_mem(struct net_device *dev, req_t *req, const char* buff, size_t len)
++dump_send_mem(struct netpoll *np, req_t *req, const char* buff, size_t len)
+ {
+ 	int i;
+ 
+ 	int nr_chunks = len/1024;
+ 	reply_t reply;
+-	
+-	reply.nr = req->nr;
+-	reply.info = 0;
+ 
++	reply.nr = req->nr;
++	reply.code = REPLY_MEM;
+         if ( nr_chunks <= 0)
+ 		 nr_chunks = 1;
+ 	for (i = 0; i < nr_chunks; i++) {
+ 		unsigned int offset = i*1024;
+-		reply.code = REPLY_MEM;
+ 		reply.info = offset;
+-                dump_send_skb(dev, buff + offset, 1024, &reply);
++		memcpy((netdump_membuf + HEADER_LEN), (buff + offset), 1024);
++		netdump_send_packet(np, &reply, 1024);
+ 	}
+ }
+ 
+@@ -407,31 +131,33 @@ dump_send_mem(struct net_device *dev, re
+ static int
+ dump_handshake(struct dump_dev *net_dev)
+ {
+-	char tmp[200];
+ 	reply_t reply;
+ 	int i, j;
++	size_t str_len;
+ 
+ 	if (startup_handshake) {
+-		sprintf(tmp, "NETDUMP start, waiting for start-ACK.\n");
++		sprintf((netdump_membuf + HEADER_LEN), 
++			"NETDUMP start, waiting for start-ACK.\n");
+ 		reply.code = REPLY_START_NETDUMP;
+ 		reply.nr = 0;
+ 		reply.info = 0;
+ 	} else {
+-		sprintf(tmp, "NETDUMP start, waiting for start-ACK.\n");
++		sprintf((netdump_membuf + HEADER_LEN), 
++			"NETDUMP start, waiting for start-ACK.\n");
+ 		reply.code = REPLY_START_WRITE_NETDUMP;
+ 		reply.nr = net_dev->curr_offset;
+ 		reply.info = net_dev->curr_offset;
+ 	}
++	str_len = strlen(netdump_membuf + HEADER_LEN);
+ 	
+ 	/* send 300 handshake packets before declaring failure */
+ 	for (i = 0; i < 300; i++) {
+-		dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++		netdump_send_packet(&net_dev->np, &reply, str_len);
+ 
+ 		/* wait 1 sec */
+ 		for (j = 0; j < 10000; j++) {
+ 			udelay(100);
+-			dump_ndev->poll_controller(dump_ndev);
+-			zap_completion_queue();
++			netpoll_poll(&net_dev->np);
+ 			if (new_req)
+ 				break;
+ 		}
+@@ -472,9 +198,9 @@ static ssize_t
+ do_netdump(struct dump_dev *net_dev, const char* buff, size_t len)
+ {
+ 	reply_t reply;
+-	char tmp[200];
+ 	ssize_t  ret = 0;
+ 	int repeatCounter, counter, total_loop;
++	size_t str_len;
+ 	
+ 	netdump_in_progress = 1;
+ 
+@@ -497,8 +223,7 @@ do_netdump(struct dump_dev *net_dev, con
+ 	total_loop = 0;
+ 	while (1) {
+                 if (!new_req) {
+-			dump_ndev->poll_controller(dump_ndev);
+-			zap_completion_queue();
++			netpoll_poll(&net_dev->np);
+ 		}
+ 		if (!new_req) {
+ 			repeatCounter++;
+@@ -530,7 +255,7 @@ do_netdump(struct dump_dev *net_dev, con
+ 			break;
+ 
+ 		case COMM_SEND_MEM:
+-			dump_send_mem(dump_ndev, &req, buff, len);
++			dump_send_mem(&net_dev->np, &req, buff, len);
+ 			break;
+ 
+ 		case COMM_EXIT:
+@@ -539,46 +264,55 @@ do_netdump(struct dump_dev *net_dev, con
+ 			goto out;
+ 
+ 		case COMM_HELLO:
+-			sprintf(tmp, "Hello, this is netdump version "
+-					"0.%02d\n", NETCONSOLE_VERSION);
++			sprintf((netdump_membuf + HEADER_LEN), 
++				"Hello, this is netdump version " "0.%02d\n",
++				 NETCONSOLE_VERSION);
++			str_len = strlen(netdump_membuf + HEADER_LEN);
+ 			reply.code = REPLY_HELLO;
+ 			reply.nr = req.nr;
+                         reply.info = net_dev->curr_offset;
+-			dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++			netdump_send_packet(&net_dev->np, &reply, str_len);
+ 			break;
+ 
+ 		case COMM_GET_PAGE_SIZE:
+-			sprintf(tmp, "PAGE_SIZE: %ld\n", PAGE_SIZE);
++			sprintf((netdump_membuf + HEADER_LEN), 
++				"PAGE_SIZE: %ld\n", PAGE_SIZE);
++			str_len = strlen(netdump_membuf + HEADER_LEN);
+ 			reply.code = REPLY_PAGE_SIZE;
+ 			reply.nr = req.nr;
+ 			reply.info = PAGE_SIZE;
+-			dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++			netdump_send_packet(&net_dev->np, &reply, str_len);
+ 			break;
+ 
+ 		case COMM_GET_NR_PAGES:
+ 			reply.code = REPLY_NR_PAGES;
+ 			reply.nr = req.nr;
+ 			reply.info = num_physpages;
+-                        reply.info = page_counter;
+-			sprintf(tmp, "Number of pages: %ld\n", num_physpages);
+-			dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++			reply.info = page_counter;
++			sprintf((netdump_membuf + HEADER_LEN), 
++				"Number of pages: %ld\n", num_physpages);
++			str_len = strlen(netdump_membuf + HEADER_LEN);
++			netdump_send_packet(&net_dev->np, &reply, str_len);
+ 			break;
+ 
+ 		case COMM_GET_MAGIC:
+ 			reply.code = REPLY_MAGIC;
+ 			reply.nr = req.nr;
+ 			reply.info = NETCONSOLE_VERSION;
+-			dump_send_skb(dump_ndev, (char *)&dump_magic,
+-					sizeof(dump_magic), &reply);
++			sprintf((netdump_membuf + HEADER_LEN), 
++				(char *)&dump_magic, sizeof(dump_magic));
++			str_len = strlen(netdump_membuf + HEADER_LEN);
++			netdump_send_packet(&net_dev->np, &reply, str_len);
+ 			break;
+ 
+ 		default:
+ 			reply.code = REPLY_ERROR;
+ 			reply.nr = req.nr;
+ 			reply.info = req.command;
+-			sprintf(tmp, "Got unknown command code %d!\n",
+-					req.command);
+-			dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++			sprintf((netdump_membuf + HEADER_LEN), 
++				"Got unknown command code %d!\n", req.command);
++			str_len = strlen(netdump_membuf + HEADER_LEN);
++			netdump_send_packet(&net_dev->np, &reply, str_len);
+ 			break;
+ 		}
+ 	}
+@@ -588,47 +322,43 @@ out:
+ }
+ 
+ static int
+-dump_validate_config(void)
++dump_validate_config(struct netpoll *np)
+ {
+-	source_ip = dump_in_dev->ifa_list->ifa_local;
+-	if (!source_ip) {
++	if (!np->local_ip) {
+ 		printk("network device %s has no local address, "
+-				"aborting.\n", device_name);
++				"aborting.\n", np->name);
+ 		return -1;
+ 	}
+ 
+-#define IP(x) ((unsigned char *)&source_ip)[x]
++#define IP(x) ((unsigned char *)&np->local_ip)[x]
+ 	printk("Source %d.%d.%d.%d", IP(0), IP(1), IP(2), IP(3));
+ #undef IP
+ 
+-	if (!source_port) {
++	if (!np->local_port) {
+ 		printk("source_port parameter not specified, aborting.\n");
+ 		return -1;
+ 	}
+-	printk(":%i\n", source_port);
+-	source_port = htons(source_port);
+ 
+-	if (!target_ip) {
++	if (!np->remote_ip) {
+ 		printk("target_ip parameter not specified, aborting.\n");
+ 		return -1;
+ 	}
+ 
+-#define IP(x) ((unsigned char *)&target_ip)[x]
++	np->remote_ip = ntohl(np->remote_ip);
++#define IP(x) ((unsigned char *)&np->remote_ip)[x]
+ 	printk("Target %d.%d.%d.%d", IP(0), IP(1), IP(2), IP(3));
+ #undef IP
+ 
+-	if (!target_port) {
++	if (!np->remote_port) {
+ 		printk("target_port parameter not specified, aborting.\n");
+ 		return -1;
+ 	}
+-	printk(":%i\n", target_port);
+-	target_port = htons(target_port);
+-
+ 	printk("Target Ethernet Address %02x:%02x:%02x:%02x:%02x:%02x",
+-		daddr[0], daddr[1], daddr[2], daddr[3], daddr[4], daddr[5]);
++		np->remote_mac[0], np->remote_mac[1], np->remote_mac[2], 
++		np->remote_mac[3], np->remote_mac[4], np->remote_mac[5]);
+ 
+-	if ((daddr[0] & daddr[1] & daddr[2] & daddr[3] & daddr[4] & 
+-				daddr[5]) == 255)
++	if ((np->remote_mac[0] & np->remote_mac[1] & np->remote_mac[2] & 
++		np->remote_mac[3] & np->remote_mac[4] & np->remote_mac[5]) == 255)
+ 		printk("(Broadcast)");
+ 	printk("\n");
+ 	return 0;
+@@ -646,40 +376,15 @@ dump_net_open(struct dump_dev *net_dev, 
+ 	int retval = 0;
+ 
+ 	/* get the interface name */
+-	if (copy_from_user(device_name, (void *)arg, IFNAMSIZ))
++	if (copy_from_user(net_dev->np.dev_name, (void *)arg, IFNAMSIZ))
+ 		return -EFAULT;
++	net_dev->np.rx_hook = rx_hook;	
++	retval = netpoll_setup(&net_dev->np);
+ 
+-	if (!(dump_ndev = dev_get_by_name(device_name))) {
+-		printk("network device %s does not exist, aborting.\n",
+-				device_name);
+-		return -ENODEV;
+-	}
+-
+-	if (!dump_ndev->poll_controller) {
+-		printk("network device %s does not implement polling yet, "
+-				"aborting.\n", device_name);
+-		retval = -1; /* return proper error */
+-		goto err1;
+-	}
+-
+-	if (!(dump_in_dev = in_dev_get(dump_ndev))) {
+-		printk("network device %s is not an IP protocol device, "
+-				"aborting.\n", device_name);
+-		retval = -EINVAL;
+-		goto err1;
+-	}
+-
+-	if ((retval = dump_validate_config()) < 0)
+-		goto err2;
+-
++	dump_validate_config(&net_dev->np);
+ 	net_dev->curr_offset = 0;
+ 	printk("Network device %s successfully configured for dumping\n",
+-			device_name);
+-	return retval;
+-err2:
+-	in_dev_put(dump_in_dev);
+-err1:
+-	dev_put(dump_ndev);	
++			net_dev->np.dev_name);
+ 	return retval;
+ }
+ 
+@@ -690,10 +395,7 @@ err1:
+ static int
+ dump_net_release(struct dump_dev *net_dev)
+ {
+-	if (dump_in_dev)
+-		in_dev_put(dump_in_dev);
+-	if (dump_ndev)
+-		dev_put(dump_ndev);
++	netpoll_cleanup(&net_dev->np);
+ 	return 0;
+ }
+ 
+@@ -705,10 +407,9 @@ static int
+ dump_net_silence(struct dump_dev *net_dev)
+ {
+ 	local_irq_save(flags_global);
+-	dump_ndev->rx_hook = dump_rx_hook;
+         startup_handshake = 1;
+ 	net_dev->curr_offset = 0;
+-	printk("Dumping to network device %s on CPU %d ...\n", device_name,
++	printk("Dumping to network device %s on CPU %d ...\n", net_dev->np.name,
+ 			smp_processor_id());
+ 	return 0;
+ }
+@@ -722,22 +423,19 @@ static int
+ dump_net_resume(struct dump_dev *net_dev)
+ {
+ 	int indx;
++	size_t str_len;
+ 	reply_t reply;
+-	char tmp[200];
+ 
+-        if (!dump_ndev)
+-		return (0);
+-
+-	sprintf(tmp, "NETDUMP end.\n");
++	sprintf((netdump_membuf + HEADER_LEN), "NETDUMP end.\n");
++	str_len = strlen(netdump_membuf + HEADER_LEN);
+ 	for( indx = 0; indx < 6; indx++) {
+ 		reply.code = REPLY_END_NETDUMP;
+ 		reply.nr = 0;
+ 		reply.info = 0;
+-		dump_send_skb(dump_ndev, tmp, strlen(tmp), &reply);
++		netdump_send_packet(&net_dev->np, &reply, str_len);
+ 	}
+ 	printk("NETDUMP END!\n");
+ 	local_irq_restore(flags_global);
+-	dump_ndev->rx_hook = NULL;
+ 	startup_handshake = 0;
+ 	return 0;
+ }
+@@ -749,11 +447,6 @@ dump_net_resume(struct dump_dev *net_dev
+ static  int
+ dump_net_seek(struct dump_dev *net_dev, loff_t off)
+ {
+-	/*
+-	 * For now using DUMP_HEADER_OFFSET as hard coded value,
+-	 * See dump_block_seekin dump_blockdev.c to know how to
+-	 * do this properly.
+-	 */
+ 	net_dev->curr_offset = off;
+ 	return 0;
+ }
+@@ -796,16 +489,16 @@ dump_net_ioctl(struct dump_dev *net_dev,
+ {
+ 	switch (cmd) {
+ 	case DIOSTARGETIP:
+-		target_ip = arg;
++		net_dev->np.remote_ip= arg;
+ 		break;
+ 	case DIOSTARGETPORT:
+-		target_port = (u16)arg;
++		net_dev->np.remote_port = (u16)arg;
+ 		break;
+ 	case DIOSSOURCEPORT:
+-		source_port = (u16)arg;
++		net_dev->np.local_port = (u16)arg;
+ 		break;
+ 	case DIOSETHADDR:
+-		return copy_from_user(daddr, (void *)arg, 6);
++		return copy_from_user(net_dev->np.remote_mac, (void *)arg, 6);
+ 		break;
+ 	case DIOGTARGETIP:
+ 	case DIOGTARGETPORT:
+@@ -833,13 +526,19 @@ struct dump_dev_ops dump_netdev_ops = {
+ static struct dump_dev default_dump_netdev = {
+ 	.type_name = "networkdev", 
+ 	.ops = &dump_netdev_ops, 
+-	.curr_offset = 0
++	.curr_offset = 0,
++	.np.name = "netdump",
++	.np.dev_name = "eth0",
++	.np.rx_hook = rx_hook,
++	.np.local_port = 6688,
++	.np.remote_port = 6688,
++	.np.remote_mac = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+ };
+ 
+ static int __init
+ dump_netdev_init(void)
+ {
+-        default_dump_netdev.curr_offset = 0;
++	default_dump_netdev.curr_offset = 0;
+ 
+ 	if (dump_register_device(&default_dump_netdev) < 0) {
+ 		printk("network dump device driver registration failed\n");
+Binary files linux.orig/drivers/dump/.dump_netdev.c.swp and linux+np/drivers/dump/.dump_netdev.c.swp differ
+diff -urNp linux.orig/include/linux/dumpdev.h linux+np/include/linux/dumpdev.h
+--- linux.orig/include/linux/dumpdev.h	2003-11-13 05:56:17.000000000 +0530
++++ linux+np/include/linux/dumpdev.h	2003-11-13 05:57:07.000000000 +0530
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/wait.h>
++#include <linux/netpoll.h>
+ #include <linux/bio.h>
+ 
+ /* Determined by the dump target (device) type */
+@@ -48,6 +49,7 @@ struct dump_dev {
+ 	struct dump_dev_ops *ops;
+ 	struct list_head list;
+ 	loff_t curr_offset;
++	struct netpoll np;
+ };
+ 
+ /*
+Binary files linux.orig/index.1 and linux+np/index.1 differ
+diff -urNp linux.orig/net/Kconfig linux+np/net/Kconfig
+--- linux.orig/net/Kconfig	2003-11-13 05:56:14.000000000 +0530
++++ linux+np/net/Kconfig	2003-11-13 05:57:07.000000000 +0530
+@@ -671,7 +671,7 @@ source "net/irda/Kconfig"
+ source "net/bluetooth/Kconfig"
+ 
+ config NETPOLL
+-	def_bool NETCONSOLE
++	def_bool NETCONSOLE || CRASH_DUMP_NETDEV
+ 
+ config NETPOLL_RX
+ 	bool "Netpoll support for trapping incoming packets"
 
-
-
---Boundary-00=_aTGt/o5l1l03GNF
-Content-Type: application/x-zip;
-  name="rts.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="rts.zip"
-
-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
-
---Boundary-00=_aTGt/o5l1l03GNF--
+-- 
+Thanks & Regards
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-5044632

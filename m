@@ -1,102 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312582AbSDXTym>; Wed, 24 Apr 2002 15:54:42 -0400
+	id <S312581AbSDXTxZ>; Wed, 24 Apr 2002 15:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312584AbSDXTyl>; Wed, 24 Apr 2002 15:54:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S312582AbSDXTyj>; Wed, 24 Apr 2002 15:54:39 -0400
-Date: Wed, 24 Apr 2002 15:52:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-In-Reply-To: <Pine.LNX.3.96.1020424150911.3065D-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.3.95.1020424153658.5784A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312582AbSDXTxY>; Wed, 24 Apr 2002 15:53:24 -0400
+Received: from alex.intersurf.net ([216.115.129.11]:9992 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S312581AbSDXTxX>; Wed, 24 Apr 2002 15:53:23 -0400
+Date: Wed, 24 Apr 2002 14:53:15 -0500
+From: Mark Orr <markorr@intersurf.com>
+To: linux-kernel@vger.kernel.org
+Subject: IDE problem:  2.5.10 compiles but hangs during boot
+Message-Id: <20020424145315.7331bef2.markorr@intersurf.com>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Apr 2002, Bill Davidsen wrote:
 
-> On Wed, 24 Apr 2002, Richard B. Johnson wrote:
-> 
-> > On Tue, 23 Apr 2002, Bill Davidsen wrote:
-> 
-> > > Several things come to mind:
-> > > 1 - don't dedicate the entire machine to retrying the error such that
-> > >     everything else runs slowly if at all.
-> > 
-> > But it doesn't! As previously stated, if you have a device on a common
-> > 'channel' (like IDE), that everybody else is trying to use, then
-> > everybody else ends up waiting. However, if your errored devices don't
-> > take over a common I/O channel, everybody else gets the CPU while the
-> > errors are being retried.
-> > 
-> > For instance, I have SCSI for my disks, and I use IDE for a R/W CD
-> > because it's cheap. I can "try forever" reading dorked CDs and the
-> > only process affected at all is the one trying to read the CD. I
-> > can do full-speed compiles while the CD is being retried.
-> 
-> That's very nice for a system where cost is no object, but ATAPI/IDE is
-> where the bulk of Linux system are running. Putting the CD on another
-> cable is realistic (the system I hung does that) but putting the CD on IDE
-> and the disk on SCSI is not cost effective compared to fixing the hang in
-> software.
->  
+System:  Pentium 100, 16mb, Neptune II chipset w/ RZ1000 IDE
+         WD Caviar 2540 (540mb) HD,   NEC-260 IDE CD
+         
+Linux 2.5.10 compiles but doesnt complete boot due to some IDE
+errors.    Previous working kernel was 2.5.8-pre3.
 
-It is NOT a hang in the software. IDE means Integrated Drive Electronics.
-The ONLY thing the CPU has to work with is the electronics IN the drive.
-It communicates with the drive from a port on the mother-board. There
-is no controller on the motherboard. There is absolutely nothing to
-isolate one drive from another. A single drive, doing its retries will
-"own" that drive-cable until it has either succeded or given up.
+relevant bits from the boot messages:
+---
+ide0: disable chipset read-ahead (buggy RZ1000/RZ1001)
+ide1: disable chipset read-ahead (buggy RZ1000/RZ1001)
+hda: WDC AC2540H, ATA disk drive
+hdc: NEC CD-ROM DRIVE:260, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide: unexpected interrupt 1 15
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 1056384 sectors (541Mb) w/128Kib cache CHS=1048/16/63
+Partition check:
+  hda: [PTBL] [524/32/64] hda1 hda2 hda3
 
-The CPU software MUST NOT do anything on that port until the previous
-request was answered via interrupt. This means that if the CD is
-using the bus, no task can access any hard-disk drive that is on
-that same port.
+(...some network stuff, then it runs fsck)
 
-You can see that there is plenty of CPU time available by having
-one task do;
+remounting root device with read-write enabled.
+hda: task_mulout_intr: status=0x65 { DriveReady DriveFault CorrectedError Error}
+hda: task_mulout_intr: error=0x04 {DriveStatusError}
+ide: unexpected interrupt 0 14
+ide0: reset: success
 
-while true; do echo "Hello World!"; done
+...and there it stops.
+   
+--
 
-(before you access you damaged CD).
-
-Then, using another VT, access your damaged CD.
-
-When you switch to the 'Hello world' terminal, it's merrily spinning
-along, getting all the CPU time your other task would have gotten
-if the drive was readable.
-
-> > It's all about configuration. The kernel drivers sleep while waiting
-> > for interrupts that will determine the success or failure of the
-> > disk operation. The 'sleep' means that the CPU gets given to somebody
-> > who could use it.
-> 
-> It would also be nice if the other IDE channels were given to "somebody
-> who could use it," but that would appear in some cases not to happen.
-> 
-
-There are no other IDE channels to give up. The 'master/save'
-configuration should be labled 'cheaper' and the two/channel
-configuration should be labeled 'cheapest'. It's what you pay
-for. It has nothing to do with the kernel or its drivers.
-Recent work on IDE was an attempt to get DMA operations and
-other 'speed-up' operations to work better. They will never
-work well because IDE is not designed to work well. It's
-designed to simply exist.
-
-[SNIPPED...]
+My kernel configuration is default, except IDE CDROM is modularized.
 
 
-Cheers,
-Dick Johnson
+After receiving this error, I went back and disabled CMD640 and 
+Generic PCI IDE support - which has compiled and worked in the past,
+but it doesnt compile with this kernel version:
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+make[3]: Entering directory `/usr/src/linux/drivers/ide'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586   -DKBUILD_BASENAME=ide  -DEXPORT_SYMTAB -c ide.c
+In file included from /usr/src/linux/include/linux/ide.h:238,
+                 from ide.c:138:
+/usr/src/linux/include/asm/ide.h: In function `ide_init_default_hwifs':
+/usr/src/linux/include/asm/ide.h:84: warning: implicit declaration of function `ide_register_hw'
+ide.c: In function `ide_unregister':
+ide.c:2300: structure has no member named `pci_dev'
+ide.c: In function `ide_teardown_commandlist':
+ide.c:2845: structure has no member named `pci_dev'
+make[3]: *** [ide.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/ide'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-                 Windows-2000/Professional isn't.
-
+--

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271189AbTHHLES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 07:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTHHLES
+	id S271206AbTHHLSt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 07:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271211AbTHHLSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 07:04:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22516 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271189AbTHHLER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 07:04:17 -0400
-Date: Fri, 8 Aug 2003 13:04:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Jasper Spaans <jasper@vs19.net>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [OT] Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-Message-ID: <20030808110411.GQ16091@fs.tum.de>
-References: <20030807180032.GA16957@spaans.vs19.net> <Pine.LNX.4.53.0308072139320.12875@montezuma.mastecende.com> <20030808065230.GA5996@spaans.vs19.net> <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com> <20030808071530.GD18823@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030808071530.GD18823@suse.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 8 Aug 2003 07:18:49 -0400
+Received: from core.kaist.ac.kr ([143.248.147.118]:10696 "EHLO
+	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S271206AbTHHLSs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 07:18:48 -0400
+Message-ID: <001f01c35d9e$3df295b0$a5a5f88f@core8fyzomwjks>
+From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: BT848 driver code
+Date: Fri, 8 Aug 2003 20:14:32 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 09:15:30AM +0200, Jens Axboe wrote:
-> On Fri, Aug 08 2003, Zwane Mwaikambo wrote:
-> > I know it wasn't purely cosmetic but i just wish we could use the proper 
-> > spelling instead of US English. No i'm not trolling.
-> 
-> You might want to be, but you are ;)
-> 
-> US English is clearly more optimized.
+I think that data in BT848's memory is transferred to graphic card memory
 
-E.g. you need less than 1/1000 of the money you need for one billion
-(UK English) English pounds for one billion (US English) dollars.
+to show the captured data at monitor.
 
-OTOH, it sounds funny that the USA are indebted with several trillion
-(US English) dollars.
+Am i right?
 
-> Jens Axboe
+If right, what variable is pointed to graphic card memory  in device driver
+code?
 
-cu
-Adrian
+(I think in /drivers/media/video/bttv-driver.c)
 
--- 
+Or is memory  in graphic card managed by more complex scheme as page?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Please answer, thanks.
+
 

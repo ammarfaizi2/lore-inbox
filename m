@@ -1,200 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280618AbRKFWG2>; Tue, 6 Nov 2001 17:06:28 -0500
+	id <S280617AbRKFWJ6>; Tue, 6 Nov 2001 17:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280617AbRKFWGV>; Tue, 6 Nov 2001 17:06:21 -0500
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:40205 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S280619AbRKFWGG>; Tue, 6 Nov 2001 17:06:06 -0500
-Date: Tue, 06 Nov 2001 15:05:49 -0700 (MST)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: 2.4.14 SMP Buffers/Cache reporting problem
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.33.0111061443050.19781-100000@jbourne2.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-X-Comment: This communication is intended for the use of the recipient to which
- it is
-X-Comment: addressed, and may contain confidential, personal, and or privileged
-X-Comment: information.  Please contact the sender immediately if you are not
- the
-X-Comment: intended recipient of this communication, and do not copy,
- distribute, or
-X-Comment: take action relying on it.  Any communication received in error, or
-X-Comment: subsequent reply, should be deleted or destroyed.
+	id <S280619AbRKFWJs>; Tue, 6 Nov 2001 17:09:48 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:24215 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S280617AbRKFWJd>; Tue, 6 Nov 2001 17:09:33 -0500
+Date: Tue, 6 Nov 2001 17:09:28 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: <erik@hensema.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+In-Reply-To: <slrn9uglko.esu.spamtrap@dexter.hensema.xs4all.nl>
+Message-ID: <Pine.GSO.4.33.0111061648040.17287-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel Versions 2.4.13, 2.4.14 both SMP
-ext3 patch versions ext3-2.4-0.9.15-2414, ext3-2.4-0.9.13-2413p6
-Red Hat e1000 patch (not used on this machine)
+On 6 Nov 2001, Erik Hensema wrote:
+>ASCII is readable by all languages with little programmer effort. In C, you
+>can use a simple scanf, Perl and shells like plain ascii best.
 
-2.4.14 has the loop patch to remove the 2 deactivate_page() calls.
+Right.  Use scanf and you'll be spending the rest of your life chasing
+buffer overflows.  Dealing with text efficiently is not "simple."  If it
+were, CS students wouldn't take so long to learn how to process text inputs.
 
-System is a Dell 4300, dual 450, 1G RAM.  2xeepro100.  Megaraid with 3-9G
-drives on raid5.
+And perl handles binary as well as text.  It can deal with binary faster
+than it can text, but most people are too lazy to use binary formats with
+perl. (I've seen a few, but they were all custom web applications.)
 
-Ok, the problem is that after heavy workload with ext3, buffers and cache go
-completely and utterly insane...
+>When /proc is turned into some binary interface we'd need to create little
+>programs which read the binary values from the files and output them on
+>their stdout, which is quite cumbersome, IMHO.
 
-Output relates to 2.4.14 with ext3-2.4-0.9.15-2414, loop-patch, and e1000
-patch from 2.4.7 (redhat).
+So, do you run 'free' or 'cat /proc/meminfo'?  'uptime' or 'cat /proc/uptime'?
+'netstat', 'route', 'arp', etc. or root through /proc/net/*?  I bet you use
+'ps' instead of monkeying around in all the [0-9]* entries in /proc.  The
+fact is, we already have "little programs" converting, shuffling, reformating,
+and printing out those values.
 
-We are in need to get a production system off 2.4.13.  Is this one a show
-stopper?
+However, yes, there are useful "human" elements in /proc.  And they really
+are there for the sole benefit of a human (eg. /proc/scsi/scsi, /proc/modules,
+/proc/slabinfo, etc.)  The bigger picture is that they don't particularly
+belong in "/proc" -- the thing originally created to access the process table
+without rooting through /dev/kmem. (Raise your hand if you were around for
+this.)
 
-Regards
-James Bourne
+>Yes, maintain compatibility for 2.6 and try to dump it for 2.8.
 
----------------------------
+Heh.  It took how many years to get "2.4" stamped on a version?  I'm guessing
+2.5 will not exist for several months and the actual "stable" 2.6 will not
+be available until 2005.
 
-# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054720000 210366464 844353536        0 169832448 18446744073561239552
-Swap: 2147467264        0 2147467264
-MemTotal:      1030000 kB
-MemFree:        824564 kB
-MemShared:           0 kB
-Buffers:        165852 kB
-Cached:       4294822460 kB
-SwapCached:          0 kB
-Active:         166492 kB
-Inactive:        18604 kB
-HighTotal:      131064 kB
-HighFree:         2968 kB
-LowTotal:       898936 kB
-LowFree:        821596 kB
-SwapTotal:     2097136 kB
-SwapFree:      2097136 kB
+>Heck, 95% compatibility could even be achieved using a 100% userspace app
+>which serves the data over named pipes.
 
-******** Alt-Sysrq output ********
-Nov  6 14:54:39 test-10-2 kernel: SysRq : Show Memory
-Nov  6 14:54:39 test-10-2 kernel: Mem-info:
-Nov  6 14:54:39 test-10-2 kernel: Free pages:      823460kB (  2068kB HighMem)
-Nov  6 14:54:39 test-10-2 kernel: Zone:DMA freepages: 14148kB min:   512kB low:  1024kB high:  1536kB
-Nov  6 14:54:39 test-10-2 kernel: Zone:Normal freepages:807244kB min:  1020kB low:  2040kB high:  3060kB
-Nov  6 14:54:39 test-10-2 kernel: Zone:HighMem freepages:  2068kB min:  1020kB low:  2040kB high:  3060kB
-Nov  6 14:54:39 test-10-2 kernel: ( Active: 41679, inactive: 4892, free: 205865 )
-Nov  6 14:54:39 test-10-2 kernel: 1*4kB 2*8kB 3*16kB 2*32kB 1*64kB 3*128kB 1*256kB 0*512kB 1*1024kB 6*2048kB = 14148kB)
-Nov  6 14:54:39 test-10-2 kernel: 1*4kB 19*8kB 101*16kB 95*32kB 170*64kB 132*128kB 0*256kB 1*512kB 0*1024kB 378*2048kB = 807244kB)
-Nov  6 14:54:39 test-10-2 kernel: 5*4kB 2*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB = 2068kB)
-Nov  6 14:54:39 test-10-2 kernel: Swap cache: add 0, delete 0, find 0/0, race 0+0
-Nov  6 14:54:39 test-10-2 kernel: Free swap:       2097136kB
-Nov  6 14:54:39 test-10-2 kernel: 262142 pages of RAM
-Nov  6 14:54:39 test-10-2 kernel: 32766 pages of HIGHMEM
-Nov  6 14:54:39 test-10-2 kernel: 4642 reserved pages
-Nov  6 14:54:39 test-10-2 kernel: 10659 pages shared
-Nov  6 14:54:39 test-10-2 kernel: 0 pages swap cached
-Nov  6 14:54:39 test-10-2 kernel: 32 pages in page table cache
-Nov  6 14:54:39 test-10-2 kernel: Buffer memory:   166088kB
-Nov  6 14:54:39 test-10-2 kernel:     CLEAN: 40843 buffers, 162478 kbyte, 43 used (last=40737), 0 locked, 0 dirty
-Nov  6 14:54:39 test-10-2 kernel:    LOCKED: 2 buffers, 8 kbyte, 1 used (last=1), 0 locked, 1 dirty
-Nov  6 14:54:39 test-10-2 kernel:     DIRTY: 13 buffers, 40 kbyte, 13 used (last=13), 0 locked, 13 dirty
-Nov  6 14:54:44 test-10-2 kernel: SysRq : Show Regs
-Nov  6 14:54:44 test-10-2 kernel:
-Nov  6 14:54:44 test-10-2 kernel: Pid: 0, comm:              swapper
-Nov  6 14:54:44 test-10-2 kernel: EIP: 0010:[default_idle+44/64] CPU: 0 EFLAGS: 00000246    Not tainted
-Nov  6 14:54:44 test-10-2 kernel: EIP: 0010:[<c010520c>] CPU: 0 EFLAGS: 00000246    Not tainted
-Nov  6 14:54:44 test-10-2 kernel: EAX: 00000000 EBX: c01051e0 ECX: 00000032 EDX: c0258000
-Nov  6 14:54:44 test-10-2 kernel: ESI: c0258000 EDI: c0258000 EBP: c01051e0 DS: 0018 ES: 0018
-Nov  6 14:54:44 test-10-2 kernel: CR0: 8005003b CR2: 080c9f9c CR3: 37867000 CR4: 000006d0
-Nov  6 14:54:44 test-10-2 kernel: Call Trace: [cpu_idle+82/112] [_stext+0/64]
-Nov  6 14:54:44 test-10-2 kernel: Call Trace: [<c0105292>] [<c0105000>]
+Screw backwards compatibilty.  Sometimes you have to cut your loses and
+move on.  We don't want to end up like Microsoft and the whole brain-fuck
+that is their dll world. (Yes, they knew it was stupid.  And yes, they
+would love to abandon it, but it's far, far too late.)  We switched to ELF,
+abandoned libc4, etc.  Add another to the pile.
 
-******** Test Output ********
+--Ricky
 
-Script started on Tue Nov  6 14:35:22 2001
-[root@thissystem]# cd bar
-[root@thissystem]# free
-             total       used       free     shared    buffers     cached
-Mem:       1030000      37564     992436          0       5032      13712
--/+ buffers/cache:      18820    1011180
-Swap:      2097136          0    2097136
-
-[root@thissystem]# ls
-[root@thissystem]# let j=0 ; while [ $j -lt 10 ] ; do let j=$j+1 ; for i in 1 
- 2 3 4 5 6 7 8 9 0 ; do dd if=/dev/zero of=$i.file bs=1024k count=10 ; done ; for
-r i in 1 2 3 4 5 6 7 8 9 0 ; do cat $i.file > /dev/null ; done ; for i in 1 2 3 4
-4 5 6 7 8 9 0 ; do rm -f $i.file ; done ; sync ; done
-10+0 records in
-10+0 records out
-10+0 records in
-10+0 records out
-10+0 records in
-10+0 records out
-...
-10+0 records in
-10+0 records out
-10+0 records in
-10+0 records in
-10+0 records out
-10+0 records in
-10+0 records out
-10+0 records in
-10+0 records out
-
-[root@test-10-2]# free
-             total       used       free     shared    buffers     cached
-Mem:       1030000     226036     803964          0     165192 4294842208
--/+ buffers/cache: -4294781364 4295811364
-Swap:      2097136          0    2097136
-[root@test-10-2]# procinfo
-Linux 2.4.14-1 (root@odin) (gcc 2.96 20000731 ) #1 2CPU [test-10-2.(none)]
-
-Memory:      Total        Used        Free      Shared     Buffers      Cached
-Mem:       1030000      226100      803900           0      165232     -125088
-Swap:      2097136           0     2097136
-
-Bootup: Tue Nov  6 14:33:35 2001    Load average: 1.54 0.72 0.27 1/47 1168
-
-user  :       0:00:05.74   1.3%  page in :    14970  disk 1:     1717r    3892w
-nice  :       0:00:00.00   0.0%  page out:   225213
-system:       0:00:21.22   5.0%  swap in :        1
-idle  :       0:06:37.36  93.6%  swap out:        0
-uptime:       0:03:32.15         context :    20888
-
-irq  0:     21216 timer                 irq 12:         6
-irq  1:         3 keyboard              irq 16:        35 aic7xxx, aic7xxx
-irq  2:         0 cascade [4]           irq 18:      5620 megaraid
-irq  6:         7                       irq 21:      3305 eth0
-irq  8:         1 rtc
-
-[root@test-10-2]# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054720000 231538688 823181312        0 169218048 18446744073581461504
-Swap: 2147467264        0 2147467264
-MemTotal:      1030000 kB
-MemFree:        803888 kB
-MemShared:           0 kB
-Buffers:        165252 kB
-Cached:       4294842208 kB
-SwapCached:          0 kB
-Active:         186480 kB
-Inactive:        19308 kB
-HighTotal:      131064 kB
-HighFree:         2156 kB
-LowTotal:       898936 kB
-LowFree:        801732 kB
-SwapTotal:     2097136 kB
-SwapFree:      2097136 kB
-[root@test-10-2]# exit
-exit
-
-Script done on Tue Nov  6 14:37:27 2001
-
-
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
 

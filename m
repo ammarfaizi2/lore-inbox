@@ -1,72 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVDAD7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVDAEBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbVDAD7B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 22:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDAD7B
+	id S262610AbVDAEBE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 23:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbVDAD7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 22:59:01 -0500
+	Thu, 31 Mar 2005 22:59:49 -0500
 Received: from webmail.topspin.com ([12.162.17.3]:202 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262597AbVDAD6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262600AbVDAD6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 31 Mar 2005 22:58:54 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][2/3] IPoIB: fix static rate calculation
-In-Reply-To: <20053311936.983q6QLaPvAkIcQj@topspin.com>
+Subject: [PATCH][3/3] IPoIB: convert to debugfs
+In-Reply-To: <20053311936.qOWRURSZd0itPjAn@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Thu, 31 Mar 2005 19:36:12 -0800
-Message-Id: <20053311936.qOWRURSZd0itPjAn@topspin.com>
+Message-Id: <20053311936.XaQmN4N9new7dTCP@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 03:36:12.0264 (UTC) FILETIME=[F3626680:01C5366B]
+X-OriginalArrivalTime: 01 Apr 2005 03:36:12.0342 (UTC) FILETIME=[F36E4D60:01C5366B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Correct and simplify calculation of static rate.  We need to round up
-the quotient of (local_rate - path_rate) / path_rate.  To round up we
-add (path_rate - 1) to the numerator, so the quotient simplifies to
-(local_rate - 1) / path_rate.
-
-No idea how I came up with the old formula.
+Convert IPoIB to use debugfs instead of its own custom debugging filesystem.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
---- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-31 19:06:47.984714505 -0800
-+++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-31 19:26:39.094134171 -0800
-@@ -302,11 +302,10 @@
- 			.sl 	       = pathrec->sl,
- 			.port_num      = priv->port
- 		};
-+		int path_rate = ib_sa_rate_enum_to_int(pathrec->rate);
+--- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_fs.c	2005-03-31 19:07:14.463965782 -0800
++++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_fs.c	2005-03-31 19:31:28.624283013 -0800
+@@ -32,19 +32,16 @@
+  * $Id: ipoib_fs.c 1389 2004-12-27 22:56:47Z roland $
+  */
  
--		if (ib_sa_rate_enum_to_int(pathrec->rate) > 0)
--			av.static_rate = (2 * priv->local_rate -
--					  ib_sa_rate_enum_to_int(pathrec->rate) - 1) /
--				(priv->local_rate ? priv->local_rate : 1);
-+		if (path_rate > 0 && priv->local_rate > path_rate)
-+			av.static_rate = (priv->local_rate - 1) / path_rate;
+-#include <linux/pagemap.h>
++#include <linux/err.h>
+ #include <linux/seq_file.h>
  
- 		ipoib_dbg(priv, "static_rate %d for local port %dX, path %dX\n",
- 			  av.static_rate, priv->local_rate,
---- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_multicast.c	2005-03-31 19:07:01.877698296 -0800
-+++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_multicast.c	2005-03-31 19:26:03.861782487 -0800
-@@ -258,13 +258,12 @@
- 				.traffic_class = mcast->mcmember.traffic_class
- 			}
- 		};
-+		int path_rate = ib_sa_rate_enum_to_int(mcast->mcmember.rate);
+-#include "ipoib.h"
++struct file_operations;
  
- 		av.grh.dgid = mcast->mcmember.mgid;
+-enum {
+-	IPOIB_MAGIC = 0x49504942 /* "IPIB" */
+-};
++#include <linux/debugfs.h>
++
++#include "ipoib.h"
  
--		if (ib_sa_rate_enum_to_int(mcast->mcmember.rate) > 0)
--			av.static_rate = (2 * priv->local_rate -
--					  ib_sa_rate_enum_to_int(mcast->mcmember.rate) - 1) /
--				(priv->local_rate ? priv->local_rate : 1);
-+		if (path_rate > 0 && priv->local_rate > path_rate)
-+			av.static_rate = (priv->local_rate - 1) / path_rate;
+-static DECLARE_MUTEX(ipoib_fs_mutex);
+ static struct dentry *ipoib_root;
+-static struct super_block *ipoib_sb;
+-static LIST_HEAD(ipoib_device_list);
  
- 		ipoib_dbg_mcast(priv, "static_rate %d for local port %dX, mcmember %dX\n",
- 				av.static_rate, priv->local_rate,
+ static void *ipoib_mcg_seq_start(struct seq_file *file, loff_t *pos)
+ {
+@@ -145,143 +142,34 @@
+ 	.release = seq_release
+ };
+ 
+-static struct inode *ipoib_get_inode(void)
+-{
+-	struct inode *inode = new_inode(ipoib_sb);
+-
+-	if (inode) {
+-		inode->i_mode 	 = S_IFREG | S_IRUGO;
+-		inode->i_uid 	 = 0;
+-		inode->i_gid 	 = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+-		inode->i_blocks  = 0;
+-		inode->i_atime 	 = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-		inode->i_fop     = &ipoib_fops;
+-	}
+-
+-	return inode;
+-}
+-
+-static int __ipoib_create_debug_file(struct net_device *dev)
++int ipoib_create_debug_file(struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+-	struct dentry *dentry;
+-	struct inode *inode;
+ 	char name[IFNAMSIZ + sizeof "_mcg"];
+ 
+ 	snprintf(name, sizeof name, "%s_mcg", dev->name);
+ 
+-	dentry = d_alloc_name(ipoib_root, name);
+-	if (!dentry)
+-		return -ENOMEM;
+-
+-	inode = ipoib_get_inode();
+-	if (!inode) {
+-		dput(dentry);
+-		return -ENOMEM;
+-	}
+-
+-	inode->u.generic_ip = dev;
+-	priv->mcg_dentry = dentry;
+-
+-	d_add(dentry, inode);
+-
+-	return 0;
+-}
+-
+-int ipoib_create_debug_file(struct net_device *dev)
+-{
+-	struct ipoib_dev_priv *priv = netdev_priv(dev);
+-
+-	down(&ipoib_fs_mutex);
+-
+-	list_add_tail(&priv->fs_list, &ipoib_device_list);
+-
+-	if (!ipoib_sb) {
+-		up(&ipoib_fs_mutex);
+-		return 0;
+-	}
+-
+-	up(&ipoib_fs_mutex);
++	priv->mcg_dentry = debugfs_create_file(name, S_IFREG | S_IRUGO,
++					       ipoib_root, dev, &ipoib_fops);
+ 
+-	return __ipoib_create_debug_file(dev);
++	return priv->mcg_dentry ? 0 : -ENOMEM;
+ }
+ 
+ void ipoib_delete_debug_file(struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+ 
+-	down(&ipoib_fs_mutex);
+-	list_del(&priv->fs_list);
+-	if (!ipoib_sb) {
+-		up(&ipoib_fs_mutex);
+-		return;
+-	}
+-	up(&ipoib_fs_mutex);
+-
+-	if (priv->mcg_dentry) {
+-		d_drop(priv->mcg_dentry);
+-		simple_unlink(ipoib_root->d_inode, priv->mcg_dentry);
+-	}
+-}
+-
+-static int ipoib_fill_super(struct super_block *sb, void *data, int silent)
+-{
+-	static struct tree_descr ipoib_files[] = {
+-		{ "" }
+-	};
+-	struct ipoib_dev_priv *priv;
+-	int ret;
+-
+-	ret = simple_fill_super(sb, IPOIB_MAGIC, ipoib_files);
+-	if (ret)
+-		return ret;
+-
+-	ipoib_root = sb->s_root;
+-
+-	down(&ipoib_fs_mutex);
+-
+-	ipoib_sb = sb;
+-
+-	list_for_each_entry(priv, &ipoib_device_list, fs_list) {
+-		ret = __ipoib_create_debug_file(priv->dev);
+-		if (ret)
+-			break;
+-	}
+-
+-	up(&ipoib_fs_mutex);
+-
+-	return ret;
+-}
+-
+-static struct super_block *ipoib_get_sb(struct file_system_type *fs_type,
+-	int flags, const char *dev_name, void *data)
+-{
+-	return get_sb_single(fs_type, flags, data, ipoib_fill_super);
++	if (priv->mcg_dentry)
++		debugfs_remove(priv->mcg_dentry);
+ }
+ 
+-static void ipoib_kill_sb(struct super_block *sb)
+-{
+-	down(&ipoib_fs_mutex);
+-	ipoib_sb = NULL;
+-	up(&ipoib_fs_mutex);
+-
+-	kill_litter_super(sb);
+-}
+-
+-static struct file_system_type ipoib_fs_type = {
+-	.owner		= THIS_MODULE,
+-	.name		= "ipoib_debugfs",
+-	.get_sb		= ipoib_get_sb,
+-	.kill_sb	= ipoib_kill_sb,
+-};
+-
+ int ipoib_register_debugfs(void)
+ {
+-	return register_filesystem(&ipoib_fs_type);
++	ipoib_root = debugfs_create_dir("ipoib", NULL);
++	return ipoib_root ? 0 : -ENOMEM;
+ }
+ 
+ void ipoib_unregister_debugfs(void)
+ {
+-	unregister_filesystem(&ipoib_fs_type);
++	debugfs_remove(ipoib_root);
+ }
+--- linux-export.orig/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-31 19:26:39.094134171 -0800
++++ linux-export/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-03-31 19:30:51.117424929 -0800
+@@ -1082,19 +1082,19 @@
+ 
+ 	return 0;
+ 
+-err_fs:
+-	ipoib_unregister_debugfs();
+-
+ err_wq:
+ 	destroy_workqueue(ipoib_workqueue);
+ 
++err_fs:
++	ipoib_unregister_debugfs();
++
+ 	return ret;
+ }
+ 
+ static void __exit ipoib_cleanup_module(void)
+ {
+-	ipoib_unregister_debugfs();
+ 	ib_unregister_client(&ipoib_client);
++	ipoib_unregister_debugfs();
+ 	destroy_workqueue(ipoib_workqueue);
+ }
+ 
 

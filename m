@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVC3H3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVC3HcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVC3H3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 02:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVC3H3A
+	id S261809AbVC3HcE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 02:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVC3HcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 02:29:00 -0500
-Received: from az33egw02.freescale.net ([192.88.158.103]:61123 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S261806AbVC3H2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 02:28:40 -0500
-Date: Wed, 30 Mar 2005 01:28:25 -0600 (CST)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@blarg.somerset.sps.mot.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH] ppc32: Fix MPC8555 & MPC8555E device lists (updated)
-Message-ID: <Pine.LNX.4.61.0503300126320.17828@blarg.somerset.sps.mot.com>
+	Wed, 30 Mar 2005 02:32:04 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:20613 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261812AbVC3Hbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 02:31:45 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [RFD] 'nice' attribute for executable files
+To: Wiktor <victorjan@poczta.onet.pl>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 29 Mar 2005 22:45:22 +0200
+References: <fa.ed33rit.1e148rh@ifi.uio.no>
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Wiktor <victorjan@poczta.onet.pl> wrote:
 
-(As I decide how long to keep the paper bag on this time, here is an 
-updated patch.  This one actually reduces the number of devices as well as 
-removes the device from the lists which makes things work better :)
+> furthermore, on many systems root may want to make users able to run
+> some program with lowered nice, but not from root account and without
+> having to know the root password... i've found a way to do this using
+> shell scripts combined with suid bit and strange fils ownerships, but it
+> is absolute diseaster.
 
-Removed the FCC3 device from the lists of devices on MPC8555 & MPC8555E
-since it does not exist on these processors.
+You want su1, or maybe sudo.
 
-Signed-off-by: Jason McMullan <jason.mcmullan@timesys.com>
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+> so i thought that it would be nice to add an attribute to file
+> (changable only for root) that would modify nice value of process when
+> it starts. if there is one byte free in ext2/3 file metadata, maybe it
+> could be used for that? i think that it woundn't be more dangerous than
+> setuid bit.
 
----
-
-diff -Nru a/arch/ppc/syslib/mpc85xx_sys.c b/arch/ppc/syslib/mpc85xx_sys.c
---- a/arch/ppc/syslib/mpc85xx_sys.c	2005-03-30 01:23:14 -06:00
-+++ b/arch/ppc/syslib/mpc85xx_sys.c	2005-03-30 01:23:14 -06:00
-@@ -80,7 +80,7 @@
- 		.ppc_sys_name	= "8555",
- 		.mask 		= 0xFFFF0000,
- 		.value 		= 0x80710000,
--		.num_devices	= 20,
-+		.num_devices	= 19,
- 		.device_list	= (enum ppc_sys_devices[])
- 		{
- 			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-@@ -88,7 +88,7 @@
- 			MPC85xx_PERFMON, MPC85xx_DUART,
- 			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
- 			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
--			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
- 			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
- 			MPC85xx_CPM_USB,
- 		},
-@@ -97,7 +97,7 @@
- 		.ppc_sys_name	= "8555E",
- 		.mask 		= 0xFFFF0000,
- 		.value 		= 0x80790000,
--		.num_devices	= 21,
-+		.num_devices	= 20,
- 		.device_list	= (enum ppc_sys_devices[])
- 		{
- 			MPC85xx_TSEC1, MPC85xx_TSEC2, MPC85xx_IIC1,
-@@ -105,7 +105,7 @@
- 			MPC85xx_PERFMON, MPC85xx_DUART, MPC85xx_SEC2,
- 			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
- 			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
--			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
-+			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
- 			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
- 			MPC85xx_CPM_USB,
- 		},
+Remember: xmms might be configured to spawn the shell plugin.
 
 
+
+I guess there should be a maximum renice value ulimit instead, which would
+allow running allmost any user task on a higher nice level, except the
+important stuff, with the additional benefit of being able to temporarily
+renice some tasks until the more important work is done.
+
+I remember something similar being discussed for realtime tasks, but I don't
+remember the outcome.

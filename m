@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317529AbSFKUNu>; Tue, 11 Jun 2002 16:13:50 -0400
+	id <S317530AbSFKULE>; Tue, 11 Jun 2002 16:11:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317532AbSFKUNt>; Tue, 11 Jun 2002 16:13:49 -0400
-Received: from spruce.woods.net ([166.70.175.33]:50843 "EHLO a.smtp.woods.net")
-	by vger.kernel.org with ESMTP id <S317529AbSFKUNs>;
-	Tue, 11 Jun 2002 16:13:48 -0400
-Date: Tue, 11 Jun 2002 14:07:53 -0600 (MDT)
-From: "Christopher E. Brown" <cbrown@woods.net>
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: QoS on incoming data
-In-Reply-To: <3D064FE7.mail1Z311DBJT@viadomus.com>
-Message-ID: <Pine.LNX.4.44.0206111351550.27344-100000@spruce.woods.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317531AbSFKULD>; Tue, 11 Jun 2002 16:11:03 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:525 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S317530AbSFKULB>;
+	Tue, 11 Jun 2002 16:11:01 -0400
+Date: Tue, 11 Jun 2002 16:10:59 -0400
+From: Rob Radez <rob@osinvestor.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
+Message-ID: <20020611161059.N30977@osinvestor.com>
+In-Reply-To: <1023817936.21176.232.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jun 2002, DervishD wrote:
+On Tue, Jun 11, 2002 at 10:52:16AM -0700, Robert Love wrote:
+> Andrew has pointed out some architectures may need minor tweaks to work
+> with NR_CPUS < 32.  He discovered and fixed a minor issue on i386...
+> other architectures, please verify non-standard options work.  Also make
 
->     Hi all :)
->
->     After reading a bit of the HOWTO about traffic control and
-> advanced routing, I have a doubt about the queue disciplines and
-> traffic shaping.
->
->     I've seen that, except the 'ingress' qdisc (and maybe the
-> hierarchycal token bucket) all other qdisc's seem to be only valid
-> for outgoing traffic, although I suppose that some of those qdisc
-> could be easily applied to incoming traffic.
+On sparc, setting NR_CPUS to anything other than 32 with CONFIG_SMP set
+breaks.  Simple, stupid patch is attached, but there's a more elegant fix to
+the actual functions abusing NR_CPUS that just seems much nicer ;-).
 
+And yes, I know, sparc on 2.5 is badly broken, but this just might help keep
+the broken-ness down a little bit.
 
-The ingress system is for corner cases and special situations.  In
-general you do not control the flows *entering* the router, but
-*leaving* it.
+Regards,
+Rob Radez
 
-
-I router or system *cannot* limit the traffic it receives, if it is
-coming down the wire at you you receive it.  The ingress system simply
-lets you decide to discard or delay a packet before it gets passed to
-the local stack.
-
-This allows you to cover a few corner cases, such as not being in
-control of the upstream router where you *must* limit traffic *to*
-the local machine.
-
-For an example 2 interface machine, you receive traffic on A and limit
-its retransmission on B, you receive traffic on B and limit its
-retransmission on A.
-
-For the special case of a server that needs to limit traffic to/from
-itself you use an ingress rule  to throttle incoming traffic, and an
-egress rule to throttle outbound.  To control *any* bi-directional
-flow requires at least 2 rules.
-
-
- --
-I route, therefore you are.
-
+diff -Nru a/include/asm-sparc/smp.h b/include/asm-sparc/smp.h
+--- a/include/asm-sparc/smp.h	Tue Jun 11 16:09:48 2002
++++ b/include/asm-sparc/smp.h	Tue Jun 11 16:09:48 2002
+@@ -31,7 +31,7 @@
+ #include <asm/ptrace.h>
+ #include <asm/asi.h>
+ 
+-extern struct prom_cpuinfo linux_cpus[NR_CPUS];
++extern struct prom_cpuinfo linux_cpus[32];
+ 
+ /* Per processor Sparc parameters we need. */
+ 

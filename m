@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbUFVLw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUFVMA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUFVLw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 07:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUFVLw4
+	id S262648AbUFVMA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 08:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUFVMA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 07:52:56 -0400
-Received: from web41105.mail.yahoo.com ([66.218.93.21]:17196 "HELO
-	web41105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262425AbUFVLwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 07:52:54 -0400
-Message-ID: <20040622115253.79308.qmail@web41105.mail.yahoo.com>
-Date: Tue, 22 Jun 2004 04:52:53 -0700 (PDT)
-From: tom st denis <tomstdenis@yahoo.com>
-Subject: Re: RSA
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY16-F15pyLAPDVXLu000036f9@hotmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Jun 2004 08:00:29 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:2182 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262648AbUFVMA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 08:00:27 -0400
+Date: Tue, 22 Jun 2004 21:01:43 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [PATCH 2/4]Diskdump Update
+In-reply-to: <20040617133906.GA32219@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <E3C45850AF4E78indou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.55
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <20040617133906.GA32219@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- kartikey bhatt <kartik_me@hotmail.com> wrote:
-> hey i am gonna look at the code right now.
-> will keep in touch.
-> 
-> "Tom has indicated a few ways to go about this which I will send
-> you."
-> waiting for details.
+On Thu, 17 Jun 2004 14:39:06 +0100, Christoph Hellwig wrote:
 
-Um to clear up something here.  Joy and Serge are going to be the
-developers on this module.  I'm just helping out where I can with my
-knowledge of crypto/math/LibTom internals.  
+>> >please make it not a module of it's own but part of the
+>> >scsi code, 
+>> 
+>> Do you mean scsi_dump module should be merged with sd_mod.o or scsi_mod.o?
+>
+>scsi_mod.o.
 
-Specifically a good starting place is to rip "mpi.c" out of LibTomCrypt
-and start stripping it down.  You don't need things like the
-Karatsuba/Toom-Cook multipliers, Jacobi symbol, various prime functions
-[next_prime, fermat testing, etc].  You won't need the diminished radix
-and Barrett reduction algorithms, etc, etc, etc.
+It is difficult because disk_dump and scsi_dump try to check checksum of
+itself using check_crc_module so as to confirm whether module is
+compromised or not.
 
-In a recent project [see my C.V. for details] I managed to get a
-"optimized for size" mpi.c down from 29KB to 5KB on an x86 with GCC.
+drivers/scsi/scsi_dump.c:
+static int
+scsi_dump_sanity_check(struct disk_dump_device *dump_device)
+{
+        struct scsi_device *sdev = dump_device->device;
+        struct Scsi_Host *host = sdev->host;
+        int adapter_sanity = 0;
+        int sanity = 0;
 
-Naturally this won't be that small since you want to leave in things
-like the Comba mult/sqr algorithms and the full exptmod routine.  But
-definitely around 7-10KB is possible on the x86.  
+        if (!check_crc_module()) {
+                Err("checksum error. scsi dump module may be compromised.
+");
+                return -EINVAL;
+        }
 
-Then of course you have the RSA routines on top of that.  Depending on
-whether you need PKCS #1 v2 or v1.5 you can do one of two things.  I
-have both v2 and v1.5 padding in LibTomCrypt [and specifically in the
-v0.97 release I reduced the stack usage to way south of 4KB].  So if
-you're using v1.5 you'll have to write your own rsa encrypt/sign code
-[I have a key-gen and CRT optimized exptmod you can rip off].  
+Therefore, scsi_dump need to be always compiled as independent module.
+If scsi_dump is merged with scsi_mod, scsi_mod is not able to be
+compiled statically.
 
-On the plus side all of my code is ISO C portable, thread safe and well
-tested [been used by quite a few people].  There are enough goodies in
-LibTomCrypt to make this happen and you're all entitled to
-rip/relicense as required ;-)
-
-Tom
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
-http://promotions.yahoo.com/new_mail
+Best Regards,
+Takao Indoh

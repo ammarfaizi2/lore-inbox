@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTBDT06>; Tue, 4 Feb 2003 14:26:58 -0500
+	id <S267432AbTBDT3q>; Tue, 4 Feb 2003 14:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267426AbTBDT06>; Tue, 4 Feb 2003 14:26:58 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:7177 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267367AbTBDT05>;
-	Tue, 4 Feb 2003 14:26:57 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302041935.h14JZ69G002675@darkstar.example.net>
-Subject: Re: gcc 2.95 vs 3.21 performance
-To: wookie@osdl.org (Timothy D. Witham)
-Date: Tue, 4 Feb 2003 19:35:06 +0000 (GMT)
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-In-Reply-To: <1044385759.1861.46.camel@localhost.localdomain> from "Timothy D. Witham" at Feb 04, 2003 11:09:19 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267434AbTBDT3q>; Tue, 4 Feb 2003 14:29:46 -0500
+Received: from pc6.cs.ucdavis.edu ([169.237.5.21]:22144 "EHLO
+	pc6.cs.ucdavis.edu") by vger.kernel.org with ESMTP
+	id <S267432AbTBDT3q>; Tue, 4 Feb 2003 14:29:46 -0500
+Date: Tue, 4 Feb 2003 11:39:16 -0800 (PST)
+From: Fiona Sou-Yee Wong <wongfs@cs.ucdavis.edu>
+To: linux-kernel@vger.kernel.org
+Subject: disabling nagle
+Message-ID: <Pine.LNX.4.44.0302041138070.2629-100000@pc6.cs.ucdavis.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    I'm hesitant to enter into this.  But from my own experience
-> the issue with big companies supporting these sort of changes 
-> in gcc have more to do with the acceptance process of changes 
-> into gcc than a lack of desire on the large companies part.
+Hi
 
-Maybe we should create a KGCC fork, optimise it for kernel
-complilations, then try to get our changes merged back in to GCC
-mainline at a later date.
+I have kernel version 2.4.18 and I was looking for a patch to have the 
+option to disable NAGLE's algorithm.
+Is there a patch available for kernels 2.4 and greater and if not, what 
+other options do I have?
 
-John.
+Thanks
+Fiona
+

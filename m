@@ -1,43 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S160042AbPL1X1D>; Tue, 28 Dec 1999 18:27:03 -0500
-Received: by vger.rutgers.edu id <S160018AbPL1X0p>; Tue, 28 Dec 1999 18:26:45 -0500
-Received: from ECE.CMU.EDU ([128.2.236.200]:43293 "EHLO ece.cmu.edu") by vger.rutgers.edu with ESMTP id <S160028AbPL1X03>; Tue, 28 Dec 1999 18:26:29 -0500
-Message-Id: <199912282324.SAA14055@kf8nh.apk.net>
-X-Mailer: exmh version 2.0.2 2/24/98
-To: James R Bruce <bruce+@andrew.cmu.edu>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: [OT] Re: fork bomb:the come back 
-In-reply-to: Your message of "Tue, 28 Dec 1999 14:32:39 EST." <QsOF1LG00Uw70MI5g0@andrew.cmu.edu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Dec 1999 18:24:54 -0500
-From: "Brandon S. Allbery KF8NH" <allbery@kf8nh.apk.net>
+Received: by vger.rutgers.edu via listexpand id <S157683AbPLaEmP>; Thu, 30 Dec 1999 23:42:15 -0500
+Received: by vger.rutgers.edu id <S157111AbPLaEmG>; Thu, 30 Dec 1999 23:42:06 -0500
+Received: from nas02-198.34.thefree.net ([195.34.198.34]:1048 "HELO hyperspace") by vger.rutgers.edu with SMTP id <S157211AbPLaElt>; Thu, 30 Dec 1999 23:41:49 -0500
+Date: Fri, 31 Dec 1999 04:31:51 +0000 (GMT)
+From: Alex Holden <alex@linuxhacker.org>
+To: linux-kernel@vger.rutgers.edu
+Cc: linux-embedded@waste.org
+Subject: Announce: initrd-tftp 0.2
+Message-ID: <Pine.LNX.4.04.9912310404420.548-100000@hyperspace.linuxhacker.org>
+X-Subliminal-Message: Use Linux!
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In message <QsOF1LG00Uw70MI5g0@andrew.cmu.edu>, James R Bruce writes:
-+-----
-| Excerpts from internet.computing.linux-kernel: 28-Dec-99 Re: fork
-| bomb:the come back by Stephen Frost@mail.snowm 
-| >         There was a Coke machine at a university somewhere that would
-| tell you
-| > how many cans and whatnot were left at one point or another, I seem to
-| recall.
-| > Yes, over the internet (Or that may have been arpanet, not sure. :) ).
-| 
-| That would be Carnegie Mellon's CS department coke machine.  Sadly, it
-| has been disconnected.  There is a coffee machine online now however:
-+--->8
+* Please CC: me in replies as I'm not on linux-kernel currently *
 
-They replaced the Coke machine during the remodeling of the CS lounge, and 
-the new one isn't quite as "hacker-friendly" so it's not online yet.  
-Various CS grad students are working on it, though, and hope to have it back 
-online soonish.
+I've just finished implementing and testing gzipped image support for
+initrd-tftp, as well as fixing a few bugs (including telling you nicely 
+when the image is too large for the ramdisk), and adding the capability to
+specify what tftp server to use and file to download on the kernel command
+line. It's even fairly well documented! ;)
 
--- 
-brandon s. allbery	   os/2,linux,solaris,perl	allbery@kf8nh.apk.net
-system administrator	   kthkrb,heimdal,gnome,rt	  allbery@ece.cmu.edu
-carnegie mellon / electrical and computer engineering			kf8nh
-    We are Linux. Resistance is an indication that you missed the point.
+You can download the patch (still against 2.2.13) from:
+ftp://ftp.linuxhacker.org/pub/kernel/initrd-tftp/initrd-tftp-0.2.patch.gz
+Please let me know of any problems you encounter.
+
+The only things remaining to do are to clean a couple of things up to make
+it play nicely in the case where you want to compile it in but not load an
+initrd, and seperating the last of CONFIG_BLK_DEV_INITRD out from
+CONFIG_BLK_DEV_INITRD_TFTP (ie. you shouldn't need the old floppy disk
+loader and memory area loader (where the boot loader loads the ramdisk
+into a memory area for you) if you're getting the initrd via tftp).
+
+--------------- Linux- the choice of a GNU generation. --------------
+: Alex Holden (M1CJD)- Caver, Programmer, Land Rover nut, Radio Ham :
+-------------------- http://www.linuxhacker.org/ --------------------
+
+
+
+
 
 
 

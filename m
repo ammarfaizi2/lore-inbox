@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263734AbUAMCPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 21:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUAMCPS
+	id S262566AbUAMCae (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 21:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAMCae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 21:15:18 -0500
-Received: from dh197.citi.umich.edu ([141.211.133.197]:33664 "EHLO
-	nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263734AbUAMCPP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 21:15:15 -0500
-Subject: Re: Slow NFS performance over wireless!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: hackeron@dsl.pipex.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200401130155.32894.hackeron@dsl.pipex.com>
-References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
-	 <200401130155.32894.hackeron@dsl.pipex.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1073960112.2077.17.camel@nidelv.trondhjem.org>
+	Mon, 12 Jan 2004 21:30:34 -0500
+Received: from p508B5C87.dip.t-dialin.net ([80.139.92.135]:55173 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262566AbUAMCae
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 21:30:34 -0500
+Date: Tue, 13 Jan 2004 03:28:26 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix DECSTATION depends
+Message-ID: <20040113022826.GC1646@linux-mips.org>
+References: <20040113015202.GE9677@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 12 Jan 2004 21:15:12 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040113015202.GE9677@fs.tum.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 12/01/2004 klokka 20:55, skreiv Roman Gaufman:
-> I have searched all over the nfs, enabled higher caching on nfs, enabled the 
-> usage of tcp, tried to pass hard, but transfer rates very poor, and only for 
-> nfs transfer, so it doesn't seem my network configurations are wrong as scp, 
-> html, ftp seem to work on full speed.
+On Tue, Jan 13, 2004 at 02:52:02AM +0100, Adrian Bunk wrote:
 
-You should definitely enable TCP in this case.
+> it seems the following is required in Linus' tree to get correct depends 
+> for DECSTATION:
 
-Most likely causes: you may have a problem with echos on your wireless,
-or you may have a faulty driver for your NIC.
+Thanks,  applied.
 
-Try looking at 'netstat -s' on both the server and the client. Monitor
-the number of TCP segments sent out, number retransmitted, and number of
-segments received on both ends of the connection while doing a set of
-writes, then do the same for a set of reads.
-
-Also try monitoring the wireless rates (iwlist <interface> rate), and
-quality of link (iwlist <interface> ap) while this is going on. Note: if
-your driver doesn't support iwlist, then just typing 'iwconfig
-<interface>' might also give you these numbers.
-
-Cheers,
-  Trond
+  Ralf

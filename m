@@ -1,39 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbUK3AWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbUK3A2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbUK3AWO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUK3AWO
+	id S261884AbUK3A2J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUK3A2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:22:14 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10398 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261883AbUK3AWL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:22:11 -0500
-Date: Tue, 30 Nov 2004 01:21:27 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Terry Griffin <terryg@axian.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: odd behavior with r8169 and pcap
-Message-ID: <20041130002127.GC3880@electric-eye.fr.zoreil.com>
-References: <1101751909.2291.21.camel@tux.hq.axian.com> <20041129210213.GA3880@electric-eye.fr.zoreil.com> <1101766059.3382.57.camel@tux.hq.axian.com> <20041129231800.GB3880@electric-eye.fr.zoreil.com> <1101772869.3382.101.camel@tux.hq.axian.com>
+	Mon, 29 Nov 2004 19:28:09 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:42440 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261884AbUK3A2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 19:28:04 -0500
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Rob Landley <rob@landley.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411290455.10318.rob@landley.net>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101300589.5805.392.camel@desktop.cunninghams>
+	 <200411290455.10318.rob@landley.net>
+Content-Type: text/plain
+Message-Id: <1101767472.4343.439.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101772869.3382.101.camel@tux.hq.axian.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 30 Nov 2004 11:24:37 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry Griffin <terryg@axian.com> :
-[...]
-> Passing acpi=off did the trick. Throughput is at the higher rate
-> with or without pcap monitoring. I did not have to change any BIOS
-> settings.
+Hi.
 
-As a longer term solution, something can surely be extracted from
-the acpi tables of your computer. See
-http://forums.gentoo.org/viewtopic.php?t=122145%22%22 for an intro.
+On Mon, 2004-11-29 at 20:55, Rob Landley wrote:
+> On Wednesday 24 November 2004 08:02 am, Nigel Cunningham wrote:
+> > A plugin for verifying the consistency of an image. Working with kdb, it
+> > can look up the locations of variations. There will always be some
+> > variations shown, simply because we're touching memory before we get
+> > here and as we check the image.
+> 
+> A while back I suggested checking the last mount time of the mounted local 
+> filesystems as a quick and dirty sanity check between loading the image and 
+> unfreezing all the processes.  (Since a read-only mount shouldn't touch this, 
+> triggering swsusp resume from userspace after prodding various hardware 
+> shouldn't cause a major problem either...)  Does that sound like a good idea?
 
---
-Ueimor
+If I recall correctly, someone replied that even a read only mount under
+one filesystem (XFS? Not sure), would replay the journal, so it wasn't a
+goer.
+
+> Haven't had time to look into it myself, though.  (Just recently got time 
+> enough to bang on busybox again.  Somewhere around 2.6.7, software suspend 
+> stopped working for me and I haven't even had a chance to track _that_ down 
+> yet.  Hopefully fixed in 2.6.9 or 2.6.10, I haven't played with it 
+> recently...)
+
+If you mean suspend2, I might be able to help if given more info.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

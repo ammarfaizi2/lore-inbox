@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVAHTI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAHTJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVAHTI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 14:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVAHTI1
+	id S261269AbVAHTJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 14:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVAHTJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 14:08:27 -0500
-Received: from verein.lst.de ([213.95.11.210]:37315 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261263AbVAHTIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 14:08:24 -0500
-Date: Sat, 8 Jan 2005 20:08:15 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: davej@redhat.com, hannal@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix pci_get_device conversion in intel-agp
-Message-ID: <20050108190815.GA7031@lst.de>
+	Sat, 8 Jan 2005 14:09:57 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:15059 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261269AbVAHTJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 14:09:47 -0500
+Date: Sat, 8 Jan 2005 19:09:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] I2C patches for 2.6.10
+Message-ID: <20050108190943.GA31973@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+References: <20050108053849.GA8065@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20050108053849.GA8065@kroah.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - any device teardown must happen between agp_remove_bridge and
-   agp_put_bridge, before agp_remove_bridge users can still call into
-   the code
- - it's releasing a reference to the wrong device
+On Fri, Jan 07, 2005 at 09:38:49PM -0800, Greg KH wrote:
+> Hi,
+> 
+> Here are some i2c driver fixes and updates for 2.6.10.  There are a few
+> new i2c drivers in here, and a number of bugfixes.  Almost all of these
+> patches have been in the past few -mm releases.
+> 
+> Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
+> 
+> Individual patches will follow, sent to the sensors and linux-kernel
+> lists.
 
+Could you please put a slightly more usefull subject line into your mails.
+Three gazillion times the same subject absolutely does not help review.
 
---- 1.76/drivers/char/agp/intel-agp.c	2004-12-22 05:53:58 +01:00
-+++ edited/drivers/char/agp/intel-agp.c	2005-01-08 20:11:38 +01:00
-@@ -1720,8 +1720,13 @@
- {
- 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
- 
--	pci_dev_put(pdev);
- 	agp_remove_bridge(bridge);
-+
-+	if (intel_i810_private.i810_dev)
-+		pci_dev_put(intel_i810_private.i830_dev);
-+	if (intel_i810_private.i830_dev)
-+		pci_dev_put(intel_i830_private.i830_dev);
-+	
- 	agp_put_bridge(bridge);
- }
---- 1.18/drivers/char/agp/intel-mch-agp.c	2004-12-16 07:31:44 +01:00
-+++ edited/drivers/char/agp/intel-mch-agp.c	2005-01-08 20:12:18 +01:00
-@@ -569,8 +569,11 @@
- {
- 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
- 
--	pci_dev_put(pdev);
- 	agp_remove_bridge(bridge);
-+
-+	if (intel_i810_private.i830_dev)
-+		pci_dev_put(intel_i830_private.i830_dev);
-+
- 	agp_put_bridge(bridge);
- }
- 

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUF1Byy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUF1CBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUF1Byy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 21:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbUF1Byk
+	id S264609AbUF1CBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 22:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUF1CBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 21:54:40 -0400
-Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:8345 "HELO
-	dyn.galis.org") by vger.kernel.org with SMTP id S264637AbUF1Byc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 21:54:32 -0400
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-  jfbeam@bluetronic.net
-MBOX-Line: From george@galis.org  Sun Jun 27 21:54:31 2004
-Date: Sun, 27 Jun 2004 21:54:31 -0400
-From: George Georgalis <george@galis.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix sata_sil quirk
-Message-ID: <20040628015431.GA31687@trot.local>
-References: <40D8FE55.3030008@pobox.com> <Pine.GSO.4.33.0406230230010.25702-100000@sweetums.bluetronic.net>
-Mime-Version: 1.0
+	Sun, 27 Jun 2004 22:01:11 -0400
+Received: from web50609.mail.yahoo.com ([206.190.38.248]:7274 "HELO
+	web50609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264609AbUF1CBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 22:01:08 -0400
+Message-ID: <20040628020108.85755.qmail@web50609.mail.yahoo.com>
+Date: Sun, 27 Jun 2004 19:01:08 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: 2.6.x signal handler bug
+To: Davide Libenzi <davidel@xmailserver.org>,
+       Andries Brouwer <aebr@win.tue.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0406271551000.19865@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0406230230010.25702-100000@sweetums.bluetronic.net>
-X-Time: trot.local; @121; Sun, 27 Jun 2004 21:54:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 02:34:35AM -0400, Ricky Beam wrote:
->
->That list needs a:
->         { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },
->as well.
+> > So, maybe the restoring to SIG_DFL was not required, but it doesn't seem
+> > incorrect either. It may be a bit surprising.
 
-happens to be my drive, is there any way to tell a drive needs
-be in the quirk 15 list, other than it's Seagate and big writes
-block the dev? 
+Right. Thanks for looking deeper Andries. I understood Davide's explanation and
+then immediately wondered why the program worked under 2.4. I want to think 2.4
+was emulating the unreliable signal from the past when signal() was used. 
 
-// George
+My main concern is that the behavior change may have broken some applications
+that used to work. For example, valgrind caught & reported a problem under 2.4,
+but valgrind never had a chance to catch it under 2.6.
+ 
+> I think so. Maybe the attached patch?
+
+I've applied the second patch to my kernel & started recompiling. I'll re-test it
+tomrrow.
+
+Thanks,
+-Steve Grubb
 
 
--- 
-George Georgalis, Architect and administrator, Linux services. IXOYE
-http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
-Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
-
+	
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+http://promotions.yahoo.com/new_mail 

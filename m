@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272124AbTG2Upz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272126AbTG2Upy
+	id S272075AbTG2Un2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272115AbTG2Un1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:45:54 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.25.240.37]:34263 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S272124AbTG2Upi convert rfc822-to-8bit (ORCPT
+	Tue, 29 Jul 2003 16:43:27 -0400
+Received: from zeke.inet.com ([199.171.211.198]:37804 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S272075AbTG2UnZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:45:38 -0400
-content-class: urn:content-classes:message
+	Tue, 29 Jul 2003 16:43:25 -0400
+Message-ID: <3F26DC68.3010000@inet.com>
+Date: Tue, 29 Jul 2003 15:43:20 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: 2.5.x module make questions
-Date: Tue, 29 Jul 2003 14:45:35 -0600
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55239@axcs03.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.5.x module make questions
-Thread-Index: AcNWEnMH6/C7q7DEEdeA3wBgsGgWXA==
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
+To: John Bradford <john@grabjohn.com>
+CC: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+References: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Team,
+John Bradford wrote:
+>>>This patch adds an abstraction layer for programmable LED devices,
+>>>hardware drivers for the Status LEDs found on some Intel PIIX4E based
+>>>server hardware (notably the ISP1100 1U rackmount server) and LEDs wired
+>>>to the parallel port data lines.
+>>
+>>I haven't had chance to test this yet, but I really like the idea - by
+>>an amasing co-incidence, I was actually thinking about the possibility
+>>of doing a parallel port connected front panel earlier today!
+>>
+>>Does anybody have any suggestions for recommended standard uses for
+>>parallel port connected LEDs?
+>>
+>>Disk spinning up/disk ready
+>>Root login active
+>>
+>>Any other suggestions?
+> 
+> 
+> Ah, I just thought, for debugging purposes we could have LEDs for:
+> 
+> * BKL taken
+> * Servicing interrupt
+> * Kernel stack usage > 2K
 
-I have two questions regarding kbuild.
-1, According to doc., makefile can do descending.  Could make carry ascending?
-2, Does old style of makefile still work (it should according to the article of "Driver porting: compiling external module")?
+Maybe also:
+  * 100% CPU usage
+  * Toggle each jiffie (help detect interrupts disabled)
+  * User control for things like cpu/harddrive temp...
+  * and of course, Morse code ;)
 
-I was using "make -C /usr/src/linux SUBDIRS=$PWD modules". Build process at the stage 2 after primary Makefile trying to get secondary Makefile to be involved.  I have fairly complicated source tree to be involved in the module build process, including descending and ascending.  The main (primary) Makefile is almost down to the bottom of the tree. It is in old style and has followng content:
+Have fun,
 
-export TOPDIR
-export CFLAGS
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 
-all : ag.o
-
-ag.o: ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o  s/sl.o 
-	ld -r -o ag.o ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o s/sl.o 
-
-../../../../t/s/ts.o:
-	@echo "Making t-s"
-	@make -C ../../../../t/s
-
-../../../f/c/fc.o:
-	@echo "Making F-C"
-	@make -C ../../../f/c 
-
-../../../f/i/fi.o:
-	@echo "Making F-I"
-	@make -C ../../../f/i
-
-s/sl.o:
-	@echo "Making linux s-l"
-	@make -C s 
-
-What happend is the linux make exits after excuting the above Makefile. It did not change the directory "@make -C **" and perform futher make.
-
-At the end of tree, a Makefile is regular like (../../../f/c/Makefile):
-T_INC = -I../../../t/api -I../../../t/s 
-SL_INC = -I../../d/l/c
-FC_INC = -I../i
-TI_INC = -I../../d/api
-INCLUDE_LOCAL = $(T_INC) $(SL_INC) $(FC_INC) $(TII_INC)
-
-obj-m := fc.o
-
-fc-objs := t1.o t2.o t3.o t4.o
-
-EXTRA_CFLAGS := $(INCLUDE_LOCAL) -I$(TOPDIR)/drivers/scsi
-
-Any suggestion is welcomed.  If the kbuild cannot do ascending, I have to change the source tree structure but that is the least I want to do.
-
-Many thanks!
-
-Eddie
- 

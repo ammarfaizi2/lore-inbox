@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264243AbTEGVs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 17:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTEGVs7
+	id S264300AbTEGV6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 17:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTEGV6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 17:48:59 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:63732 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264243AbTEGVs5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 17:48:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-Date: Wed, 7 May 2003 17:01:11 -0500
-X-Mailer: KMail [version 1.2]
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <03050716305002.07468@tabby> <3EB980AA.9060207@techsource.com>
-In-Reply-To: <3EB980AA.9060207@techsource.com>
-MIME-Version: 1.0
-Message-Id: <03050717011103.07468@tabby>
-Content-Transfer-Encoding: 7BIT
+	Wed, 7 May 2003 17:58:06 -0400
+Received: from tomts14-srv.bellnexxia.net ([209.226.175.35]:64742 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S264300AbTEGV6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 17:58:04 -0400
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030505143006.29c0301a.akpm@digeo.com>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
+	 <20030505143006.29c0301a.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052345437.8259.6.camel@mars.goatskin.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 07 May 2003 18:10:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 May 2003 16:54, Timothy Miller wrote:
-> Jesse Pollard wrote:
-> > On Wednesday 07 May 2003 12:13, Jonathan Lundell wrote:
-> > [snip]
-> >
-> >>One thing that would help (aside from separate interrupt stacks)
-> >>would be a guard page below the stack. That wouldn't require any
-> >>physical memory to be reserved, and would provide positive indication
-> >>of stack overflow without significant runtime overhead.
-> >
-> > It does take up a page table entry, which may also be in short supply
->
-> Now, I'm sure this has GOT to be a terribly ignorant question, but I'll
-> try anyhow:
->
-> What happens if you simply neglect to provide a mapping for that page?
-> I'm sure that will cause some sort of page fault.  Why would you have to
-> do something different?
+Hi Andrew & Alan,
 
-I believe it shifts the entire virtual range up(/down depending on your point
-of view). Each page in the virtual address range (whether it physically
-exists or not) has a descriptor. To reserve one requires that the descriptor
-be set to "does not exist, no read, no write". Then any access to that page
-can/will generate a trap.
+Sorry for the delay but the one liner below does seem to have cleared up
+the issue. I have been running it for about eight hours, with some sound
+on all the time, and haven't seen any 'nobody cared' messages.
+
+BTW: I hand applied this to 2.5.69-mm1. So I am confident that this one
+liner did fix it.
+
+On Mon, 2003-05-05 at 17:30, Andrew Morton wrote:
+> Shane Shrybman <shrybman@sympatico.ca> wrote:
+> >
+> > Hi,
+> > 
+> > I am getting a lot of these in the logs. This is with the ALSA emu10k1
+> > driver for a SB live card. This is a x86, UP, KT133 system with preempt
+> > enabled. The system seems to be running fine.
+> > 
+> > handlers:
+> > [<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
+> > irq 7: nobody cared!
+> 
+> Beats me.  Does this fix it up?
+> 
+> diff -puN sound/pci/emu10k1/irq.c~sound-irq-hack sound/pci/emu10k1/irq.c
+> --- 25/sound/pci/emu10k1/irq.c~sound-irq-hack	Mon May  5 14:28:58 2003
+> +++ 25-akpm/sound/pci/emu10k1/irq.c	Mon May  5 14:29:17 2003
+> @@ -147,5 +147,5 @@ irqreturn_t snd_emu10k1_interrupt(int ir
+>  			outl(IPR_FXDSP, emu->port + IPR);
+>  		}
+>  	}
+> -	return IRQ_RETVAL(handled);
+> +	return IRQ_HANDLED;
+>  }
+
+Regards,
+
+Shane
+
+

@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUEaWPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUEaWRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264815AbUEaWPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 18:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264818AbUEaWPq
+	id S264819AbUEaWRt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264820AbUEaWRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 18:15:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48573 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264815AbUEaWPo (ORCPT
+	Mon, 31 May 2004 18:17:49 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:46524 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264819AbUEaWRq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 18:15:44 -0400
-Date: Mon, 31 May 2004 15:15:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: loop/highmem related 2.4.26 lockup
-Message-Id: <20040531151505.54f18f4a.akpm@osdl.org>
-In-Reply-To: <20040531143915.GA20653@logos.cnet>
-References: <20040531143915.GA20653@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 31 May 2004 18:17:46 -0400
+Date: Tue, 1 Jun 2004 00:17:39 +0200 (MEST)
+Message-Id: <200405312217.i4VMHdHW012262@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org
+Subject: [PATCH][0/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: summary
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> Proc;  loop2
->  >>EIP; e5d145c0 <END_OF_CODE+2597a348/????>   <=====
->  Trace; c0189ec8 <journal_alloc_journal_head+18/80>
->  Trace; c0189fa2 <journal_add_journal_head+52/140>
->  Trace; c0107b92 <__down+82/d0>
->  Trace; c0107d2c <__down_failed+8/c>
->  Trace; c01845fe <.text.lock.transaction+4/246>
->  Trace; c018204a <new_handle+4a/70>
->  Trace; c0182114 <journal_start+a4/c0>
->  Trace; c017bc3c <ext3_writepage_trans_blocks+1c/a0>
->  Trace; c01795ec <ext3_prepare_write+24c/260>
->  Trace; c013349e <find_or_create_page+5e/150>
->  Trace; c01d6f84 <lo_send+124/2e0>
->  Trace; c01d7408 <do_bh_filebacked+b8/c0>
->  Trace; c01d7b84 <loop_thread+224/250>
->  Trace; c0109172 <ret_from_fork+6/20>
->  Trace; c01d7960 <loop_thread+0/250>
->  Trace; c010740e <arch_kernel_thread+2e/40>
->  Trace; c01d7960 <loop_thread+0/250>
+This set of patches add perfctr-2.7.3, the performance-monitoring
+counters driver, to kernel 2.6.7-rc1-mm1.
 
-You've run out of memory and the loop thread is looping in
-journal_alloc_journal_head(), waiting for memory to come free.
+Based on comments from Andrew Morton, Andi Kleen, Tom Rini,
+the main change since the previous version is that the single
+multiplexing system call has been replaced by several separate
+system calls.
 
-Meanwhile, kswapd and bdflush are blocked waiting for I/O which requires
-loop thread services to complete.  Deadlock.
+Extract from the change log:
 
-A proper fix for this might be fairly complex.  A kludgey fix like the
-below might work though.
+- Replaced the single system call by six system calls: one
+  for getting CPU information, and 5 for per-process perfctrs.
+- Removed marshalling of system call parameters. Conventional
+  copying is now done.
+- Temporarily removed global-mode perfctrs, while the API
+  to the per-process perfctrs is being redesigned.
+- Changed x86-64 to use the x86 code. Simplifies maintenance,
+  and, in theory, adds support for IA32e/EM64T.
+- Moved detailed CPU type detection on x86 from the driver
+  to the library. This is both a cleanup and a bug fix.
+- Some changes to prepare the ppc32 data structures for
+  potential G5/970 support, in both 32 and 64-bit kernels.
+- PowerPC 750GX support added.
+- Moved ppc32 #define:s to <asm-ppc/reg.h>.
+- Lots of code cleanups. Converted NR_CPUS arrays to per_cpu().
+  Changed spacing in if/while/switch to be "normal".
 
-diff -puN fs/jbd/journal.c~a fs/jbd/journal.c
---- 24/fs/jbd/journal.c~a	2004-05-31 15:12:47.479649360 -0700
-+++ 24-akpm/fs/jbd/journal.c	2004-05-31 15:13:15.908327544 -0700
-@@ -1728,6 +1728,9 @@ static struct journal_head *journal_allo
- 		while (ret == 0) {
- 			yield();
- 			ret = kmem_cache_alloc(journal_head_cache, GFP_NOFS);
-+			if (!ret)
-+				ret = kmem_cache_alloc(journal_head_cache,
-+							GFP_ATOMIC);
- 		}
- 	}
- 	return ret;
-_
+Summary: perfctr drives the performance counters in i386,
+x86_64, and PowerPC processors. It supports virtualised
+per-process counters with low-overhead user-space sampling.
 
+The set of patches that follow are:
+
+1/6: core driver files and kernel changes
+2/6: i386 driver and arch changes
+3/6: x86_64 arch changes
+4/6: PowerPC driver and arch changes
+5/6: driver for virtualised (per-process) performance counters
+6/6: remaining small changes
+
+/Mikael Pettersson

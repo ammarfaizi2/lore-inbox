@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265233AbSJaQgT>; Thu, 31 Oct 2002 11:36:19 -0500
+	id <S262788AbSJaQkj>; Thu, 31 Oct 2002 11:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSJaQfQ>; Thu, 31 Oct 2002 11:35:16 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:16295 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S265222AbSJaQei>; Thu, 31 Oct 2002 11:34:38 -0500
-Date: Thu, 31 Oct 2002 10:08:55 -0700
-From: Matt Porter <porter@cox.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
-       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031100855.A3407@home.com>
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county> <20021031053310.GB4780@mark.mielke.cc> <20021031143301.GC28191@opus.bloom.county>
-Mime-Version: 1.0
+	id <S262712AbSJaQje>; Thu, 31 Oct 2002 11:39:34 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:15123 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S265228AbSJaQjO>; Thu, 31 Oct 2002 11:39:14 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021031143301.GC28191@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Oct 31, 2002 at 07:33:01AM -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15809.24115.993132.576769@laputa.namesys.com>
+Date: Thu, 31 Oct 2002 19:45:39 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
+       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: [PATCH]: reiser4 [5/8] export remove_from_page_cache()
+In-Reply-To: <20021031163104.A9845@infradead.org>
+References: <15809.21559.295852.205720@laputa.namesys.com>
+	<20021031161826.A9747@infradead.org>
+	<15809.22856.534975.384956@laputa.namesys.com>
+	<20021031163104.A9845@infradead.org>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Zippy-Says: I don't think you fellows would do so much RAPING and PILLAGING if
+   you played more PINBALL and watched CABLE TELEVISION!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 07:33:01AM -0700, Tom Rini wrote:
-> On Thu, Oct 31, 2002 at 12:33:10AM -0500, Mark Mielke wrote:
-> > On Wed, Oct 30, 2002 at 06:10:02PM -0700, Tom Rini wrote:
-> > > On Thu, Oct 31, 2002 at 01:53:14AM +0100, Adrian Bunk wrote:
-> > > > could you try to use "-Os" instead of "-O2" as gcc optimization option
-> > > > when CONFIG_TINY is enabled? Something like the following (completely
-> > > > untested) patch:
-> > > -Os can produce larger binaries, keep in mind.  If we're going to go
-> > > this route, how about something generally useful, and allow for general
-> > > optimization level / additional CFLAGS to be added.
-> > 
-> > Sure CFLAGS should be configurable, but CONFIG_TINY should always prefer
-> > -Os over -O2. From 'man gcc':
-> > 
-> >        -Os Optimize for size.  -Os enables all -O2 optimizations that do not
-> >            typically increase code size.  It also performs further optimiza-
-> >            tions designed to reduce code size.
-> > 
-> > If gcc regularly generates larger code with -Os the answer is to talk to
-> > the gcc people, not to avoid using -Os...
-> 
-> It's not that it does regularly, it's that it can, and if it does, it's
-> not really a gcc bug from what I recall.  So I don't think CONFIG_TINY
-> should prefer -Os over -O2 but instead we should just ask the user what
-> level of optimization they want.  Remember, one of the real important
-> parts of embedded systems is flexibility.
+Christoph Hellwig writes:
+ > On Thu, Oct 31, 2002 at 07:24:40PM +0300, Nikita Danilov wrote:
+ > > Reiser4 stores meta-data in a huge balanced tree. This tree is kept
+ > > (partially) in the page cache. All pages in this tree are attached to
+ > > "fake" inode. Sometimes you need to remove node from the tree. At this
+ > > moment page has to be removed from the fake inode mapping.
+ > 
+ > What about chaing truncate_inode_pages to take an additional len
+ > argument so you don't have to remove all pages past an offset?
 
-Thank you.  This is exactly why in the last CONFIG_TINY thread I made
-it clear that a one-size-fits-all option is not all that helpful for
-serious embedded systems designers.
+It is possible, I think. But this will look more of a hack. Truncate is
+rather for truncating mapping than cutting one page from the middle.
 
-Collecting these parameters in a single tweaks.h file and perhaps using
-things like CONFIG_TINY, CONFIG_DESKTOP, CONFIG_FOO as profile selectors
-into tweaks.h would be a lot more effective.  His collection of
-(hopefully) size-optimizing tweaks can all be selected via CONFIG_TINY,
-but have them collected at a single point like tweaks.h such that they
-can be individually modified by an end system integrator.
+Besides, current truncate_inode_pages() with all its
+radix_tree_gang_lookup()'s and two passes doesn't looks like easily
+adaptable.
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+ > 
+ > > 
+ > > Other file systems don't need remove_from_page_cache() because they only
+ > > store in the page cache data (and remove_from_page_cache() is called by
+ > > truncate()) and meta data that are never explicitly deleted (like
+ > > directory content in ext2).
+ > 
+ > Sorry, but that's wrong.  XFS does use the pagecache for all metadata and JFS
+ > for all but the superblock (which is never changed durin use)
+ > 
+
+Interesting. Then, XFS and JFS meta data in the page cache probably
+are linearly ordered, and there it is never necessary to remove meta
+data page from the middle of the mapping, right?
+
+Nikita.

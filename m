@@ -1,91 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbTELEW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 00:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbTELEWZ
+	id S261886AbTELEXb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 00:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTELEXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 00:22:25 -0400
-Received: from dp.samba.org ([66.70.73.150]:63981 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261881AbTELEWV (ORCPT
+	Mon, 12 May 2003 00:23:31 -0400
+Received: from smtp3.cwidc.net ([154.33.63.113]:56307 "EHLO smtp3.cwidc.net")
+	by vger.kernel.org with ESMTP id S261886AbTELEX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 00:22:21 -0400
-From: Paul Mackerras <paulus@samba.org>
+	Mon, 12 May 2003 00:23:27 -0400
+Message-ID: <3EBF24A8.1050100@tequila.co.jp>
+Date: Mon, 12 May 2003 13:35:52 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Two RAID1 mirrors are faster than three
+References: <200305112212_MC3-1-386B-32BF@compuserve.com>
+In-Reply-To: <200305112212_MC3-1-386B-32BF@compuserve.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16063.9297.101375.193122@argo.ozlabs.ibm.com>
-Date: Mon, 12 May 2003 14:34:25 +1000
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: [PATCH] irqreturn_t in powermac scsi drivers
-X-Mailer: VM 7.15 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch changes the mesh and mac53c94 SCSI host adaptor drivers to
-return an irqreturn_t from their interrupt handlers.  Please apply.
+Chuck Ebbert wrote:
 
-Regards,
-Paul.
+>   Add the third disk back into the array:
+>         # raidhotadd /dev/md21 /dev/hde9
+>         [rebuilt 3000MiB in 313s == (3000+3000)/313 == 19MiB/s throughput]
 
-diff -urN linux-2.5/drivers/scsi/mac53c94.c pmac-2.5/drivers/scsi/mac53c94.c
---- linux-2.5/drivers/scsi/mac53c94.c	2003-03-23 18:24:17.000000000 +1100
-+++ pmac-2.5/drivers/scsi/mac53c94.c	2003-04-23 23:09:39.000000000 +1000
-@@ -59,7 +59,7 @@
- static void mac53c94_init(struct fsc_state *);
- static void mac53c94_start(struct fsc_state *);
- static void mac53c94_interrupt(int, void *, struct pt_regs *);
--static void do_mac53c94_interrupt(int, void *, struct pt_regs *);
-+static irqreturn_t do_mac53c94_interrupt(int, void *, struct pt_regs *);
- static void cmd_done(struct fsc_state *, int result);
- static void set_dma_cmds(struct fsc_state *, Scsi_Cmnd *);
- static int data_goes_out(Scsi_Cmnd *);
-@@ -316,7 +316,7 @@
- 		set_dma_cmds(state, cmd);
- }
- 
--static void
-+static irqreturn_t
- do_mac53c94_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
- {
- 	unsigned long flags;
-@@ -325,6 +325,7 @@
- 	spin_lock_irqsave(dev->host_lock, flags);
- 	mac53c94_interrupt(irq, dev_id, ptregs);
- 	spin_unlock_irqrestore(dev->host_lock, flags);
-+	return IRQ_HANDLED;
- }
- 
- static void
-diff -urN linux-2.5/drivers/scsi/mesh.c pmac-2.5/drivers/scsi/mesh.c
---- linux-2.5/drivers/scsi/mesh.c	2003-03-23 18:24:17.000000000 +1100
-+++ pmac-2.5/drivers/scsi/mesh.c	2003-04-23 23:09:26.000000000 +1000
-@@ -212,7 +212,7 @@
- static void handle_error(struct mesh_state *);
- static void handle_exception(struct mesh_state *);
- static void mesh_interrupt(int, void *, struct pt_regs *);
--static void do_mesh_interrupt(int, void *, struct pt_regs *);
-+static irqreturn_t do_mesh_interrupt(int, void *, struct pt_regs *);
- static void handle_msgin(struct mesh_state *);
- static void mesh_done(struct mesh_state *, int);
- static void mesh_completed(struct mesh_state *, Scsi_Cmnd *);
-@@ -1471,7 +1471,7 @@
- 	out_8(&mr->sequence, SEQ_ENBRESEL);
- }
- 
--static void
-+static irqreturn_t
- do_mesh_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
- {
- 	unsigned long flags;
-@@ -1480,6 +1480,7 @@
- 	spin_lock_irqsave(dev->host_lock, flags);
- 	mesh_interrupt(irq, dev_id, ptregs);
- 	spin_unlock_irqrestore(dev->host_lock, flags);
-+	return IRQ_HANDLED;
- }
- 
- static void handle_error(struct mesh_state *ms)
+Why three drives in a Raid1? Raid one is just mirror, or is the third
+drive like a "hot" replace drive if one of the others fail?
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+vySnjBz/yQjBxz8RAi+jAJ96566475BKb8o21/A7Wlzztba1jQCfSCnG
+EchYBgaJBdvOPzVbx9rPorU=
+=Ydkv
+-----END PGP SIGNATURE-----
+

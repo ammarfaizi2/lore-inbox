@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVACPQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVACPUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVACPQA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 10:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVACPQA
+	id S261470AbVACPUH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 10:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVACPUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 10:16:00 -0500
-Received: from ns.suse.de ([195.135.220.2]:50828 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261470AbVACPPf (ORCPT
+	Mon, 3 Jan 2005 10:20:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63900 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261470AbVACPUB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 10:15:35 -0500
-Date: Mon, 3 Jan 2005 16:15:33 +0100
-From: Andi Kleen <ak@suse.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, greg@kroah.com, miltonm@bga.com
-Subject: Re: 3 ways to represent cpu affinity in /sys and counting
-Message-ID: <20050103151533.GD4963@wotan.suse.de>
-References: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
+	Mon, 3 Jan 2005 10:20:01 -0500
+Date: Mon, 3 Jan 2005 10:18:47 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+In-Reply-To: <20050102212427.GG2818@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+ <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 26, 2004 at 11:27:44AM +1100, Anton Blanchard wrote:
-> 
-> A pci device has a local_cpus property:
-> 
-> /sys/devices/pci000a:00/000a:00:02.6/local_cpus
+On Sun, 2 Jan 2005, Andries Brouwer wrote:
 
-We should have both node and cpus here because both
-are needed in user space (one for CPU affinity, the other
-for memory affinity). While it's possible to convert
-in user space it's quite cumbersome. 
+> You change some stuff. The bad mistakes are discovered very soon.
+> Some subtler things or some things that occur only in special
+> configurations or under special conditions or just with
+> very low probability may not be noticed until much later.
 
-I plan to add functions to libnuma to make this easy,
-but I'm not sure everybody will want to use libnuma just
-for this.
+Some of these subtle bugs are only discovered a year
+after the distribution with some particular kernel has
+been deployed - at which point the kernel has moved on
+so far that the fix the distro does might no longer
+apply (even in concept) to the upstream kernel...
 
-> 
-> A pci_bus has a cpuaffinity property:
-> 
-> /sys/class/pci_bus/000d:d8/cpuaffinity
+This is especially true when you are talking about really
+big database servers and bugs that take weeks or months
+to trigger.
 
-I'm not sure what that is anyways. I don't think x86-64 sets it up
-and does anybody really use it?
-> 
-> A node has a cpumap property:
-> 
-> /sys/devices/system/node/node3/cpumap
-> 
-> Can we standardize on a single property name for this? :)
-
-I suspect it's already too late. 
-
-> 
-> Furthermore, looking at node linkages:
-> 
-> A node has symlinks to cpus:
-> 
-> /sys/devices/system/node/node0/cpu0 -> /sys/devices/system/cpu/cpu0
-> 
-> But doesnt have symlinks to pci devices.
-
-I'm not sure how useful that would be anyways.
-
-> 
-> A cpu doesnt have a cpumask of its node, but a pci device and pci bus
-> both do. Is there some way we can stardardize this too? 
-
-You mean a nodemask?
-
-> 
-> Ideally we want to be able to lookup a device -> node -> cpumask
-> relationship in a consistent way. Assuming we fix up the 3 different
-> names for cpu affinity properties, we still have 2 methods of looking
-> that up, and no easy way of going from pci devices to nodes.
-
-You mean the user space interface?
-
-Getting it from sysfs will be always a mess, best is to have a standard
-library that offers this in nice functions and a command whose output
-can be parsed by shell scripts. I plan to add this eventually to 
-numactl/libnuma.
-
--Andi
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129663AbQKFHqU>; Mon, 6 Nov 2000 02:46:20 -0500
+	id <S129374AbQKFHsw>; Mon, 6 Nov 2000 02:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129932AbQKFHqJ>; Mon, 6 Nov 2000 02:46:09 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58376 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129374AbQKFHpy>;
-	Mon, 6 Nov 2000 02:45:54 -0500
-Message-ID: <3A0661A1.668BD8CB@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 02:45:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130266AbQKFHsm>; Mon, 6 Nov 2000 02:48:42 -0500
+Received: from waste.org ([209.173.204.2]:55080 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129374AbQKFHsd>;
+	Mon, 6 Nov 2000 02:48:33 -0500
+Date: Mon, 6 Nov 2000 01:48:15 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
 To: David Woodhouse <dwmw2@infradead.org>
-CC: Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
+cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
 In-Reply-To: <Pine.LNX.4.21.0011060730410.14068-100000@imladris.demon.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.10.10011060135050.8248-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+On Mon, 6 Nov 2000, David Woodhouse wrote:
+
+> On Mon, 6 Nov 2000, Oliver Xymoron wrote:
+> 
+> > If I understand you correctly:
+> > 
+> > process 1         process 2
+...
+> 
+> > Is there any reason we ever want to unblock process 1 before process 2
+> > terminates?
+> 
+> No, and I don't think we do. That's not the point.
+> 
+> 'init module' is still _after_ 'set mixer levels'. There is a period
+> during which the mixer levels are changed.
+
+Perhaps you mean before? Otherwise you've lost me.
+
 > The desired mixer levels should be available to the module at the time of
 > initialisation.
 
-For drivers built into the kernel that gets messy.  The command line is
-only so long.  Sounds messy for modules too.  Further (responding to
-your other e-mail), few probably care about having the mixer containing
-default, not custom, values for 10 seconds between driver init and aumix
-execution from initscripts...
+Is this because active audio sources other than /dev/dsp writers are
+suddenly in and out of the mix? If there's nothing on the inputs, it
+shouldn't matter whether you're changing the levels.
 
-It sounds smarter to delay mixer initialization, or mute all mixer
-channels at init.  That effectively initializes the mixer channels to
-the custom values you desire, without having to add special case module
-gunk for the subset of people who need correct mixer values Right
-Now(tm).
+The right way to do this (according to any sound engineer) is to
+initialize all the levels to zero unless told otherwise. This would
+doubtless annoy the average user, but is more or less equivalent to not
+forwarding packets by default.
 
-	Jeff
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
 
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

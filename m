@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVBBWNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVBBWWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVBBWNN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVBBWLb
+	id S262329AbVBBWWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVBBWRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 17:11:31 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40836 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262569AbVBBVb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:31:58 -0500
-Date: Wed, 2 Feb 2005 13:31:42 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-In-Reply-To: <20050202163110.GB23132@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0502021328290.13966@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
- <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
- <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
- <20050202163110.GB23132@logos.cnet>
+	Wed, 2 Feb 2005 17:17:44 -0500
+Received: from kokytos.rz.informatik.uni-muenchen.de ([141.84.214.13]:42956
+	"EHLO kokytos.rz.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S262823AbVBBWRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 17:17:01 -0500
+From: Michael Brade <brade@informatik.uni-muenchen.de>
+Organization: =?iso-8859-1?q?Universit=E4t?= =?iso-8859-1?q?_M=FCnchen?=, Institut =?iso-8859-1?q?f=FCr?= Informatik
+To: "Aleksey Gorelov" <Aleksey_Gorelov@phoenix.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
+Date: Wed, 2 Feb 2005 23:16:50 +0100
+User-Agent: KMail/1.7.92
+References: <5F106036E3D97448B673ED7AA8B2B6B301ACE83D@scl-exch2k.phoenix.com>
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301ACE83D@scl-exch2k.phoenix.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1943868.mKy15aplY5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502022316.53905.brade@informatik.uni-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Marcelo Tosatti wrote:
+--nextPart1943868.mKy15aplY5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > Nope the BTE is a block transfer engine. Its an inter numa node DMA thing
-> > that is being abused to zero blocks.
-> Ah, OK.
-> Is there a driver for normal BTE operation or is not kernel-controlled ?
-
-There is a function bte_copy in the ia64 arch. See
-
-arch/ia64/sn/kernel/bte.c
-
-> I wonder what has to be done to have active DMA engines be abused for zeroing
-> when idle and what are the implications of that. Some kind of notification mechanism
-> is necessary to inform idleness ?
+On Wednesday 02 February 2005 21:01, you wrote:
+> >Awesome! Thanks, booting is finally acceptably fast again :-)
+> >Just strange
+> >that it worked for the last 3 years (in fact, 7 years) with
+> >just about every
+> >kernel version that's out there... but I'm happy with the workaround.
 >
-> Someone should try implementing the zeroing driver for a fast x86 PCI device. :)
+> Was it exact same hardware ?
+Yes, absolutely.
 
-Sure but I am on ia64 not i386. Find your own means to abuse your own
-chips ... ;-)
+cheers,
+=2D-=20
+Michael Brade;                 KDE Developer, Student of Computer Science
+  |-mail: echo brade !#|tr -d "c oh"|s\e\d 's/e/\@/2;s/$/.org/;s/bra/k/2'
+  =B0--web: http://www.kde.org/people/michaelb.html
+
+KDE 3: The Next Generation in Desktop Experience
+
+--nextPart1943868.mKy15aplY5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCAVFVdK2tAWD5bo0RAnmmAKDYJwN+YEKSDlLlXqZChIzMOn1EmQCfeZDc
+Ve7CqiNImI5j8BOMCQHr9OY=
+=M2Ol
+-----END PGP SIGNATURE-----
+
+--nextPart1943868.mKy15aplY5--

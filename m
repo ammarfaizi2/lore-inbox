@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVBXNUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVBXNZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVBXNUg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 08:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVBXNUg
+	id S262342AbVBXNZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 08:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVBXNZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 08:20:36 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:20098 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262338AbVBXNUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 08:20:11 -0500
-Message-ID: <16103.195.245.190.94.1109251064.squirrel@195.245.190.94>
-In-Reply-To: <421C8CB4.5060605@tiscali.de>
-References: <40114.195.245.190.93.1109155418.squirrel@195.245.190.93>
-    <421C8CB4.5060605@tiscali.de>
-Date: Thu, 24 Feb 2005 13:17:44 -0000 (WET)
-Subject: Re: 2.6.11-rc4-RT-V0.7.39-02 kernel BUG
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Matthias-Christian Ott" <matthias.christian@tiscali.de>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "LKML" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 24 Feb 2005 13:20:09.0664 (UTC) FILETIME=[906E5C00:01C51A73]
+	Thu, 24 Feb 2005 08:25:47 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:23510 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262347AbVBXNZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 08:25:39 -0500
+Message-Id: <200502241325.j1ODPJCa028359@laptop11.inf.utfsm.cl>
+To: Hugh Dickins <hugh@veritas.com>
+cc: "Ammar T. Al-Sayegh" <ammar@kunet.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:483! 
+In-Reply-To: Message from Hugh Dickins <hugh@veritas.com> 
+   of "Wed, 23 Feb 2005 21:31:16 -0000." <Pine.LNX.4.61.0502232108500.14780@goblin.wat.veritas.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Thu, 24 Feb 2005 10:25:19 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Thu, 24 Feb 2005 10:25:21 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias-Christian wrote:
->
-> Hi!
-> The first bug is in the usbb ohci module (report it to
-> http://buzilla.kernel.org and its Maintainers). The second one is caused
-> by the first one.
->
+Hugh Dickins <hugh@veritas.com> said:
+> On Wed, 23 Feb 2005, Ammar T. Al-Sayegh wrote:
+> > I recently installed Fedora RC3 on a new server.
+> > The kernel is 2.6.10-1.741_FC3smp.
 
-Done.
+> I can't really speak for Fedora RC3 kernels,
+> perhaps there's some special patch in there that happens to
+> trigger it for you, but certainly there have been occasional
+> other reports of this BUG with vanilla kernel.org kernels.
 
-Bugzilla bug #4247:
-  http://bugzilla.kernel.org/show_bug.cgi?id=4247
-
-Bye.
+That kernel is outdated, current is 2.6.10-1.766_FC3. Before reporting any
+bugs, update everything! And in case of problems with vendor kernels, it is
+more useful for everybody involved to report to the distribution.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

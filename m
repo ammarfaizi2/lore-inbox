@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUKGNFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbUKGNIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbUKGNFO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 08:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUKGNFN
+	id S261227AbUKGNIP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 08:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUKGNIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 08:05:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:60124 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261608AbUKGNFH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 08:05:07 -0500
+	Sun, 7 Nov 2004 08:08:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:38003 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261227AbUKGNHh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 08:07:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=V8E8eCmbeBjTDRiaGzE6TAZFLDg7UPmFhRwU1aP6S53kP8WlPIoO16frXTSqqoq1uwQMDJEgB+LvfDp1p3GOb8vapTyWZCTWjILCw/x98zTpDDSsRBe+VjZu7+3hR/4XRqsvVz37jHC8xu91Eld/y6qnvhjl/Cc/UZ+JphGqsIo=
-Message-ID: <84144f020411070505627bc4fb@mail.gmail.com>
-Date: Sun, 7 Nov 2004 15:05:07 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Christian Kujau <evil@g-house.de>
-Subject: Re: Oops in 2.6.10-rc1
-Cc: LKML <linux-kernel@vger.kernel.org>, alsa-devel@lists.sourceforge.net,
-       perex@suse.cz, penberg@cs.helsinki.fi
-In-Reply-To: <418D7959.4020206@g-house.de>
+        b=M7NmJsbDuLgLgiZpg3U+TJnv7kmx9x6qLxXQ8Os5UkFHyblzhOGXgyRf4uJTszU0UDVaL2fRTf9bQeWK4ftyp5GswMvz6p1fDLktPFeMnbATLOFvsKn0vpyJdnN2E6ZGI77kd33R9lVdR9VtnUiMCPXVQ97H+aLShF2wS6oS0PE=
+Message-ID: <aad1205e04110705073ee8399b@mail.gmail.com>
+Date: Sun, 7 Nov 2004 21:07:32 +0800
+From: andyliu <liudeyan@gmail.com>
+Reply-To: andyliu <liudeyan@gmail.com>
+To: =?UTF-8?Q?Tomasz_K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar file)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.60L.0411071337240.21903@rudy.mif.pg.gda.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4180F026.9090302@g-house.de>
-	 <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz>
-	 <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
-	 <418D7959.4020206@g-house.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+References: <aad1205e0411062306690c21f8@mail.gmail.com>
+	 <595C7524-30A7-11D9-8C52-000D9352858E@mac.com>
+	 <Pine.LNX.4.60L.0411071337240.21903@rudy.mif.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christian,
+On Sun, 7 Nov 2004 13:38:54 +0100 (CET), Tomasz Kłoczko
+<kloczek@rudy.mif.pg.gda.pl> wrote:
+> On Sun, 7 Nov 2004, Felipe Alfaro Solana wrote:
+> 
+> 
+> 
+> > On Nov 7, 2004, at 08:06, andyliu wrote:
+> >
+> >>   but with the help of the tarfs,we can mount a tar file to some dir and
+> >> access
+> >> it easily and quickly.it's like the tarfs in mc.
+> >>
+> >>  just mount -t tarfs tarfile.tar /dir/to/mnt -o loop
+> >> then access the files easily.
+> >
+> > Simply wonderful!
+> 
+> Which is ~equal to .. unpack tarfile.tar to /dir/to/mnt :o)
+if the tarfile.tar contain huge little file and unpack it will cost
+time and much disk space.
 
-On Sun, 07 Nov 2004 02:24:41 +0100, Christian Kujau <evil@g-house.de> wrote:
-> if someone could give me a hint here what to do next or perhaps tell me
-> that the whole things was totally pointless - please say so.
-> i am somehow lost as to which is the right person to bug here.
+but this filesystem reduce time and use none disk space but it use ram
 
-I am running 2.6.10-rc1-bk14 with ens-1371 working ok. Could you
-please post your .config so I can try to reproduce your oops?
+have you ever use mc's tarfs,they are a little like.
+> 
+> kloczek
+> --
+> -----------------------------------------------------------
+> *Ludzie nie mają problemów, tylko sobie sami je stwarzają*
+> -----------------------------------------------------------
+> Tomasz Kłoczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+> 
 
-               Pekka
+
+-- 
+Yours andyliu

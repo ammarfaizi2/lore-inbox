@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKQLxN>; Fri, 17 Nov 2000 06:53:13 -0500
+	id <S129097AbQKQL4d>; Fri, 17 Nov 2000 06:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKQLxD>; Fri, 17 Nov 2000 06:53:03 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:48644 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129076AbQKQLwx>; Fri, 17 Nov 2000 06:52:53 -0500
-Date: Fri, 17 Nov 2000 05:22:26 -0600
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001117052226.C2918@wire.cadcamlab.org>
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com> <20001117003000.B2918@wire.cadcamlab.org> <8v2js0$qpr$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S129720AbQKQL4X>; Fri, 17 Nov 2000 06:56:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19548 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129097AbQKQL4N>; Fri, 17 Nov 2000 06:56:13 -0500
+Subject: Re: How to add a drive to DMA black list?
+To: aia21@cam.ac.uk (Anton Altaparmakov)
+Date: Fri, 17 Nov 2000 11:26:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.2.1.2.20001117105359.00adbec0@pop.cus.cam.ac.uk> from "Anton Altaparmakov" at Nov 17, 2000 11:03:56 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8v2js0$qpr$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Nov 16, 2000 at 10:40:00PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wjex-0000XQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> drive problem, considering that another ide drive on the same controller 
+> works fine with DMA enabled (a QUANTUM TRB850A) while the Conner 
+> Peripherals 1275MB - CFS1275A fails with DMA enabled. They are in fact both 
 
-  [I wrote]
-> >   mkdir("foo")
-> >   chroot("foo")
+And the Conner drives work fine on a VIA MVP3 it seems. You need to try
+the drive with multiple controllers to be sure its not a PIIX bug that only
+trips on that drive (or indeed a bug in the combination)
 
-[H. Peter Anvin]
-> BUG: you *MUST* chdir() into the chroot jail before it does you any
-> good at all!
+Alan
 
-No, it wasn't a bug!  It was a demonstration.  The above code is
-executed not by the application but by the *attacker* who has managed
-to 0wn the existing jail.
-
-Doing the additional chroot("foo") without already being in "foo"
-basically replaces the chroot jail you *were* in, so you are now out.
-
-The sequence I posted is just the simplest un-chroot procedure I know,
-to explain why chroot cannot sandbox the superuser.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

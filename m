@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUHPTu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267919AbUHPTve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267916AbUHPTu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUHPTu1
+	id S267919AbUHPTve (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267914AbUHPTve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:50:27 -0400
-Received: from mail.tmr.com ([216.238.38.203]:37900 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S267916AbUHPTuZ (ORCPT
+	Mon, 16 Aug 2004 15:51:34 -0400
+Received: from vsmtp14.tin.it ([212.216.176.118]:22264 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S267919AbUHPTvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:50:25 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: BitTorrent and iptables (was: Can not read UDF CD)
-Date: Mon, 16 Aug 2004 15:50:33 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cfr2qh$8lf$1@gatekeeper.tmr.com>
-References: <cfgjk6$gbi$1@gatekeeper.tmr.com><cfgjk6$gbi$1@gatekeeper.tmr.com> <200408131314.02352.jk-lkml@sci.fi>
+	Mon, 16 Aug 2004 15:51:20 -0400
+Subject: Re: Packet writing problems
+From: Frediano Ziglio <freddyz77@tin.it>
+To: Peter Osterlund <petero2@telia.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <m3657iq4rk.fsf@telia.com>
+References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
+	 <m3657iq4rk.fsf@telia.com>
+Content-Type: text/plain
+Message-Id: <1092685901.4255.5.camel@freddy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 16 Aug 2004 21:51:41 +0200
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1092685458 8879 192.168.12.100 (16 Aug 2004 19:44:18 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <200408131314.02352.jk-lkml@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Knutar wrote:
-> On Thursday 12 August 2004 23:33, Bill Davidsen wrote:
-> 
-> 
->>I used torrent to pull something the other day, and while I could pull, 
->>no one could connect to get data from me. I have my iptables set to 
->>ESTABLISHED,RELATED so iptables may not know about torrent.
-> 
-> 
-> You probably need to explicitly ACCEPT incoming to the port that Bittorrent
-> uses. A tracker module to sniff traffic to known outbound tracker ports, to
-> detect which port Bittorrent is using, and allow that inbound, seems a little
-> bit excessive to me, not to mention that people set up trackers on the most
-> varying range of seemingly random ports :-)
-> 
-> Either way, common sane principles of TCP/IP apply with Bittorrent too,
-> if both parties are firewalled, you wont transfer any data between eachother.
-> If one party (out of two) is unfirewalled, data can be transfered both ways
-> between them, the firewalled party will established connection to the unfirewalled
-> to get communication going.
+Il lun, 2004-08-16 alle 21:09, Peter Osterlund ha scritto:
+> ...
 
-The desired behaviour is that incoming BT connections would be accepted 
-while an outgoing BT connection is in place. You can't open the port at 
-any other time, there's no (legitimate) process listening and the 
-firewall wouldn't know where to forward the socket in any case.
+> > > 
+> > > DVD+RW
+> > > mkudffs /dev/hdc does not works... doing a strace opening /dev/hdc for
+> > > read/write open returns EROFS (or similar). I tried with blockdev
+> > > --setrw but still same errors...
+> > 
+> > I see two problems. The first problem is that the Mt Rainier detection
+> > can succeed when it shouldn't, because it forgets to check that the
+> > "GET CONFIGURATION" command returns the MRW feature number.
+> 
+> The second problem is in the dvdrw-support patch in the -mm kernel.
+> (This patch is also included in the patch you are using.)
+> 
+> The problem is that some drives fail the "GET CONFIGURATION" command
+> when asked to only return 8 bytes. This happens for example on my
+> drive, which is identified as:
+> 
+>         hdc: HL-DT-ST DVD+RW GCA-4040N, ATAPI CD/DVD-ROM drive
+> 
+> Since the cdrom_mmc3_profile() function already allocates 32 bytes for
+> the reply buffer, this patch is enough to make the command succeed on
+> my drive.
+> 
 
-This belongs on another list.
+With these two patch both DVD-RW and DVD+RW works !!! Thanks you very much, it's a dream coming true.
+It seems that DVD+RW works better (it's faster) with packet device than with direct writing (mounting /dev/hdc).
+When I'll get back to work (on September) I'll test your patch with USB 2 device and another DVD writer.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+freddy77
+
+

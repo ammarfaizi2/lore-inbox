@@ -1,98 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265889AbUFDSNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265897AbUFDSNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265889AbUFDSNE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUFDSNE
+	id S265897AbUFDSNO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUFDSNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:13:04 -0400
-Received: from holomorphy.com ([207.189.100.168]:47015 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265889AbUFDSMu (ORCPT
+	Fri, 4 Jun 2004 14:13:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14821 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265897AbUFDSNB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:12:50 -0400
-Date: Fri, 4 Jun 2004 11:12:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040604181233.GF21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-	ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-	Simon.Derr@bull.net
-References: <16576.16748.771295.988065@alkaid.it.uu.se> <20040604093712.GU21007@holomorphy.com> <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com>
+	Fri, 4 Jun 2004 14:13:01 -0400
+Date: Fri, 4 Jun 2004 20:12:41 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
+       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, suresh.b.siddha@intel.com,
+       jun.nakajima@intel.com
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+Message-ID: <20040604181241.GB407@devserv.devel.redhat.com>
+References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org> <20040604154142.GF16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org> <20040604155138.GG16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406041408220.31276@innerfire.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
 Content-Disposition: inline
-In-Reply-To: <20040604104756.472fd542.pj@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.58.0406041408220.31276@innerfire.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/* William Lee Irwin III:
->> I'm thoroughly disgusted.
 
-On Fri, Jun 04, 2004 at 10:47:56AM -0700, Paul Jackson wrote:
-> Yup ... LOL.  One sick piece of code.
-> I didn't return the actual return from sched_getaffinity() because (1)
-> it's ok to estimate the mask size too high, and (2) given that the man
-> page and kernel don't agree on the return value of sched_getaffinity(),
-> I figured that the less I relied on it, the longer my user code would
-> continue functioning in a useful manner.  As always, the key to robust
-> code (code that withstands the perils of time) is minimizing risky
-> assumptions.
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Even the following returns 32 on UP. _SC_NPROCESSOR_CONF is
-unimplementable. NR_CPUS serves as an upper bound on the number of cpus
-that may at some time be simultaneously present in the future. Without
-any way to reliably determine this, luserspace is fscked.
+On Fri, Jun 04, 2004 at 02:11:00PM -0400, Gerhard Mack wrote:
+> On Fri, 4 Jun 2004, Arjan van de Ven wrote:
+> 
+> > I know that in a FC1 full install there are less than 5 binaries that don't
+> > run with NX. (one uses nested functions in C and passes function pointers to
+> > the inner function around which causes gcc to emit a stack trampoline, and
+> > gcc then marks the binary as non-NX, the others have asm in them that we
+> > didn't fix in time to be properly marked).
+> 
+> Can you tell if GCC uses trampolines for all use of function pointers or
+> just ones that use nested functions ?
 
-*/
+just for nested functions
+
+> 
+> Also, what is the fastest way to check if GCC is marking non-NX?
+
+readelf -l <binary>
+
+should give output with a STACK line, if that says "RW" then it's NX ok, if
+it says "RWX" then it's non-NX
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <unistd.h>
-#include <limits.h>
-#include <sys/syscall.h>
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-static int getaffinity(pid_t, size_t, unsigned long *);
-static int detect_nr_cpus(void);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-int main(void)
-{
-	printf("%d\n", detect_nr_cpus());
-	return 0;
-}
+iD8DBQFAwLuYxULwo51rQBIRAtjCAJ9b6gUbGGpOuvohKJ16lT16A4XfKACdF1VZ
+NJZM9qZc0+Ao5eQreM9VbOU=
+=fWZT
+-----END PGP SIGNATURE-----
 
-static int detect_nr_cpus(void)
-{
-	unsigned long *cpus = malloc(sizeof(long));
-	size_t upper, middle, lower = sizeof(long);
-
-	for (upper = lower; getaffinity(0, upper, cpus) < 0; upper *= 2) {
-		if (!realloc(cpus, 2*upper))
-			return -ENOMEM;
-	}
-	while (lower < upper) {
-		middle = (lower + upper)/2;
-		if (!realloc(cpus, middle))
-			return -ENOMEM;
-		if (getaffinity(0, middle, cpus) < 0)
-			lower = middle;
-		else
-			upper = middle;
-	}
-	return CHAR_BIT*upper;
-}
-
-static int getaffinity(pid_t pid, size_t size, unsigned long *cpus)
-{
-	return syscall(__NR_sched_getaffinity, pid, size, cpus);
-}
+--0eh6TmSyL6TZE2Uz--

@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317054AbSHSCCV>; Sun, 18 Aug 2002 22:02:21 -0400
+	id <S317580AbSHSDLx>; Sun, 18 Aug 2002 23:11:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317341AbSHSCCV>; Sun, 18 Aug 2002 22:02:21 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:15886 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317054AbSHSCCV>;
-	Sun, 18 Aug 2002 22:02:21 -0400
-Date: Sun, 18 Aug 2002 19:01:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: devfs
-Message-ID: <20020819020125.GA20296@kroah.com>
-References: <1029709596.3331.32.camel@psuedomode> <Pine.GSO.4.21.0208181852450.3920-100000@weyl.math.psu.edu> <20020818210618.A1806@zalem.puupuu.org>
+	id <S317581AbSHSDLx>; Sun, 18 Aug 2002 23:11:53 -0400
+Received: from dp.samba.org ([66.70.73.150]:34722 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S317580AbSHSDLw>;
+	Sun, 18 Aug 2002 23:11:52 -0400
+Date: Mon, 19 Aug 2002 10:49:29 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       trond.myklebust@fys.uio.no
+Subject: Re: [patch] v2.5.31 nfsctl.c stack usage reduction
+Message-Id: <20020819104929.1eabb7ce.rusty@rustcorp.com.au>
+In-Reply-To: <20020815173136.D29874@redhat.com>
+References: <20020815173136.D29874@redhat.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020818210618.A1806@zalem.puupuu.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 22 Jul 2002 00:51:56 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 09:06:18PM -0400, Olivier Galibert wrote:
+On Thu, 15 Aug 2002 17:31:36 -0400
+Benjamin LaHaise <bcrl@redhat.com> wrote:
+
+> Heyo,
 > 
-> I've been wondering, imagine that in the future we have a working
-> dynamic device filesystem (be it devfs, driverfs, whatever) nice
-> enough that we don't want a disk-based /dev anymore.  How are we
-> supposed to mount it so that the kernel's open("/dev/console")
-> succeeds?
+> The patch below (which depends on the copy_from_user_kmalloc addition) 
+> reduces the stack usage in nfsctl.c, which was allocating structures that 
+> were 2KB or more on the stack.
+> 
+> 		-ben
+> 
+> :r ~/patches/v2.5/v2.5.31-stack-nfs.diff
+> diff -urN foo-v2.5.31/fs/nfsd/nfsctl.c bar-v2.5.31/fs/nfsd/nfsctl.c
+> --- foo-v2.5.31/fs/nfsd/nfsctl.c	Tue Jul 30 10:24:17 2002
+> +++ bar-v2.5.31/fs/nfsd/nfsctl.c	Thu Aug 15 17:26:09 2002
+> @@ -155,56 +155,47 @@
+>   * payload - write methods
+>   */
+>  
+> +/* Rather than duplicate this many times, just use a funky macro. */
+> +#define WRITE_METHOD(type, fn)		\
+> +	type *data;			\
+> +	ssize_t ret;			\
+> +	if (size < sizeof(*data))	\
+> +		return -EINVAL;		\
+> +	data = copy_from_user_kmalloc(buf, size);\
+> +	if (IS_ERR(data))		\
+> +		return PTR_ERR(data);	\
+> +	ret = fn;			\
+> +	kfree(data);			\
+> +	return ret;
+> +
 
-initramfs might already contain a minimial /dev that has those kinds of
-entries in it.
+One tiny request: make the macro an expression statement, and then use it
+as "return WRITE_METHOD(xxx, yyy)".
 
-thanks,
+Or even an inline function taking void * and a size.
 
-greg k-h
+Let's not encourage people to do returns in macros 8)
+
+Thanks!
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

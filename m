@@ -1,106 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVAKQze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVAKQ6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbVAKQze (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbVAKQxm
+	id S262830AbVAKQ6E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbVAKQ52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:53:42 -0500
-Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:33664 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262830AbVAKQbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:31:53 -0500
-To: akpm@osdl.org, torvalds@osdl.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 10/11] FUSE - NFS export
-Message-Id: <E1CoOvl-0003Ms-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 11 Jan 2005 17:31:41 +0100
+	Tue, 11 Jan 2005 11:57:28 -0500
+Received: from mail.dif.dk ([193.138.115.101]:1985 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262830AbVAKQzM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 11:55:12 -0500
+Date: Tue, 11 Jan 2005 17:57:41 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Diego Calleja <diegocg@gmail.com>, Steve Bergman <steve@rueb.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+In-Reply-To: <20050111001901.GA4378@ip68-4-98-123.oc.oc.cox.net>
+Message-ID: <Pine.LNX.4.61.0501111754400.3368@dragon.hygekrogen.localhost>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+ <41E2F6B3.9060008@rueb.com> <20050110230827.4d13ae7b.diegocg@gmail.com>
+ <20050111001901.GA4378@ip68-4-98-123.oc.oc.cox.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for exporting a FUSE filesystem through NFS.
+On Mon, 10 Jan 2005, Barry K. Nathan wrote:
 
-The following export operations are defined:
+> On Mon, Jan 10, 2005 at 11:08:27PM +0100, Diego Calleja wrote:
+> > They could have mailed to *THIS* mailing list, so anyone can make a patch.
+> 
+> And abandon the whole idea of coordinated disclosure? That would put
 
- o get_dentry
- o encode_fh
+Not everyone agrees that that is the proper way to do things, some prefer 
+full disclosure.
+Personally I'd prefer full disclosure on a public mailing list (copying 
+vendors, maintainers etc of course), so as many people as possible can get 
+to work on a fix as soon as possible. Keeping things secret doesn't speed 
+up the time to get a fix made.
 
-Currently only inodes still in the cache are found.  This is adequate
-for most applications.
+-- 
+Jesper Juhl
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-diff -Nurp a/fs/fuse/inode.c b/fs/fuse/inode.c
---- a/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
-+++ b/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
-@@ -437,6 +437,63 @@ static struct inode *get_root_inode(stru
- 	return fuse_iget(sb, 1, 0, &attr, 0);
- }
- 
-+static struct dentry *fuse_get_dentry(struct super_block *sb, void *vobjp)
-+{
-+	__u32 *objp = vobjp;
-+	unsigned long nodeid = objp[0];
-+	__u32 generation = objp[1];
-+	struct inode *inode;
-+	struct dentry *entry;
-+
-+	if (nodeid == 0)
-+		return ERR_PTR(-ESTALE);
-+
-+	inode = ilookup5(sb, nodeid, fuse_inode_eq, &nodeid);
-+	if (!inode || inode->i_generation != generation)
-+		return ERR_PTR(-ESTALE);
-+
-+	entry = d_alloc_anon(inode);
-+	if (!entry) {
-+		iput(inode);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	return entry;
-+}
-+
-+static int fuse_encode_fh(struct dentry *dentry, __u32 *fh, int *max_len,
-+			  int connectable)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int len = *max_len;
-+	int type = 1;
-+
-+	if (len < 2 || (connectable && len < 4))
-+		return 255;
-+
-+	len = 2;
-+	fh[0] = get_fuse_inode(inode)->nodeid;
-+	fh[1] = inode->i_generation;
-+	if (connectable && !S_ISDIR(inode->i_mode)) {
-+		struct inode *parent;
-+
-+		spin_lock(&dentry->d_lock);
-+		parent = dentry->d_parent->d_inode;
-+		fh[2] = get_fuse_inode(parent)->nodeid;
-+		fh[3] = parent->i_generation;
-+		spin_unlock(&dentry->d_lock);
-+		len = 4;
-+		type = 2;
-+	}
-+	*max_len = len;
-+	return type;
-+}
-+
-+static struct export_operations fuse_export_operations = {
-+	.get_dentry	= fuse_get_dentry,
-+	.encode_fh      = fuse_encode_fh,
-+};
-+
- static struct super_operations fuse_super_operations = {
- 	.alloc_inode    = fuse_alloc_inode,
- 	.destroy_inode  = fuse_destroy_inode,
-@@ -479,6 +536,7 @@ static int fuse_fill_super(struct super_
- 	sb->s_magic = FUSE_SUPER_MAGIC;
- 	sb->s_op = &fuse_super_operations;
- 	sb->s_maxbytes = MAX_LFS_FILESIZE;
-+	sb->s_export_op = &fuse_export_operations;
- 
- 	file = fget(d.fd);
- 	if (!file)

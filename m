@@ -1,50 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUIBFfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUIBFmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267460AbUIBFfn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 01:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267520AbUIBFfn
+	id S267199AbUIBFmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 01:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUIBFmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 01:35:43 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:49074 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267460AbUIBFfm (ORCPT
+	Thu, 2 Sep 2004 01:42:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:64938 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267199AbUIBFmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 01:35:42 -0400
-Date: Thu, 2 Sep 2004 07:37:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Mark_H_Johnson@raytheon.com,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-Message-ID: <20040902053719.GA12684@elte.hu>
-References: <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <20040901082958.GA22920@elte.hu> <20040901135122.GA18708@elte.hu> <41367E5D.3040605@cybsft.com>
+	Thu, 2 Sep 2004 01:42:12 -0400
+Date: Wed, 1 Sep 2004 22:41:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: vatsa@in.ibm.com
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       paulmck@us.ibm.com
+Subject: Re: [RFC] Use RCU for tcp_ehash lookup
+Message-Id: <20040901224108.3b2d692d.davem@redhat.com>
+In-Reply-To: <20040831125941.GA5534@in.ibm.com>
+References: <20040831125941.GA5534@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41367E5D.3040605@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 31 Aug 2004 18:29:41 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-* K.R. Foley <kr@cybsft.com> wrote:
+> Some notes on the patch:
+> 
+> - Although readprofile shows improvement in tick count for
+>   __tcp_v4_lookup_established, I haven't come across any benchmarks that is
+>   benefited noticeably by the lock-free lookup. I have tried httperf, netperf
+>   and simple file transfer tests so far.
+> 
+>   This could possibly be because the hash table size on the machines I was
+>   testing was high (tcp_ehash_size = 128K), leading to low contention rate on
+>   the hash bucket locks. Also because of the fact that lookup could happen in
+>   parallel to socket input packet processing.
+> 
+>   I would be interested to know if anyone has seen high-rate of lock contention
+>   for hash bucket lock. Such workloads would benefit from the lock-free lookup.
 
-> This is an interesting one. ~3.9ms generated here by amlat in do_IRQ:
+The reason you don't see any improvement is that the ehash table is
+pretty write heavy.
 
-the overhead is not in do_IRQ():
+I'm not totally against your patch, I just don't think that the TCP established
+hash table qualifies as "read heavy" as per what RCU is truly effective for.
 
-> 00000001 0.000ms (+0.000ms): n_tty_receive_buf (pty_write)
-> 00010001 3.992ms (+3.992ms): do_IRQ (n_tty_receive_buf)
+> - I presume that one of the reasons for keeping the hash table so big is to
+>   keep lock contention low (& to reduce the size of hash chains). If the lookup
+>   is made lock-free, then could the size of the hash table be reduced (without
+>   adversely impacting performance)?
 
-the overhead is always relative to the previous entry - so the overhead
-was in n_tty_receive_buf() [that is the function that was interrupted by
-do_IRQ()]. But it's a bit weird - you should have gotten timer IRQs
-every 1 msec. Does n_tty_receive_buf() run with irqs disabled perhaps?
+It's large so that the hash itself is effective, not for locking reasons.
 
-	Ingo
+> - Biggest problem I had converting over to RCU was the refcount race between
+>   sock_put and sock_hold. sock_put might see the refcount go to zero and decide
+>   to free the object, while on some other CPU, sock_get's are pending against
+>   the same object. The patch handles the race by deciding to free the object
+>   only from the RCU callback.
+
+That's exactly what I was concerned about when I saw that you had attempted
+this change.  It is incredibly important for state changes and updates to
+be seen as atomic by the packet input processing engine.  It would be illegal
+for a cpu running TCP input to see a socket in two tables at the same time
+(for example, in the main established area and in the second half for TIME_WAIT
+buckets).
+
+If the visibility of the socket is wrong, sockets could be erroneously
+be reset during the transition from established to TIME_WAIT state.
+Beware!
+
+> - Socket table lookups that happens thr', say /proc/net/tcp or tcpdiag_dump, is
+>   not lock-free yet. This is because of movement of socket performed in
+>   __tcp_tw_hashdance, between established half to time-wait half.
+>   There is a window during this movement, when the same socket is present
+>   on both time-wait half as well as established half. I felt that it is not
+>   good to have /proc/net/tcp report two instances of the same socket. Hence
+>   I resorted to have /proc/net/tcp and tcpdiag_dump doing the lookup using
+>   a spinlock.
+
+/proc/net/tcp should simply not be used by people, we
+have the netlink interface to get socket listings which
+actually scales.
+
+Leaving /proc/net/tcp readable on servers with real users is
+a DoS waiting to happen.
+
+>   Note that __tcp_v4_lookup_established should not be affected by the above
+>   movement because I found it scans the established half first and _then_ the
+>   time wait half. So even if the same socket is present in both established half
+>   and time wait half, __tcp_v4_lookup_established will lookup only one of them
+>   (& not both).
+
+I hope this is true.

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132671AbRA0KOY>; Sat, 27 Jan 2001 05:14:24 -0500
+	id <S132641AbRA0KPE>; Sat, 27 Jan 2001 05:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132668AbRA0KOP>; Sat, 27 Jan 2001 05:14:15 -0500
-Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:23562 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S132641AbRA0KOC>; Sat, 27 Jan 2001 05:14:02 -0500
-Date: Sat, 27 Jan 2001 02:14:00 -0800
-Message-Id: <200101271014.f0RAE0G04370@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: David Ford <david@linux.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
-X-Newsgroups: cs.lists.linux-kernel
-In-Reply-To: <cs.lists.linux-kernel/3A72804A.E6052E1B@linux.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
+	id <S132668AbRA0KOz>; Sat, 27 Jan 2001 05:14:55 -0500
+Received: from Huntington-Beach.blue-labs.org ([208.179.0.198]:49962 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S132641AbRA0KOS>; Sat, 27 Jan 2001 05:14:18 -0500
+Message-ID: <3A729F76.4A9170E6@linux.com>
+Date: Sat, 27 Jan 2001 10:14:14 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Looking for comparison data on network stack prowess
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jan 2001 08:01:14 +0000, David Ford <david@linux.com> wrote:
-> Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
-> 4/5 systems I have now overflow the buffer during boot before init is
-> even launched.
+<noflame=1>
+I'm looking for some authoritative comparisons and discussions of the
+current network stacks in *BSD and Linux.  I.e. NET4 in Linux and
+whatever is most current in *BSD.
 
-Hmm, are you sure? man dmesg:
-[...]
-       -sbufsize
-              use  a  buffer  of bufsize to query the kernel ring
-              buffer.  This is 8196 by default (this matches  the
-              default  kernel  syslog  buffer  size in 2.0.33 and
-              2.1.103).  If you have set  the  kernel  buffer  to
-              larger  than  the  default  then this option can be
-              used to view the entire buffer.
+_PLEASE_ no flaming, no causing flamewar, nadda.
 
-So try dmesg -s 16384. That's good enough for me on a 4-way SMP
-box with lots of SCSI on-board (and trust me, SMP generates a *huge*
-amount of kernel logging).
+I am writing an article for Linux.com and I am attempting to debunk
+longstanding fallacies on both sides of the camp.  I am aiming for a
+truely neutral article which means I want to hear about the bad as well
+as the good for both camps.
+
+I am no master, and haven't played with *BSD in a few.  I would
+appreciate any of you who can cooly speak their mind and provide
+insightful information.
+
+I am looking for:
+    articles
+    benchmarks
+    commentary
+    references
+    etc..
+
+Thank you,
+-d
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
 
 
-Ion
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

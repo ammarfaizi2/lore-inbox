@@ -1,31 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264998AbUFRG3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUFRGjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264998AbUFRG3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 02:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbUFRG3c
+	id S265000AbUFRGjB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 02:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbUFRGjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 02:29:32 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3845 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264998AbUFRG3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 02:29:31 -0400
+	Fri, 18 Jun 2004 02:39:00 -0400
+Received: from tag.witbe.net ([81.88.96.48]:55713 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S265000AbUFRGi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 02:38:59 -0400
+Message-Id: <200406180638.i5I6cwX12193@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>,
+       "'lkml'" <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] save kernel version in .config file
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040617220651.0ceafa91.rddunlap@osdl.org>
-References: <20040617220651.0ceafa91.rddunlap@osdl.org>
-Content-Type: text/plain
-Date: Fri, 18 Jun 2004 08:29:23 +0200
-Message-Id: <1087540163.1684.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+Date: Fri, 18 Jun 2004 08:38:58 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRU8u99NLaybkq4RUeXEX7JevE7fwAC53XA
+In-Reply-To: <20040617220651.0ceafa91.rddunlap@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 22:06 -0700, Randy.Dunlap wrote:
-> Is this interesting to anyone besides me?
+Hello,
 
-Yes. It will help with the hell of config files I have. Thanks.
+> 
+> Is this interesting to anyone besides me?
+> 
+Is it also possible to have this version being displayed during
+a make config/make menuconfig/... so that we know we are reading a
+config file that may have been generated for another kernel version,
+and not yet saved ?
+
+You would have, for make menuconfig :
+
+ Linux Kernel v2.2.13 Configuration, Configuration file version 2.4.20
+....
+
+Regards,
+Paul
 

@@ -1,107 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUJOWMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUJOWUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUJOWMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 18:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUJOWMv
+	id S263778AbUJOWUW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 18:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUJOWUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 18:12:51 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:21937 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S261724AbUJOWMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 18:12:46 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Date: Fri, 15 Oct 2004 15:12:25 -0700
-MIME-Version: 1.0
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       penguinppc-team@lists.penguinppc.org,
-       linuxconsole-dev@lists.sourceforge.net
-Message-ID: <416FE8D9.18954.2984F7A@localhost>
-In-reply-to: <20041015214451.GA4739@hh.idb.hist.no>
-References: <416FB624.31033.1D23BE5@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Fri, 15 Oct 2004 18:20:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4062 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263778AbUJOWUL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 18:20:11 -0400
+Date: Fri, 15 Oct 2004 15:19:34 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 039 release
+Message-ID: <20041015221934.GA27685@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> wrote:
+I've released the 039 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-039.tar.gz
 
-> On Fri, Oct 15, 2004 at 11:36:04AM -0700, Kendall Bennett wrote:
-> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> > 
-> [...]
-> > > Having video BOOT would be great, and please make it independent of
-> > > the framebuffer drivers.  
-> > 
-> > Right now it is independent but I added a single line of code to the 
-> > Radeon driver to init the card prior to initing the rest of the driver. 
-> 
-> That's fine.  What I meant, was please make it independent of the
-> VESA framebuffer driver, because one might want to use an
-> acellerated driver when one is available. 
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
-Oh, it already is. The VESA driver is not actually done yet so the only 
-drivers using VideoBoot right now are the accelerated ones ;-)
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
 
-> > It can be done earlier than that inside fbmem.c, but I wasn't sure how to 
-> > set up the code so it would only POST each card as it is needed as I 
-> > don't want to bring up secondary controllers unless the user actually 
-> > wants this.
-> 
-> Selecting which cards to "boot" can probably be done with a kernel
-> parameter?  The default could be to bring up all cards except the
-> one the bios brought up already.  Wanting to _not_ bring up some
-> cards seems to be the unusual case to me. 
+And there is a general udev web page at:
+	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
 
-Not really. In many cases there may be a secondary controller on the 
-system that is not wanted, such as when the user has an i915G or other 
-chipset with integrated video but has plugged a different video card into 
-the system. The integrated video can still be active so trying to bring 
-it up may be problematic unless it is really wanted.
+This release fixes a few major bugs:
+	- the config file and manpage are now properly generated
+	- wait_for_sysfs is updated for lots of new devices
+	- firmware downloading should now work properly, sorry about
+	  that, udev shouldn't have stopped that from happening...
+	- scsi_id bug fix update.
 
-> > How does the framebuffer console system handle secondary controllers 
-> > right now? It seems from my look at the code that it only brings up the 
-> > primary and not the secondary?
-> 
-> The stock 2.6.x fbcon only use one framebuffer console.  I use the
-> ruby patch which supports multiple consoles.  The ruby patch for
-> 2.6.7 support multiple fbcons so you can have several keyboards
-> attached to separate framebuffers thus supporting several users.
-> (VT1-VT16 is the first kbd on the first fbcon, VT17-VT32 is the
-> second kbd on the second fbcon, and so on.) 
-> 
-> The ruby patch for 2.6.8.1 is somewhat broken, and doesn't work
-> with fbcon. It still support multiple keyboards and multiple
-> framebuffers, so I can support several users with separate xservers
-> but currently not gettys on separate fbcons. 
+Thanks to everyone who has send me patches for this release, a full list
+of everyone, and their changes is below.
 
-Cool. So this stuff is not yet in the official kernel trees. Is that 
-going to happen or is the project to move the video out of the kernel 
-going to happen first?
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
 
-> Note that soft-booting the "extra" video card in order to support a
-> framebuffer driver is nice even if it doesn't attach to the
-> console, because there is other software that can utilize a
-> framebuffer.  X is the most well-known of them. 
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
 
-Yes, but if you don't need a framebuffer console on the card then X or 
-whatever can bring up the secondary controller from user space once the 
-kernel has booted.
+thanks,
 
-Regards,
+greg k-h
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
 
-~ SciTech SNAP - The future of device driver technology! ~
+Summary of changes from v038 to v039
+============================================
+
+Greg Kroah-Hartman:
+  o Hopefully fix the vcs issue in wait_for_sysfs
+  o take out & from wait_for_sysfs_test that I previously missed
+  o add very nice cdsymlinks scripts
+  o add some helper scripts for dvb and input devices
+  o add debian config files
+  o let the extras/ programs build "pretty" also
+  o tweak the ccdv program to handle files in subdirectories being built
+  o crap, I messed up the 'sed' instances pretty badly, this fixes the config and man page mess
+  o fix broken 'make -j5' functionality
+
+Kay Sievers:
+  o swich attribute open() to simple stat()
+  o wait_for_sysfs update for /class/firmware and /class/net/irda devices
+  o fix unusual sysfs behavior for pcmcia_socket
+  o remove sleeps from udev as it is external now
+  o delete udevruler?
+  o Makefile fix
+
+Patrick Mansfield:
+  o update udev to scsi_id 0.7
+  o pass SYSFS setting down for extras builds
+  o move assignments past local variables
 
 

@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVA1Qs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVA1Qse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVA1Qs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 11:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVA1Qsx
+	id S261479AbVA1Qse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 11:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVA1Qse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 11:48:53 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:21437 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261481AbVA1QsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 11:48:13 -0500
-Date: Fri, 28 Jan 2005 17:48:11 +0100
-From: Michael Gernoth <simigern@stud.uni-erlangen.de>
-To: linux-kernel@vger.kernel.org
-Cc: Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
-Subject: 2.4.29, e100 and a WOL packet causes keventd going mad
-Message-ID: <20050128164811.GA8022@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Matthias Koerber <simakoer@cip.informatik.uni-erlangen.de>
+	Fri, 28 Jan 2005 11:48:34 -0500
+Received: from cantor.suse.de ([195.135.220.2]:16061 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261479AbVA1Qr5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 11:47:57 -0500
+Date: Fri, 28 Jan 2005 17:47:56 +0100
+From: Olaf Hering <olh@suse.de>
+To: dtor_core@ameritech.net
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: atkbd_init lockup with 2.6.11-rc1
+Message-ID: <20050128164756.GA2154@suse.de>
+References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de> <d120d50005012806435a17fe98@mail.gmail.com> <20050128145511.GA29340@suse.de> <d120d500050128072268a5c2f0@mail.gmail.com> <20050128161746.GA1092@suse.de> <d120d500050128084345bb1abd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <d120d500050128084345bb1abd@mail.gmail.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ On Fri, Jan 28, Dmitry Torokhov wrote:
 
-we have about 70 P4 uniprocessor machines (some with Hyperthreading
-capable CPUs) running linux 2.4.29, which are woken up on the weekdays
-by sending a WOL packet to them. The machines all have a E100 nic with
-WOL enabled in the bios. The E100 driver is compiled into the kernel
-and not loaded as a module.
+> > i8042_write_data(56) swapper(1):c0,j4294674787 enter 96
+> > i8042_write_data(58) swapper(1):c0,j4294674787 leave 96
+> 
+> So this trace is without printk but with udelay, right? This time
+> keyboard does not hang but NAKs everything instead... What if you aso
+> add udelay(20) after calls to i8042_write_data()?
 
-If the machine which should be woken up is already running (because
-someone switched it on by hand), the WOL packet causes keventd to go
-mad and "use" 100% CPU:
+Its with 2 printk in i8042_write_data(), just adding a printk after outb
+in i8042_write_data fixes the hang.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-    2 root      15   0     0    0    0 R 99.9  0.0 140:50.94 keventd
+> > md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
+> > NET: Registered protocol family 2
+> > .. here it hangs again.
+> 
+> Do you know where exactly? Is it some IO port access again?
 
-This can be reproduced on any of the 70 machines by simply sending a WOL
-packet to it, when it's already running... No entry is made in the
-kernel log.
+Havent debugged that one, yet. Hopefully a different issue. According to
+the logs from 2.6.5, the next message would be 
 
-The dmesg of an affected machine can be found at:
-http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-dmesg
-Our kernel-config is at:
-http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-generic-config
-lspci -vvv is at:
-http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-lspci
+NET: Registered protocol family 2
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP established hash table entries: 16384 (order: 5, 131072 bytes)
+TCP bind hash table entries: 16384 (order: 4, 65536 bytes)
+TCP: Hash tables configured (established 16384 bind 16384)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
 
-We are using a kernel.org linux 2.4.29 kernel patched with the current
-autofs patch and ACL support.
-
-Regards,
-  Michael

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262733AbTC0BEv>; Wed, 26 Mar 2003 20:04:51 -0500
+	id <S262737AbTC0B0E>; Wed, 26 Mar 2003 20:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262734AbTC0BEu>; Wed, 26 Mar 2003 20:04:50 -0500
-Received: from mta9-0.mail.adelphia.net ([64.8.50.199]:56986 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP
-	id <S262733AbTC0BEu>; Wed, 26 Mar 2003 20:04:50 -0500
-Subject: Adaptect 2940u2 w/ 2.4.20 or 2.5.59
-From: "Anthony R. Mattke" <tonhe@adelphia.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048727751.1225.10.camel@hiku.iphere.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 26 Mar 2003 20:15:57 -0500
-Content-Transfer-Encoding: 7bit
+	id <S262741AbTC0B0E>; Wed, 26 Mar 2003 20:26:04 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:46479 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262737AbTC0B0D>; Wed, 26 Mar 2003 20:26:03 -0500
+Date: Wed, 26 Mar 2003 20:41:02 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: henrique.gobbi@cyclades.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Interpretation of termios flags on a serial driver
+In-Reply-To: <3E81C846.6010901@cyclades.com>
+Message-ID: <Pine.LNX.4.53.0303262035230.3287@chaos>
+References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org>
+ <20030326092010.3EDA8124023@mx12.arcor-online.net> <3E81BE5C.400@cyclades.com>
+ <Pine.LNX.4.53.0303261804020.2833@chaos> <3E81C846.6010901@cyclades.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a current linux desktop curring 2.4.19 that has been running fine
-for ever. Altho, when I atempted to do an update to 2.4.20, I was rather
-surprised to see that my machine kernel panics on boot, just as it would
-normally init the scsi bus.
+On Wed, 26 Mar 2003, Henrique Gobbi wrote:
 
-The machine in question is an x86 SMP system (p3) with an adaptect
-2940u2 card.. it also has another scsi controller on the mobo that is
-disabled in bios. it is a 2940uw.
+> Thanks for the feedback.
+>
+> > If PARENB is set you generate parity. It is ODD parity if PARODD
+> > is set, otherwise it's EVEN. There is no provision to generate
+> > "stick parity" even though most UARTS will do that. When you
+> > generate parity, you can also ignore parity on received data if
+> > you want.  This is the IGNPAR flag.
+>
+> Ok. But, considering the 2 states of the flag IGNPAR, what should the
+> driver do with the chars that are receiveid with wrong parity, send this
+> data to the TTY with the flag TTY_PARITY or just discard this data ?
+>
+> regards
+> Henrique
+>
 
-Is there any reason why the newer kernel has a problem with this card ?
-I have tried both adaptect drivers for this card.. the new one that
-started shipping in .20 and the olderone.. 
 
-Has anyone else seen this problem? Its a current show stopper, I need to
-reinstall my desktop, but the newer version of slackware ships with
-2.4.20.
+If the IGNPAR flag is true, you keep the data. You pretend it's
+okay. Ignore parity means just that. Ignore it. You do not flag
+it in any way. This is essential. If you have a 7-bit link and
+somebody is sending you stick-parity, you can still use the data.
 
-Any help would be appreciated.. 
 
-Thanks.. 
 
--- 
-Anthony R. Mattke <tonhe@adelphia.net>
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbTIARZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTIARZH
+	id S263198AbTIARhV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 13:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTIARhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:25:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26793 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263174AbTIARY1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:24:27 -0400
-Date: Mon, 1 Sep 2003 14:27:07 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-X-X-Sender: marcelo@logos.cnet
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Andrea VM changes
-In-Reply-To: <Pine.LNX.4.44.0308311353170.15412-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0309011426390.5932-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Sep 2003 13:37:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:46997 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263198AbTIARhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 13:37:20 -0400
+Date: Mon, 1 Sep 2003 10:28:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+Message-Id: <20030901102808.1d27f537.davem@redhat.com>
+In-Reply-To: <m3ptikctx5.fsf@defiant.pm.waw.pl>
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfyt3x6.fsf@trained-monkey.org>
+	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
+	<20030819095547.2bf549e3.davem@redhat.com>
+	<m34r0dwfrr.fsf@defiant.pm.waw.pl>
+	<m38ypl29i4.fsf@defiant.pm.waw.pl>
+	<m3isoo2taz.fsf@trained-monkey.org>
+	<m3n0dz5kfg.fsf@defiant.pm.waw.pl>
+	<20030824060057.7b4c0190.davem@redhat.com>
+	<m365kmltdy.fsf@defiant.pm.waw.pl>
+	<m365kex2rp.fsf@defiant.pm.waw.pl>
+	<20030830185007.5c61af71.davem@redhat.com>
+	<1062334374.31861.32.camel@dhcp23.swansea.linux.org.uk>
+	<20030831222233.1bd41f01.davem@redhat.com>
+	<m37k4tj71h.fsf@defiant.pm.waw.pl>
+	<20030901004308.477f8cc8.davem@redhat.com>
+	<m3ptikctx5.fsf@defiant.pm.waw.pl>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 01 Sep 2003 19:14:46 +0200
+Krzysztof Halasa <khc@pm.waw.pl> wrote:
 
-Mind to answer this message Andrea?
+>  When pci_set_dma_mask() is successful, and returns zero, the PCI layer
+> -saves away this mask you have provided.  The PCI layer will use this
+> -information later when you make DMA mappings.
+> +saves away this mask you have provided.  The PCI layer may or may not
+> +use this information later when you make DMA mappings.
 
-On Sun, 31 Aug 2003, Marcelo Tosatti wrote:
+Umm, come on, this is inaccurate.
 
-> 
-> 
-> On Sat, 30 Aug 2003, Andrea Arcangeli wrote:
-> 
-> > On Sat, Aug 30, 2003 at 12:13:57PM -0300, Marcelo Tosatti wrote:
-> > > 
-> > > > You need to integrate with -aa on the VM.  It has been hard enough for
-> > > > Andrea to get his stuff in, I doubt you will fair any better.
-> > > 
-> > > Thats because I never received separate patches which make sense one by
-> > > one.  Most of Andreas changes are all grouped into few big patches that
-> > > only he knows the mess. That is not the way to merge things.
-> > > 
-> > > I want to work out with him after I merge other stuff to address that.
-> > 
-> > that's true for only one patch, the others are pretty orthogonal after
-> > Andrew helped splitting them:
-> > 
-> > 
-> > 05_vm_03_vm_tunables-4
-> > 05_vm_05_zone_accounting-2
-> > 05_vm_06_swap_out-3
-> 
-> Help me understand something about this patch. In try_to_free_pages(), you
-> set failed_swapout to zero in case we are under __GFP_IO. And
-> failed_swapout decides whether we swap_out() or not.
-> 
-> So basically with -aa swap_out() is only called by __GFP_IO tasks (which
-> are throttled by the page laundering code in shrink_cache) and in mainline
-> non __GFP_IO tasks do swap_out() (and those are not throttled by anything).
-> 
-> Did I understood this right? 
-> 
-> Part 2:
-> 
-> Now in try_to_free_pages_zone() and shrink_cache you have: 
-> 
->     if (!*failed_swapout)
->         *failed_swapout =  !swap_out(classzone);
-> 
-> Which means: Keep trying to swap_out() only in case swap_out()  
-> successfully desactivates nr_pages pte's. Right? Do you do that to avoid
-> terrible expensive swap_out() loops which dont successfully free pages?
-> 
-> Thanks
-> 
-> 
-> 
-> 
-> 
-
+If it is accurate fix the broken platforms.  But this is unrelated to
+the consistent DMA issues.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132013AbRAQK5g>; Wed, 17 Jan 2001 05:57:36 -0500
+	id <S132773AbRAQLFT>; Wed, 17 Jan 2001 06:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132886AbRAQK50>; Wed, 17 Jan 2001 05:57:26 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:37392 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S132013AbRAQK5L>;
-	Wed, 17 Jan 2001 05:57:11 -0500
-Date: Wed, 17 Jan 2001 11:56:53 +0100
+	id <S132795AbRAQLFK>; Wed, 17 Jan 2001 06:05:10 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:65296 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S132773AbRAQLEv>;
+	Wed, 17 Jan 2001 06:04:51 -0500
+Date: Wed, 17 Jan 2001 12:04:41 +0100
 From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3A657A75.A7345720@uni-mb.si>
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Message-id: <3A657C49.8D556099@uni-mb.si>
 MIME-version: 1.0
 X-Mailer: Mozilla 4.75 [en] (WinNT; U)
 Content-type: text/plain; charset=us-ascii
@@ -20,74 +20,53 @@ X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew D. Pitts (mpitts@suite224.net) wrote :
-
-> Guys,    
->             
-> > And this is a problem that has plagues all PC operating systems, but has never    
-> > been a problem on the Macintosh. Why? Because the Mac was designed to handle        
-> > this problem, but the PC never was. 
->                       
-> Quite true on this point.
-
-Amiga handles it too.
-             
-> > The Mac never enumerates its devices like the PC does (no C: D: etc, no 
-> > /dev/sda, /dev/sdb, or anything like that). It also remembers the boot device           
-> > in its EEPROM (the Startup Disk Control Panel handles this). 
->    
-> For ATA drives the bios handles this.
-
-No it doesn't. Put your root-fs on hda6 ( not unusual in dual boot
-setups ),
-delete hda5, watch your linux fail to boot.
-( the kernel will be loaded , but it won't find the root-fs , because it
-looks
-in hda6 , but the partition has "migrated" to hda5 )
-
->    
-> > The only way to solve this problem is the DESIGN IT INTO THE OS! Someone needs  
-> > to stand up and say, "This is a problem, and I'm going to fix it." There needs
--------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Amen to that !
-
-> > to be a "device mount order database" or some kind, and all the disk drivers
-> > need to access that database to determine where to put the devices it finds.                   
+Dr. Kelsey Hudson (kernel@blackhole.compendium-tech.com) wrote :
+>    On Tue, 16 Jan 2001, Venkatesh Ramamurthy wrote:
 >           
-> NO! What needs to happen is:
-> 1) the person who installs a second scsi card should read the manual BEFORE
-> installing it so they know how to disable the boot features if they aren't
-> needed,
+>    > [Venkatesh Ramamurthy] Dont you think that mounting and booting 
+>    > based on disk label names is better, then relying on device nodes which can 
+>    > change when a new card is added?. The existing patch for 2.2.xx is quite 
+>    > small and it does not bloat the kernel too much either. I think we can port 
+>    > it for 2.4.XX with ease.In my words it is worth the effort 
+>           
+>    Of course that would be better. The only complaint I have with such a
+>    system is that of backwards compatibility...as long as the legacy device
+>    names are still supported i would have no problem with it at all.
 
-This won't fix the "kernel doesn't find root-fs" problem.
+Yes, legacy names are supported. It is 100% backward compatible.
+As far as I know ( I'm the author of the patch )
 
->      
-> or
->      
-> 2) install only one bootable scsi card, period.
+>                     
+>    however, this brings up an interesting question: what happens if two disks
+>    (presumably from two different machines) have the same disk label?
 
-Same ( or similar ) problem as before ...
-      
->  Anything else is a useless kludge that will come back and bite us in the
->  ass.
+The first one found will be used. You are dependent on the ordering,
+only in this special case, while before you were depending on ordering
+every time.
 
-Kludges are bad, unfortunately that is all we have currently :-(
+> what
+>    happens then? for instance, i have several linux machines both at my
+>    workplace and my home. if for some reason one of these machines dies due
+>    to hardware failure and i want to get stuff off the drives, i put the disk
+>    containing the /home partition on the failed machine into a working
+>    machine and reboot. What /home gets mounted then? the original /home or
+>    the new one from the dead machine? (and don't say end users wouldn't
+>    possibly do that... if they are adding hardware into their systems this is
+>    by no means beyond their capabilities)
+>   at least with physical device nodes i can say 'computer, you will mount  
+>    this partition on this mountpoint!' and be done with it.
 
->             
-> > The only problem is BIOS boot. That information is, I believe, stored in the
-> > ESCD, but I don't know if it's reliable enough and complete enough to be usable
-> > by Linux.   
+You can still do this, nothing is preventing you from it.
+If you have /home in your fstab by its label, then you must
+change this before you insert the other disk. Possibilities :
+( to change in /etc/fstab)
+ - use UUID instead of volume-label -> no conflicts ever
+ - temporarily relabel your /home
+ - temporarily use a device node
+
 >    
-> It seems to work well enough.
-
-For the "load the kernel" part.
-Most of the times.
-
->    
-> Matthew D. Pitts
-> mpitts@suite224.net
->    
+>    so tell me then, how would one discern between two partitions with the
+>    same label?   
 
 -- 
 David Balazic

@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277894AbRJRUGD>; Thu, 18 Oct 2001 16:06:03 -0400
+	id <S277951AbRJRUGM>; Thu, 18 Oct 2001 16:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277868AbRJRUF5>; Thu, 18 Oct 2001 16:05:57 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35590 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S278118AbRJRUEe>; Thu, 18 Oct 2001 16:04:34 -0400
-Date: Thu, 18 Oct 2001 16:05:07 -0400
-Message-Id: <200110182005.f9IK57506905@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Poor floppy performance in kernel 2.4.10
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S277942AbRJRUGA>; Thu, 18 Oct 2001 16:06:00 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29202 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277894AbRJRUFJ>;
+	Thu, 18 Oct 2001 16:05:09 -0400
+Date: Thu, 18 Oct 2001 18:05:30 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fork() failing
+In-Reply-To: <Pine.LNX.4.21.0110181633270.12429-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0110181803540.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu> nleroy@cs.wisc.edu wrote:
-| On Thursday 18 October 2001 11:17, Ville Herva wrote:
-| 
-| (snip)
-| > That's propably beacause it syncs the writes on close().
-| >
-| > Perhaps you could try the trick Linus suggested in another thread, namely:
-| >
-| > sleep 1000 < /dev/fd0 &
-| >
-| > mdir
-| > mcopy
-| > mdir
-| > mcopy
-| > <do whatever>
-| >
-| > kill %1
-| >
-| > That keeps one (dummy) reference to the floppy device open until you're
-| > done using it.
-| 
-| Perhaps there should be a pair of "mtools" added: mopen and mclose, that do 
-| basically this.  That way it could be a "standard" item, documented in man 
-| pages, etc., not some secret that only the l-k users know.  Thoughts?
+On Thu, 18 Oct 2001, Marcelo Tosatti wrote:
 
-  The change prevents use of stale data, and is a good one. mtools was a
-hack from the days when some operating systems didn't speak DOS file
-format, and reliability is more important than performance.
+> Imagine people changing the point where the
+>
+> 	if ((gfp_mask & __GFP_FAIL))
+> 		return;
+>
+> check is done (inside the freeing routines).
+>
+> I would like to have a _defined_ meaning for a "fail easily" allocation,
+> and a simple unique __GFP_FAIL flag can't give us that IMO.
 
-  That said, can't you just keep the drive accessed and avoid the
-problem?
-  sleep 3600 </dev/fd0 &
-should do it. Just kill the process when you eject the floppy, or you
-will get back the stale data problem.
+Actually, I guess we could define this to be the same point
+where we'd end up freeing memory in order to satisfy our
+allocation.
 
-  I don't believe the detection of a new floppy in the drive is reliable
-on all systems or they would have flushed on loading a new diskette. I
-seem to remember that not all drives provide the signal, at least back
-when I wrote my last floppy driver (DEC Rainbow, about 20 years ago).
+This would result in __GFP_FAIL meaning "give me memory if
+it's available, but don't waste time freeing memory if we
+don't have enough free memory now".
 
+Space-wise these semantics could change (say, pages_low
+vs. pages_min), but they'll stay the same when you look at
+"how hard to try" or "how much effort to spend".
+
+regards,
+
+Rik
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

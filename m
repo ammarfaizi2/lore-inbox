@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129858AbRBYFkg>; Sun, 25 Feb 2001 00:40:36 -0500
+	id <S129848AbRBYFgF>; Sun, 25 Feb 2001 00:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRBYFkQ>; Sun, 25 Feb 2001 00:40:16 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59090 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129858AbRBYFkJ>;
-	Sun, 25 Feb 2001 00:40:09 -0500
-Date: Sun, 25 Feb 2001 00:40:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rick Hohensee <humbubba@smarty.smart.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <200102250528.AAA20069@smarty.smart.net>
-Message-ID: <Pine.GSO.4.21.0102250031350.24871-100000@weyl.math.psu.edu>
+	id <S129851AbRBYFfz>; Sun, 25 Feb 2001 00:35:55 -0500
+Received: from comunit.de ([195.21.213.33]:27739 "HELO comunit.de")
+	by vger.kernel.org with SMTP id <S129848AbRBYFfo>;
+	Sun, 25 Feb 2001 00:35:44 -0500
+Date: Sun, 25 Feb 2001 06:35:42 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: <haegar@space.comunit.de>
+To: <linux-kernel@vger.kernel.org>
+cc: Andre Hedrick <andre@linux-ide.org>
+Subject: 2.4.2-ac3 IDE-Module-Deadlock on DEC Alpha
+Message-ID: <Pine.LNX.4.32.0102250626340.24260-100000@space.comunit.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi...
 
+Machine: DEC Alpha XL300 (Alcor/XLT)
+         boots from scsi, and ide is used modular
+IDE-Controller: Promise ATA100 controller (PCI card)
+                bios knows absolutely nothing about IDE
+                (there aren't even options to set drive geometry etc)
 
-On Sun, 25 Feb 2001, Rick Hohensee wrote:
+Deadlocks on loading the ide-modules with
 
-[I wrote]
+        modprobe ide-probe-mod  || return=$rc_failed
+        modprobe ide-disk || return=$rc_failed
 
-> >ask. So far that's the best I can do - all documentation is a pile of
-> >notes
-> >+ CVS log.
+(Nothing in the logs, no visible output on the screen)
 
-[snip]
+Applying Andre Hedrick's ide.2.4.1-p8.all.01172001.patch.gz fixes it -
+with this patch ide works like a charm - thanks for your good work Andre!
 
-> That sounds like an especially fascinating pile of notes. Perhaps you
-> could pile it next to the patch on the ftp site?
+more info's available on request
 
-You know, CDA is dead and gone, but I really doubt that putting this
-pile as-is in any vicinity of this account would be a good idea.
-Besides, half of them will need a translation - I doubt that 80Kb of
-grep output intermixed with comments in English and Russian, some of
-them printable, would be useful. Fasicanting - maybe, but... IOW, turning
-that into documentation will take some efforts.
-							Cheers,
-								Al
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
 

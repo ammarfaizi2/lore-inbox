@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSGSUkB>; Fri, 19 Jul 2002 16:40:01 -0400
+	id <S315451AbSGSUnb>; Fri, 19 Jul 2002 16:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317025AbSGSUkB>; Fri, 19 Jul 2002 16:40:01 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:13527 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317023AbSGSUkA>;
-	Fri, 19 Jul 2002 16:40:00 -0400
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D3875D4.3090102@us.ibm.com>
-References: <3D3875D4.3090102@us.ibm.com>
+	id <S316959AbSGSUnb>; Fri, 19 Jul 2002 16:43:31 -0400
+Received: from [209.184.141.189] ([209.184.141.189]:53999 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S315451AbSGSUna>;
+	Fri, 19 Jul 2002 16:43:30 -0400
+Subject: Re: 2.4 O(1) scheduler
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: anton wilson <anton.wilson@camotion.com>
+Cc: J Sloan <jjs@lexus.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200207192018.QAA19141@test-area.com>
+References: <200207191943.PAA00351@test-area.com>
+	 <3D386E70.4040401@lexus.com>  <200207192018.QAA19141@test-area.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Jul 2002 13:40:42 -0700
-Message-Id: <1027111243.1269.94.camel@dyn9-47-17-90.beaverton.ibm.com>
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 19 Jul 2002 15:46:27 -0500
+Message-Id: <1027111587.6685.24.camel@UberGeek>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 10:31 am, Martin J. Bligh wrote:
-> > Do you think the breakdown is realistic?
->
-> Here's a list of other things I am hoping to see merged:
->
-> shared pagetables
-> large page support
-> NUMA aware multipath IO
-> NUMA aware scheduler extensions
-> ia32 discontigmem support for NUMA machines
-> NUMA aware slab allocator
-> CONFIG_NONLINEAR (in some form, quite possibly a cut down version)
-> shared pagetables
-> large page support
-> rcu rtcache
-> rcu dcache
+Been using 2.4.19-rc1-aa2 on a fairly large x86 box for about 16 days
+now. Nothing but love. Using the 0/1 scheduler, though I'm not sure if I
+could tweak it for "better" performance.(hint: like to see some
+"best-practices" type of doc, for 4/8-way SMP boxen)
 
-The work for the mentioned NUMA items is quite active.  Some of
-the pieces have already been submitted and others are near completion.
-I would hope that the items mentioned by Martin make it into the 2.5
-kernel.  The NUMA changes tend to be very easy to isolate such that 
-they only affect kernels built with the appropriate NUMA config options.
+Aside from that, I've got 8GB ram, a ~750GB Oracle instance running, and
+4GB SHMMAX attatched to some Copper FC1 disks and using QLA2200's. 
 
->From my list of NUMA items:
+It's been very happy since rc1. Anyway, it's worth a shot. As soon as
+2.4.19 is "done" this box will go into production as soon as this RC2 VM
+stuff is cleared up.
 
-NUMA memory allocation
-NUMA aware scheduler
-Topology representation in kernel
-Memory binding API
-Per-zone swapd
-Multipath support
 
-Also, not NUMA specific but beneficial to databases (which tend to
-run on NUMA platforms) is a fast user space gettimeofday capability.
-This shows up in the AMD-64 port as vsyscalls.
-
+On Fri, 2002-07-19 at 15:17, anton wilson wrote:
+> On Friday 19 July 2002 03:54 pm, J Sloan wrote:
+> > Use 2.4-aa, 2.4-ac or 2.4-redhat kernel
+> > and you get the O(1) secheduler at
+> > no extra cost -
+> >
+> 
+> 
+> > Joe
+> 
+> 
+> I'm actually worried not about just the O(1) scheduler but if these patches 
+> will be incorporating the O(1) bug fixes such as the serious one in 
+> balance_load where curr->next was used instead of current->prev. Also, I need 
+> to use a patch that won't tamper with the usb implementation because I'd have 
+> to update our current usb driver to fit into the new system, and I'm getting 
+> flack about wasting time trying to update that thing already . . . So if you 
+> tell me no, I can go tell my boss I have to update the usb driver.
+> 
+> 
+> Anton
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-
-Michael Hohnbaum                      503-578-5486
-hohnbaum@us.ibm.com                   T/L 775-5486
-
+Austin Gonyou <austin@digitalroadkill.net>

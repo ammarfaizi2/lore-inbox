@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272449AbTHJH0u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 03:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272459AbTHJH0u
+	id S272480AbTHJHhh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 03:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272483AbTHJHhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 03:26:50 -0400
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:36360 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S272449AbTHJH0t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 03:26:49 -0400
-Date: Sun, 10 Aug 2003 02:26:47 -0500
-From: Ryan Underwood <nemesis-lists@icequake.net>
-To: linux-kernel@vger.kernel.org
-Subject: PCI parallel card causes erratic timekeeping? (2.4.21)
-Message-ID: <20030810072647.GU6464@dbz.icequake.net>
+	Sun, 10 Aug 2003 03:37:37 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8653 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272480AbTHJHhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 03:37:36 -0400
+Message-Id: <5.2.1.1.2.20030810091640.01a0fe40@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sun, 10 Aug 2003 09:41:46 +0200
+To: Nick Piggin <piggin@cyberone.com.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy 
+  ...
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3F35DB73.8090201@cyberone.com.au>
+References: <200308100405.52858.roger.larsson@skelleftea.mail.telia.com>
+ <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com>
+ <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+ <200308100405.52858.roger.larsson@skelleftea.mail.telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 03:43 PM 8/10/2003 +1000, Nick Piggin wrote:
 
-Hi,
 
-Here's a strange one for the kernel time gurus out there!
+>Roger Larsson wrote:
+>
+>>*       SCHED_FIFO requests from non root should also be treated as 
+>>SCHED_SOFTRR
+>>
+>
+>I hope computers don't one day become so fast that SCHED_SOFTRR is
+>required for skipless mp3 decoding, but if they do, then I think
+>SCHED_SOFTRR should drop its weird polymorphing semantics ;)
 
-We have a file server with a Intel PR440FX dual PPro mainboard (2x200Mhz
-PPro CPU).  The PR440FX has 3 PCI slots and 1 PCI/ISA shared slot, in
-addition to onboard PIIX3 IDE, AIC-7880 SCSI, and Intel 82557 ethernet.
+:)  My box is slow enough to handle them just fine, as long as I make sure 
+that oinkers don't share the same queue with the light weight player.
 
-In the 3 PCI slots, we have an old Matrox video card, a AHA-2940UW, and
-a Promise PDC20262 ATA-66 controller card.
+The only reason I can see that some form of realtime scheduling is really 
+_required_ to prevent skippage is because of the dirty page writeout thing, 
+which Andrew has fixed as much as is practical for realtime tasks.  There 
+is another side to that though... if you're going to make a vm scrubbing 
+exception for realtime tasks, it seems to me to follow, that rt task's mm 
+should be exempted from scrubbers as well (to a point).
 
-In the ISA slot, up until recently, we had a dual parallel port card
-that was attached to the network printers.  However, the printers and
-the card were fried in a storm recently; luckily, the server survived.
-We replaced the card with a dual PCI parallel port card (Netmos
-NM9715CV) and the printers are now working fine.
+wrt SCHED_FIFO, you couldn't handle those with SOFTRR as is, because the 
+cpu restriction is calculated using the task's timeslice... which 
+SCHED_FIFO tasks don't have.  Making SCHED_FIFO available in any form would 
+require addition of some means of detecting cpu usage.  (and if you create 
+any run limit, you may as well just use a timeslice, which turns it right 
+back into SCHED_RR).
 
-However, a new problem emerged.  The software clock of the system is
-crazy!  Sometimes it is very fast, other times very slow.  NTP
-constantly loses synchronization, and since this machine is also a
-Kerberos KDC, Kerberos tickets are flakey. :(  This problem exists
-independently of whether a driver is loaded for the card or not; if it
-is in the system at all, the clock runs screwy.  If I remove the card,
-the clock is back to normal as far as I can tell.
+         -Mike 
 
-What do you all think could be causing this problem, and what other
-information would I need to provide to find a solution?  The only
-strange thing about that slot is that it is the only PCI slot that is
-not master capable in the PR440FX.  The card received its own IRQ (19,
-from the IO-APIC).
-
-I have heard about strange problems with timekeeping on SMP machines,
-but there's no problem with this box except when that card is inserted.
-I checked out messing with the kernel ticks (using tickadj), but it
-seems that would only help with a clock that is consistently skewed one
-way or the other, not one that is as erratic as this one.
-
-Can simply inserting a card generally make a system clock act screwy
-like this?  Should I try to find a different card?
-
-Thanks,
-
--- 
-Ryan Underwood, <nemesis at icequake.net>, icq=10317253

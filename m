@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUDEToU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 15:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUDEToU
+	id S263168AbUDET6N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 15:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUDET6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 15:44:20 -0400
-Received: from smtp-hub2.mrf.mail.rcn.net ([207.172.4.76]:11229 "EHLO
-	smtp-hub2.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id S263173AbUDEToS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 15:44:18 -0400
-Message-ID: <4071B70E.3090400@lycos.com>
-Date: Mon, 05 Apr 2004 15:44:14 -0400
-From: James Vega <vega_james@lycos.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Mon, 5 Apr 2004 15:58:13 -0400
+Received: from opersys.com ([64.40.108.71]:24336 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263177AbUDET6M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 15:58:12 -0400
+Message-ID: <4071BBB4.9090308@opersys.com>
+Date: Mon, 05 Apr 2004 16:04:04 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fat32 all upper-case filename problem
-References: <4070910E.7020808@lycos.com> <87k70utw5n.fsf@devron.myhome.or.jp>
-In-Reply-To: <87k70utw5n.fsf@devron.myhome.or.jp>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA25D9CB6EB51B71197ABAC1B"
+To: Amit <khandelw@cs.fsu.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.16
+References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>	<406F21CB.8070908@opersys.com> <1081026049.f64d5288b5aaa@system.cs.fsu.edu> <406F2851.6050304@opersys.com> <003b01c419d0$67e59e50$af7aa8c0@VALUED65BAD02C> <406F476D.8050002@opersys.com> <005901c419d5$5ecd7c70$af7aa8c0@VALUED65BAD02C> <406F4FCD.7020506@opersys.com> <006101c41a53$1913eb00$b07aa8c0@VALUED65BAD02C>
+In-Reply-To: <006101c41a53$1913eb00$b07aa8c0@VALUED65BAD02C>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA25D9CB6EB51B71197ABAC1B
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-OGAWA Hirofumi wrote:
-  > Are you using the "iocharset=utf8" or CONFIG_NLS_DEFAULT="utf8"?
-> If so, it's buggy.
-> 
-> Please don't use it for now.
+Amit wrote:
+>     We have got LTT running for 2.6.3 and 2.419. We collected some traces
+> for both 2.4.19 and 2.6.3. The gui looks really cool. However, just one
+> thing with 2.6.3 when I feed in the trace file and the proc file it dumps
+> core.
 
-I am using CONFIG_NLS_DEFAULT="utf8". I'll see if I get the same results that 
-changed back to iso8859-1.
+Using pre3, right? That's why it's called a development version :)
+Let me know when you've got it fixed, and send me a patch :D
 
---------------enigA25D9CB6EB51B71197ABAC1B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkBxtw4ACgkQDb3UpmEybUDR/ACffeasqPVl4xtNjYxOxf2c8Tio
-VU8AnjmLLgWibdBQO/af56aeAUnwJEb7
-=hN5l
------END PGP SIGNATURE-----
-
---------------enigA25D9CB6EB51B71197ABAC1B--

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRAXIn5>; Wed, 24 Jan 2001 03:43:57 -0500
+	id <S130202AbRAXIpJ>; Wed, 24 Jan 2001 03:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130172AbRAXInh>; Wed, 24 Jan 2001 03:43:37 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:51720 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129867AbRAXIna>; Wed, 24 Jan 2001 03:43:30 -0500
-Date: Wed, 24 Jan 2001 08:42:51 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: <paulus@linuxcare.com.au>, <l_indien@magic.fr>, <jma@netgem.com>,
-        <callahan@maths.ox.ac.uk>, <jfree@sovereign.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Bug in ppp_async.c
-In-Reply-To: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.30.0101240840210.1767-100000@imladris.demon.co.uk>
+	id <S130685AbRAXIoi>; Wed, 24 Jan 2001 03:44:38 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:51373 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130172AbRAXIoZ>; Wed, 24 Jan 2001 03:44:25 -0500
+Date: Wed, 24 Jan 2001 08:44:23 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Sasi Peter <sape@iq.rulez.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.30.0101240156150.3522-100000@iq.rulez.org>
+Message-ID: <Pine.SOL.4.21.0101240843270.27813-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Albert D. Cahalan wrote:
+On Wed, 24 Jan 2001, Sasi Peter wrote:
 
-> Paul Mackerras writes:
-> > I'll bet you're using an old pppd.  You need version 2.4.0 of pppd,
-> > available from ftp://linuxcare.com.au/pub/ppp/, as documented in the
-> > Documentation/Changes file.
+> On 14 Jan 2001, Linus Torvalds wrote:
 > 
-> Even Red Hat 7 only has the 2.3.11 version.
+> > The only obvious use for it is file serving, and as high-performance
+> > file serving tends to end up as a kernel module in the end anyway (the
+> > only hold-out is samba, and that's been discussed too), "sendfile()"
+> > really is more a proof of concept than anything else.
+> 
+> No plans for samba to use sendfile? Even better make it a tux-like module?
+> (that would enable Netware-Linux like performance with the standard
+> kernel... would be cool afterall ;)
 
-That's probably because Red Hat 7 didn't ship with a 2.4.0 kernel.
+AIUI, Jeff Merkey was working on loading "userspace" apps into the kernel
+to tackle this sort of problem generically. I don't know if he's tried it
+with Samba - the forking would probably be a problem...
 
-> The 2.4.xx series is supposed to be stable. If there is any way
-> you could add a compatibility hack, please do so.
 
-The 2.4.0 Documentation/Changes file already said that pppd should be at
-least v2.4.0. That hasn't changed, AFAICT.
-
--- 
-dwmw2
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

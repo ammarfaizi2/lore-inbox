@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267325AbUI0U0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUI0Uao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267325AbUI0U0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUI0UWj
+	id S267353AbUI0Uao (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 16:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUI0U0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:22:39 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56221 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267335AbUI0UTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:19:38 -0400
-Date: Sun, 26 Sep 2004 15:20:37 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Message-ID: <20040926132036.GG826@openzaurus.ucw.cz>
-References: <200409251214.28743.rjw@sisk.pl> <200409261208.02209.rjw@sisk.pl> <20040926100955.GI10435@elf.ucw.cz> <200409261337.53298.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409261337.53298.rjw@sisk.pl>
-User-Agent: Mutt/1.3.27i
+	Mon, 27 Sep 2004 16:26:52 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:52701 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267323AbUI0UZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:25:24 -0400
+Message-ID: <4158782B.9000509@sgi.com>
+Date: Mon, 27 Sep 2004 15:29:31 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Pratt <slpratt@austin.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Simplified Readahead
+References: <4152F46D.1060200@austin.ibm.com>	<20040923194216.1f2b7b05.akpm@osdl.org>	<41543FE2.5040807@austin.ibm.com> <20040924150523.4853465b.akpm@osdl.org> <4154A5FF.6040206@austin.ibm.com>
+In-Reply-To: <4154A5FF.6040206@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Steve,
 
-> > > Not explicitly, but it's used by SuSE initscripts to set IDE DMA, AFAICS.  
-> > > However, the problem did not occur on 2.6.9-rc2-mm1 with the same 
-> > > initscripts.
-> > 
-> > Okay, so try what happens without the initscripts
-> 
-> I turned the stuff off but of course it didn't change anything. :-)
-> 
-> > and try to locate change that breaks it...
-> 
-> Well, I'm a bit confused:
+On question I have (and I'm sorry, I haven't had time to look at your
+patch to sort this out) is what happens if the user supplies a rather
+serious I/O size, will you read ahead multiples of that, or what
+happens?  Or, for that matter, how well will it perform?
 
-That's very simple bugfix. Some code outside swsusp is doing this.
-Is it still slow with init=/bin/bash? If no, locate module that
-causes slowdown. We've seen pcmcia support behaving strange.
+I've heard about HPC applications for IRIX that issue a 2GB read.  :-)
 
-				Pavel
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

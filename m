@@ -1,53 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S157001AbPJQEdd>; Sun, 17 Oct 1999 00:33:33 -0400
-Received: by vger.rutgers.edu id <S156965AbPJQEdZ>; Sun, 17 Oct 1999 00:33:25 -0400
-Received: from 24.65.233.117.ab.wave.home.com ([24.65.233.117]:5220 "EHLO webber.adilger.net") by vger.rutgers.edu with ESMTP id <S156962AbPJQEdO>; Sun, 17 Oct 1999 00:33:14 -0400
-From: Andreas Dilger <adilger@enel.ucalgary.ca>
-Message-Id: <199910170419.WAA26043@webber.adilger.net>
-Subject: ext2 online resizer available
-To: linux-fsdevel@vger.rutgers.edu (Linux FS development list), linux-lvm@msede.com (Linux LVM mailing list), linux-kernel@vger.rutgers.edu (Linux kernel development list)
-Date: Sat, 16 Oct 1999 22:19:23 -0600 (MDT)
-X-Mailer: ELM [version 2.4 PL25]
+Received: by vger.rutgers.edu via listexpand id <S160085AbPJSQ62>; Tue, 19 Oct 1999 12:58:28 -0400
+Received: by vger.rutgers.edu id <S160053AbPJSQtv>; Tue, 19 Oct 1999 12:49:51 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1277 "EHLO chaos.analogic.com") by vger.rutgers.edu with ESMTP id <S160027AbPJSQtK>; Tue, 19 Oct 1999 12:49:10 -0400
+Date: Tue, 19 Oct 1999 12:48:52 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.rutgers.edu>
+Subject: Grins
+Message-ID: <Pine.LNX.3.95.991019124814.8344A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello all,
-my online ext2 resizer is now available in a fully functional state.  If
-the underlying partition supports it, it is possible to resize an ext2
-filesystem while it is mounted and in use by applications.
+ 
+ Silicon Valley startup Google.com says its search engine is based on a
+ patent-pending technology that "performs an objective measurement of
+ the importance of Web pages and is calculated by solving an equation
+ of 500 million variables and more than 2 billion terms."  How, then, to
+ explain this:  A reader's search for the phrase "more evil than Satan
+ himself" returned Microsoft's home page as the first result.
+ 
+ [From PC Week's Spencer Katt]
+     http://www.google.com/search?q=more+evil+than+satan+himself
+ 
 
-This capability is provided by a kernel patch (2.2/2.3 and 2.0 versions
-available - should apply cleanly to most versions as that part of the
-kernel code hasn't changed much in a long time) and some user-space tools.
-The amount that you can resize a filesystem depends on the block size and
-whether or not you have "prepared" the filesystem for large resizes.  The
-ext2 filesystem is maintained as a normal filesystem at all times, and it
-can be used by a non-patched kernel at any time, and with one exception
-(if you have an old e2fsck) will fsck clean after a resize.
+Cheers,
+Dick Johnson
+                   **** FILE SYSTEM WAS MODIFIED ****
+Penguin : Linux version 2.3.13 on an i686 machine (400.59 BogoMips).
+Warning : It's hard to remain at the trailing edge of technology.
 
-Note that you need some way to resize the underlying partition (via LVM
-probably) in order to resize the filesystem.  For testing purposes you
-can also create a small filesystem on a large partition, and then resize
-to fill the partition.
-
-Patches are available at my web site:
-http://www-mddsp.enel.ucalgary.ca/People/adilger/online-ext2/
-
-The user-space tools are now part of Lennert Buytenhek's ext2resize suite:
-http://www.dsv.nl/~buytenh/ext2resize/
-for which a patch is required from my site.
-
-Please give it a good testing, as I haven't been able to find any problems
-while putting a hundred copies of an 11MB filesystem tree into a filesystem
-while doing thousands of resizes to the same mounted filesystem.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

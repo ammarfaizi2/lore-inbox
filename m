@@ -1,170 +1,117 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316533AbSEUHhL>; Tue, 21 May 2002 03:37:11 -0400
+	id <S316540AbSEUHpg>; Tue, 21 May 2002 03:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSEUHhK>; Tue, 21 May 2002 03:37:10 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:48051 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316533AbSEUHhI>; Tue, 21 May 2002 03:37:08 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
-Subject: [PATCH] Tasklet cleanup
-Date: Tue, 21 May 2002 17:40:55 +1000
-Message-Id: <E17A4GO-0003uj-00@wagner.rustcorp.com.au>
+	id <S316541AbSEUHpf>; Tue, 21 May 2002 03:45:35 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:9896 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S316540AbSEUHpe>; Tue, 21 May 2002 03:45:34 -0400
+Date: Tue, 21 May 2002 03:45:34 -0400
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.17 build hides errors
+Message-ID: <20020521074532.GA27185@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey, not sure why you exported tasklet_vec & tasklet_hi_vec?  Noone
-uses them...
 
-Name: Tasklet Per-CPU Cleanup Patch
-Author: Rusty Russell
-Status: Cleanup
+The following patch allows the kernel compile to abort on errors again.
+It also fixes some missing includes in filesystems that were broken by
+the removal of locks.h.
 
-D: This makes tasklet_vec and tasklet_hi_vec static inside softirq.c, and
-D: makes them __per_cpu_data.
+Jan
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/include/linux/interrupt.h working-2.5.7-pre1-percpu-sched/include/linux/interrupt.h
---- linux-2.5.7-pre1/include/linux/interrupt.h	Fri Mar 15 13:01:00 2002
-+++ working-2.5.7-pre1-percpu-sched/include/linux/interrupt.h	Fri Mar 15 14:02:23 2002
-@@ -124,14 +124,6 @@
- 	TASKLET_STATE_RUN	/* Tasklet is running (SMP only) */
- };
+
+diff -urN linux-2.5.17/Rules.make linux-trivial/Rules.make
+--- linux-2.5.17/Rules.make	Tue May 21 01:46:03 2002
++++ linux-trivial/Rules.make	Tue May 21 03:35:35 2002
+@@ -380,5 +380,5 @@
+ if_changed = $(if $(strip $? \
+ 		          $(filter-out $($(1)),$(cmd_$@))\
+ 			  $(filter-out $(cmd_$@),$($(1)))),\
+-	       @echo $($(1)); $($(1)); echo 'cmd_$@ := $($(1))' > .$@.cmd)
++	       @echo $($(1)) && $($(1)) && echo 'cmd_$@ := $($(1))' > .$@.cmd)
  
--struct tasklet_head
--{
--	struct tasklet_struct *list;
--} __attribute__ ((__aligned__(SMP_CACHE_BYTES)));
--
--extern struct tasklet_head tasklet_vec[NR_CPUS];
--extern struct tasklet_head tasklet_hi_vec[NR_CPUS];
--
- #ifdef CONFIG_SMP
- static inline int tasklet_trylock(struct tasklet_struct *t)
- {
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/kernel/ksyms.c working-2.5.7-pre1-percpu-sched/kernel/ksyms.c
---- linux-2.5.7-pre1/kernel/ksyms.c	Wed Mar 13 13:30:39 2002
-+++ working-2.5.7-pre1-percpu-sched/kernel/ksyms.c	Fri Mar 15 14:11:36 2002
-@@ -565,8 +565,6 @@
- EXPORT_SYMBOL(strsep);
- 
- /* software interrupts */
--EXPORT_SYMBOL(tasklet_hi_vec);
--EXPORT_SYMBOL(tasklet_vec);
- EXPORT_SYMBOL(bh_task_vec);
- EXPORT_SYMBOL(init_bh);
- EXPORT_SYMBOL(remove_bh);
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.7-pre1/kernel/softirq.c working-2.5.7-pre1-percpu-sched/kernel/softirq.c
---- linux-2.5.7-pre1/kernel/softirq.c	Wed Feb 20 17:56:17 2002
-+++ working-2.5.7-pre1-percpu-sched/kernel/softirq.c	Fri Mar 15 14:02:45 2002
-@@ -16,6 +16,7 @@
+diff -urN linux-2.5.17/fs/bfs/dir.c linux-trivial/fs/bfs/dir.c
+--- linux-2.5.17/fs/bfs/dir.c	Tue May 21 01:46:05 2002
++++ linux-trivial/fs/bfs/dir.c	Tue May 21 03:08:26 2002
+@@ -8,6 +8,7 @@
+ #include <linux/string.h>
+ #include <linux/bfs_fs.h>
  #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/tqueue.h>
-+#include <linux/percpu.h>
++#include <linux/sched.h>
  
- /*
-    - No shared variables, all the data are CPU local.
-@@ -145,42 +146,43 @@
+ #include "bfs_defs.h"
  
+diff -urN linux-2.5.17/fs/hfs/inode.c linux-trivial/fs/hfs/inode.c
+--- linux-2.5.17/fs/hfs/inode.c	Tue May 21 03:05:20 2002
++++ linux-trivial/fs/hfs/inode.c	Tue May 21 03:13:02 2002
+@@ -21,6 +21,7 @@
+ #include <linux/hfs_fs_i.h>
+ #include <linux/hfs_fs.h>
+ #include <linux/smp_lock.h>
++#include <linux/mm.h>
  
- /* Tasklets */
-+struct tasklet_head
-+{
-+	struct tasklet_struct *list;
-+};
+ /*================ Variable-like macros ================*/
  
--struct tasklet_head tasklet_vec[NR_CPUS] __cacheline_aligned_in_smp;
--struct tasklet_head tasklet_hi_vec[NR_CPUS] __cacheline_aligned_in_smp;
-+static struct tasklet_head tasklet_vec __per_cpu_data;
-+static struct tasklet_head tasklet_hi_vec __per_cpu_data;
+diff -urN linux-2.5.17/fs/udf/ialloc.c linux-trivial/fs/udf/ialloc.c
+--- linux-2.5.17/fs/udf/ialloc.c	Tue May 21 01:46:09 2002
++++ linux-trivial/fs/udf/ialloc.c	Tue May 21 02:42:27 2002
+@@ -27,6 +27,7 @@
+ #include <linux/fs.h>
+ #include <linux/quotaops.h>
+ #include <linux/udf_fs.h>
++#include <linux/sched.h>
  
- void __tasklet_schedule(struct tasklet_struct *t)
- {
--	int cpu = smp_processor_id();
- 	unsigned long flags;
+ #include "udf_i.h"
+ #include "udf_sb.h"
+diff -urN linux-2.5.17/fs/ufs/balloc.c linux-trivial/fs/ufs/balloc.c
+--- linux-2.5.17/fs/ufs/balloc.c	Tue May 21 01:46:09 2002
++++ linux-trivial/fs/ufs/balloc.c	Tue May 21 03:36:39 2002
+@@ -12,6 +12,7 @@
+ #include <linux/time.h>
+ #include <linux/string.h>
+ #include <linux/quotaops.h>
++#include <linux/sched.h>
+ #include <asm/bitops.h>
+ #include <asm/byteorder.h>
  
- 	local_irq_save(flags);
--	t->next = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = t;
--	cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
-+	t->next = this_cpu(tasklet_vec).list;
-+	this_cpu(tasklet_vec).list = t;
-+	cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
- 	local_irq_restore(flags);
- }
+diff -urN linux-2.5.17/fs/ufs/dir.c linux-trivial/fs/ufs/dir.c
+--- linux-2.5.17/fs/ufs/dir.c	Tue May 21 01:46:09 2002
++++ linux-trivial/fs/ufs/dir.c	Tue May 21 03:37:48 2002
+@@ -17,6 +17,7 @@
+ #include <linux/fs.h>
+ #include <linux/ufs_fs.h>
+ #include <linux/smp_lock.h>
++#include <linux/sched.h>
  
- void __tasklet_hi_schedule(struct tasklet_struct *t)
- {
--	int cpu = smp_processor_id();
- 	unsigned long flags;
+ #include "swab.h"
+ #include "util.h"
+diff -urN linux-2.5.17/fs/ufs/ialloc.c linux-trivial/fs/ufs/ialloc.c
+--- linux-2.5.17/fs/ufs/ialloc.c	Tue May 21 01:46:09 2002
++++ linux-trivial/fs/ufs/ialloc.c	Tue May 21 03:39:34 2002
+@@ -26,6 +26,7 @@
+ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/quotaops.h>
++#include <linux/sched.h>
+ #include <asm/bitops.h>
+ #include <asm/byteorder.h>
  
- 	local_irq_save(flags);
--	t->next = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = t;
--	cpu_raise_softirq(cpu, HI_SOFTIRQ);
-+	t->next = this_cpu(tasklet_hi_vec).list;
-+	this_cpu(tasklet_hi_vec).list = t;
-+	cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
- 	local_irq_restore(flags);
- }
+diff -urN linux-2.5.17/fs/ufs/truncate.c linux-trivial/fs/ufs/truncate.c
+--- linux-2.5.17/fs/ufs/truncate.c	Tue May 21 01:46:09 2002
++++ linux-trivial/fs/ufs/truncate.c	Tue May 21 03:40:19 2002
+@@ -37,6 +37,7 @@
+ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
++#include <linux/sched.h>
  
- static void tasklet_action(struct softirq_action *a)
- {
--	int cpu = smp_processor_id();
- 	struct tasklet_struct *list;
- 
- 	local_irq_disable();
--	list = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = NULL;
-+	list = this_cpu(tasklet_vec).list;
-+	this_cpu(tasklet_vec).list = NULL;
- 	local_irq_enable();
- 
- 	while (list) {
-@@ -200,21 +202,20 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_vec[cpu].list;
--		tasklet_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
-+		t->next = this_cpu(tasklet_vec).list;
-+		this_cpu(tasklet_vec).list = t;
-+		__cpu_raise_softirq(smp_processor_id(), TASKLET_SOFTIRQ);
- 		local_irq_enable();
- 	}
- }
- 
- static void tasklet_hi_action(struct softirq_action *a)
- {
--	int cpu = smp_processor_id();
- 	struct tasklet_struct *list;
- 
- 	local_irq_disable();
--	list = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = NULL;
-+	list = this_cpu(tasklet_hi_vec).list;
-+	this_cpu(tasklet_hi_vec).list = NULL;
- 	local_irq_enable();
- 
- 	while (list) {
-@@ -234,9 +235,9 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_hi_vec[cpu].list;
--		tasklet_hi_vec[cpu].list = t;
--		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
-+		t->next = this_cpu(tasklet_hi_vec).list;
-+		this_cpu(tasklet_hi_vec).list = t;
-+		__cpu_raise_softirq(smp_processor_id(), HI_SOFTIRQ);
- 		local_irq_enable();
- 	}
- }
-
-
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ #include "swab.h"
+ #include "util.h"

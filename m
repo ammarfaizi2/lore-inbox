@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbTF2VHt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 17:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTF2VHt
+	id S264940AbTF2VJk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 17:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTF2VJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 17:07:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52167 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263633AbTF2VHq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 17:07:46 -0400
-Date: Sun, 29 Jun 2003 14:15:28 -0700 (PDT)
-Message-Id: <20030629.141528.74734144.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: greearb@candelatech.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
-References: <3EFC9203.3090508@candelatech.com>
-	<20030627.144426.71096593.davem@redhat.com>
-	<1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jun 2003 17:09:09 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:30990 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S264308AbTF2VI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 17:08:28 -0400
+From: vanstadentenbrink@ahcfaust.nl
+To: linux-kernel@vger.kernel.org
+Date: Sun, 29 Jun 2003 23:22:43 +0200
+MIME-Version: 1.0
+Subject: Re: GPL violations by wireless manufacturers 
+Message-ID: <3EFF74C3.11118.15C3E6@localhost>
+In-reply-to: <20030628151540.A16039@mn.rr.com>
+X-mailer: Pegasus Mail for Windows (v4.11)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 28 Jun 2003 00:04:30 +0100
-   
-   You are assuming there is a relationship in bug severity/commonness
-   and number of *developers* who hit it.
+In reply to Rick:
 
-Not true, the assumption I make is that a bug report that
-a bug reporter cares about, and a patch that a patch submitter
-cares about, will all get resent if they get dropped.
+> I was wondering if they ever made the source code available to you? 
+> I checked their web site and did not find it.
 
-If the reporter/submitter doesn't care, neither do I.
+Buffalo Technologies wrote to me they would put a GPL notice on their 
+website and they haven't done so. They did not release source code to 
+me nor to anyone else. I am quite disappointed by all of this.
 
-You keep saying that lost information is bad and serves no
-positive purpose, and I totally disagree.  Drops are litmus tests
-for the patch/report, they also serve to educate the submitters.
+The other two manufacturers I sent emails to, Belkin and Linksys,  
+did not respond at all.
 
-And to repeat, this process is a two way street Alan.  If you try to
-make it anything else, you will wear yourself thin.
+I will send another email to Buffalo Technologies and this time I 
+will include the excellent research by Andrew Miklas. I hope the 
+issue will be resolved eventually.
 
-Once you enforce the work to be distributed to the people who report
-to you as much as to the people taking the reports, thing will go much
-more smoothly. :-)
+Regards,
+
+Richard.
+
+On 28 Jun 2003 at 15:15, Rick Richardson wrote:
+
+> Richard:
+> 
+>     "We are aware of these requirements and we have the PDF document 
+>     (attached) and a statement/notice that will be put onto the website 
+>     within 48 hours for this product. Please let me know if you require 
+>     further assistance or if you would like to talk further."
+> 
+> I was wondering if they ever made the source code available to you?  I
+> checked their web site and did not find it.
+> 
+> -Rick
+> 
+> -- 
+> Rick Richardson  rickr@mn.rr.com        http://home.mn.rr.com/richardsons/
+> Stock information at your fingertips:   http://linuxtrade.0catch.com/
+> 
+> I prefer three holes.
+> 
+
+

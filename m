@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSGVBFv>; Sun, 21 Jul 2002 21:05:51 -0400
+	id <S316592AbSGVIwZ>; Mon, 22 Jul 2002 04:52:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315442AbSGVBFu>; Sun, 21 Jul 2002 21:05:50 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:34754 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S315439AbSGVBFu>;
-	Sun, 21 Jul 2002 21:05:50 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.25 net/core/Makefile 
-In-reply-to: Your message of "Sun, 21 Jul 2002 18:56:24 EST."
-             <Pine.LNX.4.44.0207211853130.16927-100000@chaos.physics.uiowa.edu> 
+	id <S316599AbSGVIwZ>; Mon, 22 Jul 2002 04:52:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61455 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316592AbSGVIwY>; Mon, 22 Jul 2002 04:52:24 -0400
+Date: Mon, 22 Jul 2002 09:55:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Keith Owens <kaos@ocs.com.au>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.5.25 net/core/Makefile
+Message-ID: <20020722095528.A2534@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207221032510.8911-100000@serv> <jek7nof8m8.fsf@sykes.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Jul 2002 11:08:41 +1000
-Message-ID: <25972.1027300121@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <jek7nof8m8.fsf@sykes.suse.de>; from schwab@suse.de on Mon, Jul 22, 2002 at 10:51:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jul 2002 18:56:24 -0500 (CDT), 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
->Makes sense to me. However, the CONFIG_ variables used in the Makefiles 
->are never "n", they are "y", "m" or undefined.
->
->In Config.in scripts you have to cater for "n" or "", and I've seen 
->various people on l-k carry this behavior into the Makefiles, but there 
->it's unnecessary for all I can tell.
+On Mon, Jul 22, 2002 at 10:51:43AM +0200, Andreas Schwab wrote:
+> They do, see for example load_config_file in scripts/Menuconfig, or around
+> line 556 in script/Configure.
 
-It is required if you ever want autoconfigure to work, that
-distinguishes between "" (undefined) and "n" (explicitly turned off).
-Forward planning.
+What Roman is meaning is something like this:
+
+if [ "$CONFIG_FOO" = "y" ]; then
+   choice ...
+fi
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

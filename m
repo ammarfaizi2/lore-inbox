@@ -1,25 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbUKRIvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbUKRI4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbUKRIvW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 03:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUKRIvW
+	id S262683AbUKRI4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 03:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbUKRI4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 03:51:22 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:46724 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262676AbUKRIvU (ORCPT
+	Thu, 18 Nov 2004 03:56:06 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:53431 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262683AbUKRI4E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 03:51:20 -0500
-Date: Thu, 18 Nov 2004 10:52:53 +0100
+	Thu, 18 Nov 2004 03:56:04 -0500
+Date: Thu, 18 Nov 2004 10:57:42 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm5 - badness in enable_irg, BUG
-Message-ID: <20041118095253.GA16054@elte.hu>
-References: <20041115093759.721ac964.cliffw@osdl.org> <20041117210219.43a36302.akpm@osdl.org>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-0
+Message-ID: <20041118095742.GB16054@elte.hu>
+References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <419C0B26.9070607@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041117210219.43a36302.akpm@osdl.org>
+In-Reply-To: <419C0B26.9070607@cybsft.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -32,34 +41,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+* K.R. Foley <kr@cybsft.com> wrote:
 
-> > BUG: using smp_processor_id() in preemptible [00000001] code: mkdir/11768
-> > caller is munmap_notify+0x7b/0x90 [oprofile]
-> >  [<c020a465>] smp_processor_id+0xb5/0xc0
-> >  [<f8912a4b>] munmap_notify+0x7b/0x90 [oprofile]
-> >  [<f8912a4b>] munmap_notify+0x7b/0x90 [oprofile]
-> >  [<c012b55d>] notifier_call_chain+0x2d/0x50
-> >  [<c011dd93>] profile_munmap+0x33/0x50
-> >  [<c01536f7>] sys_munmap+0x27/0x80
-> >  [<c01046d3>] syscall_call+0x7/0xb
+> I know I am late reporting this but I didn't figure it out until late
+> this afternoon. I had trouble booting this one on my SMP workstation
+> at the office. It would hang after it had almost finished booting.
+> Anyway the solution was to disable tracing in /etc/rc.local and then
+> re-enable it after it has finished booting. I know this happens late
+> in the boot but it works for me.
 > 
-> ho hum, I guess we should suppress these oprofile warnings somehow.
+> echo 0 > /proc/sys/kernel/trace_enabled
+> #echo 0 > /proc/sys/kernel/preempt_wakeup_timing
+> #echo 50 > /proc/sys/kernel/preempt_max_latency
 > 
-> Ingo, is there an smp_processor_id() variant which bypasses the warning?
+> To be honest I am not sure which of the above fixes the late boot hang
+> and I didn't have time to figure it out either. This doesn't happen on
+> my SMP system here.
 
-yeah, just use _smp_processor_id() for the checking-less variant.
-
-> btw, this:
-
-> is insane.   Any chance of simplifying it all?
-
-since usually there are lots of arch-level false positives it didnt seem
-prudent to enable the warning unconditionally for every arch. So an arch
-can enable it right now by changing its smp_processor_id definition to
-__smp_processor_id - and the #ifdefs will do their job to adapt. Once
-most architectures have this enabled (right now only x86 and x64 have
-it) we could simplify it down by making it unconditional but right now i
-dont think it's a good idea.
+there's a generic bug i'm chasing right now that seems to get worse with
+tracing enabled. The symptom of the bug is typically a system hang.
 
 	Ingo

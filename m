@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTHZMNr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 08:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTHZMNr
+	id S263829AbTHZMgU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 08:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTHZMgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 08:13:47 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:16351 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263628AbTHZMNp
+	Tue, 26 Aug 2003 08:36:20 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:41088 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S263829AbTHZMgS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 08:13:45 -0400
-Date: Tue, 26 Aug 2003 12:02:48 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjanv@redhat.com, mingo@redhat.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
-Message-ID: <20030826090248.GB16407@actcom.co.il>
-References: <20030825231449.7de28ba6.akpm@osdl.org> <Pine.LNX.4.44.0308260233550.20822-100000@devserv.devel.redhat.com> <20030826000218.2ceaea1d.akpm@osdl.org> <1061884611.2982.4.camel@laptop.fenrus.com> <20030826080759.GK13390@actcom.co.il> <20030826012529.7be1955f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
-Content-Disposition: inline
-In-Reply-To: <20030826012529.7be1955f.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Tue, 26 Aug 2003 08:36:18 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Strange memory usage reporting
+References: <yw1xad9w1uj5.fsf@users.sourceforge.net> <20030826122711.GS4306@holomorphy.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Tue, 26 Aug 2003 14:36:18 +0200
+In-Reply-To: <20030826122711.GS4306@holomorphy.com> (William Lee Irwin,
+ III's message of "Tue, 26 Aug 2003 05:27:11 -0700")
+Message-ID: <yw1x1xv81tq5.fsf@users.sourceforge.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III <wli@holomorphy.com> writes:
 
---zx4FCpZtqtKETZ7O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Aug 26, 2003 at 02:18:54PM +0200, M?ns Rullg?rd wrote:
+>> I was a little surprised to see top tell me this:
+>>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
+>> 10642 mru       11   0 23200  81m 2740 S  0.0 37.0   0:00.07 tcvp              
+>> It didn't make sense that RES > VIRT, so I check /proc/pid/*.  Their
+>> contents are below.  Am I missing something?  Note that they are not
+>> consistent with the 'top' line above, since they were copied at a
+>> different time.  The effect is easily reproducible.  It happens every
+>> time I run my music player with using ALSA.
+>> The memory usage summary by top, also doesn't agree:
+>
+> What kernel version?
 
-On Tue, Aug 26, 2003 at 01:25:29AM -0700, Andrew Morton wrote:
-> Muli Ben-Yehuda <mulix@mulix.org> wrote:
+Sorry, I forgot that.  It's 2.6.0-test4 with Nick Piggins' v7
+scheduler patch.  The machine I'm running on is a Pentium 4 based
+laptop.
 
-> >  How about combining something that's shared to all of the threads that
-> >  share a futex but not system wide (the mm?) with something simple that
-> >  won't change, like the page offset?
->=20
-> The mm's could well be independent.
-
-I assumed all threads sharing a futex share an mm since you suggested
-hashing on mm + vaddr? =20
-
-> Some userspace help would be needed to avoid defeating the hash.  In the
-> case where a bunch of threads with a shared mm are waiting on the same
-> futex things should automatically be OK.
-
-Userspace help would be fine, but relying only on userspace could lead
-to an immediate DoS by forcing the hash to always hash to the same
-bucket.
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-
-
---zx4FCpZtqtKETZ7O
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/SyI4KRs727/VN8sRAme4AJ0ZjVDbZZFCzkHkNd2MeLDwNReQ7ACdH2o5
-M8Z+iSdiNm2H2pUm9D9sgIE=
-=1T0F
------END PGP SIGNATURE-----
-
---zx4FCpZtqtKETZ7O--
+-- 
+Måns Rullgård
+mru@users.sf.net

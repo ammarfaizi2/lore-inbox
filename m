@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVBQIk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVBQIlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVBQIk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 03:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVBQIk4
+	id S262273AbVBQIlY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 03:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVBQIlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 03:40:56 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35488 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262176AbVBQIku (ORCPT
+	Thu, 17 Feb 2005 03:41:24 -0500
+Received: from gate.crashing.org ([63.228.1.57]:36256 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262273AbVBQIlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 03:40:50 -0500
-Subject: Re: [PATCH] Fix buf in zeromap_pud_range() losing virtual address
+	Thu, 17 Feb 2005 03:41:20 -0500
+Subject: Re: [PATCH] Fix possible race with 4level-fixup.h
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1zmy31t79.fsf@muc.de>
-References: <1108625191.5425.61.camel@gaston>  <m1zmy31t79.fsf@muc.de>
+In-Reply-To: <421456F1.6090100@yahoo.com.au>
+References: <1108624747.5383.52.camel@gaston>
+	 <421456F1.6090100@yahoo.com.au>
 Content-Type: text/plain
-Date: Thu, 17 Feb 2005 19:40:10 +1100
-Message-Id: <1108629610.5383.71.camel@gaston>
+Date: Thu, 17 Feb 2005 19:40:48 +1100
+Message-Id: <1108629648.5425.73.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 09:33 +0100, Andi Kleen wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
-> >
-> > zeromap_pud_range() is one of these page tables walking functions that
-> > split the address into a base and an offset. It forgets to add back the
-> > "base" when calling the lower level zeromap_pmd_range(), thus passing a
-> > bogus virtual address. Most archs won't care, unless they do the above,
-> > since the lower level can allocate a PTE page.
+On Thu, 2005-02-17 at 19:33 +1100, Nick Piggin wrote:
+> Benjamin Herrenschmidt wrote:
+> > Hi !
+> > 
+> > When using 4level-fixup.h, a PMD page may end up beeing freed before the
+> > matching PGD entry is cleared due to the way the compatibility macros
+> > work. This can cause nasty races on some architectures.
+> > 
+> > This patch fixes it by defining pud_clear() to be pgd_clear(). That
+> > means we'll actually write 0 twice, a small price to pay here,
+> > especially seeing how easy it is to convert to the new headers anyway
+> > (hint hint, ppc & ppc64 patches as soon as 2.6.11 is out).
+> > 
+> > Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> > 
+> > Index: linux-work/include/asm-generic/4level-fixup.h
+> > ===================================================================
+> > --- linux-work.orig/include/asm-generic/4level-fixup.h	2005-01-24 17:09:49.000000000 +1100
+> > +++ linux-work/include/asm-generic/4level-fixup.h	2005-02-17 18:10:38.000000000 +1100
+> > @@ -24,7 +24,7 @@
+> >  #define pud_bad(pud)			0
+> >  #define pud_present(pud)		1
+> >  #define pud_ERROR(pud)			do { } while (0)
+> > -#define pud_clear(pud)			do { } while (0)
+> > +#define pud_clear(pud)			pgd_clear((pgd_t *)(pud))
+> >  
 > 
-> Hmm, there might be even more cases of this. I remember pondering
-> it when I did the original 4 level work (sometimes we discard higher level 
-> virtual address bits during walking)
+> Just a small nit - no cast needed here.
 
-I think I went through all of them, but I'll do again just in case ...
-
-> > (Note: We are in _urgent_ need to consolidate all those page table
-> > walking functions, they all do things in a subtely different way, with
-> > different checks (sometimes redudant) and inconsitent with each other,
-> > even within a given set of them. Hopefully, Nick has some work in
-> > progress there).
-> 
-> I have. But it will just make them more similar, not completely consolidate
-> them into an iterator, because that's too hard/ugly to do efficiently.
-
-Hrm... I'm pretty sure half of the ones we have now are not fully
-efficient, and they all do the exact same thing until they get all the
-way down. The only real variation is wether to allocate on the way. Oh
-well, nick has some bits too, I'll have a look at what he has already
-done.
+Well, do you know ? pud is a pud_t* and the arch is free to implement
+pgd_clear as an inline with strong typing no ? 
 
 Ben.
 

@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129656AbRBTRqG>; Tue, 20 Feb 2001 12:46:06 -0500
+	id <S129098AbRBTSJp>; Tue, 20 Feb 2001 13:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129986AbRBTRp5>; Tue, 20 Feb 2001 12:45:57 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18926
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S129656AbRBTRpn>; Tue, 20 Feb 2001 12:45:43 -0500
-Date: Tue, 20 Feb 2001 10:44:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] make nfsroot accept server addresses from BOOTP root
-Message-ID: <20010220104415.D3150@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.30.0102191809350.27085-100000@today.toronto.redhat.com>
+	id <S129377AbRBTSJg>; Tue, 20 Feb 2001 13:09:36 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:19760 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129143AbRBTSJS>; Tue, 20 Feb 2001 13:09:18 -0500
+Date: Tue, 20 Feb 2001 19:10:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __lock_page calls run_task_queue(&tq_disk) unecessarily?
+Message-ID: <20010220191023.F8120@athlon.random>
+In-Reply-To: <20010220170000.J26544@athlon.random> <Pine.LNX.4.10.10102200909350.30652-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.30.0102191809350.27085-100000@today.toronto.redhat.com>; from bcrl@redhat.com on Mon, Feb 19, 2001 at 06:12:12PM -0500
+In-Reply-To: <Pine.LNX.4.10.10102200909350.30652-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 20, 2001 at 09:11:04AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 19, 2001 at 06:12:12PM -0500, Ben LaHaise wrote:
+On Tue, Feb 20, 2001 at 09:11:04AM -0800, Linus Torvalds wrote:
+> Even if it is wake-one, others may have claimed it before. There can be
+> new users coming in and doing a "trylock()" etc.
+> 
+> NEVER *EVER* think that "exclusive wait-queue" implies some sort of
+> critical region protection. An exlcusive wait-queue is _not_ a lock. It's
+> only an optimization heuristic.
 
-> Here's a handy little patch that makes the kernel parse out the ip
-> address of the nfs server from the bootp root path.  Otherwise it's
-> impossible to boot the kernel without command line options on diskless
-> workstations (I hate RPL).
+The reason of not executing the trylock in the slow path of the lock_page is to
+avoid writing to the shared ram on all the CPUs at the same time for no good
+reason.
 
-Er, say that again?  Right now, for bootp if you specify "sa=xxx.xxx.xxx.xxx"
-Linux uses that as the host for the NFS server (which does have the side
-effect of if TFTP server != NFS server, you don't boot).  Are you saying
-your patch takes "rp=xxx.xxx.xxx.xxx:/foo/root" ?  Just curious, since I
-don't know, whats the RFC say about this?
+We can write just now to the same cacheline from all the CPUs at the same time
+if all the cpus runs lock_page at the same time on the same page, but there's
+not an high probability for such thing to happen and we would be slower to try
+to read first.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+The reason of the `continue' is only one: if the wakeup would be wake-all we
+would end executing NR_sleppers TryLockPage() and we would get an high probability
+that only one of those trylocks will succeed. So we could assume that all the
+other trylocks was going to be wasted and so we used `continue' to try not to
+bang the cacheline too much for probably no good reason.
+
+But since it's a wake-one, only one task will try to acquire the cacheline after
+the wakeup as it just did once with the TryLockPage in lock_page(). It will
+just try again like restarting from lock_page().
+
+I don't see how the probability of TryLockPage to succeed after the wakeup
+could decrease compared to the first TryLockPage. Since the probability doesn't
+decrease I don't see any point for the `continue'. Why should the probability
+of succeeding in TryLockPage drecrease after a wakeup compared to the
+TryLockPage in lock_page()? If you have an explanation I will certainly agree
+to left the `continue' there.
+
+Andrea

@@ -1,27 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280674AbRKJPLJ>; Sat, 10 Nov 2001 10:11:09 -0500
+	id <S280678AbRKJPWN>; Sat, 10 Nov 2001 10:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280678AbRKJPK7>; Sat, 10 Nov 2001 10:10:59 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:10386 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S280674AbRKJPKw>; Sat, 10 Nov 2001 10:10:52 -0500
-Date: Sat, 10 Nov 2001 17:20:55 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
+	id <S280680AbRKJPVx>; Sat, 10 Nov 2001 10:21:53 -0500
+Received: from pikus.o2.pl ([212.126.20.2]:57096 "HELO pikus.o2.pl")
+	by vger.kernel.org with SMTP id <S280678AbRKJPVv>;
+	Sat, 10 Nov 2001 10:21:51 -0500
+From: "Tajne Tajne" <dedyk@go2.pl>
 To: <linux-kernel@vger.kernel.org>
-Subject: RE: bonding driver - linux kernel
-Message-ID: <Pine.LNX.4.33.0111101717110.14778-100000@netfinity.realnet.co.sz>
+Date: Sat, 10 Nov 2001 16:21:44 +0100
+Message-ID: <MABBKNJEGFKAKLDKHMHDOEGNCAAA.dedyk@go2.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm i've got the same dual port card, but an Intel 550T L3 routing switch,
-i'll give it a try sometime next week. I was going to try the linux
-2.4.10-ac bonding driver but can't recall why i didn't. I'll tell you how
-it goes when i give it a bash.
-
-Regards,
-	Zwane Mwaikambo
-
+dedyk@go2.pl

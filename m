@@ -1,68 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUFNOX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUFNOX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUFNOX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFNOWv
+	id S263134AbUFNOX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbUFNOWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:22:51 -0400
-Received: from adslemp-b3-117-218.telepac.pt ([213.13.117.218]:6293 "EHLO
-	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
-	id S263024AbUFNOUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:20:09 -0400
-Date: Mon, 14 Jun 2004 15:20:01 +0100
-From: Nuno Monteiro <nuno@itsari.org>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: Local DoS attack on i386 (was: new kernel bug)
-Message-ID: <20040614142001.GA3032@hobbes.itsari.int>
-References: <200406121159.28406.manuel@todo-linux.com> <1087221517.3375.3.camel@sherbert>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1087221517.3375.3.camel@sherbert> (from gianni@scaramanga.co.uk on Mon, Jun 14, 2004 at 14:58:37 +0100)
-X-Mailer: Balsa 2.0.15
+	Mon, 14 Jun 2004 10:22:31 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:61149 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263126AbUFNOVH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:21:07 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Panics need better handling
+Date: Mon, 14 Jun 2004 10:20:48 -0400
+Message-ID: <D9C3AB0C3EE2254099B606A10047B5F60C3185@hdsmsx403.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Panics need better handling
+Thread-Index: AcRR4p4LD4IESOgTSFmlG3iy3pAS/wANroug
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "John Bradford" <john@grabjohn.com>,
+       "Helge Hafting" <helgehaf@aitel.hist.no>, <ndiamond@despammed.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Jun 2004 14:20:49.0092 (UTC) FILETIME=[CA5CC040:01C4521A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2004.06.14 14:58, Gianni Tedesco wrote:
-> On Sat, 2004-06-12 at 11:59 +0200, Manuel Arostegui Ramirez wrote:
-> > Somebody know a patch to solved this new bug?
-> > http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en
-> > Affected versions:
-> >     * Linux 2.6.x
-> >           o Linux 2.6.7-rc2
-> >           o Linux 2.6.6 (all versions)
-> >           o Linux 2.6.6 SMP (verified by riven)
-> >           o Linux 2.6.5-gentoo (verified by RatiX)
-> >           o Linux 2.6.5-mm6 - (verified by Mariux) 
-> >     * Linux 2.4.2x
-> >           o Linux 2.4.26 vanilla
-> >           o Linux 2.4.26-rc1 vanilla
-> >           o Linux 2.4.26-gentoo-r1
-> >           o Linux 2.4.22 
+For Intel servers, there is some help in 2.4.  It is now included within
+the OpenIPMI driver.
+It saves the panic info into a firmware log.
+See http://sourceforge.net/projects/openipmi/ and http://panicsel.sf.net
+(more info, plus a 'showsel' utility to view the firmware log).
+
+The parameter to save this isn't turned on by default in OpenIPMI, but
+it is there in 2.4 kernels (CONFIG_IPMI_PANIC_EVENT).  
+
+Andy Cress
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of John Bradford
+Sent: Monday, June 14, 2004 3:44 AM
+To: Helge Hafting; ndiamond@despammed.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Panics need better handling
+
+
+Quote from Helge Hafting <helgehaf@aitel.hist.no>:
+> ndiamond@despammed.com wrote:
 > 
-> Seems to be a scheduler race or something?
+> > I am not asking for
+> >help in solving this particular panic,
+> >I am asking for help in general, in
+> >getting information displayed when it
+> >needs to be displayed.
+> >  
+> >
+> I have struggled with this from time to time.  Wanting to
+> report a trace, but it is too long for the screen. 
 > 
+> Using a framebuffer console helps a lot.  I use 1280x1024 resolution,
+> and 8x8 characters.  The resulting 160x128 console isn't
+> that fun to _work_ with, but most panics/oopses fit.  I rarely
+> work at the console anyway.  If you do, consider making two almost
+> identical kernels where console font size is the only difference.
+(The
+> extra compile takes very little time.)  Then use the small-font kernel
+> when debugging.
 
-This was already fixed in 2.6, see http://linux.bkbits.net:8080/linux-2.5/diffs/include/asm-i386/i387.h@1.16?nav=index.html|src/.|src/include|src/include/asm-i386|hist/include/asm-i386/i387.h
+On the other hand, if like me you use a text-based console almost
+exclusively,
+then the best course of action is probably to buy a real serial
+terminal, (or
+several :-) ), and configure one of them as the console.  Then you can
+basically ignore the VGA display completely.
 
-
-The same fix should be applied to 2.4. I'm running locally a very
-hacked version of 2.4.22 with it and it survives that crash.c program.
-
-Here's the diff. Marcelo, please merge.
-
-
---- linux-2.4.27-pre5/include/asm-i386/i387.h~fix-x86-clear_fpu-macro	2004-06-14 15:12:13.909059344 +0100
-+++ linux-2.4.27-pre5/include/asm-i386/i387.h	2004-06-14 15:12:45.970185312 +0100
-@@ -34,7 +34,7 @@ extern void kernel_fpu_begin(void);
- 
- #define clear_fpu( tsk ) do { \
- 	if ( tsk->flags & PF_USEDFPU ) { \
--		asm volatile("fwait"); \
-+		asm volatile("fnclex ; fwait"); \
- 		tsk->flags &= ~PF_USEDFPU; \
- 		stts(); \
- 	} \
+John.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUGAIsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUGAIuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUGAIsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 04:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUGAIsP
+	id S264346AbUGAIuU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 04:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUGAIuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 04:48:15 -0400
-Received: from smtp-out.girce.epro.fr ([195.6.195.146]:49342 "EHLO
-	srvsec3.girce.epro.fr") by vger.kernel.org with ESMTP
-	id S264305AbUGAIsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 04:48:14 -0400
-Message-ID: <08f701c45f48$26a702e0$3cc8a8c0@epro.dom>
-From: "Colin LEROY" <colin@colino.net>
-To: "Jens Schmalzing" <j.s@lmu.de>, <linux-kernel@vger.kernel.org>
-Cc: <linuxppc-dev@lists.linuxppc.org>
-References: <hh7jtoi1bt.fsf@alsvidh.mathematik.uni-muenchen.de>
-Subject: Re: [patch, resend, 2.6, ppc32] enable OProfile profiling driver
-Date: Thu, 1 Jul 2004 10:48:16 +0200
+	Thu, 1 Jul 2004 04:50:20 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:3754 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264346AbUGAIuQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 04:50:16 -0400
+Date: Thu, 1 Jul 2004 10:49:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jens Schmalzing <j.s@lmu.de>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [patch, 2.6, ppc] some modular framebuffer support
+In-Reply-To: <hh4qosi15h.fsf@alsvidh.mathematik.uni-muenchen.de>
+Message-ID: <Pine.GSO.4.58.0407011049130.9882@waterleaf.sonytel.be>
+References: <hh4qosi15h.fsf@alsvidh.mathematik.uni-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+On Thu, 1 Jul 2004, Jens Schmalzing wrote:
+> The first hunk suppresses a warning only, not sure about it.
 
-> please find enclosed a patch to enable to OProfile profiling driver
-> for ppc32, forward ported from Ben's development tree.  I sent an
-> incomplete version some time ago, this time I didn't forget anything
-> (hopefully).
+A different fix for that one has already been accepted upstream.
 
-Didn't I see this go into main tree a few days ago?
-http://linux.bkbits.net:8080/linux-2.5/cset@40d927aaJblmtCelKR4_ifsBqvZ2kA
+Gr{oetje,eeting}s,
 
-Or was it something else?
+						Geert
 
--- 
-Colin
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

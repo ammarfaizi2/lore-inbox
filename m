@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbTHFOkH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 10:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTHFOkG
+	id S263597AbTHFOvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 10:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTHFOvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 10:40:06 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:24526 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263875AbTHFOkC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 10:40:02 -0400
+	Wed, 6 Aug 2003 10:51:08 -0400
+Received: from carbon.btinternet.com ([194.73.73.92]:44511 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id S263597AbTHFOvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 10:51:05 -0400
+From: Nick Sanders <sandersn@btinternet.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: IDE DMA problem with 2.6.0-test1
+Date: Wed, 6 Aug 2003 15:51:01 +0100
+User-Agent: KMail/1.5.3
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.SOL.4.30.0308061605080.29509-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0308061605080.29509-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16177.4928.365768.935653@gargle.gargle.HOWL>
-Date: Wed, 6 Aug 2003 16:40:00 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2 on Dell PE2650, ACPI_HT_ONLY strangeness
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200308061551.01571.sandersn@btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before upgrading our PowerEdge 2650 (dual HT Xeons, Tigon3,
-aic7899, workspace on sw raid5 over 4 disks, ext3) to RH9,
-I gave 2.6.0-test2 a spin. Worked fine, except for one thing.
+On Wednesday 06 August 2003 3:07 pm, Bartlomiej Zolnierkiewicz wrote:
+> Check your IDE cables.
+>
 
-In 2.4, CONFIG_SMP automatically uses acpitable.c to detect
-secondary threads via the MADT (since MPS doesn't handle them).
+As long as its not the drive that's great.
 
-In 2.6.0-test2, with CONFIG_SMP and CONFIG_ACPI_HT_ONLY, this
-doesn't happen, _unless_ I also pass acpismp=force on the command
-line. Without acpismp=force, it only finds two CPUs.
+I'll get a new cable.
 
-The logic in arch/i386/kernel/setup.c, which defaults acpi to
-disabled if HT_ONLY is chosen, seems backwards. Surely if I
-configure HT_ONLY it's because I want to use it, no?
+Thanks
 
-/Mikael
+Nick
+
+
+

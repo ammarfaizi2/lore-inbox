@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261417AbSJMDfF>; Sat, 12 Oct 2002 23:35:05 -0400
+	id <S261420AbSJMDpJ>; Sat, 12 Oct 2002 23:45:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261418AbSJMDfF>; Sat, 12 Oct 2002 23:35:05 -0400
-Received: from [218.245.208.194] ([218.245.208.194]:16000 "EHLO localhost")
-	by vger.kernel.org with ESMTP id <S261417AbSJMDfE>;
-	Sat, 12 Oct 2002 23:35:04 -0400
-Date: Sun, 13 Oct 2002 11:33:29 +0800
-From: Hu Gang <hugang@soulinfo.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch for 2.5.42. 2/2
-Message-Id: <20021013113329.5171e784.hugang@soulinfo.com>
-In-Reply-To: <Pine.LNX.4.44L.0210130133070.22735-100000@imladris.surriel.com>
-References: <20021013112019.496010fc.hugang@soulinfo.com>
-	<Pine.LNX.4.44L.0210130133070.22735-100000@imladris.surriel.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.8.2claws28 (GTK+ 1.2.10; i386-linux-debian-i386-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.wyXVXaQFUdWVlN"
+	id <S261421AbSJMDpJ>; Sat, 12 Oct 2002 23:45:09 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:5248 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S261420AbSJMDpI>;
+	Sat, 12 Oct 2002 23:45:08 -0400
+Date: Sat, 12 Oct 2002 22:50:46 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: "Murray J. Root" <murrayr@brain.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.42 ide-scsi loads!
+In-Reply-To: <20021012232843.GA1663@Master.Wizards>
+Message-ID: <Pine.LNX.4.44.0210122249190.1277-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.wyXVXaQFUdWVlN
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Sat, 12 Oct 2002, Murray J. Root wrote:
 
-On Sun, 13 Oct 2002 01:34:22 -0200 (BRST)
-Rik van Riel <riel@conectiva.com.br> wrote:
+> On Sat, Oct 12, 2002 at 05:46:07PM -0500, Thomas Molina wrote:
+> > On Sat, 12 Oct 2002, Murray J. Root wrote:
+> > 
+> > > It's fixed.
+> > > ide-scsi loaded 4 out of 4 tries.
+> > 
+> > Modular?  If yes, try rmmod ide-scsi.  I am still getting the exact same 
+> > oops and hang I got in:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103351991417181&w=2
+> > 
+> > To summarize:  If I load ide-scsi on boot and don't remove any components 
+> > while up I don't have a problem.  If I rmmod and ide-scsi related module I 
+> > get an oops with apparent register poisoning (signature 5a5a5a5a in the 
+> > register).  After one of these oops I get a hang on shutdown.  The oops 
+> > and hang I get in 2.5.42 is exactly the same as that in the cited message.
+> 
+> Ugh. Here I was all happy that my ide-scsi works and you had to go mess it up.
+> 
+> rmmod fails spectacularly.
 
-|On Sun, 13 Oct 2002, Hu Gang wrote:
-|
-|> --- linux-2.5.42/drivers/net/3c59x.c	Sat Oct 12 21:25:00 2002
-|> +++ linux-2.5.42-suspend/drivers/net/3c59x.c	Sat Oct 12 21:20:48 2002
-|
-|> +#ifdef CONFIG_PM
-|> +	int in_suspend;
-|> +#endif
-|
-|This looks like a serious design mistake.  Surely it would be
-|better to just have the network layer stop operations when the
-|system is going into suspend, instead of having to modify 100
-|individual network drivers ?
+Sorry about that :)  
 
-Yes, The other drivers have this problem , such as sound.
+It happens with any ide-scsi module (sg, sr_mod, etc).  However, it does 
+work well if you don't try to remove them.
 
-I'm can not confirm that idea is the best way. But I can not found any other way can do it. If you have good idea, Tell me know.
-
-thanks.
--- 
-		- Hu Gang
-
---=.wyXVXaQFUdWVlN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9qOmJPM4uCy7bAJgRAlwCAJ95uIRhb2jBHnhfsSRdglsCbwacKgCfTyBw
-s3nRMVVCDDsFdXdcd1B9csc=
-=GkGm
------END PGP SIGNATURE-----
-
---=.wyXVXaQFUdWVlN--

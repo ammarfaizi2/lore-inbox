@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbTIPXfm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbTIPXfm
+	id S262580AbTIPXxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTIPXxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:35:42 -0400
-Received: from karnickel.4msp.de ([217.6.190.222]:19718 "EHLO
-	karnickel.franken.de") by vger.kernel.org with ESMTP
-	id S262531AbTIPXfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:35:41 -0400
-Date: Wed, 17 Sep 2003 01:29:57 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: edouardino@ifrance.com, Bernhard Rosenkraenzer <bero@arklinux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre4-pac1
-Message-ID: <20030916232957.GA6216@debian.franken.de>
-References: <Pine.LNX.4.56.0309151411010.14486@dot.kde.org> <wazza.87znh6t891.fsf@message.id> <1063665253.8257.27.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 16 Sep 2003 19:53:40 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:61580 "HELO
+	flapp.schottelius.org") by vger.kernel.org with SMTP
+	id S262580AbTIPXxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:53:38 -0400
+Date: Wed, 17 Sep 2003 01:51:04 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-net@vger.kernel.org
+Subject: 3com problems
+Message-ID: <20030916235104.GA27089@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-In-Reply-To: <1063665253.8257.27.camel@dhcp23.swansea.linux.org.uk>
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux flapp 2.6.0-test5
 User-Agent: Mutt/1.5.4i
-From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 11:34:14PM +0100, Alan Cox wrote:
-> On Llu, 2003-09-15 at 15:51, edouardino@ifrance.com wrote:
-> > Hi,
-> > 
-> > Could you send me the Device Mapper patch you used ?
-> > Or could you make -pac available as splitted patches too ?
-> > I fact I'd like to use a recent dm.
-> 
-> Its the bits in drivers/md and include/linux/dm* - easy to split out.
-> It is quite old. The Sistina guys have been promising me an update for
-> some time but I guess 2.6 is far more important
 
-The latest version I know about is at:
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://people.sistina.com/~thornber/patches/2.4-stable/2.4.22/
+since using test2 the 3com cards 3c90x transfer _very_ slow.
+this is reported by a friend a verified here.
+2.4.22 is fine.
+
+any changes in test3-test5?
+
+Nico
+
+--=20
+quote:   there are two time a day you should do nothing: before 12 and afte=
+r 12
+         (Nico Schottelius after writin' a very senseless email)
+cmd:     echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/family/nico/pgp-key.n=
+ew
+url:     http://nerd-hosting.net - domains for nerds (from a nerd)
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/Z6HozGnTqo0OJ6QRAjHbAJ0YdhFFCNhJLmIcQHXEPv3PI6WLMwCguP90
+KFvyw0OXrvPhKiZYAVgtT2M=
+=Nl4Z
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

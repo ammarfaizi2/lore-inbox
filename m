@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUA2Umz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 15:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUA2Umy
+	id S266433AbUA2VJU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 16:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266431AbUA2VJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 15:42:54 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:43212 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266362AbUA2Umx (ORCPT
+	Thu, 29 Jan 2004 16:09:20 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:45778 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S266422AbUA2VJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 15:42:53 -0500
-Date: Thu, 29 Jan 2004 21:42:50 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lindent fixed to match reality
-Message-ID: <20040129204250.GL16675@khan.acc.umu.se>
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <20040129193727.GJ21888@waste.org> <20040129201556.GK16675@khan.acc.umu.se> <yw1xr7xi1ojs.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xr7xi1ojs.fsf@kth.se>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Thu, 29 Jan 2004 16:09:17 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16409.30329.336793.50051@napali.hpl.hp.com>
+Date: Thu, 29 Jan 2004 13:09:13 -0800
+To: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
+Cc: davidm@hpl.hp.com, ak@suse.de (Andi Kleen), davidm@napali.hpl.hp.com,
+       iod00d@hp.com, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+In-Reply-To: <200401292016.i0TKGraI034387@mtv-vpn-hw-mfl-2.corp.sgi.com>
+References: <16409.24257.589224.818006@napali.hpl.hp.com>
+	<200401292016.i0TKGraI034387@mtv-vpn-hw-mfl-2.corp.sgi.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 09:35:03PM +0100, Måns Rullgård wrote:
-> David Weinehall <tao@acc.umu.se> writes:
-> 
-> >> b) (no -bs) "sizeof(foo)" rather than "sizeof (foo)"
-> >
-> > I can't really see the logic in this, though I know a lot of people do
-> > it.  I try to stay consistent, thus I do:
-> >
-> > if ()
-> > for ()
-> > case ()
-> > while ()
-> > sizeof ()
-> > typeof ()
-> >
-> > since they're all parts of the language, rather than
-> > functions/macros or invocations of such.
-> 
-> What I fail to see here is why that should make a difference regarding
-> whitespace before the parens.
+>>>>> On Thu, 29 Jan 2004 21:16:52 +0100 ("CET), Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com> said:
 
-All I'm trying to say, is that we should be consistent; most code
-has:
+  Matthias> We have done a rather large study with DIMMs that had SBEs
+  Matthias> I should have been more precice. We used field returned
+  Matthias> parts which had reported SBEs and had been exchanged in
+  Matthias> the field. Our goal was to see if any of these parts
+  Matthias> "de-generate" over time. Most of these parts had hard
+  Matthias> single bit failures in one or more locations.
 
-if (), for (), case (), while ()
+Ah, that's more interesting, agreed.
 
-(and possibly sizeof foo, typeof foo)
+  Matthias> As I said, we didn't find evidence that even hard SBEs
+  Matthias> turn into a multiple bit error.
 
-but
+But you were changing the operating environment of the chip, so I
+wouldn't draw too strong of a conclusion.  Or was the reason for the
+hard SBEs known and it was determined that the operating environment
+was not a factor in triggering them?
 
-sizeof(foo), typeof(foo)
-
-which is what I dislike (consistancy is good.)
-
-
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+	--david

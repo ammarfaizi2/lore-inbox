@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbQJaTBJ>; Tue, 31 Oct 2000 14:01:09 -0500
+	id <S129596AbQJaTPC>; Tue, 31 Oct 2000 14:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129691AbQJaTA6>; Tue, 31 Oct 2000 14:00:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7024 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129623AbQJaTAr>; Tue, 31 Oct 2000 14:00:47 -0500
-Subject: Re: Locking question, is this cool?
-To: george@mvista.com (George Anzinger)
-Date: Tue, 31 Oct 2000 19:01:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.redhat.com)
-In-Reply-To: <39FF14C9.33AE7325@mvista.com> from "George Anzinger" at Oct 31, 2000 10:51:53 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129473AbQJaTOm>; Tue, 31 Oct 2000 14:14:42 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:13896 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129371AbQJaTOk>; Tue, 31 Oct 2000 14:14:40 -0500
+Date: Tue, 31 Oct 2000 20:13:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ulrich.Weigand@de.ibm.com
+Cc: slpratt@us.ibm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] 2.4.0-test10-pre6 TLB flush race in establish_pte
+Message-ID: <20001031201301.B9227@athlon.random>
+In-Reply-To: <C1256989.0066C1B8.00@d12mta01.de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13qgf5-00089s-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <C1256989.0066C1B8.00@d12mta01.de.ibm.com>; from Ulrich.Weigand@de.ibm.com on Tue, Oct 31, 2000 at 07:42:21PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At line 1073 of ../drivers/char/i2lib.c (2.4.0-test9) we find:
-> 
-> WRITE_LOCK_IRQSAVE(...
-> 
-> this is followed by:
-> 
-> COPY_FROM_USER(...
-> 
-> It seems to me that this could result in a page fault with interrupts
-> off.  Is this ok?
+On Tue, Oct 31, 2000 at 07:42:21PM +0100, Ulrich.Weigand@de.ibm.com wrote:
+> IMO you should apply Steve's patch (without any #ifdef __s390__) now.
 
-It wont do what you want - it'll re-enable irqs and may then deadlock. It might
-need to copy the buffer to a temporary space then take the lock >
+Agreed.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

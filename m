@@ -1,94 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbQLGAj7>; Wed, 6 Dec 2000 19:39:59 -0500
+	id <S129248AbQLGBSx>; Wed, 6 Dec 2000 20:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129429AbQLGAjt>; Wed, 6 Dec 2000 19:39:49 -0500
-Received: from hugin.diku.dk ([130.225.96.144]:55558 "HELO hugin.diku.dk")
-	by vger.kernel.org with SMTP id <S129431AbQLGAje>;
-	Wed, 6 Dec 2000 19:39:34 -0500
-Date: Thu, 7 Dec 2000 01:09:06 +0100 (CET)
-From: Jesper Dangaard Brouer <hawk@diku.dk>
-To: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-cc: tulip-devel@lists.sourceforge.net, tulip-users@lists.sourceforge.net
-Subject: [PATCH] tulip driver, 2.4.0-test11 kernel, media type
-Message-ID: <Pine.LNX.4.21.0012070102330.10746-200000@quark.diku.dk>
+	id <S129257AbQLGBSn>; Wed, 6 Dec 2000 20:18:43 -0500
+Received: from ha1.rdc1.sfba.home.com ([24.0.0.66]:54264 "EHLO
+	mail.rdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S129248AbQLGBSd>; Wed, 6 Dec 2000 20:18:33 -0500
+Message-ID: <3A2EB3A2.6000305@home.com>
+Date: Wed, 06 Dec 2000 16:46:10 -0500
+From: Florin Andrei <fandrei1@home.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-511536032-1209483767-976147746=:10746"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18pre and intel e100 net
+In-Reply-To: <3A2C86C8.3000306@home.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Florin Andrei wrote:
 
----511536032-1209483767-976147746=:10746
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+ >
+ >     Anyone tryied to build the drivers from Intel for the e100 (pro/100)
+ > network card using a 2.2.18pre kernel? I tried, and i'm gettting this
+ > error:
+ >
+ > In file included from e100.c:124:
+ > e100.h:265: conflicting types for `dma_addr_t'
+ > /usr/src/linux/include/asm/types.h:44: previous declaration of `dma_addr_t'
+[snip]
+
+ >     (Red Hat 7.0, and i tried both gcc and kgcc)
+
+	Well, i tried to comment out the offending line in e100.h and the module
+compiled just fine. But when i try to load it, complains about some missing
+symbol...
+	Anyone solved this?
+
+-- 
+Florin Andrei
 
 
-Error/bug in the "tulip" network driver from the 2.4.0-test11 kernel, when
-detecting media type.
- 
-The bug is quite simple.  When detecting the media type, it's possible to
-access data outside/beyond the array "medianame[]".  This leads to an
-kernel panic Oops.
- 
-I detected the bug, when using the netcard:
-   Phobos P430 Quad port (4 port card)
 
-The card reports it's media type ("leaf->media") to be "17".  And the
-array "medianame" only contains 16 entries (0-15).
-
- 
-This patch only assures that we don't access elements beyond the static
-size of the array (defensive coding).
-
-We should of course expand the array "medianame" with the appropriate
-entries.  Note, that Donald Beckers version of the tulip driver have 8
-extra elements in this array.
-
-   Jesper Brouer <hawk@diku.dk>
-
--------------------------------------------------------------------
-System Administrator
-Dept. of Computer Science, University of Copenhagen
-E-mail: hawk@diku.dk, Direct Tel.: 353 21375
--------------------------------------------------------------------
-
-The patch:
-
---- linux-2.4.0-test11/drivers/net/tulip/eeprom.c	Mon Jun 19 22:42:39 2000
-+++ linux/drivers/net/tulip/eeprom.c	Wed Dec  6 23:03:10 2000
-@@ -236,7 +236,8 @@
- 			}
- 			printk(KERN_INFO "%s:  Index #%d - Media %s (#%d) described "
- 				   "by a %s (%d) block.\n",
--				   dev->name, i, medianame[leaf->media], leaf->media,
-+				   dev->name, i, 
-+				   leaf->media < 16 ? medianame[leaf->media] : "UNKNOWN", leaf->media,
- 				   block_name[leaf->type], leaf->type);
- 		}
- 		if (new_advertise)
-
----511536032-1209483767-976147746=:10746
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="tulip.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0012070109060.10746@quark.diku.dk>
-Content-Description: 
-Content-Disposition: attachment; filename="tulip.patch"
-
-LS0tIGxpbnV4LTIuNC4wLXRlc3QxMS9kcml2ZXJzL25ldC90dWxpcC9lZXBy
-b20uYwlNb24gSnVuIDE5IDIyOjQyOjM5IDIwMDANCisrKyBsaW51eC9kcml2
-ZXJzL25ldC90dWxpcC9lZXByb20uYwlXZWQgRGVjICA2IDIzOjAzOjEwIDIw
-MDANCkBAIC0yMzYsNyArMjM2LDggQEANCiAJCQl9DQogCQkJcHJpbnRrKEtF
-Uk5fSU5GTyAiJXM6ICBJbmRleCAjJWQgLSBNZWRpYSAlcyAoIyVkKSBkZXNj
-cmliZWQgIg0KIAkJCQkgICAiYnkgYSAlcyAoJWQpIGJsb2NrLlxuIiwNCi0J
-CQkJICAgZGV2LT5uYW1lLCBpLCBtZWRpYW5hbWVbbGVhZi0+bWVkaWFdLCBs
-ZWFmLT5tZWRpYSwNCisJCQkJICAgZGV2LT5uYW1lLCBpLCANCisJCQkJICAg
-bGVhZi0+bWVkaWEgPCAxNiA/IG1lZGlhbmFtZVtsZWFmLT5tZWRpYV0gOiAi
-VU5LTk9XTiIsIGxlYWYtPm1lZGlhLA0KIAkJCQkgICBibG9ja19uYW1lW2xl
-YWYtPnR5cGVdLCBsZWFmLT50eXBlKTsNCiAJCX0NCiAJCWlmIChuZXdfYWR2
-ZXJ0aXNlKQ0K
----511536032-1209483767-976147746=:10746--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

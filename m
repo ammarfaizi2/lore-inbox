@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261284AbTCJK4V>; Mon, 10 Mar 2003 05:56:21 -0500
+	id <S261287AbTCJLCC>; Mon, 10 Mar 2003 06:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261287AbTCJK4U>; Mon, 10 Mar 2003 05:56:20 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:40419 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261284AbTCJK4U>; Mon, 10 Mar 2003 05:56:20 -0500
-Date: Mon, 10 Mar 2003 12:06:35 +0100
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
-       ak@muc.de
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Message-ID: <20030310110635.GA2148@averell>
-References: <20030212101206.GA10422@bjl1.jlokier.co.uk> <Pine.LNX.4.44.0303091858530.1420-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303091858530.1420-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+	id <S261289AbTCJLCB>; Mon, 10 Mar 2003 06:02:01 -0500
+Received: from mail2.space2u.com ([62.20.1.161]:21704 "EHLO mail2.space2u.com")
+	by vger.kernel.org with ESMTP id <S261287AbTCJLCA>;
+	Mon, 10 Mar 2003 06:02:00 -0500
+Message-ID: <004b01c2e6f6$ace35c80$827ba8c0@mttw.net>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	"Carl =?ISO-8859-1?Q?=D6berg=22?= <webmaster@gitte.nu>"
+			^-missing closing '"' in token
+From: linux-kernel-owner@vger.kernel.org
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: Intruders kidnapping PIDs of server processes
+Date: Mon, 10 Mar 2003 12:17:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 04:07:36AM +0100, Linus Torvalds wrote:
->  since you've been interested in the past, I thought I'd ask you to test
-> the current context switch stuff. Andi cleaned up some FPU reload stuff
-> (and I fixed a bug in it, tssk tssk Andi - you'd obviously not actually
-> timed your cleanups), and I just committed and pushed out my "cache the
+Intruders kidnapping PIDs of server processes
 
-You mean the TIF->_TIF thing? Yes that was wrong in the first patch,
-but fixed in the patches later. Unfortunately the patch still 
-has the problem pointed out by Manfred Spraul: if you're unlucky
-it could destroy the _TIF_SIGPENDING set by another CPU with the
-non atomic access. Really thread_info should have two flag words:
-one that is truly local and can be accessed without LOCK and 
-one that can be changed at will by external users too.
+Problem/Background:
+Recently our system was under attack by intruders using trojan code to
+gain access to our system. Apparently they where trying to get one of
+our servers to route IRC-traffic using psyBNC.
 
-After some discussion with him I think the right fix for now is to 
-move it it back to PF_USEDFPU into task_struct->flags.
+It seems like the intruders, probably using reppid to take over processes,
+could hide their own processes in existing ones. Doing something like
+ps -gaux won't show anything strange at all!
+This makes it impossible to find and shut off unwanted processes.
+Using netstat I could clearly see that "something" was listening on
+ports that I didn't recognize. Doing netstat -ap only showed a dash '-'
+instead of any process owning the socket.
 
-Will submit a patch for that later after I was able to test it.
+Software:
+The server was running Linux Redhat 7.2 (Kernel 2.4.7-10). Unfortunately
+I cannot get anymore specific because the intruders seems to have rendered
+the system unbootable before I had any chance of gathering info for
+this report. But this bug (or feature) seems to affect all kernels,
+regardless
+of version.
 
--Andi
+Solution?
+Is there anyway to fix this "bug" or is it a built-in feature. So that
+software
+like reppid simply can't take over an existing PID.
+
+Sources:
+Probably the intruders have been using something similar to the program
+Reppid found at http://www.psychoid.lam3rz.de/reppid.c.
+
+I would be grateful for an answer, even a simple "No,
+it's not a bug, it's a feature" would help.
+
+TIA
+Carl Oeberg, (webmaster@gitte.nu)
+

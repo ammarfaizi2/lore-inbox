@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292407AbSB0Ndy>; Wed, 27 Feb 2002 08:33:54 -0500
+	id <S292389AbSB0Nhy>; Wed, 27 Feb 2002 08:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292406AbSB0Ndo>; Wed, 27 Feb 2002 08:33:44 -0500
-Received: from [66.150.46.254] ([66.150.46.254]:60496 "EHLO mail.tvol.net")
-	by vger.kernel.org with ESMTP id <S292408AbSB0Ndb>;
-	Wed, 27 Feb 2002 08:33:31 -0500
-Message-ID: <3C7CE025.15DD5CD4@wgate.com>
-Date: Wed, 27 Feb 2002 08:33:25 -0500
-From: Michael Sinz <msinz@wgate.com>
-Organization: WorldGate Communications Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; FreeBSD 4.5-STABLE i386)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] kernel 2.5.5 - coredump sysctl
-In-Reply-To: <200202211550.g1LFonO07531@devserv.devel.redhat.com>
+	id <S292403AbSB0Nhp>; Wed, 27 Feb 2002 08:37:45 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:19728 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S292389AbSB0Nhd>; Wed, 27 Feb 2002 08:37:33 -0500
+Date: Wed, 27 Feb 2002 14:35:44 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Suporte RedeBonja <suporte@cbj.g12.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel oops
+Message-ID: <20020227133544.GE3316@arthur.ubicom.tudelft.nl>
+In-Reply-To: <003301c1bef3$156119a0$5600a8c0@c136suporte>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <003301c1bef3$156119a0$5600a8c0@c136suporte>
+User-Agent: Mutt/1.3.27i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Feb 26, 2002 at 03:26:15PM -0300, Suporte RedeBonja wrote:
+> we are having problems with the kernel (oops). My box is a mail server only
+> and the problem occurs a thousand times a day . I realize a wierd message on
+> the boot process: /lib/modules/2.2.16/net/bsd_comp.o _> unresolved symbols,
+> the same message for: /lib/modules/2.2.16/misc/zft_compressor.o,
+>  /lib/modules/2.2.16/misc/rio.o,
+> /lib/modules/2.2.16/misc/dss1_divert.o.
 > 
-> Ok - yep - I think you are right that its not in fact cleaner
+> here is my configuration:
+> 
+> Red Hat 6.1 (Cartman)
+> kernel : 2.2.16
 
-PS - There is also the fact that I am filtering out any "/" characters
-just in case someone makes an attempt at doing nasty stuff with the
-program name or the host name.
+Upgrade the system to a newer kernel and tools (look at ksymoops
+complaining being obsolete) and try to recreate the problem.
 
-BTW - are you looking at merging this into your tree (2.5 and/or 2.4)?
-I belive I can continue doing the patching here but it would be nice
-to have this generally available as some people (consulting clients of mine)
-don't want to run kernels that I build but only ones from RedHat...
+
+Erik
 
 -- 
-Michael Sinz ---- Worldgate Communications ---- msinz@wgate.com
-A master's secrets are only as good as
-	the master's ability to explain them to others.
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

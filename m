@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbUDBVro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUDBVro
+	id S261160AbUDBVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUDBVtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:47:44 -0500
-Received: from [144.51.25.10] ([144.51.25.10]:4274 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261162AbUDBVri (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:47:38 -0500
-Subject: Re: capabilitiescompute_cred
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andy Lutomirski <luto@stanford.edu>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       luto@myrealbox.com, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <406DCB32.8070403@stanford.edu>
-References: <20040402033231.05c0c337.akpm@osdl.org>
-	 <1080912069.27706.42.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040402111554.E21045@build.pdx.osdl.net>  <406DCB32.8070403@stanford.edu>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1080942432.28777.109.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 2 Apr 2004 16:49:25 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25758
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261160AbUDBVtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 16:49:13 -0500
+Date: Fri, 2 Apr 2004 23:49:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040402214914.GW21341@dualathlon.random>
+References: <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain> <20040331172851.GJ2143@dualathlon.random> <20040401004528.GU2143@dualathlon.random> <20040331172216.4df40fb3.akpm@osdl.org> <20040401012625.GV2143@dualathlon.random> <20040331175113.27fd1d0e.akpm@osdl.org> <20040401020126.GW2143@dualathlon.random> <20040402201343.GA195@elf.ucw.cz> <20040402214258.GU21341@dualathlon.random> <20040402214548.GD246@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 02 Apr 2004 16:47:12 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040402214548.GD246@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-02 at 15:21, Andy Lutomirski wrote:
-> I agree in principle, but it would still be nice to have a simple way to 
-> have useful capabilities without setting up a MAC system.  I don't see a 
-> capabilities fix adding any significant amount of code; it just takes 
-> some effort to get it right.
+On Fri, Apr 02, 2004 at 11:45:48PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > An anonymous user page meets these requirements.  A did say "anal", but
+> > > > > rw_swap_page_sync() is a general-purpose library function and we shouldn't
+> > > > > be making assumptions about the type of page which the caller happens to be
+> > > > > feeding us.
+> > > > 
+> > > > that is a specialized backdoor to do I/O on _private_ pages, it's not a
+> > > > general-purpose library function for doing anonymous pages
+> > > > swapin/swapout, infact the only user is swap susped and we'd better
+> > > > forbid swap suspend to pass anonymous pages through that interface and
+> > > > be sure that nobody will ever attempt anything like that.
+> > > > 
+> > > > that interface is useful only to reach the swap device, for doing I/O on
+> > > > private pages outside the VM, in the old days that was used to
+> > > > read/write the swap header (again on a private page), swap suspend is
+> > > > using it for similar reasons on _private_ pages.
+> > > 
+> > > Ahha, so *here* is that discussion happening. I was only seeing it at
+> > > bugzilla, and could not make sense of it.
+> > 
+> > ;)
+> > 
+> > btw, as far as I can tell I cannot see anymore VM issues with current CVS
+> > kernel, what I get now is:
+> 
+> What does "current CVS kernel" mean? Current one at bkcvs?
 
-I'm not opposed to making the existing capability logic more useable; I
-just think that capabilities will ultimately be superseded by TE.
- 
-> You can find my attempts to get it right in the 
-> linux-kernel archives, and I'll probably try to get something into 2.7 
-> when it forks.  With or without MAC, having a functioning capability 
-> system wouldn't hurt security.
-
-Does revising the capability logic need to wait on 2.7?  Have you
-changed the logic significantly since the last patch you posted to lkml?
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+of course not, it means the kernel-source-26 that we used to reproduce
+the suspend problem so far (mainline has no -mm writeback and no
+anon-vma so it cannot have problems with rw_swap_page_sync).

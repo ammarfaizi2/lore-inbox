@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266903AbSLDEpA>; Tue, 3 Dec 2002 23:45:00 -0500
+	id <S266907AbSLDEuU>; Tue, 3 Dec 2002 23:50:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266907AbSLDEo7>; Tue, 3 Dec 2002 23:44:59 -0500
-Received: from erlenstar.demon.co.uk ([194.222.144.22]:7944 "EHLO
-	erlenstar.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266903AbSLDEo7>; Tue, 3 Dec 2002 23:44:59 -0500
-To: David Schwartz <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bincancels in linux.kernel
-References: <20021204022120.AAA20784@shell.webmaster.com@whenever>
-From: Andrew Gierth <andrew@erlenstar.demon.co.uk>
-In-Reply-To: David Schwartz's message of "Tue, 3 Dec 2002 18:21:18 -0800"
-X-Mayan-Date: Long count = 12.19.9.14.8; tzolkin = 11 Lamat; haab = 1 Mac
-X-Pgp-0x0E9FFBE9: 87 25 7F 14 41 24 B3 51  E0 19 8B DE 49 74 0C 29
-X-Attribution: AG
-Date: 04 Dec 2002 04:52:24 +0000
-Message-ID: <871y4yidx3.fsf@erlenstar.demon.co.uk>
-X-Mailer: Gnus v5.5/Emacs 20.2
+	id <S266908AbSLDEuU>; Tue, 3 Dec 2002 23:50:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:50061 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266907AbSLDEuT>;
+	Tue, 3 Dec 2002 23:50:19 -0500
+Date: Wed, 4 Dec 2002 15:54:20 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: peterc@gelato.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: Ejecting an orinoco card causes hang
+Message-ID: <20021204045420.GI1564@zax.zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Russell King <rmk@arm.linux.org.uk>, peterc@gelato.unsw.edu.au,
+	linux-kernel@vger.kernel.org
+References: <15797.63740.520358.783516@wombat.chubb.wattle.id.au> <20021023085501.A22736@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021023085501.A22736@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Schwartz <davids@webmaster.com> writes:
+On Wed, Oct 23, 2002 at 08:55:02AM +0100, Russell King wrote:
+> On Wed, Oct 23, 2002 at 11:18:52AM +1000, peterc@gelato.unsw.edu.au wrote:
+> > 4.  Transferring lots of data causes the link to collapse, and the
+> >     logs to fill up with `eth0: Error -110 writing Tx descriptor to
+> >     BAP' messages
+> 
+> I see type of behaviour this with an Orinoco Silver card while trying to
+> set the mode/essid.  I took the wvlan_cs code from my RH7.2 box and dropped
+> it into 2.5 - seems to work (although how reliable it is I don't know yet;
+> I need to get something for this card to talk to.)
 
- David> 	Spam is bad, but suppressing useful legitimate content
- David> because of unsophisticated spam-checking algorithms
-
-this is nothing to do with spam; that's not the only form of abuse that
-exists.
-
-Perhaps you also missed the point from my first message that a) I don't
-intentionally receive the linux.* groups and therefore had not previously
-needed to consider whether they were getting binaries and b) that I stopped
-as soon as this was drawn to my attention. (I did already have in place
-exemptions for all the generally-known binaries hierarchies.)
+Sadly, I'm still battling this particular problem.  However, I have
+just fixed a bug which could cause hangs on eject.  It's in the
+"testing" version at
+http://www.ozlabs.org/people/dgibson/dldwd/testing.
 
 -- 
-Andrew.
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

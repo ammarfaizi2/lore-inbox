@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUIIRB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUIIRG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUIIRB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIIQ7d
+	id S266274AbUIIRG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUIIRG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:59:33 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:43528 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266310AbUIIQ6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:58:00 -0400
-Date: Thu, 9 Sep 2004 17:57:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] generic-hardirqs-2.6.9-rc1-mm4.patch
-Message-ID: <20040909175748.A12336@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>,
-	Arjan van de Ven <arjanv@redhat.com>
-References: <20040908120613.GA16916@elte.hu> <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu> <20040908125755.GC3106@holomorphy.com> <Pine.LNX.4.53.0409080932050.15087@montezuma.fsmlabs.com> <20040908143143.A32002@infradead.org> <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com> <1094652572.2800.14.camel@laptop.fenrus.com> <20040908182509.GA6009@elte.hu> <20040908211415.GA20168@elte.hu>
+	Thu, 9 Sep 2004 13:06:28 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:15606 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S266274AbUIIRGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:06:19 -0400
+Date: Thu, 9 Sep 2004 10:06:04 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.9-rc1-bk16] ppc32: Use $(addprefix ...) on arch/ppc/boot/lib/
+Message-ID: <20040909170604.GB2945@smtp.west.cox.net>
+References: <20040909153031.GA2945@smtp.west.cox.net> <20040909163705.GA7830@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040908211415.GA20168@elte.hu>; from mingo@elte.hu on Wed, Sep 08, 2004 at 11:14:15PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040909163705.GA7830@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 11:14:15PM +0200, Ingo Molnar wrote:
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > latest patch attached - this should compile on every architecture.
-> > It's basically what Christoph suggested first time around :-)
-> > Compiles/boots on x86. Any other observations?
-> 
-> i've attached generic-hardirqs-2.6.9-rc1-mm4.patch which is a merge
-> against -mm4. x86 and x64 compiles & boots fine. Since there are zero
-> changes to non-x86 architectures it should build fine on all platforms.
+On Thu, Sep 09, 2004 at 06:37:05PM +0200, Sam Ravnborg wrote:
 
-Looks good to me.  I no one else beats me I'll look into converting
-ppc32/64 this weekend.
+> On Thu, Sep 09, 2004 at 08:30:31AM -0700, Tom Rini wrote:
+> > The following makes arch/ppc/boot/lib/Makefile use $(addprefix ...) to
+> > get lib/zlib_inflate/ source code.  Previously we were manually setting
+> > the dependancy and invoking cc_o_c.  Worse, we were invoking the cmd
+> > version, not the rule version and thus when MODVERSIONS=y, we wouldn't
+> > do the .tmp_foo.o -> foo.o rename, and thus the compile would break.
+> > Using $(addprefix ...) gets us using the standard rules again (and is
+> > shorter to boot).
+> 
+> Your patch was pending my comments - sorry.
+> 
+> 
+> Why not:
+> 
+> lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
+>                                        inflate.o inftrees.o infutil.o)
+> lib-y += div64.o
+> lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
+> 
+> No need to use that ugly relative path.
+
+If that works, OK.  The example Al Viro pointed me at was
+arch/arm/boot/compressed/Makefile.
+
+> I do not like this way of selectng .o files. It will so
+> obviously break the build with make -j if there is no synchronisation
+> point. vmlinux provide this synchronisation point in this case.
+> But in this particular case I see no better alternative.
+
+How hard would it be make some sort of synchronisation point?  I know
+SuSE folks who always build with -j5.
+
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+--- 1.7/arch/ppc/boot/lib/Makefile	2004-09-07 23:33:06 -07:00
++++ edited/arch/ppc/boot/lib/Makefile	2004-09-09 10:05:34 -07:00
+@@ -4,18 +4,7 @@
+ 
+ CFLAGS_kbd.o	+= -Idrivers/char
+ 
+-$(obj)/infblock.o: lib/zlib_inflate/infblock.c
+-	$(call cmd,cc_o_c)
+-$(obj)/infcodes.o: lib/zlib_inflate/infcodes.c
+-	$(call cmd,cc_o_c)
+-$(obj)/inffast.o: lib/zlib_inflate/inffast.c
+-	$(call cmd,cc_o_c)
+-$(obj)/inflate.o: lib/zlib_inflate/inflate.c
+-	$(call cmd,cc_o_c)
+-$(obj)/inftrees.o: lib/zlib_inflate/inftrees.c
+-	$(call cmd,cc_o_c)
+-$(obj)/infutil.o: lib/zlib_inflate/infutil.c
+-	$(call cmd,cc_o_c)
+-
+-lib-y := infblock.o infcodes.o inffast.o inflate.o inftrees.o infutil.o div64.o
++lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
++				       inflate.o inftrees.o infutil.o)
++lib-y += div64.o
+ lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

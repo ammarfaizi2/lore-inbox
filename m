@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262048AbRENBph>; Sun, 13 May 2001 21:45:37 -0400
+	id <S262043AbRENBm6>; Sun, 13 May 2001 21:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbRENBpS>; Sun, 13 May 2001 21:45:18 -0400
-Received: from bitmover.com ([207.181.251.162]:55112 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S262048AbRENBpK>;
-	Sun, 13 May 2001 21:45:10 -0400
-Date: Sun, 13 May 2001 18:45:09 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events
-Message-ID: <20010513184509.P2103@work.bitmover.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200105140117.f4E1HqN07362@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.21.0105131824090.20981-100000@penguin.transmeta.com>
+	id <S262048AbRENBms>; Sun, 13 May 2001 21:42:48 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:17412 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S262043AbRENBmj>;
+	Sun, 13 May 2001 21:42:39 -0400
+Date: Sun, 13 May 2001 18:42:37 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
+Message-ID: <20010513184237.A10604@lucon.org>
+In-Reply-To: <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010513181006.A10057@lucon.org> <m1sni8k9io.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0105131824090.20981-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, May 13, 2001 at 06:32:02PM -0700
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1sni8k9io.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, May 13, 2001 at 07:24:31PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 13, 2001 at 06:32:02PM -0700, Linus Torvalds wrote:
-> >   Hi, Linus. I've been thinking more about trying to warm the page
-> > cache with blocks needed by the bootup process. What is currently
-> > missing is (AFAIK) a mechanism to find out what inodes and blocks have
-> > been accessed. Sure, you can use bmap() to convert from file block to
-> > device block, but first you need to figure out the file blocks
-> > accessed. I'd like to find out what kind of patch you'd accept to
-> > provide the missing functionality.
+On Sun, May 13, 2001 at 07:24:31PM -0600, Eric W. Biederman wrote:
 > 
-> Why would you use bmap() anyway? You CANNOT warm up the page cache with
-> the physical map nr as discussed. So there's no real point in using
-> bmap() at any time.
+> I agree it isn't intuitive, and if nfsroot=xxx is specified it should
+> probably turn on if there is missing information.
+> 
+> But if you have to select the command line anyway....
+> 
+> Mostly I like the situation where I can compile it in and turn it on
+> when I need it, instead of having to do thing differently if it is
+> compiled in or not.
+> 
 
-Ha.  For once you're both wrong but not where you are thinking.  One of
-the few places that I actually hacked Linux was for exactly this - it was
-in the 0.99 days I think.  I saved the list of I/O's in a file and filled
-the buffer cache with them at next boot.  It actually didn't help at all.
+In fact, I like the idea. But passing nfsroot=xxx to kernel doesn't
+imply "ip=on" is very annoying. My setup worked fine with 2.4.4. It
+took me a while to figure out why it didn't work with 2.4.4-ac8.
 
-I don't remember why, maybe it was back so long ago that I didn't have the
-memory, but I think it was more subtle than that.  It's basically a queuing
-problem and my instincts were wrong, I thought if I could get all the data
-in there then things would go faster.  If you think through all the stuff
-going on during a boot it doesn't really work that way.
+> > Have you tried
+> > ramdisk on diskless alpha, arm, m68k, mips, ppc, sh, sparc, booting
+> > over network?
+> 
+> First the booting situation on linux with respect to multiple platform
+> sucks.  We pass parameters in weird ways on every platform.  The command
+> line is the only thing that stays mostly the same.  I'm looking at what
+> it takes to clean that up, so we can have multiplatform bootloaders.
 
-Anyway, a _much_ better thing to do would be to have all this data laid
-out contig, then slurp in all the blocks in on I/O and then let them get
-turned into files.  This has been true for the last 30 years and people
-still don't do it.  We're actually moving in this direction with BitKeeper,
-in the future, large numbers of small files will be stored in one big file
-and extracted on demand.  Then we do one I/O to get all the related stuff.
+I don't think we have total control over how to boot over network on
+all platforms. On some platforms, you may only load kernel over the
+network and run from it.
 
-Dave Hitz at NetApp is about the only guy I know who really gets this,
-Daniel Phillips may also get it, he's certainly thinking about it.  Lots
-of little I/O's == bad, one big I/O == good.  Work through the numbers 
-and it starts to look like you'd never want to do less than a 1MB I/O,
-probably not less than a 4MB I/O.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> 
+> I have implemented what it takes to attach a ramdisk, and if you can
+> boot an arbitrary kernel it isn't hard to have a program that attaches
+> a ramdisk.  
+> 
+> Now although I believe this is the right direction to go, you will
+> notice I ported the dhcp IP auto configuration from 2.2.19 to to 2.4.x
+> Buying a little more time to get this working.
+
+Thanks. I appreciate it.
+
+
+H.J.

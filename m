@@ -1,38 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVBXF0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVBXFbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVBXF0d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 00:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVBXF0c
+	id S261806AbVBXFbt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 00:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVBXFbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 00:26:32 -0500
-Received: from calma.pair.com ([209.68.1.95]:11784 "HELO calma.pair.com")
-	by vger.kernel.org with SMTP id S261799AbVBXF0a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 00:26:30 -0500
-Date: Thu, 24 Feb 2005 00:26:30 -0500
-From: "Chad N. Tindel" <chad@tindel.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-ID: <20050224052630.GA99960@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com> <20050223183634.31869fa6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050223183634.31869fa6.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 24 Feb 2005 00:31:49 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:60322 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261806AbVBXFbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 00:31:45 -0500
+Date: Thu, 24 Feb 2005 05:31:06 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Ammar T. Al-Sayegh" <ammar@kunet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:483!
+In-Reply-To: <005e01c519f8$65ba5020$7101a8c0@shrugy>
+Message-ID: <Pine.LNX.4.61.0502240512330.5427@goblin.wat.veritas.com>
+References: <009d01c519e8$166768b0$7101a8c0@shrugy> 
+    <Pine.LNX.4.61.0502232108500.14780@goblin.wat.veritas.com> 
+    <005e01c519f8$65ba5020$7101a8c0@shrugy>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the other side of the coin is that a SCHED_FIFO userspace task
-> presumably has extreme latency requirements, so it doesn't *want* to be
-> preempted by some routine kernel operation.  People would get irritated if
-> we were to do that.
+On Wed, 23 Feb 2005, Ammar T. Al-Sayegh wrote:
+> ----- Original Message ----- From: "Hugh Dickins" <hugh@veritas.com>
+> > though quite possibly you cannot afford
+> > such experiments on this server, and will revert to 2.4 for now.
+> 
+> The problem is that my server is already in production
+> mode. I'm running great portion of my business on it,
+> where there is very little tolerance for downtime.
 
-Just to follow up a bit.  People writing apps that run at SCHED_FIFO know
-that they aren't getting hard real-time, and they are OK with that.  If they
-wanted something more they'd run on RTLinux.  Why would it be wrong to preempt
-the SCHED_FIFO process in the case, assuming that it is too hard to fix a broken
-design that doesn't allow the necessary kernel threads to run on any CPU?
+I feared as much.
 
-Chad
+> Because the server is located in a remote datacenter,
+> every time it goes down it takes several hours to have
+> someone sent up there to manually reboot it for a hefty
+> emergency fee. So this bug has already cost me a lot of
+> money, and I'm worried that it will cost me a lot of my
+> clients as well if it persists.
+
+I'm very sorry for that.
+
+> Remote hands are rather expensive, so it will cost me
+> $100/hr to have someone runs memtest86 on my server
+> since I can't perform it remotely. I'll do it though
+> since that's your recommendation for the time being.
+> Hope it will not take more than an hour to run the
+> test, and hope it turns out as bad memory modules as
+> you expect because I hate to downgrade after all the
+> time and money I expended on the upgrade.
+
+One hour will be enough if it does find a problem in that time,
+worth a shot; but not enough to give confidence in the memory
+if it does not find one, 12 hours better.  I actually wonder
+whether rmap.c:483 is the best memory tester (serious answer
+would be, in some cases yes, but not in all).
+
+Do let me know.  If I can find time to rejig the debug patch
+against your kernel, it would itself keep your server running,
+replacing the BUG_ON by printks and safety.  But without knowing
+what it will report, I can't judge how satisfactory that would
+be (and it's unlikely to lead us to the final answer in one go).
+
+Hugh

@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTACDPE>; Thu, 2 Jan 2003 22:15:04 -0500
+	id <S264690AbTACDYB>; Thu, 2 Jan 2003 22:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267225AbTACDPE>; Thu, 2 Jan 2003 22:15:04 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:60621
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S264883AbTACDPD>; Thu, 2 Jan 2003 22:15:03 -0500
-Message-ID: <3E150221.3030304@redhat.com>
-Date: Thu, 02 Jan 2003 19:23:13 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021224
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "J.A. Magallon" <jamagallon@able.es>, libc-alpha@sources.redhat.com,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: __NR_exit_group for 2.4-O(1)
-References: <20030103001522.GA1539@werewolf.able.es> <20030103003244.A10586@infradead.org> <20030103003617.GC1539@werewolf.able.es> <20030103004557.A10881@infradead.org> <20030103005033.GA3103@werewolf.able.es> <20030103005624.A11159@infradead.org>
-In-Reply-To: <20030103005624.A11159@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265190AbTACDYB>; Thu, 2 Jan 2003 22:24:01 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:7835 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S264690AbTACDYA>; Thu, 2 Jan 2003 22:24:00 -0500
+From: Richard Stallman <rms@gnu.org>
+To: mark@mark.mielke.cc
+CC: billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
+       Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-reply-to: <20030102061430.GA23276@mark.mielke.cc> (message from Mark Mielke
+	on Thu, 2 Jan 2003 01:14:30 -0500)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Reply-to: rms@gnu.org
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc>
+Message-Id: <E18UIZS-0006Cr-00@fencepost.gnu.org>
+Date: Thu, 02 Jan 2003 22:32:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+    I regularly use several kernel modules that provide a GPL component that
+    interfaces the module to the kernel, and a closed source object file that
+    is dynamically loaded as a kernel module at run time.
 
-> Hmm.  It looks like glibc should test for something else than :)
+    If I did not have these modules, I would not be able to use Linux as my
+    host operating system.
 
-The code is correct as it is.  If the exit_group syscall does not exist
-the normal exit is used.  There is by definition exactly one call to any
-of these syscalls so who cares?
+Many enthusiasts the "Linux" operating system take the popularity of
+the system (or of the kernel, Linux) as the supreme goal; but why
+should the popularity of any one operating system or program be so
+important?  That isn't what really matters.
 
-If there is any problem it is your strace which is far too old.
+We developed the GNU system for the sake of freedom, and freedom is
+what really matters.  The GNU/Linux system today is important because
+it offers a road to freedom.  But it doesn't guarantee you will arrive
+there.  If you use non-free drivers, you go just part way along the
+road and never arrive at freedom.  That defeats the purpose.  To
+achieve freedom, we need to insist on free drivers (and free
+applications).
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+Erik Andersen <andersen@codepoet.org> wrote:
+
+    If nvidia provided non-functional GPL
+    source code with all the proprietary 3rd party bits ripped out, 
+    I would expect a hoard of developers would jump at the chance to
+    fixup the non-functional mess, clean it up, reimplement all the
+    missing proprietary bits.  I'd bet you $20 US we could have a
+    functional driver within 2 weeks.
+
+If NVidia cooperates with us this much, we should certainly pick up
+the ball from there, and I am sure we will manage to go the rest of
+the way.  But don't bet on 2 weeks.  Softare always takes twice as
+long as you expect ;-).  If it takes a whole month month to be able to
+use NVidia hardware in freedom, I won't complain about the delay.
+
+But we could make do with even less cooperation than that.  If they
+just provide the necessary specs to a person who wants to extend the
+free drivers that exist, that would be sufficient.  It might take more
+than 4 weeks to write the code, but surely not more than a few months.
+
 

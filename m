@@ -1,82 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbUCWAvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 19:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUCWAvP
+	id S261738AbUCWAwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 19:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUCWAwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 19:51:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24286 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261753AbUCWAvN (ORCPT
+	Mon, 22 Mar 2004 19:52:16 -0500
+Received: from waste.org ([209.173.204.2]:1933 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261738AbUCWAwK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 19:51:13 -0500
-Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mason@suse.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20040322151312.6b629736.akpm@osdl.org>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-	 <1079566076.4186.1959.camel@watt.suse.com>
-	 <20040317155111.49d09a87.akpm@osdl.org>
-	 <1079568387.4186.1964.camel@watt.suse.com>
-	 <20040317161338.28b21c35.akpm@osdl.org>
-	 <1079569870.4186.1967.camel@watt.suse.com>
-	 <20040317163332.0385d665.akpm@osdl.org>
-	 <1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
-	 <1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
-	 <1079635678.4185.2100.camel@watt.suse.com>
-	 <1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
-	 <1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
-	 <1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
-	 <1079879799.11062.348.camel@watt.suse.com>
-	 <1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
-	 <1079980512.11058.524.camel@watt.suse.com>
-	 <1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
-	 <20040322151312.6b629736.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080003067.6930.78.camel@ibm-c.pdx.osdl.net>
+	Mon, 22 Mar 2004 19:52:10 -0500
+Date: Mon, 22 Mar 2004 18:52:04 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Matt Miller <mmiller@hick.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6: mmap complement, fdmap
+Message-ID: <20040323005204.GF8366@waste.org>
+References: <20040322190047.GC8366@waste.org> <PFEHKADDODPLDDIJFACJAEJHEAAA.mmiller@hick.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Mar 2004 16:51:07 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <PFEHKADDODPLDDIJFACJAEJHEAAA.mmiller@hick.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-
-The test has been running over 5 hours now without seeing uninitialized
-data.  I'll let it run overnight, but it looks like the small 
-__block_write_full_page patch fixes the problem.
-
-Daniel
-
-On Mon, 2004-03-22 at 15:13, Andrew Morton wrote:
-> Daniel McNeil <daniel@osdl.org> wrote:
+On Mon, Mar 22, 2004 at 01:26:01PM -0600, Matt Miller wrote:
+> > > > a) what the hell for?
+> > >
+> > > It's targetted mainly as a performance enhancer.  Some of the specific
+> > > scenarios where it would be useful are:
+> > >
+> > > a) When one cannot afford to take the performance hit of synchronizing
+> > >    a memory range to disk due to disk size limitations or speed
+> > >    requirements.
+> > > b) Some things can benefit from the ability to interface with
+> > memory as a
+> > >    file.
+> > >
+> > > The specific reason for implementing this was to allow for
+> > loading dynamic
+> > > libraries in the context of a process without having to write them to
+> > > disk.
 > >
-> > I was thinking about this also, since this is included in the patch.
-> > As long as the page stays dirty in radix tree so the sync writer
-> > can find it, then the sync writer can wait on the locked buffers.
-> > 
-> > I am giving it a try and will let you know.
+> > How about tmpfs/ramfs instead? Open a file on tmpfs and mmap it and
+> > you've got the same thing without any of the nasty corner cases.
 > 
-> Please do.
-> 
-> Redirtyng the pages in this manner does mean that background_writeout()
-> could get stuck in a loop trying to write the same batch of pages over and
-> over again, until the I/O completes.
-> 
-> I'll take another look at marking the pages which back the ll_rw_blk
-> buffers as being under writeback.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Because tmpfs does not allow you to map a file descriptor to a specific
+> memory
+> range inside a process.  tmpfs allows you to open a file that exists only
+> in memory, yes, but it does not accomplish what fdmap tries to accomplish.
+> fdmap allows you to access arbitrary memory ranges as if they were a file.
+> tmpfs allows you to access a file that happens to only exist in memory.
+> You do not control the address range that tmpfs/ramfs map to.
 
+You don't? Is this not what the first argument of mmap provides? I'm
+afraid I can't see how it matters, as you'd have to populate said map
+afterwards anyway.
+
+Point is, mmap() is already its own complement and what you're
+proposing is a hairy solution in search of a problem as the VFS
+maintainer already pointed out.
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

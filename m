@@ -1,85 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265880AbSKZAgu>; Mon, 25 Nov 2002 19:36:50 -0500
+	id <S265898AbSKZBKW>; Mon, 25 Nov 2002 20:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbSKZAgu>; Mon, 25 Nov 2002 19:36:50 -0500
-Received: from english-breakfast.cloud9.net ([168.100.1.9]:7941 "EHLO
-	english-breakfast.cloud9.net") by vger.kernel.org with ESMTP
-	id <S265880AbSKZAgt>; Mon, 25 Nov 2002 19:36:49 -0500
-Date: Mon, 25 Nov 2002 19:44:01 -0500 (EST)
-From: Leif Delgass <ldelgass@retinalburn.net>
-X-X-Sender: ldelgass@istanbul.retinalburn.dnsalias.net
-To: linux-kernel@vger.kernel.org
-Cc: Marcello Tosatti <marcelo@connectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, <Nicolas.Mailhot@laposte.net>
-Subject: [PATCH] [2.4] AGP Support for VIA KT400
-Message-ID: <Pine.LNX.4.44.0211251901240.7688-100000@istanbul.retinalburn.dnsalias.net>
+	id <S265909AbSKZBKW>; Mon, 25 Nov 2002 20:10:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:20399 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265898AbSKZBKV>;
+	Mon, 25 Nov 2002 20:10:21 -0500
+Date: Mon, 25 Nov 2002 19:10:45 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re:[BUG] sysfs on 2.5.48 unable to remove files while in use
+In-Reply-To: <200211260005.gAQ05Pn15843@linux.intel.com>
+Message-ID: <Pine.LNX.4.33.0211251857040.901-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.7; VAE: 6.16.0.0; VDF: 6.16.0.21; host: english-breakfast.cloud9.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Here is a small patch to support agp for the VIA KT400 northbridge.  It's
-against 2.4.20-rc3 and is based on Nicolas Mailhot's patch for 2.5 which
-was included in 2.5.49.  It adds the PCI id and registers the VIA generic
-setup routine for the chipset.  I've tested it successfully on a Gigabyte
-GA-7VAXP (KT400) with a Radeon 7500 using DRI and various GL apps/games.  
-If this has already been submitted, just ignore it -- but I hadn't seen a
-patch for 2.4 appear on lkml or the BitKeeper site yet.
+On Mon, 25 Nov 2002, Rusty Lynch wrote:
 
-Nicolas' patch for 2.5 on lkml:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103786946803970&w=2
+> Patrick,
+> 
+> Sysfs (with the new subsystem_* function calls
+> that your previous patch added) will crash the 
+> kernel if a subsystem is unregistered with content 
+> inside it.
+> 
+> I stumbled across this while messing with the
+> noisy driver that you fixed up for proper sysfs
+> usage.  To make sure that I wasn't seeing some
+> side effects from kprobes, I distilled the 
+> essence of the sysfs operations to a new module
+> that I have attached to this email.
+> 
+> With sysfs mounted to /sys/, loading this module
+> will cause /sys/test/ and /sys/test/ctl to be
+> created.  
+> 
+> Test entries can be created by:
+> echo "add 1 test1" > /sys/test/ctl
+> 
+> this will cause /sys/1/message to be created
+> where message contains "test1".
+> 
+> This test entry can be removed by:
+> echo "del 1" > /sys/test/ctl
+> 
+> All is fine if I create a few entries, and
+> then remove them all before rmmod'ing the 
+> driver, but if I create an entry and then
+> attempt to rmmod the modules then my system
+> freezes with a partial oops message (not 
+> enough ksymoops to do anything with).
 
-Bugzilla entry for 2.5 is here:
-http://bugme.osdl.org/show_bug.cgi?id=14
+Ah yes. This is a known problem, though I do apologize for the rudeness in
+the Oops. You're going to have to increment the module count whenever a 
+noisy probe is registered. There is no automatic correlation between the 
+subsystem refcount and the module refcount. Because that is true, there 
+are some races involved between adding a probe and the module being 
+unloaded. 
 
-Please apply.  Thanks.
-P.S. Please cc: me on any replies, I'm not subscribed to the list.
+I recently changed the device driver mechanism for handling this. Each
+driver has a semaphore that is locked when the driver is registered, and
+unlocked only when the refcount reaches 0.  driver_unregister() decrements
+the refcount, then waits to take the lock. If there are any users, rmmod
+will block until they go away. You can try an approach like that, though 
+it may not be what you want. You might just want to remove all the probes 
+when someone does rmmod..
 
-diff -uNr linux-2.4.20-rc3.orig/drivers/char/agp/agpgart_be.c linux-2.4.20-rc3/drivers/char/agp/agpgart_be.c
---- linux-2.4.20-rc3.orig/drivers/char/agp/agpgart_be.c	2002-11-25 17:53:36.000000000 -0500
-+++ linux-2.4.20-rc3/drivers/char/agp/agpgart_be.c	2002-11-25 17:46:42.000000000 -0500
-@@ -4714,6 +4714,12 @@
- 		"Via",
- 		"Apollo Pro KT266",
- 		via_generic_setup },
-+	{ PCI_DEVICE_ID_VIA_8377_0,
-+		PCI_VENDOR_ID_VIA,
-+		VIA_APOLLO_KT400,
-+		"Via",
-+		"Apollo Pro KT400",
-+		via_generic_setup },
- 	{ 0,
- 		PCI_VENDOR_ID_VIA,
- 		VIA_GENERIC,
-diff -uNr linux-2.4.20-rc3.orig/include/linux/agp_backend.h linux-2.4.20-rc3/include/linux/agp_backend.h
---- linux-2.4.20-rc3.orig/include/linux/agp_backend.h	2002-11-25 17:53:42.000000000 -0500
-+++ linux-2.4.20-rc3/include/linux/agp_backend.h	2002-11-25 17:44:14.000000000 -0500
-@@ -60,6 +60,7 @@
- 	VIA_APOLLO_PRO,
- 	VIA_APOLLO_KX133,
- 	VIA_APOLLO_KT133,
-+	VIA_APOLLO_KT400,
- 	SIS_GENERIC,
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
-diff -uNr linux-2.4.20-rc3.orig/include/linux/pci_ids.h linux-2.4.20-rc3/include/linux/pci_ids.h
---- linux-2.4.20-rc3.orig/include/linux/pci_ids.h	2002-11-25 17:53:42.000000000 -0500
-+++ linux-2.4.20-rc3/include/linux/pci_ids.h	2002-11-25 17:43:27.000000000 -0500
-@@ -986,6 +986,7 @@
- #define PCI_DEVICE_ID_VIA_8233C_0	0x3109
- #define PCI_DEVICE_ID_VIA_8361		0x3112
- #define PCI_DEVICE_ID_VIA_8233A		0x3147
-+#define PCI_DEVICE_ID_VIA_8377_0	0x3189
- #define PCI_DEVICE_ID_VIA_86C100A	0x6100
- #define PCI_DEVICE_ID_VIA_8231		0x8231
- #define PCI_DEVICE_ID_VIA_8231_4	0x8235
-
--- 
-Leif Delgass 
-http://www.retinalburn.net
-
+	-pat
 

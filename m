@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRBFUJ2>; Tue, 6 Feb 2001 15:09:28 -0500
+	id <S129111AbRBFUHu>; Tue, 6 Feb 2001 15:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129188AbRBFUJI>; Tue, 6 Feb 2001 15:09:08 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:32723 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S129184AbRBFUJH>; Tue, 6 Feb 2001 15:09:07 -0500
-Message-Id: <l03130304b6a60a1a84f4@[192.168.239.105]>
-In-Reply-To: <l03130303b6a6054060f8@[192.168.239.105]>
+	id <S129188AbRBFUHi>; Tue, 6 Feb 2001 15:07:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49681 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129111AbRBFUH1>;
+	Tue, 6 Feb 2001 15:07:27 -0500
+Date: Tue, 6 Feb 2001 21:07:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010206210704.E2975@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0102061437250.15204-100000@today.toronto.redhat.com> <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 6 Feb 2001 20:09:03 +0000
-To: linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: VIA silent disk corruption - patch
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>; from mingo@elte.hu on Tue, Feb 06, 2001 at 08:57:13PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->... after about 10 minutes waiting, while adding to this e-mail, the box is
->still hung.  Hmph...  *RESET*
+On Tue, Feb 06 2001, Ingo Molnar wrote:
+> > This small correction is the crux of the problem: if it blocks, it
+> > takes away from the ability of the process to continue doing useful
+> > work.  If it returns -EAGAIN, then that's okay, the io will be
+> > resubmitted later when other disk io has completed.  But, it should be
+> > possible to continue servicing network requests or user io while disk
+> > io is underway.
+> 
+> typical blocking point is waiting for page completion, not
+> __wait_request(). But, this is really not an issue, NR_REQUESTS can be
+> increased anytime. If NR_REQUESTS is large enough then think of it as the
+> 'absolute upper limit of doing IO', and think of the blocking as 'the
+> kernel pulling the brakes'.
 
-System log shows no "DMA timeout" messages after rebooting, and no errors
-from the inevitable FSCK.
+Not just __get_request_wait, but also the limit on max locked buffers
+in ll_rw_block. Serves the same purpose though, brake effect.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
+-- 
+Jens Axboe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUF3MeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUF3Mhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUF3MeO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 08:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUF3MeO
+	id S266561AbUF3Mhy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 08:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUF3Mhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 08:34:14 -0400
-Received: from [200.53.202.231] ([200.53.202.231]:34565 "HELO fr.srd.yahoo.com")
-	by vger.kernel.org with SMTP id S266648AbUF3MeG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 08:34:06 -0400
-From: "Gerardo Ramos" <ventas@suxel.com.mx>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Descubra el poder de Internet para ahorrar en llamadas de larga distancia
-Date: Wed, 30 Jun 2004 12:34:02 -0500
-MIME-Version: 1.0
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-ID: <091558972155223@suxel.com.mx>
-Reply-To: "Gerardo Ramos" <ventas@suxel.com.mx>
-Organization: Suxel S.A.
-X-Mailer: Internet Mail Service
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jun 2004 08:37:53 -0400
+Received: from gprs214-119.eurotel.cz ([160.218.214.119]:46214 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266561AbUF3Mhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 08:37:47 -0400
+Date: Wed, 30 Jun 2004 14:37:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] Provide console_suspend() and console_resume()
+Message-ID: <20040630123727.GA16409@elf.ucw.cz>
+References: <20040614151217.H14403@flint.arm.linux.org.uk> <20040614151307.I14403@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614151307.I14403@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Estimado Sr(a):
-La era de la telefonía por Internet ha llegado, ahora se puede usted comunicar a cualquier
-parte del mundo usando la Red de Redes, la WEB, el Internet y solo paga lo que corresponde
-a la renta de Internet y tarifas muy económicas al resto del mundo, es momento de aprovechar
-los grandes ahorros que esto produce, desde un 36%  hasta un 75% principalmente en larga
-distancia, pregunte por los distintos planes y tarifas.
+Hi!
 
-Si usted tiene un pequeño conmutador ó multilínea y quiere que se adapte para que sus llamadas
-de larga distancia se realicen por Internet VoIP, ( Voice Over Internet Protocol ) y ahorre 
-grandes cantidades en el pago de su recibo telefónico, es el momento de hablar con uno de
-nuestros ejecutivos de cuenta, quién le explicará como se puede lograr esto, utilizando lo barato
-que es el Internet.
+> Add console_suspend() and console_resume() methods so the serial drivers
+> can disable console output before suspending a port, and re-enable output
+> afterwards.
 
-Si usted tiene ó trabaja en algún lugar en que durante el día se tienen que comunicar con múltiples
-sucursales en el interior de la republica ó bien en el mundo en distintos países, para usted esta
-indicado el manejar sus llamadas de larga distancia vía Internet y aprovechar los grandes ahorros
-que esto le acarrea, llame ó envíe un e-mail explicando su caso y le haremos una oferta que le
-permitirá ahorrar en el gasto telefónico.
+Could it be called console_stop()/console_start()? suspend/resume
+sounds like power managment, and it is unrelated....
+								Pavel
 
-Llámenos a los teléfonos:
-91718306, 55413080 ó 01800 7025300 sin costo del interior de la República.
-ó envíe un e-mail a ventas@suxel.com.mx
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

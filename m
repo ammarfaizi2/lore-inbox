@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVAYQ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVAYQat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVAYQ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 11:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVAYQ11
+	id S262013AbVAYQat (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 11:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVAYQas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 11:27:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34796 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261982AbVAYQ1Y (ORCPT
+	Tue, 25 Jan 2005 11:30:48 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:57080 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S262004AbVAYQ3w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 11:27:24 -0500
-Date: Tue, 25 Jan 2005 08:27:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-cc: Bill Davidsen <davidsen@tmr.com>, Greg KH <greg@kroah.com>,
-       Jirka Kosina <jikos@jikos.cz>, Patrick Mochel <mochel@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
-In-Reply-To: <41F66F86.4000609@sun.com>
-Message-ID: <Pine.LNX.4.58.0501250817430.2342@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
- <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com> <41F64E87.8040501@tmr.com>
- <41F66F86.4000609@sun.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 11:29:52 -0500
+Date: Wed, 26 Jan 2005 01:29:43 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-rc2-mm1] mips: fixed
+ restore_sigcontext/restore_sigcontext32
+Message-Id: <20050126012943.7bcbbdcc.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch had fixed restore_sigcontext/restore_sigcontext32 about MIPS.
+This patch is only for 2.6.11-rc2-mm1.
 
+Yoichi
 
-Hmm.. I certainly like the "use completions" patch, since it makes it a
-lot more obvious what is going on (and it is what completions were
-designed for).
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-However, since it does change semantics very subtly: if you call
-"driver_unregister()" twice (which is wrong, but looking at the code it
-looks like it would just silently have worked), the old code would just
-ignore it. The new code will block on the second one.
+diff -urN -X dontdiff a-orig/arch/mips/kernel/signal.c a/arch/mips/kernel/signal.c
+--- a-orig/arch/mips/kernel/signal.c	Tue Jan 25 09:23:41 2005
++++ a/arch/mips/kernel/signal.c	Wed Jan 26 00:05:53 2005
+@@ -154,6 +154,7 @@
+ asmlinkage int restore_sigcontext(struct pt_regs *regs, struct sigcontext *sc)
+ {
+ 	int err = 0;
++	unsigned int used_math;
+ 
+ 	/* Always make any pending restarted system calls return -EINTR */
+ 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+@@ -178,7 +179,8 @@
+ 	restore_gp_reg(31);
+ #undef restore_gp_reg
+ 
+-	err |= __get_user(!!used_math(), &sc->sc_used_math);
++	err |= __get_user(used_math, &sc->sc_used_math);
++	conditional_used_math(used_math);
+ 
+ 	preempt_disable();
+ 
+diff -urN -X dontdiff a-orig/arch/mips/kernel/signal32.c a/arch/mips/kernel/signal32.c
+--- a-orig/arch/mips/kernel/signal32.c	Tue Jan 25 09:23:41 2005
++++ a/arch/mips/kernel/signal32.c	Wed Jan 26 00:17:33 2005
+@@ -337,6 +337,7 @@
+ 					   struct sigcontext32 *sc)
+ {
+ 	int err = 0;
++	__u32 used_math;
+ 
+ 	/* Always make any pending restarted system calls return -EINTR */
+ 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+@@ -361,7 +362,8 @@
+ 	restore_gp_reg(31);
+ #undef restore_gp_reg
+ 
+-	err |= __get_user(!!used_math(), &sc->sc_used_math);
++	err |= __get_user(used_math, &sc->sc_used_math);
++	conditional_used_math(used_math);
+ 
+ 	preempt_disable();
+ 
 
-Now, I don't mind the blocking (it's a bug to call it twice, and blocking
-should even give a nice callback when you do the "show tasks"  sysrq, so
-it's a good way to _find_ the bug), but together with Mike's comment about
-"Compile-tested only", I'd really like somebody (Greg?) to say "trying to
-doubly remove the driver is so illegal that we don't care, and btw, I
-tested it and it's all ok".
-
-		Linus

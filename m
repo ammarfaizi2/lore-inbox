@@ -1,83 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTENRRO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTENRRN
+	id S262623AbTENRSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTENRSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:17:13 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:16480 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262524AbTENRRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:17:09 -0400
-Date: Wed, 14 May 2003 10:31:15 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       fventuri@mediaone.net
-Subject: Re: 2.5.69-mm5: sb1000.c: undefined reference to `alloc_netdev'
-Message-Id: <20030514103115.465d18a8.akpm@digeo.com>
-In-Reply-To: <20030514144727.GG1346@fs.tum.de>
-References: <20030514012947.46b011ff.akpm@digeo.com>
-	<20030514144727.GG1346@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 17:29:52.0123 (UTC) FILETIME=[6D572CB0:01C31A3E]
+	Wed, 14 May 2003 13:18:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45141 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S262623AbTENRSX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:18:23 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
+References: <8570000.1052623548@[10.10.2.4]>
+	<20030510224421.3347ea78.akpm@digeo.com>
+	<8880000.1052624174@[10.10.2.4]>
+	<20030510231120.580243be.akpm@digeo.com>
+	<12530000.1052664451@[10.10.2.4]>
+	<m17k8x72ir.fsf_-_@frodo.biederman.org>
+	<19660000.1052710226@[10.10.2.4]> <m11xz45lqk.fsf@frodo.biederman.org>
+	<22080000.1052743429@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 May 2003 11:27:44 -0600
+In-Reply-To: <22080000.1052743429@[10.10.2.4]>
+Message-ID: <m1addp4ewf.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
->
-> drivers/built-in.o(.text+0x22e7b5): In function `sb1000_probe_one':
->  : undefined reference to `alloc_netdev'
->  ...
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-This should fix.  I'm not sure why it's overriding dev->flags.
+> Well, yes ... but I'm not trying to use kexec, just doing an init 0 ;-)
+> That worked fine before.
 
+Just a last thought with my updated patch init 0 will continue to work
+because it does not return machine_halt now.
 
- drivers/net/sb1000.c |   18 ++++++------------
- 1 files changed, 6 insertions(+), 12 deletions(-)
-
-diff -puN drivers/net/sb1000.c~sb1000-fix drivers/net/sb1000.c
---- 25/drivers/net/sb1000.c~sb1000-fix	2003-05-14 10:24:35.000000000 -0700
-+++ 25-akpm/drivers/net/sb1000.c	2003-05-14 10:30:36.000000000 -0700
-@@ -137,17 +137,6 @@ static const struct pnp_device_id sb1000
- };
- MODULE_DEVICE_TABLE(pnp, sb1000_pnp_ids);
- 
--static void
--sb1000_setup(struct net_device *dev)
--{
--	dev->type		= ARPHRD_ETHER;
--	dev->mtu		= 1500;
--	dev->addr_len		= ETH_ALEN;
--
--	/* New-style flags. */
--	dev->flags		= IFF_POINTOPOINT|IFF_NOARP;
--}
--
- static int
- sb1000_probe_one(struct pnp_dev *pdev, const struct pnp_device_id *id)
- {
-@@ -188,11 +177,16 @@ sb1000_probe_one(struct pnp_dev *pdev, c
- 			"S/N %#8.8x, IRQ %d.\n", dev->name, dev->base_addr,
- 			dev->mem_start, serial_number, dev->irq);
- 
--	dev = alloc_netdev(sizeof(struct sb1000_private), "cm%d", sb1000_setup);
-+	dev = alloc_etherdev(sizeof(struct sb1000_private));
- 	if (!dev) {
- 		error = -ENOMEM;
- 		goto out_release_regions;
- 	}
-+
-+	/* New-style flags. */
-+	/* This seems bogus */
-+	dev->flags = IFF_POINTOPOINT|IFF_NOARP;
-+
- 	SET_MODULE_OWNER(dev);
- 
- 	if (sb1000_debug > 0)
-
-_
+Unless there was some magic I am missing.
 

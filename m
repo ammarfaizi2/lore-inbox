@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284831AbRLEXgm>; Wed, 5 Dec 2001 18:36:42 -0500
+	id <S284849AbRLEXiJ>; Wed, 5 Dec 2001 18:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284837AbRLEXga>; Wed, 5 Dec 2001 18:36:30 -0500
-Received: from mail.direcpc.com ([198.77.116.30]:49378 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S284831AbRLEXgO>; Wed, 5 Dec 2001 18:36:14 -0500
+	id <S284837AbRLEXh7>; Wed, 5 Dec 2001 18:37:59 -0500
+Received: from weta.f00f.org ([203.167.249.89]:17604 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S284832AbRLEXhu>;
+	Wed, 5 Dec 2001 18:37:50 -0500
+Date: Thu, 6 Dec 2001 12:39:44 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Erik Elmore <lk@bigsexymo.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: NVIDIA kernel module
-From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
+Message-ID: <20011205233944.GA4700@weta.f00f.org>
 In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
-In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 05 Dec 2001 18:29:35 -0500
-Message-Id: <1007594981.2916.7.camel@eleusis>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112051719260.13083-100000@erik.bigsexymo.com>
+User-Agent: Mutt/1.3.24i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-12-05 at 18:22, Erik Elmore wrote:
-> Have I lost my mind?
-> 
-> I've always thought that NVIDIA's linux kernel support was incredibly 
-> closed source, but I swear I just saw a download link for the kernel 
-> module sources at http://www.nvidia.com/view.asp?PAGE=linux
-> 
-> was I mistaken or is this something new?
+On Wed, Dec 05, 2001 at 05:22:24PM -0600, Erik Elmore wrote:
 
-The former.
+    I've always thought that NVIDIA's linux kernel support was incredibly 
+    closed source, but I swear I just saw a download link for the kernel 
+    module sources at http://www.nvidia.com/view.asp?PAGE=linux
 
-Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
-
-> 
-> Erik
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It is a hybrid... .a + .c files
 
 
+  --cw

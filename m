@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262469AbSLJQRN>; Tue, 10 Dec 2002 11:17:13 -0500
+	id <S262859AbSLJQYA>; Tue, 10 Dec 2002 11:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbSLJQRM>; Tue, 10 Dec 2002 11:17:12 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:18148 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262469AbSLJQRL>; Tue, 10 Dec 2002 11:17:11 -0500
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0CCC1FFA@orsmsx108.jf.intel.com>
-From: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
-To: "'posixtest-announce@lists.sourceforge.net'" 
-	<posixtest-announce@lists.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] POSIX Test Suite 0.1.0 released
-Date: Tue, 10 Dec 2002 08:24:45 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S262875AbSLJQYA>; Tue, 10 Dec 2002 11:24:00 -0500
+Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:11968 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262859AbSLJQX6>; Tue, 10 Dec 2002 11:23:58 -0500
+Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@suse.de>
+Cc: Antonino Daplas <adaplas@pol.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021210172320.A4586@suse.de>
+References: <1039522886.1041.17.camel@localhost.localdomain>
+	<20021210131143.GA26361@suse.de>
+	<1039538881.2025.2.camel@localhost.localdomain>
+	<20021210140301.GC26361@suse.de>
+	<1039547210.1071.26.camel@localhost.localdomain> 
+	<20021210172320.A4586@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Dec 2002 17:06:17 +0000
+Message-Id: <1039539977.14251.40.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.1.0 of the Open POSIX Test Suite is now available at
-http://posixtest.sourceforge.net.  This early release contains only a small
-amount of the initial testing goals.  It contains conformance tests for
-POSIX Timers, tags TMR and CS (except THR CS).  The release notes that
-appear when downloading the project describe where to find information on
-compiling and running the test cases.
+On Tue, 2002-12-10 at 16:23, Dave Jones wrote:
+> That's really quite icky. Even putting an..
+> 
+> #ifdef CONFIG_FRAMEBUFFER_I810
+>     dev = pci_find_blah..
+>     agp_intel_init(dev);
+> #endif
+> 
+> before console_init() call in init/main.c seems cleaner than that imo,
+> (and this is still quite gross).
 
-The README page and the Open POSIX Test Suite website (above) give more
-information on the project goals and progress as well as information on how
-to contribute or contact us if you are interested.
-
-The Open POSIX Test Suite is an open source test suite with the goal of
-performing conformance, functional, and stress testing of the functions
-described in the IEEE Std 1003.1-2001 System Interfaces specification.
-Eventual testing of the full specification is desired; however, initial work
-is focusing on Timers, Message Queues, Threads, Semaphores, and Signals.
-
-Enjoy!
+Given how fragile the AGP code can be I would much rather we had the AGP
+continue to initialize late. If the AGP init function is something like
 
 
-- JF
+int agp_required(void)
+{
+	static int agp_inited = 0;
 
-**These views are not necessarily those of my employer.**
+	if(!agp_inited)
+	{
+		agp_inited = 1;
+		agp_do_real_init();
+	}
+}
+
+module_init(agp_required);
+
+
+Then the i810 fb driver can do
+
+	agp_required();
+
+and force the order change only if necessary.
+

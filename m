@@ -1,315 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUHCGf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUHCGnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUHCGf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 02:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUHCGfw
+	id S265093AbUHCGnt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 02:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUHCGnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 02:35:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:48048 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264915AbUHCGfJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 02:35:09 -0400
+	Tue, 3 Aug 2004 02:43:49 -0400
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:54175 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265093AbUHCGns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 02:43:48 -0400
+Message-ID: <410F3423.3020409@yahoo.com.au>
+Date: Tue, 03 Aug 2004 16:43:47 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org>
+In-Reply-To: <410E3CAF.6080305@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16655.12514.967643.114543@cargo.ozlabs.ibm.com>
-Date: Tue, 3 Aug 2004 16:29:54 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: sfr@canb.auug.org.au, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 pci_dn cleanups
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch just cleans up arch/ppc64/kernel/pci_dn.c a bit, including:
-	- remove it from the iSeries build completely
-	- small changes to Makefile
-	- remove the "post" parameter from traverse_pci_devices as
-	  noone used it
-	- make traverse_all_pci_devices static
-	- remove CONFIG_PPC_PSERIES tests as we no longer build for iSeries
-	- some reformatting (closer to "standard")
-	- remove some of pointer casts
+Con Kolivas wrote:
+> Andrew Morton wrote:
 
-This has been built (with default config) on pSeries and pmac and built and
-run on iSeries.
+> Anyone with feedback on this please cc me. This was developed separately 
+> from the -mm series which has heaps of other scheduler patches which 
+> were not trivial to merge with so there may be teething problems. Good 
+> reports dont hurt either ;)
+> 
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+I can't get onto the OSDL site now, but I seem to remember staircase
+having some performance problems on a few things. Hackbench and reaim
+from memory... are these fixed? was I dreaming?
 
-diff -urN linux-2.5/arch/ppc64/kernel/Makefile ppc64/arch/ppc64/kernel/Makefile
---- linux-2.5/arch/ppc64/kernel/Makefile	2004-07-30 00:25:12.000000000 +1000
-+++ ppc64/arch/ppc64/kernel/Makefile	2004-08-03 16:15:27.925987624 +1000
-@@ -15,14 +15,11 @@
- 
- obj-$(CONFIG_PPC_OF) +=	of_device.o
- 
--obj-$(CONFIG_PCI)	+= pci.o pci_dn.o pci_iommu.o
-+pci-obj-$(CONFIG_PPC_ISERIES)	+= iSeries_pci.o iSeries_pci_reset.o \
-+				     iSeries_IoMmTable.o
-+pci-obj-$(CONFIG_PPC_PSERIES)	+= pci_dn.o pci_dma_direct.o
- 
--ifdef CONFIG_PPC_ISERIES
--obj-$(CONFIG_PCI)	+= iSeries_pci.o iSeries_pci_reset.o \
--			     iSeries_IoMmTable.o 
--else
--obj-$(CONFIG_PCI)	+= pci_dma_direct.o
--endif
-+obj-$(CONFIG_PCI)	+= pci.o pci_iommu.o $(pci-obj-y)
- 
- obj-$(CONFIG_PPC_ISERIES) += iSeries_irq.o \
- 			     iSeries_VpdInfo.o XmPciLpEvent.o \
-diff -urN linux-2.5/arch/ppc64/kernel/eeh.c ppc64/arch/ppc64/kernel/eeh.c
---- linux-2.5/arch/ppc64/kernel/eeh.c	2004-07-26 05:20:35.000000000 +1000
-+++ ppc64/arch/ppc64/kernel/eeh.c	2004-08-03 16:13:58.845083688 +1000
-@@ -618,7 +618,7 @@
- 
- 		info.buid_lo = BUID_LO(buid);
- 		info.buid_hi = BUID_HI(buid);
--		traverse_pci_devices(phb, early_enable_eeh, NULL, &info);
-+		traverse_pci_devices(phb, early_enable_eeh, &info);
- 	}
- 
- 	if (eeh_subsystem_enabled) {
-diff -urN linux-2.5/arch/ppc64/kernel/pci.h ppc64/arch/ppc64/kernel/pci.h
---- linux-2.5/arch/ppc64/kernel/pci.h	2004-07-05 11:49:19.000000000 +1000
-+++ ppc64/arch/ppc64/kernel/pci.h	2004-08-03 16:13:58.852082624 +1000
-@@ -34,8 +34,8 @@
-  *******************************************************************/
- struct device_node;
- typedef void *(*traverse_func)(struct device_node *me, void *data);
--void *traverse_pci_devices(struct device_node *start, traverse_func pre, traverse_func post, void *data);
--void *traverse_all_pci_devices(traverse_func pre);
-+void *traverse_pci_devices(struct device_node *start, traverse_func pre,
-+		void *data);
- 
- void pci_devs_phb_init(void);
- void pci_fix_bus_sysdata(void);
-diff -urN linux-2.5/arch/ppc64/kernel/pci_dn.c ppc64/arch/ppc64/kernel/pci_dn.c
---- linux-2.5/arch/ppc64/kernel/pci_dn.c	2004-07-26 05:20:35.000000000 +1000
-+++ ppc64/arch/ppc64/kernel/pci_dn.c	2004-08-03 16:13:58.854082320 +1000
-@@ -19,8 +19,6 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-  */
--
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
- #include <linux/delay.h>
-@@ -40,20 +38,20 @@
- 
- #include "pci.h"
- 
--/* Traverse_func that inits the PCI fields of the device node.
-+/*
-+ * Traverse_func that inits the PCI fields of the device node.
-  * NOTE: this *must* be done before read/write config to the device.
-  */
--static void * __init
--update_dn_pci_info(struct device_node *dn, void *data)
-+static void * __init update_dn_pci_info(struct device_node *dn, void *data)
- {
--#ifdef CONFIG_PPC_PSERIES
--	struct pci_controller *phb = (struct pci_controller *)data;
-+	struct pci_controller *phb = data;
- 	u32 *regs;
- 	char *device_type = get_property(dn, "device_type", NULL);
- 	char *model;
- 
- 	dn->phb = phb;
--	if (device_type && strcmp(device_type, "pci") == 0 && get_property(dn, "class-code", NULL) == 0) {
-+	if (device_type && (strcmp(device_type, "pci") == 0) &&
-+			(get_property(dn, "class-code", NULL) == 0)) {
- 		/* special case for PHB's.  Sigh. */
- 		regs = (u32 *)get_property(dn, "bus-range", NULL);
- 		dn->busno = regs[0];
-@@ -72,57 +70,47 @@
- 			dn->devfn = (regs[0] >> 8) & 0xff;
- 		}
- 	}
--#endif
- 	return NULL;
- }
- 
--/******************************************************************
-+/*
-  * Traverse a device tree stopping each PCI device in the tree.
-  * This is done depth first.  As each node is processed, a "pre"
-- * function is called, the children are processed recursively, and
-- * then a "post" function is called.
-+ * function is called and the children are processed recursively.
-  *
-- * The "pre" and "post" funcs return a value.  If non-zero
-- * is returned from the "pre" func, the traversal stops and this
-- * value is returned.  The return value from "post" is not used.
-- * This return value is useful when using traverse as
-- * a method of finding a device.
-+ * The "pre" func returns a value.  If non-zero is returned from
-+ * the "pre" func, the traversal stops and this value is returned.
-+ * This return value is useful when using traverse as a method of
-+ * finding a device.
-  *
-- * NOTE: we do not run the funcs for devices that do not appear to
-+ * NOTE: we do not run the func for devices that do not appear to
-  * be PCI except for the start node which we assume (this is good
-  * because the start node is often a phb which may be missing PCI
-  * properties).
-  * We use the class-code as an indicator. If we run into
-  * one of these nodes we also assume its siblings are non-pci for
-  * performance.
-- *
-- ******************************************************************/
--void *traverse_pci_devices(struct device_node *start, traverse_func pre, traverse_func post, void *data)
-+ */
-+void *traverse_pci_devices(struct device_node *start, traverse_func pre,
-+		void *data)
- {
- 	struct device_node *dn, *nextdn;
- 	void *ret;
- 
--	if (pre && (ret = pre(start, data)) != NULL)
-+	if (pre && ((ret = pre(start, data)) != NULL))
- 		return ret;
- 	for (dn = start->child; dn; dn = nextdn) {
- 		nextdn = NULL;
--#ifdef CONFIG_PPC_PSERIES
- 		if (get_property(dn, "class-code", NULL)) {
--			if (pre && (ret = pre(dn, data)) != NULL)
-+			if (pre && ((ret = pre(dn, data)) != NULL))
- 				return ret;
--			if (dn->child) {
-+			if (dn->child)
- 				/* Depth first...do children */
- 				nextdn = dn->child;
--			} else if (dn->sibling) {
-+			else if (dn->sibling)
- 				/* ok, try next sibling instead. */
- 				nextdn = dn->sibling;
--			} else {
--				/* no more children or siblings...call "post" */
--				if (post)
--					post(dn, data);
--			}
- 		}
--#endif
- 		if (!nextdn) {
- 			/* Walk up to next valid sibling. */
- 			do {
-@@ -136,31 +124,35 @@
- 	return NULL;
- }
- 
--/* Same as traverse_pci_devices except this does it for all phbs.
-+/*
-+ * Same as traverse_pci_devices except this does it for all phbs.
-  */
--void *traverse_all_pci_devices(traverse_func pre)
-+static void *traverse_all_pci_devices(traverse_func pre)
- {
--	struct pci_controller* phb;
-+	struct pci_controller *phb;
- 	void *ret;
--	for (phb=hose_head;phb;phb=phb->next)
--		if ((ret = traverse_pci_devices((struct device_node *)phb->arch_data, pre, NULL, phb)) != NULL)
-+
-+	for (phb = hose_head; phb; phb = phb->next)
-+		if ((ret = traverse_pci_devices(phb->arch_data, pre, phb))
-+				!= NULL)
- 			return ret;
- 	return NULL;
- }
- 
- 
--/* Traversal func that looks for a <busno,devfcn> value.
-+/*
-+ * Traversal func that looks for a <busno,devfcn> value.
-  * If found, the device_node is returned (thus terminating the traversal).
-  */
--static void *
--is_devfn_node(struct device_node *dn, void *data)
-+static void *is_devfn_node(struct device_node *dn, void *data)
- {
- 	int busno = ((unsigned long)data >> 8) & 0xff;
- 	int devfn = ((unsigned long)data) & 0xff;
--	return (devfn == dn->devfn && busno == dn->busno) ? dn : NULL;
-+	return ((devfn == dn->devfn) && (busno == dn->busno)) ? dn : NULL;
- }
- 
--/* This is the "slow" path for looking up a device_node from a
-+/*
-+ * This is the "slow" path for looking up a device_node from a
-  * pci_dev.  It will hunt for the device under its parent's
-  * phb and then update sysdata for a future fastpath.
-  *
-@@ -174,14 +166,14 @@
-  */
- struct device_node *fetch_dev_dn(struct pci_dev *dev)
- {
--	struct device_node *orig_dn = (struct device_node *)dev->sysdata;
-+	struct device_node *orig_dn = dev->sysdata;
- 	struct pci_controller *phb = orig_dn->phb; /* assume same phb as orig_dn */
- 	struct device_node *phb_dn;
- 	struct device_node *dn;
- 	unsigned long searchval = (dev->bus->number << 8) | dev->devfn;
- 
--	phb_dn = (struct device_node *)(phb->arch_data);
--	dn = (struct device_node *)traverse_pci_devices(phb_dn, is_devfn_node, NULL, (void *)searchval);
-+	phb_dn = phb->arch_data;
-+	dn = traverse_pci_devices(phb_dn, is_devfn_node, (void *)searchval);
- 	if (dn) {
- 		dev->sysdata = dn;
- 		/* ToDo: call some device init hook here */
-@@ -191,25 +183,23 @@
- EXPORT_SYMBOL(fetch_dev_dn);
- 
- 
--/******************************************************************
-+/*
-  * Actually initialize the phbs.
-  * The buswalk on this phb has not happened yet.
-- ******************************************************************/
--void __init
--pci_devs_phb_init(void)
-+ */
-+void __init pci_devs_phb_init(void)
- {
- 	/* This must be done first so the device nodes have valid pci info! */
- 	traverse_all_pci_devices(update_dn_pci_info);
- }
- 
- 
--static void __init
--pci_fixup_bus_sysdata_list(struct list_head *bus_list)
-+static void __init pci_fixup_bus_sysdata_list(struct list_head *bus_list)
- {
- 	struct list_head *ln;
- 	struct pci_bus *bus;
- 
--	for (ln=bus_list->next; ln != bus_list; ln=ln->next) {
-+	for (ln = bus_list->next; ln != bus_list; ln = ln->next) {
- 		bus = pci_bus_b(ln);
- 		if (bus->self)
- 			bus->sysdata = bus->self->sysdata;
-@@ -217,7 +207,7 @@
- 	}
- }
- 
--/******************************************************************
-+/*
-  * Fixup the bus->sysdata ptrs to point to the bus' device_node.
-  * This is done late in pcibios_init().  We do this mostly for
-  * sanity, but pci_dma.c uses these at DMA time so they must be
-@@ -225,9 +215,8 @@
-  * To do this we recurse down the bus hierarchy.  Note that PHB's
-  * have bus->self == NULL, but fortunately bus->sysdata is already
-  * correct in this case.
-- ******************************************************************/
--void __init
--pci_fix_bus_sysdata(void)
-+ */
-+void __init pci_fix_bus_sysdata(void)
- {
- 	pci_fixup_bus_sysdata_list(&pci_root_buses);
- }

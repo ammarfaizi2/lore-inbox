@@ -1,75 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267039AbTAPGYE>; Thu, 16 Jan 2003 01:24:04 -0500
+	id <S267038AbTAPGVS>; Thu, 16 Jan 2003 01:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267041AbTAPGYD>; Thu, 16 Jan 2003 01:24:03 -0500
-Received: from h80ad2549.async.vt.edu ([128.173.37.73]:33921 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267039AbTAPGYC>; Thu, 16 Jan 2003 01:24:02 -0500
-Message-Id: <200301160632.h0G6Wqte002864@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: Dell C840, 2.5.58, NVidia - something is on serious crack...
-From: Valdis.Kletnieks@vt.edu
+	id <S267039AbTAPGVS>; Thu, 16 Jan 2003 01:21:18 -0500
+Received: from packet.digeo.com ([12.110.80.53]:56762 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267038AbTAPGVR>;
+	Thu, 16 Jan 2003 01:21:17 -0500
+Date: Wed, 15 Jan 2003 22:31:09 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: big ext3 sequential write improvement in 2.5.51-mm1 gone in
+ 2.5.53-mm1?
+Message-Id: <20030115223109.52a860fe.akpm@digeo.com>
+In-Reply-To: <20030116015023.GA5439@rushmore>
+References: <20030116015023.GA5439@rushmore>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-209237824P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Thu, 16 Jan 2003 01:32:52 -0500
+X-OriginalArrivalTime: 16 Jan 2003 06:30:06.0769 (UTC) FILETIME=[B5E30210:01C2BD28]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-209237824P
-Content-Type: text/plain; charset=us-ascii
+rwhron@earthlink.net wrote:
+>
+> On a quad xeon running tiobench...
+> The throughput and max latency for ext3 sequential writes
+> looks very good when threads >= 2 on 2.5.51-mm1.
+> 
+> Did 2.5.51-mm1 mount ext3 as ext2?  I have ext2 logs for
+> 2.5.51-mm1 and they look similar to the ext3 results.
+> The other 2.5 kernels from around that time look more
+> like 2.5.53-mm1.
+> 
 
-OK, so I get brave enough to try the NVidia drivers (no snickers please -
-they Just Work under 2.4.18, and do a better job of finding the monitor
-attached to my docking station than the 'nv' drivers do).
+Dunno.  There have been about 7,000 different versions of the I/O scheduler
+in that time and it seems a bit prone to butterfly effects.
 
-I get the 4191 drivers, apply the 2 patches from www.minion.de, get it
-insmod'ed, and fire up X.   Disks go chugga chugga for a bit, and then
-I'm left looking at a black screen.  No disk activity.  Wedged.  Screwed.
-So I decide to get something to drink from the refrigerator, and when I
-get back, there's a tiny blue icon in the upper left corner:
+Or maybe you accidentally ran the 2.5.51-mm1 tests on uniprocessor? 
+Multithreaded tiobench on SMP brings out the worst behaviour in the ext2 and
+ext3 block allocators.  Look:
 
- *******
-*       *
-* *   * * 
-*       *
-* *   * *
-*  ***  *
-*       *
- *******
+<start tiobench>
+<wait a while>
+<kill it all off>
 
-Say *WHAT*?  Where did that come from?  Wait a bit more. Nothing else.
-Power cycled (since nothing else is working), and try again.  System
-starts booting up fine, and goes to start up XFree86. Sure enough,
-same black screen, and about 2 minutes later, the icon pops up again.
+    quad:/mnt/sde5/tiobench> ls -ltr 
+    ...
+    -rw-------    1 akpm     akpm     860971008 Jan 15 22:02 _956_tiotest.0
+    -rw-------    1 akpm     akpm     840470528 Jan 15 22:03 _956_tiotest.1
 
-Any idea where *THAT* came from?
+OK, 800 megs.
 
-For what it's worth, the last 3 or so lines of the XFree86.log are:
+    quad:/mnt/sde5/tiobench> 0 bmap _956_tiotest.0|wc
+     199224  597671 6751187
 
-(**) NVIDIA(0): Use of AGP disabled per request
-(--) NVIDIA(0): Linear framebuffer at 0xE0000000
-(--) NVIDIA(0): MMIO registers at 0xFC000000
+wtf?  It's taking 200,000 separate chunks of disk.
 
-Nothing in the syslog, and it's possible there were further msgs that
-didn't get flushed to disk - I haven't checked if XFree86 fsync()s the log.
-The timestamp on the file matches when the screen went blank and things hung.
+    quad:/mnt/sde5/tiobench> expr 860971008 / 199224
+    4321
 
-/Valdis
+so the average chunk size is a little over 4k.
 
---==_Exmh_-209237824P
-Content-Type: application/pgp-signature
+    quad:/mnt/sde5/tiobench> 0 bmap _956_tiotest.0 | tail -50000 | head -10
+    149770-149770: 1845103-1845103 (1)
+    149771-149771: 1845105-1845105 (1)
+    149772-149772: 1845107-1845107 (1)
+    149773-149773: 1845109-1845109 (1)
+    149774-149774: 1845111-1845111 (1)
+    149775-149775: 1845113-1845113 (1)
+    149776-149776: 1845115-1845115 (1)
+    149777-149777: 1845117-1845117 (1)
+    149778-149778: 1845119-1845119 (1)
+    149779-149779: 1845121-1845121 (1)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+lovely.  These two files have perfectly intermingled blocks.  Writeback
+bandwdith goes from 20 megabytes per second to about 0.5.
 
-iD8DBQE+JlIUcC3lWbTT17ARApTaAJ9cIO52XYoICZWFrktNd+9gFIqpFACfV7GR
-hvuqGkFnm8dlB2MYhJqUzxo=
-=vjTe
------END PGP SIGNATURE-----
+It doesn't happen on uniprocessor because each tiobench instance gets to run
+for a timeslice, during which it is able to allocate a decent number of
+contiguous blocks.
 
---==_Exmh_-209237824P--
+ext2 has block preallocation and will intermingle in 32k units, not 4k units.
+So it's still crap, only not so smelly.
+
+Does it matter much in practice?   Sometimes, not often.
+
+It is crap? Yes.
+
+Do I have time to do anything about it?   Probably not.
+
+

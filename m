@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTIMDYI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 23:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTIMDYI
+	id S261869AbTIMDbx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 23:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTIMDbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 23:24:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22958 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262006AbTIMDYG
+	Fri, 12 Sep 2003 23:31:53 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:59884 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261869AbTIMDbv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 23:24:06 -0400
-Message-ID: <3F628DC7.3040308@pobox.com>
-Date: Fri, 12 Sep 2003 23:23:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 12 Sep 2003 23:31:51 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Iker" <iker@computer.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [lkml] RE: self piping and context switching
+Date: Fri, 12 Sep 2003 20:31:48 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMECLGIAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: libata update posted
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <03f501c379a2$b14b49b0$3203a8c0@duke>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just some minor updates.  The main one is that ATA software reset is now 
-considered reliable, so it is now the default. 
-Execute-Device-Diagnostic bus reset method remains in place and can be 
-easily re-enabled with a flag.
 
-libata has also moved (slightly) to a new home:
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/libata/
+> More specifically, I was wondering if the write to the pipe or
+> the call back
+> into poll involved anything that might prompt the scheduler to replace the
+> thread in this scenario.
 
-The latest libata patches for 2.4.x and 2.6.x were uploaded to this URL, 
-and future patches will appear in the same location.
+	Sure, it could, but there's no particular reason to expect it to. The one
+exception would be if another thread was already blocked waiting for that
+particular pipe. In this case, your sending data on the pipe would unblock
+that thread, which could trigger a pre-emption.
 
-Look for more updates this weekend, including bug fixes from Dell and 
-Red Hat, and better MMIO support.  And maybe a special surprise.  :)
+> > It's reasonable to expect that this will be the most common case and the
+> > one to optimize. It is unreasonable to fail if this doesn't
+> > happen, since
+> > it's not guaranteed to happen. Note that if by "without a
+> > context switch"
+> > you really mean without another thread getting a chance to run,
+> > then it is
+> > totally unreasonable.
 
-	Jeff
+> Are you referring to transitions to/from kernel space? If so, wouldn't the
+> write
+> on the pipe and the call to poll both result in transitions?
 
+	Yes, but there's no reason that transition should cause the kernel to want
+to change processes. The kernel generally tries to let processes complete
+their timeslice. An exception could certainly be if the write to the pipe
+causes a new thread to unblock and that that thread has a higher dynamic
+priority (which it well might, since it was waiting).
+
+	Personally, I don't think the kernel should ever pre-empt threads/processes
+with equivalent static priorities, but that's another whole argument. ;)
+
+	DS
 
 

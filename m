@@ -1,102 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSLZNpg>; Thu, 26 Dec 2002 08:45:36 -0500
+	id <S261686AbSLZOMw>; Thu, 26 Dec 2002 09:12:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261568AbSLZNpg>; Thu, 26 Dec 2002 08:45:36 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:22435 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261486AbSLZNpf>;
-	Thu, 26 Dec 2002 08:45:35 -0500
-Message-ID: <3E0B09E4.6010708@colorfullife.com>
-Date: Thu, 26 Dec 2002 14:53:40 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-CC: anton@samba.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5 fast poll on ppc64
-References: <200212261257.NAA02448@harpo.it.uu.se>
-In-Reply-To: <200212261257.NAA02448@harpo.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261724AbSLZOMw>; Thu, 26 Dec 2002 09:12:52 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:58125 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261686AbSLZOMv>; Thu, 26 Dec 2002 09:12:51 -0500
+Date: Thu, 26 Dec 2002 15:20:32 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: also frustrated with the framebuffer and your matrox-card in 2.5.53? hack/patch available!
+Message-ID: <20021226142032.GA7852@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+This is a patch to downgrade the framebuffer files in linux-2.5.53 back
+to 2.5.50, where the matrox-framebuffer worked perfectly.
 
->Anton Blanchard writes:
-> > I was unable to boot 2.5-BK on ppc64 and narrowed it down to the fast
-> > poll patch.  I found:
-> > 
-> > offsetof(struct poll_list, entries) == 12 but
-> > sizeof(struct poll_list) == 16
-> > 
-> > This means pp+1 did not match up with pp->entries. Im not sure what the
-> > alignment requirements are for a zero length struct (ie is this a
-> > compiler bug) but the following patch fixes the problem and also changes
-> > ->len to a long to ensure 8 byte alignment of ->entries on 64bit archs.
-> > 
-> > Anton
-> > 
-> > ===== fs/select.c 1.15 vs edited =====
-> > --- 1.15/fs/select.c	Sat Dec 21 20:42:41 2002
-> > +++ edited/fs/select.c	Thu Dec 26 17:31:16 2002
-> > @@ -362,7 +362,7 @@
-> >  
-> >  struct poll_list {
-> >  	struct poll_list *next;
-> > -	int len;
-> > +	long len;
-> >  	struct pollfd entries[0];
-> >  };
->
->To me (I'm a compiler writer) it looks like your compiler did NOT
->mess up. Assuming struct pollfd has 32-bit alignment, the compiler
->is doing the right thing by starting entries[] at offset 12.
->The 16-byte size for struct poll_list is because the 'next' field
->has 64-bit alignment, which forces the compiler to pad struct
->poll_lists's size to a multiple of 8 bytes, i.e. 16 bytes in this
->case. So the compiler is not broken.
->  
->
-I would agree, but there is a special restriction on offsetof() and 
-sizeof() of structures with flexible array members: section 6.7.2.1, 
-clause 16:
+It's rather annoying that in a feature-freeze period a change goes in
+that cripples the one framebuffer with the best speed and features -
+the matrox framebuffer. The author mentioned it could be weeks or months
+before he would be able to get his matrox framebuffer working with the
+new framework, since its simple API doesn't fit the possibilities of the
+matrox framebuffer. Read more about it on the fbdev-users or
+fbdev-developers mailinglist on sourceforge.
 
-First, the size of the structure shall be equal to the offset of the last element of an otherwise identical structure that replaces the flexible array member with an array of unspecified length.
+He advised people to stay at 2.5.50, or copy some files from
+drivers/video etc. from 2.5.50 into 2.5.53.
 
-The simplest test case I've found is
+That's what I did, some small changes were also necessary.
 
-struct a1 { int a; char b; short c[];};
-struct a2 { int a; char b; short c[1];};
+This patch has _no_ support. Don't tell me devfs stopped working, don't
+tell me multiple-head output doesn't work, don't ask me to update it to
+a newer kernel-version.
 
-    sizeof(struct a{1,2}) is 8.
-    offsetof(struct a{1,2}, c) is 6.
+All I know is:
 
---> sizeof(struct a1) != offsetof(struct a2, c)
+- it works here, on a smp X86 system with a G400 & preempt on.
+- switching to XFree and back works.
+- switching consoles works.
 
-> >  
-> > @@ -471,7 +471,7 @@
-> >  			walk->next = pp;
-> >  
-> >  		walk = pp;
-> > -		if (copy_from_user(pp+1, ufds + nfds-i, 
-> > +		if (copy_from_user(pp->entries, ufds + nfds-i, 
-> >  				sizeof(struct pollfd)*pp->len)) {
->
->But the old code which assumed pp+1 == pp->entries is so horribly
->broken I can't find words for it. s/pp+1/pp->entries/ is the correct fix.
->  
->
-I agree. Should we fix the kmalloc allocations, too?
+That's enough for me.
 
--	pp = kmalloc(sizeof(struct poll_list)+
-+	pp = kmalloc(offsetof(struct poll_list,entries)+
-			sizeof(struct pollfd)*
-			(i>POLLFD_PER_PAGE?POLLFD_PER_PAGE:i),
-				GFP_KERNEL);
+The patch is at
 
+http://www.xs4all.nl/~thunder7/matroxfb_2553.diff.bz2
 
---
-    Manfred
-
+Good luck,
+Jurriaan
+-- 
+When asked by an anthropologist what the Indians called America
+before the white men came, an Indian said simply "Ours."
+	Vine Deloria, Jr.
+GNU/Linux 2.5.50 SMP/ReiserFS 2x2752 bogomips load av: 1.85 2.21 1.38

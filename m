@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318816AbSHWO0Z>; Fri, 23 Aug 2002 10:26:25 -0400
+	id <S318815AbSHWOZZ>; Fri, 23 Aug 2002 10:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318818AbSHWO0Z>; Fri, 23 Aug 2002 10:26:25 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:24729 "EHLO nick")
-	by vger.kernel.org with ESMTP id <S318816AbSHWO0Y>;
-	Fri, 23 Aug 2002 10:26:24 -0400
-Date: Fri, 23 Aug 2002 15:30:22 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre4-ac1 modular IDE symbol problems
-Message-ID: <Pine.LNX.4.44.0208231528560.2524-100000@localhost.localdomain>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S318816AbSHWOZZ>; Fri, 23 Aug 2002 10:25:25 -0400
+Received: from pD9E2385F.dip.t-dialin.net ([217.226.56.95]:54168 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318815AbSHWOZY>; Fri, 23 Aug 2002 10:25:24 -0400
+Date: Fri, 23 Aug 2002 08:29:20 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre4-ac1 (this time regarding 2.5.31)
+In-Reply-To: <3D664167.44A188CC@eyal.emu.id.au>
+Message-ID: <Pine.LNX.4.44.0208230826180.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: mb
-X-uvscan-result: clean (17iFSM-0002OJ-00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hope the below is useful (I know not too many people build IDE as modules)
-(built using Red Hat (null))
+Hi,
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre4-ac1/kernel/drivers/ide/ide-disk.o
-depmod:         proc_ide_read_geometry
-depmod:         ide_remove_proc_entries
-depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre4-ac1/kernel/drivers/ide/ide-floppy.o
-depmod:         proc_ide_read_geometry
-depmod:         ide_remove_proc_entries
-depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre4-ac1/kernel/drivers/ide/ide-probe.o
-depmod:         do_ide_request
-depmod:         ide_add_generic_settings
-depmod:         create_proc_ide_interfaces
-depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre4-ac1/kernel/drivers/ide/ide-tape.o
-depmod:         ide_remove_proc_entries
-depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre4-ac1/kernel/drivers/ide/ide.o
-depmod:         ide_release_dma
-depmod:         ide_add_proc_entries
-depmod:         ide_scan_pcibus
-depmod:         proc_ide_read_capacity
-depmod:         proc_ide_create
-depmod:         ide_remove_proc_entries
-depmod:         destroy_proc_ide_drives
-depmod:         proc_ide_destroy
-depmod:         create_proc_ide_interfaces
+On Sat, 24 Aug 2002, Eyal Lebedinsky wrote:
+> linux/drivers/usb/brlvger.c compile error
+> 
+> You would think that gcc, having had the same problem for a while,
+> would have smarted up by now. And they say computers are our
+> future...
+
+Can't believe! In 2.5 we still use concatenation w/__FUNCTION__.
+
+#define dbgprint(args...) \
+    ({ printk(KERN_DEBUG "Voyager: " __FUNCTION__ ": " args); \
+       printk("\n"); })
+
+Shall we fix it?
+
+#define dbgprint(args...) \
+	printk(KERN_DEBUG "Voyager: %s: " args "\n", __FUNCTION__ );
+
+should cut it, but
+
+#define dbgprint(fmt, args...) \
+	printk(KERN_DEBUG "Voyager: %s: " fmt "\n", __FUNCTION__ , args);
+
+might be better.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,103 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbULPV4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbULPWEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbULPV4D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 16:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbULPV4D
+	id S262042AbULPWEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 17:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbULPWEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 16:56:03 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:21431 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262038AbULPVzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 16:55:51 -0500
-Date: Thu, 16 Dec 2004 13:55:45 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: dtor_core@ameritech.net
-Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org,
-       bitkeeper-users@bitmover.com
-Subject: Re: bkbits problem?
-Message-ID: <20041216215544.GB31805@one-eyed-alien.net>
-Mail-Followup-To: dtor_core@ameritech.net,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org,
-	bitkeeper-users@bitmover.com
-References: <20041216190159.GA31805@one-eyed-alien.net> <200412162116.57509.andrew@walrond.org> <d120d5000412161345420548f9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mojUlQ0s9EVzWg2t"
-Content-Disposition: inline
-In-Reply-To: <d120d5000412161345420548f9@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Thu, 16 Dec 2004 17:04:49 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:7100 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262042AbULPWEl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 17:04:41 -0500
+Subject: [patch] [RFC] move 'struct page' into its own header
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Thu, 16 Dec 2004 14:04:15 -0800
+Message-Id: <E1Cf3jM-00034h-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---mojUlQ0s9EVzWg2t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are currently 24 places in the tree where struct page is
+predeclared.  However, a good number of these places also have to
+do some kind of arithmetic on it, and end up using macros because
+static inlines wouldn't have the type fully definied at
+compile-time.
 
-On Thu, Dec 16, 2004 at 04:45:17PM -0500, Dmitry Torokhov wrote:
-> On Thu, 16 Dec 2004 21:16:57 +0000, Andrew Walrond <andrew@walrond.org> w=
-rote:
-> > On Thursday 16 Dec 2004 19:01, Matthew Dharm wrote:
-> > > Is anyone besides me having difficulty cloning a tree from
-> > > linux.bkbits.net/linux-2.5 or 2.6?
-> > >
-> > > I keep getting:
-> > >
-> > > [mdharm@g5 mdharm]$ bk clone bk://linux.bkbits.net/linux-2.5 linux-40=
-5-2.5
-> > > Clone bk://linux.bkbits.net/linux-2.5
-> > >    -> file://home/mdharm/linux-405-2.5
-> > > BAD gzip hdr
-> > > read: No such file or directory
-> > > 0 bytes uncompressed to 0, nanX expansion
-> > > sfio errored
-> > >
-> > > I can clone from linuxusb, so I don't _think_ it's a problem on my en=
-d...
-> > >
-> >=20
-> > I reported the same thing on Sunday to the bitkeeper-users ML (see belo=
-w)
-> > Interestingly, I can 'pull' to an existing linux-2.5 repo now, but clon=
-e is
-> > still busted.
->=20
-> Try using http for cloning - worked for me last time (bk clone
-> http://linux.....)
+But, in reality, struct page has very few dependencies on outside
+macros or functions, and doesn't really need to be a part of the
+header include mess which surrounds many of the VM headers.
 
-HTTP is running right now.  The speed leaves something to be desired, but
-at least I'm getting a copy of the tree...
+So, put 'struct page' into structpage.h, along with a nasty comment
+telling everyone to keep their grubby mitts out of the file.
 
-It's interesting that it only affects some trees and not others.
+Now, we can use static inlines for almost any 'struct page'
+operations with no problems, and get rid of many of the 
+predeclarations.
 
-For reference, I'm in the USA (California) running on ARCH=3Dppc .
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-Matt
+ apw2-dave/include/linux/mm.h         |   55 --------------------------
+ apw2-dave/include/linux/structpage.h |   73 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 74 insertions(+), 54 deletions(-)
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-I'll scuff my feet on the carpet and zap your nose hairs unless you=20
-TALK mister!! Who put you up to this?
-					-- Pitr
-User Friendly, 3/30/1998
-
---mojUlQ0s9EVzWg2t
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBwgRgIjReC7bSPZARApwsAJ9VJgFh5wpxIqeuUDvF6YN8fUSLpgCfUAT3
-AgM6vwcbSokUW6BIFLOMoVE=
-=/Qas
------END PGP SIGNATURE-----
-
---mojUlQ0s9EVzWg2t--
+diff -puN include/linux/mm.h~003-move-structpage include/linux/mm.h
+--- apw2/include/linux/mm.h~003-move-structpage	2004-12-16 14:02:11.000000000 -0800
++++ apw2-dave/include/linux/mm.h	2004-12-16 14:02:11.000000000 -0800
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/structpage.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -216,60 +217,6 @@ struct vm_operations_struct {
+ struct mmu_gather;
+ struct inode;
+ 
+-#ifdef ARCH_HAS_ATOMIC_UNSIGNED
+-typedef unsigned page_flags_t;
+-#else
+-typedef unsigned long page_flags_t;
+-#endif
+-
+-/*
+- * Each physical page in the system has a struct page associated with
+- * it to keep track of whatever it is we are using the page for at the
+- * moment. Note that we have no way to track which tasks are using
+- * a page.
+- */
+-struct page {
+-	page_flags_t flags;		/* Atomic flags, some possibly
+-					 * updated asynchronously */
+-	atomic_t _count;		/* Usage count, see below. */
+-	atomic_t _mapcount;		/* Count of ptes mapped in mms,
+-					 * to show when page is mapped
+-					 * & limit reverse map searches.
+-					 */
+-	unsigned long private;		/* Mapping-private opaque data:
+-					 * usually used for buffer_heads
+-					 * if PagePrivate set; used for
+-					 * swp_entry_t if PageSwapCache
+-					 * When page is free, this indicates
+-					 * order in the buddy system.
+-					 */
+-	struct address_space *mapping;	/* If low bit clear, points to
+-					 * inode address_space, or NULL.
+-					 * If page mapped as anonymous
+-					 * memory, low bit is set, and
+-					 * it points to anon_vma object:
+-					 * see PAGE_MAPPING_ANON below.
+-					 */
+-	pgoff_t index;			/* Our offset within mapping. */
+-	struct list_head lru;		/* Pageout list, eg. active_list
+-					 * protected by zone->lru_lock !
+-					 */
+-	/*
+-	 * On machines where all RAM is mapped into kernel address space,
+-	 * we can simply calculate the virtual address. On machines with
+-	 * highmem some memory is mapped into kernel virtual memory
+-	 * dynamically, so we need a place to store that address.
+-	 * Note that this field could be 16 bits on x86 ... ;)
+-	 *
+-	 * Architectures with slow multiplication can define
+-	 * WANT_PAGE_VIRTUAL in their architecture's Kconfig
+-	 */
+-#if defined(CONFIG_WANT_PAGE_VIRTUAL)
+-	void *virtual;			/* Kernel virtual address (NULL if
+-					   not kmapped, ie. highmem) */
+-#endif /* CONFIG_WANT_PAGE_VIRTUAL */
+-};
+-
+ /*
+  * FIXME: take this include out, include page-flags.h in
+  * files which need it (119 of them)
+diff -puN /dev/null include/linux/structpage.h
+--- /dev/null	2004-11-08 15:18:04.000000000 -0800
++++ apw2-dave/include/linux/structpage.h	2004-12-16 14:02:11.000000000 -0800
+@@ -0,0 +1,73 @@
++#ifndef _LINUX_STRUCTPAGE_H
++#define _LINUX_STRUCTPAGE_H
++
++/*
++ * ATTENTION!!!!
++ *
++ * Do NOT add any more include headers here, especially ones
++ * that have anything to do with other memory management
++ * structures.  It is safe to include this header almost
++ * anywhere, let's keep it that way. - Dave Hansen
++ */
++#include <linux/config.h>
++#include <linux/list.h>
++#include <linux/types.h>
++#include <asm/atomic.h>
++
++struct address_space;
++
++#ifdef ARCH_HAS_ATOMIC_UNSIGNED
++typedef unsigned page_flags_t;
++#else
++typedef unsigned long page_flags_t;
++#endif
++
++/*
++ * Each physical page in the system has a struct page associated with
++ * it to keep track of whatever it is we are using the page for at the
++ * moment. Note that we have no way to track which tasks are using
++ * a page.
++ */
++struct page {
++	page_flags_t flags;		/* Atomic flags, some possibly
++					 * updated asynchronously */
++	atomic_t _count;		/* Usage count, see below. */
++	atomic_t _mapcount;		/* Count of ptes mapped in mms,
++					 * to show when page is mapped
++					 * & limit reverse map searches.
++					 */
++	unsigned long private;		/* Mapping-private opaque data:
++					 * usually used for buffer_heads
++					 * if PagePrivate set; used for
++					 * swp_entry_t if PageSwapCache
++					 * When page is free, this indicates
++					 * order in the buddy system.
++					 */
++	struct address_space *mapping;	/* If low bit clear, points to
++					 * inode address_space, or NULL.
++					 * If page mapped as anonymous
++					 * memory, low bit is set, and
++					 * it points to anon_vma object:
++					 * see PAGE_MAPPING_ANON below.
++					 */
++	pgoff_t index;			/* Our offset within mapping. */
++	struct list_head lru;		/* Pageout list, eg. active_list
++					 * protected by zone->lru_lock !
++					 */
++	/*
++	 * On machines where all RAM is mapped into kernel address space,
++	 * we can simply calculate the virtual address. On machines with
++	 * highmem some memory is mapped into kernel virtual memory
++	 * dynamically, so we need a place to store that address.
++	 * Note that this field could be 16 bits on x86 ... ;)
++	 *
++	 * Architectures with slow multiplication can define
++	 * WANT_PAGE_VIRTUAL in their architecture's Kconfig
++	 */
++#ifdef CONFIG_WANT_PAGE_VIRTUAL
++	void *virtual;			/* Kernel virtual address (NULL if
++					   not kmapped, ie. highmem) */
++#endif /* CONFIG_WANT_PAGE_VIRTUAL */
++};
++
++#endif /* _LINUX_STRUCTPAGE_H */
+_

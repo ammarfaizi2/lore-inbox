@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291154AbSBLQOb>; Tue, 12 Feb 2002 11:14:31 -0500
+	id <S289764AbSBLQko>; Tue, 12 Feb 2002 11:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291151AbSBLQOV>; Tue, 12 Feb 2002 11:14:21 -0500
-Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:46619 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S291154AbSBLQOR>;
-	Tue, 12 Feb 2002 11:14:17 -0500
-Date: Wed, 13 Feb 2002 01:14:05 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: NyQuist <NyQuist@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nm256_audio.o
-Message-Id: <20020213011405.4f9f3c41.bruce@ask.ne.jp>
-In-Reply-To: <1013529735.9204.23.camel@stinky.pussy>
-In-Reply-To: <1013529735.9204.23.camel@stinky.pussy>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289663AbSBLQke>; Tue, 12 Feb 2002 11:40:34 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12551 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289102AbSBLQkY>; Tue, 12 Feb 2002 11:40:24 -0500
+Date: Tue, 12 Feb 2002 11:38:56 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <E16aQrh-0003lv-00@starship.berlin>
+Message-ID: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Feb 2002 16:02:15 +0000
-NyQuist <NyQuist@ntlworld.com> wrote:
+On Tue, 12 Feb 2002, Daniel Phillips wrote:
 
-> Hi
-> I've a problem with this module. For some reason it locks up my laptop
-> when modprobed. I'm running redhat's 2.4.7-10 on an i686 and i'm using
-> the neomagic 256 chipset which I believe is a graphics/sound combination
-> (with 4 meg or so of mem), the comp is a dell latitude ls.
-> The card does work, as it runs under the commercial oss drivers, thing
-> is because the machine locks tight running the kernel 256_audio, I can't
-> get any debug information, the machine has to be physically
-> unplugged/debatteried (lucky I run ext3 :) Not even a messages error. 
-> Anyone with any info? I'm gonna have a look and try to debug, but i'm no
-> kernel hacker.
+> On February 11, 2002 08:05 pm, Bill Davidsen wrote:
 
-A vague memory of when I used to use a neomagic-based laptop tells me that you
-might want to try giving lilo (or whatever bootmanager you're using) a
-parameter to limit your memory to 1MB less than your actual memory... although
-this is from way back in 2.2.[789] days, I think. (For lilo, that would mean
-typing mem=xxxM or adding append="mem=xxxM" to /etc/lilo.conf, where xxx is
-your total RAM minus 1.)
+> > Did I miss discussion of an option to put it somewhere other than as part
+> > of the kernel? Sorry, I missed that.
+> 
+> It's a trick question?  The config option would let you specify that no 
+> kernel config information at all would be stored with or in the kernel.  No 
+> cost, no memory footprint.  And I would get to have the extra warm n fuzzy 
+> usability I tend to go on at such lengths about.  So we're both happy, right? 
+> 
+> I'd even remain happy if the option were set *off* by default.
+
+No trick other than to read what I said in either of the previous posts...
+the question was not how to avoid having the useful feature, but how to
+put it somewhere to avoid increasing the kernel size. I suggested in the
+modules directory, either as a text file or as a module.
+
+Disabling the feature is not the same as making it work optimally.
+
+I like making it a module because it's obvious that modules_install is
+needed. I see zero added utility from having it part of the kernel or
+nothing, it's useful even to people booting from ROM, small /boot
+partitions, etc.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

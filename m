@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272545AbRIFT75>; Thu, 6 Sep 2001 15:59:57 -0400
+	id <S272547AbRIFUK6>; Thu, 6 Sep 2001 16:10:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272543AbRIFT7r>; Thu, 6 Sep 2001 15:59:47 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:47626 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S272537AbRIFT7i>; Thu, 6 Sep 2001 15:59:38 -0400
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-In-Reply-To: <E15f55T-0000Kc-00@the-village.bc.nu> "from Alan Cox at Sep 6, 2001
- 08:45:19 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 6 Sep 2001 15:59:58 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>, kuznet@ms2.inr.ac.ru,
-        Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S272546AbRIFUKr>; Thu, 6 Sep 2001 16:10:47 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13842 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272543AbRIFUKk>; Thu, 6 Sep 2001 16:10:40 -0400
+Subject: Re: Linux 2.4.9-ac6
+To: camiel_toronto@hotmail.com (Camiel Vanderhoeven)
+Date: Thu, 6 Sep 2001 21:14:40 +0100 (BST)
+Cc: puckwork@madz.net ('Thomas Foerster'), linux-kernel@vger.kernel.org
+In-Reply-To: <013601c13709$755c4860$0100a8c0@kiosks.hospitaladmission.com> from "Camiel Vanderhoeven" at Sep 06, 2001 03:23:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906195958.222DFBC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+Message-Id: <E15f5Xs-0000OO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> > Soldiers are marching down the street. The mother of one of those
-> > soldiers is ever so proud.  All the other guys are marching out of
-> > step.  Her son is the only one who does it right.
-> > 
-> > That's what it looks like for a person who writes Internet software
-> > that aims to work on a wide variety of platforms.
-> 
-> I think you have the metaphor wrong. The older API is a bit like the 
-> cavalry charging into battle at the start of world war one. It may have been
-> how everyone did it but they guys with the "newfangled, really not how it
-> should be done, definitely not cricket"  machine guns got the last laugh
+> And how about Linux Product Activation? Whenever you change you
+> hardware, you have to make a phonecall to Alan ("This is your Linux
+> Product Activation representative, how may I help you?"), read a
+> combination of 50 characters from the screen, and key in the 50
+> characters he reads back to you ;-)
 
-Keep your superiority complex out of my mailbox, thank you.
-
-	Wietse
+I'd prefer you verified it worked, and if it didnt mailed me a neat set
+of patches to support it properly 8)

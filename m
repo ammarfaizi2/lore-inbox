@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbUCNFX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 00:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbUCNFX0
+	id S263296AbUCNFZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 00:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbUCNFZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 00:23:26 -0500
-Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:19675 "EHLO
-	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263290AbUCNFXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 00:23:23 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	Sun, 14 Mar 2004 00:25:26 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:52730 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263296AbUCNFZM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 00:25:12 -0500
+Date: Sat, 13 Mar 2004 21:25:10 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: linux-kernel@vger.kernel.org, toshiba_acpi@memebeam.org, arjanv@redhat.com
+Subject: [PATCH] (2.6.x) toshiba_acpi needs copy_from_user (fixes oops)
+Message-ID: <20040314052510.GA2587@ip68-4-255-84.oc.oc.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16467.60450.471487.490560@wombat.chubb.wattle.id.au>
-Date: Sun, 14 Mar 2004 16:22:42 +1100
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@sgi.com>,
-       lse-tech@lists.sourceforge.net,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
-In-Reply-To: <20040314000506.GE655@holomorphy.com>
-References: <40528383.10305@sgi.com>
-	<20040313034840.GF4638@wotan.suse.de>
-	<20040313054910.GA655@holomorphy.com>
-	<20040313161010.GB15118@wotan.suse.de>
-	<20040314000506.GE655@holomorphy.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "William" == William Lee Irwin, <William> writes:
+On kernels with the 4G/4G patch (like some of the recent kernels in
+Fedora Core 2 development), writing stuff to the /proc/acpi/toshiba/*
+files causes an oops. As it turns out, this is because the driver is
+accessing userspace data without first doing copy_from_user(). IOW, this
+is a bug in toshiba_acpi, not a bug in the 4G/4G patch.
 
-William> At some point in the past, I wrote:
+Here's a patch to fix this bug. I've tested it on 2.6.4 + some patches
+from the FC kernels (including the 4G/4G patch) and it fixes my oopses.
+I have also tested it against vanilla 2.6.4 and I haven't encountered
+any regressions.
 
-William> On Sat, Mar 13, 2004 at 05:10:10PM +0100, Andi Kleen wrote:
->> Redesigning the low level TLB fault handling for this would not
->> count as "easily" in my book.
+If there are any problems with this patch, let me know.
 
-William> I make no estimate of ease of implementation of long mode
-William> VHPT support.  The point of the above is that the virtual
-William> placement constraint is an artifact of the implementation and
-William> not inherent in hardware.
+-Barry K. Nathan <barryn@pobox.com>
 
-Ther's a patch available to enable long-format VHPT at
-www.gelato.unsw.edu.au
 
-We're waiting for 2.7 to open before pushing it in. The long-format
-vpht is a prerequisite for other work we're doing on super-pagesand
-TLB sharing.
+diff -ruN linux-2.6.4/drivers/acpi/toshiba_acpi.c linux-2.6.4-bkn1/drivers/acpi/toshiba_acpi.c
+--- linux-2.6.4/drivers/acpi/toshiba_acpi.c	2004-03-12 21:31:59.000000000 -0800
++++ linux-2.6.4-bkn1/drivers/acpi/toshiba_acpi.c	2004-03-12 22:27:07.000000000 -0800
+@@ -41,6 +41,7 @@
+ #include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
++#include <asm/uaccess.h>
+ 
+ #include <acpi/acpi_drivers.h>
+ 
+@@ -269,10 +270,18 @@
+ }
+ 
+ static int
+-dispatch_write(struct file* file, const char* buffer, unsigned long count,
+-	ProcItem* item)
++dispatch_write(struct file* file, const char __user *buffer,
++	unsigned long count, ProcItem* item)
+ {
+-	return item->write_func(buffer, count);
++	char str[48] = {'\0'};
++
++	if (count > sizeof(str) - 1)
++		return count;
++	
++	if (copy_from_user(str, buffer, count))
++		return -EFAULT;
++
++	return item->write_func(str, count);
+ }
+ 
+ static char*
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbTENTc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbTENTc4
+	id S261179AbTENTcc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTENTcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:32:56 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:14210 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261192AbTENTcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:32:52 -0400
-Date: Wed, 14 May 2003 12:41:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: bunk@fs.tum.de, hch@infradead.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, fventuri@mediaone.net
-Subject: Re: 2.5.69-mm5: sb1000.c: undefined reference to `alloc_netdev'
-Message-Id: <20030514124106.5a13c199.akpm@digeo.com>
-In-Reply-To: <1052936763.2492.57.camel@dhcp22.swansea.linux.org.uk>
-References: <20030514012947.46b011ff.akpm@digeo.com>
-	<20030514144727.GG1346@fs.tum.de>
-	<20030514103115.465d18a8.akpm@digeo.com>
-	<1052936763.2492.57.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 May 2003 15:32:32 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:13748
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261179AbTENTcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:32:31 -0400
+Message-ID: <3EC29CB2.4030707@redhat.com>
+Date: Wed, 14 May 2003 12:44:50 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030513
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: Christopher Hoover <ch@murgatroid.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org> <20030514005213.A3325@heavens.murgatroid.com> <3EC296CE.9050704@redhat.com> <20030514193221.GA28385@suse.de>
+In-Reply-To: <20030514193221.GA28385@suse.de>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 19:45:35.0253 (UTC) FILETIME=[63063450:01C31A51]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> Its far from bogus. Its an rx only cable modem device. Your uplink is
-> modem and you dont want to arp on it
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Dave Jones wrote:
 
-diff -puN drivers/net/sb1000.c~sb1000-fix drivers/net/sb1000.c
---- 25/drivers/net/sb1000.c~sb1000-fix	Wed May 14 12:39:10 2003
-+++ 25-akpm/drivers/net/sb1000.c	Wed May 14 12:40:20 2003
-@@ -137,17 +137,6 @@ static const struct pnp_device_id sb1000
- };
- MODULE_DEVICE_TABLE(pnp, sb1000_pnp_ids);
- 
--static void
--sb1000_setup(struct net_device *dev)
--{
--	dev->type		= ARPHRD_ETHER;
--	dev->mtu		= 1500;
--	dev->addr_len		= ETH_ALEN;
--
--	/* New-style flags. */
--	dev->flags		= IFF_POINTOPOINT|IFF_NOARP;
--}
--
- static int
- sb1000_probe_one(struct pnp_dev *pdev, const struct pnp_device_id *id)
- {
-@@ -188,11 +177,18 @@ sb1000_probe_one(struct pnp_dev *pdev, c
- 			"S/N %#8.8x, IRQ %d.\n", dev->name, dev->base_addr,
- 			dev->mem_start, serial_number, dev->irq);
- 
--	dev = alloc_netdev(sizeof(struct sb1000_private), "cm%d", sb1000_setup);
-+	dev = alloc_etherdev(sizeof(struct sb1000_private));
- 	if (!dev) {
- 		error = -ENOMEM;
- 		goto out_release_regions;
- 	}
-+
-+	/*
-+	 * The SB1000 is an rx-only cable modem device.  The uplink is a modem
-+	 * and we do not want to arp on it.
-+	 */
-+	dev->flags = IFF_POINTOPOINT|IFF_NOARP;
-+
- 	SET_MODULE_OWNER(dev);
- 
- 	if (sb1000_debug > 0)
+> That seems to imply that the current glibc makes futexes mandatory,
+> which surely isn't the case or we'd not be able to run with 2.4 and earlier
+> kernels.
 
-_
+Current == current development.  LinuxThreads is not developed anymore
+and with nptl futexes are mandatory.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+wpyy2ijCOnn/RHQRAv88AJ4mZDNFyre2J6Pku7jkE2JSvV4aBgCgufYG
+70N4RNLFQzDNIk3id3UHJUk=
+=LqUF
+-----END PGP SIGNATURE-----
 

@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292923AbSB0Ud5>; Wed, 27 Feb 2002 15:33:57 -0500
+	id <S292868AbSB0UtY>; Wed, 27 Feb 2002 15:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292938AbSB0Ubd>; Wed, 27 Feb 2002 15:31:33 -0500
-Received: from web12305.mail.yahoo.com ([216.136.173.103]:48657 "HELO
-	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292941AbSB0UbI>; Wed, 27 Feb 2002 15:31:08 -0500
-Message-ID: <20020227203101.78001.qmail@web12305.mail.yahoo.com>
-Date: Wed, 27 Feb 2002 12:31:01 -0800 (PST)
-From: Raghu Angadi <raghuangadi@yahoo.com>
-Subject: Re: Fw: memory corruption in tcp bind hash buckets on SMP?
-To: kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, raghuangadi@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200202272012.XAA10411@ms2.inr.ac.ru>
+	id <S292942AbSB0UtE>; Wed, 27 Feb 2002 15:49:04 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:54026 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S292940AbSB0UsW>; Wed, 27 Feb 2002 15:48:22 -0500
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Date: Wed, 27 Feb 2002 21:49:51 +0100
+From: Andreas Roedl <flood@flood-net.de>
+In-Reply-To: <20020227111008.A13182@sonic.net>
+Message-Id: <20020227204649.92C08AA40@flood-net.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Organization: Flood-Net
+In-Reply-To: <20020227111008.A13182@sonic.net>
+Subject: Re: pcmcia problems with IDE & cardbus
+To: dhinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+X-AntiVirus: OK! AvMailGate Version 6.11.0.5
+	 at exciter has not found any known virus in this email.
+X-Mailer: KMail [version 1.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---- kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > inverted order of insertion into the lists in tw_hashdance() is probably
-> > cleaner fix than inverted order of removal.. 
-> 
-> Why are they not equivalent? Good question? :-)
+Am Mittwoch, 27. Februar 2002 20:10 schrieb dhinds:
+> Andreas Roedl wrote:
+> > Apart from your problem I finally found out that all dldwd_* stuff in
+> > 2.4.18 has been renamed to orinoco_*, so pcmcia-3.1.31 is not usable with
+> > 2.4.18...
+>
+> Err what?
 
-they are. with "if (!tb->tb) return;" instead of "if (!tb->pprev) return;".
-silly me was thinking of literal cut-n-paste invertion of the oder :->
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_proc_dev_init
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_setup
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_shutdown
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol 
+dldwd_proc_dev_cleanup
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_reset
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: unresolved symbol dldwd_interrupt
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: insmod 
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o failed
+/lib/modules/2.4.18/pcmcia/orinoco_cs.o: insmod orinoco_cs failed
 
-> Alexey
+?
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Greetings - Send FREE e-cards for every occasion!
-http://greetings.yahoo.com
+Andi
+
+-- 
+Web:   http://www.flood-net.de/
+Mail:  flood@flood-net.de
+Phone: +49-(0)-30-680577-44
+Linux opens doors, not windows!
+http://www.bundestux.de/   http://counter.li.org/

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUEYNi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUEYNmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUEYNi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 09:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYNi3
+	id S264762AbUEYNmy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 09:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUEYNmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 09:38:29 -0400
-Received: from zero.aec.at ([193.170.194.10]:45829 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264767AbUEYNiS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 09:38:18 -0400
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
-References: <1ZuS0-1b4-15@gated-at.bofh.it> <1ZE52-8sy-15@gated-at.bofh.it>
-	<1ZFaF-10N-13@gated-at.bofh.it> <1ZIrV-3xS-7@gated-at.bofh.it>
-	<1ZJHt-4At-33@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 25 May 2004 15:38:11 +0200
-In-Reply-To: <1ZJHt-4At-33@gated-at.bofh.it> (Marcelo Tosatti's message of
- "Tue, 25 May 2004 15:00:19 +0200")
-Message-ID: <m31xl839vg.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 25 May 2004 09:42:54 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:64749 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264762AbUEYNmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 09:42:52 -0400
+Date: Tue, 25 May 2004 09:11:39 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040525131139.GW1286@phunnypharm.org>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+I've got a question about this. A lot of times I get patches that are
+just one/two-liners and the explanation is somewhat self-explantory,
+etc. Say the patch comes to me from some patch collection maintainer,
+who got it from the original author.
 
->
-> major? the MMConfig support is minimal as I can see? 
->
->> > Marcelo, feel free to tell me otherwise if you do not want
->> > this in the 2.4 tree. 
->
-> Is this code necessary for PCI-Express devices/busses to work properly?
+So the original person never put a Signed-off-by, and neither did the
+person who sent me the patch, should I still add the eplicit
+Signed-off-by's to the patch, and add myself, before sending it to you?
 
-No, it is completely optional right now.
-
-Also we found that it sometimes triggers bugs that are not happening
-with old style config space accesses. 
-
--Andi
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

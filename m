@@ -1,82 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280593AbRKYAxl>; Sat, 24 Nov 2001 19:53:41 -0500
+	id <S280622AbRKYBUv>; Sat, 24 Nov 2001 20:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280620AbRKYAx3>; Sat, 24 Nov 2001 19:53:29 -0500
-Received: from vega.ipal.net ([206.97.148.120]:61110 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S280612AbRKYAxW>;
-	Sat, 24 Nov 2001 19:53:22 -0500
-Date: Sat, 24 Nov 2001 18:53:21 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
+	id <S280623AbRKYBUl>; Sat, 24 Nov 2001 20:20:41 -0500
+Received: from science.horizon.com ([192.35.100.1]:24885 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP
+	id <S280622AbRKYBU2>; Sat, 24 Nov 2001 20:20:28 -0500
+Date: 25 Nov 2001 01:20:22 -0000
+Message-ID: <20011125012022.6326.qmail@science.horizon.com>
+From: "dnu478nt5w@mailexpire.com"@horizon.com
 To: linux-kernel@vger.kernel.org
 Subject: Re: Journaling pointless with today's hard disks?
-Message-ID: <20011124185321.C4372@vega.ipal.net>
-In-Reply-To: <20011124174134.B4372@vega.ipal.net> <200111250024.AAA10086@mauve.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200111250024.AAA10086@mauve.demon.co.uk>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 12:24:28AM +0000, Ian Stirling wrote:
+Stephen Satchell wrote:
 
-| <snip>
-| > It could be that other drives have the capability to detect and write
-| > over sectors made bad by power off.  Or maybe they lock out the sector
-| > and map to a spare.  They might even have enough spin left to finish
-| > the sector correctly in more cases.
-| > 
-| > So I doubt the issue is present in other drives, unless the issue is
-| > not really as big of one as we might think and the problems with IBM
-| > drives are something else.
-| > 
-| > I do worry that the lighter the platters are, the faster they try to
-| > make the drives spin with smaller motors, and the quicker they slow
-| > down when power is lost.
-| 
-| Utterly unimportant.
-| Let's say for the sake of argument that the drives spins down to a stop
-| in 1 second.
-| Now, the datarate for this 40G IDE drive I've got in my box is about
-| 25 megabytes per second, or about 50K sectors per second.
-| Slowing down isn't a problem.
+> Most power supplies are not designed to hold up for more than 30-60 ms at 
+> full load upon removal of mains power.  Power-fail detect typically 
+> requires 12 ms (three-quarters cycle average at 60 Hz) or 15 ms 
+> (three-quarters cycle average at 50 Hz) to detect that mains power has 
+> failed, leaving your system a very short time to abort that long queue of 
+> disk write commands.  It's very possible that by the time the system wakes 
+> up to the fact that its electron feeding tube is empty it has already 
+> started a write operation that cannot be completed before power goes out of 
+> specification.  It's a race condition.
+>
+> If power goes out of specification before the drive completes a commanded
+> write, what do you expect the poor drive to do?
 
-If it takes 1 second to spin down to a stop, the it probably will
-have slowed to a point where serialization writing a sector cannot
-be kept in sync within 1 to 5 milliseconds.  Once they _start_
-slowing down, time is an extremely precious resource.  That data
-pattern has to be read back at full speed.
+I expect it to have enough capacitor power and rotational inertia that
+it can decide before it *starts* a given sector write whether it will
+be able, barring a disaster rather less likely than instantaneous loss
+of DC power, to complete it.
 
-| 
-| Somewhere I've got a databook, ca 85 I think, for a motor driver chip, 
-| to drive spindle motors on hard disks, with integrated 
-| diodes that rectify the power coming from the disk when the power fails,
-| to give a little grace.
-| 
-| If written by people with a clue, the drive does not need to do much
-| seeking to write the data from a write-cache to dics, just one seek 
-| to a journal track, and a write.
-| This needs maybe 3 revs to complete, at most.
+It doesn't need that long.  Take, as an example, a Really Old drive...
+an original 20 MB MFM drive.  3600 RPM, 17 sectors/track.
 
-By the time the seek completes, the speed is probably too slow to do a
-good write.  Options to deal with this include special handling for the
-emergency track to allow reading it back by intentionally slowing down
-the drive for that recovery.  Another option is flash disk.
+That's 60*17 = 1020 sectors per second passing under the head.  So the
+actual duration of a sector write is 1 ms.
 
-The apparent problem in the IBM DTLA is the write didn't have enough
-time to complete with the platter still spinning within spec.  That
-means the sector gets compressed at the end and the bit density is
-increased beyond readable levels (if it could go higher reliably, they
-would just record everything that way).  That and the end of the sector
-doesn't fall off into the gap between sectors where there is probably
-some low level stuff.  So on readback, some bits are in error due to
-the clocking rate rising due to the compression, and the trailing edge
-hits the previous sector occupant's un-erased end before the gap.
+In a more modern hard drive (IBM 40GV) will spin faster and have
+from 370 (inner tracks) to 792 (outer tracks) sectors per track.
+(http://www.storagereview.com/guide2000/ref/hdd/geom/tracksZBR.html)
 
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+Even at 5400 rpm, on the innermost track, that's 90*370 = 33300
+sectors/second passing under the head, or 30 *microseconds* per sector.
+
+
+I think it's reasonable to expect a drive to keep functioning for 30
+microseconds between when it notices the power is dropping and when it
+really can't continue.  Heck, even 1 ms isn't unreasonable.
+
+We exepct a drive to look at the power supply shortly before the write,
+and decide if it's "go for launch" or not.
+
+Given that modern drives already save enough power to unload the heads
+before the platter slows to the point that they'd touch down, this doesn't
+seem like a big problem.  (Of course, unloading the heads doesn't require
+that drive RPM, head position, or anything else be within spec.)
+
+
+What we'd *like* is for the drive to have enough power to be able to
+seek to a reserved location and dump out the entire write-behind cache
+before dying, but that possibly requires a full-bore seek (longer than
+the typical 9 ms "average" seek) plus head settle time (it's okay to
+start *reading* before you're sure the head is in place; the CRC will
+tell you if you didn't make it), plus writing 4000 sectors (5+ rotations,
+with head switching and extra settle time between, for a 2 MB buffer),
+but that's adding up to a good fraction of 100 ms, which *is* a bit long
+for power-loss operation.

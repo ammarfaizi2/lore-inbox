@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265413AbTFMP3T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 11:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265414AbTFMP3T
+	id S265416AbTFMPdL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 11:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265415AbTFMPdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 11:29:19 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:26633 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S265413AbTFMP3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 11:29:18 -0400
-Date: Sat, 14 Jun 2003 01:42:57 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Frank Cusack <fcusack@fcusack.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cryptoapi 2.5->2.4 backport
-In-Reply-To: <20030613035845.A27655@google.com>
-Message-ID: <Mutt.LNX.4.44.0306140139530.26147-100000@excalibur.intercode.com.au>
+	Fri, 13 Jun 2003 11:33:11 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:55432 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265416AbTFMPdF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 11:33:05 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 13 Jun 2003 08:44:59 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: David Schwartz <davids@webmaster.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] udev enhancements to use kernel event queue
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCEFJDKAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.55.0306130834590.4201@bigblue.dev.mcafeelabs.com>
+References: <MDEHLPKNGKAHNMBLJOLKCEFJDKAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jun 2003, Frank Cusack wrote:
+On Fri, 13 Jun 2003, David Schwartz wrote:
 
-> Any problem with just changing crypto/cipher.c:
-> 
->     enum km_type crypto_km_types[] = {
->             KM_USER0,
->             KM_USER1,
->             KM_SOFTIRQ0,
->             KM_SOFTIRQ1,
->     };
-> 
-> to
-> 
->     enum km_type crypto_km_types[] = {
->             KM_USER0,
->             KM_USER1,
->             KM_USER0,
->             KM_USER1,
->     };
-> 
-> ?
+> 	You could also do (in pseudo-code):
+>
+> top:
+>  ret <- v->counter
+>  inc ret
+>  LOCK incl v->counter
+>  cmp v->counter, ret
+>  jz end
+>  LOCK decl v->counter
+>  jmp top:
+> end:
+>  return ret
+>
+> 	This does not strictly guarantee in order return values, but that's
+> meaningless without a lock anyway.
 
-Yes, the crypto calls can run in user and softirq context.
+It is even worse since it can return same values. Suppose counter is 0 :
 
-Which backport is this?
+TASK0                   TASK1
+
+top:
+ret <- v->counter     ; ret = 0
+inc ret               ; ret -> 1
+LOCK incl v->counter  ; counter -> 1
+
+			top:
+			ret <- v->counter     ; ret = 1
+			inc ret               ; ret -> 2
+			LOCK incl v->counter  ; counter -> 2
+			cmp v->counter, ret   ; match !! got 2
+			jz end
+			...
+
+cmp v->counter, ret  ; ret == 1 , counter == 2 no-match
+jz end
+LOCK decl v->counter ; counter -> 1
+jmp top
+
+Then TASK0 starts again with no interruption and gets 2. You need
+instrucions that does atomic mod/cmp to do this kind of tricks.
 
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+
+- Davide
 

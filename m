@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262157AbSJIXqH>; Wed, 9 Oct 2002 19:46:07 -0400
+	id <S262349AbSJIXg4>; Wed, 9 Oct 2002 19:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbSJIXqH>; Wed, 9 Oct 2002 19:46:07 -0400
-Received: from mail019.syd.optusnet.com.au ([210.49.20.160]:36055 "EHLO
-	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S262157AbSJIXqG>; Wed, 9 Oct 2002 19:46:06 -0400
-Message-ID: <3DA4C07C.3040306@bigpond.com>
-Date: Thu, 10 Oct 2002 09:49:16 +1000
-From: Brendan J Simon <brendan.simon@bigpond.com>
-Reply-To: brendan.simon@bigpond.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262357AbSJIXg4>; Wed, 9 Oct 2002 19:36:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:22778 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262349AbSJIXgx>;
+	Wed, 9 Oct 2002 19:36:53 -0400
+Message-ID: <3DA4BECB.9C7D6119@mvista.com>
+Date: Wed, 09 Oct 2002 16:42:03 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
-References: <20021009191600.A1708@mars.ravnborg.org> <Pine.LNX.4.44.0210091033200.7355-100000@home.transmeta.com> <20021009195531.B1708@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+Linus Torvalds wrote:
+> 
+> On Wed, 9 Oct 2002, george anzinger wrote:
+> >
+> > This patch, in conjunction with the "core" high-res-timers
+> > patch implements high resolution timers on the i386
+> > platforms.
+> 
+> I really don't get the notion of partial ticks, and quite frankly, this
+> isn't going into my tree until some major distribution kicks me in the
+> head and explains to me why the hell we have partial ticks instead of just
+> making the ticks shorter.
+> 
+Well, the notion is to provide timers that have resolution
+down into the micro seconds.  Since this take a bit more
+overhead, we just set up an interrupt on an as needed
+basis.  This is why we define both a high res and a low res
+clock.  Timers on the low res clock will always use the 1/HZ
+tick to drive them and thus do not introduce any additional
+overhead.  If this is all that is needed the configure
+option can be left off and only these timers will be
+available.
 
->So I would suggest:
->
->Config.conf		<= Main entry in any directory
->sensible-name.conf	<= Any group of related files
->
->ls *.conf 	list all configuration files.
->ls rrunner*	list all files spcific for rrunner
->
+On the other hand, if a user requires better resolution,
+s/he just turns on the high-res option and incures the
+overhead only when it is used and then only at timer expire
+time.  Note that the only way to access a high-res timer is
+via the POSIX clocks and timers API.  They are not available
+to select or any other system call.
 
-I really like this.  It's just so intuative :)
+Making ticks shorter causes extra overhead ALL the time,
+even when it is not needed.  Higher resolution is not free
+in any case, but it is much closer to free with this patch
+than by increasing HZ (which, of course, can still be
+done).  Overhead wise and resolution wise, for timers, we
+would be better off with a 1/HZ tick and the "on demand"
+high-res interrupts this patch introduces.
 
-Brendan Simon.
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

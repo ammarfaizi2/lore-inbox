@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262387AbSJVJnO>; Tue, 22 Oct 2002 05:43:14 -0400
+	id <S262392AbSJVJoe>; Tue, 22 Oct 2002 05:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbSJVJnO>; Tue, 22 Oct 2002 05:43:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23980 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262387AbSJVJnN>;
-	Tue, 22 Oct 2002 05:43:13 -0400
-Date: Tue, 22 Oct 2002 11:49:11 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Suparna Bhattacharya <suparna@sparklet.in.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-Message-ID: <20021022094911.GE30597@suse.de>
-References: <200210211016.g9LAG5J21214@nakedeye.aparity.com> <20021021172112.C14993@sgi.com> <pan.2002.10.22.20.35.36.992053.2611@sparklet.in.ibm.com>
+	id <S262395AbSJVJoe>; Tue, 22 Oct 2002 05:44:34 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51383 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262392AbSJVJod>; Tue, 22 Oct 2002 05:44:33 -0400
+Subject: Re: running 2.4.2 kernel under 4MB Ram
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Kumar Lad <amolk@ishoni.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <1035312869.2209.30.camel@amol.in.ishoni.com>
+References: <1035312869.2209.30.camel@amol.in.ishoni.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 11:06:43 +0100
+Message-Id: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2002.10.22.20.35.36.992053.2611@sparklet.in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22 2002, Suparna Bhattacharya wrote:
-> On Mon, 21 Oct 2002 19:43:20 +0530, Christoph Hellwig wrote:
-> 
-> 
-> >> +
-> >> +	if ((dump_bio = kmalloc(sizeof(struct bio), GFP_KERNEL)) == NULL) { +
-> >> 	DUMP_PRINTF("Cannot allocate bio\n"); +		retval = -ENOMEM;
-> >> +		goto err2;
-> >> +	}
-> > 
-> > Shouldn't you use the generic bio allocator?
-> > 
-> 
-> Not sure that this should come from the bio mempool. Objects
-> allocated from the mem pool are expected to be released back to
-> the pool within a reasonable period (after i/o is done), which is
-> not quite the case here.
-> 
-> Dump preallocates the bio early when configured and holds on to 
-> it all through the time the system is up (avoids allocs at 
-> actual dump time). Doesn't seem like the right thing to hold
-> on to a bio mempool element that long.
+On Tue, 2002-10-22 at 19:54, Amol Kumar Lad wrote:
+> Hi,
+>  I want to run 2.4.2 kernel on my embedded system that has only 4 Mb
+> SDRAM . Is it possible ?? Is there any constraint for the minimum SDRAM
+> requirement for linux 2.4.2
 
-Definitely, one must not use the bio pool for long term allocations.
-
--- 
-Jens Axboe
+You want to run something a lot newer than 2.4.2. 2.4.19 will run on a
+4Mb box, and with Rik's rmap vm seems to be run better than 2.2. That
+will depend on the workload.
 

@@ -1,161 +1,410 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUIMOd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUIMOdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267571AbUIMOd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 10:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUIMObI
+	id S267454AbUIMOdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 10:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUIMOch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 10:31:08 -0400
-Received: from asplinux.ru ([195.133.213.194]:60686 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S266833AbUIMO1h (ORCPT
+	Mon, 13 Sep 2004 10:32:37 -0400
+Received: from zero.aec.at ([193.170.194.10]:49157 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267454AbUIMO2W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 10:27:37 -0400
-Message-ID: <4145B111.2050008@sw.ru>
-Date: Mon, 13 Sep 2004 18:39:13 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 13 Sep 2004 10:28:22 -0400
+To: akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] Move domain setup and add dual core support.
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 13 Sep 2004 16:28:16 +0200
+Message-ID: <m3vfeigs5b.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Roel van der Made <roel@telegraafnet.nl>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH]: Re: kernel 2.6.9-rc1-mm4 oops
-References: <20040912184804.GC19067@telegraafnet.nl> <4145550F.8030601@sw.ru> <20040913083100.GA16921@elte.hu> <41456536.6090801@sw.ru> <20040913092443.GA19437@elte.hu>
-In-Reply-To: <20040913092443.GA19437@elte.hu>
-Content-Type: multipart/mixed;
- boundary="------------030109000601040607040605"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030109000601040607040605
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Ingo Molnar wrote:
-> * Kirill Korotaev <dev@sw.ru> wrote:
->>>the BUG() is useful for all the code that uses next_thread() - you can
->>>only do a safe next_thread() iteration if you've locked ->sighand.
-> 
->>1. I don't see spin_lock() on p->sighand->siglock in do_task_stat() 
->>before calling next_thread(). And the check inside next_thread() permits 
->>only one of the locks to be taken:
->>
->>        if (!spin_is_locked(&p->sighand->siglock) &&
->>                                !rwlock_is_locked(&tasklist_lock))
->>
->>which is probably wrong, since tasklist_lock is always required!
-> 
-> It's not 'wrong' in terms of correctness it's simply too restrictive for
-> no reason. I agree that we should check for the tasklist lock only.
-that is what I wanted to say :)
-I removed check for siglock being locked and changed check for sighand 
-!= NULL to pid.nr check as we discussed below.
+I tried to readd the AMD dual core support that got dropped
+when arch/x86_64/kernel/domain.c was removed. It basically needs
+to check a magic flag and use a different initializer for 
+SMT siblings. 
 
->>2. I think the idea of checking sighand is quite obscure. Probably it
->>would be better to call pid_alive() for check at such places in proc,
->>isn't it?
-> yeah, it's just as good of a check.
-So I replaced the check in your patch with pid_alive() one, ok?
+It was a bit difficult to implement this in the old copy
+without copying the standard initializer. I didn't want to
+do that because it would have been too mainteance intensive.
 
->>But I would propose to reorganize these checks in next_thread() to
->>something like this:
->>
->>if (!rwlock_is_locked(&tasklist_lock) || p->pids[PIDTYPE_TGID].nr == 0)
->>	BUG();
->>
->>the last check ensures that we are still hashed and this check is more 
->>straithforward for understanding, agree?
-> yep - please send a new patch to Andrew.
-here it is, please review it as well.
+What this patch does is to move the standard SD_* initializers
+into a new include/linux/sched-domains.h header file. 
+This way the architecture can freely access the structure
+and base its decisions on the default. It also can actually
+see the structures, that's useful if you want to change it
+in a function, not a macro.
 
-There are 2 patches here:
+Then it adds a new SD_DUALCORE_INIT with some dual core 
+defaults. I didn't do any testing on those, it's more
+a starting point for future tuning. Currently it is a
+mix between the values for normal hosts and SMT siblings.
 
-diff-next_thread (for both linus and 2.6.9-rc1-mm4 trees)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This patch changes obscure BUG() checks in next_thread() with pid checks 
-meaning exactly the same (It checks for task being hashed).
+And it adds a new layer to SD_SMT_INIT to allow easy overwriting
+from asm/processor.h
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Patch is for 2.6.9rc1-bk19. It's much smaller than it looks,
+most of it is just moving code from sched.c to sched-domains.h
 
-diff-task_stat (for 2.6.9-rc1-mm4 tree)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This patch fixes BUG() happening in do_task_stat()->next_thread(), since 
-tsk->sighand can be NULL there. It adds check for pid_alive() in 
-do_task_stat() to prevent thread loop for already unhashed task.
+Signed-off-by: Andi Kleen <ak@muc.de>
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
-
-Kirill
-
---------------030109000601040607040605
-Content-Type: text/plain;
- name="diff-task_stat"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-task_stat"
-
---- ./include/linux/sched.h.nt	2004-09-13 18:00:12.000000000 +0400
-+++ ./include/linux/sched.h	2004-09-13 18:06:03.680828072 +0400
-@@ -699,6 +699,12 @@ extern struct task_struct *find_task_by_
- extern void set_special_pids(pid_t session, pid_t pgrp);
- extern void __set_special_pids(pid_t session, pid_t pgrp);
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2004-09-12 23:15:35.%N +0200
++++ linux/kernel/sched.c	2004-09-13 15:16:51.%N +0200
+@@ -43,6 +43,7 @@
+ #include <linux/kthread.h>
+ #include <linux/seq_file.h>
+ #include <linux/times.h>
++#include <linux/sched-domains.h>
+ #include <asm/tlb.h>
  
-+/* checks whether task is still hashed and can be accessed safely */
-+static inline int pid_alive(struct task_struct *p)
-+{
-+	return p->pids[PIDTYPE_PID].nr != 0;
-+}
-+
- /* per-UID process charging. */
- extern struct user_struct * alloc_uid(uid_t);
- static inline struct user_struct *get_uid(struct user_struct *u)
---- ./fs/proc/array.c.nt	2004-09-13 18:00:09.178720584 +0400
-+++ ./fs/proc/array.c	2004-09-13 18:00:51.861231856 +0400
-@@ -356,7 +356,7 @@ static int do_task_stat(struct task_stru
- 			stime = task->signal->stime;
- 		}
- 	}
--	if (whole) {
-+	if (whole && pid_alive(task)) {
- 		t = task;
- 		do {
- 			min_flt += t->min_flt;
---- ./fs/proc/base.c.nt	2004-09-13 18:00:09.181720128 +0400
-+++ ./fs/proc/base.c	2004-09-13 18:00:51.862231704 +0400
-@@ -793,11 +793,6 @@ static struct inode_operations proc_pid_
- 	.follow_link	= proc_pid_follow_link
- };
+ #include <asm/unistd.h>
+@@ -289,140 +290,6 @@
  
--static inline int pid_alive(struct task_struct *p)
--{
--	return p->pids[PIDTYPE_PID].nr != 0;
+ static DEFINE_PER_CPU(struct runqueue, runqueues);
+ 
+-/*
+- * sched-domains (multiprocessor balancing) declarations:
+- */
+-#ifdef CONFIG_SMP
+-#define SCHED_LOAD_SCALE	128UL	/* increase resolution of load */
+-
+-#define SD_BALANCE_NEWIDLE	1	/* Balance when about to become idle */
+-#define SD_BALANCE_EXEC		2	/* Balance on exec */
+-#define SD_WAKE_IDLE		4	/* Wake to idle CPU on task wakeup */
+-#define SD_WAKE_AFFINE		8	/* Wake task to waking CPU */
+-#define SD_WAKE_BALANCE		16	/* Perform balancing at task wakeup */
+-#define SD_SHARE_CPUPOWER	32	/* Domain members share cpu power */
+-
+-struct sched_group {
+-	struct sched_group *next;	/* Must be a circular list */
+-	cpumask_t cpumask;
+-
+-	/*
+-	 * CPU power of this group, SCHED_LOAD_SCALE being max power for a
+-	 * single CPU. This should be read only (except for setup). Although
+-	 * it will need to be written to at cpu hot(un)plug time, perhaps the
+-	 * cpucontrol semaphore will provide enough exclusion?
+-	 */
+-	unsigned long cpu_power;
+-};
+-
+-struct sched_domain {
+-	/* These fields must be setup */
+-	struct sched_domain *parent;	/* top domain must be null terminated */
+-	struct sched_group *groups;	/* the balancing groups of the domain */
+-	cpumask_t span;			/* span of all CPUs in this domain */
+-	unsigned long min_interval;	/* Minimum balance interval ms */
+-	unsigned long max_interval;	/* Maximum balance interval ms */
+-	unsigned int busy_factor;	/* less balancing by factor if busy */
+-	unsigned int imbalance_pct;	/* No balance until over watermark */
+-	unsigned long long cache_hot_time; /* Task considered cache hot (ns) */
+-	unsigned int cache_nice_tries;	/* Leave cache hot tasks for # tries */
+-	unsigned int per_cpu_gain;	/* CPU % gained by adding domain cpus */
+-	int flags;			/* See SD_* */
+-
+-	/* Runtime fields. */
+-	unsigned long last_balance;	/* init to jiffies. units in jiffies */
+-	unsigned int balance_interval;	/* initialise to 1. units in ms. */
+-	unsigned int nr_balance_failed; /* initialise to 0 */
+-
+-#ifdef CONFIG_SCHEDSTATS
+-	/* load_balance() stats */
+-	unsigned long lb_cnt[MAX_IDLE_TYPES];
+-	unsigned long lb_failed[MAX_IDLE_TYPES];
+-	unsigned long lb_imbalance[MAX_IDLE_TYPES];
+-	unsigned long lb_nobusyg[MAX_IDLE_TYPES];
+-	unsigned long lb_nobusyq[MAX_IDLE_TYPES];
+-
+-	/* sched_balance_exec() stats */
+-	unsigned long sbe_attempts;
+-	unsigned long sbe_pushed;
+-
+-	/* try_to_wake_up() stats */
+-	unsigned long ttwu_wake_affine;
+-	unsigned long ttwu_wake_balance;
+-#endif
+-};
+-
+-#ifndef ARCH_HAS_SCHED_TUNE
+-#ifdef CONFIG_SCHED_SMT
+-#define ARCH_HAS_SCHED_WAKE_IDLE
+-/* Common values for SMT siblings */
+-#define SD_SIBLING_INIT (struct sched_domain) {		\
+-	.span			= CPU_MASK_NONE,	\
+-	.parent			= NULL,			\
+-	.groups			= NULL,			\
+-	.min_interval		= 1,			\
+-	.max_interval		= 2,			\
+-	.busy_factor		= 8,			\
+-	.imbalance_pct		= 110,			\
+-	.cache_hot_time		= 0,			\
+-	.cache_nice_tries	= 0,			\
+-	.per_cpu_gain		= 25,			\
+-	.flags			= SD_BALANCE_NEWIDLE	\
+-				| SD_BALANCE_EXEC	\
+-				| SD_WAKE_AFFINE	\
+-				| SD_WAKE_IDLE		\
+-				| SD_SHARE_CPUPOWER,	\
+-	.last_balance		= jiffies,		\
+-	.balance_interval	= 1,			\
+-	.nr_balance_failed	= 0,			\
+-}
+-#endif
+-
+-/* Common values for CPUs */
+-#define SD_CPU_INIT (struct sched_domain) {		\
+-	.span			= CPU_MASK_NONE,	\
+-	.parent			= NULL,			\
+-	.groups			= NULL,			\
+-	.min_interval		= 1,			\
+-	.max_interval		= 4,			\
+-	.busy_factor		= 64,			\
+-	.imbalance_pct		= 125,			\
+-	.cache_hot_time		= (5*1000000/2),	\
+-	.cache_nice_tries	= 1,			\
+-	.per_cpu_gain		= 100,			\
+-	.flags			= SD_BALANCE_NEWIDLE	\
+-				| SD_BALANCE_EXEC	\
+-				| SD_WAKE_AFFINE	\
+-				| SD_WAKE_BALANCE,	\
+-	.last_balance		= jiffies,		\
+-	.balance_interval	= 1,			\
+-	.nr_balance_failed	= 0,			\
 -}
 -
- #define NUMBUF 10
+-/* Arch can override this macro in processor.h */
+-#if defined(CONFIG_NUMA) && !defined(SD_NODE_INIT)
+-#define SD_NODE_INIT (struct sched_domain) {		\
+-	.span			= CPU_MASK_NONE,	\
+-	.parent			= NULL,			\
+-	.groups			= NULL,			\
+-	.min_interval		= 8,			\
+-	.max_interval		= 32,			\
+-	.busy_factor		= 32,			\
+-	.imbalance_pct		= 125,			\
+-	.cache_hot_time		= (10*1000000),		\
+-	.cache_nice_tries	= 1,			\
+-	.per_cpu_gain		= 100,			\
+-	.flags			= SD_BALANCE_EXEC	\
+-				| SD_WAKE_BALANCE,	\
+-	.last_balance		= jiffies,		\
+-	.balance_interval	= 1,			\
+-	.nr_balance_failed	= 0,			\
+-}
+-#endif
+-#endif /* ARCH_HAS_SCHED_TUNE */
+-#endif
+-
+-
+ #define for_each_domain(cpu, domain) \
+ 	for (domain = cpu_rq(cpu)->sd; domain; domain = domain->parent)
  
- static int proc_readfd(struct file * filp, void * dirent, filldir_t filldir)
+@@ -4470,7 +4337,7 @@
+ 		p = sd;
+ 		sd = &per_cpu(cpu_domains, i);
+ 		group = cpu_to_cpu_group(i);
+-		*sd = SD_SIBLING_INIT;
++		*sd = REAL_SD_SIBLING_INIT;
+ 		sd->span = cpu_sibling_map[i];
+ 		cpus_and(sd->span, sd->span, cpu_default_map);
+ 		sd->parent = p;
+Index: linux/include/asm-x86_64/processor.h
+===================================================================
+--- linux.orig/include/asm-x86_64/processor.h	2004-09-13 11:07:22.%N +0200
++++ linux/include/asm-x86_64/processor.h	2004-09-13 15:16:55.%N +0200
+@@ -460,4 +460,10 @@
+ 
+ #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+ 
++/* AMD dual cores look like SMT. Correct for this */
++#define REAL_SD_SIBLING_INIT 				\
++	((boot_cpu_data.x86_vendor != X86_VENDOR_AMD || \
++	 boot_cpu_has(X86_FEATURE_HTVALID)) ? 		\
++	 SD_SIBLING_INIT : SD_DUALCORE_INIT)
++
+ #endif /* __ASM_X86_64_PROCESSOR_H */
+Index: linux/include/linux/sched-domains.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux/include/linux/sched-domains.h	2004-09-13 15:20:17.%N +0200
+@@ -0,0 +1,174 @@
++#ifndef _SCHED_DOMAINS_H
++#define _SCHED_DOMAINS_H 1
++
++#include <linux/config.h>
++#include <asm/processor.h> /* arch can overwrite some things here */
++
++struct sched_domain {
++	/* These fields must be setup */
++	struct sched_domain *parent;	/* top domain must be null terminated */
++	struct sched_group *groups;	/* the balancing groups of the domain */
++	cpumask_t span;			/* span of all CPUs in this domain */
++	unsigned long min_interval;	/* Minimum balance interval ms */
++	unsigned long max_interval;	/* Maximum balance interval ms */
++	unsigned int busy_factor;	/* less balancing by factor if busy */
++	unsigned int imbalance_pct;	/* No balance until over watermark */
++	unsigned long long cache_hot_time; /* Task considered cache hot (ns) */
++	unsigned int cache_nice_tries;	/* Leave cache hot tasks for # tries */
++	unsigned int per_cpu_gain;	/* CPU % gained by adding domain cpus */
++	int flags;			/* See SD_* */
++
++	/* Runtime fields. */
++	unsigned long last_balance;	/* init to jiffies. units in jiffies */
++	unsigned int balance_interval;	/* initialise to 1. units in ms. */
++	unsigned int nr_balance_failed; /* initialise to 0 */
++
++#ifdef CONFIG_SCHEDSTATS
++	/* load_balance() stats */
++	unsigned long lb_cnt[MAX_IDLE_TYPES];
++	unsigned long lb_failed[MAX_IDLE_TYPES];
++	unsigned long lb_imbalance[MAX_IDLE_TYPES];
++	unsigned long lb_nobusyg[MAX_IDLE_TYPES];
++	unsigned long lb_nobusyq[MAX_IDLE_TYPES];
++
++	/* sched_balance_exec() stats */
++	unsigned long sbe_attempts;
++	unsigned long sbe_pushed;
++
++	/* try_to_wake_up() stats */
++	unsigned long ttwu_wake_affine;
++	unsigned long ttwu_wake_balance;
++#endif
++};
++
++
++/*
++ * sched-domains (multiprocessor balancing) declarations:
++ */
++#ifdef CONFIG_SMP
++#define SCHED_LOAD_SCALE	128UL	/* increase resolution of load */
++
++#define SD_BALANCE_NEWIDLE	1	/* Balance when about to become idle */
++#define SD_BALANCE_EXEC		2	/* Balance on exec */
++#define SD_WAKE_IDLE		4	/* Wake to idle CPU on task wakeup */
++#define SD_WAKE_AFFINE		8	/* Wake task to waking CPU */
++#define SD_WAKE_BALANCE		16	/* Perform balancing at task wakeup */
++#define SD_SHARE_CPUPOWER	32	/* Domain members share cpu power */
++
++struct sched_group {
++	struct sched_group *next;	/* Must be a circular list */
++	cpumask_t cpumask;
++
++	/*
++	 * CPU power of this group, SCHED_LOAD_SCALE being max power for a
++	 * single CPU. This should be read only (except for setup). Although
++	 * it will need to be written to at cpu hot(un)plug time, perhaps the
++	 * cpucontrol semaphore will provide enough exclusion?
++	 */
++	unsigned long cpu_power;
++};
++
++#ifdef CONFIG_SCHED_SMT
++#define ARCH_HAS_SCHED_WAKE_IDLE
++/* Common values for SMT siblings */
++#define SD_SIBLING_INIT (struct sched_domain) {		\
++	.span			= CPU_MASK_NONE,	\
++	.parent			= NULL,			\
++	.groups			= NULL,			\
++	.min_interval		= 1,			\
++	.max_interval		= 2,			\
++	.busy_factor		= 8,			\
++	.imbalance_pct		= 110,			\
++	.cache_hot_time		= 0,			\
++	.cache_nice_tries	= 0,			\
++	.per_cpu_gain		= 25,			\
++	.flags			= SD_BALANCE_NEWIDLE	\
++				| SD_BALANCE_EXEC	\
++				| SD_WAKE_AFFINE	\
++				| SD_WAKE_IDLE		\
++				| SD_SHARE_CPUPOWER,	\
++	.last_balance		= jiffies,		\
++	.balance_interval	= 1,			\
++	.nr_balance_failed	= 0,			\
++}
++#endif
++
++/* 
++   Initialization for dual core CPUs. 
++
++   Values not very well tested yet. Currently they are a mix between
++   the SMT siblings and a normal SMP CPU. Assumes dual core has a very
++   fast interconnect, but no shared cache. The values are a bit less
++   than for SMP ensure different sockets are used before using other
++   cores. This tries to maximize performance, for power saving a
++   different strategy may be better.
++ */
++
++#define SD_DUALCORE_INIT (struct sched_domain) {	\
++	.span			= CPU_MASK_NONE,	\
++	.parent			= NULL,			\
++	.groups			= NULL,			\
++	.min_interval		= 4,			\
++	.max_interval		= 16,			\
++	.busy_factor		= 32,			\
++	.imbalance_pct		= 115,			\
++	.cache_hot_time		= 1000000,		\
++	.cache_nice_tries	= 0,			\
++	.per_cpu_gain		= 95,			\
++	.flags			= SD_BALANCE_NEWIDLE	\
++				| SD_BALANCE_EXEC	\
++				| SD_WAKE_AFFINE	\
++				| SD_WAKE_IDLE,		\
++	.last_balance		= jiffies,		\
++	.balance_interval	= 1,			\
++	.nr_balance_failed	= 0,			\
++}
++
++#ifndef REAL_SD_SIBLING_INIT
++#define REAL_SD_SIBLING_INIT SD_SIBLING_INIT
++#endif
++
++/* Common values for CPUs */
++#define SD_CPU_INIT (struct sched_domain) {		\
++	.span			= CPU_MASK_NONE,	\
++	.parent			= NULL,			\
++	.groups			= NULL,			\
++	.min_interval		= 1,			\
++	.max_interval		= 4,			\
++	.busy_factor		= 64,			\
++	.imbalance_pct		= 125,			\
++	.cache_hot_time		= (5*1000000/2),	\
++	.cache_nice_tries	= 1,			\
++	.per_cpu_gain		= 100,			\
++	.flags			= SD_BALANCE_NEWIDLE	\
++				| SD_BALANCE_EXEC	\
++				| SD_WAKE_AFFINE	\
++				| SD_WAKE_BALANCE,	\
++	.last_balance		= jiffies,		\
++	.balance_interval	= 1,			\
++	.nr_balance_failed	= 0,			\
++}
++#endif
++
++/* Arch can override this macro in processor.h */
++#if defined(CONFIG_NUMA) && !defined(SD_NODE_INIT)
++#define SD_NODE_INIT (struct sched_domain) {		\
++	.span			= CPU_MASK_NONE,	\
++	.parent			= NULL,			\
++	.groups			= NULL,			\
++	.min_interval		= 8,			\
++	.max_interval		= 32,			\
++	.busy_factor		= 32,			\
++	.imbalance_pct		= 125,			\
++	.cache_hot_time		= (10*1000000),		\
++	.cache_nice_tries	= 1,			\
++	.per_cpu_gain		= 100,			\
++	.flags			= SD_BALANCE_EXEC	\
++				| SD_WAKE_BALANCE,	\
++	.last_balance		= jiffies,		\
++	.balance_interval	= 1,			\
++	.nr_balance_failed	= 0,			\
++}
++#endif
++
++#endif
 
---------------030109000601040607040605
-Content-Type: text/plain;
- name="diff-next_thread"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-next_thread"
-
---- ./kernel/exit.c.nt	2004-09-13 18:00:12.727181136 +0400
-+++ ./kernel/exit.c	2004-09-13 18:00:51.864231400 +0400
-@@ -848,10 +848,7 @@ asmlinkage long sys_exit(int error_code)
- task_t fastcall *next_thread(const task_t *p)
- {
- #ifdef CONFIG_SMP
--	if (!p->sighand)
--		BUG();
--	if (!spin_is_locked(&p->sighand->siglock) &&
--				!rwlock_is_locked(&tasklist_lock))
-+	if (!rwlock_is_locked(&tasklist_lock) || p->pids[PIDTYPE_TGID].nr == 0)
- 		BUG();
- #endif
- 	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
-
---------------030109000601040607040605--
 

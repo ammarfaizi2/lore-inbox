@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272746AbTG3Ev7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 00:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272759AbTG3Ev7
+	id S272760AbTG3FLO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 01:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272762AbTG3FLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 00:51:59 -0400
-Received: from adsl-67-121-153-186.dsl.pltn13.pacbell.net ([67.121.153.186]:13736
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S272746AbTG3Ev6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 00:51:58 -0400
-Date: Tue, 29 Jul 2003 21:51:57 -0700
-To: Studying MTD <studying_mtd@yahoo.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.0-test1 : modules not working
-Message-ID: <20030730045157.GA5655@triplehelix.org>
-References: <20030730043717.41712.qmail@web20503.mail.yahoo.com>
+	Wed, 30 Jul 2003 01:11:14 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:49793 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S272760AbTG3FLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 01:11:11 -0400
+Message-Id: <5.1.0.14.2.20030730065834.00a76d88@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 30 Jul 2003 07:12:18 +0200
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.4 / 2.6 802.11g 54Mbs support ?
+Cc: jt@bougret.hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Content-Disposition: inline
-In-Reply-To: <20030730043717.41712.qmail@web20503.mail.yahoo.com>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: bVHWDyZEZeVdQmKVZLvuLwQBAzdKvTd5+ZqVhuTBDOFr5-7DKvxMZY
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I could not find anything regarding $SUBJECT.
+Next week I will be getting the Netgear WG602 (Access point),
+WG511 (PCMCIA  card) and WG311 (PCI card), all of which are
+54 Mbs 802.11g compliant.
+I will be able to test the PCI card on both 2.4 and 2.6.
+The PCMCIA card only under 2.4
+(My old (1999) via-based laptop doesn't like 2.6 but that's another
+story)
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 29, 2003 at 09:37:17PM -0700, Studying MTD wrote:
-> modprobe: QM_MODULES: Function not implemented
-> modprobe: QM_MODULES: Function not implemented
+Margit 
 
-Next time, please STFW, RTFM (in this case, post-halloween-2.5.txt on
-lwn.net), and you would already know that you need module-init-tools,
-available at rusty's page on kernel.org.
-
--Josh
-
---=20
-Using words to describe magic is like using a screwdriver to cut roast beef.
-		-- Tom Robbins
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/J07tT2bz5yevw+4RAphlAKCtebbqrb//rc98ZtkNa+vB9KGdKQCgw7ey
-6c8G9kp2OEBg4UolZPR9vUc=
-=SzyA
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--

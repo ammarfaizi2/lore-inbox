@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbTIRLWR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 07:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbTIRLWQ
+	id S261152AbTIRLN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 07:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbTIRLN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 07:22:16 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:6076 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261153AbTIRLWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 07:22:15 -0400
-X-Sender-Authentication: net64
-Date: Thu, 18 Sep 2003 13:22:12 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: marcelo.tosatti@cyclades.com.br, alan@lxorguk.ukuu.org.uk,
-       galibert@limsi.fr, neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org,
-       andrea@suse.de
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-Id: <20030918132212.4b639f6c.skraw@ithnet.com>
-In-Reply-To: <20030918071249.GT906@suse.de>
-References: <20030917191946.GQ906@suse.de>
-	<Pine.LNX.4.44.0309171629520.3994-100000@logos.cnet>
-	<20030918070845.GS906@suse.de>
-	<20030918071249.GT906@suse.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 07:13:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:41600 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261152AbTIRLN5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 07:13:57 -0400
+Date: Thu, 18 Sep 2003 07:15:13 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John R Moser <jmoser5@student.ccbc.cc.md.us>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Small security option
+In-Reply-To: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
+Message-ID: <Pine.LNX.4.53.0309180709420.2371@chaos>
+References: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Sep 2003 09:12:49 +0200
-Jens Axboe <axboe@suse.de> wrote:
+On Wed, 17 Sep 2003, John R Moser wrote:
 
-> On Thu, Sep 18 2003, Jens Axboe wrote:
-> > On Wed, Sep 17 2003, Marcelo Tosatti wrote:
-> > > 
-> > > 
-> > > On Wed, 17 Sep 2003, Jens Axboe wrote:
-> > > 
-> > > > On Wed, Sep 17 2003, Alan Cox wrote:
-> > > > > On Maw, 2003-09-16 at 20:58, Olivier Galibert wrote:
-> > > > > > On Tue, Sep 16, 2003 at 04:29:02PM +0100, Alan Cox wrote:
-> > > > > > > The kernel has no idea what you will do with given ram. It does
-> > > > > > > try to make some guesses but you are basically trying to paper
-> > > > > > > over hardware limits.
-> > > > > > 
-> > > > > > Is there a way to specifically turn that ram into a tmpfs though?
-> > > > > 
-> > > > > 
-> > > > > Something like z2ram copied and hacked a little to kmap the blocks it
-> > > > > wants would give you a block device you could use for swap or for
-> > > > > /tmp. Im not sure tmpfs would work here
-> > > > 
-> > > > Aditionally, you need GFP_DMA32 or similar. Would also alleviate the
-> > > > nasty pressure on ZONE_NORMAL which is often quite stressed.
-> > > 
-> > > IMO such GFP_DMA32 flag is a bit intrusive for 2.4, isnt it?
-> > 
-> > Not really, it's just an extra zone. Maybe I can dig such a patch up, I
-> > had one for 2.4.2-pre something...
-> 
-> This is the latest I had, for 2.4.5. Pretty simple and nonintrusive at
-> that time.
+> Why wasn't this done in the first place anyway?
+>
+> Some sysadmins like to disable the other boot devices and password-protect
+> the bios.  Good, but if the person can pass init=, you're screwed.
+>
+> Here's a small patch that does a very simple thing: Disables "init=" and
+> using /bin/sh for init. That'll stop people from rooting the box from grub.
+>
+> The file is attatched.
 
->From a design point of view I would pretty much agree with your idea. In fact
-there is a ram attribute (dma32) which currently is not reflected in the data
-structures in a selectable way. I can see no good reason for this lack.
+No. I can still boot your box, mount your root file-system, and
+change the root password, all without you even knowing it.
+If I have physical control of a computer, I own it. I can
+do anything I want with it. If you could really prevent
+somebody from "breaking in", then you can never sell it and
+you are screwed if the password file gets corrupt (you would have
+to throw everything away).
 
-Regards,
-Stephan
+This patch is not useful.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

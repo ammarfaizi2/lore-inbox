@@ -1,87 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUAOWtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUAOWtN
+	id S263595AbUAOWmW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbUAOWmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:49:13 -0500
-Received: from gprs214-60.eurotel.cz ([160.218.214.60]:36736 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262566AbUAOWtI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:49:08 -0500
-Date: Thu, 15 Jan 2004 23:48:51 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: Robert Love <rml@ximian.com>, Daniel Gryniewicz <dang@fprintf.net>,
-       Dave Jones <davej@redhat.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Laptops & CPU frequency
-Message-ID: <20040115224851.GD18488@elf.ucw.cz>
-References: <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <1073841200.1153.0.camel@localhost> <E1AfjdT-0008OH-00@chiark.greenend.org.uk> <1073843690.1153.12.camel@localhost> <20040114045945.GB23845@redhat.com> <1074107508.4549.10.camel@localhost> <1074107842.1153.959.camel@localhost> <20040115204257.GG467@openzaurus.ucw.cz> <200401152221.i0FMLdQr000218@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401152221.i0FMLdQr000218@81-2-122-30.bradfords.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 17:42:22 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:41859
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263595AbUAOWmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:42:15 -0500
+Date: Thu, 15 Jan 2004 17:40:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Chris McDermott <lcm@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch
+ UP installer kernels
+In-Reply-To: <200401151357.16807.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0401151719460.4208@montezuma.fsmlabs.com>
+References: <7F740D512C7C1046AB53446D3720017361883D@scsmsx402.sc.intel.com>
+ <Pine.LNX.4.58.0401141815090.15331@montezuma.fsmlabs.com>
+ <200401151357.16807.jamesclv@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 15 Jan 2004, James Cleverdon wrote:
 
-> > > > I have an athlon-xp laptop (HP pavilion ze4500) with powernow that
-> > > > definitely goes into low power mode when the plug is pulled.  The screen
-> > > > goes dark, and everything slows down.
-> > > 
-> > > Dave did not mean that the other power management schemes cannot do the
-> > > automatic reduction on loss of AC, just that there is no SMM/BIOS hacks
-> > > to do it automatically.
-> > 
-> > People are designing machines where battery can't provide
-> > enough ampers for cpu in high-power mode. If speedstep machines
-> > have same problem, SMM is actually right thing to do.
-> 
-> This reminds me of an idea I had years ago, but never really looked in
-> to very much, (it may well have been implemented somewhere
-> independently of my idea anyway).  Basically, it was for a multi-cpu
-> machine which, instead of running cpus in parallel, with all the
-> common scaling problems, ran each CPU in series for a very short
-> timeslice, effectively being a uni-processor machine, but moving the
-> state of the processor's registers between physical CPUs.  The theory
-> was that it would be possible to clock each CPU much higher for a
-> short period of time than it could be successfully clocked
-> continuously.  Physical CPUs with poor cooling could even be given a
-> shorter timeslice.
+> > In my opinion we should be breaking after we've exceeded the maximum
+> > external vectors we can install. This will of course mean less than
+> > the number of RTEs. James have you actually managed to use the devices
+> > connected to the high (over ~224) RTEs?
+>
+> No, I haven't exceeded the available vectors, but wli has on a large NUMA-Q
+> box.
 
-s390's actually do something like that. They have 16 (or so) physical
-processors, but if you only have licence for running 1 cpu, you use
-only one. OTOH if that cpu fails, it transfers state to next one and
-continues.
+Yes i believe the 8 node NUMA-Qs do this easily.
 
-Well, what you described could gain you some extra speed (relative to
-uniprocessor), but it would be prohibitely expensive.
+> The x440 and x445's problems are pre-reserving lots of bus numbers in the
+> BIOS, more than one per PCI slot.  They must be anticipating PCI cards with
+> bridge chips on them.
 
-Wait.
+For some odd reason i thought we had dynamic allocated MP busses.
 
-We have it today.
+> I believe that the reason for irq_vector being so large is to allow IRQ (and
+> eventually vector) sharing.  The array is to map from RTE to vector.
 
-Remember P4's? Those beasts have 90W but cooling designed only for 75W
-or so, and thermal diode that slows when they get too hot.
+What i'm trying to say is that the current code will behave badly when you
+actually do encounter a system with that many RTEs, the actual array
+being that large isn't a problem, the problem is what's going on in
+assign_irq_vector() and later on with set_intr_gate(). By that i mean;
 
-If someone has SMP-P4 with such broken cooling solution (not sure how
-common they are), ping-ponging task might actually get you extra
-speed.
+- The interrupt[] stub in entry.S is written with 256 irqs in mind so it
+wouldn't be able to pass higher irq numbers to do_IRQ in it's current
+state.
 
-Same goes for any SMP machine whose CPU fans failed and is therefore
-thermal-throttled. (But I'm not sure if thermal-throttling works at
-all at SMPs.)
+- "Wrapping" in assign_irq_vector means that you overrite previously
+assigned vector entries in the IDT with whatever interrupt[irq] you happen
+to be installing at the time. To avoid this you should not be allowing
+more than ~224 vectors to be handed out by assign_irq_vector(), with the
+patch and the current code, this is possible.
 
-[I have one notebook here that has failed cpu fan... Thermal
-throttling works more or less okay, but if you want your computation
-to go fast, you need to place it next to fan...]
-								Pavel
+Lastly i think we should avoid sharing vectors, going the IA64 route and
+setting up irq handling domains of sorts would allow for easier scaling
+both up and down.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thanks,
+	Zwane

@@ -1,96 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318266AbSHZUDm>; Mon, 26 Aug 2002 16:03:42 -0400
+	id <S317355AbSHZUAW>; Mon, 26 Aug 2002 16:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318230AbSHZUCQ>; Mon, 26 Aug 2002 16:02:16 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:10245
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318242AbSHZUBr>; Mon, 26 Aug 2002 16:01:47 -0400
-Subject: [PATCH] make raid5 checksums preempt-safe
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Aug 2002 16:06:03 -0400
-Message-Id: <1030392363.905.418.camel@phantasy>
-Mime-Version: 1.0
+	id <S318225AbSHZUAW>; Mon, 26 Aug 2002 16:00:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:36480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317355AbSHZUAV>; Mon, 26 Aug 2002 16:00:21 -0400
+Date: Mon, 26 Aug 2002 16:05:39 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: george anzinger <george@mvista.com>
+cc: Aleksandar Kacanski <kacanski@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Memory leak
+In-Reply-To: <3D6A8536.83B30C18@mvista.com>
+Message-ID: <Pine.LNX.3.95.1020826155614.6481A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, 26 Aug 2002, george anzinger wrote:
 
-The raid5 xor checksums use MMX/SSE state and are not preempt-safe.
+> "Richard B. Johnson" wrote:
+> > 
+> > On Mon, 26 Aug 2002, Aleksandar Kacanski wrote:
+> > 
+> > > Hello,
+> > > I am running 2.4.18-3 version of the kernel on smp dual
+> > > processor and 1GB of RAM. My memory usage is increasing and
+> > > I can't find what exactly is eating memory. Top and proc
+> > > are reporting increases, but I would like to know of a
+> > > better way of tracing usage of memory and possible leak in
+> > > application(s).
+> > >
+> > > Please reply to kacanski@yahoo.com
+> > > thanks                Sasha
+> > >
+> > >
+> > 
+> > Applications that use malloc() and friends, get more memory from
+> > the kernel by resetting the break address. It's called "morecore()".
+> > You can put a procedure, perhaps off SIGALRM, that periodically
+> > checks the break address and writes it to a log. Applications
+> > that end up with an ever-increasing break address have memory
+> > leaks. Note that the break address is almost never set back.
+> > This is not an error; malloc() assumes that if you used a lot
+> > of memory once, you'll probably use it again. Check out sbrk()
+> > and brk() in the man pages.
+> 
+> But this all comes back when the application ends.  You
+> should be able to see the memory reappear when the app
+> terminates.
+> 
 
-Attached patch disables preemption in FPU_SAVE and XMMS_SAVE and
-restores it in FPU_RESTORE and XMMS_RESTORE - preventing preemption
-while in fp mode.
+Not by looking at /proc/meminfo. The fact that Linux redistributes
+buffers, etc., during normal operation has often been misconceived
+as a memory leak. Linux will try to use all available memory. This
+is because unused memory is wasted memory. When Linux first starts
+up, there is little to do, and very little history, so it hasn't
+gotten a chance to use much memory. If you run a few apps, compile
+the kernel, etc., you get to use all the memory. Then when the
+system is quiescent, often persons look at /proc/meminfo, note that
+a lot of memory is being used, and declare that there must be some
+kind of memory leak.
 
-Please, apply.
+There just might be some kind of memory leak, but, you can't tell
+it from looking at /proc/meminfo. You would need to instrument each
+procedure that allocates memory and verify that all execution paths,
+including exceptions, result in that memory being freed. This would
+be a good project for one of the college students that is looking
+to get his/her hands dirty. It's a lot more useful than 'inventing'
+some new file-system that never gets used, etc.
 
-	Robert Love
-
-diff -urN linux-2.5.31/include/asm-i386/xor.h linux/include/asm-i386/xor.h
---- linux-2.5.31/include/asm-i386/xor.h	Sat Aug 10 21:41:20 2002
-+++ linux/include/asm-i386/xor.h	Sat Aug 24 20:14:43 2002
-@@ -20,6 +20,7 @@
- 
- #define FPU_SAVE							\
-   do {									\
-+	preempt_disable();						\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		__asm__ __volatile__ (" clts;\n");			\
- 	__asm__ __volatile__ ("fsave %0; fwait": "=m"(fpu_save[0]));	\
-@@ -30,6 +31,7 @@
- 	__asm__ __volatile__ ("frstor %0": : "m"(fpu_save[0]));		\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		stts();							\
-+	preempt_enable();						\
-   } while (0)
- 
- #define LD(x,y)		"       movq   8*("#x")(%1), %%mm"#y"   ;\n"
-@@ -543,6 +545,7 @@
-  */
- 
- #define XMMS_SAVE				\
-+	preempt_disable();			\
- 	__asm__ __volatile__ ( 			\
- 		"movl %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
-@@ -564,7 +567,8 @@
- 		"movl 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory")			\
-+	preempt_enable();
- 
- #define ALIGN16 __attribute__((aligned(16)))
- 
-diff -urN linux-2.5.31/include/asm-x86_64/xor.h linux/include/asm-x86_64/xor.h
---- linux-2.5.31/include/asm-x86_64/xor.h	Sat Aug 10 21:41:23 2002
-+++ linux/include/asm-x86_64/xor.h	Sat Aug 24 20:05:41 2002
-@@ -38,7 +38,8 @@
- /* Doesn't use gcc to save the XMM registers, because there is no easy way to 
-    tell it to do a clts before the register saving. */
- #define XMMS_SAVE				\
--	asm volatile ( 			\
-+	preempt_disable();			\
-+	asm volatile (				\
- 		"movq %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
- 		"movups %%xmm0,(%1)	;\n\t"	\
-@@ -59,7 +60,8 @@
- 		"movq 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory")			\
-+	preempt_enable();
- 
- #define OFFS(x)		"16*("#x")"
- #define PF_OFFS(x)	"256+16*("#x")"
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

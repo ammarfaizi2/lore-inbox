@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261362AbTC0UE4>; Thu, 27 Mar 2003 15:04:56 -0500
+	id <S261366AbTC0UD2>; Thu, 27 Mar 2003 15:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261381AbTC0UE4>; Thu, 27 Mar 2003 15:04:56 -0500
-Received: from [65.39.167.210] ([65.39.167.210]:46859 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S261362AbTC0UEy>;
-	Thu, 27 Mar 2003 15:04:54 -0500
-Date: Thu, 27 Mar 2003 15:16:08 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
-In-Reply-To: <1048791879.3228.23.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0303271515370.17804-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261380AbTC0UD2>; Thu, 27 Mar 2003 15:03:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39851 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261366AbTC0UD1>;
+	Thu, 27 Mar 2003 15:03:27 -0500
+Date: Thu, 27 Mar 2003 20:14:39 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PROPOSAL] MODULE_VERSION macro
+Message-ID: <20030327201439.GA1586@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not simply drop the lot of em off the list?
 
-On 27 Mar 2003, Alan Cox wrote:
+A common question one needs to ask is "What version of that driver are
+you using?".  It's not always immediately obvious where to find that
+information, even if you have the source in front of you.  Some examples..
 
-> Date: 27 Mar 2003 19:04:41 +0000
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Matti Aarnio <matti.aarnio@zmailer.org>
-> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
->      Linus Torvalds <torvalds@transmeta.com>
-> Subject: Re: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
->
-> On Thu, 2003-03-27 at 18:17, Matti Aarnio wrote:
-> > It is Alan's privilege to choose whatever he wants for the email
-> > subject,  but the sad part is, that every time a reference is
-> > made to  AIC7XXX in email subject, vger's keepers get tons of
-> > spam-rejections.
->
-> Let me absolutely clear I did it to fix the bounces from my
-> script not because I think the list admin sucks.
->
-> If the XXX substring is such a problem its time to increase
-> the pain factor. I think XXX will begin appearing in the body
-> of all my changelogs 8)
->
-> XXX subject bouncers to kernel.org should get kicked off but I
-> appreciate you have rather more useful things to be doing 8)
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+drivers/net/tulip/tulip_core.c:18:#define DRV_VERSION      "1.1.13"
+drivers/net/e100/e100_main.c:140:char e100_driver_version[]="2.1.29-k4";
+drivers/scsi/sym53c8xx.c:88:#define SCSI_NCR_DRIVER_NAME "sym53c8xx-1.7.3c-20010512"
+drivers/scsi/aic7xxx_old.c:256:#define AIC7XXX_C_VERSION  "5.2.6"
+drivers/serial/8250.c:2159:MODULE_DESCRIPTION("Generic 8250/16x50 serial driver $Revision: 1.90 $");
 
---
-Gerhard Mack
+And I'm sure there are worse examples.  My proposal is simple:
 
-gmack@innerfire.net
+#define MODULE_VERSION(version) \
+	static const char __module_version[] \
+		__attribute__((section(".init.version"), unused)) = version
 
-<>< As a computer I find your faith in technology amusing.
+and add the .init.version section to vmlinux.lds in the `freed after
+init' section.
 
+The tools can catch up to use this kind of thing later; we need to
+standardise the source code to use this first.
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

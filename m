@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTEMHhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTEMHhK
+	id S263383AbTEMHjl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 03:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbTEMHjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:37:10 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:4843 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263578AbTEMHhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:37:07 -0400
-Date: Tue, 13 May 2003 03:14:12 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Message-ID: <20030513071412.GS433@phunnypharm.org>
-References: <20030513062640.GR433@phunnypharm.org> <20030513081032.A7184@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030513081032.A7184@infradead.org>
-User-Agent: Mutt/1.5.4i
+	Tue, 13 May 2003 03:39:41 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:10112
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263383AbTEMHjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 03:39:39 -0400
+Date: Tue, 13 May 2003 03:43:07 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
+In-Reply-To: <200305122159.18843.daniel.ritz@gmx.ch>
+Message-ID: <Pine.LNX.4.50.0305130340420.5420-100000@montezuma.mastecende.com>
+References: <200305111647.32113.daniel.ritz@gmx.ch>
+ <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
+ <200305122159.18843.daniel.ritz@gmx.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 08:10:32AM +0100, Christoph Hellwig wrote:
-> On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
-> > This was causing me all sorts of problems with linux1394's 16-18 byte
-> > long bus_id lengths. The sysfs names were all broken.
-> > 
-> > This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
-> > strncpy's in drivers/base/ so that it can't happen again (atleast the
-> > strings will be null terminated).
+On Mon, 12 May 2003, Daniel Ritz wrote:
+
+> ok, i tried that one, but no luck. still nobody cares. so it's that one:
+>   if (int_status == 0xff) { /* card may be ejected */
+>         DEBUG(3, "%s: interrupt %d for dead card\n", dev->name, irq);
+>         handled = 0;
+>         goto leave;
+>     }
 > 
-> What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
+> but it's not ejected, only a modpobe -r...
 
-Ok, then add this in addition to the previous patch.
+We shutdown the device so a lot of things aren't defined at this stage. 
+Lets make that handled = 1, we're bound to have 1 or 2 of these interrupts 
+creeping in.
 
-
-Index: include/linux/device.h
+Index: linux-2.5-cvs/drivers/net/pcmcia/xirc2ps_cs.c
 ===================================================================
-RCS file: /home/scm/linux-2.5/include/linux/device.h,v
-retrieving revision 1.48
-diff -u -u -r1.48 device.h
---- include/linux/device.h	29 Apr 2003 17:30:20 -0000	1.48
-+++ include/linux/device.h	13 May 2003 07:47:39 -0000
-@@ -35,7 +35,7 @@
- #define DEVICE_NAME_SIZE	50
- #define DEVICE_NAME_HALF	__stringify(20)	/* Less than half to accommodate slop */
- #define DEVICE_ID_SIZE		32
--#define BUS_ID_SIZE		20
-+#define BUS_ID_SIZE		KOBJ_NAME_LEN
+RCS file: /home/cvs/linux-2.5/drivers/net/pcmcia/xirc2ps_cs.c,v
+retrieving revision 1.19
+diff -u -p -B -r1.19 xirc2ps_cs.c
+--- linux-2.5-cvs/drivers/net/pcmcia/xirc2ps_cs.c	8 May 2003 05:16:27 -0000	1.19
++++ linux-2.5-cvs/drivers/net/pcmcia/xirc2ps_cs.c	13 May 2003 06:50:22 -0000
+@@ -1312,7 +1312,7 @@ xirc2ps_interrupt(int irq, void *dev_id,
+ 				  */
  
+     if (!netif_device_present(dev))
+-	return IRQ_NONE;
++	return IRQ_HANDLED;
  
- enum {
+     ioaddr = dev->base_addr;
+     if (lp->mohawk) { /* must disable the interrupt */
+@@ -1330,7 +1330,6 @@ xirc2ps_interrupt(int irq, void *dev_id,
+   loop_entry:
+     if (int_status == 0xff) { /* card may be ejected */
+ 	DEBUG(3, "%s: interrupt %d for dead card\n", dev->name, irq);
+-	handled = 0;
+ 	goto leave;
+     }
+     eth_status = GetByte(XIRCREG_ESR);
+
+-- 
+function.linuxpower.ca

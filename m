@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264772AbRFSUf1>; Tue, 19 Jun 2001 16:35:27 -0400
+	id <S264780AbRFSUza>; Tue, 19 Jun 2001 16:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264773AbRFSUfR>; Tue, 19 Jun 2001 16:35:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22802 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264772AbRFSUfK>; Tue, 19 Jun 2001 16:35:10 -0400
-Subject: Re: large offset llseek breaks for device special files on ac series
-To: martin.frey@compaq.com
-Date: Tue, 19 Jun 2001 21:34:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, baettig@scs.ch
-In-Reply-To: <014b01c0f8fe$d457a830$0100007f@SCHLEPPDOWN> from "Martin Frey" at Jun 19, 2001 04:31:31 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264783AbRFSUzU>; Tue, 19 Jun 2001 16:55:20 -0400
+Received: from richard2.pil.net ([207.8.164.9]:63246 "HELO richard2.pil.net")
+	by vger.kernel.org with SMTP id <S264780AbRFSUzE>;
+	Tue, 19 Jun 2001 16:55:04 -0400
+Date: Tue, 19 Jun 2001 16:55:10 -0400 (EDT)
+From: Tom Diehl <tdiehl@pil.net>
+X-X-Sender: <tdiehl@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: How to compile on one machine and install on another?
+In-Reply-To: <E15CSDK-0006ee-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15CSCi-0006eR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This check should be done only for regular files, e.g. for
-> a device special file the test does not make sense.
-> Either we change the check or we have to write a llseek
-> method for each device driver.
+On Tue, 19 Jun 2001, Alan Cox wrote:
 
-Or we introduce a method for regular files on a file system with size limits.
-Now that way around is probablyt much saner, and the check is removed from
-the default code
+> Other than making sure you configure it for the box it will eventually run
+> on - nope you have it all sorted. If you use modules you'll want to install
+> the modules on the target machine too
 
-Car to whip up a patch ?
+What is the best way to install the modules? Is there a directory _all_ of
+the modules exist in b4 you do "make modules_install". I usually end up
+setting EXTRAVERSION to something unique and doing a make modules_install.
+That way it does not hose up the modules for the build machine.
+Is there a better way?
+
+-- 
+......Tom		INCOMPETIANCE: When You Earnestly Believe You Can
+tdiehl@pil.net		Compensate for a Lack of Skill by Doubling Your
+			Efforts, There's No End to What You Can't Do.
+

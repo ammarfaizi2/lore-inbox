@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292535AbSCDRNf>; Mon, 4 Mar 2002 12:13:35 -0500
+	id <S292539AbSCDRRq>; Mon, 4 Mar 2002 12:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292539AbSCDRN1>; Mon, 4 Mar 2002 12:13:27 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:1613 "EHLO
-	tsmtp2.mail.isp") by vger.kernel.org with ESMTP id <S292535AbSCDRNN>;
-	Mon, 4 Mar 2002 12:13:13 -0500
-Date: Sun, 3 Mar 2002 23:54:23 +0100
-From: Diego Calleja <DiegoCG@teleline.es>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: 2.4.19-pre1-aa1 problems
-Message-Id: <20020303235423.7627f300.DiegoCG@teleline.es>
-In-Reply-To: <20020303233952.A11129@suse.de>
-In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es>
-	<20020303233952.A11129@suse.de>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292550AbSCDRRf>; Mon, 4 Mar 2002 12:17:35 -0500
+Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:15781 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S292539AbSCDRRI>; Mon, 4 Mar 2002 12:17:08 -0500
+Date: Mon, 04 Mar 2002 12:16:35 -0500
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+        James Bottomley <James.Bottomley@steeleye.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <1201480000.1015262195@tiny>
+In-Reply-To: <20020304170434.B1444@redhat.com>
+In-Reply-To: <phillips@bonn-fries.net> <200203041503.g24F3WU01722@localhost.localdomain> <20020304170434.B1444@redhat.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Which modules do you have loaded ?
-nls_iso8859-1, nls_cp850, fat, vfat, ppp_generic, ppp_deflate, ppp_async, slhc, opl3, sb, sb_lib, tdfx, isa-pnp, uart401, sound,
-sound_core, apm, rtc
 
 
+On Monday, March 04, 2002 05:04:34 PM +0000 "Stephen C. Tweedie" <sct@redhat.com> wrote:
+
+> Basically, as far as journal writes are concerned, you just want
+> things sequential for performance, so serialisation isn't a problem
+> (and it typically happens anyway).  After the journal write, the
+> eventual proper writeback of the dirty data to disk has no internal
+> ordering requirement at all --- it just needs to start strictly after
+> the commit, and end before the journal records get reused.  Beyond
+> that, the write order for the writeback data is irrelevant.
 > 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
+
+writeback data order is important, mostly because of where the data blocks
+are in relation to the log.  If you've got bdflush unloading data blocks
+to the disk, and another process doing a commit, the drive's queue
+might look like this:
+
+data1, data2, data3, commit1, data4, data5 etc.
+
+If commit1 is an ordered tag, the drive is required to flush 
+data1, data2 and data3, then write the commit, then seek back
+for data4 and data5.
+
+If commit1 is not an ordered tag, the drive can write all the
+data blocks, then seek back to get the commit.
+
+-chris
+

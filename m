@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132829AbRDIThT>; Mon, 9 Apr 2001 15:37:19 -0400
+	id <S132831AbRDITlj>; Mon, 9 Apr 2001 15:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132832AbRDIThK>; Mon, 9 Apr 2001 15:37:10 -0400
-Received: from 13dyn104.delft.casema.net ([212.64.76.104]:64260 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132829AbRDIThA>; Mon, 9 Apr 2001 15:37:00 -0400
-Message-Id: <200104091936.VAA09162@cave.bitwizard.nl>
-Subject: Re: goodbye
-In-Reply-To: <E14mh5u-0002hw-00@the-village.bc.nu> from Alan Cox at "Apr 9, 2001
- 08:12:55 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 9 Apr 2001 21:36:42 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Matti Aarnio <matti.aarnio@zmailer.org>, kumon@flab.fujitsu.co.jp,
-        Michael Peddemors <michael@linuxmagic.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132832AbRDITl3>; Mon, 9 Apr 2001 15:41:29 -0400
+Received: from violin.dcs.uky.edu ([204.198.75.11]:32955 "EHLO
+	violin.dcs.uky.edu") by vger.kernel.org with ESMTP
+	id <S132831AbRDITlM>; Mon, 9 Apr 2001 15:41:12 -0400
+Date: Mon, 9 Apr 2001 15:41:11 -0400 (EDT)
+From: Srinivasan Venkatraman <srini@dcs.uky.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Question on accessing /proc
+Message-ID: <Pine.LNX.4.10.10104091537190.18228-100000@bart.dcs.uky.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > I really would like to run "ORBS" on my incoming-mail-server. However
-> > I find it unacceptable to be rejecting Email from possibly legitimate
-> > clients. So Adding an "relay is listed on orbs" line would allow me to
-> > sort this into a low priority "probably spam" mailbox, just like I'd
-> > do with those tagged as such by LKML.
-> 
-> So run exim. It has supported this for years
 
-Someone suggested "rblcheck". Installed, works. 
+Hi,
 
-			Roger. 
+ I am new to this list. I did go through the FAQ before posting this
+question. I have a specific requirment - creating,modifying and deleting
+data structures inside the kernel values of which will be passed by an
+user application. I know we could do this by writing a system call or by
+ioctl command to a character device. My question is can we do this by
+writing to /proc file system ? Can we actually create, modify and delete
+data structures by accessing this file system ?
+ Any pointers will be appreciated.
 
+Thanks,
+Srini.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

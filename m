@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131070AbQK0OBv>; Mon, 27 Nov 2000 09:01:51 -0500
+        id <S131180AbQK0OCU>; Mon, 27 Nov 2000 09:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131180AbQK0OBb>; Mon, 27 Nov 2000 09:01:31 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:48649 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S131070AbQK0OBT>;
-        Mon, 27 Nov 2000 09:01:19 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Chad Schwartz <cwslist@main.cornernet.com>
-cc: 64738 <schwung@rumms.uni-mannheim.de>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel bits 
-In-Reply-To: Your message of "Mon, 27 Nov 2000 07:36:22 MDT."
-             <Pine.LNX.4.30.0011270734470.20724-100000@main.cornernet.com> 
-Mime-Version: 1.0
+        id <S131374AbQK0OCM>; Mon, 27 Nov 2000 09:02:12 -0500
+Received: from ha1.rdc2.mi.home.com ([24.2.68.68]:52687 "EHLO
+        mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
+        id <S131180AbQK0OB4>; Mon, 27 Nov 2000 09:01:56 -0500
+Message-ID: <3A2261CD.322EB04@didntduck.org>
+Date: Mon, 27 Nov 2000 08:29:49 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: CDROMPLAYTRKIND causes an oops on aic7xxx
+In-Reply-To: <3A21E07C.C3A9880E@didntduck.org> <20001127085938.G31641@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Nov 2000 00:31:11 +1100
-Message-ID: <2091.975331871@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000 07:36:22 -0600 (CST), 
-Chad Schwartz <cwslist@main.cornernet.com> wrote:
->int main(void) {
->	printf("Size of an unsigned long is %d bytes\n",sizeof(unsigned long));
->	return(0);
->}
->
->That simple program will tell you that an unsigned long is 4 bytes, or 8
->bytes.
->
->It is then a safe assumption - that if you get back '8', that you're
->running a 64bit kernel, on a 64bit processor.
+Jens Axboe wrote:
+> 
+> On Sun, Nov 26 2000, Brian Gerst wrote:
+> > I get an oops from aic7xxx_buildscb() when CDROMPLAYTRKIND is used.
+> > I've tracked it down to sr_audio_ioctl() using SCSI_DATA_NONE for the
+> > direction of the command, which gets changed to PCI_DMA_NONE, which then
+> > triggers a BUG() in pci_map_single().  Is SCSI_DATA_NONE the correct
+> > direction code, or is there a problem further down the code?  Oops
+> > attached.
+> 
+> NONE is the right direction, but buflen needs to be 0 too. The
+> patch is here
+> 
+> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/cd-1.bz2
 
-No, that only tells you the size of a long under the compiler you used.
-If you are on an Intel IA64 (64 bit kernel) but you compile with gcc
-for ix86 (32 bit userspace) then sizeof(long) is 4.  IA64 runs both
-native and ix86 code, sizeof(any userspace field) tells you nothing
-about the kernel.
+That worked.  Thanks.
 
+-- 
+
+						Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

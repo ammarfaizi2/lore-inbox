@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUBPAz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 19:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUBPAz3
+	id S265274AbUBPBFO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 20:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUBPBFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 19:55:29 -0500
-Received: from topaz.cx ([66.220.6.227]:11968 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S265227AbUBPAz2 (ORCPT
+	Sun, 15 Feb 2004 20:05:14 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22961 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265280AbUBPBFI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 19:55:28 -0500
-Date: Sun, 15 Feb 2004 19:55:23 -0500
-From: Chip Salzenberg <chip@pobox.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30
-Message-ID: <20040216005523.GD3789@perlsupport.com>
-References: <E1AsO6X-0003hW-1u@tytlal> <200402151658.57710.bzolnier@elka.pw.edu.pl> <20040215163438.GC3789@perlsupport.com> <200402151808.42611.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402151808.42611.bzolnier@elka.pw.edu.pl>
-X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 15 Feb 2004 20:05:08 -0500
+Message-ID: <40301713.50609@us.ibm.com>
+Date: Sun, 15 Feb 2004 17:04:19 -0800
+From: Mike Christie <mikenc@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christophe Saout <christophe@saout.de>
+CC: Christoph Hellwig <hch@infradead.org>, Joe Thornber <thornber@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: kthread vs. dm-daemon
+References: <402A4B52.1080800@centrum.cz>	 <1076866470.20140.13.camel@leto.cs.pocnet.net>	 <20040215180226.A8426@infradead.org>	 <1076870572.20140.16.camel@leto.cs.pocnet.net>	 <20040215185331.A8719@infradead.org>	 <1076873760.21477.8.camel@leto.cs.pocnet.net>	 <20040215194633.A8948@infradead.org>	 <1076876668.21968.22.camel@leto.cs.pocnet.net>	 <402FEF1F.2030308@us.ibm.com> <1076889854.5525.22.camel@leto.cs.pocnet.net>
+In-Reply-To: <1076889854.5525.22.camel@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Bartlomiej Zolnierkiewicz:
-> On Sunday 15 of February 2004 17:34, Chip Salzenberg wrote:
-> > http://bugzilla.kernel.org/show_bug.cgi?id=2110
-> >
-> > I've also included the SMART error dumps ("smartctl -a").  There are
-> > no media problems, if I'm reading it right; whatever else is broken,
-> > the IDE DMA errors seem to be unrelated to actual bad sectors.
+Christophe Saout wrote:
+> Am So, den 15.02.2004 schrieb Mike Christie um 23:13:
 > 
-> There is a media error at sector 4682265. :-(
+> 
+>>>Making dm-daemon use the kthread primitives would make dm-daemon a very
+>>>small and stupid wrapper. Changing all dm targets to handle worker
+>>>thread notification themselves would result in unnecessary code
+>>>duplication.
+>>
+>>When dm-multipath is more stable it could be using a work queue (my 
+>>patch was prematurely sent). Imagine a large number of dm-mp devices 
+>>multipathing across two fabrics and one switch failing. Every dm-mp 
+>>device could be resubmitting io at the same time.
+> 
+> 
+> I've thought of workqueues but at least for the snapshot and crypt
+> target they're overkill. 
 
-Damn.  Is there a HOWTO on forcing the remapping of a known bad sector?
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+It is a bigger problem for targets submitting io becuase the underlying 
+device's queue could hit nr_requests.
+
+> 
+>>If every write for every dm-raid1 device is going through 
+>>a single dm-daemon, it could become a bottleneck.
+> 
+> 
+> Hmm. The read decryption in dm-crypt is also a only-one-cpu-at-a-time
+> thing. Didn't anybody notice that? Cryptoloop has the same limitation.
+> I don't know how that could be handled differently. Every successful
+> read gets dispatched to the next free cpu and decrypted? 
+
+You do not have to create a work_struct for every read. Why not just 
+have a bio-successful-reads-queue and a workstruct per device? That way 
+you can at least have num cpu devices running in parallel.

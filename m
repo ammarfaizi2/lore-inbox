@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263517AbUCTTtO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 14:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCTTtO
+	id S263518AbUCTTtR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 14:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUCTTtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 14:49:14 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:51690 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S263517AbUCTTtM
+	Sat, 20 Mar 2004 14:49:17 -0500
+Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:31901 "EHLO
+	gate2.perex.cz") by vger.kernel.org with ESMTP id S263518AbUCTTtN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 14:49:12 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Peter Zaitsev <peter@mysql.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: reiser@namesys.com, Chris Mason <mason@suse.com>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040320102054.GB10398@mail.shareable.org>
-References: <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-	 <1079643740.11057.16.camel@watt.suse.com>
-	 <1079644190.2450.405.camel@abyss.local>
-	 <1079644743.11055.26.camel@watt.suse.com> <405AA9D9.40109@namesys.com>
-	 <1079704347.11057.130.camel@watt.suse.com> <405B4BA3.2030205@namesys.com>
-	 <1079726769.2446.233.camel@abyss.local>
-	 <20040320102054.GB10398@mail.shareable.org>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1079812102.3182.31.camel@abyss.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 20 Mar 2004 11:48:23 -0800
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 14:49:13 -0500
+Date: Sat, 20 Mar 2004 20:44:44 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+In-Reply-To: <20040320160911.B6726@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com>
+ <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz>
+ <20040320160911.B6726@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-20 at 02:20, Jamie Lokier wrote:
-> Peter Zaitsev wrote:
-> > If file system would guaranty atomicity of write() calls (synchronous
-> > would be enough) we could disable it and get good extra performance.
+On Sat, 20 Mar 2004, Russell King wrote:
+
+> It is well known that virt_to_page() is only valid on virtual addresses
+> which correspond to kernel direct mapped RAM pages, and undefined on
+> everything else.  Unfortunately, ALSA has been using it with
+> pci_alloc_consistent() for a long time, and this behaviour is what
+> makes ALSA broken.  The fact it works on x86 is merely incidental.
+
+It works on PPC as well (at least we have no error reports).
+
+> If ALSA wants this functionality, the ALSA people should ideally have
+> put their requirements forward during the 2.5 development cycle so the
+> problem could be addressed.
+
+Yes, I'm sorry about that, but the ->nopage usage was requested by Jeff
+Garzik and we're not gurus for the VM stuff. Because we're probably first
+starting using of this mapping scheme, it resulted to problems.
+
+> However, luckily in this instance, it is not a big problem to solve.  
+> It just requires time to sort through all the abstraction layers upon
+> abstraction layers which ALSA has.
 > 
-> Store an MD5 or SHA digest of the page in the page itself, or elsewhere.
-> (Obviously the digest doesn't include the bytes used to store it).
-> 
-> Then partial write errors are always detectable, even if there's a
-> hardware failure, so journal writes are effectively atomic.
+> - and I'm doing exactly this, right now.  Be patient. -
 
-Jamie,
+Thanks a lot.
 
-The problem is not detecting the partial page writes, but dealing with
-them.   Obviously there is checksum on the page (it is however not
-MD5/SHA which are designed for cryptographic needs) and so page
-corruption is detected if it happens for whatever reason.
+						Jaroslav
 
-The problem is you can't do anything with the page if only unknown
-portion of it was modified.   
-
-Innodb uses sort of "logical" logging which   just says something like
-delete row #2 from page #123, so if page is badly corrupted it will not
-help to recover.
-
-Of course you can log full pages, but this will increase overhead
-significantly, especially for small  row sizes. 
-
-This is why solution now is to use  long term "logical" log and short
-term "physical" log, which is used by background page writer, before
-writing pages to their original locations.
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
-  http://www.mysql.com/uc2004/
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs

@@ -1,61 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278240AbRJMCAu>; Fri, 12 Oct 2001 22:00:50 -0400
+	id <S278239AbRJMCAu>; Fri, 12 Oct 2001 22:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278241AbRJMCAl>; Fri, 12 Oct 2001 22:00:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54285 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278240AbRJMCAb>; Fri, 12 Oct 2001 22:00:31 -0400
-Date: Fri, 12 Oct 2001 19:00:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
- with insertion
-In-Reply-To: <15303.37865.489986.425653@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.33.0110121846030.8148-100000@penguin.transmeta.com>
+	id <S278240AbRJMCAl>; Fri, 12 Oct 2001 22:00:41 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:50704 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S278239AbRJMCAa>; Fri, 12 Oct 2001 22:00:30 -0400
+Date: Fri, 12 Oct 2001 22:00:45 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.12 warning cleanups
+Message-ID: <Pine.LNX.4.33.0110122152120.7538-200000@terbidium.openservices.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-892211092-997156091-1002938445=:7538"
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Sat, 13 Oct 2001, Paul Mackerras wrote:
->
-> As for intel x86, is there a architecture spec that talks about things
-> like memory ordering?  My impression is that the x86 architecture is
-> pretty much defined by its implementations but I could well be wrong.
+---892211092-997156091-1002938445=:7538
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-It is discussed in the multi-procesor management section, under "memory
-ordering", and it does say that "reads can be carried out specilatively
-and in any order".
+Here's a patch that cleans up some compiler warnings I get during compile. It
+doesn't touch the (mild) assembly warnings and it doesn't fix the ones under
+arch, but I figure that it's a start.
 
-HOWEVER, it does have what Intel calles "processor order", and it claims
-that "writes by a single processor are observed in the same order by all
-processors."
+I actually got the warnings when compiling 2.4.12-ac1-preempt, but the patch
+is against 2.4.12 proper.
 
-Which implies that if the _same_ CPU wrote *p and p, there is apparently
-an ordering constraint there. But I don't think that's the case here. So
-the x86 apparently needs a rmb().
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
-(But Intel has redefined the memory ordering so many times that they might
-redefine it in the future too and say that dependent loads are ok. I
-suspect most of the definitions are of the type "Oh, it used to be ok in
-the implementation even though it wasn't defined, and it turns out that
-Windows doesn't work if we change it, so we'll define darkness to be the
-new standard"..)
+---892211092-997156091-1002938445=:7538
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.12-warnings.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0110122200450.7538@terbidium.openservices.net>
+Content-Description: 
+Content-Disposition: attachment; filename="linux-2.4.12-warnings.diff"
 
-> Indeed...  getting the new p but the old *p is quite
-> counter-intuitive IMHO.
-
-I disagree. I think the alpha has it right - it says that if you care
-about ordering, you have to tell so. No ifs, no buts, no special cases
-("Oh, dependent loads are special").
-
-Of course, I used to absolutely _hate_ the x86 ordering rules just because
-they are so ad-hoc. But I'm getting more and more used to them, and the
-Intel "write ordered with store-buffer forwarding" model ends up being
-really nice for locking ;)
-
-		Linus
+ZGlmZiAtTmF1ciBsaW51eC5vcmlnL2RyaXZlcnMvaWRlL3BkYzIwMnh4LmMg
+bGludXgvZHJpdmVycy9pZGUvcGRjMjAyeHguYw0KLS0tIGxpbnV4Lm9yaWcv
+ZHJpdmVycy9pZGUvcGRjMjAyeHguYwlGcmkgU2VwICA3IDEyOjI4OjM4IDIw
+MDENCisrKyBsaW51eC9kcml2ZXJzL2lkZS9wZGMyMDJ4eC5jCUZyaSBPY3Qg
+MTIgMjE6MTc6MTggMjAwMQ0KQEAgLTUyNiw3ICs1MjYsNyBAQA0KIAlieXRl
+IHVuaXQJCT0gKGRyaXZlLT5zZWxlY3QuYi51bml0ICYgMHgwMSk7DQogDQog
+CXVuc2lnbmVkIGludAkJZHJpdmVfY29uZjsNCi0JYnl0ZQkJCWRyaXZlX3Bj
+aTsNCisJYnl0ZQkJCWRyaXZlX3BjaT0wOw0KIAlieXRlCQkJdGVzdDEsIHRl
+c3QyLCBzcGVlZCA9IC0xOw0KIAlieXRlCQkJQVA7DQogCXVuc2lnbmVkIHNo
+b3J0CQlFUDsNCmRpZmYgLU5hdXIgbGludXgub3JpZy9kcml2ZXJzL25ldC90
+b2tlbnJpbmcvb2x5bXBpYy5jIGxpbnV4L2RyaXZlcnMvbmV0L3Rva2Vucmlu
+Zy9vbHltcGljLmMNCi0tLSBsaW51eC5vcmlnL2RyaXZlcnMvbmV0L3Rva2Vu
+cmluZy9vbHltcGljLmMJVGh1IFNlcCAxMyAxOTowNDo0MyAyMDAxDQorKysg
+bGludXgvZHJpdmVycy9uZXQvdG9rZW5yaW5nL29seW1waWMuYwlGcmkgT2N0
+IDEyIDIxOjI0OjEzIDIwMDENCkBAIC0xNzIyLDQgKzE3MjIsNCBAQA0KIG1v
+ZHVsZV9pbml0KG9seW1waWNfcGNpX2luaXQpIDsgDQogbW9kdWxlX2V4aXQo
+b2x5bXBpY19wY2lfY2xlYW51cCkgOyANCiANCi1NT0RVTEVfTElDRU5TRSgi
+R1BMIik7DQpcIE5vIG5ld2xpbmUgYXQgZW5kIG9mIGZpbGUNCitNT0RVTEVf
+TElDRU5TRSgiR1BMIik7DQpkaWZmIC1OYXVyIGxpbnV4Lm9yaWcvZHJpdmVy
+cy9zY3NpL2FkdmFuc3lzLmMgbGludXgvZHJpdmVycy9zY3NpL2FkdmFuc3lz
+LmMNCi0tLSBsaW51eC5vcmlnL2RyaXZlcnMvc2NzaS9hZHZhbnN5cy5jCVN1
+biBTZXAgMzAgMTU6MjY6MDcgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvc2Nz
+aS9hZHZhbnN5cy5jCUZyaSBPY3QgMTIgMjE6MjU6MDUgMjAwMQ0KQEAgLTU1
+NTIsNyArNTU1Miw3IEBADQogICAgICAgICAgICAgICAgIH0NCiAgICAgICAg
+ICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgICAgICBBRFZfQ0FSUl9UICAg
+ICAgKmNhcnJwOw0KLSAgICAgICAgICAgICAgICBpbnQgICAgICAgICAgICAg
+cmVxX2NudDsNCisgICAgICAgICAgICAgICAgaW50ICAgICAgICAgICAgIHJl
+cV9jbnQ9MDsNCiAgICAgICAgICAgICAgICAgYWR2X3JlcV90ICAgICAgICpy
+ZXFwID0gTlVMTDsNCiAgICAgICAgICAgICAgICAgaW50ICAgICAgICAgICAg
+IHNnX2NudCA9IDA7DQogDQpkaWZmIC1OYXVyIGxpbnV4Lm9yaWcvZHJpdmVy
+cy9zY3NpL2VhdGFfZG1hLmMgbGludXgvZHJpdmVycy9zY3NpL2VhdGFfZG1h
+LmMNCi0tLSBsaW51eC5vcmlnL2RyaXZlcnMvc2NzaS9lYXRhX2RtYS5jCVN1
+biBTZXAgMzAgMTU6MjY6MDcgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvc2Nz
+aS9lYXRhX2RtYS5jCUZyaSBPY3QgMTIgMjE6MzA6NTIgMjAwMQ0KQEAgLTEw
+NjcsNyArMTA2Nyw3IEBADQogICAgIGNoYXIgKmJ1ZmYgPSAwOw0KICAgICB1
+bmNoYXIgYnVncyA9IDA7DQogICAgIHN0cnVjdCBTY3NpX0hvc3QgKnNoOw0K
+LSAgICBob3N0ZGF0YSAqaGQ7DQorICAgIGhvc3RkYXRhICpoZD1OVUxMOw0K
+ICAgICBpbnQgeDsNCiAgICAgDQogICAgIA0KZGlmZiAtTmF1ciBsaW51eC5v
+cmlnL2RyaXZlcnMvc2NzaS9zeW01M2M4eHguYyBsaW51eC9kcml2ZXJzL3Nj
+c2kvc3ltNTNjOHh4LmMNCi0tLSBsaW51eC5vcmlnL2RyaXZlcnMvc2NzaS9z
+eW01M2M4eHguYwlTdW4gU2VwIDMwIDE1OjI2OjA4IDIwMDENCisrKyBsaW51
+eC9kcml2ZXJzL3Njc2kvc3ltNTNjOHh4LmMJRnJpIE9jdCAxMiAyMToyOToy
+MiAyMDAxDQpAQCAtNjk4OSw3ICs2OTg5LDcgQEANCiANCiBzdGF0aWMgdm9p
+ZCBuY3Jfc29mdF9yZXNldChuY2JfcCBucCkNCiB7DQotCXVfY2hhciBpc3Rh
+dDsNCisJdV9jaGFyIGlzdGF0PTA7DQogCWludCBpOw0KIA0KIAlpZiAoIShu
+cC0+ZmVhdHVyZXMgJiBGRV9JU1RBVDEpIHx8ICEoSU5CIChuY19pc3RhdDEp
+ICYgU1JVTikpDQpkaWZmIC1OYXVyIGxpbnV4Lm9yaWcvZnMvc3VwZXIuYyBs
+aW51eC9mcy9zdXBlci5jDQotLS0gbGludXgub3JpZy9mcy9zdXBlci5jCVdl
+ZCBPY3QgMTAgMTg6Mzk6MDQgMjAwMQ0KKysrIGxpbnV4L2ZzL3N1cGVyLmMJ
+RnJpIE9jdCAxMiAyMToxODoyOCAyMDAxDQpAQCAtMTA1MCw3ICsxMDUwLDkg
+QEANCiAJdmZzbW50LT5tbnRfcm9vdCA9IGRnZXQoc2ItPnNfcm9vdCk7DQog
+CWJkcHV0KGJkZXYpOyAvKiBzYiBob2xkcyBhIHJlZmVyZW5jZSAqLw0KIA0K
+KyNpZmRlZiBDT05GSUdfUk9PVF9ORlMNCiBhdHRhY2hfaXQ6DQorI2VuZGlm
+DQogCXJvb3RfbmQubW50ID0gcm9vdF92ZnNtbnQ7DQogCXJvb3RfbmQuZGVu
+dHJ5ID0gcm9vdF92ZnNtbnQtPm1udF9zYi0+c19yb290Ow0KIAlncmFmdF90
+cmVlKHZmc21udCwgJnJvb3RfbmQpOw0K
+---892211092-997156091-1002938445=:7538--
 

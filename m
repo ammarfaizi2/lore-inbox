@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282840AbRK0Hl0>; Tue, 27 Nov 2001 02:41:26 -0500
+	id <S282839AbRK0HmZ>; Tue, 27 Nov 2001 02:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282841AbRK0HlM>; Tue, 27 Nov 2001 02:41:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43783 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282839AbRK0Hko>; Tue, 27 Nov 2001 02:40:44 -0500
-Message-ID: <3C03436E.5020705@zytor.com>
-Date: Mon, 26 Nov 2001 23:40:30 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy
-In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com> <Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva> <3C02E682.4CDC6858@zip.com.au> <20011126.171301.50592818.davem@redhat.com> <9tuqf2$eri$1@cesium.transmeta.com> <20011127133902.A21914@bee.lk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S282843AbRK0HmQ>; Tue, 27 Nov 2001 02:42:16 -0500
+Received: from queen.bee.lk ([203.143.12.182]:27040 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S282839AbRK0HmD>;
+	Tue, 27 Nov 2001 02:42:03 -0500
+Date: Tue, 27 Nov 2001 13:41:38 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Message-ID: <20011127134138.B21914@bee.lk>
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2946@OTTONEXC1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2946@OTTONEXC1>; from dana.lacoste@peregrine.com on Mon, Nov 26, 2001 at 09:52:57AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anuradha Ratnaweera wrote:
+On Mon, Nov 26, 2001 at 09:52:57AM -0800, Dana Lacoste wrote:
+>
+> So can we drop it?  There will be no changes from the
+> last pre-release and the actual release, so this will
+> not be an issue :)
 
-> 
-> A minor issue...
-> 
-> How does Marcelo (or Linus or Alan, say) know that the patch _really_ came from
-> the subsystem aintainer himself?  I mean anybody would have sent any crap, but
-> not too bad enough to suspect.  But if it came with a CC to a list, there is a
-> much smaller chance of this happenning.
-> 
-> Yes.  This would be very rare and the effects would be very short lived.  But
-> still the _possibility_ exists.
-> 
+If I understand correctly, -preX releases will be for adding features and bug
+fixes and -rcX releases will be for only bug fixes.
 
+Hopefully, there won't be _any_ change from last -rc release to the -final.
 
-How about sending a quick reply "got your patch, applied it?"  The 
-maintainer can then say "WHAT PATCH?"
+Anuradha
 
-	-hpa
+-- 
 
+Debian GNU/Linux (kernel 2.4.13)
+
+You are dishonest, but never to the point of hurting a friend.
 

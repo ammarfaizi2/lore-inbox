@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbTCLWRc>; Wed, 12 Mar 2003 17:17:32 -0500
+	id <S262033AbTCLWMr>; Wed, 12 Mar 2003 17:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262070AbTCLWRc>; Wed, 12 Mar 2003 17:17:32 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:35821 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S262067AbTCLWRa>; Wed, 12 Mar 2003 17:17:30 -0500
-Message-ID: <3E6FB472.20809@tmsusa.com>
-Date: Wed, 12 Mar 2003 14:28:02 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: "David S. Miller" <davem@redhat.com>
-Subject: Re: named vs 2.5.64-mm5
-References: <3E6F7C78.1040302@tmsusa.com>	 <20030312113126.703de259.akpm@digeo.com> <1047503813.17931.2.camel@rth.ninka.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262042AbTCLWMr>; Wed, 12 Mar 2003 17:12:47 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:63173 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S262033AbTCLWMp>; Wed, 12 Mar 2003 17:12:45 -0500
+Message-ID: <20030312222323.24303.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: james@stev.org, felipe_alfaro@linuxmail.org
+Cc: dave@cs.curtin.edu.au, "M. Soltysiak" <msoltysiak@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Date: Wed, 12 Mar 2003 23:23:23 +0100
+Subject: Re: Linux BUG: Memory Leak
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, the SO_BSDCOMPAT messages are in all
-likelihood unrelated to the problems I'm seeing
-with bind-9.2.1 under 2.5.6x-recent kernels...
-
-I guess I'll have to turn up the debugging on
-bind and see if anything unusual pops up -
-
-Joe
-
-David S. Miller wrote:
-
->On Wed, 2003-03-12 at 11:31, Andrew Morton wrote:
+----- Original Message ----- 
+From: James Stevenson <james@stev.org> 
+Date: 	12 Mar 2003 20:58:11 +0000 
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 
+Subject: Re: Linux BUG: Memory Leak 
+ 
+> > > On Wed, 2003-03-12 at 07:19, David Shirley wrote:  
+> > Besides tainted kernel, nVidia drivers are pretty good :-)  
+> > There are more GL-enabled cards standard with XFree86, like  
+> > Radeons and family. I have also had some success with Mach64  
+> > based video cards (although FPS rate is somewhat low).  
 >  
->
->>The changelog has:
->>
->># --------------------------------------------
->># 03/03/08      jmorris@intercode.com.au        1.1083
->># [NET]: Nuke SO_BSDCOMPAT.
->># --------------------------------------------
->>
->>Maybe James can tell us what is going on here.
->>
->>We should at least place a cap on the number of times that message
->>is printed.
->>    
->>
->
->Feel free to send a patch for that.
->
->SO_BSDCOMPAT has had ZERO side effects since 2.0.x, and it's been
->thus scheduled to be removed for years.  It was merely a binary
->state passed in and out of the kernel to the user and had no effect
->on socket behavior at all.
->
->Any application still referencing this ancient thing either expects
->some kind of different behavior from setting SO_BSDCOMPAT non-zero,
->or really doesn't rely on anything at all.
->
->Since SO_BSDCOMPAT has had zero side effects for 5 or so years, this
->means that the safe change is to remove all references to SO_BSDCOMPAT
->that exist in any application.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+> nvidia drivers 
 >  
->
+> cat /dev/nvidia 
+> causes a kernel opps 
+ 
+Hmm... Last time I tried was with 2.4.20. Will have to give it 
+a shot with 2.5.64. 
+ 
+Thanks! 
+ 
+   Felipe 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-
+Powered by Outblaze

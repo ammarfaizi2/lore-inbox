@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbULaR0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbULaRao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbULaR0C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 12:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbULaR0C
+	id S262121AbULaRao (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 12:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbULaRao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 12:26:02 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:40343 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S262120AbULaRZw (ORCPT
+	Fri, 31 Dec 2004 12:30:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55993 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262121AbULaRaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 12:25:52 -0500
-Date: Fri, 31 Dec 2004 19:25:50 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: linux-kernel@vger.kernel.org
-Cc: kaos@ocs.com.au, sam@ravnborg.org
-Subject: sh: inconsistent kallsyms data
-Message-ID: <20041231172549.GA18211@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	linux-kernel@vger.kernel.org, kaos@ocs.com.au, sam@ravnborg.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 31 Dec 2004 12:30:35 -0500
+Date: Fri, 31 Dec 2004 09:30:04 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Andi Kleen <ak@muc.de>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0412310654280.10484@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0412310921050.2280@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+ <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <m1mzvvjs3k.fsf@muc.de>
+ <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org> <20041231123538.GA18209@muc.de>
+ <Pine.LNX.4.58.0412310654280.10484@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Building 2.6.10 for sh results in inconsistent kallsyms data. Turning on
-CONFIG_KALLSYMS_ALL fixes it, as does CONFIG_KALLSYMS_EXTRA_PASS.
+On Fri, 31 Dec 2004, Davide Libenzi wrote:
+> 
+> I don't think that the Wine problem resolution is due to the POPF 
+> instruction handling. Basically Linus patch does a nice cleanup plus POPF 
+> handling, so maybe the patch can be split.
 
-The symbols that seem to be problematic between the second and third
-pass are all kallsyms special symbols. With only CONFIG_KALLSYMS set we
-see:
+The popf part is very nice in that it allows you to single-step and debug 
+this thing.
 
---- System.map  2004-12-31 10:53:10.278567522 -0600
-+++ .tmp_System.map     2004-12-31 10:53:10.347558024 -0600
-@@ -6868,9 +6868,9 @@
- 8817c4d0 D kallsyms_addresses
- 88182660 D kallsyms_num_syms
- 88182670 D kallsyms_names
--88190630 D kallsyms_markers
--881906a0 D kallsyms_token_table
--88190b50 D kallsyms_token_index
-+881906a0 D kallsyms_markers
-+88190710 D kallsyms_token_table
-+88190bc0 D kallsyms_token_index
- 88191000 D irq_desc
- 88191000 A __per_cpu_end
- 88191000 A __per_cpu_start
+The fact is, I can't debug Wine. The code-base is just too alien for me, 
+so to debug this thing I needed to come up with a silly example of TF 
+usage, and try to debug _that_ instead as if it were something unknown (ie 
+debugging by knowing what the program does is a no-no, since that would 
+have defeated the whole exercise).
 
-So for some reason we have a 0x70 variance between these, and only
-these. Running with --all-symbols this seems to work fine.
+And handlign "popf" correctly really was the only sane way to debug it, 
+anything else would never have worked in a real-life debugging situation. 
+It's easy enough to say "well, just do it by hand", but that's not 
+practical when you debug with "si 1000" to try to pinpoint the behaviour a 
+bit.
 
-Looking at scripts/kallsyms.c:symbol_valid, we see:
+And clearly my debuggability exercise seem to have worked, since the end
+result apparently ended up doing the right thing for Wine.
 
-/* Symbols which vary between passes.  Passes 1 and 2 must have
- * identical symbol lists.  The kallsyms_* symbols below are only added
- * after pass 1, they would be included in pass 2 when --all-symbols is
- * specified so exclude them to get a stable symbol list.
- */
+This is why debuggability is important. I realize that people may think 
+I'm inconsistent (since I abhor kernel debuggers), but while _I_ abhor 
+debuggers, I also think that the primary objective of an operating system 
+is to make easy things easy, and hard things possible, so while I don't 
+much like debuggers, I consider it a fundamental failure if the kernel 
+doesn't have proper support for them.
 
-Going by this it's not entirely clear if there is a problem or not. If
-these symbols are supposed to be excluded due to being "special", then
-it doesn't seem like verify_kallsyms in the top-level Makefile is doing
-the right thing by just doing a blind cmp -s. This comment also seems to
-be a bit outdated or just generally inaccurate, as --all-symbols isn't
-the default behaviour unless CONFIG_KALLSYMS_ALL is set.
+So I think it's worth splitting out the "popf" part of the patch, but even
+if that one doesn't actually matter for Warcraft, I'd put it in just so 
+that we have a state where we're _supposed_ to be able to debug things 
+with TF in them. Just having the mental expectation that things like that 
+should work is important - otherwise we'll eventually end up having some 
+other subtle problem with TF handling.
 
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB1Yud1K+teJFxZ9wRAisdAJ9opJnIvQ4a+tpZCV/s+nPNULrnCACdFwoA
-33hmthN3Mk2n7BnCOOEFiWM=
-=XZWS
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
+			Linus

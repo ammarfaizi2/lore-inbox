@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbTI1Snj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 14:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbTI1Snj
+	id S262674AbTI1SpW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 14:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTI1SpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 14:43:39 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:55136 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262671AbTI1Snh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 14:43:37 -0400
-Date: Sun, 28 Sep 2003 14:55:41 +0200
-Message-Id: <200309281255.h8SCtfcB005672@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 334] Amiga A2232 Serial typo
+	Sun, 28 Sep 2003 14:45:21 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62735 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262674AbTI1SpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 14:45:15 -0400
+Date: Sun, 28 Sep 2003 19:45:11 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: CONFIG_I8042
+Message-ID: <20030928194511.C1428@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Roman Zippel <zippel@linux-m68k.org>
+References: <20030928161059.B1428@flint.arm.linux.org.uk> <Pine.LNX.4.44.0309281136141.15408-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0309281136141.15408-100000@home.osdl.org>; from torvalds@osdl.org on Sun, Sep 28, 2003 at 11:37:18AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A2232 Serial: Fix typo
+On Sun, Sep 28, 2003 at 11:37:18AM -0700, Linus Torvalds wrote:
+> On Sun, 28 Sep 2003, Russell King wrote:
+> > If we have an AT Keyboard, that does _NOT_ mean that we have an I8042.
+> 
+> Well, it does require us to have at least SERIO. Also, we need to have 
+> some way to make sure that I8042 does get selected on a PC.
+>
+> Apart from that, it doesn't matter how it's solved..
 
---- linux-2.6.0-test6/drivers/char/ser_a2232.c	Sun Sep 28 09:35:59 2003
-+++ linux-m68k-2.6.0-test6/drivers/char/ser_a2232.c	Sun Sep 28 10:18:12 2003
-@@ -703,7 +703,7 @@
- 	a2232_driver->name = "ttyY";
- 	a2232_driver->major = A2232_NORMAL_MAJOR;
- 	a2232_driver->type = TTY_DRIVER_TYPE_SERIAL;
--	a2232_driver->subtype = SERIAL_TTY_NORMAL;
-+	a2232_driver->subtype = SERIAL_TYPE_NORMAL;
- 	a2232_driver->init_termios = tty_std_termios;
- 	a2232_driver->init_termios.c_cflag =
- 		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+It appears that "select" doesn't accept conditionals as the kconfig
+language stands - jejb also ran into this issue, and tried various
+ways around.  The only solution which seems to work is to remove this
+select line entirely.
 
-Gr{oetje,eeting}s,
+Maybe RZ can comment further.
 
-						Geert
+(Problem Summary: several architectures need to be able to select
+KEYBOARD_ATKBD without automatically selecting I8042.)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

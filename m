@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286365AbSAPXID>; Wed, 16 Jan 2002 18:08:03 -0500
+	id <S282511AbSAPXKX>; Wed, 16 Jan 2002 18:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbSAPXHn>; Wed, 16 Jan 2002 18:07:43 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:37126 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282511AbSAPXHg>; Wed, 16 Jan 2002 18:07:36 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 16 Jan 2002 15:13:45 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [o(1) sched J0] higher priority smaller timeslices, in fact
-In-Reply-To: <Pine.LNX.4.44.0201161501430.3828-100000@chemcca18.ucsd.edu>
-Message-ID: <Pine.LNX.4.40.0201161509460.934-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286161AbSAPXKN>; Wed, 16 Jan 2002 18:10:13 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44562 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S282511AbSAPXKA>;
+	Wed, 16 Jan 2002 18:10:00 -0500
+Date: Wed, 16 Jan 2002 15:06:21 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+Message-ID: <20020116230620.GE3410@kroah.com>
+In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local> <20020116195105.C18039@devcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020116195105.C18039@devcon.net>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 19 Dec 2001 20:02:44 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Alexei Podtelezhnikov wrote:
+On Wed, Jan 16, 2002 at 07:51:06PM +0100, Andreas Ferber wrote:
+> On Tue, Jan 15, 2002 at 05:01:11PM +0100, Olaf Dietsche wrote:
+> > 
+> > this is a new file system to control access to system resources.
+> > Currently it controls access to inet_bind() with ports < 1024 only.
+> 
+> Just some minor notes from reading the source and docs:
+> 
+> - It somewhat collides with the Linux Security Module project
+>   (http://lsm.immunix.org/).
 
-> man nice helped. Thanks!
->
-> On Wed, 16 Jan 2002, Davide Libenzi wrote:
->
-> > On Wed, 16 Jan 2002, Alexei Podtelezhnikov wrote:
-> >
-> > >
-> > > The comment and the actual macros are inconsistent.
-> > > positive number * (19-n) is a decreasing function of n!
-> >
-> > # man nice
-> >
-> >
-> > > + * The higher a process's priority, the bigger timeslices
-> > > + * it gets during one round of execution. But even the lowest
-> > > + * priority process gets MIN_TIMESLICE worth of execution time.
-> > > + */
-> > >
-> > > -#define NICE_TO_TIMESLICE(n)   (MIN_TIMESLICE + \
-> > > -	((MAX_TIMESLICE - MIN_TIMESLICE) * (19 - (n))) / 39)
-> > > +#define NICE_TO_TIMESLICE(n) (MIN_TIMESLICE + \
-> > > +	((MAX_TIMESLICE - MIN_TIMESLICE) * (19-(n))) / 39)
-> > >
-> > > I still suggest a different set as faster and more readable at least to
-> > > me. Just two operations instead of 4!
-> >
-> > this seems quite readable to me, it's the equation at page 1 of any know
-> > linear geometry book.
+I don't see this conflicting with what the lsm patch does (with the
+minor exception of removing the capable() call.)  How do you see a
+conflict here?
 
-and this macro gets called about every 80ms, that is nothing. try to run a
-cycle counter between the two implementation, get the time difference
-using the CPU speed and weight it with 80ms. you'll get a percent that
-compared to that, the probability of having snow in Miami in August is a
-big number :-)
+This patch looks nice, I like it.
 
+Yet another reason why we should have a bunch of the ramfs functions
+exported for the rest of the kernel to use :)
 
+thanks,
 
-
-- Davide
-
-
+greg k-h

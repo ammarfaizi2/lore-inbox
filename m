@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTHBOnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 10:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTHBOnT
+	id S265440AbTHBOxC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 10:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbTHBOxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 10:43:19 -0400
-Received: from waste.org ([209.173.204.2]:50881 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264030AbTHBOnT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 10:43:19 -0400
-Date: Sat, 2 Aug 2003 09:43:10 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [1/2] random: SMP locking
-Message-ID: <20030802144310.GH22824@waste.org>
-References: <20030802042445.GD22824@waste.org> <20030802040015.0fcafda2.akpm@osdl.org> <Pine.LNX.4.53.0308020832520.3473@montezuma.mastecende.com>
+	Sat, 2 Aug 2003 10:53:02 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:42594 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265440AbTHBOw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 10:52:59 -0400
+Subject: Re: volatile variable
+From: Harm Verhagen <h.verhagen@chello.nl>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1059835979.7079.15.camel@i141046.upc-i.chello.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308020832520.3473@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Aug 2003 16:52:59 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 08:35:22AM -0400, Zwane Mwaikambo wrote:
-> On Sat, 2 Aug 2003, Andrew Morton wrote:
-> > Cannot perform userspace access while holding a lock - a pagefault could
-> > occur, perform IO, schedule away and the same CPU tries to take the same
-> > lock via a different process.
-> 
-> Perhaps might_sleep() in *_user, copy_* etc is in order?
+>On Fri, 1 Aug 2003, Dinesh  Gandhewar wrote:
+>
+>> Hello,
+>>
+>> If a system call is having following code.
+>>
+>> add current process into wait quque ;
+>> while (1)
+>> {  set task state INTERRUPTIBLE ;
+>>     if (a > 0)
+>>       break ;
+>>     schedule() ;
+>> }
+>> set task state RUNNING ;
+>> remove current from wait queue ;
+>>
+>> 'a' is a global variable shared in ISR and system call
+>
 
-Wouldn't have caught this case - this interface hasn't actually been
-used/useful for many years as it only gives access to one of the
-pools and has never been atomic either.
+Dick Johnson wrote:
 
+>In any event in your loop, variable 'a', has already been
+>read by the code the compiler generates. There is nothing
+>else in the loop that touches that variable. Therefore
+>the compiler is free to (correctly) assume that whatever
+>it was when it was first read is what it will continue to
+>be. The compiler will therefore optimise it to be a single
+>read and compare. So, the loop will continue forever if
+>'a' started as zero because the compiler correctly knows
+>that it cannot possibly change in the only execution
+>path that it knows about.
+
+This is incorrect.
+If variable 'a' is a _global_ variable the compiler cannot (and will
+not) assume it is
+not changed in the loop. (The function call to schedule() might well
+change the global, from the compiler point of view)
+It will be reread every loop, even without beeing volatile.
+When you have local variables that are/contain pointers to some data,
+you need to mark those data fields volatie to make sure they get reread.
+
+regards,
+Harm Verhagen
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Harm Verhagen <h.verhagen@chello.nl>
+

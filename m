@@ -1,37 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273360AbRI0PcG>; Thu, 27 Sep 2001 11:32:06 -0400
+	id <S273099AbRI0PbG>; Thu, 27 Sep 2001 11:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273361AbRI0Pb4>; Thu, 27 Sep 2001 11:31:56 -0400
-Received: from pat.uio.no ([129.240.130.16]:45957 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S273360AbRI0Pbv>;
-	Thu, 27 Sep 2001 11:31:51 -0400
-To: jstrand1@rochester.rr.com (James D Strandboge)
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: status of nfs and tcp with 2.4
-In-Reply-To: <20010927105321.A15128@rochester.rr.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 27 Sep 2001 17:32:09 +0200
-In-Reply-To: jstrand1@rochester.rr.com's message of "Thu, 27 Sep 2001 10:53:21 -0400"
-Message-ID: <shssnd88xae.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273360AbRI0Pa4>; Thu, 27 Sep 2001 11:30:56 -0400
+Received: from mario.gams.at ([194.42.96.10]:10110 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S273099AbRI0Pak>;
+	Thu, 27 Sep 2001 11:30:40 -0400
+Message-Id: <200109271531.RAA24793@frodo.gams.co.at>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.10 
+In-Reply-To: Your message of "Thu, 27 Sep 2001 10:23:50 CDT."
+             <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com> 
+X-Url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-2121043318P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 27 Sep 2001 17:31:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == James D Strandboge <jstrand1@rochester.rr.com> writes:
+--==_Exmh_-2121043318P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-     > What is the status of tcp and nfs with the 2.4 kernel?  The
-     > sourceforge site (regarding this) has not changed for a while
-     > and the NFS FAQ at sourceforge simply states: nfsv3 over tcp
-     > does not work - the code for 2.4.x is as yet to be merged
+In message <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>, "George R. Kasic=
+a" wro
+te:
+>I'm currently running 2.4.5 here and I'm considering 2.4.10 but am
+>somewhat more nervous about this release than others based on the
+>number of reports of problems I'm seeing...
+>
+>What would be the advice of others in terms of moving up from 2.4.5
+>which has been rock solid here? =
 
-     > What progress is being made toward this end?
+>
+>Would you recommend doing the upgrade or waiting for 2.4.11 or is
+>there a middle ground release (2.4.6,7,8,9) that you'd recommend.
 
-None: AFAIK nobody has yet written any code that works for the server.
+I tried all from 2.4.5 up to 2.4.10 (and also some before) running on sev=
+eral
+machines :
+- an Athlon 900, an AMD K6 300 : no problems (being 2.4.10 =
 
-The client works though...
+  subjectively slightly faster than before)
+- an Pentium 90 : 2.4.6-2.4.9 just didn't want to boot - no damage.
 
-Cheers,
-   Trond
+IMHO : Just try it.
+
+	Bernd
+-- =
+
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Stra=DFe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
+
+
+
+--==_Exmh_-2121043318P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.2 06/23/2000
+
+iQBVAwUBO7NGOq/rvrblD00BAQIGdgH/STUsT6v3VZMecjuk2vw1YOEqd/QY4FRJ
+Tth+XWYPnMrruhzonnEofikBad4iQaXNaMe4Ppomn7c6Eaw32agu7w==
+=OBTq
+-----END PGP MESSAGE-----
+
+--==_Exmh_-2121043318P--

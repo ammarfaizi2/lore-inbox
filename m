@@ -1,48 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130636AbRCWL3a>; Fri, 23 Mar 2001 06:29:30 -0500
+	id <S130552AbRCWLhL>; Fri, 23 Mar 2001 06:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130606AbRCWL3L>; Fri, 23 Mar 2001 06:29:11 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:53295 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S130552AbRCWL27>;
-	Fri, 23 Mar 2001 06:28:59 -0500
-Message-ID: <20010323122815.A6428@win.tue.nl>
-Date: Fri, 23 Mar 2001 12:28:15 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Michael Peddemors <michael@linuxmagic.com>
-Cc: Stephen Clouse <stephenc@theiqgroup.com>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva>; from Rik van Riel on Fri, Mar 23, 2001 at 04:04:09AM -0300
+	id <S130619AbRCWLhB>; Fri, 23 Mar 2001 06:37:01 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:53924 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S130552AbRCWLgq>; Fri, 23 Mar 2001 06:36:46 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 23 Mar 2001 03:35:56 -0800
+Message-Id: <200103231135.DAA08060@baldur.yggdrasil.com>
+To: marcelo@conectiva.com.br
+Subject: Re: Patch(?): linux-2.4.3-pre6/mm/vmalloc.c could return with init_mm.page_table_lock held
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 04:04:09AM -0300, Rik van Riel wrote:
-> On 22 Mar 2001, Michael Peddemors wrote:
-> 
-> > Here, Here.. killing qmail on a server who's sole task is running mail
-> > doesn't seem to make much sense either..
-> 
-> I won't defend the current OOM killing code.
-> 
-> Instead, I'm asking everybody who's unhappy with the
-> current code to come up with something better.
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+>There is no need to hold mm->page_table_lock for vmalloced memory.
 
-To a murderer: "Why did you kill that old lady?"
-Reply: "I won't defend that deed, but who else should I have killed?"
+	I don't know if it makes a difference, but I should clarify
+that mm == &init_mm throughout this code, not &current->mm.
 
-Andries - getting more and more unhappy with OOM
-
-Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 2019 (emacs).
-Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 1407 (emacs).
-Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 1495 (emacs).
-Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 2800 (rpm).
-
-[yes, that was rpm growing too large, taking a few emacs sessions]
-[2.4.2]
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

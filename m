@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291248AbSBMB3F>; Tue, 12 Feb 2002 20:29:05 -0500
+	id <S291293AbSBMBbZ>; Tue, 12 Feb 2002 20:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291282AbSBMB2z>; Tue, 12 Feb 2002 20:28:55 -0500
-Received: from holomorphy.com ([216.36.33.161]:59044 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S291248AbSBMB2h>;
-	Tue, 12 Feb 2002 20:28:37 -0500
-Date: Tue, 12 Feb 2002 17:28:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] get_request starvation fix
-Message-ID: <20020213012809.GI767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C69A196.B7325DC2@zip.com.au>
-Mime-Version: 1.0
+	id <S291291AbSBMBbS>; Tue, 12 Feb 2002 20:31:18 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:28940 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S291282AbSBMBbC>; Tue, 12 Feb 2002 20:31:02 -0500
+Message-ID: <3C69C1BD.CB57A57C@linux-m68k.org>
+Date: Wed, 13 Feb 2002 02:30:37 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: pavel@suse.cz, davidm@hpl.hp.com, anton@samba.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: thread_info implementation
+In-Reply-To: <15464.34183.282646.869983@napali.hpl.hp.com>
+		<20020211.190449.55725714.davem@redhat.com>
+		<20020212171421.GE148@elf.ucw.cz> <20020212.164636.21927297.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3C69A196.B7325DC2@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 03:13:26PM -0800, Andrew Morton wrote:
-> Second version of this patch, incorporating Suparna's
-> suggested simplification (the low-water mark was
-> unnecessary).
+Hi,
+
+"David S. Miller" wrote:
+
+>    So you essentially made your cache one cacheline smaller.
 > 
-> This patch is working well here.  Hopefully it'll pop up
-> in an rmap kernel soon.
+> Not at all, that cacheline has to be in the cache anyways because
+> it also holds all the other information which needs to be accessed
+> during trap entry/exit.
 > 
-> Bill Irwin has been doing some fairly extensive tuning
-> and testing of this.  Hopefully he'll come out with some
-> numbers soon.
+> Try again.
 
-Much of my testing has involved varying elevator and bdflush parameters
-to find what works best with this. From preliminary results it is clear
-that the resolution of the fairness issues in this patch and the read
-latency patch does not impair performance.
+Larger code size due to the extra load?
+At least two cache lines needed for any access to task_struct?
+David, what are you trying to prove? Any architecture which has a thread
+register prefers to access data directly through this register and it's
+not really difficult to avoid this indirection, that might be needed on
+ia32.
 
-I'll do a bunch more runs tonight with the latest version of this.
-My prior runs were with an earlier version.
-
-
-Cheers,
-Bill
+bye, Roman

@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271981AbRIMTjR>; Thu, 13 Sep 2001 15:39:17 -0400
+	id <S272025AbRIMT7C>; Thu, 13 Sep 2001 15:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271998AbRIMTjG>; Thu, 13 Sep 2001 15:39:06 -0400
-Received: from mail.cb.monarch.net ([24.244.11.6]:53777 "EHLO
-	baca.cb.monarch.net") by vger.kernel.org with ESMTP
-	id <S271981AbRIMTiv>; Thu, 13 Sep 2001 15:38:51 -0400
-Date: Thu, 13 Sep 2001 13:37:26 -0600
-From: "Peter J. Braam" <braam@clusterfilesystem.com>
-To: intermezzo-announce@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [ANNOUNCEMENT] InterMezzo 1.0.5.2
-Message-ID: <20010913133726.J1501@lustre.dyn.ca.clusterfilesystem.com>
-Mime-Version: 1.0
+	id <S272020AbRIMT6w>; Thu, 13 Sep 2001 15:58:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10756 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269645AbRIMT6o>; Thu, 13 Sep 2001 15:58:44 -0400
+Message-ID: <3BA10FFA.1050204@zytor.com>
+Date: Thu, 13 Sep 2001 12:58:50 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010905
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Edgar Toernig <froese@gmx.de>, linux-kernel@vger.kernel.org,
+        vojtech@ucw.cz, Hamera Erik <HAMERAE@cs.felk.cvut.cz>
+Subject: Re: Booting linux using Novell NetWare Remote Program Loader
+In-Reply-To: <20010909220921.A19145@bug.ucw.cz> <20010909170206.A3245@redhat.com> <20010909230920.A23392@atrey.karlin.mff.cuni.cz> <9nh5p0$3qt$1@cesium.transmeta.com> <20010911005318.C822@bug.ucw.cz> <3BA04514.D65EDF98@gmx.de> <20010913120706.C25204@atrey.karlin.mff.cuni.cz> <3BA0D2BA.8B972B51@gmx.de> <20010913215617.E6820@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just released InterMezzo 1.0.5.2. This is a further test
-version ramping up for a stable Linux 2.4 release in 1.0.6.  We now
-believe we have fixed most problems in InterMezzo related to Linux
-2.4.  This code is released under the GPL.
+Pavel Machek wrote:
 
-WHAT IS INTERMEZZO?
-
-InterMezzo is a high availability file system which replicates
-directory trees among systems.  It provides disconnected operation,
-journal recovery and kernel level write back caching.  It can use the
-rsync algorithm for synchronization.  It uses protocols somewhat
-similar to Coda's. 
-
-This release includes a kernel rpm (2.4.9-ac5). The 2.4 -ac series
-includes intermezzo and this kernel includes a minor extra intermezzo
-patch to pure -ac. 
-
-WHAT'S NEW IN THIS RELEASE? 
-
-- it works with ordered data, provided you use the latest ext3
-  (Stephen Tweedie)
-- replicates ACL's and other extended attributes (requires kernel with
-  EA, not packaged) (Shirish Phatak)
-- better handling of InterMezzo specific metadata (Phil Schwan and me) 
-
-WHAT'S NEXT? 
-
-- data on demand
-- better handling of NFS servers
-- DAFS style network packets
-- better handling of (false) conflicts for laptop users
-
-DISCLAIMER:
-
-Read the file COPYING in the distribution to see the conditions under
-which this software is made available.  Please use this version at
-your own risk and exercise care (back up your systems etc).  [With the
-2.2.19 kernels fewer problems are known, but a 2.2.19 kernel RPM is
-not included.]
-
-WHERE TO GET IT:
-
-You can get sources and rpms from 
-
-ftp://ftp.inter-mezzo.org/pub/intermezzo/current
-
-Documentation is included and available at:
-http://www.inter-mezzo.org/
-
-Or get code from the intermezzo project on sourceforge.  Check out the
-CVS tag r1_0_5_2.
-
-KNOWN BUGS:
-
-HELP NEEDED:
-
-We could use some help: frequent packaging (there are good packaging
-instructions now).  Using, bug reporting and/or fixing is most welcome
-too.
-
-Thanks for your interest in InterMezzo, let us know about problems.
+> Hi!
+> 
+>>>>I removed the autoprobing from bootsect.S and fixed it to 1.44MB format
+>>>>et voila, it worked perfectly.
+>>>>
+>>>Do you have patch to do that?
+>>>
+>>I have a patch for 2.0.x only.  But it should be enough to change the
+>>disksizes table at the end of bootsect.S to:
+>>
+>>disksizes: .byte 18,18,18,18
+>>
+> 
+> Yep, tried that. No more crc errors when decompressing. Instead,
+> sudden reboot when it finishes loading. OOps.
+> 
+> This is 486sx/25 booting from network. Kernel is 2.4.9, compiled with
+> math emu, and processor=386.  Any ideas what is wrong?
+> 								Pavel
 
 
-- Peter J. Braam -
+Am I guessing correctly that this RPL thing is a floppy image emulator?
+Then it probably becomes a matter of where that image lives (in memory, if
+so where; or on the network and downloaded sector by sector.)  You may
+want to try to make a SYSLINUX image and see if it works.
+
+	-hpa
+
+

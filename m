@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267399AbSKSV63>; Tue, 19 Nov 2002 16:58:29 -0500
+	id <S267424AbSKSWDo>; Tue, 19 Nov 2002 17:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267485AbSKSV62>; Tue, 19 Nov 2002 16:58:28 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:21986 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267399AbSKSV61>; Tue, 19 Nov 2002 16:58:27 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: [RFC/CFT] Separate obj/src dir
-Date: Wed, 20 Nov 2002 08:55:18 +1100
-User-Agent: KMail/1.4.5
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <20021119202931.GA15161@mars.ravnborg.org> <Pine.LNX.3.95.1021119153545.6004A-100000@chaos.analogic.com> <20021119205430.GC15161@mars.ravnborg.org>
-In-Reply-To: <20021119205430.GC15161@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S267448AbSKSWDo>; Tue, 19 Nov 2002 17:03:44 -0500
+Received: from holomorphy.com ([66.224.33.161]:57830 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267424AbSKSWDl>;
+	Tue, 19 Nov 2002 17:03:41 -0500
+Date: Tue, 19 Nov 2002 14:07:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Richards <drichard@largo.com>
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
+Subject: Re: Off List Message - Kernel Problem - Respond To Me
+Message-ID: <20021119220751.GX11776@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave Richards <drichard@largo.com>, linux-kernel@vger.kernel.org,
+	manfred@colorfullife.com
+References: <1037742240.31569.9.camel@oa3>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200211200855.19037.bhards@bigpond.net.au>
+In-Reply-To: <1037742240.31569.9.camel@oa3>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Nov 19, 2002 at 04:44:00PM -0500, Dave Richards wrote:
+> Nov 19 14:09:41 desktop_a kernel: ldt allocation failed
+> We get this error over and over again and no additional users can log
+> into the server.
+> I'm not on the linux-kernel list, but if anyone has insight into this
+> issue, please drop me a line.  If you know a way to fix this in the 2.4
+> kernel too, or can verify that we have to wait for 2.5/2.6 we need to
+> know that too.
 
-On Wed, 20 Nov 2002 07:54, Sam Ravnborg wrote:
-> But my point is that there is a good use of different configurations
-> based on the same src.
-I think that your example for testing is the most valid one.
+IIRC this has been hit in threaded benchmarks before; ISTR a fix for LDT
+OOM going around, probably manfred's stuff which is in 2.5 and 2.4-ac.
 
-In development, you normally have different source trees (hardlinked if you 
-don't have a terabyte of hard drive space to spare), and use an editor that 
-breaks hard-links (eg, emacs). You might as well build in the source 
-directory, since you'll likely keep reworking it.
 
-In release testing (aka release engineering, or more accurately: release 
-fumbling-in-the-dark), you need to test a few different configurations. Sure, 
-you could just build a set of symlink or hardlink trees, but it'd be very 
-useful to be able to "make multiconfigs" and have a representative set of 
-kernels built (either for later testing, or at least to ensure that the new 
-kernel will build without modules, without networking, without IDE, and so 
-on). Sure, it will take a while if you build everything, but that is why 
-God^WTridge gave us ccache.
-
-Brad
-
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE92rNGW6pHgIdAuOMRAmcDAKCnzBOh6/6+zouOlM2bi1z2mcEmSACghEnp
-MzXw5OsNmbZfzBMVGrFmNr0=
-=7DkQ
------END PGP SIGNATURE-----
-
+Thanks,
+Bill

@@ -1,98 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVAGVtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVAGVxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVAGVtP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVAGVo2
+	id S261658AbVAGVxS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVAGVwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:44:28 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6081 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261641AbVAGVmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:42:35 -0500
-Subject: [PATCH] introduce idle_task_exit
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, paulus@au1.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20050107114353.GA29779@elte.hu>
-References: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com>
-	 <1104892877.8954.27.camel@localhost.localdomain>
-	 <20050105110833.GA14956@elte.hu>
-	 <1104939854.18695.29.camel@localhost.localdomain>
-	 <20050107114353.GA29779@elte.hu>
-Content-Type: text/plain
-Message-Id: <1105134189.13391.6.camel@pants.austin.ibm.com>
+	Fri, 7 Jan 2005 16:52:35 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:56806 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261647AbVAGVt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:49:59 -0500
+Date: Fri, 7 Jan 2005 16:49:55 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
+       jaharkes@cs.cmu.edu
+Subject: [PATCH 2.4.29-pre3-bk4] fs/coda Re: [Coverity] Untrusted user data in kernel
+Message-ID: <20050107214955.GA14630@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
+	jaharkes@cs.cmu.edu
+References: <1103247211.3071.74.camel@localhost.localdomain> <20050105120423.GA13662@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 07 Jan 2005 15:43:09 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050105120423.GA13662@logos.cnet>
+User-Agent: Mutt/1.5.6+20040907i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 05:43, Ingo Molnar wrote:
-> * Nathan Lynch <nathanl@austin.ibm.com> wrote:
-> 
-> > OK, how's this?  I'll submit the sched and ppc64 bits separately if
-> > there are no objections.  I assume Heiko can take care of s390.
-> > 
-> > Note that in the ppc64 cpu_die function we must call idle_task_exit
-> > before calling ppc_md.cpu_die, because the latter does not return.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
+This patch adds bounds checking for tainted scalars.
+(reported by Brian Fulton and Ted Unangst, Coverity Inc.)
 
-Heiko Carstens figured out that offlining a cpu can leak mm_structs
-because the dying cpu's idle task fails to switch to init_mm and
-mmdrop its active_mm before the cpu is down.  This patch introduces
-idle_task_exit, which allows the idle task to do this as Ingo
-suggested.
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
 
-I will follow this up with a patch for ppc64 which calls
-idle_task_exit from cpu_die.
-
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-
-
----
-
-
-diff -puN kernel/sched.c~sched-idle_task_exit kernel/sched.c
---- linux-2.6.10-bk10/kernel/sched.c~sched-idle_task_exit	2005-01-07 15:23:35.000000000 -0600
-+++ linux-2.6.10-bk10-nathanl/kernel/sched.c	2005-01-07 15:23:35.000000000 -0600
-@@ -3996,6 +3996,20 @@ void sched_idle_next(void)
- 	spin_unlock_irqrestore(&rq->lock, flags);
- }
+Index: linux-2.4.29-pre3-bk4/include/linux/coda.h
+===================================================================
+--- linux-2.4.29-pre3-bk4.orig/include/linux/coda.h	2005-01-06 15:37:01.576583328 -0500
++++ linux-2.4.29-pre3-bk4/include/linux/coda.h	2005-01-06 09:12:40.000000000 -0500
+@@ -767,8 +767,8 @@
+ #define PIOCPARM_MASK 0x0000ffff
+ struct ViceIoctl {
+         caddr_t in, out;        /* Data to be transferred in, or out */
+-        short in_size;          /* Size of input buffer <= 2K */
+-        short out_size;         /* Maximum size of output buffer, <= 2K */
++        u_short in_size;        /* Size of input buffer <= 2K */
++        u_short out_size;       /* Maximum size of output buffer, <= 2K */
+ };
  
-+/* Ensures that the idle task is using init_mm right before its cpu goes
-+ * offline.
-+ */
-+void idle_task_exit(void)
-+{
-+	struct mm_struct *mm = current->active_mm;
-+
-+	BUG_ON(cpu_online(smp_processor_id()));
-+
-+	if (mm != &init_mm)
-+		switch_mm(mm, &init_mm, current);
-+	mmdrop(mm);
-+}
-+
- static void migrate_dead(unsigned int dead_cpu, task_t *tsk)
- {
- 	struct runqueue *rq = cpu_rq(dead_cpu);
-diff -puN include/linux/sched.h~sched-idle_task_exit include/linux/sched.h
---- linux-2.6.10-bk10/include/linux/sched.h~sched-idle_task_exit	2005-01-07 15:23:35.000000000 -0600
-+++ linux-2.6.10-bk10-nathanl/include/linux/sched.h	2005-01-07 15:23:35.000000000 -0600
-@@ -757,6 +757,7 @@ extern void sched_exec(void);
- #endif
+ struct PioctlData {
+Index: linux-2.4.29-pre3-bk4/fs/coda/upcall.c
+===================================================================
+--- linux-2.4.29-pre3-bk4.orig/fs/coda/upcall.c	2005-01-06 15:37:01.609578312 -0500
++++ linux-2.4.29-pre3-bk4/fs/coda/upcall.c	2005-01-06 15:36:24.849166744 -0500
+@@ -543,6 +543,11 @@
+ 		goto exit;
+         }
  
- extern void sched_idle_next(void);
-+extern void idle_task_exit(void);
- extern void set_user_nice(task_t *p, long nice);
- extern int task_prio(const task_t *p);
- extern int task_nice(const task_t *p);
-
-_
-
-
++        if (data->vi.out_size > VC_MAXDATASIZE) {
++		error = -EINVAL;
++		goto exit;
++	}
++
+         inp->coda_ioctl.VFid = *fid;
+     
+         /* the cmd field was mutated by increasing its size field to
+@@ -571,26 +576,30 @@
+ 		       error, coda_f2s(fid));
+ 		goto exit; 
+ 	}
+-        
+-	/* Copy out the OUT buffer. */
++
++	if (outsize < (long)outp->coda_ioctl.data + outp->coda_ioctl.len) {
++                CDEBUG(D_FILE, "reply size %d < reply len %ld\n", outsize,
++		       (long)outp->coda_ioctl.data + outp->coda_ioctl.len);
++		error = -EINVAL;
++		goto exit;
++	}
++
+         if (outp->coda_ioctl.len > data->vi.out_size) {
+-                CDEBUG(D_FILE, "return len %d <= request len %d\n",
+-                      outp->coda_ioctl.len, 
+-                      data->vi.out_size);
++                CDEBUG(D_FILE, "return len %d > request len %d\n",
++		       outp->coda_ioctl.len, data->vi.out_size);
+ 		error = -EINVAL;
+-        } else {
+-		error = verify_area(VERIFY_WRITE, data->vi.out, 
+-                                    data->vi.out_size);
+-		if ( error ) goto exit;
+-
+-		if (copy_to_user(data->vi.out, 
+-				 (char *)outp + (long)outp->coda_ioctl.data, 
+-				 data->vi.out_size)) {
+-			error = -EINVAL;
+-			goto exit;
+-		}
++		goto exit;
+         }
+ 
++	/* Copy out the OUT buffer. */
++	error = verify_area(VERIFY_WRITE, data->vi.out, outp->coda_ioctl.len);
++	if ( error ) goto exit;
++
++	if (copy_to_user(data->vi.out, 
++			 (char *)outp + (long)outp->coda_ioctl.data, 
++			 outp->coda_ioctl.len)) {
++	    error = -EINVAL;
++	}
+  exit:
+ 	CODA_FREE(inp, insize);
+ 	return error;

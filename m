@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264114AbTCXFdI>; Mon, 24 Mar 2003 00:33:08 -0500
+	id <S264111AbTCXF2H>; Mon, 24 Mar 2003 00:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264117AbTCXFdI>; Mon, 24 Mar 2003 00:33:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:53705 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264114AbTCXFdH>;
-	Mon, 24 Mar 2003 00:33:07 -0500
-Date: Sun, 23 Mar 2003 21:41:47 -0800 (PST)
-Message-Id: <20030323.214147.104238225.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: use ipv6_addr_any() for testing unspecified
- address
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030323.013535.60875023.yoshfuji@linux-ipv6.org>
-References: <20030323.013535.60875023.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
+	id <S264113AbTCXF2H>; Mon, 24 Mar 2003 00:28:07 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:10460 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S264111AbTCXF2G>;
+	Mon, 24 Mar 2003 00:28:06 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.5.65-mm3,4 with contest
+Date: Mon, 24 Mar 2003 16:39:11 +1100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303241639.11728.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Sun, 23 Mar 2003 01:35:35 +0900 (JST)
 
-   Use ipv6_addr_any() for testing unspecified address.
+Anticipatory scheduler tested...
+no significant difference from 2.5.65-mm2
 
-Applied, thank you.
+CFQ scheduler shows some fluctuations in results. At first I thought it was a 
+mem leak because they were getting longer, but then they decreased again. 
+Results are not consistent enough to give meaningful benchmark results at the 
+moment.  Still trying to track down what happened.
+
+The only thing I can say with certainty is read load is faster than the AS 
+(108 seconds v 122), and mem load is a little faster (98 v 102).
+
+Con

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbTCZSgc>; Wed, 26 Mar 2003 13:36:32 -0500
+	id <S261860AbTCZSlu>; Wed, 26 Mar 2003 13:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261623AbTCZSgc>; Wed, 26 Mar 2003 13:36:32 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:55248 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261407AbTCZSgb>; Wed, 26 Mar 2003 13:36:31 -0500
-Subject: Re: Can not open '/dev/sg0' - attach failed.
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Norbert Wolff <norbert_wolff@t-online.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030326173446.3980a177.norbert_wolff@t-online.de>
-References: <20030326173446.3980a177.norbert_wolff@t-online.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048704454.598.11.camel@teapot>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 26 Mar 2003 19:47:34 +0100
-Content-Transfer-Encoding: 7bit
+	id <S261862AbTCZSlu>; Wed, 26 Mar 2003 13:41:50 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62726 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261860AbTCZSlt>; Wed, 26 Mar 2003 13:41:49 -0500
+Date: Wed, 26 Mar 2003 13:47:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: jds <jds@soltis.cc>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems when boot new kernel 2.5.66 kernel panic
+In-Reply-To: <20030325190214.M66226@soltis.cc>
+Message-ID: <Pine.LNX.3.96.1030326134208.8246B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-26 at 18:34, Norbert Wolff wrote:
-> On Wed, 26 Mar 2003 21:00:22 +0530
-> "Subramanian, M (MED)" <M.Subramanian@geind.ge.com> wrote:
-> 
-> > cdrecord error
-> > ==============
-> > 
-> > scsibus: 1 target: 0 lun: 0
-> > Cannot open '/dev/sg0'
-> > 
-> > lsmod
-> > 
-> > Module                  Size  Used by
-> > sg                     26688   0 
-> > ide-scsi                8352   0 
-> > ide-cd                 26848   0 
-> > cdrom                  27232   0  [ide-cd]
-> 
-> High !
-> 
-> Your cdrom-Module seems to use the ide-cd-driver, so cdrecord's lib which needs 
-> SCSI-emulation for IDE-Drives (I think your CD-RW is an IDE-one ?) cannot work.
-> 
-> You need to load the sr-Driver (Driver for SCSI-CDRoms) instead of the
-> ide-cd-driver.
+On Tue, 25 Mar 2003, jds wrote:
 
-Maybe he should boot the kernel with "hdx=ide-scsi" appended to force
-using IDE-SCSI emulation on his CD-RW drive.
-
-Another possibility is reconfiguring cdrecord to use "ATAPI=" or
-"/dev/hdx" device naming conventions, thus using ATAPI instead of 
-IDE-SCSI. I have been doing this as IDE-SCSI in 2.5 is not stable
-enough.
+> Hi my name is Jesus Delgado from Mexico City:
 > 
-> ______________________________________________________________________
->        Felipe Alfaro Solana
->    Linux Registered User #287198
-> http://counter.li.org
+>   I need help for resolve this problems, compile kernel 2.5.66 in rh 8, update
+> my lvm to lvm2 utils, devmapper, modutil 2.4.24, when try to boot with new
+> kernel recive this messages:
+
+I think you have the old modutils unless Rusty changed the version numbers
+drastically. From memory they are somewhere in
+  ftp:ftp.kernel.org/pub/linux/kernel/people/rusty
+
+However, your problem *might* be initrd if the drivers are not all built
+in. The stock Redhat mkinitrd called by "make install" doesn't seem to
+work, and Rusty has stated he has no intentions of providing a working
+one. I'm told there's a new mkinitrd at Redhat, but I haven't found it (or
+even looked very hard).
+
+If you are building it all in I can't help.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbTBOPpb>; Sat, 15 Feb 2003 10:45:31 -0500
+	id <S262780AbTBOPtV>; Sat, 15 Feb 2003 10:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbTBOPpb>; Sat, 15 Feb 2003 10:45:31 -0500
-Received: from imap.gmx.net ([213.165.64.20]:46486 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262604AbTBOPpa>;
-	Sat, 15 Feb 2003 10:45:30 -0500
-Message-Id: <5.1.1.6.2.20030215165024.00c8e178@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 15 Feb 2003 17:00:03 +0100
-To: Rik van Riel <riel@imladris.surriel.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] CFQ scheduler, #2
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.1.6.2.20030215130207.00ccc338@pop.gmx.net>
-References: <Pine.LNX.4.50L.0302150947570.20371-100000@imladris.surriel.com>
- <5.1.1.6.2.20030215123533.00cd3e70@pop.gmx.net>
- <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net>
- <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net>
- <5.1.1.6.2.20030215123533.00cd3e70@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262789AbTBOPtV>; Sat, 15 Feb 2003 10:49:21 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:34442 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262780AbTBOPtV>; Sat, 15 Feb 2003 10:49:21 -0500
+From: Oliver Neukum <oliver@neukum.name>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: clean up SLAB_KERNEL non-usage
+Date: Sat, 15 Feb 2003 16:58:58 +0100
+User-Agent: KMail/1.5
+References: <20030215114054.GA32256@holomorphy.com>
+In-Reply-To: <20030215114054.GA32256@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302151658.59007.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:07 PM 2/15/2003 +0100, Rik van Riel wrote:
->At 09:49 AM 2/15/2003 -0200, Rik van Riel wrote:
->>On Sat, 15 Feb 2003, Mike Galbraith wrote:
->>
->> > >Judging from your log, it ends up stalling kswapd and
->> > >dramatically increases the number of times that normal
->> > >processes need to go into the pageout code.
->> > >
->> > >If this provides an anti-thrashing benefit, something's
->> > >wrong with the VM in 2.5 ;)
->> >
->> > Which number are you looking at?
->>
->>pgscan             2751953        5328260  <== ? hmm
->>
->>kswapd_steal        380282         522126
->>pageoutrun            1107           1956
->>allocstall            3472           1238
->>
->>- we scan far less pages
->>- kswapd reclaims less pages
->>- we go into the pageout code less often
->>- allocations stall more often for a lack of free memory
->
->I would interpret that differently.  I would say we scan less because we 
->don't need to scan as much, kswapd reclaims less for the same reason, and 
->ditto for pageout ;-)  The reduction in scans does seem _way_ high though...
->
->wrt allocstall, I bet if I do a few runs, I'll see mucho variance there 
->(could be wrong.. hunch)
+Am Samstag, 15. Februar 2003 12:40 schrieb William Lee Irwin III:
+> Use SLAB_KERNEL and SLAB_ATOMIC instead of GFP_KERNEL and GFP_ATOMIC
+> when passing args to slab allocation functions.
 
-After 10 consecutive runs, stalls for 2.5.61cfq2 were 11060 vs. 3656 for 
-2.5.61virgin.
+What is this distinction supposed to do anyway?
+Can't we just drop it?
 
-(dang, hunch-o-meter needs calibration;)
-
-         -Mike
+	Regards
+		Oliver
 

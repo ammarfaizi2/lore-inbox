@@ -1,212 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271307AbTGWUnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 16:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271309AbTGWUnO
+	id S271312AbTGWUrS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 16:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTGWUrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 16:43:14 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:46230 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S271307AbTGWUnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 16:43:07 -0400
-Subject: PATCH: 2.4.22-pre7 drivers/i2c/i2c-dev.c user/kernel bug and mem
-	leak
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: frodol@dds.nl
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Wed, 23 Jul 2003 16:47:18 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:27049 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S271312AbTGWUrN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 16:47:13 -0400
+Message-ID: <3F1EF7DB.2010805@namesys.com>
+Date: Thu, 24 Jul 2003 01:02:19 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+       reiserfs mailing list <reiserfs-list@namesys.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Reiser4 status: benchmarked vs. V3 (and ext3)
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 23 Jul 2003 13:58:03 -0700
-Message-Id: <1058993883.31093.115.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user kernel bug was discovered by the Berkeley-developed static
-analysis tool, CQual, developed by Jeff Foster, John Kodumal, and many
-others.  The mem leak bug just happened to be in the wrong place at the
-wrong time. :)
+Please look at http://www.namesys.com/benchmarks/v4marks.html
 
-The user/kernel bug
--------------------
+In brief, V4 is way faster than V3, and the wandering logs are indeed 
+twice as fast as fixed location logs when performing writes in large 
+batches.
 
-int i2cdev_ioctl (struct inode *inode, struct file *file, unsigned int cmd, 
-                  unsigned long arg)
-{
+We are able to perform all filesystem operations fully atomically, while 
+getting dramatic performance improvements.  (Other attempts at 
+introducing transactions into filesystems are said to have failed for 
+performance reasons.)
 
-<snip>
+Balancing at flush time works well, not using blobs works well, 
+allocating at flush time works well.  CPU time is good enough to get by, 
+and it will improve over the next few months as we tweak a lot of little 
+details, but the IO performance is what matters, and this performance is 
+quite good enough to use.  In all the places where V3 sacrifices 
+performance to save disk space, V4 saves more disk space and gains 
+rather than loses performance. 
 
-        case I2C_RDWR:
-		if (copy_from_user(&rdwr_arg, 
-				   (struct i2c_rdwr_ioctl_data *)arg, 
-				   sizeof(rdwr_arg)))
-			return -EFAULT;
+The plugin infrastructure works well, expect lots of plugins over the 
+next year or two.
 
-<snip>
+Look for a repacker to come out in a few weeks that will make these 
+numbers especially good for filesystems that have 80% of their files 
+unmoving for long periods of time (which is to say most systems), and 
+might otherwise suffer from fragmentation.
 
-		for( i=0; i<rdwr_arg.nmsgs; i++ )
-		{
+These benchmarks mean to me that our performance is now good enough to 
+ship V4 to users (which means we need persons willing to try to crash it 
+so that the stability can become good enough to ship to users).  
+Sometime during the next week or two we will probably send a patch in, 
+and ask for inclusion.  We need to run another round of stress tests 
+after our latest tweaks, and kill off two bugs that got added just 
+recently, and then we will ask for testers. 
 
-<snip>
+I will be going to Budapest to discuss filesystem semantics with Peter 
+Foldiak for a week, so V4 may get sent in for inclusion by members of my 
+team while I am absent.  If so, please include it in 2.5/2.6.
 
-			if(copy_from_user(rdwr_pa[i].buf,
-				rdwr_arg.msgs[i].buf,
-				rdwr_pa[i].len))
-			{
-			    	res = -EFAULT;
-				break;
-			}
-		}
+-- 
+Hans
 
-<snip>
-
-After the first copy_from_user(), rdwr_arg.msgs is a pointer under user
-control.  Thus evaluating the expression "rdwr_arg.msgs[i].buf" at the
-bottom of the for-loop requires an unsafe dereference.
-
-The mem leak
-------------
-
-int i2cdev_ioctl (struct inode *inode, struct file *file, unsigned int cmd, 
-                  unsigned long arg)
-{
-
-<snip>
-
-        case I2C_RDWR:
-
-<snip>
-
-		for( i=0; i<rdwr_arg.nmsgs; i++ )
-		{
-
-<snip>
-
-			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
-			if(rdwr_pa[i].buf == NULL)
-			{
-				res = -ENOMEM;
-				break;
-			}
-			if(copy_from_user(rdwr_pa[i].buf,
-				rdwr_arg.msgs[i].buf,
-				rdwr_pa[i].len))
-			{
-			    	res = -EFAULT;
-				break;
-			}
-		}
-		if (res < 0) {
-			int j;
-			for (j = 0; j < i; ++j)
-				kfree(rdwr_pa[j].buf);
-			kfree(rdwr_pa);
-			return res;
-		}
-
-<snip>
-
-Notice the for-loop may exit with rdwr_pa[i].buf allocated if the
-copy_from_user() fails.  The cleanup code doesn't handle this case. 
-Thus a malicious user could make the kernel lose up to 8KB per ioctl.
-
-The following patch fixes both bugs.  There's a couple of lines with
-changed whitespace, but I think the changes make it more consistent (and
-fixing them would be a hassle).  Thanks for looking into this, and sorry
-if I got anything wrong.
-
-Best,
-Rob
-
---- drivers/i2c/i2c-dev.c.orig	Tue Jul 22 11:26:28 2003
-+++ drivers/i2c/i2c-dev.c	Wed Jul 23 12:55:57 2003
-@@ -219,6 +219,7 @@
- 	struct i2c_smbus_ioctl_data data_arg;
- 	union i2c_smbus_data temp;
- 	struct i2c_msg *rdwr_pa;
-+	struct i2c_msg *tmp_pa;
- 	int i,datasize,res;
- 	unsigned long funcs;
- 
-@@ -265,10 +266,21 @@
- 
- 		if (rdwr_pa == NULL) return -ENOMEM;
- 
-+		tmp_pa = (struct i2c_msg *)
-+			kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg), 
-+			GFP_KERNEL);
-+
-+		if (tmp_pa == NULL)
-+		{
-+			kfree(rdwr_pa);
-+			return -ENOMEM;
-+		}
-+
- 		res = 0;
- 		for( i=0; i<rdwr_arg.nmsgs; i++ )
- 		{
--		    	if(copy_from_user(&(rdwr_pa[i]),
-+			rdwr_pa[i].buf = NULL;
-+			if(copy_from_user(&tmp_pa[i],
- 					&(rdwr_arg.msgs[i]),
- 					sizeof(rdwr_pa[i])))
- 			{
-@@ -276,10 +288,13 @@
- 				break;
- 			}
- 			/* Limit the size of the message to a sane amount */
--			if (rdwr_pa[i].len > 8192) {
-+			if (tmp_pa[i].len > 8192) {
- 				res = -EINVAL;
- 				break;
- 			}
-+			rdwr_pa[i].addr = tmp_pa[i].addr;
-+			rdwr_pa[i].flags = tmp_pa[i].flags;
-+			rdwr_pa[i].len = tmp_pa[i].len;
- 			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
- 			if(rdwr_pa[i].buf == NULL)
- 			{
-@@ -287,18 +302,20 @@
- 				break;
- 			}
- 			if(copy_from_user(rdwr_pa[i].buf,
--				rdwr_arg.msgs[i].buf,
-+				tmp_pa[i].buf,
- 				rdwr_pa[i].len))
- 			{
--			    	res = -EFAULT;
-+				res = -EFAULT;
- 				break;
- 			}
- 		}
- 		if (res < 0) {
- 			int j;
--			for (j = 0; j < i; ++j)
--				kfree(rdwr_pa[j].buf);
-+			for (j = 0; j <= i; ++j)
-+				if (rdwr_pa[j].buf)
-+					kfree(rdwr_pa[j].buf);
- 			kfree(rdwr_pa);
-+			kfree(tmp_pa);
- 			return res;
- 		}
- 		if (!res) 
-@@ -312,7 +329,7 @@
- 			if( res>=0 && (rdwr_pa[i].flags & I2C_M_RD))
- 			{
- 				if(copy_to_user(
--					rdwr_arg.msgs[i].buf,
-+					tmp_pa[i].buf,
- 					rdwr_pa[i].buf,
- 					rdwr_pa[i].len))
- 				{
-@@ -322,6 +339,7 @@
- 			kfree(rdwr_pa[i].buf);
- 		}
- 		kfree(rdwr_pa);
-+		kfree(tmp_pa);
- 		return res;
- 
- 	case I2C_SMBUS:
 

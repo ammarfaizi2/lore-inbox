@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVAOKU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVAOLEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVAOKU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 05:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVAOKU5
+	id S262253AbVAOLEd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 06:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVAOLEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 05:20:57 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:9621
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262256AbVAOKUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 05:20:46 -0500
-Subject: Re: 2.6.11-rc1-mm1
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: karim@opersys.com
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <41E87102.2090502@opersys.com>
-References: <20050114002352.5a038710.akpm@osdl.org>
-	 <1105740276.8604.83.camel@tglx.tec.linutronix.de>
-	 <41E85123.7080005@opersys.com>
-	 <1105747280.13265.72.camel@tglx.tec.linutronix.de>
-	 <20050114162652.73283f2e.akpm@osdl.org>
-	 <1105750810.13265.126.camel@tglx.tec.linutronix.de>
-	 <41E87102.2090502@opersys.com>
-Content-Type: text/plain
-Date: Sat, 15 Jan 2005 11:20:45 +0100
-Message-Id: <1105784445.13265.222.camel@tglx.tec.linutronix.de>
+	Sat, 15 Jan 2005 06:04:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14344 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262253AbVAOLE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 06:04:27 -0500
+Date: Sat, 15 Jan 2005 11:04:18 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to hang 2.6.9 using serial port and FB console
+Message-ID: <20050115110418.A11150@flint.arm.linux.org.uk>
+Mail-Followup-To: Karel Kulhavy <clock@twibright.com>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	linux-kernel@vger.kernel.org
+References: <20041226143118.GA5169@beton.cybernet.src> <20041226145334.GC1668@gallifrey> <20041226154321.GA5519@beton.cybernet.src> <20041226155350.GD1668@gallifrey> <20041226162107.GB5859@beton.cybernet.src>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041226162107.GB5859@beton.cybernet.src>; from clock@twibright.com on Sun, Dec 26, 2004 at 04:21:07PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-14 at 20:25 -0500, Karim Yaghmour wrote:
-> Thomas Gleixner wrote:
->
-> You have previously demonstrated that you do not understand the
-> implementation you are criticizing. You keep repeating the size
-> of the patch like a mantra, yet when pressed for actual bits of
-> code that need fixing, you use a circular argument to slip away.
+On Sun, Dec 26, 2004 at 04:21:07PM +0000, Karel Kulhavy wrote:
+> However it is not sending breaks, but rather various characters. As the kernel
+> seems to be set internally for echo cahracters going into the computer on the
+> transmit line again, and the characters are echoed by the infrared receiver
+> during transmission too, a character stream cycles infinitely there.
+> 
+> However kernel shouldn't hang even if you wired the serial input to an alien
+> spacecraft.
 
-Yeah, did you answer one of my arguments except claiming that I'm to
-stupid to understand how it works ? 
+How do you know if it's the serial that's causing the hang rather than
+the virtual console subsystem?
 
-I completely understand what this code does and I don't beat on the
-patch size. I beat on the timing burden and restrictions which are given
-by the implementation.
+Your original description seems to imply that the machine only hung after
+you switched from VC1 to VC3, and then you found you couldn't switch back
+to VC1.  To me, that sounds virtual console related rather than serial
+related.  Especially if you can reproduce it at this exact point in time
+every time.
 
-I have no objection against relayfs itself. I can just leave the config
-switch off, so it does not affect me.
+Have you tried sysrq-p or sysrq-t to get a trace/thread info from the
+kernel?
 
-Adding instrumentation to the kernel is a good thing. 
-
-I just dont like the idea, that instrumentation is bound on relayfs and
-adds a feature to the kernel which fits for a restricted set of problems
-rather than providing a generic optimized instrumentation framework,
-where one can use relayfs as a backend, if it fits his needs. Making
-this less glued together leaves the possibility to use other backends. 
-
-> If you feel that there is some unncessary processing being done
-> in the kernel, please show me the piece of code affected so that
-> it can be fixed if it is broken.
-
-Just doing codepath analysis shows me:
-
-There is a loop in ltt_log_event, which enforces the processing of each
-event twice. Spliting traces is postprocessing and can be done
-elsewhere.
-
-In _ltt_log_event lives quite a bunch of if(...) processing decisions
-which have to be evaluated for _each_ event.
-
-The relay_reserve code can loop in the do { } while() and even go into a
-slow path where another do { } while() is found.
-So it can not be used in fast paths and for timing related problem
-tracking, because it adds variable time overhead.
-
-Due to the fact, that the ltt_log_event path is not preempt safe you can
-actually hit the additional go in the do { } while() loop.
-
-I pointed out before, that it is not possible to selectively select the
-events which I'm interested in during compile time. I get either nothing
-or everything. If I want to use instrumentation for a particular
-problem, why must I process a loop of _ltt_log_event calls for stuff I
-do not need instead of just compiling it away ?
-
-If I compile a event in, then adding a couple of checks into the
-instrumentation macro itself does not hurt as much as leaving the
-straight code path for a disabled event.
-
-tglx
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

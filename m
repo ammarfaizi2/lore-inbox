@@ -1,120 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268846AbUJMPZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUJMP1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268846AbUJMPZf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268868AbUJMPZf
+	id S268868AbUJMP1i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJMP1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:25:35 -0400
-Received: from ida.rowland.org ([192.131.102.52]:8964 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S268846AbUJMPZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:25:30 -0400
-Date: Wed, 13 Oct 2004 11:25:30 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Clemens Buchacher <drizzd@aon.at>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about memory barriers
-In-Reply-To: <20041013005640.GB12351@kzelldran.lan>
-Message-ID: <Pine.LNX.4.44L0.0410131043460.1181-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Oct 2004 11:27:38 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:49865 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268868AbUJMP1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 11:27:22 -0400
+Subject: PATCH: IDE generic tweak
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@linux.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097677476.4764.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 13 Oct 2004 15:24:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004, Clemens Buchacher wrote:
+This allows the user to force ide-generic to claim any remaining
+IDE_STORAGE_CLASS devices. It isnt a good default to turn on because of
+loadable driver modules and confusion with SATA however it is very
+useful faced with a mainboard device that isn't supported any other way.
+Note that the entry has to come last - if it looks OK I'll comment that
+a bit more and update the option docs.
 
-> On Tue, Oct 12, 2004 at 10:50:01AM -0400, Alan Stern wrote:
-> >  * No data-dependent reads from memory-like regions are ever reordered
-> >  * over this barrier.  All reads preceding this primitive are guaranteed
-> >  * to access memory (but not necessarily other CPUs' caches) before any
-> >  * reads following this primitive that depend on the data return by
-> >  * any of the preceding reads.
-> > 
-> > Taken at face value, this implies that all reads preceding 
-> > read_barrier_depends are guaranteed to access memory before the barrier 
-> > finishes.  Even reads whose data is not used by a subsequent read.  Is 
-> > this right?
-> 
-> No. It only affects instructions that would not have completed before a
-> subsequent (dependent) read.
+Comments ?
 
-Does it _affect_ those instructions, or does it simply wait until those
-instructions have completed?  And how does the processor know, when it
-executes the barrier, which pending reads will be depended on (and so must
-be completed) and which won't?
-
-The impression I get from what you wrote below is that the barrier
-instruction causes the processor to abandon all speculative reads until
-any already-issued reads have completed.  Isn't that essentially the same
-as saying that no speculative (i.e., non-constant) read can be moved back
-past the barrier and that the barrier won't finish until all
-already-issued reads have completed (in other words, these reads can't be
-moved forward past the barrier)?
-
-> > The first code example in system.h is not informative.  It says that this
-> > code sequence:
-> > 
-> >               q = p;
-> >               read_barrier_depends();
-> >               d = *q;
-> > 
-> > enforces ordering.  But that means nothing; the ordering is already forced 
-> > by the C language definition.  After all, it's impossible for the 
-> > processor to load data from *q before it knows what value is stored in q.
-> 
-> But it _is_ possible. The technique is called 'speculative reading' (or value
-> prediction). The processor guesses the value of q and reads *q before it
-> finishes the assignment to q. If it was wrong, the read has to be repeated. But
-> there is a chance that the stall can be avoided.
-
-> It has nothing to do with the programming language. Of course data dependencies
-> have to be respected. But while the processor ensures data consistency of the
-> program it is running, instruction reordering can have undesired effects when
-> data is shared with programs running on other processors.
-> 
-> Let's analyze the example from include/asm-i386/system.h:
-> 
->  * For example, the following code would force ordering (the initial
->  * value of "a" is zero, "b" is one, and "p" is "&a"):
->  *
->  * <programlisting>
->  *      CPU 0                           CPU 1
->  *
->  *      b = 2;
->  *      memory_barrier();
->  *      p = &b;                         q = p;
->  *                                      read_barrier_depends();
->  *                                      d = *q;
->  * </programlisting> 
-> 
-> The memory_barrier() on CPU 0 ensures that if p points to b, b already has the
-> value 2 and not its original value 1 any more. So if q is assigned the value p
-> on CPU 1, it subsequently points to either a (which is still zero) or to b, in
-> which case we would expect *q to give the value 2.
-> 
-> If, on the other hand read_barrier_depends() was not there, the processor could
-> try to predict the value of q and read *q before p is assigned to q. Consider
-> the following case (actual order of execution):
-> 
->         CPU 0                   CPU 1
-> 
->                                 d = *q; // predict q to become pointer to b
->         b = 2;
->         memory_barrier();       [ ... other instructions ... ]
->         p = &b;
->                                 q = p;  // q points to b, prediction
->                                         // turns out to be correct
-> 
-> Now d suddenly has the value 1, even though p never pointed to a variable
-> holding that value!
-
-Okay, I get it.  The example would be even clearer if you stipulate that 
-initially q = &b; that would give the CPU a good reason for speculatively 
-fetching the value of b.
-
-This seems like a devilishly easy sort of thing to overlook!
-
-Alan Stern
+--- linux.vanilla-2.6.9rc3/drivers/ide/pci/generic.c	2004-09-30 16:13:08.000000000 +0100
++++ linux-2.6.9rc3/drivers/ide/pci/generic.c	2004-10-13 15:08:49.586093152 +0100
+@@ -41,6 +41,17 @@
+ 
+ #include "generic.h"
+ 
++static int ide_generic_all;		/* Set to claim all devices */
++
++static int __init ide_generic_all_on(char *unused)
++{
++	ide_generic_all = 1;
++	printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.\n");
++	return 1;
++}
++
++__setup("all-generic-ide", ide_generic_all_on);
++
+ static unsigned int __init init_chipset_generic (struct pci_dev *dev, const char *name)
+ {
+ 	return 0;
+@@ -96,6 +107,11 @@
+ {
+ 	ide_pci_device_t *d = &generic_chipsets[id->driver_data];
+ 	u16 command;
++	
++	/* Don't use the generic entry unless instructed to do so */
++	if (id->driver_data == 13)
++		if(ide_generic_all == 0)
++			return 1;
+ 
+ 	if (dev->vendor == PCI_VENDOR_ID_UMC &&
+ 	    dev->device == PCI_DEVICE_ID_UMC_UM8886A &&
+@@ -108,8 +124,7 @@
+ 		return 1;
+ 
+ 	pci_read_config_word(dev, PCI_COMMAND, &command);
+-	if(!(command & PCI_COMMAND_IO))
+-	{
++	if(!(command & PCI_COMMAND_IO)) {
+ 		printk(KERN_INFO "Skipping disabled %s IDE controller.\n", d->name);
+ 		return 1; 
+ 	}
+@@ -133,6 +148,8 @@
+ 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
+ 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
+ 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
++
++	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 13},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, generic_pci_tbl);
+--- linux.vanilla-2.6.9rc3/drivers/ide/pci/generic.h	2004-09-30 15:35:49.000000000 +0100
++++ linux-2.6.9rc3/drivers/ide/pci/generic.h	2004-10-13 15:10:54.061170064 +0100
+@@ -101,6 +101,13 @@
+ 		.channels	= 2,
+ 		.autodma	= NOAUTODMA,
+ 		.bootable	= ON_BOARD,
++	},{ /* 13 */
++		.name 		= "Unknown",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.bootable	= ON_BOARD,
+ 	}
+ };
+ 
 

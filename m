@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268017AbRHKPF2>; Sat, 11 Aug 2001 11:05:28 -0400
+	id <S268129AbRHKPKS>; Sat, 11 Aug 2001 11:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268079AbRHKPFS>; Sat, 11 Aug 2001 11:05:18 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:29570 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S268017AbRHKPFJ>;
-	Sat, 11 Aug 2001 11:05:09 -0400
-Date: Sat, 11 Aug 2001 19:08:17 +0400
-From: s0mbre <johnpol@2ka.mipt.ru>
-X-Mailer: The Bat! (v1.39) Educational
-Reply-To: s0mbre <johnpol@2ka.mipt.ru>
-X-Priority: 3 (Normal)
-Message-ID: <8797.010811@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [insmod don't work corrctly] /dev/hands damaged system
-Mime-Version: 1.0
+	id <S268123AbRHKPKJ>; Sat, 11 Aug 2001 11:10:09 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:7178 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S268079AbRHKPJ6>; Sat, 11 Aug 2001 11:09:58 -0400
+Date: 11 Aug 2001 13:28:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86efRRPHw-B@khms.westfalen.de>
+In-Reply-To: <200108102159.f7ALxb908284@penguin.transmeta.com>
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200108102159.f7ALxb908284@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, linux guru.
+torvalds@transmeta.com (Linus Torvalds)  wrote on 10.08.01 in <200108102159.f7ALxb908284@penguin.transmeta.com>:
 
-After recompiling -ac1( and -ac10, and -ac9, and -ac7) with
-gcc-2.95.2( instead of 3.0 that doesn't work in principle), i collide
-with strange behavior of lsmod:
+> In article <20010810231906.A21435@bonzo.nirvana> you write:
+> >How can I reboot a stuck machine remotely, when there are uninterruptable
+> >processes arround? shutdown -r, reboot [-n] [-f], telinit 6 do not give the
+> >intended results. Localy I can use Alt-SysRq-S/U/B, but what if I still
+> >have a remote ssh connection and don't want to have to get to the machines
+> >location?
+> >Of course the real problem are the processes themselves, but being able to
+> >revive a machine is also nice ;)
+>
+> You have to use the reboot() system call directly as root, with the
+> proper arguments to make it avoid doing even any sync. See
+>
+> 	man 2 reboot
+>
+> for details.
 
-[root@Sombre s0mbre]# insmod /lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol __kfree_skb
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol ether_setup
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol kmalloc
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol unregister_netdev
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol register_netdev
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol dev_alloc_name
-/lib/modules/2.4.7-ac1/kernel/drivers/net/dummy.o: unresolved symbol kfree
-[root@Sombre s0mbre]#
-  
-Where can i miss a sufficient thing?
+I thought that was exactly what reboot -n -f does: don't sync, don't call  
+shutdown, just reboot immediately. That's certainly what I have  
+(successfully) used that for in the past.
 
-
-Thanks in advance for your help and advices.
-
----
-WBR. //s0mbre
-
-
+MfG Kai

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVBPAia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVBPAps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVBPAia (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 19:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVBPAi3
+	id S261238AbVBPAps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 19:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVBPAps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 19:38:29 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:2220 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S261180AbVBPAhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 19:37:50 -0500
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and
-	give	dev=/dev/hdX as device
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: Kiniger <karl.kiniger@med.ge.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215231624.GA24023@wszip-kinigka.euro.med.ge.com>
-References: <1108426832.5015.4.camel@bastov>
-	 <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org>
-	 <1108486952.4618.10.camel@localhost.localdomain>
-	 <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
-	 <1108497781.3828.51.camel@crazytrain>
-	 <20050215231624.GA24023@wszip-kinigka.euro.med.ge.com>
-Content-Type: text/plain
-Message-Id: <1108514142.3885.1.camel@crazytrain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 15 Feb 2005 19:35:42 -0500
+	Tue, 15 Feb 2005 19:45:48 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:58247 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261238AbVBPApn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 19:45:43 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Date: Tue, 15 Feb 2005 16:45:27 -0800
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+References: <200502151557.06049.jbarnes@sgi.com> <9e473391050215163621dafa65@mail.gmail.com>
+In-Reply-To: <9e473391050215163621dafa65@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502151645.27774.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-15 at 18:16, Kiniger wrote:
+On Tuesday, February 15, 2005 4:36 pm, Jon Smirl wrote:
+> You're removing the check for 55AA at the start of the ROM.
 
-> > 
-> > what about catting out that device?  I.E., 
-> > 
-> > 'cat /dev/cdxxx > some.iso'
-> > 
-> > *instead* of using 'dd' (or variants) against it?  I've always had good
-> > results using 'cat' and CDs, avoiding 'dd' and CDs whenever the
-> > opportunity presents itself.
-> 
-> I dont think this is relevant. cat will probably use stdio which will
-> do blocking similar to dd (perhaps 4 kB).
-> 
+No, the check is still there, I just removed the printk if 0xaa55 isn't found 
+(my box returns 0x303 instead).
 
-But it *is* a quick try (rule out), though.  Take 5 minutes if you can
-and try it.  Easy to rule.  If it fails, it fails.  But *if* not, you
-don't waste any more time.  I only mention it because it's worked for me
-in the past where dd (and variants) has (have) not.
+> I though 
+> the PCI standard was that all ROMs had to start with the no matter
+> what object code they contain. Then if you look for PCIR there is a
+> field in the stucture that says what language the ROM is in. Maybe the
+> problem is in the BIOS_IN16() function and things are getting byte
+> swapped wrong.
 
--fd
+I thought the signature described what type of ROM was there?  E.g. 0xaa55 
+means x86 ROM, x0303 means OF ROM, etc.?
 
+At any rate, not having a ROM at all (which my case may be) isn't an error 
+either, so I think removing the printk is appropriate regardless.
+
+Thanks,
+Jesse

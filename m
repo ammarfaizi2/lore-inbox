@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbULFBvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbULFCAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbULFBvD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 20:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbULFBvD
+	id S261450AbULFCAB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 21:00:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbULFCAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 20:51:03 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:60599 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261451AbULFBu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 20:50:57 -0500
-Date: Mon, 6 Dec 2004 02:50:53 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Martin Pool <mbp@sourcefrog.net>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: rescan partitions returns EIO since 2.6.8
-Message-ID: <20041206015052.GC4734@apps.cwi.nl>
-References: <200412051403.iB5E3EJ01749@apps.cwi.nl> <20041206004722.GD26060@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041206004722.GD26060@hp.com>
-User-Agent: Mutt/1.4i
+	Sun, 5 Dec 2004 21:00:01 -0500
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:27065 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261450AbULFB76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 20:59:58 -0500
+Message-ID: <41B3BD0F.6010008@kolivas.org>
+Date: Mon, 06 Dec 2004 12:59:43 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time sliced CFQ #2
+References: <20041204104921.GC10449@suse.de> <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net>
+In-Reply-To: <20041206002954.GA28205@optonline.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig014EE5EB87A1EB7797FD219B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06, 2004 at 11:47:22AM +1100, Martin Pool wrote:
-> On  5 Dec 2004, Andries.Brouwer@cwi.nl wrote:
-> > Martin Pool changed the behaviour of the BLKRRPART ioctl in 2.6.8.
-> > The effect is that one now gets an I/O error when first
-> > partitioning an empty disk:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig014EE5EB87A1EB7797FD219B
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jeff Sipek wrote:
+> On Sun, Dec 05, 2004 at 07:58:45PM +0100, Jens Axboe wrote:
 > 
-> > # sfdisk /dev/sda
-> > Checking that no-one is using this disk right now ...
-> > BLKRRPART: Input/output error
+>>It should be really easy to try some rudimentary prio io support - just
+>>scale the time slice based on process priority. A few lines of code
+>>change, and io priority now follows process cpu scheduler priority. To
+>>work really well, the code probably needs a few more limits besides just
+>>slice time.
 > 
-> To me it seems more correct that a request to read the partition table
-> should fail if the partition table can't be read.
+> 
+> I started working on the rudimentary io prio code, and it got me thinking...
+> Why use the cpu scheduler priorities? Wouldn't it make more sense to add
+> io_prio to task_struct? This way you can have a process which you know needs
+> a lot of CPU but not as much io, or the other way around.
 
-I do not view BLKRRPART as a request to read the partition table.
-It is a request to revalidate: "if the disk is in use, return EBUSY,
-otherwise, discard any old information, read any new information".
-If the disk is blank then there is no new information to read,
-that is not an error, and certainly not an I/O error.
+That is the design the Jens' original ioprio code used which we used in 
+-ck for quite a while. What myself and -ck users found, though, was that 
+being tied to cpu 'nice' meant that most tasks behaved pretty much as 
+we'd expect based on one sys call.
 
-> if you really want to roll it back I won't object.
+I think what is ideal is to have both. First the ioprio should be set to 
+what the cpu 'nice' level is as a sort of global "this is the priority 
+of this task" setting. Then it should also support changing of this 
+priority with a different call separate from the cpu nice. That way we 
+can take into account access privileges of the caller making it 
+impossible to set a high ioprio if the task itself is heavily niced by a 
+superuser and so on.
 
-Yes, I think I want to - am getting worried mail from people
-who very much dislike I/O errors on a brand-new disk.
+Cheers,
+Con
 
-Andries
+--------------enig014EE5EB87A1EB7797FD219B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBs70RZUg7+tp6mRURAiTkAJ0fxLl46BRXs9D2E7h/AWnPP3z/bgCdH22m
+9aQ3/sIFNViw6mgDezuB3Yg=
+=B8gO
+-----END PGP SIGNATURE-----
+
+--------------enig014EE5EB87A1EB7797FD219B--

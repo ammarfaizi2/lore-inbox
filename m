@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131498AbRCWWph>; Fri, 23 Mar 2001 17:45:37 -0500
+	id <S131496AbRCWXA0>; Fri, 23 Mar 2001 18:00:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131495AbRCWWoJ>; Fri, 23 Mar 2001 17:44:09 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:12638 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S131489AbRCWWm0>; Fri, 23 Mar 2001 17:42:26 -0500
-Message-ID: <3ABBD11D.FE20FB69@blue-labs.org>
-Date: Fri, 23 Mar 2001 14:41:33 -0800
-From: David Ford <david@blue-labs.org>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: otto.wyss@bluewin.ch
-CC: David Balazic <david.balazic@uni-mb.si>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should better cope with power failure
-In-Reply-To: <3ABB6B82.62293CAD@uni-mb.si> <3ABBA400.2AEC97E8@bluewin.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131501AbRCWXAQ>; Fri, 23 Mar 2001 18:00:16 -0500
+Received: from jalon.able.es ([212.97.163.2]:24008 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131496AbRCWW75>;
+	Fri, 23 Mar 2001 17:59:57 -0500
+Date: Fri, 23 Mar 2001 23:59:09 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "J . A . Magallon" <jamagallon@able.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] gcc-3.0 warnings
+Message-ID: <20010323235909.C3098@werewolf.able.es>
+In-Reply-To: <20010323162956.A27066@ganymede.isdn.uiuc.edu> <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.31.0103231433380.766-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 23, 2001 at 23:34:15 +0100
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otto Wyss wrote:
 
-> > I had a similar experience:
-> > X crashed , hosing the console , so I could not initiate
-> > a proper shutdown.
-> >
-> > Here I must note that the response you got on linux-kernel is
-> > shameful.
-> >
-> Thanks, but I expected it a little bit. All around Linux is centered
-> around getting the highest performance out of it and very low (to low
-> IMHO) is done to have a save system. The attitude "It doesn't matter
-> making mistakes, they get fix anyhow" annoys me most, especially if it
-> were easy to prevent them.
+On 03.23 Linus Torvalds wrote:
+> 
+> I agree. I'd much prefer that syntax also.
+> 
+> Or just remove the "default:" altogether, when it doesn't make any
+> difference.
+> 
 
-No, the correct answer is if you want a reliable recovery then run your disks
-in non write buffered mode.  I.e. turn on sync in fstab.
+Well, at last some sense. The same is with that ugly out: at the end
+of the function. Just change all that 'goto out' for a return.
+It does not matter, -O2 is going to do what it wants.
 
-It's all about RTFM and knowing the difference between buffered actions and
-nonbuffered.
+And the missing return 0 at the end of functions that call a 'noreturn'
+function. gcc 2.96 still wants them. But it looks like a religious matter
+to put ot not to put that stupid return just to shut up the compiler.
+As I understand, the noreturn says that the function that is marked as
+noreturn is allowed to have missing correct return paths, and the compiler
+can build, for example <panic>, without worring about the global state
+once it has entered <panic>. But <info gcc> says nothing about functions
+that call a 'noreturn' function. So I see as INCORRECT to omit a return path
+in a function that calls <panic>.
 
-Everything you need to have a safely clean and proper crash recovery system
-already is within your power, you just need to read the man pages and fix
-your fstab instead of blaming linux-kernel for bad attitudes.
+And if people is so worried about fast paths, begin to use 'const' or
+'pure' functions. I think that can help the compiler to generate fast code
+more than trying to do hancrafted fast paths that the compiler will reorganize.
 
-Yes, it's very easy to prevent e2fsck runs.  Run synchronous or journaled
-file systems.
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
 
-> > > Don't we tell children never go close to any abyss or doesn't have
-> > > alpinist a saying "never go to the limits"? So why is this simple rule
-> > > always broken with computers?
-> > >
-> Is there a similar expression which could be hammered into any
-> developers mind, i.e. "Don't make errors, others already do them for you".
-
-There is also a very common expression...RTFM.
-
-Please understand what you are doing before you do it, particularly before
-you bad mouth others for having a bad attitude.  Don't blame race car makers
-for destructive engine failure when you expect it to act like a family car.
-
--d
-
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
+Linux werewolf 2.4.2-ac22 #3 SMP Fri Mar 23 02:06:00 CET 2001 i686
 

@@ -1,166 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTIUOvm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 10:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTIUOvm
+	id S262416AbTIUOsE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 10:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbTIUOsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 10:51:42 -0400
-Received: from web12811.mail.yahoo.com ([216.136.174.128]:47460 "HELO
-	web12811.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262422AbTIUOv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 10:51:28 -0400
-Message-ID: <20030921145127.39547.qmail@web12811.mail.yahoo.com>
-Date: Sun, 21 Sep 2003 07:51:27 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: A couple of 2.4.23-pre4 VM nits
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-In-Reply-To: <20030921140404.GA16399@velociraptor.random>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1908661250-1064155887=:39371"
+	Sun, 21 Sep 2003 10:48:04 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:22630 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262416AbTIUOsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 10:48:02 -0400
+Date: Sun, 21 Sep 2003 15:47:27 +0100
+From: Dave Jones <davej@redhat.com>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix Athlon MCA
+Message-ID: <20030921144727.GP10474@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+References: <20030921143934.GA1867@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030921143934.GA1867@dreamland.darkstar.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1908661250-1064155887=:39371
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+On Sun, Sep 21, 2003 at 04:39:34PM +0200, Kronos wrote:
 
-I just realized the original code had one desirable
-behaviour that my patch is missing, namely, it
-reclaimed memory from dcache/inode every time swap_out
-is called.  Please use the attached patch that
-restores the original behaviour.  Otherwise, if the
-interval is very long, no reclamation will happen
-until swap_out() fails which in the common case is
-unlikely.
+ > We really want to clean all MC*_STATUS. I'm currently running linux 2.6.0-t5
+ > + this patch and I don't see the MCE messages on boot anymore. 
 
-Thanks,
-Shantanu
+Patch looks good to me.
 
---- Andrea Arcangeli <andrea@suse.de> wrote:
-> On Sat, Sep 20, 2003 at 10:32:09PM -0700, Shantanu
-> Goel wrote:
-> > Agreed on all counts.  I just blindly copied the
-> > max_scan decrement from 2.4.22.  Even there your
-> > suggestion would make sense.  Attached is a new
-> patch
-> > which adds support for vm_vfs_scan_interval sysctl
-> and
-> > also fixes the location of max_scan decrement.
-> 
-> this patch looks fine to me thanks. Marcelo, feel
-> free to merge this one
-> instead of my one liner fix.
-> 
-> Andrea - If you prefer relying on open source
-> software, check these links:
-> 	   
->
-rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-> 	    http://www.cobite.com/cvsps/
-> 	    svn://svn.kernel.org/linux-2.[46]/trunk
+		Dave
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
---0-1908661250-1064155887=:39371
-Content-Type: application/octet-stream; name="vfs-interval2.patch"
-Content-Transfer-Encoding: base64
-Content-Description: vfs-interval2.patch
-Content-Disposition: attachment; filename="vfs-interval2.patch"
-
-LS0tIC4va2VybmVsL3N5c2N0bC5jLn4xfgkyMDAzLTA5LTE2IDIwOjQ0OjE0
-LjAwMDAwMDAwMCAtMDQwMAorKysgLi9rZXJuZWwvc3lzY3RsLmMJMjAwMy0w
-OS0yMSAwMDo0OTozMi4wMDAwMDAwMDAgLTA0MDAKQEAgLTI4MSw2ICsyODEs
-OCBAQAogCSAmdm1fZ2ZwX2RlYnVnLCBzaXplb2YoaW50KSwgMDY0NCwgTlVM
-TCwgJnByb2NfZG9pbnR2ZWN9LAogCXtWTV9WRlNfU0NBTl9SQVRJTywgInZt
-X3Zmc19zY2FuX3JhdGlvIiwgCiAJICZ2bV92ZnNfc2Nhbl9yYXRpbywgc2l6
-ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjfSwKKwl7Vk1f
-VkZTX1NDQU5fSU5URVJWQUwsICJ2bV92ZnNfc2Nhbl9pbnRlcnZhbCIsIAor
-CSAmdm1fdmZzX3NjYW5faW50ZXJ2YWwsIHNpemVvZihpbnQpLCAwNjQ0LCBO
-VUxMLCAmcHJvY19kb2ludHZlY30sCiAJe1ZNX0NBQ0hFX1NDQU5fUkFUSU8s
-ICJ2bV9jYWNoZV9zY2FuX3JhdGlvIiwgCiAJICZ2bV9jYWNoZV9zY2FuX3Jh
-dGlvLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9
-LAogCXtWTV9NQVBQRURfUkFUSU8sICJ2bV9tYXBwZWRfcmF0aW8iLCAKLS0t
-IC4vbW0vdm1zY2FuLmMufjF+CTIwMDMtMDktMTYgMjA6NDQ6MTQuMDAwMDAw
-MDAwIC0wNDAwCisrKyAuL21tL3Ztc2Nhbi5jCTIwMDMtMDktMjEgMDI6NDc6
-NDkuMDAwMDAwMDAwIC0wNDAwCkBAIC02NSw2ICs2NSwxMiBAQAogaW50IHZt
-X3Zmc19zY2FuX3JhdGlvID0gNjsKIAogLyoKKyAqICJ2bV92ZnNfc2Nhbl9p
-bnRlcnZhbCIgaXMgaG93IG9mdGVuIChpbiBzZWNvbmRzKQorICogbWVtb3J5
-IGdldHMgcmVjbGFpbWVkIGZyb20gaW5vZGUvZGVudHJ5IGNhY2hlLgorICov
-CitpbnQgdm1fdmZzX3NjYW5faW50ZXJ2YWwgPSBNQVhfU0NIRURVTEVfVElN
-RU9VVCAvIEhaOworCisvKgogICogVGhlIHN3YXAtb3V0IGZ1bmN0aW9uIHJl
-dHVybnMgMSBpZiBpdCBzdWNjZXNzZnVsbHkKICAqIHNjYW5uZWQgYWxsIHRo
-ZSBwYWdlcyBpdCB3YXMgYXNrZWQgdG8gKGBjb3VudCcpLgogICogSXQgcmV0
-dXJucyB6ZXJvIGlmIGl0IGNvdWxkbid0IGRvIGFueXRoaW5nLApAQCAtMzY0
-LDYgKzM3MCwyMCBAQAogCXJldHVybiAwOwogfQogCitzdGF0aWMgdm9pZCBz
-aHJpbmtfdmZzX2NhY2hlcyhpbnQgZm9yY2UsIHVuc2lnbmVkIGludCBnZnBf
-bWFzaykKK3sKKwlzdGF0aWMgdW5zaWduZWQgbG9uZyBsYXN0X3NjYW4gPSAw
-OworCisJaWYgKGZvcmNlIHx8IHRpbWVfYWZ0ZXIoamlmZmllcywgbGFzdF9z
-Y2FuICsgdm1fdmZzX3NjYW5faW50ZXJ2YWwgKiBIWikpIHsKKwkJc2hyaW5r
-X2RjYWNoZV9tZW1vcnkodm1fdmZzX3NjYW5fcmF0aW8sIGdmcF9tYXNrKTsK
-KwkJc2hyaW5rX2ljYWNoZV9tZW1vcnkodm1fdmZzX3NjYW5fcmF0aW8sIGdm
-cF9tYXNrKTsKKyNpZmRlZiBDT05GSUdfUVVPVEEKKwkJc2hyaW5rX2RxY2Fj
-aGVfbWVtb3J5KHZtX3Zmc19zY2FuX3JhdGlvLCBnZnBfbWFzayk7CisjZW5k
-aWYKKwkJbGFzdF9zY2FuID0gamlmZmllczsKKwl9Cit9CisKIHN0YXRpYyB2
-b2lkIEZBU1RDQUxMKHJlZmlsbF9pbmFjdGl2ZShpbnQgbnJfcGFnZXMsIHpv
-bmVfdCAqIGNsYXNzem9uZSkpOwogc3RhdGljIGludCBGQVNUQ0FMTChzaHJp
-bmtfY2FjaGUoaW50IG5yX3BhZ2VzLCB6b25lX3QgKiBjbGFzc3pvbmUsIHVu
-c2lnbmVkIGludCBnZnBfbWFzaywgaW50ICogZmFpbGVkX3N3YXBvdXQpKTsK
-IHN0YXRpYyBpbnQgc2hyaW5rX2NhY2hlKGludCBucl9wYWdlcywgem9uZV90
-ICogY2xhc3N6b25lLCB1bnNpZ25lZCBpbnQgZ2ZwX21hc2ssIGludCAqIGZh
-aWxlZF9zd2Fwb3V0KQpAQCAtNDAxLDYgKzQyMSw4IEBACiAJCWlmICghbWVt
-Y2xhc3MocGFnZV96b25lKHBhZ2UpLCBjbGFzc3pvbmUpKQogCQkJY29udGlu
-dWU7CiAKKwkJbWF4X3NjYW4tLTsKKwogCQkvKiBSYWN5IGNoZWNrIHRvIGF2
-b2lkIHRyeWxvY2tpbmcgd2hlbiBub3Qgd29ydGh3aGlsZSAqLwogCQlpZiAo
-IXBhZ2UtPmJ1ZmZlcnMgJiYgKHBhZ2VfY291bnQocGFnZSkgIT0gMSB8fCAh
-cGFnZS0+bWFwcGluZykpCiAJCQlnb3RvIHBhZ2VfbWFwcGVkOwpAQCAtNTE2
-LDExICs1MzgsNyBAQAogCQkJCWlmIChucl9wYWdlcyA8PSAwKQogCQkJCQln
-b3RvIG91dDsKIAotCQkJCXNocmlua19kY2FjaGVfbWVtb3J5KHZtX3Zmc19z
-Y2FuX3JhdGlvLCBnZnBfbWFzayk7Ci0JCQkJc2hyaW5rX2ljYWNoZV9tZW1v
-cnkodm1fdmZzX3NjYW5fcmF0aW8sIGdmcF9tYXNrKTsKLSNpZmRlZiBDT05G
-SUdfUVVPVEEKLQkJCQlzaHJpbmtfZHFjYWNoZV9tZW1vcnkodm1fdmZzX3Nj
-YW5fcmF0aW8sIGdmcF9tYXNrKTsKLSNlbmRpZgorCQkJCXNocmlua192ZnNf
-Y2FjaGVzKDEsIGdmcF9tYXNrKTsKIAogCQkJCWlmICghKmZhaWxlZF9zd2Fw
-b3V0KQogCQkJCQkqZmFpbGVkX3N3YXBvdXQgPSAhc3dhcF9vdXQoY2xhc3N6
-b25lKTsKQEAgLTYxNCw2ICs2MzIsOCBAQAogCWlmIChucl9wYWdlcyA8PSAw
-KQogCQlnb3RvIG91dDsKIAorCXNocmlua192ZnNfY2FjaGVzKDAsIGdmcF9t
-YXNrKTsKKwogCXNwaW5fbG9jaygmcGFnZW1hcF9scnVfbG9jayk7CiAJcmVm
-aWxsX2luYWN0aXZlKG5yX3BhZ2VzLCBjbGFzc3pvbmUpOwogCkBAIC02Mzgs
-MTEgKzY1OCw5IEBACiAJCQlucl9wYWdlcyA9IHNocmlua19jYWNoZXMoY2xh
-c3N6b25lLCBnZnBfbWFzaywgbnJfcGFnZXMsICZmYWlsZWRfc3dhcG91dCk7
-CiAJCQlpZiAobnJfcGFnZXMgPD0gMCkKIAkJCQlyZXR1cm4gMTsKLQkJCXNo
-cmlua19kY2FjaGVfbWVtb3J5KHZtX3Zmc19zY2FuX3JhdGlvLCBnZnBfbWFz
-ayk7Ci0JCQlzaHJpbmtfaWNhY2hlX21lbW9yeSh2bV92ZnNfc2Nhbl9yYXRp
-bywgZ2ZwX21hc2spOwotI2lmZGVmIENPTkZJR19RVU9UQQotCQkJc2hyaW5r
-X2RxY2FjaGVfbWVtb3J5KHZtX3Zmc19zY2FuX3JhdGlvLCBnZnBfbWFzayk7
-Ci0jZW5kaWYKKworCQkJc2hyaW5rX3Zmc19jYWNoZXMoMSwgZ2ZwX21hc2sp
-OworCiAJCQlpZiAoIWZhaWxlZF9zd2Fwb3V0KQogCQkJCWZhaWxlZF9zd2Fw
-b3V0ID0gIXN3YXBfb3V0KGNsYXNzem9uZSk7CiAJCX0gd2hpbGUgKC0tdHJp
-ZXMpOwotLS0gLi9pbmNsdWRlL2xpbnV4L3N3YXAuaC5+MX4JMjAwMy0wOS0x
-NiAyMDo0NjozNS4wMDAwMDAwMDAgLTA0MDAKKysrIC4vaW5jbHVkZS9saW51
-eC9zd2FwLmgJMjAwMy0wOS0yMSAwMDo1NjoyMy4wMDAwMDAwMDAgLTA0MDAK
-QEAgLTExNiw2ICsxMTYsNyBAQAogZXh0ZXJuIGludCBGQVNUQ0FMTCh0cnlf
-dG9fZnJlZV9wYWdlc196b25lKHpvbmVfdCAqLCB1bnNpZ25lZCBpbnQpKTsK
-IGV4dGVybiBpbnQgRkFTVENBTEwodHJ5X3RvX2ZyZWVfcGFnZXModW5zaWdu
-ZWQgaW50KSk7CiBleHRlcm4gaW50IHZtX3Zmc19zY2FuX3JhdGlvLCB2bV9j
-YWNoZV9zY2FuX3JhdGlvLCB2bV9scnVfYmFsYW5jZV9yYXRpbywgdm1fcGFz
-c2VzLCB2bV9nZnBfZGVidWcsIHZtX21hcHBlZF9yYXRpbzsKK2V4dGVybiBp
-bnQgdm1fdmZzX3NjYW5faW50ZXJ2YWw7CiAKIC8qIGxpbnV4L21tL3BhZ2Vf
-aW8uYyAqLwogZXh0ZXJuIHZvaWQgcndfc3dhcF9wYWdlKGludCwgc3RydWN0
-IHBhZ2UgKik7Ci0tLSAuL2luY2x1ZGUvbGludXgvc3lzY3RsLmgufjF+CTIw
-MDMtMDktMTYgMjA6NDY6MzUuMDAwMDAwMDAwIC0wNDAwCisrKyAuL2luY2x1
-ZGUvbGludXgvc3lzY3RsLmgJMjAwMy0wOS0yMSAwMDo1OTozNy4wMDAwMDAw
-MDAgLTA0MDAKQEAgLTE1NCw2ICsxNTQsNyBAQAogCVZNX0dGUF9ERUJVRz0x
-OCwgICAgICAgIC8qIGRlYnVnIEdGUCBmYWlsdXJlcyAqLwogCVZNX0NBQ0hF
-X1NDQU5fUkFUSU89MTksIC8qIHBhcnQgb2YgdGhlIGluYWN0aXZlIGNhY2hl
-IGxpc3QgdG8gc2NhbiAqLwogCVZNX01BUFBFRF9SQVRJTz0yMCwgICAgIC8q
-IGFtb3VudCBvZiB1bmZyZWVhYmxlIHBhZ2VzIHRoYXQgdHJpZ2dlcnMgc3dh
-cG91dCAqLworCVZNX1ZGU19TQ0FOX0lOVEVSVkFMPTIxLC8qIGludGVydmFs
-IChpbiBzZWNzKSBiZXR3ZWVuIHJlY2xhaW1pbmcgbWVtb3J5IGZyb20gaW5v
-ZGUvZGVudHJ5IGNhY2hlICovCiB9OwogCiAK
-
---0-1908661250-1064155887=:39371--
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

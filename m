@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289961AbSAPPQn>; Wed, 16 Jan 2002 10:16:43 -0500
+	id <S289962AbSAPPXF>; Wed, 16 Jan 2002 10:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289967AbSAPPQd>; Wed, 16 Jan 2002 10:16:33 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22026 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289962AbSAPPQP>; Wed, 16 Jan 2002 10:16:15 -0500
-Date: Wed, 16 Jan 2002 10:15:17 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C423CB9.7BB04345@zip.com.au>
-Message-ID: <Pine.LNX.3.96.1020116100231.28369B-100000@gatekeeper.tmr.com>
+	id <S289967AbSAPPWy>; Wed, 16 Jan 2002 10:22:54 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:10442 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S289962AbSAPPWk>;
+	Wed, 16 Jan 2002 10:22:40 -0500
+Message-ID: <002c01c19ea1$ea0c9160$0501a8c0@psuedogod>
+From: "Ed Sweetman" <ed.sweetman@wmich.edu>
+To: "Lukas Geyer" <geyer@ml.kva.se>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201161417540.6868-100000@cauchy.ml.kva.se>
+Subject: Re: Two issues with 2.4.18pre3 on PPC
+Date: Wed, 16 Jan 2002 10:24:30 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002, Andrew Morton wrote:
+> Hi,
+>
+> I am very glad that the PPC patches are now merged so I can use a
+> mainstream kernel again on my iBook. Thanks to all the people who did
+> this. It works quite fine so far but there are two minor problems:
+>
+> - The kernel ignores the boot parameter hdb=ide-scsi, it probes hdb anyway
+>   and loads the ATAPI CD-ROM driver. The problem may be (I am really not
+>   familiar with the kernel internals) the function pmac_ide_probe() in
+>   drivers/ide/ide-pmac.c which does not check for any kernel boot
+>   parameters at all.
+This has beed changed for some time now.  You need to pass some ignore
+argument to the ide-cdrom driver and load it first then load the ide-scsi
+which will detect any remaining atapi devices.  I could give you the exact
+line if my system wasn't dead at the moment.
 
-> Bill Davidsen wrote:
-> > 
-> > Finally, I doubt that any of this will address my biggest problem with
-> > Linux, which is that as memory gets cheap a program doing significant disk
-> > writing can get buffers VERY full (perhaps a while CD worth) before the
-> > kernel decides to do the write, at which point the system becomes
-> > non-responsive for seconds at a time while the disk light comes on and
-> > stays on.
 
-> /proc/sys/vm/bdflush: Decreasing the kupdate interval from five
-> seconds, decreasing the nfract and nfract_sync setting in there
-> should smooth this out.  The -aa patches add start and stop
-> levels for bdflush as well, which means that bdflush can be the
-> one who blocks on IO rather than your process.  And it means that
-> the request queue doesn't get 100% drained as soon as the writer
-> hits nfract_sync.
-
-Been there, done that. Makes it "less bad" if the right settings are
-chosen. I will try -aa on 2.4.18-pre3 (or 4 if the patch is out), I've
-been trying -ac this morning. Looking at the code, it doesn't look as if
-the logic is what I want to see, no matter how tuned. last night I tried a
-patch, and several of the "unued" elements in the bdflush were reused, but
-I froze w/o any io for seconds, so I don't have it right.
-
-What I want is a smooth increase in how mush is written as the dirty
-buffers increase. Percentage of {anything} may be the wrong thing to use,
-the problem is dirty buffers vs. disk write bandwidth, on a 2GB machine
-it's a smaller percentage than 128M machine, but the absolute numbers seem
-to be similar.
- 
-> All very interesting and it will be fun to play with when it
-> *finally* gets merged.
-> 
-> But with the current elevator design, disk read latencies will
-> still be painful.
-
-There are a few patches around to change that. Note I didn't say "fix"
-just change.
-
-Finally, one of my goals is to be able to keep a large free page pool. I
-have two apps which will suddenly need another 8MB or so, and if they have
-to wait for disk they become unpleasant. With current memory prices I
-don't mind "wasting" 256MB or so, if it means I get better response when I
-want it. This is all part of tuning the system to application, I certainly
-wouldn't use it on other machines.
-
-Better doc of bdflush wouldn't be amiss, either. When/if it stops changing
-I will clean up my notes from a stack of 3x5 cards to something useful and
-make them available. If there's a doc giving what the bdflush values do
-(in current kernels) and what happens when you change them, and what to
-tune first if you have this problem, I haven't found it. 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

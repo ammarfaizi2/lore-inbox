@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUJLSBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUJLSCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUJLSBb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJLR5y
+	id S266517AbUJLSCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJLSCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 13:57:54 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:35267 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266236AbUJLRxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 13:53:43 -0400
-Message-ID: <416C19B9.7000806@rtr.ca>
-Date: Tue, 12 Oct 2004 13:51:53 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
+	Tue, 12 Oct 2004 14:02:24 -0400
+Received: from mailhub.fr.lyceu.net ([213.193.0.30]:36522 "EHLO
+	mailhub.fr.lyceu.net") by vger.kernel.org with ESMTP
+	id S266543AbUJLSCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:02:00 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: lock issues
+References: <20041011225700.GD32228@DUMA.13thfloor.at>
+	<1097539708.5432.64.camel@lade.trondhjem.org>
+	<20041012142916.GA8513@DUMA.13thfloor.at>
+From: Olivier Poitrey <rs@rhapsodyk.net>
+Date: Tue, 12 Oct 2004 19:58:58 +0200
+In-Reply-To: <20041012142916.GA8513@DUMA.13thfloor.at> (Herbert Poetzl's
+ message of "Tue, 12 Oct 2004 16:29:16 +0200")
+Message-ID: <87is9f3jj1.fsf@ice.aspic.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i			nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165	A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca	>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.	A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.607090	4@rtr.ca> <1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca>	<1097250465.2412.49.camel@mulgrave> 	<416C0D55.1020603@rtr.ca>	<1097601478.2044.103.camel@mulgrave>  <416C12CC.1050301@rtr.ca> <1097602220.2044.119.camel@mulgrave> <416C157A.6030400@rtr.ca> <416C177B.6030504@pobox.com>
-In-Reply-To: <416C177B.6030504@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-..
-> The usual way to do what you want is either
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-That's how it works already, thanks, except that it
-does have a few calls to in_interrupt() rather than
-simply passing itself a flag parameter to convey the
-same information -- I'll fix that now.
+> NFS v3  options should be rw,intr,tcp,nfsvers=3
+> (not 100% sure)
 
-Except that it uses schedule_work() rather than a tasklet.
-The bottom half is only there for abnormal conditions
-like major chip errors and hotplug events.
+Yeah, that's correct.
 
-So the only new suggestion here is to use a tasklet for
-the bottom-half processing rather than schedule_work()?
+Here is the panic + trace with a vanilla kernel (no vserver patch):
 
-I thought work queues were the preferred mechanism for
-infrequent uses such as this these days?  A tasklet is no
-problem here though, so long as worker threads (schedule_work)
-do not also rely on tasklets.
+Kernel panic - not syncing: Attempting to free lock with active block list
+ [<c011aa15>] panic+0x55/0xe0
+ [<c0168277>] fcntl_setlk64+0x137/0x2d0
+ [<c010c5ac>] restore_i387_fxsave+0xac/0xb0
+ [<c010c64d>] restore_i387+0x9d/0xa0
+ [<c0151cd9>] fget+0x49/0x60
+ [<c01635eb>] sys_fcntl64+0x4b/0xa0
+ [<c010427f>] syscall_call+0x7/0xb
 
-Cheers
+The panic seems to be caused by a proftpd version 1.2.9 on a Debian
+Sarge. The whole distribution is mounted over NFS and both client and
+server are using the 2.6.9-rc4 kernel version.
+
+The proftpd configuration isn't that unusual except that a directory
+is mounted rbinded but it doesn't seem to be the problem because I get
+the same panic without it. I can provide the proftpd configuration if
+needed it.
+
+Let me know if you need some more information.
+
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Olivier Poitrey

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265504AbUABKqp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUABKqp
+	id S265502AbUABKpr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUABKpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:46:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20157 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265504AbUABKql (ORCPT
+	Fri, 2 Jan 2004 05:45:46 -0500
+Received: from elma.elma.fi ([192.89.233.77]:52181 "EHLO elma.elma.fi")
+	by vger.kernel.org with ESMTP id S265502AbUABKpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:46:41 -0500
-Date: Fri, 2 Jan 2004 11:46:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Christophe Saout <christophe@saout.de>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Move bv_offset/bv_len update after bio_endio in __end_that_request_first
-Message-ID: <20040102104637.GN5523@suse.de>
-References: <20040101173214.GA4496@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040101173214.GA4496@leto.cs.pocnet.net>
+	Fri, 2 Jan 2004 05:45:34 -0500
+Date: Fri, 2 Jan 2004 12:45:32 +0200 (EET)
+From: Antti Lankila <alankila@elma.net>
+To: linux-kernel@vger.kernel.org
+Subject: USB_UHCI hangs with Thinkpad A31 in 2.6.1-rc1
+Message-ID: <Pine.A41.4.58.0401021209360.56310@tokka.elma.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01 2004, Christophe Saout wrote:
-> Hi!
-> 
-> Can we move the update of bio_index(bio)->bv_offset and bv_len after the
-> bio_endio call in __end_that_request_first please (if a bvec is partially
-> completed)?
-> 
-> The bi_idx is currently also updated after the bio_endio call.
-> 
-> Currently the bi_end_io function cannot exactly determine whether a bvec
-> was completed or not.
-> 
-> Think of the following situation:
-> 
-> bv_offset is 0 and bv_len is 4096, now the driver completes 2048 bytes of
-> that bvec.
-> 
-> At the moment bv_offset and bv_len are set to 2048 first. The bi_end_io
-> function can't distinguish between this situation and the situation where
-> bv_offset and bv_len were 2048 before and that bvec was completed (because
-> bi_idx is incremented afterwards).
-> 
-> This shouldn't break any user since most users are waiting for the whole
-> bio to complete with if (bio->bi_size > 0) return 1;.
-> 
-> I need this because I want to release buffers as soon as possible. The
-> incoming bio can get split by my driver due to problems allocating buffers.
-> If the partial bio returns and can't release its buffers immediately the
-> whole thing might deadlock.
-> 
-> That's why I need to know exactly how many and which  bvecs were completed
-> in my bi_end_io function.
-> 
-> Or do you think it is safer to count backwards using bi_vcnt and bi_size?
+With the 2.6.0 kernel, my Microsoft Notebook USB mouse does not recover from
+APM suspend. The light on the backside stays dark. /var/log/messages says:
 
-I'm inclined to thinking that, indeed. Those two fields have a more well
-established usage, so I think you'll be better off doing that in the
-long run.
+Dec 31 20:43:37 laptop kernel: usb 2-1: control timeout on ep0out
+
+but this works in the 2.4 kernels. With -rc1, the system locked solid when the
+usb_uhci driver got modprobed. No keyboard input, no disk activity, and when
+re-inserting the USB mouse (which is enabled by BIOS at reset), the light
+remained dark.  I saw the first 3 or 4 lines about detected hubs before it
+froze, but I don't have those lines in my system logs.  I only remember they
+were very similar to lines from my 2.6.0:
+
+Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: UHCI Host Controller
+Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: irq 10, io base 00001820
+Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
+
+Here's what lspci -v has to say about the controllers:
+
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02) (prog-if 00 [UHCI])
+        Subsystem: IBM ThinkPad A/T/X Series
+        Flags: bus master, medium devsel, latency 0, IRQ 5
+        I/O ports at 1800 [size=32]
+
+And two more near-identical entries with IRQ10, io-port 1820 and IRQ10, 1840.
+My kernel config's enabled USB options are as follows:
+
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+
+Please reply with a CC to me if there is any more information you need.
 
 -- 
-Jens Axboe
-
+Antti

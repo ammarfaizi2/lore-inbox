@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265832AbSKBAXF>; Fri, 1 Nov 2002 19:23:05 -0500
+	id <S265833AbSKBAYO>; Fri, 1 Nov 2002 19:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265833AbSKBAXF>; Fri, 1 Nov 2002 19:23:05 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:35281 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265832AbSKBAXF>;
-	Fri, 1 Nov 2002 19:23:05 -0500
-Date: Fri, 1 Nov 2002 16:25:33 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] swap mini-howto
-In-Reply-To: <20021102001947.GA461@win.tue.nl>
-Message-ID: <Pine.LNX.4.33L2.0211011622120.28320-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265834AbSKBAYO>; Fri, 1 Nov 2002 19:24:14 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:31190 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265833AbSKBAYN>; Fri, 1 Nov 2002 19:24:13 -0500
+Date: Sat, 2 Nov 2002 01:30:27 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: cpu_devclass removed from cpu.h
+Message-ID: <20021102003027.GD16236@admingilde.org>
+Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T7mxYSe680VjQnyC"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002, Andries Brouwer wrote:
 
-| On Fri, Nov 01, 2002 at 03:58:27PM -0800, Randy.Dunlap wrote:
-|
-| >   http://www.xenotime.net/linux/swap-mini-howto.txt
-|
-| Maybe either refer to 'man mkswap' or add a sentence
-| about versions. (If you boot both 2.0 and 2.2 then
-| use mkswap -v0 to get swap space also 2.0 can use.)
-Will do.
+--T7mxYSe680VjQnyC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-BTW, my current (maybe outdated?) mkswap.8 page says:
-       Presently,  Linux  allows  8  swap  areas. The areas in use
-       can be seen in the file /proc/swaps (since 2.1.25).
+hi :)
 
-However, the current (2.5) source code supports 32 swap areas.
-I don't know when this was changed...
+the 'extern struct device_class cpu_devclass;' was removed from cpu.h
+lately.
+is this intentional or will it come back in some other include file?
 
--- 
-~Randy
+i need that class to be able to register a interface for cpus
+in my tree.
 
+
+thanks
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--T7mxYSe680VjQnyC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9wxyjj/Eaxd/oD7IRAhweAJ0cYGtO/cos0p9/3ol700BB6fEcTgCeOI5z
+llrbvMibId4St3n/yccqA5I=
+=r5Yp
+-----END PGP SIGNATURE-----
+
+--T7mxYSe680VjQnyC--

@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263850AbRFDUx4>; Mon, 4 Jun 2001 16:53:56 -0400
+	id <S263889AbRFDVDT>; Mon, 4 Jun 2001 17:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263852AbRFDUxq>; Mon, 4 Jun 2001 16:53:46 -0400
-Received: from cuda.sx.nec.com ([207.253.213.164]:16903 "HELO cuda.sx.nec.com")
-	by vger.kernel.org with SMTP id <S263850AbRFDUxb>;
-	Mon, 4 Jun 2001 16:53:31 -0400
-Message-ID: <3B1BF2FA.B74A1B78@ludusdesign.com>
-Date: Mon, 04 Jun 2001 16:43:38 -0400
-From: Pierre Phaneuf <pp@ludusdesign.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: disk-based fds in select/poll
+	id <S263887AbRFDVDI>; Mon, 4 Jun 2001 17:03:08 -0400
+Received: from 246.35.232.212.infosources.fr ([212.232.35.246]:47109 "HELO
+	fjord.dyndns.org") by vger.kernel.org with SMTP id <S263883AbRFDVCy>;
+	Mon, 4 Jun 2001 17:02:54 -0400
+Date: Mon, 4 Jun 2001 23:02:15 +0200
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide retry on 2.4.5-ac7
+Message-ID: <20010604230215.A6188@alezan.dyndns.org>
+In-Reply-To: <20010604140207.A529@alezan.dyndns.org> <20010604221404.A19333@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010604221404.A19333@suse.de>; from axboe@suse.de on Mon, Jun 04, 2001 at 10:14:04PM +0200
+From: profeta@crans.ens-cachan.fr (PROFETA Mickael)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 04, 2001 at 10:14:04PM +0200, Jens Axboe wrote:
+> 
+> It worked sucessfully for you in 2.4.5-ac4 but not in -ac7? I can't see
+> any changes to the patch, so more details on the nature of the problem
+> would be helpful.
 
-Pardon me if some parts of this seem clueless. While I'm no newbie in
-userland, kernelspace I don't play in very often...
+Ok, this is the results of a hdparm -tT on my second hard disk:
 
-It's fairly widely-known that select/poll returns immediately when
-testing a filesystem-based file descriptor for writability or
-readability.
+hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
+ide1: reset: success
+64 MB in  7.03 seconds =  9.10 MB/sec
 
-On top of this, even when in non-blocking mode, read() could block if
-the pages needed aren't in core. sendfile() behaves in a similar way.
+and then the kernel has shifted to udma3 and I have no more error in this
+session with that hard disk
 
-What would be needed to alleviate this?
+I tried the same thing on -ac7 and I always have the errors, the kernel does
+not reset ide... Looking at the different change on ac patches, I can not see 
+why...
 
-I am thinking that a read() (or sendfile()) that would block because the
-pages aren't in core should instead post a request for the pages to be
-loaded (some kind of readahead mecanism?) and return immediately (maybe
-having given some data that *was* in core). A subsequent read() could
-have the data available, but not necessarily (again, it should give
-whatever it has in core, but return immediately).
+Mike
+> 
+> -- 
+> Jens Axboe
 
-sendfile() would be a lot more tricky to fix in that way I guess, but
-could still be possible (the destination fd would be unwritable for a
-while, until the transfer is finished). Also, the complexity would be
-higher (instead of simply causing readahead to happen (which might
-anyway), it would have to trigger the readahead, then get notification
-of when the pages are in core to send over, all the while preventing
-data from being written to the destination fd in some way).
-
-In the mean time, I was also wondering if issuing smaller read()
-requests in a row might give me a better chance of success. I *know*
-read() will block, but if I only ask for, say, a page of data (rather
-than asking for the full data and relying on the non-blocking to return
-EAGAIN (like it should, IMHO!)), it shouldn't take too long, and could
-possibly trigger some readahead to be done by the kernel, right?
-
-Or will the readahead be done "on my own time", read() only returning
-after the whole thing (my request + readahead) has been done?
-
-I remember seeing a suggestion by Linus for an event-based I/O
-interface, similar to kqueue on FreeBSD but much simpler. I'd just say
-"I want it too!", ok? :-)
-
-I know about the mincore() trick with mmap()'d files, but with small
-files, mmap()ing might not make sense (could be very often).
-
-SGI's AIO might be a solution here, does it use threads? I'm trying to
-avoid context switching as much as possible, to keep the CPU cache as
-warm as possible.
-
-Well, I might not have the choice to use threads, after all...
-
-(sorry if this message got in twice, I used an NNTP gateway the previous
-time, I don't think it got through)
-
--- 
-Pierre Phaneuf

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281795AbRK0RjZ>; Tue, 27 Nov 2001 12:39:25 -0500
+	id <S281762AbRK0Rlf>; Tue, 27 Nov 2001 12:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbRK0RjP>; Tue, 27 Nov 2001 12:39:15 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:5805 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S281795AbRK0RjA>; Tue, 27 Nov 2001 12:39:00 -0500
-Message-ID: <3C03CFA7.3E824AE7@kegel.com>
-Date: Tue, 27 Nov 2001 09:38:47 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S281827AbRK0RlZ>; Tue, 27 Nov 2001 12:41:25 -0500
+Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:36790 "EHLO
+	tigger.rogueind.com") by vger.kernel.org with ESMTP
+	id <S281762AbRK0RlJ>; Tue, 27 Nov 2001 12:41:09 -0500
+Date: Tue, 27 Nov 2001 12:40:33 -0500 (EST)
+From: Tom Diehl <tdiehl@rogueind.com>
+To: "Martin A. Brooks" <martin@jtrix.com>
+Cc: <ast@domdv.de>, <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+Message-ID: <Pine.LNX.4.33.0111271239140.11945-100000@tigger.rogueind.com>
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-In-Reply-To: <3C03CC6C.DD03CDDE@kegel.com> <3C03CF2A.5070307@wanadoo.fr>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-François Cami wrote:
-> 
-> Dan Kegel wrote:
-> 
-> > 2.4.x should continue to use -preY.
-> > There's no need for a -rcY as some have suggested.
-> > All we need to do to avoid messes like the 2.4.15 debacle
-> > is to insist that a 2.4.X-preY should not be
-> > released as final 2.4.X until the pre's been out for a week,
-> > and there should never be any changes introduced into a final
-> > that didn't cook for a week as a pre.
-> 
-> I don't see the difference between a -rc that has cooked for a week,
-> and a -pre that has cooked for a week, except that -rc sounds more
-> like "this is *maybe* the next stable kernel", whereas -pre still
-> sounds "beta".
+On Tue, 27 Nov 2001, Martin A. Brooks wrote:
 
-The difference between "this is *maybe* the next stable kernel"
-and "just another beta" is very slippery.  I don't object
-to the -rc idea, but I don't think it's as valuable as all that.
+> > As far as I remember this was talked about earlier. Different mobos,
+> > chipsets, processor brands, but always IRQ 7. /me wonders.
+> 
+> In my research before posting, a common thread seemed to be the presence of
+> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
 
-> That said, I think the week long delay is a *good* idea.
+Yes, all kinds of machines none of which have a tulip in them. 
 
-It's the key to avoiding bad releases.
-- Dan
+-- 
+......Tom		Dysfunction The Only Consistent Feature of All
+tdiehl@rogueind.com	of Your Dissatisfying Relationships is You.
+

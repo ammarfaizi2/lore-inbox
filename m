@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267825AbTAMQc7>; Mon, 13 Jan 2003 11:32:59 -0500
+	id <S267692AbTAMQYw>; Mon, 13 Jan 2003 11:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267675AbTAMQc7>; Mon, 13 Jan 2003 11:32:59 -0500
-Received: from elin.scali.no ([62.70.89.10]:4875 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267825AbTAMQcx>;
-	Mon, 13 Jan 2003 11:32:53 -0500
-Subject: Re: any chance of 2.6.0-test*?
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030113162638.GY14017@suse.de>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
-	 <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
-	 <1042400219.1208.29.camel@RobsPC.RobertWilkens.com>
-	 <20030112195347.GJ3515@louise.pinerecords.com>
-	 <1042401817.1209.54.camel@RobsPC.RobertWilkens.com>
-	 <1042472605.5404.72.camel@pc-16.office.scali.no>
-	 <20030113154954.GR14017@suse.de>
-	 <1042475145.5404.86.camel@pc-16.office.scali.no>
-	 <20030113162638.GY14017@suse.de>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1042476101.5399.92.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Jan 2003 17:41:41 +0100
-Content-Transfer-Encoding: 7bit
+	id <S267541AbTAMQYw>; Mon, 13 Jan 2003 11:24:52 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:22705 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267692AbTAMQYt>;
+	Mon, 13 Jan 2003 11:24:49 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Date: Mon, 13 Jan 2003 17:33:27 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: patch for errno-issue (with soundcore)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+X-mailer: Pegasus Mail v3.50
+Message-ID: <D206AA476EB@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On man, 2003-01-13 at 17:26, Jens Axboe wrote:
-> On Mon, Jan 13 2003, Terje Eggestad wrote:
-> > On man, 2003-01-13 at 16:49, Jens Axboe wrote:
-> > > On Mon, Jan 13 2003, Terje Eggestad wrote:
-> > > > Considering that doing kernel development is hard enough, new
-> > > > development is almost always done on uni processors kernels that do only
-> > > > one thing at the time. Then when you base logic is OK, you move to a
-> > > > SMP, which means (adding and) debugging you spin locks.
-> > > 
-> > > Goto's aside, I find the above extremely bad advise. You should _always_
-> > > develop with smp and for smp from the very start, or you will most
-> > > likely not get it right later on. With preempt, this becomes even more
-> > > important.
-> > 
-> > You should, and I do, *design* with smp in mind, and I throw in
-> > smplock/unlonk as I go, but I tend to make first runs on a UP. 
-> > 
-> > I see your point on preemt, though.
-> > You do first runs on SMP? 
+On 13 Jan 03 at 15:57, Thomas Schlichter wrote:
+> On Mon, 13. Jan. 2003 16:13, Alan Cox wrote:
+> > This actually shows a bug that has always been lurking. What if we load two
+> > modules firmware at the same time. errno needs to be task private or we
+> > perhaps need an errno_sem ?
 > 
-> Always, if for nothing else than the benefit of a better debugging
-> environment.
-> 
-> > > > Considering that fucking up spin locks are prone to corrupting your
-> > > > machine, one very simple trick to makeing fewer mistakes to to have one,
-> > > > and only one, unlock for every lock. 
-> > > 
-> > > Taking a spin lock twice will hard lock the machine, however on smp you
-> > > will typically have the luxury of an nmi watchdog which will help you
-> > > solve this quickly. Double unlock will oops immediately if you run with
-> > > spin lock debugging (you probably should, if you are developing kernel
-> > > code).
-> > 
-> > I have the console on a serial port, and a terminal server. With kdb,
-> > you can enter the kernel i kdb even when deadlocked.
-> 
-> Even if spinning with interrupt disabled?
+> OK, I think I see the problem now!
+> But is soundcore the only place where 'errno' is used? Does this problem not 
+> occur if any task modifies the errno value and an other one depends on its 
+> previous value? I think this could happen even if no modules are used...
 
-Haven't painted myself into that corner yet. Doubt it, very much.
- 
--- 
-_________________________________________________________________________
+There is no problem currently, because of nobody uses errno value at
+all (in the firmware loader), it is just that inline functions generated 
+by syscallX() store error codes into errno...
 
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
+Real problem is that firmware loader should use 
+filp_open/vfs_read/filp_close (or sys_open/sys_llseek/sys_read/sys_close if 
+you want to use fd interface, but filp_{open,close} and vfs_read are already 
+exported for modules while sys_open/sys_llseek/sys_read are not).
 
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+As an alternative, do_mod_firmware_load should be standalone userspace
+program executed through call_usermodehelper or something like that... 
+Unfortunately we do not have an interface to distribute userspace binaries 
+together with kernel (except initrd) yet, so it would require either
+adding do_mod_firmware_load into module-init-tools, or some simillar
+package required by 2.[56].x kernels.
 
+Also adding "#define errno (current()->exit_code)" at the beginning of
+sound_firmware.c (just below #define __KERNEL_SYSCALLS__) should do
+the trick, but I do not recommend taking this path.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

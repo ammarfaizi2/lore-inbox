@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTLABq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 20:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTLABq7
+	id S263053AbTLAB4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 20:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTLAB4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 20:46:59 -0500
-Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:25984 "EHLO
-	mail.longlandclan.hopto.org") by vger.kernel.org with ESMTP
-	id S262796AbTLABq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 20:46:58 -0500
-Message-ID: <3FCA9D8E.1000001@longlandclan.hopto.org>
-Date: Mon, 01 Dec 2003 11:46:54 +1000
-From: Stuart Longland <stuartl@longlandclan.hopto.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Henrik Persson <nix@syndicalist.net>
-CC: Bernd Petrovitsch <bernd@firmix.at>, Harald Arnesen <harald@skogtun.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 not cat proof
-References: <20031126201052.GA16106@outpost.ds9a.nl>	 <20031127035755.2d960969.pj@sgi.com> <yw1xoeuxbw7u.fsf@kth.se>	 <200311271237.22730.gene.heskett@verizon.net>	 <1069957288.1920.7.camel@laptop-linux>	 <87smk8lqnj.fsf@basilikum.skogtun.org>	 <1070222996.4647.30.camel@gimli.at.home> <1070228231.4354.11.camel@vega>
-In-Reply-To: <1070228231.4354.11.camel@vega>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Nov 2003 20:56:07 -0500
+Received: from dp.samba.org ([66.70.73.150]:65164 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263053AbTLAB4E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 20:56:04 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: James Bourne <jbourne@hardrock.org>
+Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [netfilter-core] 2.4.23/others and ip_conntrack causing hangs 
+In-reply-to: Your message of "Sun, 30 Nov 2003 12:21:33 PDT."
+             <Pine.LNX.4.44.0311301204520.2148-100000@cafe.hardrock.org> 
+Date: Mon, 01 Dec 2003 11:22:59 +1100
+Message-Id: <20031201015604.816D52C06F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In message <Pine.LNX.4.44.0311301204520.2148-100000@cafe.hardrock.org> you writ
+e:
+> Hi all,
+> I wanted to bring up an issue with ip_conntrack in 2.4.23, 2.4.22, and at
+> least 2.4.21 (sorry, didn't try 2.4.20).
+> 
+> The issue is that as long as there are connections being tracked, the
+> ip_conntrack module will not unload.  I can understand why this might be,
+> but the problem is that ip_conntrack will hang rmmod and modprobe -r until
+> such time as all the connections have been closed.
+> 
+> I think we need something like an ip_conntrack_flush or else completely drop
+> the connections when the module is unloaded (as previously done) as this
+> becomes an issue for people who need to drop their ip_tables and reload the
+> modules (perhaps to correct other issues) especially ip_conntrack...  
 
-Henrik Persson wrote:
+Um, this is exactly what the code does on unload: an explicit flush.
 
-| Enough allready!
-|
-| Be nice to cats. This thread should stop here. Atleast the posts that
-| aren't relevant to the issue. The bad jokes can stay off the list.. ;)
-|
+Unfortunately, some packets are still referencing connections, so the
+module *cannot* go away.  Figuring out exactly where the packets are
+referenced from is the fun part.  We explicitly drop the reference in
+ip_local_deliver_finish() for exactly this reason.  Perhaps there is
+somewhere else we should be doing the same thing.
 
-Yes, the humour is starting to make me ill too.... And normally I'm the
-one known for my bad humour... ;-)
-
-Is there a linux-humour list we can take this too??  (Or should we set
-one up?)  At this rate, this thread is becomming a bit like a cat
-itself, it'll probably take 9 attempts to kill it. :-P
-
-- --
-+-------------------------------------------------------------+
-| Stuart Longland           stuartl at longlandclan.hopto.org |
-| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
-| I haven't lost my mind - it's backed up on a tape somewhere |
-| Atomic Linux Project    <--->    http://atomicl.berlios.de/ |
-+-------------------------------------------------------------+
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/yp2OuarJ1mMmSrkRAmy6AJsFZB1u/O3Fq373T4nKqUDI3DQrQwCeO/EG
-QLSGVH/0zDKyk/D1oljQ1cI=
-=Xto3
------END PGP SIGNATURE-----
-
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

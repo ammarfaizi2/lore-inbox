@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129510AbRBWWid>; Fri, 23 Feb 2001 17:38:33 -0500
+	id <S129249AbRBWWhn>; Fri, 23 Feb 2001 17:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129822AbRBWWiY>; Fri, 23 Feb 2001 17:38:24 -0500
-Received: from m154-mp1-cvx1a.col.ntl.com ([213.104.68.154]:32260 "EHLO
-	[213.104.68.154]") by vger.kernel.org with ESMTP id <S129653AbRBWWiL>;
-	Fri, 23 Feb 2001 17:38:11 -0500
-To: bradley mclain <bradley_kernel@yahoo.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
-In-Reply-To: <20010223031521.93782.qmail@web9205.mail.yahoo.com>
-From: John Fremlin <chief@bandits.org>
-Date: 23 Feb 2001 22:37:36 +0000
-In-Reply-To: bradley mclain's message of "Thu, 22 Feb 2001 19:15:21 -0800 (PST)"
-Message-ID: <m2snl53u1b.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S129510AbRBWWhe>; Fri, 23 Feb 2001 17:37:34 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:33035 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S129249AbRBWWhU>;
+	Fri, 23 Feb 2001 17:37:20 -0500
+Message-ID: <20010223233717.B13627@win.tue.nl>
+Date: Fri, 23 Feb 2001 23:37:17 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Ralph Loader <suckfish@ihug.co.nz>, Andries.Brouwer@cwi.nl
+Cc: Linux-kernel@vger.kernel.org, kaih@khms.westfalen.de
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+In-Reply-To: <UTC200102230152.CAA138669.aeb@vlet.cwi.nl> <200102232143.f1NLhG202360@sucky.fish>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200102232143.f1NLhG202360@sucky.fish>; from Ralph Loader on Sat, Feb 24, 2001 at 10:43:16AM +1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 24, 2001 at 10:43:16AM +1300, Ralph Loader wrote:
 
-Unfortunately, the APM maintainer, Stephen Rothwell, seems to have
-gone into hibernation (pun) and is not responding to emails.
+> A while ago I did some experimentation with simple bit-op based string
+> hash functions.  I.e., no multiplications / divides in the hash loop.
+> 
+> The best I found was:
+> 
+> int hash_fn (char * p)
+> {
+>   int hash = 0;
+>   while (*p) {
+>      hash = hash + *p;
+>      // Rotate a 31 bit field 7 bits:
+>      hash = ((hash << 7) | (hash >> 24)) & 0x7fffffff;
+>   }
+>   return hash;
+> }
 
-bradley mclain <bradley_kernel@yahoo.com> writes:
+Hmm. This one goes in the "catastrophic" category.
 
-> apm --suspend causes my system to hang under 2.4.2 and 2.4.2ac1.  it
-> was working fine under 2.4.1ac19. looking at syslog it appears that
-> the driver for my xircom pcmcia card may be involved -- it was the
-> last entry on two of three occasions.  the latest lockup (under
-> 2.4.1ac1) left no trace in syslog.
+For actual names:
 
-Are all kernel messages dumped to syslog? See syslog.conf(5).
+N=557398, m=51 sz=2048, min 82, max 4002, av 272.17, stddev 45122.99
 
-> upon issuing the command the screen shuts down, but the rest of the
-> machine (drive, etc.) fails to, and i cannot get control back.
+For generated names:
 
-If the screen shutdown, all the PM enabled drivers OK'd the suspend
-and the APM state was changed.
+N=557398, m=51 sz=2048, min 0, max 44800, av 272.17, stddev 10208445.83
 
-Perhaps the particular driver you used bungled things somehow. You
-could try again with the driver/card unloaded, which would help narrow
-the cause of the problem down.
+A very non-uniform distribution.
 
-[...]
+> The rotate is equivalent to a multiplication by x**7 in Z_2[P=0],
+> where P is the polynomial x**31 - 1 (over Z_2).
+> Presumably the "best" P would be irreducible - but that would have more
+> bits set in the polynomial, making reduction harder.  A compromise is to
+> choose P in the form x**N - 1 but with relatively few factors.
+> X**31 - 1 is such a P.
 
--- 
+It has seven irreducible factors. Hardly "almost irreducible".
 
-	http://www.penguinpowered.com/~vii
+Shifting the 7-bit ASCII characters over 7 bits makes sure that there
+is very little interaction to start with. And the final AND that truncates
+to the final size of the hash chain kills the high order bits.
+No good.
+
+Andries
+
+

@@ -1,21 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268039AbTBSInC>; Wed, 19 Feb 2003 03:43:02 -0500
+	id <S268147AbTBSI5n>; Wed, 19 Feb 2003 03:57:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268079AbTBSInC>; Wed, 19 Feb 2003 03:43:02 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:7688 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S268039AbTBSInB>;
-	Wed, 19 Feb 2003 03:43:01 -0500
-Date: Wed, 19 Feb 2003 09:53:03 +0100
+	id <S268159AbTBSI5n>; Wed, 19 Feb 2003 03:57:43 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:12296 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S268147AbTBSI5l>;
+	Wed, 19 Feb 2003 03:57:41 -0500
+Date: Wed, 19 Feb 2003 10:07:43 +0100
 From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: alpha: Hangcheck timer doesn't compile
-Message-ID: <20030219085303.GJ351@lug-owl.de>
+Subject: Re: [PATCH] morse code panics for 2.5.62
+Message-ID: <20030219090743.GK351@lug-owl.de>
 Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030218135038.GA1048@louise.pinerecords.com> <20030218141757.GV351@lug-owl.de> <b2tl9c$48c$1@main.gmane.org> <20030218171247.GA351@lug-owl.de> <20030218224946.GB1048@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DGxvIoidHXI3RiT5"
+	protocol="application/pgp-signature"; boundary="LHVJ3yhMbk/VQvI5"
 Content-Disposition: inline
+In-Reply-To: <20030218224946.GB1048@louise.pinerecords.com>
 User-Agent: Mutt/1.4i
 X-Operating-System: Linux mail 2.4.18 
 X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
@@ -24,33 +26,35 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---DGxvIoidHXI3RiT5
+--LHVJ3yhMbk/VQvI5
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
+On Tue, 2003-02-18 23:49:46 +0100, Tomas Szepe <szepe@pinerecords.com>
+wrote in message <20030218224946.GB1048@louise.pinerecords.com>:
+> > [jbglaw@lug-owl.de]
+> >=20
+> > Then, you can have
+> > const char morses[] =3D {
+> > 	MORSE2('A', '.', '-'),
+> > 	MORSE4('B', '-', '.', '.', '.'),
+> > 	MORSE4('C', '-', '.', '-', '.'),
+> > 	MORSE3('D', '-', '.', '.'),
+> > 	MORSE1('E', '.'),
+> > 	MORSE4('F', '.', '.', '-', '.')
+> > 	...
+> > };
+> >=20
+> > That's going to take exactly the same memory in the compiled vmlinux
+> > image, *and* it's really readable:-) Of course, gcc will optimize any
+> > added "bloat" away...
+>=20
+> Looks good to me, can you send an updated patch?
 
-The hangcheck timer seems cannot be compiled on Alphas:
-
-  gcc -Wp,-MD,drivers/char/.hangcheck-timer.o.d -D__KERNEL__ -Iinclude -Wal=
-l -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -=
-pipe -mno-fp-regs -ffixed-8 -msmall-data -mcpu=3Dev4 -Wa,-mev6 -fomit-frame=
--pointer -nostdinc -iwithprefix include -DMODULE -DKBUILD_BASENAME=3Dhangch=
-eck_timer -DKBUILD_MODNAME=3Dhangcheck_timer -c -o drivers/char/hangcheck-t=
-imer.o drivers/char/hangcheck-timer.c
-drivers/char/hangcheck-timer.c: In function `hangcheck_init':
-drivers/char/hangcheck-timer.c:112: `current_cpu_data' undeclared (first us=
-e in this function)
-drivers/char/hangcheck-timer.c:112: (Each undeclared identifier is reported=
- only once
-drivers/char/hangcheck-timer.c:112: for each function it appears in.)
-make[3]: *** [drivers/char/hangcheck-timer.o] Error 1
-make[2]: *** [drivers/char] Error 2
-make[1]: *** [drivers] Error 2
-make: *** [modules] Error 2
-
-This is because current_cpu_data doesn't (currently) exist on alpha.
+Okay, I'll first have to import your original patch:-) and have a real
+look at it (how does it exactly store the data...). Then, I'll do an
+undated patch. Please give me an hour ot two...
 
 MfG, JBG
 
@@ -60,16 +64,16 @@ MfG, JBG
     fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
    Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
 
---DGxvIoidHXI3RiT5
+--LHVJ3yhMbk/VQvI5
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+U0XvHb1edYOZ4bsRAqzFAJ9ySAUes7/Z5X0hegkpjs1gwAIMFQCeNbCb
-0tW+MB6qakbEZZbBXq7mC18=
-=ZQ6r
+iD8DBQE+U0lfHb1edYOZ4bsRAhtBAJ9Y5yxkSGgkpC/kO+vw5FaNuDpoqwCfdW3F
+TrSGP4F2NXm/X7cJhTUMFHg=
+=cP+m
 -----END PGP SIGNATURE-----
 
---DGxvIoidHXI3RiT5--
+--LHVJ3yhMbk/VQvI5--

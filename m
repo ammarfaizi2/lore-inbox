@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131474AbRC3Per>; Fri, 30 Mar 2001 10:34:47 -0500
+	id <S131590AbRC3Rnt>; Fri, 30 Mar 2001 12:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131477AbRC3Peh>; Fri, 30 Mar 2001 10:34:37 -0500
-Received: from 200-191-138-175-as.acessonet.com.br ([200.191.138.175]:4736
-	"EHLO pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S131474AbRC3PeW>; Fri, 30 Mar 2001 10:34:22 -0500
-Date: Fri, 30 Mar 2001 12:33:55 -0300
-From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.3: INIT: PANIC: segmentation violation...
-Message-ID: <20010330123355.A115@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-X-Mailer: Mutt/1.3.16i - Linux 2.4.2
-X-URL: http://www.pervalidus.net/
+	id <S131595AbRC3Rnj>; Fri, 30 Mar 2001 12:43:39 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:51277 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131590AbRC3Rn0>; Fri, 30 Mar 2001 12:43:26 -0500
+Date: Fri, 30 Mar 2001 11:42:29 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Anton Safonov <Anton.Safonov@bestlinux.net>
+cc: linux-kernel@vger.kernel.org, David Hinds <dhinds@zen.stanford.edu>
+Subject: Re: PCMCIA problems on IBM ThinkPad 600X
+In-Reply-To: <3AC47DD4.F4CC98BC@bestlinux.net>
+Message-ID: <Pine.LNX.3.96.1010330114146.8826S-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the message segmentation violation at XXX! sleeping for
-30 seconds. with 2.4.3.
+On Fri, 30 Mar 2001, Anton Safonov wrote:
 
-No problems with 2.4.2 and the same configuration.
+> Hi!
+> 
+> I have a problem with PCMCIA support on this IBM ThinkPad 600X.
+> 
+> kernel - 2.4.2 + patch-2.4.3-pre4
+> pcmcia-cs - 3.1.25 (also tried with 3.1.23)
+> 
+> Then I insert a card (I'm trying now with two cards: 3COM 3CCFE575CT,
+> D-Link DFE-680TX) the computer beeps and responds with:
+> "cs: socket XXXXX timed out during reset"
+> 
+> 
+> kernel config file is following:
+> 
+> #
+> # PCMCIA/CardBus support
+> #
+> CONFIG_PCMCIA=m
+> CONFIG_CARDBUS=y
+> CONFIG_I82365=y
+> CONFIG_TCIC=y
 
-Any hints ?
+If you have CardBus support, do -not- define CONFIG_I82365 or
+CONFIG_TCIC.
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+	Jeff
+
+
+

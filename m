@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSD0NvQ>; Sat, 27 Apr 2002 09:51:16 -0400
+	id <S314126AbSD0Nxq>; Sat, 27 Apr 2002 09:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314093AbSD0NvP>; Sat, 27 Apr 2002 09:51:15 -0400
-Received: from ch-12-44-141-235.lcisp.com ([12.44.141.235]:12417 "EHLO
-	dual.lcisp.com") by vger.kernel.org with ESMTP id <S314083AbSD0NvL>;
-	Sat, 27 Apr 2002 09:51:11 -0400
-From: "Kevin Krieser" <kkrieser_list@footballmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-Date: Sat, 27 Apr 2002 08:51:00 -0500
-Message-ID: <NDBBLFLJADKDMBPPNBALAEHKIEAA.kkrieser_list@footballmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20020427125551.GG10849@niksula.cs.hut.fi>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+	id <S314144AbSD0Nxn>; Sat, 27 Apr 2002 09:53:43 -0400
+Received: from ns.suse.de ([213.95.15.193]:35602 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314195AbSD0Nwf>;
+	Sat, 27 Apr 2002 09:52:35 -0400
+Date: Sat, 27 Apr 2002 15:52:30 +0200
+From: Dave Jones <davej@suse.de>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.x-dj and SCSI error handling.
+Message-ID: <20020427155230.J14743@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020427131025.F14743@suse.de> <Pine.LNX.4.44.0204270947250.5500-100000@filesrv1.baby-dragons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need an IDE controller that supports ATA133.  For most existing
-computers, that is going to require a new card.-----Original Message-----
+On Sat, Apr 27, 2002 at 09:48:37AM -0400, Mr. James W. Laferriere wrote:
+ > 	Hello Dave ,  Might be nice to also mention the drivers that were
+ > 	being complained about .  So there respective mantainers can
+ > 	benifit from your email .  Tia ,  JimL
 
+noted. I'll do a full compile later today and post back the list of
+drivers broken due to this issue. The only one everyone seems to be
+complaining about is ide-scsi, but there are definitly others.
 
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ville Herva
-Sent: Saturday, April 27, 2002 7:56 AM
-To: Martin Bene; linux-kernel@vger.kernel.org
-Subject: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+    Dave. 
 
-
-On Sat, Apr 27, 2002 at 12:16:06PM +0200, you [Martin Bene] wrote:
->
-> IDE: The kernel IDE driver needs to support 48-bit addresseing to support
-> 160GB.
->
-> (...) however, you can do something about the linux ATA driver: code
-> is in the 2.4.19-pre tree, it went in with 2.4.19-pre3.
-
-But which IDE controllers support 48-bit addressing? Not all of them? Does
-linux IDE driver support 48-bit for all of them? Do they require BIOS
-upgrade in order to operate 48-bit?
-
-Or can I just grab a 160GB Maxtor and 2.4.19-preX, stick them into whatever
-box I have and be done with it?
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,85 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265482AbTFMSQL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTFMSQD
+	id S265485AbTFMSSh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTFMSQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:16:03 -0400
-Received: from cc-linux4.ethz.ch ([129.132.19.124]:50617 "HELO lombi.mine.nu")
-	by vger.kernel.org with SMTP id S265482AbTFMSPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:15:34 -0400
-Mime-Version: 1.0
-Message-Id: <p04320409bb0fb23f89f8@[192.168.3.11]>
-In-Reply-To: <20030613155934.GA19307@namesys.com>
-References: <p04320407bb0f79fd523e@[192.168.3.11]>
- <20030613155634.GA18478@namesys.com> <20030613155934.GA19307@namesys.com>
-Date: Fri, 13 Jun 2003 20:07:55 +0200
-To: Oleg Drokin <green@namesys.com>
-From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
-Subject: Re: Lockups with loop'ed sparse files on reiserfs?
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Fri, 13 Jun 2003 14:16:29 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:56249 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265475AbTFMSNn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:13:43 -0400
+Message-ID: <3EEA1716.9000903@us.ibm.com>
+Date: Fri, 13 Jun 2003 14:25:26 -0400
+From: Stacy Woods <stacyw@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Bugs sitting in the RESOLVED state for more than 28 days
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 19:59 Uhr +0400 13.06.2003, Oleg Drokin wrote:
->  > Were there anything interesting on the console where your kernel outputs
->  > its messages (the host kernel?)?
+These bugs have been sitting in RESOLVED state for more than 28 days,
+ie, they have fixes, but aren't back in the mainline tree (when they
+should move to CLOSED state). If the fixes are back in mainline
+already, could the owner close them out? Otherwise, perhaps we
+can get those fixes back in?
 
-IIRC nothing was output, at least I don't remember anything that I 
-thought was significant. But see below re kern.log entries.
+Kernel Bug Tracker: http://bugme.osdl.org
 
->Any chance to hit say sysrq-T/sysrq-P to find out where CPU spins?
+  24  File Sys   NFS        khoa@us.ibm.com
+statfs returns incorrect  number fo blocks
 
-I've never used those, I'll have to learn about those debugging 
-options first. Where should I go to?
+  85  Drivers    Network    jgarzik@pobox.com
+ham radio stuff still using cli etc
 
->BTW, while we are at it, were there enough space on the partition with sparse
->files to hold all the data you was writing there?
+150  Drivers    PNP        ambx1@neo.rr.com
+[PNP][2.5] IDE Detection problems (wrong IRQ and wrong IDE device number)
 
-I did calculate all space bevor I started a few days ago. I did now 
-recalculate on current free space on the partitions and in fact on 
-one partition there's not enough space (anymore?):
+206  Drivers    Console/   jsimmons@infradead.org
+broken colors on framebuffer console
 
-losetup /dev/loop0 /root/raid5_1
-losetup /dev/loop1 /root/raid5_2
-   du /root -> 1675228 k free. 650*1024*2=1331200 k, => ok
-losetup /dev/loop2 /mnt/hdd8/raid5_3
-losetup /dev/loop3 /mnt/hdd8/raid5_4
-losetup /dev/loop4 /mnt/hdd8/raid5_5
-   du /mnt/hdd8/ -> 1973856 k free. 650*1024*3=1996800k => *not* ok.
-   (pity that I already deleted those 3 files)
-losetup /dev/loop5 /mnt/hda11/raid5_6
-   du /mnt/hda11	-> 849044 free. => ok.
-losetup /dev/loop6 /mnt/hdd6/.c/raid5_8
-losetup /dev/loop7 /mnt/hdd6/.c/raid5_9
-   this is a vfat partition so no sparse files (and 2.9GB free too)
-(The files looks like:
--rw-------    1 root     root     681574400  8. Jun 23:46 raid5_6
-)
+345  Drivers    SCSI       mikenc@us.ibm.com
+compile failure in drivers/scsi/inia100.c
 
-Now the question is wbat happens if a partition is full.
-In fact I've seen this in kern.log (full log at
-http://pflanze.mine.nu/~chris/scratch/kern.log ):
+367  Platform   Alpha      rth@twiddle.net
+modules fail to resolve illegal Unhandled relocation of type 10 for .text
 
-Jun 13 11:34:57 pflanze kernel: raid5: md0, not all disks are 
-operational -- trying to recover array
-...
-Jun 13 11:34:57 pflanze kernel: md0: resyncing spare disk [dev 07:07] 
-to replace failed disk
+372  Platform   UML        jdike@karaya.com
+uml doesn't not compile
 
-Though I think that was before I started writing stuff onto the array.
+412  Drivers    USB        dbrownell@users.sourceforge.net
+[EHCI] report of first interrupt transfer is delayed
 
-What does happen if a raid array fails (i.e. 2 disks fail and there's 
-no spare, or 1 spare and 3 disks fail etc.)? If it's not an important 
-array (i.e. no swap or root filesystem on it), is there a reason for 
-the system to go down? Isn't it possible to just mark the mounted 
-filesystem  as erroneous and return EIO to applications accessing it?
+418  Drivers    USB        greg@kroah.com
+Bad use of GFP_DMA
 
-There's also the case 1, using uml. In this case I'm sure there was 
-no problem with space. The sparse filesystem image file I used is 
-exactly 500'000'000 bytes, and there's 1675228 k free space on the 
-partition where it is put on.
+663  Drivers    Sound      bugme-janitors@lists.osdl.org
+"make modules" causes an error in mwavedd.h.
 
-Christian.
+691  Platform   x86-64     ak@suse.de
+change_pageattr corrupts memory (breaks AGP)
+

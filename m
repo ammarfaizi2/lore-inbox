@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132226AbRCVW43>; Thu, 22 Mar 2001 17:56:29 -0500
+	id <S131271AbRCVWxJ>; Thu, 22 Mar 2001 17:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132229AbRCVW4U>; Thu, 22 Mar 2001 17:56:20 -0500
-Received: from hypnos.cps.intel.com ([192.198.165.17]:37583 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S132226AbRCVW4P>; Thu, 22 Mar 2001 17:56:15 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE7A2@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Woller, Thomas'" <twoller@crystal.cirrus.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
-Date: Thu, 22 Mar 2001 14:53:35 -0800
+	id <S132226AbRCVWw7>; Thu, 22 Mar 2001 17:52:59 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22026 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131271AbRCVWwv>; Thu, 22 Mar 2001 17:52:51 -0500
+Subject: Re: [PATCH] Prevent OOM from killing init
+To: dledford@redhat.com (Doug Ledford)
+Date: Thu, 22 Mar 2001 22:53:39 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        stephenc@theiqgroup.com (Stephen Clouse),
+        dwguest@win.tue.nl (Guest section DW),
+        riel@conectiva.com.br (Rik van Riel),
+        orourke@missioncriticallinux.com (Patrick O'Rourke),
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3ABA7851.AB080D44@redhat.com> from "Doug Ledford" at Mar 22, 2001 05:10:25 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gDxd-0003Tw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> During resume the IBM thinkpad with the cs46xx driver needs 
-> to delay 700
-> milleseconds, so if the machine is booted up on battery power, then to
-> ensure that the delay is long enough, then a value of 3000 
-> milleseconds is
-> must be programmed into the driver (3 seconds!).  all the 
-> mdelay and udelay
-> wait times are incorrect by the same factor, resulting in some serious
-> problems when attempting to wait specific delay times in 
-> other parts of the
-> driver.  
+> > How do you return an out of memory error to a C program that is out of memory
+> > due to a stack growth fault. There is actually not a language construct for it
+> 
+> Simple, you reclaim a few of those uptodate buffers.  My testing here has
 
-Well yes this is a problem, but only when starting out with a low effective
-CPU freq and going high - the reverse is usually OK because longer than
-anticipated waits are OK.
-
-However, you can alleviate this problem by not using udelay (or mdelay) but
-using a kernel timer. I would think you should be doing this anyway (700ms
-is a LONG TIME) but this should also work regardless of effective CPU freq.
-
-A grep of the kernel source shows cs46xx isn't even doing the biggest
-mdelay. I can understand the use of spinning on a calibrated loop for less
-than a clock tick, but I gotta think there are better ways for longer
-periods.
-
-I wonder if there is a way to modify mdelay to use a kernel timer if
-interval > 10msec? I am not familiar with this section of the kernel, but I
-do know that Microsoft's similar function KeStallExecutionProcessor is not
-recommended for more than 50 *micro*seconds.
-
-Regards -- Andy
+If you have reclaimable buffers you are not out of memory. If oom is triggered
+in that state it is a bug. If you are complaining that the oom killer triggers
+at the wrong time then thats a completely unrelated issue.
 

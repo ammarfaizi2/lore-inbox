@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292409AbSBPJaX>; Sat, 16 Feb 2002 04:30:23 -0500
+	id <S292361AbSBPJbd>; Sat, 16 Feb 2002 04:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292398AbSBPJaN>; Sat, 16 Feb 2002 04:30:13 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35081 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S292385AbSBPJaE>; Sat, 16 Feb 2002 04:30:04 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
+	id <S292362AbSBPJbY>; Sat, 16 Feb 2002 04:31:24 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:11535 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292361AbSBPJbU>; Sat, 16 Feb 2002 04:31:20 -0500
+Message-ID: <3C6E26CA.9040007@evision-ventures.com>
+Date: Sat, 16 Feb 2002 10:30:50 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: esr@thyrsus.com
+CC: Alexander Viro <viro@math.psu.edu>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>,
+        dirk.hohndel@intel.com
 Subject: Re: Disgusted with kbuild developers
-Date: 16 Feb 2002 07:41:17 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna6s38t.oes.kraxel@bytesex.org>
-In-Reply-To: <E16br21-0004Vw-00@the-village.bc.nu> <3C6DE6A1.2B5717BE@mandrakesoft.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1013845277 25752 127.0.0.1 (16 Feb 2002 07:41:17 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+In-Reply-To: <20020215122536.B8249@thyrsus.com> <Pine.GSO.4.21.0202151306160.25897-100000@weyl.math.psu.edu> <20020215135557.B10961@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->  Alan Cox wrote:
-> > Since the information is there in CML1 to generate the list of constraints
-> > for any given option, its a reasonable assertion that the entire CML2
-> > language rewrite is self indulgence from a self confessed language invention
-> > freak.
->  
->  Correct me if I'm wrong, but there are express two different types of
->  situations, and CML1 isn't sufficient to express the second:
->  
->  1) CONFIG_FOO_OPTION requires CONFIG_FOO
->  
->  2) CONFIG_SUBSYS2 requires CONFIG_SUBSYS1
->  
->  The reason why #2 is different, is the desired prompting and symbol
->  behavior for the end user.
->  
->  If CONFIG_SUBSYS1=m or "", and CONFIG_SUBSYS2=y or m, then we gotta
->  change the value of CONFIG_SUBSYS1 and options underneath
->  CONFIG_SUBSYS1.  Re-prompt for CONFIG_SUBSYS1, perhaps?
+Eric S. Raymond wrote:
 
-IMHO that is a issue with the current *tools*, not with the CML1
-*language*.  The information about the dependences is there, a more
-clever tool than "make config" can use them to present a better UI.
+>Alexander Viro <viro@math.psu.edu>:
+>
+>>>Neither Linus nor anyone else ever said to me "Eric, it's your job to 
+>>>make that change."  When I asked for guidance, Linus blackholed my mail.
+>>>
+>>Oh!  Come and see the violence inherent in the system!
+>>Help!  Help!  I'm being repressed!
+>>
+>
+>Your reply was pretty funny.  Well, I laughed anyway.
+>
 
-I have a 5-year-old perl script for kernel configuration, maybe
-I should try to reactivate it and see ...
+You didn't reach for your usual potence substitute called a weapon?
+Didn't you?
 
-  Gerd
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+
+

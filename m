@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291846AbSBAQuz>; Fri, 1 Feb 2002 11:50:55 -0500
+	id <S291851AbSBAQwp>; Fri, 1 Feb 2002 11:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291848AbSBAQup>; Fri, 1 Feb 2002 11:50:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:29202 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291846AbSBAQue>;
-	Fri, 1 Feb 2002 11:50:34 -0500
-To: Christoph Hellwig <hch@caldera.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] kthread abstraction
-In-Reply-To: <20020201163818.A32551@caldera.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Feb 2002 17:50:33 +0100
-In-Reply-To: Christoph Hellwig's message of "1 Feb 2002 16:43:43 +0100"
-Message-ID: <p73d6zpno2u.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S291850AbSBAQwf>; Fri, 1 Feb 2002 11:52:35 -0500
+Received: from are.twiddle.net ([64.81.246.98]:63384 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S291848AbSBAQwT>;
+	Fri, 1 Feb 2002 11:52:19 -0500
+Date: Fri, 1 Feb 2002 08:52:14 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+Message-ID: <20020201085214.A11266@are.twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Richard Henderson <rth@twiddle.net>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
+In-Reply-To: <20020130214935.A7479@are.twiddle.net> <E16WZUe-0001Xw-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16WZUe-0001Xw-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Feb 01, 2002 at 07:56:24PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@caldera.de> writes:
+On Fri, Feb 01, 2002 at 07:56:24PM +1100, Rusty Russell wrote:
+> This better?
 
-	
->     void *data;
-> 
-> 	Opaque data for the thread's use.
+Yep.  Thanks.
 
-That requires to dynamically allocate and initialize kthread if you
-can have potentially multiple threads (= too much to write) 
 
-I think it would be better to pass data as a separate argument.
-You can put the kthread and the data into a private structure on
-the stack, pass the address of it to kernel_thread and wait until the 
-thread has read it using a completion. 
-
-That would make a nicer API. 
-
--Andi
+r~

@@ -1,61 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbRFTMTJ>; Wed, 20 Jun 2001 08:19:09 -0400
+	id <S264356AbRFTMZ2>; Wed, 20 Jun 2001 08:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264356AbRFTMS7>; Wed, 20 Jun 2001 08:18:59 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:60428 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S264355AbRFTMSq>;
-	Wed, 20 Jun 2001 08:18:46 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S264840AbRFTMZS>; Wed, 20 Jun 2001 08:25:18 -0400
+Received: from ip65.levi.spb.ru ([212.119.175.65]:47335 "EHLO
+	germes.levi.spb.ru") by vger.kernel.org with ESMTP
+	id <S264356AbRFTMZM>; Wed, 20 Jun 2001 08:25:12 -0400
+Message-ID: <3B3095FB.2060706@levi.spb.ru>
+Date: Wed, 20 Jun 2001 16:24:27 +0400
+From: Anatoly Ivanov <avi@levi.spb.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010619
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Kissandrakis S. George" <kissand@phaistosnetworks.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 and gcc v3 final
+In-Reply-To: <3B30910F.6EDCC7A1@phaistosnetworks.gr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15152.38018.523162.191937@cargo.ozlabs.ibm.com>
-Date: Wed, 20 Jun 2001 22:18:10 +1000 (EST)
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: softirq in pre3 and all linux ports
-In-Reply-To: <20010620055413.A849@athlon.random>
-In-Reply-To: <20010619210312.Z11631@athlon.random>
-	<15152.6527.366544.713462@cargo.ozlabs.ibm.com>
-	<20010620055413.A849@athlon.random>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
+Hi,
 
-> We should release the stack before running the softirq (some place uses
-> softirqs to release the stack and avoid overflows).
+Solution is simple:
+change line 540 from "extern struct timeval xtime;"
+to "extern volatile struct timeval xtime;"
+and have fun :)
 
-Well if they are relying on having a lot of stack available then those
-places are buggy.  Once the softirq is made pending it can run at any
-time that interrupts are enabled.  You can't rely on a softirq handler
-having any more stack available than a hard interrupt handler has.
+---
+avi
 
-> ip + tcp are more intensive than just queueing a packet in a blacklog.
-> That's why they're not done in irq context in first place.
+Kissandrakis S. George wrote:
 
-Ah, ok, I misunderstood, I thought you were saying that that softirq
-framework itself had a lot of overhead.
+> Hello
+> I suppose that you allready know it
+> I have installed gcc v3 released Jun 18 and i tried to compile the
+> kernel and i got
+> these errors
+> 
+> in make dep i got several warnings that look like this
+> 
+> /usr/src/linux-2.4.5/include/asm/checksum.h:161:17: warning: multi-line
+> string literals are deprecated
+> 
+> but finally passed..
+> 
+> in make bzImage i got
+> 
+> timer.c:35: conflicting types for `xtime'
+> /usr/src/linux-2.4.5/include/linux/sched.h:540: previous declaration of
+> `xtime'
+> 
+> and compilation stops
+> if i remove the decleration of xtime in sched.h (remove the 540 line)
+> the compile
+> will go on and some compiles after...
+> 
+> time.c: In function `do_normal_gettime':
+> time.c:41: `xtime' undeclared (first use in this function)
+> 
+> and some other errors
+> if in time.c include the line 540 from sched.h (the xtime) the
+> compilation will go on
+> until the same error on another file
+> i include again the line 540 from sched.h the compilation goes on etc
+> etc and after lots
+> of errors finally i got bzImage
+> 
+> I didnt test bzImage if it boots 
+> 
+> with gcc v2.x the same kernel and kernel config it compiles,Is it a
+> kernel bug, a gcc
+> bug or something else (bad installation of gcc, my mistake etc etc)? 
+> 
+> Best Regards
+> 
+> 
+> --- 
+> Kissandrakis S. George                 [kissand@phaistosnetworks.gr]
+> Network and System Administrator       [http://www.phaistosnetworks.gr/]
+> Tel:(+30 81) 391882/Fax:(+30 892) 23206
+> Phaistos Networks S.A. - A DOL Digital Company
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> I don't have gigabit ethernet so I cannot flood my boxes to death.
-> But I think it's real, and a softirq marking itself runnable again is
-> another case to handle without live lockups or starvation.
 
-As for the gigabit ethernet case, if we are having packets coming in
-and generating hard interrupts at that sort of a rate then what we
-really need is the sort of interrupt throttling that Jamal talked
-about at the 2.5 kernel kickoff.
 
-It seems to me that possibly softirqs are being used in some places
-where a kernel thread would be more appropriate.  Instead of making
-softirqs use a kernel thread, I think it would be better to find the
-places that should use a thread and make them do so.  Softirqs are
-still after all interrupt handlers (ones that run at a lower priority
-than any hardware interrupt) and should be treated as such.
-
-Paul.

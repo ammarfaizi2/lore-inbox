@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTJSRD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 13:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTJSRD4
+	id S261802AbTJSQzG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 12:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTJSQzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 13:03:56 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:3723 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261892AbTJSRDw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 13:03:52 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: kris <kris.buggenhout@skynet.be>
-Subject: Re: problems with Seagate 120 GB drives when mutlwrite = 16
-Date: Sun, 19 Oct 2003 19:08:14 +0200
-User-Agent: KMail/1.5.4
-References: <1066578892.3091.11.camel@borg-cube.lan>
-In-Reply-To: <1066578892.3091.11.camel@borg-cube.lan>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 19 Oct 2003 12:55:06 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:33514 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S261802AbTJSQzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 12:55:03 -0400
+Message-ID: <3F92C1E5.7030609@softhome.net>
+Date: Sun, 19 Oct 2003 18:55:01 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Wichert Akkerman <wichert@wiggy.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+References: <Ioi6.7kG.15@gated-at.bofh.it> <Ioi6.7kG.17@gated-at.bofh.it> <Ioi6.7kG.19@gated-at.bofh.it> <Ioi6.7kG.21@gated-at.bofh.it> <Ioi6.7kG.23@gated-at.bofh.it> <Ioi6.7kG.25@gated-at.bofh.it> <Ioi6.7kG.27@gated-at.bofh.it> <Ioi6.7kG.29@gated-at.bofh.it> <Ioi6.7kG.31@gated-at.bofh.it> <Ioi6.7kG.11@gated-at.bofh.it> <IorM.7wQ.11@gated-at.bofh.it>
+In-Reply-To: <IorM.7wQ.11@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310191908.14369.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 of October 2003 17:54, kris wrote:
-> Hi,
+Wichert Akkerman wrote:
+> Previously Ihar 'Philips' Filipau wrote:
+> 
+>>  The goal of kernel is to provide framework for applications to the 
+>>job well.
+> 
+> I doubt anyone using linux for routing would agree with you.
+> 
 
-Hi,
+   This is different matter.
+   This is IO bound task - and I'm not sure how -Os will perform there.
+   But still this depends on routing protocols and their requirements.
 
-> I have noticed some problems with recent large drives, connected to a
-> variety of controllers.
->
-> I tested with nforce ide controller, a CMD649 based controller and an
-> Intel 870 cghipset. all have same or similar symptoms.
->
-> Linux 2.4.22 kernel : (Linux borg-cube 2.4.22-xfs #2 SMP Tue Oct 7
-> 20:53:04 CEST 2003 i686 unknown)
->
-> Oct  6 15:52:12 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
-> 0x21
-> Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
-> Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
-> Oct  6 15:52:22 borg-cube kernel: hdg: status error: status=0x58 {
-> DriveReady SeekComplete DataRequest }
-> Oct  6 15:52:22 borg-cube kernel:
-> Oct  6 15:52:22 borg-cube kernel: hdg: drive not ready for command
-> Oct  6 15:52:22 borg-cube kernel: hdg: status timeout: status=0xd0 {
-> Busy }
-> Oct  6 15:52:22 borg-cube kernel:
-> Oct  6 15:52:22 borg-cube kernel: hdg: no DRQ after issuing WRITE
-> Oct  6 15:52:22 borg-cube kernel: ide3: reset: success
->
-> same in 2.4.20 ( kernel from Suse)
->
-> 2.6.0-test6 :
->
-> Oct  9 09:43:09 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
-> 0x21
-> Oct  9 09:43:18 borg-cube kernel:
-> Oct  9 09:43:19 borg-cube kernel: hdg: DMA timeout error
-> Oct  9 09:43:19 borg-cube kernel: hdg: dma timeout error: status=0x58 {
-> DriveReady SeekComplete DataRequest }
-> Oct  9 09:43:19 borg-cube kernel:
-> Oct  9 09:43:19 borg-cube kernel: hdg: status timeout: status=0xd0 {
-> Busy }
-> Oct  9 09:43:19 borg-cube kernel:
-> Oct  9 09:43:19 borg-cube kernel: hdg: no DRQ after issuing MULTWRITE
-> Oct  9 09:43:20 borg-cube kernel: ide3: reset: success
->
-> same in 2.6.0-test8
->
-> so behaviour is consistent.
->
-> I can avoid this with either turning off dma access or disabling the
-> multwrite ( hdparm -m0 /dev/hdg)
->
-> is this a known bug, or should I file one ?
+   In any way in this case bottleneck is PCI bus (DMA over PCI from NIC 
+to main memory and back). I bet software will show up in timing tests as 
+taking <10% of whole time.
 
-Error message is known, but fact that disabling PIO multiwrite cures
-it is new, so please fill bugzilla entry.
-
-Thanks!!
---bartlomiej
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--
+   "... and for $64000 question, could you get yourself vaguely
+      familiar with the notion of on-topic posting?"
+				-- Al Viro @ LKML
 

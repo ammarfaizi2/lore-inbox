@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288498AbSATNPu>; Sun, 20 Jan 2002 08:15:50 -0500
+	id <S288531AbSATNTA>; Sun, 20 Jan 2002 08:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288521AbSATNPk>; Sun, 20 Jan 2002 08:15:40 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:38407 "EHLO
+	id <S288544AbSATNSu>; Sun, 20 Jan 2002 08:18:50 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:40455 "EHLO
 	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S288498AbSATNP1>; Sun, 20 Jan 2002 08:15:27 -0500
-Message-ID: <3C4AC2EA.85921F61@delusion.de>
-Date: Sun, 20 Jan 2002 14:15:22 +0100
+	id <S288531AbSATNSe>; Sun, 20 Jan 2002 08:18:34 -0500
+Message-ID: <3C4AC3A6.5E545E31@delusion.de>
+Date: Sun, 20 Jan 2002 14:18:30 +0100
 From: "Udo A. Steinberg" <reality@delusion.de>
 Organization: Disorganized
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3-pre2 i686)
@@ -15,7 +15,7 @@ X-Accept-Language: en, de
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>,
         Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] APM Buglet
+Subject: [PATCH] dnotify compile fix
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,18 +24,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-The following patch against 2.5.3-pre2 fixes compile problems with apm.c
+The following patch against 2.5.3-pre2 fixes a compile error in dnotify.h.
+I'm not sure if this is the preferred way, but it works for me.
 
-
-diff -Naur -X dontdiff linux-2.5.3-vanilla/arch/i386/kernel/apm.c linux-2.5.3/arch/i386/kernel/apm.c
---- linux-2.5.3-vanilla/arch/i386/kernel/apm.c  Sun Jan 20 14:12:06 2002
-+++ linux-2.5.3/arch/i386/kernel/apm.c  Sun Jan 20 13:53:03 2002
-@@ -1348,7 +1348,7 @@
-  * decide if we should just power down.
-  *
+diff -Naur -X dontdiff linux-2.5.3-vanilla/include/linux/dnotify.h linux-2.5.3/include/linux/dnotify.h
+--- linux-2.5.3-vanilla/include/linux/dnotify.h Fri Sep 22 23:21:22 2000
++++ linux-2.5.3/include/linux/dnotify.h Sun Jan 20 13:46:23 2002
+@@ -4,6 +4,8 @@
+  * Copyright 2000 (C) Stephen Rothwell
   */
--#define system_idle() (nr_running == 1)
-+#define system_idle() (nr_running() == 1)
 
- static void apm_mainloop(void)
- {
++#include <linux/fs.h>
++
+ struct dnotify_struct {
+        struct dnotify_struct * dn_next;
+        int                     dn_magic;

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265197AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
+	id <S265211AbTA1MKX>; Tue, 28 Jan 2003 07:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
-Received: from [195.72.113.150] ([195.72.113.150]:18185 "EHLO
-	schubert.rdns.com") by vger.kernel.org with ESMTP
-	id <S265197AbTA1MGi>; Tue, 28 Jan 2003 07:06:38 -0500
-Date: Tue, 28 Jan 2003 12:15:52 +0000 (GMT)
-From: Robert Morris <rob@r-morris.co.uk>
-X-X-Sender: rob@schubert.rdns.com
-To: Wichert Akkerman <wichert@wiggy.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bootscreen
-In-Reply-To: <20030128114840.GV4868@wiggy.net>
-Message-ID: <Pine.LNX.4.44.0301281213120.20509-100000@schubert.rdns.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265238AbTA1MKX>; Tue, 28 Jan 2003 07:10:23 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:53469 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265211AbTA1MKW>;
+	Tue, 28 Jan 2003 07:10:22 -0500
+Date: Tue, 28 Jan 2003 13:19:40 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200301281219.NAA03575@harpo.it.uu.se>
+To: pavel@suse.cz
+Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there,
+On Tue, 28 Jan 2003 10:26:09 +0100, Pavel Machek wrote:
+>>    - You're hardcoding that the local-APIC NMI watchdog is the
+>>      only possible sub-client of the local APIC. Not true.
+>>    - perfctr_pmdev exists precisely to handle both these cases
+>>      in a clean way.
+>
+>While being as ugly as night, which is even noted in sources:
+>
+>-       /* 'perfctr_pmdev' is here because the current (2.4.1) PM
+>-          callback system doesn't handle hierarchical dependencies */
+>
+>Nothing prevents more clients from registering as subtrees to APIC. I
+>did not do that for NMI watchdog because it is hardcoded in Makefile,
+>anyway.
 
-> Kiosks and things like ATMs are another place where you do not want
-> a bootscreen. You do not want to possibly confuse customers with
-> stuff that they can't understand but show a nice friendly message saying
-> 'the system is currently unavailable'.
+Not "more" clients, OTHER clients. They're exclusive.
+The NMI watchdog simply happens to be the default client, but it
+needs to unregister itself before any other client can take over
+the performance counters and the local APIC's LVTPC entry.
+(And that's what happens today.)
 
-I once saw an ATM with a Windows NT "blue screen" error message :-)
+If the device model handles hierarchical dependencies correctly,
+there should be no need to hardcode calls from the local APIC's
+PM routines to whoever happens to be its current sub-client.
 
-FWIW, I wouldn't have responded to Raphael's post in the way I did, if he 
-said something along the lines of "I'm using Linux in a TV set-top 
-box|ATM|kiosk application, and I want to hide the standard boot-up output 
-with a nice graphic".
+(And if it doesn't do this correctly, please fix the device
+model first before migrating apic.c/nmi.c to it.)
 
+>I'll fix APM to call device model methods.
 
-Robert Morris
-08707 458710
-http://www.r-morris.co.uk/
+Good.
 
+>Because PM_SUSPEND/PM_RESUME is ugly and can not be made to work
+>(devices are hierarchical, and PM_SUSPEND/PM_RESUME system does not
+>honour that).
+
+Agreed, but existing PM users do work. Most are leaves in the
+dependency tree (e.g. sound cards). The only one I know of that
+isn't is apic.c, and it has a local workaround as you noted.
+
+Given that we're supposed to be in a feature freeze getting 2.5
+into some kind of 2.6-worthy shape soonish, I think PM should
+be hooked into the device model as a legacy API.
+
+/Mikael

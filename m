@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266818AbSKHRU4>; Fri, 8 Nov 2002 12:20:56 -0500
+	id <S266831AbSKHRbO>; Fri, 8 Nov 2002 12:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266819AbSKHRU4>; Fri, 8 Nov 2002 12:20:56 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:58760 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S266818AbSKHRUz>; Fri, 8 Nov 2002 12:20:55 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 8 Nov 2002 09:37:35 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] epoll bits 0.30 ...
-In-Reply-To: <20021108160955.GA30234@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0211080937080.1768-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266835AbSKHRbO>; Fri, 8 Nov 2002 12:31:14 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:42258 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S266831AbSKHRbN>; Fri, 8 Nov 2002 12:31:13 -0500
+Date: Fri, 8 Nov 2002 17:37:55 +0000
+From: John Levon <levon@movementarian.org>
+To: Kevin Brosius <cobra@compuserve.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [WARN] IPv6 issues timer warning - bk tree
+Message-ID: <20021108173755.GB6571@compsoc.man.ac.uk>
+References: <3DCB4740.7B4456D5@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DCB4740.7B4456D5@compuserve.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Nov 2002, Jamie Lokier wrote:
+On Fri, Nov 08, 2002 at 12:10:24AM -0500, Kevin Brosius wrote:
 
-> Davide Libenzi wrote:
-> > Rusty, the hash is not under pressure over there. The only time seeks is
-> > performed is at file removal ( from the set ) and eventually at file
-> > modify. There's a direct link between the wait queue and its item during
-> > the high frequency event delivery, so need seek is performed.
->
-> It does seem peculiar to use a prime-sized hash table, though.  These
-> days, good power-of-two-sized hash functions are well known.
+> During boot I see the attached timer warning message with latest bk
+> tree.
 
-To make everyone happy the latest code uses hash.h :)
+A patch for igmp6 has already been posted to lkml (by Dipankar)
 
+john
 
-
-- Davide
-
-
+-- 
+"When a man has nothing to say, the worst thing he can do is to say it
+memorably."
+	- Calvin Trillin

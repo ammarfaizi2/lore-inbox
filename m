@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTIYHPM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 03:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbTIYHPM
+	id S261739AbTIYHS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 03:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbTIYHS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 03:15:12 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:34030 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261733AbTIYHPI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 03:15:08 -0400
-Subject: Re: [PATCH] sysctl-controlled number of groups.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Rusty Russell <rusty@rustcorp.com.au>
+	Thu, 25 Sep 2003 03:18:28 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49575 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261739AbTIYHSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 03:18:25 -0400
+Date: Tue, 23 Sep 2003 14:07:16 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Rychter <jan@rychter.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030925035943.AE41C2C04B@lists.samba.org>
-References: <20030925035943.AE41C2C04B@lists.samba.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JK4CCzqapFmIl0Hy3hKK"
-Organization: Red Hat, Inc.
-Message-Id: <1064474103.5072.2.camel@laptop.fenrus.com>
+Subject: Re: How does one get paid to work on the kernel?
+Message-ID: <20030923120715.GA11901@openzaurus.ucw.cz>
+References: <1063915370.2410.12.camel@laptop-linux> <yw1xad91nrmd.fsf@users.sourceforge.net> <1063958370.5520.6.camel@laptop-linux> <m2he38r7ji.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
-Date: Thu, 25 Sep 2003 09:15:03 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2he38r7ji.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-JK4CCzqapFmIl0Hy3hKK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>  Nigel> There is support in the current kernel for Software Suspend, but
+>  Nigel> the 2.4 version contains a lot of extra functionality that isn't
+>  Nigel> present in 2.6 at the moment. (Support for HighMem, swap files,
+>  Nigel> asynchronous I/O, a nicer user interface, compression...).
+> 
+> Nigel is being modest and doesn't mention that the 2.4 version actually
+> works, which is possibly its biggest advantage.
 
-On Thu, 2003-09-25 at 05:21, Rusty Russell wrote:
-> We have a client (using SAMBA) who has people in 190 groups.  Since NT
-> has hierarchical groups, this is not all that rare.
->=20
-> What do people think of this patch?
+2.6.0-test3 swsusp should work, too, unless you have driver problem.
+With ext2, ide and vesafb you should be able to suspend/resume
+correctly.
+That might not be practical for you, but should be
+good enough for fixing drivers.
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-.... FEATURECREEPER .....
-
-(sorry couldn't resist ;)
-
---=-JK4CCzqapFmIl0Hy3hKK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/cpX3xULwo51rQBIRAsGoAJ9E8yyfxx1Wsd5NgFcgH/lcBfMe6gCeMcLG
-NEjhmbk3J5L7BsZcqCL4Rq8=
-=SW7C
------END PGP SIGNATURE-----
-
---=-JK4CCzqapFmIl0Hy3hKK--

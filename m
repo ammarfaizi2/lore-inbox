@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRALDgL>; Thu, 11 Jan 2001 22:36:11 -0500
+	id <S129675AbRALDqE>; Thu, 11 Jan 2001 22:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbRALDgB>; Thu, 11 Jan 2001 22:36:01 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:6796 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129742AbRALDf6>; Thu, 11 Jan 2001 22:35:58 -0500
-Message-ID: <3A5E7B98.D575EF40@haque.net>
-Date: Thu, 11 Jan 2001 22:35:52 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
+	id <S129742AbRALDpz>; Thu, 11 Jan 2001 22:45:55 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:52909 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129675AbRALDps>; Thu, 11 Jan 2001 22:45:48 -0500
+Message-ID: <3A5E7DB2.A7126A68@Home.net>
+Date: Thu, 11 Jan 2001 22:44:50 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch[ 2.4.1-pre3 HAVE_XMM compile error
-Content-Type: multipart/mixed;
- boundary="------------5BEF60DFBBBB4FBF6AD6D380"
+To: linux-kernel@vger.kernel.org
+Subject: [PROBLEM] 2.4.1-pre2 - Undefined symbol `__buggy_fxsr_alignment'
+In-Reply-To: <3A5E4B1D.5EF1B0EB@Home.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5BEF60DFBBBB4FBF6AD6D380
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+GCC 2.95.2 -> PGCC 2.95.2(3?) patched. 2.4.0 compiles fine
 
-patch to let 2.4.1-pre3 compile on PIII
-we are moving from HAVE_XMM to cpu_has_xmm right?
+init/main.o: In function `check_fpu':
+init/main.o(.text.init+0x53): undefined reference to `__buggy_fxsr_alignment'
 
--- 
+make: *** [vmlinux] Error 1
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+On compiling (and recompiling) i get this fatal error. This function
+does not exist anymore?
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
---------------5BEF60DFBBBB4FBF6AD6D380
-Content-Type: text/plain; charset=us-ascii;
- name="xmm-fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="xmm-fix.diff"
+Anyone else having this problem?
 
---- linux/include/asm-i386/xor.h.orig	Thu Jan 11 21:55:49 2001
-+++ linux/include/asm-i386/xor.h	Thu Jan 11 22:22:18 2001
-@@ -843,7 +843,7 @@
- 	do {						\
- 		xor_speed(&xor_block_8regs);		\
- 		xor_speed(&xor_block_32regs);		\
--	        if (HAVE_XMM)				\
-+	        if (cpu_has_xmm)				\
- 			xor_speed(&xor_block_pIII_sse);	\
- 	        if (md_cpu_has_mmx()) {			\
- 	                xor_speed(&xor_block_pII_mmx);	\
-@@ -855,4 +855,4 @@
-    We may also be able to load into the L1 only depending on how the cpu
-    deals with a load to a line that is being prefetched.  */
- #define XOR_SELECT_TEMPLATE(FASTEST) \
--	(HAVE_XMM ? &xor_block_pIII_sse : FASTEST)
-+	(cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
-
---------------5BEF60DFBBBB4FBF6AD6D380--
+Shawn Starr.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

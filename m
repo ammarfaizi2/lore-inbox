@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUL3KDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbUL3KMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbUL3KDL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 05:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUL3KDL
+	id S261589AbUL3KMl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 05:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUL3KMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 05:03:11 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:27659 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261607AbUL3KDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 05:03:07 -0500
-Subject: Re: Stack guards, PaX and such
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Jacoby <dj@outpost24.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41D3C66F.5070909@outpost24.com>
-References: <41D3C66F.5070909@outpost24.com>
+	Thu, 30 Dec 2004 05:12:41 -0500
+Received: from 80-219-198-150.dclient.hispeed.ch ([80.219.198.150]:58752 "EHLO
+	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id S261589AbUL3KMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 05:12:39 -0500
+Subject: Re: ptrace single-stepping change breaks Wine
+From: Thomas Sailer <sailer@scs.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, the3dfxdude@gmail.com, mh@codeweavers.com,
+       pouech-eric@wanadoo.fr, dan@debian.org, roland@redhat.com,
+       linux-kernel@vger.kernel.org, wine-devel@winehq.com
+In-Reply-To: <20041229201531.40a0144a.akpm@osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	 <20041119212327.GA8121@nevyn.them.org>
+	 <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
+	 <20041120214915.GA6100@tesore.ph.cox.net> <41A251A6.2030205@wanadoo.fr>
+	 <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>
+	 <1101161953.13273.7.camel@littlegreen>
+	 <1104286459.7640.54.camel@gamecube.scs.ch>
+	 <1104332559.3393.16.camel@littlegreen>
+	 <1104348944.5645.2.camel@kronenbourg.scs.ch>
+	 <5304685704122912132e3f7f76@mail.gmail.com>
+	 <1104371395.5128.2.camel@gamecube.scs.ch>
+	 <Pine.LNX.4.58.0412291807440.2353@ppc970.osdl.org>
+	 <1104376558.5128.22.camel@gamecube.scs.ch>
+	 <20041229201531.40a0144a.akpm@osdl.org>
 Content-Type: text/plain
-Date: Thu, 30 Dec 2004 11:02:56 +0100
-Message-Id: <1104400976.4170.7.camel@laptopd505.fenrus.org>
+Organization: Supercomputing Systems AG
+Date: Thu, 30 Dec 2004 11:09:53 +0100
+Message-Id: <1104401393.5128.24.camel@gamecube.scs.ch>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-30 at 10:12 +0100, David Jacoby wrote:
-> Hi everyone!
+On Wed, 2004-12-29 at 20:15 -0800, Andrew Morton wrote:
+
+> You can globally disable flex-mmap with
 > 
-> I hope you had an nice and relaxing x-mas and are ready for a nice new 
-> years eve.
-> I just have a little question, i really dont if this has ben discussed 
-> before, but if it
-> has im really sorry.
+> 	echo 1 > /proc/sys/vm/legacy_va_layout
+> 
+> Does it fix things?
 
-are you talking about making the userspace stack not executable or the
-kernel stacks?
-With NX, userspace stacks already are not executable (and if you have a
-cpu without NX you can use the execshield patches or PaX)
+Haven't tried. But setarch i386 -L /usr/bin/wine ... did fix it.
 
-As for kernel stacks, well, with NX those are not executable either, and
-to be honest, I can't remember the last time there was a user
-exploitable kernel stack buffer overflow. So if your assertion is that
-those are a common type of security problem, I disagree with you.
-(One of the underlying causes is that the kernel stack is only really
-small so it's relatively uncommon and deprecated to put arrays on the
-kernel stack)
+Tom
 
 

@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267901AbTAHOx7>; Wed, 8 Jan 2003 09:53:59 -0500
+	id <S267818AbTAHOp2>; Wed, 8 Jan 2003 09:45:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267902AbTAHOx7>; Wed, 8 Jan 2003 09:53:59 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:50268 "EHLO xsmtp.ethz.ch")
-	by vger.kernel.org with ESMTP id <S267901AbTAHOx5>;
-	Wed, 8 Jan 2003 09:53:57 -0500
-Message-ID: <3E1C3D87.7030605@debian.org>
-Date: Wed, 08 Jan 2003 16:02:31 +0100
-From: "Giacomo A. Catenazzi" <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en, it-ch, it
-MIME-Version: 1.0
-To: rms@gnu.org
-CC: lm@bitmover.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-References: <fa.gm4r3cv.1r4avpq@ifi.uio.no> <fa.hq6mucv.l4qg1c@ifi.uio.no>
-In-Reply-To: <fa.hq6mucv.l4qg1c@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jan 2003 15:02:37.0302 (UTC) FILETIME=[FB53F960:01C2B726]
+	id <S267819AbTAHOp2>; Wed, 8 Jan 2003 09:45:28 -0500
+Received: from home.wiggy.net ([213.84.101.140]:28899 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267818AbTAHOp1>;
+	Wed, 8 Jan 2003 09:45:27 -0500
+Date: Wed, 8 Jan 2003 15:52:11 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <20030108145211.GD22951@wiggy.net>
+Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20030108130850.GQ22951@wiggy.net> <Pine.LNX.4.44.0301081535460.27551-100000@dns.toxicfilms.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301081535460.27551-100000@dns.toxicfilms.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Maciej Soltysiak wrote:
+> Is there a ip6 mangling router in your route to the icecast server?
 
+Not to my knowledge. traceroute6 shows:
 
-Richard Stallman wrote:
->     Great.  So not only is there no legal need to cite GNU in the Linux 
->     name, there is no ethical obligation either.
-> 
-> When you take part of my statement, stretch it, interpret it based on
-> assumptions you know I disagree with, and present the result as
-> something I said, that doesn't prove anything.  It is childish.
-> 
-> There is no ethical obligation to mention secondary contributions
-> incorporated in a large project.  There ethical obligation is to cite
-> the main developer.  In the GNU/Linux system, the GNU Project is the
-> principal contributor; the system is more GNU than anything else,
-> and we started it.
+traceroute to ipv6.lkml.org (2001:968:1::2) from
+3ffe:8280:10:1d0:290:27ff:fe2d:968c, 30 hops max, 16 byte packets
+ 1  thunder.wiggy.net (3ffe:8280:10:1d0:250:4ff:fe0b:dd79)  0.666 ms 0.22 ms  0.199 ms
+ 2  xs4all-29.ipv6.xs4all.nl (3ffe:8280:0:2001::58)  27.568 ms  28.012 ms  30.177 ms
+ 3  26.ge-0-2-0.xr1.pbw.xs4all.net (2001:888:0:3::1)  22.035 ms 19.528 ms  44.644 ms
+ 4  0.ge-0-3-0.xr1.sara.xs4all.net (2001:888:2:1::1)  19.519 ms 19.002 ms  21.974 ms
+ 5  fe-0-0-0.ams-core-01.network6.isp-services.nl (2001:7f8:1::a502:4875:1)  19.978 ms  30.278 ms  20.248 ms
+ 6  2001:968::2 (2001:968::2)  24.246 ms  24.083 ms  22.918 ms
+ 7  2001:968:1::2 (2001:968:1::2)  24.978 ms  23.866 ms  23.661 ms
 
-GNU is not so important in new system. I take gcc and glibc as to be
-outside the GNU project. (they have now the GNU mark only for GNU
-convenience, IMHO) I use "GNU/Linux" only to make more explicit the
-"copyleft" ideas, but surelly not because of the GNU tools.
+thunder.wiggy.net is my Linux router running 2.4.19-pre5-ac3-freeswan196
+currently. The second hop is a normal sit tunnel and all the other
+hops are native ipv6 using Cisco and Juniper routers as far as I know.
+If you want I can get a detailed list of the routers and the IOS/JunOS
+versions they are running.
 
-If you insist with such arguments, you risk that someone will rewrite
-the basic GNU tools outside the GNU project (emacs is not an OS main tool,
-gcc and glibc are de facto outside GNU) (bash will remain GNU ?)
+Wichert.
 
-ciao
-	giacomo
-
-
-RMS: maybe you can reply me privatly about some more explication of your mail,
-so less OT mail, and privately maybe I can understand more about GNU/Linux flames.
-
-
-
-
-
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

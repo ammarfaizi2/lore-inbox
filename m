@@ -1,88 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUCWCyz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 21:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUCWCyz
+	id S262240AbUCWDOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 22:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUCWDOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 21:54:55 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46571 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262194AbUCWCyw (ORCPT
+	Mon, 22 Mar 2004 22:14:25 -0500
+Received: from holomorphy.com ([207.189.100.168]:61074 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262240AbUCWDOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 21:54:52 -0500
-Subject: Re: Issues with /proc/bus/pci
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040322183126.16fe76cc.davem@redhat.com>
-References: <1080007613.22212.61.camel@gaston>
-	 <20040322183126.16fe76cc.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1080009609.23717.81.camel@gaston>
+	Mon, 22 Mar 2004 22:14:22 -0500
+Date: Mon, 22 Mar 2004 19:13:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Message-ID: <20040323031345.GY2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, colpatch@us.ibm.com,
+	linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+	haveblue@us.ibm.com, hch@infradead.org
+References: <1079659184.8149.355.camel@arrakis> <20040318175654.435b1639.pj@sgi.com> <1079737351.17841.51.camel@arrakis> <20040319165928.45107621.pj@sgi.com> <20040320031843.GY2045@holomorphy.com> <20040320000235.5e72040a.pj@sgi.com> <20040320111340.GA2045@holomorphy.com> <20040322171243.070774e5.pj@sgi.com> <20040323020940.GV2045@holomorphy.com> <20040322183918.5e0f17c7.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Mar 2004 13:40:11 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040322183918.5e0f17c7.pj@sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-23 at 13:31, David S. Miller wrote:
-> On Tue, 23 Mar 2004 13:06:53 +1100
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > I could add the host bridge thing fairly easily, but I think it
-> > is not very practical. Well, I probably have to add it anyway in
-> > case any existing stuff uses that, but it's definitely not
-> > practical when you have a bit of useralnd that knows the PCI ID
-> > (domain/bus/devfn) of the card and wants to access the legacy IO
-> > space of that bridge. The problem is finding which pci_dev is
-> > the host bridge, if any since host bridges aren't required to
-> > show up at all.
-> 
-> You have a problem.  You must implement this 'trick' because things
-> like xfree86 domain stuff wants it too.
+On Mon, Mar 22, 2004 at 06:39:18PM -0800, Paul Jackson wrote:
+> From this I conjecture that I can provide a single call:
+>     cpumask_and(cpumask_t d, cpumask_t s1, cpumask_t s2);
+> that works on both normal (1 to 32 cpu) systems and on big iron systems,
+> with traditional 'C' pass by value semantics, all derived from a single
+> mask type that works for both node and cpu masks.
+> The one sticky point evident to me so far would be if some generic code
+> were passing a cpumask_t across a function call boundary, and needed to
+> be optimum for both small and sparc64 - one would want to pass by value,
+> the other would want to pass a pointer to the cpumask.
+> This is not your fathers 'C'.  The compile time inlining and
+> optimization provided by gcc enables it to do a lot more than Dennis
+> Ritchie's original C compiler that I learned on.
 
-I know, but xfree is probably the only thing that matters and it
-can probably still be changed if we go a different way... My main
-issue is that there is no guarantee the host bridge shows up as
-a PCI device as far as I know. It's not in the spec, some bridges
-are currently hidden on some ppc 4xx embedded platforms (though
-in that case, we could probably quirk to just hide the BARs since
-those are the problem), but in general, I think it may be a
-problem.
+gcc flat out miscompiled such inlines last I checked (Zwane shipped the
+bugreport IIRC). Either this kind of good behavior is not universally
+observable or a miracle occurred and gcc's codegen went from incorrect
+to 1980's (fscking patents).
 
-> I've been exporting the host PCI bridges to the usespace since day one,
-> and one only needs walk the devfn/bus numbers properly to find the proper
-> bridge for a given pci dev, right?
+Anyhow, this was also an observation of the code effectively made in
+isolation; uninlining and other catastrophes do happen.
 
-Well. On PowerMacs (and apparently on pSeries too), I usually have
-the host bridge show up as a device, except of G5's hypertransport
-(but that's fixable as it does exist, though with a weird config
-space access method that I didn't bother implement yet). But it's
-not obvious which device is the host bridge ;) In an ideal world,
-we could say that you have to walk all devices in the system, and
-find the one of class "host" with the same domain number. But
-that assumes:
-
- - That the host bridge does show up as a pci device which isn't
-required afaik
- - That the host bridges does have a PCI class of host bridge,
-which may not be true (though that's quirk'able)
- - The actual "discovery" of it above from userland isn't that
-simple, especially since for compatibility with existing userland,
-our /proc/bus/pci/XX numbers don't show  the domain number (at
-least on ppc32) since we renumber busses to not overlap. I will
-change that in the 2.7 timeframe. So I need to actually open all
-devices and ask for their domain number with the PCIIOC_CONTROLLER,
-
-This overall makes the mecanism a bit fragile & non trivial imho,
-it would be nice to have a simple way to go straight to the bus
-mappings given the pci_dev (without having to even bothing "finding"
-the host bridge) either with additional ioctl's or just by allowing
-the "low IOs" mapping.
-
-What do you think ?
-
-Ben.
+If people really thinks this works and/or don't care when it doesn't,
+go for it. Last time I heard they did; who knows, the answer may be
+different this time.
 
 
+-- wli

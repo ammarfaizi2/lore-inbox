@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263394AbRFEWVz>; Tue, 5 Jun 2001 18:21:55 -0400
+	id <S263384AbRFEWTz>; Tue, 5 Jun 2001 18:19:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263392AbRFEWVp>; Tue, 5 Jun 2001 18:21:45 -0400
-Received: from quasar.osc.edu ([192.148.249.15]:5780 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S263394AbRFEWV2>;
-	Tue, 5 Jun 2001 18:21:28 -0400
-Date: Tue, 5 Jun 2001 18:21:20 -0400
-From: Pete Wyckoff <pw@osc.edu>
-To: Dan Maas <dmaas@dcine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forcibly unmap pages in driver?
-Message-ID: <20010605182120.F23799@osc.edu>
-In-Reply-To: <04ea01c0ed67$ad3f38f0$0701a8c0@morph>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <04ea01c0ed67$ad3f38f0$0701a8c0@morph>; from dmaas@dcine.com on Mon, Jun 04, 2001 at 10:31:50PM -0400
+	id <S263392AbRFEWTp>; Tue, 5 Jun 2001 18:19:45 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:63248 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S263384AbRFEWTd>; Tue, 5 Jun 2001 18:19:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mike Galbraith <mikeg@wen-online.de>,
+        "Benjamin C.R. LaHaise" <blah@kvack.org>
+Subject: Re: Comment on patch to remove nr_async_pages limitA
+Date: Wed, 6 Jun 2001 00:21:33 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.33.0106052211490.2310-100000@mikeg.weiden.de>
+In-Reply-To: <Pine.LNX.4.33.0106052211490.2310-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Message-Id: <01060600213307.00553@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dmaas@dcine.com said:
-> I am writing a device driver that, like many others, exposes a shared memory
-> region to user-space via mmap(). The region is allocated with vmalloc(), the
-> pages are marked reserved, and the user-space mapping is implemented with
-> remap_page_range().
-> 
-> In my driver, I may have to free the underlying vmalloc() region while the
-> user-space program is still running. I need to remove the user-space
-> mapping -- otherwise the user process would still have access to the
-> now-freed pages. I need an inverse of remap_page_range().
-> 
-> Is zap_page_range() the function I am looking for? Unfortunately it's not
-> exported to modules =(. As a quick fix, I was thinking I could just remap
-> all of the user pages to point to a zeroed page or something...
-> 
-> Another question- in the mm.c sources, I see that many of the memory-mapping
-> functions are surrounded by calls to flush_cache_range() and
-> flush_tlb_range(). But I don't see these calls in many drivers. Is it
-> necessary to make them when my driver maps or unmaps the shared memory
-> region?
+On Tuesday 05 June 2001 23:00, Mike Galbraith wrote:
+> On Tue, 5 Jun 2001, Benjamin C.R. LaHaise wrote:
+> > Swapping early causes many more problems than swapping late as
+> > extraneous seeks to the swap partiton severely degrade performance.
+>
+> That is not the case here at the spot in the performance curve I'm
+> looking at (transition to throughput).
+>
+> Does this mean the block layer and/or elevator is having problems? 
+> Why would using avaliable disk bandwidth vs letting it lie dormant be
+> a generically bad thing?.. this I just can't understand.  The
+> elevator deals with seeks, the vm is flat not equipped to do so.. it
+> contains such concept.
 
-That seems a bit perverse.  How will the poor userspace program know
-not to access the pages you have yanked away from it?  If you plan
-to kill it, better to do that directly.  If you plan to signal it
-that the mapping is gone, it can just call munmap() itself.
+Clearly, if the spindle a dirty file page belongs to is idle, we have 
+goofed.
 
-However, do_munmap() will call zap_page_range() for you and take care of
-cache and TLB flushing if you're going to do this in the kernel.
+With process data the situation is a little different because the 
+natural home of the data is not the swap device but main memory.  The 
+following gets pretty close to the truth: when there is memory 
+pressure, if the spindle a dirty process page belongs to is idle, we 
+have goofed.
 
-Your driver mmap function is called by do_mmap_pgoff() which takes
-care of those issues, and there is no (*munmap) in file_operations---
-perhaps you are the first driver writer to want to unmap in the kernel.
+Well, as soon as I wrote those obvious truths I started thinking of 
+exceptions, but they are silly exceptions such as:
 
-		-- Pete
+  - read disk block 0
+  - dirty last block of disk
+  - dirty 1,000 blocks starting at block 0.
+
+For good measure, delete the file the last block of the disk belongs 
+to.  We have just sent the head off on a wild goose chase, but we had 
+to work at it.  To handle such a set of events without requiring 
+prescience we need to be able to cancel disk writes, but just ignoring 
+such oddball situations is the next best thing.
+
+That's all by way of saying I agree with you.
+
+--
+Daniel

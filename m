@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271691AbTGYGOV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 02:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271927AbTGYGOV
+	id S271928AbTGYGjl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 02:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271929AbTGYGjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 02:14:21 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:58790 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271691AbTGYGOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 02:14:19 -0400
-Subject: forkpty with streams
-From: Andrew Barton <andrevv@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059089316.8596.14.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 24 Jul 2003 23:28:36 +0000
+	Fri, 25 Jul 2003 02:39:41 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.27]:29517 "EHLO
+	mwinf0404.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S271928AbTGYGjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 02:39:40 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: koraq@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.22-pre7] speedtouch.o unresolved symbols
+Date: Fri, 25 Jul 2003 08:55:24 +0200
+User-Agent: KMail/1.5.2
+References: <20030724202048.GA16411@spearhead>
+In-Reply-To: <20030724202048.GA16411@spearhead>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307250855.24218.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got the 2.4 kernel, and I'm trying to use the forkpty() system call
-with the standard I/O stream functions. The calls to forkpty() and
-fdopen() and fprintf() all return successfully, but the data never seems
-to get to the child process. In this simplified example, I am trying to
-open a shell in a pseudo terminal and then send it the string "exit\n"
-and then wait for it to die. But the shell apparently never sees the
-"exit\n", and the parent waits forever.
+On Thursday 24 July 2003 22:20, koraq@xs4all.nl wrote:
+> After compiling kernel 2.4.22-pre7 the make modules_install failed with the
+> following errors
+>
+> cd /lib/modules/2.4.22-pre7; \
+> mkdir -p pcmcia; \
+> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+> pcmcia if [ -r System.map ]; then /sbin/depmod -ae -F System.map 
+> 2.4.22-pre7; fi depmod: *** Unresolved symbols in
+> /lib/modules/2.4.22-pre7/kernel/drivers/usb/speedtch.o depmod:        
+> shutdown_atm_dev_R0b9b1467
+> depmod:         atm_charge_Rf874f17b
+> depmod:         atm_dev_register_Rc23701a4
+> make: *** [_modinst_post] Error 1
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
+You need to enable ATM support (CONFIG_ATM).  To do this, you
+need to enable support for experimental code (CONFIG_EXPERIMENTAL).
 
-main()
-{
-	int fd;
-	pid_t pid;
-
-	pid = forkpty (&fd, 0, 0, 0);
-	if (pid == 0) {
-		execlp ("sh", "sh", (void *)0);
-		_exit (1);
-	} else if (pid == -1) {
-		return 1;
-	} else {
-		FILE *F;
-
-		F = fdopen (fd, "w");
-		fprintf (F, "exit\n");
-		fflush (F);
-		wait (0);
-	}
-	return 0;
-}
-
-
+Duncan.

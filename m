@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267671AbRGPTA0>; Mon, 16 Jul 2001 15:00:26 -0400
+	id <S267672AbRGPTFG>; Mon, 16 Jul 2001 15:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267670AbRGPTAR>; Mon, 16 Jul 2001 15:00:17 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:47599 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267669AbRGPS76>; Mon, 16 Jul 2001 14:59:58 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107161853.f6GIrxdQ002885@webber.adilger.int>
-Subject: Re: [PATCH] 64 bit scsi read/write
-In-Reply-To: <Pine.LNX.4.33.0107141325460.1063-100000@rossi.itg.ie>
- "from Paul Jakma at Jul 14, 2001 01:27:37 pm"
-To: Paul Jakma <paulj@alphyra.ie>
-Date: Mon, 16 Jul 2001 12:53:59 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S267673AbRGPTE4>; Mon, 16 Jul 2001 15:04:56 -0400
+Received: from mookie.cis.brown.edu ([128.148.177.11]:16009 "EHLO
+	mookie.cis.brown.edu") by vger.kernel.org with ESMTP
+	id <S267672AbRGPTEn>; Mon, 16 Jul 2001 15:04:43 -0400
+Date: Mon, 16 Jul 2001 15:04:47 -0400
+From: Dave Johnson <ddj@cascv.brown.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Unexpected IO-APIC messages
+Message-ID: <20010716150447.A13358@mookie.cis.brown.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jamka writes:
-> On Fri, 13 Jul 2001, Andreas Dilger wrote:
-> > put your journal on NVRAM, you will have blazing synchronous I/O.
-> 
-> so ext3 supports having the journal somewhere else then. question: can
-> the journal be on tmpfs?
+When booting up 2.4.2-2smp (RH 7.1) on a new system here, the kernel
+complains about the IO-APIC register contents, and asks that mail be
+sent to linux-smp@vger.kernel.org.
 
-There are patches for this (2.2 only, not 2.4) but it is not in the core
-ext3 code yet.  The ext3 design and on-disk layout allow for it (and the
-e2fsprogs have the basic support for it), so it will not be a major change
-to start using external devices for journals.
+It appears that the linux-smp list is defunct; at least there have been
+no new messages archived on geocrawler since August 2000.  It also
+appears that the new IO APIC reg01.version of 0x20 was reported about
+a year ago on the linux-smp list, and reg_01.__reserved_2 of 0x80 was
+reported on this list around February 2001.  
 
-If you are keen to do performance testing (on a temporary filesystem, for
-sure), you can hack around the current lack of ext3 support for journal
-devices by doing the following (works for reiserfs also) with LVM:
+The relevant dmesg info from our machine follows:
+----
+testing the IO APIC.......................
 
-1) create a PV on NVRAM/SSD/ramdisk (needs hacks to LVM code to support the
-   NVRAM device, or you can loopback mount the device ;-)  It should be big
-   enough to hold the entire journal + a bit of overhead*
-2) create a VG and LV on the ramdisk
-3) create a PV on a regular disk, add it to the above VG
-4) extend the LV with the new PV space**
-5) create a 4kB blocksize ext2 filesystem on this LV
-6) use "dumpe2fs <LV NAME>" to find the free blocks count in the first group
-7) use "tune2fs -J size=<blocks * blocksize> <LV name>" to create the
-   journal, where "blocks" <= number of free blocks in first group and
-   also <= (number of blocks on NVRAM device - overhead*)
+IO APIC #2......
+.... register #00: 02000000
+.......    : physical APIC id: 02
+.... register #01: 00178020
+.......     : max redirection entries: 0017
+.......     : IO APIC version: 0020
+ WARNING: unexpected IO-APIC, please mail
+          to linux-smp@vger.kernel.org
+ WARNING: unexpected IO-APIC, please mail
+          to linux-smp@vger.kernel.org
+.... register #02: 00000000
+.......     : arbitration: 00
+----
 
-You _should_ have the journal on NVRAM now, along with the superblock and
-all of the metadata for the first group.  This will also improve performance
-as the superblock and group descriptor tables are hot spots as well.
+The APIC information from lspci -v follows:
+----
+03:00.0 PIC: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Interrupt
+ Controller (rev 01) (prog-if 20 [IO(X)-APIC])
+        Subsystem: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Int
+errupt Controller
+        Flags: fast devsel
+        Memory at fe400000 (32-bit, non-prefetchable) [disabled] [size=4K]
+----
 
-Of course, once support for external journal devices is added to ext3, it
-will simply be a matter of doing "tune2fs -J device=<NVRAM device>".
 
-Cheers, Andreas
----------------
-*) For ext3, you need enough extra space for the superblock, group descriptors,
-   one block and inode bitmap, the first inode table, (and lost+found if
-   you don't want to do extra work deleting lost+found before creating the
-   journal, and re-creating it afterwards).  The output from "dumpe2fs"
-   will tell you the number of inode blocks and group descriptor blocks.
-   For reiserfs it is hard to tell exactly where the file will go, but if
-   you had, say, a 64MB NVRAM device and a new filesystem, you could expect
-   the journal to be put entirely on the NVRAM device.
+If anyone is planning to do anything about new IO-APIC versions and stuff,
+at least the mailing list address should be corrected.
 
-**) The LV will have the NVRAM device as the first Logical Extent, so this
-   will also be logically the first part of the filesystem.  The PEs added
-   to the LV will be appended to the NVRAM device.
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+If nobody cares until a bug comes along, perhaps the message should be
+changed to say "unrecognized" or "unknown" rather than unexpected, so
+the d**n users don't pee in their pants when they see the boot log
+scrolling by.
+
+Or maybe just parse and print out the values and refer the user to
+linux/Documentation/i386/IO-APIC.txt (which also still refers to the
+linux-smp mailing list) for further information.
+
+Thanks,
+
+
+	-- ddj
+
+	Dave Johnson
+	ddj@cascv.brown.edu

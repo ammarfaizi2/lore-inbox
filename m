@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSEMP7W>; Mon, 13 May 2002 11:59:22 -0400
+	id <S314078AbSEMQKQ>; Mon, 13 May 2002 12:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSEMP7U>; Mon, 13 May 2002 11:59:20 -0400
-Received: from gateway.ukaea.org.uk ([194.128.63.73]:14544 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S314079AbSEMP7H>; Mon, 13 May 2002 11:59:07 -0400
-Message-ID: <3CDFE2C7.5454B13A@ukaea.org.uk>
-Date: Mon, 13 May 2002 16:59:03 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-31 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.15 IDE 62
+	id <S314080AbSEMQKP>; Mon, 13 May 2002 12:10:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10921 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314078AbSEMQKP>; Mon, 13 May 2002 12:10:15 -0400
+Date: Mon, 13 May 2002 12:10:08 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Strange s390 code in 2.4.19-pre8
+Message-ID: <20020513121008.B29935@devserv.devel.redhat.com>
+In-Reply-To: <OFFA479633.3A335CB7-ONC1256BB8.002ABB8D@de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 13 2002, Martin Dalecki wrote:
->Oops. Indeed I see now that the ide_lock is exported to
->the upper layers above it in ide-probe.c
->
->blk_init_queue(q, do_ide_request, &ide_lock);
->
->But this is problematic in itself, since it means that
->we are basically serialiazing between *all* requests
->on all channels.
+> From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+> Date: Mon, 13 May 2002 09:54:59 +0200
 
-Surely not.  If you look at the line above the one you quoted above, you
-see the per-channel serialization being requested:
+> > #2 - strange changes to net Makefile
+> The intention of this is to have fsm.o built as a module if ctc
+> and iucv are built as modules too. I agree that this is broken
+> if one of {iucv,ctc} is built as a module and the other is built
+> in.
 
-q->queuedata = drive->channel;
+The old Makefile was correct, and the only failing was a namespace
+conflict between your fsm.c and fsm.c in ISDN, when CONFIG_MODVERSIONS
+are used. The right fix is to rename your fsm.c or to create
+fsm_s390_ksyms.c with all EXPORT_SYMBOL's sitting in there.
+It is fixed in 2.5 with $(MODPREFIX) in Rules.make.
 
-cheers,
-Neil
-PS: 2.4 doesn't even have the spinlock as a parameter to
-blk_init_queue().
+-- Pete

@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCAMgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVCAMtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVCAMgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 07:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVCAMgX
+	id S261890AbVCAMtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVCAMtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 07:36:23 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:7104 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261887AbVCAMgT convert rfc822-to-8bit
+	Tue, 1 Mar 2005 07:49:40 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:45541 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261890AbVCAMti
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 07:36:19 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Tue, 1 Mar 2005 07:49:38 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
+       adaplas@pol.net
+Subject: Re: [Linux-fbdev-devel] RFC: disallow modular framebuffers
+Date: Tue, 1 Mar 2005 20:49:25 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050301024118.GF4021@stusta.de>
+In-Reply-To: <20050301024118.GF4021@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [2.6 patch] SCSI: possible cleanups
-Date: Tue, 1 Mar 2005 07:36:15 -0500
-Message-ID: <60807403EABEB443939A5A7AA8A7458BD63E10@otce2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] SCSI: possible cleanups
-Thread-Index: AcUd5KS5mtbsAL4OQ3i6XZbN+IgeAgAdDlnA
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Christoph Hellwig" <hch@infradead.org>, "Adrian Bunk" <bunk@stusta.de>
-Cc: <James.Bottomley@SteelEye.com>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "Mark Haverkamp" <markh@osdl.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503012049.25809.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
->>   - scsi_scan.c: scsi_rescan_device
->aacraid was going to use that one, Mark, any chance to get a patch
-anytime soon?
->>   - scsi_scan.c: scsi_scan_single_target
->as mentioned above we'll need this one soon.
+On Tuesday 01 March 2005 10:41, Adrian Bunk wrote:
+> Hi,
+>
+> while looking how to fix modular FB_SAVAGE_* (both FB_SAVAGE_I2C=m and
+> FB_SAVAGE_ACCEL=m are currently broken) I asked myself:
+>
+> Do modular framebuffers really make sense?
+>
+> OK, distributions like to make everything modular, but all the
+> framebuffer drivers I've looked at parse driver specific options in
+> their *_setup function only in the non-modular case.
+>
+> And most framebuffer drivers contain a module_exit function.
+> Is there really any case where this is both reasonable and working?
 
-Yup, we use both of them in our branch of the driver. I submit a patch
-to MarkH for the Hot-Add calls soon.
+Only a few drivers are capable of being unloaded with the possiblity of
+restoring the vga console (i810fb and rivafb), when CONFIG_FBCON = n.
 
-Sincerely -- Mark Salyzyn
+If CONFIG_FBCON=y, it's not possible to unload the module unless 2 drivers
+are loaded at the same time. One driver can be mapped to the console, so the
+other can be unloaded.  Although not important from the user's POV, it is
+quite helpful when debugging/developing drivers.
+
+Currently fbcon cannot be unloaded, it will freeze the system.
+
+Tony
+
 

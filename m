@@ -1,69 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268054AbTBMO75>; Thu, 13 Feb 2003 09:59:57 -0500
+	id <S268056AbTBMPMP>; Thu, 13 Feb 2003 10:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268055AbTBMO75>; Thu, 13 Feb 2003 09:59:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45416 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268054AbTBMO74>; Thu, 13 Feb 2003 09:59:56 -0500
-To: suparna@in.ibm.com
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [KEXEC][PATCH] Modified (smaller) x86 kexec hwfixes patch
-References: <20030213161014.A14361@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Feb 2003 08:09:16 -0700
-In-Reply-To: <20030213161014.A14361@in.ibm.com>
-Message-ID: <m1heb8w737.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268057AbTBMPMP>; Thu, 13 Feb 2003 10:12:15 -0500
+Received: from aramis.rutgers.edu ([128.6.4.2]:32479 "EHLO aramis.rutgers.edu")
+	by vger.kernel.org with ESMTP id <S268056AbTBMPMM>;
+	Thu, 13 Feb 2003 10:12:12 -0500
+Subject: Re: O_DIRECT foolish question
+From: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: cw@f00f.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20030212211221.3f73ba45.akpm@digeo.com>
+References: <20030212140338.6027fd94.akpm@digeo.com>
+	 <1045088991.4767.85.camel@urca.rutgers.edu>
+	 <20030212224226.GA13129@f00f.org>
+	 <1045090977.21195.87.camel@urca.rutgers.edu>
+	 <20030212232443.GA13339@f00f.org>
+	 <1045092802.4766.96.camel@urca.rutgers.edu>
+	 <20030212233846.GA13540@f00f.org>
+	 <1045093775.21195.99.camel@urca.rutgers.edu>
+	 <20030212235130.GA13629@f00f.org>
+	 <1045094589.4767.106.camel@urca.rutgers.edu>
+	 <20030213001302.GA13833@f00f.org>
+	 <1045096579.21195.121.camel@urca.rutgers.edu>
+	 <20030212211221.3f73ba45.akpm@digeo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4cqxCqhqhCBPAvoPP7Mt"
+Organization: Rutgers University
+Message-Id: <1045149719.4766.126.camel@urca.rutgers.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 13 Feb 2003 10:22:00 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> writes:
 
-> Martin Bligh came up with a simple way to fix the kernel
-> to enable kexec boot from any CPU. 
-> 
-> Rather than picking up boot cpu information from the MP 
-> tables (which belong to the previous boot in the case of 
-> kexec), it just sets it to the cpu its starting on.
-> (See the changes in arch/i386/kernel/smpboot.c)
-> 
-> This simplifies the the kexec-hwfixes patch, since we
-> no longer need to move to the boot cpu before stopping
-> other processors. Which removes a lot of the unconditional
-> patching of reboot.c and makes it less invasive, thanks to 
-> Martin. Also, at panic time, cpu migration is something 
-> that is best avoided.
+--=-4cqxCqhqhCBPAvoPP7Mt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I will agree with that, at least conditionally.  
+Thanks, Andrew. So, no chances of getting this working correctly on 2.4
+kernel for now (I mean, reading files with size !=3D n*block_size), and
+I'd better give up on this... Is it the case, or you think there is
+still something to do to get this working on ext2 and 2.4 kernel?
 
-I figure stop_apics can be removed from the panic path.
+Bruno.
 
-However stopping all of the cpus does seem to be something
-that is needed on the panic path.  And if we stop cpus
-what is wrong with cpu migration.  Or can we move the halt
-of the cpus into the panic kernel?  That would be my real 
-preference.
+On Thu, 2003-02-13 at 00:12, Andrew Morton wrote:
+> Bruno Diniz de Paula <diniz@cs.rutgers.edu> wrote:
+> >
+> > On Wed, 2003-02-12 at 19:13, Chris Wedgwood wrote:
+> > > If I had to guess, write should work more or less the same as reads
+> > > (ie. I should be able to write aligned-but-smaller-than-page-sized
+> > > blocks to the end of files).
+> > >=20
+> > > Testing this however shows this is *not* the case.
+> >=20
+> > This is not the case, I have also tested here and the file written has
+> > n*block_size always. The problem with writing is that we can't sign to
+> > the kernel that the actual data has finished and from that point on it
+> > should zero-fill the bytes. And what is worse, the information about th=
+e
+> > actual size is lost, since the write syscall will store what is passed
+> > on the 3rd argument in the inode (field st_size of stat). This means
+> > that after writing using O_DIRECT we can't read data correctly anymore.
+> > The exception is when we write together with the data information about
+> > the actual size and process disregarding information from stat, for
+> > instance.
+> >=20
+> > Well, I am sure I am completely wrong because this doesn't make any
+> > sense for me. Someone that has already dealt with this and can bring a
+> > light to the discussion?
+> >=20
+>=20
+> For writes, I don't think it is reasonable for the kernel to be have to
+> handle byte-granular appends.  O_DIRECT is different.  For this case the
+> application should ftruncate the file back to the desired size prior to
+> closing it.
+>=20
+> For the short reads at EOF, the 2.4 kernel refuses to read anything, and
+> returns zero.  The 2.5 kernel will return -EINVAL, which is better behavi=
+our
+> (shouldn't make it just look like the file is shorter than it really is).
+>=20
+> The ideal behaviour is that which I mistakenly described previously: we
+> should fill with zeroes and return the partial result.  I'll look at
+> converting 2.5 to do that.  As long as the changes are small - the direct=
+-io
+> code does a ton of stuff, is complex, is not tested a lot and breakage te=
+nds
+> to be subtle.
+--=20
+Bruno Diniz de Paula <diniz@cs.rutgers.edu>
+Rutgers University
 
-> It would be good if someone could test this out (on SMP)
-> and confirm it works fine (I tried it on a 4way).
-> 
-> Eric, Do these changes look OK to you ? Did you have
-> something similar in mind, when you were talking about
-> enabling the kexec'd kernel to not care about which cpu
-> it was running on ?
+--=-4cqxCqhqhCBPAvoPP7Mt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-50%.  The normal case needs to shutdown the way it is currently doing.
-So we need to audit the code a little more.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Basically the way I see it, in the normal case the kernel is responsible
-for a clean shutdown of the kernel and all it's devices.   No one else
-knows better how to accomplish those tasks then the drivers running the kernel.
+iD8DBQA+S7gXZGORSF4wrt8RAnrnAKCMcX/efG6/QHZtxRivhYkzDqNgogCfTD0S
+C+kJ69plgLAZO1TPMKNlYnw=
+=4qEQ
+-----END PGP SIGNATURE-----
 
-On the other hand during a panic the recovery kernel is responsible for
-everything it possibly can handle.  Because we know something is broken
-in the kernel calling kexec.
+--=-4cqxCqhqhCBPAvoPP7Mt--
 
-Eric

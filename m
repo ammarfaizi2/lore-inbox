@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317522AbSGJPuQ>; Wed, 10 Jul 2002 11:50:16 -0400
+	id <S317528AbSGJP5i>; Wed, 10 Jul 2002 11:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317528AbSGJPuP>; Wed, 10 Jul 2002 11:50:15 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52673 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317522AbSGJPuO>;
-	Wed, 10 Jul 2002 11:50:14 -0400
-Message-ID: <1026316367.3d2c584f45ab0@imap.linux.ibm.com>
-Date: Wed, 10 Jul 2002 11:52:47 -0400
-From: niv@us.ibm.com
-To: hurwitz@lanl.gov
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How many copies to get from NIC RX to user read()?
+	id <S317533AbSGJP5h>; Wed, 10 Jul 2002 11:57:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59911 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317528AbSGJP5g>; Wed, 10 Jul 2002 11:57:36 -0400
+Date: Wed, 10 Jul 2002 12:49:32 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  July 10, 2002
+In-Reply-To: <3D2B89AC.25661.91896FEB@localhost>
+Message-ID: <Pine.LNX.4.44L.0207101247440.14432-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 9.65.0.27
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Jul 2002, Guillaume Boissiere wrote:
 
-> I could've sworn I heard the stack was single-copy 
-> on both the TX and RX sides. But, it doesn't look to 
-> me like it is. Rather, it looks like there is one copy 
-> in tcp_rcv_estabilshed() (via tcp_copy_to_iovec()), and a
-> second copy in tcp_recvmsg() (which is called when the 
-> user calls read()). Both of these copies are, I believe, 
-> done by skb_copy_datagram_iovec().
+> Also on the planned deletion list:
+>    - Add thrashing control
 
-tcp_recvmsg() only does the copy from the receive_queue
-or the backlog queue. tcp_rcv_established() does the copy
-directly into the iovec or queues it onto the receive_queue 
-or backlog queue for tcp_recvmsg() to complete the work. So 
-there arent two copies of the same data happening, just a 
-question of one or the other function doing the work depending 
-on whether there is currently a process doing a read or not..
+I've had the mechanism working for well over a year now, but
+still don't have a proper policy for load control implemented.
 
-hth,
+> o Beta        New VM with reverse mappings                    (Rik van Riel)
 
-thanks,
-Nivedita
+This is (in limited form) ready for merging and has been
+stability tested by Andrew Morton. A patch should go to
+Linus soon...
 
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

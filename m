@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315926AbSEGSF4>; Tue, 7 May 2002 14:05:56 -0400
+	id <S315928AbSEGSJD>; Tue, 7 May 2002 14:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315927AbSEGSFz>; Tue, 7 May 2002 14:05:55 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8209 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315926AbSEGSFx>; Tue, 7 May 2002 14:05:53 -0400
-Date: Tue, 7 May 2002 11:05:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: benh@kernel.crashing.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <200205071743.g47HhZd30932@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0205071103040.975-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315931AbSEGSJB>; Tue, 7 May 2002 14:09:01 -0400
+Received: from holomorphy.com ([66.224.33.161]:37610 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315928AbSEGSI5>;
+	Tue, 7 May 2002 14:08:57 -0400
+Date: Tue, 7 May 2002 11:07:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4-ac: migration_init improvements
+Message-ID: <20020507180725.GV32767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1020794038.806.25.camel@bigsur>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 07, 2002 at 10:53:57AM -0700, Robert Love wrote:
+> The attached patch simplifies the migration_init code (an ugly lot) with
+> a simpler mechanism.  This is Erich Focht's version which is now in
+> 2.5.  It has proved stable both there and in my testing.
+> The new method is to bring up the first migration_thread, and then use
+> it to migrate the remaining threads to their respective CPUs.  The
+> method makes sense and removes a lot of code.
+> This patch also includes a boot hang fix demonstrated on arches where
+> logical CPU mapping != physical CPU mapping.  The bug was reported and
+> fixed by James Bottomley in 2.5.
+> Patch is against 2.4.19-pre7-ac4, please apply.
+> 	Robert Love
 
-On Tue, 7 May 2002, Richard Gooch wrote:
->
-> Actually, I've always said that I think devfs should care about both
-> views.
+No objections here. Focht's code works just as well or better, and has
+further advantages with respect to hotplug cpu support.
 
-And I think you're completely wrong.
 
-The fact is, they are two completely different and orthogonal things, and
-they have _nothing_ in common except for a very weak linkage of actual
-"physical device" (which does not always exist).
-
-The set of people that cares about one view is almost 100% different from
-the set of people that care about the other view.
-
-> Fugly. What's wrong with readlink(2) as this "magic syscall"?
-
-Ehh - like the fact that it doesn't work on device files?
-
-		Linus
-
+Cheers,
+Bill

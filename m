@@ -1,101 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267820AbTAHPRD>; Wed, 8 Jan 2003 10:17:03 -0500
+	id <S267515AbTAHPN1>; Wed, 8 Jan 2003 10:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267821AbTAHPRD>; Wed, 8 Jan 2003 10:17:03 -0500
-Received: from fluent2.pyramid.net ([206.100.220.213]:56712 "EHLO
-	fluent2.pyramid.net") by vger.kernel.org with ESMTP
-	id <S267820AbTAHPRB>; Wed, 8 Jan 2003 10:17:01 -0500
-Message-Id: <5.2.0.9.0.20030108065119.01d69ab0@fluent2.pyramid.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 08 Jan 2003 07:25:37 -0800
-To: Andre Hedrick <andre@linux-ide.org>
-From: Stephen Satchell <list@fluent2.pyramid.net>
-Subject: Re: Honest does not pay here ...
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10301080249330.421-100000@master.linux-ide.o
- rg>
-References: <Pine.LNX.4.43.0301081058320.28725-100000@cibs9.sns.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S267529AbTAHPN1>; Wed, 8 Jan 2003 10:13:27 -0500
+Received: from h66n2fls31o276.telia.com ([213.64.188.66]:12542 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267515AbTAHPN0>; Wed, 8 Jan 2003 10:13:26 -0500
+Message-ID: <3E1C4215.5080306@gorling.se>
+Date: Wed, 08 Jan 2003 16:21:57 +0100
+From: =?ISO-8859-1?Q?Stefan_G=F6rling?= <stefan@gorling.se>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: stefan@gorling.se
+Subject: A humble request for help
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:05 AM 1/8/03 -0800, Andre Hedrick wrote:
->I have pissed off everyone.
->While searching for the exact line of where things are black and white.
->Nobody cares enough to help clear the air.
->Nobody cares to pursue any of the existing binary modules.
+Hi Everyone,
 
-Well, Andre, you haven't pissed me off in any way, sir.  You have raised 
-some very interesting questions, questions that need to be answered if 
-Linux is going to continue to live in the real world.  Real world, as 
-opposed to the Utopia (or Utopias) that some contributor here would like to 
-see.
+I'm currently working on a thesis investigating how Open Source is 
+affected by the influence of money and the interests of commercial 
+companies. As the Linux Kernel efforts is the foundation of many 
+companies it is interesting to study how their entrance to the scene 
+have affected the community.
 
-This is for the rest of you:
+The thesis as well as research papers surrounding it will be released 
+under the GNU Free Documentation License and as soon as the first drafts 
+are available they will be published so that the community may comment 
+upon it.
 
-I'm not knocking the sincerity of those contributors who have made their 
-views known on this subject, nor do I want to disabuse them of their 
-dream.    I want them, though, to recognize the dream for what it is, goals 
-that would be nice to achieve but not a reality no matter how much they may 
-wish it so.  Goals that have merit, as long as they don't become a 
-straitjacket to making Linux useful to its users.
+In order to improve the research, it would be great if you guys could 
+spend a few minutes on this one. I have included below a list of the 
+most active persons on this mailinglist during the year 2002. I have 
+tried to establish their employer as far as e-mail adresses and google 
+could help me out, but there are lots of unknowns, and probably some 
+errors too. So please, send me patches.
 
-The concept of a kernel "tainted" by binary-only modules was, as I recall 
-the prior threads on the subject, was focused on preventing developers from 
-"spinning their wheels" trying to debug a black box for which no source is 
-available and which may have unintended and astonishing effects on the rest 
-of the kernel.  In this goal, the Linux Developer Community has followed in 
-the footsteps of Microsoft Corporation, in wanting to focus their support 
-efforts on situations where the variables are minimized.
+Also, if you belive that there are others who should be on this list, or 
+someone who shouldn't please let me know.
 
--->  The whole purpose of Microsoft's Windows Hardware Certification Lab 
-(WHCL) process was to ensure that hardware and the drivers that come with 
-them meet certain minimum performance and configuration parameters, 
-reducing Microsoft's technical support triage efforts.
+If there are someone out there who would be willing to answer some more 
+detailed questions, such as how long they've been doing Open Source 
+development as a source of income and how they think it have affected 
+them and their efforts, please drop me a line. I'd be forever grateful. 
+I am also very interested in interviewing developers who are major 
+contributors on their free-time.
 
--->  The whole purpose of the "tainted" kernel indication was to ensure 
-that a problem report involving black boxes indicate that black boxes are 
-involved, reducing the Linux Developer Community's technical support triage 
-efforts.
+Alan Cox,RedHat
+Andrew Morton,Moxi.com
+David S. Miller,RedHat
+Linus Torvalds,Transmeta
+Greg Kh,Wirex ?
+Jeff Garzik,Mandrake Software
+Daniel Phillips,Innominate
+Dave Jones,SuSE
+Pavel Machek,SuSE
+Rik Van Riel,Conectiva
+William Lee Irwin III,IBM
+Rusty Russell,LinuxCare
+Robert Love,MontaVista Software
+Ingo Molnar,RedHat
+Jens Axboe,SuSE
+Martin Dalecki,Evision Ventures?
+Andrea Arcangeli,SuSE
+Christoph Hellwig,Caldera International
+Andre Hedrick,SuSe
+Bill Davidsen,TMR Associates
+Russell King,ARM Ltd
+Alexander Viro,RedHat
+Keith Owens,SGI
+Zwane Mwaikambo,Unknown / Self-financed
+Thunder From The Hill,Unknown / Self-financed
+Martin J. Bligh,IBM
+Vojtech Pavlik,SuSE
+H. Peter Anvin,Transmeta
+Richard B. Johnson,Analogic Corporation
+Andi Kleen,SuSE
+Roman Zippel,Unknown / Self-financed
+Adrian Bunk,Unknown / Self-financed
+Larry McVoy,BitMover
+Andreas Dilger,Cluster File Systems, Inc
+Eric W. Biederman,Unknown / Self-financed
+Denis Vlasenko,Unknown / Self-financed
+James Simmons,Transvirtual
+George Anzinger,MontaVista Software
+Adam J. Richter,Yggdrasil
+Anton Altaparmakov,Unknown / Self-financed
+Davide Libenzi,Unknown / Self-financed
+Andries Brouwer,Unknown / Self-financed
+Arnaldo Carvalho De Melo,Conectiva
+Benjamin Lahaise,RedHat
+Tomas Szepe,Unknown / Self-financed
+Randy.Dunlap,OSDL
+Roy Sigurd Karlsbakk,Unknown / Self-financed
+Rob Landley,Unknown / Self-financed
+Trond Myklebust,Unknown / Self-financed
+David Woodhouse,RedHat
 
-Sauce for the goose is sauce for the gander.
+Best Regards,
 
-The contributors who champion "free (as in speech) software" must recognize 
-that the concept of intellectual property is a global concept, not just the 
-child of one country such as the United States.  Limiting customer choice 
-by blocking closed-source binary-only drivers only serves to make Gnu/Linux 
-(ok, Stallman?) less useful to our customers because it does eliminate a 
-choice.  I applaud the goal of emphasizing open-source drivers where open 
-source is possible.  Just as the holder of a hammer tends to look at all 
-problems as nails, some of the contributors here appear to think  that 
-open-source is the be-all and end-all -- but the real world of intellectual 
-property royalties and cutthroat competition sometimes makes open source 
-impractical or impossible.
-
-I want to make this clear:  if the customer requirements are such that s/he 
-need to use hardware with a closed-source driver, then it is the customer's 
-choice to incorporate said hardware and drivers.  The problem that some 
-contributors to this discussion on LKML are trying to create an environment 
-that  is specifically intended to rob the customer of that choice in the 
-pursuit of a dream, a dream that WILL force that customer to a different 
-solution other than Linux.
-
-That's bad for Linux, that's bad for GNU, that's bad for the customer the 
-Linux user.
-
-You DO believe that we should be looking out for the Linux user, don't you?
-
-Educate.  Don't dictate.
-
-OK, now the coffee should be ready, and I can medicate myself.
-
-Stephen Satchell
-
-
--- 
-The human mind treats a new idea the way the body treats a strange
-protein:  it rejects it.  -- P. Medawar
-This posting is for entertainment purposes only; it is not a legal opinion.
+Stefan Görling
 

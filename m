@@ -1,45 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319460AbSILHFm>; Thu, 12 Sep 2002 03:05:42 -0400
+	id <S319301AbSILHPU>; Thu, 12 Sep 2002 03:15:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319461AbSILHFm>; Thu, 12 Sep 2002 03:05:42 -0400
-Received: from angband.namesys.com ([212.16.7.85]:13696 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S319460AbSILHFl>; Thu, 12 Sep 2002 03:05:41 -0400
-Date: Thu, 12 Sep 2002 11:10:29 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Arador <diegocg@teleline.es>
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k at a time)
-Message-ID: <20020912111029.A4997@namesys.com>
-References: <20020910190950.A1064@namesys.com> <Pine.LNX.4.44.0209101504590.16518-100000@freak.distro.conectiva> <20020911193024.24fb7514.diegocg@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20020911193024.24fb7514.diegocg@teleline.es>
-User-Agent: Mutt/1.3.22.1i
+	id <S319356AbSILHPU>; Thu, 12 Sep 2002 03:15:20 -0400
+Received: from dp.samba.org ([66.70.73.150]:29368 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319301AbSILHPQ>;
+	Thu, 12 Sep 2002 03:15:16 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Only allocate per-cpu copies for possible CPUs
+Date: Thu, 12 Sep 2002 17:19:43 +1000
+Message-Id: <20020912072006.DF98A2C0C4@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Not quite as neat as I would like, but it means that per-cpu vars are
+still usable on the boot CPU early, and usable on the other cpus by
+the time they are called online.
 
-On Wed, Sep 11, 2002 at 07:30:23PM +0200, Arador wrote:
+The problem is that some people want to use per-cpu vars before we
+have probed for cpus, so we don't know what CPUs are possible, hence
+this "alloc the boot cpu using bootmem and the other cpus using
+kmalloc" approach.
 
-> > Huh, now that I released -pre6 _with_ this stuff by accident its too late.
-> > Silly me.
-> > Can you make me a tree which backouts the big write code please?
-> > Will be releasing a -pre7 shortly due to that.
-> Although some changes are going to be removed in -pre7, i've run tiobench to test the changes.
-> Kernel versions are plain -pre4 and -pre6
+This is a precursor to pushing "change all [NR_CPUS] arrays to per-cpu
+vars" (which then implies that the per-cpu area pointer, not the cpu
+number, becomes the primary object from which the other is derived.
 
-What kind of hardware were these tests on?
+Comments?
 
-Can you please conduct one more test with line 212 in fs/reiserfs/file.c
-changed:
-hint.preallocate = 0;
-change 0 there to 1
+Name: per-cpu only for possible CPUs
+Author: Rusty Russell
+Status: Tested on 2.5.34 2-way i386
 
-Thank you.
+D: This allocates per-cpu areas only for those CPUs which may actually
+D: exist, before each one comes online.
 
-Bye,
-    Oleg
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.34/init/main.c working-2.5.34-percpu_possible/init/main.c
+--- linux-2.5.34/init/main.c	Tue Sep 10 09:11:21 2002
++++ working-2.5.34-percpu_possible/init/main.c	Thu Sep 12 15:01:31 2002
+@@ -309,32 +309,36 @@ static void __init smp_init(void)
+ #define smp_init()	do { } while (0)
+ #endif
+ 
+-static inline void setup_per_cpu_areas(void) { }
++static inline void setup_per_cpu_area(unsigned int cpu) { }
+ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
+ 
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU
++/* Created by linker magic */
++extern char __per_cpu_start[], __per_cpu_end[];
++
+ unsigned long __per_cpu_offset[NR_CPUS];
+ 
+-static void __init setup_per_cpu_areas(void)
++/* Sets up per-cpu area for boot CPU. */
++static void __init setup_per_cpu_area(unsigned int cpu)
+ {
+-	unsigned long size, i;
++	unsigned long size;
+ 	char *ptr;
+-	/* Created by linker magic */
+-	extern char __per_cpu_start[], __per_cpu_end[];
+ 
+ 	/* Copy section for each CPU (we discard the original) */
+ 	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
+ 	if (!size)
+ 		return;
+ 
+-	ptr = alloc_bootmem(size * NR_CPUS);
++	/* First CPU happens really early... */
++	if (cpu == smp_processor_id())
++		ptr = alloc_bootmem(size);
++	else
++		ptr = kmalloc(size, GFP_ATOMIC);
+ 
+-	for (i = 0; i < NR_CPUS; i++, ptr += size) {
+-		__per_cpu_offset[i] = ptr - __per_cpu_start;
+-		memcpy(ptr, __per_cpu_start, size);
+-	}
++	__per_cpu_offset[cpu] = ptr - __per_cpu_start;
++	memcpy(ptr, __per_cpu_start, size);
+ }
+ #endif /* !__GENERIC_PER_CPU */
+ 
+@@ -343,7 +347,16 @@ static void __init smp_init(void)
+ {
+ 	unsigned int i;
+ 
+-	/* FIXME: This should be done in userspace --RR */
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_possible(i)) {
++			if (i != smp_processor_id())
++				setup_per_cpu_area(i);
++		} else {
++			/* Force a NULL deref on use */
++			__per_cpu_offset[i] = (char *)0 - __per_cpu_start;
++		}
++	}
++
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		if (num_online_cpus() >= max_cpus)
+ 			break;
+@@ -395,7 +408,7 @@ asmlinkage void __init start_kernel(void
+ 	lock_kernel();
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
+-	setup_per_cpu_areas();
++	setup_per_cpu_area(smp_processor_id());
+ 	printk("Kernel command line: %s\n", saved_command_line);
+ 	parse_options(command_line);
+ 	trap_init();
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

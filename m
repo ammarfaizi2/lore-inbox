@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbSIZXgA>; Thu, 26 Sep 2002 19:36:00 -0400
+	id <S261574AbSIZXxD>; Thu, 26 Sep 2002 19:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSIZXgA>; Thu, 26 Sep 2002 19:36:00 -0400
-Received: from pc132.utati.net ([216.143.22.132]:62109 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S261573AbSIZXf7>; Thu, 26 Sep 2002 19:35:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Larry Kessler <kessler@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
-Date: Thu, 26 Sep 2002 14:41:06 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       Rusty Russell <rusty@rustcorp.com.au>, Hien Nguyen <hien@us.ibm.com>,
-       James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-References: <Pine.LNX.4.44L.0209261636340.1837-100000@duckman.distro.conectiva> <3D93678B.8EF7A420@us.ibm.com>
-In-Reply-To: <3D93678B.8EF7A420@us.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020926233818.CE506398@merlin.webofficenow.com>
+	id <S261579AbSIZXxD>; Thu, 26 Sep 2002 19:53:03 -0400
+Received: from thunk.org ([140.239.227.29]:64672 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261574AbSIZXxC>;
+	Thu, 26 Sep 2002 19:53:02 -0400
+Date: Thu, 26 Sep 2002 19:57:41 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020926235741.GC10551@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org> <20020926220432.GB10551@think.thunk.org> <200209261553.07593.ryan@completely.kicks-ass.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209261553.07593.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 September 2002 04:01 pm, Larry Kessler wrote:
-> Rik van Riel wrote:
-> > On Thu, 26 Sep 2002, Larry Kessler wrote:
-> > > Distros could be motivated to provide translations, etc. for the kernel
-> > > versions that they base new releases on.
-> >
-> > Unlikely.  It's hard enough already when somebody who doesn't
-> > speak the language submits a bugreport by email or through
-> > bugzilla.
-> >
-> > I don't want to imagine receiving a bug report from eg. Japan
-> > that has a cut'n'pasted kernel error in Japanese. It's not just
-> > that I can't read Japanese ... I don't even have the FONT to
-> > display it.
->
-> Right, so the tools that take kernel events and display them in
-> human-readable form must be written to always display in english,
-> with the option to also display in another language, thus allowing
-> the non-English-reading SysAdmin in Japan to easily understand the
-> info.
+On Thu, Sep 26, 2002 at 03:53:02PM -0700, Ryan Cumming wrote:
+> The one mildly interesting thing was:
+> Sep 26 11:49:06 (none) kernel: EXT3-fs: INFO: recovery required on readonly 
+> filesystem.
+> Sep 26 11:49:06 (none) kernel: EXT3-fs: write access will be enabled during 
+> recovery.
+> Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
+> ext3_clear_journal_err: Filesystem error recorded from previous mount: IO 
+> failure
+> Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
+> ext3_clear_journal_err: Marking fs in need of filesystem check.
+> Sep 26 11:49:06 (none) kernel: EXT3-fs: ide0(3,2): orphan cleanup on readonly 
+> fs
+> Sep 26 11:49:06 (none) kernel: EXT3-fs: recovery complete.
+> Sep 26 11:49:06 (none) kernel: EXT3-fs: mounted filesystem with ordered data 
+> mode.
+> Sep 26 11:49:06 (none) kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,2), 
+> internal journal
 
-If your system is functional enough after the "event" that the user can make 
-this selection and the system listens to them, then it can clearly be done in 
-userspace.
+Wait a second.  These messages would occur only if you had done a
+read-only mount at 11:49:06.  Did you do a manual mount at that time?
+Do you have one or more filesystems in your /etc/fstab (in particular
+/dev/hda2) that are set to be mounted read-only?  That's the only
+thing that would explain the "write access enabled during recovery of
+readonly filesystem" warning message.  That message means that
+/dev/hda2 was readonly because the mount command *requested* that it
+be mounted read-only, not because of some error.  
 
-Otherwise, the ability to select is kind of pointless.  It has to be done 
-before you actually have a problem, and will result in swahili bug reports to 
-the list because that's the language it was outputting when the problem 
-happened and they can't necessarily reproduce the problem on demand.
+The other strange thing from these syslog messages is that, (a) they
+indicate that the filesystem wasn't checked by e2fsck before they were
+mounted --- which is what I generally recommend: let e2fsck run the
+journal take take care of the recovery, and (b) the reason why the
+filesystem was marked as being "in error" is because the previous time
+the filesystem was mounted, something reported an IO error.  That
+could be a hardware problem, but it's also used as a generic error by
+much of the exte filesystem code, so we really need the log entry,
+which should have been the previous time this filesystem had been
+mounted.
 
-Rob
+How is your system configured vis-a-vis the /etc/fstab entry for
+/dev/hda2?
+
+						- Ted
+

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbULTOta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbULTOzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbULTOta (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 09:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbULTOta
+	id S261515AbULTOzv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 09:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULTOzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 09:49:30 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44507 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261513AbULTOt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 09:49:27 -0500
-Subject: Re: [patch] [RFC] make WANT_PAGE_VIRTUAL a config option
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       geert@linux-m68k.org, ralf@linux-mips.org,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.61.0412180020220.793@scrub.home>
-References: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0412170133560.793@scrub.home>
-	 <1103244171.13614.2525.camel@localhost>
-	 <Pine.LNX.4.61.0412170150080.793@scrub.home>
-	 <1103246050.13614.2571.camel@localhost>
-	 <Pine.LNX.4.61.0412170256500.793@scrub.home>
-	 <1103257482.13614.2817.camel@localhost>
-	 <Pine.LNX.4.61.0412171132560.793@scrub.home>
-	 <1103299179.13614.3551.camel@localhost>
-	 <Pine.LNX.4.61.0412171818090.793@scrub.home>
-	 <1103320106.7864.6.camel@localhost>
-	 <Pine.LNX.4.61.0412180020220.793@scrub.home>
-Content-Type: text/plain
-Message-Id: <1103554150.11069.104.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 20 Dec 2004 06:49:10 -0800
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 09:55:51 -0500
+Received: from web88006.mail.re2.yahoo.com ([206.190.37.193]:43671 "HELO
+	web88006.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261515AbULTOzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 09:55:44 -0500
+Message-ID: <20041220145543.56059.qmail@web88006.mail.re2.yahoo.com>
+Date: Mon, 20 Dec 2004 09:55:43 -0500 (EST)
+From: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: Cannot resume from PCI devices [now: Drivebay LED light going into S3]
+To: linux-kernel@vger.kernel.org
+Cc: borislav@users.sf.net
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-17 at 16:52, Roman Zippel wrote:
-> In your case don't put the inline functions into asm/mmzone.h and we 
-> should merge the various definition into fewer header files.
+yes, the ALSA fix is in (don't know which -bk it was
+added) but it works fine with -bk13 as
+pci_disable_device now is in there.
 
-OK, I'm sold.  
+Boris, when we go into S3 mode, the drivebay light
+remains on, draining power.. How can this be shut off
+when we enter S3? aside from manually shutting the LED
+off before suspend. Any code hooks we can trigger apon
+entering S3?
 
-But, what do you think we should do about the current #defines in
-asm/mmzone.h, like pfn_to_page()?  Would it be feasible to put them in
-another header that can use proper functions?
+Shawn.
 
--- Dave
+>List:       acpi4linux
+>Subject:    [ACPI] [ACPI][2.6.10-rc3][SUSPEND] S3
+mode - Cannot resume from PCI devices
+>From:       Shawn Starr
+>Date:       2004-12-10 8:15:21
 
+>I have netconsole configured I can see kernel
+messages >on a remote machine, but when I suspend the
+laptop it >goes into S3. I am unable to capture the
+(oops) the >laptop when bringing it out of S3. It
+remains in a >half suspended-unsuspended state. (the
+crescent moon >LED is solidly on, video is back on
+(can see the 'Back >to C!' string), cannot use sysctl
+key combos,  >netconsole doesn't display the output
+since no PCI >devices resume (the video is AGP
+onboard).
+
+>Is there any way I can capture this output somehow? I
+>don't think even serial would work (it would be a USB
+>to serial converter which would be PCI) or even
+trying >to get this to print to lp0 since the laptop
+is >totally unresponsive in its state.
+
+>I booted into single and sh for init, mounted /proc
+>/sys and with no kernel modules it would fail to
+>resume after suspending.
+
+>This isn't a nice regression.
+
+>Shawn.

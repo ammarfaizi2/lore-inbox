@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285723AbRLHBUt>; Fri, 7 Dec 2001 20:20:49 -0500
+	id <S285730AbRLHBX3>; Fri, 7 Dec 2001 20:23:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285724AbRLHBUj>; Fri, 7 Dec 2001 20:20:39 -0500
-Received: from smtpd.ha-net.ptd.net ([207.44.96.84]:12426 "HELO
-	smtpd.ha-net.ptd.net") by vger.kernel.org with SMTP
-	id <S285723AbRLHBUe>; Fri, 7 Dec 2001 20:20:34 -0500
-Date: Fri, 7 Dec 2001 20:21:52 -0500 (EST)
-From: Stan Benoit <sab7@mail.ptd.net>
-X-X-Sender: <sab7@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: bugreport 2.4.10
-Message-ID: <Pine.LNX.4.33.0112072017400.911-100000@localhost.localdomain>
+	id <S285724AbRLHBXV>; Fri, 7 Dec 2001 20:23:21 -0500
+Received: from [144.137.80.33] ([144.137.80.33]:32240 "EHLO e4.eyal.emu.id.au")
+	by vger.kernel.org with ESMTP id <S285730AbRLHBXF>;
+	Fri, 7 Dec 2001 20:23:05 -0500
+Message-ID: <3C1166FE.C03F0597@eyal.emu.id.au>
+Date: Sat, 08 Dec 2001 12:03:58 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre6 drm-4.0
+In-Reply-To: <4719.1007767953@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens wrote:
+> 
+> On 07 Dec 2001 18:27:11 -0500,
+> Robert Love <rml@tech9.net> wrote:
+> >On Fri, 2001-12-07 at 18:20, Keith Owens wrote:
+> >
+> >> How long do people plan to keep drm 4.0 code in their versions of the
+> >> kernel?
+> >
+> >For 2.5, there probably is no intention of keeping that around.  But can
+> >we honestly ditch it in the middle of a stable kernel?  Personally I
+> >don't use it, but its not polite ...
+> 
+> Linus ditched drm 4.0 months ago.  It only survives in arch add on
+> patches like ia64 and in -ac trees.
 
-Hope I do this right.
+Well, I am on Debian stable, and the only Xfree4 contributed packages
+are for 4.0.
 
-kernel 2.4.10
-Processor: AMD850
-Memory: 780 meg
-Device: logitech Trackman Marble FX
+I will move on to 4.1 when Debian moves on, but as you know they are
+slower than a tired snail when it comes to new releases.
 
-Problem:
-PS/2 mouse fails to start
+I wonder how many other people use these 4.0 packages off:
 
-from /var/log/messages
+deb ftp://debian.cri74.org/debian-cri potato/contrib_luis_sismeiro main
+non-free
 
-Dec  7 18:19:47 main gpm[712]: oops() invoked from gpm.c(978)
-Dec  7 18:19:47 main gpm: gpm startup succeeded
-Dec  7 18:19:47 main gpm[712]: /dev/mouse: Device or resource busy
-
-
--- 
-Stan Benoit<sab7@mail.NoSpAm.ptd.net>
-http://home.ptd.net/~sab7
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

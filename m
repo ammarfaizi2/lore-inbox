@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265377AbRGSRNr>; Thu, 19 Jul 2001 13:13:47 -0400
+	id <S265402AbRGSRW2>; Thu, 19 Jul 2001 13:22:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbRGSRNh>; Thu, 19 Jul 2001 13:13:37 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:58885 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265377AbRGSRNX>; Thu, 19 Jul 2001 13:13:23 -0400
-Date: Thu, 19 Jul 2001 10:12:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Inclusion of zoned inactive/free shortage patch 
-In-Reply-To: <Pine.LNX.4.21.0107190419280.9510-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0107191008160.8055-100000@penguin.transmeta.com>
+	id <S265443AbRGSRWJ>; Thu, 19 Jul 2001 13:22:09 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:34062 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S265402AbRGSRWH>;
+	Thu, 19 Jul 2001 13:22:07 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Russell King <rmk@arm.linux.org.uk>
+Date: Thu, 19 Jul 2001 19:21:48 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: bitops.h ifdef __KERNEL__ cleanup.
+CC: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <917E9842025@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On 19 Jul 01 at 12:48, Russell King wrote:
+> 
+> I totally disagree here.  We already say "user space should not include
+> kernel headers".  Why should bitops.h be any different?  Why should atomic.h
+> be any different?  They contain architecture specific code, yes, which
+> may not work in user space.
 
-On Thu, 19 Jul 2001, Marcelo Tosatti wrote:
->
-> Well, here is a patch on top of -ac5 (which already includes the first
-> zoned based approach patch).
+Maybe because of I do not know ARM assembler? If you do not want
+kernel headers to be used in apps, just move them from asm and linux
+into msa and xunil. Then you can simple remove all #ifdef __KERNEL__
+from them...
 
-Looks ok.
+> Oh, and thanks for pointing out ncpfs breaks - I hope the authors will
+> fix up their sloppy coding before Davids patch makes it into the kernel.
 
-I'd like to see what the patch looks on top of a virgin tree, as it should
-now be noticeably smaller (no need to pas extra parameters etc).
+It will still work. Only resulting binary will be slower. That's what
+autoconf is for. If ncpfs does not compile for you, better to contact
+me directly, as I'm ncpfs maintainer...
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+P.S.: Part of ncpfs's configure.ac. I do not think that it is that
+hard...
 
-> I changed inactive_plenty() to use "zone->size / 3" instead "zone->size /
-> 2".
->
-> Under _my_ tests using half of the perzone total pages as the inactive
-> target was too high.
-
-This is one of the reasons I'd like to see the virtgin patch - if the "/2"
-is too high, then that should mean that the behaviour is basically
-unchanged from before, right? Which would be a good sign that this kicks
-in gently - and I agree that "/3" sounds saner (or even "/4" - but we
-should double-check that the global inactive function is guaranteed to
-never trigger with all zones close to the "/4" target if so).
-
-I haven't checked what your changes to "total_free_shortage()" are in the
--ac tree, so I don't know what the effect of that would be.
-
-		Linus
-
+  AC_CACHE_CHECK(for working asm/atomic.h,
+      ncp_cv_asm_atomic_h,
+    AC_TRY_LINK([#define __SMP__
+#include <asm/atomic.h>],
+      [atomic_t a;
+       atomic_set(&a,2);
+       atomic_dec(&a);
+       if (atomic_read(&a)) {
+         if (!atomic_dec_and_test(&a)) {
+       atomic_inc(&a);
+     }
+       }],
+      [ncp_cv_asm_atomic_h="yes"],
+      [ncp_cv_asm_atomic_h="no"]
+    )
+  )
+  if test "$ncp_cv_asm_atomic_h" = "yes"
+  then
+    AC_DEFINE(HAVE_ASM_ATOMIC_H, 1, [Define if we have working asm/atomic.h])
+  fi

@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261649AbTCaOO7>; Mon, 31 Mar 2003 09:14:59 -0500
+	id <S261651AbTCaOPS>; Mon, 31 Mar 2003 09:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261651AbTCaOO7>; Mon, 31 Mar 2003 09:14:59 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:57238 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S261649AbTCaOO6>; Mon, 31 Mar 2003 09:14:58 -0500
-Message-ID: <20030331142558.1358.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: andreashappe@gmx.net
+	id <S261653AbTCaOPS>; Mon, 31 Mar 2003 09:15:18 -0500
+Received: from verein.lst.de ([212.34.181.86]:57862 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261651AbTCaOPP>;
+	Mon, 31 Mar 2003 09:15:15 -0500
+Date: Mon, 31 Mar 2003 16:26:34 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Date: Mon, 31 Mar 2003 22:25:58 +0800
-Subject: Re: 2.5 on a hp omnibook 6000
-X-Originating-Ip: 194.244.192.234
-X-Originating-Server: ws5-7.us4.outblaze.com
+Subject: [PATCH] remove kdevname() before someone starts using it again
+Message-ID: <20030331162634.A14319@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andreashappe@gmx .net
->> I have a laptop, it is a HP omnibook 6000.
->mine is a hp omnibook 6100.
-Ok. I think you have a bigger monitor and 
-more cpu Hz.
 
->> http://bugzilla.kernel.org/show_bug.cgi?id=149
->that could be related to bug #18.
-I don't know.
-Do you have the same problem with your 6100 ?
-
->> http://bugzilla.kernel.org/show_bug.cgi?id=395
->works for me with compiled in maestro3 driver, could it rather be a
->distribution related problem?
-Yes it could be.
-But when I boot the machine I see strange lines:
-
-Advanced Linux Sound Architecture Driver Version 0.9.0rc7 (Sat Feb 15 15:01:21 
-2003 UTC).
-request_module: failed /sbin/modprobe -- snd-card-0. error = -16
-no UART detected at 0xffff
-Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
-
-
-> may I add some other bug reports for my laptop (hp omnibook 6100):
->computer doesn't boot with enabled acpi:
->http://bugzilla.kernel.org/show_bug.cgi?id=293
-The same here, but I didn't tried with 2.5.66.
-
->and:
->computer doesn't shutdown with enabled apic (I thing I've heard that the
->same behaviour is shown on hp omnibook 6000).
-
-Dunno, but I can try tomorrow.
-
-Andreas thanks for the info,
-if you want to reply please cc me, I'm not subscribed to 
-the list.
-
-Ciao,
-        Paolo
-
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
-
-Powered by Outblaze
+--- 1.14/fs/libfs.c	Wed Jan  1 02:18:35 2003
++++ edited/fs/libfs.c	Wed Mar 26 21:32:02 2003
+@@ -332,14 +332,3 @@
+ 	set_page_dirty(page);
+ 	return 0;
+ }
+-
+-/*
+- * Print device name (in decimal, hexadecimal or symbolic)
+- * Note: returns pointer to static data!
+- */
+-const char * kdevname(kdev_t dev)
+-{
+-	static char buffer[32];
+-	sprintf(buffer, "%02x:%02x", major(dev), minor(dev));
+-	return buffer;
+-}
+--- 1.222/include/linux/fs.h	Sun Mar 23 07:14:19 2003
++++ edited/include/linux/fs.h	Wed Mar 26 21:32:08 2003
+@@ -1074,7 +1074,6 @@
+ extern void close_bdev_excl(struct block_device *, int);
+ 
+ extern const char * cdevname(kdev_t);
+-extern const char * kdevname(kdev_t);
+ extern void init_special_inode(struct inode *, umode_t, dev_t);
+ 
+ /* Invalid inode operations -- fs/bad_inode.c */
+--- 1.7/include/linux/kdev_t.h	Fri Nov  1 13:28:19 2002
++++ edited/include/linux/kdev_t.h	Wed Mar 26 21:32:14 2003
+@@ -101,8 +101,6 @@
+ #define NODEV		(mk_kdev(0,0))
+ #define B_FREE		(mk_kdev(0xff,0xff))
+ 
+-extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
+-
+ static inline int kdev_same(kdev_t dev1, kdev_t dev2)
+ {
+ 	return dev1.value == dev2.value;
+--- 1.186/kernel/ksyms.c	Sat Mar 22 05:05:21 2003
++++ edited/kernel/ksyms.c	Wed Mar 26 21:32:22 2003
+@@ -511,7 +511,6 @@
+ EXPORT_SYMBOL(vsprintf);
+ EXPORT_SYMBOL(vsnprintf);
+ EXPORT_SYMBOL(vsscanf);
+-EXPORT_SYMBOL(kdevname);
+ EXPORT_SYMBOL(__bdevname);
+ EXPORT_SYMBOL(cdevname);
+ EXPORT_SYMBOL(simple_strtoull);

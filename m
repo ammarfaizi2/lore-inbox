@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269134AbUHaUYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUHaU3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269134AbUHaUYY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUHaUTc
+	id S266871AbUHaU3I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 16:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269167AbUHaU3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:19:32 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15096 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269135AbUHaUR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:17:28 -0400
-Date: Tue, 31 Aug 2004 22:17:20 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Andrew Morton <akpm@osdl.org>, digilnux@dgii.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6.9-rc1-mm2: char/pcxx.c doesn't compile
-Message-ID: <20040831201720.GP3466@fs.tum.de>
-References: <20040830235426.441f5b51.akpm@osdl.org> <20040831174102.GF3466@fs.tum.de> <Pine.LNX.4.61.0408312215240.2702@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Aug 2004 16:29:01 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.71]:16517 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266871AbUHaU1k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 16:27:40 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
+Date: Wed, 1 Sep 2004 04:28:00 +0800
+User-Agent: KMail/1.5.4
+Cc: adaplas@pol.net
+References: <200408312133.40039.ornati@fastwebnet.it>
+In-Reply-To: <200408312133.40039.ornati@fastwebnet.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408312215240.2702@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200409010428.01056.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 10:18:10PM +0200, Jesper Juhl wrote:
-> On Tue, 31 Aug 2004, Adrian Bunk wrote:
-> 
-> >  static void pcxxpoll(unsigned long dummy)
-> >  {
-> > @@ -1995,6 +1982,7 @@
-> >  	volatile struct board_chan *bc;
-> >  	unsigned long flags;
-> >  	int mflag = 0;
-> > +	int mstat;
-> >  
-> >  	if(ch)
-> >  		bc = ch->brdchan;
-> > @@ -2069,6 +2057,7 @@
-> >  	pcxxparam(tty,ch);
-> >  	memoff(ch);
-> >  	restore_flags(flags);
-> > +	return 0;
-> >  }
-> 
-> since pcxxpoll is declared with a void return, return 0; here seems 
-> pointless. A simple return;  or just falling off the end of the function 
-> should be fine as far as I can see.
+On Wednesday 01 September 2004 03:33, Paolo Ornati wrote:
 
-These two chunks are _not_ in pcxxpoll.
+> Tests with "linux/MAINTAINERS" (time cat MAINTAINERS)
+> 2.6.8.1
+> 	real    0m2.625s
+> 	user    0m0.000s
+> 	sys     0m2.621s
+>
+> 2.6.9-rc1
+> 	real    0m13.528s
+> 	user    0m0.000s
+> 	sys     0m13.553s
+>
 
-It might look this way in the diff output, but we are already 500 lines 
-and many functions below pcxxpoll.
+Open drivers/video/tdfxfb.c, change the following (at line 1278):
 
-> Jesper Juhl <juhl-lkml@dif.dk>
+info->flags		= FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
 
-cu
-Adrian
+to
 
--- 
+info->flags		= FBINFO_DEFAULT;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Let me know of the results.
+
+Tony
+
 

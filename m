@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbRL0XT5>; Thu, 27 Dec 2001 18:19:57 -0500
+	id <S283016AbRL0XZ1>; Thu, 27 Dec 2001 18:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283012AbRL0XTr>; Thu, 27 Dec 2001 18:19:47 -0500
-Received: from [62.47.19.152] ([62.47.19.152]:12930 "HELO twinny.dyndns.org")
-	by vger.kernel.org with SMTP id <S283003AbRL0XTd>;
-	Thu, 27 Dec 2001 18:19:33 -0500
-Message-ID: <3C2BAAA3.4BAC6751@webit.com>
-Date: Fri, 28 Dec 2001 00:11:31 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+	id <S283012AbRL0XZR>; Thu, 27 Dec 2001 18:25:17 -0500
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:48389 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S283048AbRL0XZH>;
+	Thu, 27 Dec 2001 18:25:07 -0500
+Message-ID: <T581707b200ac1785e72b2@pcow029o.blueyonder.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <james@sutherland.net>
+To: Dave Jones <davej@suse.de>,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+Date: Thu, 27 Dec 2001 23:25:36 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sis drm module
-Content-Type: multipart/mixed;
- boundary="------------C247268508FF5BB8974018B3"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C247268508FF5BB8974018B3
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thursday 27 December 2001 10:44 pm, Dave Jones wrote:
+> On Thu, 27 Dec 2001, Arnaldo Carvalho de Melo wrote:
+> > > Patch is against kernel 2.4.17, should apply to 2.5 as well.
+> >
+> > Good job! But please consider splitting the patch per driver and sending
+> > it to the respective maintainers.
+>
+> Someone with far too much time on their hands would be my personal
+> hero[*] if they were to write a script (in language of their choice) to
+> parse a diff, extract filename, and do lookup in a flat text file
+> to find a list of maintainers/interested parties.
+
+Sounds like a good idea; I'll give it a shot over the next few days, unless 
+someone already has one :)
+
+> Imagine a patch against devfs..
+>
+> $ cclist my.devfs.patch.diff
+> Richard Gooch <rgooch@atnf.csiro.au>
+> Alexander Viro <viro@math.psu.edu>
+
+I'd add one level of abstraction: have each filename map to a "module" name. 
+In this case, each filename relating to devfs would map to module "devfs"; 
+there would then be an entry mapping devfs <-> Richard.
+
+(Perhaps a hierarchy - fs.devfs - with people like Al listed for "fs"?)
+
+> This 'little black book of addresses' doesn't have to be anything
+> wonderful, but its tedious work for someone to make the textfile
+> mapping the various source files to email addresses.
+
+It should be a little easier having a mapping to a module - in most cases, 
+there's a clear "module" to which each file belongs. Then just track who's 
+"subscribed to" that module...
 
 
-Hi,
-
-without this patch, only root can execute DRI applications under X.
-Users can't and just receive a (incorrect) "out of video memory" error,
-which is basically a "permission denied".
-
-Please apply.
-
-Thomas
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:tw@webit.com              *** http://www.webit.com/tw
---------------C247268508FF5BB8974018B3
-Content-Type: text/plain; charset=us-ascii;
- name="sis_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sis_patch"
-
---- /usr/src/linux/drivers/char/drm/sis_drv_old.c	Thu Dec 27 23:52:11 2001
-+++ /usr/src/linux/drivers/char/drm/sis_drv.c	Thu Dec 27 23:45:48 2001
-@@ -40,8 +40,8 @@
- #define DRIVER_PATCHLEVEL  0
- 
- #define DRIVER_IOCTLS \
--        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 1 }, \
--        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 1 }, \
-+        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 0 }, \
-+        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 0 }, \
-         /* AGP Memory Management */					  \
-         [DRM_IOCTL_NR(SIS_IOCTL_AGP_INIT)]   = { sisp_agp_init,	  1, 1 }, \
-         [DRM_IOCTL_NR(SIS_IOCTL_AGP_ALLOC)]  = { sisp_agp_alloc,  1, 1 }, \
-
---------------C247268508FF5BB8974018B3--
-
+James.

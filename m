@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261158AbREUMDy>; Mon, 21 May 2001 08:03:54 -0400
+	id <S261398AbREULyy>; Mon, 21 May 2001 07:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261159AbREUMDo>; Mon, 21 May 2001 08:03:44 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:30280 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S261158AbREUMDe>;
-	Mon, 21 May 2001 08:03:34 -0400
-Date: Mon, 21 May 2001 14:04:43 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
-Message-ID: <20010521140443.C8397@ipex.cz>
-In-Reply-To: <20010521090946.D769@ipex.cz> <3B08C15E.264AE074@uow.edu.au>
+	id <S261719AbREULyp>; Mon, 21 May 2001 07:54:45 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:15367 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261398AbREULya>; Mon, 21 May 2001 07:54:30 -0400
+Date: Mon, 21 May 2001 15:51:51 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010521155151.A10403@jurassic.park.msu.ru>
+In-Reply-To: <15112.26868.5999.368209@pizda.ninka.net> <20010521034726.G30738@athlon.random> <15112.48708.639090.348990@pizda.ninka.net> <20010521105944.H30738@athlon.random> <15112.55709.565823.676709@pizda.ninka.net> <20010521115631.I30738@athlon.random> <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8X7/QrJGcKSMr1RN"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B08C15E.264AE074@uow.edu.au>
-User-Agent: Mutt/1.3.18i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010521131959.M30738@athlon.random>; from andrea@suse.de on Mon, May 21, 2001 at 01:19:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 21, 2001 at 01:19:59PM +0200, Andrea Arcangeli wrote:
+> Alpha in mainline is just screwedup if a single pci bus tries to dynamic
+> map more than 128mbyte, changing it to 512mbyte is trivial, growing more
 
---8X7/QrJGcKSMr1RN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Could you just describe the configuration where increasing sg window
+from 128 to 512Mb actually fixes "out of ptes" problem? I mean which
+drivers involved, what kind of load etc.
+I'm unable reproduce it with *8Mb* window, so I'm asking.
 
-> This is a `transamit reclaim' error.  It is almost always
-> caused by this host being in half-duplex mode, and another
-> host on the network being in full-duplex mode.
-
-Hi,
-  I tried to force this to be in fullduplex mode by options=3D0x204 (0x200 =
-+ 0x4)
-and it works fine now. Please, can you send me some points to the documenta=
-tion
-where I can read more info about 'transamit reclaim' error and why this
-happens, etc ...
-
-Best regards,
-  .R.V.
-
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
-
---8X7/QrJGcKSMr1RN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsJBFoACgkQInNB3KDLeVOFDgCdHijQCOfcyL6h2kf/uAgC+SVi
-bmAAnj4AG1mcWttfs/WrCgQ8i1c8E39c
-=p5mz
------END PGP SIGNATURE-----
-
---8X7/QrJGcKSMr1RN--
+Ivan.

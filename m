@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVAYGdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVAYGlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbVAYGdE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 01:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVAYGdE
+	id S261839AbVAYGlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 01:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVAYGlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 01:33:04 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35026 "EHLO
+	Tue, 25 Jan 2005 01:41:24 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36306 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261842AbVAYGcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 01:32:47 -0500
-To: Dave Jones <davej@redhat.com>
-Cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com>
+	id S261839AbVAYGlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 01:41:22 -0500
+To: Len Brown <len.brown@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/29] x86-apic-virtwire-on-shutdown
+References: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+	<1106625259.2395.232.camel@d845pe>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Jan 2005 23:30:53 -0700
-In-Reply-To: <20050125035930.GG13394@redhat.com>
-Message-ID: <m13bwqhvfm.fsf@ebiederm.dsl.xmission.com>
+Date: 24 Jan 2005 23:39:45 -0700
+In-Reply-To: <1106625259.2395.232.camel@d845pe>
+Message-ID: <m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
+Len Brown <len.brown@intel.com> writes:
 
-> On Mon, Jan 24, 2005 at 10:32:50PM -0500, Len Brown wrote:
->  > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
->  > > From: Eric W. Biederman <ebiederm@xmission.com>
->  > > 
->  > > This patch disables interrupt generation from the legacy pic on
->  > > reboot.  Now that there is a sys_device class it should not be called
->  > > while drivers are still using interrupts.
->  > > 
->  > > There is a report about this breaking ACPI power off on some systems.
->  > > http://bugme.osdl.org/show_bug.cgi?id=4041
->  > > However the final comment seems to exhonorate this code.  So until
->  > > I get more information I believe that was a false positive.
->  > 
->  > No, the last comment in the bug report
->  > (davej says that there were poweroff problems in FC)
->  > does not exhonerate this patch.
->  > All it says is that there are additional poweroff bugs out there.
+> On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
+> > When coming out of apic mode attempt to set the appropriate
+> > apic back into virtual wire mode.  This improves on previous versions
+> > of this patch by by never setting bot the local apic and the ioapic
+> > into veritual wire mode.
+> > 
+> > This code looks at data from the mptable to see if an ioapic has
+> > an ExtInt input to make this decision.  A future improvement
+> > is to figure out which apic or ioapic was in virtual wire mode
+> > at boot time and to remember it.  That is potentially a more accurate
+> > method, of selecting which apic to place in virutal wire mode.
+> > 
 > 
-> Indeed. Since dropping the kexec bits from the Fedora kernel,
-> the 'hangs at poweroff' bug went away for a lot of folks,
-> but there still remain some people affected by some other regression.
-> https://bugzilla.redhat.com/beta/show_bug.cgi?id=acpi_power_off
-> has the gory details.
+> The call to find_isa_irq_pin() will always fail on ACPI-enabled systems,
+> so this patch is a NO-OP unless the system is booted in MPS mode.
+> 
+> Do we really want to be adding this complexity for obsolete systems? 
+> Are there systems that fail without this patch?
 
-Ok.  I misunderstood that one then.  I thought a separate fix
-had cured the bug.  With the kexec bits remaining.
+Yes there are bleeding edge systems that fail without this patch.
+And I have them.  That is why I wrote the code.
+
+I do agree that find_isa_irq_pin is a suboptimal way to get this
+information, looking at the ioapics at boot time would be better.
+However it works for me, the code is not wrong, and as you said
+usually the code becomes a noop. 
+
+If I can find the appropriate place in the boot path to examine
+the ioapics before they get stomped I am more than willing to write
+code that will handle this even in the presence of acpi data.
+
+In addition this code is not a complete noop because when
+find_isa_irq_pin fails it does put the local apic in virtual wire mode.
+
 
 Eric

@@ -1,152 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312826AbSDBIvX>; Tue, 2 Apr 2002 03:51:23 -0500
+	id <S312830AbSDBJFf>; Tue, 2 Apr 2002 04:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312827AbSDBIvO>; Tue, 2 Apr 2002 03:51:14 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:61959
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S312826AbSDBIvH>; Tue, 2 Apr 2002 03:51:07 -0500
-Message-Id: <5.1.0.14.2.20020402025340.0228fc88@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 02 Apr 2002 03:45:51 -0500
+	id <S312832AbSDBJFZ>; Tue, 2 Apr 2002 04:05:25 -0500
+Received: from bartender.antefacto.net ([193.120.245.19]:61312 "EHLO
+	bartender.internal.antefacto.com") by vger.kernel.org with ESMTP
+	id <S312830AbSDBJFL>; Tue, 2 Apr 2002 04:05:11 -0500
+Date: Tue, 2 Apr 2002 10:04:48 +0100
+From: "John P. Looney" <john@antefacto.com>
 To: linux-kernel@vger.kernel.org
-From: Stevie O <stevie@qrpff.net>
-Subject: 2.5.7 & reiserfs[-related] oops?
+Subject: Re: Linux needs new leadership.
+Message-ID: <20020402100448.I20467@antefacto.com>
+Reply-To: john@antefacto.com
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.10.10204010933530.312508-100000@ouray.cudenver.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZInfyf7laFu/Kiw7"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-OS: Red Hat Linux 7.2/Linux 2.4.17
+X-URL: http://www.redbrick.dcu.ie/~valen
+X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I downloaded (rather slowly at that -- 5kb/sec, i need dsl!) 2.5.7.
-I configured it using my old config from 2.4.13-ac<something>:
-        cp ../linux-2.4.13-ac<something>/.config
-        yes ''|make oldconfig
-        make menuconfig
-and tweaked a few things (among them, enabling preempting).
-After disabling a few of the modular items that no longer worked (i2o, firewire), I built, lilo'ed, and booted...
 
-almost.
+--ZInfyf7laFu/Kiw7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-----
+On Mon, Apr 01, 2002 at 09:37:21AM -0700, Enkh Tumenbayar mentioned:
+> 1. What is Linus' new company (if he is changing a job), considering the
+> fact that this is his last day at Transmeta
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
- printing eip:
-c01366ee
-*pde = 00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c01366ee>] Not tainted
-EFLAGS: 0010286
-eax: 00001000 ebx: 0000000e ecx: 00000008 edx: 00002012
-esi: 00000008 edi: 00002012 ebp: 00000000 esp: c12cfd78
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 1, threadinfo=c12ce000 task=c12cc040)
-Stack: 00001000 00002012 00000000 c1376800 c1376800 c0136d98 00000000 00002012
-        00001000 c1376800 d180b000 d181c3ec c0136f9f 00000000 00002012 00001000
-        c1376800 c01769e6 00000000 00002012 00001000 00000302 00000000 c1376954
+ Someone sent this onto me;
+    http://www.microsoft.com/presspass/events/officexp/images/launch02.jpg
 
-Call Trace: [<c0136d98>] [<c0136f9f>] [<c01769e6>] [<c0135ec0>] [<c0169068>]
-        [<c016992c>] [<c018062c>] [<c013b659>] [<c013a300>] [<c0169d0f>] [<c0169808>]
-        [<c013a4d0>] [<c014b0f9>] [<c014b3d0>] [<c014b214>] [<c014b7f0>] [<c010527d>]
-        [<c0105073>] [<c0106fac>]
+ This could be Linus's new job...
 
-Code: 0f b7 45 10 b0 00 66 0f b6 55 10 01 d0 0f b7 c0 89 44 24 10
- <0>Kernel panic: Attempted to kill init! <- always fun
+Kate
 
-------------------------------
-after fighting with libiberty, libbfd, and ksymoops, i was able to produce the following
-------------------------------
-
-ksymoops 2.4.5 on i686 2.4.13-ac5.  Options used
-     -v /usr/src/linux-2.5.7/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.4.13-ac5/ (default)
-     -m /boot/System.map-2.5.7 (specified)
-No modules in ksyms, skipping objects
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
-c01366ee
-*pde = 00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c01366ee>] Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 0010286
-eax: 00001000 ebx: 0000000e ecx: 00000008 edx: 00002012
-esi: 00000008 edi: 00002012 ebp: 00000000 esp: c12cfd78
-ds: 0018 es: 0018 ss: 0018
-Stack: 00001000 00002012 00000000 c1376800 c1376800 c0136d98 00000000 00002012
-        00001000 c1376800 d180b000 d181c3ec c0136f9f 00000000 00002012 00001000
-        c1376800 c01769e6 00000000 00002012 00001000 00000302 00000000 c1376954
-Call trace: [<c0136d98>] [<c0136f9f>] [<c01769e6>] [<c0135ec0>] [<c0169068>]
-        [<c016992c>] [<c018062c>] [<c013b659>] [<c013a300>] [<c0169d0f>] [<c0169808>]
-        [<c013a4d0>] [<c014b0f9>] [<c014b3d0>] [<c014b214>] [<c014b7f0>] [<c010527d>]
-        [<c0105073>] [<c0106fac>]
-Code: 0f b7 45 10 b0 00 66 0f b6 55 10 01 d0 0f b7 c0 89 44 24 10
-Error (Oops_bfd_perror): set_section_contents Bad value
-
->>EIP; c01366ee <__get_hash_table+1a/bc>   <=====
->>eax; 00001000 Before first symbol
->>edx; 00002012 Before first symbol
->>edi; 00002012 Before first symbol
->>esp; c12cfd78 <END_OF_CODE+fbc0ec/????>
-Trace; c0136d98 <__getblk+1c/40>
-Trace; c0136f9f <__bread+17/70>
-Trace; c01769e6 <journal_init+de/68c>
-Trace; c0135ec0 <__wait_on_buffer+84/90>
-Trace; c0169068 <read_bitmaps+cc/164>
-Trace; c016992c <reiserfs_fill_super+124/49c>
-Trace; c018062c <sprintf+14/18>
-Trace; c013b659 <bdevname+31/3a>
-Trace; c013a300 <get_sb_bdev+1f4/258>
-Trace; c0169d0f <reiserfs_get_sb+1f/24>
-Trace; c0169808 <reiserfs_fill_super+0/49c>
-Trace; c013a4d0 <do_kern_mount+50/cc>
-Trace; c014b0f9 <do_add_mount+6d/13c>
-Trace; c014b3d0 <do_mount+16c/188>
-Trace; c014b214 <copy_mount_options+4c/9c>
-Trace; c014b7f0 <sys_mount+a4/110>
-Trace; c010527d <prepare_namespace+cd/108>
-Trace; c0105073 <init+23/160>
-Trace; c0106fac <kernel_thread+28/38>
-        <0>Kernel panic: Attempted to kill init!
-1 error issued.  Results may not be reliable.
-
------
-
-I don't know what the error meant ("set_section_contents Bad value"), sorry.
-
------
-
-I looked at buffer.c's __get_hash_table.
-
-In an effort to prove my complete incompetence, I threw in a printk:
-
-printk( KERN_ERR "__get_hash_table(%p, %d, %d)\n", bdev, block, size );
-
-i see this before the oops:
-
-___get_hash_table(c1345120, <incremental numbers>, 4096)
-___get_hash_table(c1345120, <incremental numbers>, 4096)
-^^ lots of above. the 'incremental numbers' come in pairs.
-___get_hash_table(c1345120, 589824, 4096)       <- 0x90000
-___get_hash_table(c1345120, 589824, 4096)
-___get_hash_table(c1345120, 622592, 4096)       <- 0x98000
-___get_hash_table(c1345120, 622592, 4096)
-___get_hash_table(c1345120, 655360, 4096)       <- 0xA0000
-___get_hash_table(c1345120, 655360, 4096)
-___get_hash_table(00000000, 8210, 4096) <- 0x1FB8!? Breaks the pattern...
-
-Unforunately, I don't seem to be able to get any more information; sorry :(
-
-I guess it could be worse... could be trashing the partition it would be trying to load...
+--=20
+_______________________________________
+John Looney             Chief Scientist
+a n t e f a c t o     t: +353 1 8586004
+www.antefacto.com     f: +353 1 8586014
 
 
+--ZInfyf7laFu/Kiw7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE8qXQwYBVPvqzGrWgRAtm0AJ9wFgdjFh2hw9//qb6v4A5hqJ2nPgCggIml
+nntPsfmAmcB1OrdZJb/neGg=
+=AUWk
+-----END PGP SIGNATURE-----
 
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+--ZInfyf7laFu/Kiw7--

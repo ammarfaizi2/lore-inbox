@@ -1,127 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUIVN1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUIVNcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUIVN1h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 09:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUIVN1h
+	id S265195AbUIVNcd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 09:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUIVNcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 09:27:37 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:16588 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S265161AbUIVN10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 09:27:26 -0400
-Date: Wed, 22 Sep 2004 22:23:40 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
-In-reply-to: <20040922221538.650986f2.tokunaga.keiich@jp.fujitsu.com>
-To: anil.s.keshavamurthy@intel.com
-Cc: tokunaga.keiich@jp.fujitsu.com, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <20040922222340.586de6ae.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040920092520.A14208@unix-os.sc.intel.com>
- <20040920093819.E14208@unix-os.sc.intel.com>
- <20040922221538.650986f2.tokunaga.keiich@jp.fujitsu.com>
+	Wed, 22 Sep 2004 09:32:33 -0400
+Received: from mail.gmx.net ([213.165.64.20]:14277 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265195AbUIVNca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 09:32:30 -0400
+X-Authenticated: #1725425
+Date: Wed, 22 Sep 2004 15:37:07 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Patrick McHardy <kaber@trash.net>
+Cc: davem@davemloft.net, rusty@rustcorp.com.au, torvalds@osdl.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+Message-Id: <20040922153707.2cc1d886.Ballarin.Marc@gmx.de>
+In-Reply-To: <4150C448.5040604@trash.net>
+References: <1095721742.5886.128.camel@bach>
+	<20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
+	<1095803902.1942.211.camel@bach>
+	<20040922003646.3a84f4c5.Ballarin.Marc@gmx.de>
+	<20040921153600.2e732ea6.davem@davemloft.net>
+	<20040922013516.753044db.Ballarin.Marc@gmx.de>
+	<4150C448.5040604@trash.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004 22:15:38 +0900 Keiichiro Tokunaga wrote:
-> On Mon, 20 Sep 2004 09:38:19 -0700 Keshavamurthy Anil S wrote:
-> > ---
-> > Name:acpi_hotplug_arch.patch
-> > Status: Tested on 2.6.9-rc2
-> > Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-> > Depends:	
-> > Version: applies on 2.6.9-rc2	
-> > Description: 
-> > This patch provides the architecture specifice support for mapping lsapic to cpu array.
-> > Currently this supports just IA64. Support for IA32 and x86_64 is in progress
-> > ---
-> 
-> I would like to suggest introducing a new function 'acpi_get_pxm()'
-> since other drivers might need it in the future.  Acutally, ACPI container
-> hotplug will be use it soon.
+On Wed, 22 Sep 2004 02:16:08 +0200
+Patrick McHardy <kaber@trash.net> wrote:
 
-I have made a patch to modify your code to use acpi_get_pxm()
-that I just posted earlier.  I hope it does not break your code:)
-What do you think of it?
+> Fixed by this patch.
 
-Thanks,
-Keiichiro Tokunaga
+Yes, works fine. Does this mean that ipchains was broken for a while, but
+no one complained?
 
+Anyway, here is another trivial patch against -bk7 that adds runtime
+warnings. IMO most users are going to miss compile time warnings, or
+won't even compile kernels themselves.
 
+Regards
 
-Name: acpi_cpu_pxm_fix.patch
-Status: Tested on 2.6.9-rc2
-Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Description:
-Modify acpi_map_cpu2node() to use acpi_get_pxm().
-
-
----
-
- linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/acpi.c |   31 +++++-------------------
- 1 files changed, 7 insertions(+), 24 deletions(-)
-
-diff -puN arch/ia64/kernel/acpi.c~acpi_cpu_pxm_fix arch/ia64/kernel/acpi.c
---- linux-2.6.9-rc2-fix/arch/ia64/kernel/acpi.c~acpi_cpu_pxm_fix	2004-09-22 22:20:53.797821495 +0900
-+++ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/acpi.c	2004-09-22 22:20:53.800751203 +0900
-@@ -659,36 +659,20 @@ int
- acpi_map_cpu2node(acpi_handle handle, int cpu, long physid)
- {
- #ifdef CONFIG_ACPI_NUMA
--	int 			pxm_id = 0;
--	union acpi_object 	*obj;
--	struct acpi_buffer 	buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-+	int 			pxm_id;
+diff -Nurp tmp/linux-2.6.9/net/ipv4/netfilter/ipchains_core.c
+linux-2.6.9/net/ipv4/netfilter/ipchains_core.c
+--- tmp/linux-2.6.9/net/ipv4/netfilter/ipchains_core.c	2004-09-22 14:45:26.398827000 +0200
++++ linux-2.6.9/net/ipv4/netfilter/ipchains_core.c	2004-09-22 14:51:20.017069184 +0200
+@@ -1800,6 +1800,9 @@ int ipfw_init_or_cleanup(int init)
  
--	if (ACPI_FAILURE(acpi_evaluate_object(handle, "_PXM", NULL, &buffer)))
--		goto pxm_id_0;
-+	pxm_id = acpi_get_pxm(handle);
+ 	if (!init) goto cleanup;
  
--	if ((!buffer.length) || (!buffer.pointer))
--		goto pxm_id_0;
--
--	obj = buffer.pointer;
--	if (obj->type != ACPI_TYPE_INTEGER) {
--		acpi_os_free(buffer.pointer);
--		goto pxm_id_0;
--	}
--
--	pxm_id = obj->integer.value;
--
--pxm_id_0:
- 	/*
- 	 * Assuming that the container driver would have set the proximity
- 	 * domain and would have initialized pxm_to_nid_map[pxm_id] && pxm_flag
- 	 */
- 
--	/* Return Error if proximity domain is not set */
--	if (!pxm_bit_test(pxm_id))
--		return -EINVAL;
--
- 	node_cpuid[cpu].phys_id =  physid;
--	node_cpuid[cpu].nid = pxm_to_nid_map[pxm_id];
-+	if (pxm_id < 0)
-+		node_cpuid[cpu].nid = 0;
-+	else
-+		node_cpuid[cpu].nid = pxm_to_nid_map[pxm_id];
- 
++	printk(KERN_WARNING
++		"Warning: ipchains is obsolete, and will be removed soon!\n");
++			
+ #ifdef DEBUG_IP_FIREWALL_LOCKING
+ 	fwc_wlocks = fwc_rlocks = 0;
  #endif
- 	return(0);
-@@ -737,8 +721,7 @@ acpi_map_lsapic(acpi_handle handle, int 
- 	if(cpu >= NR_CPUS)
- 		return -EINVAL;
+diff -Nurp tmp/linux-2.6.9/net/ipv4/netfilter/ipfwadm_core.c
+linux-2.6.9/net/ipv4/netfilter/ipfwadm_core.c
+--- tmp/linux-2.6.9/net/ipv4/netfilter/ipfwadm_core.c	2004-09-22 14:45:53.545700000 +0200
++++ linux-2.6.9/net/ipv4/netfilter/ipfwadm_core.c	2004-09-22 14:51:37.780368752 +0200
+@@ -1420,6 +1420,9 @@ int ipfw_init_or_cleanup(int init)
+ 	if (!init)
+ 		goto cleanup;
  
--	if (ACPI_FAILURE(acpi_map_cpu2node(handle, cpu, physid)))
--	return -ENODEV;
-+	acpi_map_cpu2node(handle, cpu, physid);
- 
-  	cpu_set(cpu, cpu_present_map);
- 	ia64_cpu_to_sapicid[cpu] = physid;
-
-_
++	printk(KERN_WARNING
++		"Warning: ipfwadm is obsolete, and will be removed soon!\n");
++			
+ 	ret = register_firewall(PF_INET, &ipfw_ops);
+ 	if (ret < 0)
+ 		goto cleanup_nothing;

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281814AbRKQT7F>; Sat, 17 Nov 2001 14:59:05 -0500
+	id <S281812AbRKQTzf>; Sat, 17 Nov 2001 14:55:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281815AbRKQT6z>; Sat, 17 Nov 2001 14:58:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45325 "EHLO
+	id <S281813AbRKQTz0>; Sat, 17 Nov 2001 14:55:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43277 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281814AbRKQT6u>; Sat, 17 Nov 2001 14:58:50 -0500
+	id <S281812AbRKQTzU>; Sat, 17 Nov 2001 14:55:20 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: i386 flags register clober in inline assembly
-Date: 17 Nov 2001 11:58:25 -0800
+Subject: Re: [PATCH][RFC] Re: 2.4.15-pre5: /proc/cpuinfo broken
+Date: 17 Nov 2001 11:54:44 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9t6fh1$len$1@cesium.transmeta.com>
-In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com>
+Message-ID: <9t6fa4$ldo$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111171052060.1458-100000@penguin.transmeta.com> <Pine.GSO.4.21.0111171359410.11475-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,36 +21,43 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200111171920.fAHJKjJ01550@penguin.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
+Followup to:  <Pine.GSO.4.21.0111171359410.11475-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
 In newsgroup: linux.dev.kernel
->
-> In article <20011117161436.B23331@atrey.karlin.mff.cuni.cz> you write:
-> >
-> >They don't need to be. On i386, the flags are (partly for historical reasons) clobbered
-> >by default.
 > 
-> However, this is one area where I would just be tickled pink if gcc were
-> to allow asm's to return status in eflags, even if that means that we
-> need to fix all our existing asms.
+> On Sat, 17 Nov 2001, Linus Torvalds wrote:
 > 
-> We have some really _horrid_ code where we use operations that
-> intrinsically set the flag bits, and we actually want to use them.
-> Using things like cmpxchg, and atomic decrement-and-test-with-zero have
-> these horrid asm statements that have to move the eflags value (usually
-> just one bit) into a register, so that we can tell gcc where it is.
+> > 
+> > On Sat, 17 Nov 2001, Alexander Viro wrote:
+> > >
+> > > Frankly, I'd prefer to try (b) before reverting to (a).  Patch doing that
+> > > variant follows.  Linus, your opinion?
+> > 
+> > (d) make seq_file have my originally suggested "subposition" code.
+> > 
+> > Ie make the X low bits of "pos" be the position in the record, with the
+> > high bits of "pos" being the current "record index" kind of thing.
+> > 
+> > That makes lseek() happy.
+> 
+> It will not help.  lseek() in question is relative and crosses the
+> record boundary.  I.e. we have
+> 
+> 	n = read(fd, buf, ...);
+> 	/* process k bytes */
+> 	lseek(fd, k-n, SEEK_CUR);
+> 
+> and that will break just as the current variant does.  It's not about
+> seek to remembered position - it's a relative seek to calculated offset.
+> Calculated from number of bytes returned by read().
 > 
 
-The clean way to do that would be for gcc to implement _Bool, the C99
-boolean data type, and add a new kind of register for the flags, i.e.
+We may really want to consider if we want /proc entries to be
+S_IFREG().  The closest equivalent I can think of is really a
+character device node (S_IFCHR) more so that S_IFIFO.
 
-_Bool c;
+	  -hpa
 
-asm volatile(LOCK "subl %2,%0"
-    : "=m" (v->counter), "=zf" (c)
-    : "ir" (i), "0" (v->counter) : "memory", "cc");
-
-	-hpa
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

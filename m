@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132577AbRACQtz>; Wed, 3 Jan 2001 11:49:55 -0500
+	id <S131368AbRACQ6I>; Wed, 3 Jan 2001 11:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132581AbRACQtp>; Wed, 3 Jan 2001 11:49:45 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:54536 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132577AbRACQtc>;
-	Wed, 3 Jan 2001 11:49:32 -0500
-Date: Wed, 3 Jan 2001 17:18:57 +0100
-From: Andi Kleen <ak@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Dr. David Gilbert" <gilbertd@treblig.org>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010103171857.A4689@gruyere.muc.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>
+	id <S131998AbRACQ56>; Wed, 3 Jan 2001 11:57:58 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:20741 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131368AbRACQ5u>; Wed, 3 Jan 2001 11:57:50 -0500
+X-Apparently-From: <quintaq@yahoo.co.uk>
+Date: Wed, 3 Jan 2001 16:28:16 +0000
+From: quintaq@yahoo.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fw: UDMA on 815e chipset
+In-Reply-To: <3A5337EB.56172C60@windsormachine.com>
+In-Reply-To: <20010103121218Z130812-439+8159@vger.kernel.org>
+	<3A5337EB.56172C60@windsormachine.com>
+Reply-To: quintaq@yahoo.co.uk
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.2.16; i686)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Jan 03, 2001 at 01:26:18PM -0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010103165751Z131368-439+8222@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 01:26:18PM -0200, Rik van Riel wrote:
-> On Wed, 3 Jan 2001, Dr. David Gilbert wrote:
-> 
-> >   I got wondering as to whether the various journaling file
-> > system activities were designed to survive the occasional
-> > unclean shutdown or were designed to allow the user to just pull
-> > the plug as a regular means of shutting down.
-> 
-> >   Thoughts?
-> 
-> 1. a journaling filesystem is designed to be "consistent"
->    (or rather, easily recoverable) all of the time
+Mike / Mark,
 
-The file system metadata is, but it has no idea if the application's data is 
-consistent or not.
+Thank-you very much for your replies.
 
-Also when you listen to tytso's tales of certain cheap IDE disks writing crap 
-when they and the system are powered off during a write you should probably
-better not turn off the system running when not absolutely needed.
+With regard to Mike, (a) I am using a PIII 800, so I really should be seeing better results than your Celeron.  It seems, therefore, that my setup may be defective in more fundamental ways than I had imagined.  (b) I do appreciate that I may not see any real benefit from Ultra/66 at this stage - I was just keen to experiment and see that the hardware was working.
 
-If the system was designed for situation (2) you would probably only
-use applications that do their own log (or some other disk consistency
-technique). That does not seem to be the case currently.
-Also when unclean shutdown was very common you also be probably better 
-of with a complete log structured fs that does not need to replay 
-on mount.  
+In reply to Mark : (a) my HDD was certainly sold as UDMA 5 capable, and hdparm reports that it is.  (b) I do not think you meant to suggest that I would solve the problem by deleting the -c and -m switches, but I deleted them anyway and the problem remains. (c) I wish I knew why the hell SuSE would include an obsolete kernel in their relatively new, flagship, v7 "Professional".  So far as I can see, kernel 2.4 is not even an option on their ftp site.  I use this machine for my business and cannot afford a major crash precipitated by a piece of inept kernel-tinkering on my part.
 
+I do have a spare machine (bx board though),and I suppose that the way ahead is to play around installing the current kernel on that until I have the confidence to put it in this box.
 
--Andi
+One final thought.  When I installed the OS I was offered the option to "use DMA", which I accepted. I see this set at an early stage in the boot-process (long before my boot.local executes).  Is there any way this could be obstructing the subsequent instruction to use UDMA ?
+
+Thanks again,
+
+Geoff
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

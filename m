@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263825AbRFFRXb>; Wed, 6 Jun 2001 13:23:31 -0400
+	id <S263669AbRFFRXl>; Wed, 6 Jun 2001 13:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbRFFRXL>; Wed, 6 Jun 2001 13:23:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35086 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263669AbRFFRXC>;
-	Wed, 6 Jun 2001 13:23:02 -0400
-Date: Wed, 6 Jun 2001 18:22:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        tytso@mit.edu
-Subject: Re: [driver] New life for Serial mice
-Message-ID: <20010606182221.B30546@flint.arm.linux.org.uk>
-In-Reply-To: <20010606125556.A1766@suse.cz> <3B1E5AE0.9202DD00@mandrakesoft.com> <20010606190158.A2010@suse.cz>
+	id <S263804AbRFFRXb>; Wed, 6 Jun 2001 13:23:31 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:28689 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S263669AbRFFRXO>; Wed, 6 Jun 2001 13:23:14 -0400
+Date: Wed, 6 Jun 2001 19:17:26 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+Cc: Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010606191726.B421@ping.be>
+In-Reply-To: <20010606095431.C15199@dev.sportingbet.com> <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010606190158.A2010@suse.cz>; from vojtech@suse.cz on Wed, Jun 06, 2001 at 07:01:58PM +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 06, 2001 at 07:01:58PM +0200, Vojtech Pavlik wrote:
-> On Wed, Jun 06, 2001 at 12:31:28PM -0400, Jeff Garzik wrote:
-> > hmmm.  I just looked over this, and drivers/char/joystick/ser*.[ch].
-> > 
-> > Bad trend.
-> > 
-> > Serial needs to be treated just like parport: the basic hardware code,
-> > then on top of that, a selection of drivers, all peers:  dumb serial
-> > port, serial mouse, joystick, etc.
+On Wed, Jun 06, 2001 at 10:57:57AM +0100, Dr S.M. Huen wrote:
+> On Wed, 6 Jun 2001, Sean Hunter wrote:
 > 
-> Agreed. Completely.
+> > 
+> > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
+> > 
+> 
+> Do I understand you correctly?
+> ECC grade SDRAM for your 8GB server costs £335 per GB as 512MB sticks even
+> at today's silly prices (Crucial). Ultra160 SCSI costs £8.93/GB as 73GB
+> drives.
 
-I suggest that if someone is thinking about this that they look at
-serial_core.c in the ARM patch hunk.
-   (ftp.arm.linux.org.uk/pub/armlinux/source/kernel-patches/v2.4/)
+Maybe you really should reread the statements people made about
+this before.
 
-Note that you shouldn't apply the whole patch - it probably won't compile
-for anything but ARM atm.
+One of them being, that if you're not using swap in 2.2, it won't
+need any in 2.4 either.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+2.4 will use more swap in case it does use it.  It now works more
+like other UNIX variants where the rule is that swap = 2 * RAM.
+
+That swap = 2 * RAM is just a guideline, you really should look
+at what applications you run, and how memory they use.  If you
+choise your RAM so that all application can always be in memory
+at all time, there is no need for swap.  If they can't be, the
+rule might help you.
+
+I think someone said that the swap should be large enough to hold
+all application that are running on swapspace, that is, in case
+you want to use swap.
+
+Disk maybe be alot cheaper than RAM, but it's also alot slower.
+
+
+Kurt
 

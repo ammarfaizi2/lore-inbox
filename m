@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264689AbTE1LoH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbTE1LoH
+	id S264693AbTE1Lq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTE1Lq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:44:07 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48847
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264689AbTE1LoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:44:06 -0400
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ragnar Hojland Espinosa <ragnar@linalco.com>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <20030528093654.GA20687@linalco.com>
-References: <3ED2DE86.2070406@storadinc.com> <3ED3A2AB.3030907@gmx.net>
-	 <3ED3A55E.8080807@storadinc.com> <200305271954.11635.m.c.p@wolk-project.de>
-	 <20030528093654.GA20687@linalco.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054119522.20167.4.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 28 May 2003 07:46:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2319 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264693AbTE1Lpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:45:40 -0400
+Date: Wed, 28 May 2003 12:58:53 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [RFC] Two patches - ptrace single stepping + modpost.c
+Message-ID: <20030528125853.A30380@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 May 2003 11:58:43 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-05-28 at 10:36, Ragnar Hojland Espinosa wrote:
-> Actually it just happens in the fixing stage when burning prebuilt iso
-> images from the hard disk (same IDE channel as the burner, 2.4.20)
-> Having a completely frozen machine under X was quite panic inducing ;)
+Ok, here's two patches I'd like to get sorted out and merged into
+2.5 or whatever.
 
-If you have a disk and the burner ont he same channel this is quite
-normal. The fixate is a single ATAPI command and like all ATA commands
-locks the bus to both master/slave for its duration of execution.
+The first: add a flag to tsk->ptrace to indicate whether we're
+single stepping or not.  This is used by the ARM ptrace code in
+arch/arm/kernel/signal.c to decide whether we need to halt the
+process for the debugger during signal processing, or remove
+and set single stepping breakpoints.
 
-Its an IDE limitation
+Other architectures which use similar schemes (eg, alpha) might also
+like this; it looks like Alpha may be a little buggy; it appears
+to carry the single stepping status across signal handling.  What
+happens if the debugger decides to disable single stepping when
+the debugged process receives a signal?
+
+--- orig/include/linux/ptrace.h	Tue May 27 10:05:43 2003
++++ linux/include/linux/ptrace.h	Tue May 27 10:14:30 2003
+@@ -65,6 +65,7 @@
+ #define PT_TRACE_EXIT	0x00000200
+ 
+ #define PT_TRACE_MASK	0x000003f4
++#define PT_SINGLESTEP	0x80000000	/* single stepping (used on ARM) */
+ 
+ #include <linux/compiler.h>		/* For unlikely.  */
+ #include <linux/sched.h>		/* For struct task_struct.  */
+
+
+The second: this allows modpost.c to build on ARM.  For some unknown
+reason, EM_SPARC* are not present in my system headers.  This isn't
+the right solution since it would interfere with cross-building SPARC.
+Are EM_SPARC* normally defined as preprocessor macros or enums?
+
+--- orig/scripts/modpost.c	Mon May  5 17:40:29 2003
++++ linux/scripts/modpost.c	Thu May  8 16:40:46 2003
+@@ -296,13 +296,14 @@
+ 		/* ignore global offset table */
+ 		if (strcmp(symname, "_GLOBAL_OFFSET_TABLE_") == 0)
+ 			break;
++#if defined(__sparc__) || defined(__sparc_v9__)
+ 		if (info->hdr->e_machine == EM_SPARC ||
+ 		    info->hdr->e_machine == EM_SPARCV9) {
+ 			/* Ignore register directives. */
+ 			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
+ 				break;
+ 		}
+-		
++#endif
+ 		if (memcmp(symname, MODULE_SYMBOL_PREFIX,
+ 			   strlen(MODULE_SYMBOL_PREFIX)) == 0) {
+ 			s = alloc_symbol(symname + 
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

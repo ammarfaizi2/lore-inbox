@@ -1,56 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUECMtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263671AbUECM5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUECMtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 08:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUECMtm
+	id S263671AbUECM5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 08:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUECM5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 08:49:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32993 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263100AbUECMti
+	Mon, 3 May 2004 08:57:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42209 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263671AbUECM46
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 08:49:38 -0400
-Date: Mon, 3 May 2004 09:51:08 -0300
+	Mon, 3 May 2004 08:56:58 -0400
+Date: Mon, 3 May 2004 09:58:29 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Oleg Drokin <green@linuxhacker.ru>, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com, davem@redhat.com
 Subject: Re: two lockups with 2.4.25
-Message-ID: <20040503125108.GA29160@logos.cnet>
-References: <Pine.LNX.4.58.0404201554590.4433@potato.cts.ucla.edu> <200404211510.i3LFAGe7031761@car.linuxhacker.ru> <Pine.LNX.4.58.0404210814370.10269@potato.cts.ucla.edu>
+Message-ID: <20040503125829.GB29160@logos.cnet>
+References: <Pine.LNX.4.58.0404201554590.4433@potato.cts.ucla.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404210814370.10269@potato.cts.ucla.edu>
+In-Reply-To: <Pine.LNX.4.58.0404201554590.4433@potato.cts.ucla.edu>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 08:19:20AM -0700, Chris Stromsoe wrote:
-> On Wed, 21 Apr 2004, Oleg Drokin wrote:
+On Tue, Apr 20, 2004 at 04:01:32PM -0700, Chris Stromsoe wrote:
+> I had two different machines lock up within hours of each other this
+> morning.  They have the exact same hardware and had very similar uptimes
+> (within hours of each other).
 > 
-> > Chris Stromsoe <cbs@cts.ucla.edu> wrote:
-> > CS> Pid: 26885, comm:               sophie
-> > >>>EIP; c0110ed7 <flush_tlb_others+9b/bc>   <=====
-> > >>>EDX; 01000000 Before first symbol
-> > >>>ESI; f4762cc0 <_end+343c85cc/3896e90c>
-> > >>>EDI; 081a1d28 Before first symbol
-> > >>>EBP; e806fe94 <_end+27cd57a0/3896e90c>
-> > CS> Trace; c011100f <flush_tlb_page+6f/7c>
-> > CS> Trace; c01259b7 <do_wp_page+223/284>
-> > CS> Trace; c01260de <handle_mm_fault+82/b8>
-> > CS> Trace; c01132f9 <do_page_fault+1a1/4ed>
-> > CS> Trace; c0113158 <do_page_fault+0/4ed>
-> > CS> Trace; c0224ce1 <__kfree_skb+129/134>
-> > CS> Trace; c01145e3 <schedule+45b/520>
-> > CS> Trace; c0106fc4 <error_code+34/3c>
-> >
-> > This backtrace is suspiciously similar to a backtrace from NMI WD I had
-> > not so long ago. Also on 2.5.25 Are your boxes SMP?
+> Both machines have a single SCSI disk on an onboard adaptec controller.
+> All partitions are ext3.  There are 3 other disks arranged in a RAID5
+> partition that are formatted JFS.
 > 
-> The boxes are SMP (dual cpu p3 1400MHz).
+> The machines run as virus quarantine servers, writing about 50k messages
+> to disk per day.  The files are written out into directories as
+> year/month/day/hour/filename.  There are usually around 2k to 3k files per
+> directory.
+> 
+> Both machines locked up hard.  I was able to get sysrq+t output from one
+> machine, but nothing from the other (it has no serial console).  I ran the
+> output through ksymoops.  It's listed below.
+> 
+> 
+> 
+> -Chris
+> 
+> 
+> ksymoops 2.4.5 on i686 2.4.25.  Options used
+>      -V (default)
+>      -k /proc/ksyms (specified)
+>      -l /proc/modules (specified)
+>      -o /lib/modules/2.4.25/ (specified)
+>      -m /boot/System.map-2.4.25 (specified)
+> 
+> Pid: 26885, comm:               sophie
+> EIP: 0010:[<c0110ed7>] CPU: 1 EFLAGS: 00000202    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EAX: 00000001 EBX: 00000001 ECX: 00000202 EDX: 01000000
+> ESI: f4762cc0 EDI: 081a1d28 EBP: e806fe94 DS: 0018 ES: 0018
+> Warning (Oops_set_regs): garbage 'DS: 0018 ES: 0018' at end of register line ignored
+> CR0: 8005003b CR2: 081a1d28 CR3: 14c2c000 CR4: 00000690
+> Call Trace:    [<c011100f>] [<c01259b7>] [<c01260de>] [<c01132f9>] [<c0113158>]
+>   [<c0224ce1>] [<c01145e3>] [<c0106fc4>]
+> Warning (Oops_read): Code line not seen, dumping what data is available
+> 
+> 
+> >>EIP; c0110ed7 <flush_tlb_others+9b/bc>   <=====
+> 
+> >>EDX; 01000000 Before first symbol
+> >>ESI; f4762cc0 <_end+343c85cc/3896e90c>
+> >>EDI; 081a1d28 Before first symbol
+> >>EBP; e806fe94 <_end+27cd57a0/3896e90c>
+> 
+> Trace; c011100f <flush_tlb_page+6f/7c>
+> Trace; c01259b7 <do_wp_page+223/284>
+> Trace; c01260de <handle_mm_fault+82/b8>
+> Trace; c01132f9 <do_page_fault+1a1/4ed>
+> Trace; c0113158 <do_page_fault+0/4ed>
+> Trace; c0224ce1 <__kfree_skb+129/134>
+> Trace; c01145e3 <schedule+45b/520>
+> Trace; c0106fc4 <error_code+34/3c>
 
-Oleg,
+The thing is flush_tlb_others can't block. It calls invlpg. 
 
-AFAICS this backtrace is fine -- flush_tlb_others() does invplg and thats it. No
-locking involved, yes?
+> init          R C3FFBF28     0     1      0 18517               (NOTLB)
+> Call Trace:    [<c0130fc1>] [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>]
+>   [<c0106ed3>]
+> sophie        R current      0 26885  12367               26884 (NOTLB)
+> Call Trace:    [<c0106fc4>]
+> mimedefang    R DA151F28     4 26886  12405         26887 26879 (NOTLB)
+> Call Trace:    [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>] [<c0106ed3>]
+> mimedefang    R EF435F28  2408 26887  12405         26888 26886 (NOTLB)
+> Call Trace:    [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>] [<c0106ed3>]
+> mimedefang    R CC989F28     0 26888  12405         26889 26887 (NOTLB)
+> Call Trace:    [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>] [<c0106ed3>]
+> mimedefang    R E5A83F28     0 26889  12405         26890 26888 (NOTLB)
+> Call Trace:    [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>] [<c0106ed3>]
+> mimedefang    R F67E5F28     0 26890  12405               26889 (NOTLB)
+> Call Trace:    [<c01140da>] [<c0114000>] [<c0147bac>] [<c0147f38>] [<c0106ed3>]
+> Warning (Oops_read): Code line not seen, dumping what data is available
+> 
 
-I can see very interesting JFS traces in Chris's report. I'll answer his message.
+> >>EIP; c3fa2000 <_end+3c0790c/3896e90c>   <=====
+> 
+> Trace; c0194c68 <jfsIOWait+13c/168>
+> Trace; c0105680 <arch_kernel_thread+28/38>
+> Proc;  jfsCommit
+> 
+> >>EIP; f70c0cc0 <_end+36d265cc/3896e90c>   <=====
+> 
+> Trace; c019776b <txLazyCommit+23/ac>
+> Trace; c0197960 <jfs_lazycommit+16c/1f4>
+> Trace; c0105680 <arch_kernel_thread+28/38>
+> Proc;  jfsSync
+> 
+> >>EIP; c0366180 <TxAnchor+40/60>   <=====
+> 
+> Trace; c0197ed3 <jfs_sync+25b/28c>
+> Trace; c0105680 <arch_kernel_thread+28/38>
+> Proc;  ahc_dv_0
+
+This might be a problem in JFS? shaggy, can you take a look at this?
+
+
+> Trace; c0248577 <tcp_clean_rtx_queue+18f/2fc>
+> Trace; c0224b3f <skb_release_data+6b/74>
+> Trace; c0224b56 <kfree_skbmem+e/70>
+> Trace; c0224ce1 <__kfree_skb+129/134>
+> Trace; c024c369 <tcp_rcv_state_process+9e5/9f1>
+> Trace; c0131497 <__free_pages+1f/24>
+> Trace; c02539fe <tcp_v4_destroy_sock+15a/170>
+> Trace; c0223a93 <sk_free+6f/78>
+> Trace; c0244711 <tcp_close+815/820>
+> Trace; c014c8ec <destroy_inode+5c/64>
+> Trace; c014b37b <dput+1b/15c>
+> Trace; c01218f6 <sys_rt_sigaction+92/13c>
+> Trace; c010c605 <sys_ipc+3d/238>
+> Trace; c0106ed3 <system_call+33/38>
+> Proc;  apache
+> 
+> >>EIP; 00000001 Before first symbol   <=====
+> 
+> Trace; c019cd05 <sys_semtimedop+551/684>
+> Trace; f8d0c83d <[eepro100]speedo_start_xmit+16d/1f4>
+> Trace; c0231403 <nf_hook_slow+103/180>
+> Trace; c022648d <memcpy_toiovec+35/64>
+> Trace; c0224b3f <skb_release_data+6b/74>
+> Trace; c0224b56 <kfree_skbmem+e/70>
+> Trace; c0224ce1 <__kfree_skb+129/134>
+> Trace; c0253926 <tcp_v4_destroy_sock+82/170>
+> Trace; c0223a93 <sk_free+6f/78>
+> Trace; c0244711 <tcp_close+815/820>
+> Trace; c014c8ec <destroy_inode+5c/64>
+> Trace; c014b37b <dput+1b/15c>
+> Trace; c01218f6 <sys_rt_sigaction+92/13c>
+> Trace; c010c605 <sys_ipc+3d/238>
+> Trace; c0106ed3 <system_call+33/38>
+> Proc;  mimedefang
+
+There's also a lot of network activity.

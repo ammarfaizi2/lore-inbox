@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129725AbQKFRtG>; Mon, 6 Nov 2000 12:49:06 -0500
+	id <S130166AbQKFRt4>; Mon, 6 Nov 2000 12:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129816AbQKFRs4>; Mon, 6 Nov 2000 12:48:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11532 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129725AbQKFRsl>; Mon, 6 Nov 2000 12:48:41 -0500
-Date: Mon, 6 Nov 2000 09:48:13 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Negative scalability by removal of
-In-Reply-To: <3A06C007.99EE3746@uow.edu.au>
-Message-ID: <Pine.LNX.4.10.10011060941070.7955-100000@penguin.transmeta.com>
+	id <S130165AbQKFRtq>; Mon, 6 Nov 2000 12:49:46 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:151 "EHLO puce.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S129816AbQKFRtl>;
+	Mon, 6 Nov 2000 12:49:41 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Date: Mon, 6 Nov 2000 17:45:17 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110617033201.01646@dax.joh.cam.ac.uk> <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl> <7101.973530736@redhat.com>
+In-Reply-To: <7101.973530736@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00110617484703.24534@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 7 Nov 2000, Andrew Morton wrote:
-
-> Alan Cox wrote:
-> > 
-> > > Even 2.2.x can be fixed to do the wake-one for accept(), if required.
-> > 
-> > Do we really want to retrofit wake_one to 2.2. I know Im not terribly keen to
-> > try and backport all the mechanism. I think for 2.2 using the semaphore is a
-> > good approach. Its a hack to fix an old OS kernel. For 2.4 its not needed
+On Mon, 06 Nov 2000, David Woodhouse wrote:
+> jas88@cam.ac.uk said:
+> >  So set them on startup. NOT when the driver is first loaded. Put it
+> > in the rc.d scripts. 
 > 
-> It's a 16-liner!  I'll cheerfully admit that this patch
-> may be completely broken, but hey, it's free.  I suggest
-> that _something_ has to be done for 2.2 now, because
-> Apache has switched to unserialised accept().
+> No. You should initialise the hardware completely when the driver is 
+> reloaded. Although the expected case is that the levels just happen to be 
+> the same as the last time the module was loaded, you can't know that the 
+> machine hasn't been suspended and resumed since then.
 
-This is why I'd love to _not_ see silly work-arounds in apache: we
-obviously _can_ fix the places where our performance sucks, but only if we
-don't have other band-aids hiding the true issues.
+If suspend/resume changes the settings of the card, you need to deal with that
+as a separate issue - otherwise resume isn't restoring things properly. Perhaps
+you need to prevent module unloading. Just restoring the correct settings when
+the driver is loaded is definitely too late.
 
-For example, with a file-locking apache, we'd have to fix the (noticeably
-harder) file locking thing to be wake-one instead, and even then we'd
-never be able to do as well as something that gets the same wake-one thing
-without the two extra system calls.
+> jas88@cam.ac.uk said:
+> >  No need. Let userspace save it somewhere, if that's needed. 
+> 
+> Don't troll, James. Reread the thread and see why doing it in userspace is 
+> too late.
 
-The patch looks superficially fine to me, although it does seem to add
-another cache-line to the wakeup setup - it migth be worth-while to have
-the exclusive state closer. But maybe I just didn't count right.
-
-		Linus
+Why is it too late? There is no need for the driver to set *any* volume levels
+on load. When told to load the driver, just LOAD the DRIVER. Don't reset the
+card, or make ANY changes.
 
 
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,90 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbUBYGzR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 01:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbUBYGzR
+	id S262643AbUBYHDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 02:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbUBYHDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 01:55:17 -0500
-Received: from cmail.srv.hcvlny.cv.net ([167.206.112.40]:52691 "EHLO
-	cmail.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262641AbUBYGzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 01:55:10 -0500
-Date: Wed, 25 Feb 2004 01:55:09 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-Subject: Re: [PATCH] yenta: irq-routing for TI bridges - take 2
-In-reply-to: <200402250026.20708.daniel.ritz@gmx.ch>
-X-X-Sender: proski@portland.hansa.lan
-To: Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       linux-pcmcia <linux-pcmcia@lists.infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.58.0402250148080.2144@portland.hansa.lan>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <200402240033.31042.daniel.ritz@gmx.ch>
- <20040224124011.A30975@flint.arm.linux.org.uk>
- <200402241623.11569.daniel.ritz@alcatel.ch>
- <200402250026.20708.daniel.ritz@gmx.ch>
+	Wed, 25 Feb 2004 02:03:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54422 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262643AbUBYHDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 02:03:49 -0500
+Date: Tue, 24 Feb 2004 23:03:18 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: dsw@gelato.unsw.edu.au, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory
+ exceeds 2.5GB (correction)
+Message-Id: <20040224230318.19a0e6b9.davem@redhat.com>
+In-Reply-To: <403C3F04.20601@colorfullife.com>
+References: <403AF155.1080305@colorfullife.com>
+	<20040223225659.4c58c880.akpm@osdl.org>
+	<403B8C78.2020606@colorfullife.com>
+	<20040225005804.GE18070@cse.unsw.EDU.AU>
+	<403C3F04.20601@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Daniel Ritz wrote:
+On Wed, 25 Feb 2004 07:21:56 +0100
+Manfred Spraul <manfred@colorfullife.com> wrote:
 
-> hi
->
-> the last patch was bad...chaning stuff it shouldn't on TI125x, 145x...
->
-> another try...comments?
-> couldn't find datasheets for 1210, 1220, 1250 so i'm not quite sure about them....
+> 0x620 (1568) is behind the end of the actual eth frame. Who could modify 
+> that?
 
-http://www.mit.edu/afs/sipb/contrib/doc/specs/ic/bridge/
+At the end of the SKB data area is where we keep struct skb_shared_info, something
+is messing with the SKB state after a free it appears.
 
-> compile tested (my TI works, so no difference there)
-
-Works for me.  yenta_socket is compiled into the kernel.  Two cards:  TI
-1221 with 2 slots (no fixup needed) and TI 1410 that needs it.
-
-
-Yenta: CardBus bridge found at 0000:00:08.0 [133f:1233]
-Yenta: Enabling burst memory read transactions
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: mfunc 0cc07d92, devctl 60
-Yenta: ISA IRQ mask 0x0000, PCI irq 5
-Socket status: 30000006
-Yenta: CardBus bridge found at 0000:00:08.1 [133f:1233]
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: mfunc 0cc07d92, devctl 60
-Yenta: ISA IRQ mask 0x0000, PCI irq 5
-Socket status: 30000006
-Yenta: CardBus bridge found at 0000:00:0a.0 [0000:0000]
-Yenta: Enabling burst memory read transactions
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: mfunc 00000000, devctl 66
-Yenta TI: changing mfunc to 00001000
-Yenta TI: falling back to PCI interrupts
-Yenta TI: changing mfunc to 00001002
-Yenta: ISA IRQ mask 0x0000, PCI irq 12
-
-$ cat /proc/interrupts
-           CPU0
-  0:     664717          XT-PIC  timer
-  1:       1530          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  5:          3          XT-PIC  yenta, yenta, orinoco_cs
-  7:          0          XT-PIC  acpi
-  8:          4          XT-PIC  rtc
- 10:       1502          XT-PIC  uhci_hcd, uhci_hcd
- 11:         46          XT-PIC  eth0
- 12:          3          XT-PIC  yenta, VIA686A, orinoco_cs
- 14:      36354          XT-PIC  ide0
- 15:         21          XT-PIC  ide1
-NMI:          0
-ERR:          0
-
--- 
-Regards,
-Pavel Roskin
+And since it's turning the debugging value 0x6b to 0x6a it must be the
+"atomic_t dataref;" that is being mucked with.

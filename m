@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292223AbSBTT25>; Wed, 20 Feb 2002 14:28:57 -0500
+	id <S292150AbSBTTg2>; Wed, 20 Feb 2002 14:36:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292229AbSBTT2v>; Wed, 20 Feb 2002 14:28:51 -0500
-Received: from toole.uol.com.br ([200.231.206.186]:63142 "EHLO
-	toole.uol.com.br") by vger.kernel.org with ESMTP id <S292223AbSBTT2B>;
-	Wed, 20 Feb 2002 14:28:01 -0500
-Date: Wed, 20 Feb 2002 16:27:26 -0300 (BRT)
-From: Cesar Suga <sartre@linuxbr.com>
-To: Thomas Winischhofer <tw@webit.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A simple patch for SIS (documentation and kbuild)
-In-Reply-To: <3C73EBD2.2116ECA8@webit.com>
-Message-ID: <Pine.LNX.4.40.0202201625000.2588-100000@sartre.linuxbr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292229AbSBTTgS>; Wed, 20 Feb 2002 14:36:18 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:24078 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S292150AbSBTTgH>; Wed, 20 Feb 2002 14:36:07 -0500
+Date: Wed, 20 Feb 2002 20:36:00 +0100
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.5 compile on alpha bombs
+Message-ID: <20020220193600.GA24486@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Feb 2002, Thomas Winischhofer wrote:
+I'm not sure if it is meant to work, it being a development kernel and
+all, but if anybody is interested:
 
-> +SiS 300/540/630
-> +CONFIG_DRM_SIS
-> +  Choose this option if you have a SIS 300, 540 or 630 graphics card.
-> +  If M is selected, the module will be called sis.o.  AGP support is
-> +  required for this driver to work.
+ALPHA :make boot
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/split-include scripts/split-include.c
+scripts/split-include include/linux/autoconf.h include/config
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin
+g -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6   -DKBUILD_BASENAME=main -c -o init/main.o init/main.c
+In file included from /usr/src/linux-2.5.5/include/linux/pagemap.h:16,
+                 from /usr/src/linux-2.5.5/include/linux/blkdev.h:9,
+                 from /usr/src/linux-2.5.5/include/linux/blk.h:4,
+                 from init/main.c:25:
+/usr/src/linux-2.5.5/include/linux/highmem.h: In function `memclear_highpage_flush':
+/usr/src/linux-2.5.5/include/linux/highmem.h:112: warning: implicit declaration of function `flush_dcache_page'
+/usr/src/linux-2.5.5/include/linux/highmem.h:113: warning: implicit declaration of function `flush_page_to_ram'
+. scripts/mkversion > .tmpversion
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin
+g -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6  -DUTS_MACHINE='"alpha"' -DKBUILD_BASENAME=version -c -o init/version
+.o init/version.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin
+g -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6   -c -o init/do_mounts.o init/do_mounts.c
+In file included from /usr/src/linux-2.5.5/include/linux/pagemap.h:16,
+                 from /usr/src/linux-2.5.5/include/linux/blkdev.h:9,
+                 from /usr/src/linux-2.5.5/include/linux/blk.h:4,
+                 from init/do_mounts.c:9:
+/usr/src/linux-2.5.5/include/linux/highmem.h: In function `memclear_highpage_flush':
+/usr/src/linux-2.5.5/include/linux/highmem.h:112: warning: implicit declaration of function `flush_dcache_page'
+/usr/src/linux-2.5.5/include/linux/highmem.h:113: warning: implicit declaration of function `flush_page_to_ram'
+init/do_mounts.c: At top level:
+init/do_mounts.c:958: warning: `crd_load' defined but not used
+make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-stric
+t-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6 " -C  kernel
+make[1]: Entering directory `/usr/src/linux-2.5.5/kernel'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.5.5/kernel'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasin
+g -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6   -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sche
+d.c
+In file included from sched.c:22:
+/usr/src/linux-2.5.5/include/asm/mmu_context.h:32: #error update this function.
+sched.c:440: macro `switch_to' used with only 2 args
+In file included from sched.c:24:
+/usr/src/linux-2.5.5/include/linux/highmem.h: In function `memclear_highpage_flush':
+/usr/src/linux-2.5.5/include/linux/highmem.h:112: warning: implicit declaration of function `flush_dcache_page'
+/usr/src/linux-2.5.5/include/linux/highmem.h:113: warning: implicit declaration of function `flush_page_to_ram'
+sched.c: In function `context_switch':
+sched.c:440: parse error before `)'
+make[2]: *** [sched.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.5/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.5/kernel'
+make: *** [_dir_kernel] Error 2
+ALPHA :
 
-> Before posting patches you'd better inform yourself.
-
-> AGP is *not* required.
-
-	Ah, sorry. I didn't notice __MUST_HAVE_AGP to be zero. I'll take
-care.
-
-	Regards,
-	Cesar Suga <sartre@linuxbr.com>
-
-
+Jurriaan
+-- 
+Lack of skill dictates economy of style.
+	Joey Ramone
+GNU/Linux 2.4.18-rc1 on Debian/Alpha 988 bogomips 5 users load:0.00 0.09 0.21

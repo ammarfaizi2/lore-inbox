@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277807AbRJIQLB>; Tue, 9 Oct 2001 12:11:01 -0400
+	id <S277805AbRJIQOW>; Tue, 9 Oct 2001 12:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277808AbRJIQKw>; Tue, 9 Oct 2001 12:10:52 -0400
-Received: from are.twiddle.net ([64.81.246.98]:7077 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S277807AbRJIQKf>;
-	Tue, 9 Oct 2001 12:10:35 -0400
-Date: Tue, 9 Oct 2001 09:11:01 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: pmckenne@us.ibm.com, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011009091101.A27319@twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	pmckenne@us.ibm.com, lse-tech@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com> <20011008235208.A26109@twiddle.net> <20011009190337.0009802c.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+	id <S277808AbRJIQOC>; Tue, 9 Oct 2001 12:14:02 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:27653 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S277805AbRJIQNx>; Tue, 9 Oct 2001 12:13:53 -0400
+Message-ID: <3BC3223E.902FB7E@zip.com.au>
+Date: Tue, 09 Oct 2001 09:13:50 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: BALBIR SINGH <balbir.singh@wipro.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: is reparent_to_init a good thing to do?
+In-Reply-To: <3BC3118B.8050001@wipro.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011009190337.0009802c.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Tue, Oct 09, 2001 at 07:03:37PM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 07:03:37PM +1000, Rusty Russell wrote:
-> I don't *like* making Alpha's wmb() stronger, but it is the
-> only solution which doesn't touch common code.
+BALBIR SINGH wrote:
+> 
+> I was looking at the driver under drivers/net/8139too.c, a kernel
+> thread rtl8139_thread is created, it calls daemonize() and soon
+> afterwards calls reparent_to_init(). Looking at reparent_to_init(),
+> it looks like all kernel threads should do this. But, I feel I am missing
+> something, since not everybody does this.
+> 
+> Is this a good thing to do? or are there special cases when we need this.
+> 
 
-It's not a "solution" at all.  It's so heavy weight you'd be
-much better off with locks.  Just use the damned rmb_me_harder.
+I think yes, more kernel threads need to use this function.  Most
+particularly, threads which are parented by a userspace application
+and which can terminate.  For example, the nfsd threads.
 
-
-r~
+Right now, it's probably the case that nfsd threads will turn
+into zombies when they terminate, *if* their parent is still
+running.   But of course, most kernel threads are parented
+by very short-lived userspace applications, so nobody has
+ever noticed.

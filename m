@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317308AbSGIGHW>; Tue, 9 Jul 2002 02:07:22 -0400
+	id <S317312AbSGIGX3>; Tue, 9 Jul 2002 02:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317309AbSGIGHV>; Tue, 9 Jul 2002 02:07:21 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:52699 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S317308AbSGIGHU>; Tue, 9 Jul 2002 02:07:20 -0400
-Message-ID: <3D2A7DD9.90503@snapgear.com>
-Date: Tue, 09 Jul 2002 16:08:25 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S317314AbSGIGX2>; Tue, 9 Jul 2002 02:23:28 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:23059 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317312AbSGIGX1>; Tue, 9 Jul 2002 02:23:27 -0400
+Date: Tue, 9 Jul 2002 08:25:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal 
+In-Reply-To: <22226.1026174466@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0207090744180.8911-100000@serv>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Announce: 2.5.25uc0 patch for mmu-less CPU's
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi All,
+On Tue, 9 Jul 2002, Keith Owens wrote:
 
-I am making a concerted effort (probably in vain :-)
-to keep the uClinux (MMU-less support) up to date with
-the 2.5 series kernels.
+>   Check use count.
+>   Unregister.
+>   Ensure that all code that had a reference to the module has either
+>   dropped that reference or bumped the use count.
+>   Check use count again, it may have been bumped above.
+>   If use count is still 0, there are no stale references left.  It is
+>   now safe to unload, call the module unallocate routine then free its
+>   area.
+>   If use count != 0, either schedule for removal when the count goes to
+>   0 or reregister.  I prefer reregister, Rusty prefers delayed removal.
+>
+> Ensuring that all code has either dropped stale references or bumped
+> the use count means that all processes that were not sleeping when
+> rmmod was started must proceed to a sync point.  It is (and always has
+> been) illegal to sleep while using module code/data (note: using, not
+> referencing).
 
-I am keeping patches at:
+Who is changing the use count? How do you ensure that someone doesn't
+cache a reference past that magic sync point?
+IMO the real problem is that cleanup_module() can't fail. If modules
+already do proper data acounting, it's not too difficult to detect if
+there still exists a reference. In the driverfs example the problem is
+that remove_driver() returns void instead of int, so it can't fail.
 
-   http://www.uclinux.org:/pub/uClinux/uClinux-2.5.x/
-
-The most current is linux-2.5.25uc0.patch. It seems
-to work pretty well (at least on the target boards I
-try it on).
-
-I am mainly working on the ColdFire CPU architecture
-support, since that is the hardware I have at hand.
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+bye, Roman
 

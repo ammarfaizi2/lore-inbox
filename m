@@ -1,104 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbTA0WGY>; Mon, 27 Jan 2003 17:06:24 -0500
+	id <S263899AbTA0WNB>; Mon, 27 Jan 2003 17:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbTA0WGY>; Mon, 27 Jan 2003 17:06:24 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:10653 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S263491AbTA0WGV>; Mon, 27 Jan 2003 17:06:21 -0500
-Date: Mon, 27 Jan 2003 14:15:24 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Christian Zander <zander@minion.de>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel.
-Message-ID: <20030127221523.GP20972@ca-server1.us.oracle.com>
-References: <20030127175917.GO20972@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301271208580.18686-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301271208580.18686-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
+	id <S267321AbTA0WNA>; Mon, 27 Jan 2003 17:13:00 -0500
+Received: from very.disjunkt.com ([195.167.192.238]:40363 "EHLO disjunkt.com")
+	by vger.kernel.org with ESMTP id <S263899AbTA0WMv> convert rfc822-to-8bit;
+	Mon, 27 Jan 2003 17:12:51 -0500
+Date: Mon, 27 Jan 2003 23:21:37 +0100 (CET)
+From: Jean-Daniel Pauget <jd@disjunkt.com>
+X-X-Sender: jd@mint
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Tom Winkler <tom@qwws.net>
+Subject: Re: poor IDE performance on ASUS P4PE with WD800JB
+In-Reply-To: <Pine.LNX.3.96.1030127162113.27928A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.51.0301272308431.466@mint>
+References: <Pine.LNX.3.96.1030127162113.27928A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 12:31:07PM -0600, Kai Germaschewski wrote:
-> Well, if you're doing things in your module which break with the command 
-> line options the rest of the kernel is using, I'd claim you're playing 
-> tricks in your module which you shouldn't. The only place I'm aware of 
 
-	I'm not so sure about that.  Some gcc things tweak us, and the
-some code has had to deal with it.  This isn't something that happens
-often, but it still can.  In addition, CFLAGS_filename.o does not allow
-removal of options, merely the addition if I am not mistaken.
+    I'm using some maxtor on the same motherboard and I had to struggle a
+    bit before getting some decent perf, basically I kept only the minimum
+    IDE,ATA.. drivers in my kernel, for my P4PE it's the Intel PIIXn and
+    also the PIIXn tuning option.
+    I also added idebus=66 in my command-line kernel option...
+    I disabled the Promise Raid controller in the bios that was responsible
+    for some 2.4.20 kernels to hang at detection (?)
 
-> Basically, yes. The build process needs to be able to write, e.g. to 
-> compile its helper code in scripts/, so init/vermagic.o is just another
-> file being written.
+    now I get this :
 
-	If my distribution has installed /usr/src/linux-x.y, I can't
-compile against it.  Even though the 200MB of a kernel tree is already
-taking up space on my system, I have to download *another* 30MB and
-install it as *another* 200MB and build it to an eventual *another*
-260MB of kernel tree.  So, for every kernel I want to support, I have to
-have 260MB of built tree.  And that's just for my userid.  Anyone else
-on the box has to have their own n_kernels * 260MB of space waste.
+# hdparm -tT /dev/hda
 
-> fact, these checksums are generated as part of the compiled objects, so
-> recording checksums needs all other compiled objects to be around. If you 
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.30 seconds =426.67 MB/sec
+ Timing buffered disk reads:  64 MB in  1.38 seconds = 46.38 MB/sec
 
-	But, once the checksums are recorded, the compiled objects are
-no longer needed, no?  It still remains that a kernel header package
-with associated correct autoconf.h and checksums is at least an order of
-magnitude smaller than a built kernel tree.
+# hdparm -I /dev/hda
 
-> As I said, I am sure interested in working with people and distros to get 
-> something which everybody can live with. I'm wondering how RedHat manages 
-> to have one tree for different configurations, since in that case, at 
-> least .config/autoconf.h, EXTRAVERSION and the module version files 
-> (*.ver) need to differ, so that kinda seems not possible in one 
-> (read-only) tree.
+/dev/hda:
 
-	Red Hat plays tricks.  They add a <rhconfig.h> to the top of
-autoconf.h and have some extra defines so that chunks of autoconf.h look
-like:
+non-removable ATA device, with non-removable media
+        Model Number:           Maxtor 6Y120P0
+        Serial Number:          Y40FKPWE
+        Firmware Revision:      YAR41VW0
+Standards:
+        Supported: 1 2 3 4 5 6 7
+        Likely used: 7
+Configuration:
+        Logical         max     current
+        cylinders       16383   16383
+        heads           16      16
+        sectors/track   63      63
+        bytes/track:    0               (obsolete)
+        bytes/sector:   0               (obsolete)
+        current sector capacity: 16514064
+        LBA user addressable sectors = 240121728
+Capabilities:
+        LBA, IORDY(can be disabled)
+        Buffer size: 7936.0kB   ECC bytes: 57   Queue depth: 1
+        Standby timer values: spec'd by standard, no device specific
+minimum
+        r/w multiple sector transfer: Max = 16  Current = 16
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+        Enabled Supported:
+           *    NOP cmd
+           *    READ BUFFER cmd
+           *    WRITE BUFFER cmd
+           *    Host Protected Area feature set
+           *    look-ahead
+           *    write cache
+           *    Power Management feature set
+                Security Mode feature set
+                SMART feature set
+                SET MAX security extension
+                Advanced Power Management feature set
+           *    DOWNLOAD MICROCODE cmd
+Security:
+        Master password revision code = 65534
+                supported
+        not     enabled
+        not     locked
+        not     frozen
+        not     expired: security count
+        not     supported: enhanced erase
+HW reset results:
+        CBLID- above Vih
+        Device num = 0 determined by the jumper
+Checksum: correct
 
-#ifdef UP_FLAG
-... some UP CONFIG_* options
-#else
-#ifdef SMP_FLAG
-... some SMP CONFIG_* options
 
-and so on.
-
-	This does indeed track modversions as well (I don't recall which
-files do the switching).  This actually works pretty well, but it depends
-on the fact that their kernel flavours (up, smp, large ram) are known
-at the time they build this setup.  This isn't necessarily the proper
-solution for the generic kernel.  
-	It still remains that in 2.4 you need the headers for the kernel
-plus the proper bits created by config/modversions.  You don't need
-anything else, and you don't need any writability after the initial
-generation.  This takes significantly less space than an entire built
-tree, and is usable from /usr/src as a readonly entity.  Requiring that
-*each user* have the kernels they wish to build installed and fully
-built is a step back, IMHO.
-
-Joel
+this disk seems equivalent to your western digital.
 
 
--- 
+my lspci :
 
-"I always thought the hardest questions were those I could not answer.
- Now I know they are the ones I can never ask."
-			- Charlie Watkins
+00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 02)
+00:01.0 PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82)
+00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev a3)
+02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
+02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+a lot of device don't appear here because I disabled them whilst looking
+for what is causing my maching to hang once every three days...
+
+--
+Quand les plombs pêtent : « Ðïsjüñ£t.¢¤× »

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135306AbREBOMF>; Wed, 2 May 2001 10:12:05 -0400
+	id <S135276AbREBOM0>; Wed, 2 May 2001 10:12:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135293AbREBOL4>; Wed, 2 May 2001 10:11:56 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:62732 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S135276AbREBOLj>; Wed, 2 May 2001 10:11:39 -0400
-Date: Wed, 2 May 2001 16:11:19 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Deepika Kakrania <deepika@sasken.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: randon number generator in kernel..
-Message-ID: <20010502161119.D11059@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.GSO.4.30.0105021918490.21323-100000@suns3.sasi.com>
+	id <S135293AbREBOMP>; Wed, 2 May 2001 10:12:15 -0400
+Received: from erasmus.off.net ([64.39.30.25]:21512 "HELO erasmus.off.net")
+	by vger.kernel.org with SMTP id <S135276AbREBOMC>;
+	Wed, 2 May 2001 10:12:02 -0400
+Date: Wed, 2 May 2001 10:12:00 -0400
+From: Zach Brown <zab@zabbo.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Fabio Riccardi <fabio@chromium.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Christopher Smith <x@xman.org>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+Message-ID: <20010502101200.E28288@erasmus.off.net>
+In-Reply-To: <3AEC8562.887CFA72@chromium.com> <Pine.LNX.4.33.0105021047040.3642-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.30.0105021918490.21323-100000@suns3.sasi.com>; from deepika@sasken.com on Wed, May 02, 2001 at 07:24:39PM +0530
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0105021047040.3642-100000@localhost.localdomain>; from mingo@elte.hu on Wed, May 02, 2001 at 10:50:38AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 07:24:39PM +0530, Deepika Kakrania wrote:
->   Can anyone tell me whether there is already any function to generate
-> random number inside kernel. If there is one what is that?
+> i think Zach's phhttpd is an important milestone as well, it's the first
+> userspace webserver that shows how to use event-based, sigio-based async
+> networking IO and sendfile() under Linux. (I believe it had some
 
-See drivers/char/random.c
+*blush*
 
+> performance problems related to sigio queue overflow, these issues might
+> be solved in the latest kernels.) The zerocopy enhancements should help
+> phhttpd as well.
 
-Erik
+oh, it has a bunch of problems :)  over-threading created complexity in
+the fast path.  It always spends memory on a contiguous header region for
+each connection, which may not be valid in the days of zero copy sendmsg.
+It does IO in the fast path.  And looking back at it, I'm struck by how
+naive most of the code is :) :)
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+I've always been tempted to go back and take a real swing at a
+nice content server, but there's only so many hours in the day, and
+apache+thttpd+tux complete the problem space.  If X15 isn't released
+with an open license, I may be tempted yet again :)
+
+- z

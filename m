@@ -1,105 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbTLLJ1F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 04:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTLLJ1F
+	id S264515AbTLLJex (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 04:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTLLJex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 04:27:05 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:9929 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264512AbTLLJ1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 04:27:00 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Fri, 12 Dec 2003 03:27:30 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312112345400.3805-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10312112345400.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 04:34:53 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:26051 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264515AbTLLJev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 04:34:51 -0500
+Date: Fri, 12 Dec 2003 10:34:24 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Ken <ken@nova.org>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.4][PATCH] Xeon HT - SMT+SMP interrupt balancing
+Message-ID: <20031212093424.GA12446@devserv.devel.redhat.com>
+References: <3FD89EF5.30101@nova.org> <1071161984.5219.4.camel@laptop.fenrus.com> <3FD94681.3090008@nova.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312120327.30814.rob@landley.net>
+In-Reply-To: <3FD94681.3090008@nova.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 December 2003 01:56, Andre Hedrick wrote:
-> Rob,
->
-> I must admit when I jumped into this thread late, I said I was a little
-> chilly here in Northern California.  I am toasty warm now and look like
-> "Buckwheat" (just not on the top cause the hair is thin).
->
-> The up side of the roasting is you have exposed yourself as a serious pool
-> of knowledge.  The down side for you is class is in session, and if
-> nothing else I would like to here all the various positions and reviews
-> you have observer, contributed, and blah blah ...
->
-> TMF is not an easy place to express an opinion.
->
-> My butt is in the chair to listen if class is in session :-)
+On Thu, Dec 11, 2003 at 11:39:29PM -0500, Ken wrote:
+> Arjan van de Ven wrote:
+> >1) This got fixed in version 0.07
 
-Sheesh, I'm not an expert on this, but I'm happy to share my ignorance.  Just 
-keep in mind, IANAL. :)
+> 	So, the timer now migrates, but IRQ 24 isn't even shared by the 
+> sibling, let alone the other "pair".  Well, all these interfaces are 
+> GigE -- 2 fiber, 2 copper -- so, I re-classified "eth" as GIGE and 
+> didn't see any improvement; however, if I follow your policy correctly, 
+> shouldn't the sibling get some usage in either case?
 
-The place I started is http://www.faqs.org/faqs/law/copyright/faq/
-which is pretty darn stale now (it's ten years old, it predates the sony bono 
-copyright extension act, the DMCA, and a bunch of other stuff).  So don't 
-take is as an authority on any specifics of the law, but I found it to be a 
-great introduction to the basic concepts, and I'd guess it still is.
+No. Ethernet (and esp gigabit) has significant performance benefits from
+being (and staying) on one cpu. What matters are lots of cacheline bounces,
+and (even worse) packet(fragment) reordering that can happen if it moves around.
 
-MIT has a similar FAQ here, but it's not nearly as thorough:
 
-http://web.mit.edu/copyright/faq.html
+> 
+> 	In any case, I consider the above behavior undesirable over time. 
+> 	CPU0 is handling most of the system while CPU1 contributes little.   For 
+> example, this snapshot:
+> top - 23:11:16 up 12 min,  1 user,  load average: 0.26, 0.35, 0.19
+> Tasks:  49 total,   3 running,  46 sleeping,   0 stopped,   0 zombie
+> Cpu0 :   0.8% user,  34.8% system,   0.0% nice,  64.4% idle
+> Cpu1 :   0.0% user,   0.0% system,   0.0% nice, 100.0% idle
+> Cpu2 :  15.5% user,   4.1% system,   0.0% nice,  80.5% idle
+> Cpu3 :   6.7% user,   2.4% system,   0.0% nice,  90.9% idle
 
-And the next step (more authoritative/recent, but less detailed and newbie 
-friendly) would be here:
+your machine is very very idle. Also remember that with modern machines,
+even if a machine is 0% you probably can keep adding load to it for a while,
+because then you are increasing "batching" which is very very cache
+efficient operation, with the current differences between L1/L2 cache speed
+and main memory speed it's not unlikely you can do 2x or 3x more work than
+you do the moment idle hits 0%. 
 
-http://www.copyright.gov/faq.html
 
-What else...  Understanding that copyright law is NOT the same as contract 
-law, trademark law, patent law, or the nebulous mess that is trade secrets.  
-(This is why stallman objects to the term "intellectual property", since 
-there are several distinct islands that do not quite form a whole.  I 
-personally find his perfectionist attitude to be unhelpful dealing with the 
-real world, but this is nothing new...)
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  0  0      0 1569184   5708  36728    0    0     0     0 14560 23163  6 10 84  0
+>  0  0      0 1569184   5708  36728    0    0     0     0 14284 23734  8 11 81  0
 
-If you just understand the difference between a copyright and a license, 
-you're ahead of most people.  Dual licensing, who can issue a license, what 
-happens when license terms are not compatable, etc...  It's also probably a 
-good idea to try to understand the first sale doctrine and fair use.  These 
-are good fundamental limits on copyright.  (Trying to figure out how they 
-apply online gives professional lawyers headaches, but keep in mind that the 
-law is all about analogies.  Half of what lawyers do is find good analogies 
-to convince a judge "this situation is just like X" while the other lawyer 
-tries to convince them it's just like Y...)
+this is a sign you may want to enable IRQ mitigation in your network
+driver to increase batching (unless your application is very latency bound)
 
-You know, you could probably grab a business law textbook from your local 
-community college's bookstore.  It'll have chapters on this written by 
-somebody who knows what they're talking about.
 
-Beyond that... Understanding what the law currently _is_ takes a bit of work.  
-It's almost like trying to follow new kernel versions.  Some of the lawyers I 
-know occasionally send me articles from findlaw's news section 
-(news.findlaw.com), which I don't have time to follow myself.  Typing "gpl" 
-into its news search thingy would almost certainly be interesting. :)
-
-Oh, and don't take anything you find as an absolute.  Precedent isn't a 
-guarantee, and what the law actually says can be bent amazingly with enough 
-money (OJ Simpson, Dmitry Skylarov...)  You may find some marvelous thing 
-that's in the wrong jurisdiction, etc.
-
-This is a hobby every bit as complicated as programming.  When it comes to the 
-law I strive to be a "power user", and even that's work...
-
-P.S.  I'd guess that the right place to ask questions on all this is 
-www.groklaw.com.  It can best be described as the geek law equivalent of 
-slashdot.  It focuses on the SCO mess, and lots of lawyers hang out there.  
-(Their standard disclaimer is IAALBIANYL:  I Am A Lawyer, But I Am Not Your 
-Lawyer.)
-
-Rob
+Greetings,
+    Arjan van de Ven

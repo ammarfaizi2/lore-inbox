@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287757AbSAKINC>; Fri, 11 Jan 2002 03:13:02 -0500
+	id <S289899AbSAKIof>; Fri, 11 Jan 2002 03:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289894AbSAKIMw>; Fri, 11 Jan 2002 03:12:52 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:60581
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S287757AbSAKIMi>; Fri, 11 Jan 2002 03:12:38 -0500
-Message-ID: <3C3E9E64.3050506@debian.org>
-Date: Fri, 11 Jan 2002 09:12:20 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, en
+	id <S289901AbSAKIoV>; Fri, 11 Jan 2002 03:44:21 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:12036 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289899AbSAKIoK>; Fri, 11 Jan 2002 03:44:10 -0500
+Message-ID: <3C3EA5D8.7050206@redhat.com>
+Date: Fri, 11 Jan 2002 03:44:08 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Martin Eriksson <nitrax@giron.wox.org>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
+To: Andris Pavenis <pavenis@latnet.lv>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, tom@infosys.tuwien.ac.at,
         linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-In-Reply-To: <fa.eln67tv.a4io16@ifi.uio.no> <fa.gp0gofv.1p4se16@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: i810_audio driver v0.19 still freezes machine
+In-Reply-To: <E16Okz2-0005JM-00@the-village.bc.nu> <3C3DEAFA.4070102@redhat.com> <200201110742.g0B7gDa16387@hal.astr.lu.lv>
+Content-Type: text/plain; charset=ISO-8859-13; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Andris Pavenis wrote:
 
->>Just curious; is RPM a "standard" for most linux distros now? I have always
->>been running RedHat so I wouldn't know.
+> On Thursday 10 January 2002 21:26, Doug Ledford wrote:
+> 
+>>Alan Cox wrote:
+>>
+>>>Make sure you test with both apic and non apic Doug. The previous hangs I
+>>>fixed up were specific to APIC mode because the APIC means the irq
+>>>arrival is later and more asynchronous
+>>>
+>>I can't.  APIC makes my test machine (my only i810 machine) hang on boot
 >>
 > 
-> Most but not all. Debian has a very powerful package system that is quite
-> different for example. I don't know if the Debian package setup protects
-> you from installing i686 binaries on an i486, but I bet within 48 hours of
-> this discussion it will do anyway
+> I have both 'Local APIC support on uniprocessors' and
+> 'IO_APIC support on uniprocessors' enabled in kernel configuration.
+> Should I try i810_audio.c v0.19 after disabling APIC support in
+> kernel (v2.4.17)?
+> 
+> Andris
+> 
+> 
+> 
 
+No, just try the 0.20 version that I have up in the normal place.  It should 
+solve your problem.
 
-Debian doesn't have this feature.
-Debian policy tell us: i386 is fine. Performance gain is minimal (or nothing)
-so compile with in i386 compatible mode.
-(on package that performance matter, there exists an optional package with
-an extra suffix (i.e. 686). So user can choice the more performant
-package (but not the default)).
-But numbers (profiles) have told us that such package are less then 1
-every 1000.
+-- 
 
-[In debian-devel list this is a frequent flamewar. But until we have
-'number' that told us to add a PPro optimization, we don't move.
-Debian have not the the marketing need of other distributions.
-(We are are the best distribution :-) ) ]
-
-	giacomo
-
-
-
-
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUHMMM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUHMMNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUHMMM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 08:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUHMMM6
+	id S264929AbUHMMNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 08:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUHMMNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 08:12:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48133 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264973AbUHMMMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 08:12:44 -0400
-Date: Fri, 13 Aug 2004 13:12:36 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-Message-ID: <20040813131236.B5416@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	linux-kernel@vger.kernel.org
-References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home> <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home> <20040813110137.GY13377@fs.tum.de>
+	Fri, 13 Aug 2004 08:13:30 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:24704 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264929AbUHMMNX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 08:13:23 -0400
+Date: Fri, 13 Aug 2004 14:15:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-ID: <20040813121502.GA18860@elte.hu>
+References: <2md5B-36u-11@gated-at.bofh.it> <2mkTt-BZ-11@gated-at.bofh.it> <2nrJd-7Dx-19@gated-at.bofh.it> <2ouFe-2vz-63@gated-at.bofh.it> <2rfT9-5wi-17@gated-at.bofh.it> <2rF1c-6Iy-7@gated-at.bofh.it> <2sxEs-46P-1@gated-at.bofh.it> <2sCkH-7i5-15@gated-at.bofh.it> <2sHu9-2EW-31@gated-at.bofh.it> <m31xibtf4e.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040813110137.GY13377@fs.tum.de>; from bunk@fs.tum.de on Fri, Aug 13, 2004 at 01:01:37PM +0200
+In-Reply-To: <m31xibtf4e.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 01:01:37PM +0200, Adrian Bunk wrote:
-> On Fri, Aug 13, 2004 at 12:54:25PM +0200, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Fri, 13 Aug 2004, Evgeniy Polyakov wrote:
-> > 
-> > > On Fri, 2004-08-13 at 14:32, Roman Zippel wrote:
-> > > > Hi,
-> > > > 
-> > > > On Fri, 13 Aug 2004, Adrian Bunk wrote:
-> > > > 
-> > > > >  config W1
-> > > > >  	tristate "Dallas's 1-wire support"
-> > > > > +	select NET
-> > > > 
-> > > > What's wrong with a simple dependency?
-> > > 
-> > > W1 requires NET, and thus depends on it.
-> > > If you _do_ want W1 then you _do_ need network and then NET must be
-> > > selected.
-> > 
-> > A simple "depends on NET" does this as well, I see no reason to abuse 
-> > select.
+
+* Andi Kleen <ak@muc.de> wrote:
+
+> >> Interesting results.  One of the problems is kallsyms_lookup,
+> >> triggered by the printks:
+> >
+> > yeah - kallsyms_lookup does a linear search over thousands of symbols. 
+> > Especially since /proc/latency_trace uses it too it would be worthwile
+> > to implement some sort of binary searching.
 > 
-> In the case of NET the discussion is mostly hypothetically since nearly 
-> everyone has enabled NET.
+> Or just stick some cond_sched()s in there. It was designed to be slow,
+> but there are no locking issues.
 
-In which case, can we remove the user-visibility of CONFIG_NET and
-instead make all the protocols automatically select it.
+the speedup would be important: even on a 2GHz box reading 10,000 trace
+entries takes a couple of seconds.
 
-I find the over-use of "select" distasteful, and produces a counter-
-intuitive configuration system.  I'll carry on complaining each time
-I see a patch on LKML which introduces yet another over-use of this
-feature without properly considering the consequences of doing so.
+[ the /proc/latency_trace read()ing itself is fully preemptible, i'd be
+  ashamed if it werent ;) ]
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Ingo

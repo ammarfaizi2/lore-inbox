@@ -1,134 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbTEUHmT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbTEUHlY
+	id S261245AbTEUHlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTEUHlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:41:24 -0400
+	Wed, 21 May 2003 03:41:08 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:38870 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261414AbTEUHlF (ORCPT
+	by vger.kernel.org with ESMTP id S261506AbTEUHlD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:41:05 -0400
-Date: Wed, 21 May 2003 00:23:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: request_firmware() hotplug interface, third round and a halve
-Message-ID: <20030521072318.GA12973@kroah.com>
-References: <20030517221921.GA28077@ranty.ddts.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 May 2003 03:41:03 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: [linux-usb-devel] [PATCH 06/14] USB speedtouch: spin_lock_irqsave -> spin_lock_irq in tasklets
+Date: Wed, 21 May 2003 09:25:36 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+References: <200305210058.07416.baldrick@wanadoo.fr> <20030520193646.C32683@devserv.devel.redhat.com>
+In-Reply-To: <20030520193646.C32683@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030517221921.GA28077@ranty.ddts.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305210925.36830.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, forgot to respond to this, sorry...
+On Wednesday 21 May 2003 01:36, Pete Zaitcev wrote:
+> > From: Duncan Sands <baldrick@wanadoo.fr>
+> > Date: Wed, 21 May 2003 00:58:07 +0200
+> >
+> > Replace spin_lock_irqsave/spin_unlock_irqrestore with
+> > spin_lock_irq/spin_unlock_irq in tasklet actions, since
+> > these are always called with local irqs enabled.
+> >
+> > -	spin_lock_irqsave (&instance->completed_receivers_lock, flags);
+> > +	spin_lock_irq (&instance->completed_receivers_lock);
+>
+> This is a premature optimization and I oppose it strongly.
+> There is no evedince that Duncan's cable modem starts working
+> any faster with this, or even that his oggs skip less.
+> So, there is NO measurable benefit whatsoever.
+>
+> However, this will trip subtle breakage as the code changes,
+> I guarantee it.
+>
+> Things like this may be done in common paths in TCP stack
+> or block I/O, but doing such tricks in drivers is an utter folly.
+> I personally had to fix bugs caused by exactly the same
+> trickery, as if I have nothing better to do.
 
-On Sun, May 18, 2003 at 12:19:22AM +0200, Manuel Estrada Sainz wrote:
->  Hi,
-> 
->  There is some new stuff:
->  -----------------------
-> 
->  - 'struct device *device' is used instead of 'char *device'. So we now
->    have the device symlink :)
+Hi Pete, thanks for your comments.  I think your concerns about
+maintainability would have been better directed against patch 05,
+where the same thing was done for routines called in process
+context.  In this patch (06), only tasklet actions are changed.
+It is very unlikely that, in the future, changes to the driver will
+cause them to be called from anywhere else than the tasklet.
+That is why I am not worried about future changes causing them
+to be called with local irqs disabled.  So why not make this change
+and save a few cycles?  Or maybe I misunderstood your concerns?
 
-Nice.
+As for patch 05, this changed the following routines:
+udsl_fire_receivers,
+udsl_cancel_send,
+udsl_usb_disconnect.
 
->  - request_firmware_nowait is implemented, please comment on it.
+Patch 14 removed udsl_fire_receivers, so we can forget about it.
+udsl_usb_disconnect is the USB disconnect routine, which I am
+confident will be called in process context for all future time.  So
+this change, while somewhat pointless, seems harmless enough
+to me.  That leaves udsl_cancel_send.  Needless to say this routine
+is called in process context (it is called from udsl_atm_close), but
+you can't tell that from local inspection of udsl_cancel_send.  (Well,
+you can tell now because the spin_lock_irq's document it! :) ).  So
+this is probably the most dangerous change from the point of view
+of maintainability.
 
-Looks sane.
+I have some sympathy for your viewpoint in this case, especially since
+in typical use this routine is called just once!
 
->  - It doesn't abuse the stack any more, or at least not that much :)
+So I am willing to revert the change to udsl_cancel_send, if you like.
 
-Thanks.
+All the best,
 
->  - There is a timeout, changeable from userspace. Feedback on a
->    reasonable default value appreciated.
-
-Is this really needed?  Especially as you now have:
-
->  - Extended 'loading' semantics:
->  	echo 1 > loading:
-> 		start a new load, and flush any data from a previous
-> 		partial load.
-> 	echo 0 > loading:
-> 		finish load.
-> 	echo -1 > loading:
-> 		cancel load and give an error to the driver.
-
-Looks good.
-
-I'd recommend sending the sysfs patches to Pat Mochel.  He's the one to
-take those.
-
-Some minor comments about the code:
-
-> diff --exclude=CVS -urN linux-2.5.orig/drivers/base/Makefile linux-2.5.mine/drivers/base/Makefile
-> --- linux-2.5.orig/drivers/base/Makefile	2003-05-17 20:44:03.000000000 +0200
-> +++ linux-2.5.mine/drivers/base/Makefile	2003-05-17 23:17:21.000000000 +0200
-> @@ -3,4 +3,6 @@
->  obj-y			:= core.o sys.o interface.o power.o bus.o \
->  			   driver.o class.o platform.o \
->  			   cpu.o firmware.o init.o
-> +obj-m			:= firmware_class.o firmware_sample_driver.o \
-> +			   firmware_sample_firmware_class.o
-
-Why make the firmware_class.o always a module?  Shouldn't it only be
-included in the core, if a driver that uses it is selected?
-
-> +static inline struct class_device *to_class_dev(struct kobject *obj)
-> +{
-> +	return container_of(obj,struct class_device,kobj);
-> +}
-> +static inline
-> +struct class_device_attribute *to_class_dev_attr(struct attribute *_attr)
-> +{
-> +	return container_of(_attr,struct class_device_attribute,attr);
-> +}
-
-Move these two to drivers/base/base.h as they shouldn't be defined in
-two different files.
-
-> +int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr);
-> +int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr);
-
-If you need these, add them to include/linux/sysfs.h.
-
-> +struct firmware_priv {
-> +	char fw_id[FIRMWARE_NAME_MAX];
-> +	struct completion completion;
-> +	struct bin_attribute attr_data;
-> +	struct firmware *fw;
-> +	s32 loading:2;
-> +	u32 abort:1;
-
-Why s32 and u32?  Why not just ints for both of them?
-
-> +struct class firmware_class = {
-> +        .name           = "firmware",
-> +	.hotplug        = firmware_class_hotplug,
-> +};
-
-Oops, forgot tabs there...
-
-> +	switch(fw_priv->loading){
-
-Please add a space before the '{'.
-
-> +	case 0:
-> +		if(prev_loading==1)
-
-And a space after the if.  You do this in lots of places.
-
-Other than those very minor things, this looks quite good.
-
-thanks,
-
-greg k-h
+Duncan.

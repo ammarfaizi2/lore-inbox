@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129255AbQKPA7b>; Wed, 15 Nov 2000 19:59:31 -0500
+	id <S129371AbQKPBBV>; Wed, 15 Nov 2000 20:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129371AbQKPA7V>; Wed, 15 Nov 2000 19:59:21 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33809 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129255AbQKPA7R>;
-	Wed, 15 Nov 2000 19:59:17 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011160029.eAG0T9i439695@saturn.cs.uml.edu>
-Subject: Re: test11-pre5 breaks vmware
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 15 Nov 2000 19:29:09 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8uuqmv$el4$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 15, 2000 12:12:15 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129415AbQKPBBL>; Wed, 15 Nov 2000 20:01:11 -0500
+Received: from elvis.davidson.edu ([152.42.62.1]:47630 "EHLO
+	elvis.davidson.edu") by vger.kernel.org with ESMTP
+	id <S129371AbQKPBBJ>; Wed, 15 Nov 2000 20:01:09 -0500
+Message-ID: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu>
+From: "Karnik, Rahul" <rakarnik@davidson.edu>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: VIA IDE bug with WD drive?
+Date: Wed, 15 Nov 2000 19:30:00 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Actually, I know of at least one other shipping commercial
->> product (Sitraka's JProbe Java Profiler) that will require
->> patching because of this change.  It seems unwise to be
->> changing field names in commonly used /proc files like
->> cpuinfo at this point in time. 
->
-> The problem with "flags" is that it no longer contains quite
-> the same information.  Since the semantics of the field changed
-> slightly, changing the field name is sometimes more correct.
+Hi all,
 
-The data sure looks like flags to me. If "flags" referred
-to some specific Intel register, it could be just hex.
-Anyway, breaking apps to make /proc pretty is just bad.
+I get the following error if I try to enable DMA on my Abit KT7 motherboard
+with a VIA2C686 chipset:
+
+hdb: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdb: timeout waiting for DMA
+hda: DMA disabled
+hdb: DMA disabled
+ide0: reset: success
+
+hdb is a Western Digital 136BA 13,6 GB drive and hda is a Maxtor 20GB drive.
+I do not get the error when enabling DMA on the Maxtor drive (hda).
+
+I have tried kernel versions 2.2.16-3 (stock RH7), 2.2.17 and 2.4.0-testx.
+Is this a known bug? Is it solved by the IDE backport patch?
+
+TIA,
+Rahul
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

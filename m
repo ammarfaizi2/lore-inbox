@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263286AbTD0IlC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 04:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTD0IlC
+	id S263850AbTD0Ipa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 04:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbTD0Ipa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 04:41:02 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:62451 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263286AbTD0IlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 04:41:01 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: Oop in 2.5.68-mm2 apply_alternatives
-Date: Sun, 27 Apr 2003 10:53:00 +0200
-User-Agent: KMail/1.5
+	Sun, 27 Apr 2003 04:45:30 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:61966 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263850AbTD0Ip3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 04:45:29 -0400
+Date: Sun, 27 Apr 2003 10:57:11 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: marcelo@conectiva.com.br, vandrove@vc.cvut.cz, hch@infradead.org
 Cc: linux-kernel@vger.kernel.org
-References: <200304271013.47047.schlicht@uni-mannheim.de> <20030427012149.285bbde9.akpm@digeo.com>
-In-Reply-To: <20030427012149.285bbde9.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_1p5q+8rDw3FHgNO";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200304271053.09604.schlicht@uni-mannheim.de>
+Subject: [PATCH][2.4] was: Matrox FB problem in latest 2.4.21-rc1-BK
+Message-ID: <20030427085711.GA181@pcw.home.local>
+References: <20030427083232.GA171@pcw.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030427083232.GA171@pcw.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again,
 
---Boundary-02=_1p5q+8rDw3FHgNO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+OK I found it to be a typo in cset-1.1134 (intel fb fixes) which disabled CFB8.
+It now works with this patch. Christoph, you might also have the typo in your
+tree.
 
-On April 27, Andrew Morton wrote:
-> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
-> > I get following (hand copied) Oops at init when booting 2.5.68-mm2.
->
-> You'll need to delete the `__init' qualifier from the definition
-> of arch/i386/kernel/setup.c:apply_alternatives()
+Cheers,
+Willy
 
-Thank you!
-Sorry I missed the thread from Petr Vandrovec and Rusty Russell before.
-Now I changed __init to __init_or_module as Rusty proposed and it works=20
-fine...
 
-   Thomas Schlichter
---Boundary-02=_1p5q+8rDw3FHgNO
-Content-Type: application/pgp-signature
-Content-Description: signature
+--- linux-2.4.21-rc1-bk1137/drivers/video/Config.in	Sun Apr 27 09:46:41 2003
++++ linux-2.4.21-rc1-fb/drivers/video/Config.in	Sun Apr 27 10:41:01 2003
+@@ -299,7 +299,7 @@
+ 	   "$CONFIG_FB_PMAG_BA" = "y" -o "$CONFIG_FB_PMAGB_B" = "y" -o \
+ 	   "$CONFIG_FB_MAXINE" = "y" -o "$CONFIG_FB_TX3912" = "y" -o \
+ 	   "$CONFIG_FB_SIS" = "y" -o "$CONFIG_FB_NEOMAGIC" = "y" -o \
+-	   "$CONFIG_FB_STI" = "y" -o "$CONFIG_FB_HP300" = "y" -o
++	   "$CONFIG_FB_STI" = "y" -o "$CONFIG_FB_HP300" = "y" -o \
+ 	   "$CONFIG_FB_INTEL" = "y" ]; then
+ 	 define_tristate CONFIG_FBCON_CFB8 y
+       else
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+q5p1YAiN+WRIZzQRAq/jAJ4h3z5k+Dflgc9CrnvpjM98HZ3UMACfUSUz
-ahXXLrOlWt+SBQmVnG22oYM=
-=Z22w
------END PGP SIGNATURE-----
-
---Boundary-02=_1p5q+8rDw3FHgNO--
-
+On Sun, Apr 27, 2003 at 10:32:32AM +0200, Willy TARREAU wrote:
+> Hello,
+> 
+> I just compiled 2.4.21-rc1 + bk cset-1.1137, and now the Matrox framebuffer
+> always starts in 640x480 mode, whatever the mode I tell it. Moreover, fbset
+> returns "ioctl: FBIOPUT_VSCREENINFO: invalid argument". This is on a G400,
+> and still works correctly on 2.4.21-rc1, so the problem really is within the
+> latest BK changes. I don't understand, since this cset doesn't contain matrox
+> changes, and no FB changes except intel's !
+> 
+> This is on a dual Athlon-XP 1800, Asus A7M266-D, 512 MB RAM, G400 video card.
+> 
+> I will try to revert changes one by one, but by the time, here is my epurated
+> .config (# lines removed). I append "video=matrox:vesa:0x107" to the cmdline.

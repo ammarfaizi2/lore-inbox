@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267393AbTAHNCz>; Wed, 8 Jan 2003 08:02:55 -0500
+	id <S267415AbTAHNDh>; Wed, 8 Jan 2003 08:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTAHNCz>; Wed, 8 Jan 2003 08:02:55 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54921
+	id <S267434AbTAHNC7>; Wed, 8 Jan 2003 08:02:59 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55689
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267393AbTAHNCS>; Wed, 8 Jan 2003 08:02:18 -0500
-Subject: Re: small fix for nforce ide chipset driver in 2.5.54
+	id <S267415AbTAHNCp>; Wed, 8 Jan 2003 08:02:45 -0500
+Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Curbo <phoenix@sandwich.net>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030108075539.GA4128@carthage>
-References: <20030108075539.GA4128@carthage>
+To: jeff gerard <jeff-lk@gerard.st>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030108104714.GM268@gage.org>
+References: <20030108104714.GM268@gage.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1042034033.24099.2.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1042034203.24099.6.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 08 Jan 2003 13:53:54 +0000
+Date: 08 Jan 2003 13:56:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-08 at 07:55, James Curbo wrote:
-> so I added a #define for PCI_DEVICE_ID_NVIDIA_NFORCE_IDE as 0x0065. It
-> compiled fine and I am in fact running that kernel now. I would have
-> just sent a patch but I am new to kernel hacking, this is just a one
-> liner and I'm sure you know where it goes better than I do.
+On Wed, 2003-01-08 at 10:47, jeff gerard wrote:
+> hi,
+> 
+> using yellow and green text with a "white" background in menuconfig works all
+> right on console, but it looks like crap under xterm, rxvt, etc. no
+> matter whose fault that is, the trivial patch below makes things more
+> readable without any major change in appearance. applies to 2.4 and 2.5.
+> 
+> now you can stop wondering about support for "lug and play", "mateur radio", 
+> and "elephony" in the linux kernel.
 
-Someone deleted it about 2.5.50, and though I sent in the fix twice Linus
-still hasn't applied it 8(
+Try that on a mono monitor before merging it
 

@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263839AbTDDQlp (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 11:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTDDQk6 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 11:40:58 -0500
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:55446 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263836AbTDDQhU (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:37:20 -0500
-Date: Fri, 4 Apr 2003 11:46:02 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [BUG?][2.5.66] was: Re: How to fix the ptrace flaw without
-  rebooting
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304041148_MC3-1-32FC-A9A9@compuserve.com>
+	id S263848AbTDDQxN (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 11:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbTDDQvy (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 11:51:54 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17943 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263848AbTDDQuD (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:50:03 -0500
+Message-ID: <3E8DBA79.9030700@RedHat.com>
+Date: Fri, 04 Apr 2003 12:01:45 -0500
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+To: nfs-request@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: [NFS] [PATCH] Corrects error patch in nfs_instantiate()
+Content-Type: multipart/mixed;
+ boundary="------------010700050809030902060509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
+This is a multi-part message in MIME format.
+--------------010700050809030902060509
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-.>>    # echo 'x'>/proc/sys/kernel/modprobe
-.>>    bash: /proc/sys/kernel/modprobe: No such file or directory
+In the 2.4.20 kernel, nfs_instantiate() is only calling d_drop() when
+the lookup fails. The dentry also need to be removed from the
+dirent cache when we can't get an inode.... Also, as Trond
+pointed out, ENOMEM should be returned (instead of EACCES)
+when we run out of inodes...
 
-.>Thats not a sufficient fix except for people blindly running the
-.>example exploit
+SteveD.
 
-I know that -- it's why I wrote pt_fix after seeing the problems
-people were having coming up with a stopgap.
+--------------010700050809030902060509
+Content-Type: text/plain;
+ name="linux-2.4.20-nfs-d_drop.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4.20-nfs-d_drop.patch"
 
-BTW putting a "ud2a" instruction at the
-entry point to sys_ptrace causes problems on SMP 2.5.66.
-On uniprocessor, all attempts to use strace fail with SIGSEGV as
-expected, but on SMP only the first time does.  Further
-attempts to use strace result in a zombie strace child process hung
-up at the end of do_exit() (hand copied from sysrq-t):
+--- linux-2.4.20/fs/nfs/dir.c.orig	2003-04-04 06:55:20.000000000 -0500
++++ linux-2.4.20/fs/nfs/dir.c	2003-04-04 08:40:53.000000000 -0500
+@@ -756,7 +756,7 @@ static int nfs_instantiate(struct dentry
+ 				struct nfs_fattr *fattr)
+ {
+ 	struct inode *inode;
+-	int error = -EACCES;
++	int error = 0;
+ 
+ 	if (fhandle->size == 0 || !(fattr->valid & NFS_ATTR_FATTR)) {
+ 		struct inode *dir = dentry->d_parent->d_inode;
+@@ -768,9 +768,12 @@ static int nfs_instantiate(struct dentry
+ 	if (inode) {
+ 		d_instantiate(dentry, inode);
+ 		nfs_renew_times(dentry);
+-		error = 0;
++	} else {
++		error = -ENOMEM;
++		goto out_err;
+ 	}
+ 	return error;
++
+ out_err:
+ 	d_drop(dentry);
+ 	return error;
 
-        do_exit+0x2f7/0x310
-        die+0x7f/0x90
-        do_invalid_op+0x0/0xa0
-        do_invalid_op+0x87/0xa0
-        sys_ptrace+0x0/0x6c0
-        do_page_fault+0x120/0x426
-        error_code+0x2d/0x38
-        sys_ptrace+0x0/0x6c0
-        syscall_call+0x7/0xb
+--------------010700050809030902060509--
 
-2.4.21pre6 handles this OK.
-
---
- Chuck

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbTJJOrI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTJJOrI
+	id S262834AbTJJOiU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbTJJOiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:47:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35795 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262839AbTJJOrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:47:05 -0400
-Date: Fri, 10 Oct 2003 07:37:50 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test7 and HIDBP
-Message-Id: <20031010073750.001ad559.rddunlap@osdl.org>
-In-Reply-To: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60>
-References: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Oct 2003 10:38:20 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:21019 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262834AbTJJOiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 10:38:19 -0400
+Date: Fri, 10 Oct 2003 10:38:15 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: John Bradford <john@grabjohn.com>
+cc: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
+       "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.7 "thoughts"] V0.3
+In-Reply-To: <200310100813.h9A8DjB7000640@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.44.0310101037540.18387-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Oct 2003 18:34:45 +0900 "Norman Diamond" <ndiamond@wta.att.ne.jp> wrote:
+On Fri, 10 Oct 2003, John Bradford wrote:
 
-| OK, I already know that I'm half-blind, but now either I'm 75% blind or else
-| these are facts:
-| 
-| make xconfig has options for HIDBP.
-| make gconfig doesn't.
-| 
-| Of course I want full HID so this might not matter, but I have memories of
-| needing HIDBP a few years ago.
+> > * kernel web server (Interfaced to Roman config tool)
+> 
+> A Gopher server is much more suited to this
 
-I don't know about gconfig, but you don't want or need HIDBP with full HID.
+Also, what good is a Roman config tool if we don't
+export ALL of the statistics in roman numerals ?
 
---
-~Randy
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

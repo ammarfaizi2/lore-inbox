@@ -1,1087 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUCZVXh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 16:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUCZVXh
+	id S261317AbUCZVZx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 16:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbUCZVX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 16:23:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62628 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261158AbUCZVWP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 16:22:15 -0500
-Date: Fri, 26 Mar 2004 13:22:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm4
-Message-Id: <20040326132212.14bac327.akpm@osdl.org>
-In-Reply-To: <20040326131816.33952d92.akpm@osdl.org>
-References: <20040326131816.33952d92.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Mar 2004 16:23:57 -0500
+Received: from 228.17.30.61.isp.tfn.net.tw ([61.30.17.228]:23672 "EHLO
+	cm-msg-02.cmedia.com.tw") by vger.kernel.org with ESMTP
+	id S261317AbUCZVXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 16:23:18 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C41378.88FB1758"
+Subject: RE: cmpci 6.64 released
+Date: Sat, 27 Mar 2004 05:23:08 +0800
+Message-ID: <92C0412E07F63549B2A2F2345D3DB515F7D3F7@cm-msg-02.cmedia.com.tw>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]: cmpci.c
+Thread-Index: AcPoPln518nTM2OeR7+CNxqaVKXWNQn7zVPjANKiOec=
+From: =?big5?B?Qy5MLiBUaWVuIC0gpdCp08Kn?= <cltien@cmedia.com.tw>
+To: <linux-kernel@vger.kernel.org>, <linux-audio-dev@music.columbia.edu>
+Cc: =?big5?B?pqyrSLhzstUtuvSttiBTdXBwb3J0IKtIvWM=?= 
+	<support@cmedia.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc2/2.6.5-rc2-mm4/
-> 
-> ...
-> 
-> Changes since 2.6.5-rc2-mm3:
-> 
-
-For those who missed it (because vger was on the blink) (which is probably
-everyone), here are the 2.6.5-rc2-mm3 release notes:
-
-
-
-
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc2/2.6.5-rc2-mm3/
-
-- A signal handling race fix which breaks the build on everything except x86
-  and ia64.
-
-- Kernel NFS server updates
-
-- CPU scheduler tuning and fixes
-
-- reiserfs update.  This adds ordered-data mode, and makes it the new
-  default.  You can select the old default with `mount -o data=writeback'.
-
-
-
-
-Changes since 2.6.5-rc2-mm2:
-
-
- linus.patch
- bk-driver-core.patch
- bk-i2c.patch
- bk-ieee1394.patch
- bk-input.patch
- bk-netdev.patch
- bk-scsi.patch
- bk-agpgart.patch
- bk-cpufreq.patch
-
- External trees
-
--rename-dma_error.patch
--ppc-fixes.patch
--ppc64-iseries-virtual-cd-fix.patch
--ppc64-iseries-cleanups.patch
--pmac-zilog-uninitialised-var-fix.patch
--bmac-boot-messages-fix.patch
--sh-01-defconfigs.patch
--sh-02-sh-sci.patch
--sh-03-dac-oss-driver.patch
--sh-04-dma-mapping-api.patch
--sh-05-hugetlb.patch
--sh-06-framebuffer.patch
--sh-07-fixes.patch
--proc_misc-compiler-workaround.patch
--fbcon-font-cloning-fix.patch
--kconfig-tpyo-fix.patch
--sysfs-for-framebuffer.patch
--kernel-power-config-URL-fix.patch
--tgafb-build-fix.patch
-
- Merged
-
-+kconfig-url-fixes.patch
-
- Fix various URLs in Kconfig help
-
-+Lindent-devfs.patch
-
- Feed devfs through Lindent
-
-+ppc64-smt-snooze-fix.patch
-+ppc64-mount-fix.patch
-
- PPC64 updates
-
-+ext3-journalled-quotas-export.patch
-
- Export that symbol again
-
-+knfsd-01-oops-fix.patch
-+knfsd-02-auth-error-return-fix.patch
-+knfsd-03-auth_error-formatting-fix.patch
-+knfsd-04-remove-name_lookup_h.patch
-+knfsd-05-mounted_on_fileid-support.patch
-+knfsd-06-UTF8-improvements.patch
-+knfsd-07-auth_gss-export.patch
-+knfsd-08-gss-integrity.patch
-
- NFS server updates
-
-+md-sector_t-fixes.patch
-+md-sector_t-fixes-fix.patch
-
- Teach md about CONFIG_LBD.
-
-+sched-2.6.5-rc2-mm2-A3.patch
-
- sched-domains fixes/tuning/cleanup megarollup
-
--laptop-mode-2.patch
-+laptop-mode-3.patch
-
- Simplified
-
-+signal-race-fix.patch
-+signal-race-fix-ia64.patch
-
- Fix a race in signal handling
-
-+slab-vs-cpu-hotplug-fix.patch
-
- CPU hotplug race fix
-
-+drm-put_user-fixes.patch
-
- Fix direct touches of user memory
-
-+ext3-transaction-batching-fix.patch
-
- Fix ext3 synchronous transaction batching.
-
-+cmpci-warning-fixes.patch
-
- Fix a warning
-
-+si_band-is-long.patch
-
- Make the siginfo si_band field unsigned long.
-
-+add-PCI_DMA_3264BIT-constants.patch
-
- Fix open-coded constants in PCI DMA masking.
-
-+warn-on-mdelay-in-irq-handlers.patch
-
- Warn if someone uses mdelay() in hard IRQ.
-
-+ide_cd-capacity-fix.patch
-
- Might fix misreading of CDROM capacity.
-
-+dont-show-cdroms-in-proc-partitions.patch
-
- Suppress cdroms in /proc/partitions
-
-+reiserfs-nesting-02.patch
-+reiserfs-journal-writer.patch
-+reiserfs-logging.patch
-+reiserfs-jh-2.patch
-+reiserfs-prealloc.patch
-+reiserfs-tail-jh.patch
-+reiserfs-writepage-ordered-race.patch
-+reiserfs-file_write_hole_sd.diff.patch
-+reiserfs-laptop-mode.patch
-+reiserfs-truncate-leak.patch
-+reiserfs-ordered-lat.patch
-+reiserfs-dirty-warning.patch
-+reiserfs_kfree-warning-fix.patch
-
- reiserfs update
-
-+ia64-has-no-floppy.patch
-
- Don't offer the floppy driver on ia64
-
-+export-complete_all.patch
-
- Export complete_all() to modules.
-
--cpu_khz-adjustment-fix.patch
-+cpufreq-adjust-cpu_khz.patch
-
- New version of this patch
-
-+tipar-div-by-zero-fix.patch
-
- Fix a divide-by-zero
-
-+swp_entry-vs-swap_pte-fix.patch
-+swp_entry-vs-swap_pte-fix-fix.patch
-
- Fix masking of swp_entry's
-
-
-
-
-All 264 patches:
-
-
-linus.patch
-
-bk-driver-core.patch
-
-bk-i2c.patch
-
-bk-ieee1394.patch
-
-bk-input.patch
-
-bk-netdev.patch
-
-bk-scsi.patch
-
-bk-agpgart.patch
-
-bk-cpufreq.patch
-
-mm.patch
-  add -mmN to EXTRAVERSION
-
-kgdb-ga.patch
-  kgdb stub for ia32 (George Anzinger's one)
-  kgdbL warning fix
-  kgdb buffer overflow fix
-  kgdbL warning fix
-  kgdb: CONFIG_DEBUG_INFO fix
-  x86_64 fixes
-  correct kgdb.txt Documentation link (against  2.6.1-rc1-mm2)
-
-kgdb-ga-recent-gcc-fix.patch
-  kgdb: fix for recent gcc
-
-kgdboe-netpoll.patch
-  kgdb-over-ethernet via netpoll
-
-kgdboe-configuration-logic-fix.patch
-  kgdboe: fix configuration of MAC address
-
-kgdboe-configuration-logic-fix-fix.patch
-
-kgdboe-non-ia32-build-fix.patch
-
-kgdb-warning-fixes.patch
-  kgdb warning fixes
-
-kgdb-x86_64-support.patch
-  kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-
-kgdb-THREAD_SIZE-fixes.patch
-  THREAD_SIZE fixes for kgdb
-
-vt-cleanup.patch
-  vt.c cleanup
-
-con_open-speedup.patch
-  con_open() speedup/cleanup
-
-ia64-dma_error-fix.patch
-  Subject: Re: 2.6.5-rc2 lots of warnings for dma_error
-  Subject: Re: 2.6.5-rc2 lots of warnings for dma_error
-  From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-  Subject: Re: 2.6.5-rc2 lots of warnings for dma_error
-  From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-  Subject: Re: 2.6.5-rc2 lots of warnings for dma_error
-  From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-  Subject: Re: 2.6.5-rc2 lots of warnings for dma_error
-
-kconfig-url-fixes.patch
-  Fix URLs in Kconfig files
-
-Lindent-devfs.patch
-  feed devfs through Lindent
-
-must-fix.patch
-  must fix lists update
-  must fix list update
-  mustfix update
-
-must-fix-update-5.patch
-  must-fix update
-
-ppc64-d_type-fix.patch
-  ppc64: getdents patch for 32 -> 64 converter
-
-ppc64-smt-snooze-fix.patch
-  ppc64: SMT snooze fix in idle loop
-
-ppc64-mount-fix.patch
-  ppc64: fix mount compat translation bug
-
-ppc64-reloc_hide.patch
-
-quota-locking-fixes.patch
-  Quota locking fixes
-
-quota-locking-fixes-update.patch
-  quota locking fix - new version
-
-ext3-journalled-quotas.patch
-  Journalled quota patch
-
-ext3-journalled-quotas-export.patch
-  ext3-journalled-quotas export
-
-inode-cleanup.patch
-  fs/inode.c list_head cleanup
-
-initramfs-search-for-init-orig.patch
-  search for /init for initramfs boots
-
-invalidate_inodes-speedup.patch
-  invalidate_inodes speedup
-  more invalidate_inodes speedup fixes
-
-cfq-4.patch
-  CFQ io scheduler
-  CFQ fixes
-
-config_spinline.patch
-  uninline spinlocks for profiling accuracy.
-
-pdflush-diag.patch
-
-get_user_pages-handle-VM_IO.patch
-  fix get_user_pages() against mappings of /dev/mem
-
-pci_set_power_state-might-sleep.patch
-
-CONFIG_STANDALONE-default-to-n.patch
-  Make CONFIG_STANDALONE default to N
-
-extra-buffer-diags.patch
-
-CONFIG_SYSFS.patch
-  From: Pat Mochel <mochel@osdl.org>
-  Subject: [PATCH] Add CONFIG_SYSFS
-
-CONFIG_SYSFS-boot-from-disk-fix.patch
-
-selinux-inode-race-trap.patch
-  Try to diagnose Bug 2153
-
-slab-leak-detector.patch
-  slab leak detector
-  mm/slab.c warning in cache_alloc_debugcheck_after
-
-scale-nr_requests.patch
-  scale nr_requests with TCQ depth
-
-truncate_inode_pages-check.patch
-
-local_bh_enable-warning-fix.patch
-
-nfs-01-prepare_nfspage.patch
-  Subject: [PATCH] Prepare NFS asynchronous read/write structures for 	rsize/wsize < PAGE_SIZE
-
-nfs-02-small_rsize.patch
-  Subject: [PATCH] Add asynchronous read support for rsize<PAGE_SIZE
-
-nfs-02-small_rsize-warning-fixes.patch
-  Fix nfs-02-small_rsize ppc64 warnings
-
-nfs-03-small_wsize.patch
-  Subject: [PATCH] Add asynchronous write support for wsize<PAGE_SIZE
-
-nfs-03-small_wsize-warning-fixes.patch
-  Fix ppc64 warnings in nfs-03-small_wsize patch
-
-nfs-04-congestion.patch
-  Subject: [PATCH] Throttle writes when memory pressure forces a flush
-
-nfs-05-unrace.patch
-  Subject: [PATCH] Remove a couple of races in RPC layer...
-
-nfs-06-rpc_throttle.patch
-  Subject: [PATCH] add fair queueing to the RPC scheduler.
-
-nfs-07-rpc_fixes.patch
-  Subject: [PATCH] Close some potential scheduler races in rpciod.
-
-nfs-08-short_rw.patch
-  Subject: [PATCH] Add support for short reads/writes (< rsize/wsize)
-
-knfsd-01-oops-fix.patch
-  knfsd: Return -EOPNOTSUPP when unknown mechanism name encountered
-
-knfsd-02-auth-error-return-fix.patch
-  knfsd: Minor fix to error return when updating server authentication information
-
-knfsd-03-auth_error-formatting-fix.patch
-  knfsd: fix a problem with incorrectly formatted auth_error returns.
-
-knfsd-04-remove-name_lookup_h.patch
-  knfsd: Remove name_lookup.h that noone is using anymore.
-
-knfsd-05-mounted_on_fileid-support.patch
-  knfsd: Add server-side support for the nfsv4 mounted_on_fileid attribute.
-
-knfsd-06-UTF8-improvements.patch
-  knfsd: Improve UTF8 checking.
-
-knfsd-07-auth_gss-export.patch
-  knfsd: Export a symbol needed by auth_gss
-
-knfsd-08-gss-integrity.patch
-  knfsd: Add data integrity to serve rside gss
-
-md-sector_t-fixes.patch
-  md: Convert a number or "unsigned long"s to "sector_t"s
-
-md-sector_t-fixes-fix.patch
-
-SCHED_FIFO-fix.patch
-  Fix posix scheduling violation for !SCHED_OTHER
-
-sched-run_list-cleanup.patch
-  small scheduler cleanup
-
-sched-find_busiest_node-resolution-fix.patch
-  sched: improved resolution in find_busiest_node
-
-sched-domains.patch
-  sched: scheduler domain support
-  sched: fix for NR_CPUS > BITS_PER_LONG
-  sched: clarify find_busiest_group
-  sched: find_busiest_group arithmetic fix
-
-sched-sibling-map-to-cpumask.patch
-  sched: cpu_sibling_map to cpu_mask
-  p4-clockmod sibling_map fix
-  p4-clockmod: handle more than two siblings
-
-sched-domains-i386-ht.patch
-  sched: implement domains for i386 HT
-  sched: Fix CONFIG_SMT oops on UP
-  sched: fix SMT + NUMA bug
-  Change arch_init_sched_domains to use cpu_online_map
-  Fix build with NR_CPUS > BITS_PER_LONG
-
-sched-no-drop-balance.patch
-  sched: handle inter-CPU jiffies skew
-
-sched-directed-migration.patch
-  sched_balance_exec(): don't fiddle with the cpus_allowed mask
-
-sched-domain-debugging.patch
-  sched_domain debugging
-
-sched-domain-balancing-improvements.patch
-  scheduler domain balancing improvements
-
-sched-group-power.patch
-  sched-group-power
-  sched-group-power warning fixes
-
-sched-domains-use-cpu_possible_map.patch
-  sched_domains: use cpu_possible_map
-
-sched-smt-nice-handling.patch
-  sched: SMT niceness handling
-
-sched-local-load.patch
-  sched: add local load metrics
-
-process-migration-speedup.patch
-  Reduce TLB flushing during process migration
-
-sched-2.6.5-rc2-mm2-A3.patch
-  sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-
-fa311-mac-address-fix.patch
-  wrong mac address with netgear FA311 ethernet card
-
-laptop-mode-3.patch
-  laptop mode
-
-pid_max-fix.patch
-  Bug when setting pid_max > 32k
-
-use-soft-float.patch
-  Use -msoft-float
-
-DRM-cvs-update.patch
-  DRM cvs update
-
-drm-include-fix.patch
-
-non-readable-binaries.patch
-  Handle non-readable binfmt_misc executables
-
-binfmt_misc-credentials.patch
-  binfmt_misc: improve calaulation of interpreter's credentials
-
-lightweight-auditing-framework.patch
-  Light-weight Auditing Framework
-
-lightweight-auditing-framework-update-1.patch
-  Light-weight Auditing Framework update
-
-lightweight-auditing-framework-warning-fix.patch
-  lightweight-auditing-framework warning fixes
-
-lightweight-auditing-framework-receive-filter-fixes.patch
-  Light-weight Auditing Framework receive filter fixes
-
-lightweight-auditing-framework-receive-filter-fixes-fix.patch
-  lightweight-auditing-framework-receive-filter-fixes compile fix
-
-selinux-compute_sid-fixes.patch
-  selinux: Audit compute_sid errors
-
-per-node-rss-tracking.patch
-  Track per-node RSS for NUMA
-
-aic7xxx-deadlock-fix.patch
-  aic7xxx deadlock fix
-
-poll-select-longer-timeouts.patch
-  poll()/select(): support longer timeouts
-
-poll-select-range-check-fix.patch
-  poll()/select() range checking fix
-
-poll-select-handle-large-timeouts.patch
-  poll()/select(): handle long timeouts
-
-mixart-build-fix.patch
-  CONFIG_SND_MIXART doesn't compile
-
-add-a-slab-for-ethernet.patch
-  Add a kmalloc slab for ethernet packets
-
-mq-01-codemove.patch
-  posix message queues: code move
-
-mq-02-syscalls.patch
-  posix message queues: syscall stubs
-
-mq-03-core.patch
-  posix message queues: implementation
-
-mq-03-core-update.patch
-  posix message queues: update to core patch
-
-mq-04-linuxext-poll.patch
-  posix message queues: linux-specific poll extension
-
-mq-05-linuxext-mount.patch
-  posix message queues: made user mountable
-
-mq-update-01.patch
-  posix message queue update
-
-mq-security-fix.patch
-  security bugfix for mqueue
-
-queue-congestion-callout.patch
-  Add queue congestion callout
-
-queue-congestion-dm-implementation.patch
-  Implement queue congestion callout for device mapper
-  devicemapper: use rwlock for map alterations
-  Another DM maplock implementation
-
-dm-remove-__dm_request.patch
-  dmL remove __dm_request
-  per-backing dev unplugging
-
-per-backing_dev-unplugging.patch
-  per-backing dev unplugging
-  dm plug buglet
-  per-backing-dev unplugging: fix BIO_RW_SYNC handling
-  per-backing dev unplugging oops fix #42
-  fix md for per-address_space unplugging
-  more backing_dev unplug functions
-  plugged bit
-
-per-backing_dev-unplugging-unplug_delay.patch
-  per address_space unplug: tunesup, kill debug code.
-
-correct-unplugs-on-nr_queued.patch
-  Correct unplugs on nr_queued
-  correct-unplugs-on-nr_queued fix
-
-siimage-update.patch
-  ide: update for siimage driver
-
-ipmi-updates-3.patch
-  IPMI driver updates
-
-ipmi-socket-interface.patch
-  IPMI: socket interface
-
-pcmcia-netdev-ordering-fixes.patch
-  PCMCIA netdevice ordering issues
-
-3ware-update.patch
-  3ware driver update
-
-move-job-control-stuff-tosignal_struct.patch
-  move job control fields from task_struct to signal_struct
-  s390 fix for move-job-control-stuff-tosignal_struct.patch
-  Subject: [PATCH] 2.6.4-mm1 for ia64
-  move-job-control-stuff-tosignal_struct-sparc64-fix
-
-move-job-control-stuff-tosignal_struct-ebtables-fix.patch
-  move-job-control-stuff-tosignal_struct-ebtables-fix
-
-devinet-ctl_table-fix.patch
-  devinet_ctl_table[] null termination
-
-idr-extra-features.patch
-  idr.c: extra features enhancements
-
-shm-do_munmap-check.patch
-
-stack-overflow-test-fix.patch
-  Fix stack overflow test for non-8k stacks
-
-lower-zone-protection-numa-fix.patch
-  Fix page allocator lower zone protection for NUMA
-
-lower-zone-protection-numa-fix-tickle.patch
-
-ext3-fsync-speedup.patch
-  ext3 fsync() and fdatasync() speedup
-
-ext2-fsync-speedup-2.patch
-  speed up ext2 fsync() and fdatasync()
-
-jbd-commit-ordered-fix.patch
-  jbd: fix ordered-data writeout logic
-
-jbd-move-locked-buffers.patch
-  JBD: ordered-data commit cleanup
-
-jbd-move-locked-buffers-leak-fixes.patch
-
-jbd-remove-livelock-avoidance.patch
-  JBD: remove livelock avoidance code in journal_dirty_data()
-
-jbd-iobuf-error-handling-fix.patch
-  jbd: fix I/O error handling
-
-readv-writev-check-fix.patch
-  readv/writev range checking fix
-
-kerneldoc-handle-attributes.patch
-  Fix scripts/kernel-doc to handle __attribute__
-
-slab-alignment-rework.patch
-  slab: updates for per-arch alignments
-  slab-alignment-rework merge fix
-
-set-mod-waiter-before-calling-stop_machine.patch
-  Set mod->waiter Before Calling stop_machine
-
-procfs-comment-fixes.patch
-  fs/proc/proc_tty.c comment fixes
-
-sb_mixer-bounds-checking.patch
-  sb_mixer bounds checking
-
-s_id-null-termination.patch
-  null-terminate sb->s_id
-
-ext23-i_flags-fix.patch
-  ext2&3: use the right i_flags in find_group_orlov()
-
-powernow-k8-update.patch
-  powernow-k8 update
-
-pmdisk-store-handling-fix.patch
-  pmdisk: fix strcmp in sysfs store
-
-file-operations-fcntl.patch
-  add file_operations.fcntl
-
-file-operations-fcntl-tidies.patch
-  file-operations-fcnt tidies
-
-O_LARGEFILE-fix.patch
-  Hide forced O_LARGEFILE from userspace
-
-jgarzik-warnings.patch
-
-sys_time-subtick-correction-fix.patch
-  Fix sys_time() to get subtick correction from the new xtime
-
-bitmap_parse-fix.patch
-  Broken bitmap_parse for ncpus > 32
-
-ver_linux-fix.patch
-  ver_linux fix
-
-codingstyle-fix-for-emacs.patch
-  Update CodingStyle hints for Emacs users.
-
-document-unused-i386-pte-bits.patch
-  document unused pte bits on i386
-
-docbook-sgml-quotes-fix.patch
-  Consistently use quotes for SGML attributes
-
-sgml-close-tags.patch
-  SGML: close tag with ">"
-
-sch_ingress-help-fix.patch
-  fix sch_ingress help
-
-i386-irq-cleanup.patch
-  i386 irq.c ifdef cleanup
-
-firmware-loader-docs-fix.patch
-  Fix firmware loader docs
-
-trivial-patches-in-maintainers.patch
-  Trivial Patch Monkey should be in MAINTAINERS
-
-genksyms-parser-fix.patch
-  Fix genksyms parsing
-
-CONFIG_X86_GENERIC-help-fix.patch
-  CONFIG_X86_GENERIC description fixup
-
-credits-update.patch
-  updating email info in CREDITS
-
-device-h-duplicate-include.patch
-  Kill duplicate #include <linux_ioport.h>
-
-unmapped-CPU-node-number-fix.patch
-  Use valid node number when unmapping x86 CPUs
-
-submitting-trivial-patches.patch
-  Add CC Trivial Patch Monkey to SubmittingPatches
-
-ne2k-pic-build-fix.patch
-  ne2k-pci.c compile fix on ppc[64]
-
-logitech-keyboard-fix.patch
-  2.6.5-rc2 keyboard breakage
-
-doc-changes-update.patch
-  Update Documentation/Changes
-
-signal-race-fix.patch
-  signal handling race fix
-
-signal-race-fix-ia64.patch
-  signal-race-fix: ia64
-
-BLKPREP_KILL-fix.patch
-  Fix BLKPREP_KILL
-
-autofs-dnotify-signal-fix.patch
-  dnotify + autofs may create signal/restart syscall loop
-
-bio_pair_end-fix.patch
-  catch errors when completing bio pairs
-
-posix-timers-thread.patch
-  fix posix-timers to have proper per-process scope
-
-md-merging-fix.patch
-  md: merge_bvec_fn needs to know about partitions.
-
-probe_roms-01-move-stuff.patch
-  i386 probe_roms(): preparation
-
-probe_roms-02-fixes.patch
-  i386 probe_roms(): fixes
-
-make-borken-cdroms-writeable.patch
-  Broken CDROMs default to writeable
-
-noexec-stack.patch
-  Non-Exec stack support
-
-slab-vs-cpu-hotplug-fix.patch
-  Fix slab creation/destruction vs. CPU Hotplug
-
-drm-put_user-fixes.patch
-  i830 DRM missing put_user
-
-ext3-transaction-batching-fix.patch
-  Fix ext3 transaction batching
-
-cmpci-warning-fixes.patch
-  cmpci warning fixes
-
-si_band-is-long.patch
-  siginfo.si_band is long
-
-add-PCI_DMA_3264BIT-constants.patch
-  add PCI_DMA_{64,32}BIT constants
-
-warn-on-mdelay-in-irq-handlers.patch
-  Warn on mdelay() in irq handlers
-
-ide_cd-capacity-fix.patch
-  Fix "access beyond end" of DVD-R
-
-dont-show-cdroms-in-proc-partitions.patch
-  don't show cdroms in /proc/partitions
-
-reiserfs-nesting-02.patch
-  reiserfs: support for nested transactions
-
-reiserfs-journal-writer.patch
-  reiserfs: cleanups
-
-reiserfs-logging.patch
-  reiserfs: logging rework
-
-reiserfs-jh-2.patch
-  reiserfs: data=ordered support
-
-reiserfs-prealloc.patch
-  reiserfs: preallocation support
-
-reiserfs-tail-jh.patch
-  reiserfs: tail repacking fix
-
-reiserfs-writepage-ordered-race.patch
-  reiserfs: fix race with writepage
-
-reiserfs-file_write_hole_sd.diff.patch
-  reiserfs: sparse file handling fix
-
-reiserfs-laptop-mode.patch
-  reiserfs: laptop-mode support
-
-reiserfs-truncate-leak.patch
-  reiserfs: truncate leak fix
-
-reiserfs-ordered-lat.patch
-  reiserfs: scheduling latency improvements
-
-reiserfs-dirty-warning.patch
-  reiserfs: fix dirty-buffer warnings
-
-reiserfs_kfree-warning-fix.patch
-  reiserfs_kfree warning fix
-
-ia64-has-no-floppy.patch
-  ia64: don't prompt for the floppy driver
-
-export-complete_all.patch
-  export complete_all()
-
-cpufreq-adjust-cpu_khz.patch
-  adjuct cpu_khz in response to cpufreq changes
-
-tipar-div-by-zero-fix.patch
-  Fix tipar char driver divide by zero
-
-O_DIRECT-race-fixes-rollup.patch
-  O_DIRECT data exposure fixes
-
-O_DIRECT-ll_rw_block-vs-block_write_full_page-fix.patch
-  Fix race between ll_rw_block() and block_write_full_page()
-
-blockdev-direct-io-speedup.patch
-  blockdev direct-io speedups
-
-dio-aio-fixes.patch
-  direct-io AIO fixes
-
-aio-fallback-bio_count-race-fix-2.patch
-  AIO+DIO bio_count race fix
-  AIO/direct-io oops fix
-
-inode-dirtying-timestamp-fix.patch
-  inode dirtying timestamp fix
-
-radix-tree-tagging.patch
-  radix-tree tags for selective lookup
-
-irq-safe-pagecache-lock.patch
-  make the pagecache lock irq-safe.
-
-tag-dirty-pages.patch
-  tag dirty pages as such in the radix tree
-
-tag-writeback-pages.patch
-  tag writeback pages as such in their radix tree
-
-stop-using-dirty-pages.patch
-  stop using the address_space dirty_pages list
-
-kupdate-function-fix.patch
-  fix the kupdate function
-
-stop-using-io-pages.patch
-  remove address_space.io_pages
-
-stop-using-locked-pages.patch
-  Stop using address_space.locked_pages
-  stop-using-locked-pages fix
-  wait_on_page_writeback_range fix
-
-stop-using-clean-pages.patch
-  stop using address_space.clean_pages
-
-unslabify-pgds-and-pmds.patch
-  revert the slabification of i386 pgd's and pmd's
-
-slab-stop-using-page-list.patch
-  slab: stop using page.list
-
-page_alloc-stop-using-page-list.patch
-  stop using page.list in the page allocator
-
-hugetlb-stop-using-page-list.patch
-  stop using page->list in the hugetlbpage implementations
-
-hugetlb-stop-using-page-list-sh.patch
-
-pageattr-stop-using-page-list.patch
-  stop using page.list in pageattr.c
-
-readahead-stop-using-page-list.patch
-  stop using page.list in readahead
-
-compound-pages-stop-using-lru.patch
-  stop using page->lru in compound pages
-
-arm-stop-using-page-list.patch
-  arm: stop using page->list
-
-m68k-stop-using-page-list.patch
-  switch the m68k pointer-table code over to page->lru
-
-remove-page-list.patch
-  remove page.list
-
-clear_page_dirty_for_io.patch
-  fdatasync integrity fix
-
-block_write_full_page-redirty.patch
-  don't permit background writes to hide dirty buffers
-
-writeback-search-start.patch
-  writeback efficiency and QoS improvements
-
-mpage_writepages-latency-fix.patch
-  Add mpage_writepages() scheduling point
-
-remap-file-pages-prot-2.6.4-rc1-mm1-A1.patch
-  per-page protections for remap_file_pages()
-
-remap-file-pages-prot-ia64-2.6.4-rc2-mm1-A0.patch
-  remap_file_pages page-prot implementation for ia64
-
-remap-file-pages-prot-s390.patch
-  s390: remap-file-pages-prot support
-
-remap-file-pages-prot-sparc64.patch
-  remap-file-pages-prot: sparc64 support
-
-remap-file-pages-prot-ppc64.patch
-  remap-file-pages-page-prot ppc64 support
-
-remap-file-pages-prot-ppc64-more.patch
-
-swp_entry-vs-swap_pte-fix.patch
-  Fix swp_entry_t vs. swap pte.
-
-swp_entry-vs-swap_pte-fix-fix.patch
-
-list_del-debug.patch
-  list_del debug check
-
-oops-dump-preceding-code.patch
-  i386 oops output: dump preceding code
-
-lockmeter.patch
-  lockmeter
-  ia64 CONFIG_LOCKMETER fix
-
-ia32-4k-stacks.patch
-  ia32: 4Kb stacks (and irqstacks) patch
-
-ia32-4k-stacks-remove-44-dependency.patch
-
-4k-stacks-4g4g-interaction-fix.patch
-  fix interaction between 4k stacks and 4g:4g
-
-ia32-4k-stacks-build-fix.patch
-  4k stacks build fix
-
-4k-stacks-in-modversions-magic.patch
-  Add 4k stacks to module version magic
-
-4k-stacks-always-on.patch
-  Permanently enable 4k stacks on ia32
-
-4g-2.6.0-test2-mm2-A5.patch
-  4G/4G split patch
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g/4g usercopy atomicity fix
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g/4g usercopy atomicity fix
-  4G/4G preempt on vstack
-  4G/4G: even number of kmap types
-  4g4g: fix __get_user in slab
-  4g4g: Remove extra .data.idt section definition
-  4g/4g linker error (overlapping sections)
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g4g: show_registers() fix
-  4g/4g usercopy atomicity fix
-  4g4g: debug flags fix
-  4g4g: Fix wrong asm-offsets entry
-  cyclone time fixmap fix
-  4G/4G preempt on vstack
-  4G/4G: even number of kmap types
-  4g4g: fix __get_user in slab
-  4g4g: Remove extra .data.idt section definition
-  4g/4g linker error (overlapping sections)
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g4g: show_registers() fix
-  4g/4g usercopy atomicity fix
-  4g4g: debug flags fix
-  4g4g: Fix wrong asm-offsets entry
-  cyclone time fixmap fix
-  use direct_copy_{to,from}_user for kernel access in mm/usercopy.c
-  4G/4G might_sleep warning fix
-  4g/4g pagetable accounting fix
-  Fix 4G/4G and WP test lockup
-  4G/4G KERNEL_DS usercopy again
-  Fix 4G/4G X11/vm86 oops
-  Fix 4G/4G athlon triplefault
-  4g4g SEP fix
-  Fix 4G/4G split fix for pre-pentiumII machines
-  4g/4g PAE ACPI low mappings fix
-  zap_low_mappings() cannot be __init
-  4g/4g: remove printk at boot
-  4g4g: fix handle_BUG()
-  4g4g: acpi sleep fixes
-
-4g4g-restore-4k-stacks-stuff.patch
-  4g4g: make it play with 4k stacks
-
-4g4g-locked-userspace-copy.patch
-  Do a locked user-space copy for 4g/4g
-
-4g4g-variable-stack-size.patch
-  Fix 4G/4G w/ 8k+ stacks
-
-
-
-
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01C41378.88FB1758
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: quoted-printable
+
+
+Hi,
+
+I update the 46.diff, which is used to patch cmpci.c to support kernel =
+2.6.
+
+The synchronize_irq() has one parameter in kernel 2.6 and none in kernel =
+2.4, however, it still compile well on a i386 kernel 2.6, I discover it =
+on an IA64 system.
+
+Sincerely,
+ChenLi Tien
+
+-----Original Message-----
+From:	C.L. Tien - =A5=D0=A9=D3=C2=A7
+Sent:	2004/3/22 [=ACP=B4=C1=A4@] =A4U=A4=C8 12:24
+To:	linux-kernel@vger.kernel.org; linux-audio-dev@music.columbia.edu
+Cc:	=A6=AC=ABH=B8s=B2=D5-=BA=F4=AD=B6 Support =ABH=BDc
+Subject:	ANN: cmpci 6.64 released
+Hi,
+
+I made many changes for cmpci.c since last release. Changes are made as =
+follows:
+
+1. Fix the S/PDIF out programming bug appeared in 6.16.
+2. Support 8338 4-channel playback.
+3. S/PDIF loop can be used after AC3 playback.
+
+4. Legacy devices (FM, MPU401 and gameport) are served by other modules.
+   Now the code is thinner.
+5. Remove parameters setting from kernel configure menu, they can be
+   set easily when loading the module.
+6. Add spdif_out to output 44.1K/48K 16-bit stereo to S/PDIF out.
+7. Add hw_copy to duplicate audio of front speakers to surround =
+speakers.
+8. Change code to minimum patch for kernel 2.6.
+
+The attached cmpci.c in cmpci-6.64.tar.bz2 is the updated driver, and =
+46.diff is the patch file that needed for kernel 2.6.
+
+The cmpci-patch-2.4.25.tar.bz2 and cmpci-patch-2.6.4.tar.bz2 are patches =
+for kernel 2.4.25/2.6.4 tree patch, they are needed to support legacy =
+devices, otherwise you may ignore them.
+
+The cmi8738.tar.bz2 contains CMI8738, which is modified from CMI8338. It =
+describe the parameters cmi8738 can support.
+
+Please feedback if you have any question, I will post to kernel =
+maintaner if no serious problem with it.
+
+Sincerely,
+ChenLi Tien
+
+
+
+
+
+
+------_=_NextPart_001_01C41378.88FB1758
+Content-Type: application/octet-stream;
+	name="46.diff"
+Content-Transfer-Encoding: base64
+Content-Description: 46.diff
+Content-Disposition: attachment;
+	filename="46.diff"
+
+LS0tIGNtcGNpLmMJTW9uIE1hciAyMiAxMjowNzowMiAyMDA0CisrKyAyLjYuNC9jbXBjaS5jCUZy
+aSBNYXIgMjYgMTU6Mjc6MzIgMjAwNApAQCAtMTUyNSw3ICsxNTI1LDcgQEAKIAl9CiB9CiAKLXN0
+YXRpYyB2b2lkIGNtX2ludGVycnVwdChpbnQgaXJxLCB2b2lkICpkZXZfaWQsIHN0cnVjdCBwdF9y
+ZWdzICpyZWdzKQorc3RhdGljIGlycXJldHVybl90IGNtX2ludGVycnVwdChpbnQgaXJxLCB2b2lk
+ICpkZXZfaWQsIHN0cnVjdCBwdF9yZWdzICpyZWdzKQogewogICAgICAgICBzdHJ1Y3QgY21fc3Rh
+dGUgKnMgPSAoc3RydWN0IGNtX3N0YXRlICopZGV2X2lkOwogCXVuc2lnbmVkIGludCBpbnRzcmMs
+IGludHN0YXQ7CkBAIC0xNTM0LDcgKzE1MzQsNyBAQAogCS8qIGZhc3RwYXRoIG91dCwgdG8gZWFz
+ZSBpbnRlcnJ1cHQgc2hhcmluZyAqLwogCWludHNyYyA9IGlubChzLT5pb2Jhc2UgKyBDT0RFQ19D
+TUlfSU5UX1NUQVRVUyk7CiAJaWYgKCEoaW50c3JjICYgMHg4MDAwMDAwMCkpCi0JCXJldHVybjsK
+KwkJcmV0dXJuIElSUV9OT05FOwogCXNwaW5fbG9jaygmcy0+bG9jayk7CiAJaW50c3RhdCA9IGlu
+YihzLT5pb2Jhc2UgKyBDT0RFQ19DTUlfSU5UX0hMRENMUiArIDIpOwogCS8qIGFja25vd2xlZGdl
+IGludGVycnVwdCAqLwpAQCAtMTU1NCw2ICsxNTU0LDcgQEAKIAkJCWluYihzLT5pb21pZGkpOy8v
+IGR1bW15IHJlYWQKIAl9CiAjZW5kaWYKKwlyZXR1cm4gSVJRX0hBTkRMRUQ7CiB9CiAKIC8qIC0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLSAqLwpAQCAtMjIwNyw3ICsyMjA4LDcgQEAKIAlpZiAoc2l6ZSA+IChQQUdFX1NJ
+WkUgPDwgZGItPmJ1Zm9yZGVyKSkKIAkJZ290byBvdXQ7CiAJcmV0ID0gLUVJTlZBTDsKLQlpZiAo
+cmVtYXBfcGFnZV9yYW5nZSh2bWEtPnZtX3N0YXJ0LCB2aXJ0X3RvX3BoeXMoZGItPnJhd2J1Ziks
+IHNpemUsIHZtYS0+dm1fcGFnZV9wcm90KSkKKwlpZiAocmVtYXBfcGFnZV9yYW5nZSh2bWEsIHZt
+YS0+dm1fc3RhcnQsIHZpcnRfdG9fcGh5cyhkYi0+cmF3YnVmKSwgc2l6ZSwgdm1hLT52bV9wYWdl
+X3Byb3QpKQogCQlnb3RvIG91dDsKIAlkYi0+bWFwcGVkID0gMTsKIAlyZXQgPSAwOwpAQCAtMjI1
+NiwxNCArMjI1NywxNCBAQAogICAgICAgICBjYXNlIFNORENUTF9EU1BfUkVTRVQ6CiAJCWlmIChm
+aWxlLT5mX21vZGUgJiBGTU9ERV9XUklURSkgewogCQkJc3RvcF9kYWMocyk7Ci0JCQlzeW5jaHJv
+bml6ZV9pcnEoKTsKKwkJCXN5bmNocm9uaXplX2lycShzLT5pcnEpOwogCQkJcy0+ZG1hX2RhYy5z
+d3B0ciA9IHMtPmRtYV9kYWMuaHdwdHIgPSBzLT5kbWFfZGFjLmNvdW50ID0gcy0+ZG1hX2RhYy50
+b3RhbF9ieXRlcyA9IDA7CiAJCQlpZiAocy0+c3RhdHVzICYgRE9fRFVBTF9EQUMpCiAJCQkJcy0+
+ZG1hX2FkYy5zd3B0ciA9IHMtPmRtYV9hZGMuaHdwdHIgPSBzLT5kbWFfYWRjLmNvdW50ID0gcy0+
+ZG1hX2FkYy50b3RhbF9ieXRlcyA9IDA7CiAJCX0KIAkJaWYgKGZpbGUtPmZfbW9kZSAmIEZNT0RF
+X1JFQUQpIHsKIAkJCXN0b3BfYWRjKHMpOwotCQkJc3luY2hyb25pemVfaXJxKCk7CisJCQlzeW5j
+aHJvbml6ZV9pcnEocy0+aXJxKTsKIAkJCXMtPmRtYV9hZGMuc3dwdHIgPSBzLT5kbWFfYWRjLmh3
+cHRyID0gcy0+ZG1hX2FkYy5jb3VudCA9IHMtPmRtYV9hZGMudG90YWxfYnl0ZXMgPSAwOwogCQl9
+CiAJCXJldHVybiAwOwpAQCAtMzE3NSw3ICszMTc2LDcgQEAKIAlzZXRfc3BkaWZfbG9vcChzLCAw
+KTsKIAlsaXN0X2RlbCgmcy0+ZGV2cyk7CiAJb3V0YigwLCBzLT5pb2Jhc2UgKyBDT0RFQ19DTUlf
+SU5UX0hMRENMUiArIDIpOyAgLyogZGlzYWJsZSBpbnRzICovCi0Jc3luY2hyb25pemVfaXJxKCk7
+CisJc3luY2hyb25pemVfaXJxKHMtPmlycSk7CiAJb3V0YigwLCBzLT5pb2Jhc2UgKyBDT0RFQ19D
+TUlfRlVOQ1RSTDAgKyAyKTsgLyogZGlzYWJsZSBjaGFubmVscyAqLwogCWZyZWVfaXJxKHMtPmly
+cSwgcyk7CiAK
+
+------_=_NextPart_001_01C41378.88FB1758--

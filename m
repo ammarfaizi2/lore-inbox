@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287895AbSA0OLv>; Sun, 27 Jan 2002 09:11:51 -0500
+	id <S288021AbSA0OVb>; Sun, 27 Jan 2002 09:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288050AbSA0OLl>; Sun, 27 Jan 2002 09:11:41 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:58893 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287895AbSA0OL3>; Sun, 27 Jan 2002 09:11:29 -0500
-Message-ID: <3C540A90.5020904@evision-ventures.com>
-Date: Sun, 27 Jan 2002 15:11:28 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: CRAP in 2.4.18-pre7
-In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288028AbSA0OVW>; Sun, 27 Jan 2002 09:21:22 -0500
+Received: from p5088798F.dip.t-dialin.net ([80.136.121.143]:61058 "EHLO
+	darkside.22.kls.lan") by vger.kernel.org with ESMTP
+	id <S288021AbSA0OVE>; Sun, 27 Jan 2002 09:21:04 -0500
+Date: Sun, 27 Jan 2002 15:20:39 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI: kbd-pw-on/WOL doesn't work anymore with 2.4.14
+Message-ID: <20020127142039.GH1200@darkside.ddts.net>
+In-Reply-To: <20011115184322.A625@darkside.ddts.net> <Pine.LNX.4.33.0111150957220.21985-100000@segfault.osdlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0111150957220.21985-100000@segfault.osdlab.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to notice that the changes in 2.4.18-pre7 to the
-tulip eth driver are apparently causing absymal performance drops
-on my version of this card. Apparently the performance is dropping
-from the expected 10MB/s to about 10kB/s. The only special
-thing about the configuration in question is the fact that it's
-a direct connection between two hosts. Well, more precisely it's
-a cross-over link between my notebook and desktop.
+Holla again :)
 
-Here is an excerpt from the lspci command:
+On Thu, Nov 15, 2001 at 10:05:48AM -0800, Patrick Mochel wrote:
+[I wrote before...]
+> > since 2.4.14 kernel, after issuing 'halt', the Keyboard Power-ON or
+> > Wake-On-LAN doesn't work anymore. I have to switch the machine on
 
-00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
-[Tulip Pass 3] (rev 11)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at d400 [size=128]
-        Region 1: Memory at cfffdf80 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at cff80000 [disabled] [size=256K]
+Is there any hope, that this gets (re-)changed again in the 2.4
+tree sooner or later?
+I'm still using 2.4.13 because of this :)
+I tried everything up to 2.4.17 but it was ever the same since 2.4.14 :)
 
-The motherboard is a SiS735 chip. The card is apparently sharing it's 
-interrupt
-(which I guess could be a cause of the problem) with nearly anything else
-on the system:
+Maybe one could make it a configure-able 'feature'?
+I would happily pre-check a suggested patch, if this would help :)
 
-          CPU0
-  0:     654927          XT-PIC  timer
-  1:      25591          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:        107          XT-PIC  bttv
-  8:     283913          XT-PIC  rtc
- 11:      70064          XT-PIC  usb-ohci, usb-ohci, eth0, SiS 7012
- 12:      39738          XT-PIC  PS/2 Mouse
- 14:     198652          XT-PIC  ide0
- 15:          0          XT-PIC  ide1
-NMI:          0
-ERR:          0
-[root@domek athlon]#
+> > I'm using Asus P3B-F board with 440BX chipset.
+> Wake events for devices that are controlled via the southbridge are
+> considered General Purpose Events (GPEs). On the southbridge there are two
+> banks of registers for GPEs - an enable bank and a status bank.
+[...]
+> Behavior is different because in 2.4.14, all GPE enable bits are cleared
+> just before we enter a sleep state.
 
-Oh well yes I have added the newest version of the i810_audio.c for
-support of the on board sound card - it's working *GREATLY*.
+Well, I've checked the /proc/acpi/gpe for serval different BIOS
+settings - it contains ever the same:
+GPE0: 0f 00
+regardless if I enable or disable Kbd-Pwr-ON or WOL in BIOS.
 
-Please revert the changes in question from the pre-patch.
+[...]
+> Wake-on-Lan is a separate issue. If it's a PCI card with PM capabilities,
+> telling it to generate a wake event means setting a bit in the PCI config
+> space. You can do this with setpci. Why it would stop working, I don't
+> know...
 
+Well, add me, but I know, it does stop working between .13 and .14 :)
+
+
+regards,
+   Mario
+-- 
+<delta> talk softly and carry a keen sword

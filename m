@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266115AbSLOAxq>; Sat, 14 Dec 2002 19:53:46 -0500
+	id <S266125AbSLOA6H>; Sat, 14 Dec 2002 19:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266116AbSLOAxq>; Sat, 14 Dec 2002 19:53:46 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50687 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266115AbSLOAxq>; Sat, 14 Dec 2002 19:53:46 -0500
-Date: Sun, 15 Dec 2002 02:01:37 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Nicolas Pitre <nico@cam.org>
-Cc: "George G. Davis" <davis_g@attbi.com>, Jim Van Zandt <jrv@vanzandt.mv.com>,
-       device@lanana.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Why does the _DoubleTalk card_ not have a major assigned?
-Message-ID: <20021215010137.GF27658@fs.tum.de>
-References: <20021204213325.GG2544@fs.tum.de> <Pine.LNX.4.44.0212041646190.775-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266160AbSLOA6H>; Sat, 14 Dec 2002 19:58:07 -0500
+Received: from 205-158-62-132.outblaze.com ([205.158.62.132]:44231 "HELO
+	ws5-2.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S266125AbSLOA6G>; Sat, 14 Dec 2002 19:58:06 -0500
+Message-ID: <20021215010552.24545.qmail@operamail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212041646190.775-100000@xanadu.home>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Matthew Bell" <mwsb@operamail.com>
+To: kai-germaschewski@uiowa.edu, mwsb@operamail.com
+Cc: linux-parport@torque.net, linux-kernel@vger.kernel.org
+Date: Sun, 15 Dec 2002 09:05:52 +0800
+Subject: Re: [PATCH] Obvious(ish): 3c515 should work if ISAPNP is a module.
+X-Originating-Ip: 195.10.122.134
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 04:50:50PM -0500, Nicolas Pitre wrote:
-> On Wed, 4 Dec 2002, Adrian Bunk wrote:
+Oh bum. I had it that way originally, for that reason, then left for a while, wondered what I was doing and removed the 'superflous' bit.
+
++#if defined(CONFIG_ISAPNP) || (defined (MODULE) && defined (CONFIG_ISAPNP_MODULE))
+
+Matthew Bell
+
+----- Original Message -----
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Date: Sat, 14 Dec 2002 17:11:49 -0600 (CST)
+To: Matthew Bell <mwsb@operamail.com>
+Subject: Re: [PATCH] Obvious(ish): 3c515 should work if ISAPNP is a module.
+
+> On Sun, 15 Dec 2002, Matthew Bell wrote:
 > 
-> > This is indeed true for the Comtrol Rocketport card but there's no
-> > major for the DoubleTalk card (and this is the card I wanted to write
-> > about).
+> > This is valid for at least 2.4.20 and earlier; it works for me, and I
+> > can't see any exceptional reason why it shouldn't work when ISAPNP is a
+> > module.
 > 
-> Maybe because it doesn't need a static major?  For funky hardware like the
-> Doubletalk for which the number of Linux users worldwide can probably be
-> counted on your fingers you can just grep /proc/devices for its allocated
-> major and create the /dev node on the fly.
+> > --- linux-2.4.19.orig/drivers/net/3c515.c       2002-02-25 19:37:59.000000000 +0000
+> > +++ linux-2.4.19/drivers/net/3c515.c    2002-08-03 18:24:05.000000000 +0100
+> > @@ -370,7 +370,7 @@
+> >         { "Default", 0, 0xFF, XCVR_10baseT, 10000},
+> >  };
+> > 
+> > -#ifdef CONFIG_ISAPNP
+> > +#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
+> >  static struct isapnp_device_id corkscrew_isapnp_adapters[] = {
+> >         {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+> >                 ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5051),
+> [...]
+> 
+> It's really only obvious*ish*: If isapnp is a module but 3c515 built-in, 
+> you'll get link errors. The real fix for this is to do
+> 
+> +#ifdef __ISAPNP__
+> 
+> which will get all cases right.
+> 
+> --Kai
+> 
+> 
 
-Thanks for your answer, I knew that this might have been a silly
-question (and my confusing first mail didn't make it better...).
-
-> Nicolas
-
-cu
-Adrian
-
+    
 -- 
+_______________________________________________
+Get your free email from http://mymail.operamail.com
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Powered by Outblaze

@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318219AbSHIJtB>; Fri, 9 Aug 2002 05:49:01 -0400
+	id <S318205AbSHIJ5Z>; Fri, 9 Aug 2002 05:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318220AbSHIJtA>; Fri, 9 Aug 2002 05:49:00 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:2316 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318219AbSHIJtA>; Fri, 9 Aug 2002 05:49:00 -0400
-Date: Fri, 9 Aug 2002 11:52:29 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: no DMA on 2.4.20-pre1 on ICH4 (2.4.19-rc*-ac* did)
-Message-ID: <20020809095229.GC14061@louise.pinerecords.com>
-References: <20020809090523.GB23783@ulima.unil.ch> <1028889530.30103.192.camel@irongate.swansea.linux.org.uk> <20020809093947.GD23783@ulima.unil.ch> <20020809094302.GB14061@louise.pinerecords.com> <20020809095102.GF23783@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020809095102.GF23783@ulima.unil.ch>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 66 days, 9 min
+	id <S318218AbSHIJ5Z>; Fri, 9 Aug 2002 05:57:25 -0400
+Received: from dclient217-162-176-39.hispeed.ch ([217.162.176.39]:25878 "EHLO
+	alder.intra.bruli.net") by vger.kernel.org with ESMTP
+	id <S318205AbSHIJ5Z>; Fri, 9 Aug 2002 05:57:25 -0400
+From: "Martin Brulisauer" <martin@bruli.net>
+To: o.pitzeier@uptime.at, ghoz@sympatico.ca, france@handhelds.org,
+       Jay.Estabrook@compaq.com, pollard@tomcat.admin.navo.hpc.mil
+Date: Fri, 9 Aug 2002 12:00:56 +0200
+Subject: Re: kbuild 2.5.26 - arch/alpha
+Reply-to: martin@bruli.net
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3D53AEF8.16231.E49799D@localhost>
+References: <002b01c23279$84be70a0$1211a8c0@pitzeier.priv.at>
+In-reply-to: <02072318292300.02533@shadowfax.middleearth>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > (2.4.20-pre1-ac1 didn't compil,
-> > What's the error you're getting?
-> As far as I remember (home computer...) it was apm.c which don't compil
-> on UP (I got a P4). I can do it again tonight ;-)
+On 23 Jul 2002, at 18:29, George France wrote:
 
-Right. That one has been reported before.
-Find the fix in the lkml archives.
+> On Tuesday 23 July 2002 14:48, Oliver Pitzeier wrote:
+> >
+> > [ ... ]
+> >
+> > > You have made me aware that we have unintentionally created a
+> > > private sort of club.  I apologize. This will have to be corrected.
+> >
+> > That's not what I expected to read...
+> > I think that this "private club" is not wrong at all... It just would
+> > be nicer if there would be some kind of batch every week where all
+> > alpha users/developers get a mail...
+> 
+> I agree. We should send a weekly e-mail with the current status.
+
+I did not see any news on the alpha/linux topic in lkml lately.
+
+What is the way to keep in touch with the "private club" to help/
+assist in getting further to a running 2.5.x kernel on alpha? I
+am still on 2.4.18 on my test system.
+
+Did anybody use gcc-3.0.x or gcc-3.1? With gcc-3.0.4 I 
+successfully built 2.4.18 but some applications don't run
+correctly (eg. MySQL -> Parser). Is the kernel compilable
+with gcc-3.1? Today I am using gcc-2.95.3 and I think is
+ok; better than egcs (generates less unaligned traps at
+runtime without changing the source).
+
+
+Greetings,
+Martin
+

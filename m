@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTIVVOg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 17:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbTIVVOg
+	id S263319AbTIVVPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbTIVVPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 17:14:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12706 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263282AbTIVVOf (ORCPT
+	Mon, 22 Sep 2003 17:15:22 -0400
+Received: from vena.lwn.net ([206.168.112.25]:49094 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S263319AbTIVVPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 17:14:35 -0400
-Date: Mon, 22 Sep 2003 13:54:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: rjwalsh@durables.org, wangdi@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] kgdb-over-ethernet using netpoll api
-Message-Id: <20030922135456.74890771.akpm@osdl.org>
-In-Reply-To: <20030922184738.GM2414@waste.org>
-References: <20030922184738.GM2414@waste.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 17:15:14 -0400
+Message-ID: <20030922211511.17009.qmail@lwn.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: Attributes in /sys/cdev 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Mon, 22 Sep 2003 22:00:21 BST."
+             <20030922210021.GH7665@parcelfarce.linux.theplanet.co.uk> 
+Date: Mon, 22 Sep 2003 15:15:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
->
->  l-mpm/include/asm/kgdb.h                  |   11 
+Forgive my insistence here...I'm trying to figure out what LDD3 is going to
+say on this subject.  If we get it right, hopefully that will head off a
+lot of questions in the future...
 
-Please don't generate diffs against `include/asm/foo.h': things tend to
-turn rather ugly when the symlink doesn't exist, or points at a different
-architecture's include directory...
+> > If I embed a struct cdev within my own
+> > device structure, how do I know when I can safely free said device
+> > structure?  Will there be a release method that gets exposed at the driver
+> > level, or am I missing something obvious again?
+> 
+> Umm...  Any kobject has ->release() method, obviously.  
 
+Actually, as I read it, each kobject has a kobj_type pointer, and in *that*
+structure is a release() method.  I had found it...:)
 
+The struct cdev which I, as a driver author, can embed within my own
+structure has a kobject in it.  If it's an embedded cdev, its ktype pointer
+will be aimed at ktype_cdev_default, which sets up cdev_default_release()
+as its release function.
+
+If I understand things correctly, as long as references to the embedded
+struct cdev remain, I cannot free the driver-specific structure in which
+the struct cdev is embedded.  So, somehow, I need to know when that struct
+cdev's release() method is called.  I could do that by changing its ktype
+field to my own special type, and remembering to call cdev_purge() in my
+own release function.  Somehow, however, that doesn't feel like the right
+approach.  It seems to me like we need a release() method in struct cdev
+that is called from the struct cdev's own release() method - at least, in
+the non-dynamic case.  No?  What am I missing here?
+
+Thanks,
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

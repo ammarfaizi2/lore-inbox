@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262915AbREaAFD>; Wed, 30 May 2001 20:05:03 -0400
+	id <S262921AbREaAHw>; Wed, 30 May 2001 20:07:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262921AbREaAEx>; Wed, 30 May 2001 20:04:53 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:60118 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S262915AbREaAEs>; Wed, 30 May 2001 20:04:48 -0400
-Message-ID: <3B158AAE.7233959D@idcomm.com>
-Date: Wed, 30 May 2001 18:05:02 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: en
+	id <S262922AbREaAHm>; Wed, 30 May 2001 20:07:42 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5645 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262921AbREaAHb>; Wed, 30 May 2001 20:07:31 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: How to know HZ from userspace?
+Date: 30 May 2001 17:07:22 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9f41vq$our$1@cesium.transmeta.com>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5 Oops at boot
-In-Reply-To: <578120000.991257754@tiny>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+Followup to:  <20010530203725.H27719@corellia.laforge.distro.conectiva>
+By author:    Harald Welte <laforge@gnumonks.org>
+In newsgroup: linux.dev.kernel
 > 
-> On Wednesday, May 30, 2001 03:03:32 PM -0600 "D. Stimits"
-> <stimits@idcomm.com> wrote:
+> Is there any way to read out the compile-time HZ value of the kernel?
 > 
-> [ snip ]
+> I had a brief look at /proc/* and didn't find anything.
 > 
-> > RAMDISK: Compressed image found at block 0
-> > Freeing initrd memory: 249k freed
-> > VFS: Mounted root (ext2 filesystem).
-> > Red Hat nash version 3.0.10 starting
-> > VFS: Mounted root (ext2 filesystem) readonly.
-> > change_root: old root has d_count=2
-> > Trying to unmount old root ... <1>Unable to handle kernel NULL pointer
-> > dereference at virtual address 00000010
-> >  printing eip:
+> The background, why it is needed:
 > 
-> Can't say for sure without the oops decoded through ksymoops, but this
-> looks like the oops in rd_ioctl fixed by 2.4.5-ac3 and higher.  I think the
-> following patch (taken from ac3) will be sufficient:
+> There are certain settings, for example the icmp rate limiting values,
+> which can be set using sysctl. Those setting are basically derived from
+> HZ values (1*HZ, for example).
 > 
-> -chris
+> If you now want to set those values from a userspace program / script in
+> a portable manner, you need to be able to find out of HZ of the currently
+> running kernel.
 > 
-> --- linux.vanilla/fs/block_dev.c        Sat May 26 16:53:17 2001
-> +++ linux.ac/fs/block_dev.c     Mon May 28 16:10:59 2001
-> @@ -603,6 +602,7 @@
->         if (!bdev->bd_op->ioctl)
->                 return -EINVAL;
->         inode_fake.i_rdev=rdev;
-> +       inode_fake.i_bdev=bdev;
->         init_waitqueue_head(&inode_fake.i_wait);
->         set_fs(KERNEL_DS);
->         res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
 
-I'm just verifying that this one change was sufficient to allow booting
-from a hard disk install. I'm still trying to figure out why "make
-bzdisk" is failing, I will try the ac5 patch next.
+Yes, but that's because the interfaces are broken.  The decision has
+been that these values should be exported using the default HZ for the
+architecture, and that it is the kernel's responsibility to scale them
+when HZ != USER_HZ.  I don't know if any work has been done in this
+area.
 
-Thanks,
-D. Stimits, stimits@idcomm.com
-
-PS: Is it possible to read a floppy image directly (for example, after
-dd to a file), and tell if it is overrunning its maximum size limit? For
-example, the partition records always end with 55 AA, is there something
-I can look for to determine if a floppy image has gone too far?
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

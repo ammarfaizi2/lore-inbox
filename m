@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbREURYJ>; Mon, 21 May 2001 13:24:09 -0400
+	id <S261634AbREURaJ>; Mon, 21 May 2001 13:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbREURX7>; Mon, 21 May 2001 13:23:59 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:25363 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S261615AbREURXq>;
-	Mon, 21 May 2001 13:23:46 -0400
-Date: Mon, 21 May 2001 13:24:10 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Allan Duncan <b372050@vus068.trl.telstra.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: compile failure in 2.4.5-pre4
-In-Reply-To: <200105210638.QAA19887@vus068.trl.telstra.com.au>
-Message-ID: <Pine.LNX.4.30.0105211321530.15779-100000@coredump.sh0n.net>
+	id <S261637AbREUR37>; Mon, 21 May 2001 13:29:59 -0400
+Received: from comverse-in.com ([38.150.222.2]:44439 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S261634AbREUR3y>; Mon, 21 May 2001 13:29:54 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678EE8@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Gerhard Mack'" <gmack@innerfire.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "'hardware_howto@reijnen.nl.com'" <hardware_howto@reijnen.nl.com>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        John R Lenton <john@grulic.org.ar>
+Subject: RE: VIA's Southbridge bug: Latest (pseudo-)patch
+Date: Mon, 21 May 2001 13:28:31 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is such a web page, and it's the .html version of the Hardware-HOWTO
+on any LDP mirror.
+Some distribution even print it and include with their booklets accompanying
+the installation CDs.
+Make sure you send case reports about any unsupported crap hardware there...
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i586    -c -o ide-pci.o ide-pci.c
-ide-pci.c: In function `ide_setup_pci_device':
-ide-pci.c:712: parse error before `hwif'
-make[3]: *** [ide-pci.o] Error 1
-
-Yeah, same compile bug.
-
-On Mon, 21 May 101, Allan Duncan wrote:
-
-> This addition for 2.4.5-pre4 has caused a compile failure with a parsing error:
->
-> drivers/ide/ide-pci.c:711
->     		if (!IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530)
->
-> In my case CONFIG_BLK_DEV_CS5530 is not defined.
->
-> --
-> Allan Duncan  b372050@vus068.trl.telstra.com.au  (+613) 9253 6708, Fax 9253 6775
->      (We are just a number)
->  Next Generation Infrastructure Program - Transport Architecture Project
-> Telstra Research Labs, Box 249 Rosebank MDC, Clayton, Victoria, 3169, Australia
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
+> -----Original Message-----
+> What we need is a web page for listing crap hardware so less 
+> people buy
+> it.
+> 
+> 	Gerhard

@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267573AbUGWHhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUGWHr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267573AbUGWHhm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 03:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267574AbUGWHhm
+	id S267436AbUGWHr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 03:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUGWHr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 03:37:42 -0400
-Received: from web52905.mail.yahoo.com ([206.190.39.182]:45458 "HELO
-	web52905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267573AbUGWHhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 03:37:41 -0400
-Message-ID: <20040723073740.76240.qmail@web52905.mail.yahoo.com>
-Date: Fri, 23 Jul 2004 08:37:40 +0100 (BST)
-From: =?iso-8859-1?q?Ankit=20Jain?= <ankitjain1580@yahoo.com>
-Subject: i am working on mmx through gcc
-To: linux-kernel@vger.kernel.org
+	Fri, 23 Jul 2004 03:47:57 -0400
+Received: from web53810.mail.yahoo.com ([206.190.36.205]:59529 "HELO
+	web53810.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267436AbUGWHrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 03:47:55 -0400
+Message-ID: <20040723074755.95284.qmail@web53810.mail.yahoo.com>
+Date: Fri, 23 Jul 2004 00:47:55 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: RE: [PATCH] remove 55 dead prototypes from include/acpi/acdisasm.h
+To: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
 
-well i am not able to understand the basic internal
-functionality of assembly
+>> -----Original Message-----
+>> From: Carl Spalletta [mailto:cspalletta@yahoo.com]
+>> Sent: Wednesday, July 21, 2004 3:36 PM
+>> To: Moore, Robert; lkml
+>> Cc: Brown, Len; acpi-devel@lists.sourceforge.net
+>> Subject: RE: [PATCH] remove 55 dead prototypes from include/acpi/acdisasm.h
 
-suppose i use this command
+>>> --- "Moore, Robert" <robert.moore@intel.com> wrote:
+>>> These aren't nonexistent functions, they are part of the AML
+>>> disassembler (which is not always configured into the kernel)
 
-movb %2,%0
-:"=r"(a),"=r"(b)
-:"r"(x)
+>> With respect, I cannot find the functions listed below anywhere in
+>> the kernel.org kernel.  Where are they?
 
-now it will move the value of x in a but b is also
-initialised with some value
+> --- "Moore, Robert" <robert.moore@intel.com> wrote:
+> Subject: RE: [PATCH] remove 55 dead prototypes from include/acpi/acdisasm.h
+> Date: Thu, 22 Jul 2004 13:48:12 -0700
 
-what is actually happening internally
+> The ACPI CA AML debugger and disassembler haven't been integrated into
+> the kernel yet, but development is underway and almost complete.
 
-ankit
+Yes, it is technically correct to say it "is not always configured into the kernel"
+but it would be equally correct, and less misleading to say it is "never configured
+into the kernel, because the code is not there".
 
-________________________________________________________________________
-Yahoo! Messenger - Communicate instantly..."Ping" 
-your friends today! Download Messenger Now 
-http://uk.messenger.yahoo.com/download/index.html

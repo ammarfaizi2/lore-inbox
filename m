@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278104AbRJRTpb>; Thu, 18 Oct 2001 15:45:31 -0400
+	id <S278105AbRJRTvc>; Thu, 18 Oct 2001 15:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278105AbRJRTpV>; Thu, 18 Oct 2001 15:45:21 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:5127 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S278104AbRJRTpJ>; Thu, 18 Oct 2001 15:45:09 -0400
-Date: Thu, 18 Oct 2001 15:45:42 -0400
-From: Bill Davidsen <davidsen@deathstar.prodigy.com>
-Message-Id: <200110181945.f9IJjg106861@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM test on 2.4.13-pre3aa1 (compared to 2.4.12-aa1 and 2.4.13-pre2aa1)
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011017004839.A15996@earthlink.net>
-Organization: Prodigy http://www.prodigy.com/
+	id <S278108AbRJRTvX>; Thu, 18 Oct 2001 15:51:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44814 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278105AbRJRTvP>; Thu, 18 Oct 2001 15:51:15 -0400
+Date: Thu, 18 Oct 2001 12:50:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fork() failing
+In-Reply-To: <20011018.122525.82054118.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110181247520.1801-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011017004839.A15996@earthlink.net> rwhron@earthlink.net wrote:
->On Wed, Oct 17, 2001 at 04:31:03AM +0200, Andrea Arcangeli wrote:
->> I noticed that anotehr thing that changed between vanilla 2.4.13pre2 and
->> 2.4.13pre3 is the setting of page_cluster on machine with lots of ram.
->> 
->> You'll now find the page_cluster set to 6, that means "1 << 6 << 12"
->> bytes will be paged in at each major fault, while previously only "1 <<
->> 4 << 12" bytes were paged in.
->> 
->> So I'd suggest to try again after "echo 4 > /proc/sys/vm/page-cluster"
->> to see if it makes any difference.
->> 
->> Andrea
->
->You Rule!
->
->The tweak to page-cluster is basically magic for this test.
 
-Out of curiousity, did you play with the 'preempt' patch at all?
+On Thu, 18 Oct 2001, David S. Miller wrote:
+>
+> There are also some platforms using 1-order allocations
+> for page tables as well.
+>
+> But I don't know if I agree with this special casing.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+Well, it's not really any _new_ special casing - we've always had the
+special case for order-0, the patch just expands it to order-1 too.
+
+That said, I think a separate flag saying "don't try too hard", which can
+be used for all orders, including 0 and 1, and just says that "ok, we want
+you to balance things, but if this allocation fails that's not a big
+deal".
+
+So the flag would just always be implicit in allocations of higher orders,
+because big orders are basically impossible to guarantee..
+
+		Linus
+

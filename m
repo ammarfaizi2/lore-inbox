@@ -1,69 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSIZM13>; Thu, 26 Sep 2002 08:27:29 -0400
+	id <S262241AbSIZM3s>; Thu, 26 Sep 2002 08:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262507AbSIZM13>; Thu, 26 Sep 2002 08:27:29 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62223 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262506AbSIZM12>; Thu, 26 Sep 2002 08:27:28 -0400
-Message-Id: <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Serious Problems with PCI and SMP
-Date: Thu, 26 Sep 2002 14:59:14 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020923155355.GA565@cognac.physik.uni-erlangen.de> <200209240828.g8O8Stp24897@Port.imtp.ilyichevsk.odessa.ua> <20020926090754.GA22448@cognac.physik.uni-erlangen.de>
-In-Reply-To: <20020926090754.GA22448@cognac.physik.uni-erlangen.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S262508AbSIZM3s>; Thu, 26 Sep 2002 08:29:48 -0400
+Received: from hitpro.hitachi.co.jp ([133.145.224.7]:35060 "EHLO
+	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id <S262241AbSIZM3q>; Thu, 26 Sep 2002 08:29:46 -0400
+Message-Id: <5.0.2.6.2.20020926182552.0506a898@sdl99c>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2-Jr1
+Date: Thu, 26 Sep 2002 21:36:52 +0900
+To: robert@schwebel.de, lkst-develop@lists.sourceforge.jp
+From: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
+Subject: Re: [Lkst-develop] Re: Release of LKST 1.3
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020919055843.GC10773@pengutronix.de>
+References: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
+ <5.0.2.6.2.20020918210036.05287a40@sdl99c>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 September 2002 07:07, Norbert Nemec wrote:
+Hello, Robert
 
-BTW, for lkml readers: this was in original post:
-=================================================
-We have a number of machines with identical dual PPro 200 mainboards. They all
-run fine on 2.2.13 kernels. Trying 2.4.18,2.4.19,2.4.20-pre7 and even 2.2.19, 
-the same problem shows up:
-With SMP activated in the kernel, I get the boot-messages
----------
-PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI BIOS passed nonexistent PCI bus 0!
-PCI BIOS passed nonexistent PCI bus 0!
-Limiting direct PCI/PCI transfers.
----------
-Afterwards, everything runs fine, except that PCI seems to be only half-way
-functional: network-cards don't give any error messages but behave just
-as if the cable was disconnected scsi-cards give strange errors (don't recall
-what exactly)
-With SMP disabled in the kernel, everything works just fine.
-================================
-> > Post your .config and dmesg
+   Thank you for your inquiry. I apologize for the delay in replying.
+
+   Let me first explain the background of our development work.
+   We began development of the Linux Kernel State Tracer (LKST)
+in response to a domestic need to improve Reliability, Availability,
+and Serviceability (RAS) with respect to enterprise systems.
+The following requirements were applied to LKST:
+
+   * Capable of handling a variety of information about system errors.
+   * Little trace overhead (or To control trace overhead)
+   * Short development time
+
+   As we had to achieve a short development time, we elected to
+develop LKST using our own methodology (based on know-how of
+tracer development that we carried out for other OS's) different
+from other known tools such as LTT.
+# This is not to say that we developed all functions on our own.
+#LKST at present connects with Kernel Hooks (GKHI) and LKCD.
+
+   Consequently, LKST, which is oriented to enterprise systems,
+has the following features different from those of LTT.
+# These LKST features are also being enhanced at this time.
+
+(1) Little overhead and good scalability when tracing on a large-scale
+    SMP system
+   * To make lock mechanism overhead as little as possible, we
+      designed that the buffers are not shared among CPUs.
+
+(2) Easy to extend/expand the function (User-based extendibility)
+   * Without recompiling kernel, user can change/add/modify the kind
+     of events and information to be recorded at anytime.
+      For example, LKST usually traces very few events for the purpose
+    of good performance.  Once the kernel get into the particular status
+    that user specified, LKST will trace and record more detail information.
+
+(3) Preservation of trace information
+   * Recovery of trace information collected at the time of a system crash
+     in connection with LKCD.
+   * Saving of specific event information during tracing.
+      For example, switching to another buffer after the occurrence of
+     a specific event enables the information on that event to be left
+     in the previous buffer.
+
+(4) Collection of even more kernel event information
+   * Information on more than 50 kernel events can be collected for
+     kernel debugging.
+
+  The demand for RAS functions in Linux should grow in the years to come.
+It is our hope that LKST becomes one means of implementing such functions.
+
+
+Best regards,
+----------------
+  Yumiko Sugita
+  Hitachi,Ltd., Systems Development Laboratory
+
+
+At 07:58 02/09/19 +0200, Robert Schwebel wrote:
+>On Wed, Sep 18, 2002 at 09:20:55PM +0900, Yumiko Sugita wrote:
+> > I'd like to announce publication of Linux Kernel State Tracer (LKST)
+> > 1.3, which is a tracer for Linux kernel.
 >
-> Here they are. In this version, CONFIG_PCI_GOBIOS=y is set. Switching to
-> CONFIG_PCI_GODIRECT=y or CONFIG_PCI_GOANY=y only adds the line
-> ----
->  PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
-> +PCI: Using configuration type 1
->  PCI: Probing PCI hardware
-> ----
-> without any further difference.
+>Can you tell us what's the difference between this and the Linux Trace
+>Toolkit (LTT)?
+>
+>Robert
+>--
+>  Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+>  Pengutronix - Linux Solutions for Science and Industry
+>    Braunschweiger Str. 79,  31134 Hildesheim, Germany
+>    Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+>     Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+>_______________________________________________
+>Lkst-develop mailing list
+>Lkst-develop@lists.sourceforge.jp
+>http://lists.sourceforge.jp/cgi-bin/mailman/listinfo/lkst-develop
 
-> .config:
-> ---------------------------
-> #
-> # Processor type and features
-> #
-> CONFIG_M686=y
-
-Can you try to boot 486-optimized kernel?
-Can you remove one CPU and run SMP kernel on UP configuration?
---
-vda

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSE1PdI>; Tue, 28 May 2002 11:33:08 -0400
+	id <S316747AbSE1Pml>; Tue, 28 May 2002 11:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSE1PdH>; Tue, 28 May 2002 11:33:07 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52214 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316822AbSE1PdG>; Tue, 28 May 2002 11:33:06 -0400
-Subject: Re: O(1) count_active_tasks()
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@transmeta.com
-In-Reply-To: <20020526230319.GN14918@holomorphy.com>
+	id <S316825AbSE1Pmk>; Tue, 28 May 2002 11:42:40 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30203 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316747AbSE1Pmk>; Tue, 28 May 2002 11:42:40 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 08:33:04 -0700
-Message-Id: <1022599985.20316.32.camel@sinai>
+Date: 28 May 2002 17:45:18 +0100
+Message-Id: <1022604318.4123.114.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-05-26 at 16:03, William Lee Irwin III wrote:
+On Tue, 2002-05-28 at 16:11, Roman Zippel wrote:
+> I used Google: "fsmlabs OR rtlinux site:redhat.com" (almost only hits on
+> mailing lists).
+> But isn't it a strange partnership, if I can only read about it in some
+> old news? I couldn't find any rtlinux related product.
 
-> Thanks, I took some time to go over it and make it so, as I don't
-> really do scheduling, I just needed a statistic there for this. It's
-> not actually claimed to have any optimization value (though it may as
-> a side-effect), it only addresses a pet peeve of mine. I originally
-> tried avoiding sched.c by having set_current_state() tick per-cpu
-> counters but that caused enormous code bloat (or did as I wrote it).
+No its not a strange partnership at all. Perhaps you should spend your
+time thinking instead of insinuating everyone on the planet who isnt
+working for rtai is a liar ?
 
-Yah, set_current_state is inlined so it would lead to a bit of code
-bloat.
+Here is some of the press coverage on it
+http://www.eetimes.com/story/OEG20010927S0074
 
-> This is an approximate method. I did not collect detailed statistics on
-> how widely it varied from the prior method, though I did manually check
-> the results against mainline for large variations or gross unfaithfulness.
-> If you'd like to hold off on this until I do so, that's fine. I can get
-> back to my SMP targets Tuesday and follow up then.
-
-If I get a chance, I'll run some tests on my dual 2.5 machine and see if
-they match.  But I would not let that stop anything ... this is mergable
-in 2.5 imo.
-
-One thing I notice is the patch only increments in one case:
-
-	TASK_RUNNING -> TASK_UNINTERRUPTIBLE
-
-whether we ever go -> TASK_UNINTERRUPTIBLE from a state other than
-running I am unsure.
-
-> Going back and looking at it, weaker memory consistency models may want
-> the increment/decrement to be atomic operations, which would probably
-> want some migration code to keep the counters positive. I can arrange
-> that for a follow-up as well.
-
-Personally, I would not worry about this.  This is only a statistic
-after all - I am more interested in whether we are properly accounting
-for everything in general.  Screw weak memory consistency computers <g>
-- they need to fix nr_running too, anyhow.
-
-	Robert Love
+Alan
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbUKJEz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbUKJE6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUKJEz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 23:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUKJEz0
+	id S261882AbUKJE6u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 23:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUKJE6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 23:55:26 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:54951 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261879AbUKJEzP
+	Tue, 9 Nov 2004 23:58:11 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:57255 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261882AbUKJEzY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 23:55:15 -0500
-Date: Wed, 10 Nov 2004 13:55:11 +0900
-Message-ID: <m23bziqp5c.wl%ysato@users.sourceforge.jp>
+	Tue, 9 Nov 2004 23:55:24 -0500
+Date: Wed, 10 Nov 2004 13:55:23 +0900
+Message-ID: <m2y8hapakk.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] H8/300 build error fix
+Subject: [PATCH] fix "extern inline"
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,49 +23,29 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because reference of fls becomes error.
-
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff -Nru a/include/asm-h8300/bitops.h b/include/asm-h8300/bitops.h
---- a/include/asm-h8300/bitops.h	2004-11-10 01:06:35 +09:00
-+++ b/include/asm-h8300/bitops.h	2004-11-10 01:06:35 +09:00
-@@ -6,7 +6,6 @@
-  * Copyright 2002, Yoshinori Sato
+===== include/linux/bitops.h 1.6 vs edited =====
+--- 1.6/include/linux/bitops.h	2004-05-03 05:04:34 +09:00
++++ edited/include/linux/bitops.h	2004-11-08 15:36:48 +09:00
+@@ -42,7 +42,7 @@
+  * fls: find last bit set.
   */
  
--#include <linux/kernel.h>
- #include <linux/config.h>
- #include <linux/compiler.h>
- #include <asm/byteorder.h>	/* swab32 */
-@@ -181,6 +180,8 @@
- #define find_first_zero_bit(addr, size) \
- 	find_next_zero_bit((addr), (size), 0)
- 
-+#define ffs(x) generic_ffs(x)
-+
- static __inline__ unsigned long __ffs(unsigned long word)
+-extern __inline__ int generic_fls(int x)
++static __inline__ int generic_fls(int x)
  {
- 	unsigned long result;
-@@ -195,9 +196,6 @@
- 	return result;
+ 	int r = 32;
+ 
+@@ -71,7 +71,7 @@
+ 	return r;
  }
  
--#define ffs(x) generic_ffs(x)
--#define fls(x) generic_fls(x)
--
- static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+-extern __inline__ int get_bitmask_order(unsigned int count)
++static __inline__ int get_bitmask_order(unsigned int count)
  {
- 	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
-@@ -406,5 +404,7 @@
- #define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
- 
- #endif /* __KERNEL__ */
-+
-+#define fls(x) generic_fls(x)
- 
- #endif /* _H8300_BITOPS_H */
-
+ 	int order;
+ 	
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>

@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbULOQnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbULOQp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbULOQnI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 11:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbULOQmR
+	id S262386AbULOQp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 11:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbULOQp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 11:42:17 -0500
-Received: from hqemgate03.nvidia.com ([216.228.112.143]:62217 "EHLO
-	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
-	id S262385AbULOQkI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 11:40:08 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 15 Dec 2004 11:45:59 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:15241 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262386AbULOQok
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 11:44:40 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Date: Wed, 15 Dec 2004 11:44:38 -0500
+User-Agent: KMail/1.7
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>
+References: <20041213002751.GP16322@dualathlon.random> <200412142159.23488.gene.heskett@verizon.net> <20041215091741.GA16322@dualathlon.random>
+In-Reply-To: <20041215091741.GA16322@dualathlon.random>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: RAID1 + LVM not detected during boot on 2.6.9
-Date: Wed, 15 Dec 2004 08:40:03 -0800
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0033AE3D6@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RAID1 + LVM not detected during boot on 2.6.9
-thread-index: AcTiwd++r3suIgi6RkaUTNuZIqlNtwAAlpkw
-From: "Stephen Warren" <SWarren@nvidia.com>
-To: "Aleksandar Milivojevic" <amilivojevic@pbl.ca>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 Dec 2004 16:40:12.0902 (UTC) FILETIME=[BF96E060:01C4E2C4]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412151144.38785.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 10:44:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linux-kernel-owner@vger.kernel.org 
-> I've installed one machine (Fedora Core 3 distro) with /boot 
-> on  RAID1 device (md0) and all other filesystems on LVM
-> volumes located on another  RAID1 device (md1).  There was
-> only one volume group, with couple of volumes for file
-> systems (one of them was root file system).
+On Wednesday 15 December 2004 04:17, Andrea Arcangeli wrote:
+>On Tue, Dec 14, 2004 at 09:59:23PM -0500, Gene Heskett wrote:
+>> Which way?  I was running quite fast here, several minutes an
+>
+>In the future, if I disable the logic it goes in the past at the
+> same speed it was previously going in the future.
+>
+>> hour, then I discovered the tickadj command, found its default
+>> was 10000, and started reducing it.  At 9926, I'm staying within
+>> a sec an hour now.  I have no idea when this started, I didn't
+>
+>That seems quite an hack, note I did an hack too and it make the
+> drift much smaller (it gets manageable). But our modifications are
+> wrong.
+>
+>The point is that this didn't happen with HZ=100, so it's not that
+>tickadj is wrong, it's the tick adjustment code that doesn't work.
+>
+The HZ=1000 is the culprit?
 
-I have this exact same setup, and it's working great.
+>You may want to recompile your kernel with HZ=100 and verify it goes
+>away (I didn't verify myself, but I verified the max irq latency I
+> get is 4msec, and in turn I'm sure HZ=100 would fix it
 
-You do have the correct partition types setup, right? The underlying
-RAID partitions should be type 0xfd (Linux raid autodetect). Also, where
-are your disks attached - are you really sure that the kernel has
-drivers for your host controller in the initrd - perhaps you should edit
-the linuxrc (I think) script file to cat the content of some /proc files
-to prove that the disks are known to the kernel. Perhaps even add sfdisk
-to the initrd, and have it dump out the partition tables etc. at boot
-time.
+Humm, that might also reduce the obviousness of the irq activity in
+the audio, there are times when I can hear it very plainly while a
+low level audio src is in use, like the sub-millivolt levels that come
+out of my Hauppauge WinTV-GO+FM card.   I keep having to turn the
+master down to almost zip in order to keep it from sounding like I
+have mice chewing in the walls, but its coming from the speakers. 
+Onboard AC-97 audio of course.  Crappy stuff...   Humm, 100HZ would
+translate to 10 millisecond intervals.  If you had a 4 millisecond 
+latency,
+that would be spread over 4 of the 1000 hz interrupts.  That sounds
+rather confusing to the service routine I imagine.
 
-For example, fdisk says this about one of my disks:
-
-SEVERN:~$ sudo fdisk /dev/hdg
-
-The number of cylinders for this disk is set to 30515.
-There is nothing wrong with that, but this is larger than 1024,
-and could in certain setups cause problems with:
-1) software that runs at boot time (e.g., old versions of LILO)
-2) booting and partitioning software from other OSs
-   (e.g., DOS FDISK, OS/2 FDISK)
-
-Command (m for help): 
-
-Disk /dev/hdg: 251.0 GB, 251000193024 bytes
-255 heads, 63 sectors/track, 30515 cylinders
-Units = cylinders of 16065 * 512 = 8225280 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/hdg1   *           1          13      104391   fd  Linux raid
-autodetect
-/dev/hdg2              14       30226   242685922+  fd  Linux raid
-autodetect
-/dev/hdg3           30227       30357     1052257+  82  Linux swap
+I'll do that just for grins & report back.
 
 -- 
-Stephen Warren, Software Engineer, NVIDIA, Fort Collins, CO
-swarren@nvidia.com        http://www.nvidia.com/
-swarren@wwwdotorg.org     http://www.wwwdotorg.org/pgp.html
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

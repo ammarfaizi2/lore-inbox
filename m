@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRCGUfx>; Wed, 7 Mar 2001 15:35:53 -0500
+	id <S131184AbRCGUhP>; Wed, 7 Mar 2001 15:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131184AbRCGUfp>; Wed, 7 Mar 2001 15:35:45 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:5618 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S131177AbRCGUfg>; Wed, 7 Mar 2001 15:35:36 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103072035.f27KZ5V20201@webber.adilger.net>
-Subject: Re: [linux-lvm] EXT2-fs panic (device lvm(58,0)):
-To: Linux kernel development list <linux-kernel@vger.kernel.org>,
-        Linux FS development list <linux-fsdevel@vger.kernel.org>
-Date: Wed, 7 Mar 2001 13:35:05 -0700 (MST)
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131193AbRCGUhG>; Wed, 7 Mar 2001 15:37:06 -0500
+Received: from colorfullife.com ([216.156.138.34]:6412 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131184AbRCGUgt>;
+	Wed, 7 Mar 2001 15:36:49 -0500
+Message-ID: <003601c0a746$57ab5750$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Jes Sorensen" <jes@linuxcare.com>
+Cc: "Mark Hemment" <markhe@veritas.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0103011800460.11260-100000@alloc> <3A9EA940.CB82665C@colorfullife.com> <d3lmqhny9w.fsf@lxplus015.cern.ch>
+Subject: Re: Q: explicit alignment control for the slab allocator
+Date: Wed, 7 Mar 2001 21:32:45 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Clark wrote (to the moderated linux-lvm@sistina.com list):
-> Not sure if this is a LVM problem or a ext2fs problem. It is happening
-> with the 2.4.2 kernel and the 0.9 release of the LVM user tools.  
-> 
-> kernel: Kernel panic: EXT2-fs panic (device lvm(58,0)):
-> load_block_bitmap: block_group >= groups_count - block_group = 131071,
-> groups_count = 24
-> 
-> There is a 1gig+ file on the filesystem, and most operations on it seem
-> to bring about the error.  
+From: "Jes Sorensen" <jes@linuxcare.com>
+> >>>>> "Manfred" == Manfred Spraul <manfred@colorfullife.com> writes:
+>
+> Manfred> Mark Hemment wrote:
+> >> As no one uses the feature it could well be broken, but is that a
+> >> reason to change its meaning?
+>
+> Manfred> Some hardware drivers use HW_CACHEALIGN and assume certain
+> Manfred> byte alignments, and arm needs 1024 byte aligned blocks.
+>
+> Isn't that just a reinvention of SMP_CACHE_BYTES? Or are there
+> actually machines out there where the inbetween CPU cache line size
+> differs from the between CPU and DMA controller cache line size?
+>
+No.
 
-Basically, the error you are getting is impossible.  In all calls to
-load_block_bitmap(), the "group number" is either checked directly, or
-"block" (which is what is used to find "group number") is checked to be <
-s_blocks_count, so by inference should return a valid group number.
+First of all HW_CACHEALIGN aligns to the L1 cache, not SMP_CACHE_BYTES.
+Additionally you sometimes need a guaranteed alignment for other
+problems, afaik ARM needs 1024 bytes for some structures due to cpu
+restrictions, and several usb controllers need 16 byte alignment.
 
-The only remote possibility is in ext2_free_blocks() if block+count
-overflows a 32-bit unsigned value.  Only 2 places call ext2_free_blocks()
-with a count != 1, and ext2_free_data() looks to be OK.  The other
-possibility is that i_prealloc_count is bogus - that is it!  Nowhere
-is i_prealloc_count initialized to zero AFAICS.
+And some callers of kmem_cache_create() want SMP_CACHE_BYTES alignment,
+other callers (and DaveM) expect L1_CACHE_BYTES alignment.
 
-In most cases, this would return a "freeing blocks not in datazone" error,
-but depending on the values, it may just pass the test.  This may also
-be the cause of the errors people have previously reported where it
-looks like they are freeing block numbers which look like ASCII data.
-This would happen in ext2_discard_prealloc() when we have a value for
-i_prealloc_count != 0 (easy) and i_prealloc_block points to some valid
-block number (less likely, but moreso on a large filesystem).
+It's more a API clarification than a real change.
 
-Cheers, Andreas
-==========================================================================
-diff -ru linux/fs/ext2/ialloc.c.orig linux/fs/ext2/ialloc.c
---- linux/fs/ext2/ialloc.c.orig	Fri Dec  8 18:35:54 2000
-+++ linux/fs/ext2/ialloc.c	Wed Mar  7 12:22:11 2001
-@@ -432,6 +444,8 @@
- 	inode->u.ext2_i.i_file_acl = 0;
- 	inode->u.ext2_i.i_dir_acl = 0;
- 	inode->u.ext2_i.i_dtime = 0;
-+	inode->u.ext2_i.i_prealloc_count = 0;
- 	inode->u.ext2_i.i_block_group = i;
- 	if (inode->u.ext2_i.i_flags & EXT2_SYNC_FL)
- 		inode->i_flags |= S_SYNC;
-diff -ru linux/fs/ext2/inode.c.orig linux/fs/ext2/inode.c
---- linux/fs/ext2/inode.c.orig	Tue Jan 16 01:29:29 2001
-+++ linux/fs/ext2/inode.c	Wed Mar  7 12:05:47 2001
-@@ -1048,6 +1038,8 @@
- 			(((__u64)le32_to_cpu(raw_inode->i_size_high)) << 32);
-	}
- 	inode->i_generation = le32_to_cpu(raw_inode->i_generation);
-+	inode->u.ext2_i.i_prealloc_count = 0;
- 	inode->u.ext2_i.i_block_group = block_group;
- 
- 	/*
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I think it can wait until 2.5:
+drivers should use pci_alloc_consistent_pool(), not
+kmalloc_aligned()+virt_to_bus(), arm can wait and the ability to choose
+between SMP and L1 alignment is not that important.
+
+--
+    Manfred
+

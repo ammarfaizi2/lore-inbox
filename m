@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbUCWAk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 19:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUCWAk5
+	id S261748AbUCWAqF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 19:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUCWAqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 19:40:57 -0500
-Received: from av7-1-sn1.fre.skanova.net ([81.228.11.113]:51686 "EHLO
-	av7-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261708AbUCWAk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 19:40:56 -0500
-Date: Tue, 23 Mar 2004 01:40:49 +0100
-From: Samuel Rydh <samuel@ibrium.se>
-To: linux-kernel@vger.kernel.org
-Subject: ide-cd bug (MODE_SENSE/CDROM_SEND_PACKET)
-Message-ID: <20040323004049.GA931@ibrium.se>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Mon, 22 Mar 2004 19:46:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32158 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261728AbUCWAps
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 19:45:48 -0500
+Date: Tue, 23 Mar 2004 00:45:43 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH][RELEASE] megaraid 2.10.2 Driver
+Message-ID: <20040323004543.GP25059@parcelfarce.linux.theplanet.co.uk>
+References: <0E3FA95632D6D047BA649F95DAB60E570230C77B@exa-atlanta.se.lsil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C77B@exa-atlanta.se.lsil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 22, 2004 at 07:02:39PM -0500, Bagalkote, Sreenivas wrote:
+> >>For upstream, this should just be CONFIG_COMPAT I presume.
+> 
+> For 2.6 kernels, this would be just CONFIG_COMPAT. Or have I
+> misunderstood your comment?
+> 
+> >>I don't see how this construct will work in all cases.  Hence my 
+> >>CONFIG_COMPAT command above.
+> 
+> We saw the need for ioctl compatibility in __x86_64__ cases so far.
+> What other cases will this not work in?
 
-If a MODE_SENSE(6) command is sent to an IDE cd using the CDROM_SEND_PACKET
-ioctl, then the kernel freezes solidly. To reproduce this, one can take the
-SCSI cmd [1a 08 31 00 10 00] and a 16 byte data buffer.
+I don't think you understand how CONFIG_COMPAT works.  x86-64 defines it
+when it wants it:
 
-After some bug hunting, I found out that the following is what happens:
+config COMPAT
+        bool
+        depends on IA32_EMULATION
+        default y
 
-- ide-cd recognizes that MODE_SENSE(6) isn't supported and tries
-to abort the request from ide_cdrom_prep_pc by returning BLKPREP_KILL.
+just like every other architecture.  Just use
+#ifdef CONFIG_COMPAT
+	... 32bit compat code ...
+#endif
 
-- in elv_next_request(), the kill request is handled by
-the following code:
+and everything will be fine.  Please don't introduce this stupid
+unnecessary LSI_CONFIG_COMPAT.  That just makes people say "what the
+fuck are they doing?".
 
-	while (end_that_request_first(rq, 0, rq->nr_sectors))
-		;
-	end_that_request_last(rq);
+> >>Bug -- always set dma mask.  Do not conditionally _not_ call 
+> >>pci_set_dma_mask(), for the 64-bit case.
+> 
+> The code does not __not__ call pci_set_dma_mask() conditionally.
+> It is always calling with either 64-bit or 32-bit mask.
+> 
+> >>ummmm what???    uxferaddr is u32.  why are you casting it to a pointer?
+> 
+> Both copy_to_user and copy_from_user take pointers, don't they?
 
-The while loop never exits. The end_that_request_first() doesn't do anything
-since rq->nr_sectors is 0; it just returns "not-done" after handling those 0
-bytes (rq->bio->bi_size is 16).
+So you can only copy to the bottom 4GB of user address space?  That
+seems like a recipe for disaster.  Particularly on ia64.
 
-I'm not quite sure how to fix this properly. For one thing, the data buffer
-associated with the MODE_SENSE command is not sector sized in the first
-place...
-
-This is with a recent 2.6.5-rc1 kernel built from the BK tree.
-
-
-/Samuel
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,85 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSFUEbh>; Fri, 21 Jun 2002 00:31:37 -0400
+	id <S316223AbSFUEkA>; Fri, 21 Jun 2002 00:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSFUEbg>; Fri, 21 Jun 2002 00:31:36 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:38706 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316217AbSFUEbe>; Fri, 21 Jun 2002 00:31:34 -0400
-Date: Fri, 21 Jun 2002 06:31:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa3
-Message-ID: <20020621043132.GA29970@dualathlon.random>
-References: <20020620055933.GA1308@dualathlon.random> <20020620224831.GE1742@werewolf.able.es>
+	id <S316232AbSFUEj7>; Fri, 21 Jun 2002 00:39:59 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:9417 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316223AbSFUEj7>;
+	Fri, 21 Jun 2002 00:39:59 -0400
+Date: Fri, 21 Jun 2002 14:39:13 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ipc/ statics
+Message-Id: <20020621143913.6df40097.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020620224831.GE1742@werewolf.able.es>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21, 2002 at 12:48:31AM +0200, J.A. Magallon wrote:
-> 
-> On 2002.06.20 Andrea Arcangeli wrote:
-> >
-> >Also merges some stuff from 19pre10jam2, not all the same, in particular
-> >irq-balance is quite different, previous algorithm looked not really
-> >good while auditing it, benchmarks will tell, any feedback on this in
-> >particular would be welcome. Have a look at xosview to see the
-> >difference.
-> >
-> 
-> Still not tested on the dual xeon, but on a BX with doal PII:
-> werewolf:~# cat /proc/interrupts
->            CPU0       CPU1       
->   0:      83491      63920    IO-APIC-edge  timer
->   1:       2044       1213    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   5:          1          1   IO-APIC-level  bttv
->   8:          0          1    IO-APIC-edge  rtc
->  10:      52335      24289   IO-APIC-level  aic7xxx, EMU10K1
->  11:      69049      50801   IO-APIC-level  eth0, nvidia
->  12:      33155      23661    IO-APIC-edge  PS/2 Mouse
->  14:          2         14    IO-APIC-edge  ide0
->  15:          3         13    IO-APIC-edge  ide1
-> NMI:          0          0 
-> LOC:     147281     147325 
-> ERR:          0
-> MIS:         36
-> 
-> Old patch, on the dual P4Xeon box:
-> werewolf:~> ssh annwn cat /proc/interrupts
->            CPU0       CPU1       CPU2       CPU3       
->   0:    3302667    3295991    3299383    3299984    IO-APIC-edge  timer
->   1:       4813       4680       4796       4846    IO-APIC-edge  keyboard
->   2:          0          0          0          0          XT-PIC  cascade
->   8:          1          0          0          0    IO-APIC-edge  rtc
->  12:      64959      64803      65238      63623    IO-APIC-edge  PS/2 Mouse
->  16:      65038      66347      60169      67167   IO-APIC-level  e100
->  17:          0          0          0          0   IO-APIC-level  Intel ICH2
->  18:     529910     524941     535660     535544   IO-APIC-level  aic7xxx, eth2
->  19:      71883      71973      72540      72460   IO-APIC-level  usb-uhci, eth0
->  22:    2497022    2491901    2495182    2495298   IO-APIC-level  nvidia
->  23:          0          0          0          0   IO-APIC-level  usb-uhci
-> NMI:          0          0          0          0 
-> LOC:   13198438   13198374   13198440   13198453 
-> ERR:          0
-> MIS:          0
-> 
-> I think the old one looks much better... ;)
+Hi,
 
-I think you're missing, the more irq you get in the same cpu the better.
-You're wasting tons of icache for no good reason. It's an illusion that
-seeing the number distributed is a good thing. With the foster the bad
-thing is that all irqs are delivered to the same cpu, so the load cannot
-scale, but for any benchmark (at least before my patch) you should use
-irq binding to avoid wasting icache, now with my logic maybe we can rely
-on the random distribution under load, and on the idle cpu distribution
-in multiway and in general in workloads with sometime idle cpus.
+This patch just makes some stuff in ipc/ static.
 
-Andrea
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+ diff -ruN 2.5.24/ipc/msg.c 2.5.24-sfr.2/ipc/msg.c
+--- 2.5.24/ipc/msg.c	Sat Sep 15 07:17:00 2001
++++ 2.5.24-sfr.2/ipc/msg.c	Fri Jun 21 14:31:10 2002
+@@ -597,7 +597,7 @@
+ 	return 0;
+ }
+ 
+-int inline pipelined_send(struct msg_queue* msq, struct msg_msg* msg)
++static int inline pipelined_send(struct msg_queue* msq, struct msg_msg* msg)
+ {
+ 	struct list_head* tmp;
+ 
+@@ -706,7 +706,7 @@
+ 	return err;
+ }
+ 
+-int inline convert_mode(long* msgtyp, int msgflg)
++static int inline convert_mode(long* msgtyp, int msgflg)
+ {
+ 	/* 
+ 	 *  find message of correct type.
+diff -ruN 2.5.24/ipc/sem.c 2.5.24-sfr.2/ipc/sem.c
+--- 2.5.24/ipc/sem.c	Thu May 30 05:12:31 2002
++++ 2.5.24-sfr.2/ipc/sem.c	Fri Jun 21 14:33:20 2002
+@@ -441,7 +441,7 @@
+ 	}
+ }
+ 
+-int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
++static int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
+ {
+ 	int err = -EINVAL;
+ 
+@@ -513,7 +513,7 @@
+ 	return err;
+ }
+ 
+-int semctl_main(int semid, int semnum, int cmd, int version, union semun arg)
++static int semctl_main(int semid, int semnum, int cmd, int version, union semun arg)
+ {
+ 	struct sem_array *sma;
+ 	struct sem* curr;
+@@ -700,7 +700,7 @@
+ 	}
+ }
+ 
+-int semctl_down(int semid, int semnum, int cmd, int version, union semun arg)
++static int semctl_down(int semid, int semnum, int cmd, int version, union semun arg)
+ {
+ 	struct sem_array *sma;
+ 	int err;
+

@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVDCTos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVDCTxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVDCTos (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 15:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVDCTor
+	id S261328AbVDCTxp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 15:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVDCTxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 15:44:47 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:25161 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261880AbVDCToc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 15:44:32 -0400
-Date: Sun, 3 Apr 2005 21:45:48 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ajay Patel <patela@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [KBUILD] Bug in make deb-pkg when using seperate source and object directories
-Message-ID: <20050403194548.GD11347@mars.ravnborg.org>
-References: <20050313060940.GB7828@mythryan2.michonline.com> <90f56e4805031411593fd945f2@mail.gmail.com> <20050320002800.GJ5318@mythryan2.michonline.com>
+	Sun, 3 Apr 2005 15:53:45 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:15033 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S261328AbVDCTxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 15:53:44 -0400
+Subject: Re: [PATCH 4/4] psmouse: dynamic protocol switching via sysfs
+From: Kenan Esau <kenan.esau@conan.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: harald.hoyer@redhat.de, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <200503220217.47624.dtor_core@ameritech.net>
+References: <20050217194217.GA2458@ucw.cz>
+	 <200503220215.34198.dtor_core@ameritech.net>
+	 <200503220216.38756.dtor_core@ameritech.net>
+	 <200503220217.47624.dtor_core@ameritech.net>
+Content-Type: text/plain
+Date: Sun, 03 Apr 2005 21:49:25 +0200
+Message-Id: <1112557765.3625.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050320002800.GJ5318@mythryan2.michonline.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 19, 2005 at 07:28:00PM -0500, Ryan Anderson wrote:
-> On Mon, Mar 14, 2005 at 11:59:26AM -0800, Ajay Patel wrote:
-> > I had a similar problem building binrpm-pkg.
-> > Try following patch. It worked for me.
-> 
-> My problem wasn't actually resolved by this - the make in builddeb still
-> caused issues.
-> 
-> So, a normal, unified diff form of the patch, fixed up, is attached.
-> 
-> Signed-off-By: Ryan Anderson <ryan@michonline.com>
+Patches 1-3 are fine.
 
-Applied.
+Protocol switching via sysfs works too but if I switch from LBPS/2 to
+PS/2 the device name changes from "/dev/event1" to "/dev/event2" -- is
+this intended?
 
-	Sam
+If I do "echo -n 50 > resolution" "0xe8 0x01" is sent. I don't know if
+this is correct for "usual" PS/2-devices but for the lifebook it's
+wrong.
+
+For the lifebook the parameters are as following:
+
+50cpi  <=> 0x00
+100cpi <=> 0x01
+200cpi <=> 0x02
+400cpi <=> 0x03
+

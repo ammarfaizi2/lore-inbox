@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHNX2>; Thu, 8 Feb 2001 08:23:28 -0500
+	id <S129098AbRBHNbJ>; Thu, 8 Feb 2001 08:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129149AbRBHNXS>; Thu, 8 Feb 2001 08:23:18 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:41232 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S129033AbRBHNXA>; Thu, 8 Feb 2001 08:23:00 -0500
-Message-ID: <3A82A8FA.CB9B2F29@evision-ventures.com>
-Date: Thu, 08 Feb 2001 15:11:06 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Ben LaHaise <bcrl@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Ingo Molnar <mingo@redhat.com>
+	id <S129486AbRBHNa7>; Thu, 8 Feb 2001 08:30:59 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:26338 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129098AbRBHNan>;
+	Thu, 8 Feb 2001 08:30:43 -0500
+Date: Thu, 8 Feb 2001 13:22:18 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.10.10102060959520.1257-100000@penguin.transmeta.com>
+Message-ID: <20010208132218.E9130@redhat.com>
+In-Reply-To: <20010206230929.K2975@suse.de> <Pine.LNX.4.10.10102061421490.1825-100000@penguin.transmeta.com> <20010208001513.B189@bug.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010208001513.B189@bug.ucw.cz>; from pavel@suse.cz on Thu, Feb 08, 2001 at 12:15:13AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 6 Feb 2001, Ben LaHaise wrote:
-> >
-> > On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
-> >
-> > > The whole point of the post was that it is merging, not splitting,
-> > > which is troublesome.  How are you going to merge requests without
-> > > having chains of scatter-gather entities each with their own
-> > > completion callbacks?
-> >
-> > Let me just emphasize what Stephen is pointing out: if requests are
-> > properly merged at higher layers, then merging is neither required nor
-> > desired.
-> 
-> I will claim that you CANNOT merge at higher levels and get good
-> performance.
-> 
-> Sure, you can do read-ahead, and try to get big merges that way at a high
-> level. Good for you.
-> 
-> But you'll have a bitch of a time trying to merge multiple
-> threads/processes reading from the same area on disk at roughly the same
-> time. Your higher levels won't even _know_ that there is merging to be
-> done until the IO requests hit the wall in waiting for the disk.
+Hi,
 
-Merging is a hardware tighted optimization, so it should happen, there
-we you
-really have full "knowlendge" and controll of the hardware -> namely the
-device driver. 
-
-> Qutie frankly, this whole discussion sounds worthless. We have solved this
-> problem already: it's called a "buffer head". Deceptively simple at higher
-> levels, and lower levels can easily merge them together into chains and do
-> fancy scatter-gather structures of them that can be dynamically extended
-> at any time.
+On Thu, Feb 08, 2001 at 12:15:13AM +0100, Pavel Machek wrote:
 > 
-> The buffer heads together with "struct request" do a hell of a lot more
-> than just a simple scatter-gather: it's able to create ordered lists of
-> independent sg-events, together with full call-backs etc. They are
-> low-cost, fairly efficient, and they have worked beautifully for years.
+> > EAGAIN is _not_ a valid return value for block devices or for regular
+> > files. And in fact it _cannot_ be, because select() is defined to always
+> > return 1 on them - so if a write() were to return EAGAIN, user space would
+> > have nothing to wait on. Busy waiting is evil.
 > 
-> The fact that kiobufs can't be made to do the same thing is somebody elses
-> problem. I _know_ that merging has to happen late, and if others are
-> hitting their heads against this issue until they turn silly, then that's
-> their problem. You'll eventually learn, or you'll hit your heads into a
-> pulp.
+> So you consider inability to select() on regular files _feature_?
 
-Amen.
+Select might make some sort of sense for sequential access to files,
+and for random access via lseek/read but it makes no sense at all for
+pread and pwrite where select() has no idea _which_ part of the file
+the user is going to want to access next.
 
--- 
-- phone: +49 214 8656 283
-- job:   STOCK-WORLD Media AG, LEV .de (MY OPPINNIONS ARE MY OWN!)
-- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
-ru_RU.KOI8-R
+> How do you write high-performance ftp server without threads if select
+> on regular file always returns "ready"?
+
+Select can work if the access is sequential, but async IO is a more
+general solution.
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

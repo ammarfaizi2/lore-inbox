@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSFKBuw>; Mon, 10 Jun 2002 21:50:52 -0400
+	id <S316535AbSFKBtT>; Mon, 10 Jun 2002 21:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSFKBut>; Mon, 10 Jun 2002 21:50:49 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:52131 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S316582AbSFKBun>;
-	Mon, 10 Jun 2002 21:50:43 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21 drivers/net/hamradio/soundmodem/gentbl needs -lm
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 Jun 2002 11:50:36 +1000
-Message-ID: <8389.1023760236@kao2.melbourne.sgi.com>
+	id <S316582AbSFKBtT>; Mon, 10 Jun 2002 21:49:19 -0400
+Received: from imsmq11.netvigator.com ([208.167.231.124]:58885 "HELO
+	imsmq11.netvigator.com") by vger.kernel.org with SMTP
+	id <S316535AbSFKBtR>; Mon, 10 Jun 2002 21:49:17 -0400
+Message-ID: <3D05C721.9000409@iasystem.com>
+Date: Tue, 11 Jun 2002 09:47:13 +0000
+From: Banka <banka_peng@iasystem.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: zh, zh-tw, zh-cn, en-us
+MIME-Version: 1.0
+To: christoph@lameter.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+In-Reply-To: <Pine.LNX.4.33.0206100906030.29218-100000@melchi.fuller.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote
->drivers/net/hamradio/soundmodem 
->/tmp/cc6m8eDA.o: In function `gentbl_offscostab': 
->/tmp/cc6m8eDA.o(.text+0x64): undefined reference to `cos' 
->... 
->Makefile uses HOST_LOADLIBES instead of HOST_LOADLIBS. That is what 
->happens when you use magic variables that cannot be syntax checked, 
->errors go undetected until somebody uses the option. 
+christoph@lameter.com wrote:
 
-Correction: HOST_LOADLIBES is correct, the wierd spelling threw me.
+> Full symlink support. Yes, tar creates symlinks and the vfat fs makes .lnk
+> files out of the symlinks. when ls displays the directory contents the
+> vfat fs recognizes the .lnk files and tells the os that there is a
+> symlink. Its fully transparent. The .lnk files are only visible
+> under windoze.
 
-The real problem is the build system ignores HOST_LOADLIBES when
-compiling programs directly from sources and not using intermediate
-objects.
+
+the paths in windows looked like this:
+		c:\folder\file
+
+thus, under linux, all the links would be broken links anyway (and vice 
+versa).
+
+
+Banka.
 

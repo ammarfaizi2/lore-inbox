@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136027AbRAMAwa>; Fri, 12 Jan 2001 19:52:30 -0500
+	id <S135864AbRAMAzA>; Fri, 12 Jan 2001 19:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136012AbRAMAwU>; Fri, 12 Jan 2001 19:52:20 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56080 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135954AbRAMAwK>; Fri, 12 Jan 2001 19:52:10 -0500
-Date: Fri, 12 Jan 2001 16:52:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Heil <kerndev@sc-software.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <Pine.LNX.3.95.1010112162542.1292a-100000@scsoftware.sc-software.com>
-Message-ID: <Pine.LNX.4.10.10101121649220.8097-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136012AbRAMAyv>; Fri, 12 Jan 2001 19:54:51 -0500
+Received: from laurin.munich.netsurf.de ([194.64.166.1]:51361 "EHLO
+	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
+	id <S135954AbRAMAyh>; Fri, 12 Jan 2001 19:54:37 -0500
+Date: Sat, 13 Jan 2001 01:39:19 +0100
+To: Wolfgang Spraul <wspraul@q-ag.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0: ieee1394: got invalid ack 3 from node 65473 (tcode 4)
+Message-ID: <20010113013919.A1321@storm.local>
+Mail-Followup-To: Wolfgang Spraul <wspraul@q-ag.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <979098522.3a5bdb9aa7a72@ssl.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <979098522.3a5bdb9aa7a72@ssl.local>; from wspraul@q-ag.de on Wed, Jan 10, 2001 at 04:48:42AM +0100
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 12 Jan 2001, John Heil wrote:
-
-> On Sat, 13 Jan 2001, Alan Cox wrote:
+On Wed, Jan 10, 2001 at 04:48:42AM +0100, Wolfgang Spraul wrote:
+> Incompatibility with "Sarotech FHD-352F/U Rev 1.0"
 > 
-> > Date: Sat, 13 Jan 2001 00:25:28 +0000 (GMT)
-> > From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> > To: Linus Torvalds <torvalds@transmeta.com>
-> > Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-> > Subject: Re: ide.2.4.1-p3.01112001.patch
-> > 
-> > > what the bug is, and whether there is some other work-around, and whether
-> > > it is 100% certain that it is just those two controllers (maybe the other
-> > > ones are buggy too, but the 2.2.x tests basically cured their symptoms too
-> > > and peopl ehaven't reported them because they are "fixed").
-> > 
-> > I've not seen reports on the later chips. If they had been buggy and then 
-> > fixed I'd have expected much unhappy ranting before the change
+> Using an external IDE drive in the Sarotech FireWire enclosure fails, even
+> though the Sarotech unit works with Win2K and other SBP2 drives work for me
+> (with Linux).
 > 
-> The "fix" was an hdparm command like hdparm -X66 -m16c1d1 /dev/hda.
-> Which I set for my VIA 686a on a Tyan mobo w a 1G Athlon.
+> I'm using 2.4.0 together with sbp2_1394_122300.tar.gz.
+> ACK code 3 is not even mentioned in ieee1394.h.
 
-Careful. It may be that your fix just avoids the corruption because the
-other changes make it ok - like the 16-sector multi-count thing maybe
-hides a problem that might still exist - it just changes the "normal"
-timing so that you won't ever see it in practice any more.
+That's because it's defined as reserved in the standard and therefore it
+says "invalid ack".  The interesting would be whether we really get
+that code or if there is a bug in the driver somewhere.
 
-These kinds of magic interactions is why I'm not at all happy about driver
-changes until people really know what it was that caused it, and _know_
-that it's gone.
+> I understand that the SBP2 driver is not (yet) included, but it will be shortly.
+> Also, I guess the same problem applies to raw1394.o together with the Sarotech
+> enclosure.
 
-Anyway, for you the problem apparently happened even on a 686a, but just
-the 586 series. Correct?
+Could you test that with testlibraw?  (This program is built with libraw
+and not installed currently.)
 
-			Linus
-
+-- 
+ Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

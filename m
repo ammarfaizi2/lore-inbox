@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUGJFpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUGJF5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUGJFpx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 01:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGJFpw
+	id S266141AbUGJF5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 01:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGJF5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 01:45:52 -0400
-Received: from bigapple.newyorkcity.de ([192.76.147.50]:15505 "EHLO
-	bigapple.newyorkcity.de") by vger.kernel.org with ESMTP
-	id S266143AbUGJFpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 01:45:51 -0400
-Date: Sat, 10 Jul 2004 07:45:27 +0200
-From: Martin Ziegler <mz@newyorkcity.de>
-To: Eric Lammerts <eric@lammerts.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS no longer working ?
-Message-ID: <CF34124A9356CDBF3B8BBDC6@soho>
-In-Reply-To: <Pine.LNX.4.58.0407100008020.19087@vivaldi.madbase.net>
-References: <8232A615C6D0B05C09DBF242@soho>
- <Pine.LNX.4.58.0407100008020.19087@vivaldi.madbase.net>
-X-Mailer: Mulberry/3.1.5 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 10 Jul 2004 01:57:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23446 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266141AbUGJF5o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 01:57:44 -0400
+Date: Fri, 9 Jul 2004 22:56:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
+Subject: Re: writepage fs corruption fixes
+Message-Id: <20040709225634.2eb0b8b0.akpm@osdl.org>
+In-Reply-To: <20040710045920.GY20947@dualathlon.random>
+References: <20040709040151.GB20947@dualathlon.random>
+	<20040708212923.406135f0.akpm@osdl.org>
+	<20040709044205.GF20947@dualathlon.random>
+	<20040708215645.16d0f227.akpm@osdl.org>
+	<20040710001600.GT20947@dualathlon.random>
+	<20040710010738.GX20947@dualathlon.random>
+	<20040710045920.GY20947@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
-
-it's mentioned in Documentation/Changes. When i try to mount i get the 
-message "mount: fs type nfsd not supported by kernel" although NFS is 
-compiled into the kernel. Perhaps there is another option which have to be 
-enabled but i just overseen it ?
-
-Thanks
-
-  Martin
-
---On Samstag, 10. Juli 2004 00:14 -0400 Eric Lammerts <eric@lammerts.org> 
-wrote:
-
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> On Fri, 9 Jul 2004, Martin Ziegler wrote:
->> just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no
->> longer able to use NFS. Are there any recent issues ? For a detailed
->> problem description please see below. Any help is appreciated.
->
-> I also had problems with NFS on 2.6.x (not the same as yours, though).
-> The solution was to do "mount -t nfsd none /proc/fs/nfsd" on the
-> server. You might wanna give that a try, maybe it'll help.
->
-> Eric
->
+> +page_is_mapped:
+>  +
+>  +	end_index = i_size >> PAGE_CACHE_SHIFT;
+>   	if (page->index >= end_index) {
+>  -		unsigned offset = i_size_read(inode) & (PAGE_CACHE_SIZE - 1);
+>  +		unsigned offset = i_size & (PAGE_CACHE_SIZE - 1);
+>   		char *kaddr;
+>   
+>   		if (page->index > end_index || !offset)
+>  @@ -503,8 +506,6 @@ mpage_writepage(struct bio *bio, struct 
+>   		kunmap_atomic(kaddr, KM_USER0);
+>   	}
+>   
+>  -page_is_mapped:
+
+What's the thinking behind moving the page_is_mapped label here?
+
+We've established that we have found `first_unmapped' number of uptodate
+and dirty buffers at the "front" of the page, and we're about to stick
+(first_unmapped<<blkbits) bytes of this page into the BIO for writeout. 
+Hence everything which will go into the BIO is known to be uptodate and
+dirty.  So I'm wondering why this change was made.
 
 
+The change is correct, though.  It prevents us from writing non-zero data
+between i_size and the end of the final bh to the file. 
+block_write_full_page() does it too:
+
+	/*
+	 * The page straddles i_size.  It must be zeroed out on each and every
+	 * writepage invokation because it may be mmapped.  "A file is mapped
+	 * in multiples of the page size.  For a file that is not a multiple of
+	 * the  page size, the remaining memory is zeroed when mapped, and
+	 * writes to that region are not written out to the file."
+	 */
+
+(Note that this is a "best effort" thing - userspace could still write
+non-zero data into the mmapped page outside i_size even while I/O is in
+flight.  Can't do much about that).
+
+But was this the reason for you making this change?

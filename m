@@ -1,108 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131118AbRAUKwB>; Sun, 21 Jan 2001 05:52:01 -0500
+	id <S132201AbRAUK4V>; Sun, 21 Jan 2001 05:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132201AbRAUKvm>; Sun, 21 Jan 2001 05:51:42 -0500
-Received: from mserv1c.vianw.co.uk ([195.102.240.33]:50087 "EHLO
-	mserv1c.vianw.co.uk") by vger.kernel.org with ESMTP
-	id <S131118AbRAUKvb>; Sun, 21 Jan 2001 05:51:31 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
-Date: Sun, 21 Jan 2001 10:51:12 +0000
-Organization: [private individual]
-Message-ID: <neel6tgsvv861oon326ggetmf82v1inu1v@4ax.com>
-In-Reply-To: <cv8k6ts9oeb72pmhh9hsfjta6uen511a0j@4ax.com> <Pine.LNX.4.10.10101202015510.1776-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10101202015510.1776-100000@coffee.psychology.mcmaster.ca>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S135279AbRAUK4L>; Sun, 21 Jan 2001 05:56:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4877 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132201AbRAUKz6>;
+	Sun, 21 Jan 2001 05:55:58 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101211051.f0LApFv02203@flint.arm.linux.org.uk>
+Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Sun, 21 Jan 2001 10:51:15 +0000 (GMT)
+Cc: johannes@erdfelt.com (Johannes Erdfelt), linux-kernel@vger.kernel.org
+In-Reply-To: <3A6A9F9A.3CDE1B05@colorfullife.com> from "Manfred Spraul" at Jan 21, 2001 09:36:42 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001 20:18:34 -0500 (EST), you wrote:
+Manfred Spraul writes:
+> Not yet, but that would be a 2 line patch (currently it's hardcoded to
+> BYTES_PER_WORD align or L1_CACHE_BYTES, depending on the HWCACHE_ALIGN
+> flag).
 
+I don't think there's a problem then.  However, if slab can be told "I want
+1024 bytes aligned to 1024 bytes" then I can get rid of
+arch/arm/mm/small_page.c (separate problem to the one we're discussing
+though) ;)
 
->that's not the topic: Andre's talking about pci-clock-based timing
->constants the the driver programs into the ide controller - a matter
->of an extra few/more nanoseconds.
+> But there are 2 other problems:
+> * kmem_cache_alloc returns one pointer, pci_alloc_consistent 2 pointers:
+> one dma address, one virtual address.
+> * The code relies on the virt_to_page() macro.
 
-I know, but when looking hard for a problem in one place and not
-finding it, it is sometimes helpful to consider other options.
+What I'm wondering is what about a wrapper around the slab allocator, in
+a similar way to pci_alloc_consistent() is a wrapper around gfp.  Since
+the slab allocator returns "pointers" in the same space as gfp returns
+page references, there shouldn't be a problem (Linus may complain here).
 
-I am getting errors under 2.4.0 which didn't appear in 2.2.17 - and as
-far as I could see from hdparm - both were at UDMA mode 2 (I assume
-thats what the * means - the man page wasn't very clear).  My drives
-only handle up to this mode, and I was wondering if the new driver was
-trying to run them at a mode higher than they were supposed to go.
+ie, we could make pci_alloc_consistent() a little more intelligent and
+allocate from the slab for small sizes, but use gfp for larger sizes?
 
-This massive difference in timing  seemed significant.
->
->quite slow in either case, at least for modern hardware (which is 
->all in the 20-40 MB/s range).  this looks like a PIO vs DMA difference
->to me, not even UDMA.  of course, hdparm can tell you what mode you're in.
->
-
-I did discover a difference - 2.2.17 set the drives with multisector
-off, 2.4.0 was setting multisector on.  However, I have redone the
-timing with multisector turned on in the 2.2.17 case and the
-difference is still there.
-
-Under 2.2.17 with multisector turned on
-
-
-/dev/hda:
-
- Model=IBM-DHEA-38451, FwRev=HP8OA20C, SerialNo=SH0SH0X1795
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=28
- BuffType=3(DualPortCache), BuffSize=472kB, MaxMultSect=16,
-MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=16514064
- tDMA={min:120,rec:120}, DMA modes: sword0 sword1 sword2 mword0 mword1
-mword2 
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
- UDMA modes: mode0 mode1 *mode2 
-
-------------------
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in 19.88 seconds =  3.22 MB/sec
-
-
-Under 2.4.0
-
-
-/dev/hda:
-
- Model=IBM-DHEA-38451, FwRev=HP8OA20C, SerialNo=SH0SH0X1795
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=28
- BuffType=3(DualPortCache), BuffSize=472kB, MaxMultSect=16,
-MultSect=16
- DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=16514064
- tDMA={min:120,rec:120}, DMA modes: sword0 sword1 sword2 mword0 mword1
-mword2 
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
- UDMA modes: mode0 mode1 *mode2 
-
-------------------
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  6.58 seconds =  9.73 MB/sec
-
-
-
-I don't suppose the fact that my hdparm is oldish (3.6 I think) have
-any bearing on this?
-Alan
-
-alan@chandlerfamily.org.uk
-http://www.chandler.u-net.com
+Comments, anyone (DaveM, Linus, et al) ?
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

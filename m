@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130960AbRAYPYo>; Thu, 25 Jan 2001 10:24:44 -0500
+	id <S129143AbRAYP3e>; Thu, 25 Jan 2001 10:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131615AbRAYPYe>; Thu, 25 Jan 2001 10:24:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:44679 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130960AbRAYPYX>;
-	Thu, 25 Jan 2001 10:24:23 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129160AbRAYP3Z>; Thu, 25 Jan 2001 10:29:25 -0500
+Received: from 13dyn253.delft.casema.net ([212.64.76.253]:13072 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129143AbRAYP3N>; Thu, 25 Jan 2001 10:29:13 -0500
+Message-Id: <200101251528.QAA11270@cave.bitwizard.nl>
+Subject: SD: infinite loop. 
+To: torvalds@transmeta.com, alan@redhat.com
+Date: Thu, 25 Jan 2001 16:28:58 +0100 (MET)
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <14960.17652.653140.593056@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 07:23:32 -0800 (PST)
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
-In-Reply-To: <Pine.LNX.4.30.0101251540001.30299-100000@svea.tellus>
-In-Reply-To: <14960.13645.936452.235135@pizda.ninka.net>
-	<Pine.LNX.4.30.0101251540001.30299-100000@svea.tellus>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tobias Ringstrom writes:
- > I understand from your comment that you want people to run it on all kinds
- > of hardware, both with and without hw checksumming, but how do you want us
- > to test it?  Is "my computer works as usual with this patch included" what
- > you are looking for, or do you want us to run specific tests or
- > benchmarks?
+Hi Linus, Alan,
 
-Basically, make use of the following:
+There is a small problem in sd.c: If a disk doesn't become ready, the
+loop to try and spin it up doesn't terminate. This can be fixed by
+moving one statement up a few lines. Patch below
 
-1) TCP applications using normal write/sendmsg to send data
-2) TCP applications using sys_sendfile to send data
-   (f.e. pftpd or some other server which makes use of Linux's
-    sendfile())
-3) NFS client side activity
+(the "start of the loop time" variable (spintime_value) is set INSIDE
+the loop, which means that the timeout is 100 seconds from 'now' and
+stays that way. By moving it up into the "if" above, the value is only
+set on the first iteration around the loop. )
 
-on both cards supporting sg+csum and those which do not.
 
-Later,
-David S. Miller
-davem@redhat.com
+	Roger. 
+
+
+--- linux-2.4.0.clean/drivers/scsi/sd.c	Fri Oct 27 08:35:48 2000
++++ linux-2.4.0.jungo/drivers/scsi/sd.c	Thu Jan 25 16:18:41 2001
+@@ -798,9 +798,9 @@
+ 				SRpnt->sr_data_direction = SCSI_DATA_READ;
+ 				scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
+ 					    0/*512*/, SD_TIMEOUT, MAX_RETRIES);
++				spintime_value = jiffies;
+ 			}
+ 			spintime = 1;
+-			spintime_value = jiffies;
+ 			time1 = HZ;
+ 			/* Wait 1 second for next try */
+ 			do {
+
+
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

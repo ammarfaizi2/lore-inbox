@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283140AbRK2UJg>; Thu, 29 Nov 2001 15:09:36 -0500
+	id <S282910AbRK2UI4>; Thu, 29 Nov 2001 15:08:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283133AbRK2UJ1>; Thu, 29 Nov 2001 15:09:27 -0500
-Received: from nat-pool-hsv.redhat.com ([12.150.234.132]:16652 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S283200AbRK2UJM>; Thu, 29 Nov 2001 15:09:12 -0500
-Date: Thu, 29 Nov 2001 14:08:35 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: seq_open, et. al. are not exported for modules
-Message-Id: <20011129140835.26e8e40e.reynolds@redhat.com>
-In-Reply-To: <20011129133911.4816fe2b.reynolds@redhat.com>
-In-Reply-To: <20011129133911.4816fe2b.reynolds@redhat.com>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.6.5cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+	id <S283200AbRK2UIs>; Thu, 29 Nov 2001 15:08:48 -0500
+Received: from marine.sonic.net ([208.201.224.37]:7711 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S282910AbRK2UId>;
+	Thu, 29 Nov 2001 15:08:33 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Thu, 29 Nov 2001 12:08:26 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 still not making fs dirty when it should
+Message-ID: <20011129120826.F7992@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011128231504.A26510@elf.ucw.cz> <3C069291.82E205F1@zip.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.6KI)B)fOEAt3rX"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C069291.82E205F1@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.6KI)B)fOEAt3rX
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-More important activities lacking, "Tommy Reynolds" <reynolds@redhat.com> wrote:
-
-> Alex,
+On Thu, Nov 29, 2001 at 11:54:57AM -0800, Andrew Morton wrote:
+> Pavel Machek wrote:
+> > 
+> > Hi!
+> > 
+> > I still can mount / read/write, press reset, and not get fsck on next
+> > reboot. That strongly suggests kernel bug to me.
 > 
-> The patch below, relative to 2.4.16, exports the seq_FOO symbols so they can be
-> used from a loadable kernel module.
-
-The patch omitted "seq_printf" ;-(
-
-This one doesn't:
-
---- linux/kernel/ksyms.c.orig	Thu Nov 29 13:14:10 2001
-+++ linux/kernel/ksyms.c	Thu Nov 29 13:58:27 2001
-@@ -46,6 +46,7 @@
- #include <linux/tty.h>
- #include <linux/in6.h>
- #include <linux/completion.h>
-+#include <linux/seq_file.h>
- #include <asm/checksum.h>
- 
- #if defined(CONFIG_PROC_FS)
-@@ -559,3 +560,12 @@ EXPORT_SYMBOL(init_task_union);
- 
- EXPORT_SYMBOL(tasklist_lock);
- EXPORT_SYMBOL(pidhash);
-+
-+/* Sequential file systems */
-+
-+EXPORT_SYMBOL(seq_open);
-+EXPORT_SYMBOL(seq_read);
-+EXPORT_SYMBOL(seq_lseek);
-+EXPORT_SYMBOL(seq_release);
-+EXPORT_SYMBOL(seq_escape);
-+EXPORT_SYMBOL(seq_printf);
+> aargh.  I thought that was fixed.  How's this look?
 
 
----------------------------------------------+-----------------------------
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
+I'm curious:
 
---=.6KI)B)fOEAt3rX
-Content-Type: application/pgp-signature
+Why would you WANT this?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+I always thought that if you didn't make any fs changes, then it should NOT
+fsck.
 
-iEYEARECAAYFAjwGlcgACgkQWEn3bOOMcuqjowCfbxhw62uDZZQjtINZE+2dlY/8
-OZAAnj+2ZUkwM54cppIjCDZdUyLwPZ6t
-=4O8M
------END PGP SIGNATURE-----
-
---=.6KI)B)fOEAt3rX--
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

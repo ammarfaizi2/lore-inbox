@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbTAPHEc>; Thu, 16 Jan 2003 02:04:32 -0500
+	id <S261829AbTAPHET>; Thu, 16 Jan 2003 02:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbTAPHEc>; Thu, 16 Jan 2003 02:04:32 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:32238 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S263991AbTAPHEb>;
-	Thu, 16 Jan 2003 02:04:31 -0500
-Subject: Re: [BUG][2.5]deadlock on cpci hot insert
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0301160014250.20085-100000@rancor.yyz.somanetworks.com>
-References: <Pine.LNX.4.44.0301160014250.20085-100000@rancor.yyz.somanetworks.com>
-Content-Type: text/plain
+	id <S263991AbTAPHET>; Thu, 16 Jan 2003 02:04:19 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:29920 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261829AbTAPHET>; Thu, 16 Jan 2003 02:04:19 -0500
+Date: Wed, 15 Jan 2003 23:13:07 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: dipankar@in.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: lots of calls to __write/read_lock_failed
+Message-ID: <59570000.1042701186@titus>
+In-Reply-To: <20030116065940.GA4801@in.ibm.com>
+References: <3E263285.2000204@us.ibm.com> <20030116044600.GN919@holomorphy.com> <20030116065940.GA4801@in.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Jan 2003 23:04:48 -0800
-Message-Id: <1042700689.1153.15.camel@localhost.localdomain>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-15 at 21:33, Scott Murray wrote:
-> PS: Any word on whether my ZT5550 driver patch from last Friday fixes
->     your ZT5084 chassis issues?
+>> On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
+>> > time:_raw_write_lock() 1350000
+>> > Call Trace:
+>> >  [<c010f321>] timer_interrupt+0x99/0x9c
+>> >  [<c010b150>] handle_IRQ_event+0x38/0x5c
+>> 
+>> read_lock_irqsave(&xtime_lock, flags)
+>> or
+>> write_lock_irq(&xtime_lock);
+> 
+> ISTR a patch from Stephen Hemminger at OSDL that used Andrea's
+> sequence number trick based rwlock (frlock) to implement do_gettimeofday.
+> It might be relevant here.
 
-Oh yea, that's the other thing I was going to do.  I just built and
-installed the patched kernel with no problems, but I will be able to say
-more after I have physical access to my lab tomorrow.
+I thought that was Andi. If it's the patch I'm thinking of, it's sitting
+in the -mm tree.
 
-    --rustyl
+M.
 

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSGLWjs>; Fri, 12 Jul 2002 18:39:48 -0400
+	id <S318055AbSGLWpv>; Fri, 12 Jul 2002 18:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318050AbSGLWjE>; Fri, 12 Jul 2002 18:39:04 -0400
-Received: from holomorphy.com ([66.224.33.161]:37791 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318047AbSGLWiU>;
-	Fri, 12 Jul 2002 18:38:20 -0400
-Date: Fri, 12 Jul 2002 15:40:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@kernel.org, akpm@zip.com.au
-Subject: NUMA-Q breakage 6/7 lack of bio splitting workaround
-Message-ID: <20020712224009.GD25360@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, axboe@kernel.org, akpm@zip.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S318050AbSGLWow>; Fri, 12 Jul 2002 18:44:52 -0400
+Received: from pD952ACB5.dip.t-dialin.net ([217.82.172.181]:39559 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318051AbSGLWob>; Fri, 12 Jul 2002 18:44:31 -0400
+Date: Fri, 12 Jul 2002 16:46:35 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Compile warning in fs/partitions/check.c
+Message-ID: <Pine.LNX.4.44.0207121640180.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NUMA-Q's have qlogicisp adapters for their boot bays. Until the block
-I/O issue is resolved, they can't boot. I've bugged you about this
-before, but for completeness' sake, here it is.
+Hi,
+
+Compiling fs/partitions/check.c, I get a couple of warnings of "pointer to 
+integer of different size":
 
 
-Workaround (due to akpm) below.
+kdev is a kdev_t here, driverfs_dev is a struct device.
 
+	kdev.value=(int)driverfs_dev->driver_data;
 
-Cheers,
-Bill
+Is it okay to replace this with
 
+	kdev.value=(unsigned short)driverfs_dev->driver_data;
 
-===== fs/mpage.c 1.10 vs edited =====
---- 1.10/fs/mpage.c	Thu Jul  4 09:17:30 2002
-+++ edited/fs/mpage.c	Fri Jul 12 01:03:03 2002
-@@ -24,7 +24,7 @@
-  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-  * to PAGE_CACHE_SIZE if your drivers are broken.
-  */
--#define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
-+#define MPAGE_BIO_MAX_SIZE PAGE_CACHE_SIZE
- 
- /*
-  * I/O completion handler for multipage BIOs.
+to make the warnings go away?
+
+Also, struct driver_file_entry->show gets initialized here:
+
+	show: partition_device_kdev_read,
+
+show being (ssize_t *)(struct device *driverfs_dev, char *page, size_t 
+		       count, loff_t off);
+but expecting (ssize_t *)(void *, char *page, size_t count, loff_t off);
+
+Is it okay to ignore this one?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

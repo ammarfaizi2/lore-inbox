@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277544AbRJOPCc>; Mon, 15 Oct 2001 11:02:32 -0400
+	id <S277550AbRJOPbh>; Mon, 15 Oct 2001 11:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277545AbRJOPCW>; Mon, 15 Oct 2001 11:02:22 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:62223 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S277544AbRJOPCH>; Mon, 15 Oct 2001 11:02:07 -0400
-Date: Mon, 15 Oct 2001 17:02:39 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: proc file system
-Message-ID: <20011015170239.G2542@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011010190442.A26980@artax.karlin.mff.cuni.cz> <Pine.LNX.4.21.0110142051320.6433-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
+	id <S277546AbRJOPbR>; Mon, 15 Oct 2001 11:31:17 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34630 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277494AbRJOPbN>; Mon, 15 Oct 2001 11:31:13 -0400
+To: Andi Kleen <ak@muc.de>
+Cc: Gerhard Mack <gmack@innerfire.net>, Tommy Faasen <tommy@vuurwerk.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP processor rework help needed
+In-Reply-To: <k2wv1yhsh4.fsf@zero.aec.at>
+	<Pine.LNX.4.10.10110141349510.31660-100000@innerfire.net>
+	<20011014230709.47894@colin.muc.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Oct 2001 09:20:25 -0600
+In-Reply-To: <20011014230709.47894@colin.muc.de>
+Message-ID: <m18zedorpi.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0110142051320.6433-100000@Consulate.UFP.CX>; from rhw@MemAlpha.cx on Sun, Oct 14, 2001 at 09:06:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> Well, to get tail -f to work, minimally you'll have to support
-> >> ...
+Andi Kleen <ak@muc.de> writes:
+
+> On Sun, Oct 14, 2001 at 10:50:50PM +0200, Gerhard Mack wrote:
+> > This may sound like a dumb question but wouldn't simply swapping the CPUs
+> > have the same affect?
 > 
-> > ... thus it won't work on char dev at all;-)
-> 
-> Why won't it?
+> In theory yes, assuming the determination of the boot cpu is fully
+> deterministic. the spec says it is the one with the lowest apic number; but
+> who knows if that is true in every weird board.
 
-Well, I didn't look thoroughly, so it might. But - it uses stat and
-stat stats the device inode, not the device itself.
+I do recall that the apics have programmable numbers.  We even test
+that as part of our cpu initialization.  So that means little.  
 
-> > (but simple cat will do lot better).
+For intel the initial determination is made having the cpus race on
+the apic bus.  The cpu that sends a message first gets the lowest
+apicid.  Though I need to see how the P4 Xeon does it, as the apic
+bus is actually unused.
 
-But you really don't care about tail -f neither with device, nor with
-/proc file. Because you can do cat and block the reads in kernel.
+Also many boards have logic so that allows the second cpu to become the
+boot cpu if the first cpu fails to boot.  This logic might be as
+simple as round-robin, so even a deterministic may make this
+difficult.
 
-> How about the aspects of /proc files that are outside of your driver's
-> control...
-> 
->  1. The actual size of the /proc file is controlled by a variable that
->     your driver sets. Your driver gets no indication whatsoever as to
->     when that variable is read.
+So the only reliable way to force the boot cpu is with software that
+runs before the operating system, usually the firmware.
 
-AFAICS (from source), neither can you with character device. You can't
-set size for character device at all.
+I'll keep this in mind for linuxBIOS, as that would be an ideal place
+to implement something like that.  
 
->  2. Your driver is required to recreate the ENTIRE /proc file every
->     time a read() call is made, and gets NO indication as to which
->     part of the file is actually returned to the caller.
-
-AFAIK You have a control of both file and inode operations for proc file.  It's
-your inode and you can set whatever you want there. On the other hand with
-device you can only set file_operations (you can't touch the inode structure or
-you might confuse the fs driver).
-
-Just there are default proc file and inode operations that are used for
-most purposes (there is the /proc/kcore, which is like /dev/kmem - they
-work simlarly (neither can create it's content to a buffer), but only
-/proc/kcore has meaningful size.
-
-> Compare these to the requirements of a character device...
-> 
->  1. There is no actual size stored anywhere - and, as a matter of fact,
->     the whole concept of file size is meaningless.
-
-That's why you can't get tail -f (nor tail) work on a device.
-
->  2. When your driver gets a read() call, it is only required to return
->     data that has never before been returned, and not data that has
->     been previously read. Indeed, it is an error to return the same
->     data twice.
-
-AFAIK, that's possible with /proc file too.
-
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+Eric

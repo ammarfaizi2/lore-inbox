@@ -1,32 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbREUGjw>; Mon, 21 May 2001 02:39:52 -0400
+	id <S262409AbREUIzr>; Mon, 21 May 2001 04:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261611AbREUGjc>; Mon, 21 May 2001 02:39:32 -0400
-Received: from mailo.vtcif.telstra.com.au ([202.12.144.17]:50920 "EHLO
-	mailo.vtcif.telstra.com.au") by vger.kernel.org with ESMTP
-	id <S261601AbREUGjZ>; Mon, 21 May 2001 02:39:25 -0400
-From: Allan Duncan <b372050@vus068.trl.telstra.com.au>
-Message-Id: <200105210638.QAA19887@vus068.trl.telstra.com.au>
-Subject: compile failure in 2.4.5-pre4
-To: linux-kernel@vger.kernel.org
-Date: Mon, 21 May 101 16:38:45 +1000 (EST)
-X-Mailer: ELM [version 2.4 PL23]
+	id <S262410AbREUIzi>; Mon, 21 May 2001 04:55:38 -0400
+Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:13874 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id <S262409AbREUIz1>;
+	Mon, 21 May 2001 04:55:27 -0400
+Message-ID: <3B053183.188C47BD@violin.dyndns.org>
+Date: Fri, 18 May 2001 16:28:19 +0200
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+Reply-To: dusty@strike.wu-wien.ac.at
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+To: Andy Arvai <arvai@scripps.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APIC errors on 2.4.4
+In-Reply-To: <200105180650.XAA04197@astra.scripps.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This addition for 2.4.5-pre4 has caused a compile failure with a parsing error:
+Andy Arvai wrote:
+> 
+> Hi,
+> 
+> I'm having IO-APIC errors with 2.4.4. I spent some time searching the
+> web to understand more about this problem and I'm still not sure if
+> it is a hardware problem on the motherboard or a problem with the
+> kernel. I will try the noapic boot option, but are there any
+> patches that might fix this? Here are some of the errors I was
+> getting:
+> 
+> May 15 22:47:43 rad kernel: APIC error on CPU0: 02(01)
+> May 15 22:48:00 rad kernel: APIC error on CPU0: 01(02)
 
-drivers/ide/ide-pci.c:711
-    		if (!IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530)
+This is a hardware error. I also have a buggy motherboard (586DX) and
+experience the same problems. Looke at /proc/interrupts, there you can
+see how many errors are detected. The problem is that double errors are
+not detected - these can lead to system crashes or block network/isdn
+cards.
 
-In my case CONFIG_BLK_DEV_CS5530 is not defined.
+If there are only a few APIC errors, it is very unlikely that a double
+error occurs, if there are very many, the probability is high.
+
+It seems that there are quite a lot of motherboards that have a buggy
+APIC.
+
+There is some patch by Alan Cox in the 2.4.4-ac series that does
+something about this problem but I do not know what exactly.
+
+The only thing you can do is boot with the "noapic" option, and disable
+IO-Interrupts on the second CPU (I assume you have a SMP system?). This
+will reduce the amount of errors but there is also a performance
+decrease.
+
+		Regards,
+		Hermann
 
 -- 
-Allan Duncan  b372050@vus068.trl.telstra.com.au  (+613) 9253 6708, Fax 9253 6775
-     (We are just a number)
- Next Generation Infrastructure Program - Transport Architecture Project
-Telstra Research Labs, Box 249 Rosebank MDC, Clayton, Victoria, 3169, Australia
+ ,_,
+(O,O)     "There is more to life than increasing its speed."
+(   )     -- Gandhi
+-"-"--------------------------------------------------------------

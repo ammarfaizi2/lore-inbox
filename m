@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271257AbRHTOxJ>; Mon, 20 Aug 2001 10:53:09 -0400
+	id <S271265AbRHTO63>; Mon, 20 Aug 2001 10:58:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271260AbRHTOw7>; Mon, 20 Aug 2001 10:52:59 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:48653 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S271257AbRHTOwq>; Mon, 20 Aug 2001 10:52:46 -0400
-Message-Id: <200108201452.f7KEqxk18219@mail.swissonline.ch>
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <llx@swissonline.ch>
-Reply-To: llx@swissonline.ch
-To: linux-kernel@vger.kernel.org
-Subject: misc questions about kernel 2.4.x internals
-Date: Mon, 20 Aug 2001 16:52:55 +0200
-X-Mailer: KMail [version 1.3]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S271267AbRHTO6T>; Mon, 20 Aug 2001 10:58:19 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:46569 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S271265AbRHTO6M>; Mon, 20 Aug 2001 10:58:12 -0400
+Date: Mon, 20 Aug 2001 07:58:26 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-atm-general@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: linux-2.4.9/drivers/atm to new module_{init,exit} + some pci_device_id tables
+Message-ID: <20010820075826.A368@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+	The following patch moves linux-2.4.9/drivers/atm
+to the relatively new module_{init,exit} interface, simplifying
+the code and removing the reference to the ATM drivers from
+linux/drivers/genhd.c (this is partly motivated by my effort to get
+rid of genhd.c).  The changes also include some pci_device_id tables,
+which enable automatic loading of the modules via pcimodules (or
+a similar program).  These changes are also all steps toward porting
+the atm drivers to the new PCI interface.  In the case zatm.c, I
+have actually ported it to the new PCI interface, although it
+shares the stock zatm driver's deficiency of not supporting
+module removal.
 
-1) when using any functions that can block i need to do this in the context 
-of a process. so a can't read, write to sockets in a bottom-half of a 
-interrupt handler. thats why i need to use a kernel thread (i don't what to
-use a user level process). my question now is - how long does it take until 
-my kernel thread starts running? do i have a way to give it very high 
-priority and force my thread to be scheduled so that i can be 'sure' to run 
-just after softirq's, tasklets, ...?
+	Note that this change deletes linux-2.4.9/drivers/atmdev_init.c,
+since the conversion to module_{init,exit} completely obseletes that file.
 
-2) for module writers there is documented and easy to use api how to use 
-tasklets to schedule it's buttom-half for later (very soon) execution. 
-are tasklets like tq_immedate in 2.2.x or tq_schedule? i mean is there a
-current process or do they runn at interrupt time?
-and am i right when i say: to add a new softirq i need to patch kernel 
-sources?
+	If these changes look OK, I would like to get them
+into the stock kernel.  If there is a maintainer on linux-atm-general
+who shepherds these patches to Alan and Linus, and if these changes
+are good, please let me know if you are going to "officially" send them
+to Alan and Linus or if you want me to do so or if there is some other
+procedure that I should follow.
 
-3) i had a look at the ll_rw_block and realised that it can block when there 
-are to many buffers locked. when i use generic_make_request can i be 
-shure that i wont block so that i can call it in a tasklet and don't need to
-switch to a kernel thread? i think that also needs that clustering function 
-__make_request may not block. does it or does it not?
-
-4) i was looking at the networking code in 2.4 because it is possible that
-i need to write a new thin network protocoll which is optimised for disk-i/o.
-i didn't find any documentation how to implement a new one in 2.4. does
-anybody have some pointers to doc's or can give me some comments?
-
-thanks for any help or pointers to further information
-chris
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268029AbTBRVed>; Tue, 18 Feb 2003 16:34:33 -0500
+	id <S268024AbTBRVdo>; Tue, 18 Feb 2003 16:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268030AbTBRVed>; Tue, 18 Feb 2003 16:34:33 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:17295 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268029AbTBRVe3>;
-	Tue, 18 Feb 2003 16:34:29 -0500
-Date: Tue, 18 Feb 2003 13:44:31 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-Message-ID: <20030218214431.GA15007@f00f.org>
-References: <20030218000304.GA7352@f00f.org> <Pine.LNX.4.44.0302171741250.1754-100000@home.transmeta.com>
+	id <S268025AbTBRVdo>; Tue, 18 Feb 2003 16:33:44 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15881 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268024AbTBRVdm>; Tue, 18 Feb 2003 16:33:42 -0500
+Date: Tue, 18 Feb 2003 22:43:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: Fixes to suspend-to-RAM
+Message-ID: <20030218214343.GB21974@atrey.karlin.mff.cuni.cz>
+References: <20030218211741.GA1039@elf.ucw.cz> <Pine.LNX.4.33.0302181509070.1035-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302171741250.1754-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0302181509070.1035-100000@localhost.localdomain>
 User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 05:42:38PM -0800, Linus Torvalds wrote:
+Hi!
 
-> It would be interesting to hear exactly when the trouble
-> started. And if plain 2.5.59 does it (which is unclear from your
-> description), but 59-mjb4 doesn't, then that's an interesting data
-> point.
+> >  void __init acpi_reserve_bootmem(void)
+> >  {
+> >  	acpi_wakeup_address = (unsigned long)alloc_bootmem_low(PAGE_SIZE);
+> > +	if (!acpi_wakeup_address)
+> > +		printk(KERN_ERR "ACPI: Cannot allocate lowmem. S3 disabled.\n");
+> >  	if ((&wakeup_end - &wakeup_start) > PAGE_SIZE)
+> >  		printk(KERN_CRIT "ACPI: Wakeup code way too big, will crash on attempt to suspend\n");
+> > -	printk(KERN_DEBUG "ACPI: have wakeup address 0x%8.8lx\n", acpi_wakeup_address);
+> 
+> If you say you're disabling S3, then please really do so and flip the bit 
+> in the sleep_states[] array.
 
-After much testing, which is still in progress it would seem that
-*maybe* mjb4 does have the problem too, although it's much harder to
-hit.  Please note that this is a single data point where for other
-kernels I have two or more occurrences of spontaneous reboots.
+Check the code, there's a conditional former in the file and S3 will
+correctly fail. I don't feel like flipping bits from here
+(arch-dep-code) in generic code.
 
-I've been checking older kernels...  it would seem the problem first
-occurs in 2.5.53 (that is 2.5.53 through 2.5.62-bk all reboot for me).
-2.5.51 doesn't appear to and thus far neither does 2.5.52.
+> > --- clean/drivers/acpi/sleep/main.c	2003-02-15 18:51:17.000000000 +0100
+> > +++ linux/drivers/acpi/sleep/main.c	2003-02-15 18:57:27.000000000 +0100
+> > @@ -103,6 +103,10 @@
+> >  			return error;
+> >  		}
+> >  
+> > +		error = device_suspend(state, SUSPEND_DISABLE);
+> > +		if (error)
+> > +			panic("Sorry, devices really should know how to disable\n");
+> > +
+> 
+> Why is every error condition a panic()? That certainly does not add 
+> robustness to the code..
+> 
+> Also, you say that the APIC needs this state. I wonder if that should be
+> done in the SUSPEND_POWER_DOWN stage with interrupts disabled?
 
-I say thus far, because the problem usually appears after about 15
-minutes of compiling, but it sometimes takes a little longer.  I'm
-running 2.5.52 now and after 45 minutes it's still going.
+Good idea. So acpi_system_save_state can no longer be called with S5,
+right? That allows quite a lot of cleanup.
 
+Hmm, how do you propose error handling when SUSPEND_DISABLE fails?
+Call SUSPEND_ENABLE or not? Once that is decided  panic can go. But I
+still think that just should not happen.
 
-As to what difference it might be between '52 and '53 I have no idea.
-I had a quick look and the changes there are considerable.
-
-I've tried different compiles, with and without preempt, and and
-without IO-APIC and trimming down the kernel...
-
-
-
-  --cw
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

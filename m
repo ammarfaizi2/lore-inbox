@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264783AbSJ3TDM>; Wed, 30 Oct 2002 14:03:12 -0500
+	id <S264808AbSJ3TE5>; Wed, 30 Oct 2002 14:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264784AbSJ3TDM>; Wed, 30 Oct 2002 14:03:12 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:60818 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S264783AbSJ3TDK>;
-	Wed, 30 Oct 2002 14:03:10 -0500
-Date: Wed, 30 Oct 2002 11:13:20 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
+	id <S264810AbSJ3TE5>; Wed, 30 Oct 2002 14:04:57 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13328 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264808AbSJ3TEz>;
+	Wed, 30 Oct 2002 14:04:55 -0500
+Date: Wed, 30 Oct 2002 11:08:35 -0800
+From: Greg KH <greg@kroah.com>
 To: Ian Soboroff <ian.soboroff@nist.gov>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: post-halloween 0.2
+Message-ID: <20021030190835.GW1628@kroah.com>
+References: <20021030171149.GA15007@suse.de> <9cf65vju5l4.fsf@rogue.ncsl.nist.gov> <20021030185242.GS1628@kroah.com> <9cfwunzsqbc.fsf@rogue.ncsl.nist.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <9cfwunzsqbc.fsf@rogue.ncsl.nist.gov>
-Message-ID: <Pine.LNX.4.44.0210301111130.983-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 30 Oct 2002, Ian Soboroff wrote:
-
+On Wed, Oct 30, 2002 at 02:02:31PM -0500, Ian Soboroff wrote:
 > Greg KH <greg@kroah.com> writes:
 > 
 > > On Wed, Oct 30, 2002 at 01:47:19PM -0500, Ian Soboroff wrote:
@@ -41,16 +41,12 @@ On 30 Oct 2002, Ian Soboroff wrote:
 > to roll a boulder up a hill for all time.  When he gets to the top, it
 > rolls back down.
 
-sysfs != Sisyphus. They are coincidental hominems. 
+Doh!
+
+/me goes and digs out his old Mythology books...
 
 > Kind of like fixing /proc.  <ducks>
 
-Recall also that (Feature Freeze != Code Freeze). There will be a lot of 
-cleanup and conversion happening the next few months, from old school 
-driver models to the new driver models, and the population of a sane sysfs 
-layout. 
+All too true :)
 
-driverfs will hopefully die today. Stay tuned..
-
-	-pat
-
+greg k-h

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbTIQUmc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 16:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbTIQUmc
+	id S262676AbTIQUfL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 16:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTIQUfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 16:42:32 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:4531 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S262765AbTIQUmX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 16:42:23 -0400
-Date: Wed, 17 Sep 2003 22:42:19 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Subject: Re: Patch: Make iBook1 work again
-In-Reply-To: <1063829278.600.184.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309172218210.25790-100000@deadlock.et.tudelft.nl>
+	Wed, 17 Sep 2003 16:35:11 -0400
+Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:31659 "EHLO
+	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262752AbTIQUfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 16:35:07 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16232.50511.199563.3211@wombat.chubb.wattle.id.au>
+Date: Thu, 18 Sep 2003 06:34:23 +1000
+To: Jens Axboe <axboe@suse.de>
+Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
+Subject: Re: laptop mode for 2.4.23-pre4 and up
+In-Reply-To: <20030917075432.GG906@suse.de>
+References: <20030913103014.GA7535@gamma.logic.tuwien.ac.at>
+	<20030914152755.GA27105@suse.de>
+	<20030915093221.GE2268@gamma.logic.tuwien.ac.at>
+	<20030917075432.GG906@suse.de>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
 
+Jens> On Mon, Sep 15 2003, Norbert Preining wrote:
+>> On Son, 14 Sep 2003, Jens Axboe wrote: > > Will there be a new
+>> incantation of the laptop-mode patch for 2.4.23-pre4
+>> > 
+>> > Sure, I'll done a new patch in the next few days. 
 
-On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
+Are you thinking of pushing something like this into 2.6 as well?
+I ask, because 2.6 seems to drive the laptop significantly harder than
+2.4 anyway --- battery life is lower, the disk light is on more, and the
+machine runs hotter.
 
-> Unfortunately, the wallstreet doesn't work neither. I get something strange on the
-> screen. It's somewhat sync'ed but divided in 4 vertical stripes, each one displaying
-> the left side of the display (+/- offseted), along with some fuzziness (clock wrong).
->
-> XFree86 "ati" driver works fine (and manages somewhat to probe the panel type
-> and clocks properly ...)
->
-> It's an LT-G (0x4c47 rev 0x80), 14.31818 XTAL, 230Mhz PLL, 63Mhz MCLK & XCLK
-> (so far it sounds good), mode properly detected (1024x768-60 from the mac
-> sense values read in nvram) but the display isn't correct.
->
-> I can do register dumps to compare, though I may not have time until next week.
-
-Ok, this is the first serious problem, this was not were I expected the
-problems. The Rage LT should not be treated differently than before, no
-changes made here.
-
-The first thing to do is to check is if the clock programming code is the
-problem. Try to modprobe with "default_mclk=-1 default_xclk=-1" or use
-equivalent kernel command line options.
-
-If clock programming code should be blamed, the next step is to enable the
-debug define and check which clock registers are modified. You can
-try to revert my changes at mach64_ct.c line 375 and 433 to see if that
-changes something.
-
-If X corrects the display after starting, the problem might be due to the
-mode setting code. In that case the display should corrupt again when
-switching back to the console.
-
-Greetings,
-
-Daniël Mantione
-
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.

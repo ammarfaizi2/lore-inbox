@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133018AbRADNYK>; Thu, 4 Jan 2001 08:24:10 -0500
+	id <S132996AbRADNgo>; Thu, 4 Jan 2001 08:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133028AbRADNYB>; Thu, 4 Jan 2001 08:24:01 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:6672 "HELO
-	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S133018AbRADNXp>; Thu, 4 Jan 2001 08:23:45 -0500
-Date: Thu, 4 Jan 2001 14:23:35 +0100
-From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: "Ingo T. Storm" <it@computerbild.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010104142335.E15097@gidayu.max.uni-duisburg.de>
-In-Reply-To: <012101c0764f$c8b2f840$7400a8c0@dukat.cb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <012101c0764f$c8b2f840$7400a8c0@dukat.cb.de>; from it@computerbild.de on Thu, Jan 04, 2001 at 02:11:00PM +0100
+	id <S133010AbRADNgf>; Thu, 4 Jan 2001 08:36:35 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:14836 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132996AbRADNga>; Thu, 4 Jan 2001 08:36:30 -0500
+Date: Thu, 4 Jan 2001 11:34:57 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] add PF_MEMALLOC to __alloc_pages()
+In-Reply-To: <87g0j0qlvy.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.21.0101041134300.1188-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-
-On Thu, Jan 04, 2001 at 02:11:00PM +0100, Ingo T. Storm wrote:
+On 4 Jan 2001, Zlatko Calusic wrote:
+> Rik van Riel <riel@conectiva.com.br> writes:
 > 
-> Have you checked conf.modules that now is modules.conf?
+> > +			current->flags |= PF_MEMALLOC;
+> >  			try_to_free_pages(gfp_mask);
+> > +			current->flags &= ~PF_MEMALLOC;
 > 
+> Hm, try_to_free_pages already sets the PF_MEMALLOC flag!
 
-Yes I have. By editing it, I was able to test both the 3c59x 
-and the 3c90x drivers. Also the modules were correctly loaded
-in both testruns, which I confirmed with a lsmod.
+Yes. Linus already pointed out this error to me
+yesterday (and his latest tree should be fine).
 
-On another note: I *was* able to set up the card manually
-by doing an ifconfig (and it worked that way), but as the
-firewall adapts dynamically to the DHCP leases, this
-is not a solution. So only DHCP negotiation was not working,
-which worked OK with the vanilla RH 6.2 2.2.14 kernel.
+regards,
 
-- Chris
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
 
--- 
-Christian Loth
-Coder of 'Project Gidayu'
-Computer Science Student, University of Dortmund
-chris@gidayu.mud.de - http://gidayu.mud.de
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHTLgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUHTLmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUHTLgj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 07:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHTLgh
+	id S266555AbUHTLmv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 07:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHTLmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 07:36:37 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:671 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266555AbUHTLfz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 07:35:55 -0400
-Date: Fri, 20 Aug 2004 13:34:49 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: lkml problem
-Message-ID: <20040820113449.GA16660@thundrix.ch>
-References: <200408172256.54881.vda@port.imtp.ilyichevsk.odessa.ua> <200408171709.59841.gene.heskett@verizon.net> <200408180848.47247.vda@port.imtp.ilyichevsk.odessa.ua> <200408180747.10085.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-In-Reply-To: <200408180747.10085.gene.heskett@verizon.net>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 20 Aug 2004 07:42:51 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:50885 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S266565AbUHTLmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 07:42:49 -0400
+Message-ID: <4125E3B6.6090406@grupopie.com>
+Date: Fri, 20 Aug 2004 12:42:46 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+Cc: jmerkey@comcast.net, linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: kallsyms 2.6.8 address ordering
+References: <081920041810.18883.4124ED110002BABC000049C32200748184970A059D0A0306@comcast.net> <20040819190029.GC1313@lnx-holt.americas.sgi.com>
+In-Reply-To: <20040819190029.GC1313@lnx-holt.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.21; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robin Holt wrote:
+>....
+> 
+> It must be useful for people using small memory footprint machines.
+> Check with the folks doing embedded stuff.
+> 
+> I remember a discussion about kallsyms and scaling problems with
+> top reading some /proc/<pid> file.
+> 
+> Look at this:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108758995727517&w=2
+> 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I posted recently (exactly one week ago) a different approach to this 
+problem that increased kallsyms_lookup performance about 100 times, 
+without a cache and without locking.
 
-Salut,
+The patch is currently in Ingo Molnar's tree (I think). It works by 
+doing binary search on tha address table and then using pre-calculated 
+markers on the stem stream to search closer to the target. After that it 
+copies only the stems before the searched symbol that actually 
+contribute to the final result.
 
-On Wed, Aug 18, 2004 at 07:47:09AM -0400, Gene Heskett wrote:
-> This list seems to be in favor of inlining any patches which removes
-> that aspect of the filtering done.
+You can check the thread here:
 
-Not  exactly: It's  rather that  small  patches get  inlined and  huge
-patches attached. (At least according to specs)
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109245918613781&w=2
 
-			Tonnerre
+(Please note that the original patch broke handling of aliased symbols 
+which was corrected later in the thread)
 
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I'm working on an even better approach right now and I should have a 
+patch ready this weekend.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+This however has nothing to do with _module_ symbol names, which is a 
+different problem altogether.
 
-iD8DBQFBJeHY/4bL7ovhw40RAp81AKCVxlhyi0hWvmECPp8esDIvQGpa3wCggbEa
-g2GQpH0uuTLAa/gOjXCk11U=
-=sYZW
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+-- 
+Paulo Marques - www.grupopie.com

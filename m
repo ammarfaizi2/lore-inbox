@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbRGUXr7>; Sat, 21 Jul 2001 19:47:59 -0400
+	id <S267855AbRGUXy7>; Sat, 21 Jul 2001 19:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267851AbRGUXrt>; Sat, 21 Jul 2001 19:47:49 -0400
-Received: from [64.81.246.98] ([64.81.246.98]:32138 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S267852AbRGUXrk>;
-	Sat, 21 Jul 2001 19:47:40 -0400
-Date: Sat, 21 Jul 2001 16:45:44 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: ja@himel.com, linux-kernel@vger.kernel.org
-Subject: Re: cpuid_eax damages registers (2.4.7pre7)
-Message-ID: <20010721164544.B3676@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>, ja@himel.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10107181347030.16710-100000@l> <200107181510.f6IFAMW03662@penguin.transmeta.com>
+	id <S267860AbRGUXyu>; Sat, 21 Jul 2001 19:54:50 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:62474
+	"EHLO Opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S267855AbRGUXyd>; Sat, 21 Jul 2001 19:54:33 -0400
+Date: Sat, 21 Jul 2001 16:53:46 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "peter k." <spam-goes-to-dev-null@gmx.net>, linux-kernel@vger.kernel.org
+Subject: [OT] Re: 2.4.7: wtf is "ksoftirqd_CPU0"
+Message-ID: <20010721165346.U3889@opus.bloom.county>
+In-Reply-To: <000f01c111ff$73602ce0$c20e9c3e@host1> <3B59AFF7.8061645B@mandrakesoft.com> <01072201370202.02679@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107181510.f6IFAMW03662@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jul 18, 2001 at 08:10:22AM -0700
+In-Reply-To: <01072201370202.02679@starship>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Jul 18, 2001 at 08:10:22AM -0700, Linus Torvalds wrote:
->  - fix _all_ the "cpuid*()" functions to have
+On Sun, Jul 22, 2001 at 01:37:02AM +0200, Daniel Phillips wrote:
+> On Saturday 21 July 2001 18:38, Jeff Garzik wrote:
+> > "peter k." wrote:
+> > > i just installed 2.4.7, now a new process called "ksoftirqd_CPU0"
+> > > is started automatically when booting (by the kernel obviously)?
+> > > why? what does it do? i didnt find any useful information on it in
+> > > linuxdoc / linux-kernel archives
+> >
+> > it is used internally, ignore it.
 > 
-> 	:"0" (op)
+> It's pretty hard to ignore a process with a name that ugly ;-)
 > 
->    instead of their current incorrect
-> 
-> 	:"a" (op)
-> 
->    (we're supposed to explicitly tell the compiler that the first input
->    is the same as the first output)
+> How about just ksoft0 ?  Or kirq0?
 
-FWIW, using "a" as the input constraint isn't incorrect.
-The two are equivalent given a singleton register class.
+Now this is just getting silly.  It follows the same convention the
+6-8 other k* daemons follow.  Would you want kswpd? kupd? kreclmd?  Probably
+not.
 
-
-r~
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131231AbQKJT2a>; Fri, 10 Nov 2000 14:28:30 -0500
+	id <S131491AbQKJTaA>; Fri, 10 Nov 2000 14:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131491AbQKJT2U>; Fri, 10 Nov 2000 14:28:20 -0500
-Received: from atol.icm.edu.pl ([212.87.0.35]:64006 "EHLO atol.icm.edu.pl")
-	by vger.kernel.org with ESMTP id <S131231AbQKJT2J>;
-	Fri, 10 Nov 2000 14:28:09 -0500
-Date: Fri, 10 Nov 2000 20:27:47 +0100
-From: Rafal Maszkowski <rzm@icm.edu.pl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test11-pre2
-Message-ID: <20001110202747.A16806@burza.icm.edu.pl>
-In-Reply-To: <Pine.LNX.4.10.10011091748300.2316-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.1i
-In-Reply-To: <Pine.LNX.4.10.10011091748300.2316-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Nov 09, 2000 at 05:52:29PM -0800
+	id <S131598AbQKJT3u>; Fri, 10 Nov 2000 14:29:50 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:8206 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131491AbQKJT3c>; Fri, 10 Nov 2000 14:29:32 -0500
+Message-ID: <3A0C4BB2.8D2B724D@timpanogas.org>
+Date: Fri, 10 Nov 2000 12:25:38 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <Pine.LNX.4.30.0011101409240.19584-100000@back40.badlands.lexington.ibm.com> <3A0C48CD.5E3F99DF@timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2000 at 05:52:29PM -0800, Linus Torvalds wrote:
->  - pre2:
->     - David Miller: sparc64 updates, make sparc32 boot again
 
-Thanks for working on it but I am getting still:
 
-boot: 11.2
-Uncompressing image...
-PROMLIB: obio_ranges 5
-bootmem_init: Scan sp_banks,  init_bootmem(spfn[1f5],bpfn[1f5],mlpfn[c000])
-free_bootmem: base[0] size[1000000]
-free_bootmem: base[4000000] size[1000000]
-free_bootmem: base[8000000] size[1000000]
-reserve_bootmem: base[0] size[1f5000]
-reserve_bootmem: base[1f5000] size[1800]
-Booting Linux...
+Claus is sloging into the box and we will be trying to track this down. 
+If it is a problem in the Linux TCPIP stack, we'll post a report later
+this afternoon as to where it looks like the problem is.  
 
-Watchdog Reset
-Type  help  for more information
-ok
+Jeff
 
-Turning off software watchdog does not help, I am not sure if the "Watchdog
-Reset" message is from the kernel though. I am using
-
-make dep clean modules modules_install vmlinux ; gzip vmlinux
-
-for compiling.
-
-SPARCstation 10, 1 CPU, Fore 200e SBA, 64 MB RAM
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
-Linux etest.icm.edu.pl 2.2.17 #1 Fri Oct 27 03:43:05 MEST 2000 sparc unknown
-
-I wonder if it could be my fault - could anybody testify that he was able to
-boot any 2.4.0 on Sparc32?
-
-R.
--- 
-W iskier krzesaniu ¿ywem/Materia³ to rzecz g³ówna
+"Jeff V. Merkey" wrote:
+> 
+> Since I posted this on LKML, Claus over at sendmail.org seems more
+> motivated to track it down.  (since it might appear on the front page of
+> Linux today).  I would love your assistance Richard.
+> It could be a local problem since smrsh also seems to be f_cked up as
+> well, but I am seeing the same thing with an out of the box RH6.2.
+> 
+> Jeff
+> 
+> Richard A Nelson wrote:
+> >
+> > On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
+> >
+> > > 8.11.1 has problems talking to older sendmails and qmail.  I've seen
+> > > even worse problems on 8.11.1, and backreved it immediately, and the
+> > > encryption stuff has a lot of build problems on Linux.
+> >
+> > Sounds like local build problems, possibly all the problems !
+> >
+> > I can assist if you want to build 8.11.1 on Linux
+> > --
+> > Rick Nelson
+> > Life'll kill ya                         -- Warren Zevon
+> > Then you'll be dead                     -- Life'll kill ya
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

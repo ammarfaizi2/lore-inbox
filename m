@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpOv8zlIERBB1QoCsDcBD7fUQng==
+thread-index: AcQVpOX/KGf2ZWaLTDSiCYtQsXch/Q==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Tue, 06 Jan 2004 00:00:01 +0000
-Message-ID: <041901c415a4$ebfcce50$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 23:05:15 +0000
+Message-ID: <041401c415a4$e6020b50$d100000a@sbs2003.local>
+X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
 Importance: normal
-Subject: Re: 2.6.0: atyfb broken
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-Reply-To: <benh@kernel.crashing.org>
-To: <Administrator@osdl.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, <claas@rootdir.de>,
-        "Linux Kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0401052333390.7347-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0401052333390.7347-100000@phoenix.infradead.org>
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Mar 2004 16:45:45 +0100
+From: "Matthew Dobson" <colpatch@us.ibm.com>
+Reply-To: <colpatch@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 16:45:55 +0100
+To: <Administrator@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
+        "Andrew Morton" <akpm@osdl.org>,
+        "Trivial Patch Monkey" <trivial@rustcorp.com.au>
+Subject: Re: [TRIVIAL PATCH] Use valid node number when unmapping CPUs
+References: <3FE74801.2010401@us.ibm.com> <3FE78F53.9090302@cyberone.com.au>
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:45:55.0171 (UTC) FILETIME=[EC03D330:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:45:48.0906 (UTC) FILETIME=[E847DCA0:01C415A4]
 
-On Tue, 2004-01-06 at 10:33, James Simmons wrote:
-> > > Ben, if you could shoot me over a copy of the current linux-fbdev tree that
-> > > might help things along a bit.
-> > 
-> > linux-fbdev is at bk://fbdev.bkbits.net/fbdev-2.5
-> > 
-> > Some things in there are too crappy though, like the whole gfx-client
-> > stuff, I suggest you don't merge as-is. I will start sending you
-> > patches tomorrow hopefully.
+Nick Piggin wrote:
 > 
-> Is the gfx-client stuff the only issue for 
+> 
+> Matthew Dobson wrote:
+> 
+>> The cpu_2_node array for i386 is initialized to 0 for each CPU, 
+>> effectively mapping all CPUs to node 0 unless changed.  When we unmap 
+>> CPUs, however, we stick a -1 in the array, mapping the CPU to an 
+>> invalid node.  This really isn't helpful.  We should map the CPU to 
+>> node 0, to make sure that callers of cpu_to_node() and friends aren't 
+>> returned a bogus node number.  This trivial patch changes the 
+>> unmapping code to place a 0 in the node mapping for removed CPUs.
+>>
+>> Cheers!
+> 
+> 
+> 
+> I'd prefer it got initialised to -1 for each cpu, and either set to -1
+> or not touched during unmap.
+ >
+> 
+> 0 is more bogus than the alternatives, isn't it? At least for the subset
+> of CPUs not on node 0. Callers should be fixed.
 
-The main one. I have some problems with the pixmap code (see my other
-message about this, the locking is definitely broken) and I'm not sure
-we want to merge the allocation changes upstream yet (well, maybe they
-are stable enough by now ?)
+Not really...  These macros are usually used for things like scheduling, 
+memory placement and other decisions.  Right now the value doesn't have 
+to be error-checked, because it is assumed to always return a valid 
+node.  For these types of uses, it's far better to schedule/allocate 
+something on the wrong node (ie: node 0) than on an invalid node (ie: 
+node -1).  Having a possible negative value for this will break things 
+when used as an array index (as it often is), and will force us to put 
+tests to ensure it is a valid value before using it, and introduce 
+possible races in the future (ie: imagine testing if CPU 17's node 
+mapping is non-negative, simultaneously unmapping the CPU, then using 
+the macro again to make a node decision.  You may get a negative value 
+back, thus causing you to index way off the end of your array... BOOM). 
+  If we stick with the convention that we always have a valid (even if 
+not *correct*) value in these arrays, the worst we should get is poor 
+performance, not breakage.
 
-Ben.
- 
+Cheers!
+
+-Matt
+

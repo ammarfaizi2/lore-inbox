@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVASReX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVASReW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVASReX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 12:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVASRcU
+	id S261796AbVASReW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 12:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVASRcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 12:32:20 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:46854 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261796AbVASRbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 12:31:48 -0500
-Subject: Re: [PATCH] dynamic tick patch
-From: Arjan van de Ven <arjan@infradead.org>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Pavel Machek <pavel@suse.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050119171106.GA14545@atomide.com>
-References: <20050119000556.GB14749@atomide.com>
-	 <20050119113642.GA1358@elf.ucw.cz>  <20050119171106.GA14545@atomide.com>
-Content-Type: text/plain
-Date: Wed, 19 Jan 2005 18:30:49 +0100
-Message-Id: <1106155850.6310.161.camel@laptopd505.fenrus.org>
+	Wed, 19 Jan 2005 12:32:45 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:48260 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261792AbVASRbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 12:31:13 -0500
+Date: Wed, 19 Jan 2005 09:31:11 -0800
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: [BUG] MODULE_PARM conversions introduces bug in Wavelan driver
+Message-ID: <20050119173111.GB25969@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20050119004722.GA26468@bougret.hpl.hp.com> <1106102553.20879.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106102553.20879.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 09:11 -0800, Tony Lindgren wrote:
-> * Pavel Machek <pavel@suse.cz> [050119 03:32]:
-> > Hi!
+On Wed, Jan 19, 2005 at 01:42:33PM +1100, Rusty Russell wrote:
+> On Tue, 2005-01-18 at 16:47 -0800, Jean Tourrilhes wrote:
+> > 	Hi Rusty,
 > > 
-> > > As this patch is related to the VST/High-Res timers, there
-> > > are probably various things that can be merged. I have not
-> > > yet looked at what all could be merged.
-> > > 
-> > > I'd appreciate some comments and testing!
-> > 
-> > Good news is that it does seem to reduce number of interrupts. Bad
-> > news is that time now runs faster (like "sleep 10" finishes in ~5
-> > seconds) and that I could not measure any difference in power
-> > consumption.
+> > 	(If you are not the culprit, please forward to the guilty party).
 > 
-> Thanks for trying it out. I have quite accurate time here on my
-> systems, and sleep works as it should. I wonder what's happening on
-> your system? If you have a chance, could you please post the results
-> from following simple tests?
+> Almost certainly me.  We gave people warning, we even marked MODULE_PARM
+> deprecated, but eventually I had to roll through and try to autoconvert.
 
-tsc is dangerous for this btw; several cpus go either slower or stop tsc
-entirely during hlt... eg when idle.
-I would suggest to not include a tsc driver for this (otherwise really
-cool) feature.
+	I have nothing against the change to module_param_array(), and
+I even think that it's a good idea. Just doing my job of peer review.
 
+> > 	I personally introduced the "double char array" module
+> > parameter, 'c', to fix that. I even sent you the patch to add 'c'
+> > support in your new module loader (see set_obsolete()). Would it be
+> > possible to carry this feature with the new module_param_array ?
+> > 	Thanks in advance...
+> 
+> Actually, it's designed so you can extend it yourself: at its base,
+> module_param_call() is just a callback mechanism.
 
+	Yes, I could do my little hack in my corner, but I think it
+would be counter productive. I'm sure that compared to adding a check
+on strlen, it would be more bloat. But, more importantly, I would make
+the code more obscure and unmaintanable.
+
+	But, I think you are missing the point I'm making. We are
+striving to make APIs that are simple, efficient and avoid users to
+make stupid mistakes. The conversion from MODULE_PARM to module_param
+goes exactly in this direction, as it adds more type safety. This is
+good, as module_param is probably the most used user/kernel interface.
+	I believe that buffer overrun is the number one security
+problem in Linux. It seems that it even happens to the best of us. So,
+it would seem to me that making the module_param API a bit more bullet
+proof with regard to buffer overrun might be a good idea.
+	So, I'm not advocating that you build this feature just for
+me, but that you make it the standard and force people to use it.
+
+> Thanks!
+> Rusty.
+
+	Have fun...
+
+	Jean

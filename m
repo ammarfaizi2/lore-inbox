@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271365AbRH1PI7>; Tue, 28 Aug 2001 11:08:59 -0400
+	id <S271307AbRH1PKt>; Tue, 28 Aug 2001 11:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271349AbRH1PIt>; Tue, 28 Aug 2001 11:08:49 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:60859 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S271307AbRH1PIh>; Tue, 28 Aug 2001 11:08:37 -0400
-Message-ID: <3B8BB3BA.7FBC8EE4@us.ibm.com>
-Date: Tue, 28 Aug 2001 10:07:38 -0500
-From: Andrew Theurer <habanero@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>,
-        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Journal Filesystem Comparison on Netbench
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com.suse.lists.linux.kernel> <3B8AA7B9.8EB836FF@namesys.com.suse.lists.linux.kernel> <oupsneck77v.fsf@pigdrop.muc.suse.de> <3B8B755F.D6317A9A@crm.mot.com> <20010828125003.A27996@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271371AbRH1PKj>; Tue, 28 Aug 2001 11:10:39 -0400
+Received: from f43.law9.hotmail.com ([64.4.9.43]:48652 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S271307AbRH1PKY>;
+	Tue, 28 Aug 2001 11:10:24 -0400
+X-Originating-IP: [65.92.114.22]
+From: "Camiel Vanderhoeven" <camiel_toronto@hotmail.com>
+To: Bart.Vandewoestyne@pandora.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DOS2linux
+Date: Tue, 28 Aug 2001 11:10:36 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F430LDGdyoOxg2elKWQ000009ff@hotmail.com>
+X-OriginalArrivalTime: 28 Aug 2001 15:10:36.0348 (UTC) FILETIME=[972517C0:01C12FD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> On Tue, Aug 28, 2001 at 12:41:35PM +0200, Emmanuel Varagnat wrote:
-> >
-> > Andi Kleen wrote:
-> > >
-> > > It does not really look like a locking problem. If you look at the profiling
-> > > logs it is pretty clear that the problem is the algorithm used in
-> > > bitmap.c:find_forward. find_forward and reiserfs_in_journal
-> > > ...
-> > > journaled blocks set also, to quickly skip them for the common case.
-> >
-> > I'm very interested in the way you did profiling.
-> > Did you compile the kernel with profiling options (gprof ?) ?
-> > If so, where the profiling information file is saved ?
-> 
-> I did not do any profiling in this case; I just read an existing log.
-> If you want to do profiling yourself you could use the simple
-> builtin statistical profiler: boot with profile=2 on the command line
-> and read the log at anytime using the readprofile command.
-> Other ways are documented on the lse homepage http://lse.sourceforge.net
+From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+> > Did you do a normal read from memory, or did you use port-i/o?
+>
+>I used the inb() function.
 
-The profiles I provided were with SGI's kernprof 0.9.2.  I chose ACG,
-which does have a lot of overhead (cg_record_arc and mcount), but also
-provides a lot of information.  I have a separate kernel for each
-filesystem and each filesystem+profle_patch (10 kernels).  No modules
-were used so that all profiles have no 'unknown kernel' functions.  Each
-profile was taken for 60 seconds, starting at 90 seconds into the test. 
-All profiles were taken on the 44 client test.  
+Sorry for asking, I just wanted to make sure it wasn't something simple...
 
-Andrew Theurer
+>My card is at 1000h, that's something i know for sure, because I can
+>probe the EISA ID at 0x1000+0xc80.
+
+Good.
+
+> > I'm not very familiar with
+> > the EISA architecture, but I do know that each card can use the
+> > following I/O ranges:
+> > X000h-X0FFh; X400h-X4FFh; X800h-X8FFh; XC00-XCFF, where X is the slot
+> > number.
+>
+>I guess you mean X0000h-X0FFF; X1000-X1FFF; ...
+
+No, I don't. Each EISA slot occupies four 256-byte ranges. That is because 
+any address that looks like X100h-X3ffh; X500h-X7ffh etc. is misinterpreted 
+by older ISA hardware.
+
+Camiel.
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

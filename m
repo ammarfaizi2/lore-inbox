@@ -1,102 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVASOab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVASObP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVASOab (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVASOaa
+	id S261732AbVASObP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVASObP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:30:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:25926 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261668AbVASOaP (ORCPT
+	Wed, 19 Jan 2005 09:31:15 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:38358 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261732AbVASOaX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:30:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=D6GUppP/elfCNnQjzpnb94GMt0+1d3nyF41RsPVD52Ha+nVjJVfD0StcfWm+NNiwp/jVd6ZbX4yYlYBBaqWBJ8cJbYSQVWdYyYBMwJxLySKyTmWYdHUR+4u8rEjourKRoNljHAfZPn2plavGaa21Lkba2JLVHnZZZENIazM8X+0=
-Message-ID: <d120d500050119063040de00a7@mail.gmail.com>
-Date: Wed, 19 Jan 2005 09:30:14 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 0/2] Remove input_call_hotplug
-Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pawlik <vojtech@suse.cz>
-In-Reply-To: <41EE4AE0.9030308@suse.de>
+	Wed, 19 Jan 2005 09:30:23 -0500
+Date: Wed, 19 Jan 2005 20:02:54 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: akpm@osdl.org, Andi Kleen <ak@muc.de>, ananth@in.ibm.com,
+       maneesh@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kprobes x86_64 memory allocation changes
+Message-ID: <20050119143254.GA3531@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com>
-	 <d120d50005011813495b49907c@mail.gmail.com>
-	 <20050118215820.GA17371@kroah.com>
-	 <d120d500050118142068157a78@mail.gmail.com>
-	 <20050119013133.GD23296@kroah.com> <41EE4AE0.9030308@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005 12:56:16 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> Greg KH wrote:
-> > On Tue, Jan 18, 2005 at 05:20:40PM -0500, Dmitry Torokhov wrote:
-> >
-> >>I was mostly talking about the need of 2 separate classes and this
-> >>patch lays groundwork for it althou lifetime rules in input system
-> >>need to be cleaned up before we can go all the way.
-> >
-> >
-> > I agree.  But I think only 1 class is needed, that way we don't break
-> > userspace, which is a pretty important thing.
-> > 
-> Well, if you could show me how to do this with the class_interface thing
-> I'd be happy to comply.
-> 
-> The input layer design is like this:
-> - Physical devices present one (or several) abstract input devices
-> (which correspond to struct input_dev)
-> - Each input device can be linked to one or several input handlers
-> (which correspond to struct input_handle)
-> - Each handler is represented to userspace with a device node.
-> 
-> The problem with the current input layer is that each 'struct
-> input_handle' is associated with a class_simple device.
-> This class is named 'input', so we're getting 'input' events from it.
-> But each instantiation of struct input_dev is also sending 'input'
-> events as it is doing the call_usermodehelper call directly.
-> 
+Hi,
+This patch moves the memory allocation required by kprobes outside spin lock
+as suggested by Andi Kleen. Please let me know your comments.
 
-Yes, this is the problem and needs to be resolved. Thankfully most
-people have keyboard support compiled in so it's not fatal but we
-probably waht hotplug package be updated first before we commit this
-change.
+Thanks
+Prasanna
 
-> 
-> But if we were going to implement this with device_interface, we'd be
-> having a /sys/class structure like:
-> 
-> class
-> |- isa0060-serio0-input0
-> |  |- event0
-> |  |  `dev
-> |  |- key
-> |  |- ...
-> |- ..
-> 
-> So we'd be moving the 'dev' attribute one directory down, again
-> incurring a userland breakage.
-> Plus it would be far more coding involved as the entire input layer
-> structure would have to be redone.
-> 
+	Minor changes to the kprobes code to provide memory allocation
+for x86_64 architecture outside kprobes spin lock.
 
-If I understand correctly we do not have subclasses so it will look like
-class
-|- input_device
-|  |- input0
-|  |- input1
-|
-|- input
-|  |-event0
-|  |-event1
-|  |-mouse0
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
-So breakage is really minimal.
+---
 
+
+
+---
+
+ linux-2.6.11-rc1-prasanna/arch/i386/kernel/kprobes.c    |    6 +++++-
+ linux-2.6.11-rc1-prasanna/arch/ppc64/kernel/kprobes.c   |   10 ++++++++--
+ linux-2.6.11-rc1-prasanna/arch/sparc64/kernel/kprobes.c |    6 +++++-
+ linux-2.6.11-rc1-prasanna/arch/x86_64/kernel/kprobes.c  |   16 +++++++++++++---
+ linux-2.6.11-rc1-prasanna/include/linux/kprobes.h       |    1 +
+ linux-2.6.11-rc1-prasanna/kernel/kprobes.c              |   13 ++++++++-----
+ 6 files changed, 40 insertions(+), 12 deletions(-)
+
+diff -puN arch/i386/kernel/kprobes.c~kprobes-x86_64-changes arch/i386/kernel/kprobes.c
+--- linux-2.6.11-rc1/arch/i386/kernel/kprobes.c~kprobes-x86_64-changes	2005-01-19 19:46:23.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/arch/i386/kernel/kprobes.c	2005-01-19 19:46:23.000000000 +0530
+@@ -61,10 +61,14 @@ static inline int is_IF_modifier(kprobe_
+ 
+ int arch_prepare_kprobe(struct kprobe *p)
+ {
+-	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
+ 	return 0;
+ }
+ 
++void arch_copy_kprobe(struct kprobe *p)
++{
++	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
++}
++
+ void arch_remove_kprobe(struct kprobe *p)
+ {
+ }
+diff -puN arch/sparc64/kernel/kprobes.c~kprobes-x86_64-changes arch/sparc64/kernel/kprobes.c
+--- linux-2.6.11-rc1/arch/sparc64/kernel/kprobes.c~kprobes-x86_64-changes	2005-01-19 19:46:23.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/arch/sparc64/kernel/kprobes.c	2005-01-19 19:46:23.000000000 +0530
+@@ -40,9 +40,13 @@
+ 
+ int arch_prepare_kprobe(struct kprobe *p)
+ {
++	return 0;
++}
++
++void arch_copy_kprobe(struct kprobe *p)
++{
+ 	p->ainsn.insn[0] = *p->addr;
+ 	p->ainsn.insn[1] = BREAKPOINT_INSTRUCTION_2;
+-	return 0;
+ }
+ 
+ void arch_remove_kprobe(struct kprobe *p)
+diff -puN arch/x86_64/kernel/kprobes.c~kprobes-x86_64-changes arch/x86_64/kernel/kprobes.c
+--- linux-2.6.11-rc1/arch/x86_64/kernel/kprobes.c~kprobes-x86_64-changes	2005-01-19 19:46:23.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/arch/x86_64/kernel/kprobes.c	2005-01-19 19:46:23.000000000 +0530
+@@ -39,6 +39,8 @@
+ #include <asm/pgtable.h>
+ #include <asm/kdebug.h>
+ 
++static DECLARE_MUTEX(kprobe_mutex);
++
+ /* kprobe_status settings */
+ #define KPROBE_HIT_ACTIVE	0x00000001
+ #define KPROBE_HIT_SS		0x00000002
+@@ -75,17 +77,25 @@ static inline int is_IF_modifier(kprobe_
+ int arch_prepare_kprobe(struct kprobe *p)
+ {
+ 	/* insn: must be on special executable page on x86_64. */
++	up(&kprobe_mutex);
+ 	p->ainsn.insn = get_insn_slot();
++	down(&kprobe_mutex);
+ 	if (!p->ainsn.insn) {
+ 		return -ENOMEM;
+ 	}
+-	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE);
+ 	return 0;
+ }
+ 
++void arch_copy_kprobe(struct kprobe *p)
++{
++	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE);
++}
++
+ void arch_remove_kprobe(struct kprobe *p)
+ {
++	up(&kprobe_mutex);
+ 	free_insn_slot(p->ainsn.insn);
++	down(&kprobe_mutex);
+ }
+ 
+ static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
+@@ -425,12 +435,12 @@ static kprobe_opcode_t *get_insn_slot(vo
+ 	}
+ 
+ 	/* All out of space.  Need to allocate a new page. Use slot 0.*/
+-	kip = kmalloc(sizeof(struct kprobe_insn_page), GFP_ATOMIC);
++	kip = kmalloc(sizeof(struct kprobe_insn_page), GFP_KERNEL);
+ 	if (!kip) {
+ 		return NULL;
+ 	}
+ 	kip->insns = (kprobe_opcode_t*) __vmalloc(PAGE_SIZE,
+-		GFP_ATOMIC|__GFP_HIGHMEM, __pgprot(__PAGE_KERNEL_EXEC));
++		GFP_KERNEL|__GFP_HIGHMEM, __pgprot(__PAGE_KERNEL_EXEC));
+ 	if (!kip->insns) {
+ 		kfree(kip);
+ 		return NULL;
+diff -puN include/linux/kprobes.h~kprobes-x86_64-changes include/linux/kprobes.h
+--- linux-2.6.11-rc1/include/linux/kprobes.h~kprobes-x86_64-changes	2005-01-19 19:46:23.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/include/linux/kprobes.h	2005-01-19 19:46:23.000000000 +0530
+@@ -95,6 +95,7 @@ static inline int kprobe_running(void)
+ }
+ 
+ extern int arch_prepare_kprobe(struct kprobe *p);
++extern void arch_copy_kprobe(struct kprobe *p);
+ extern void arch_remove_kprobe(struct kprobe *p);
+ extern void show_registers(struct pt_regs *regs);
+ 
+diff -puN kernel/kprobes.c~kprobes-x86_64-changes kernel/kprobes.c
+--- linux-2.6.11-rc1/kernel/kprobes.c~kprobes-x86_64-changes	2005-01-19 19:46:23.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/kernel/kprobes.c	2005-01-19 19:46:23.000000000 +0530
+@@ -76,18 +76,19 @@ struct kprobe *get_kprobe(void *addr)
+ int register_kprobe(struct kprobe *p)
+ {
+ 	int ret = 0;
+-	unsigned long flags;
++	unsigned long flags = 0;
+ 
++	if ((ret = arch_prepare_kprobe(p)) != 0) {
++		goto out;
++	}
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	INIT_HLIST_NODE(&p->hlist);
+ 	if (get_kprobe(p->addr)) {
+ 		ret = -EEXIST;
+ 		goto out;
+ 	}
++	arch_copy_kprobe(p);
+ 
+-	if ((ret = arch_prepare_kprobe(p)) != 0) {
+-		goto out;
+-	}
+ 	hlist_add_head(&p->hlist,
+ 		       &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
+ 
+@@ -97,14 +98,16 @@ int register_kprobe(struct kprobe *p)
+ 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
+       out:
+ 	spin_unlock_irqrestore(&kprobe_lock, flags);
++	if (ret == -EEXIST)
++		arch_remove_kprobe(p);
+ 	return ret;
+ }
+ 
+ void unregister_kprobe(struct kprobe *p)
+ {
+ 	unsigned long flags;
+-	spin_lock_irqsave(&kprobe_lock, flags);
+ 	arch_remove_kprobe(p);
++	spin_lock_irqsave(&kprobe_lock, flags);
+ 	*p->addr = p->opcode;
+ 	hlist_del(&p->hlist);
+ 	flush_icache_range((unsigned long) p->addr,
+diff -puN arch/ppc64/kernel/kprobes.c~kprobes-x86_64-changes arch/ppc64/kernel/kprobes.c
+--- linux-2.6.11-rc1/arch/ppc64/kernel/kprobes.c~kprobes-x86_64-changes	2005-01-19 19:52:36.000000000 +0530
++++ linux-2.6.11-rc1-prasanna/arch/ppc64/kernel/kprobes.c	2005-01-19 19:52:49.000000000 +0530
+@@ -45,13 +45,19 @@ static struct pt_regs jprobe_saved_regs;
+ 
+ int arch_prepare_kprobe(struct kprobe *p)
+ {
+-	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
+-	if (IS_MTMSRD(p->ainsn.insn[0]) || IS_RFID(p->ainsn.insn[0]))
++	kprobe_opcode_t insn = *p->addr;
++
++	if (IS_MTMSRD(insn) || IS_RFID(insn))
+ 		/* cannot put bp on RFID/MTMSRD */
+ 		return 1;
+ 	return 0;
+ }
+ 
++void arch_copy_kprobe(struct kprobe *p)
++{
++	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
++}
++
+ void arch_remove_kprobe(struct kprobe *p)
+ {
+ }
+
+_
 -- 
-Dmitry
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

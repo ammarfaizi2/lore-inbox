@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132023AbRBDQXU>; Sun, 4 Feb 2001 11:23:20 -0500
+	id <S132040AbRBDQXu>; Sun, 4 Feb 2001 11:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132040AbRBDQXM>; Sun, 4 Feb 2001 11:23:12 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:47112 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S132023AbRBDQW4>; Sun, 4 Feb 2001 11:22:56 -0500
-Date: Sun, 4 Feb 2001 16:16:20 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: James Sutherland <jas88@cam.ac.uk>
-cc: Ben Ford <ben@kalifornia.com>, Russell King <rmk@arm.linux.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pavel Machek <pavel@suse.cz>, <andrew.grover@intel.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <Pine.SOL.4.21.0102041540300.14562-100000@green.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102041552510.17227-100000@imladris.demon.co.uk>
+	id <S129436AbRBDQXn>; Sun, 4 Feb 2001 11:23:43 -0500
+Received: from [62.122.17.207] ([62.122.17.207]:9485 "EHLO penny")
+	by vger.kernel.org with ESMTP id <S132040AbRBDQXa>;
+	Sun, 4 Feb 2001 11:23:30 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 segfault when doing "ls /dev/"
+In-Reply-To: <87u26avkfp.fsf@penny.ik5pvx.ampr.org>
+	<3A7D5CFB.1C21ECD2@wanadoo.fr> <87lmrmv984.fsf@penny.ik5pvx.ampr.org>
+	<3A7D7BCE.37F3DDF@wanadoo.fr>
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 04 Feb 2001 17:28:03 +0100
+In-Reply-To: <3A7D7BCE.37F3DDF@wanadoo.fr>
+Message-ID: <87g0huv2ek.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Feb 2001, James Sutherland wrote:
-> On Sun, 4 Feb 2001, Ben Ford wrote:
-> > David Woodhouse wrote:
-> > > Yeah. We can have this as part of the locale settings, changeable by
-> > > echoing the desired locale string to /proc/sys/kernel/lc_all.
-> > 
-> > Just an idea, . .  but isn't this something better done in userland?
-> 
-> That's what I'd do, anyway
+:-> "Pierre" == Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
 
-STOP!
 
-I'll repeat myself, in the en_US locale this time...
+    > /dev is mounted at boot time by the kernel (CONFIG_DEVFS_MOUNT=y).
+    > The system boots and runs without devfsd. You just can't start any 
+    > process calling for non-existing device under /dev and not created
+    > by devfsd. For instance pppd or mc won't start by lack of pseudo-tty 
+    > esd needs /dev/dsp ...
 
-<SARCASM>
-Yeah. We can have this as part of the locale settings, changeable by
-echoing the desired locale string to /proc/sys/kernel/lc_all.
-</SARCASM>
-<SUBTEXT TYPE=HIDDEN>Go away and troll elsewhere</SUBTEXT>
+Yes I know this. Actually, booting with "devfs=nomount s" is the only
+way to update the boot record with lilo and my existing lilo.conf.
+If I boot with devfs=nomount, I *can* ls /dev, without segfaulting.
+I don't want to access or use any device in /dev, I just want to stat
+/dev and see what's inside. There's something wrong with (I suspect)
+devfsd and the way it populates /dev with symlinks, whick make /dev
+un-listable but still usable, somewhat.
+
+
+    > i was thinking the trouble may come from some programme launched by
+    > your boot scripts before devfsd is running.
+
+I have no idea. Any other debian users reporting this ?
+
+    > is your version of fileutils > 4.0.28 (ls --version) ?
+
+root@penny:/usr/src/linux # ls --version
+ls (fileutils) 4.0.37
+
+
+Pf
+
 
 -- 
-dwmw2
 
-
-
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.1 #1 Sat Feb 3 20:43:54 CET 2001 i686 unknown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

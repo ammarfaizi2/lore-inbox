@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266410AbTGES1l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 14:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266412AbTGES1l
+	id S266402AbTGESfP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 14:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266412AbTGESfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 14:27:41 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56777 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266410AbTGES1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 14:27:40 -0400
-Date: Sat, 5 Jul 2003 11:43:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Message-Id: <20030705114308.6dacb5a2.akpm@osdl.org>
-In-Reply-To: <20030705104433.GK955@holomorphy.com>
-References: <20030703023714.55d13934.akpm@osdl.org>
-	<20030704210737.GI955@holomorphy.com>
-	<20030704181539.2be0762a.akpm@osdl.org>
-	<20030705104433.GK955@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jul 2003 14:35:15 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:41348 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266402AbTGESfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 14:35:10 -0400
+Date: Sat, 05 Jul 2003 14:49:20 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+In-reply-to: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com
+Message-id: <200307051449.32934.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> The badness() check isn't good enough. If badness() returns 0 for all
->  processes with pid's > 0 and the first one seen is a kernel thread the
->  kernel thread will be chosen.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Are we looking at the same code? 
+On Thursday 03 July 2003 23:08, you wrote:
+> Please do this in user space. The "overflow every 2^32 packets" thing is
+> _not_ a problem, if you just gather the statistics at any kind of
+> reasonable interval.
+<snip>
 
-static struct task_struct * select_bad_process(void)
-{
-	int maxpoints = 0;
-	struct task_struct *g, *p;
-	struct task_struct *chosen = NULL;
+While discussing this patch on IRC, an interesting idea came up: why not make 
+the counters count something different from bytes? "Less granular stats are 
+every bit (bad pun intended) as useful." This would break userspace, but 
+that's what everyone has to expect during odd releases (i.e. the modules in 
+2.5.)
 
-	do_each_thread(g, p)
-		if (p->pid) {
-			int points = badness(p);
-			if (points > maxpoints) {
-				chosen = p;
-				maxpoints = points;
-			}
-			if (p->flags & PF_SWAPOFF)
-				return p;
-		}
-	while_each_thread(g, p);
-	return chosen;
-}
+To avoid having to change all the code, we could have (in addition to what we 
+currently have) something like tx_kbytes or tx_mbytes which would be updated 
+via a timer every x milliseconds (I'd say maybe 350-500). The sysfs and 
+procfs interfaces would have to be modified, however those are just couple of 
+lines of code.
 
-if badness() returns zero for everything, this returns NULL and
-the kernel panics.
+Using KB would give us additional 10 bits (making the overflow at 4 TB.) I 
+don't really like the idea of using MB, but the underlying idea is the same - 
+20 more bits, making the limit 4 PB.
 
+What is the consensus on this way of solving the problem?
+
+Jeff.
+
+- -- 
+Failure is not an option,
+It comes bundled with your Microsoft product.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD4DBQE/Bx23wFP0+seVj/4RApsVAJUaKZG6px09U87j6tCakrQQebj6AKC52f55
+xSuyYxe62N8kefAoxposfg==
+=As/F
+-----END PGP SIGNATURE-----
 

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264363AbTFHBO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 21:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTFHBO6
+	id S264223AbTFHBZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 21:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTFHBZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 21:14:58 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:59178 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264363AbTFHBO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 21:14:57 -0400
-Date: Sat, 7 Jun 2003 18:28:43 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: William Lee Irwin III <wli@holomorphy.com>
+	Sat, 7 Jun 2003 21:25:56 -0400
+Received: from holomorphy.com ([66.224.33.161]:64713 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264223AbTFHBZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 21:25:55 -0400
+Date: Sat, 7 Jun 2003 18:38:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
 Cc: rddunlap@osdl.org, colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
 Subject: Re: Maximum swap space?
-Message-Id: <20030607182843.70079e07.akpm@digeo.com>
-In-Reply-To: <20030608005543.GM20413@holomorphy.com>
-References: <ltptlqb72n.fsf@colina.demon.co.uk>
-	<33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
-	<20030607132432.26846b8a.akpm@digeo.com>
-	<20030607205046.GL20413@holomorphy.com>
-	<20030608005543.GM20413@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20030608013827.GK8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, rddunlap@osdl.org,
+	colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
+References: <ltptlqb72n.fsf@colina.demon.co.uk> <33435.4.64.196.31.1055008200.squirrel@www.osdl.org> <20030607132432.26846b8a.akpm@digeo.com> <20030607205046.GL20413@holomorphy.com> <20030608005543.GM20413@holomorphy.com> <20030607182843.70079e07.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jun 2003 01:28:33.0117 (UTC) FILETIME=[464D10D0:01C32D5D]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030607182843.70079e07.akpm@digeo.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> Santamarta on #kn tested the following patch to allow up to 64
->  swapfiles.
+On Sat, Jun 07, 2003 at 06:28:43PM -0700, Andrew Morton wrote:
+> Seems hardly worth the extra arithmetic given that the 2G limit
+> is actually bogus?
+> I just did mkswap/swapon of a 52G partition.  That used 26MB of lowmem for
+> the swap map btw.
 
-Seems hardly worth the extra arithmetic given that the 2G limit
-is actually bogus?
+It's not clear precisely who or what would benefit from it; however,
+the decreased maximum of 32 swapfiles on i386 is a regression vs.
+2.4.x's limit of 64, in whatever sense something no one cares about is
+actually a regression (in principle they could have merely not spoken
+up about it).
 
-I just did mkswap/swapon of a 52G partition.  That used 26MB of lowmem for
-the swap map btw.
+In other words, if someone feels itchy because the number went down
+from 2.4.x, here it is. If not, I'm fine with leaving it be.
 
+
+-- wli
+
+P.S.
+If desired, I can also send in the code to utilize the extra bits on
+PAE, or turn things into a config option, or whatever. Joe Blow random
+VM hacker at your service etc.

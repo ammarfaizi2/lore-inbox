@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUG3WWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267865AbUG3WWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUG3WWC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 18:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUG3WWB
+	id S267865AbUG3WWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 18:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267864AbUG3WWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 18:22:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:4304 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267859AbUG3WSx (ORCPT
+	Fri, 30 Jul 2004 18:22:17 -0400
+Received: from elvis.franken.de ([193.175.24.41]:1981 "EHLO elvis.franken.de")
+	by vger.kernel.org with ESMTP id S267862AbUG3WUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 18:18:53 -0400
-Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
-	pcibus_to_node()
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <200407300836.32812.jbarnes@engr.sgi.com>
-References: <1090887007.16676.18.camel@arrakis>
-	 <200407290843.46116.jbarnes@engr.sgi.com> <1091139818.4070.7.camel@arrakis>
-	 <200407300836.32812.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1091225824.5925.1.camel@arrakis>
+	Fri, 30 Jul 2004 18:20:34 -0400
+Date: Sat, 31 Jul 2004 00:18:19 +0200
+To: Matthew Wilcox <willy@debian.org>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: Exposing ROM's though sysfs
+Message-ID: <20040730221819.GA24473@solo.franken.de>
+References: <20040730181205.GW10025@parcelfarce.linux.theplanet.co.uk> <20040730185921.99631.qmail@web14929.mail.yahoo.com> <20040730190456.GZ10025@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 30 Jul 2004 15:17:05 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040730190456.GZ10025@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
+From: tsbogend@alpha.franken.de (Thomas Bogendoerfer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 08:36, Jesse Barnes wrote:
-> I think this will work.  My tree didn't have nodemask_t though, so it didn't 
-> compile :)  Here's a first stab at an ia64 portion of the patch.
+On Fri, Jul 30, 2004 at 08:04:56PM +0100, Matthew Wilcox wrote:
+> On Fri, Jul 30, 2004 at 11:59:21AM -0700, Jon Smirl wrote:
+> > Alan Cox knows more about this, but I believe there is only one PCI
+> > card in existence that does this.
 > 
-> Jesse
+> Strange; he was the one who pointed out this requirement to me in the
+> first place and he hinted that many devices did this.
 
-Andrew picked it up in 2.6.8-rc2-mm1, so if you base your patch against
-that it should compile...  That's what I based my patch off.  Our lab
-has been down for a few days so I hope to do some testing on Monday for
-my patches.  If all goes well, I'll add your code into my patch and
-submit it early next week, ok?
+Just to name an example I know, HP Visualize EG or FXe (can't remember
+which one right now) PCI cards, have this sort of restriction ...
 
-Thanks!
+Thomas.
 
--Matt
-
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessary a
+good idea.                                 [ Alexander Viro on linux-kernel ]

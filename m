@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263922AbTJ1KsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 05:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTJ1KsJ
+	id S263979AbTJ1LFv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:05:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTJ1LFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 05:48:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:58798 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263922AbTJ1KsG (ORCPT
+	Tue, 28 Oct 2003 06:05:51 -0500
+Received: from gprs196-218.eurotel.cz ([160.218.196.218]:28547 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263979AbTJ1LFp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 05:48:06 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent PCI driver registration failure oopsing
-References: <20031028100402.F22424@flint.arm.linux.org.uk>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: How many retired bricklayers from FLORIDA are out purchasing
- PENCIL SHARPENERS right NOW??
-Date: Tue, 28 Oct 2003 11:48:05 +0100
-In-Reply-To: <20031028100402.F22424@flint.arm.linux.org.uk> (Russell King's
- message of "Tue, 28 Oct 2003 10:04:02 +0000")
-Message-ID: <jehe1tvdsq.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 28 Oct 2003 06:05:45 -0500
+Date: Tue, 28 Oct 2003 12:04:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Autoregulate vm swappiness cleanup
+Message-ID: <20031028110443.GA1792@elf.ucw.cz>
+References: <200310232337.50538.kernel@kolivas.org> <8720000.1066920153@[10.10.2.4]> <200310240103.19336.kernel@kolivas.org> <200310251658.23070.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310251658.23070.kernel@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+Hi!
 
-> --- orig/include/linux/pci.h	Thu Mar 13 14:24:56 2003
-> +++ linux/include/linux/pci.h	Wed Mar 12 19:37:41 2003
-> @@ -768,26 +768,7 @@
->  {
->  	int rc = pci_register_driver (drv);
->  
-> -	if (rc > 0)
-> -		return 0;
-> -
-> -	/* iff CONFIG_HOTPLUG and built into kernel, we should
-> -	 * leave the driver around for future hotplug events.
-> -	 * For the module case, a hotplug daemon of some sort
-> -	 * should load a module in response to an insert event. */
-> -#if defined(CONFIG_HOTPLUG) && !defined(MODULE)
-> -	if (rc == 0)
-> -		return 0;
-> -#else
-> -	if (rc == 0)
-> -		rc = -ENODEV;		
-> -#endif
-> -
-> -	/* if we get here, we need to clean up pci driver instance
-> -	 * and return some sort of error */
-> -	pci_unregister_driver (drv);
-> -	
-> -	return rc;
-> +	return rc < 0 ? : 0;
+> > > It seems that you don't need si_swapinfo here, do you? i.freeram,
+> > > i.bufferram, and i.totalram all come from meminfo, as far as I can
+> > > see? Maybe I'm missing a bit ...
+> >
+> > Well I did do it a while ago and it seems I got carried away adding and
+> > subtracting info indeed. :-) Here's a simpler patch that does the same
+> > thing.
+> 
+> The off-list enthusiasm has been rather strong so here is a patch done the 
+> right way (tm). There is no need for the check of totalram being zero (the 
+> original version of this patch modified the swappiness every tick which was 
+> wasteful and had a divide by zero on init). Adjusting vm_swappiness only when 
+> there is pressure to swap means totalram shouldn't be ever be zero. The 
+> sysctl is made read only since writing to it would be ignored now.
 
-Are you sure you want to return 1 if rc < 0?
+I believe swappiness == 100 was "I want max throughput, I don't care
+about latency going through roof", while swappiness == 0 was "I don't
+want you to swap too much, behave reasonably".
 
-Andreas.
+As you don't know if user cares about latency or not, I don't see how
+you can autotune this.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

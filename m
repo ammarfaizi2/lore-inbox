@@ -1,175 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVAERp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVAERoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVAERp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAERpz
+	id S262509AbVAERoe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVAERmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:45:55 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:19 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262521AbVAERnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:43:22 -0500
-Message-Id: <200501051743.j05Hh8h0030660@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/04/2005 with nmh-1.1-RC3
-To: len.brown@intel.com, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.10-mm1-V0.7.34-01 ACPI oops/hang
-From: Valdis.Kletnieks@vt.edu
+	Wed, 5 Jan 2005 12:42:10 -0500
+Received: from animx.eu.org ([216.98.75.249]:46995 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262528AbVAERi5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 12:38:57 -0500
+Date: Wed, 5 Jan 2005 12:47:52 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Oops on megaraid.
+Message-ID: <20050105174752.GA6859@animx.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1104946987_8912P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 05 Jan 2005 12:43:07 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1104946987_8912P
-Content-Type: text/plain; charset=us-ascii
+Kernel: 2.6.8.1 vanilla
+Card: Dell PERC DC/2 (megaraid)
 
-Running 2.6.10-mm1-V0.7.34-01.  gkrellm hung trying to read a file in /proc/acpi
-(apparently /proc/acpi/battery/BAT1/info based on the stack trace, as that was
-one of two files lsof listed it having open.  I tried doing a
-'cat /proc/acpi/thermal_zone/THM/temperature' (the *other* /proc file gkrellm
-had open), and it hung as well.  I've hit this once or twice under -rc3-mm1-Ingo
-kernels before, but didn't chase it down.  The oddness is that the bug trace
-says it was looking at the thermal zone, but gkrellm's stack points at the
-battery.  Not sure how that happened, unless gkrellm got control back after
-the bug, and then wedged the next time it tried to read a /proc/acpi file
-because the oops left a lock behind....
+The oops happened when I attempted to unload the megaraid module.  Before
+doing this, I ran the dellmgr program to reconfigure the raid.
 
-(Yes, the kernel is tainted by the NVidia driver.  All the same,  I'd find it
-more plausible that it's borkedness in Dell's ACPI stuff. Feel free to hit 'delete'
-if you're not interested in chasing this one...)
+Before the "oops" text, I saw:
+Badness in remove_proc_entry at fs/proc/generic.c:688
+ [<c017c3fa>] remove_proc_entry+0x10a/0x150
+ [<d88f6e3e>] megaraid_exit+0x2e/0x3e [megaraid]
+ [<c012c690>] sys_delete_module+0x150/0x1a0
+ [<c0142a00>] do_munmap+0x140/0x190
+ [<c010513b>] syscall_call+0x7/0xb
 
-Found this in the logs:
+That above explains the few lines above "Unable to handle kernel paging..."
 
-Jan  5 11:50:25 turing-police kernel: invalid operand: 0000 [#1]
-Jan  5 11:50:25 turing-police kernel: PREEMPT
-Jan  5 11:50:25 turing-police kernel: Modules linked in: aes_i586 agpgart orinoco_cs pcmcia sunrpc ip_conntrack_ftp ipt_pkttype ipt_REJECT i
-pt_state ip_conntrack ipt_LOG ipt_limit iptable_filter ip_tables ip6t_LOG ip6t_limit ip6table_filter ip6_tables microcode nvidia i8k thermal
- processor fan button battery ac ohci1394 ieee1394 yenta_socket rsrc_nonstatic pcmcia_core floppy
-Jan  5 11:50:25 turing-police kernel: CPU:    0
-Jan  5 11:50:25 turing-police kernel: EIP:    0060:[acpi_ex_resolve_node_to_value+6/748]    Tainted: P      VLI
-Jan  5 11:50:25 turing-police kernel: EFLAGS: 00010246   (2.6.10-mm1-V0.7.34-01)
-Jan  5 11:50:25 turing-police kernel: EIP is at acpi_ex_resolve_node_to_value+0x6/0x2ec
-Jan  5 11:50:25 turing-police kernel: eax: cffde994   ebx: 00000009   ecx: 00000000   edx: 00000020
-Jan  5 11:50:25 turing-police kernel: esi: c1cdcc28   edi: c9615c34   ebp: c9615c24   esp: c9615c18
-Jan  5 11:50:25 turing-police kernel: ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Jan  5 11:50:25 turing-police kernel: Process gkrellm (pid: 10746, threadinfo=c9614000 task=cf6d52f0)
-Jan  5 11:50:25 turing-police kernel: Stack: 00000009 c1cdcc28 c9615c34 c9615c50 c020f59f c1cdcc28 c1cdca6c 00000080
-Jan  5 11:50:25 turing-police kernel:        c03b0238 c03b022f cfe1d8b0 00000009 00000004 00000000 c9615c8c c0212994
-Jan  5 11:50:27 turing-police kernel:        c1cdcc28 c1cdca6c cffde994 00005b23 00000000 5b230994 00000080 c03adbf0
-Jan  5 11:50:28 turing-police kernel: Call Trace:
-Jan  5 11:50:28 turing-police kernel:  [show_stack+121/129] show_stack+0x79/0x81 (32)
-Jan  5 11:50:28 turing-police kernel:  [show_registers+251/357] show_registers+0xfb/0x165 (40)
-Jan  5 11:50:28 turing-police kernel:  [die+221/367] die+0xdd/0x16f (52)
-Jan  5 11:50:28 turing-police kernel:  [do_invalid_op+149/156] do_invalid_op+0x95/0x9c (204)
-Jan  5 11:50:28 turing-police kernel:  [error_code+43/48] error_code+0x2b/0x30 (72)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ex_resolve_to_value+143/210] acpi_ex_resolve_to_value+0x8f/0xd2 (44)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ex_resolve_operands+974/1694] acpi_ex_resolve_operands+0x3ce/0x69e (60)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ds_exec_end_op+250/1187] acpi_ds_exec_end_op+0xfa/0x4a3 (56)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ps_parse_loop+1659/2526] acpi_ps_parse_loop+0x67b/0x9de (56)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ps_parse_aml+196/645] acpi_ps_parse_aml+0xc4/0x285 (48)
-Jan  5 11:50:28 turing-police kernel:  [acpi_psx_execute+486/652] acpi_psx_execute+0x1e6/0x28c (44)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ns_execute_control_method+213/242] acpi_ns_execute_control_method+0xd5/0xf2 (40)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ns_evaluate_by_handle+216/266] acpi_ns_evaluate_by_handle+0xd8/0x10a (40)
-Jan  5 11:50:28 turing-police kernel:  [acpi_ns_evaluate_relative+330/418] acpi_ns_evaluate_relative+0x14a/0x1a2 (76)
-Jan  5 11:50:28 turing-police kernel:  [acpi_evaluate_object+361/606] acpi_evaluate_object+0x169/0x25e (68)
-Jan  5 11:50:28 turing-police kernel:  [acpi_evaluate_integer+125/393] acpi_evaluate_integer+0x7d/0x189 (172)
-Jan  5 11:50:29 turing-police kernel:  [<d0de9068>] acpi_thermal_get_temperature+0x68/0xb2 [thermal] (48)
-Jan  5 11:50:29 turing-police kernel:  [<d0dea004>] acpi_thermal_temp_seq_show+0x43/0x95 [thermal] (36)
-Jan  5 11:50:29 turing-police kernel:  [seq_read+224/565] seq_read+0xe0/0x235 (52)
-Jan  5 11:50:29 turing-police kernel:  [vfs_read+178/271] vfs_read+0xb2/0x10f (36)
-Jan  5 11:50:29 turing-police kernel:  [sys_read+63/102] sys_read+0x3f/0x66 (44)
-Jan  5 11:50:29 turing-police kernel:  [syscall_call+7/11] syscall_call+0x7/0xb (-8124)
-Jan  5 11:50:29 turing-police kernel: ---------------------------
-Jan  5 11:50:29 turing-police kernel: | preempt count: 00000002 ]
-Jan  5 11:50:29 turing-police kernel: | 2-level deep critical section nesting:
-Jan  5 11:50:29 turing-police kernel: ----------------------------------------
-Jan  5 11:50:29 turing-police kernel: .. [die+62/367] .... die+0x3e/0x16f
-Jan  5 11:50:29 turing-police kernel: .....[do_invalid_op+149/156] ..   ( <= do_invalid_op+0x95/0x9c)
-Jan  5 11:50:29 turing-police kernel: .. [print_traces+19/69] .... print_traces+0x13/0x45
-Jan  5 11:50:29 turing-police kernel: .....[show_stack+121/129] ..   ( <= show_stack+0x79/0x81)
-Jan  5 11:50:29 turing-police kernel:
-Jan  5 11:50:30 turing-police kernel: Code: 09 8b 55 fb be 90 14 02 00 00 57 db ff e4 50 68 f9 00 00 fb be 33 ec 00 00 8d 65 db ff f8 5b 5e 
-5f 5d c3 fb be 55 89 e5 57 56 53 <df> ff 18 e8 22 79 ef ff fb be 30 43 c0 89 45 ec db ff e4 c7 45
+This system boots via NFS and / is nfsroot.  There is no swap setup on the
+machine since there are no local disks.  The raid there for testing before
+moving it to another machine.  The system has 384mb of physical ram.
+
+Oops follows:
+
+ksymoops 2.4.9 on i686 2.6.8.1.  Options used
+     -v /lib/modules/2.6.8.1/build/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.8.1/ (default)
+     -m /boot/System.map-2.6.8.1 (default)
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+ [<c017c3fa>] remove_proc_entry+0x10a/0x150
+ [<d88f6e3e>] megaraid_exit+0x2e/0x3e [megaraid]
+ [<c012c690>] sys_delete_module+0x150/0x1a0
+ [<c0142a00>] do_munmap+0x140/0x190
+ [<c010513b>] syscall_call+0x7/0xb
+Unable to handle kernel paging request at virtual address 4b87ad72
+c017b52e
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c017b52e>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010292   (2.6.8.1) 
+eax: 4b87ad6e   ebx: d7b68cb4   ecx: 00000004   edx: d7b68c80
+esi: 00000004   edi: 4b87ad6e   ebp: 000040f8   esp: d23d3e8c
+ds: 007b   es: 007b   ss: 0068
+Stack: 00000004 4b87ad6e c017c33c 00000004 d23d3ed4 4b87ad6e d23d3ec8 d23d3ed4 
+       d77d9000 d7e6c1d4 d75c4074 d88f6d6a d23d3ed4 d7b68c80 00000000 177db000 
+       0000007e d7e6c000 30616268 00000000 00000000 d704dbcc c4087800 d88fab44 
+Call Trace:
+ [<c017c33c>] remove_proc_entry+0x4c/0x150
+ [<d88f6d6a>] megaraid_remove_one+0x34a/0x370 [megaraid]
+ [<c01aca7b>] pci_device_remove+0x3b/0x40
+ [<c01e5a96>] device_release_driver+0x66/0x70
+ [<c01e5acb>] driver_detach+0x2b/0x40
+ [<c01e5f7c>] bus_remove_driver+0x4c/0x90
+ [<c01e64e3>] driver_unregister+0x13/0x30
+ [<c01acce6>] pci_unregister_driver+0x16/0x30
+ [<d88f6e4a>] megaraid_exit+0x3a/0x3e [megaraid]
+ [<c012c690>] sys_delete_module+0x150/0x1a0
+ [<c0142a00>] do_munmap+0x140/0x190
+ [<c010513b>] syscall_call+0x7/0xb
+Code: 0f b7 48 04 3b 4c 24 0c 74 0d 31 c0 8b 34 24 8b 7c 24 04 83 
 
 
-I did a 'echo t > /proc/sysrq-trigger', and got these two traces:
+>>EIP; c017b52e <proc_match+e/40>   <=====
 
-Jan  5 12:13:59 turing-police kernel: gkrellm       [c53da030]T 00001CBC  5996 25659   6740               13442 (NOTLB)
-Jan  5 12:13:59 turing-police kernel: cea9bcec 00200046 c0385793 00001cbc 00000000 3aa61400 000f4af7 c53da030
-Jan  5 12:13:59 turing-police kernel:        c53da194 cea9a000 cffe0990 00000001 cea9bcf8 c0385868 00200246 cea9bd30
-Jan  5 12:13:59 turing-police kernel:        c0384ee6 c53da030 00000001 c53da030 c0112f47 c57dfc8c cb86bc8c c010db8c
-Jan  5 12:13:59 turing-police kernel: Call Trace:
-Jan  5 12:13:59 turing-police kernel:  [schedule+222/247] schedule+0xde/0xf7 (12)
-Jan  5 12:13:59 turing-police kernel:  [__sched_text_start+162/365] __down+0xa2/0x16d (56)
-Jan  5 12:13:59 turing-police kernel:  [__down_failed+10/16] __down_failed+0xa/0x10 (16)
-Jan  5 12:13:59 turing-police kernel:  [.text.lock.osl+19/61] .text.lock.osl+0x13/0x3d (40)
-Jan  5 12:13:59 turing-police kernel:  [acpi_ut_acquire_mutex+201/356] acpi_ut_acquire_mutex+0xc9/0x164 (76)
-Jan  5 12:13:59 turing-police kernel:  [acpi_ex_enter_interpreter+53/111] acpi_ex_enter_interpreter+0x35/0x6f (44)
-Jan  5 12:13:59 turing-police kernel:  [acpi_ns_execute_control_method+192/242] acpi_ns_execute_control_method+0xc0/0xf2 (36)
-Jan  5 12:13:59 turing-police kernel:  [acpi_ns_evaluate_by_handle+216/266] acpi_ns_evaluate_by_handle+0xd8/0x10a (40)
-Jan  5 12:13:59 turing-police kernel:  [acpi_ns_evaluate_relative+330/418] acpi_ns_evaluate_relative+0x14a/0x1a2 (76)
-Jan  5 12:13:59 turing-police kernel:  [acpi_evaluate_object+361/606] acpi_evaluate_object+0x169/0x25e (68)
-Jan  5 12:13:59 turing-police kernel:  [<d0dee0a3>] acpi_battery_get_info+0xa3/0x1b7 [battery] (76)
-Jan  5 12:14:00 turing-police kernel:  [<d0dee66f>] acpi_battery_read_info+0x6d/0x21a [battery] (48)
-Jan  5 12:14:00 turing-police kernel:  [seq_read+224/565] seq_read+0xe0/0x235 (52)
-Jan  5 12:14:00 turing-police kernel:  [vfs_read+178/271] vfs_read+0xb2/0x10f (36)
-Jan  5 12:14:00 turing-police kernel:  [sys_read+63/102] sys_read+0x3f/0x66 (44)
-Jan  5 12:14:00 turing-police kernel:  [syscall_call+7/11] syscall_call+0x7/0xb (-8124)
-Jan  5 12:14:00 turing-police kernel: ---------------------------
-Jan  5 12:14:00 turing-police kernel: | preempt count: 00000002 ]
-Jan  5 12:14:00 turing-police kernel: | 2-level deep critical section nesting:
-Jan  5 12:14:00 turing-police kernel: ----------------------------------------
-Jan  5 12:14:00 turing-police kernel: .. [__schedule+167/1509] .... __schedule+0xa7/0x5e5
-Jan  5 12:14:00 turing-police kernel: .....[schedule+222/247] ..   ( <= schedule+0xde/0xf7)
-Jan  5 12:14:00 turing-police kernel: .. [__schedule+340/1509] .... __schedule+0x154/0x5e5
-Jan  5 12:14:00 turing-police kernel: .....[schedule+222/247] ..   ( <= schedule+0xde/0xf7)
+>>ebx; d7b68cb4 <pg0+1785dcb4/3fcf3000>
+>>edx; d7b68c80 <pg0+1785dc80/3fcf3000>
+>>esp; d23d3e8c <pg0+120c8e8c/3fcf3000>
 
+Trace; c017c33c <remove_proc_entry+4c/150>
+Trace; d88f6d6a <pg0+185ebd6a/3fcf3000>
+Trace; c01aca7b <pci_device_remove+3b/40>
+Trace; c01e5a96 <device_release_driver+66/70>
+Trace; c01e5acb <driver_detach+2b/40>
+Trace; c01e5f7c <bus_remove_driver+4c/90>
+Trace; c01e64e3 <driver_unregister+13/30>
+Trace; c01acce6 <pci_unregister_driver+16/30>
+Trace; d88f6e4a <pg0+185ebe4a/3fcf3000>
+Trace; c012c690 <sys_delete_module+150/1a0>
+Trace; c0142a00 <do_munmap+140/190>
+Trace; c010513b <syscall_call+7/b>
 
-Jan  5 12:14:04 turing-police kernel: cat           [c0025370]T 00001C38  6976  9739   8666                 389 (NOTLB)
-Jan  5 12:14:04 turing-police kernel: c57dfc68 00200046 c0385793 00001c38 00000000 c9d99380 000f4c1a c0025370
-Jan  5 12:14:04 turing-police kernel:        c00254d4 c57de000 cffe0990 00000001 c57dfc74 c0385868 00200246 c57dfcac
-Jan  5 12:14:04 turing-police kernel:        c0384ee6 c0025370 00000001 c0025370 c0112f47 cffe0998 cea9bd10 c010db8c
-Jan  5 12:14:04 turing-police kernel: Call Trace:
-Jan  5 12:14:04 turing-police kernel:  [schedule+222/247] schedule+0xde/0xf7 (12)
-Jan  5 12:14:04 turing-police kernel:  [__sched_text_start+162/365] __down+0xa2/0x16d (56)
-Jan  5 12:14:04 turing-police kernel:  [__down_failed+10/16] __down_failed+0xa/0x10 (16)
-Jan  5 12:14:04 turing-police kernel:  [.text.lock.osl+19/61] .text.lock.osl+0x13/0x3d (40)
-Jan  5 12:14:04 turing-police kernel:  [acpi_ut_acquire_mutex+201/356] acpi_ut_acquire_mutex+0xc9/0x164 (76)
-Jan  5 12:14:04 turing-police kernel:  [acpi_ex_enter_interpreter+53/111] acpi_ex_enter_interpreter+0x35/0x6f (44)
-Jan  5 12:14:04 turing-police kernel:  [acpi_ns_execute_control_method+192/242] acpi_ns_execute_control_method+0xc0/0xf2 (36)
-Jan  5 12:14:04 turing-police kernel:  [acpi_ns_evaluate_by_handle+216/266] acpi_ns_evaluate_by_handle+0xd8/0x10a (40)
-Jan  5 12:14:04 turing-police kernel:  [acpi_ns_evaluate_relative+330/418] acpi_ns_evaluate_relative+0x14a/0x1a2 (76)
-Jan  5 12:14:04 turing-police kernel:  [acpi_evaluate_object+361/606] acpi_evaluate_object+0x169/0x25e (68)
-Jan  5 12:14:04 turing-police kernel:  [acpi_evaluate_integer+125/393] acpi_evaluate_integer+0x7d/0x189 (172)
-Jan  5 12:14:04 turing-police kernel:  [<d0de9068>] acpi_thermal_get_temperature+0x68/0xb2 [thermal] (48)
-Jan  5 12:14:04 turing-police kernel:  [<d0dea004>] acpi_thermal_temp_seq_show+0x43/0x95 [thermal] (36)
-Jan  5 12:14:04 turing-police kernel:  [seq_read+224/565] seq_read+0xe0/0x235 (52)
-Jan  5 12:14:04 turing-police kernel:  [vfs_read+178/271] vfs_read+0xb2/0x10f (36)
-Jan  5 12:14:04 turing-police kernel:  [sys_read+63/102] sys_read+0x3f/0x66 (44)
-Jan  5 12:14:04 turing-police kernel:  [syscall_call+7/11] syscall_call+0x7/0xb (-8124)
-Jan  5 12:14:04 turing-police kernel: ---------------------------
-Jan  5 12:14:04 turing-police kernel: | preempt count: 00000002 ]
-Jan  5 12:14:04 turing-police kernel: | 2-level deep critical section nesting:
-Jan  5 12:14:04 turing-police kernel: ----------------------------------------
-Jan  5 12:14:04 turing-police kernel: .. [__schedule+167/1509] .... __schedule+0xa7/0x5e5
-Jan  5 12:14:04 turing-police kernel: .....[schedule+222/247] ..   ( <= schedule+0xde/0xf7)
-Jan  5 12:14:04 turing-police kernel: .. [__schedule+340/1509] .... __schedule+0x154/0x5e5
-Jan  5 12:14:04 turing-police kernel: .....[schedule+222/247] ..   ( <= schedule+0xde/0xf7)
+Code;  c017b52e <proc_match+e/40>
+00000000 <_EIP>:
+Code;  c017b52e <proc_match+e/40>   <=====
+   0:   0f b7 48 04               movzwl 0x4(%eax),%ecx   <=====
+Code;  c017b532 <proc_match+12/40>
+   4:   3b 4c 24 0c               cmp    0xc(%esp),%ecx
+Code;  c017b536 <proc_match+16/40>
+   8:   74 0d                     je     17 <_EIP+0x17>
+Code;  c017b538 <proc_match+18/40>
+   a:   31 c0                     xor    %eax,%eax
+Code;  c017b53a <proc_match+1a/40>
+   c:   8b 34 24                  mov    (%esp),%esi
+Code;  c017b53d <proc_match+1d/40>
+   f:   8b 7c 24 04               mov    0x4(%esp),%edi
+Code;  c017b541 <proc_match+21/40>
+  13:   83 00 00                  addl   $0x0,(%eax)
 
 
---==_Exmh_1104946987_8912P
-Content-Type: application/pgp-signature
+1 error issued.  Results may not be reliable.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Modules loaded:
+Module                  Size  Used by
+reiserfs              244368  0 
+dm_mirror              20404  2 
+aic7xxx               195544  0 
+sd_mod                 16320  0 
+megaraid               42376  0 
+snd_ymfpci             55236  0 
+snd_ac97_codec         66948  1 snd_ymfpci
+snd_pcm                86152  1 snd_ymfpci
+snd_opl3_lib            8896  1 snd_ymfpci
+snd_timer              21316  3 snd_ymfpci,snd_pcm,snd_opl3_lib
+snd_hwdep               7076  1 snd_opl3_lib
+snd_page_alloc          9032  2 snd_ymfpci,snd_pcm
+snd_mpu401_uart         6144  1 snd_ymfpci
+snd_rawmidi            20164  1 snd_mpu401_uart
+snd_seq_device          6440  2 snd_opl3_lib,snd_rawmidi
+snd                    47972  9
+snd_ymfpci,snd_ac97_codec,snd_pcm,snd_opl3_lib,snd_timer,snd_hwdep,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+ymfpci                 47872  0 
+ac97_codec             17004  1 ymfpci
+soundcore               7328  2 snd,ymfpci
+usbhid                 29664  0 
+uhci_hcd               29936  0 
+usbcore               103908  4 usbhid,uhci_hcd
+piix                   11488  0 [permanent]
+ide_core              115868  1 piix
+evdev                   7296  0 
+sr_mod                 13668  0 
+scsi_mod               70432  4 aic7xxx,sd_mod,megaraid,sr_mod
+cdrom                  37756  1 sr_mod
+isofs                  24228  0 
+dm_mod                 56124  1 dm_mirror
 
-iD8DBQFB3CcrcC3lWbTT17ARAk6MAJ0UyFJrmDp2x9Ec/ZMj4HGfZVdaxQCgr/Io
-6y8OMM+1jxn1NbZKO+phdJA=
-=OSGD
------END PGP SIGNATURE-----
 
---==_Exmh_1104946987_8912P--
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,81 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267235AbTAKOg3>; Sat, 11 Jan 2003 09:36:29 -0500
+	id <S267231AbTAKOep>; Sat, 11 Jan 2003 09:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267238AbTAKOg3>; Sat, 11 Jan 2003 09:36:29 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43412
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267235AbTAKOg0>; Sat, 11 Jan 2003 09:36:26 -0500
-Subject: Re: any chance of 2.6.0-test*?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030111140602.GA20221@averell>
-References: <20030110165441$1a8a@gated-at.bofh.it>
-	 <20030110165505$38d9@gated-at.bofh.it>
-	 <m3iswv27o3.fsf@averell.firstfloor.org>
-	 <1042295999.2517.10.camel@irongate.swansea.linux.org.uk>
-	 <20030111140602.GA20221@averell>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042299059.2517.29.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 11 Jan 2003 15:31:00 +0000
+	id <S267232AbTAKOep>; Sat, 11 Jan 2003 09:34:45 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:28300 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267231AbTAKOeo>;
+	Sat, 11 Jan 2003 09:34:44 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 11 Jan 2003 15:43:27 +0100 (MET)
+Message-Id: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl>
+To: mochel@osdl.org
+Subject: sysfs
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 14:06, Andi Kleen wrote:
-> > The main problems are
-> >   - Incorrect locking all over the place
-> 
-> Hmm bad. Is it that hard to fix ?
+Yesterday evening I wrote a trivial utility fd ("find device")
+that gives the contents of sysfs. Mostly in order to see what
+name the memory stick card reader has today.
 
-Very. Just read the settings/proc code for an example
+I wondered about several things.
+Is there a description of the intended hierachy, so that one can
+compare present facts with intention?
 
-> >   - Incorrect timings on some phases
-> 
-> Can't you just take out the timings in that case? 
-> My (not very informed) understanding is: 
-> everything should work with the BIOS timings and generic IDE,
-> having own timings is just an optimization to squeeze out a bit
-> more speed.
+In /sysfs/devices I see
+1:0:6:0  2:0:0:1  2:0:0:3  3:0:0:1  4:0:0:0  4:0:0:2   ide0  legacy  sys
+2:0:0:0  2:0:0:2  3:0:0:0  3:0:0:2  4:0:0:1  ide-scsi  ide1  pci0
+many SCSI devices and some subdirectories.
+Would it not be better to have subdirectories scsiN just like ideN?
+One can have SCSI hosts, even when presently no devices are connected.
 
-These are timing for phases not drive timings. Drive timings from
-the BIOS are also frequently questionable. These have to be fixed
-and as boxes get faster it becomes more important they are
+There are links back and forth between block and bus, so that
+/sysfs/block/sda/device points at devices/1:0:6:0 and
+/sysfs/devices/1:0:6:0/block points at block/sda. Good.
+In the case my device is a USB device I tend to first look
+at VendorID and ProductID. But it seems there are no pointers
+from /sysfs/block or /sysfs/devices to the usb device hierachy.
 
-> >   - Lots of random oopses on boot/remove that were apparently
-> >     introduced by the kobject/sysfs people and need chasing
-> >     down. (There are some non sysfs ones mostly fixed)
-> 
-> I guess the kobject/sysfs stuff could be ripped out if it doesn't
-> work - it is probably not a "must have" feature.
+Now /sysfs/devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.4
+is the fourth device on some USB hub, a card reader with
+idVendor=057b, and it is the scsi host scsi2. But it does not
+refer to scsi2, perhaps because the category scsi host is missing
+in the hierarchy?
 
-Without a doubt. 
-
-> >   - ide-scsi needs some cleanup to fix switchover ide-cd/scsi
-> >     (We can't dump ide-scsi)
-> >   - Unregister path has races which cause all the long
-> >     standing problems with pcmcia and prevents pci unreg
-> 
-> Can't you just disable module unloading for the release ?
-
-Only if I can also nail shut your PCMCIA slot, disallow SATA and remove
-some ioctls people use for docking.
-
-> >   - IDE raid hasn't been ported to 2.5 at all yet
-> 
-> Vendor problem ?
-
-It needs a rewrite to the new bio layer or rewriting to use the device
-mapper, which is a distinct option here.
-
-
-> > Which works really well with all the IRQ paths on it
-> 
-> Then 2.0/2.2/2.4 would have been racy too :-) Apparently they worked though.
-
-Long ago lock_kernel had meaning against IRQ paths. TTY never caught up.
-
+Andries

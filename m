@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbQKKKOl>; Sat, 11 Nov 2000 05:14:41 -0500
+	id <S129649AbQKKKaw>; Sat, 11 Nov 2000 05:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbQKKKOb>; Sat, 11 Nov 2000 05:14:31 -0500
-Received: from pop.gmx.net ([194.221.183.20]:52343 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129359AbQKKKOR>;
-	Sat, 11 Nov 2000 05:14:17 -0500
-From: Gerald Haese <Gerald.Haese@gmx.de>
-Reply-To: Gerald.Haese@gmx.de
-Organization: GMX
-Date: Sat, 11 Nov 2000 11:19:47 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org
-To: Greg KH <greg@wirex.com>
-In-Reply-To: <00111101012003.01860@dose> <20001110164006.E1229@wirex.com>
-In-Reply-To: <20001110164006.E1229@wirex.com>
-Subject: Re: USB mouse stops working
+	id <S129753AbQKKKam>; Sat, 11 Nov 2000 05:30:42 -0500
+Received: from slc229.modem.xmission.com ([166.70.9.229]:8711 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129649AbQKKKa0>; Sat, 11 Nov 2000 05:30:26 -0500
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: George Anzinger <george@mvista.com>, Keith Owens <kaos@ocs.com.au>,
+        John Kacur <jkacur@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks'  WHAT?!
+In-Reply-To: <23569.973832900@kao2.melbourne.sgi.com> <3A0C2D4A.83C75D4B@mvista.com> <3A0C90FD.CB645430@uow.edu.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Nov 2000 01:50:23 -0700
+In-Reply-To: Andrew Morton's message of "Sat, 11 Nov 2000 11:21:17 +1100"
+Message-ID: <m1y9yqdh9s.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Message-Id: <00111111194700.00657@dose>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 11. November 2000 01:40 schrieb Greg KH:
+Andrew Morton <andrewm@uow.edu.au> writes:
 
->> I'm using an SMP system. Everything works fine and (absolutely) stable -
->> exept my USB mouse :-( It's the USB version of the Wacom Graphire tablet.
->> The mouse works great for some minutes or up to half an hour and it
->> generates a lot of interrupts during this time ... And now the mouse stops
->> working. No interrupt is generated. The USB printer does not work any
->> more. Unloading and reloading of the USB related modules does not help :-(
->> No interrupts are registered for USB (seen in /proc/interrupts).
+> George Anzinger wrote:
+> > 
+> > The notion of releasing a spin lock by initializing it seems IMHO, on
+> > the face of it, way off.  Firstly the protected area is no longer
+> > protected which could lead to undefined errors/ crashes and secondly,
+> > any future use of spinlocks to control preemption could have a lot of
+> > trouble with this, principally because the locker is unknown.
+> > 
+> > In the case at hand, it would seem that an unlocked path to the console
+> > is a more correct answer that gives the system a far better chance of
+> > actually remaining viable.
+> > 
+> 
+> Does bust_spinlocks() muck up the preemptive kernel's spinlock
+> counting?  Would you prefer spin_trylock()/spin_unlock()?
+> It doesn't matter - if we call bust_spinlocks() the kernel is
+> known to be dead meat and there is a fsck in your near future.
+> 
+> We are still trying to find out why kumon@fujitsu's 8-way is
+> crashing on the test10-pre5 sched.c.  Looks like it's fixed
+> in test11-pre2 but we want to know _why_ it's fixed.  And at
+> present each time he hits the bug, his printk() deadlocks.
+> 
+> So bust_spinlocks() is a RAS feature :)  A very important one -
+> it's terrible when your one-in-a-trillion bug happens and there
+> are no diagnostics.
+> 
+> It's a work-in-progress.  There are a lot of things which
+> can cause printk to deadlock:
+> 
+> - console_lock
+> - timerlist_lock
+> - global_irq_lock (console code does global_cli)
+> - log_wait.lock
+> - tasklist_lock (printk does wake_up) (*)
+> - runqueue_lock (printk does wake_up)
+> 
+> I'll be proposing a better patch for this in a few days.
 
-> What is the output of /proc/interrupts?  Is USB sharing an interrupt
-> with anything else?
-
-Here it is:
-
-           CPU0       CPU1
-  0:      48988      28737    IO-APIC-edge  timer
-  1:        457        276    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  7:          2          0    IO-APIC-edge  parport0
-  8:          0          2    IO-APIC-edge  rtc
-  9:       1085        968    IO-APIC-edge  HiSax
- 13:          0          0          XT-PIC  fpu
- 16:         11         10   IO-APIC-level  aic7xxx
- 18:      14845      14797   IO-APIC-level  usb-uhci
- 19:       2982       3028   IO-APIC-level  aic7xxx
-NMI:      77639      77638 
-LOC:      77623      77619 
-ERR:          1
-
-I have a PCI USB board with a uhci compliant (I hope so) VIA chip.
+Hmm.  I would like to suggest we look at non locking variants of
+things. i.e. Data structure version changing with swap.  
 
 
-Gerald
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

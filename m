@@ -1,92 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274881AbTHPRxz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 13:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274892AbTHPRxz
+	id S274897AbTHPSKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 14:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274899AbTHPSKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 13:53:55 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:37587 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S274881AbTHPRxx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 13:53:53 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
+	Sat, 16 Aug 2003 14:10:10 -0400
+Received: from remt25.cluster1.charter.net ([209.225.8.35]:57290 "EHLO
+	remt25.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S274897AbTHPSKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 14:10:00 -0400
+Date: Sat, 16 Aug 2003 14:09:23 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2-mm2 gnomeradio, xawtv both fail
-Date: Sat, 16 Aug 2003 13:53:53 -0400
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org
+Subject: 2.6.0-test3-mm2 kernel BUG at mm/filemap.c:1930 
+Message-ID: <20030816180923.GA6332@charter.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308161353.53060.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.12.137] at Sat, 16 Aug 2003 12:53:52 -0500
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.6.0-test3-mm1 i686
+X-Processor: Athlon XP 2000+
+X-Uptime: 14:03:23 up 14 min,  5 users,  load average: 1.19, 1.66, 1.04
+User-Agent: Mutt/1.5.4i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xawtv says it cannot open /dev/video0, and gnomeradio says it cannot 
-open /dev/radio0.
-I have this:
-[root@coyote root]# xawtv
-This is xawtv-3.74, running on Linux/i686 (2.6.0-test3-mm2)
-can't open /dev/video0: No such device
-v4l-conf had some trouble, trying to continue anyway
-v4l2: open /dev/video0: No such device
-v4l: open /dev/video0: No such device
-no video grabber device available
-[root@coyote root]# ls -l /dev/video*
-lrwxrwxrwx    1 root     root            6 Jun 13 04:47 /dev/video -> 
-video1
-crw-------    1 root     root      81,   0 Aug 30  2002 /dev/video0
-crw-------    1 root     root      81,   1 Aug 30  2002 /dev/video1
-crw-------    1 root     root      81,  10 Jun  8 22:29 /dev/video10
-crw-------    1 root     root      81,  11 Jun  8 22:29 /dev/video11
-crw-------    1 root     root      81,  12 Jun  8 22:29 /dev/video12
-crw-------    1 root     root      81,  13 Jun  8 22:29 /dev/video13
-crw-------    1 root     root     172,   0 Aug 30  2002 /dev/video1394
-crw-------    1 root     root      81,  14 Jun  8 22:29 /dev/video14
-crw-------    1 root     root      81,  15 Jun  8 22:29 /dev/video15
-crw-------    1 root     root      81,  16 Jun  8 22:29 /dev/video16
-crw-------    1 root     root      81,   2 Aug 30  2002 /dev/video2
-crw-------    1 root     root      81,   3 Aug 30  2002 /dev/video3
-crw-------    1 root     root      81,   4 Jun  8 22:29 /dev/video4
-crw-------    1 root     root      81,   5 Jun  8 22:29 /dev/video5
-crw-------    1 root     root      81,   6 Jun  8 22:29 /dev/video6
-crw-------    1 root     root      81,   7 Jun  8 22:29 /dev/video7
-crw-------    1 root     root      81,   8 Jun  8 22:29 /dev/video8
-crw-------    1 root     root      81,   9 Jun  8 22:29 /dev/video9
+Got this while trying to mount the rootfs.  It was ext3 if that makes
+any diff.  
 
-and this:
-[root@coyote root]# gnomeradio
-Storing Settings in GConf database
-[root@coyote root]# ls -l /dev/radio*
-lrwxrwxrwx    1 root     root            6 Nov 23  2002 /dev/radio -> 
-radio0
-crw-------    1 root     root      81,  64 Aug 30  2002 /dev/radio0
-crw-------    1 root     root      81,  65 Aug 30  2002 /dev/radio1
-crw-------    1 root     root      81,  66 Aug 30  2002 /dev/radio2
-crw-------    1 root     root      81,  67 Aug 30  2002 /dev/radio3
+ksymoops 2.4.8 on i686 2.6.0-test3-mm1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.0-test3-mm1/ (default)
+     -m /usr/src/2.5/linux-2.6.0-test2/System.map (specified)
 
-i2c stuff is not working yet, may I assume these are interlocked?
-I've not been able to make either i2c-2.8.0, or lm_sensors-2.8.0 
-compile, partially because the name of the kernel version file in the 
-lib/modules tree was changed for 2.6 and the makefiles cannot find 
-it.
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+<4>kernel BUG at mm/filemap.c:1930!
+<4>invalid operand: 0000 [#1]
+<4>CPU:    0
+<4>EIP:    0060:[<c0137d19>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+<4>EFLAGS: 00010286
+<4>eax: dfa7d140   ebx: 001f0000   ecx: dfbff3d8   edx: dfb9e298
+<4>esi: 00000000   edi: dfb61f6c   ebp: dfb61e84   esp: dfb61e40
+<4>ds: 007b   es: 007b   ss: 0068
+<4>Stack: dfb78000 00000015 dfb60000 dfb60000 c01357bc dfd87980 dfd87a10 dfd65cc0 
+<4>       dfb61e84 dfd65cc0 dfd65ce0 00001000 c0137e92 dfb61e84 dfb61f6c 00000001 
+<4>       dfd65ce0 dfd65c40 00000246 00000000 00000001 ffffffff dfd65cc0 dfd5f2e8 
+<4>Call Trace:
+<4> [<c01357bc>] find_get_page+0x2c/0x60
+<4> [<c0137e92>] generic_file_write_nolock+0xa2/0xc0
+<4> [<c011c2d0>] autoremove_wake_function+0x0/0x50
+<4> [<c01b50b0>] tty_write+0x0/0x300
+<4> [<c0118cf1>] do_page_fault+0x251/0x454
+<4> [<c01b514f>] tty_write+0x9f/0x300
+<4> [<c015830f>] blkdev_put+0xcf/0x1b0
+<4> [<c0158440>] blkdev_file_write+0x0/0x40
+<4> [<c0158477>] blkdev_file_write+0x37/0x40
+<4> [<c014fa78>] vfs_write+0xb8/0x130
+<4> [<c0157300>] block_llseek+0x0/0xe0
+<4> [<c014fba2>] sys_write+0x42/0x70
+<4> [<c02ba907>] syscall_call+0x7/0xb
+<4>Code: eb f2 8b 44 24 40 89 7c 24 04 c7 44 24 08 01 00 00 00 89 2c 24 89 44 24 0c e8 94 f4 ff ff 83 7d 10 ff 89 c7 75 ce e9 6f ff ff ff <0f> 0b 8a 07 7f f0 2c c0 e9 53 ff ff ff 8d 76 00 8d bc 27 00 00 
 
-So whats next folks?
 
-Oh, the expanded BUF_SHIFT? apparently works, but I took some other 
-gingerbread out and dmesg this time is only 11k.  But I'll leave it 
-till I get back in a couple of months.
+>>EIP; c0137d19 <generic_file_aio_write_nolock+e9/100>   <=====
+
+>>eax; dfa7d140 <_end+1f6c1d88/3fc41c48>
+>>ecx; dfbff3d8 <_end+1f844020/3fc41c48>
+>>edx; dfb9e298 <_end+1f7e2ee0/3fc41c48>
+>>edi; dfb61f6c <_end+1f7a6bb4/3fc41c48>
+>>ebp; dfb61e84 <_end+1f7a6acc/3fc41c48>
+>>esp; dfb61e40 <_end+1f7a6a88/3fc41c48>
+
+Trace; c01357bc <find_get_page+2c/60>
+Trace; c0137e92 <generic_file_write_nolock+a2/c0>
+Trace; c011c2d0 <autoremove_wake_function+0/50>
+Trace; c01b50b0 <tty_write+0/300>
+Trace; c0118cf1 <do_page_fault+251/454>
+Trace; c01b514f <tty_write+9f/300>
+Trace; c015830f <blkdev_put+cf/1b0>
+Trace; c0158440 <blkdev_file_write+0/40>
+Trace; c0158477 <blkdev_file_write+37/40>
+Trace; c014fa78 <vfs_write+b8/130>
+Trace; c0157300 <block_llseek+0/e0>
+Trace; c014fba2 <sys_write+42/70>
+Trace; c02ba907 <syscall_call+7/b>
+
+Code;  c0137cee <generic_file_aio_write_nolock+be/100>
+00000000 <_EIP>:
+Code;  c0137cee <generic_file_aio_write_nolock+be/100>
+   0:   eb f2                     jmp    fffffff4 <_EIP+0xfffffff4>
+Code;  c0137cf0 <generic_file_aio_write_nolock+c0/100>
+   2:   8b 44 24 40               mov    0x40(%esp,1),%eax
+Code;  c0137cf4 <generic_file_aio_write_nolock+c4/100>
+   6:   89 7c 24 04               mov    %edi,0x4(%esp,1)
+Code;  c0137cf8 <generic_file_aio_write_nolock+c8/100>
+   a:   c7 44 24 08 01 00 00      movl   $0x1,0x8(%esp,1)
+Code;  c0137cff <generic_file_aio_write_nolock+cf/100>
+  11:   00 
+Code;  c0137d00 <generic_file_aio_write_nolock+d0/100>
+  12:   89 2c 24                  mov    %ebp,(%esp,1)
+Code;  c0137d03 <generic_file_aio_write_nolock+d3/100>
+  15:   89 44 24 0c               mov    %eax,0xc(%esp,1)
+Code;  c0137d07 <generic_file_aio_write_nolock+d7/100>
+  19:   e8 94 f4 ff ff            call   fffff4b2 <_EIP+0xfffff4b2>
+Code;  c0137d0c <generic_file_aio_write_nolock+dc/100>
+  1e:   83 7d 10 ff               cmpl   $0xffffffff,0x10(%ebp)
+Code;  c0137d10 <generic_file_aio_write_nolock+e0/100>
+  22:   89 c7                     mov    %eax,%edi
+Code;  c0137d12 <generic_file_aio_write_nolock+e2/100>
+  24:   75 ce                     jne    fffffff4 <_EIP+0xfffffff4>
+Code;  c0137d14 <generic_file_aio_write_nolock+e4/100>
+  26:   e9 6f ff ff ff            jmp    ffffff9a <_EIP+0xffffff9a>
+Code;  c0137d19 <generic_file_aio_write_nolock+e9/100>   <=====
+  2b:   0f 0b                     ud2a      <=====
+Code;  c0137d1b <generic_file_aio_write_nolock+eb/100>
+  2d:   8a 07                     mov    (%edi),%al
+Code;  c0137d1d <generic_file_aio_write_nolock+ed/100>
+  2f:   7f f0                     jg     21 <_EIP+0x21>
+Code;  c0137d1f <generic_file_aio_write_nolock+ef/100>
+  31:   2c c0                     sub    $0xc0,%al
+Code;  c0137d21 <generic_file_aio_write_nolock+f1/100>
+  33:   e9 53 ff ff ff            jmp    ffffff8b <_EIP+0xffffff8b>
+Code;  c0137d26 <generic_file_aio_write_nolock+f6/100>
+  38:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0137d29 <generic_file_aio_write_nolock+f9/100>
+  3b:   8d                        .byte 0x8d
+Code;  c0137d2a <generic_file_aio_write_nolock+fa/100>
+  3c:   bc                        .byte 0xbc
+Code;  c0137d2b <generic_file_aio_write_nolock+fb/100>
+  3d:   27                        daa    
+
+
+1 error issued.  Results may not be reliable.
+
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+--- 
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+Linux, the choice            | They that can give up essential liberty
+of a GNU generation     -o)  | to obtain a little temporary safety deserve 
+Kernel 2.4.20-ck6        /\  | neither liberty or safety. 
+on a Athlon-XP          _\_v |                          -Benjamin Franklin

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbUBWWyu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUBWWyt
+	id S262081AbUBWXA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 18:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUBWW7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:54:49 -0500
-Received: from mail.convergence.de ([212.84.236.4]:23682 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262067AbUBWWw1
+	Mon, 23 Feb 2004 17:59:48 -0500
+Received: from mail.convergence.de ([212.84.236.4]:42626 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S262072AbUBWW6K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:52:27 -0500
-Message-ID: <403A841E.9090700@convergence.de>
-Date: Mon, 23 Feb 2004 23:52:14 +0100
+	Mon, 23 Feb 2004 17:58:10 -0500
+Message-ID: <403A8575.20900@convergence.de>
+Date: Mon, 23 Feb 2004 23:57:57 +0100
 From: Michael Hunold <hunold@convergence.de>
 User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Michael Hunold <hunold@linuxtv.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] tda1004x DVB frontend update
-References: <10775702831806@convergence.de>	<10775702843054@convergence.de> <20040223140943.7e58eb5c.akpm@osdl.org>
-In-Reply-To: <20040223140943.7e58eb5c.akpm@osdl.org>
+To: root@chaos.analogic.com
+CC: torvalds@osdl.org, akpm@osdl.org,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/9] Update the DVB subsystem docs
+References: <10775702813893@convergence.de> <Pine.LNX.4.53.0402231708440.4872@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402231708440.4872@chaos>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+Hello Richard,
 
-On 02/23/04 23:09, Andrew Morton wrote:
->> 	// read it!
->>-	lseek(fd, tda10045h_fwinfo[fwinfo_idx].fw_offset, 0);
->>+        lseek(fd, fw_offset, 0);
->> 	if (read(fd, firmware, fw_size) != fw_size) {
+On 02/23/04 23:23, Richard B. Johnson wrote:
+> On Mon, 23 Feb 2004, Michael Hunold wrote:
 
-> was there some plan to convert DVB over to using the firmware loader?
+>>+   The  Windows  drivers  for the Avermedia DVB-T can be obtained
+>>+   from: http://babyurl.com/H3U970 and you can get an application
+>>+   to extract the firmware from:
+>>+   http://www.kyz.uklinux.net/cabextract.php.
+>>+     _________________________________________________________
+> 
+> 
+> Truly bizarre, weird........
 
-Yes. But as I wrote in the mail to Christoph, we currently don't have a 
-chance to use some in-kernel structure (pci device, i2c bus) that 
-automatically exports the firmware loading magic through sysfs.
+DVB under Linux is sometimes cruel. Newer devices require firmware which 
+cannot be legally distributed.
 
-Because of this, we would have to write our own sysfs backend for the 
-dvb i2c subsystem, in order to get proper firmware loading support.
+So these curde workarounds are necessary, unfortunately.
 
-As I already mentioned in another mail, we want to go back to the kernel 
-i2c subsystem.
 
-Currently, the stuff is running quite stable and is "in use".
+>>+   The  default  Linux  filesystem  location for this firmware is
+>>+   /usr/lib/hotplug/firmware/sc_main.mc .
 
-Changing the i2c subsystem would require changes in all frontend drivers 
-+ plus in the dvb drivers exporting the i2c facilities.
+> What does this have to do with the kernel? Isn't this for some
+> utility that starts Aver/TV? Surely the kernel doesn't read files.
 
-Is such a big change acceptable for 2.6 if it fixes these horrible hacks 
-or is this 2.7 stuff?
+The description said, that the file is also a nice introduction to DVB 
+in general (with a close look to the avermedia cards), so this 
+information wasn't stripped.
+
+>> 		extracted from the Windows driver (Sc_main.mc).
+>> - tda1004x: firmware is loaded from path specified in
+>> 		DVB_TDA1004X_FIRMWARE_FILE kernel config
+> 
+> 
+> WTF? The __kernel__ doesn't read files. User mode programs
+> use the kernel to read files for them, on their behalf.
+
+Please refer to my other mail to Christoph and Andrew. Some of the 
+drivers uses historical cruft and we have a plan to overcome this.
+
+> Cheers,
+> Dick Johnson
 
 CU
 Michael.

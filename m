@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbUJ1U7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbUJ1VCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUJ1U7H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 16:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbUJ1U7H
+	id S262878AbUJ1VCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1VCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 16:59:07 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:45805 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S262226AbUJ1U6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 16:58:50 -0400
-Date: Thu, 28 Oct 2004 13:58:48 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.10-rc1-bk7] Fix ppc32 compile (Was: Re: prep_setup.c syntax error)
-Message-ID: <20041028205848.GE2097@smtp.west.cox.net>
-References: <20041028201534.GA6248@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 17:02:41 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:61546 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263003AbUJ1VBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:01:55 -0400
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [patch 7/7] uml: resolve symbols in back-traces
+Date: Thu, 28 Oct 2004 23:02:48 +0200
+User-Agent: KMail/1.7.1
+Cc: akpm@osdl.org, user-mode-linux-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>, jdike@addtoit.com
+References: <200410272223.i9RMNj921852@mail.osdl.org> <200410282034.21922.blaisorblade_spam@yahoo.it> <20041028192824.GC851@taniwha.stupidest.org>
+In-Reply-To: <20041028192824.GC851@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041028201534.GA6248@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200410282302.48311.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 10:15:34PM +0200, Olaf Hering wrote:
+On Thursday 28 October 2004 21:28, Chris Wedgwood wrote:
+> On Thu, Oct 28, 2004 at 08:34:21PM +0200, Blaisorblade wrote:
+> > And removing the final Emacs comment is not welcome (I don't care,
+> > but Jeff does. If that should be removed, that's a separate
+> > problem).
 
-> the last patch doesnt compile.
-> 
-> linux-2.6.10-rc1-bk7/arch/ppc/platforms/prep_setup.c:967: error: parse error before "return"
-> 
-> 
-> http://linux.bkbits.net:8080/linux-2.5/gnupatch@41801ba70RWW4DIxeswrgPg6ExEg2w
+> the emacs comments are gratuitous and completely pointless, they serve
+> no useful purpose.  fwiw in my .emacs i have:
 
-D'oh.  Something got cut-off there on Randy's end.  Obviously correct
-fix follows.
+>     (defun cw-linux-c-mode ()
+>       "C mode with adjusted defaults for use with the Linux kernel."
+>       (interactive)
+>       (c-mode)
+>       (c-set-style "linux"))
+>     (setq auto-mode-alist
+>    (append '(("wk/linux.*/.*\\.[ch]$" . cw-linux-c-mode))
+>     '(("/usr/src/linux.*/.*\\.[ch]$" . cw-linux-c-mode))
+>     auto-mode-alist))
+>
+> which actually could be cleaned up a bit (it's been hacked over the
+> years and never cleaned up suitably) but the idea is pretty simple
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+I mostly agree on this, and thought it myself (I *never* use Emacs, only Vim, 
+but no flames here).
 
---- 1.57/arch/ppc/platforms/prep_setup.c	2004-10-27 15:05:16 -07:00
-+++ edited/arch/ppc/platforms/prep_setup.c	2004-10-28 13:55:20 -07:00
-@@ -964,7 +964,8 @@
- 	if (OpenPIC_Addr != NULL)
- 		/* We have a cascade on OpenPIC IRQ 0, Linux IRQ 16 */
- 		openpic_hookup_cascade(NUM_8259_INTERRUPTS, "82c59 cascade",
--				return 0;
-+				i8259_irq);
-+	return 0;
- }
- arch_initcall(prep_request_cascade);
- 
+However, let's be kind with Jeff, since he's the UML maintainer. You can be 
+right, but there's also courtesy.
+
+If Jeff says "OK", then someone can submit a separate patch removing all the 
+final comments.
+
+Until then, please don't.
+
+And never mix such unrelated changes in a patch.
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+

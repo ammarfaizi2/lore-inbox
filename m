@@ -1,27 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266022AbUAQK0o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 05:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUAQK0o
+	id S266035AbUAQKmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 05:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAQKmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 05:26:44 -0500
-Received: from smtp.netcabo.pt ([212.113.174.9]:40691 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S266022AbUAQK0n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 05:26:43 -0500
-Date: Sat, 17 Jan 2004 10:22:29 +0000
-From: backblue <backblue@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: a7n8x-x
-Message-Id: <20040117102229.4747e7f8.backblue@netcabo.pt>
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 17 Jan 2004 05:42:06 -0500
+Received: from mail3.cc.huji.ac.il ([132.64.1.21]:8377 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S266035AbUAQKmD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 05:42:03 -0500
+Message-ID: <4007C00E.3040603@mscc.huji.ac.il>
+Date: Fri, 16 Jan 2004 12:42:22 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, he
+MIME-Version: 1.0
+To: David Ford <david+hb@blue-labs.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown CPU
+References: <40083E96.3020109@blue-labs.org>
+In-Reply-To: <40083E96.3020109@blue-labs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jan 2004 10:26:32.0554 (UTC) FILETIME=[607684A0:01C3DCE4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+You have the same CPU like me.
+I have the EPox mobo and I had this issue.
+If your bios ver is not 10/17/2003 then update it from the net.
 
-For ppl with problems with a7n8x-x with chipset nforce2, that have problems with ide driver, and the machines hangs up, the solution it's upgrade the bios for the last release from the asus ftpd, i'm using version 1007, with 1005, that it's the default version, if we disable the suport in the kernel, for Nvidia id chipset, the machine works, but we dont have dma enable, and becomes impossible to work, and if we enable it, the machine hangs up every time, in 2.4 series it crashes less, but in 2.6.1, if i just compile anything the machine goes down, just upgrade the bios to this version, if not resolve, try to disable the APIC suporte on bios.
+David Ford wrote:
+
+> I've an unknown cpu (athlon xp) in my machine.  What data do I need to 
+> collect so the kernel knows what it is?
+>
+> # cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : AuthenticAMD
+> cpu family      : 6
+> model           : 10
+> model name      : Unknown CPU Type
+> stepping        : 0
+> cpu MHz         : 1837.618
+> cache size      : 512 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 1
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+> mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+> bogomips        : 3629.05
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

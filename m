@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbTIPQBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 12:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbTIPQBR
+	id S261963AbTIPPyj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbTIPPyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 12:01:17 -0400
-Received: from ool-43524450.dyn.optonline.net ([67.82.68.80]:27796 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id S261951AbTIPP6u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:58:50 -0400
-Date: Tue, 16 Sep 2003 11:58:45 -0400
-Message-Id: <200309161558.h8GFwjRw025552@buggy.badula.org>
-From: Ion Badulescu <ionut@badula.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 16 Sep 2003 11:54:39 -0400
+Received: from math.ut.ee ([193.40.5.125]:42942 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261963AbTIPPyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:54:37 -0400
+Date: Tue, 16 Sep 2003 18:54:34 +0300 (EEST)
+From: Meelis Roos <mroos@math.ut.ee>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: df hangs on nfs automounter in 2.6.0-current
-In-Reply-To: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
-User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.21 (i686))
+In-Reply-To: <shsznh4d9g7.fsf@charged.uio.no>
+Message-ID: <Pine.GSO.4.44.0309161853300.25512-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003 17:35:49 +0300 (EEST), Meelis Roos <mroos@linux.ee> wrote:
-> Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when
-> the am_utils automounter is in use. It displays hda* partitions and next
-> by mountpoint list is amd but then df hangs, wchan is rpc_execu*
+>      > Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when the
+>      > am_utils automounter is in use. It displays hda* partitions and
+>      > next by mountpoint list is amd but then df hangs, wchan is
+>      > rpc_execu*
+>
+> Please reproduce using ordinary 'mount'...
 
-You're going to have to figure out what amd is doing at that point -- 
-whether it's dead, spinning, waiting for a child process, or something 
-else. Hanging on df is the expected behavior if amd is not responding to 
-nfs requests.
-
-Ion
-[amd co-maintainer]
+Seems that am-utils (or other userland) is at fault - it breaks with
+2.4.23-pre4 too...
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Meelis Roos (mroos@ut.ee)      http://www.cs.ut.ee/~mroos/
+

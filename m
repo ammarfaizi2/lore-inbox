@@ -1,23 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129274AbRCBT0G>; Fri, 2 Mar 2001 14:26:06 -0500
+	id <S129436AbRCBT22>; Fri, 2 Mar 2001 14:28:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129424AbRCBTZ5>; Fri, 2 Mar 2001 14:25:57 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:54034 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129274AbRCBTZm>;
-	Fri, 2 Mar 2001 14:25:42 -0500
-Message-Id: <200103021925.f22JPPU02085@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+	id <S129443AbRCBT2S>; Fri, 2 Mar 2001 14:28:18 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:55559
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129440AbRCBT2C>; Fri, 2 Mar 2001 14:28:02 -0500
+Date: Fri, 2 Mar 2001 11:25:49 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Chris Mason <mason@suse.com>
 cc: Steve Lord <lord@sgi.com>, Jeremy Hansen <jeremy@xxedgexx.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: scsi vs ide performance on fsync's 
-In-Reply-To: Message from Chris Mason <mason@suse.com> 
-   of "Fri, 02 Mar 2001 14:17:44 EST." <383290000.983560664@tiny> 
-Date: Fri, 02 Mar 2001 13:25:25 -0600
-From: Steve Lord <lord@sgi.com>
+In-Reply-To: <383290000.983560664@tiny>
+Message-ID: <Pine.LNX.4.10.10103021125030.3663-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+Okay I now have to create TCQ for ATA becasue I am not going to lose again
+now that I am winning ;-)
+
+On Fri, 2 Mar 2001, Chris Mason wrote:
 
 > 
 > 
@@ -38,25 +44,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > reiserfs might need to trigger a commit on fsync, so the fs specific fsync
 > op needs to be called.  But, you should not need to call file_fsync in the
 > XFS fsync call (check out ext2's)
-
-
-Right, this was just a generic example, the fsync_inode_buffers would be in
-the filesystem specific fsync callout - this was more of a logical
-example of what ext2 could do. XFS does completely different stuff in there
-anyway. 
-
 > 
 > For why ide is beating scsi in this benchmark...make sure tagged queueing
 > is on (or increase the queue length?).  For the xlog.c test posted, I would
 > expect scsi to get faster than ide as the size of the write increases.
-
-I think the issue is the call being used now is going to get slower the
-larger the device is, just from the point of view of how many buffers it
-has to scan.
-
 > 
 > -chris
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Steve
-
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

@@ -1,203 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315421AbSELVMy>; Sun, 12 May 2002 17:12:54 -0400
+	id <S315423AbSELVSO>; Sun, 12 May 2002 17:18:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315423AbSELVMx>; Sun, 12 May 2002 17:12:53 -0400
-Received: from ipx.zarz.agh.edu.pl ([149.156.125.1]:47880 "EHLO
-	zarz.agh.edu.pl") by vger.kernel.org with ESMTP id <S315421AbSELVMv>;
-	Sun, 12 May 2002 17:12:51 -0400
-Date: Sun, 12 May 2002 23:04:07 +0200 (CEST)
-From: "Wojciech \"Sas\" Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+	id <S315424AbSELVSN>; Sun, 12 May 2002 17:18:13 -0400
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:55466 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S315423AbSELVSM>; Sun, 12 May 2002 17:18:12 -0400
 To: linux-kernel@vger.kernel.org
-Subject: HPFS and linux-2.4.18
-In-Reply-To: <abmi0f$ugh$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0205122254150.17144-300000@alpha.zarz.agh.edu.pl>
+Subject: Re: Changelogs on kernel.org
+In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org>
+	<abmi0f$ugh$1@penguin.transmeta.com>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Sun, 12 May 2002 23:17:23 +0200
+Message-ID: <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1667897478-1275789646-1021237447=:17144"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+torvalds@transmeta.com (Linus Torvalds) writes:
 
----1667897478-1275789646-1021237447=:17144
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> Perl is the obvious choice for doing transformations like these.  Is
+> anybody willing to write a perl script that does the "sort by author"
+> thing?
+
+#!/usr/bin/perl -w
+# Reformat 2.4 ChangeLog
+
+use strict;
+
+my %authors = ();
+my $current;
+
+while (<>) {
+    chomp;
+    if (/^</) {
+	if (exists $authors{$_}) {
+	    $current = $authors{$_};
+	} else {
+	    $current = $authors{$_} = [];
+	}
+    } else {
+	die "illegal format" unless defined $current;
+	push @$current, $_;
+    }
+}
+
+my $author;
+foreach $author (sort keys %authors) {
+    print "$author\n";
+    $_ = join "\n", @{$authors{$author}};
+    # Add empty line before next author.    
+    s/\n*$/\n\n/;
+    print;
+}
+
+For your example, the result is:
+
+<jsimmons@heisenberg.transvirtual.com>
+        A bunch of fixes.
+
+        Pmac updates
+
+        Some more small fixes.
+
+<rmk@arm.linux.org.uk>
+        [PATCH] 2.5.13: vmalloc link failure
+        
+        The following patch fixes this, and also fixes the similar problem in
+        scsi_debug.c:
+
+<trond.myklebust@fys.uio.no>
+        [PATCH] in_ntoa link failure
+        
+        Nothing serious. Whoever it was that did that global replacemissed a
+        spot is all...
+
+<viro@math.psu.edu>
+        [PATCH] change_floppy() fix
+        
+        Needed both in 2.4 and 2.5
 
 
-Hi,
-
-One of my friend found posibility bug.
-When he trying to mount a OS/2 filesystem [hpfs] he take back 
-"Segmentation fault" error [see Attachment 1]
-
-I check difference between 2.4.18 and 2.4.6 [which works fine]
-[diff in Attachment 2]
-
-When I apply difference to 2.4.18 mount works OK.
-
-Can anyone check this?
-
-Thanx.
+IMHO, it doesn't make much sense.
 
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
-
----1667897478-1275789646-1021237447=:17144
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kernel.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44L.0205122304070.17144@alpha.zarz.agh.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="kernel.log"
-
-bWFqIDExIDAwOjAzOjM0IDxhZmxpbnRhPglbcm9vdEB3YXJwIHJvb3RdIyBt
-b3VudCAtdCBocGZzIC9kZXYvaGRhMyAvbW50L29zMi8NCm1haiAxMSAwMDow
-MzozNCA8YWZsaW50YT4JU2VnbWVudGF0aW9uIGZhdWx0DQptYWogMTEgMDA6
-MDQ6MjggPGFmbGludGE+CU1heSAxMCAyMzozOTo1NiB3YXJwIChhZmxpbnRh
-LTE2NTkwKTogc3RhcnRpbmcgKHZlcnNpb24gMS4wLjkpLCBwaWQgMTY1OTAg
-dXNlciAnYWZsaW50YScNCm1haiAxMSAwMDowNDoyOSA8YWZsaW50YT4JTWF5
-IDEwIDIzOjU4OjAwIHdhcnAga2VybmVsOiBpbnZhbGlkIG9wZXJhbmQ6IDAw
-MDANCm1haiAxMSAwMDowNDoyOSA8YWZsaW50YT4JTWF5IDEwIDIzOjU4OjAw
-IHdhcnAga2VybmVsOiBDUFU6ICAgIDANCm1haiAxMSAwMDowNDoyOSA8YWZs
-aW50YT4JTWF5IDEwIDIzOjU4OjAwIHdhcnAga2VybmVsOiBFSVA6ICAgIDAw
-MTA6W2dyb3dfYnVmZmVycys4MC8yNTJdICAgIFRhaW50ZWQ6IFAgDQptYWog
-MTEgMDA6MDQ6MjkgPGFmbGludGE+CU1heSAxMCAyMzo1ODowMCB3YXJwIGtl
-cm5lbDogRUZMQUdTOiAwMDAxMDI4Ng0KbWFqIDExIDAwOjA0OjI5IDxhZmxp
-bnRhPglNYXkgMTAgMjM6NTg6MDAgd2FycCBrZXJuZWw6IGVheDogZmZmZmZl
-MDAgICBlYng6IDAwMDAwMDAzICAgZWN4OiAwMDAwMDIwMCAgIGVkeDogMDAw
-MDAwMDANCm1haiAxMSAwMDowNDozMSA8YWZsaW50YT4JTWF5IDEwIDIzOjU4
-OjAwIHdhcnAga2VybmVsOiBlc2k6IDAwMDAwMDAwICAgZWRpOiAwMDAwMDMw
-MyAgIGVicDogMDAwMDAwMDAgICBlc3A6IGNhZTkzZGM4DQptYWogMTEgMDA6
-MDQ6MzMgPGFmbGludGE+CU1heSAxMCAyMzo1ODowMCB3YXJwIGtlcm5lbDog
-ZHM6IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4DQptYWogMTEgMDA6MDQ6
-MzUgPGFmbGludGE+CU1heSAxMCAyMzo1ODowMCB3YXJwIGtlcm5lbDogUHJv
-Y2VzcyBtb3VudCAocGlkOiAxNjY3OCwgc3RhY2twYWdlPWNhZTkzMDAwKQ0K
-bWFqIDExIDAwOjA0OjM3IDxhZmxpbnRhPglNYXkgMTAgMjM6NTg6MDAgd2Fy
-cCBrZXJuZWw6IFN0YWNrOiAwMDAwMDMwMyAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDAwMCAwMDAwMjM2MCBjMDEzMmI5YiAwMDAwMDMwMyAwMDAwMDAwMCAN
-Cm1haiAxMSAwMDowNDo0MiA8YWZsaW50YT4JTWF5IDEwIDIzOjU4OjAwIHdh
-cnAga2VybmVsOiAgICAgICAgMDAwMDAwMDAgY2FlOTNlNjAgYzdiNGNjMDAg
-Y2ZmMTFhZTAgYzAxMzJkNzggMDAwMDAzMDMgMDAwMDAwMDAgMDAwMDAwMDAg
-DQptYWogMTEgMDA6MDQ6NDUgPGFmbGludGE+CU1heSAxMCAyMzo1ODowMCB3
-YXJwIGtlcm5lbDogICAgICAgIGNmZjExYWUwIGQ0ZWQ2NTNjIDAwMDAwMzAz
-IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIGQ0ZWRmMzlkIGM3YjRjYzAw
-IA0KbWFqIDExIDAwOjA0OjQ4IDxhZmxpbnRhPglNYXkgMTAgMjM6NTg6MDAg
-d2FycCBrZXJuZWw6IENhbGwgVHJhY2U6IFtnZXRibGsrMzkvNjRdIFticmVh
-ZCsyNC8xMTJdIFtyZWlzZXJmczpfX2luc21vZF9yZWlzZXJmc19TLmJzc19M
-NjYyNCs3MjY5MjI1Mi8zMDE3NTQ1NDhdIFtyZWlzZXJmczpfX2luc21vZF9y
-ZWlzZXJmc19TLmJzc19MNjYyNCs3MjcyODcwMS8zMDE3MTgwOTldIFtpbnNl
-cnRfc3VwZXIrNjMvNjhdIA0KbWFqIDExIDAwOjA0OjUyIDxhZmxpbnRhPglN
-YXkgMTAgMjM6NTg6MDAgd2FycCBrZXJuZWw6ICAgIFtyZWlzZXJmczpfX2lu
-c21vZF9yZWlzZXJmc19TLmJzc19MNjYyNCs3Mjc0NTAwMC8zMDE3MDE4MDBd
-IFtnZXRfc2JfYmRldis1NDAvNjQ0XSBbcmVpc2VyZnM6X19pbnNtb2RfcmVp
-c2VyZnNfUy5ic3NfTDY2MjQrNzI3NDUwMDAvMzAxNzAxODAwXSBbc2V0X2Rl
-dm5hbWUrMzkvODRdIFtkb19rZXJuX21vdW50KzE2Ny8zMDhdIFtyZWlzZXJm
-czpfX2luc21vZF9yZWlzZXJmc19TLmJzc19MNjYyNCs3Mjc0NTAwMC8zMDE3
-MDE4MDBdIA0KbWFqIDExIDAwOjA0OjU2IDxhZmxpbnRhPglNYXkgMTAgMjM6
-NTg6MDAgd2FycCBrZXJuZWw6ICAgIFtkb19hZGRfbW91bnQrMzIvNDcyXSBb
-ZG9fbW91bnQrNjc0LzgxNl0gW2NvcHlfbW91bnRfb3B0aW9ucys3Ny8xNTZd
-IFtzeXNfbW91bnQrMTMyLzE5Nl0gW3N5c3RlbV9jYWxsKzUxLzU2XSANCm1h
-aiAxMSAwMDowNDo1OSA8YWZsaW50YT4JTWF5IDEwIDIzOjU4OjAwIHdhcnAg
-a2VybmVsOiANCm1haiAxMSAwMDowNTowMSA8YWZsaW50YT4JTWF5IDEwIDIz
-OjU4OjAwIHdhcnAga2VybmVsOiBDb2RlOiAwZiAwYiA4OSBmYSBiOSBmZiBm
-ZiBmZiBmZiBiNiAwMCA0MSA4YiA0NCAyNCAyMCBkMyBlMCAzZCBmZiANCg==
----1667897478-1275789646-1021237447=:17144
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="hpfs.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44L.0205122304071.17144@alpha.zarz.agh.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="hpfs.patch"
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNC4xOC0yLjI3L2ZzL2hwZnMvYnVmZmVyLmMg
-bGludXgtMi40LjYvZnMvaHBmcy9idWZmZXIuYw0KLS0tIGxpbnV4LTIuNC4x
-OC0yLjI3L2ZzL2hwZnMvYnVmZmVyLmMJTW9uIEZlYiAyNSAyMDozODowOCAy
-MDAyDQorKysgbGludXgtMi40LjYvZnMvaHBmcy9idWZmZXIuYwlTYXQgRGVj
-ICA5IDIwOjQzOjAzIDIwMDANCkBAIC0xMjIsOSArMTIyLDEyIEBADQogdm9p
-ZCAqaHBmc19tYXBfc2VjdG9yKHN0cnVjdCBzdXBlcl9ibG9jayAqcywgdW5z
-aWduZWQgc2Vjbm8sIHN0cnVjdCBidWZmZXJfaGVhZCAqKmJocCwNCiAJCSBp
-bnQgYWhlYWQpDQogew0KKwlrZGV2X3QgZGV2ID0gcy0+c19kZXY7DQogCXN0
-cnVjdCBidWZmZXJfaGVhZCAqYmg7DQogDQotCSpiaHAgPSBiaCA9IHNiX2Jy
-ZWFkKHMsIHNlY25vKTsNCisJaWYgKCFhaGVhZCB8fCBzZWNubyArIGFoZWFk
-ID49IHMtPnNfaHBmc19mc19zaXplKQ0KKwkJKmJocCA9IGJoID0gYnJlYWQo
-ZGV2LCBzZWNubywgNTEyKTsNCisJZWxzZSAqYmhwID0gYmggPSBicmVhZChk
-ZXYsIHNlY25vLCA1MTIpOw0KIAlpZiAoYmggIT0gTlVMTCkNCiAJCXJldHVy
-biBiaC0+Yl9kYXRhOw0KIAllbHNlIHsNCkBAIC0xNDAsNyArMTQzLDcgQEAN
-CiAJc3RydWN0IGJ1ZmZlcl9oZWFkICpiaDsNCiAJLypyZXR1cm4gaHBmc19t
-YXBfc2VjdG9yKHMsIHNlY25vLCBiaHAsIDApOyovDQogDQotCWlmICgoKmJo
-cCA9IGJoID0gc2JfZ2V0YmxrKHMsIHNlY25vKSkgIT0gTlVMTCkgew0KKwlp
-ZiAoKCpiaHAgPSBiaCA9IGdldGJsayhzLT5zX2Rldiwgc2Vjbm8sIDUxMikp
-ICE9IE5VTEwpIHsNCiAJCWlmICghYnVmZmVyX3VwdG9kYXRlKGJoKSkgd2Fp
-dF9vbl9idWZmZXIoYmgpOw0KIAkJbWFya19idWZmZXJfdXB0b2RhdGUoYmgs
-IDEpOw0KIAkJcmV0dXJuIGJoLT5iX2RhdGE7DQpAQCAtMTU1LDYgKzE1OCw3
-IEBADQogdm9pZCAqaHBmc19tYXBfNHNlY3RvcnMoc3RydWN0IHN1cGVyX2Js
-b2NrICpzLCB1bnNpZ25lZCBzZWNubywgc3RydWN0IHF1YWRfYnVmZmVyX2hl
-YWQgKnFiaCwNCiAJCSAgIGludCBhaGVhZCkNCiB7DQorCWtkZXZfdCBkZXYg
-PSBzLT5zX2RldjsNCiAJc3RydWN0IGJ1ZmZlcl9oZWFkICpiaDsNCiAJY2hh
-ciAqZGF0YTsNCiANCkBAIC0xNjksMjIgKzE3MywyNCBAQA0KIAkJZ290byBi
-YWlsOw0KIAl9DQogDQotCXFiaC0+YmhbMF0gPSBiaCA9IHNiX2JyZWFkKHMs
-IHNlY25vKTsNCisJaWYgKCFhaGVhZCB8fCBzZWNubyArIDQgKyBhaGVhZCA+
-IHMtPnNfaHBmc19mc19zaXplKQ0KKwkJcWJoLT5iaFswXSA9IGJoID0gYnJl
-YWQoZGV2LCBzZWNubywgNTEyKTsNCisJZWxzZSBxYmgtPmJoWzBdID0gYmgg
-PSBicmVhZChkZXYsIHNlY25vLCA1MTIpOw0KIAlpZiAoIWJoKQ0KIAkJZ290
-byBiYWlsMDsNCiAJbWVtY3B5KGRhdGEsIGJoLT5iX2RhdGEsIDUxMik7DQog
-DQotCXFiaC0+YmhbMV0gPSBiaCA9IHNiX2JyZWFkKHMsIHNlY25vICsgMSk7
-DQorCXFiaC0+YmhbMV0gPSBiaCA9IGJyZWFkKGRldiwgc2Vjbm8gKyAxLCA1
-MTIpOw0KIAlpZiAoIWJoKQ0KIAkJZ290byBiYWlsMTsNCiAJbWVtY3B5KGRh
-dGEgKyA1MTIsIGJoLT5iX2RhdGEsIDUxMik7DQogDQotCXFiaC0+YmhbMl0g
-PSBiaCA9IHNiX2JyZWFkKHMsIHNlY25vICsgMik7DQorCXFiaC0+YmhbMl0g
-PSBiaCA9IGJyZWFkKGRldiwgc2Vjbm8gKyAyLCA1MTIpOw0KIAlpZiAoIWJo
-KQ0KIAkJZ290byBiYWlsMjsNCiAJbWVtY3B5KGRhdGEgKyAyICogNTEyLCBi
-aC0+Yl9kYXRhLCA1MTIpOw0KIA0KLQlxYmgtPmJoWzNdID0gYmggPSBzYl9i
-cmVhZChzLCBzZWNubyArIDMpOw0KKwlxYmgtPmJoWzNdID0gYmggPSBicmVh
-ZChkZXYsIHNlY25vICsgMywgNTEyKTsNCiAJaWYgKCFiaCkNCiAJCWdvdG8g
-YmFpbDM7DQogCW1lbWNweShkYXRhICsgMyAqIDUxMiwgYmgtPmJfZGF0YSwg
-NTEyKTsNCmRpZmYgLU51ciBsaW51eC0yLjQuMTgtMi4yNy9mcy9ocGZzL2Zp
-bGUuYyBsaW51eC0yLjQuNi9mcy9ocGZzL2ZpbGUuYw0KLS0tIGxpbnV4LTIu
-NC4xOC0yLjI3L2ZzL2hwZnMvZmlsZS5jCU1vbiBBdWcgMTMgMDI6Mzc6NTMg
-MjAwMQ0KKysrIGxpbnV4LTIuNC42L2ZzL2hwZnMvZmlsZS5jCUZyaSBEZWMg
-MjkgMjM6MDc6NTcgMjAwMA0KQEAgLTExLDggKzExLDYgQEANCiAjaW5jbHVk
-ZSA8bGludXgvc21wX2xvY2suaD4NCiAjaW5jbHVkZSAiaHBmc19mbi5oIg0K
-IA0KLSNkZWZpbmUgQkxPQ0tTKHNpemUpICgoKHNpemUpICsgNTExKSA+PiA5
-KQ0KLQ0KIC8qIEhVSD8gKi8NCiBpbnQgaHBmc19vcGVuKHN0cnVjdCBpbm9k
-ZSAqaSwgc3RydWN0IGZpbGUgKmYpDQogew0KQEAgLTQ4LDcgKzQ2LDcgQEAN
-CiAJdW5zaWduZWQgbiwgZGlza19zZWNubzsNCiAJc3RydWN0IGZub2RlICpm
-bm9kZTsNCiAJc3RydWN0IGJ1ZmZlcl9oZWFkICpiaDsNCi0JaWYgKEJMT0NL
-Uyhpbm9kZS0+dS5ocGZzX2kubW11X3ByaXZhdGUpIDw9IGZpbGVfc2Vjbm8p
-IHJldHVybiAwOw0KKwlpZiAoKChpbm9kZS0+aV9zaXplICsgNTExKSA+PiA5
-KSA8PSBmaWxlX3NlY25vKSByZXR1cm4gMDsNCiAJbiA9IGZpbGVfc2Vjbm8g
-LSBpbm9kZS0+aV9ocGZzX2ZpbGVfc2VjOw0KIAlpZiAobiA8IGlub2RlLT5p
-X2hwZnNfbl9zZWNzKSByZXR1cm4gaW5vZGUtPmlfaHBmc19kaXNrX3NlYyAr
-IG47DQogCWlmICghKGZub2RlID0gaHBmc19tYXBfZm5vZGUoaW5vZGUtPmlf
-c2IsIGlub2RlLT5pX2lubywgJmJoKSkpIHJldHVybiAwOw0KZGlmZiAtTnVy
-IGxpbnV4LTIuNC4xOC0yLjI3L2ZzL2hwZnMvaW5vZGUuYyBsaW51eC0yLjQu
-Ni9mcy9ocGZzL2lub2RlLmMNCi0tLSBsaW51eC0yLjQuMTgtMi4yNy9mcy9o
-cGZzL2lub2RlLmMJTW9uIFNlcCAxMCAxNjozMToyNSAyMDAxDQorKysgbGlu
-dXgtMi40LjYvZnMvaHBmcy9pbm9kZS5jCU1vbiBKYW4gMjIgMTk6NDA6NDcg
-MjAwMQ0KQEAgLTEyLDcgKzEyLDYgQEANCiANCiBzdGF0aWMgc3RydWN0IGZp
-bGVfb3BlcmF0aW9ucyBocGZzX2ZpbGVfb3BzID0NCiB7DQotCWxsc2VlazoJ
-CWdlbmVyaWNfZmlsZV9sbHNlZWssDQogCXJlYWQ6CQlnZW5lcmljX2ZpbGVf
-cmVhZCwNCiAJd3JpdGU6CQlocGZzX2ZpbGVfd3JpdGUsDQogCW1tYXA6CQln
-ZW5lcmljX2ZpbGVfbW1hcCwNCkBAIC0zMDAsMTIgKzI5OSwxMCBAQA0KIHsN
-CiAJc3RydWN0IGlub2RlICppbm9kZSA9IGRlbnRyeS0+ZF9pbm9kZTsNCiAJ
-aW50IGVycm9yOw0KLQlpZiAoKGF0dHItPmlhX3ZhbGlkICYgQVRUUl9TSVpF
-KSAmJiBhdHRyLT5pYV9zaXplID4gaW5vZGUtPmlfc2l6ZSkgDQotCQlyZXR1
-cm4gLUVJTlZBTDsNCisJaWYgKChhdHRyLT5pYV92YWxpZCAmIEFUVFJfU0la
-RSkgJiYgYXR0ci0+aWFfc2l6ZSA+IGlub2RlLT5pX3NpemUpIHJldHVybiAt
-RUlOVkFMOw0KIAlpZiAoaW5vZGUtPmlfc2ItPnNfaHBmc19yb290ID09IGlu
-b2RlLT5pX2lubykgcmV0dXJuIC1FSU5WQUw7DQogCWlmICgoZXJyb3IgPSBp
-bm9kZV9jaGFuZ2Vfb2soaW5vZGUsIGF0dHIpKSkgcmV0dXJuIGVycm9yOw0K
-LQllcnJvciA9IGlub2RlX3NldGF0dHIoaW5vZGUsIGF0dHIpOw0KLQlpZiAo
-ZXJyb3IpIHJldHVybiBlcnJvcjsNCisJaW5vZGVfc2V0YXR0cihpbm9kZSwg
-YXR0cik7DQogCWhwZnNfd3JpdGVfaW5vZGUoaW5vZGUpOw0KIAlyZXR1cm4g
-MDsNCiB9DQpkaWZmIC1OdXIgbGludXgtMi40LjE4LTIuMjcvZnMvaHBmcy9z
-dXBlci5jIGxpbnV4LTIuNC42L2ZzL2hwZnMvc3VwZXIuYw0KLS0tIGxpbnV4
-LTIuNC4xOC0yLjI3L2ZzL2hwZnMvc3VwZXIuYwlNb24gRmViIDI1IDIwOjM4
-OjA4IDIwMDINCisrKyBsaW51eC0yLjQuNi9mcy9ocGZzL3N1cGVyLmMJVHVl
-IEp1biAxMiAwNDoxNToyNyAyMDAxDQpAQCAtMyw3ICszLDcgQEANCiAgKg0K
-ICAqICBNaWt1bGFzIFBhdG9ja2EgKG1pa3VsYXNAYXJ0YXgua2FybGluLm1m
-Zi5jdW5pLmN6KSwgMTk5OC0xOTk5DQogICoNCi0gKiAgbW91bnRpbmcsIHVu
-bW91bnRpbmcsIGVycm9yIGhhbmRsaW5nDQorICogIG1vdW5pbmcsIHVubW91
-bnRpbmcsIGVycm9yIGhhbmRsaW5nDQogICovDQogDQogI2luY2x1ZGUgPGxp
-bnV4L3N0cmluZy5oPg0K
----1667897478-1275789646-1021237447=:17144--
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

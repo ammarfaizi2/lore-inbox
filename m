@@ -1,129 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267423AbTAGKlt>; Tue, 7 Jan 2003 05:41:49 -0500
+	id <S267370AbTAGLHT>; Tue, 7 Jan 2003 06:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267424AbTAGKlt>; Tue, 7 Jan 2003 05:41:49 -0500
-Received: from CPE-203-51-25-222.nsw.bigpond.net.au ([203.51.25.222]:55026
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S267423AbTAGKlr>; Tue, 7 Jan 2003 05:41:47 -0500
-Message-ID: <3E1AB0EB.6BDEE053@eyal.emu.id.au>
-Date: Tue, 07 Jan 2003 21:50:19 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-pre2-aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3: some compile fixes I needed
-References: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------735F9A99841751B605B18140"
+	id <S267372AbTAGLHT>; Tue, 7 Jan 2003 06:07:19 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:48028 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267370AbTAGLHS>;
+	Tue, 7 Jan 2003 06:07:18 -0500
+Date: Tue, 7 Jan 2003 11:19:05 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Zack Weinberg <zack@codesourcery.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Set TIF_IRET in more places
+Message-ID: <20030107111905.GA949@bjl1.asuk.net>
+References: <87isx2dktj.fsf@egil.codesourcery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87isx2dktj.fsf@egil.codesourcery.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------735F9A99841751B605B18140
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Zack Weinberg wrote:
+> Consider SA_RESTORER - there isn't a guarantee that user space will
+> use the same code as the kernel's trampoline.  glibc happens to, but
+> only because GDB has a hardwired idea of what a signal trampoline
+> looks like.  Of course, you could simply document that sigreturn() is
+> another of the system calls that must be made through int 0x80.
 
-linux/drivers/char/Makefile
-===========================
-Well, here the build fails with a suggestion that I fix the
-Makefile. This trivial change allows the build to continue.
+Glibc must use the same code as the kernel's trampoline because of
+MD_FALLBACK_FRAME_STATE_FOR() in GCC's exception handling...  (or
+libgcc.so must change).
 
+It explicitly checks for the opcode sequences 0x58b877000000cd80 and
+0xb8ad000000cd80 in order to unwind exception frames around a
+handled signal.  Ugly, isn't it?
 
-drivers/ieee1394/sbp2.c
-=======================
-It stil fails as before. The attached fix is a blind hack to
-get it to compile rather than an educated fix.
+> It occurs to me that the kernel-provided signal trampoline could go in
+> the page at 0xffff0000, instead of on the user stack, which would
+> eliminate the need for glibc to set SA_RESTORER (it's a pure
+> optimization).
 
+Yup.
 
-linux/drivers/usb/hcd/ehci-hcd.c
-================================
-A problem for older gcc.
+> Tangentially, I've seen people claim that the trampoline ought to be
+> able to avoid entering the kernel, although I'm not convinced (how
+> does the signal mask get reset, otherwise?)
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------735F9A99841751B605B18140
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.21-pre3-char.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.21-pre3-char.patch"
+Welcome to a wonderful if rather unsightly optimisation:
 
---- linux/drivers/char/Makefile.orig	Tue Jan  7 20:13:30 2003
-+++ linux/drivers/char/Makefile	Tue Jan  7 20:17:16 2003
-@@ -24,7 +24,7 @@
- export-objs     :=	busmouse.o console.o keyboard.o sysrq.o \
- 			misc.o pty.o random.o selection.o serial.o \
- 			sonypi.o tty_io.o tty_ioctl.o generic_serial.o \
--			au1000_gpio.o hp_psaux.o nvram.o
-+			au1000_gpio.o hp_psaux.o nvram.o scx200.o
- 
- mod-subdirs	:=	joystick ftape drm drm-4.0 pcmcia
- 
+   1. libc installs its own handler function for all non-SIG_DFL signals,
+      and sigaction() mostly updates a table in userspace.
 
---------------735F9A99841751B605B18140
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.21-pre3-sbp2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.21-pre3-sbp2.patch"
+   2. The libc signal handler redirects all signals to the application
+      through a funky trampoline in libc.
 
---- linux/drivers/ieee1394/sbp2.c.orig	Thu Dec 19 10:22:33 2002
-+++ linux/drivers/ieee1394/sbp2.c	Thu Dec 19 10:23:17 2002
-@@ -1511,7 +1511,7 @@
-  * physical dma in hardware). Mostly just here for debugging...
-  */
- static int sbp2_handle_physdma_write(struct hpsb_host *host, int nodeid, int destid, quadlet_t *data,
--                                     u64 addr, unsigned int length)
-+                                     u64 addr, unsigned int length, u16 flags)
- {
- 
-         /*
-@@ -1527,7 +1527,7 @@
-  * physical dma in hardware). Mostly just here for debugging...
-  */
- static int sbp2_handle_physdma_read(struct hpsb_host *host, int nodeid, quadlet_t *data,
--                                    u64 addr, unsigned int length)
-+                                    u64 addr, unsigned int length, u16 flags)
- {
- 
-         /*
+   3. A signal mask is maintained in userspace.  Also, a pending mask
+      is maintained in userspace.
 
---------------735F9A99841751B605B18140
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.21-pre3-ehci-dbg.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.21-pre3-ehci-dbg.patch"
+   4. When a signal is delivered, libc's handler function checks the
+      userspace signal mask.  If the signal should be blocked, and it
+      is possible to block it, it is marked as pending in _userspace_
+      pending mask, and the userspace signal mask is propagated to the
+      kernel to prevent further signals queuing up.  Any siginfo_t is
+      also saved for tha signa.  Then libc's handler returns, without
+      calling the application handler (because that is deferred).
 
---- linux/drivers/usb/hcd/ehci-dbg.c.orig	Tue Jan  7 20:55:20 2003
-+++ linux/drivers/usb/hcd/ehci-dbg.c	Tue Jan  7 21:00:05 2003
-@@ -39,6 +39,7 @@
- #define ehci_dbg(ehci, fmt, args...) do { } while (0)
- #endif
- 
-+#if 0
- #define ehci_err(ehci, fmt, args...) \
- 	printk(KERN_ERR "%s %s: " fmt, hcd_name, \
- 		(ehci)->hcd.pdev->slot_name, ## args )
-@@ -48,6 +49,14 @@
- #define ehci_warn(ehci, fmt, args...) \
- 	printk(KERN_WARNING "%s %s: " fmt, hcd_name, \
- 		(ehci)->hcd.pdev->slot_name, ## args )
-+#else
-+#define ehci_err(ehci, fmt, args...) \
-+	do { } while (0)
-+#define ehci_info(ehci, fmt, args...) \
-+	do { } while (0)
-+#define ehci_warn(ehci, fmt, args...) \
-+	do { } while (0)
-+#endif
- #endif
- 
- 
+   5. When a signal is unblocked from the userspace signal mask, if it
+      is in the userspace pending mask, it is synthetically delivered
+      by userspace, which creates a context _as if_ the kernel had
+      delivered the signal.
 
---------------735F9A99841751B605B18140--
+By this mechanism, calls to unblock signals from the signal mask can
+be done without entering the kernel, because the unblocking can be
+done lazily.
 
+Voila!  sigreturn() can be written to avoid entering the kernel.  Note
+that this is possible _now_, with no changes to the kernel.  It only
+requires changes to libc.  I think it would work on all architectures,
+not just i386.  (It may also be possible to do it without libc help,
+in the vsyscall page).
+
+-- Jamie
+
+ps. A similar optimisation allows "spin_lock_irqsave" and
+"spin_unlock_irqrestore" to avoid using the cli & sti instructions.
+Spin locks already modify the preempt_count, so use a bit of that to
+hold the synthetic interrupt-disabled flag, at zero cost... :)

@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVAJCQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVAJCQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVAJCQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 21:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVAJCQU
+	id S262052AbVAJCQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 21:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVAJCQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 9 Jan 2005 21:16:27 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:6596 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262052AbVAJCQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 9 Jan 2005 21:16:20 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:26001 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S262051AbVAJCQS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 21:16:18 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: shawvrana@acm.org, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org, plazmcman@softhome.net
-Subject: Re: Screwy clock after apm suspend
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com>
-	<20050109224711.GF1353@elf.ucw.cz>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Sun, 09 Jan 2005 18:15:36 -0800
-In-Reply-To: <20050109224711.GF1353@elf.ucw.cz> (message from Pavel Machek
- on Sun, 9 Jan 2005 23:47:11 +0100)
-Message-ID: <877jmm2fnb.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+Message-ID: <41E1E57A.7060902@comcast.net>
+Date: Sun, 09 Jan 2005 21:16:26 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Airlie <airlied@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, znmeb@cesmail.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: starting with 2.7
+References: <1697129508.20050102210332@dns.toxicfilms.tv>	 <41DD9968.7070004@comcast.net>	 <1105045853.17176.273.camel@localhost.localdomain>	 <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>	 <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>	 <1105278618.12054.37.camel@localhost.localdomain>	 <41E1CCB7.4030302@comcast.net> <21d7e99705010917281c6634b8@mail.gmail.com>
+In-Reply-To: <21d7e99705010917281c6634b8@mail.gmail.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->> Just thought I'd add that I too am seeing a big time drift on my
->> Thinkpad (T30) without ACPI during an APM suspend w/ 2.6.10.  If I can
->> help by testing patches, or providing any additional information,
->> please let me know.
->
-> Probably code to compensate clock after ACPI suspend breaks apm case
-> :-(.
 
-i see problems with the clock after doing an acpi suspend. the
-hardware clock is more or less okay (within a few minutes of the real
-time anyway, nothing that ntp can't take care of) but the system time
-is way off. this first started happening with 2.6.10-rc1. by now i've
-gotten into the habit of running 'hwclock -s' by hand after each
-resume. not really sure what changed and what i can do to debug/fix
-this. for all it's worth i am running debian unstable.
 
---alex--
+Dave Airlie wrote:
+|>And what 3rd party hardware vendor wants to waste their resources by
+|>repeting smaller versions of the one-time cost of driver writing over
+|>and over to accomodate linux, when they can't even accomodate all
+|>versions due to special patches some people have?  So far there's been a
+|>rediculous but visible trend of hardware vendors to hold their source
+|>closed.
+|
+|
+| I do wonder would open source kernel drivers to work with a closed
+| source user space application be accepted into the mainline kernel...
+| say for example Nvidia or VMware GPL'ed their lower layer kernel
+| interfaces but kept their userspace (X driver and VMware) closed
+| source which is perfectly acceptable from a license point of view..
+| would Linus/Andrew accept the nvidia lowlevel into the kernel, if not
+| then it would be idealogical not licensing issues which would make the
+| argument for having a stable module interface better :-)
+|
+| It would be interesting to find out .. and you are right there is
+| little point in arguing this at this stage, closed source drivers are
+| evil.
+|
 
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+I believe closed source drivers are an acceptable evil for two cases:
+
+- - We do not have an open source alteranive yet, and so we need one to
+use while that's being developed
+- - The hardware is obscure and nobody cares enough to write a driver anyway
+
+open source drivers are better becaus I can just recompile them for new
+hardware.  Get a PPC?  Have a USB cam?  Rebuild the kernel for PPC with
+OSS drivers.  Can't do that with binaries.  Can't security audit the
+source code of binaries either.  :)
+
+| Dave.
+|
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB4eV5hDd4aOud5P8RAnZoAJ9sVMoZTK1HW0RmRtA/OGdmphYTLQCeNtNO
++UvNm8WfPeUj1h90nkAjlZo=
+=65kw
+-----END PGP SIGNATURE-----

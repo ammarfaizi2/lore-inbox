@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264156AbTIKChs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 22:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIKChs
+	id S264959AbTIKCoq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 22:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTIKCnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 22:37:48 -0400
-Received: from pat.uio.no ([129.240.130.16]:51898 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264156AbTIKChq (ORCPT
+	Wed, 10 Sep 2003 22:43:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:15788 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264396AbTIKCmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 22:37:46 -0400
-To: Marco Bertoncin - Sun Microsystems UK - Platform OS
-	 Development Engineer <Marco.Bertoncin@Sun.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS/MOUNT/sunrpc problem?
-References: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 10 Sep 2003 22:37:43 -0400
-In-Reply-To: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
-Message-ID: <shs65k0rqx4.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Wed, 10 Sep 2003 22:42:53 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Greg KH <greg@kroah.com>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] add kobject to struct module 
+In-reply-to: Your message of "Wed, 10 Sep 2003 17:04:29 MST."
+             <20030911000429.GF1461@matchmail.com> 
+Date: Thu, 11 Sep 2003 12:10:22 +1000
+Message-Id: <20030911024252.C69A12C0C7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Marco Bertoncin <- Sun Microsystems UK - Platform OS Development Engineer <Marco.Bertoncin@Sun.COM>> writes:
+In message <20030911000429.GF1461@matchmail.com> you write:
+> On Wed, Sep 10, 2003 at 04:45:38PM -0700, Greg KH wrote:
+> > To quote from include/linux/moduleparam.h:
+> > /* This is the fundamental function for registering boot/module
+> >    parameters.  perm sets the visibility in driverfs: 000 means it's
+> >    not there, read bits mean it's readable, write bits mean it's
+> >    writable. */
+> 
+> Any chance to make it always visible and read-only by default with the
+> option of making it writable?
 
+Nope.  The author specifies exactly what they want, no default.  It's
+just safer this way: see RMK's concerns about what would happen if we
+did it to unsuspecting module authors... 
 
-     > switch.  How to reproduce
-     > - During install a MOUNT (V2) request is sent to the install
-     >   server
-     > - the ACK is dropped
-     > Symptom
-     > - the blade, after 3 seconds, starts a storm of retransmit
-     >   (MOUNT reqs) that
-     > won't stop, unless an ACK (one of the several ACKS sent for
-     > each retransmitted requests) has the chance to get
-     > through. This is sometimes after a few hundreds packets,
-     > sometimes after a lot more, causing an apparent hang of the
-     > installation process, and what's even worse, bringing to a
-     > grinding halt the server (bombarded by near 1Gbit/sec packets).
+See include/linux/moduleparam.h, especially the module_param() macro.
 
-Have you tried a more recent kernel? 2.4.18 was released more than one
-and a half years ago...
+> Any chance the parameter defaults (if they're not hard coded...) could be
+> exposed even if they're not given to the module on the command line?  (wish
+> list...)
+
+They should be there.  It would be nice to have some way of telling
+which ones were modified, so that a userspace util could save just
+those ones on shutdown, for example.  I can't think of an obvious way
+of doing this though (mtime > epoch maybe?).
 
 Cheers,
-  Trond
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbSKKR6Y>; Mon, 11 Nov 2002 12:58:24 -0500
+	id <S266886AbSKKR7t>; Mon, 11 Nov 2002 12:59:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266869AbSKKR6Y>; Mon, 11 Nov 2002 12:58:24 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56029 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266868AbSKKR6X>;
-	Mon, 11 Nov 2002 12:58:23 -0500
-Message-ID: <3DCFF14F.3BAB81A6@digeo.com>
-Date: Mon, 11 Nov 2002 10:05:03 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266888AbSKKR7t>; Mon, 11 Nov 2002 12:59:49 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52298 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S266886AbSKKR7p>; Mon, 11 Nov 2002 12:59:45 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [lkcd-devel] Re: What's left over.
+References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Nov 2002 11:03:43 -0700
+In-Reply-To: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
+Message-ID: <m1znsg9e68.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kraxel@bytesex.org
-Subject: Re: 2.5.47: Uninitialized timer in bttv code
-References: <20021111182641.104131b6.us15@os.inf.tu-dresden.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Nov 2002 18:05:03.0942 (UTC) FILETIME=[DC132E60:01C289AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
+
+> On 9 Nov 2002, Eric W. Biederman wrote:
+> > 
+> > And despite my utter puzzlement on why you want the syscall cut in two.
 > 
-> Hi,
-> 
-> The bttv code in 2.5.47 triggers the following warning about use of
-> uninitialized timer here. If a patch exists for this issue, I'll happily
-> test it.
-> 
+> I'm amazed about your puzzlement, since everybody else seem to get my 
+> arguments, but as long as you play along I don't much care.
 
-Here you go.
+I think this comes from being the guy down in the trenches implementing
+the code.   And it is sometimes hard to look up, far enough to have design
+discussions.
 
-I need to do another full pass across the tree to pick up the dynamically
-allocated timers.
+I totally agree that having a load/exec split is the right
+approach now that I can imagine an implementation where the code will
+actually work for the panic case.  Before it felt like lying.  Doing
+the  split-up, promising that kexec on panic will work eventually,
+when I could not even see it as a possibility was at the core of my
+objections.
 
+What brought me around is that I can add a flag field to kexec_load.
+With that flag field I can tell the kernel please step extra carefully
+this code will be used to handle kexec on panic.  Without that I may
+be up a creek without a paddle for figuring out how to debug that code.
 
---- 25/drivers/media/video/bttv-driver.c~bttv-timer	Mon Nov 11 10:02:49 2002
-+++ 25-akpm/drivers/media/video/bttv-driver.c	Mon Nov 11 10:03:03 2002
-@@ -3225,6 +3225,7 @@ static int __devinit bttv_probe(struct p
-         INIT_LIST_HEAD(&btv->capture);
-         INIT_LIST_HEAD(&btv->vcapture);
- 
-+	init_timer(&btv->timeout);
- 	btv->timeout.function = bttv_irq_timeout;
- 	btv->timeout.data     = (unsigned long)btv;
- 	
+To be able to support this at all I have had to be very creative in
+inventing debugging code.  Which is why I have the serial console
+program kexec_test.  It provides visibility into what is happening
+when nothing else will.  That and memtest86 which will occasionally
+catch DMA's that have not been stopped, (memory errors on good ram) I
+at least have a place to start rather than a blank screen when
+guessing why the new kernel did not start up.
 
-_
+Eric

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264628AbTAVWLx>; Wed, 22 Jan 2003 17:11:53 -0500
+	id <S264630AbTAVWOf>; Wed, 22 Jan 2003 17:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbTAVWLx>; Wed, 22 Jan 2003 17:11:53 -0500
-Received: from [213.86.99.237] ([213.86.99.237]:54510 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S264628AbTAVWLw>; Wed, 22 Jan 2003 17:11:52 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.3.96.1030122133330.3958B-100000@gatekeeper.tmr.com> 
-References: <Pine.LNX.3.96.1030122133330.3958B-100000@gatekeeper.tmr.com> 
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Olaf Titz <olaf@bigred.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16 
+	id <S264631AbTAVWOf>; Wed, 22 Jan 2003 17:14:35 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49026 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S264630AbTAVWOe>; Wed, 22 Jan 2003 17:14:34 -0500
+Message-Id: <200301222223.h0MMN4QY011055@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Linux in the News! WooHoo! 
+In-Reply-To: Your message of "Wed, 22 Jan 2003 22:11:53 GMT."
+             <Pine.LNX.4.44.0301222203480.4030-100000@phoenix.infradead.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0301222203480.4030-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 22 Jan 2003 22:17:41 +0000
-Message-ID: <27680.1043273861@passion.cambridge.redhat.com>
+Content-Type: multipart/signed; boundary="==_Exmh_42250688P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 22 Jan 2003 17:23:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_42250688P
+Content-Type: text/plain; charset=us-ascii
 
-davidsen@tmr.com said:
->  `uname -r` is the kernel version of the running kernel. It is NOT by
-> magic the kernel version of the kernel you are building... 
+On Wed, 22 Jan 2003 22:11:53 GMT, James Simmons said:
 
-Er, yes. And what's your point? 
+> Note free versions. I guess if Sun can afford to lose 2 billions dollars 
+> it can afford to give a office suite away. The question if Sun runs out of 
+> money then what?
 
-There is _no_ magic that will find the kernel you want to build against
-today without any input from you. Using the build tree for the
-currently-running kernel, if installed in the standard place, is as good a
-default as any. Of course you should be permitted to override that default.
+It's open sourced.  The rest is left as an exercise for the reader.
 
-You remain free to put your build trees wherever you want -- with the
-obvious proviso that if you put them somewhere other than the standard
-place, you need to tell the out-of-tree build process where to find the tree
-you want to build against. This seems to be entirely irrelevant to the
-original question. 
+--==_Exmh_42250688P
+Content-Type: application/pgp-signature
 
---
-dwmw2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+LxnIcC3lWbTT17ARAvlRAKDTYZ0AOcoW3/qihF2oBXoQxtZZVwCfVerF
+xYUh29bifILIF1RpVbeRhnE=
+=x6dr
+-----END PGP SIGNATURE-----
 
+--==_Exmh_42250688P--

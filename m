@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBRRtw>; Sun, 18 Feb 2001 12:49:52 -0500
+	id <S129993AbRBRRuw>; Sun, 18 Feb 2001 12:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129993AbRBRRtm>; Sun, 18 Feb 2001 12:49:42 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:14047 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129144AbRBRRta>;
-	Sun, 18 Feb 2001 12:49:30 -0500
-Date: Sun, 18 Feb 2001 18:49:26 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102181749.SAA171185.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, zzed@cyberdude.com
-Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
-Cc: alan@lxorguk.ukuu.org.uk
+	id <S131132AbRBRRum>; Sun, 18 Feb 2001 12:50:42 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:54029
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129993AbRBRRue>; Sun, 18 Feb 2001 12:50:34 -0500
+Date: Sun, 18 Feb 2001 09:50:17 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <96oau0$j6q$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.10.10102180931410.31811-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Jon Forsberg <zzed@cyberdude.com>
+On Sun, 18 Feb 2001, Henning P. Schmiedehausen wrote:
 
-    I have two ext2 CD-ROMs. One of them I can mount the normal way,
-    the other I can't. Both are ok according to debugfs and e2fsck
-    and if I do
-	'mount -t ext2 -o loop /dev/cdrom /cdrom'
-    instead, both work.
+> >- Innovative new hardware devices are more likely to be based on
+> >Linux than any Microsoft OS. For example, the TiVO, the coolest 
+> >improvement to television since the VCR.
 
-    The one that doesn't work have a blocksize of 1024 according to debugfs:
-      Block size = 1024, fragment size = 1024
-    And the other:
-      Block size = 4096, fragment size = 4096
+Henning,
 
-    What happens:
+When you begin to learn that OpenSource is the way and that some of us
+will work with companies on an as needed bases.  At this point if you came
+to me I would put you through the same grinder that I do every other use
+of the ATA/ATAPI subsystem for commerial purpose.  I have the duty and
+right to protect that which was entrusted to me and that which I create.
+If you do not like that rule, LEAVE!  Henning, if I catch you abusing the
+privildge of use of my work, I will pursue you in terms defined as
+actionable.  It is not a game.
 
-    # mount -t ext2 /dev/cdrom /cdrom        
-    mount: block device /dev/cdrom is write-protected, mounting read-only
-    mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
-           or too many mounted file systems
+> Because it is cheaper to use. Linux has no license fee. That's what
+> the TiVO vendor cares about.
 
-    kern.log:
-    Feb 18 14:54:34 pc1 kernel: VFS: Unsupported blocksize on dev sr(11,0).
+Henning,
 
-    I'm pretty sure both worked with 2.2.17.
+And you do not have the knowledge or authority to comment on this subject
+where "I do".  Maybe it you would bother the take you shoe out of your
+mouth one more time than you put it in you could not sound more like a
+fool, today.
 
-You are being bitten by two bugs. By some coincidence I sent a
-patch for the first one to Linus and Alan yesterday.
-(That was fs/ext2/super.c - the same bug occurs in both 2.2 and 2.4.)
-However, the second one will then still prevent you from mounting,
-and it occurs only in 2.4.
+TiVO came to Linux and Linux went back to TiVO in a working relationship.
 
-Someone has added
-        /*
-         * These are good guesses for the time being.
-         */
-        for (i = 0; i < sr_template.dev_max; i++) {
-                sr_blocksizes[i] = 2048;
-                sr_hardsizes[i] = 2048;
-        }
-        blksize_size[MAJOR_NR] = sr_blocksizes;
-        hardsect_size[MAJOR_NR] = sr_hardsizes;
-setting of hardsect_size to drivers/scsi/sr.c.
 
-A value of hardsect_size[] means: this is the smallest size
-the hardware can work with. It is therefore a serious mistake
-just to come with "a good guess". This value is used only
-to reject impossible sizes, and everywhere the kernel accepts 0
-meaning "don't know".
+**************************************************
+Date: Mon, 22 May 2000 14:10:42 -0700
+From: Mike Klar <mfklar@tivo.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: non-PCI IDE DMA in Linux IDE driver
 
-So, probably all will work fine if you change the second
-2048 here to say 512 or 0. Or, if you, more drastically,
-remove all references to sr_hardsizes[] from sr.c.
+The 2.3-based tree is not in a releaseable state at his point, and
+doesn't have the AV stuff in it yet, anyway.  The 2.1-based code (which
+is what our shipping units currently use) is available, I can inquire
+into the release mechanism for that if you're interested.
 
-Andries
+Mike Klar
+TiVo Inc.
+
+Andre Hedrick wrote:
+>
+> Greetings Mike,
+>
+> Can I see the source tree under the rules of GPL?
+> I know that you are doing AV streams and that is the hot topic at t13.
+>
+> Cheers,
+>
+> Andre Hedrick
+> The Linux ATA/IDE guy
+**************************************************
+
+Once Linux decides to adopt and support AV Streams, it will be in the best
+interrest of TiVO to work with me so that they do not have to work against
+me.  This is how you work with industry.  You load share the work.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
+
+

@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261779AbTCGVFM>; Fri, 7 Mar 2003 16:05:12 -0500
+	id <S261778AbTCGVCx>; Fri, 7 Mar 2003 16:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261786AbTCGVFL>; Fri, 7 Mar 2003 16:05:11 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60093 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261782AbTCGVFH>; Fri, 7 Mar 2003 16:05:07 -0500
-Date: Fri, 7 Mar 2003 13:17:32 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: patmans@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] scsi_error fix
-Message-ID: <20030307211732.GA1148@beaverton.ibm.com>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, patmans@us.ibm.com,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	torvalds@transmeta.com
-References: <UTC200303072019.h27KJXX12872.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
+	id <S261781AbTCGVCx>; Fri, 7 Mar 2003 16:02:53 -0500
+Received: from faui11.informatik.uni-erlangen.de ([131.188.31.2]:10884 "EHLO
+	faui11.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S261778AbTCGVCw>; Fri, 7 Mar 2003 16:02:52 -0500
+From: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+Message-Id: <200303072113.WAA08451@faui11.informatik.uni-erlangen.de>
+Subject: Re: [PATCH] s390 (5/7): kmalloc arguments.
+To: zaitcev@redhat.com
+Date: Fri, 7 Mar 2003 22:13:23 +0100 (MET)
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200303072019.h27KJXX12872.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl [Andries.Brouwer@cwi.nl] wrote:
->     From: Patrick Mansfield <patmans@us.ibm.com>
-> 
->     > [Further discussion and things I did not yet investigate:
->     > What was changed to make this fail first in 2.5.63?
->     > Experience shows that we get into a loop when something else
->     > than SUCCESS is returned here. Probably that is a bug elsewhere.
->     > Probably the commands that cause problems should never have been
->     > sent in the first place.]
-> 
->     The scsi error handler is also used to retrieve sense data for
->     adapters/drivers that do not auto retrieve it. In such cases, it should
->     not issue any aborts, resets etc.
-> 
-> Indeed.
-> 
->     Your change effectively disables that support - we never hit the code in
->     scsi_eh_get_sense() to request sense. It would be very nice if we could
->     fix (or audit) all the scsi drivers, apply your change and remove
->     scsi_eh_get_sense, but AFAIK that has not and is not happening.
-> 
-> No. What happened before was that we got into an infinite loop.
-> The right action is to read the code, understand why it gets
-> into a loop, and fix it. Once that has happened we may decide
-> to undo my change. Or we may decide to ask for sense at that very spot.
-> 
-> Today both James and Mike say that they can reproduce the loop,
-> so probably they'll fix that part. If not, I'll have a look again.
+Pete Zaitcev wrote:
 
-Sorry about that Patrick. I had sent some mail last might and thought it
-went to the list.
+>What does GFP_DMA do on s390 and s390x?
 
-Both James and I can reproduce this problem. I was able to reproduce
-using a hack to scsi_debug. 
+On s390, nothing.
 
-The loop problem is related to scsi error handling using the common code
-of scsi_queue_insert / scsi_requesT_fn . When a command gets started the
-scsi_init_cmd_errh function is called which sets retries to 0.
+On s390x, it makes sure the allocated memory resides at
+addresses below 2 GB.  This is necessary, as many of the
+I/O subsystem data structures as defined by the hardware
+contain pointer fields that are still 31-bit, even on
+64-bit machines.  Thus we have to make sure those data
+structures are allocated below 2 GB.  Using the GFP_DMA
+mechanism for that purpose seemed to be the way to go ...
 
-There maybe another issue with the scsi_eh_get_sense function, but I am
-still looking at it.
+Note that contrary to the usual purpose of GFP_DMA on Intel,
+the actual *data* that is being transferred via the I/O 
+subsystem can reside at arbitrary addresses (which are 
+specified via indirect-addressing lists); it is only the 
+control data structures that need to go below 2 GB.
 
-I believe James is still pursuing a solution also.
+Bye,
+Ulrich
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
+-- 
+  Dr. Ulrich Weigand
+  weigand@informatik.uni-erlangen.de

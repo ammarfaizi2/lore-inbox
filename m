@@ -1,109 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVBNQdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVBNQjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVBNQdg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 11:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVBNQdg
+	id S261471AbVBNQjX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 11:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVBNQjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 11:33:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26528 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261463AbVBNQdc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 11:33:32 -0500
-Message-ID: <4210D29E.9000808@sgi.com>
-Date: Mon, 14 Feb 2005 11:32:30 -0500
-From: Prarit Bhargava <prarit@sgi.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Prarit Bhargava <prarit@sgi.com>
-CC: Jesse Barnes <jbarnes@engr.sgi.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC]: Clean up resource allocation in i8042 driver
-References: <41F11C66.5000707@sgi.com> <d120d500050121074313788f99@mail.gmail.com> <20050121163540.GC4795@ucw.cz> <200501210847.04654.jbarnes@engr.sgi.com> <41F13924.50602@sgi.com>
-In-Reply-To: <41F13924.50602@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Feb 2005 11:39:23 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:35993 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261471AbVBNQjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 11:39:15 -0500
+Date: Mon, 14 Feb 2005 10:38:44 -0600
+From: Robin Holt <holt@sgi.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+Message-ID: <20050214163844.GB8576@lnx-holt.americas.sgi.com>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <20050212155426.GA26714@logos.cnet> <20050212212914.GA51971@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050212212914.GA51971@muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't see a final ACK on this patch -- just checking for one :)
+On Sat, Feb 12, 2005 at 10:29:14PM +0100, Andi Kleen wrote:
+> On Sat, Feb 12, 2005 at 01:54:26PM -0200, Marcelo Tosatti wrote:
+> > On Sat, Feb 12, 2005 at 12:17:25PM +0100, Andi Kleen wrote:
+> > > Ray Bryant <raybry@sgi.com> writes:
+> > > > set of pages associated with a particular process need to be moved.
+> > > > The kernel interface that we are proposing is the following:
+> > > >
+> > > > page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
+> > > 
+> > > [Only commenting on the interface, haven't read your patches at all]
+> > > 
+> > > This is basically mbind() with MPOL_F_STRICT, except that it has a pid 
+> > > argument. I assume that's for the benefit of your batch scheduler.
+> > 
+> > As far as I understand mbind() is used to set policies to given memory 
+> > regions, not move memory regions?
+> 
+> There is a MPOL_F_STRICT flag. Currently it fails when the memory
+> is not on the right node(s) and the flag is set, but it could as well move. 
+> 
+> In fact Steve Longerbeam already did a patch to move in this case,
+> but it hasn't been merged yet for some reasons.
+> 
+> 
+> > > mmap in parallel. The only way I can think of to do this would be to
+> > > check for changes in maps after a full move and loop, but then you risk
+> > > livelock.
+> > 
+> > True. 
+> > 
+> > There is no problem, however, if all threads beloging to the process are stopped, 
+> > as Ray mentions. 
+> > 
+> > So, there wont be memory mapping changes happening at the same time. 
+> 
+> Ok. But it's still quite ugly to read /proc/*/maps for this.
+> 
+> > 
+> > > And you cannot also just specify va_start=0, va_end=~0UL because that
+> > > would make the node arrays grow infinitely. 
+> > > 
+> > > Also is there a good use case why the batch scheduler should only
+> > > move individual areas in a process around, not the full process?
+> > 
+> > Quoting him:
+> > 
+> > "In addition to its use by batch schedulers, we also envision that
+> > this facility could be used by a program to re-arrange the allocation
+> > of its own pages on various nodes of the NUMA system, most likely
+> > to optimize performance of the application during different phases
+> > of its computation."
+> > 
+> > Seems doable. 
+> 
+> That is what mbind() already supports, just someone needs to hook up
+> the page moving code with MPOL_F_STRICT.
 
-P.
+But how do you use mbind() to change the memory placement for an anonymous
+private mapping used by a vendor provided executable with mbind()?
 
-Prarit Bhargava wrote:
-
-> I've taken into account Dmitry's comments (thanks Dmitry!) and 
-> generated a new patch.
->
-> Thanks,
->
-> P.
-> Jesse Barnes wrote:
->
->> On Friday, January 21, 2005 8:35 am, Vojtech Pavlik wrote:
->>  
->>
->>> No. But vacant ports usually return 0xff. The problem here is that 0xff
->>> is a valid value for the status register, too. Fortunately this patch
->>> checks for 0xff only after the timeout failed.
->>>   
->>
->>
->> On PCs you'll get all 1s, but on some ia64 platforms and others, 
->> you'll take a hard machine check exception if you try to access 
->> non-existent memory (mmio, port space, or otherwise).
->>
->> Jesse
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>  
->>
->------------------------------------------------------------------------
->
->===== i8042.c 1.71 vs edited =====
->--- 1.71/drivers/input/serio/i8042.c	2005-01-03 08:11:49 -05:00
->+++ edited/i8042.c	2005-01-21 11:50:11 -05:00
->@@ -696,7 +696,10 @@
-> 		unsigned char param;
-> 
-> 		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
->-			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
->+			if (i8042_read_status() != 0xFF)
->+				printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
->+			else
->+				printk(KERN_ERR "i8042.c: no i8042 controller found.\n");
-> 			return -1;
-> 		}
-> 
->@@ -1016,16 +1019,22 @@
-> 	i8042_aux_values.irq = I8042_AUX_IRQ;
-> 	i8042_kbd_values.irq = I8042_KBD_IRQ;
-> 
->-	if (i8042_controller_init())
->+	if (i8042_controller_init()) {
->+		i8042_platform_exit();
-> 		return -ENODEV;
->+	}
-> 
-> 	err = driver_register(&i8042_driver);
->-	if (err)
->+	if (err) {
->+		i8042_platform_exit();
-> 		return err;
->+	}
-> 
-> 	i8042_platform_device = platform_device_register_simple("i8042", -1, NULL, 0);
-> 	if (IS_ERR(i8042_platform_device)) {
-> 		driver_unregister(&i8042_driver);
->+		i8042_platform_exit();
->+		del_timer_sync(&i8042_timer);
-> 		return PTR_ERR(i8042_platform_device);
-> 	}
-> 
->  
->
+Robin

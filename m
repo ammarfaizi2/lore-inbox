@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272676AbRIGOmZ>; Fri, 7 Sep 2001 10:42:25 -0400
+	id <S272677AbRIGOkz>; Fri, 7 Sep 2001 10:40:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272679AbRIGOmP>; Fri, 7 Sep 2001 10:42:15 -0400
-Received: from pat.uio.no ([129.240.130.16]:2440 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S272676AbRIGOmK>;
-	Fri, 7 Sep 2001 10:42:10 -0400
+	id <S272679AbRIGOkf>; Fri, 7 Sep 2001 10:40:35 -0400
+Received: from pop1.netcis.com ([199.227.10.105]:37504 "HELO pop1.netcis.com")
+	by vger.kernel.org with SMTP id <S272681AbRIGOk2>;
+	Fri, 7 Sep 2001 10:40:28 -0400
+Date: Fri, 7 Sep 2001 10:34:07 -0700
+From: Jeremiah Johnson <miah@netcis.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Jeremiah Johnson <miah@netcis.com>
+Organization: NETCIS International Corporation
+X-Priority: 3 (Normal)
+Message-ID: <8638021391.20010907103407@netcis.com>
+To: volodya@mindspring.com
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re[6]: 2.4.9 UDP broke?
+In-Reply-To: <Pine.LNX.4.20.0109051626440.25127-100000@node2.localnet.net>
+In-Reply-To: <Pine.LNX.4.20.0109051626440.25127-100000@node2.localnet.net>
 MIME-Version: 1.0
-Message-ID: <15256.56528.460569.700469@charged.uio.no>
-Date: Fri, 7 Sep 2001 16:42:24 +0200
-To: "Mike Black" <mblack@csihq.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 NFS Problems
-In-Reply-To: <033a01c1379e$e3514880$e1de11cc@csihq.com>
-In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com>
-	<shsae07md9d.fsf@charged.uio.no>
-	<033a01c1379e$e3514880$e1de11cc@csihq.com>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Mike Black <mblack@csihq.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: MD5
 
-     > But my timeouts were only 10 seconds -- well below the timeo
-     > and retrans timeout periods.  And my network traffic shows that
+Hello volodya,
 
-According to the 'nfs' manpage, the default timeo on the mount in
-util-linux is usually 0.7 seconds. retrans is 3.
+If I enable both of these options though, UDP totally breaks for me.
+So its definitely something in there.  Maybe I'll get some time and
+test to see which option is actually doing the breaking.
 
-  0.7 + 1.4 + 2.8 = 4.9 seconds < 10...
+Wednesday, September 05, 2001, 1:28:39 PM, you wrote:
 
-     > this is the client causing the problem NOT the server.  It's
-     > the read() that pauses for 10 seconds and then the NFS write
-     > immediately returns EIO.  So...I don't think soft mounts has
-     > anything to do with it.
+vmc> On Tue, 4 Sep 2001, Jeremiah Johnson wrote:
 
-I think it does.
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: MD5
+>>
+>> Hello volodya,
+>>
+>> I found the answer to the problem today.  It has to do with a bug in
+>> one of these options:
+>>
+>> CONFIG_TULIP_MWI
+>> CONFIG_TULIP_MMIO
+>>
 
-Cheers,
-  Trond
+vmc> You are absolutely correct - once I enabled both of these it works
+vmc> great. My guess is that whoever tested the patches was concentrated on the
+vmc> case when options were enabled.
+
+vmc>                                Vladimir Dergachev
+
+- --
+Best regards,
+ Jeremiah                            mailto:miah@netcis.com
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6
+
+iQEVAwUAO5kFFJHTj7BlqKb5AQG+9ggAnKz03bYjsYYSsrINzUTKEFCtWs2bRP0t
+sGsIZ55rpi4FH9QFbJGIzxih6C5Mf3p1IJU2fUEP5ci4ddEDJbWbAia/4yz6S2qd
+hAe3pjep/Oy1XBky8PKxIpLkOJMAgFgqeM9aguwFVCuhXxZBvK6NNPaozqZ/nYHl
+9EM8/kuwfNONaJxYnduqkCRPKdCUPxPZcuwd56Wt3JvJ6meUW249pGEBJhFM63Qe
++esn3TweBeYj5M80mYcU0CunDRr3D0ABMrdtApCUv0FMIP7ke0LTCQBeZZrUtajW
++k/gDEySN3tRIuCUltYZ5SYMxtxFZ6eYgerwyhr3s8iKfD+7Tk1BFg==
+=/5Uc
+-----END PGP SIGNATURE-----
+

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSHDR6I>; Sun, 4 Aug 2002 13:58:08 -0400
+	id <S315806AbSHDSEs>; Sun, 4 Aug 2002 14:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSHDR6I>; Sun, 4 Aug 2002 13:58:08 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:16121 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315491AbSHDR6H>; Sun, 4 Aug 2002 13:58:07 -0400
-Subject: Re: Re: 2.4.19 IDE Partition Check issue
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: alien.ant@ntlworld.com
+	id <S318164AbSHDSEs>; Sun, 4 Aug 2002 14:04:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1799 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315806AbSHDSEr>; Sun, 4 Aug 2002 14:04:47 -0400
+Date: Sun, 4 Aug 2002 19:08:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020804091158.KOEZ28874.mta05-svc.ntlworld.com@[10.137.100.64]>
-References: <20020804091158.KOEZ28874.mta05-svc.ntlworld.com@[10.137.100.64]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 20:20:01 +0100
-Message-Id: <1028488801.15200.4.camel@irongate.swansea.linux.org.uk>
+Subject: Re: Small problem with pmd_page in 2.5
+Message-ID: <20020804190819.B2995@flint.arm.linux.org.uk>
+References: <20020804125730.A1113@devserv.devel.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020804125730.A1113@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Aug 04, 2002 at 12:57:30PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 10:11, alien.ant@ntlworld.com wrote:
-> > Can you try 2.4.19-ac1 once I upload it.
-> > That has slightly further updated IDE code and it would
-> > useful to know if the same problem occurs
-> 
-> Yes, it has exactly the same problem as stock 2.4.19
-> 
-> Sorry!
+On Sun, Aug 04, 2002 at 12:57:30PM -0400, Pete Zaitcev wrote:
+> I was looking a little bit at sparc(32) and ran into a difficulty
+> with pmd_page. The 2.5 version returns struct page*, presumably
+> to support page tables in highmem. Unfortunately, sparc (sun4m
+> actually) cannot do that, because its page tables are smaller
+> than memory pages.
 
-I'm out of ideas on the promise one then. 
+Same problem as ARM.  For a description of how we fixed it, please
+see:
+
+http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2002-March/008089.html
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

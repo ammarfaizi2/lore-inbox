@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265840AbTFSQx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbTFSQx4
+	id S265843AbTFSQ7b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbTFSQ7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:53:56 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:2311 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S265841AbTFSQxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:53:55 -0400
-Date: Thu, 19 Jun 2003 21:04:57 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Matthew Wilcox <willy@fc.hp.com>
-Cc: Greg KH <greg@kroah.com>, davidm@hpl.hp.com, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: move pci_domain_nr() inside "#ifdef CONFIG_PCI" bracket
-Message-ID: <20030619210457.A24357@jurassic.park.msu.ru>
-References: <16112.54572.443092.996206@napali.hpl.hp.com> <20030618215706.GA1919@kroah.com> <20030619150344.GE21906@ldl.fc.hp.com> <20030619161952.GF21906@ldl.fc.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jun 2003 12:59:31 -0400
+Received: from [62.29.68.68] ([62.29.68.68]:11655 "EHLO submoron.org")
+	by vger.kernel.org with ESMTP id S265843AbTFSQ7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 12:59:30 -0400
+From: "ismail (cartman) donmez" <kde@myrealbox.com>
+Organization: Bogazici University
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Thu, 19 Jun 2003 20:13:41 +0300
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com>
+In-Reply-To: <20030619165916.GA14404@work.bitmover.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030619161952.GF21906@ldl.fc.hp.com>; from willy@fc.hp.com on Thu, Jun 19, 2003 at 10:19:52AM -0600
+Content-Type: text/plain;
+   =?ISO-8859-1?Q?=20charset=3D=22=FDso-885?= =?ISO-8859-1?Q?9-9=22?=
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306192013.41588.kde@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 19, 2003 at 10:19:52AM -0600, Matthew Wilcox wrote:
-> A bit subtle, that ... I think this patch is fine, though perhaps it'd
-> be best to unconditionally make CONFIG_PCI_DOMAIN true as well?
+On Thursday 19 June 2003 19:59, Larry McVoy wrote:
+> These discussions always make me wonder if the open source crowd is ever
+> going to realize it's reasonable to be friendly with commercial companies.
+> Troll Tech is being nice.  They have a nice product, they've created a
+> business model that let's you have the product for free and ensures that
+> they will be in business to support that product.   That's a Good Thing,
+> you benefit from that.
+TT is just great. If all commercial companies are like that. Noone could 
+object commercialism in OSS. [1] GTK+ people are being cheap and go blame Qt 
+for being GPL. Now TT puts a great product there with great help system for 
+free  so I would better shut up or put up.
 
-That's that I did on alpha.
+> KDE is better but not better than Microsoft.  Why?
+> Because it takes a lot of effort to do all the grunt work and if that
+> grunt work is behind the scenes in things like application to application
+> communication, there is less incentive for people to work on it.  The last
+> Gnome interview I read was all about the icons.  Icons are great if the
+> underlying system works well.  Otherwise they are just eye candy and
+> suck people in for a while and then they give up.
 
-Ivan.
+Gnome is great for icons yeah. But KDE ( with -devs -apps ) are great. Not 
+ready for %90 of desktop out there but getting there. I suggest Gnome people 
+stop whining about Qt but creating a usable GTK+ file dialog at least.
+
+[1] : Its nice of BitKeeper to provide CVS and SVN gateways. People should 
+appreciate it.
+
+Regards,
+/ismail 

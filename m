@@ -1,93 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261782AbRFBWCg>; Sat, 2 Jun 2001 18:02:36 -0400
+	id <S261800AbRFBWFQ>; Sat, 2 Jun 2001 18:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbRFBWC0>; Sat, 2 Jun 2001 18:02:26 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:9149 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S261782AbRFBWCP>;
-	Sat, 2 Jun 2001 18:02:15 -0400
-To: torvalds@transmeta.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] balance inactive_dirty list
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 03 Jun 2001 00:01:34 +0200
-Message-ID: <87pucma6dd.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Copyleft)
-MIME-Version: 1.0
+	id <S261783AbRFBWFG>; Sat, 2 Jun 2001 18:05:06 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:3596 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S261771AbRFBWEu>;
+	Sat, 2 Jun 2001 18:04:50 -0400
+Date: Sun, 3 Jun 2001 00:04:42 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for realthis
+Message-ID: <20010603000442.B1290@pcep-jamie.cern.ch>
+In-Reply-To: <3B1790FB.82FC9251@mandrakesoft.com> <E155oW2-0000Ta-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E155oW2-0000Ta-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 01, 2001 at 01:58:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For a long time I've been thinking that inactive list is too small,
-while observing lots of different workloads (all I/O bound). Finally,
-I decided to take a look and try to improve things. In mm/vmscan.c I
-found this overly complicated piece of heuristics:
+Alan Cox wrote:
+> > Only some of them can be cached...  (some of the MIIs in some drivers
+> > are already cached, in fact)   you can't cache stuff like what your link
+> > partner is advertising at the moment, or what your battery status is at
+> > the moment.
+> 
+> I am sure that to an unpriviledged application reporting back the same result
+> as we saw last time we asked the hardware unless it is over 30 seconds old
+> will work fine. Maybe 10 for link partner ?
 
-if (!target) {
-        int inactive = nr_free_pages() + nr_inactive_clean_pages() +
-                                        nr_inactive_dirty_pages;
-        int active = MAX(nr_active_pages, num_physpages / 2);
-        if (active > 10 * inactive)
-                maxscan = nr_active_pages >> 4;
-        else if (active > 3 * inactive)
-                maxscan = nr_active_pages >> 8;
-        else
-                return 0;
-}
+Please no, 30 seconds is way too long for "your mains power is
+knackered, please fiddle with the power connector again" notification.
+When I jiggle the wire I need to know if it's making contact within 1
+second, and if it's lost when I let it go, I need to know that within
+1 second so I can jiggle it some more.
 
-We're trying to be too clever there, and that eventually hurts
-performance because inactive_dirty list is too small for typical
-scenarios. Especially that 'return 0' is hurting us, as it effectively
-stops background scan, so too many pages stay active without the real
-need.
+Probably should try some contact cleaner ;-)
 
-With patch below performance is much better under lots of workloads I
-have tested. The patch simplifies code a lot and removes unnecessary
-complex calculation. Code is now completely autotuning. I have a
-modified xmem utility that shows the state of the lists in a graphical
-manner, so it's easy to see what's going on. Things look much more
-smooth now.
-
-I think I've seen Mike Galbraith (on the list) trying to solve almost
-the same problem, although in a slightly different way. Mike, could
-you give this patch a try.
-
-All comments welcome, of course. :)
-
-Index: 5.2/mm/vmscan.c
---- 5.2/mm/vmscan.c Sat, 26 May 2001 20:44:49 +0200 zcalusic (linux24/j/9_vmscan.c 1.1.7.1.1.1.2.1.1.1 644)
-+++ 5.2(w)/mm/vmscan.c Sat, 02 Jun 2001 23:25:40 +0200 zcalusic (linux24/j/9_vmscan.c 1.1.7.1.1.1.2.1.1.1 644)
-@@ -655,24 +655,10 @@
- 
- 	/*
- 	 * When we are background aging, we try to increase the page aging
--	 * information in the system. When we have too many inactive pages
--	 * we don't do background aging since having all pages on the
--	 * inactive list decreases aging information.
--	 *
--	 * Since not all active pages have to be on the active list, we round
--	 * nr_active_pages up to num_physpages/2, if needed.
-+	 * information in the system.
- 	 */
--	if (!target) {
--		int inactive = nr_free_pages() + nr_inactive_clean_pages() +
--						nr_inactive_dirty_pages;
--		int active = MAX(nr_active_pages, num_physpages / 2);
--		if (active > 10 * inactive)
--			maxscan = nr_active_pages >> 4;
--		else if (active > 3 * inactive)
--			maxscan = nr_active_pages >> 8;
--		else
--			return 0;
--	}
-+	if (!target)
-+		maxscan = nr_active_pages >> 4;
- 
- 	/* Take the lock while messing with the list... */
- 	spin_lock(&pagemap_lru_lock);
-
--- 
-Zlatko
+Thanks...
+-- Jamie

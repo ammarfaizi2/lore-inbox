@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292666AbSDACt3>; Sun, 31 Mar 2002 21:49:29 -0500
+	id <S292870AbSDAC6A>; Sun, 31 Mar 2002 21:58:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292870AbSDACtT>; Sun, 31 Mar 2002 21:49:19 -0500
-Received: from twin.jikos.cz ([217.11.237.146]:4104 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id <S292666AbSDACtN>;
-	Sun, 31 Mar 2002 21:49:13 -0500
-Date: Mon, 1 Apr 2002 04:49:10 +0200 (CEST)
-From: Jirka Kosina <jikos@jikos.cz>
+	id <S293089AbSDAC5u>; Sun, 31 Mar 2002 21:57:50 -0500
+Received: from th09.opsion.fr ([195.219.20.19]:28938 "HELO th09.opsion.fr")
+	by vger.kernel.org with SMTP id <S292870AbSDAC5i>;
+	Sun, 31 Mar 2002 21:57:38 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: apolon <apolon_lovlilis@ifrance.com>
 To: linux-kernel@vger.kernel.org
-cc: marcelo@conectiva.com.br
-Subject: [PATCH] d_path() truncation
-Message-ID: <Pine.LNX.4.44.0204010436520.18291-100000@twin.jikos.cz>
+Subject: bug with floppy drive
+Date: Mon, 1 Apr 2002 05:00:19 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-id: <200204010257.10e3@th09.opsion.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-As I've noticed, there isn't fixed the d_path() long name truncation 
-vulnerability 
-(http://cert.uni-stuttgart.de/archive/bugtraq/2002/03/msg00384.html) in 
-2.4.x up to 2.4.19-pre5 (correct me if I'm wrong).
+I have a bug using my floppy drive under linux
 
-IMHO this trivial patch fixes it (patch against 2.4.18, no idea about 
-2.2.x kernels, should be similar?) - instead of truncating the path with 
-no error, caller gets ENAMETOOLONG.
+when i try to fdformat a floppy, i get this error:
 
-I'm sorry if I've missed something.
+	fdformat /dev/fd0H1440
+	Double-faces, 80 pistes, 18 sec/piste. Capacité totale 1440Ko.
+	Formatage en cours ... terminé
+	Verification en cours ... Lecture : : Erreur d'entree/sortie
+	Probleme lors de la lecture du cylindre 0, 18432 attendu, -1 lu
 
-Kind regards,
+when i try to mke2fsck /dev/fd0H1440, it hangs and my floppy driver seeks 
+infinitely
 
-Jirka Kosina.
+I've try with a lot of floppies and with another floppy drive and I get the 
+same error
+my floppy drive works fine under window$
 
---- linux/fs/dcache.c.orig	Mon Feb 25 20:38:08 2002
-+++ linux/fs/dcache.c	Mon Apr  1 04:16:45 2002
-@@ -977,14 +977,17 @@
- 		parent = dentry->d_parent;
- 		namelen = dentry->d_name.len;
- 		buflen -= namelen + 1;
--		if (buflen < 0)
--			break;
-+		if (buflen < 0){
-+			retval = ERR_PTR(-ENAMETOOLONG);
-+			goto out;
-+		}
- 		end -= namelen;
- 		memcpy(end, dentry->d_name.name, namelen);
- 		*--end = '/';
- 		retval = end;
- 		dentry = parent;
- 	}
-+out:
- 	return retval;
- global_root:
- 	namelen = dentry->d_name.len;
-@@ -993,6 +996,8 @@
- 		retval -= namelen-1;	/* hit the slash */
- 		memcpy(retval, dentry->d_name.name, namelen);
- 	}
-+	else
-+		retval = ERR_PTR(-ENAMETOOLONG);
- 	return retval;
- }
+I'm using the kernel 2.4.18 from kernel.org, with a redhat 7.2
+
+I own a Abit kg7, a amd duron 1000 processor 
+
+I'm at your disposition if you need some help, or renseignements
+
+Fabien
  
-@@ -1042,8 +1047,11 @@
- 		spin_unlock(&dcache_lock);
- 
- 		error = -ERANGE;
-+		
-+		if (cwd == ERR_PTR(-ENAMETOOLONG)) error = -ENAMETOOLONG;
-+
- 		len = PAGE_SIZE + page - cwd;
--		if (len <= size) {
-+		if (len <= size && error != -ENAMETOOLONG) {
- 			error = len;
- 			if (copy_to_user(buf, cwd, len))
- 				error = -EFAULT;
-
+______________________________________________________________________________
+ifrance.com, l'email gratuit le plus complet de l'Internet !
+vos emails depuis un navigateur, en POP3, sur Minitel, sur le WAP...
+http://www.ifrance.com/_reloc/email.emailif
 
 

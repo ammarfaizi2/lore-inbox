@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133086AbRAFWU0>; Sat, 6 Jan 2001 17:20:26 -0500
+	id <S130756AbRAFXL3>; Sat, 6 Jan 2001 18:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135173AbRAFWUQ>; Sat, 6 Jan 2001 17:20:16 -0500
-Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:522 "EHLO
-	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
-	id <S133086AbRAFWUF>; Sat, 6 Jan 2001 17:20:05 -0500
-Message-ID: <00b801c0782e$bbf72960$3a00000a@danb>
-From: "db" <db@cyclonehq.dnsalias.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <01010607054600.01947@gandalf> <20010106075402.A3377@foozle.turbogeek.org> <20010106154027.A1461@conectiva.com>
-Subject: Re: Bug reporting script? (was: removal of redundant line in documentation)
-Date: Sat, 6 Jan 2001 14:19:27 -0800
+	id <S130810AbRAFXLT>; Sat, 6 Jan 2001 18:11:19 -0500
+Received: from Isis151.urz.uni-duesseldorf.de ([134.99.138.151]:4868 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130756AbRAFXLJ>; Sat, 6 Jan 2001 18:11:09 -0500
+Date: Sun, 7 Jan 2001 00:11:33 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: Jochen Friedrich <jochen@nwe.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 link error with modular PCMCIA
+In-Reply-To: <Pine.LNX.4.21.0101062058490.1700-100000@melmac.internal.nwe.de>
+Message-ID: <Pine.LNX.4.30.0101062347190.13176-100000@vaio>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
+On Sat, 6 Jan 2001, Jochen Friedrich wrote:
 
-> About bug reports, isn't a good thing introduce the sgi's lkcd (linux
-kernel crash dump) into the main stream of 2.5? The main problem of lkcd in
-2.2 was the lack of kiobufs.
+> Hi,
 >
-> I think it as a good thing, for distributions, the distribution guys have
-the vmlinuz image of the distro, so when a bug happens the user only needs
-to send the crash dump to the distribution kernel hacker, and he can discuss
-the bug on lkml.
->
-> This introduce a new kind of bug reporter, if the distribution makes
-avalaible every new development kernel as a package, a user can download and
-use, crash and report the bug without any knowledge about kernel. So the
-marketing guys can say: 'help the development of linux without hacking,
-report bugs'.
+> problem is that CONFIG_PCMCIA_NETCARD=y, although all drivers are
+> compiled as modules, so there's no drivers/net/pcmcia/pcmcia_net.o...
 
+This should fix it.
 
+--- drivers/net/Makefile%	Fri Jan  5 15:10:11 2001
++++ drivers/net/Makefile	Sat Jan  6 23:48:28 2001
+@@ -26,7 +26,7 @@
+   obj-$(CONFIG_ISDN) += slhc.o
+ endif
 
-I think this would be a great idea.
+-subdir-$(CONFIG_PCMCIA) += pcmcia
++subdir-$(CONFIG_NET_PCMCIA) += pcmcia
+ subdir-$(CONFIG_TULIP) += tulip
+ subdir-$(CONFIG_IRDA) += irda
+ subdir-$(CONFIG_TR) += tokenring
 
+The problem is that CONFIG_PCMCIA is M, therefore drivers/net/pcmcia is
+not entered during "make vmlinux". The patch fixes this and will produce
+an (empty) pcmcia_net.o
 
+And, yes, the directory will also be entered when doing "make modules",
+because pcmcia is in $(mod-subdirs).
 
-Dan Browning, Cyclone Computer Systems, danb@cyclonecomputers.com
+--Kai
 
 
 

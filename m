@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267911AbTBKRqx>; Tue, 11 Feb 2003 12:46:53 -0500
+	id <S267898AbTBKRjs>; Tue, 11 Feb 2003 12:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267910AbTBKRqx>; Tue, 11 Feb 2003 12:46:53 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56045 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267911AbTBKRqv>;
-	Tue, 11 Feb 2003 12:46:51 -0500
-Date: Tue, 11 Feb 2003 09:54:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: David van Hoose <davidvh@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiler Error : 2.5.60
-Message-Id: <20030211095401.6d3f0dd1.rddunlap@osdl.org>
-In-Reply-To: <3E4936CD.208@cox.net>
-References: <3E4936CD.208@cox.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S267899AbTBKRjs>; Tue, 11 Feb 2003 12:39:48 -0500
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:3271 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S267898AbTBKRjq>; Tue, 11 Feb 2003 12:39:46 -0500
+Subject: 2.5.60 oops on boot, EIP at current_kernel_time
+From: Steven Cole <elenstev@mesatop.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 11 Feb 2003 10:46:35 -0700
+Message-Id: <1044985595.2552.468.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Feb 2003 11:45:49 -0600
-David van Hoose <davidvh@cox.net> wrote:
+Greetings all,
 
-| Attached is stripped config. (I remembered this time)
-| Below is the error.
-| 
-| make -f scripts/Makefile.build obj=drivers/scsi
-|    gcc -Wp,-MD,drivers/scsi/.ppa.o.d -D__KERNEL__ -Iinclude -Wall 
-| -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-| -pipe -mpreferred-stack-boundary=2 -march=pentium4 
-| -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include 
-| -DKBUILD_BASENAME=ppa -DKBUILD_MODNAME=ppa -c -o drivers/scsi/ppa.o 
-| drivers/scsi/ppa.c
-| drivers/scsi/ppa.c: In function `ppa_detect':
-| drivers/scsi/ppa.c:151: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_send_command':
-| drivers/scsi/ppa.c:638: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_completion':
-| drivers/scsi/ppa.c:664: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_command':
-| drivers/scsi/ppa.c:755: structure has no member named `host'
-| drivers/scsi/ppa.c:777: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_interrupt':
-| drivers/scsi/ppa.c:839: structure has no member named `host'
-| drivers/scsi/ppa.c:841: structure has no member named `host'
-| drivers/scsi/ppa.c:845: structure has no member named `host'
-| drivers/scsi/ppa.c:847: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_engine':
-| drivers/scsi/ppa.c:853: structure has no member named `host'
-| drivers/scsi/ppa.c:903: structure has no member named `target'
-| drivers/scsi/ppa.c: In function `ppa_queuecommand':
-| drivers/scsi/ppa.c:969: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_abort':
-| drivers/scsi/ppa.c:1014: structure has no member named `host'
-| drivers/scsi/ppa.c: In function `ppa_reset':
-| drivers/scsi/ppa.c:1042: structure has no member named `host'
-| make[2]: *** [drivers/scsi/ppa.o] Error 1
-| make[1]: *** [drivers/scsi] Error 2
-| make: *** [drivers] Error 2
+I tried to boot 2.5.60 on a dual P3, SMP and PREEMPT enabled,
+and got this oops early in the boot.  The following was hand-copied.
 
-Yes, Mike Anderson posted a patch for this earlier today.
-See the "scsi/imm.c compile errors" thread for it.
+If more information is needed, I can repeat and transcribe more.
 
---
-~Randy
+The root fs is ext3.
+
+EIP Is at current_kernel_time+0x12/0x50
+.
+.
+Trace
+ramfs_get_inode+0x7c/0x120
+ramfs_fill_super+0x2e/0x60
+get_sb_nodev+0x39/0x70
+do_kern_mount+0x42/0xb0
+ramfs_fill_super+0x0/0x60
+_stext+0x/0x50
+
+
+Steven
+
+
+
+

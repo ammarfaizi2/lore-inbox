@@ -1,34 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262453AbTCMQMW>; Thu, 13 Mar 2003 11:12:22 -0500
+	id <S262417AbTCMQTM>; Thu, 13 Mar 2003 11:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262454AbTCMQMV>; Thu, 13 Mar 2003 11:12:21 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:58128
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S262453AbTCMQMV>; Thu, 13 Mar 2003 11:12:21 -0500
-Subject: Re: 2.5.64-mm6
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030313032615.7ca491d6.akpm@digeo.com>
-References: <20030313032615.7ca491d6.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047572586.1281.1.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Mar 2003 08:23:06 -0800
-Content-Transfer-Encoding: 7bit
+	id <S262427AbTCMQTM>; Thu, 13 Mar 2003 11:19:12 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:54285 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S262417AbTCMQTL>;
+	Thu, 13 Mar 2003 11:19:11 -0500
+Date: Thu, 13 Mar 2003 17:29:30 +0100 (CET)
+From: venom@sns.it
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, James Stevenson <james@stev.org>,
+       pd dd <parviz_kernel@yahoo.com>,
+       "M. Soltysiak" <msoltysiak@hotmail.com>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       William Stearns <wstearns@pobox.com>
+Subject: re: Linux BUG: Memory Leak
+In-Reply-To: <20030313150544.GC5488@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.43.0303131724430.19756-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 03:26, Andrew Morton wrote:
->   This means that when an executable is first mapped in, the kernel will
->   slurp the whole thing off disk in one hit.  Some IO changes were made to
->   speed this up.
+slackware 8.1 could have problems, if you upgrade to XFree86 4.3 manually with
+the precompiled binaries you can download from xfree86.org if you still use the
+DRM modules coming with the kernel 2.4.18 vanilla. AT less you will have to
+download and recompile correct DRM modules.
 
-Does this just pull in text and data, or will it pull any debug sections
-too?  That could fill memory with a lot of useless junk.
+Slackware 9.0 (now rc2) has Xfree86 4.3 compiled with glibc 2.3.1, and kernel
+2.4.20 with
+some patches. This slackware ships also the correct DRM modules to work
+correctly on XFree86 4.3.
 
-	J
+That just to clarify esplicitally this question
+
+
+Bests
+
+Luigi
+
+
+On Thu, 13 Mar 2003, Tomas Szepe wrote:
+
+> Date: Thu, 13 Mar 2003 16:05:44 +0100
+> From: Tomas Szepe <szepe@pinerecords.com>
+> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Cc: James Stevenson <james@stev.org>, pd dd <parviz_kernel@yahoo.com>,
+>      M. Soltysiak <msoltysiak@hotmail.com>,
+>      ML-linux-kernel <linux-kernel@vger.kernel.org>,
+>      William Stearns <wstearns@pobox.com>
+> Subject: re: Linux BUG: Memory Leak
+>
+> > [alan@lxorguk.ukuu.org.uk]
+> >
+> > There were problems with the XFree 4.3 DRM if you mixed it with
+> > certain other ingredients like rmap. I don't know what Slackware
+> > ships but that may be the problem.
+>
+> Slackware 8.1 shipped with XFree 4.2.0 and linux-2.4.18 vanilla.
+>
+> Slackware 9.0 will probably ship with XFree 4.3.0 and linux-2.4.20
+> with Andrew Morton's ext3 patches.
+>
+> As far as I can tell, DRM has worked nicely with both 8.1 and 9.0-rc[12].
+>
+> --
+> Tomas Szepe <szepe@pinerecords.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

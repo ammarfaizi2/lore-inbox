@@ -1,145 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262368AbSI3Ott>; Mon, 30 Sep 2002 10:49:49 -0400
+	id <S261666AbSI3P14>; Mon, 30 Sep 2002 11:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262380AbSI3Ott>; Mon, 30 Sep 2002 10:49:49 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:74 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S262368AbSI3Otr>;
-	Mon, 30 Sep 2002 10:49:47 -0400
-Message-ID: <3D9865B5.7020006@acm.org>
-Date: Mon, 30 Sep 2002 09:54:45 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
+	id <S261811AbSI3P14>; Mon, 30 Sep 2002 11:27:56 -0400
+Received: from dsl-213-023-038-108.arcor-ip.net ([213.23.38.108]:27538 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261666AbSI3P1z>;
+	Mon, 30 Sep 2002 11:27:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] In-kernel module loader 1/7
+Date: Mon, 30 Sep 2002 17:32:36 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <20020919125906.21DEA2C22A@lists.samba.org> <1032461895.27865.54.camel@irongate.swansea.linux.org.uk> <20020919201140.GB17131@kroah.com>
+In-Reply-To: <20020919201140.GB17131@kroah.com>
 MIME-Version: 1.0
-To: Buddy Lumpkin <b.lumpkin@attbi.com>
-CC: "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Peter Waechtler'" <pwaechtler@mac.com>,
-       "'Larry McVoy'" <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-       "'ingo Molnar'" <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <000001c2680f$a13af930$0472e50c@peecee>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17w2XF-0005oW-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buddy Lumpkin wrote:
-
->Sun introduced a new thread library in Solaris 8 that is 1:1, but it did
->not replace the default N:M version, you have to link against
->/usr/lib/lwp.
->
->http://supportforum.sun.com/freesolaris/techfaqs.html?techfaqs_2957
->http://www.itworld.com/AppDev/1170/swol-1218-insidesolaris/
->
->I was at a USENIX BOF on threads in Boston year before last and Bill
->Lewis was ranting about how the N:M model sucks. Christopher Provenzano
->was right there and didn't seem to add any feelings one way or the
->other.
->
->Regards,
->
->--Buddy
->
-I heard this a while ago, and talked with someone I knew who had inside 
-information about this.  According to that person, Sun will be switching 
-the default threads library to 1:1 (It looks like from the document 
-referenced below it is Solaris 9).  In various benchmarks, sometimes M:N 
-won, and sometimes 1:1 won, so performance was a wash.  The main problem 
-was that they could never get certain things to work "just right" under 
-an M:N model, the complexity of M:N was just too high to be able to get 
-it working 100% correctly.  He didn't have specific details, though.
-
-Having implemented a threads package with prority inheritance, I expect 
-that doing that with an M:N thread model will be extremely complex. 
- With activations is possible, but that doesn't mean it's easy.  It's 
-hard enough with a 1:1 model.  A scheduler with good "global" properties 
-(for example, a scheduler that guaranteed time share to classes of 
-threads that occur in different processes) would be difficult to 
-implement properly, too.
-
-Complexity is the enemy of reliability.  Even if the M:N model could get 
-slightly better performance, it's going to be very hard to make it work 
-100% correctly.  I personally think the NPT is going in the right 
-direction on this one.
-
--Corey
-
->
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Bill Davidsen
->Sent: Monday, September 23, 2002 12:15 PM
->To: Peter Waechtler
->Cc: Larry McVoy; linux-kernel@vger.kernel.org; ingo Molnar
->Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
->
->On Mon, 23 Sep 2002, Peter Waechtler wrote:
->
->  
->
->>Am Montag den, 23. September 2002, um 12:05, schrieb Bill Davidsen:
->>
->>    
->>
->>>On Sun, 22 Sep 2002, Larry McVoy wrote:
->>>
->>>      
->>>
->>>>On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
->>>>        
->>>>
->>>>>AIX and Irix deploy M:N - I guess for a good reason: it's more
->>>>>flexible and combine both approaches with easy runtime tuning if
->>>>>the app happens to run on SMP (the uncommon case).
->>>>>          
->>>>>
->>>>No, AIX and IRIX do it that way because their processes are so
->>>>        
->>>>
->bloated
->  
->
->>>>that it would be unthinkable to do a 1:1 model.
->>>>        
->>>>
->>>And BSD? And Solaris?
->>>      
->>>
->>Don't know. I don't have access to all those Unices. I could try
->>    
->>
->FreeBSD.
->
->At your convenience.
+On Thursday 19 September 2002 22:11, Greg KH wrote:
+> On Thu, Sep 19, 2002 at 07:58:15PM +0100, Alan Cox wrote:
+> > On Thu, 2002-09-19 at 19:38, Greg KH wrote:
+> > > And with a LSM module, how can it answer that?  There's no way, unless
+> > > we count every time someone calls into our module.  And if you do that,
+> > > no one will even want to use your module, given the number of hooks, and
+> > > the paths those hooks are on (the speed hit would be horrible.)
+> > 
+> > So the LSM module always says no. Don't make other modules suffer
 > 
->  
->
->>According to http://www.kegel.com/c10k.html  Sun is moving to 1:1
->>and FreeBSD still believes in M:N
->>    
->>
->
->Sun is total news to me, "moving to" may be in Solaris 9, Sol8 seems to
->still be N:M. BSD is as I thought.
->  
->
->>MacOSX 10.1 does not support PROCESS_SHARED locks, tried that 5
->>    
->>
->minutes 
->  
->
->>ago.
->>    
->>
->
->Thank you for the effort. Hum, that's a bit of a surprise, at least to
->me. 
->
->  
->
+> Ok, I don't have a problem with that, I was just trying to point out
+> that not all modules can know when they are able to be unloaded, as
+> Roman stated.
 
+Not being able to unload LSM would suck enormously.  At last count, we
+knew how to do this:
 
+  1) Unhook the function hooks (using a call table simplifies this)
+  2) Schedule on each CPU to ensure all tasks are out of the module
+  3) A schedule where the module count is incremented doesn't count
 
+and we rely on the rule that and module code that could sleep must be
+bracketed by inc/dec of the module count.
+
+Did somebody come up with a reason why this will not work?
+
+-- 
+Daniel

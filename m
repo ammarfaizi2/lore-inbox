@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269997AbRHEUYF>; Sun, 5 Aug 2001 16:24:05 -0400
+	id <S270011AbRHEU1z>; Sun, 5 Aug 2001 16:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270002AbRHEUXp>; Sun, 5 Aug 2001 16:23:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33549 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269997AbRHEUXg>; Sun, 5 Aug 2001 16:23:36 -0400
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 5 Aug 2001 21:23:57 +0100 (BST)
-Cc: mblack@csihq.com (Mike Black), bcrl@redhat.com (Ben LaHaise),
-        phillips@bonn-fries.net (Daniel Phillips),
-        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, andrewm@uow.edu.au (Andrew Morton)
-In-Reply-To: <Pine.LNX.4.33.0108051249570.7988-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 05, 2001 01:04:29 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270005AbRHEU1p>; Sun, 5 Aug 2001 16:27:45 -0400
+Received: from sdsl-66-80-62-153.dsl.sca.megapath.net ([66.80.62.153]:17673
+	"EHLO ripple.fruitbat.org") by vger.kernel.org with ESMTP
+	id <S270006AbRHEU11>; Sun, 5 Aug 2001 16:27:27 -0400
+Date: Sun, 5 Aug 2001 13:26:21 -0700 (PDT)
+From: "Peter A. Castro" <doctor@fruitbat.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: Re: PPC? (Was: Re: [RFC] /proc/ksyms change for IA64) 
+In-Reply-To: <29464.997040507@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.21.0108051320320.6238-100000@gremlin.fruitbat.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15TURJ-0008Jy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 5 Aug 2001, Mike Black wrote:
-> And quite frankly, if your disk can push 50MB/s through a 1kB
-> non-contiguous filesystem, then my name is Bugs Bunny.
+On Mon, 6 Aug 2001, Keith Owens wrote:
 
-Hi Bugs 8), previously Frodo Rabbit, .. I think you watch too much kids tv
-8)
+> On 05 Aug 2001 11:29:00 +0200, 
+> kaih@khms.westfalen.de (Kai Henningsen) wrote:
+> >kaos@ocs.com.au (Keith Owens)  wrote on 02.08.01 in <22165.996722560@kao2.melbourne.sgi.com>:
+> >
+> >> The IA64 use of descriptors for function pointers has bitten ksymoops.
+> >> For those not familiar with IA64, &func points to a descriptor
+> >> containing { &code, &data_context }.
+> >
+> >That sounds suspiciously like what I remember from PPC. How is this solved  
+> >on the PPC side?
+> 
+> Best guess, without access to a PPC box, is that it is not solved.  Any
+> arch where function pointers go via a descriptor will have this
+> problem.
+> 
+> PPC users, does /proc/ksyms contain the address of the function code or
+> the address of a descriptor which points to the code?  It is easy to
+> tell, if function entries in /proc/ksyms are close together (8-128
+> bytes apart) and do not match the addresses in System.map then PPC has
+> the same problem as IA64.  If this is true, what is the layout of a PPC
+> function descriptor so I can handle that case as well?
 
-[To be fair I can do this through a raid controller with write back caches
-and the like ..]
+It's an address of a function.  Verified by matching with the system map.
+I'm not sure where to look for what you need, however.  I've checked the
+ppc arch specific code, but it's not apparent to me what I'm looking for
+(sorry, I'm still learning about the kernel's structure).  If you can
+suggest what/where to look I'll dig it up for you. 
 
-> You're more likely to have a nice contiguous file, probably on a 4kB
-> filesystem, and it should be able to do read-ahead of 127 pages in just a
-> few requests.
+-- 
+Peter A. Castro <doctor@fruitbat.org> or <Peter.Castro@oracle.com>
+	"Cats are just autistic Dogs" -- Dr. Tony Attwood
 
-One problem I saw with scsi was that non power of two readaheads were
-causing lots of small I/O requests to actual hit the disk controller (which
-hurt big time on hardware raid as it meant reading/rewriting chunks). I
-ended up seeing 128/127/1 128/127/1 128/127/1 with a 255 block queue.
-
-It might be worth logging the number of blocks in each request that hits
-the disk layer and dumping them out in /proc. I'll see if I still have the
-hack for that around.
-
-Alan

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317858AbSGaIa2>; Wed, 31 Jul 2002 04:30:28 -0400
+	id <S317860AbSGaItf>; Wed, 31 Jul 2002 04:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317856AbSGaIa1>; Wed, 31 Jul 2002 04:30:27 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:54799 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S317854AbSGaIa0>;
-	Wed, 31 Jul 2002 04:30:26 -0400
-Date: Wed, 31 Jul 2002 10:33:40 +0200 (CEST)
-From: venom@sns.it
-To: Shanti Katta <katta@csee.wvu.edu>
-cc: sparclinux@vger.kernel.org, <linux-kernel@vger.kernel.org>
-Subject: Re: what version of gcc can be used to build kernels on Linux/sparc64?
-In-Reply-To: <1028059341.17195.4.camel@indus>
-Message-ID: <Pine.LNX.4.43.0207311031030.12627-100000@cibs9.sns.it>
+	id <S317861AbSGaItf>; Wed, 31 Jul 2002 04:49:35 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:13971 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317860AbSGaItf>; Wed, 31 Jul 2002 04:49:35 -0400
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sanitize TLS API
+References: <20020730174336.A18385@lst.de> <Pine.LNX.4.44.0207302059060.22902-100000@localhost.localdomain> <20020730160631.R1596@devserv.devel.redhat.com>
+From: Andi Kleen <ak@muc.de>
+Date: 31 Jul 2002 10:52:38 +0200
+In-Reply-To: Jakub Jelinek's message of "Tue, 30 Jul 2002 22:10:11 +0200"
+Message-ID: <m33cu0l1nt.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jul 2002, Shanti Katta wrote:
+Jakub Jelinek <jakub@redhat.com> writes:
 
-> Date: 30 Jul 2002 16:02:20 -0400
-> From: Shanti Katta <katta@csee.wvu.edu>
-> To: sparclinux@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Subject: what version of gcc can be used to build kernels on
->     Linux/sparc64?
->
-> I would like to know what version of gcc is currently available to build
-> linux kernels on Linux/Sparc64.
-old egcs patched to compile at 64 bit or gcc 3.1 -m64
+> Actually, is the clear operation really necessary?
+> IMHO the best clear is movw $0x03, %gs, then all accesses through %gs will
+> trap. Calling set_thread_area (0, 1); will result in 0xb segment
+> acting exactly like %ds or %es.
 
-> I would like the builds to generate
-> 64-bit executables.
-This is different fron kernel, you need to compile a 64 bit glibc (use
-2.2.5 sources), and so on for all shared libraries you need, then you can
-compile a 64 bit executable.
-I just should add it will be slower than a 32 bit executable  and a little
-bigger, so if you are not sure you need 64 bit because you binary will use
-more than 3.6 GB RAM itself, you do not need a 64 bit executable.
+At least on x86-64 it is useful to have a clear operation, because setting the
+thread descriptors adds some cost to the context switch for various reasons. 
+This way processes you could disable it again when they don't need it anymore.
 
-Luigi
->
-> -Shanti
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-Andi

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSBRUtB>; Mon, 18 Feb 2002 15:49:01 -0500
+	id <S285229AbSBRU6c>; Mon, 18 Feb 2002 15:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285229AbSBRUsw>; Mon, 18 Feb 2002 15:48:52 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44806 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S284732AbSBRUsi>;
-	Mon, 18 Feb 2002 15:48:38 -0500
-Date: Mon, 18 Feb 2002 12:43:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrik Weiskircher <me@justp.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: khubd zombie
-Message-ID: <20020218204345.GF20284@kroah.com>
-In-Reply-To: <1014039193.523.42.camel@dev1lap> <20020218181417.GA19992@kroah.com> <1014062182.608.36.camel@pat> <20020218200041.GE20284@kroah.com> <1014063390.6649.8.camel@pat>
+	id <S286179AbSBRU6X>; Mon, 18 Feb 2002 15:58:23 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10245 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S285424AbSBRU6N>; Mon, 18 Feb 2002 15:58:13 -0500
+Date: Mon, 18 Feb 2002 21:58:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9-mjc2
+Message-ID: <20020218205806.GD14521@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020217134529.A36@toy.ucw.cz> <E16ct5j-0006O3-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1014063390.6649.8.camel@pat>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 21 Jan 2002 17:13:00 -0800
+In-Reply-To: <E16ct5j-0006O3-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 18, 2002 at 09:16:30PM +0100, Patrik Weiskircher wrote:
+Hi!
+
+> > > Be very careful merging lm_sensors. Incorrect use of it is a wonderful
+> > > way to do things like totally destroy (back to factory) an ibm thinkpad.
+> > > Thats why I've always stayed clear of it
+> > 
+> > They deserve it! Shipping hardware that commits suicide on i2c access is 
+> > bad thing (tm).
 > 
-> khubd is a kernel thread, yes.
-> But if I issue a 'killall khubd' it shouldn't become a zombie.
+> IBM don't replace machines where you do that. So I suspect you'll have a few
+> users with very different views on the matter.
 
-Agreed.  I'll look into this.
+Someone should buy thinkpad, destroy it (preferably with CD labeled
+Virus 98 or soemthing like that), return, destroy next, return,
+destroy next, request money back.
 
-> > And what happened to your USB devices when you kill khubd after applying
-> > your patch?
-> 
-> They work as always.
-
-Try removing a device, or plugging a new one in :)
-
-greg k-h
+Alternatively make a virus that destroys thinkpads -- should make them
+some bad press, too.
+									Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268122AbTBSHJd>; Wed, 19 Feb 2003 02:09:33 -0500
+	id <S268141AbTBSHPq>; Wed, 19 Feb 2003 02:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268141AbTBSHJd>; Wed, 19 Feb 2003 02:09:33 -0500
-Received: from tool9.argh.org ([193.41.144.5]:58298 "EHLO toolnine.argh.org")
-	by vger.kernel.org with ESMTP id <S268122AbTBSHJc>;
-	Wed, 19 Feb 2003 02:09:32 -0500
-Date: Wed, 19 Feb 2003 08:19:32 +0100
-From: Alexander Koch <efraim@clues.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.62 fails to boot, Uncompressing... and then nothing
-Message-ID: <20030219071932.GA3746@clues.de>
+	id <S268145AbTBSHPq>; Wed, 19 Feb 2003 02:15:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:33470 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268141AbTBSHPq>;
+	Wed, 19 Feb 2003 02:15:46 -0500
+Date: Tue, 18 Feb 2003 23:04:02 -0800 (PST)
+Message-Id: <20030218.230402.113318233.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: maxk@qualcomm.com, kuznet@ms2.inr.ac.ru, jt@bougret.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030219035559.7527A2C079@lists.samba.org>
+References: <5.1.0.14.2.20030218101309.048d4288@mail1.qualcomm.com>
+	<20030219035559.7527A2C079@lists.samba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Wed, 19 Feb 2003 14:54:21 +1100
+   
+   Firstly, the owner field should probably be in struct proto_ops not
+   struct socket, where the function pointers are.
 
-I am experiencing problems getting certain 2.5.60 and
-2.5.61 and also 2.5.62 to boot. One 2.5.60 is working,
-the others are just doing something as I only see the
-Uncompressing... and then nothing is happening at all
-except my hard disc doing something which is not booting,
-I feel. I fail to remember what the difference was between
-the two versions of 2.5.60 (one running, the other is not).
-
-Any ideas/hints on what this is?
-
-Thanks,
-Alexander
-
+I think this is one of Alexey's main problems with the
+patch.

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288447AbSADBln>; Thu, 3 Jan 2002 20:41:43 -0500
+	id <S288445AbSADBsY>; Thu, 3 Jan 2002 20:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288446AbSADBle>; Thu, 3 Jan 2002 20:41:34 -0500
-Received: from dsl-213-023-043-248.arcor-ip.net ([213.23.43.248]:38927 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288442AbSADBlZ>;
-	Thu, 3 Jan 2002 20:41:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Date: Fri, 4 Jan 2002 02:44:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com> <E16MBIw-00018y-00@starship.berlin> <20020104002553.A15792@werewolf.able.es>
-In-Reply-To: <20020104002553.A15792@werewolf.able.es>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16MJPZ-0001AQ-00@starship.berlin>
+	id <S288448AbSADBsO>; Thu, 3 Jan 2002 20:48:14 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:38622 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S288445AbSADBr4>;
+	Thu, 3 Jan 2002 20:47:56 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 4 Jan 2002 01:47:52 GMT
+Message-Id: <UTC200201040147.BAA211896.aeb@cwi.nl>
+To: alessandro.suardi@oracle.com, jgarzik@mandrakesoft.com
+Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
+Cc: andries.brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 4, 2002 12:25 am, J.A. Magallon wrote:
-> Perhaps it is a silly question for kernel hackers, but I found it useful
-> for making code more readable...
-> Why dont you use things like:
-> 
-> typedef struct inode inode;
-> typedef struct super_block super_block;
-> 
-> so you can write things like
-> 
-> static inline inode* new_inode(super_block* cb)
-> {
-> 	inode* ni;
-> 	ni = (inode*)malloc(sizeof(inode));
-> 	...
-> }
-> 
-> (ie, kill 'struct' visual pollution...)
-> 
-> ??
-> 
-> Isn't it more readable ?
-> 
-> Just curious...
+    From jgarzik@mandrakesoft.com Fri Jan  4 01:13:34 2002
 
-Needing to type 'struct' everywhere is annoying and makes for long lines.
-Other than that it's harmless, and actually, the situation where you have two 
-ways of spelling everything is annoying too.  Anyway, if it was to be done,
-I'd spell it:
+    reiserfs is blindly storing the kernel's kdev_t value raw to disk.
 
-	typedef struct super_struct super;
-	typedef struct inode_struct inode;
+    AFAICS this will need a policy decision not just cleanup, before it
+    works in 2.5.2 properly.  If we switch the kernel to 12:20 major:minor
+    numbers, suddenly the reiserfs disk format changes based on kernel
+    version, and earlier kernels see corrupted major:minor numbers.
 
-	static inline inode *new_inode(super *sb)
-	{
-		inode *ni = (inode *) malloc(sizeof(inode));
-		...
-	}
+No, not really. For how to do this, see a fragment of example code
+that Linus removed from kdev_t.h in pre6, it went something like
+(adapted for 12+20 instead of 16+16):
 
-It won't happen though, because it would generate a massive diff for the sole 
-reason of making things prettier, and a very high percentage of existing 
-patches would break immediately.  If you're going to clean stuff up, you have 
-to do it a bit at a time while you're working on other things.
+int major(dev_t dev) {
+	int ma;
 
---
-Daniel
+	ma = (dev >> 20);
+	if (!ma)
+		ma = (dev >> 8);
+	return ma;
+}
+
+int minor(dev_t dev) {
+	if (dev >> 20)
+		return (dev & 0xfffff);
+	else
+		return (dev & 0xff);
+}
+
+dev_t mkdev(int ma, int mi) {
+	if (mi & ~0xff)
+		return ((ma << 20) + mi);
+	else
+		return ((ma << 8) + mi);
+}
+
+(with the correctness conditions that ma is 12-bit,
+mi is 20-bit, and major 0 has only 8-bit minors).
+
+You see that the representation of old values does not change.
+No disk corruption.
+
+Andries
+
+
+[I didnt spell it out, but you understand: the dev_t is the on-disk
+format, the conversion finds the major and minor, and these are
+combined again into a kdev_t for use by the kernel]
+
+[Similar code occurs is isofs/rock.c, where a 64-bit dev
+must be converted.]
+
+[I don't know whether reiserfs is a Linux-only filesystem.
+If it is not, and has a disk format that is OS-independent,
+a third struct stat_data might be needed, since the 12+20
+is not universal, so 32+32 would be the better choice.]

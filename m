@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268052AbUJLXPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUJLXTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268052AbUJLXPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 19:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUJLXPf
+	id S268059AbUJLXTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 19:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUJLXTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 19:15:35 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:19975 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268052AbUJLXPS
+	Tue, 12 Oct 2004 19:19:33 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:684 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S268079AbUJLXSx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 19:15:18 -0400
-Date: Wed, 13 Oct 2004 09:14:46 +1000
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Vojtech Pavlik <vojtech@suse.cz>, linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [HID] Fix hiddev devfs oops
-Message-ID: <20041012231446.GA25318@gondor.apana.org.au>
-References: <20041005124914.GA1009@gondor.apana.org.au> <20041011172147.GA3066@logos.cnet> <20041012212153.GA24663@gondor.apana.org.au> <20041012152343.5b70cbd3@lembas.zaitcev.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Oct 2004 19:18:53 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] Proposed fix for PM deadlock on dpm_sem
+Date: Tue, 12 Oct 2004 16:19:20 -0700
+User-Agent: KMail/1.6.2
+Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <16747.20196.293232.983056@cargo.ozlabs.ibm.com>
+In-Reply-To: <16747.20196.293232.983056@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041012152343.5b70cbd3@lembas.zaitcev.lan>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410121619.20360.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 03:23:43PM -0700, Pete Zaitcev wrote:
+On Monday 11 October 2004 8:26 pm, Paul Mackerras wrote:
 > 
-> Herbert, I'm sorry for the wait. Marcelo asked me to take care of this,
-> but I kept postponing it because I wanted to look closer, and this and
-> that... It looks entirely reasonable and my hid devices continue to work,
-> but I haven't tested hiddev (UPS or something ?).
+> This patch removes the deadlocks by adding a new semaphore, called
+> dpm_list_sem, which serializes changes to the power management lists
+> (dpm_active et al.).  We hold dpm_sem during calls to suspend_device
+> and resume_device but not dpm_list_sem.
 
-Yes that's exactly the situation I'm in (APC UPS via USB) and it does fix
-the OOPS for me when hid is unloaded with the UPS connected.
+Looks pleasantly simple, I'll have to try it!  I recall that Patrick's
+patch also removed these comments ... methinks they're the
+reason I wanted to avoid patching this myself, they make it sound
+like there's a big deal.  Of course, (a) is one side of the bug so
+it's got to go, but the other two were less obvious to me.   It
+looked like (b) was undesirable prevention-of-concurrency,
+but (c) might matter for the system-suspend cases.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+- Dave
+
+
+> - *	Note this function leaves dpm_sem held to
+> - *	a) block other devices from registering.
+> - *	b) prevent other PM operations from happening after we've begun.
+> - *	c) make sure we're exclusive when we disable interrupts.
+

@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVBYV6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVBYWBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVBYV6l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 16:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVBYV6l
+	id S262114AbVBYWBn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 17:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVBYWBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 16:58:41 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43169 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261973AbVBYV6a (ORCPT
+	Fri, 25 Feb 2005 17:01:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5045 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262114AbVBYWBb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 16:58:30 -0500
-Date: Fri, 25 Feb 2005 13:55:04 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 25 Feb 2005 17:01:31 -0500
+Date: Fri, 25 Feb 2005 17:00:25 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
 To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] unexport do_settimeofday
-Message-Id: <20050225135504.7749942e.akpm@osdl.org>
-In-Reply-To: <20050225214326.GE3311@stusta.de>
-References: <20050224233742.GR8651@stusta.de>
-	<20050224212448.367af4be.akpm@osdl.org>
-	<20050225214326.GE3311@stusta.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+cc: davem@davemloft.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] better CRYPTO_AES <-> CRYPTO_AES_586 dependencies
+In-Reply-To: <20050225214613.GF3311@stusta.de>
+Message-ID: <Xine.LNX.4.44.0502251659060.11414-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> On Thu, Feb 24, 2005 at 09:24:48PM -0800, Andrew Morton wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > > 
-> > >  I haven't found any possible modular usage of do_settimeofday in the 
-> > >  kernel.
-> > 
-> > Please,
-> > 
-> > - Add deprecated_if_module
-> >...
+On Fri, 25 Feb 2005, Adrian Bunk wrote:
+
+> 2.6.11-rc4-mm1 contains an option (IEEE80211_CRYPT_CCMP) that selects 
+> CRYPTO_AES - but this is currently wrong on i386.
 > 
-> What's the correct header file for __deprecated_if_module ?
+> This patch changes CRYPTO_AES to being the only user-visible options and 
+> selecting either CRYPTO_AES_586 or a new CRYPTO_AES_GENERIC option 
+> depending on the platform.
 
-Actually, __deprecated_in_modules would be a better name.
+Good thinking, didn't think to chain selects.
 
-> module.h ?
+> BTW: Does CRYPTO_AES_586 work on an 386 or 486?
 
-compiler.h, I guess.
+>From memory it is generic i386 asm optimize for P5.
 
---- 25/include/linux/compiler.h~a	2005-02-25 13:53:32.000000000 -0800
-+++ 25-akpm/include/linux/compiler.h	2005-02-25 13:54:45.000000000 -0800
-@@ -86,6 +86,12 @@ extern void __chk_io_ptr(void __iomem *)
- # define __deprecated		/* unimplemented */
- #endif
- 
-+#ifdef MODULE
-+#define __deprecated_in_modules __deprecated
-+#else
-+#define __deprecated_in_modules /* OK in non-modular code */
-+#endif
-+
- #ifndef __must_check
- #define __must_check
- #endif
-_
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 

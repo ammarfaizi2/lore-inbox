@@ -1,179 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270423AbRHNE3M>; Tue, 14 Aug 2001 00:29:12 -0400
+	id <S270433AbRHNEdc>; Tue, 14 Aug 2001 00:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270429AbRHNE3D>; Tue, 14 Aug 2001 00:29:03 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28116 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270423AbRHNE2v>;
-	Tue, 14 Aug 2001 00:28:51 -0400
-Date: Tue, 14 Aug 2001 00:29:03 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (1/11) fs/super.c fixes
-In-Reply-To: <Pine.LNX.4.33.0108132112180.1277-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0108140023480.10579-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270436AbRHNEdW>; Tue, 14 Aug 2001 00:33:22 -0400
+Received: from chinook.Stanford.EDU ([171.64.93.186]:21888 "EHLO
+	chinook.stanford.edu") by vger.kernel.org with ESMTP
+	id <S270433AbRHNEdG>; Tue, 14 Aug 2001 00:33:06 -0400
+Date: Mon, 13 Aug 2001 21:33:19 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-pre1 NFS problem
+Message-ID: <20010813213319.A2253@chinook.stanford.edu>
+In-Reply-To: <20010813114636.A4641@chinook.stanford.edu> <200108131933.f7DJXjX20270@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108131933.f7DJXjX20270@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt http://www.mutt.org/
+From: Max Kamenetsky <maxk@chinook.stanford.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Linus Torvalds <torvalds@transmeta.com> [08/13/01 18:40] wrote:
+> In article <20010813114636.A4641@chinook.stanford.edu> you write:
+> >It looks like 2.4.9-pre1 breaks the NFS server.  Directories still get
+> >exported and clients can mount them fine, but the ls command on the
+> >client fails to report any files.  Filename completion also doesn't
+> >work.  However, files can still be viewed if you know the exact file
+> >name.
+> 
+> Yes, there's a missing off_t -> loff_t change in pre1, and the compile
+> will even warn about it...
+> 
+> >The same problem happens with 2.4.9-pre2.
+> 
+> ..but I thought I fixed it in pre2. 
+> 
+> HOWEVER - there are a few others that I missed because the NFSD layer is
+> doing ugly casts of function pointers (don't ask me why - it should have
+> the right type in 'filldir_t' already but wants to use its own type), so
+> the compiler can't warn about it. 
+> 
+> Let's hear it for type safety and avoiding ugly casts.
+> 
+> Anyway, here's the patch - does this fix it for you?
 
+[snip patch]
 
-On Mon, 13 Aug 2001, Linus Torvalds wrote:
+I didn't try the patch, but 2.4.9-pre3 fixes the problem.  I'm
+assuming the patch is in that kernel version.
 
-> I suspect that you may have generated the diffs in a different order than
-> the subject lines imply (ie maybe 3/11 should be 4/11 and vice versa).
-
-Damn. No, it's even dumber - cat desc-$i B$i*-S9-pre3 > $(($i+1) doesn't do
-anything good when $i is 1 and we have more than 10 chunks.
-
-IOW, 2/11 got patch from 11/11 added to its tail. Sorry. Correct (== truncated)
-variant follows - the rest is OK (checked, applies as posted). If you want
-me to resend them too - tell and I'll do that.
-
-Part 2/11
-
-First part of get_sb_bdev() rewrite. We move opening the device to the
-beginning of the function. If we already have a superblock from that device
-- well, no problem. That, BTW, fixes a buglet with permissions: suppose
-we mount /dev/foo, chmod it to 0 and say mount /dev/foo again. Old code
-merrily didn't notice that permissions had been revoked and allowed mount.
-Main reason for the change is different, though - we are getting the
-blocking operations from the area we want to protect with sb_lock (see
-the next chunk).
-
-
-Cleanup: we move decrementing ->s_active into put_super(). Callers updated.
-
-diff -urN S9-pre3-s_umount/fs/super.c S9-pre3-get_sb_bdev/fs/super.c
---- S9-pre3-s_umount/fs/super.c	Mon Aug 13 21:21:26 2001
-+++ S9-pre3-get_sb_bdev/fs/super.c	Mon Aug 13 21:21:26 2001
-@@ -872,6 +872,26 @@
- 			kdevname(dev));
- }
- 
-+static int grab_super(struct super_block *sb)
-+{
-+	sb->s_count++;
-+	atomic_inc(&sb->s_active);
-+	spin_unlock(&sb_lock);
-+	down_write(&sb->s_umount);
-+	if (sb->s_root) {
-+		/* Still relying on mount_sem */
-+		if (atomic_read(&sb->s_active) > 1) {
-+			spin_lock(&sb_lock);
-+			sb->s_count--;
-+			spin_unlock(&sb_lock);
-+			return 1;
-+		}
-+	}
-+	atomic_dec(&sb->s_active);
-+	put_super(sb);
-+	return 0;
-+}
-+
- static struct super_block *get_sb_bdev(struct file_system_type *fs_type,
- 	char *dev_name, int flags, void * data)
- {
-@@ -880,8 +900,11 @@
- 	struct block_device_operations *bdops;
- 	struct super_block * sb;
- 	struct nameidata nd;
-+	struct list_head *p;
- 	kdev_t dev;
- 	int error = 0;
-+	mode_t mode = FMODE_READ; /* we always need it ;-) */
-+
- 	/* What device it is? */
- 	if (!dev_name || !*dev_name)
- 		return ERR_PTR(-EINVAL);
-@@ -902,52 +925,45 @@
- 	/* Done with lookups, semaphore down */
- 	down(&mount_sem);
- 	dev = to_kdev_t(bdev->bd_dev);
--	sb = get_super(dev);
--	if (sb) {
--		if (fs_type == sb->s_type &&
--		    ((flags ^ sb->s_flags) & MS_RDONLY) == 0) {
--/*
-- * We are heavily relying on mount_sem here. We _will_ get rid of that
-- * ugliness RSN (and then atomicity of ->s_active will play), but first
-- * we need to get rid of "reuse" branch of get_empty_super() and that
-- * requires reference counters. Chicken and egg problem, but fortunately
-- * we can use the fact that right now all accesses to ->s_active are
-- * under mount_sem.
-- */
--			if (atomic_read(&sb->s_active)) {
--				spin_lock(&sb_lock);
--				sb->s_count--;
--				spin_unlock(&sb_lock);
--			}
--			atomic_inc(&sb->s_active);
--			/* Next chunk will drop it */
--			up_read(&sb->s_umount);
--			down_write(&sb->s_umount);
--			path_release(&nd);
--			return sb;
--		}
--		drop_super(sb);
--	} else {
--		mode_t mode = FMODE_READ; /* we always need it ;-) */
--		if (!(flags & MS_RDONLY))
--			mode |= FMODE_WRITE;
--		error = blkdev_get(bdev, mode, 0, BDEV_FS);
--		if (error)
--			goto out;
--		check_disk_change(dev);
--		error = -EACCES;
--		if (!(flags & MS_RDONLY) && is_read_only(dev))
-+	if (!(flags & MS_RDONLY))
-+		mode |= FMODE_WRITE;
-+	error = blkdev_get(bdev, mode, 0, BDEV_FS);
-+	if (error)
-+		goto out;
-+	check_disk_change(dev);
-+	error = -EACCES;
-+	if (!(flags & MS_RDONLY) && is_read_only(dev))
-+		goto out1;
-+
-+	error = -EBUSY;
-+restart:
-+	spin_lock(&sb_lock);
-+
-+	list_for_each(p, &super_blocks) {
-+		struct super_block *old = sb_entry(p);
-+		if (old->s_dev != dev)
-+			continue;
-+		if (old->s_type != fs_type ||
-+		    ((flags ^ old->s_flags) & MS_RDONLY)) {
-+			spin_unlock(&sb_lock);
- 			goto out1;
--		error = -EINVAL;
--		sb = read_super(dev, bdev, fs_type, flags, data, 0);
--		if (sb) {
--			get_filesystem(fs_type);
--			path_release(&nd);
--			return sb;
- 		}
--out1:
-+		if (!grab_super(old))
-+			goto restart;
- 		blkdev_put(bdev, BDEV_FS);
-+		path_release(&nd);
-+		return old;
- 	}
-+	spin_unlock(&sb_lock);
-+	error = -EINVAL;
-+	sb = read_super(dev, bdev, fs_type, flags, data, 0);
-+	if (sb) {
-+		get_filesystem(fs_type);
-+		path_release(&nd);
-+		return sb;
-+	}
-+out1:
-+	blkdev_put(bdev, BDEV_FS);
- out:
- 	path_release(&nd);
- 	up(&mount_sem);
+Max
 

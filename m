@@ -1,104 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266456AbSLOMhs>; Sun, 15 Dec 2002 07:37:48 -0500
+	id <S266460AbSLOMit>; Sun, 15 Dec 2002 07:38:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266460AbSLOMhs>; Sun, 15 Dec 2002 07:37:48 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:27777 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S266456AbSLOMhr>; Sun, 15 Dec 2002 07:37:47 -0500
-Message-ID: <3DFC78E7.98FB3298@cinet.co.jp>
-Date: Sun, 15 Dec 2002 21:43:19 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
-X-Accept-Language: ja
+	id <S266473AbSLOMis>; Sun, 15 Dec 2002 07:38:48 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:27397 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266460AbSLOMir>;
+	Sun, 15 Dec 2002 07:38:47 -0500
+From: John Bradford <john@bradfords.org.uk>
+Message-Id: <200212151258.gBFCwEDZ000672@darkstar.example.net>
+Subject: Re: Symlink indirection
+To: andrew@walrond.org (Andrew Walrond)
+Date: Sun, 15 Dec 2002 12:58:14 +0000 (GMT)
+Cc: junkio@cox.net, linux-kernel@vger.kernel.org
+In-Reply-To: <3DFC72E4.30400@walrond.org> from "Andrew Walrond" at Dec 15, 2002 12:17:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (14/21)
-References: <3DFC50E9.656B96D0@cinet.co.jp>
-Content-Type: multipart/mixed;
- boundary="------------28283E1C681D5FAF601365DA"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------28283E1C681D5FAF601365DA
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+> > "AW" == Andrew Walrond <andrew@walrond.org> gives an example of
+> > a/{x,y,z}, b/{y,z}, c/z mounted on d/. in that order, later
+> > mounts covering the earlier ones.
+> > 
+> > AW> echo "d/w" > d/w would create a new file in directory a.
 
-NEC PC-9800 subarchitecture support patch for 2.5.50-ac1 (14/21)
-This patch contains changes under kernel/*.
+I disagree.  It should create it in directory d, even though that is
+the mount point.
 
-diffstat:
- kernel/dma.c   |    3 +++
- kernel/ksyms.c |    4 ++++
- kernel/timer.c |    5 +++++
- 3 files changed, 12 insertions(+)
+A union mount should include files from another directory, but writes
+should go to the actual named directory.
 
-Regards,
-Osamu Tomita
---------------28283E1C681D5FAF601365DA
-Content-Type: text/plain; charset=iso-2022-jp;
- name="kernel.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kernel.patch"
+> > Back to your example; what do you wish to happen when we do
+> > this?
+> > 
+> >     $ mv d/z d/zz && test -f d/z && cat d/z
+> > 
+> > Here we rename d/z (which is really c/z) to zz.  Does this
+> > reveal z that used to be hidden by that, namely b/z, and "cat
+> > d/z" now shows "b/z"?
+> 
+> Yes - exactly
 
-diff -urN linux/kernel/dma.c linux98/kernel/dma.c
---- linux/kernel/dma.c	Sun Aug 11 10:41:22 2002
-+++ linux98/kernel/dma.c	Wed Aug 21 09:53:59 2002
-@@ -9,6 +9,7 @@
-  *   [It also happened to remove the sizeof(char *) == sizeof(int)
-  *   assumption introduced because of those /proc/dma patches. -- Hennus]
-  */
-+#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -62,10 +63,12 @@
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 },
-+#ifndef CONFIG_PC9800
- 	{ 1, "cascade" },
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 }
-+#endif
- };
- 
- 
-diff -urN linux/kernel/ksyms.c linux98/kernel/ksyms.c
---- linux/kernel/ksyms.c	2002-12-10 09:17:59.000000000 +0900
-+++ linux98/kernel/ksyms.c	2002-12-10 10:37:55.000000000 +0900
-@@ -604,6 +604,10 @@
- EXPORT_SYMBOL(__per_cpu_offset);
- #endif
- 
-+/* Whether PC-9800 architecture or not  No:0 Yes:1 */
-+int pc98 = 0;
-+EXPORT_SYMBOL(pc98);
-+
- /* debug */
- EXPORT_SYMBOL(dump_stack);
- 
-diff -urN linux/kernel/timer.c linux98/kernel/timer.c
---- linux/kernel/timer.c	Mon Nov 18 13:29:29 2002
-+++ linux98/kernel/timer.c	Tue Nov 19 10:57:26 2002
-@@ -433,8 +433,13 @@
- /*
-  * Timekeeping variables
-  */
-+#ifndef CONFIG_PC9800
- unsigned long tick_usec = TICK_USEC; 		/* ACTHZ   period (usec) */
- unsigned long tick_nsec = TICK_NSEC(TICK_USEC);	/* USER_HZ period (nsec) */
-+#else
-+extern unsigned long tick_usec; 		/* ACTHZ   period (usec) */
-+extern unsigned long tick_nsec;			/* USER_HZ period (nsec) */
-+#endif
- 
- /* The current time */
- struct timespec xtime __attribute__ ((aligned (16)));
+Union mounts should be read only.
 
---------------28283E1C681D5FAF601365DA--
+If read-write union mounts are needed, I don't think that we should
+implement them significantly differently to the way they work in BSD.
 
+John.

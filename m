@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264250AbTDJXah (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTDJXah (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:30:37 -0400
-Received: from smtp.vzavenue.net ([66.171.59.140]:43782 "EHLO
-	smtp.vzavenue.net") by vger.kernel.org with ESMTP id S264250AbTDJXaf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 19:30:35 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 10 Apr 2003 19:41:15 -0400
-MIME-Version: 1.0
-Subject: [STATUS 2.5]  April 11, 2003
-Message-ID: <3E95C8DB.22719.13EA0AFA@localhost>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id S264256AbTDJXbu (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTDJXbt (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:31:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53963 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264256AbTDJXbB (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:31:01 -0400
+Date: Thu, 10 Apr 2003 16:36:36 -0700 (PDT)
+Message-Id: <20030410.163636.62240589.davem@redhat.com>
+To: gandalf@wlug.westbo.se, gandalf@netfilter.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix modify-after-free bug in ip_conntrack
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1050017895.11156.95.camel@tux.rsn.bth.se>
+References: <1050017895.11156.95.camel@tux.rsn.bth.se>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Things have been moving along at a fast pace over the last couple 
-of weeks, with tons of little changes and bugs fixes all over the
-place.
+   From: Martin Josefsson <gandalf@netfilter.org>
+   Date: 11 Apr 2003 01:38:15 +0200
+   
+   Please apply to both 2.4 and 2.5
 
-Of note, some major IDE cleanups have made their way to Alan Cox's
-tree and a 32 bit dev_t patch is in Andrew Morton's tree.
+Applied, thanks.
 
-The latest status update is at the usual URL:
-   http://www.kernelnewbies.org/status
-
-As usual, please let me know if anything is missing or incorrect.
-Enjoy!
-
--- Guillaume
+You might try pinging Rusty, he's been reasonably responsive laterly.
+In fact he's working on pushing the skb_linearize() bits deeper into
+the netfilter stack.

@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317017AbSHAURF>; Thu, 1 Aug 2002 16:17:05 -0400
+	id <S316961AbSHAUNu>; Thu, 1 Aug 2002 16:13:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316994AbSHAURF>; Thu, 1 Aug 2002 16:17:05 -0400
-Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:25513 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S317017AbSHAUP7>; Thu, 1 Aug 2002 16:15:59 -0400
-Date: Thu, 1 Aug 2002 16:26:05 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: Daniel Mose <imcol@unicyclist.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Funding Linux kernel -fringe and -future devel. projects ?
-In-Reply-To: <20020801204251.A2639@unicyclist.com>
-Message-ID: <Pine.LNX.4.33.0208011624350.31281-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316960AbSHAUNu>; Thu, 1 Aug 2002 16:13:50 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:30461 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S316959AbSHAUNs> convert rfc822-to-8bit; Thu, 1 Aug 2002 16:13:48 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <gmack@innerfire.net>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1055) - Licensed Version
+Date: Thu, 1 Aug 2002 13:17:14 -0700
+In-Reply-To: <Pine.LNX.4.44.0208011241180.6597-100000@innerfire.net>
+Subject: Re: Funding GPL projects or funding the GPL?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020801201716.AAA20596@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> seems like SUBJECT is of interest to air for  many LK 
-> developers (and others). Therefore I propose the above change 
 
-egads!  the price of cheese is of interest to many LKML readers,
-but that DOES NOT MAKE IT a legit topic.  please, please direct
-any followups to alt.linux.kernel.cheese.
+
+On Thu, 1 Aug 2002 12:51:16 -0400 (EDT), Gerhard Mack wrote:
+
+>I don't get it.. he should know full well there are programmres out
+>there who will not provide good code no mater how much you pay them.
+
+	Sure, and there are people who can't write a symphony no matter how much you 
+pay them. But, believe it or not, the people who can write symphonies are 
+more likely to get paid to write them than people who aren't. Or, in other 
+words, there will tend to be a strong correlation between how much a person 
+is paid to write symphonies and how well he or she writes them. This is 
+because in general the people who control the flow of money tend to pay the 
+people who write the symphonies that meet their needs.
+
+	Now if you do a study where you randomly choose 100 people and pay them an 
+extra $500 to write symphonies, you are very unlikely to get improved 
+symphonies. But this hardly shows that more money won't make better 
+symphonies.
+
+	For an individual given programmer, in most cases code quality won't 
+correspond to financial compensation. You can't pay a randomly selected 
+person more and more money and find them writing better and better 
+symphonies. However, if I had to get a symphony written by any means at my 
+disposal, the more money I had, the better the symphony would be.
+
+	DS
+
 

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbTAJSkd>; Fri, 10 Jan 2003 13:40:33 -0500
+	id <S266020AbTAJSdV>; Fri, 10 Jan 2003 13:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbTAJSjq>; Fri, 10 Jan 2003 13:39:46 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:34697 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265777AbTAJSaQ>; Fri, 10 Jan 2003 13:30:16 -0500
-Date: Fri, 10 Jan 2003 19:38:52 +0100
-Message-Id: <200301101838.h0AIcqc05949@mail.intergenia.de>
-To: davem@ninka.net
-From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
-Subject: Some 2.5.55 compile problems [rescued]
-CC: linux-kernel@vger.kernel.org
+	id <S265947AbTAJSca>; Fri, 10 Jan 2003 13:32:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61057 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265939AbTAJSbb>; Fri, 10 Jan 2003 13:31:31 -0500
+Date: Fri, 10 Jan 2003 13:42:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Hell.Surfers@cwctv.net
+cc: vlad@geekizoid.com, jalvo@mbay.net, linux-kernel@vger.kernel.org,
+       rms@gnu.org
+Subject: RE: What's in a name?
+In-Reply-To: <0d1395823170a13DTVMAIL8@smtp.cwctv.net>
+Message-ID: <Pine.LNX.3.95.1030110133730.27408B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 10 Jan 2003 Hell.Surfers@cwctv.net wrote:
 
-Hi Dave: (hope i'm addressing this issue to the right person!)
+> what was it compiled with ;-)))
+> 
+> -- DM.
+>
 
-When making bzImage with the current BK I receive the following during=20
-the final link process:
+No doubt a gcc compiler. I built my house with a Stanley hammer
+and a Skill saw. Neither Stanley nor Skill own the house (the
+bank does).
 
-net/built-in.o(.text+0x4ba22): In function `xfrm_probe_algs':
-: undefined reference to `crypto_alg_available'
-net/built-in.o(.text+0x4ba68): In function `xfrm_probe_algs':
-: undefined reference to `crypto_alg_available'
+There is no tradition of attributing ownership of any works
+of any kind to tool makers.
 
-this is because ipv4 seems to depend on some Cryptographic API stuff...=20
-that doesn't sound right though! Anyway, I added base Cryptographic API
-support to shut it up, and the link went fine.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-But this was definitely not added until recently - I was able to =20
-compile all 2.5.54 BK cleanly. What's the deal now?
-
-Regards
-Josh
-
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+HovZ6TRUxq22Mx4RAgy7AJ9562vM9zS09EFq5b3r6xM/DHZ1bgCgvf0N
-0awrVgvTCn1st7U20vlKm1c=
-=XugU
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

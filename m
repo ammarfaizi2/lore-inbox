@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUISSoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUISSss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUISSoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 14:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUISSoK
+	id S262071AbUISSss (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 14:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUISSss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 14:44:10 -0400
-Received: from [217.79.151.115] ([217.79.151.115]:9349 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S262062AbUISSn4 (ORCPT
+	Sun, 19 Sep 2004 14:48:48 -0400
+Received: from quechua.inka.de ([193.197.184.2]:38823 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262071AbUISSsr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 14:43:56 -0400
-Date: Sun, 19 Sep 2004 20:43:50 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 19 Sep 2004 14:48:47 -0400
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
 Subject: Re: udev is too slow creating devices
-In-Reply-To: <20040919173221.GB2345@kroah.com>
-Message-ID: <Pine.LNX.4.60.0409192004020.30139@alpha.polcom.net>
-References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston>
- <414D42F6.5010609@softhome.net> <cijrui$g9s$1@sea.gmane.org>
- <20040919173221.GB2345@kroah.com>
+Date: Sun, 19 Sep 2004 20:53:15 +0200
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Message-Id: <pan.2004.09.19.18.53.14.171322@dungeon.inka.de>
+References: <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch> <4148637F.9060706@debian.org> <20040915185116.24fca912.Ballarin.Marc@gmx.de> <20040915180056.GA23257@kroah.com>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 15 Sep 2004 18:17:02 +0000, Greg KH wrote:
+> There is, just run your stuff off of /etc/dev.d/ and stop relying on a
+> device node to be present after modprobe returns.
 
-I am fascinated about udev and others, but have some questions.
+But installation scripts will need to sleep/loop after fdisk,
+till the devices are created, right?
 
-On Sun, 19 Sep 2004, Greg KH wrote:
-> On Sun, Sep 19, 2004 at 05:53:05PM +0600, Alexander E. Patrakov wrote:
->>
->> What we currently see is that distros either ignore the race or (like
->> LFS) say something like:
->
-> I don't see distros ignoring the race issues.  Look at Gentoo's init
-> scripts, it handles this properly (if not, please let me know.)
+And I'm currently mknod'ing /dev/md* devices before creating
+the kernel structures with mkraid (which needs the device inode).
+Is there any other way to do this? 
 
-I have Gentoo with udev (with 100% modular kernel). And I have speedtouch 
-USB ADSL modem. I am using paralell startup scripts feature. And 
-speedtouch tries to initialize itself (load firmware and so on) before USB 
-bus (or how to call it) is discovered. I can imagine moving firmware 
-loader to udev.d scripts but where should I place pppd launching (for 
-example I might have pppd or ifconfig binary on nfs mounted /usr from 
-my LAN...).
+sure, in the long run designs like dm with a special control
+device are a better than this hack for md. 
+Also I wonder how dm works: will dmsetup create the /dev inode
+itself, or use udev to do that? would I need the sleep/loop 
+in a script creating device mappings to wait for the inode?
 
-I understand that for messages like "xxx was just plugged in" there is 
-(masked) HAL and DBUS. But don't we need something where we can check if 
-particular part of the system (not only device but also removable media or 
-filesystem mount or some daemon) was initialized (or is currently plugged 
-and initialized) or not? And we should be able to locate device file or 
-mount point or controll socket of this part of the system... And don't 
-we need some multi-event script launcher: "Launch this when xxx was 
-plugged and initialized but not before yyy was initialized"? Gentoo has 
-dependency-based startup scripts but dependiencies are resolved statically 
-not dynamically... There should be also some inteligent way to 
-shut down device _and_ all things that depend on it when device is 
-unplugged and then reinitialize _everything_ when device is plugged 
-back... Not only device itself as it is in udev.d. Script in udev.d should 
-not know about services that depend on this device and services that 
-depend on these services...
-
-And how udev, hotlpug and the rest of the system should hadle SATA disk 
-unpluggged in the middle of writing? And what if it will be plugged back?
-
-
-Thanks,
-
-Grzegorz Kulewski
+Regards, Andreas
 

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbTATNer>; Mon, 20 Jan 2003 08:34:47 -0500
+	id <S265843AbTATNfN>; Mon, 20 Jan 2003 08:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265843AbTATNer>; Mon, 20 Jan 2003 08:34:47 -0500
-Received: from angband.namesys.com ([212.16.7.85]:19946 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265815AbTATNeq>; Mon, 20 Jan 2003 08:34:46 -0500
-Date: Mon, 20 Jan 2003 16:43:44 +0300
-From: Oleg Drokin <green@namesys.com>
-To: venom@sns.it
+	id <S265851AbTATNfM>; Mon, 20 Jan 2003 08:35:12 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:39366 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265843AbTATNfL>;
+	Mon, 20 Jan 2003 08:35:11 -0500
+Date: Mon, 20 Jan 2003 13:41:38 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS corruption with kernel 2.5.59
-Message-ID: <20030120164344.A2377@namesys.com>
-References: <Pine.LNX.4.43.0301201418180.1075-100000@cibs9.sns.it>
+Subject: Re: "Latitude with broken BIOS" ?
+Message-ID: <20030120134138.GA28221@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>,
+	linux-kernel@vger.kernel.org
+References: <7284135.1043069329179.JavaMail.nobody@web55.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0301201418180.1075-100000@cibs9.sns.it>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <7284135.1043069329179.JavaMail.nobody@web55.us.oracle.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Jan 20, 2003 at 05:28:49AM -0800, Alessandro Suardi wrote:
 
-On Mon, Jan 20, 2003 at 02:23:58PM +0100, venom@sns.it wrote:
-> I was using reiserFS for the root FS on a desktop, just to test kernel 2.5.59,
-> and I started to get those messages:
-> PAP-14030: direct2indirect: pasted or inserted byte exists in the tree [5094
-> 5096 0x1001 IND]. Use fsck to repair.
-> Of course I repaired the FS.
+ > >  >  "Dell Latitude with broken BIOS detected. Refusing to enable the local APIC."
+ > > Lots of Dell laptops (like other vendors) crash instantly when trying to
+ > > enable the APIC.
+ > Well my Dells power off on rebooting from 2.5... bug 119 or 134 in
+ >  http://bugme.osdl.org, no need to resort to messing with the APIC ;(
 
-Was the FS clean before you started to use 2.5.59?
+That one IMO looks like an ACPI problem (Note ACPI != APIC)
 
-Bye,
-    Oleg
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

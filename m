@@ -1,141 +1,298 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315313AbSDWTgn>; Tue, 23 Apr 2002 15:36:43 -0400
+	id <S315317AbSDWTqC>; Tue, 23 Apr 2002 15:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315314AbSDWTgm>; Tue, 23 Apr 2002 15:36:42 -0400
-Received: from bitmover.com ([192.132.92.2]:63923 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315313AbSDWTgh>;
-	Tue, 23 Apr 2002 15:36:37 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Tue, 23 Apr 2002 12:36:37 -0700
-Message-Id: <200204231936.g3NJabC29433@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.5 activity by directory
+	id <S315318AbSDWTqB>; Tue, 23 Apr 2002 15:46:01 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:58869 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S315317AbSDWTp7>; Tue, 23 Apr 2002 15:45:59 -0400
+Subject: [PATCH] 2.5.9 TUN/TAP driver readv/writev support
+From: "Maksim (Max) " Krasnyanskiy <maxk@qualcomm.com>
+To: davem@readhat.com, jgarzik@mandrakesoft.com
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1019590988.1357.87.camel@champ.qualcomm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 23 Apr 2002 12:43:41 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one shows which directories had deltas over the specified time period.
-Let me know if this is useful and/or if there should be a graphical barchart
-of this sort of thing available.
 
-== Directory activity in the last week ==
-   50  15.02%  include/asm-x86_64
-   36  10.81%  arch/x86_64/kernel
-   26   7.81%  drivers/ide
-   22   6.61%  drivers/isdn/i4l
-   12   3.60%  arch/arm/boot/compressed
-   11   3.30%  include/linux
-    9   2.70%  arch/arm/kernel
-    8   2.40%  drivers/char
-    7   2.10%  kernel
-    5   1.50%  arch/alpha/kernel
-    4   1.20%  mm
-    3   0.90%  drivers/isdn
-    2   0.60%  arch/arm/nwfpe
-    1   0.30%  arch/sparc
+Following patch adds proper support for readv/writev in TUN/TAP driver.
+http://bluez.sourceforge.net/patches/tun-readv-writev-2.5.9.gz
 
-== Directory activity in the last 2 weeks ==
-   50   8.65%  include/asm-x86_64
-   36   6.23%  arch/x86_64/kernel
-   30   5.19%  drivers/ide
-   29   5.02%  include/linux
-   22   3.81%  drivers/isdn/i4l
-   19   3.29%  arch/ia64/kernel
-   17   2.94%  drivers/char
-   16   2.77%  include/asm-ia64
-   15   2.60%  arch/i386/kernel
-   12   2.08%  drivers/usb/host
-   11   1.90%  mm
-   10   1.73%  arch/arm/kernel
-    8   1.38%  drivers/net
-    7   1.21%  kernel
-    6   1.04%  fs/reiserfs
-    5   0.87%  include/asm-alpha
-    4   0.69%  fs/nfsd
-    3   0.52%  drivers/isdn
-    2   0.35%  drivers/isdn/eicon
-    1   0.17%  arch/sparc
+Pleas apply
 
-== Directory activity in the last month ==
-   57   3.48%  include/linux
-   55   3.36%  drivers/net
-   51   3.12%  drivers/ide
-   50   3.05%  include/asm-x86_64
-   48   2.93%  fs/nls
-   40   2.44%  fs/jfs
-   38   2.32%  drivers/char
-   36   2.20%  arch/x86_64/kernel
-   31   1.89%  drivers/usb/media
-   30   1.83%  drivers/scsi
-   29   1.77%  include/asm-i386
-   27   1.65%  arch/alpha/kernel
-   26   1.59%  drivers/ieee1394
-   25   1.53%  arch/ppc64/kernel
-   24   1.47%  drivers/usb/host
-   23   1.41%  arch/ia64/kernel
-   22   1.34%  net/ipv4/netfilter
-   18   1.10%  mm
-   17   1.04%  include/asm-ppc64
-   15   0.92%  drivers/acpi/include
-   14   0.86%  drivers/media/radio
-   13   0.79%  BitKeeper/deleted
-   12   0.73%  include/asm-arm
-   11   0.67%  drivers/net/hamradio
-   10   0.61%  drivers/net/arcnet
-    9   0.55%  drivers/usb/class
-    8   0.49%  include/linux/netfilter_ipv4
-    7   0.43%  arch/ppc/kernel
-    6   0.37%  drivers/net/wan
-    5   0.31%  fs/ext2
-    4   0.24%  fs/ext3
-    3   0.18%  drivers/isdn/eicon
-    2   0.12%  arch/sparc/kernel
-    1   0.06%  Documentation/video4linux/bttv
+Thanks
+Max
 
-== Directory activity in the last 2 months ==
-  131   4.02%  BitKeeper/deleted
-  116   3.56%  include/linux
-   79   2.42%  drivers/net
-   58   1.78%  drivers/ide
-   50   1.53%  include/asm-ia64
-   48   1.47%  fs/nls
-   46   1.41%  Documentation/sound/oss
-   43   1.32%  drivers/scsi
-   41   1.26%  fs/jfs
-   37   1.13%  arch/ppc64/kernel
-   36   1.10%  arch/x86_64/kernel
-   34   1.04%  arch/ia64/sn/io
-   33   1.01%  arch/i386/kernel
-   32   0.98%  arch/sparc64/kernel
-   31   0.95%  drivers/usb/media
-   30   0.92%  arch/arm/mm
-   29   0.89%  arch/alpha/kernel
-   28   0.86%  drivers/media/video
-   27   0.83%  drivers/acpi/include
-   26   0.80%  drivers/ieee1394
-   25   0.77%  drivers/net/wan
-   24   0.74%  drivers/usb/host
-   23   0.71%  net/ipv4
-   22   0.67%  drivers/isdn/i4l
-   21   0.64%  drivers/acpi
-   20   0.61%  drivers/block
-   19   0.58%  arch/arm/kernel
-   18   0.55%  drivers/input/joystick
-   17   0.52%  include/asm-sparc64
-   16   0.49%  fs/reiserfs
-   15   0.46%  sound/core/seq
-   14   0.43%  drivers/acpi/namespace
-   13   0.40%  arch/sparc/kernel
-   12   0.37%  drivers/net/hamradio
-   11   0.34%  Documentation
-   10   0.31%  drivers/net/arcnet
-    9   0.28%  sound/isa
-    8   0.25%  fs/ext2
-    7   0.21%  net/sunrpc
-    6   0.18%  include/asm-arm/arch-shark
-    5   0.15%  Documentation/video4linux/bttv
-    4   0.12%  drivers/isdn/eicon
-    3   0.09%  drivers/isdn
-    2   0.06%  arch/sparc
-    1   0.03%  arch/arm/tools
+--- /opt/kernel/linux-2.5/drivers/net/tun.c	Mon Apr 22 15:29:04 2002
++++ linux-2.5/drivers/net/tun.c	Tue Apr 23 12:23:56 2002
+@@ -1,6 +1,6 @@
+ /*
+  *  TUN - Universal TUN/TAP device driver.
+- *  Copyright (C) 1999-2000 Maxim Krasnyansky <max_mk@yahoo.com>
++ *  Copyright (C) 1999-2002 Maxim Krasnyansky <maxk@qualcomm.com>
+*
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -12,7 +12,7 @@
+  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  *  GNU General Public License for more details.
+  *
+- *  $Id: tun.c,v 1.12 2001/03/08 03:29:27 maxk Exp $
++ *  $Id: tun.c,v 1.15 2002/03/01 02:44:24 maxk Exp $
+  */
+ 
+ /*
+@@ -20,7 +20,7 @@
+  *    Modifications for 2.3.99-pre5 kernel.
+  */
+ 
+-#define TUN_VER "1.4"
++#define TUN_VER "1.5"
+ 
+ #include <linux/config.h>
+#include <linux/module.h>
+@@ -181,50 +181,26 @@
+ }
+ 
+ /* Get packet from user space buffer(already verified) */
+-static __inline__ ssize_t
+-tun_get_user(struct tun_struct *tun, const struct iovec *iov,
+-	     unsigned long count, size_t total)
++static __inline__ ssize_t tun_get_user(struct tun_struct *tun, struct iovec *iv, size_t count)
+ {
+ 	struct tun_pi pi = { 0, __constant_htons(ETH_P_IP) };
+-	const struct iovec *vector = &iov[0];
+-	register const char *ptr = vector->iov_base;
+-	register int len = vector->iov_len;
+ 	struct sk_buff *skb;
+-	ssize_t sent = 0;
++	size_t len = count;
+ 
+ 	if (!(tun->flags & TUN_NO_PI)) {
+ 		if ((len -= sizeof(pi)) < 0)
+ 			return -EINVAL;
+ 
+-		copy_from_user(&pi, ptr, sizeof(pi));
+-		ptr += sizeof(pi);
+-
+-		if (len == 0) {
+-			vector++;
+-			count--;
+-
+-			ptr = vector->iov_base;
+-			len = vector->iov_len;
+-		}
++		memcpy_fromiovec((void *)&pi, iv, sizeof(pi));
+ 	}
+  
+-	if (!(skb = alloc_skb(total + 2, GFP_KERNEL))) {
++	if (!(skb = alloc_skb(len + 2, GFP_KERNEL))) {
+ 		tun->stats.rx_dropped++;
+ 		return -ENOMEM;
+ 	}
+ 
+ 	skb_reserve(skb, 2);
+-
+-	while (count > 0) {
+-		copy_from_user(skb_put(skb, len), ptr, len); 
+-		sent += len;
+-
+-		vector++;
+-		count--;
+-
+-		ptr = vector->iov_base;
+-		len = vector->iov_len;
+-	}
++	memcpy_fromiovec(skb_put(skb, len), iv, len);
+ 
+ 	skb->dev = &tun->dev;
+ 	switch (tun->flags & TUN_TYPE_MASK) {
+@@ -243,60 +219,48 @@
+ 	netif_rx_ni(skb);
+    
+ 	tun->stats.rx_packets++;
+-	tun->stats.rx_bytes += sent;
++	tun->stats.rx_bytes += len;
+ 
+-	return total;
++	return count;
+ } 
+ 
+-/* Write */
+-static ssize_t tun_chr_write(struct file * file, const char * buf, 
+-			     size_t count, loff_t *pos)
+-{
+-	struct tun_struct *tun = (struct tun_struct *)file->private_data;
+-	struct iovec iov;
+-
+-	if (!tun)
+-		return -EBADFD;
+-
+-	DBG(KERN_INFO "%s: tun_chr_write %d\n", tun->name, count);
+-
+-	if (verify_area(VERIFY_READ, buf, count))
+-		return -EFAULT;
+-
+-	iov.iov_base = (char *) buf;
+-	iov.iov_len = count;
+-
+-	return tun_get_user(tun, &iov, 1, count);
+-}
+-
+ /* Writev */
+-static ssize_t tun_chr_writev(struct file * file, const struct iovec *iov,
++static ssize_t tun_chr_writev(struct file * file, const struct iovec *iv, 
+ 			      unsigned long count, loff_t *pos)
+ {
+ 	struct tun_struct *tun = (struct tun_struct *)file->private_data;
+-	size_t total = 0;
+ 	unsigned long i;
++	size_t len;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+ 
+-	for (i = 0; i < count; i++) {
+-		if (verify_area(VERIFY_READ, iov[i].iov_base, iov[i].iov_len))
++	DBG(KERN_INFO "%s: tun_chr_write %d\n", tun->name, count);
++
++	for (i = 0, len = 0; i < count; i++) {
++		if (verify_area(VERIFY_READ, iv[i].iov_base, iv[i].iov_len))
+ 			return -EFAULT;
+-		total += iov[i].iov_len;
++		len += iv[i].iov_len;
+ 	}
+ 
+-	return tun_get_user(tun, iov, count, total);
++	return tun_get_user(tun, (struct iovec *) iv, len);
++}
++
++/* Write */
++static ssize_t tun_chr_write(struct file * file, const char * buf, 
++			     size_t count, loff_t *pos)
++{
++	struct iovec iv = { (void *) buf, count };
++	return tun_chr_writev(file, &iv, 1, pos);
+ }
+ 
+-/* Put packet to user space buffer(already verified) */
++/* Put packet to the user space buffer (already verified) */
+ static __inline__ ssize_t tun_put_user(struct tun_struct *tun,
+ 				       struct sk_buff *skb,
+-				       char *buf, int count)
++				       struct iovec *iv, int len)
+ {
+ 	struct tun_pi pi = { 0, skb->protocol };
+-	int len = count, total = 0;
+-	char *ptr = buf;
++	ssize_t total = 0;
+ 
+ 	if (!(tun->flags & TUN_NO_PI)) {
+ 		if ((len -= sizeof(pi)) < 0)
+@@ -307,14 +271,13 @@
+ 			pi.flags |= TUN_PKT_STRIP;
+ 		}
+  
+-		copy_to_user(ptr, &pi, sizeof(pi));
+-
++		memcpy_toiovec(iv, (void *) &pi, sizeof(pi));
+ 		total += sizeof(pi);
+-		ptr += sizeof(pi);
+ 	}       
+ 
+-	len = MIN(skb->len, len); 
+-	copy_to_user(ptr, skb->data, len); 
++	len = MIN(skb->len, len);
++
++	skb_copy_datagram_iovec(skb, 0, iv, len);
+ 	total += len;
+ 
+ 	tun->stats.tx_packets++;
+@@ -323,22 +286,29 @@
+ 	return total;
+ }
+ 
+-/* Read */
+-static ssize_t tun_chr_read(struct file * file, char * buf, 
+-			    size_t count, loff_t *pos)
++/* Readv */
++static ssize_t tun_chr_readv(struct file *file, const struct iovec *iv,
++			    unsigned long count, loff_t *pos)
+ {
+ 	struct tun_struct *tun = (struct tun_struct *)file->private_data;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct sk_buff *skb;
+-	ssize_t ret = 0;
++	ssize_t len, ret = 0;
++	unsigned long i;
+ 
+ 	if (!tun)
+ 		return -EBADFD;
+ 
+ 	DBG(KERN_INFO "%s: tun_chr_read\n", tun->name);
+ 
++	for (i = 0, len = 0; i < count; i++) {
++		if (verify_area(VERIFY_WRITE, iv[i].iov_base, iv[i].iov_len))
++			return -EFAULT;
++		len += iv[i].iov_len;
++	}
++
+ 	add_wait_queue(&tun->read_wait, &wait);
+-	while (count) {
++	while (len) {
+ 		current->state = TASK_INTERRUPTIBLE;
+ 
+ 		/* Read frames from the queue */
+@@ -358,10 +328,7 @@
+ 		}
+ 		netif_start_queue(&tun->dev);
+ 
+-		if (!verify_area(VERIFY_WRITE, buf, count))
+-			ret = tun_put_user(tun, skb, buf, count);
+-		else
+-			ret = -EFAULT;
++		ret = tun_put_user(tun, skb, (struct iovec *) iv, len);
+ 
+ 		kfree_skb(skb);
+ 		break;
+@@ -373,6 +340,14 @@
+ 	return ret;
+ }
+ 
++/* Read */
++static ssize_t tun_chr_read(struct file * file, char * buf, 
++			    size_t count, loff_t *pos)
++{
++	struct iovec iv = { buf, count };
++	return tun_chr_readv(file, &iv, 1, pos);
++}
++
+ static int tun_set_iff(struct file *file, struct ifreq *ifr)
+ {
+ 	struct tun_struct *tun;
+@@ -592,6 +567,7 @@
+ 	owner:	THIS_MODULE,	
+ 	llseek:	no_llseek,
+ 	read:	tun_chr_read,
++	readv:	tun_chr_readv,
+ 	write:	tun_chr_write,
+ 	writev:	tun_chr_writev,
+ 	poll:	tun_chr_poll,
+@@ -611,7 +587,7 @@
+ int __init tun_init(void)
+ {
+ 	printk(KERN_INFO "Universal TUN/TAP device driver %s " 
+-	       "(C)1999-2001 Maxim Krasnyansky\n", TUN_VER);
++	       "(C)1999-2002 Maxim Krasnyansky\n", TUN_VER);
+ 
+ 	if (misc_register(&tun_miscdev)) {
+ 		printk(KERN_ERR "tun: Can't register misc device %d\n", TUN_MINOR);
+
+
+
 

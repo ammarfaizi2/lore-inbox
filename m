@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314675AbSEYPdZ>; Sat, 25 May 2002 11:33:25 -0400
+	id <S314686AbSEYPii>; Sat, 25 May 2002 11:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314686AbSEYPdY>; Sat, 25 May 2002 11:33:24 -0400
-Received: from smtp08.wxs.nl ([195.121.6.40]:5354 "EHLO smtp08.wxs.nl")
-	by vger.kernel.org with ESMTP id <S314675AbSEYPdY>;
-	Sat, 25 May 2002 11:33:24 -0400
-Message-ID: <3CEFAB05.62937A75@wxs.nl>
-Date: Sat, 25 May 2002 17:17:25 +0200
+	id <S314709AbSEYPih>; Sat, 25 May 2002 11:38:37 -0400
+Received: from smtp03.wxs.nl ([195.121.6.37]:11185 "EHLO smtp03.wxs.nl")
+	by vger.kernel.org with ESMTP id <S314686AbSEYPih>;
+	Sat, 25 May 2002 11:38:37 -0400
+Message-ID: <3CEFAC3E.3C631F37@wxs.nl>
+Date: Sat, 25 May 2002 17:22:38 +0200
 From: Gert Vervoort <Gert.Vervoort@wxs.nl>
 Organization: Planet Internet
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+To: Sebastian Droege <sebastian.droege@gmx.de>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.18 ide-scsi compile fix
-In-Reply-To: <3CEF8815.C7C13D39@wxs.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3CEF8815.C7C13D39@wxs.nl> <20020525150859.2335c10a.sebastian.droege@gmx.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- ide-scsi.c.1        Sat May 25 14:21:28 2002
-> +++ ide-scsi.c  Sat May 25 14:21:37 2002
-> @@ -804,7 +804,7 @@
->  };
-> 
-> 
-> -static int __init idescsi_init(void)
-> +int __init idescsi_init(void)
->  {
->         int ret;
->         ret = ata_driver_module(&idescsi_driver);
+Sebastian Droege wrote:
 
-This does not boot, as idescsi_init seems is also called by the scsi subsystem.
-The following patch actually boots on my system:
+> Well... this is a _compile_ fix... ;)
+> But when you boot a kernel with this patch... it hangs directly after
+> SCSI subsystem driver Revision: X.YZ
+> 
 
---- ide.c.1     Sat May 25 16:22:54 2002
-+++ ide.c       Sat May 25 16:23:22 2002
-@@ -3444,9 +3444,7 @@
-        idefloppy_init();
- #endif
- #ifdef CONFIG_BLK_DEV_IDESCSI
--# ifdef CONFIG_SCSI
--       idescsi_init();
--# else
-+# ifndef CONFIG_SCSI
-    #error ATA SCSI emulation selected but no SCSI-subsystem in kernel
- # endif
- #endif
+Yes indeed, I should have tested it first 8-(.
+
+New patch sended to the list, this one actually boots:
+
+[gert@viper gert]$ uname -a
+Linux viper 2.5.18 #4 Sat May 25 16:14:17 CEST 2002 i686 unknown
+[gert@viper gert]$ cdrecord -scanbus
+Cdrecord 1.11a23 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Linux sg driver version: 3.5.25
+Using libscg version 'schily-0.6'
+scsibus0:
+	0,0,0	  0) 'PHILIPS ' 'PCA460RW        ' '1.0g' Removable CD-ROM
+	0,1,0	  1) *
+	0,2,0	  2) *
+	0,3,0	  3) *
+	0,4,0	  4) *
+	0,5,0	  5) *
+	0,6,0	  6) *
+	0,7,0	  7) *
+[gert@viper gert]$

@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTCCPM7>; Mon, 3 Mar 2003 10:12:59 -0500
+	id <S265543AbTCCPQC>; Mon, 3 Mar 2003 10:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbTCCPM6>; Mon, 3 Mar 2003 10:12:58 -0500
-Received: from inmail.compaq.com ([161.114.1.205]:4879 "EHLO
-	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S265523AbTCCPMx>; Mon, 3 Mar 2003 10:12:53 -0500
-Date: Mon, 3 Mar 2003 09:26:40 +0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: arjanv@redhat.com
-Subject: Re: [PATCH] cciss: add passthrough ioctl 
-Message-ID: <20030303032640.GA13102@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
+	id <S265637AbTCCPQC>; Mon, 3 Mar 2003 10:16:02 -0500
+Received: from logic.net ([64.81.146.141]:45443 "EHLO logic.net")
+	by vger.kernel.org with ESMTP id <S265543AbTCCPP7>;
+	Mon, 3 Mar 2003 10:15:59 -0500
+Date: Mon, 3 Mar 2003 09:26:26 -0600
+From: "Edward S. Marshall" <esm@logic.net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: diegocg@teleline.es, andrea@suse.de, hch@infradead.org,
+       linux-kernel@vger.kernel.org, pavel@janik.cz, pavel@ucw.cz
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030303152626.GG16908@talus.logic.net>
+References: <200303020223.SAA13660@adam.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200303020223.SAA13660@adam.yggdrasil.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 01, 2003 at 06:23:21PM -0800, Adam J. Richter wrote:
+> 	Note that Subversion, in particular, is GPL incompatible and
 
-Arjan van de Ven (arjanv@redhat.com) wrote:
+http://subversion.tigris.org/project_license.html
 
-> On Mon, 2003-03-03 at 05:38, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1058, 2003/03/02 20:38:36-08:00, akpm@digeo.com
-> > 
-> >  [PATCH] cciss: add passthrough ioctl
-> >  
-> >  Patch from Stephen Cameron <steve.cameron@hp.com>
-> >  
-> >  Add new big passthrough ioctl to allow large buffers.  Used by e.g.  onl ine
-> >  array controller firmware flash utility.
-> 
-> WHY?
-> 
-> didn't 2.5 have a generic method of doing this instead of weird per
-> driver ioctls ?
-> 
+I don't see anything particularly GPL-incompatible in there; looks pretty
+much like a BSD-style license to me. Something that precludes SVN's use
+by GPL'd projects, or precludes integration with GPL'd projects, is
+something I'm sure CollabNet and the developers on the mailing list would
+love to know about (along with all the Apache folks, since it's really
+their license), considering that there's already at least on GPL'd
+front-end for Subversion (gsvn), and plenty of GPL projects being hosted
+in Subversion repositories.
 
-Show me how.  There are devices that may talked to through the per 
-driver passthrough interface which are not normally exposed to linux.  
-E.g.  the driver presents the "logical drives" to linux.  I can imagine
-that these may be talked to through some generic interface because these
-devices are exposed to linux (though there is still a mapping from SCSI-3
-addressing to scsi-2 addressing).
+(Not meant as a flame, please don't take it as such. I'd really like to
+know where the Apache/Subversion license is "GPL-incompatible".)
 
-But, there are the physical drives which comprise those logical volumes
-(e.g. the drives which make up a mirrored logical drive or a RAID5 set
-etc.)  Those devices are not exposed to linux in any way.  The only way
-to talk to them directly (for example to upgrade firmware on them) is
-thourgh this interface,  Likewise for talking to the controller itself
-(e.g. again to upgrade firmware for example.).
+> uses its own underlying repository format that isn't particularly
+> compatible with anything else
 
-Also, we can connect external array controllers to the 
-internal array controller HBA, and talk to those external 
-controllers through this interface.  (for normal disk i/o
-to those external controllers, nothing special is needed as
-the logical drives on those controllers are magically presented
-by the firmware in the HBA as just more logical volumes.)
+Lacking an on-disk format that's actually useful for storing more
+information than files and diffs, they invented one. I don't blame them.
+The fun part, of course, is that svn is architected such that bolting up
+to another repository storage system (say, an RDBMS, or even, horrors, a
+bitkeeper-compatible SCCS derivative) is really just a matter of writing
+the code (with a few caveats, obviously, but that's the basic idea).
 
-Examples of applications which want to use this interface:
+"svnadmin dump" will provide a dumpfile of the repository, which could
+be translated into another format, if that were desirable. Again, just a
+simple matter of coding. ;-)
 
-Online array configuration utiltiy.  Allows you to create new
-logical drives (e.g. add new disks and actually use them, that
-would be the main feature, but lots of others.  e.g.: online 
-volume migraction  (turning a raid-0 logical drive into a raid1, 
-or a raid 5, etc, while i/o continues.)
+> and required a web server plus some
+> minor web server extension when last I checked.
 
-CIM agents, for monitoring health of physical drives, external
-storage boxes, etc.
+Not everyone is aware of this, but there's a new access method for svn
+repositories that works with SSH, or as a standalone pserver-like scheme,
+called "ra_svn". Translation: you no longer need Apache 2.0 and mod_dav
+to access a Subversion repository; you just don't get some of the cool
+features that using Apache gives you (such as all the access controls,
+the availability of the repository via DAV and through a normal web
+browser, etc).
 
-Updating firmware.
+This came about only a few milestones back, so it's not surprising that
+everyone hasn't seen it yet. :-)
 
-Now, you may ask the question, why the "Big" passthrough
-ioctl in addition to the "regular" one that's already there.
+-- 
+Edward S. Marshall <esm@logic.net>
+http://esm.logic.net/
 
-Because, in order to flash the array controller firmware,
-it's got to be done that way...
-
-You then can ask the question why not remove the regular
-passthrough ioctl than?
-
-Because we don't want to break the apps that rely on it.
-
-If that's not a good enough reason?  Well, it's not my
-kernel, who am I to say?  Break what you will.
-
--- steve
-
+Felix qui potuit rerum cognoscere causas.

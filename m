@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbREXRNp>; Thu, 24 May 2001 13:13:45 -0400
+	id <S261535AbREXRRY>; Thu, 24 May 2001 13:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261535AbREXRNZ>; Thu, 24 May 2001 13:13:25 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:3858 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261454AbREXRNI>;
-	Thu, 24 May 2001 13:13:08 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105241712.f4OHCRp386469@saturn.cs.uml.edu>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device
-To: oxymoron@waste.org (Oliver Xymoron)
-Date: Thu, 24 May 2001 13:12:27 -0400 (EDT)
-Cc: marko@l-t.ee (Marko Kreen), froese@gmx.de (Edgar Toernig),
-        phillips@bonn-fries.net (Daniel Phillips),
-        linux-kernel@vger.kernel.org (linux-kernel),
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0105240937490.16271-100000@waste.org> from "Oliver Xymoron" at May 24, 2001 09:39:35 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S261489AbREXRRO>; Thu, 24 May 2001 13:17:14 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:20366 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S261458AbREXRQz>; Thu, 24 May 2001 13:16:55 -0400
+Date: Thu, 24 May 2001 10:16:48 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dying disk and filesystem choice.
+Message-ID: <20010524101648.A4532@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au> <200105240658.f4O6wEWq031945@webber.adilger.int> <20010524103145.A9521@gruyere.muc.suse.de> <3B0D3C99.255B5A24@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B0D3C99.255B5A24@namesys.com>; from reiser@namesys.com on Thu, May 24, 2001 at 09:53:45AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron writes:
+On Thu, May 24, 2001 at 09:53:45AM -0700, Hans Reiser wrote:
+> 
+> No, reiserfs does have badblock support!!!!
+> 
+> You just have to get it as a separate patch from us because it was written after
+> code freeze.
 
-> The /dev dir should not be special. At least not to the kernel. I have
-> device files in places other than /dev, and you probably do too (hint:
-> anonymous FTP).
+Any chance that you'll be putting them on www.namesys.com for easy download?
 
-This is a horribly broken FTP server.
+-Dave

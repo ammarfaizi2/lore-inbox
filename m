@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272166AbTHDTuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTHDTuL
+	id S271694AbTHDT4z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272169AbTHDT4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:50:11 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:2974 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S272166AbTHDTuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:50:07 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Werner Almesberger <werner@almesberger.net>
+	Mon, 4 Aug 2003 15:56:55 -0400
+Received: from almesberger.net ([63.105.73.239]:29445 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S271694AbTHDT4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:56:54 -0400
+Date: Mon, 4 Aug 2003 16:56:49 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: David Lang <david.lang@digitalinsight.com>
 Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 4 Aug 2003 12:48:25 -0700 (PDT)
 Subject: Re: TOE brain dump
-In-Reply-To: <20030804163256.M5798@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030804165649.N5798@almesberger.net>
+References: <20030804163256.M5798@almesberger.net> <Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Mon, Aug 04, 2003 at 12:48:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003, Werner Almesberger wrote:
+David Lang wrote:
+> also how many of the standard kernel features could you turn off?
 
-> Ihar 'Philips' Filipau wrote:
-> >    It makes not that much sense to run kernel (especially Linux) on CPU
-> > which is optimized for handling of network packets. (And has actually
-> > several co-processors to help in this task).
->
-> All you need to do is to make the CPU capable of running the kernel
-> (well, some of it), but it doesn't have to be particularly good at
-> running anything but the TCP/IP code. And you can still benefit
-> from most of the features of NPUs, such as a specialized memory
-> architecture, parallel data paths, accelerated operations, etc.
+You don't turn them off - you just don't run them. What I'm
+suggesting is not a separate system that runs a stripped-down
+Linux kernel, but rather a device that looks like another
+node in a NUMA system.
 
-also how many of the standard kernel features could you turn off?
-do you really need filesystems for example?
-could userspace be eliminated? (if you have some way to give the config
-commands to the kernel on the NIC and get the log messages back to the
-main kernel what else do you need?)
-a lot of the other IO buffer stuff can be trimmed back (as per
-config_embedded)
+There might be a point in completely excluding subsystems
+that will never be used on that NIC anyway, but that's already
+an optimization.
 
-what else could be done to use the kernel features taht are wanted without
-bringin extra baggage along?
+- Werner
 
-David Lang
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

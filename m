@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131945AbQKJWUO>; Fri, 10 Nov 2000 17:20:14 -0500
+	id <S131451AbQKJWYf>; Fri, 10 Nov 2000 17:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131990AbQKJWUF>; Fri, 10 Nov 2000 17:20:05 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34566 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131945AbQKJWT6>; Fri, 10 Nov 2000 17:19:58 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Date: 10 Nov 2000 14:19:45 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8uhsa1$2il$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.3.95.1001110153916.6334A-100000@chaos.analogic.com> <3A0C5EDC.3F30BE9C@timpanogas.org> <20001110125902.A16027@sendmail.com> <00111023290401.00203@linux1.home.bogus>
+	id <S131488AbQKJWYY>; Fri, 10 Nov 2000 17:24:24 -0500
+Received: from 13dyn58.delft.casema.net ([212.64.76.58]:30733 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131451AbQKJWYK>; Fri, 10 Nov 2000 17:24:10 -0500
+Message-Id: <200011102223.XAA04330@cave.bitwizard.nl>
+Subject: Re: rdtsc to mili secs?
+In-Reply-To: <8uhps8$1tm$1@cesium.transmeta.com> from "H. Peter Anvin" at "Nov
+ 10, 2000 01:38:16 pm"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Fri, 10 Nov 2000 23:23:48 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <00111023290401.00203@linux1.home.bogus>
-By author:    Davide Libenzi <davidel@xmail.virusscreen.com>
-In newsgroup: linux.dev.kernel
->
-> On Fri, 10 Nov 2000, Claus Assmann wrote:
-> > On Fri, Nov 10, 2000, Jeff V. Merkey wrote:
-> > > Looks like your bug.  As an FYI, sendmail.rpms in Suse, RedHat, and
-> > > OpenLinux all exhibit this behavior, which means they're all broken. 
+H. Peter Anvin wrote:
+> Followup to:  <20001110154254.A33@bug.ucw.cz>
+> By author:    Pavel Machek <pavel@suse.cz>
+> In newsgroup: linux.dev.kernel
+> > > 
+> > > Sensibly configured power saving/speed throttle systems do not change the
+> > > frequency at all. The duty cycle is changed and this controls the cpu 
+> > > performance but the tsc is constant
 > > 
-> > Sorry, this is plain wrong. sendmail does NOT read the entire
-> > file into memory.
+> > Do you have an example of notebook that does powersaving like that?
+> > I have 2 examples of notebooks with changing TSC speed...
+> > 
 > 
-> Does sendmail use sendfile() ?
-> 
+> Intel PIIX-based systems will do duty-cycle throttling, for example.
 
-Or mmap()/write()?
+What's this "duty cycle throtteling"? Some people seem to think this
+refers to changing the duty cycle on the clock, and thereby saving
+power. I think it doesn't save any power if you do it that way. You
+are referring to the duty cycle on a "stpclk" signal, right?
 
-	-hpa
+
+			Roger. 
+
+> However, there are definitely notebooks that will mess with the
+> frequency.  At Transmeta, we went through some considerable pain to
+> make sure RDTSC would count walltime even across Longrun transitions.
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

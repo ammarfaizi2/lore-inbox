@@ -1,69 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267482AbRGMOH0>; Fri, 13 Jul 2001 10:07:26 -0400
+	id <S266895AbRGMOOa>; Fri, 13 Jul 2001 10:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbRGMOHQ>; Fri, 13 Jul 2001 10:07:16 -0400
-Received: from quasar.osc.edu ([192.148.249.15]:40930 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S267482AbRGMOHE>;
-	Fri, 13 Jul 2001 10:07:04 -0400
-Date: Fri, 13 Jul 2001 10:06:50 -0400
-From: Pete Wyckoff <pw@osc.edu>
-To: Bob Smart <smart@hpc.CSIRO.AU>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        jeroen@trout.hpc.CSIRO.AU, smart@trout.hpc.CSIRO.AU
-Subject: Re: handling NFSERR_JUKEBOX
-Message-ID: <20010713100650.D25733@osc.edu>
-In-Reply-To: <200107100023.KAA00261@trout.hpc.CSIRO.AU>
-Mime-Version: 1.0
+	id <S267484AbRGMOOK>; Fri, 13 Jul 2001 10:14:10 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:53665 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S266895AbRGMOOF>; Fri, 13 Jul 2001 10:14:05 -0400
+Message-ID: <3B4F0273.1DF40F8E@uow.edu.au>
+Date: Sat, 14 Jul 2001 00:15:15 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Black <mblack@csihq.com>
+CC: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
+In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107100023.KAA00261@trout.hpc.CSIRO.AU>; from smart@hpc.CSIRO.AU on Tue, Jul 10, 2001 at 10:23:40AM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-smart@hpc.CSIRO.AU said:
-> http://mail-index.netbsd.org/tech-kern/1999/03/16/0002.html
-> To save you looking the key point is:
+Mike Black wrote:
 > 
->   >Not sure. Is there a way that the server can say, "I got your request,
->   >but I'm too busy now, try again in a little bit." ??
-> 
->   Isn't this what NFSERR_JUKEBOX is for?
-> 
->   AFAIK, the protocol goes something like this:
-> 
->   Client sends a request.
->   Server starts loading tape/optical disk/whatever.
->   Client resends request.
->   Server notices that this is a repeat of an earlier request which is already
->   in the "slow queue", and replies NFSERR_JUKEBOX (= "be patient, I'll send
->   the response eventually").
->   Client shuts up and waits.
->   Server completes request and sends response to client.
-> 
-> It seems that what the linux client is doing is returning error 528
-> to the user program (cp is giving this error message). From 
-> linux/errno.h:
-> 
-> #define EJUKEBOX  528     /* Request initiated, but will not complete 
->                              before timeout */
-> 
-> This is wrong because the nfs file system is hard mounted in my case
-> - there is no timeout.
-> 
-> While it would be nice to do a perfect solution, it looks like
-> a quick fix is to just ignore NFSERR_JUKEBOX from the server.
+> I give up!  I'm getting file system corruption now on the ext3 partition...
+> and I've got a kernel oops (soon to be decoded) This is the worst file
+> corruption I've ever seen other than having a disk go bad.
 
-The comment is incorrect.  Take a look at the RFC for NFSv3.  There is
-no duplicate request sent from the client for a JUKEBOX-supporting
-server.  The first request is satisfied by the return of EJUKEBOX, after
-which it is up to the client to re-request the file.  Ignoring it is not
-an option because the request is terminated; a retry does not make
-sense.  A new request must be initiated by the client later.
-
-Take a look at the nfs sourceforge mailing list.  There's a long thread
-about this in the context of a Solaris HSM server.  I wrote a patch to
-try to do the right thing on a linux client, but it is not perfect for
-many reasons: http://devrandom.net/lists/archives/2001/6/NFS/0135.html
-
-		-- Pete
+There was a truncate-related bug fixed in 0.9.2.  What workload
+were you using at the time?

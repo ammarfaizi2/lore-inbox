@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264795AbSJVUGY>; Tue, 22 Oct 2002 16:06:24 -0400
+	id <S265012AbSJVUZJ>; Tue, 22 Oct 2002 16:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264813AbSJVUGX>; Tue, 22 Oct 2002 16:06:23 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:45294 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264795AbSJVUGW>; Tue, 22 Oct 2002 16:06:22 -0400
-Subject: Re: I386 cli
-From: Arjan van de Ven <arjanv@redhat.com>
-To: David Grothe <dave@gcom.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.0.14.2.20021022145759.02861ec8@localhost>
-References: <5.1.0.14.2.20021022145759.02861ec8@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-ZSlzj/8NB2Ml/mjxsjsm"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 22:14:45 +0200
-Message-Id: <1035317685.3002.11.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S265000AbSJVUYR>; Tue, 22 Oct 2002 16:24:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:59358 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264971AbSJVUXR>;
+	Tue, 22 Oct 2002 16:23:17 -0400
+Date: Tue, 22 Oct 2002 22:42:37 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+In-Reply-To: <1035319088.31873.149.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0210222237180.22860-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ZSlzj/8NB2Ml/mjxsjsm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 22 Oct 2002, Alan Cox wrote:
 
-On Tue, 2002-10-22 at 22:01, David Grothe wrote:
-> In 2.5.41every architecture except Intel 386 has a "#define cli=20
-> <something>" in its asm-arch/system.h file.  Is there supposed to be such=
- a=20
-> define in asm-i386/system.h?  If not, where does the "official" definitio=
-n=20
-> of cli() live for Intel?  Or what is the include file that one needs to=20
-> pick it up?  I can't find it.
+> Actually I know a few. 2Tb is cheap - its one pci controller and eight
+> ide disks.
 
-cli no longer exists in the kernel
-the other architectures have a broken definition probably that needs to
-go away as well.
+2Tb should still work. And to get to the 16 TB limit you'd have to
+recompile with PAE. It costs some (rather limited) RAM overhead and some
+fork() overhead. I think ext2/ext3fs's current 2Tb/4Tb limit is a much
+bigger problem, you cannot compile around that - are there any patches in
+fact that lift that limit? (well, one solution is to use another
+filesystem.)
 
-
-
-
---=-ZSlzj/8NB2Ml/mjxsjsm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9tbG0xULwo51rQBIRAm1aAKCOVOiot8gPvG51cDY4ka8pyG3jtgCgoDLZ
-Dn8GXx/r43F9+vKhavw05P4=
-=Elq/
------END PGP SIGNATURE-----
-
---=-ZSlzj/8NB2Ml/mjxsjsm--
+	Ingo
 

@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbTIDUM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 16:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbTIDUM0
+	id S265063AbTIDUTm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 16:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265079AbTIDUTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 16:12:26 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:34469 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264902AbTIDUMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 16:12:24 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
-Subject: Re: precise characterization of ext3 atomicity
-Date: Thu, 4 Sep 2003 22:16:04 +0200
-User-Agent: KMail/1.5.3
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org>
-In-Reply-To: <20030904085537.78c251b3.akpm@osdl.org>
+	Thu, 4 Sep 2003 16:19:41 -0400
+Received: from 67.106.152.115.ptr.us.xo.net ([67.106.152.115]:21317 "EHLO
+	amperion01.amperion.com") by vger.kernel.org with ESMTP
+	id S265063AbTIDUTh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 16:19:37 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309042216.04121.phillips@arcor.de>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: SLAB_LEVEL_MASK question
+Date: Thu, 4 Sep 2003 16:19:36 -0400
+Message-ID: <C6D44AA99ECEB540A5498F15F92DA07DCF0DBA@amperion01>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SLAB_LEVEL_MASK question
+Thread-Index: AcNzHbwJED5D2CapQXayyNN9pVKGoQAAytsA
+From: "Henry Qian" <henry@amperion.com>
+To: "Manfred Spraul" <manfred@colorfullife.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 September 2003 17:55, Andrew Morton wrote:
-> Hans Reiser <reiser@namesys.com> wrote:
-> > Is it correct to say of ext3 that it guarantees and only guarantees
-> > atomicity of writes that do not cross page boundaries?
+The other flags are __GFP_WAIT, __GFP_HIGH, __GFP_IO, __GFP_HIGHIO, and
+__GFP_FS (flags == 0x1f0).
+
+So this must be something else's wrong.  I was using madwifi Atheros
+driver.
+
+Thank you very much,
+
+Henry
+
+-----Original Message-----
+From: Manfred Spraul [mailto:manfred@colorfullife.com] 
+Sent: Thursday, September 04, 2003 3:50 PM
+To: Henry Qian
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SLAB_LEVEL_MASK question
+
+
+Hi Henry,
+
+>The kernel panics because in the flags variable, I have other flags
+>(0x1f0) besides SLAB_ATOMIC.
+>  
 >
-> Yes.
+Which flags were set? __GFP_WAIT must not be set [i.e. will panic], the 
+other combinations are invalid. The only legal values for the flags 
+variable are 0 or SLAB_ATOMIC [aka GFP_ATOMIC, aka __GFP_HIGH].
 
-Is that just happenstance, or does Posix or similar mandate it?
+>I modified it to:
+>
+>        if (in_interrupt() && (flags & SLAB_ATOMIC) != SLAB_ATOMIC)
+>                BUG();
+>
+>It seems working fine.
+>
+>Is this good?
+>  
+>
+No, it's wrong. Your driver will panic once in a while, especially under
 
-Regards,
+memory intensive stress tests.
 
-Daniel
+--
+    Manfred
 

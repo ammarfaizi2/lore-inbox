@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTH2KAS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTH2KAS
+	id S264499AbTH2Jz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 05:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTH2Jz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:00:18 -0400
-Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:1664 "EHLO
-	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S264505AbTH2KAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:00:15 -0400
-From: jlnance@unity.ncsu.edu
-Date: Fri, 29 Aug 2003 06:00:11 -0400
-To: root@mauve.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Lockless file readingu
-Message-ID: <20030829100011.GA663@ncsu.edu>
-References: <E19sUna-0003Zq-00@calista.inka.de> <200308282344.AAA26603@mauve.demon.co.uk>
+	Fri, 29 Aug 2003 05:55:58 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:53511 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264499AbTH2Jz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 05:55:57 -0400
+Subject: Re: [RFC] extents support for EXT3
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <m3r835rocm.fsf@bzzz.home.net>
+References: <m33cfm19ar.fsf@bzzz.home.net> <1062086590.2623.3.camel@debian>
+	 <m3r835rocm.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1062150950.4120.5.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308282344.AAA26603@mauve.demon.co.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 29 Aug 2003 11:55:51 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 12:44:00AM +0100, root@mauve.demon.co.uk wrote:
+El vie, 29-08-2003 a las 08:04, Alex Tomas escribió:
 
-> Of course it dowesn't.
-> The probability gets rather smaller as numbers go down, and bigger as
-> they go up.
-> With 2^128 bits, the chance of a a collision between 2^64 randomly chosen 
-> pictures is 50%.
-> At 2^54 pictures, it's about one in a million, and at 2^34 (enough for
-> several pictures of everyone alive) one in a billion billion.
-> At more common numbers of pictures (say 2^14) it becomes vanishingly
-> unlikely for anyone to have two matching pictures (even with several billion
-> archives)
+>  RRV> This patch could be included with ext3 in 2.6.x?
+> 
+> well, as Andreas already said I don't try to get this patch into 2.6.
+> this is impossible, obviously. lots of work need to be done before mainline.
+> userspace utility (fsck, debugfs) should be prepared. at this time
+> I'd like to get comments, suggestions and wider testing, of course ;)
 
-Be careful.  I remember discussing in probability class the liklyhood that
-two people in a room with N people have the same birthday.  N does not have
-to be anywhere close to 365 for your probability of a collision to be greater
-than 50%.  I forget what the exact number is but its less than 30.  The
-image problem sounds similar, depending on exactly how you phrase it.
+Well, I think this is 2.7 thing :). I will comment it and try testing :)
+-- 
+Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+------------------------------------------------------------
+gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
 
-Thanks,
-
-Jim

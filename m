@@ -1,57 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281034AbRKLWBd>; Mon, 12 Nov 2001 17:01:33 -0500
+	id <S281022AbRKLWGd>; Mon, 12 Nov 2001 17:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281031AbRKLWBX>; Mon, 12 Nov 2001 17:01:23 -0500
-Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:23533 "EHLO
-	orr.falooley.org") by vger.kernel.org with ESMTP id <S281030AbRKLWBQ>;
-	Mon, 12 Nov 2001 17:01:16 -0500
-Date: Mon, 12 Nov 2001 17:00:59 -0500
-From: Jason Lunz <j@falooley.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: new aic7xxx bug, 2.4.13/6.2.4
-Message-ID: <20011112170059.A23809@orr.falooley.org>
-In-Reply-To: <20011101222455.A5885@orr.falooley.org> <200111021443.fA2EhRY46335@aslan.scsiguy.com> <20011102143545.A30381@trellisinc.com> <20011112184533.1DE6A1027@shrek.lisa.de>
-Mime-Version: 1.0
+	id <S281030AbRKLWGX>; Mon, 12 Nov 2001 17:06:23 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:61930 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S281022AbRKLWGM>; Mon, 12 Nov 2001 17:06:12 -0500
+Message-ID: <3BF047EF.883A1D@nortelnetworks.com>
+Date: Mon, 12 Nov 2001 17:06:39 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: I'd like a bit of help on tracing my oops
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011112184533.1DE6A1027@shrek.lisa.de>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at  7:45PM +0100, Hans-Peter Jansen wrote:
-> cdrdao read-cd --device /dev/sr0 --driver generic-mmc --buffers 80 -n
-> --eject --paranoia-mode 0 toc
-> [...]
-> ?: Input/output error.  : scsi sendcmd: retryable error
-> CDB:  BE 00 00 04 2C 67 00 00 1A F8 01 00
-> status: 0x0 (GOOD STATUS)
-> cmd finished after 20.101s timeout 20s
-> ?: Input/output error.  : scsi sendcmd: retryable error
-> CDB:  BE 00 00 04 2E 43 00 00 1A F8 01 00
-> status: 0x0 (GOOD STATUS)
-> cmd finished after 20.101s timeout 20s
-> [...]
-> killed with ^c
-> 
-> locked the drive completely. Need to reboot to eject the cd...
-> I suspect some bad interference between DVD firmware, kernel 
-> SCSI error handling and cdrdao. A plextor reader finally 
-> succeeded on this job (wink :)
+I've been doing some work on customizing the 2.2 kernel to add class-based
+scheduling.  It all seems to be going fairly well except that today for the
+first time I started seeing kernel panics.  It appears to be in the
+setscheduler() routine, but I'm looking for some pointers on tracking it down.
 
-I agree it's the same effect, but I disagree about the cause. It's the
-fault of the scsi mid-layer; it marks the device as dead when a command
-times out and won't allow further accesses to it. The fact that it
-happens to both of us with different drives and different scsi drivers
-(you don't even have scsi, but ide-scsi emulation) shows that the scsi
-midlayer is broken in both cases.
+The output in /var/log/messages is as follows:
 
-And as Justin Gibbs suggested, I'd bet that raising the timeout on the
-failing scsi command in cdrdao would probably fix this for both of us,
-but I haven't had time to try it. If so, it's not a userspace bug
-because it allows any user with cdrom access to disable a cdrom until
-reboot.
+Nov 12 16:02:59 pcary1k7 kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 0000009c (error 40000000)
+Nov 12 16:02:59 pcary1k7 kernel: NIP: 90016720 XER: 00000000 LR: 900166D8 REGS:
+9bfa5d30 TRAP: 3100
+Nov 12 16:02:59 pcary1k7 kernel: MSR: 00001032 [IRDRME]
+Nov 12 16:02:59 pcary1k7 kernel: TASK = 9bfa4000[651] 'setsched' mm->pgd
+ad589000 Last syscall: 156
+Nov 12 16:02:59 pcary1k7 kernel: last math 9bfa4000
+Nov 12 16:02:59 pcary1k7 kernel: GPR00: 000001C4 9BFA5E00 9BFA4000 00000001
+00008000 00000004 9BFA5E08 00000000
+Nov 12 16:02:59 pcary1k7 kernel: GPR08: 80000548 00000000 90016958 00000000
+42242242 10018F0C 00000000 100B3E50
+Nov 12 16:02:59 pcary1k7 kernel: GPR16: 10010000 10040000 00000000 00000000
+00009032 0BFA5E40 0BFA4000 90004250
+Nov 12 16:02:59 pcary1k7 kernel: GPR24: 90003ED0 10000BC8 2802678C 00000004
+FFFFFFF2 00000008 00000273 9BFA5E00
+Nov 12 16:02:59 pcary1k7 kernel: Call backtrace:
+Nov 12 16:02:59 pcary1k7 kernel: 00000000 90016970 90003F24 10000A38 0FE4373C
+00000000
+Nov 12 16:02:59 pcary1k7 kernel: Kernel panic: kernel access of bad area pc
+90016720 lr 900166d8 address 9C tsk setsched/651
 
-Jason
+
+Running ksymoops on that file gives:
+
+
+
+Nov 12 16:02:59 pcary1k7 kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 0000009c (error 40000000)
+Nov 12 16:02:59 pcary1k7 kernel: NIP: 90016720 XER: 00000000 LR: 900166D8 REGS:
+9bfa5d30 TRAP: 3100
+Nov 12 16:02:59 pcary1k7 kernel: MSR: 00001032 [IRDRME]
+Nov 12 16:02:59 pcary1k7 kernel: TASK = 9bfa4000[651] 'setsched' mm->pgd
+ad589000 Last syscall: 156
+Nov 12 16:02:59 pcary1k7 kernel: last math 9bfa4000
+Nov 12 16:02:59 pcary1k7 kernel: GPR00: 000001C4 9BFA5E00 9BFA4000 00000001
+00008000 00000004 9BFA5E08 00000000
+Nov 12 16:02:59 pcary1k7 kernel: GPR08: 80000548 00000000 90016958 00000000
+42242242 10018F0C 00000000 100B3E50
+Nov 12 16:02:59 pcary1k7 kernel: GPR16: 10010000 10040000 00000000 00000000
+00009032 0BFA5E40 0BFA4000 90004250
+Nov 12 16:02:59 pcary1k7 kernel: GPR24: 90003ED0 10000BC8 2802678C 00000004
+FFFFFFF2 00000008 00000273 9BFA5E00
+Nov 12 16:02:59 pcary1k7 kernel: Call backtrace:
+Nov 12 16:02:59 pcary1k7 kernel: 00000000 90016970 90003F24 10000A38 0FE4373C
+00000000
+Nov 12 16:02:59 pcary1k7 kernel: Kernel panic: kernel access of bad area pc
+90016720 lr 900166d8 address 9C tsk setsched/651
+Warning, Code line not seen, dumping what data is available
+ 
+>>NIP: 90016720 <setscheduler+c0/2f8>
+Trace: 00000000 Before first symbol
+Trace: 90016970 <sys_sched_setscheduler+18/30>
+Trace: 90003f24 <syscall_ret_1+0/a0>
+Trace: 10000a38 Before first symbol
+Trace: 0fe4373c Before first symbol
+Trace: 00000000 Before first symbol
+>>NIP: 90016720 <setscheduler+c0/2f8> 
+
+At this point I'm not entirely certain how to track down the exact line of code
+where it's dying.  If I am reading it right, then the program counter was at
+90016720, is this correct?  Then disassembling vmlinux in gdb should give me the
+instruction corresponding to that address, at which point I need to correlate
+that to the actual code to figure out what's happening, correct?  Is it expected
+that disassembling vmlinux will give the same code as doing a make <file.s> in
+the linux tree?
+
+Thanks,
+
+Chris
+                                                                                                                              
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

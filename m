@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVABPNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVABPlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVABPNP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 10:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVABPNO
+	id S261260AbVABPlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 10:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVABPlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 10:13:14 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39295 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261258AbVABPNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 10:13:04 -0500
-Date: Sun, 2 Jan 2005 16:11:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Robert_Hentosh@Dell.com, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20050102151147.GA1930@suse.de>
-References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com> <20041220125443.091a911b.akpm@osdl.org> <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com>
+	Sun, 2 Jan 2005 10:41:00 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:46765 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261260AbVABPkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 10:40:52 -0500
+Subject: Re: Flaw in ide_unregister()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <007e01c4ef30$f23ba3c0$0f01a8c0@max>
+References: <007e01c4ef30$f23ba3c0$0f01a8c0@max>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104674725.14712.50.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041225190710.GZ771@holomorphy.com>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 02 Jan 2005 14:36:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 25 2004, William Lee Irwin III wrote:
-> On Sat, 25 Dec 2004, Andrea Arcangeli wrote:
-> >> the first place? If that happens it means you're under a lowmem
-> >> shortage, something you apparently ruled out when you said
-> >> lowmem_reserve couldn't help your workload.
+On Gwe, 2004-12-31 at 12:04, Richard Purdie wrote:
+> I've been having some problems with calls to ide_unregister() (in ide.c).
 > 
-> On Sat, Dec 25, 2004 at 12:59:10PM -0500, Rik van Riel wrote:
-> > Let me explain a 3rd time:
-> [...]
-> > If you have any more questions as to why the bug happens, don't
-> > hesitate to ask and I'll explain you why this problem happens.
-> 
-> This is an old and well-known problem.
-> 
-> Lifting the artificial lowmem restrictions on blockdev mappings
-> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
-> problems, not that anything making that much sense could ever happen.
+> This function is declared void which should mean it always succeeds and yet 
+> it can fail *silently* under the following condition:
 
-It should be lifted for block devices, it doesn't make any sense.
-mapping->gfp_mask is still needed for things like loop though, so it
-cannot be nuked.
+Actually in 2.4.x and 2.6.x (except 2.6.9-ac and 2.6.10-ac) its
+essentially unusable and full of races and should always be avoided.
 
--- 
-Jens Axboe
+> 3. Add a return value. What does ide-cs.c do with it though? The hardware is 
+> gone. (doesn't help)
+
+In 2.6.9-ac and 2.6.10-ac the ide_unregister_hwif calls return an error
+if the drive is in use. At this point the ide-cs code still throws it
+away. The -ac code IDE also adds "removed_hwif_iops" so the bits are
+there for the correct result which is something like
+
+	if(ide_unregister_hwif(hwif) < 0 {
+		printk("Whine whine...");
+		removed_hwif_ops(hwif);
+		while(ide_unregister_hwif(hwif) < 0)
+			msleep(1000);
+	}
+
+I've just not had time yet to propogate this into the drivers and into
+the new PCI helper for hotplugging IDE controllers.
+
+Alan
 

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316981AbSFFOzZ>; Thu, 6 Jun 2002 10:55:25 -0400
+	id <S316982AbSFFO4d>; Thu, 6 Jun 2002 10:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316982AbSFFOzY>; Thu, 6 Jun 2002 10:55:24 -0400
-Received: from stingr.net ([212.193.32.15]:32911 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S316981AbSFFOzY>;
-	Thu, 6 Jun 2002 10:55:24 -0400
-Date: Thu, 6 Jun 2002 18:55:21 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] More kbuild 2.5 backports
-Message-ID: <20020606145521.GA21715@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S316986AbSFFO4c>; Thu, 6 Jun 2002 10:56:32 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:51473 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316982AbSFFO4b>; Thu, 6 Jun 2002 10:56:31 -0400
+Date: Thu, 6 Jun 2002 15:56:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: More fbdev to pull
+Message-ID: <20020606155621.C21322@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0206051410040.7204-100000@www.transvirtual.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kbuild25-3.0-for-2.4.19-pre10-ac2.bz2
-kbuild25-3.0-for-2.4.19-pre10.bz2
+On Thu, Jun 06, 2002 at 06:48:00AM -0700, James Simmons wrote:
+>    Now for the new rounds of updates. Please pull the fbdev BK updates and
+> bug fixes.
+> 
+> http://fbdev.bkbits.net:8080/fbdev-2.5
+> 
+> Standard diff:
+> 
+> http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
 
-In it's usual place: http://stingr.net/l/
--or- ftp://stingr.net/l/
+diffstat output would be useful.  Can you make it part of your standard
+mailings please?  That way, individual framebuffer maintainers know
+whether they need to bother looking or not.
+
 -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,73 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVA0Hgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVA0HjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVA0Hgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 02:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVA0Hgj
+	id S262246AbVA0HjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 02:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVA0HjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 02:36:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:10272 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262136AbVA0Hgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 02:36:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=dZsgy6WWsEak/1zFClySsvtzRWU10zEwvqEEyGXoQcFkGo5EEVN5OjbM8BGI2lQ80erUxEXqzvt6UF8HxF9F4ABNDC25JDXboUJuQBxVEVPETlbYy8uoV3tyvGBLZL2vw1xI7J+82R8u6NqQNXukjTQnfBL44GaB2Fkf6EKglFk=
-Message-ID: <41F8998E.7060903@gmail.com>
-Date: Thu, 27 Jan 2005 15:34:38 +0800
-From: Andy liu <liudeyan@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sudhir@digitallink.com.np
-CC: linux-kernel@vger.kernel.org
-Subject: Re: confguring grub to load new kernel
-References: <18910-220051427616499@M2W055.mail2web.com>
-In-Reply-To: <18910-220051427616499@M2W055.mail2web.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 27 Jan 2005 02:39:09 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34490
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262246AbVA0Hit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 02:38:49 -0500
+Date: Wed, 26 Jan 2005 23:34:32 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, juhl-lkml@dif.dk, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [2.6 patch] kernel-api.sgml references removed file net_init.c
+Message-Id: <20050126233432.10402e50.davem@davemloft.net>
+In-Reply-To: <20050124193624.GS3515@stusta.de>
+References: <20050124193624.GS3515@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sudhir@digitallink.com.np wrote:
+On Mon, 24 Jan 2005 20:36:24 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
->Hi,
->
->I just compiled kernel 2.6.10 and now wondering how to make the grub to
->load the newkernel.
->
->The grub.conf file is configured as:
->
->#boot=/dev/hda
->default=1
->timeout=10
->splashimage=(hd0,5)/boot/grub/splash.xpm.gz
->title Red Hat Linux (2.4.20-8)
->        root (hd0,5)
->        kernel /boot/vmlinuz-2.4.20-8 ro root=LABEL=/
->        initrd /boot/initrd-2.4.20-8.img
->title DOS
->        rootnoverify (hd0,0)
->        chainloader +1
->                                                                            
->    
->How should I change the configuration?
->
->sudhir
->
->--------------------------------------------------------------------
->mail2web - Check your email from the web at
->http://mail2web.com/ .
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-by the way,have you update your module utility?
-kernel module format has changed in linux 2.6,so do not forget to update 
-insmod lsmod modprobe.......
+> This patch by Jesper Juhl is still required in 2.6.11-rc2-mm1.
+
+Applied, thanks for reposting Adrian.

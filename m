@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUFREhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264982AbUFREl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbUFREhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 00:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbUFREhY
+	id S264982AbUFREl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 00:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264986AbUFRElh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 00:37:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30105 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263529AbUFREhW (ORCPT
+	Fri, 18 Jun 2004 00:41:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44700 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264982AbUFREld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 00:37:22 -0400
-Date: Thu, 17 Jun 2004 21:36:19 -0700
+	Fri, 18 Jun 2004 00:41:33 -0400
+Date: Thu, 17 Jun 2004 21:40:35 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Sean Neakums <sneakums@zork.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.7
-Message-Id: <20040617213619.7f0b5b89.akpm@osdl.org>
-In-Reply-To: <6uisdqryyt.fsf@zork.zork.net>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-	<6uisdqryyt.fsf@zork.zork.net>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, linux-mm@kvack.org
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+Message-Id: <20040617214035.01e38285.akpm@osdl.org>
+In-Reply-To: <20040617131031.GB8473@sgi.com>
+References: <40D08225.6060900@colorfullife.com>
+	<20040616180208.GD6069@sgi.com>
+	<40D09872.4090107@colorfullife.com>
+	<20040617131031.GB8473@sgi.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,48 +28,48 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Neakums <sneakums@zork.net> wrote:
+Dimitri Sivanich <sivanich@sgi.com> wrote:
 >
-> The 2.6.7 I built seems kind of swap-happy, apparently triggered by an
->  overnight updatedb run.  I think this also happened with
->  2.6.7-rc3-mm2.
+> On Wed, Jun 16, 2004 at 08:58:58PM +0200, Manfred Spraul wrote:
+>  > Could you try to reduce them? Something like (as root)
+>  > 
+>  > # cd /proc
+>  > # cat slabinfo | gawk '{printf("echo \"%s %d %d %d\" > 
+>  > /proc/slabinfo\n", $1,$9,4,2);}' | bash
+>  > 
+>  > If this doesn't help then perhaps the timer should run more frequently 
+>  > and scan only a part of the list of slab caches.
+> 
+>  I tried the modification you suggested and it had little effect.  On a 4 cpu
+>  (otherwise idle) system I saw the characteristic 30+ usec interruptions
+>  (holdoffs) every 2 seconds.
 
-There were corrections to logic errors in the vm scanner which will cause
-increased pageout.
+Against which slab cache?  How many objects are being reaped in a single
+timer tick?
 
->  I can't seem to find anything particularly out of the
->  ordinary in the information below.  I started off with swappiness set
->  to 50 as I have for a while and dropped it twice by ten each time
->  after a swapoff/swapon.  It starts paging stuff out again pretty fast
->  after it gets the swap back.  Swap is is a dm-crypt device map.
+It's very simple:
 
-swapoff/swapon doesn't do what you think it does.  The pages are read from
-the swap device, have the ptes reattached but the pages are placed on the
-inactive list, from where they will be swapped out again very easily after
-a swapon.
-
-Which is really the correct behaviour: if these pages were earlier swapped
-out then clearly they are the right ones to swap out when swap again
-becomes available.
-
-But that doesn't seem very important, and the old swapoff/swapon trick is
-useful, so...
-
---- 25/mm/swapfile.c~swapoff-activate-pages	2004-06-17 21:27:41.704568280 -0700
-+++ 25-akpm/mm/swapfile.c	2004-06-17 21:28:35.417402688 -0700
-@@ -467,6 +467,13 @@ static unsigned long unuse_pmd(struct vm
- 		if (unlikely(pte_same(*pte, swp_pte))) {
- 			unuse_pte(vma, offset + address, pte, entry, page);
- 			pte_unmap(pte);
-+
-+			/*
-+			 * Move the page to the active list so it is not
-+			 * immediately swapped out again after swapon.
-+			 */
-+			activate_page(page);
-+
- 			/* add 1 since address may be 0 */
- 			return 1 + offset + address;
+--- 25/mm/slab.c~a	2004-06-17 21:38:57.728796976 -0700
++++ 25-akpm/mm/slab.c	2004-06-17 21:40:06.294373424 -0700
+@@ -2690,6 +2690,7 @@ static void drain_array_locked(kmem_cach
+ static inline void cache_reap (void)
+ {
+ 	struct list_head *walk;
++	static int max;
+ 
+ #if DEBUG
+ 	BUG_ON(!in_interrupt());
+@@ -2731,6 +2732,11 @@ static inline void cache_reap (void)
  		}
+ 
+ 		tofree = (searchp->free_limit+5*searchp->num-1)/(5*searchp->num);
++		if (tofree > max) {
++			max = tofree;
++			printk("%s: reap %d\n", searchp->name, tofree);
++		}
++
+ 		do {
+ 			p = list3_data(searchp)->slabs_free.next;
+ 			if (p == &(list3_data(searchp)->slabs_free))
 _
 

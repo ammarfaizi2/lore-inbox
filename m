@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUBNHn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 02:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUBNHn6
+	id S261152AbUBNIVM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 03:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUBNIVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 02:43:58 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:8371 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261807AbUBNHn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 02:43:57 -0500
-Date: Sat, 14 Feb 2004 08:43:55 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.0.40
-Message-ID: <20040214074355.GO6915@khan.acc.umu.se>
-Mail-Followup-To: Seiichi Nakashima <nakasima@kumin.ne.jp>,
-	linux-kernel@vger.kernel.org
-References: <200401301505.AA00013@prism.kumin.ne.jp> <200402140052.AA00016@prism.kumin.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Feb 2004 03:21:12 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:63475 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261152AbUBNIVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 03:21:11 -0500
+From: Emmeran Seehuber <rototor@rototor.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Date: Sat, 14 Feb 2004 09:28:18 +0000
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org, Dominik Kubla <dominik@kubla.de>
+References: <200402112344.23378.rototor@rototor.de> <20040213070333.GA1555@intern.kubla.de> <200402130223.00339.dtor_core@ameritech.net>
+In-Reply-To: <200402130223.00339.dtor_core@ameritech.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200402140052.AA00016@prism.kumin.ne.jp>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402140928.18473.rototor@rototor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:d84d732d8ddd2281dac05c143a411240
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 14, 2004 at 09:52:47AM +0900, Seiichi Nakashima wrote:
-> Hi.
-> 
-> I compile linux-2.0.40 from linux-2.0.40.tar.bz2, and work fine in my
-> environment.  Display on console,?????Welcome to Linux 2.0.40.
+On Friday 13 February 2004 07:23, Dmitry Torokhov wrote:
+[...]
+>
+> Do you have an active multiplexing controller and does passing i8042.nomux
+> option help?
+It seems so. At least passing this kernel option makes my PS/2 trackball work 
+again :)
 
-Sounds good.  Thanks for reporting.
+Thank you!
 
-
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+cu,
+  Emmy

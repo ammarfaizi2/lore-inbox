@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261925AbSIZApH>; Wed, 25 Sep 2002 20:45:07 -0400
+	id <S261791AbSIZAlO>; Wed, 25 Sep 2002 20:41:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261955AbSIZApH>; Wed, 25 Sep 2002 20:45:07 -0400
-Received: from vitelus.com ([64.81.243.207]:52998 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S261925AbSIZApG>;
-	Wed, 25 Sep 2002 20:45:06 -0400
-Date: Wed, 25 Sep 2002 17:50:20 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: tytso@mit.edu
+	id <S261807AbSIZAlO>; Wed, 25 Sep 2002 20:41:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:23425 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261791AbSIZAlM>;
+	Wed, 25 Sep 2002 20:41:12 -0400
+Date: Wed, 25 Sep 2002 17:40:19 -0700 (PDT)
+Message-Id: <20020925.174019.21928114.davem@redhat.com>
+To: niv@us.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020926005020.GA4587@vitelus.com>
-References: <E17uINs-0003bG-00@think.thunk.org>
+Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D9259C3.6CA5D211@us.ibm.com>
+References: <3D924F9D.C2DCF56A@us.ibm.com>
+	<20020925.170336.77023245.davem@redhat.com>
+	<3D9259C3.6CA5D211@us.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17uINs-0003bG-00@think.thunk.org>
-User-Agent: Mutt/1.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 04:03:44PM -0400, tytso@mit.edu wrote:
-> In order to use the new directory indexing feature, please update your
-> e2fsprogs to 1.29.  Existing filesystem can be updated to use directory
-> indexing using the command "tune2fs -O dir_index /dev/hdXXX".
-
-Do new filesystems created with e2fsprogs 1.29 use this feature by
-default?
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Wed, 25 Sep 2002 17:50:11 -0700
+   
+   Well, true - we have per hashchain locks, but are we now adding
+   the times we need to lookup something on this chain because we now 
+   have additional info other than the route, is what I was
+   wondering..?
+   
+That's what I meant by "extending the lookup key", consider if we
+took "next protocol, src port, dst port" into account.

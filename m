@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267613AbTAMDUp>; Sun, 12 Jan 2003 22:20:45 -0500
+	id <S267777AbTAMDaO>; Sun, 12 Jan 2003 22:30:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbTAMDUp>; Sun, 12 Jan 2003 22:20:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18959 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267613AbTAMDUo>; Sun, 12 Jan 2003 22:20:44 -0500
-Date: Sun, 12 Jan 2003 19:24:46 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Greg Ungerer <gerg@snapgear.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Miles Bader <miles@gnu.org>,
-       <linux-kernel@vger.kernel.org>, David McCullough <davidm@snapgear.com>
-Subject: Re: exception tables in 2.5.55
-In-Reply-To: <3E222E99.2040206@snapgear.com>
-Message-ID: <Pine.LNX.4.44.0301121921570.24605-100000@home.transmeta.com>
+	id <S267783AbTAMDaO>; Sun, 12 Jan 2003 22:30:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17935 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267777AbTAMDaN>; Sun, 12 Jan 2003 22:30:13 -0500
+Date: Sun, 12 Jan 2003 22:36:33 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.5x can't find my printer
+In-Reply-To: <Pine.LNX.4.33L2.0301102107420.19983-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.96.1030112223412.17657D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Jan 2003, Randy.Dunlap wrote:
 
-On Mon, 13 Jan 2003, Greg Ungerer wrote:
+> | > Are you expecting to see the "lp0" line also?
+> |
+> | I'd settle for a usable device, that isn't happening. I'd believe I need
+> | to change config, but I'm at a loss for what.
 > 
-> Tested and working on m68knommu architecture.
+> Well, you could try disabling CONFIG_PNP to see if that works
+> for you.  It does for me, but that doesn't mean much on a different
+> system with different configs.
 
-Why does exceptions have anything to do with no-mmu?
+Thank you, I'll try that. I'm sure it has implications WRT the ISA sound
+card, but clearly the starting point is to isolate the problem code
+combination.
 
-There are exceptions that have nothing to do with MMU's, and a no-mmu 
-architecture should still support them.  On x86, we have a number of such 
-exceptions, for example general protection stuff for wrong values for 
-special registers etc.
-
-In other words, not applied. Page table exceptions are just the most 
-_common_ exception type, but there's absolutely nothing in the mechanism 
-that has anything at all to do with MMU-less.
-
-If some archtiecture happens to have an empty exception table, that's 
-fine. 
-
-		Linus
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

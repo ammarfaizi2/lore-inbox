@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbULGCzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbULGDK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbULGCzF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 21:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULGCzF
+	id S261746AbULGDK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 22:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbULGDK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 21:55:05 -0500
-Received: from quickstop.soohrt.org ([81.2.155.147]:25800 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S261743AbULGCzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 21:55:00 -0500
-Date: Tue, 7 Dec 2004 03:54:56 +0100
-From: Karsten Desler <kdesler@soohrt.org>
-To: jamal <hadi@cyberus.ca>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041207025456.GA525@soohrt.org>
-References: <20041206224107.GA8529@soohrt.org> <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net> <20041207002012.GB30674@quickstop.soohrt.org> <1102387595.1088.48.camel@jzny.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 6 Dec 2004 22:10:26 -0500
+Received: from siaag1ac.compuserve.com ([149.174.40.5]:42171 "EHLO
+	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
+	id S261746AbULGDKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 22:10:15 -0500
+Date: Mon, 6 Dec 2004 22:05:42 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: How to measure i386 timer interrupt overhead
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200412062209_MC3-1-902F-B102@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102387595.1088.48.camel@jzny.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* jamal wrote:
-> 
-> Your numbers are very suspect. You may be having other issues in the
-> box. You should be able to do much higher packet rates even with
-> iptables compiled in.
+If this program actually works, then the SMP timer interrupt on this
+system takes 1200-1420 cycles, with 448 of 945 taking 1200-1219 cycles.
+(All the normal interrupts are bound to CPU 0.)
 
-I know, and I have no idea why I'm not.
+Is this a valid test program?
 
-> Some numbers at:
-> 
-> http://www.suug.ch/sucon/04/slides/pkt_cls.pdf
-> 
-> If all you need is std filtering then consider using tc actions.
+$ taskset 2 ./t 6800 332490000 | sort -g | uniq -c | grep -v '^      [1-9]'
+Elasped time: 945 ticks (assuming Hz = 1000)
+   9731 0
+     35 10
+    224 1200
+    204 1210
+     16 1220
+     14 1270
+     65 1300
+    131 1310
+     33 1320
+     14 1370
+     20 1380
+     22 1420
 
-Thanks, I'll look into it.
+$ cat t.c
+/* Measure i386 timer overhead by timing loops with TSC and
+ * subtracting out the minimum time.  Rounds to granularity 10.
+ * (Run this on an otherwise idle system.)
+ */
+#include <stdio.h>
+#define HZ              1000
+#define NUM_TESTS       (11000 + 1)
+unsigned long long t0, t1, t2, t3;
+unsigned long long sample[NUM_TESTS], min = 1000000;
+unsigned int loop_iters, tsc_per_tick, i, j;
 
-> I do have a suspicion that your problem has to do with your machine
-> more than it does with Linux.
+main (int argc, char **argv) {
+        if (argc < 3) {
+                fprintf(stderr, "Usage: %s <loop_size> <CPU Hz>\n", argv[0]);
+                exit(1);
+        }
+        loop_iters   = atoi(argv[1]);
+        tsc_per_tick = atoll(argv[2]) / HZ;
+restart:
+        asm volatile ("rdtsc" : "=A"(t0));
+        for (i = 0; i < NUM_TESTS; i++) {
+                asm volatile ("rdtsc" : "=A"(t1));
+                for (j = 0; j < loop_iters; j++)
+                        /* empty */;
+                asm volatile ("rdtsc" : "=A"(t2));
+                sample[i] = t2 - t1;
+        }
+        asm volatile ("rdtsc" : "=A"(t3));
+        if (t3 < t0)
+                goto restart;
+        for (i = 1; i < NUM_TESTS; i++) { /* skip first sample */
+                if (min > sample[i])
+                        min = sample[i];
+        }
+        for (i = 1; i < NUM_TESTS; i++)
+                printf("%llu\n", (sample[i] - min) / 10 * 10);
+        fprintf(stderr, "Elasped time: %d ticks (assuming Hz = %d)\n",
+                        (int)((t3 - t0) / tsc_per_tick), HZ);
+}
 
-But what could be the reason? I'm really out of ideas.
-The only thing I can think off is the 66/64 PCI bus and the
-disadvantageous placement of the PCI cards, but neither should cause a
-higher CPU usage. If the bus couldn't keep up, I'd get packetloss.
-
-- Karsten
+--Chuck Ebbert  06-Dec-04  22:03:04

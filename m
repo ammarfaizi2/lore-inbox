@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271319AbTHNISx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 04:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271742AbTHNISx
+	id S271932AbTHNIpW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 04:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272229AbTHNIpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 04:18:53 -0400
-Received: from [205.208.236.2] ([205.208.236.2]:15879 "EHLO
-	applegatebroadband.net") by vger.kernel.org with ESMTP
-	id S271319AbTHNISb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 04:18:31 -0400
-Message-ID: <3F3B45B1.703@mvista.com>
-Date: Thu, 14 Aug 2003 01:17:53 -0700
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Thomas Schlichter <schlicht@uni-mannheim.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm1 and the -g thing.
-References: <20030809203943.3b925a0e.akpm@osdl.org> <200308101941.33530.schlicht@uni-mannheim.de> <3F37DFDC.6080308@mvista.com> <20030813201829.GA15012@mars.ravnborg.org>
-In-Reply-To: <20030813201829.GA15012@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Aug 2003 04:45:22 -0400
+Received: from angband.namesys.com ([212.16.7.85]:45210 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S271932AbTHNIpU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 04:45:20 -0400
+Date: Thu, 14 Aug 2003 12:45:18 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: marcelo@conectiva.com.br, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-ID: <20030814084518.GA5454@namesys.com>
+References: <20030813125509.360c58fb.skraw@ithnet.com> <Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain> <20030813145940.GC26998@namesys.com> <20030813171224.2a13b97f.skraw@ithnet.com> <20030813153009.GA27209@namesys.com> <20030813163452.GC27515@namesys.com> <20030814001953.1505bda4.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030814001953.1505bda4.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Mon, Aug 11, 2003 at 11:26:36AM -0700, George Anzinger wrote:
-> 
->>>that patch sets DEBUG_INFO to y by default, even if whether DEBUG_KERNEL 
->>>nor KGDB is enabled. The attached patch changes this to enable DEBUG_INFO 
->>>by default only if KGDB is enabled.
->>
->>Looks good to me, but.... just what does this turn on?  Its been a 
->>long time and me thinks a wee comment here would help me remember next 
->>time.
-> 
-> 
-> DEBUG_INFO add "-g" to CFLAGS.
-> Main reason to introduce this was that many architectures always use
-> "-g", so a config option seemed more appropriate.
-> I do not agree that this should be dependent on KGDB.
-> To my knowledge -g is useful also without using kgdb.
+Hello!
 
-Yes, I see.
+> > You seem to be getting corruptions in at least 2 days for now, though.
+> > And reiserfs seems to trigger the problem even faster (and may be
+> > even more faster if you enable CONFIG_REISERFS_CHECK).
+> well, I have an idea how to find out more about these verify problem. Basically
+> I would try to patch tar to ouput the differing areas to stdout in hexdump
+> format or the like. Only I need some time to make this work out. I hope to find
+> some pattern about this corruption. 
 
-But we have this problem you see:
+Yes, that would be interesting.
 
---- linux-2.6.0-test2-org/arch/i386/Makefile	2003-07-31 
-13:06:52.000000000 -0700
-+++ linux/arch/i386/Makefile	2003-08-06 13:09:39.000000000 -0700
-@@ -84,6 +84,9 @@
-  # default subarch .h files
-  mflags-y += -Iinclude/asm-i386/mach-default
+> > > If we can add "ext3 does not crash" to the list, then I really hope we can
+> > > use some brain and give good selection of patches between 2.4.20 and 2.4.21
+> > > that may cause the troubles.
+> > There were not much changes in reiserfs. All those patches can easily be
+> > reverted just for verification purposes. Let me know when you are ready/want
+> > to test this variant and I will send you a diff.
+> Hm, my primary belief is that something _around_ reiserfs has changed
+> semantics.
 
-+mflags-$(CONFIG_KGDB) += -gdwarf-2
-+mflags-$(CONFIG_KGDB_MORE) += $(shell echo $(CONFIG_KGDB_OPTIONS) | 
-sed -e 's/"//g')
-+
+Well. Might be, but this is unlikely. And I do not remember anything like that.
+I will take a closer look, though.
 
-So the -g gets set as well as -gdwarf-2.  And note that the -gdwarf-2 
-gets set for asm code also (interesting problem there in that the line 
-number info is for the .s file and not the .S and the .s is a tmp file 
-to boot).  But back to the -g and kgdb.  I am thinking the thing to do 
-is to force DEBUG_INFO off if KGDB is on, thus using what ever we 
-finally decide should be after the -g.
+> > > If possible I can then patch out all of them and retry. So there is much
+> > > less time spent for testing. 
+> > > I mean, have you looked at the length of this thread already?
+> > Yes, I did.
+> > Now if only we can get someone to reproduce your problems...
+> Hm, I believe nobody in fact tried a setup like mine. As I have clear
+> indication that I can trigger it simply by using an SMP box, installing SuSE
+> 8.2, compiling stock 2.4.22-rc2 kernel exporting some reiserfs to a nfs-client
+> of your choice and starting copying data with sizes around 100GB back and
+> forth.
 
-Andrew started with -gstabs then -g, then -ggdb which I am sure is the 
-same as -gdwarf-2 (the kernel files are exactly the same size with 
-either -ggdb or -gdwarf-2) and now, I think, he is back to -g.
+sounds like quite typical setup for some tasks (like clusters I guess).
 
-I want to use -gdwarf-2 since it a) clearly states what we want, and 
-b) the new gdb uses the dwarf2 call frames and thus avoids the "bt" 
-confusion caused by gdb not recognizing the function entry sequence 
-generated by the newer compilers (I use gcc 3.2.1).  I also expect to 
-have dwarf call frames for the asm code some time soon, which will 
-allow us to "bt" over interrupt and trap frames.
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> > > > Probably it would be easier for you to make it crash (if there are crash
+> > > > possibility at all) if you enable JBD debugging.
+> > > I have never seen this in real life. Is it possible to turn this on when
+> > > handling >100 GB of data or will some debug output flood the box?
+> > It only enables some more checks, not debug output.
+> Does this work for ext3, reiserfs or both?
 
+This works for ext3
+For reiserfs we have similar compile time option that is called
+CONFIG_REISERFS_CHECK 
 
+Thank you for all the time and efforts you are putting into finding out
+the cause.
+
+Bye,
+    Oleg

@@ -1,113 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbQLEJOb>; Tue, 5 Dec 2000 04:14:31 -0500
+	id <S130119AbQLEJf1>; Tue, 5 Dec 2000 04:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130119AbQLEJOW>; Tue, 5 Dec 2000 04:14:22 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:58245 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129908AbQLEJOO>; Tue, 5 Dec 2000 04:14:14 -0500
-Date: Tue, 5 Dec 2000 00:43:46 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch: x86 PCI IRQ's were not being routed in some cases (against 2.4.0-test11pre4)
-Message-ID: <20001205004346.A677@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S130227AbQLEJfR>; Tue, 5 Dec 2000 04:35:17 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:58322 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130119AbQLEJfK>; Tue, 5 Dec 2000 04:35:10 -0500
+Message-ID: <3A2CB090.7DB94AA6@uow.edu.au>
+Date: Tue, 05 Dec 2000 20:08:32 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 2.2] 3c556B support for 3c59x.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+could we please slot this into 2.2.18?  Apologies for the timing, but
+it can't break anything.
 
-	I don't know if this is the fault of my notebook's BIOS
-or Linux.  However, Linux should work around bad BIOS'es where
-feasible.  So, here goes.
+It adds support for the 3c556B Mini-PCI NIC which is appearing
+in new IBM Thinkpad A10's and A20's.  This device is also appearing
+in HP Omnibooks.  The 2.4 kernel already caters for these devices.
 
-	I have a Kapok 1100M notebook computer, which has a Pentium II,
-apparently with a 440BX chipset.  The BIOS fills in the PCI interrupt
-routing tables (the thing that begins with "$PIR" in memory) with
-information indicating that the USB controller is routed to IRQ 10,
-and that that is the only IRQ that it can be routed to.
+Someone has been playing with the EEPROM handling on this NIC and
+we still don't properly support PM resumes - the workaround is
+to add ifdown/rmmod/modprobe/ifup to the PM resume script.
 
-	Linux apparently looks at this data and takes that to mean
-that the wiring has already been done.  However, this is not the case.
-As far as I can tell, the BIOS is just suggesting that Linux configure
-the 440BX chipset to that routing.  (This BIOS does not have a
-"Plug & Play OS" option.)
+I'm getting a sudden influx of email over the 3c556B so I'd recommend
+that Linux distributors include this patch in their 2.2 offerings.
 
-	This has not always been a problem.  If I recall correctly, kernels
-up to somewhere in early 2.3.x worked.
+If there are any friends@ibm.com listening I would appreciate it if
+they could ring around and see if they can hunt down a description
+of the EEPROM handling on the Thinkpad's 3c556B Mini-PCI NIC.  Thanks.
+(friends@hp.com as well).  Enquiries to 3com haven't worked out - some
+folks there tried, but it's a big corp.
 
-	To fix this problem, I have deleted a conditional in
-pcibios_enable_irq, so that it will route the IRQ, even if it
-thinks the work has already been done.  Now, USB and my PCMCIA
-flash cards work in that notebook computer again.
 
-	I do not have that solid of an understanding of PCI
-initialization in Linux.  I am still rather confused about what
-routines are supposed to set up an interrupt if one is needed
-and has not yet been routed for the device and which ones are supposed
-to punt in case.  For example, there is another problem that I
-am trying to fix, where the motherboard BIOS on that other computer
-sets the IRQ associated with the USB controller to zero, no matter
-how I program the BIOS, and pcibios_lookup_irq takes this as reason
-enough to refuse to allocate and route a new IRQ.
+Other happenings on the 3c59x front: 3Com are now shipping a device
+marked "3c905CX" which appears to be a 3c905C plus random breakage.
+3Com's own driver GPL Linux doesn't work with it.
 
-	Anyhow, I have attached the patch for the lack of PCI IRQ
-initialization below.  The only change was to delete the first
-"if" statement.  The rest of the diff lines are just the resulting
-intentation and bracketing change.
+We have determined that the timeout value in the 2.4 driver's
+wait_for_completion() function need to be increased vastly (to
+2,000,000) to make the driver work.  This is because the
+RxReset command is now taking a loooong time to complete.  This
+only affects initialisation, so it's not as bad as it sounds. With this
+change the driver does apparently work, but there are also questions
+over the assignment of transceiver devices.  I need to go shopping
+to get to the bottom of this.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="irq.diff"
 
---- linux-2.4.0-test12-pre4/arch/i386/kernel/pci-irq.c	Mon Dec  4 03:28:20 2000
-+++ linux/arch/i386/kernel/pci-irq.c	Tue Dec  5 00:20:25 2000
-@@ -576,19 +576,17 @@
+
+--- linux-2.2.18pre24/drivers/net/3c59x.c	Tue Dec  5 19:29:59 2000
++++ linux-akpm/drivers/net/3c59x.c	Tue Dec  5 19:41:06 2000
+@@ -60,11 +60,14 @@
+     - In vortex_open(), set vp->tx_full to zero (else we get errors if the device was
+       closed with a full Tx ring).
  
- void pcibios_enable_irq(struct pci_dev *dev)
- {
--	if (!dev->irq) {
--		u8 pin;
--		pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
--		if (pin && !pcibios_lookup_irq(dev, 1)) {
--			char *msg;
--			if (io_apic_assign_pci_irqs)
--				msg = " Probably buggy MP table.";
--			else if (pci_probe & PCI_BIOS_IRQ_SCAN)
--				msg = "";
--			else
--				msg = " Please try using pci=biosirq.";
--			printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
--			       'A' + pin - 1, dev->slot_name, msg);
--		}
-+	u8 pin;
-+	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+	if (pin && !pcibios_lookup_irq(dev, 1)) {
-+		char *msg;
-+		if (io_apic_assign_pci_irqs)
-+			msg = " Probably buggy MP table.";
-+		else if (pci_probe & PCI_BIOS_IRQ_SCAN)
-+			msg = "";
-+		else
-+			msg = " Please try using pci=biosirq.";
-+		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
-+		       'A' + pin - 1, dev->slot_name, msg);
- 	}
- }
-
---bp/iNruPH9dso1Pn--
++	15Sep00 <2.2.18-pre3> andrewm
++	- Added support for the 3c556B Laptop Hurricane (Louis Gerbarg)
++
+     - See http://www.uow.edu.au/~andrewm/linux/#3c59x-2.2 for more details.
+ */
+ 
+ static char version[] =
+-"3c59x.c 16Aug00 Donald Becker and others http://www.scyld.com/network/vortex.html\n";
++"3c59x.c 15Sep00 Donald Becker and others http://www.scyld.com/network/vortex.html\n";
+ 
+ /* "Knobs" that adjust features and parameters. */
+ /* Set the copy breakpoint for the copy-only-tiny-frames scheme.
+@@ -336,6 +339,8 @@
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE, 128, vortex_probe1},
+ 	{"3c556 10/100 Mini PCI Adapter",	0x10B7, 0x6055, 0xffff,
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_CB_FNS, 128, vortex_probe1},
++	{"3c556B Laptop Hurricane",	0x10B7, 0x6056, 0xffff,
++	 PCI_USES_IO|PCI_USES_MASTER, IS_TORNADO|HAS_CB_FNS, 128, vortex_probe1},
+ 	{"3c575 Boomerang CardBus",		0x10B7, 0x5057, 0xffff,
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|HAS_MII, 64, vortex_probe1},
+ 	{"3CCFE575 Cyclone CardBus",	0x10B7, 0x5157, 0xffff,
+@@ -932,6 +937,8 @@
+ #else
+ 		if (pci_tbl[chip_idx].device_id == 0x6055) {
+ 			outw(0x230 + i, ioaddr + Wn0EepromCmd);
++		} else if (pci_tbl[chip_idx].device_id == 0x6056) {
++			outw(EEPROM_Read + 0x30 + i, ioaddr + Wn0EepromCmd);
+ 		} else {
+ 			outw(EEPROM_Read + i, ioaddr + Wn0EepromCmd);
+ 		}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

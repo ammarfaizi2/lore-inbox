@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313010AbSC0N32>; Wed, 27 Mar 2002 08:29:28 -0500
+	id <S313012AbSC0Nk6>; Wed, 27 Mar 2002 08:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313011AbSC0N3S>; Wed, 27 Mar 2002 08:29:18 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:52127 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S313010AbSC0N3E>; Wed, 27 Mar 2002 08:29:04 -0500
-Date: Wed, 27 Mar 2002 14:28:37 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-In-Reply-To: <Pine.LNX.4.44.0203270803150.22597-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.GSO.3.96.1020327142715.8602C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313013AbSC0Nks>; Wed, 27 Mar 2002 08:40:48 -0500
+Received: from zero.tech9.net ([209.61.188.187]:51721 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313012AbSC0Nkf>;
+	Wed, 27 Mar 2002 08:40:35 -0500
+Subject: Re: Scheduler priorities
+From: Robert Love <rml@tech9.net>
+To: Nuno Miguel Rodrigues <nmr@co.sapo.pt>
+Cc: Frank Schaefer <frank.schafer@setuza.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020327125828.U2343-100000@angelina.sl.pt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 27 Mar 2002 08:41:51 -0500
+Message-Id: <1017236512.16546.116.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Zwane Mwaikambo wrote:
+On Wed, 2002-03-27 at 08:06, Nuno Miguel Rodrigues wrote:
 
->  #define FIRST_DEVICE_VECTOR	0x31
-> +#define THERMAL_APIC_VECTOR	0x32	/* Thermal monitor local vector */
->  #define FIRST_SYSTEM_VECTOR	0xef
+> Indeed.  In other words a priority that is not dynamically adjusted over
+> time.  Like a real-time scheduling priority.
 
- You certainly want to select a different vector.
+Yes, Linux has two - SCHED_FIFO and SCHED_RR.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+	Robert Love
 

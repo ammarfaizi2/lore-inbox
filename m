@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272064AbTG1CBa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272060AbTG1ABS
+	id S272057AbTG1CBb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272009AbTG1ABO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:18 -0400
+	Sun, 27 Jul 2003 20:01:14 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272941AbTG0XB5 (ORCPT
+	by vger.kernel.org with ESMTP id S272942AbTG0XB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:57 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>, arjanv@redhat.com,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove module reference counting. 
-In-reply-to: Your message of "Sat, 26 Jul 2003 12:31:25 MST."
-             <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> 
-Date: Mon, 28 Jul 2003 05:34:36 +1000
-Message-Id: <20030727193919.832302C450@lists.samba.org>
+	Sun, 27 Jul 2003 19:01:58 -0400
+Date: Sun, 27 Jul 2003 21:24:58 +0200
+Message-Id: <200307271924.h6RJOwn1003529@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: where are the sources :-)
+In-Reply-To: <Pine.LNX.4.44.0307271026001.3400-100000@home.osdl.org>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: 87 9F 39 9C F9 EE EA 7F  8F C9 58 6A D4 54 0E B9
+X-Key-ID: 6DB9C699
+User-Agent: tin/1.6.0-20030714 ("Vatersay") (UNIX) (Linux/2.4.22-pre7 (i686))
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> you write:
+In article <Pine.LNX.4.44.0307271026001.3400-100000@home.osdl.org> you wrote:
 > 
-> First off - we're not changing fundamental module stuff any more.
-
-OK.  Who are you and what have you done with the real Linus?
-
-I guess it's back to fixing up reference counting in the rest of the
-kernel.  It's not hard, it's just not done. 8(
-
-> > No, it would just leak memory.  Not really a concern for developers.
-> > It's fairly trivial to hack up a backdoor "remove all freed modules
-> > and be damned" thing for developers if there's real demand.
+> On Sun, 27 Jul 2003, Voicu Liviu wrote:
+>>
+>> I can't wait to get the sources and compile for test (currently using 
+>> 2.6-test1)
 > 
-> It's not just a developer thing. At least installers etc used to do some 
-> device probing by loading modules and depending on the result.
+> They are there on master.kernel.org now, but might take a while to
+> percolate out the door. The BK trees are already updated, except for
+> kernel.bkbits.net that seems to have been off the net the last 36 hours.
 
-A similar case.  At this point you don't have random users trying to
-access things, so freeing is actually fairly safe (modulo other
-bugs).
+Does anybody can generate incr patch (2.6.0-test1 -> 2.6.0-test2)? :-)
+Thank you. :) 
 
-The kudzu one and Alan's USB firmware example bother me more: they
-load then unload modules currently?  Since modern device drivers are
-not supposed to fail to load just because there isn't currently
-hardware, I guess they'd have to.
-
-Oh well,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+*[ £ukasz Tr±biñski ]*

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbTFFQ3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTFFQ3E
+	id S262000AbTFFQba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 12:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTFFQba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:29:04 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:24521 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261970AbTFFQ3C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 12:29:02 -0400
-Message-ID: <3EE0C45B.4070002@colorfullife.com>
-Date: Fri, 06 Jun 2003 18:42:03 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ameya.mitragotri@wipro.com
-CC: wli@holomorphy.com, linux-kernel@vger.kernel.org, davej@suse.de,
-       indou.takao@jp.fujitsu.com, akpm@diego.com
-Subject: Re: [RFC][PATCH 2.5.70] dynamically tunable semmnu and semume
-References: <200306061141.50965.ameya.mitragotri@wipro.com>
-In-Reply-To: <200306061141.50965.ameya.mitragotri@wipro.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 6 Jun 2003 12:31:30 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:50587 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S262000AbTFFQb2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 12:31:28 -0400
+Subject: [PATCH] Teach BitKeeper about files to ignore for x86_64
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054917901.28218.7.camel@serpentine.internal.keyresearch.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Jun 2003 09:45:01 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ameya Mitragotri wrote:
+Linus, please apply, as Andi doesn't use BK.  This patch is against BK
+current.
 
->Find below the patch (RFC) that makes semmnu and semume dynamically
->tunable through /proc. 
->
-AFAICS the patch implements semmnu and semume, correct? The current 
-implemention permits an unlimited number of undo structures.
+	<b
 
-1) Why do you want to introduce a limit? Have you found a potential DoS?
-2) What is counted by semume? Individual undo entries, or undo arrays? 
-Linux differs from the normal unix sysv implementation: there is a per 
-process, per semaphore set array of undo entries.
 
---
-    Manfred
+===== BitKeeper/etc/ignore 1.61 vs edited =====
+--- 1.61/BitKeeper/etc/ignore   Sat May 24 17:23:20 2003
++++ edited/BitKeeper/etc/ignore Fri Jun  6 09:41:59 2003
+@@ -132,3 +132,14 @@
+ drivers/video/logo/logo_linux_clut224.c
+ tags
+ arch/i386/boot/mtools.conf
++arch/x86_64/kernel/mtrr/*.[ch]
++include/asm-x86_64/offset.h
++arch/x86_64/kernel/bootflag.c
++arch/x86_64/ia32/vsyscall.so
++arch/x86_64/boot/bootsect
++arch/x86_64/boot/bzImage
++arch/x86_64/boot/setup
++arch/x86_64/boot/vmlinux.bin
++arch/x86_64/boot/compressed/vmlinux.bin
++arch/x86_64/boot/compressed/vmlinux.bin.gz
++arch/x86_64/boot/tools/build
 

@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUI1Ewm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUI1FcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267526AbUI1Ewm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 00:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUI1Ewm
+	id S267538AbUI1FcC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 01:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUI1FcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 00:52:42 -0400
-Received: from digitalimplant.org ([64.62.235.95]:26580 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S267526AbUI1Ewk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 00:52:40 -0400
-Date: Mon, 27 Sep 2004 21:52:31 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: "Zhu, Yi" <yi.zhu@intel.com>
-cc: Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: suspend/resume support for driver requires an external firmware
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD579B@pdsmsx403>
-Message-ID: <Pine.LNX.4.50.0409272142250.24893-100000@monsoon.he.net>
-References: <3ACA40606221794F80A5670F0AF15F8403BD579B@pdsmsx403>
+	Tue, 28 Sep 2004 01:32:02 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:659 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267538AbUI1Fb7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 01:31:59 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: suspend/resume support for driver requires an external firmware
+Date: Tue, 28 Sep 2004 13:31:47 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD57A0@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: suspend/resume support for driver requires an external firmware
+Thread-Index: AcSlF2gzCUz8dVg/RZOC3ST15GHeWAAApEnw
+From: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Patrick Mochel" <mochel@digitalimplant.org>
+Cc: "Dmitry Torokhov" <dtor_core@ameritech.net>,
+       <linux-kernel@vger.kernel.org>,
+       "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "Oliver Neukum" <oliver@neukum.org>
+X-OriginalArrivalTime: 28 Sep 2004 05:31:48.0218 (UTC) FILETIME=[731D3DA0:01C4A51C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patrick Mochel wrote:
+> I presume you're not talking about doing swsusp over NFS. If
+> so, there's a lot more work to be done to teach the driver
+> model and power management infrastructure about the
+> dependencies involved to make that a possibility.
+> It's safe to say that we don't support that, and won't
+> support that at least for some time.
 
-On Tue, 28 Sep 2004, Zhu, Yi wrote:
+Then let's talk about S3 (suspend to ram), I think it should be
+OK with a mounted NFS root, but the firmware issue is still there.
 
-> Oliver Neukum wrote:
-> >> Do you suggest before user echo 4 > /proc/acpi/sleep, [s]he must do
-> >> something like cat /path/of/firmware > /proc/net/ipw2100/firmware?
-> >
-> > Yes.
->
-> I prefer it could be transparent to users.
+> As far as the firmware goes, there are two choices - reload
+> it from userspace once we return or save it memory during
+> suspend. I assume that these devices provide some means for
+> reading the firmware from them, so you can just allocate a
+> buffer and read it into that during the transition.
 
-Then put it in a script. There are other things that need to be done,
-based on user policy, during suspend and resume transitions. See the
-suspend scripts that Nigel maintains for swsusp2 for examples of this. In
-an ideal world (i.e. the future), users will not be echo'ing values into a
-proc or sysfs file; they will be running a 'meta-script' or clicking a
-button on their desktop or just closing the lid to their laptop to
-suspend.
+Agreed. I think now we need a clean interface that makes
+drivers, swsusp or even the end user to work together to
+finally achieve the goal.
 
-To that end, we need something like an /etc/power/ directory with scripts
-that a suspend script or program runs on power state transitions. That
-way policy and device-specific items can easily be dropped in there, and
-transparency can be achieved that way.
-
-
-	Pat
+Thanks,
+-yi

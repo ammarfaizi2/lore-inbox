@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269357AbTGJPhu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269393AbTGJPht
+	id S269461AbTGJQEh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269460AbTGJQEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:37:49 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:63466 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269357AbTGJPgp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:36:45 -0400
-Date: Thu, 10 Jul 2003 08:51:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: bzzz@tmi.comex.ru
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] minor optimization for EXT3
-Message-Id: <20030710085155.40c78883.akpm@osdl.org>
-In-Reply-To: <87isqaiegy.fsf@gw.home.net>
-References: <87smpeigio.fsf@gw.home.net>
-	<20030710042016.1b12113b.akpm@osdl.org>
-	<87isqaiegy.fsf@gw.home.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 10 Jul 2003 12:04:37 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21718
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S269461AbTGJQEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 12:04:33 -0400
+Date: Thu, 10 Jul 2003 18:18:59 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Bernardo Innocenti <bernie@develer.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Peter Chubb <peter@chubb.wattle.id.au>, Andrew Morton <akpm@digeo.com>,
+       Ian Molton <spyro@f2s.com>
+Subject: Re: [PATCH] Fix do_div() for all architectures
+Message-ID: <20030710161859.GP16313@dualathlon.random>
+References: <200307060133.15312.bernie@develer.com> <200307070626.08215.bernie@develer.com> <200307082027.26233.bernie@develer.com> <20030710154019.GA18697@twiddle.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030710154019.GA18697@twiddle.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bzzz@tmi.comex.ru wrote:
->
-> >>>>> Andrew Morton (AM) writes:
+On Thu, Jul 10, 2003 at 08:40:19AM -0700, Richard Henderson wrote:
+> On Tue, Jul 08, 2003 at 08:27:26PM +0200, Bernardo Innocenti wrote:
+> > +extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor)
+> > __attribute_pure__;
+> ...
+> > +		__rem = __div64_32(&(n), __base);	\
 > 
->  AM> Alex Tomas <bzzz@tmi.comex.ru> wrote:
->  >> 
->  >> Andreas Dilger proposed do not read inode's block during inode updating
->  >> if we have enough data to fill that block. here is the patch.
-> 
->  AM> ok, thanks.  Could you please redo it for the current kernel?
-> 
-> hmmm. it was against 2.5.72. I just tried it on 2.5.74 and all is OK.
-> 
+> The pure declaration is very incorrect.  You're writing to N.
 
-2.5.74 is some crufty ancient old thing.
+now pure sounds more reasonable, I wondered how could gcc keep track of
+the stuff pointed by the parameters (especially if this stuff points to
+other stuff etc.. ;). So only the pointer passed as parameter can
+change, not the memory pointed by the pointer as in this case.
 
-ext3_read_inode() got reorganised.  Your latest patch will not apply to
-current kernels.
-
-The diff for the current devel kernel is always available at
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
-
-The "gzipped full patch".  You should use that when generating and testing
-changess.
-
-There is even a nice patch-script for it:
-
-	linus-patch http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-20030710_0516.txt.gz
-
-
-
+Andrea

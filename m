@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbUKODRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbUKODES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbUKODRu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKODKZ
+	id S261519AbUKODES (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKODBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:10:25 -0500
-Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:21508
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S261510AbUKODHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 22:07:43 -0500
-Message-Id: <200411150520.iAF5KrbV015005@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Chris Wedgwood <cw@f00f.org>
-cc: Arnd Bergmann <arnd@arndb.de>, Blaisorblade <blaisorblade_spam@yahoo.it>,
-       linux-kernel@vger.kernel.org,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: Re: [PATCH] - UML - cleanup include/asm-um/unistd.h 
-In-Reply-To: Your message of "Sun, 14 Nov 2004 18:11:59 PST."
-             <20041115021159.GA11373@taniwha.stupidest.org> 
-References: <200411142304.iAEN4YbV013371@ccure.user-mode-linux.org> <200411150008.51110.arnd@arndb.de>  <20041115021159.GA11373@taniwha.stupidest.org> 
+	Sun, 14 Nov 2004 22:01:49 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49162 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261488AbUKOCrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 21:47:21 -0500
+Date: Mon, 15 Nov 2004 03:35:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI sym53c416.c: make a function static
+Message-ID: <20041115023543.GC2249@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Nov 2004 00:20:53 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cw@f00f.org said:
-> This from my quilt patches directory (just refreshed and tested (TT
-> only) again just now).  This might be a line or two large than it
-> otherwise should be due to whitespace changes... 
+The patch below makes a needlessly global function static.
 
-Applied, thanks.
 
-		Jeff
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/sym53c416.c.old	2004-11-14 01:30:23.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/sym53c416.c	2004-11-14 01:30:32.000000000 +0100
+@@ -616,7 +616,7 @@
+ 
+ MODULE_DEVICE_TABLE(isapnp, id_table);
+ 
+-void sym53c416_probe(void)
++static void sym53c416_probe(void)
+ {
+ 	int *base = probeaddrs;
+ 	int ints[2];
 

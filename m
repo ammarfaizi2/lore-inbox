@@ -1,86 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbUC1Ek7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 23:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUC1Ek7
+	id S262062AbUC1GYh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 01:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbUC1GYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 23:40:59 -0500
-Received: from mail.cyclades.com ([64.186.161.6]:63389 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262068AbUC1Eky
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 23:40:54 -0500
-Date: Sun, 28 Mar 2004 01:26:08 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.26-rc1
-Message-ID: <20040328042608.GA17969@logos.cnet>
+	Sun, 28 Mar 2004 01:24:37 -0500
+Received: from gprs214-254.eurotel.cz ([160.218.214.254]:8832 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262062AbUC1GYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 01:24:33 -0500
+Date: Sun, 28 Mar 2004 08:24:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ivan Godard <igodard@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel support for peer-to-peer protection models...
+Message-ID: <20040328062422.GB307@elf.ucw.cz>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21> <20040327103401.GA589@openzaurus.ucw.cz> <066b01c41464$7e0ec9c0$fc82c23f@pc21>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+In-Reply-To: <066b01c41464$7e0ec9c0$fc82c23f@pc21>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Finally, -rc1.
+On So 27-03-04 17:32:06, Ivan Godard wrote:
+> > > 1) had a large number of distinguishable address spaces
+> > > 2) any running code had two of these (code and data environment) it
+> could
+> > > use arbitrarily, but access to addresses in others was arbitrarily
+> protected
+> > > 3) flat, unified virtual addresses (64 bit) so that pointers, including
+> > > inter-space pointers, have the same representation in all spaces
+> >
+> > Hmm, will it be possible to have UML?
+> 
+> If by UML you mean Uniform Modelling Language, I don't understand where the
+> protection model has any impact. UML models flow, permissions are somewhat
+> superimposed, just like file permissions in a UML model on any
+> machine.
 
-The first -rc contains an ACPI update, networking fixes, amongst others.
+I meant "User Mode Linux" == linux running under linux. Someone
+probably has an URL.
 
-Please test!
+> > > 9) Hardware interrupts are involuntary inter-space calls. They do not
+> > > require locking (assuming the handler is re-entrant - and if not then
+> only
+> > > from themselves), nor task switch, nor disabling other interrupts. The
+> > > handler runs in the stack of whoever got interrupted, which (depending
+> on
+> > > interrupt priorities) could be another interrupt, on an interrupt, ...
+> on an
+> > > app, all mutually protected.
+> >
+> > How do you implement ptrace if apps are protected from kernel?
+> 
+> Anybody can make all or part of themselves visible to anybody else. If you
+> start up an app in your space, you can grant visibility to a debugger in
+> another space. But this applies only to you. For example, suppose that your
+> app calls a paranoid server DLL passing in a function, and the DLL in turn
+> calls back your function. Then your stack will have a hunk of you (that you
+> can see and expose to the debugger), then a hunk of DLL function activations
+> (which are opaque to you AND the debugger unless you can talk the DLL into
+> exposing itself), and then another hunk of you again (and again visible to
+> you and the debugger). The DLL and you (and your debugger) are mutually
+> protected.
+> 
+> To do this on a conventional system requires that the DLL runs as a server
+> process, and getting it to do something for you requires a roundtrip through
+> the dispatcher. For us it's a simple subroutine call, just as if the DLL
+> were un-paranoid and had been linked into your code. Clearer?
 
-Summary of changes from v2.4.26-pre6 to v2.4.26-rc1
-============================================
+Strange system.... If an application does not grant kernel access to
+its space, how is kernel supposed to do its job? For example, that
+"paranoid DLL" becomes unswappable, then?
 
-Chas Williams:
-  o [ATM]: [lec] lec_push() races with vcc->proto_data
-  o [ATM]: [nicstar] use kernel min/max (by Randy.Dunlap <rddunlap@osdl.org>)
+If you have "enough" paranoid DLLs, you can then bring the machine
+down due to lack of real memory :-).
 
-David S. Miller:
-  o [IGMP]: Do nothing in ip_mc_down() if ip_mc_up() was not called previously
-  o [SPARC64]: Update defconfig
+> > > 10) Drivers can have their own individual space(s) distinct from those
+> of
+> > > the kernel and the apps. Buggy drivers cannot crash the kernel.
+> >
+> > Well... buggy drivers can usually program DMA to do crashing for them.
+> 
+> Nope. The DMA has the same permissions as the driver that starts it.
 
-Dmitry Torokhov:
-  o [NET_SCHED]: Fix class reporting in TBF qdisc
-  o [NET_SCHED]: Trailing whitespace cleanup in TBF scheduler
+So normal PCI cards are not allowed, or do you have some kind of
+IOMMU?
 
-Jon Oberheide:
-  o [CRYPTO]: Remove confusing TODO comment in arc4.c
+> > That would be pretty big rewrite...
+> >
+> > Anyway, I believe you *do* want linux on it, if only as a test load.
+> 
+> We definitely want Linux. The question is whether Linux will want the result
+> of our port, or (in finer detail) what parts could we do in what way to be
+> useful to other people.
 
-Julian Anastasov:
-  o [IPVS] Fix to update the skb->h.raw after skb reallocation in tunnel_xmit
-  o [IPVS] Fix connection rehashing with new cport
-
-Len Brown:
-  o [ACPI] PCI interrupt link routing (Luming Yu) use _PRS to determine resource type for _SRS fixes HP Proliant servers http://bugzilla.kernel.org/show_bug.cgi?id=1590
-  o [ACPI] proposed fix for non-identity-mapped SCI override http://bugme.osdl.org/show_bug.cgi?id=2366
-  o [ACPI] ACPICA 20040326 from Bob Moore
-  o [ACPI] Linux specific updates from ACPICA 20040326 "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
-
-Marcel Holtmann:
-  o [Bluetooth] Add support for AVM BlueFRITZ! USB v2.0
-  o [Bluetooth] Remove non-blocking socket fix
-
-Marcelo Tosatti:
-  o Trond: Avoid refile_inode() from putting locked inodes on the dirty list
-  o Changed EXTRAVERSION to -rc1
-
-Martin Devera:
-  o [NET_SCHED]: HTB scheduler updates
-
-Patrick McHardy:
-  o [NET_SCHED]: Fix broken indentation in HFSC scheduler
-  o [NET_SCHED]: Fix requeueing in HFSC scheduler
-  o [NET_SCHED]: Use queue limit of 1 when tx_queue_len is zero
-
-Sridhar Samudrala:
-  o [SCTP] Don't do any ppid byte-order conversions as it is opaque to SCTP
-  o [SCTP] Avoid the use of hacking CONFIG_IPV6_SCTP__ option
-
-Stephen Hemminger:
-  o [NET_SCHED]: Add packet delay scheduler
-
-Wensong Zhang:
-  o [IPVS]: Fix to hold the lock before updating a service
-
+If most changes are in arch/, it should be acceptable...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

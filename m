@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSKTVgk>; Wed, 20 Nov 2002 16:36:40 -0500
+	id <S262730AbSKTVdg>; Wed, 20 Nov 2002 16:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261642AbSKTVgk>; Wed, 20 Nov 2002 16:36:40 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:55433 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261640AbSKTVgi>;
-	Wed, 20 Nov 2002 16:36:38 -0500
-Date: Wed, 20 Nov 2002 21:41:04 +0000
+	id <S262779AbSKTVdg>; Wed, 20 Nov 2002 16:33:36 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:52361 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262730AbSKTVdf>;
+	Wed, 20 Nov 2002 16:33:35 -0500
+Date: Wed, 20 Nov 2002 21:38:56 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: gallir@uib.es, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
-Message-ID: <20021120214104.GA21030@suse.de>
+To: Margit Schubert-While <margit@margit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-rc2 strange L1 cache values
+Message-ID: <20021120213856.GA16160@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Stephan von Krawczynski <skraw@ithnet.com>, gallir@uib.es,
-	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-References: <200211171549.gAHFnSrE021923@mnm.uib.es> <20021118190200.GA20936@suse.de> <200211182154.52081.gallir@uib.es> <20021119120834.GA32004@suse.de> <20021120210357.70464ff2.skraw@ithnet.com>
+	Margit Schubert-While <margit@margit.com>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021120213759.00b178b0@mail.dns-host.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021120210357.70464ff2.skraw@ithnet.com>
+In-Reply-To: <4.3.2.7.2.20021120213759.00b178b0@mail.dns-host.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 09:03:57PM +0100, Stephan von Krawczynski wrote:
- > On Tue, 19 Nov 2002 12:08:34 +0000
- > Dave Jones <davej@codemonkey.org.uk> wrote:
+On Wed, Nov 20, 2002 at 09:40:51PM +0100, Margit Schubert-While wrote:
+ > Another peculiar thing - Why is /proc/cpuinfo showing "ht" ?
  > 
- > > On Mon, Nov 18, 2002 at 09:54:52PM +0100, Ricardo Galli wrote:
- > > 
- > >  > It's very cosmetic but very annoying for P3 > 1GHz, where Linux <= 2.4.20-preX 
- > >  > only reports 32 KB of cache and it also seems to ignore the "cachesize" 
- > >  > parameter. Perhaps it really uses 256KB, but not sure.
- > > 
- > > There was a bug related to that parameter, I'm sure if the fix
- > > went into the same patch, or a separate one. I'll check later.
- > 
- > Sorry for this possibly dumb comment/question:
- > my Tualatins have 512KB cache on die. Are we all sure that it's used?
- > /proc says indeed 32KB on 2.4.20-rc2
+ > processor           : 0
+ > vendor_id           : GenuineIntel
+ > cpu family           : 15
+ > model                 : 2
+ > model name       : Intel(R) Pentium(R) 4 CPU 2.40GHz
+ > flags                   : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr 
+ > pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
 
-Odd. If you can send me the output of dmesg, /proc/cpuinfo
-and x86info -a, I'll take a look.
-(You can find x86info at
- http://www.codemonkey.org.uk/x86info/x86info-1.11.tar.gz)
+All Pentium 4's seem to show it, though not all have them have
+the extra sibling.
 
 		Dave
 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

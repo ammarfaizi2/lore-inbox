@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293064AbSB1PQM>; Thu, 28 Feb 2002 10:16:12 -0500
+	id <S293362AbSB1OyM>; Thu, 28 Feb 2002 09:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293184AbSB1PNt>; Thu, 28 Feb 2002 10:13:49 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:58657 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S293493AbSB1PJW> convert rfc822-to-8bit; Thu, 28 Feb 2002 10:09:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Urban Widmark <urban@teststation.com>,
-        Cyrille Chepelov <cyrille@chepelov.org>
-Subject: Re: [2.4.18] OOPS in smbfs. Tested with 1.4.18rc2
-Date: Thu, 28 Feb 2002 16:09:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0202281507560.32098-100000@cola.teststation.com>
-In-Reply-To: <Pine.LNX.4.33.0202281507560.32098-100000@cola.teststation.com>
+	id <S293365AbSB1Ovh>; Thu, 28 Feb 2002 09:51:37 -0500
+Received: from nobugconsulting.ro ([213.157.160.38]:5002 "EHLO
+	mail.nobugconsulting.ro") by vger.kernel.org with ESMTP
+	id <S293362AbSB1Ot0>; Thu, 28 Feb 2002 09:49:26 -0500
+Message-ID: <3C7E4375.50D0789F@pcnet.ro>
+Date: Thu, 28 Feb 2002 16:49:25 +0200
+From: lonely wolf <wolfy@pcnet.ro>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16gSBB-0001mr-00@mrvdomng1.kundenserver.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: disk transfer speed problem
+In-Reply-To: <Pine.LNX.4.33.0202281007410.14351-100000@unicef.org.yu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the rest. A simple but helpful thing to do would be to see if 2.4.18-rc2
-> works.
+Davidovac Zoran wrote:
 
-2.4.18-rc2 produced no oops, at least till now.
+> > -
+> on kernel 2.2.20 with andre ata100 patches ported from 2.2.19 to 2.2.20
+> on asus i815 board.
+> Kernel 2.4.17 results are similar about 35MB/sec
 
-But there are a lot of 
+Any chance to get better results with stock kernel 2.4.17 then with 2.4.9-21 (or
+-31) ?
 
-smb_proc_readdir_long: name=<directory> result=-2, rcls=1, err=2
-Messages in dmesg. I have not seen them in 2.4.17
+I am not in position to do many tests (or reboots for that matter), the machine is
+in production, so I'd like a definite approach, if at all possible
+
+
 

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbRADVkb>; Thu, 4 Jan 2001 16:40:31 -0500
+	id <S129538AbRADVtM>; Thu, 4 Jan 2001 16:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129763AbRADVkV>; Thu, 4 Jan 2001 16:40:21 -0500
-Received: from nrg.org ([216.101.165.106]:21028 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129370AbRADVkE>;
-	Thu, 4 Jan 2001 16:40:04 -0500
-Date: Thu, 4 Jan 2001 13:39:57 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Andi Kleen <ak@suse.de>
-cc: Daniel Phillips <phillips@innominate.de>,
-        ludovic fernandez <ludovic.fernandez@sun.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
-In-Reply-To: <20010104091118.A18973@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.05.10101041329410.4778-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129830AbRADVtC>; Thu, 4 Jan 2001 16:49:02 -0500
+Received: from jalon.able.es ([212.97.163.2]:2557 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129538AbRADVst>;
+	Thu, 4 Jan 2001 16:48:49 -0500
+Date: Thu, 4 Jan 2001 22:48:37 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Mike <mike@khi.sdnpk.org>
+Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>,
+        "linux-irda @ pasta . cs . UiT . No" <linux-irda@pasta.cs.UiT.No>
+Subject: Re: INIT: No inittab file found
+Message-ID: <20010104224837.C1148@werewolf.able.es>
+In-Reply-To: <3A548636.27C231BA@khi.sdnpk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A548636.27C231BA@khi.sdnpk.org>; from mike@khi.sdnpk.org on Thu, Jan 04, 2001 at 15:18:30 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Andi Kleen wrote:
-> On Thu, Jan 04, 2001 at 08:35:02AM +0100, Daniel Phillips wrote:
-> > A more ambitious way to proceed is to change spinlocks so they can sleep
-> > (not in interrupts of course).  There would not be any extra overhead
+
+On 2001.01.04 Mike wrote:
+> Hi,
 > 
-> Imagine what happens when a non sleeping spinlock in a interrupt waits 
-> for a "sleeping spinlock" somewhere else...
-> I'm not sure if this is a good idea. Sleeping locks everywhere would
-> imply scheduled interrupts, which are nasty. 
+> I am unable to boot my linux. I got the following message during boot.
+> 
+> ====================================================
+> INIT: No inittab file found
+> INIT: Can't open(/etc/ioctl.save, O_WRONLY): No such file or directory
+> 
+> Enter Runlevel:
+> =====================================================
+> 
 
-Yes, you have to make sure that you never call a sleeping lock
-while holding a spinlock.  And you can't call a sleeping lock from
-interrupt handlers in the current model.  But this is easy to avoid.
+Try answering 'single'. That boots into 'single user mode': no
+daemons, no try to load inittab. Just a shell to let you check if
+there exists an /etc/inittab file.
 
-> I think a better way to proceed would be to make semaphores a bit more 
-> intelligent and turn them into something like adaptive spinlocks and use
-> them more where appropiate (currently using semaphores usually causes
-> lots of context switches where some could probably be avoided). Problem
-> is that for some cases like your producer-consumer pattern (which has been
-> used previously in unreleased kernel code BTW) it would be a pessimization
-> to spin, so such adaptive locks would probably need a different name.
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
-Experience has shown that adaptive spinlocks are not worth the extra
-overhead (if you mean the type that spin for a short time
-and then decide to sleep).  It is better to use spin_lock_irqsave()
-(which, by definition, disables kernel preemption without the need
-to set a no-preempt flag) to protect regions where the lock is held
-for a maximum of around 100us, and to use a sleeping mutex lock for
-longer regions.  This is what I'm working towards.
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

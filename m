@@ -1,29 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276572AbRI2SYj>; Sat, 29 Sep 2001 14:24:39 -0400
+	id <S276571AbRI2SVk>; Sat, 29 Sep 2001 14:21:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276573AbRI2SY3>; Sat, 29 Sep 2001 14:24:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4625 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276572AbRI2SYW>; Sat, 29 Sep 2001 14:24:22 -0400
-Subject: Re: PROBLEM: AST P/75 causes Machine Check Exception type 0x9 on v2.4.10
-To: daniel.elvin@fagotten.org (Daniel Elvin)
-Date: Sat, 29 Sep 2001 19:29:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BB5F4C6.DDB15B49@fagotten.org> from "Daniel Elvin" at Sep 29, 2001 06:20:22 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276572AbRI2SVa>; Sat, 29 Sep 2001 14:21:30 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:28172 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S276571AbRI2SVX>;
+	Sat, 29 Sep 2001 14:21:23 -0400
+Date: Sat, 29 Sep 2001 20:21:48 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Makefile gcc -o /dev/null: the dissapearing of /dev/null
+Message-ID: <20010929202148.D26521@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010929114304.A21440@lug-owl.de> <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15nOrR-0002d1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Booting an AST Bravo P/75 with kernel v2.4.10 results in a "CPU#0
-> Machine Check Exception: 0x10C938 (type: 0x9)".
+On Sat, 2001-09-29 06:10:52 -0700, Jim Treadway <jim@stardot-tech.com>
+wrote in message <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>:
+> On Sat, 29 Sep 2001, Jan-Benedict Glaw wrote:
+> 
+> > On Sat, 2001-09-29 09:55:35 +0200, proton <proton@energymech.net>
+> > wrote in message <3BB57E77.4CDFF5D0@energymech.net>:
+> >
+> > > Ofcourse, you cant unlink /dev/null unless you are root.
+> >
+> > That's right and fine so far.
+> >
+> > > In any case, the `gcc -o /dev/null' test cases probably
+> > > need to go away.
+> >
+> > No. Why? Well, the Linux kernel compiles just fine while
+> > being an ordianary user. You don't have to be root to
+> > compile it. As it's just bad to do usual *work* as root,
+> > you're the bug.
+> 
+> So then you can no longer 'make modules && make modules_install', or you
+> have to cp or chown /usr/src/linux on a fresh install to compile your
+> kernel?   Doesn't sound pleasant to me.
 
-Please try 2.4.9ac17 - it should be fixed in the -ac tree, and if so I can
-push it on to Linus
+You may do it this way:
 
-Alan
+make dep clean bzImage modules && su -c "make modules_install"
+
+This is so far the minimal version for building as non-root user.
+
+> I think the "trick" is to redirect stdout and stderr to /dev/null as well,
+> so that /dev/null doesn't get removed from the file system since it is
+> held open by the shell.
+> 
+> Something like:
+> 
+> 	gcc -o /dev/null -xc /dev/null /dev/null 2>&1
+
+No-go. It's perfectly okay to remove an opened file. Test it yourself.
+You may even replace a running (!) executable...
+
+> Perhaps someone just forgot the I/O redirection in one of the tests?
+
+No. It would be of no effect:-)
+
+> However, I just compiled (but did not install) 2.4.10, as root, and my
+> /dev/null still exists...
+
+Fine:-) That's the way to go!
+
+MfG, JBG
+
+-- 
+Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481

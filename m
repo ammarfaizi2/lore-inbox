@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSIZG7n>; Thu, 26 Sep 2002 02:59:43 -0400
+	id <S262226AbSIZHSH>; Thu, 26 Sep 2002 03:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262213AbSIZG7n>; Thu, 26 Sep 2002 02:59:43 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:21190 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S262212AbSIZG7l>; Thu, 26 Sep 2002 02:59:41 -0400
-Message-ID: <3D92B17C.9030504@myrealbox.com>
-Date: Thu, 26 Sep 2002 09:04:28 +0200
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing file
- transfers
-References: <20020925232736.A19209@shookay.newview.com> <20020926061419.GA12862@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262227AbSIZHSH>; Thu, 26 Sep 2002 03:18:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:2980 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262226AbSIZHSG>;
+	Thu, 26 Sep 2002 03:18:06 -0400
+Date: Thu, 26 Sep 2002 00:23:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: axboe@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org,
+       patman@us.ibm.com, andmike@us.ibm.com
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926072318.GK3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, axboe@suse.de, akpm@digeo.com,
+	linux-kernel@vger.kernel.org, patman@us.ibm.com, andmike@us.ibm.com
+References: <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de> <20020926070615.GX22942@holomorphy.com> <20020926.000620.27781675.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020926.000620.27781675.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Sep 25 2002, Mathieu Chouquet-Stringer wrote:
-> 
->>	  Hello!
->>
->>I've upgraded a while to 2.4.19 and my box has been happy for the last 52
->>days (it's a dual PIII). Tonight while going through my logs, I've found
->>these:
->>
->>Sep 25 22:18:41 bigip kernel: Warning - running *really* short on DMA buffers
->>Sep 25 22:18:47 bigip last message repeated 55 times
->>Sep 25 22:19:41 bigip last message repeated 71 times
-> 
-> 
-> This is fixed in 2.4.20-pre
-> 
-> 
+From: William Lee Irwin III <wli@holomorphy.com>
+Date: Thu, 26 Sep 2002 00:06:15 -0700
+>    Hmm, qlogicisp.c isn't really usable because the disks are too
+>    slow, it needs bounce buffering, and nobody will touch the driver
 
-    I reported this same problem some weeks ago - 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103069116227685&w=2 . 
-2.4.20pre kernels solved the error messages flooding the console, and 
-improved things a bit, but system load still got very high and disk read 
-and write performance was lousy. Adding more memory and using a 
-completely different machine didn't help. What did? Changing the Adaptec 
-scsi driver to aic7xxx_old . The performance was up 50% for writes and 
-90% for reads, and the system load was acceptable. And i didn't even had 
-to change the RedHat kernel (2.4.18-10) for a custom one. The storage 
-was two external Arena raid boxes, btw.
+On Thu, Sep 26, 2002 at 12:06:20AM -0700, David S. Miller wrote:
+> I think it's high time to blow away qlogic{fc,isp}.c and put
+> Matt Jacob's qlogic stuff into 2.5.x
+
+Is this different from the v61b5 stuff? I can test it on my qla2310
+and ISP1020 if need be.
+
+The main issue with qlogicisp.c is that it's just not modern enough to
+keep up with the rest of the system so testing with it is basically a
+stress test for how things hold up with lots of highmem, lots of bounce
+buffering and with a severely limited ability to perform disk I/O.
+
+qlogicisp.c is also not very reflective of the hardware used in NUMA-Q
+systems in the field, it just happened to be available from the scrap heap.
 
 
-Regards,
-Pedro
-
-
+Thanks,
+Bill

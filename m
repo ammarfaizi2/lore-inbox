@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbTDCSWp 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:22:45 -0500
+	id S261504AbTDCSbJ 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S261542AbTDCSWp 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:22:45 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:32649 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261521AbTDCSWj 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:22:39 -0500
-Date: Thu, 03 Apr 2003 10:34:52 -0800
-From: Nehal <nehal@canada.com>
-Subject: Re: mount hfs on SCSI cdrom = segfault
-In-reply-to: <XFMail.20030403183058.pochini@shiny.it>
-To: linux-kernel@vger.kernel.org
-Reply-to: linux-kernel@vger.kernel.org
-Message-id: <3E8C7ECC.70300@canada.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-References: <XFMail.20030403183058.pochini@shiny.it>
+	id S261520AbTDCSbJ 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:31:09 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:55048 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261504AbTDCSbF 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 13:31:05 -0500
+Date: Thu, 3 Apr 2003 20:42:27 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: uclinux-dev@uclinux.org, linux-kernel@vger.kernel.org
+Subject: Re: linux build process request
+Message-ID: <20030403184227.GA1027@mars.ravnborg.org>
+Mail-Followup-To: Stuart MacDonald <stuartm@connecttech.com>,
+	uclinux-dev@uclinux.org, linux-kernel@vger.kernel.org
+References: <200304011308.15196.tendim@tendim.cjb.net> <200304012258.47696.tendim@tendim.cjb.net> <010501c2fa07$7dee9ce0$294b82ce@connecttech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <010501c2fa07$7dee9ce0$294b82ce@connecttech.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
+On Thu, Apr 03, 2003 at 12:36:00PM -0500, Stuart MacDonald wrote:
+> 
+> Something I'd like to see is a "make help" or "make targets" target
+> that would simply echo out the list of available targets in the linux
+> kernel build process and a description of what each one does.
 
->>>Once upon a time it worked just fine. Then someone removed
->>>support for !=512 bytes sectors...
->>>To workaround, use loopback.
->>>
->>>      
->>>
->>(yes Oliver has told me about this workaround)
->>
->>1. do u know why it was removed?
->>2. is there a reason why can't support for it be put back?
->>    
->>
->
->I don't know why, and I don't know if it was removed from the
->hfs code or if hfs relied on some features of a lower layer
->that has been modified.
->  
->
-i did some searching around and only found that this
-problem started during 2.3.x because of a scsi rewrite
+"make help" is already available in 2.5.
+It includes an architecture specific section, which most (but not all)
+architectures define.
 
-anyways, i did try the loop method, it did not work,
-i got a segmentation fault when i did the following:
-
-    losetup /dev/loop0 /dev/scd0
-    mount -r -t hfs /dev/loop0 /cdrom
-
-oh well, i'll just use my IDE drive for now..
-
-thx anyways, Nehal
-
-
+	Sam

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267397AbSLLBBZ>; Wed, 11 Dec 2002 20:01:25 -0500
+	id <S267373AbSLLBZi>; Wed, 11 Dec 2002 20:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267398AbSLLBBZ>; Wed, 11 Dec 2002 20:01:25 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:47038 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267397AbSLLBBY>; Wed, 11 Dec 2002 20:01:24 -0500
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: Dave Jones <davej@codemonkey.org.uk>
-Date: Thu, 12 Dec 2002 12:09:02 +1100
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021212010902.GB31961@cse.unsw.edu.au>
-References: <20021211172559.GA8613@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211172559.GA8613@suse.de>
-User-Agent: Mutt/1.3.28i
+	id <S267375AbSLLBZi>; Wed, 11 Dec 2002 20:25:38 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:63366 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267373AbSLLBZi>; Wed, 11 Dec 2002 20:25:38 -0500
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: hidden interface (ARP) 2.4.20
+In-Reply-To: <Pine.LNX.3.96.1021211110329.18520C-100000@gatekeeper.tmr.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.18-xfs (i686))
+Message-Id: <E18MIE3-0001GW-00@calista.inka.de>
+Date: Thu, 12 Dec 2002 02:33:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Threading improvements.
-> ~~~~~~~~~~~~~~~~~~~~~~~
-> - Ingo Molnar put a lot of work into threading improvements during 2.5.
->   Some of the features of this work are:
+In article <Pine.LNX.3.96.1021211110329.18520C-100000@gatekeeper.tmr.com> you wrote:
+> Don't. You are right about this one, a client originated connection will
+> have an ARP entry and route back by the original route.
 
->   -  sys_clone() enhancements (CLONE_SETTLS, CLONE_SETTID, CLONE_CLEARTID,
->      CLONE_DETACHED)
-
-The middle two enhancements actually turned into three:
-CLONE_PARENT_SETTID, CLONE_CHILD_SETTID and CLONE_CHILD_CLEARTID since
-~2.5.47 or so, just for reference.
-
--i
-ianw@gelato.unsw.edu.au
+Most likely it will not have an ARP entry, since there is only the ARP entry
+for the router. Not-directly connected hosts are not listed in the
+neighbours cache, but yes, you will have an routing cache entry (netstat
+-C).
 
 
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

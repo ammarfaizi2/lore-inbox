@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312694AbSDKR6a>; Thu, 11 Apr 2002 13:58:30 -0400
+	id <S312704AbSDKSBl>; Thu, 11 Apr 2002 14:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312696AbSDKR63>; Thu, 11 Apr 2002 13:58:29 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54800 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S312694AbSDKR63>; Thu, 11 Apr 2002 13:58:29 -0400
-Date: Thu, 11 Apr 2002 14:58:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove compiler.h from mmap.c
-In-Reply-To: <20020411175126.GE19157@opus.bloom.county>
-Message-ID: <Pine.LNX.4.44L.0204111457100.31387-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312706AbSDKSBk>; Thu, 11 Apr 2002 14:01:40 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:62734 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S312704AbSDKSBj>; Thu, 11 Apr 2002 14:01:39 -0400
+Date: Thu, 11 Apr 2002 11:01:26 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "John P. Looney" <john@antefacto.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+In-Reply-To: <20020411174941.GC17962@antefacto.com>
+Message-ID: <Pine.LNX.4.10.10204111100520.25060-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Tom Rini wrote:
-> On Thu, Apr 11, 2002 at 02:37:23PM -0300, Rik van Riel wrote:
->
-> > compiler.h is included via other include files now and its
-> > #include has been removed from most C files, this patch
-> > finishes the job for mm/*
->
-> What #include file is mm/mmap.c getting <linux/compiler.h> from now?
 
-slab.h -> mm.h -> sched.h -> kernel.h -> compiler.h
+> > > I'd presumed this was
+> > > the whole point of the busid spec in the config file.
+> > No, it's for running one Xserver on multiple displays at once only.
+> > Sad, ain't it?
+> 
+>  Very sad. Nice to know it's not really the kernel's fault. 
+> 
+>  Is it possible to say "Any mice plugged in to this port is
+> /dev/input/mouse3" etc. so that if someone plugged out your mouse, plugged
+> in another into a different port, and you plugged yours back in, that they
+> wouldn't renumberate ?
 
-> Hiding (or relying on indirect) #includes isn't always a good thing...
-
-Absolutely agreed, but likely/unlikely is such low-level
-stuff that it shouldn't be included directly into .c files,
-IMHO.
-
-regards,
-
-Rik
--- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Enable Hotplug :-) The input layer supports it!!
 

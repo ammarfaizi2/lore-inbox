@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbUKFTnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUKFTnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbUKFTnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 14:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUKFTnQ
+	id S261451AbUKFTnx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 14:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUKFTnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 14:43:16 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14206 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261450AbUKFTnO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 14:43:14 -0500
-Date: Sat, 6 Nov 2004 19:42:55 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: shmem_file_setup not exported
-In-Reply-To: <yw1xactuojtn.fsf@ford.inprovide.com>
-Message-ID: <Pine.LNX.4.44.0411061937370.4000-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 6 Nov 2004 14:43:53 -0500
+Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:18702 "EHLO
+	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S261451AbUKFTnu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 14:43:50 -0500
+Date: Sat, 6 Nov 2004 20:43:43 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Console 80x50 SVGA
+Message-ID: <20041106194343.GA29874@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20041105224206.GA16741@leamonde.no-ip.org> <20041106073901.GA783@alpha.home.local> <20041106184112.GC16891@leamonde.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041106184112.GC16891@leamonde.no-ip.org>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Nov 2004, Måns Rullgård wrote:
-> I noticed this change in mm/shmem.c:
+From: Camilo A. Reyes <camilo@leamonde.no-ip.org>
+Date: Sat, Nov 06, 2004 at 12:41:12PM -0600
 > 
-> -EXPORT_SYMBOL(shmem_file_setup);
-> 
-> Is there a reason for this, other than nobody using it?
+> If I may ask what vga number are you using to set it to 1024x768.
+> I believe I have tried it before with no success, but I'm willing
+> to try again.
 
-That's the reason hch rightly removed the export, yes.
-ipc/shm.c does use it, but it's never a module, so doesn't need export.
-No other reason, beyond that it's appropriate to minimize exports.
-If you want to use it from your module, just patch the export back.
+Might I again refer you to google?
 
-Hugh
+Searching for 'linux framebuffer 1024x768 vga=' gives me 11.800 hits,
+which surely is enough to choose from. Also, this is mentioned in
+/usr/src/linux-<whatever version>/Documentation/fb/<somefile, depending
+on your framebuffer, which you didn't mention>. Those docs were lovingly
+crafted by kernel hackers hoping to answer all the questions users may
+have, so it would be a shame not to use them, right?
 
+Good luck,
+Jurriaan
+-- 
+A seminar on Time Travel will be held two weeks ago.
+Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.05

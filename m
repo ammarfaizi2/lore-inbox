@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132568AbRDWXWC>; Mon, 23 Apr 2001 19:22:02 -0400
+	id <S132555AbRDWX0C>; Mon, 23 Apr 2001 19:26:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132537AbRDWXUL>; Mon, 23 Apr 2001 19:20:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12041 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132561AbRDWXSb>; Mon, 23 Apr 2001 19:18:31 -0400
-Subject: Re: i810_audio broken?t
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 24 Apr 2001 00:20:10 +0100 (BST)
-Cc: pawel.worach@mysun.com, chmouel@mandrakesoft.com (Chmouel Boudjnah),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3AE4B3D5.E026E291@mandrakesoft.com> from "Jeff Garzik" at Apr 23, 2001 06:59:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132537AbRDWXZo>; Mon, 23 Apr 2001 19:25:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36109 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132555AbRDWXZF>; Mon, 23 Apr 2001 19:25:05 -0400
+Date: Mon, 23 Apr 2001 20:24:59 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Christoph Rohland <cr@sap.com>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104231852520.4968-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0104232023400.17635-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rpcr-0000lY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you guys running esd with any special arguments?
-> 
-> esd needs a special argument, -r RATE [iirc], in order to tell esd that
-> it is dealing with a locked rate codec.
+On Mon, 23 Apr 2001, Alexander Viro wrote:
+> On Mon, 23 Apr 2001, Richard Gooch wrote:
+>
+> > - keep a separate VFSinode and FSinode slab cache
+>
+> Yup.
 
-48Khz esound support was fixed the day I got an i810 board 8). Its the
-rate conversions it cant handle
+Would it make sense to unify these with the struct
+address_space ?
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

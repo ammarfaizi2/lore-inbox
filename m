@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSG3LCi>; Tue, 30 Jul 2002 07:02:38 -0400
+	id <S318224AbSG3LNC>; Tue, 30 Jul 2002 07:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318221AbSG3LCi>; Tue, 30 Jul 2002 07:02:38 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:5629 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318194AbSG3LCh>; Tue, 30 Jul 2002 07:02:37 -0400
-Subject: Re: [ERROR] with 2.4.19[rc2|rc3]: Linking error scsidrv.o
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207301232.50704.mcp@linux-systeme.de>
-References: <200207301232.50704.mcp@linux-systeme.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 Jul 2002 13:22:01 +0100
-Message-Id: <1028031721.6725.20.camel@irongate.swansea.linux.org.uk>
+	id <S318222AbSG3LNC>; Tue, 30 Jul 2002 07:13:02 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:18228 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S318221AbSG3LNA>; Tue, 30 Jul 2002 07:13:00 -0400
+Date: Tue, 30 Jul 2002 13:16:17 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] sd_many done right (5/5)
+Message-ID: <20020730111617.GA1214@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <20020726154948.GH19721@nbkurt.etpnet.phys.tue.nl>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+In-Reply-To: <20020726154948.GH19721@nbkurt.etpnet.phys.tue.nl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 11:32, Marc-Christian Petersen wrote:
-> ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-> init/version.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o
-> kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o  drivers/char/char.o
-> drivers/block/block.o drivers/misc/misc.o drivers/net/net.o
-> drivers/media/media.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
-> drivers/video/video.o net/network.o /usr/src/linux/arch/i386/lib/lib.a
-> /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a
-> --end-group  -o vmlinux
-> drivers/scsi/scsidrv.o: In function `ahc_proc_write_seeprom':
-> drivers/scsi/scsidrv.o(.text+0xdba9): undefined reference to
-> `ahc_acquire_seeprom'
-> drivers/scsi/scsidrv.o(.text+0xdc33): undefined reference to
-> `ahc_release_seeprom'
 
-Known problem - fixed in -ac, or for the base enable CONFIG_PCI. I'll
-push the fix to Marcelo for 2.4.20pre
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jul 26, 2002 at 05:49:48PM +0200, Kurt Garloff wrote:
+> The patch is against 2.4.19-rc1 with patch 1/5 (and optionally 2--4)=20
+> applied. You will want to apply patch 4/5 (partition statistics) in order
+> to avoid significant consumption of memory when using many disks.
+
+Christoph Hellwig made me aware that the diff was not applying cleanly. Thx!
+The reason was that I had the aa patches in my trees.
+I rediffed against a clean rc3. New patches are available on
+http://www.suse.de/~garloff/linux/scsi-many/
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9RnWBxmLh6hyYd04RAqj+AJ49a2+8QnpQCsQtyR/C1lAzWg+VWgCbBN8D
+KkFpc0bOwZ1O+0EHrvdr6PY=
+=RRzh
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--

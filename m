@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280646AbRKJNi3>; Sat, 10 Nov 2001 08:38:29 -0500
+	id <S280634AbRKJNiJ>; Sat, 10 Nov 2001 08:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280653AbRKJNiU>; Sat, 10 Nov 2001 08:38:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39181 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S280646AbRKJNiN>;
-	Sat, 10 Nov 2001 08:38:13 -0500
-Date: Sat, 10 Nov 2001 14:37:58 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel Developer <linux_developer@hotmail.com>
-Cc: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: CPQARRAY driver horribly broken in 2.4.14
-Message-ID: <20011110143758.D17902@suse.de>
-In-Reply-To: <F5uLCTaogxLDp7mvjkO00000742@hotmail.com> <3BEB5149.B0B7990F@pobox.com> <OE36joYAPNXRPmcarcR0001ece1@hotmail.com>
+	id <S280653AbRKJNiA>; Sat, 10 Nov 2001 08:38:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10880 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280634AbRKJNhr>;
+	Sat, 10 Nov 2001 08:37:47 -0500
+Date: Sat, 10 Nov 2001 05:37:20 -0800 (PST)
+Message-Id: <20011110.053720.55510115.davem@redhat.com>
+To: mathijs@knoware.nl
+Cc: andrea@suse.de, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] fix loop with disabled tasklets
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011110122141.B2C68231A4@brand.mmohlmann.demon.nl>
+In-Reply-To: <20011110122141.B2C68231A4@brand.mmohlmann.demon.nl>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-In-Reply-To: <OE36joYAPNXRPmcarcR0001ece1@hotmail.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Mathijs Mohlmann <mathijs@knoware.nl>
+   Date: Sat, 10 Nov 2001 13:21:56 +0100
+   
+   	i'm not sure about the enable_tasklet bit. I think it will prevent
+   people from calling tasklet_enable from within an interrupt handler. But then
+   again, why do you want to do that? Thanx, velco and
+   	
+   	Any comments?
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I've been looking at this and I sent Andrea+Linus private mail on this
+to try and work out a fix.
 
-On Fri, Nov 09 2001, Linux Kernel Developer wrote:
-> Hi,
-> 
->     Thanks a lot for the help.  Any particular reason to use the new driver
-> now or should I just wait until 2.4.15 is release?
-> 
->     Guess I didn't need to do all that debugging.  Bug may have already been
-> caught.  8-)
-> 
->     However I did notice something.  The patch you've included below covers
-> the cciss.c file?  My system is using the cpqarray driver.  And I fixed the
-> problem by replacing the cpqarray.[ch], ida_cmd.h, and ida_ioctl.h files.  I
-> don't think the patch below would have done anything for me as I'm pretty
-> sure the cciss.c file isn't used by the cpqarray driver and since I didn't
-> change out the cciss.c file in my now working kernel source tree (linux
-> 2.4.14-lkd1 8-D).
+You can't simply stop enabling the softirq when you hit the "locked
+tasklet" condition.  That could deadlock the tasklet.
 
-You needed the cciss equivalent of the one posted, attached.
+What really needs to happen is:
 
--- 
-Jens Axboe
+1) If tasklet is scheduled, but disabled, simply ignore it
+   during tasklet processing.  Do not resignal softirq.
+   But do leave it on the pending lists.
 
+2) When tasklet enable brings t->count back to zero and
+   tasklet is found to be scheduled, signal a local softirq.
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cciss-dequeue-1
+To me, that would be the proper fix.  But I still haven't heard back
+from Andrea or Linus yet :-)
 
---- linux/drivers/block/cciss.c~	Thu Nov  8 11:36:24 2001
-+++ linux/drivers/block/cciss.c	Thu Nov  8 11:37:03 2001
-@@ -1307,6 +1307,8 @@
- 	if (( c = cmd_alloc(h, 1)) == NULL)
- 		goto startio;
- 
-+	blkdev_dequeue_request(creq);
-+
- 	spin_unlock_irq(&io_request_lock);
- 
- 	c->cmd_type = CMD_RWREQ;      
-@@ -1386,12 +1388,6 @@
- 
- 	spin_lock_irq(&io_request_lock);
- 
--	blkdev_dequeue_request(creq);
--
--        /*
--         * ehh, we can't really end the request here since it's not
--         * even started yet. for now it shouldn't hurt though
--         */
- 	addQ(&(h->reqQ),c);
- 	h->Qdepth++;
- 	if(h->Qdepth > h->maxQsinceinit)
-
---cWoXeonUoKmBZSoM--
+Franks a lot,
+David S. Miller
+davem@redhat.com

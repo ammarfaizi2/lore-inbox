@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbTC0Jpi>; Thu, 27 Mar 2003 04:45:38 -0500
+	id <S261844AbTC0JtM>; Thu, 27 Mar 2003 04:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261844AbTC0Jpi>; Thu, 27 Mar 2003 04:45:38 -0500
-Received: from home.wiggy.net ([213.84.101.140]:63131 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S261842AbTC0Jph>;
-	Thu, 27 Mar 2003 04:45:37 -0500
-Date: Thu, 27 Mar 2003 10:56:50 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
+	id <S261856AbTC0JtL>; Thu, 27 Mar 2003 04:49:11 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:12736 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261844AbTC0JtL>; Thu, 27 Mar 2003 04:49:11 -0500
+Message-ID: <3E82CBAF.6040904@gmx.net>
+Date: Thu, 27 Mar 2003 11:00:15 +0100
+From: Thomas Heinz <thomasheinz@gmx.net>
+Reply-To: Thomas Heinz <thomasheinz@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: de, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [FIX] Re: 2.5.66 new fbcon oops while loading X
-Message-ID: <20030327095650.GP2078@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030326224245.GN2078@wiggy.net> <Pine.LNX.4.44.0303270023040.25001-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303270023040.25001-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.3.28i
+Subject: Netlink alignment macro
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously James Simmons wrote:
-> Only if they have more than one video card which is pretty small number.
+Hi
 
-Since when is that a relevant factor in breaking backwards
-compatibility?
+include/linux/netlink.h says: #define NLMSG_ALIGNTO 4
 
-Wichert.
+I think NLMSG_ALIGNTO should be 8 because the data may be a
+struct containing a 64 bit member which requires 64 bit
+alignment. In this case NLMSG_DATA will not work properly if
+NLMSG_LENGTH(0) % 8 != 0.
 
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+Currently this is a "theoretical" issue as
+sizeof(struct nlmsghdr) == 16.
+
+Do you agree that the definition of NLMSG_ALIGNTO should
+be changed?
+
+
+Regards,
+
+Thomas
+
+PS: Please CC to my private e-mail address as I'm currently
+     not subscribed.
+

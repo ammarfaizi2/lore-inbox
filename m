@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130067AbRALI6c>; Fri, 12 Jan 2001 03:58:32 -0500
+	id <S129226AbRALJFE>; Fri, 12 Jan 2001 04:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130177AbRALI6W>; Fri, 12 Jan 2001 03:58:22 -0500
-Received: from [213.97.45.174] ([213.97.45.174]:62698 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S130067AbRALI6E>;
-	Fri, 12 Jan 2001 03:58:04 -0500
-Date: Fri, 12 Jan 2001 09:57:54 +0100 (CET)
+	id <S129267AbRALJEz>; Fri, 12 Jan 2001 04:04:55 -0500
+Received: from [213.97.45.174] ([213.97.45.174]:21995 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S129226AbRALJEo>;
+	Fri, 12 Jan 2001 04:04:44 -0500
+Date: Fri, 12 Jan 2001 10:04:37 +0100 (CET)
 From: Pau <linux4u@wanadoo.es>
 To: <linux-kernel@vger.kernel.org>
-Subject: error compiling 2.4.1-pre3
-Message-ID: <Pine.LNX.4.30.0101120956240.1297-100000@pau.intranet.ct>
+Subject: xircom_tulib_cb + NFS in 2.4.0 does not work
+Message-ID: <Pine.LNX.4.30.0101120958020.1297-100000@pau.intranet.ct>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
-/usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c xor.c
-In file included from /usr/src/linux/include/linux/raid/md.h:51,
-                 from xor.c:22:
-/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
-/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end
-of non-void function
-xor.c: In function `calibrate_xor_block':
-xor.c:118: `HAVE_XMM' undeclared (first use in this function)
-xor.c:118: (Each undeclared identifier is reported only once
-xor.c:118: for each function it appears in.)
-{standard input}: Assembler messages:
-{standard input}:8: Warning: Ignoring changed section attributes for
-.modinfo
-make[2]: *** [xor.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/md'
-make[1]: *** [_modsubdir_md] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
+Whan I write in a NFS mounted filesystem, after a few seconds I keep on
+getting these messages:
 
- Pau
+tulip.c: outl_CSR6 too many attempts,csr5=0x60218140
+
+A few moments later the eth interface stops working.
+The only way to reactivate the network interface is:
+
+ifdown eth0 && ifup eth0 && ifconfig eth0 -promisc
+
+Any hints?
+
+Pau
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

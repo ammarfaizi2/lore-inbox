@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129814AbRBEHBu>; Mon, 5 Feb 2001 02:01:50 -0500
+	id <S129275AbRBEH2E>; Mon, 5 Feb 2001 02:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131268AbRBEHBk>; Mon, 5 Feb 2001 02:01:40 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48278 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S129814AbRBEHBd>; Mon, 5 Feb 2001 02:01:33 -0500
-Date: Mon, 5 Feb 2001 00:01:29 -0700
-Message-Id: <200102050701.f1571TH04804@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: drepper@cygnus.com (Ulrich Drepper)
-Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-        David Ford <david@linux.com>, devfs@oss.sgi.com,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] devfsd, compiling on glibc22x
-In-Reply-To: <m3lmrl62rm.fsf@otr.mynet.cygnus.com>
-In-Reply-To: <3A7383B2.19DDD006@linux.com>
-	<3A73C1D8.578AEEE@wanadoo.fr>
-	<m3wvbgnnk3.fsf@otr.mynet.cygnus.com>
-	<200102050631.f156Vje04234@vindaloo.ras.ucalgary.ca>
-	<m3lmrl62rm.fsf@otr.mynet.cygnus.com>
+	id <S129338AbRBEH1z>; Mon, 5 Feb 2001 02:27:55 -0500
+Received: from [63.89.188.10] ([63.89.188.10]:61458 "EHLO xchange.zambeel.com")
+	by vger.kernel.org with ESMTP id <S129275AbRBEH1p>;
+	Mon, 5 Feb 2001 02:27:45 -0500
+Message-ID: <2B8089144916D411896D00D0B73C8353DB2C21@exchange.zambeel.com>
+From: Mohit Aron <aron@Zambeel.com>
+To: "'Matt'" <matt@progsoc.uts.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: system call sched_yield() doesn't work on Linux 2.2
+Date: Sun, 4 Feb 2001 23:27:35 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper writes:
-> Richard Gooch <rgooch@ras.ucalgary.ca> writes:
-> 
-> > So why do old binaries (compiled with glibc 2.1.3) segfault when they
-> > call dlsym() with RTLD_NEXT?  Even newly compiled binaries (with glibc
-> > 2.2) still segfault.
-> 
-> What do you ask me?  You wrote the code.
 
-But you wrote dlsym(), right I have a debug trace from someone which
-shows that the call to dlsym() segfaults. It's being called thusly:
-	dlsym (RTLD_NEXT, "symlink");
+Thanks for a reasonable/thoughtful reply.
 
-This doesn't fail with libc 5 nor with glibc 2.1.3. But it does with
-glibc 2.2.
+>	to expect perfect alternation is not reasonable. the scheduler
+> (or one of its subsidiary and/or supporting functions) decides what
+> should run and what shouldn't. the linux scheduler did have problems
+> in 2.2 (and still does in some places). however last i checked
+> sched_yield() is at best a hint to the scheduler not a command. the
+> man page even suggests this. it says that if the process (or thread)
+> yields and if it is the highest priority task at the time it will be
+> re-run. so you can not guarantee that it will not re-run. this i think
+> was the point david was trying to make (albiet with some possibly
+> misplaced "fervour").
 
-				Regards,
+It looks like what you're saying above is that the scheduling 
+priority of a thread might be changed dynamically by the scheduler. 
+Hence, even though it called sched_yield(), its resulting priority might 
+still be higher than the other thread and hence there may not be 
+perfect alternation. This makes sense.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+However, I just had a chance to run my program on a Linux 2.4 kernel. 
+I got almost perfect alternation every time I ran it. The output was:
+
+	Thread1
+	Thread1
+	Thread2
+	Thread1
+	Thread2
+	Thread1
+	Thread2
+	Thread1
+	Thread2
+	Thread2
+
+Basically, the first thread prints twice in the beginning but after
+that there's perfect alternation. This might however be because of
+startup delays in Thread2.
+
+I might add that I've tested my program on two other operating systems - 
+Solaris 2.7 and DUNIX V4.0D. In both I got perfect alternation every
+time I ran the program. And with Linux 2.4 there was "almost" perfect
+alternation.
+
+
+- Mohit
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

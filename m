@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCAGxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVCAG7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVCAGxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 01:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCAGxk
+	id S261263AbVCAG7b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 01:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVCAG7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 01:53:40 -0500
-Received: from users.linvision.com ([62.58.92.114]:15814 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261262AbVCAGxi (ORCPT
+	Tue, 1 Mar 2005 01:59:31 -0500
+Received: from wasp.net.au ([203.190.192.17]:3746 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S261263AbVCAG70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 01:53:38 -0500
-Date: Tue, 1 Mar 2005 07:53:36 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] partitions/msdos.c
-Message-ID: <20050301065336.GA1567@bitwizard.nl>
-References: <20050226213459.GA21137@apps.cwi.nl> <16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de> <Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org> <20050226225203.GA25217@apps.cwi.nl> <Pine.LNX.4.58.0502261510030.25732@ppc970.osdl.org> <20050226234053.GA14236@apps.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050226234053.GA14236@apps.cwi.nl>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+	Tue, 1 Mar 2005 01:59:26 -0500
+Message-ID: <422412AB.8080907@wasp.net.au>
+Date: Tue, 01 Mar 2005 10:58:51 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       RAID Linux <linux-raid@vger.kernel.org>
+Subject: Re: Raid-6 hang on write.
+References: <421DE9A9.4090902@wasp.net.au>	<421F4629.5080309@wasp.net.au> <16930.45319.682534.351648@cse.unsw.edu.au>
+In-Reply-To: <16930.45319.682534.351648@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 12:40:53AM +0100, Andries Brouwer wrote:
-> (Concerning the "size" version: it occurred to me that there is one
-> very minor objection: For extended partitions so far the size did
-> not normally play a role. Only the starting sector was significant.
-> If, at some moment we decide also to check the size, then a weaker
-> check, namely only checking for non-extended partitions, might be
-> better at first.)
+Neil Brown wrote:
+> 
+> Could you please confirm if there is a problem with
+>     2.6.11-rc4-bk4->bk10
+> 
+> as reported, and whether it seems to be the same problem.
 
-I recently encountered a disk that had clipping enabled. If you go
-for the size implementation be careful that people can still run a 
-program to unclip the disk after the disk has been detected and the
-partition rejected.... 
+Ok.. are we all ready? I had applied your development patches to all my vanilla 2.6.11-rc4-* 
+kernels. Thus they all exhibited the same problem in the same way as -mm1. <Smacks forehead against 
+wall repeatedly>
 
-	Roger. 
+I had applied the patch to correct the looping resync issue with too many failed drives, and just 
+continued and applied all the other patches also.
 
+I have been unable to reproduce the fault using a vanilla 2.6.11-rc5-bk2 kernel.
+
+Oh well, at least we now know about a bug in the -mm patches.
+
+Regards,
+Brad
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

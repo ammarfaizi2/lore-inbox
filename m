@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbUKLX62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbUKLX61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbUKLX62 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUKLX4w
+	id S262717AbUKLX61 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUKLX5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:56:52 -0500
-Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:24836
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262717AbUKLXsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:48:23 -0500
-Message-Id: <200411130200.iAD20lpT005859@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: akpm@osdl.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/11] - UML - don't rule out syscall_nr == 0
+	Fri, 12 Nov 2004 18:57:20 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64011 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262722AbUKLXxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:53:14 -0500
+Date: Sat, 13 Nov 2004 00:52:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rth@twiddle.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/alpha/Kconfig: duplicated entries
+Message-ID: <20041112235240.GN2249@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Nov 2004 21:00:47 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Bodo Stroesser - Change the valid system call numbers to reflect the 
-possibility that we could have __NR_restart_syscall.
+Current 2.6 kernels contain more than one entry for the follwing symbols 
+in arch/alpha/Kconfig :
+- ALPHA_EV4
+- ALPHA_EV56
+- ALPHA_GAMMA
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+If someone tells me the intended semantics of these options, I can send 
+a patch.
 
-Index: 2.6.9/arch/um/kernel/skas/process.c
-===================================================================
---- 2.6.9.orig/arch/um/kernel/skas/process.c	2004-11-12 13:24:54.000000000 -0500
-+++ 2.6.9/arch/um/kernel/skas/process.c	2004-11-12 13:34:34.000000000 -0500
-@@ -64,7 +64,7 @@
- 
- 	syscall_nr = PT_SYSCALL_NR(regs->skas.regs);
- 	UPT_SYSCALL_NR(regs) = syscall_nr;
--	if(syscall_nr < 1){
-+	if(syscall_nr < 0){
- 		relay_signal(SIGTRAP, regs);
- 		return;
- 	}
-Index: 2.6.9/arch/um/kernel/tt/syscall_user.c
-===================================================================
---- 2.6.9.orig/arch/um/kernel/tt/syscall_user.c	2004-11-12 13:24:54.000000000 -0500
-+++ 2.6.9/arch/um/kernel/tt/syscall_user.c	2004-11-12 18:05:29.000000000 -0500
-@@ -63,7 +63,8 @@
- 	regs = TASK_REGS(task);
- 	UPT_SYSCALL_NR(regs) = syscall;
- 
--	if(syscall < 1) return(0);
-+	if(syscall < 0)
-+		return(0);
- 
- 	if((syscall != __NR_sigreturn) &&
- 	   ((unsigned long *) PT_IP(proc_regs) >= &_stext) && 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

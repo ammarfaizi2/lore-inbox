@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbUKOUlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbUKOVnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUKOUlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKOUjs
+	id S261414AbUKOVnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 16:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKOVnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:39:48 -0500
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:1000 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S261691AbUKOUfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:35:18 -0500
-Date: Mon, 15 Nov 2004 15:35:14 -0500 (EST)
-From: Nickolai Zeldovich <kolya@MIT.EDU>
-To: linux-kernel@vger.kernel.org
-cc: csapuntz@stanford.edu
-Subject: [patch] Fix GDT re-load on ACPI resume
-Message-ID: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Nov 2004 16:43:21 -0500
+Received: from almesberger.net ([63.105.73.238]:5900 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261414AbUKOVmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 16:42:51 -0500
+Date: Mon, 15 Nov 2004 18:42:40 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Generalize prio_tree (1/3)
+Message-ID: <20041115184240.Y28802@almesberger.net>
+References: <20041114235646.K28802@almesberger.net> <Pine.LNX.4.58.0411151226010.20003@red.engin.umich.edu> <20041115175415.X28802@almesberger.net> <Pine.LNX.4.58.0411151559070.30860@red.engin.umich.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411151559070.30860@red.engin.umich.edu>; from vrajesh@umich.edu on Mon, Nov 15, 2004 at 04:14:13PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ACPI resume code currently uses a real-mode 16-bit lgdt instruction to
-reload the GDT.  This only restores the lower 24 bits of the GDT base
-address.  In recent kernels, the GDT seems to have moved out of the lower
-16 megs, thereby causing the ACPI resume to fail -- an invalid GDT was
-being loaded.
+Rajesh Venkatasubramanian wrote:
+> I thought about this, but this will lead to a very intrusive patch.
 
-This simple patch adds the 0x66 prefix to lgdt, which forces it to load
-all 32 bits of the GDT base address, thereby removing any restrictions on
-where the GDT can be placed in memory.  This makes ACPI resume work for me
-on a Thinkpad T40 laptop.
+Possibly yes, unfortunately :-( All places where a node's keys change
+would have to be updated, yes. Are there cases where vm_pgoff,
+vm_start, or vm_end can change without doing a prio_tree_insert or
+vma_prio_tree_insert afterwards ? If not, the key update could just
+be moved into vma_prio_tree_insert and vma_prio_tree_add.
 
--- kolya
+> We have to change the meaning of vm_start and vm_end or increase
+> the size of vm_area_struct.
 
---- linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 09:00:34	1.1
-+++ linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 20:33:27
-@@ -67,6 +67,8 @@
- 	movw	$0x0e00 + 'i', %fs:(0x12)
+Nope :-) We already have space for adding one more long, i.e. h_index.
+So all we need to do it to calculate and set it before going to
+prio_tree.
 
- 	# need a gdt
-+	.byte	0x66			# force 32-bit operands in case
-+					# the GDT is past 16 megabytes
- 	lgdt	real_save_gdt - wakeup_code
+For r_index, one can use what I've described in the last mail.
 
- 	movl	real_save_cr0 - wakeup_code, %eax
+> I am only worried about the micro-performance loss due to
+> get_index in the hot-paths such as vma_prio_tree_insert.
+
+Yes, it starts to look fairly heavy for what it does ...
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTAUCJl>; Mon, 20 Jan 2003 21:09:41 -0500
+	id <S266955AbTAUCoK>; Mon, 20 Jan 2003 21:44:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTAUCJk>; Mon, 20 Jan 2003 21:09:40 -0500
-Received: from harddata.com ([216.123.194.198]:659 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S266959AbTAUCJk>;
-	Mon, 20 Jan 2003 21:09:40 -0500
-Date: Mon, 20 Jan 2003 19:18:38 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org,
-       Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [2.5] initrd/mkinitrd still not working
-Message-ID: <20030120191838.A7174@mail.harddata.com>
-References: <200301201457.PAA25276@harpo.it.uu.se> <20030120155250.GB58326@compsoc.man.ac.uk> <20030120191250.GA1314@mars.ravnborg.org> <20030120191921.GA84425@compsoc.man.ac.uk> <20030120193546.GC1314@mars.ravnborg.org>
+	id <S266961AbTAUCoK>; Mon, 20 Jan 2003 21:44:10 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:29145 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266955AbTAUCoJ>;
+	Mon, 20 Jan 2003 21:44:09 -0500
+Subject: Re: [PATCH][2.5] hangcheck-timer
+From: john stultz <johnstul@us.ibm.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030121020015.GQ20972@ca-server1.us.oracle.com>
+References: <200301210135.h0L1ZFa06867@eng2.beaverton.ibm.com>
+	 <1043113336.32478.97.camel@w-jstultz2.beaverton.ibm.com>
+	 <20030121020015.GQ20972@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043117157.32472.116.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030120193546.GC1314@mars.ravnborg.org>; from sam@ravnborg.org on Mon, Jan 20, 2003 at 08:35:46PM +0100
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Jan 2003 18:45:57 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 08:35:46PM +0100, Sam Ravnborg wrote:
-> On Mon, Jan 20, 2003 at 07:19:21PM +0000, John Levon wrote:
-> > Ooops, I was mis-remembering commit logs. I meant :
+On Mon, 2003-01-20 at 18:00, Joel Becker wrote:
+> On Mon, Jan 20, 2003 at 05:42:16PM -0800, john stultz wrote:
+> > get_cycles() is a poor method for determining "real time". 
+> > Please use do_gettimeofday().
+> 
+> 	Does do_gettimeofday() exist on all platforms?  Does it indeed
+> give actual wall clock time, instead of the inaccurate time jiffies can
+> give?
+
+Yep, do_gettimeofday is called from generic code in sys_gettimeofday()
+(kernel/time.c). It returns the same value userspace code would see
+calling gettimeofday(). 
+
+> > >  +      if (tsc_diff > hangcheck_tsc_margin) {
 > > 
-> > http://linus.bkbits.net:8080/linux-2.5/user=kai/cset@1.838.1.86?nav=!-|index.html|stats|!+|index.html|ChangeSet
+> > but now we're using it to compare cycles!  180sec != 180 cycles
 > 
-> OK, this is something else.
-> Making the shift to the extension .ko allowed the syntax:
-> make fs/ext2/ext2.ko or whatever module we want to build.
+> 	Look at the calculations.  I'm comparing cycles to cycles,
+> calculated from the original seconds.
+
+Ah! Ok, I missed the conversion in hangcheck_init. Even so, the default
+initializer is misleading. Yea, that's it... :)
+
+> > Additionally, this code doesn't take systems that have unsync'ed TSCs,
+> > or systems that change cpu frequency into account. Again, please use
+> > do_gettimeofday(). Then you can then talk about the values returned in
+> > secs and usecs, and I believe things will be much more clear. 
 > 
-> Thats very nice when developing on a module to speed up things.
+> 	I'll look into it, but it must absolutely be in terms of wall
+> clock time as measured from outside the system.
 
-Well, yes, but while installing into a final location all these .ko
-files could be renamed to have .o extensions.  This would avoid
-screwing up user-space utilities.  It is not that difficult to
-fix mkinitrd to try _both_ ways (I do not know how many folks runs
-exclusively 2.5 kernels) but who knows how many other things
-will have to be modified introducing gratituos incompatibilities.
+Completely understandable. do_gettimeofday will give you just that (w/o
+the conversion muck w/ HZ and loops_per_jiffy). 
 
-   Michal
+thanks
+-john
+

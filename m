@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268214AbUIBLiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUIBLjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268214AbUIBLiH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUIBLiH
+	id S268239AbUIBLjO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIBLjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 07:38:07 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:38793 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S268214AbUIBLiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 07:38:04 -0400
-Message-ID: <1094125083.4137061b54913@imp1-q.free.fr>
-Date: Thu,  2 Sep 2004 13:38:03 +0200
-From: castet.matthieu@free.fr
-To: Len Brown <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pnp and acpi_pnp
-References: <566B962EB122634D86E6EE29E83DD808182C46FD@hdsmsx403.hd.intel.com> <1094005570.3943.55.camel@linux>
-In-Reply-To: <1094005570.3943.55.camel@linux>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 62.147.113.144
+	Thu, 2 Sep 2004 07:39:13 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:143 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S268239AbUIBLjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 07:39:03 -0400
+Subject: Re: [patch] update parport MAINTAINERS entry
+From: David Woodhouse <dwmw2@infradead.org>
+To: maximilian attems <janitor@sternwelten.at>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040902095527.GB6661@stro.at>
+References: <E1C2eGu-0002d6-B7@sputnik>
+	 <1094116774.18683.27.camel@localhost.localdomain>
+	 <20040902094831.GB1876@stro.at>  <20040902095527.GB6661@stro.at>
+Content-Type: text/plain
+Message-Id: <1094125138.14552.32737.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 02 Sep 2004 12:38:58 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Selon Len Brown <len.brown@intel.com>:
+On Thu, 2004-09-02 at 11:55 +0200, maximilian attems wrote:
+> On Thu, 02 Sep 2004, maximilian attems wrote:
+> 
+> > On Thu, 02 Sep 2004, Tim Waugh wrote:
+> > 
+> > > Please re-send these to: linux-parport@infradead.org.
+> > > 
+> > > The torque.net address is no longer live.
+> > 
+> > update parport mailinglist, it's the most important.
+>  
+> please forget previous patch its email doesn't work.
 
-> Matthieu,
-> PNPBIOS should be disabled when ACPI is enabled, and it is a bug that
-> this is not automatic.
->
-> yes, the "Linux PNP" layer is incomplete, and ACPI isn't yet plugged
-> into that.
->
-> cheers,
-> -Len
->
->
->
+It's linux-parport@lists.infradead.org
 
+-- 
+dwmw2
 
-Hi,
-thanks for your reply.
-
-What about the fact that acpi pnp don't make the difference between a normal
-serial port and a ir port ?
-
-I hope acpi will be plugged soon in Linux PNP layer.
-
-regards,
-Matthieu

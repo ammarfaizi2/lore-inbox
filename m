@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130897AbRBPTC0>; Fri, 16 Feb 2001 14:02:26 -0500
+	id <S131023AbRBPTDq>; Fri, 16 Feb 2001 14:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130821AbRBPTCQ>; Fri, 16 Feb 2001 14:02:16 -0500
-Received: from mail.valinux.com ([198.186.202.175]:6404 "EHLO mail.valinux.com")
-	by vger.kernel.org with ESMTP id <S130897AbRBPTB0>;
-	Fri, 16 Feb 2001 14:01:26 -0500
-Message-ID: <3A8D7904.94C477F2@valinux.com>
-Date: Fri, 16 Feb 2001 11:01:24 -0800
-From: Samuel Flory <sflory@valinux.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
-X-Accept-Language: en
+	id <S131025AbRBPTDg>; Fri, 16 Feb 2001 14:03:36 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:40173 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131023AbRBPTD2>; Fri, 16 Feb 2001 14:03:28 -0500
+Date: Fri, 16 Feb 2001 14:02:10 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <3A8D764B.9CD6B3A8@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0102161355270.17251-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mke2fs and kernel VM issues
-In-Reply-To: <Pine.LNX.4.21.0102161058580.2099-100000@penguin.homenet>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> 
-> On Thu, 15 Feb 2001, Samuel Flory wrote:
-> 
-> >   What is believed to be the current status of the typical mke2fs
-> > crashes/hangs due to vm issues?  I can reliably reproduce the issue on a
-> > heavily modifed VA kernel based on 2.2.18.  Is there a kernel which is
-> > believed to be a known good kernel?  (both 2.2.x and 2.4.x)
-> 
-> I can mke2fs (successfully) on a 270G block device. Yes, of course, I also
-> get various page allocation failures while this happens but they are not
-> deadly, i.e. the thing (our volume manager) just retries until it works
-> and after a while I have a valid (and a very big) ext2 filesystem with 0
-> processes killed.
-> 
-> The kernel I use is 2.4.2-pre3. The machine has 6G RAM with the 3G given
-> to kernel virtual. The amount of swap is massive (2G) but it is never
-> used.
+On Fri, 16 Feb 2001, Manfred Spraul wrote:
 
-  I've never been able reliably reproduce any sort of mke2fs hang on
-systems with more than 512M of RAM.  It would be interesting to know if
-other people are seeing this under SW-RAID, and other controllers. 
-(Currently everyone in direct contact with me uses a Mylex controller.) 
-The key seems to be 512 or smaller amounts of RAM, and a 80G or larger
-logical drive.
+> That leaves msync() - it currently does a flush_tlb_page() for every
+> single dirty page.
+> Is it possible to integrate that into the mmu gather code?
+>
+> tlb_transfer_dirty() in addition to tlb_clear_page()?
 
--- 
-Solving people's computer problems always
-requires more hardware be given to you.
-(The Second Rule of Hardware Acquisition)
-Samuel J. Flory  <sam@valinux.com>
+Actually, in the filemap_sync case, the flush_tlb_page is redundant --
+there's already a call to flush_tlb_range in filemap_sync after the dirty
+bits are cleared.  None of the cpus we support document having a writeback
+tlb, and intel's docs explicitely state that they do not as they state
+that the dirty bit is updated on the first write to dirty the pte.
+
+		-ben
+

@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUKDCO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUKDCO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUKDCO0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261728AbUKDCO0 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 3 Nov 2004 21:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbUKDCNy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUKDCIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:13:54 -0500
-Received: from tueddeln.de ([217.160.187.172]:3734 "EHLO
-	p15131177.pureserver.info") by vger.kernel.org with ESMTP
-	id S262055AbUKDCEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 21:04:09 -0500
-Message-ID: <41898E16.8090908@babut.net>
-Date: Thu, 04 Nov 2004 03:04:06 +0100
-From: Thomas Babut <thomas@babut.net>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Wed, 3 Nov 2004 21:08:25 -0500
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:12703 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S262064AbUKDB4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:56:41 -0500
+To: Russell Miller <rmiller@duskglow.com>
+Cc: Kurt Wall <kwall@kurtwerks.com>, linux-kernel@vger.kernel.org
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <200411030751.39578.gene.heskett@verizon.net>
+	<200411031901.28977.rmiller@duskglow.com>
+	<87654m4clz.fsf@asmodeus.mcnaught.org>
+	<200411031945.20894.rmiller@duskglow.com>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Wed, 03 Nov 2004 20:56:28 -0500
+In-Reply-To: <200411031945.20894.rmiller@duskglow.com> (Russell Miller's
+ message of "Wed, 3 Nov 2004 20:45:20 -0500")
+Message-ID: <87zn1y2x83.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Adapter
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Russell Miller <rmiller@duskglow.com> writes:
 
-I'm trying to run a Kernel 2.6 on the following machine:
+> Wouldn't it help with device driver problems?  Couldn't ring 1 be
+> used to make sure an errant driver doesn't drop the kernel, at least
+> on x86 machines?
 
-Debian Sarge 3.1 with newest updates
-gcc version 3.3.4 (Debian 1:3.3.4-13)
+As I understand it:
 
-Dual Pentium III at 1000 MHz with 1 GByte RAM and Quantum ATLAS10K2-TY367J
+1) Ring transitions aren't free.
+2) The API between drivers and kernel is always in flux; drivers
+   expect to be able to access internal kernel data structures.
+   Making drivers run in ring 1 on even one of the N architectures
+   would be a major refactoring and would constrain API changes.
+   Freezing the internal API is something the developers don't want to
+   do.
+3) There are probably plenty of ways for a buggy driver to crash the
+   kernel even if it's running in ring 1 (turn off interrupts and
+   leave them off, etc).
 
-Output from lspci:
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo 
-PRO133x] (rev c4)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
-MVP3/Pro133x AGP]
-0000:00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
-South] (rev 40)
-0000:00:04.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:04.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 16)
-0000:00:04.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 
-1.1 Controller (rev 16)
-0000:00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
-ACPI] (rev 40)
-0000:00:07.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 
-100] (rev 08)
-0000:00:08.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 
-Ultra3 SCSI Adapter (rev 01)
-0000:00:08.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 
-Ultra3 SCSI Adapter (rev 01)
-0000:00:0c.0 PCI bridge: Digital Equipment Corporation DECchip 21152 
-(rev 03)
-0000:02:0c.0 VGA compatible controller: Silicon Integrated Systems [SiS] 
-86C326 5598/6326 (rev 0b)
+So the upshot is that it's probably not worth the work and portability
+hassles.
 
-On boot it hangs with following messages:
-
-sym0: <1010-33> rev 0x1 at pci 0000:00:08.1 irq 169
-sym0: Symbios NVRAM, ID 7, Fast-80, LVD, parity checking
-sym0: open drain IRQ line driver, using on-chip SRAM
-sym0: using LOAD/STORE-based firmware.
-sym0: handling phase mismatch from SCRIPTS.
-sym0: SCSI BUS has been reset.
-scsi0 : sym-2.1.18j
-Vendor: QUANTUM   Model: ATLAS10K2-TY367J  Rev: DDD6
-Type: Direct-Access ANSI SCSI revision: 03
-sym0:1:0: tagged command queuing enabled, command queue depth 16.
-scsi(0:0:1:0): Beginning Domain Validation
-sym0:1: wide asynchronous.
-sym0:1:0: ABORT operation started.
-sym0:1:0: ABORT operation timed-out.
-sym0:1:0: DEVICE RESET operation started.
-sym0:1:0: DEVICE RESET operation timed-out.
-sym0:1:0: BUS RESET operation started.
-sym0: SCSI BUS reset detected.
-sym0: SCSI BUS has been reset.
-sym0: SCSI BUS operation completed.
-
-At this point only a hard-reset helps.
-
-With Kernel 2.4.26 and 2.4.27 it runs without any problems. I've tried 
-almost every Kernel 2.6:
-2.6.5 (vanilla), 2.6.9 (vanilla), 2.6.10-rc1-bk13, 2.6.10-rc1-mm2, 2.6.8 
-(Debian Sources), 2.6.9 (Debian Sources)
-
-It seems that this problem is not new or not unknown, but I didn't find 
-a solution yet.
-
-Best Regards,
-Thomas
+-Doug

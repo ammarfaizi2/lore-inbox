@@ -1,71 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264578AbUEEL63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUEEL7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264578AbUEEL63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUEEL63
+	id S264585AbUEEL7s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 07:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264597AbUEEL7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:58:29 -0400
-Received: from gort.metaparadigm.com ([203.117.131.12]:20184 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S264578AbUEEL6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:58:25 -0400
-Message-ID: <4098D6CB.5050501@metaparadigm.com>
-Date: Wed, 05 May 2004 19:58:03 +0800
-From: Michael Clark <michael@metaparadigm.com>
-Organization: Metaparadigm Pte Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Libor Vanek <libor@conet.cz>, Bart Samwel <bart@samwel.tk>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-References: <20040503000004.GA26707@Loki> <4098BC2B.4080601@samwel.tk> <20040505101902.GB6979@Loki> <200405051354.43397.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200405051354.43397.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 May 2004 07:59:48 -0400
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:39324 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S264585AbUEEL7k convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 07:59:40 -0400
+Subject: Re: [BUG] 2.6.5 ntfs
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Marcin =?iso-8859-2?Q?Gibu=B3a?= <m.gibula@conecto.pl>
+Cc: ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200405041957.38185.m.gibula@conecto.pl>
+References: <200405031407.46408.m.gibula@conecto.pl>
+	 <1083660979.6490.5.camel@imp.csi.cam.ac.uk>
+	 <200405041957.38185.m.gibula@conecto.pl>
+Content-Type: text/plain; charset=iso-8859-2
+Organization: University of Cambridge Computing Service
+Message-Id: <1083758242.916.42.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 May 2004 12:57:23 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/05/04 18:54, Denis Vlasenko wrote:
-> On Wednesday 05 May 2004 13:19, Libor Vanek wrote:
+On Tue, 2004-05-04 at 18:57, Marcin Gibu³a wrote:
+> > Could you do the following inside the configured kernel source directory
+> > corresponding to the compiled kernel that produced this oops:
+> >
+> > make fs/ntfs/attrib.s
 > 
->>>Libor Vanek wrote:
->>>
->>>>OK - how can I "notify" userspace process? Signals are "weak" - I need
->>>>to send some data (filename etc.) to process. One solution is "on this
->>>>signal call this syscall and result of this syscall will be data you
->>>>need" - but I'd prefer to handle this in one "action".
->>>
->>>My first thoughts are to make it a blocking call.
->>
->>You mean like:
->>- send signal to user-space process
->>- wait until user-space process pick ups data (filename etc.), creates copy
->>of file (or whatever) and calls another system call that he's finished -
->>let kernel to continue syscall I blocked
->>?
+> The kernel was compiled with gcc version 3.4.0 20040414 (prerelease), and I 
+> have gcc 3.4 now, so I'm not sure if the results are the same... so, I 
+> attached both new attrib.s and dissassembled attrib.o from previous 
+> compilation (with this older gcc).
+
+Thanks.  Using the attrib.o.asm you sent me, I can see where the oops
+happened.  It is on line 566 in fs/ntfs/attrib.c:
+
+for (dend = di; drl[dend].length; dend++)
+	;
+
+The oops happened when drl[dend].length is accessed and from the
+register dump in the oops I can see that this came after a dend++ was
+executed, i.e. not on the first access to drl[dend].length.
+
+Also, ecx is e0b12010 which is is 0x10 bytes into a page boundary
+(assuming your system uses 4kib pages which is likely to be the case).
+
+Further, from eax and edx it would imply that the last drl[dend].length
+was equal to 0xff807362ff746957 which is a non-sense value.
+
+The only way this could happen is if drl was not terminated (i.e.
+drl[last element].length was not set to zero) and hence the for loop
+just kept going accessing random memory contents until it hit the end of
+the page and overflowed into the next one which caused the oops.
+
+The run list code was very heavily tested at the time it was written and
+it hasn't been touched since, so I doubt very much that this was caused
+in the run list code of ntfs.  Doubly so as you say that you cannot
+reproduce the bug so the driver would have needed to manage to do two
+different things with the same data at two different times which seems
+extremely unlikely to me...
+
+If I am correct and there is no bug in the run list code of ntfs, the
+only possible explanation is that either other kernel code caused memory
+corruption (i.e. a bug in some other kernel code trampled over ntfs
+allocated memory) or what is much more likely is that you have flakey
+memory and a flipped bit caused the length of the last element of drl to
+not be zero any more.  Have you ever run memtest on your machine?
+
+> > Also could you tell me which Windows version the ntfs partition was
+> > created with and which windows version last accessed the files?
 > 
+> It was created with Windows 2000 or Windows XP, I really don't remember which 
+> was that, is there some utility to check this?
 > 
-> I think he meant that userspace daemon should do a blocking syscall
-> (a read for example). When that returns, daemon knows he has
-> something to do.
+> Windows XP last accessed this partition.
+> 
+> > Finally is this bug reproducible when you access a particular file or is
+> > it a once off event?  If a particular file, then would you mind running
+> > a utility that I can email you (source or binary or both whichever you
+> > prefer) so I can capture the metadata for the inode of the file?
+> 
+> I was trying to reproduce this bug with cat * > /dev/null but the only thing 
+> I've triggered was this warning:
+> 
+> NTFS-fs error: ntfs_decompress(): Failed. Returning -EOVERFLOW.
+> NTFS-fs error (device hde4): ntfs_read_compressed_block(): ntfs_decompress() 
+> failed in inode 0x78a with error code 75. Skipping this compression block.
+> 
+> But no oops ... 
+> If you want I can run whatever is necessary.
 
-Much like coda already does IIRC - kernel wakes userspace blocking on a
-read to your special device, userspace 'writes' result back to special
-device. This was an idea for a generic userspace upcall mechanism
-originated by Alan Cox with his psdev circa 2.0/2.2 ?? which formed the
-basis of the coda filesystem which does close to what you would want.
+If you run "chkdsk /f" from windows on this partition, does it detect
+any errors?
 
-I've written a userspace block device driver interface using this
-mechanism also (unpublished as of today, not wanting to compete with
-nbd and enbd - it is unlike enbd which blocks on an ioctl and far
-far simpler.
+Assuming chkdsk doesn't detect and fix any errors, this would definitely
+be worth investigating.  I don't think it has anything to do with the
+oops but I would very much like a copy of this inode because it might
+mean our decompression code has a bug in it and I want to check this
+out.  To create a copy, I will assume you have the latest ntfsprogs
+installed, then use ntfscat to dump your $MFT like this:
 
-   http://gort.metaparadigm.com/userblk/
+ntfscat -i 0 /dev/hde4 > ~/mymftdump
 
-This way to do zero-copy by using mmap on your special device
-(which I plan to do for my userspace block device interface).
+This will create a rather large file.  You can compress it with bzip -9
+and if this is small enough, please email it to me (my email will accept
+up to 10Mib attachments) or make it available for me to download on the
+internet.  If this is not workable for you then proceed as follows to
+copy the specific inode 0x78a (= 1930 in decimal) out of the file:
 
-~mc
+dd if=~/mymftdump of=~/inode0x78a bs=1024 count=1 skip=1930
+
+And then email me the file ~/inode0x78a (this is only 1kiB in size).
+
+Once this is done I will email you with more instructions on how to get
+the rest of the data I need (i.e. the compressed data of the file which
+is causing the overflow).
+
+I am afraid I am too busy at work at the moment to write a utility to
+get the data automatically...  Your help is very much appreciated.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ &
+http://www-stu.christs.cam.ac.uk/~aia21/
+
+

@@ -1,89 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUANVw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 16:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUANVw3
+	id S263107AbUANWFu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 17:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbUANWFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 16:52:29 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:9670 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262925AbUANVwZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 16:52:25 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch UP installer kernels
-Date: Wed, 14 Jan 2004 13:50:54 -0800
-Message-ID: <7F740D512C7C1046AB53446D3720017361883B@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch UP installer kernels
-Thread-Index: AcPaPxIl+D1gy7YnSs+0+d5TS1285AAqLQpg
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "James Cleverdon" <jamesclv@us.ibm.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Chris McDermott" <lcm@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-X-OriginalArrivalTime: 14 Jan 2004 21:50:55.0420 (UTC) FILETIME=[7C995FC0:01C3DAE8]
+	Wed, 14 Jan 2004 17:05:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14814 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263107AbUANWFs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 17:05:48 -0500
+Date: Wed, 14 Jan 2004 14:06:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: aebr@win.tue.nl, 1@pervalidus.net, linux-kernel@vger.kernel.org
+Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel
+ 2.6.1
+Message-Id: <20040114140657.6173f102.akpm@osdl.org>
+In-Reply-To: <20040114214212.GA2485@ucw.cz>
+References: <200401111545.59290.murilo_pontes@yahoo.com.br>
+	<20040111235025.GA832@ucw.cz>
+	<Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
+	<20040112083647.GB2372@ucw.cz>
+	<20040112135655.A980@pclin040.win.tue.nl>
+	<20040114142445.GA28377@ucw.cz>
+	<20040114182202.GA32081@ucw.cz>
+	<20040114120136.0f3f92ca.akpm@osdl.org>
+	<20040114214212.GA2485@ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-assign_irq_vector() is okay, and it simply returns vectors
-(FIRST_DEVICE_VECTOR <= vector < FIRST_SYSTEM_VECTOR). That means those
-IRQs will eventually share the same vector(s). Look at the code.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+>
+> > Should the below patch be dropped, or is further resolution needed?
+> 
+> The patch below needs to be redone. I'll do it.
 
-Jun
+OK.  I'm also showing clashes with the below patch, so please incorporate
+that too.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> owner@vger.kernel.org] On Behalf Of Zwane Mwaikambo
-> Sent: Tuesday, January 13, 2004 5:00 PM
-> To: James Cleverdon
-> Cc: Andrew Morton; linux-kernel@vger.kernel.org; Linus Torvalds; Chris
-> McDermott; Martin J. Bligh
-> Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic
-> subarch UP installer kernels
-> 
-> On Tue, 13 Jan 2004, James Cleverdon wrote:
-> 
-> > Problem:  Earlier I didn't consider the case of the generic sub-arch
-and
-> > uni-proc installer kernels used by a number of distros.  It
-currently is
-> > scaled by NR_CPUS.  The correct values should be big for summit and
-> generic,
-> > and can stay the same for all others.
-> 
-> This all looks strange, especially in assign_irq_vector() does this
-> mean that you'll try and allocate up to 1024 vectors?
-> 
-> > diff -pru 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h
-> > t1mm2/include/asm-i386/mach-default/irq_vectors.h
-> > --- 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h
-2004-01-08
-> > 22:59:19.000000000 -0800
-> > +++ t1mm2/include/asm-i386/mach-default/irq_vectors.h
-2004-01-13
-> > 13:43:56.000000000 -0800
-> > @@ -90,8 +90,12 @@
-> >  #else
-> >  #ifdef CONFIG_X86_IO_APIC
-> >  #define NR_IRQS 224
-> > -# if (224 >= 32 * NR_CPUS)
-> > -# define NR_IRQ_VECTORS NR_IRQS
-> > +/*
-> > + * For Summit or generic (i.e. installer) kernels, we have lots of
-I/O
-> APICs,
-> > + * even with uni-proc kernels, so use a big array.
-> > + */
-> > +# if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
-> > +# define NR_IRQ_VECTORS 1024
-> >  # else
-> >  # define NR_IRQ_VECTORS (32 * NR_CPUS)
-> >  # endif
+
+From: Vojtech Pavlik <vojtech@suse.cz>
+
+Fix emulation of PrintScreen key and 103rd Euro key for XFree86.
+
+
+
+---
+
+ drivers/char/keyboard.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN drivers/char/keyboard.c~input-print-screen-emulation-fix drivers/char/keyboard.c
+--- 25/drivers/char/keyboard.c~input-print-screen-emulation-fix	2004-01-11 13:48:41.000000000 -0800
++++ 25-akpm/drivers/char/keyboard.c	2004-01-11 13:48:41.000000000 -0800
+@@ -941,8 +941,8 @@ static unsigned short x86_keycodes[256] 
+ 	 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+ 	 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+ 	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+-	 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+-	284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
++	 80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
++	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+ 	367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
+ 	360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
+ 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
+
+_
+

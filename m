@@ -1,104 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTCJRMV>; Mon, 10 Mar 2003 12:12:21 -0500
+	id <S261367AbTCJRLd>; Mon, 10 Mar 2003 12:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbTCJRMU>; Mon, 10 Mar 2003 12:12:20 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:1445 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261368AbTCJRMM>;
-	Mon, 10 Mar 2003 12:12:12 -0500
-Subject: Re: [PATCH 2.5.64 2/2] i_size atomic access
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20030310131611.GA14627@dualathlon.random>
-References: <1047082543.2636.98.camel@ibm-c.pdx.osdl.net>
-	 <20030307163001.43805e11.akpm@digeo.com>
-	 <1047086790.2634.105.camel@ibm-c.pdx.osdl.net>
-	 <20030308042555.GA31650@delft.aura.cs.cmu.edu>
-	 <20030307203340.5e025ef0.akpm@digeo.com>
-	 <20030310131611.GA14627@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047316961.2633.124.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 10 Mar 2003 09:22:41 -0800
-Content-Transfer-Encoding: 7bit
+	id <S261368AbTCJRLc>; Mon, 10 Mar 2003 12:11:32 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:17200 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S261367AbTCJRL3>; Mon, 10 Mar 2003 12:11:29 -0500
+Message-ID: <3E6CC9BD.5050501@google.com>
+Date: Mon, 10 Mar 2003 09:22:05 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [BUG][2.4.18+] kswapd assumes swapspace exists
+Content-Type: multipart/mixed;
+ boundary="------------000501020901030606040802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-10 at 05:16, Andrea Arcangeli wrote:
-> On Fri, Mar 07, 2003 at 08:33:40PM -0800, Andrew Morton wrote:
-> > Jan Harkes <jaharkes@cs.cmu.edu> wrote:
-> > >
-> > > On Fri, Mar 07, 2003 at 05:26:31PM -0800, Daniel McNeil wrote:
-> > > > On Fri, 2003-03-07 at 16:30, Andrew Morton wrote:
-> > > > > Daniel McNeil <daniel@osdl.org> wrote:
-> > > > > > This adds i_seqcnt to inode structure and then uses i_size_read() and
-> > > > > > i_size_write() to provide atomic access to i_size.
-> > > > > 
-> > > > > Ho hum.  Everybody absolutely hates this, but I guess we should do it :(
-> > > 
-> > > I am really curious whether this patch is really all that useful, has
-> > > anyone ever noticed enough lock contention on inode semaphore caused by
-> > > accessing i_size? Whenever i_size changes it needs to be locked down
-> > > either way because mappings have to be extended or truncated.
-> > 
-> > The problem is not lock contention.  The problem is that the read() paths are
-> > performing nonatomic reads of a 64-bit value.  If a writer is updating i_size
-> > at the same time the reader can see grossly incorrect values.
-> > 
-> > It's such a remote problem that nobody really has the heart to do anything
-> > about it.  But it's there...
-> 
-> well really this is fixed in my tree and in some distribution kernels
-> for half an year, it's true only the major fs are been taken care of,
-> but definitely somebody had the heart to do something about it 8)
-> 
-> > > A quick grep shows that there are 619 references to ->i_size in the
-> > > various filesystem subdirs.
-> > 
-> > Most of these are not inode->i_size.  Yes, there are i_size references in
-> > filesystems, but not many.  And the infrastructure is there to mop those up.
-> > 
-> > If we choose to.  I'm still not sure I want to do this :(
-> 
-> There is no other way, some cpu can't even do it atomically (hence the
-> need of the sequence number approch).
-> 
-> Also note that the atomicity isn't needed everywhere, for example if you
-> read i_size in the write paths you don't need to use i_size_read, but
-> you can read with inode->i_size as usual, which is faster and in turn
-> recommended.
-> 
-> I described the locking rules here:
-> 
-> 	http://groups.google.com/groups?q=i_size_read&hl=en&lr=&ie=UTF-8&selm=20020717225504.GA994%40dualathlon.random&rnum=2
-> 
-> 	  The rules are: 1) i_size_write must be used for all i_size
-> 	  updates (at least when there can be potential parallel readers
-> 	  outside the i_sem), 2) i_size_read must be used for all lockless
-> 	  reads when an i_size change can happen from under us.
-> 	  
-> Andrea
-
-I agree with Andrea and think we should fix this.  The sequence number
-approach works for all architectures without much overhead.  i_size_read
-does not pollute the cache.  I chose not to port the cmpxchg8/get64_bit
-part of Andrea's patch from 2.4, since it is more complicated and
-cmpxchg8 does write the cache line.
-
-I did test the changes using a simple program that forks 2 processes
-on a 2-proc machine. One does stat64() and the other does
-truncate(4GB-1) / truncate(4G) in a large loop.  Without the patch,
-the stat does rarely get an i_size of 0 or 8GB-1.  With the patch,
-the stat() always sees a correct i_size. I typically had to loop
-for 5 million stat()s before I would see the problem.
+This is a multi-part message in MIME format.
+--------------000501020901030606040802
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
--- 
-Daniel McNeil <daniel@osdl.org>
+I've verified this in 2.4.21-pre5 by code inspection and can trigger the 
+problem on 2.4.18.  It appears to have been fixed in 2.5.
+
+The folowing code vmscan.c assumes that there is available swap space.
+
+        /*
+         * this is the non-racy check for busy page.
+         */
+        if (!page->mapping || !is_page_cache_freeable(page)) {
+            spin_unlock(&pagecache_lock);
+            UnlockPage(page);
+page_mapped:
+            if (--max_mapped >= 0)
+                continue;
+
+            /*
+             * Alert! We've found too many mapped pages on the
+             * inactive list, so we start swapping out now!
+             */
+            spin_unlock(&pagemap_lru_lock);
+            swap_out(priority, gfp_mask, classzone);
+            return nr_pages;
+        }
+
+
+If there is no swap space, then unfreeable pages are left on the 
+inactive queue and the vmtree is walked rather than going through the 
+rest of the inactive queue.  I believe something like
+        /*
+         * this is the non-racy check for busy page.
+         */
+        if (!page->mapping || !is_page_cache_freeable(page)) {
+            spin_unlock(&pagecache_lock);
+            UnlockPage(page);
+page_mapped:
+                        /* If we don't have any swap space left, there
+                           is no reason to worry about pages that do
+                           not have swap associated with them, there
+                           is nothing we can do about it. */
+                        if (!page->mapping && !swap_avail()) {
+                                /* Let's make the page active since we
+                                   cannot swap it out.  It get's it off
+                                   the inactive list. */
+                                spin_unlock(&pagemap_lru_lock);
+                                activate_page(page);
+                                ClearPageReferenced(page);
+                                spin_lock(&pagemap_lru_lock);
+                                continue;
+                        }
+            if (--max_mapped >= 0)
+                continue;
+
+            /*
+             * Alert! We've found too many mapped pages on the
+             * inactive list, so we start swapping out now!
+             */
+            spin_unlock(&pagemap_lru_lock);
+            swap_out(priority, gfp_mask, classzone);
+            return nr_pages;
+        }
+
+will work better when there is no swap space available.  If this change 
+is made, it may also be necessary to limit refill_inactive to prevent it 
+from using too much cpu.  This bug can be triggered with the attached 
+code and the correct parameters.  In particular on a 3 gigabyte machine 
+with no swap,
+
+for i in $(seq 0 9); do dd if=/dev/zero of=file$i bs=1024k count=512; done
+killmm 1032735283 2 9
+
+Usually causes an out of memory error when there is hundreds of 
+megabytes of cache.
+
+
+    Ross
+
+--------------000501020901030606040802
+Content-Type: text/plain;
+ name="killmm.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="killmm.c"
+
+/*
+ *  killmm.c attempts to exploit bugs in the mm to cause a crash or
+ *  other undesired behaviour.
+ *  Copyright (C) 2002 Google
+ *  Written by Ross Biro
+ *
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <errno.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <asm/page.h>
+
+/* 512 Meg */ 
+#define BLOCKSIZE 512*1024*1024 
+#define USEMLOCK 1
+
+int main(int argc, char *argv[]) {
+  size_t memory = atoi(argv[1]);
+  int blocks = atoi(argv[2]);
+  int maxfiles = atoi(argv[3]);
+  unsigned char *cptr; 
+  int i, j, k;
+
+  void **ptrs = (void **)malloc(blocks * sizeof(*ptrs));
+  if (ptrs == NULL) {
+    fprintf (stderr, "Unable to allocate %d bytes: %s\n",
+             sizeof(*ptrs) * blocks,
+             strerror(errno));
+    return -1;
+  }
+  
+
+  /* The first thing we do is allocate a bunch of memory. */
+  cptr = (unsigned char *)malloc(memory);
+  if (cptr == NULL) {
+    fprintf (stderr, "Unable to allocate %d bytes: %s\n", memory,
+             strerror(errno));
+    return -1;
+  }
+
+  /* now we want to make it all dirty. */
+  for (i = 0; i < memory; i++) {
+    cptr[i] = (unsigned char)(i&0xff);
+    if ((i & 0xffffff) == 0) {
+      printf ("Initializing memory: %d\n", i);
+    }
+  }
+  
+  /* Now we have a bunch of dirty memory.  Map in huge files. */
+  for (i = 0; i < maxfiles; i++) {
+    char filename[1024];
+    int fd;
+    int ind = i%blocks;
+    if (ptrs[ind] != NULL) {
+      printf ("Unmapping block %d @ %08X\n", ind, ptrs[ind]);
+#ifdef USEMLOCK 
+     munlock(ptrs[ind], BLOCKSIZE);
+#endif
+      munmap(ptrs[ind], BLOCKSIZE);
+    }
+    sprintf (filename, "file%d", i);
+    printf ("Loading file %s into slot %d\n",
+            filename, ind);
+    fd = open (filename, O_RDONLY);
+    if (fd < 0) {
+      fprintf (stderr, "Unable to open %s: %s\n", filename, strerror(errno));
+      return -1;
+    }
+
+    ptrs[ind] = mmap (NULL, BLOCKSIZE, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (ptrs[ind] == NULL) {
+      fprintf (stderr, "Unable to map file %s: %s\n", 
+               filename, strerror(errno));
+      return -1;
+    }
+
+#ifdef USEMLOCK
+    if (mlock(ptrs[ind], BLOCKSIZE) < 0) {
+      fprintf (stderr, "Unable to lock mem for %s: %s\n",
+               filename, strerror(errno));
+      return -1;
+    }
+#else
+    // Page in the memory the old fashioned way.
+    for (j = 0; j <BLOCKSIZE; j+= PAGE_SIZE) {
+      k += ((char *)ptrs[ind])[j];
+    }
+#endif
+
+    printf ("Block %d at %08X\n", ind, ptrs[ind]);
+
+    close(fd);
+         
+  }
+  
+  
+}
+
+--------------000501020901030606040802--
 

@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVARJrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVARJvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVARJrn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 04:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVARJrn
+	id S261211AbVARJvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 04:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVARJvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 04:47:43 -0500
-Received: from smtp.menara.ma ([81.192.53.135]:40871 "EHLO IMSS1.menara.local")
-	by vger.kernel.org with ESMTP id S261210AbVARJrj (ORCPT
+	Tue, 18 Jan 2005 04:51:13 -0500
+Received: from colin2.muc.de ([193.149.48.15]:34063 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261211AbVARJvK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 04:47:39 -0500
-Message-ID: <41ECDBA9.8030005@off.net>
-Date: Tue, 18 Jan 2005 09:49:29 +0000
-From: jerome etienne <jme@off.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
-References: <41EAE36F.35354DDF@users.sourceforge.net>	 <41EB3E7E.7070100@tmr.com> <41EBD4D4.882B94D@users.sourceforge.net>	 <1105989298.14565.36.camel@ghanima>  <20050117212647.GA3754@dantooine> <1106003492.17182.17.camel@ghanima>
-In-Reply-To: <1106003492.17182.17.camel@ghanima>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 04:51:10 -0500
+Date: 18 Jan 2005 10:51:09 +0100
+Date: Tue, 18 Jan 2005 10:51:09 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] Support compat_ioctl for block devices
+Message-ID: <20050118095109.GA22705@muc.de>
+References: <20050118075602.GD76018@muc.de> <20050118091927.GA24768@infradead.org> <20050118093158.GB20002@muc.de> <20050118093645.GA24935@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050118093645.GA24935@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jan 18, 2005 at 09:36:45AM +0000, Christoph Hellwig wrote:
+> On Tue, Jan 18, 2005 at 10:31:58AM +0100, Andi Kleen wrote:
+> > >  - please don't introduce a new API with the BKL held.
+> > 
+> > Nope, I'm not going to audit zillions of low level functions for this.
+> 
+> So just stick a lock_kernel() unlock_kernel() into the handler, it's
+> not like there's more than a handfull of them.
 
-i dont understand the current argument so would prefere not to enter it. 
-But it triggered my curiosity about current loop-aes security.
-3 years ago i published a paper describing how an attacker would be able 
-to modify the content of the encrypted device without being detected.
-http://off.net/~jme/loopdev_vul.html
+Hmm, possible, although it tends to be quite ugly (requiring
+either gotos or wrappers). But ok.
 
-i was just curious about the current state of loop-aes. Is it still 
-vulnerable to this attack ?
+> 
+> > >  - prototype isn't nice.  just passing the gendisk for block_device
+> > >    should be enough.
+> > 
+> > No, it isn't, the compat handler needs cmd and arg, and file is useful
+> > when you pass it to an existing ioctl handler.
+> 
+> cmd/arg is needed, file shouldn't.  If you care for the underlying handler
+> add a version that doesn't take the file * either.
+
+Sorry, that didn't make any sense.  
+
+-Andi

@@ -1,110 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265441AbTLHPk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 10:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265446AbTLHPk5
+	id S264981AbTLHPqi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 10:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbTLHPqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 10:40:57 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:41699 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S265441AbTLHPke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 10:40:34 -0500
+	Mon, 8 Dec 2003 10:46:38 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:11613 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264981AbTLHPp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 10:45:59 -0500
+Message-ID: <3FD49CA3.5010205@yahoo.es>
+Date: Mon, 08 Dec 2003 10:45:39 -0500
+From: Roberto Sanchez <rcsanchez97@yahoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Kernel 2.6.0-testX show stoppers
-From: Craig Bradney <cbradney@zip.com.au>
-To: Roberto Sanchez <rcsanchez97@yahoo.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FD498A0.9080802@yahoo.es>
-References: <3FD498A0.9080802@yahoo.es>
-Content-Type: text/plain
-Message-Id: <1070898030.2098.146.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Dec 2003 16:40:30 +0100
-Content-Transfer-Encoding: 7bit
+References: <3FD498A0.9080802@yahoo.es> <1070898030.2098.146.camel@athlonxp.bradney.info>
+In-Reply-To: <1070898030.2098.146.camel@athlonxp.bradney.info>
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAB5F457DA3EC8AA0340BBE68"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the Athlon, keep in touch with the nforce thread on here.. There are
-patches due to timing issues with the nforce chipset. 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAB5F457DA3EC8AA0340BBE68
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-For me, so far, just using this one works:
-http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
+Craig Bradney wrote:
+> For the Athlon, keep in touch with the nforce thread on here.. There are
+> patches due to timing issues with the nforce chipset. 
+> 
+> For me, so far, just using this one works:
+> http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
+> 
+> There is a program called athcool to turn off CPU Disconnect if you dont
+> have that in your BIOS. I havent used this patch as I have found
+> reliability using the first one I mentioned.
+> 
+> Craig
 
-There is a program called athcool to turn off CPU Disconnect if you dont
-have that in your BIOS. I havent used this patch as I have found
-reliability using the first one I mentioned.
+Thanks for the info.  I will give it a shot tonight.
 
-Craig
+-Roberto
 
-On Mon, 2003-12-08 at 16:28, Roberto Sanchez wrote:
-> I am having some problems getting 2.6.0-test11 working on my 2 boxes.
-> I am hoping that someone here can provide me some insight so that I
-> can provide some useful info to help get these solved.
-> 
-> Any help would be appreciated.
-> 
-> -Roberto
-> 
-> Here goes:
-> 
-> Box 1:
-> 
-> Athlon XP 2500+, 1 GB RAM, 120 GB HDD
-> nVidia nForce2 chipset
-> ATI Radeon 9000 Pro w/ 128 MB
-> 
-> This machine just randomly and frequently locks up under any 2.6.x
-> kernel.  I can't find a particular pattern, but it happens every few
-> minutes (enough to make the machine unusable).  It is now running a
-> 2.4.23 kernel.
-> 
-> 
-> Box 2:
-> 
-> Toshiba Satellite 2805-S401 (laptop)
-> P-III 700 MHz, 256 MB RAM, 40 GB HDD
-> Intel 440BX chipset
-> S3 Savage IX/MV 8 MB video
-> 
-> Problem: Every kernel after 2.6.0-test4 gives me a hard lock-up during
-> the boot sequence when PCMCIA services start.  No 2.4.x kernel ever did
-> this, and 2.6.0-test1 thru -test4 work fine.  I have narrowed the 
-> problem to the point where the yenta_socket socket module is inserted.
-> However, if I pass acpi=off as a kernel boot parameter, it does not lock
-> up.  Also, if I build PCMCIA support directly into the kernel,
-> everything works.  I am currently running 2.6.0-test11 with PCMCIA
-> built in (but I would like it to be modular).
-> 
-> I am also receiving the following errors on boot when my scripts
-> set up the parameters on my HDD and CD/DVD (this is also particular
-> to the post -test4 kernels):
-> 
-> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> hda: drive not ready for command
-> hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> hda: drive not ready for command
-> hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> hda: DMA disabled
-> hda: drive not ready for command
-> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete 
-> DataRequest }
-> 
-> But, eventhough it says DMA is disabled, it is still enabled.
-> 
-> # hdparm /dev/hda
-> 
-> /dev/hda:
->   multcount    = 16 (on)
->   IO_support   =  1 (32-bit)
->   unmaskirq    =  1 (on)
->   using_dma    =  1 (on)
->   keepsettings =  0 (off)
->   readonly     =  0 (off)
->   readahead    = 256 (on)
->   geometry     = 38760/16/63, sectors = 39070080, start = 0
+--------------enigAB5F457DA3EC8AA0340BBE68
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQE/1JyzTfhoonTOp2oRAmzaAKCfaW9sECCF4Qj35q93h3LC1lWzEACgkyU4
+KfYG3c5gcEHke9ijnOVn/Vk=
+=0h8z
+-----END PGP SIGNATURE-----
+
+--------------enigAB5F457DA3EC8AA0340BBE68--
 

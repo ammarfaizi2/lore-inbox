@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272464AbRIFMZF>; Thu, 6 Sep 2001 08:25:05 -0400
+	id <S272471AbRIFM0F>; Thu, 6 Sep 2001 08:26:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272466AbRIFMYz>; Thu, 6 Sep 2001 08:24:55 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:42758 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272464AbRIFMYk>; Thu, 6 Sep 2001 08:24:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: Re: page_launder() on 2.4.9/10 issue
-Date: Thu, 6 Sep 2001 14:31:32 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva>
+	id <S272467AbRIFMZt>; Thu, 6 Sep 2001 08:25:49 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11534 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272466AbRIFMZk>; Thu, 6 Sep 2001 08:25:40 -0400
+Subject: Re: kiobuf wrong changes in 2.4.9ac9
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 6 Sep 2001 13:29:53 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        rohit.seth@intel.com
+In-Reply-To: <20010906030228.C11329@athlon.random> from "Andrea Arcangeli" at Sep 06, 2001 03:02:28 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010906122459Z16031-32383+3771@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15eyI5-00080I-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 6, 2001 01:52 pm, Rik van Riel wrote:
-> On Tue, 4 Sep 2001, Jan Harkes wrote:
-> 
-> > To get back on the thread I jumped into, I totally agree with Linus
-> > that writeout should be as soon as possible.
-> 
-> Nice way to destroy read performance.
+> The above is all about performance and design, about real world
+> showstopper the one in 2.4.9ac9 is that kiobuf allocations are going to
+> fail during read/writes due mem framentation (this is why it was using
+> vmalloc indeed) [those faliures should be easily reprocible on x86 boxes
 
-Blindly delaying all the writes in the name of better read performance isn't 
-the right idea either.  Perhaps we should have a good think about some 
-sensible mechanism for balancing reads against writes.
+Vmalloc is extremely expensive on many platforms. It looks very easy to
+simple flip between slab and vmalloc based on size.
 
-> As DaveM noted so
-> nicely in his reverse mapping patch (at the end of the
-> 2.3 series), dirty pages get moved to the laundry list
-> and the washing machine will deal with them when we have
-> a full load.
-> 
-> Lets face it, spinning the washing machine is expensive
-> and running less than a full load makes things inefficient ;)
-
-That makes a good sound bite but doesn't stand up to scrutiny.
-
-It's not a washing machine ;-)
-
---
-Daniel
+Let me know how the testing goes - if it works out well then I'll migrate
+the -ac tree to the -aa patch when I have time to do the merging

@@ -1,110 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292151AbSBBALV>; Fri, 1 Feb 2002 19:11:21 -0500
+	id <S292156AbSBBA0D>; Fri, 1 Feb 2002 19:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292150AbSBBALN>; Fri, 1 Feb 2002 19:11:13 -0500
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:8189 "EHLO
-	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S292149AbSBBAK5>; Fri, 1 Feb 2002 19:10:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        Larry McVoy <lm@work.bitmover.com>, Keith Owens <kaos@ocs.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
-Date: Fri, 1 Feb 2002 15:47:16 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
-In-Reply-To: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020202001056.UXDI10685.femail14.sdc1.sfba.home.com@there>
+	id <S292159AbSBBAZy>; Fri, 1 Feb 2002 19:25:54 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:49044 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S292156AbSBBAZi>; Fri, 1 Feb 2002 19:25:38 -0500
+Date: Sat, 2 Feb 2002 00:25:32 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5 include file shakeup.
+Message-ID: <20020202002532.A7782@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 February 2002 06:11 am, Horst von Brand wrote:
-> Larry McVoy <lm@bitmover.com> said:
-> > On Fri, Feb 01, 2002 at 11:29:58AM +1100, Keith Owens wrote:
-> > > That sounds almost like what I was looking for, with two differences.
-> > >
-> > > (1) Implement the collapsed set so bk records that it is equivalent to
-> > >     the individual patchsets.  Only record that information in my tree.
-> > >     I need the detailed history of what changes went into the collapsed
-> > >     set, nobody else does.
-> > >
-> > > (2) Somebody else creates a change against the collapsed set and I pull
-> > >     that change.  bk notices that the change is again a collapsed set
-> > >     for which I have local detail.  The external change becomes a
-> > >     branch off the last detailed patch in the collapsed set.
-> >
-> > This is certainly possible to do.  However, unless you are willing to
-> > fund this development, we aren't going to do it.  We will pick up the
-> > costs of making changes that you want if and only if we have commercial
-> > customers who want (or are likely to want) the same thing.  Nothing
-> > personal, it's a business and we make tradeoffs like that all the time.
->
-> I wonder how your commercial customers develop code then. Either each
-> programmer futzes around in his/her own tree, and then creates a patch (or
-> some such) for everybody to see (then I don't see the point of source
-> control as a help to the individual developer), or everybody sees all the
-> backtracking going on everywhere (in which case the repository is a mostly
-> useless mess AFAICS).
+after yesterdays cleanup removing sched.h inclusion from fs/,
+I looked at the dependancy graph for sched.h[1], and noticed that
+even with the removal of the explicit #include <linux/fs.h>, it
+was still being sucked in via <linux/capability.h>
 
-Speaking from my experience on OS/2 back at IBM (I.E. about as big as it 
-gets), they simply don't mind having amazing amounts of cruft in the database 
-dating back to at least the last time they switched source control systems.
+Ripping this out meant breakage in various parts of the tree, who
+until now were relying on xxx including sched.h including fs.h
+these things are now including fs.h.
 
-Under those circumstances, looking at the code history becomes a major 
-archaeological expedition, and you either still have the original 
-implementors around who have it all in their heads and don't NEED the 
-database, or you have people who just look at the code and try to guess what 
-it means, possibly asking colleagues about particularly confusing bits.
+The next step is to split up fs.h some more, as some things are
+including it for trivial bits, but sucking in things like the superblock
+includes for every fs.  I've already started this by moving ERR_PTR and
+friends into <linux/err.h>
 
-IBM's source control system always struck me as a graveyard of old code more 
-than anything else.  Lots of the really old stuff was stored offline on tapes 
-and CDs filed lockers nobody ever opened, with backup copies at some big "we 
-have a vault beneath NORAD" data warehousing company.
+Patch is at ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/misc/include-cleanup-1.diff.gz
 
-That's my impression, anyway.  (A few years out of date now.)  My experience 
-with the source control system was that it DID have the complete revision 
-history in it going back to the 1980's, but it was far more work than it was 
-worth to try to mine through it to find something unless you were 
-specifically looking to place blame and prove something wasn't YOUR fault.  
-Nobody really ever had time to actually go through it for any other reason, 
-we had far too much new stuff backlogged.  (And yeah a lot of changes were 
-made where some old timer would pipe up afterwards "we tried that five years 
-ago, and it didn't work for the same reason you just noticed".  But this was 
-the kind of state that was usefully kept in people's heads, not in the source 
-control system.)
+Not tested on anything other than x86, and I expect some breakage.
+In most cases, it should be missing includes of err.h, some others may
+fs.h (but better would be to include whatever fs.h provides)
+non-x86 testers/patches are more than welcomed.
 
-Now in an open source, the source control system with history might be a 
-useful educational resource.  (Non-commercial developers don't have to hit 
-the ground running the way commercial ones do.)  But too much granularity 
-would definitely diminish that usefulness.  Flood people with low signal and 
-high noise, and only archaeologists will ever care about it.
+Is all this worth it ? Take a look at the updated dependancy graph
+after the cleanups[2], and I think you'll agree things look much more
+sensible.  We also gain a little speed increase on the compile..
 
-A system that maintained obscene amounts of granularity but HID it (showing 
-you only diffs between release versions unless you specifically asked so see 
-more detail) would be a distinct improvement over a system that forces every 
-query be an archaeological dig.  But since 99% of the people do NOT want to 
-go on an archaeological dig, and since for most things only the most active 
-10% of the developers even care about the -pre releases and only have time to 
-track/sync with the main releases...
+make dep bzImage on a 866MHz Cyrix3 with a fast disk..
+                real       user      sys
+2.5.3           12m37.110s 11m8.580s 0m47.590s
+2.5.3+cleanup   12m8.053s  11m0.670s 0m47.450s
 
-Maintaining the "reverted before it left the original implementors tree" 
-state at ALL is clearly more trouble than it's worth.  If the original 
-IMPLEMENTOR is likely to delete that after they ship, nobody else should EVER 
-care unless they're writing some sort of biography of that developer or 
-simply engaged in hero-worship.
+make dep on a quad ppro with a _slow_ disk.
+                real       user       sys
+2.5.3           2m50.229s  1m51.370s  0m12.640s
+2.5.3+cleanup   1m44.634s  1m32.580s  0m10.200s
 
-I.E. yes, I think we honestly do want an easy way to limit the granularity of 
-propogated diffs.  We can do this right now by exporting to patch and 
-re-importing, but it seems that if we do, then bitkeeper's sync mechanism 
-becomes a problem to be worked around.  I'd say this instance of all-out-war 
-between what developers are trying to do and what bitkeeper is trying to do 
-highlights a design gap in bitkeeper.
+make -j4 bzImage on the same quad
+2.5.3           9m11.167s  31m8.060s  2m20.950s
+2.5.3+cleanup   9m8.546s   30m33.020s 2m18.710s
 
-Just my opinion, your mileage may vary. :)
+Further compile time decreases should be possible by looking a little
+harder at various places that are including sched.h, and also when we
+get to the aforementioned fs.h cleanup.  Currently some of the compile
+fixes introduced in this patch are taking the easy way out, and including
+fs.h, but this is after all, the first phase of this cleanup.
 
-Rob
+Comments?
 
+
+[1] ftp://ftp.kernel.org/pub/linux/kernel/people/davej/misc/schedh-before.ps.gz
+[2] ftp://ftp.kernel.org/pub/linux/kernel/people/davej/misc/schedh-after.ps.gz
+
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

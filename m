@@ -1,271 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbTDYAWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXXev
+	id S264680AbTDYA2f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 20:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTDYA2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:34:51 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:64689 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264473AbTDXXd6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:33:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1051228053892@kroah.com>
-Subject: Re: [PATCH] More USB fixes for 2.5.68
-In-Reply-To: <10512280533216@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 24 Apr 2003 16:47:33 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Thu, 24 Apr 2003 20:28:34 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:26566 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S264680AbTDYA23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 20:28:29 -0400
+Message-Id: <5.1.0.14.2.20030424170208.102ee6c8@unixmail.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 24 Apr 2003 17:40:28 -0700
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [BK ChangeSet@1.1118.1.1] new module infrastructure for
+  net_proto_family
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <20030424230202.GB2931@conectiva.com.br>
+References: <5.1.0.14.2.20030424094431.080b5320@unixmail.qualcomm.com>
+ <5.1.0.14.2.20030423134636.100e5c60@unixmail.qualcomm.com>
+ <5.1.0.14.2.20030423114915.10840678@unixmail.qualcomm.com>
+ <5.1.0.14.2.20030423114915.10840678@unixmail.qualcomm.com>
+ <5.1.0.14.2.20030423134636.100e5c60@unixmail.qualcomm.com>
+ <5.1.0.14.2.20030424094431.080b5320@unixmail.qualcomm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1165.2.12, 2003/04/23 17:38:41-07:00, greg@kroah.com
+At 04:02 PM 4/24/2003, Arnaldo Carvalho de Melo wrote:
+>Em Thu, Apr 24, 2003 at 12:33:35PM -0700, Max Krasnyansky escreveu:
+>> Hi Arnaldo,
+>> 
+>> >I did, there are several valid points, I forgot the sys_accept case, I'm
+>> >studying the code to see how to properly fix it,
+>
+>> It's pretty easy if we have sock->owner. Take a look how my patch does it 
+>> (try_module_get should be replaced with __module_get()).
+>> It also covers the case when net_family_owner transferred ownership to the
+>> other module.
+>
+>Yes, this gives us more flexibility, but as well some more overhead in the
+>common struct sock, I have worked in 2.5 to reduce its size, and want to
+>reduce it further, if possible. 
+Easy.
+struct sock {
+        ...
+        struct sock             *next;
+        struct sock             **pprev;
+        struct sock             *bind_next;
+        struct sock             **bind_pprev;
+        struct sock             *prev;
 
-[PATCH] USB: ftdi_sio: add support for new tty tiocmget and tiocmset functions.
+At least one of the prev can go.
 
+>> >Think about protecting the module with the top level network protocol family
+>> >->create code on sock_create level and the modules with specific protocols at
+>> ><net_proto_family>_sock_create level.
+>
+>> With the current infrastructure you'd need some kind of callback from
+>> sk_free() for that to work.  I think it's simpler with sk->owner.
+>
+>not a callback, it'd be in sk_free itself (talking from the top of my head,
+>just arrived home and will be further studying this now), I pretty much want to
+>have protocol family maintainers not worrying about module refcounting at all
+>in the default case of no further modularisation per specific prococol, that
+>would save, for instance, Steven Whitehouse some work on DecNET :)
 
- drivers/usb/serial/ftdi_sio.c |  193 ++++++++++++++++++------------------------
- 1 files changed, 87 insertions(+), 106 deletions(-)
+sk_free() doesn't know which module owns the socket in 
+"net_proto_family owner != socket owner" case. 
 
+BTW Let's call that case "NOnSO" I'm referring to it way too often :)
 
-diff -Nru a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
---- a/drivers/usb/serial/ftdi_sio.c	Thu Apr 24 16:23:00 2003
-+++ b/drivers/usb/serial/ftdi_sio.c	Thu Apr 24 16:23:00 2003
-@@ -175,6 +175,8 @@
- static void ftdi_sio_write_bulk_callback (struct urb *urb, struct pt_regs *regs);
- static void ftdi_sio_read_bulk_callback	(struct urb *urb, struct pt_regs *regs);
- static void ftdi_sio_set_termios	(struct usb_serial_port *port, struct termios * old);
-+static int  ftdi_sio_tiocmget		(struct usb_serial_port *port, struct file *file);
-+static int  ftdi_sio_tiocmset		(struct usb_serial_port *port, struct file *file, unsigned int set, unsigned int clear);
- static int  ftdi_sio_ioctl		(struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg);
- static void ftdi_sio_break_ctl		(struct usb_serial_port *port, int break_state );
- 
-@@ -198,6 +200,8 @@
- 	.ioctl =		ftdi_sio_ioctl,
- 	.set_termios =		ftdi_sio_set_termios,
- 	.break_ctl =		ftdi_sio_break_ctl,
-+	.tiocmget =		ftdi_sio_tiocmget,
-+	.tiocmset =		ftdi_sio_tiocmset,
- 	.attach =		ftdi_sio_startup,
-         .shutdown =             ftdi_sio_shutdown,
- };
-@@ -219,6 +223,8 @@
- 	.ioctl =		ftdi_sio_ioctl,
- 	.set_termios =		ftdi_sio_set_termios,
- 	.break_ctl =		ftdi_sio_break_ctl,
-+	.tiocmget =		ftdi_sio_tiocmget,
-+	.tiocmset =		ftdi_sio_tiocmset,
- 	.attach =		ftdi_8U232AM_startup,
-         .shutdown =             ftdi_sio_shutdown,
- };
-@@ -823,125 +829,100 @@
- 	return;
- } /* ftdi_sio_set_termios */
- 
--static int ftdi_sio_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
-+static int ftdi_sio_tiocmget (struct usb_serial_port *port, struct file *file)
- {
- 	struct usb_serial *serial = port->serial;
- 	struct ftdi_private *priv = usb_get_serial_port_data(port);
--	__u16 urb_value=0; /* Will hold the new flags */
--	char buf[2];
--	int  ret, mask;
-+	char *buf = NULL;
-+	int ret = -EINVAL;
-+	int size;
- 	
--	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
-+	dbg("%s", __FUNCTION__);
- 
--	/* Based on code from acm.c and others */
--	switch (cmd) {
-+	buf = kmalloc(2, GFP_KERNEL);
-+	if (!buf)
-+		goto exit;
- 
--	case TIOCMGET:
--		dbg("%s TIOCMGET", __FUNCTION__);
--		if (priv->ftdi_type == sio){
--			/* Request the status from the device */
--			if ((ret = usb_control_msg(serial->dev, 
--						   usb_rcvctrlpipe(serial->dev, 0),
--						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
--						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
--						   0, 0, 
--						   buf, 1, WDR_TIMEOUT)) < 0 ) {
--				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
--				    ret);
--				return(ret);
--			}
--		} else {
--			/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same 
--			   format as the data returned from the in point */
--			if ((ret = usb_control_msg(serial->dev, 
--						   usb_rcvctrlpipe(serial->dev, 0),
--						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
--						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
--						   0, 0, 
--						   buf, 2, WDR_TIMEOUT)) < 0 ) {
--				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
--				    ret);
--				return(ret);
--			}
--		}
-+	if (priv->ftdi_type == sio) {
-+		size = 1;
-+	} else {
-+		/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same 
-+		   format as the data returned from the in point */
-+		size = 2;
-+	}
-+	ret = usb_control_msg(serial->dev,
-+			      usb_rcvctrlpipe(serial->dev, 0),
-+			      FTDI_SIO_GET_MODEM_STATUS_REQUEST,
-+			      FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
-+			      0, 0, buf, size, WDR_TIMEOUT);
-+	if (ret < 0) {
-+		err("%s Could not get modem status of device - err: %d",
-+		    __FUNCTION__, ret);
-+		goto exit;
-+	}
-+
-+	ret = (buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
-+		(buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
-+		(buf[0]  & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
-+		(buf[0]  & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0);
-+
-+exit:
-+	kfree(buf);
-+	return ret;
-+}
- 
--		return put_user((buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
--				(buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
--				(buf[0]  & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
--				(buf[0]  & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0),
--				(unsigned long *) arg);
--		break;
--
--	case TIOCMSET: /* Turns on and off the lines as specified by the mask */
--		dbg("%s TIOCMSET", __FUNCTION__);
--		if (get_user(mask, (unsigned long *) arg))
--			return -EFAULT;
--		urb_value = ((mask & TIOCM_DTR) ? HIGH : LOW);
--		if (set_dtr(serial->dev, usb_sndctrlpipe(serial->dev, 0),urb_value) < 0){
--			err("Error from DTR set urb (TIOCMSET)");
--		}
--		urb_value = ((mask & TIOCM_RTS) ? HIGH : LOW);
--		if (set_rts(serial->dev, usb_sndctrlpipe(serial->dev, 0),urb_value) < 0){
--			err("Error from RTS set urb (TIOCMSET)");
--		}	
--		break;
--					
--	case TIOCMBIS: /* turns on (Sets) the lines as specified by the mask */
--		dbg("%s TIOCMBIS", __FUNCTION__);
-- 	        if (get_user(mask, (unsigned long *) arg))
--			return -EFAULT;
--  	        if (mask & TIOCM_DTR){
--			if ((ret = set_dtr(serial->dev, 
--					   usb_sndctrlpipe(serial->dev, 0),
--					   HIGH)) < 0) {
--				err("Urb to set DTR failed");
--				return(ret);
--			}
--		}
--		if (mask & TIOCM_RTS) {
--			if ((ret = set_rts(serial->dev, 
--					   usb_sndctrlpipe(serial->dev, 0),
--					   HIGH)) < 0){
--				err("Urb to set RTS failed");
--				return(ret);
--			}
--		}
--					break;
-+static int ftdi_sio_tiocmset (struct usb_serial_port *port, struct file *file,
-+			      unsigned int set, unsigned int clear)
-+{
-+	struct usb_serial *serial = port->serial;
-+	int ret = 0;
-+	
-+	dbg("%s", __FUNCTION__);
- 
--	case TIOCMBIC: /* turns off (Clears) the lines as specified by the mask */
--		dbg("%s TIOCMBIC", __FUNCTION__);
-- 	        if (get_user(mask, (unsigned long *) arg))
--			return -EFAULT;
--  	        if (mask & TIOCM_DTR){
--			if ((ret = set_dtr(serial->dev, 
--					   usb_sndctrlpipe(serial->dev, 0),
--					   LOW)) < 0){
--				err("Urb to unset DTR failed");
--				return(ret);
--			}
--		}	
--		if (mask & TIOCM_RTS) {
--			if ((ret = set_rts(serial->dev, 
--					   usb_sndctrlpipe(serial->dev, 0),
--					   LOW)) < 0){
--				err("Urb to unset RTS failed");
--				return(ret);
--			}
-+	if (set & TIOCM_RTS)
-+		if ((ret = set_rts(serial->dev, 
-+				   usb_sndctrlpipe(serial->dev, 0),
-+				   HIGH)) < 0) {
-+			err("Urb to set RTS failed");
-+			goto exit;
-+		}
-+
-+	if (set & TIOCM_DTR)
-+		if ((ret = set_dtr(serial->dev, 
-+				   usb_sndctrlpipe(serial->dev, 0),
-+				   HIGH)) < 0) {
-+			err("Urb to set DTR failed");
-+			goto exit;
-+		}
-+
-+	if (clear & TIOCM_RTS)
-+		if ((ret = set_rts(serial->dev, 
-+				   usb_sndctrlpipe(serial->dev, 0),
-+				   LOW)) < 0) {
-+			err("Urb to unset RTS failed");
-+			goto exit;
-+		}
-+
-+	if (clear & TIOCM_DTR)
-+		if ((ret = set_dtr(serial->dev, 
-+				   usb_sndctrlpipe(serial->dev, 0),
-+				   LOW)) < 0) {
-+			err("Urb to unset DTR failed");
-+			goto exit;
- 		}
--		break;
- 
--		/*
--		 * I had originally implemented TCSET{A,S}{,F,W} and
--		 * TCGET{A,S} here separately, however when testing I
--		 * found that the higher layers actually do the termios
--		 * conversions themselves and pass the call onto
--		 * ftdi_sio_set_termios. 
--		 *
--		 */
-+exit:
-+	return ret;
-+}
- 
-+static int ftdi_sio_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
-+{
-+	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
-+
-+	switch (cmd) {
- 	default:
- 	  /* This is not an error - turns out the higher layers will do 
--	   *  some ioctls itself (see comment above)
-+	   *  some ioctls itself
-  	   */
- 		dbg("%s arg not supported - it was 0x%04x", __FUNCTION__,cmd);
- 		return(-ENOIOCTLCMD);
+>> Sure. Transfer of the ownership has to be done on that level. What I'm saying
+>> is that everything else can be done in generic code. 
+>
+>So we're in agreement on having most of this infrastructure in generic code :)
+I guess so :). But haven't seen a generic solution for the NOnSO from you yet ;-). 
+
+>> struct socket uses net_proto_family ops and stuff and therefor is related.
+>> But struct sock is just a callbacks.
+>
+>But I want to avoid having another thing to worry about for net protocol
+>family writers, i.e. not having to add a sk_set_owner if one decides it has
+>to change one of the default callbacks.
+Well, that means that refcounting overhead will affect even the protocols that 
+don't have to keep track of 'struct sock'. It also means that those protocols 
+will not unloadable until all sk's are killed. Even though sk's have no references 
+whatsoever to the module that created them. 
+
+>> Let's just get rid of the net_family_get/put thing. Each socket will have
+>> owner field so we know who owns it and there is no need to access global
+>> net_family table.
+>
+>I'm trying to avoid adding a pointer to struct sock, if it is not possible
+>at all to avoid, ok, we do it, but I think we can have this at just one
+>place, the net_family table.
+Killing one of the list pointers from 'struct sock' shouldn't be a problem (see above). 
+
+One net_family table won't handle NOnSO. Even if it will, protocol writers will have to 
+worry about proper initialization of the tables anyway. Especially if someone comes up 
+with something like:
+        Family X (module X.ko)
+                Proto X1 (module X1.ko)
+                        Subproto X1-A (module X1-A.ko)
+not that it makes a lot of sense right now but why restrict it if we don't have to. 
+
+>> void sk_set_owner(struct module *owner)
+>> {
+>>         /* Module must already hold reference when it call this function. */
+>>         __module_get(owner);
+>>         sk->owner = owner;
+>> }
+>
+>This is the additional rule I'm trying to avoid.
+
+It's not a big deal rule. All protocols do hold reference when they allocate sk.
+
+>> sk_free()
+>>         ...
+>>         module_put(sk->owner);
+>>         ...
+>
+>this is already in BK tree.
+No. I mean NOnSO ;-). 
+What's in BK is net_family_put(family) which is by no means the same.
+
+>> >>>        IPv4/6 - Private cache, non-default callbacks.
+>> >>>                Must call sk_set_owner() (cannot be a module, so we don't really care)
+>
+>Well, I care, I wish to have this as a module at some point, if allowed by
+>DaveM, of course 8)
+If I remember correctly DaveM was one of those are strongly against that.
+
+Max
 

@@ -1,79 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279499AbRJXJwR>; Wed, 24 Oct 2001 05:52:17 -0400
+	id <S279519AbRJXKCr>; Wed, 24 Oct 2001 06:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279504AbRJXJwI>; Wed, 24 Oct 2001 05:52:08 -0400
-Received: from euston.inpharmatica.co.uk ([193.115.214.6]:53495 "EHLO
-	sunsvr03.inpharmatica.co.uk") by vger.kernel.org with ESMTP
-	id <S279499AbRJXJvt>; Wed, 24 Oct 2001 05:51:49 -0400
-Message-ID: <3BD68F56.9090608@purplet.demon.co.uk>
-Date: Wed, 24 Oct 2001 10:52:22 +0100
-From: Mike Jagdis <jaggy@purplet.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, fr, de
+	id <S279509AbRJXKC2>; Wed, 24 Oct 2001 06:02:28 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18693 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279503AbRJXKCT>; Wed, 24 Oct 2001 06:02:19 -0400
+Subject: Re: A small pile of locking bugs
+To: jfoster@cs.berkeley.edu (Jeff Foster)
+Date: Wed, 24 Oct 2001 11:08:42 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, tachio@EECS.Berkeley.EDU
+In-Reply-To: <Pine.LNX.4.33.0110231359530.8770-100000@lagaffe.cs.berkeley.edu> from "Jeff Foster" at Oct 23, 2001 03:08:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Behavior of poll() within a module
-In-Reply-To: <Pine.LNX.3.95.1011023095757.11227A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15wKxm-00015Y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> ... results in one task getting the correct return value. Other tasks
-> get 0 if they are awakened at all. With two tasks sleeping in user mode
-> select(), both tasks seem to always be awakened. With three or more
-> tasks waiting in select(), only one task gets awakened. I haven't
-> been able to figure it out.
+> drivers/i2o/i2o_proc.c
+>         In i2o_proc_read_drivers_stored, spinlock not released when
+> 	kmalloc fails.  Also, calling kmalloc with a lock is dangerous.
 
-Ah, now there's a difference between the process being woken up
-and poll/select returning. When an event happens the sleeping
-processes all get woken up. One of them gets scheduled - which
-means it continues from where it went to sleep in the kernel's
-poll code. The first thing that does is scan the descriptors to
-see if any events are outstanding. If they are poll() returns.
-Otherwise the process goes back to sleep.
-
-If the first process scheduled returns to user space and does a
-read/write/whatever it can clear the event condition on the
-descriptor. Then when other processes eventually get scheduled
-they recheck the descriptor, find no interesting events, and
-go back to sleep. Of course, if the first process returns then
-has to wait for, say, a page to be faulted in a second process
-may get scheduled, see the event, and also return to user space.
-So you get one _or more_ processes returning from poll(). This is
-why you should always use non-blocking I/O if there are multiple
-processes doing poll/select on the same descriptors :-).
-
-> Also, with no tasks sleeping in select(), debugging shows that the
-> module poll() routine is entered, based upon some previous history.
-> For instance, if a user-mode task never called select, but some
-> event that would have awakened the task occurs, another task that
-> calls select ends up returning immediately with a stale (weeks old)
-> event.
-> 
-> Maybe there is some way to clear kernel history that could be
-> accomplished during close()? 
-
-There is no history. Poll is level based, not edge based. When you
-call poll() the descriptor's poll function is polled to find the
-current state. If there are no flags of interest set the process
-sleeps. A wake up on the descriptor is simply an indication that
-something _might_ have changed and sleeping processes should wake
-up and invoke the descriptor's poll function to recheck the state.
-
-If I followed what you were trying to do correctly I don't think
-poll/select is the way to go. I think what you want is to have
-an "event count" associated with the driver, incrementing on
-each interrupt (or whatever changes state). Then use an ioctl
-to for user space apps to track it. The app passes the last
-event number it handled through the ioctl. If the driver event
-number is greater it is returned otherwise the process is added
-to the descriptor's wait_queue. Oh yeah, the interrupt should
-call wake_up on the descriptor as well as increment the event
-number :-).
-
-				Mike
-
+Correct, and fixed.

@@ -1,54 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268411AbUIFRzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUIFSFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268411AbUIFRzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 13:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268404AbUIFRwN
+	id S268325AbUIFSFc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbUIFSFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 13:52:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:44487 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268381AbUIFRuW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 13:50:22 -0400
-Date: Mon, 6 Sep 2004 19:50:21 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH][8/8] Arch agnostic completely out of line locks / x86_64
-Message-ID: <20040906175021.GA27258@wotan.suse.de>
-References: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com> <20040904111605.GA12165@wotan.suse.de> <Pine.LNX.4.58.0409041420590.11262@montezuma.fsmlabs.com> <20040906072859.GB31343@wotan.suse.de> <Pine.LNX.4.53.0409061211440.14053@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0409061211440.14053@montezuma.fsmlabs.com>
+	Mon, 6 Sep 2004 14:05:31 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:46039 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S268325AbUIFSFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 14:05:13 -0400
+Subject: [patch 1/1] uml-mark_broken_configs
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Mon, 06 Sep 2004 20:00:33 +0200
+Message-Id: <20040906180033.7463E8D1E@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 06, 2004 at 12:19:24PM -0400, Zwane Mwaikambo wrote:
-> Hi Andi,
-> 
-> On Mon, 6 Sep 2004, Andi Kleen wrote:
-> 
-> > That is with frame pointers enabled. Indeed with frame pointers
-> > on it is not true you still have to special case that.
-> 
-> Yes that was with frame pointers enabled, but the following was compiled 
-> without frame pointers, i'm still not sure it's safe to use *esp.
 
-No, it's not unfortunately. gcc is aligning the stack 
-to 8 bytes for floating point. It would if you compiled the file with 
--mpreferred-stack-boundary=4. Actually AFAIK this is only useful
-for floating point anyways, so it would be a good idea to always
-compile the kernel with this option.
+Some configuration options are known not to compile. So then make them
+depend on CONFIG_BROKEN.
 
-On x86-64 it should just work.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
--Andi
+ uml-linux-2.6.8.1-paolo/arch/um/Kconfig       |   27 +++++++++++++++-----------
+ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_block |    1 
+ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_net   |    2 -
+ 3 files changed, 18 insertions(+), 12 deletions(-)
 
-
-
-> 
-> 00000070 <_spin_lock>:
->   70:   83 ec 04                sub    $0x4,%esp
+diff -puN arch/um/Kconfig~uml-mark_broken_configs arch/um/Kconfig
+--- uml-linux-2.6.8.1/arch/um/Kconfig~uml-mark_broken_configs	2004-08-29 14:40:49.316714496 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig	2004-08-29 14:40:49.320713888 +0200
+@@ -155,6 +155,7 @@ config HOST_2G_2G
+ 
+ config UML_SMP
+ 	bool "Symmetric multi-processing support"
++	depends on BROKEN
+ 	help
+         This option enables UML SMP support.  UML implements virtual SMP by
+         allowing as many processes to run simultaneously on the host as
+@@ -203,6 +204,7 @@ config KERNEL_HALF_GIGS
+ 
+ config HIGHMEM
+ 	bool "Highmem support"
++	depends on BROKEN
+ 
+ config KERNEL_STACK_ORDER
+ 	int "Kernel stack size order"
+@@ -249,25 +251,28 @@ source "crypto/Kconfig"
+ 
+ source "lib/Kconfig"
+ 
+-menu "SCSI support"
++if BROKEN
++	menu "SCSI support"
+ 
+-config SCSI
+-	tristate "SCSI support"
++	config SCSI
++		tristate "SCSI support"
+ 
+ # This gives us free_dma, which scsi.c wants.
+-config GENERIC_ISA_DMA
+-	bool
+-	depends on SCSI
+-	default y
++	config GENERIC_ISA_DMA
++		bool
++		depends on SCSI
++		default y
+ 
+-source "arch/um/Kconfig_scsi"
++	source "arch/um/Kconfig_scsi"
+ 
+-endmenu
++	endmenu
++endif
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/mtd/Kconfig"
+-
++if BROKEN
++	source "drivers/mtd/Kconfig"
++endif
+ 
+ menu "Kernel hacking"
+ 
+diff -puN arch/um/Kconfig_block~uml-mark_broken_configs arch/um/Kconfig_block
+--- uml-linux-2.6.8.1/arch/um/Kconfig_block~uml-mark_broken_configs	2004-08-29 14:40:49.317714344 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_block	2004-08-29 14:40:49.320713888 +0200
+@@ -64,6 +64,7 @@ config BLK_DEV_INITRD
+ 
+ config MMAPPER
+ 	tristate "Example IO memory driver"
++	depends on BROKEN
+ 	help
+         The User-Mode Linux port can provide support for IO Memory
+         emulation with this option.  This allows a host file to be
+diff -puN arch/um/Kconfig_net~uml-mark_broken_configs arch/um/Kconfig_net
+--- uml-linux-2.6.8.1/arch/um/Kconfig_net~uml-mark_broken_configs	2004-08-29 14:40:49.318714192 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/Kconfig_net	2004-08-29 14:40:49.321713736 +0200
+@@ -135,7 +135,7 @@ config UML_NET_MCAST
+ 
+ config UML_NET_PCAP
+ 	bool "pcap transport"
+-	depends on UML_NET
++	depends on UML_NET && BROKEN
+ 	help
+ 	The pcap transport makes a pcap packet stream on the host look
+ 	like an ethernet device inside UML.  This is useful for making 
+_

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbTHLQDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 12:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTHLQDF
+	id S270486AbTHLQGA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 12:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270519AbTHLQGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 12:03:05 -0400
-Received: from fed1mtao03.cox.net ([68.6.19.242]:60033 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S270447AbTHLQDD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 12:03:03 -0400
-Message-ID: <3F390FC4.9000300@cox.net>
-Date: Tue, 12 Aug 2003 09:03:16 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add an -Os config option
-References: <20030811211145.GA569@fs.tum.de> <20030812080634.A19427@infradead.org> <3F390B36.5050709@techsource.com>
-In-Reply-To: <3F390B36.5050709@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Aug 2003 12:06:00 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:59142 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270486AbTHLQF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 12:05:57 -0400
+Subject: Re: Linux 2.6 doesn't like Rhythmbox
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: in7y118@public.uni-hamburg.de
+Cc: LKML <linux-kernel@vger.kernel.org>, rhythmbox-devel@gnome.org,
+       gstreamer-devel@lists.sourceforge.net
+In-Reply-To: <1060699703.3f38fe37b8a1f@rzaixsrv6.rrz.uni-hamburg.de>
+References: <1060699703.3f38fe37b8a1f@rzaixsrv6.rrz.uni-hamburg.de>
+Content-Type: text/plain
+Message-Id: <1060704354.856.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 12 Aug 2003 18:05:54 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
+On Tue, 2003-08-12 at 16:48, in7y118@public.uni-hamburg.de wrote:
 
-> Furthermore, it may be that we could benefit from compiling some source 
-> files with -Os and others with -O2, depending on how critical they are 
-> and how much they are ACTUALLY affected.
+> Let me explain how threads in Rhythmbox work: The main thread is used for the 
+> GUI, other threads (mostly idle) take care of the library - reading out 
+> artist/title/... tags and monitoring file changes so the playlists gets updated 
+> automagically - and then there is a playback thread. This thread is spawned 
+> when playback of a file starts (a new one for each file). It starts by 
+> inspecting the file and constructing a pipeline depending on the file type (ogg 
+> decoder vs mp3 decoder vs ...). This takes half a second, maybe less. After 
+> that it proceeds to do read - decode - output to soundcard looping until the 
+> song is done playing.
+> The priority according to top starts becoming worse from the beginning of 
+> playback and gets worse during playback.
 > 
+> 
+> My question now is simple: Who shall I blame for this?
 
-At one time last year, there was a brief discussion about modifying 
-the kernel's build process to make it build whole directories of 
-sources as a single "compilation unit". As I remember, this allowed 
-the compiler to make better decisions about how to organize the 
-resulting code, what to keep/discard, optimization, etc.
+Don't blame anyone still... There's still ongoing kernel scheduler work.
+Please, try the latest -mm patches on top of 2.6.0-test3. You will find
+them at ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches.
 
-With the simplifications that have already occurred in the 2.6 
-makefiles, it seems to me that this would be an easier thing to do now 
-(as opposed to the old makefiles where the build process had a harder 
-time figuring out what source files were going to end up in the same 
-object file). Now that kbuild always builds "built-on.o" in each 
-source directory, could it perform that step by actually feeding gcc 
-all the relevant source files in some combined form?
-
-Granted, this is not something you'd want to use during debugging of 
-kernel code, it would only be relevant for those trying to minimize 
-their kernel size and/or get the last possible bits of speed out of 
-the running kernel.
+Experiment with 2.6.0-test3-mm1 to see if it still shows the behaviour
+you described.
 

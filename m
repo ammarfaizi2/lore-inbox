@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUJAP2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUJAPiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUJAP2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 11:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJAP2q
+	id S261451AbUJAPiA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 11:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUJAPiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 11:28:46 -0400
-Received: from ns.visionsystems.de ([62.145.30.242]:52381 "EHLO
-	hhlx01.visionsystems.de") by vger.kernel.org with ESMTP
-	id S261610AbUJAPZV convert rfc822-to-8bit (ORCPT
+	Fri, 1 Oct 2004 11:38:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11653 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261451AbUJAPh5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 11:25:21 -0400
-From: Roland =?utf-8?q?Ca=C3=9Febohm?= 
-	<roland.cassebohm@VisionSystems.de>
-Organization: Vision Systems GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serial driver hangs
-Date: Fri, 1 Oct 2004 17:25:13 +0200
-User-Agent: KMail/1.6.2
-Cc: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de> <200409291509.39187.roland.cassebohm@visionsystems.de> <1096467213.1964.9.camel@deimos.microgate.com>
-In-Reply-To: <1096467213.1964.9.camel@deimos.microgate.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410011725.13618.roland.cassebohm@visionsystems.de>
-X-OriginalArrivalTime: 01 Oct 2004 15:25:14.0180 (UTC) FILETIME=[D9292040:01C4A7CA]
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.83
+	Fri, 1 Oct 2004 11:37:57 -0400
+Date: Fri, 1 Oct 2004 08:31:10 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Robert Love <rml@novell.com>
+Cc: mpm@selenic.com, ttb@tentacle.dhs.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, gamin-list@gnome.org
+Subject: Re: [patch] make dnotify compile-time configurable
+Message-Id: <20041001083110.76a58fd2.rddunlap@osdl.org>
+In-Reply-To: <1096644076.7676.6.camel@betsy.boston.ximian.com>
+References: <1096611874.4803.18.camel@localhost>
+	<20041001151124.GQ31237@waste.org>
+	<1096644076.7676.6.camel@betsy.boston.ximian.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 29. September 2004 16:13 schrieb Paul Fulghum:
-> Here is Roland's change in patch form with added comment.
-> (against 2.4.28-pre3)
->
-> Roland: can you test this?
+On Fri, 01 Oct 2004 11:21:16 -0400 Robert Love wrote:
 
-Yes, it works fine for me.
+| On Fri, 2004-10-01 at 10:11 -0500, Matt Mackall wrote:
+| 
+| > Indeed, it's been useful for months. Unfortunately my development
+| > boxes are still mothballed so progress upstream is stalled.
+| 
+| Oh, great...
+| 
+| /me finds your broken out patches ...
+| 
+| Ah, you ifdef'ed out the dnotify variables in the inode structure.  That
+| was the original reason I did this--doh.
+| 
+| In mine, I remove the sysctl entirely, which you don't.  I also add some
+| documentation to dnotify.txt.  Not a big difference.
+| 
+| > > Disabling CONFIG_DNOTIFY saves a couple hundred bytes off of vmlinux.
+| > 
+| > Hmm, thought I saved at least 1 or 2k.
+| 
+| I thought my number sounded suspect.  Dunno.
+| 
+| Here is a respun patch ifdef'ing out the dnotify member variables in
+| struct inode.  This one is diff'ed against my inode tree since the
+| struct inode changes break one path or the other and, well, I like to
+| mix things up.
+| 
+| John, want to merge this into the inotify patch?
 
-Roland
+I'd rather see inotify additions and dnotify config options kept
+separate.  They may serve a similar purpose, but inotify doesn't
+replace the dnotify API.  If the latter were true, combining
+them would make sense IMO.
+
+
+| Thanks, Matt.
+
+
 -- 
-___________________________________________________
-
-VS Vision Systems GmbH, Industrial Image Processing
-Dipl.-Ing. Roland Caßebohm
-Aspelohe 27A, D-22848 Norderstedt, Germany
-http://www.visionsystems.de
-___________________________________________________
+~Randy

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129816AbRBAAcd>; Wed, 31 Jan 2001 19:32:33 -0500
+	id <S129900AbRBAAgF>; Wed, 31 Jan 2001 19:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129863AbRBAAcX>; Wed, 31 Jan 2001 19:32:23 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:41794 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129816AbRBAAcP>; Wed, 31 Jan 2001 19:32:15 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: LA Walsh <law@sgi.com>
+	id <S129946AbRBAAf4>; Wed, 31 Jan 2001 19:35:56 -0500
+Received: from [195.71.115.196] ([195.71.115.196]:36422 "HELO
+	demdwug7.mediaways.net") by vger.kernel.org with SMTP
+	id <S129900AbRBAAfm>; Wed, 31 Jan 2001 19:35:42 -0500
+Date: Thu, 1 Feb 2001 01:37:04 +0100 (CET)
+From: Martin Diehl <mdiehlcs@compuserve.de>
+To: Robert Siemer <siemer@panorama.hadiko.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Power usage Q and parallel make question (separate issues) 
-In-Reply-To: Your message of "Wed, 31 Jan 2001 11:44:28 -0800."
-             <3A786B1C.F6A3CE83@sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Feb 2001 11:32:00 +1100
-Message-ID: <9806.980987520@kao2.melbourne.sgi.com>
+Subject: Re: PCI IRQ routing problem in 2.4.0 (updated patch)
+In-Reply-To: <20010201003032U.siemer@panorama.hadiko.de>
+Message-ID: <Pine.LNX.4.21.0102010115390.2065-100000@notebook.diehl.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001 11:44:28 -0800, 
-LA Walsh <law@sgi.com> wrote:
->So, just about anyone I know uses make -j X [-l Y] bzImage modules, but I noticed that
->make modules_install isn't parallel safe in 2.4 -- since it takes much longer than the
->old, it would make sense to want to run it in parallel as well, but it has a 
->delete-old, <multiple sub-dirs>, index-new for deps.  Those "3" steps can't be done
->in parallel safely.  Was this intentional or would a 'fix' be desired?
 
-The only bit that could run in parallel is this one.
+(cc's shortened, not to trash Linus et al)
 
-.PHONY: $(patsubst %, _modinst_%, $(SUBDIRS))
-$(patsubst %, _modinst_%, $(SUBDIRS)) :
-        $(MAKE) -C $(patsubst _modinst_%, %, $@) modules_install
+On Thu, 1 Feb 2001, Robert Siemer wrote:
 
-The erase must be done first (serial), then make modules_install in
-every subdir (parallel), then depmod (serial).
+> Is it possible to directly ask the 'IRQ-router' (namely the
+> ISA-bridge) for what it is set up for? - I mean which IRQ is routed to
+> what without the help of the BIOS?
 
->Is it the intention of the Makefile maintainers to allow a parallel or distributed
->make?  I know for me it makes a noticable difference even on a 1 CPU machine
->(CPU overlap with disk I/O), and with multi CPU machines, it's even more noticable.
->
->Is a make of the kernel and/or the modules designed to be parallel safe?  Is it 
->something I should 'rely' on?  If it isn't, should it be?
+It's written in the PCI config registers of the router. That's what I've
+tried to document in the patch according to the chipset datasheet.
+The BIOS in contrast uses link values, which are vendor-specific,
+undocumented and sometimes wrong ;-)
+But we have to rely on these unless we have the chipset docs to make it
+better - hopefully.
 
-make dep, make clean and the various install targets are not parallel
-safe in 2.4.  Most of the make vmlinux, bzImage, modules is parallel
-safe but even in those phases there are known problems because the 2.4
-makefiles do not make it easy to handle cross directory dependencies.
-The recommended sequence for 2.4 is
+> There is a BIOS update for my board out there. Are you interested in
+> the difference? - I would give it a try.
 
-  make xxxconfig
-  make dep
-  make clean <if necessary>
-  make -j n bzImage modules
-  make modules_install
+Might be intresting _if_ you find something unexpected like new link
+values. But I don't expect any surprise. You should end up with something
+similar to Aaron - including the misleading mutual IDE/USB conflict
+warning. But everythin fine.
 
-The makefile rewrite for 2.5 will fix these parallelism problems.  The
-2.4 system is too fragile with too many special cases, nobody is game
-to fix the parallelism and guarantee that it will not break anything
-else.  modules_install in 2.5 will be fast!
+> What is the relation between IRQ routing in the ISA-brigde and the
+> APIC?
+
+APIC is a different approach to route IRQ's which is used on PII based
+systems and newer (IIRC). So it doesn't matter in your case.
+
+Martin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

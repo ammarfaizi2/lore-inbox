@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRALWGn>; Fri, 12 Jan 2001 17:06:43 -0500
+	id <S130673AbRALWYk>; Fri, 12 Jan 2001 17:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRALWGd>; Fri, 12 Jan 2001 17:06:33 -0500
-Received: from mail.aslab.com ([205.219.89.194]:30228 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S129595AbRALWGU>;
-	Fri, 12 Jan 2001 17:06:20 -0500
-Message-ID: <015c01c07ce3$861027c0$7818b7c0@aslab.com>
-From: "Jeff Nguyen" <jeff@aslab.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14H8Ks-0004hA-00@the-village.bc.nu>
-Subject: Latest status of IDE patches from Andre
-Date: Fri, 12 Jan 2001 14:03:40 -0800
+	id <S132461AbRALWYa>; Fri, 12 Jan 2001 17:24:30 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:16349 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130673AbRALWYW>;
+	Fri, 12 Jan 2001 17:24:22 -0500
+Message-ID: <3A5F66AF.8050602@interactive.net>
+Date: Fri, 12 Jan 2001 15:18:55 -0500
+From: "A.P.R., a.k.a. Stupendous Man" <apr@interactive.net>
+Organization: Me, organized?
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010110
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bug report on 2.4.0 release
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
-Will you incorporate Andre IDE patches into the 2.2.19preXX
-kernel? If not, do you have any plan to do so in the very near future? 
-I know this issue has been discussed before. But there has not been
-any progress.
+This is to report a possible 2.4.0 bug in either the kernel or
+in pppd regarding wakeup after an apmsleep command.
 
-I have been following the kernel development for years. I have seen
-many drivers added to the kernel. Some weren't working properly
-and had to be removed quickly. Strangely, the IDE patches drag on
-and on after all the kernel releases.
+The problem is as follows:
 
-Are you still concern about the stability of the driver?  
+After successful return from an apmsleep command, issued the night
+before, ppp does not seem to work. The fix is to rmmod slhc, ppp_generic,
+and ppp_ttysync and then insmod them again. Then everything works as expected.
+Note that I use rp-pppoe so this is ppp over an ethernet card for DSL.
 
-Regards,
+The errors I get from ppp version 2.4.0 are:
 
-Jeff
+   Jan 12 11:55:44 manic pppd[6173]: No response to 3 echo-requests
+   Jan 12 11:55:44 manic pppd[6173]: Serial link appears to be disconnected.
 
-ASL Inc.
+Note that just bringing down and restarting my eth0 card does not solve the problem,
+so I do not believe it is an ethernet card wakeup issue.
 
- 
+Note that this works just fine under kernel version 2.2.18 without the need
+to rmmod and insmod anything.
+
+My machine info: Asus p3bf motherboard, 500 MHz PIII PC, RH 7.0 + kernel 2.4.0,
+ppp-2.4.0-2.rpm.
+
+-- tony
+------------
+
+Surrender to the void.
+			-- John Lennon
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

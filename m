@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280042AbRKITVj>; Fri, 9 Nov 2001 14:21:39 -0500
+	id <S280051AbRKITVj>; Fri, 9 Nov 2001 14:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280043AbRKITV0>; Fri, 9 Nov 2001 14:21:26 -0500
-Received: from [192.55.52.18] ([192.55.52.18]:63944 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S280033AbRKITTw>;
-	Fri, 9 Nov 2001 14:19:52 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D725@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'george anzinger'" <george@mvista.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jonas Diemer <diemer@gmx.de>,
-        linux-kernel@vger.kernel.org
-Subject: RE: VIA 686 timer bugfix incomplete
-Date: Fri, 9 Nov 2001 11:19:35 -0800 
+	id <S280056AbRKITVW>; Fri, 9 Nov 2001 14:21:22 -0500
+Received: from [63.164.206.11] ([63.164.206.11]:24580 "EHLO
+	message.ucentric.com") by vger.kernel.org with ESMTP
+	id <S280043AbRKITUy>; Fri, 9 Nov 2001 14:20:54 -0500
+Message-ID: <3BEC39E6.7F0FA75F@ucentric.com>
+Date: Fri, 09 Nov 2001 15:17:42 -0500
+From: paulh@ucentric.com
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.12-20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: The page cache keeps growing
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George, I was mistaken before, sorry.
+I'd like to throw this out to the group for opinions-
 
-The address of the PM timer is in a table, not in the ACPI namespace. It is
-in the FADT. Therefore you should be able to use it iff acpi tables are
-present, but it should not strictly require the interpreter.
+I'm working on a box using the 2.4.9 kernel that is saving a couple of
+mpeg2
+video streams, while playing back one of them.  The box also allows one
+to
+web browse, play mp3's and configure one's home network.
 
-Regards -- Andy
+What I'm seeing is the page cache grow to huge sizes- to as much as
+102MB
+of 128MB of memory.  This is causing pages to be stolen from other
+processes
+in memory, so that when a user attempts to go to one of these, a long
+wait ensues
+while it's paged back in.
 
-> -----Original Message-----
-> From: george anzinger [mailto:george@mvista.com]
-> Sent: Friday, November 09, 2001 9:22 AM
-> To: Alan Cox
-> Cc: Vojtech Pavlik; Jonas Diemer; linux-kernel@vger.kernel.org
-> Subject: Re: VIA 686 timer bugfix incomplete
-> Importance: High
-> 
-> 
-> Alan Cox wrote:
-> > 
-> > > Me thinks the real solution is the ACPI pm timer.  3 times the
-> > > resolution of the PIT and you can not stop it.  The 
-> high-res-timers
-> > > patch will allow you to use this as the time keeper and 
-> just use the PIT
-> > > to generate interrupts.
-> > 
-> > For awkward boxes you can use the PIT, for good boxes we 
-> can use rdtsc or
-> > eventually the ACPI timers when running with ACPI
-> 
-> I am attempting to use the ACPI timer without waiting for or running
-> ACPI.  After all it is there if you can find it.
-> 
-> George
-> 
+Is there any way to limit page cache size?  I've looked over the mm code
+and
+nothing pops out.  Has someone written a patch to do this?  I've checked
+some
+archives but have come up empty handed.
+
+Thanks,
+paulh
+
+--
+Paul Hansen, Software Engineer           paulh@ucentric.com
+Ucentric Systems LLC                     Phone 978.823.8157
+2 Clocktower Place, Suite 550            FAX   978.823.8101
+Maynard, MA 01754                        www.ucentric.com
+
+
+

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVBDR4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263405AbVBDRj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVBDR4x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVBDR4w
+	id S263405AbVBDRj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbVBDRZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:56:52 -0500
-Received: from fsmlabs.com ([168.103.115.128]:48580 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S263754AbVBDRyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:54:45 -0500
-Date: Fri, 4 Feb 2005 10:54:24 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Tony Lindgren <tony@atomide.com>
-cc: Pavel Machek <pavel@suse.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-In-Reply-To: <20050204174254.GG22444@atomide.com>
-Message-ID: <Pine.LNX.4.61.0502041052550.2194@montezuma.fsmlabs.com>
-References: <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com>
- <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com>
- <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com>
- <20050204051929.GO14325@atomide.com> <Pine.LNX.4.61.0502032329150.26742@montezuma.fsmlabs.com>
- <20050204171805.GF22444@atomide.com> <Pine.LNX.4.61.0502041028460.2194@montezuma.fsmlabs.com>
- <20050204174254.GG22444@atomide.com>
+	Fri, 4 Feb 2005 12:25:12 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:24045 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S266294AbVBDRXD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:23:03 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: i386 HPET code
+Date: Fri, 4 Feb 2005 17:22:46 +0000
+User-Agent: KMail/1.7.2
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       keith maanthey <kmannth@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+References: <88056F38E9E48644A0F562A38C64FB6003EA715C@scsmsx403.amr.corp.intel.com> <1107459056.2040.243.camel@cog.beaverton.ibm.com> <20050203120233.A23267@unix-os.sc.intel.com>
+In-Reply-To: <20050203120233.A23267@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502041722.46430.andrew@walrond.org>
+X-Spam-Score: -2.8 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Tony Lindgren wrote:
-
-> * Zwane Mwaikambo <zwane@arm.linux.org.uk> [050204 09:31]:
-> > On Fri, 4 Feb 2005, Tony Lindgren wrote:
-> > 
-> > > Yes, it's safer to keep the timer periodic, although it's
-> > > used for oneshot purposes for the skips. If the timer interrupt
-> > > got missed for some reason, the system would be able to recover when
-> > > it's in periodic mode.
-> > > 
-> > > And with some timers, we can do the reprogramming faster, as we just
-> > > need to load the new value.
-> > > 
-> > > I could not figure out how to disable the interrupts for PIT
-> > > when local APIC is used and the ticks to skip is longer than PIT
-> > > would allow. So I just changed the mode temporarily to disable it.
+On Thursday 03 February 2005 20:02, Venkatesh Pallipadi wrote:
+> On Thu, Feb 03, 2005 at 11:30:56AM -0800, john stultz wrote:
+> > On Thu, 2005-02-03 at 06:28 -0800, Pallipadi, Venkatesh wrote:
+> > > Can you check whether only the following change makes the problem go
+> > > away. If yes, then it looks like a hardware issue.
 > > >
-> > > Does anybody know if there's a way to stop PIT interrupts while
-> > > keeping it in the periodic mode?
-> > 
-> > disable_irq(0) ?
-> 
-> Then the problem is that the CPU does not stay in sleep but wakes to
-> the first PIT interrupt AFAIK.
+> > > > hpet_writel(hpet_tick, HPET_T0_CMP);
+> > > >+ hpet_writel(hpet_tick, HPET_T0_CMP); /* AK: why twice? */
+> >
+> > Yep. Adding only the second write seems to make the box boot.
+> >
 
-I do not understand, do you want to disable the PIT from interrupting the 
-processor and enable it interrupting at a later time?
+Just to confirm that this also fixes the problem for two types of MSI dual 
+opteron motherboards. (MSI K8D Master 2/3)
+
+Andrew Walrond

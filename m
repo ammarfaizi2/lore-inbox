@@ -1,147 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbTGGGvy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 02:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264768AbTGGGvy
+	id S266825AbTGGGzL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 02:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbTGGGzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 02:51:54 -0400
-Received: from [212.209.10.215] ([212.209.10.215]:58569 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264769AbTGGGvo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 02:51:44 -0400
-From: Johan.Adolfsson@axis.com
-Message-ID: <222e01c34456$2a054310$e2070d0a@pcjohana>
-To: "Davide Libenzi" <davidel@xmailserver.org>,
-       "Matthew Wilcox" <willy@debian.org>
-Cc: "Patrick Mochel" <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-References: <20030706163353.GU23597@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.55.0307060935140.14675@bigblue.dev.mcafeelabs.com>
-Subject: Re: kobjects, sysfs and the driver model make my head hurt
-Date: Mon, 7 Jul 2003 09:05:35 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 7 Jul 2003 02:55:11 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:60936 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266825AbTGGGzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 02:55:05 -0400
+Date: Mon, 7 Jul 2003 08:09:29 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Thomas Spatzier <TSPAT@de.ibm.com>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: crypto API and IBM z990 hardware support
+Message-ID: <20030707080929.A1848@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Morris <jmorris@intercode.com.au>,
+	Thomas Spatzier <TSPAT@de.ibm.com>, linux-kernel@vger.kernel.org,
+	"David S. Miller" <davem@redhat.com>
+References: <OF1BACB1D3.F4409038-ONC1256D57.00247A0A-C1256D57.002701D8@de.ibm.com> <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au>; from jmorris@intercode.com.au on Wed, Jul 02, 2003 at 07:35:16PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
------ Original Message ----- 
-From: "Davide Libenzi" <davidel@xmailserver.org>
-To: "Matthew Wilcox" <willy@debian.org>
-Cc: "Patrick Mochel" <mochel@osdl.org>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, July 06, 2003 6:42 PM
-Subject: Re: kobjects, sysfs and the driver model make my head hurt
-
-
-> On Sun, 6 Jul 2003, Matthew Wilcox wrote:
+On Wed, Jul 02, 2003 at 07:35:16PM +1000, James Morris wrote:
+> The plan is to provide crypto/arch/ subdirectories where arch optimized 
+> versions of the crypto algorithms are implemented, and built automatically 
+> (via configuration defaults) instead of the generic C versions.
 > 
-> > Why on earth does it return the value of its argument?
+> So, there might be:
 > 
-> Maybe for the same reason 'strcpy' returns 'dest'. It allows you to use
-> the function in a function parameter :
+> crypto/aes.c
+> crypto/arch/i386/aes.s
 
-Another possible benefit (although I'm not sure we should care)
-is that if the return variable is the same as the first argument, 
-the compiler can save an instruction or two on at least some archs.
+crypto/arch/ sounds like a bad idea.  We really should avoid arch code
+outside arch/ and include/asm*.  So arch/<foo>/crypto/ as suggested by
+Thomas is much better.
 
-Simple example:
+> where on i386, aes.s would be built into aes.o and aes.c would not be 
+> built.
 
-char *tst(char *p, int i)
-{
-  return p;
-}
+That's a really bad idea.  Think of a i586/i686 optimized assembler
+implementaion e.g. using MMX or SSE or whatever.  You'll always need
+the generic version as fallback.
 
-void tst2(char *p, int i)
-{
-  *p = i;
-  p = tst(p,i);
-  p[1]=i;
-}
+> The simple solution for you might be something like:
+> 
+> crypto/aes.c -> aes.o
+> crypto/arch/s390/aes_z990.c -> aes_z990.o
+> 
+> and the administrator of the system could configure modprobe.conf to alias 
+> aes to aes_z990 if the latter is supported in hardware.
 
-void tst3(char *p, int i)
-{
-  *p = i;
-  tst(p,i);
-  p[1]=i;
-}
-
-i386 ts2 saves 3 instructions compared to tst3
-tst2:
-        pushl %ebp
-        movl %esp,%ebp
-        subl $20,%esp
-        pushl %ebx
-        movl 8(%ebp),%eax
-        movl 12(%ebp),%ebx
-        movb %bl,(%eax)
-        addl $-8,%esp
-        pushl %ebx
-        pushl %eax
-        call tst
-        movb %bl,1(%eax)
-        movl -24(%ebp),%ebx
-        leave
-        ret
-.Lfe2:
-        .size    tst2,.Lfe2-tst2
-        .align 4
-.globl tst3
-        .type    tst3,@function
-tst3:
-        pushl %ebp
-        movl %esp,%ebp
-        subl $16,%esp
-        pushl %esi
-        pushl %ebx
-        movl 8(%ebp),%esi
-        movl 12(%ebp),%ebx
-        movb %bl,(%esi)
-        addl $-8,%esp
-        pushl %ebx
-        pushl %esi
-        call tst
-        movb %bl,1(%esi)
-        leal -24(%ebp),%esp
-        popl %ebx
-        popl %esi
-        leave
-        ret
-.Lfe3:
-
-
-On CRIS you save one register on stack instead of two
-tst2:
-        Push $srp
-        subq 4,$sp
-        movem $r0,[$sp]
-        move.d $r10,$r9
-        move.d $r11,$r0
-        move.b $r11,[$r9]
-        Jsr tst
-        move.b $r0,[$r10+1]
-        movem [$sp+],$r0
-        Jump [$sp+]
-.Lfe2:
-        .size   tst2,.Lfe2-tst2
-        .align 1
-        .global tst3
-        .type   tst3,@function
-tst3:
-        Push $srp
-        subq 8,$sp
-        movem $r1,[$sp]
-        move.d $r10,$r0
-        move.d $r11,$r1
-        move.b $r11,[$r0+]
-        Jsr tst
-        move.b $r1,[$r0]
-        movem [$sp+],$r1
-        Jump [$sp+]
-.Lfe3:
-
-/Johan
+Right.  And IMHO this should happen with all optimized version - putting
+policy in the kernel to select them sounds like a bad idea, especially
+as it could get rather complicated when it involves multiple optimized
+and / or hardware implementations.
 

@@ -1,76 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbUKPNJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbUKPNWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbUKPNJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 08:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUKPNHF
+	id S261465AbUKPNWA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 08:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbUKPNWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 08:07:05 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:29345 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261980AbUKPNEY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 08:04:24 -0500
-Date: Tue, 16 Nov 2004 14:16:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       alsa-devel@lists.sourceforge.net
-Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-2
-Message-ID: <20041116131641.GB11053@elte.hu>
-References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <61930.195.245.190.94.1100529227.squirrel@195.245.190.94> <20041115161159.GA32580@elte.hu> <33583.195.245.190.93.1100537554.squirrel@195.245.190.93> <32825.192.168.1.5.1100558154.squirrel@192.168.1.5> <20041116104143.GA31090@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041116104143.GA31090@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 16 Nov 2004 08:22:00 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:18305 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S261465AbUKPNV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 08:21:56 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Andreas Schwab <schwab@suse.de>
+Date: Tue, 16 Nov 2004 14:21:26 +0100
+MIME-Version: 1.0
+Subject: Re: CPU hogs ignoring SIGTERM (unkillable processes)
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <419A0CE1.9661.15BCCEF@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <je4qjqxefy.fsf@sykes.suse.de>
+References: <4199C06E.14572.3113A6@rkdvmks1.ngate.uni-regensburg.de> (Ulrich Windl's message of "Tue, 16 Nov 2004 08:55:09 +0100")
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-3.84+2.20+2.07.066+02 August 2004+94348@20041116.131837Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Nov 2004 at 11:42, Andreas Schwab wrote:
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Already testing with RT-0.7.26-5 now. No good. Same lockup behavior on
-> > alsa shutdown, altought not always, but very frequently. Nothing comes
-> > out via serial console. Not even SysRq is of any help, pretty hard
-> > these lockups are.
+> "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
 > 
-> i'm rebasing to -rc2-mm1 currently, it should be completed today and
-> we'll see whether those ALSA problems are upstream related.
+> > On 15 Nov 2004 at 14:39, Andreas Schwab wrote:
+> >
+> >> "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
+> >> 
+> >> > Hello,
+> >> >
+> >> > today I've discovered a programming error in one of my programs (that's fixed 
+> >> > already). When trying to replace the binary, I found out that the processes seem 
+> >> > unaffected by a plain "kill": They just continue to consume CPU. However, a "kill 
+> >> > -9" terminates them. ist that intended behavior? I guess not. Here are some facts:
+> >> 
+> >> Are you sure it doesn't block or ignore the signal?
+> >
+> > Andreas,
+> >
+> > I don't mess with signals (as said);
 > 
-> is it stable if you dont unload the ALSA modules?
+> That is not required.  It could just as well inherit the setting from the
+> parent.
 
-i just found a potential problem that could cause a near-lockup during
-module removal. This code in __module_put_and_exit() could loop for
-quite long time:
+OOps! Now that you are telling me, I realize that the program that hung was 
+actually started by a shell script that was in turn exec'd() (after a fork()) from 
+a truly multi-threaded application.
 
-        while (current->lock_depth != -1)
-                unlock_kernel();
+I couldn't capture the binary via "ps -axs", because it's terribly efficient, but 
+I managed to captue the shell script that way:
 
-since for specifically ALSA's no-BKL purpose i've introduced the notion
-of ->lock_depth going below -1. So if we happen to put the module while
-->lock_depth is -2, it could take quite some time for it to go down to
-zero again ... (and it could cause other problems as well)
+  UID   PID          PENDING          BLOCKED          IGNORED           CAUGHT 
+STAT TTY        TIME COMMAND
+    2  7792 0000000000000000 0000000080014003 8000000000001004 0000000000010002 S    
+?          0:00 /bin/sh /usr/local/milter/Sopho
 
-i fixed this in the -V0.7.27-2 release, freshly uploaded to the usual
-place:
+The manpage on execve() isn't too verbose on the topic:
 
-      http://redhat.com/~mingo/realtime-preempt/
+...
+       execve() does not return on success, and the  text,  data,
+       bss,  and  stack of the calling process are overwritten by
+       that of the program loaded.  The program invoked  inherits
+       the  calling  process's PID, and any open file descriptors
+       that are not set to close on exec.  Signals pending on the
+       calling process are cleared.  Any signals set to be caught
+       by  the  calling  process  are  reset  to  their   default
+       behaviour.   The  SIGCHLD signal (when set to SIG_IGN) may
+       or may not be reset to SIG_DFL.
+...
 
-do you still see lockups with this patch?
+"Yet Another UNIX-like OS" dared to state in the man page:
 
-	Ingo
+      The processing of signals by the process is unchanged by exec*(),
+      except that signals caught by the process are set to their default
+      values (see signal(2)).
+
+However the same man page states that pending signals are not cleared. 
+Interesting.
+
+      The process also retains the following attributes:
+
+...
+           +  pending signals
+...
+
+This is the rerason for returning the following errno, I guess:
+
+           [EINTR]             A signal was caught during the exec*() system
+                               call.
+
+
+Let me summarize: The Kernel has no problem, just the docs ;-) Prpgrammers are fed 
+with docs of course...
+
+Thanks and regards,
+Ulrich Windl
+

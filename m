@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbRBIJgN>; Fri, 9 Feb 2001 04:36:13 -0500
+	id <S129109AbRBIJjo>; Fri, 9 Feb 2001 04:39:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbRBIJgE>; Fri, 9 Feb 2001 04:36:04 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:13551 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S129030AbRBIJfy>; Fri, 9 Feb 2001 04:35:54 -0500
-Date: Fri, 9 Feb 2001 01:32:26 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <3A83B6B0.8261F3CF@idb.hist.no>
-Message-ID: <Pine.LNX.4.31.0102090131070.7653-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129055AbRBIJjd>; Fri, 9 Feb 2001 04:39:33 -0500
+Received: from TK212017114173.teleweb.at ([212.17.114.173]:57352 "HELO
+	tk212017114173.teleweb.at") by vger.kernel.org with SMTP
+	id <S129109AbRBIJjX>; Fri, 9 Feb 2001 04:39:23 -0500
+Date: Fri, 9 Feb 2001 10:39:20 +0100
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+Message-ID: <20010209103920.A19496@hostmaster.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <3A7AEFBF.2FBA5822@namesys.com> <200102021825.f12IPCu20705@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200102021825.f12IPCu20705@devserv.devel.redhat.com>; from alan@redhat.com on Fri, Feb 02, 2001 at 01:25:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remember this will only affect those who use the frambuffer console
-anyway. I for one never use frambuffer for my servers so it won't affect
-the important machines anyway :-)
 
-and for the desktop market, the idea of a pretty logo with the details a
-keystroke away is not unreasonable
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-David Lang
+> Since egcs-1.1.2 and gcc 2.95 miscompile the kernel strstr code dont forg=
+et
+> to stop those being used as well. Oh look you'll need CVS gcc to build the
+> kernel... ah but wait that misbuilds DAC960.c...
+How did you come to the conclusion that egcs-1.1.2 miscompiles the kernel?
+I am using gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release) for=
+ a
+while now and did not notice anything weird.
 
- On Fri, 9 Feb 2001, Helge Hafting wrote:
+Tom
 
-> Date: Fri, 09 Feb 2001 10:21:52 +0100
-> From: Helge Hafting <helgehaf@idb.hist.no>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
->
->
-> christophe barbe wrote:
->
-> > Moreover there is no need to be ignorant. With LPP, messages are displayed during the boot process and if something goes wrong an little picture inform you. And you can switch to the classic console when you want (by a simple CTRL-ALT-F2).
->
-> Interesting.  Stuff that makes linux look good is good, but please
-> make it optional.  (Perhaps a kernel parameter, boot=pretty)
-> Simple users can have their pretty boot, but some of us think
-> the text console is cool too.  Much like having one of those
-> cars with a plexiglass hood so anybody may admire the
-> fancy engine.
->
-> Helge Hafting
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+       mail pgp-key-request@hostmaster.org
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3ia
+
+iQEVAgUBOoO6x2D1OYqW/8uJAQE/nAgAgN6Odf2ZAkCcL+vODAX0Hud1S09rPSyP
+wMyBIRpcSJNQuZNv3Rj67i6nPziJqiPeVtwsxbTY2LyWDVzmH0fah+dtLGCSccq7
+g5UunMAhgJwBHhcohCHvYm9Z8lMOQ65vn0PG5hJNbAh2NXiIU4wJNpC2nl8PmJM6
+2MEzQ8XwVe4EYodJvtBp9qlmaAY47dt86hefsDMh87Y0rCXBE1FLCmOWgeDDifpj
+Ou5WfNMeNkuPkKUdK8QnJGmdCJ7inFnq/90ScuOwI6fvXMT0dQKkZh75c9qwrKi5
+AGtR1PNB2F3aKOt2oZ/DHl+ID1U3IHeu08ZBnBP1cg/Yk5FaNwOZdQ==
+=F2fh
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

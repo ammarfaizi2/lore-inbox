@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283583AbRK3J4s>; Fri, 30 Nov 2001 04:56:48 -0500
+	id <S283586AbRK3J56>; Fri, 30 Nov 2001 04:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283587AbRK3J4i>; Fri, 30 Nov 2001 04:56:38 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:38926 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S283583AbRK3J41>; Fri, 30 Nov 2001 04:56:27 -0500
-Message-ID: <3C0757B0.CF881394@zip.com.au>
-Date: Fri, 30 Nov 2001 01:56:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S283588AbRK3J5j>; Fri, 30 Nov 2001 04:57:39 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:12025 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S283586AbRK3J5b>;
+	Fri, 30 Nov 2001 04:57:31 -0500
+Date: Fri, 30 Nov 2001 04:57:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+In-Reply-To: <3C057410.3090201@us.ibm.com>
+Message-ID: <Pine.GSO.4.21.0111300444180.13367-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] smarter atime updates
-In-Reply-To: <3C072279.D346CD09@zip.com.au>,
-		<3C072279.D346CD09@zip.com.au> <87n1144mo6.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
+
+
+On Wed, 28 Nov 2001, David C. Hansen wrote:
+
+> Alan Cox wrote:
 > 
-> #define UPDATE_ATIME(inode)                     \
-> do {                                            \
->         if ((inode)->i_atime != CURRENT_TIME)   \
->                 update_atime (inode);           \
-> } while (0)
-> 
+> >The release function was only partially serialized - what stops a release
+> >and an open racing each other ? That in several cases was why the lock
+> >was there. 
 
-yes, that'd be fine.  The more conventional approach
-would be to blow away the strange UPPER CASE name and:
+->release() is not serialized AT ALL.  It is serialized for given struct file,
+but call open(2) twice and you've got two struct file for the same device.
+close() both and you've got two calls of ->release(), quite possibly -
+simultaneous.
 
-static inline void update_atime(struct inode *inode)
-{
-	if (inode->i_atime != CURRENT_TIME)
-		__update_atime(inode);
-}
+> Nothing, because the BKL is not held for all opens anymore.  In most of 
 
-But that would be a bigger patch, and I rather like shaving
-off three quarters of the sys_read() overhead with a two-liner ;)
+RTFS.  fs/devices.c::chrdev_open().
 
--
+> the cases that we addressed, the BKL was in release _only_, not in open 
+> at all.  There were quite a few drivers where we added a spinlock, or 
+
+See above.
+
+> used atomic operations to keep open from racing with release.  
+
+Right.  Including quite a few where you schedule under that spinlock.
+
+In other words, patch is completely bogus.  BKL removal may be a good
+idea, but you really need to audit the code.  Which requires at least
+some understanding of the things you are doing.  There _are_ races
+and they need to be dealt with.  But blind BKL removal doesn't fix any
+and breaks quite a few places where the code was actually correct.
+

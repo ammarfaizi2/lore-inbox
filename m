@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133097AbRAPWwU>; Tue, 16 Jan 2001 17:52:20 -0500
+	id <S132091AbRAPWyU>; Tue, 16 Jan 2001 17:54:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133096AbRAPWwK>; Tue, 16 Jan 2001 17:52:10 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:44299 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S132091AbRAPWv7>; Tue, 16 Jan 2001 17:51:59 -0500
-Date: Tue, 16 Jan 2001 16:51:54 -0600
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+	id <S132645AbRAPWyK>; Tue, 16 Jan 2001 17:54:10 -0500
+Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:34798 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S132091AbRAPWyC>;
+	Tue, 16 Jan 2001 17:54:02 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200101162253.f0GMrvU01248@pobox.com>
+Subject: Re: lance.c @ 100Mbit
+To: eli.carter@inet.com (Eli Carter)
+Date: Tue, 16 Jan 2001 14:53:57 -0800 (PST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-Message-ID: <20010116165154.A6364@cadcamlab.org>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95190@ATL_MS1>
-Mime-Version: 1.0
+In-Reply-To: <3A64CADF.17C9B9A3@inet.com> from "Eli Carter" at Jan 16, 2001 04:27:43 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95190@ATL_MS1>; from Venkateshr@ami.com on Tue, Jan 16, 2001 at 11:35:36AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Venkatesh Ramamurthy]
-> [Venkatesh Ramamurthy] I think there should be a better way to handle
-> this , compiling is one of the options, but an end-user should not
-> think of compiling. The end user needs to put an another card and
-> connect drives and get his system up and running. He should not think
-> of compiling the drivers, if it is already part of the kernel /
-> initrd to get his system running.
+> Quick question:  has anyone used the lance.c driver for a 100BaseT
+> network PCI device?  If so, what successes/failures did you run into?
 
-You seem to be full of things that "we" can implement.  So I just have
-to wonder: do you by any chance have some prototype code somewhere to
-figure out, reliably, which SCSI cards have BIOS extensions enabled,
-and the order they hook in?
+Never used lance.c for 100BaseT (can it do that?). I've used the pcnet32.c
+driver, however.
 
-Peter
+> (I'm working with an Am79C973 chip.)
+
+In my case, Am79C971. Works great for me, under both 2.2 and 2.4. (I don't
+have any SMP systems, FWIW.)
+
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

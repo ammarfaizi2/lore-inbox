@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289764AbSBGWSH>; Thu, 7 Feb 2002 17:18:07 -0500
+	id <S291372AbSBGWX1>; Thu, 7 Feb 2002 17:23:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291382AbSBGWR7>; Thu, 7 Feb 2002 17:17:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:33120 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289764AbSBGWRm>; Thu, 7 Feb 2002 17:17:42 -0500
-Date: Thu, 7 Feb 2002 23:18:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
-        Hugh Dickins <hugh@lrel.veritas.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-Message-ID: <20020207231837.S1743@athlon.random>
-In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com> <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>, <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain> <20020207215854.P1743@athlon.random> <3C62ED05.F4683103@zip.com.au>
-Mime-Version: 1.0
+	id <S291373AbSBGWXR>; Thu, 7 Feb 2002 17:23:17 -0500
+Received: from mailc.telia.com ([194.22.190.4]:33239 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S291372AbSBGWXC>;
+	Thu, 7 Feb 2002 17:23:02 -0500
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
+Subject: Re: 2.5.4-pre1 (decoded) oops on boot in device_create_file
+In-Reply-To: <3C61DCE5.6D05CF90@oracle.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 07 Feb 2002 23:22:36 +0100
+In-Reply-To: <3C61DCE5.6D05CF90@oracle.com>
+Message-ID: <m2bsf1hqz7.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C62ED05.F4683103@zip.com.au>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 01:09:25PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > On Thu, Feb 07, 2002 at 02:28:44PM +0000, Hugh Dickins wrote:
-> > > On Thu, 7 Feb 2002, Rik van Riel wrote:
-> > > > On Thu, 7 Feb 2002, Hugh Dickins wrote:
-> > > > >
-> > > > > If this were a common case where many pages end up, yes, we'd
-> > > > > need a separate special list; but it's a very rare case
-> > > >
-> > > > Think of a web or ftp server doing nothing but sendfile()
-> > >
-> > > Aren't the sendfile() pages in the page cache, and normally taken
-> > > off LRU at the same time as removed from page cache, in shrink_cache?
-> > > The exception being when the file is truncated while it is being sent,
-> > > and buffers busy, so left behind on LRU by truncate_complete_page?
-> > 
-> > the buffers will hold a reference on the page. So the pagecache is
-> > either in the LRU with refcount > 1, or the refcount is 1 and the page
-> > is not in the lru.
-> > 
-> > In short Ben's patch was useless but it was faster and cleaner than what
-> > we had before with the special page_cache_release, and so it was good.
-> > 
-> > Said it in another manner: we'll never effectively free a page that is
-> > in the LRU, unless it's an anonymous page (no brainer for
-> > sendpage/sendfile).
-> 
-> Good to hear.  But what about the weird corner-case in truncate_complete_page(),
-> where a mapped page is not successfully released, and is converted into
-> an anon buffercache page?  It seems that a combination of sendfile
-> and truncate could result in one of those pages being subject to
-> final release in BH context?
+Alessandro Suardi <alessandro.suardi@oracle.com> writes:
 
-Such a page is not in the lru so it doesn't matter.
+> Must be my time of the year - first the kmem_cache_create one in
+>  2.5.3-pre[45], now this one (should happen about PCI allocation
+>  of one of the Xircom CardBus resources):
 
-As said in the previous email, from another point of view, the only
-thing that can be still in the lru during __free_pages_ok is an
-anonymous page. truncate_complete_page cannot run on an anonymous page.
-Anonymous pages cannot be truncated.
+I had the same problem with 2.5.4-pre2. The patch below makes my
+laptop able to boot again, but I don't know if the patch is correct.
 
-> 
-> 1: try_to_release_page() fails.  It becomes a buffercache page.
-> 2: vm runs try_to_release_page() again.  This time it succeeds.
-> 3: sendfile completes.
-> 
-> 
-> > Hugh's patch is definitely valid and it's a nice bugcheck to have, it
-> > should be merged IMHO (it's in a slow path), but there's no bug to fix I
-> > think, the bugcheck is paranoid-in-slow-path kind of thing.
-> 
-> It's looking more and more like we need that test.
+--- linux/drivers/pcmcia/cardbus.c.old	Thu Feb  7 23:09:54 2002
++++ linux/drivers/pcmcia/cardbus.c	Thu Feb  7 23:17:45 2002
+@@ -281,6 +281,10 @@
+ 
+ 		pci_setup_device(dev);
+ 
++		strcpy(dev->dev.name, dev->name);
++		strcpy(dev->dev.bus_id, dev->slot_name);
++		device_register(&dev->dev);
++
+ 		/* FIXME: Do we need to enable the expansion ROM? */
+ 		for (r = 0; r < 7; r++) {
+ 			struct resource *res = dev->resource + r;
 
-needed is the wrong word, but we do want it for long term paranoid
-safety (actually it is a more interesting for 2.5 infact).
-
-Andrea
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316221AbSFETue>; Wed, 5 Jun 2002 15:50:34 -0400
+	id <S316258AbSFETud>; Wed, 5 Jun 2002 15:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316217AbSFETud>; Wed, 5 Jun 2002 15:50:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4870 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316221AbSFETub>;
-	Wed, 5 Jun 2002 15:50:31 -0400
-Message-ID: <3CFE6B31.39EC2719@zip.com.au>
-Date: Wed, 05 Jun 2002 12:49:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
+	id <S316243AbSFETuc>; Wed, 5 Jun 2002 15:50:32 -0400
+Received: from sn13-1-85-251.nap.wideopenwest.com ([64.233.251.85]:6916 "EHLO
+	smtp.linuxnirvana.com") by vger.kernel.org with ESMTP
+	id <S316217AbSFETua>; Wed, 5 Jun 2002 15:50:30 -0400
+Date: Wed, 5 Jun 2002 13:13:22 -0500 (CDT)
+From: Wayne Willson <wwillson@linuxnirvana.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux based VOIP PBX?
+In-Reply-To: <200206051927.g55JRQT10007@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0206051309250.1129-100000@smtp.linuxnirvana.com>
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow mpage.c to build
-In-Reply-To: <20020605160547.C10293@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> Linus,
-> 
-> When trying to build mpage.c for ARM, I get errors from bio.h since kdev_t
-> isn't defined.  The following fixes this.
-> 
-> (I fail to see how this can build for anyone as it currently stands; its
-> probably something x86 specific buried in the asm-i386 includes.)
-> 
-> ...
 
-/usr/src/25/include/linux/bio.h
- /usr/src/25/include/asm/io.h
-  /usr/src/25/include/linux/vmalloc.h
-   /usr/src/25/include/linux/mm.h
-    /usr/src/25/include/linux/swap.h
-     /usr/src/25/include/linux/kdev_t.h
+Larry,
 
-Lovely, isn't it?
+Give this site a look.  This is a real VOIP PBX (it scales about as large 
+as you would ever need).  It may be slight overkill as it was made for the 
+carrier-class market.
 
--
+http://www.vovida.org/
+
+Wayne
+
+
+On Wed, 5 Jun 2002, Larry McVoy wrote:
+
+> Hi, sorry for the somewhat off topic question, but I'd love to know if there
+> are any production quality Linux based voice over IP products out there.
+> We currently use a 3com NBX and it sort of sucks.  It works fine on a
+> LAN, it sucks on a WAN.  I'm open to replacing it, but if I did, I'd want
+> to go with a Linux based system, for lots of reasons.  If you know of such
+> a product, or are working on one, please contact me.  I don't want a free
+> product, I want to pay for it and I want it to work.  100% of the time.
+> And we need the voicemail/conferencing/menutree stuf that you get with 
+> a real product.
+> 
+> We have $15K into the 3com, so that gives you some idea of our willingness
+> to spend money.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262129AbSKIRsn>; Sat, 9 Nov 2002 12:48:43 -0500
+	id <S261450AbSKIR6C>; Sat, 9 Nov 2002 12:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262291AbSKIRsn>; Sat, 9 Nov 2002 12:48:43 -0500
-Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:18922 "HELO
-	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S262129AbSKIRsl>; Sat, 9 Nov 2002 12:48:41 -0500
-Message-ID: <20021109175520.30470.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 10 Nov 2002 01:55:20 +0800
-Subject: contest results and ext3 corruptions
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
-X-Habeas-Swe-1: winter into spring
-X-Habeas-Swe-2: brightly anticipated
-X-Habeas-Swe-3: like Habeas SWE (tm)
-X-Habeas-Swe-4: Copyright 2002 Habeas (tm)
-X-Habeas-Swe-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-Swe-6: email in exchange for a license for this Habeas
-X-Habeas-Swe-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-Swe-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-Swe-9: mark in spam to <http://www.habeas.com/report/>.
+	id <S262404AbSKIR6C>; Sat, 9 Nov 2002 12:58:02 -0500
+Received: from dsl2.external.hp.com ([192.25.206.7]:10001 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id <S261450AbSKIR6B>; Sat, 9 Nov 2002 12:58:01 -0500
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: andmike@us.ibm.com, hch@lst.de, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org, mochel@osdl.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface 
+In-Reply-To: Message from "Adam J. Richter" <adam@yggdrasil.com> 
+   of "Fri, 08 Nov 2002 20:51:28 PST." <200211090451.UAA26160@baldur.yggdrasil.com> 
+References: <200211090451.UAA26160@baldur.yggdrasil.com> 
+Date: Sat, 09 Nov 2002 11:04:48 -0700
+From: Grant Grundler <grundler@dsl2.external.hp.com>
+Message-Id: <20021109180448.C41144829@dsl2.external.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I've just ran contest again 2.5.46, 
-here the most intersting part of the results:
+"Adam J. Richter" wrote:
+> Please do not throw the baby out with the bath water.  The generic
+> driver interface in its present form really can make parisc smaller
+> and cleaner.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              461.0   28      46      8       3.66
-2.5.44 [3]              371.8   38      37      10      2.95
-2.5.45 [1]              396.9   37      36      10      3.15
-2.5.45-mcp3 [1]         557.5   25      49      9       4.42
-2.5.46 [5]              809.1   20      81      10      6.42
+I hope that's true. I was just as disappointed as willy.
 
-What happened here ?
+Documentation/driver-model/overview.txt:
+| Note also that it is at the _end_ of struct pci_dev. This is
+| to make people think about what they're doing when switching between the bus
+| driver and the global driver; and to prevent against mindless casts between
+| the two.
 
-I'm using an ext3 fs and after the test I got this error message:
-EXT3-fs error (device ide0(3,6)) in ext3_new_inode: error 28
+Until this changes, I don't see this as a useful replacement for
+either PCI or parisc devices. The "mindless casts" can be fixed.
+But without the ability to easily go from generic device type to
+bus specific type, people will just get lost in the maze of pointers.
 
-startx didn't work anymore complaining about fixed font missing...
+Common code needs to take a common parameter.  Operations on the tree
+(eg probe) often require calls to bus specific (or arch or platform
+specific) code which may in turn need to make other IO tree operations.
+Those code paths convert back and forth between types regularly.
+That's why I want to make it as simple as possible at the risk
+a few people will get it wrong.
 
-fsck.ext3 fixed the problem.
+HPUX has had a "unified" IO tree since 10.0 in ~1994. Previous
+releases had an IO tree for "Server IO" but not the PA-RISC
+workstations. I've work on HPUX IO subsystem 6 years (PCI Code owner for
+2 years) and it had several key features:
+  (a) traverse the complete tree (from "central bus" to SCSI LUN)
+      with shared code,
+  (b) determine which type of bus any node was "on",
+  (c) associate arbitrary local data with any node.
+       (this includes bus *operations*! eg probe, dma, irq setup)
 
-I hope it helps.
+Maybe I'm not seeing it, but (b) and (c) are missing from basic
+design or not well described in driver-model/overview.txt.
 
-Ciao,
-        Paolo
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
+BTW, I couldn't find Documentation/filesystems/driverfs.txt.
 
-Powered by Outblaze
+Lastly, the example of an "irq" entry in overview.txt is interesting.
+iosapic code "owns" the IRQ. And it could make visible other info
+regarding IRQs - eg type and which CPU it's directed at.
+But I get the feeling only bus specific code can do that since
+it "owns" the directory. Do I misunderstand?
+
+thanks,
+grant

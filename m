@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263278AbTIVUxn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 16:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTIVUxn
+	id S263325AbTIVVA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTIVVA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 16:53:43 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:48029 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263278AbTIVUxm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 16:53:42 -0400
-Message-ID: <3F6F6150.10808@colorfullife.com>
-Date: Mon, 22 Sep 2003 22:53:36 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move slab objects to the end of the real allocation
-References: <200309221733.37203.arnd@arndb.de> <3F6F23DA.9020901@colorfullife.com> <200309222240.01023.arnd@arndb.de>
-In-Reply-To: <200309222240.01023.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 17:00:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26265 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263325AbTIVVAX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 17:00:23 -0400
+Date: Mon, 22 Sep 2003 22:00:21 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: Attributes in /sys/cdev
+Message-ID: <20030922210021.GH7665@parcelfarce.linux.theplanet.co.uk>
+References: <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk> <20030922164609.5929.qmail@lwn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030922164609.5929.qmail@lwn.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
+On Mon, Sep 22, 2003 at 10:46:09AM -0600, Jonathan Corbet wrote:
+> > > I have no idea whether this follows the original plan for /sys/cdev.
+> > 
+> > They are more of a side effect.
+> 
+> So...to be sure I have things straight.../sys/cdev isn't really meant to be
+> there, and char devices wanting to do things in sysfs should be working
+> under /sys/devices or /sys/class or /sys/somethingelse?
 
->On Monday 22 September 2003 18:31, Manfred Spraul wrote:
->  
->
->>Right now there are too many patches in Andrew's tree, I'll wait until
->>everything settled down a bit, then I'll resent the cache line size as a
->>one-line patch. Do you want to implement CONFIG_DEBUG_PAGEALLOC
->>immediately? If yes, then I can send you the oneliner immediately.
->>Nothing except CONFIG_DEBUG_PAGEALLOC is affected by the bug.
->>    
->>
->
->Thanks for the explanation. I didn't realize that the code only applies
->to i386. I'm not trying to implement CONFIG_DEBUG_PAGEALLOC currently,
->but I'll put it on my list of things to do. Do I need to do anything
->beyond adding a working kernel_map_pages() and raising the 128 byte limit
->in kmem_cache_create to max(128,L1_CACHE_BYTES)?
->  
->
-I'm not aware of any other restrictions, but I think s390 would be the 
-first arch beyond i386 that supports DEBUG_PAGEALLOC, so beware. One 
-important point is that kernel_map_pages() can be called from irq 
-context - I'm not sure if all archs can support that.
+<nod>
 
---
-    Manfred
+For block devices we really have non-trivial properties associated with them -
+struct gendisk and request queue, for one thing.  And these are uniform across
+the entire set.
 
+Character devices per se have *no* meaningful properties common to the entire
+class.  To put it another way, while block devices do form a natural class,
+character ones do not.
+ 
+> > 	* driver has embedded struct cdev in its data structures
+> 
+> > 	* ->open() can use ->i_cdev to get whatever data structure driver
+> > had intended and avoid any lookups of its own
+> 
+> I noticed there's no "private" member in the cdev structure.  So drivers
+> should embed the structure and use container_of to get their real structure
+> of interest?
+
+Yes, if they bother with cdev of their own in the first place.
+
+> [Forgive my ignorance here...] If I embed a struct cdev within my own
+> device structure, how do I know when I can safely free said device
+> structure?  Will there be a release method that gets exposed at the driver
+> level, or am I missing something obvious again?
+
+Umm...  Any kobject has ->release() method, obviously.  NOTE: as always,
+embedding kobject into one of your objects requires serious thinking about
+lifetime rules for your objects.  Until they are cleaned up you'd better
+*not* mess with that.  OTOH, in a lot of cases cleanup is needed anyway -
+e.g. if you declare per-object sysctls/procfs entries/whatnot, you have
+the same sort of problems already (plus you need to deal with the same
+sort of races in your code that finds object by major:minor; many drivers
+are FUBAR in that area).

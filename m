@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267373AbRGKRUW>; Wed, 11 Jul 2001 13:20:22 -0400
+	id <S265754AbRGKRZC>; Wed, 11 Jul 2001 13:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267370AbRGKRUC>; Wed, 11 Jul 2001 13:20:02 -0400
-Received: from imo-d05.mx.aol.com ([205.188.157.37]:25554 "EHLO
-	imo-d05.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S267369AbRGKRTw>; Wed, 11 Jul 2001 13:19:52 -0400
-Date: Wed, 11 Jul 2001 13:19:45 -0400
-From: hunghochak@netscape.net (Ho Chak Hung)
-To: mikeg@wen-online.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages 4 order allocation failed
-Mime-Version: 1.0
-Message-ID: <448CBB1C.4314B00D.0F76C228@netscape.net>
-In-Reply-To: <Pine.LNX.4.33.0107110720200.709-100000@mikeg.weiden.de>
-X-Mailer: Franklin Webmailer 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+	id <S267374AbRGKRYw>; Wed, 11 Jul 2001 13:24:52 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:51471
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S265754AbRGKRYi>; Wed, 11 Jul 2001 13:24:38 -0400
+Date: Wed, 11 Jul 2001 13:23:56 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Brian Strand <bstrand@switchmanagement.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+Message-ID: <145960000.994872235@tiny>
+In-Reply-To: <20010711190821.K3496@athlon.random>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-but there isn't any call in the module to allocate 4 order pages. There are only calls to allocate 0 order pages. alloc_pages(GFP_KERNEL, 0)is the only call to allocate page in the whole module.
 
-Mike Galbraith <mikeg@wen-online.de> wrote:
->
-> On Tue, 10 Jul 2001, Ho Chak Hung wrote:
+
+On Wednesday, July 11, 2001 07:08:21 PM +0200 Andrea Arcangeli
+<andrea@suse.de> wrote:
+
+> On Wed, Jul 11, 2001 at 09:44:19AM -0700, Brian Strand wrote:
+>> Our Oracle configuration is on reiserfs on lvm on Mylex.  Our workload 
+>> is not entirely cached, as we are working against an 8GB table, Oracle 
+>> is configured to use slightly more than 1GB of memory, and there is 
+>> always several MB/s of IO going on during our queries.  The "working 
+>> set" of the main table and indexes occupies over 2GB.
 > 
-> > Hi,
-> >
-> > When I run a module, sometimes it gives such an error __alloc_pages 4 order allocation failed.
-> > However, there is only 0 order page allocation function call within the whole module.
-> > Does anyone know where does the 4 order allocation failure comes from?
-> > Thanks
-> 
-> Memory fragmentation.  It is never safe to assume that high order
-> allocations will succeed.
-> 
->     -Mike
-> 
-> 
-__________________________________________________________________
-Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/
+> As I suspected there is the VM in our way. Also reiserfs could be an
+> issue but I am not aware of any regression on the reiserfs side, Chris?
+
+reiserfs has a big O_SYNC penalty right now, which can be fixed by a
+transaction tracking patch I posted a month or so ago.  It has been tested
+by a few people as a large improvement.  Brian, I'll update this to 2.4.6
+and send along.
+
+-chris
+

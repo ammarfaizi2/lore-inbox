@@ -1,80 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTHWMPA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 08:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTHWMO7
+	id S263907AbTHWMWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 08:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTHWMWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 08:14:59 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:47525
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263432AbTHWMOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 08:14:46 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Subject: Re: [PATCH]O18.1int
-Date: Sat, 23 Aug 2003 22:21:14 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308231555.24530.kernel@kolivas.org> <200308231108.48053.schlicht@uni-mannheim.de>
-In-Reply-To: <200308231108.48053.schlicht@uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Aug 2003 08:22:07 -0400
+Received: from mail.north-cyprus.net ([212.175.247.6]:49351 "EHLO
+	mail.north-cyprus.net") by vger.kernel.org with ESMTP
+	id S263907AbTHWMWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 08:22:01 -0400
+Date: Sat, 23 Aug 2003 15:26:17 +0300
+From: Mehmet Ali Suzen <msuzen@mail.north-cyprus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Running SMP 2.4.21 #2 SMP Kernel on single processor : Memory Leakage?
+Message-ID: <20030823152617.B1771@mail.north-cyprus.net>
+References: <3F46511D.9080108@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308232221.15333.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F46511D.9080108@kegel.com>; from dank@kegel.com on Fri, Aug 22, 2003 at 10:21:33AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003 19:08, Thomas Schlichter wrote:
-> On Saturday 23 August 2003 07:55, Con Kolivas wrote:
-> > Some high credit tasks were being missed due to their prolonged cpu burn
-> > at startup flagging them as low credit tasks.
-> >
-> > Low credit tasks can now recover to become high credit.
+On Fri, Aug 22, 2003 at 10:21:33AM -0700, Dan Kegel wrote:
+> Mehmet Ali Suzen <msuzen@mail ! north-cyprus ! net> wrote:
+>  > I am running RedHat Linux 9 Linux 2.4.21 SMP  ...
+> 
+> Then you should contact a Red Hat Linux forum for support.
+> 
+> linux-kernel@vger.kernel.org for the most part only discusses
+> fairly vanilla kernels, especially the ones published at
 
-> First of all... Your interactive scheduler work is GREAT! I really like
-> it...!
+it was a compiled kernel.
 
-Thank you. I never assume no news is good news so I appreciate that.
-
-> Now I tried to unterstand what exacly the latest patch does, and as far as
-> I can see the first and the third hunk just delete respectively expand the
-> macro VARYING_CREDIT(p). But the second hunk helps processes to get some
-> interactive_credit until they become a HIGH_CREDIT task. This looks
-> reasonable to me...
->
-> So, now I wanted to know how a task may lose its interactive_credit
-> again... The only code I saw doing this is exaclty the third hunk of your
-> patch. But if a process is a HIGH_CREDIT task it can never lose its
-> interactive_credit again. Is that intented?
-
-Yes indeed it is.
-
-> I think the third hunk should look like following:
-[snip]
-
-> As an additional idea I think interactive_credit should be allowed to be a
-> bit bigger than MAX_SLEEP_AVG and a bit lower than -MAX_SLEEP_AVG. This
-> would make LOW_CREDIT processes stay LOW_CREDIT even if they do some sleep
-> and HIGH_CREDIT processes star HIGH_CREDIT even if they do some
-> computing...
->
-> But of course I may completely miss something...
-
-Originally flagged HIGH_CREDIT and LOW_CREDIT tasks had no limit on how much 
-credit they could accumulate or lose. This worked in practice but I needed 
-some cutoff beyond which they would be one or the other and MSA seemed a 
-decent number. At some stage if it was boundless there would be variable 
-overflow as well and checking for this was unecessary overhead. I dont want 
-tasks flagged as high credit to be forgotten though so thats why I dont let 
-them change. Originally the same idea was for low credit tasks but that 
-proved to occasionally choose X during startup as low credit. Higher numbers? 
-perhaps but really this depends on hardware as to what is perfect.
-
-Cheers,
-Con
-
-P.S. All this may be moot as it looks like I, or someone else, may have to 
-start again.
-
+> http://kernel.org.  Perhaps you could try loading one of
+> those kernels, and seeing if the problem exists there?
+> If it does, please write back with more info.
+> 
+> - Dan
+> 
+> -- 
+> Dan Kegel
+> http://www.kegel.com
+> http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

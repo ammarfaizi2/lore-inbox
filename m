@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbSKTNJs>; Wed, 20 Nov 2002 08:09:48 -0500
+	id <S266064AbSKTNJI>; Wed, 20 Nov 2002 08:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266078AbSKTNJs>; Wed, 20 Nov 2002 08:09:48 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42373 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266069AbSKTNJo>;
-	Wed, 20 Nov 2002 08:09:44 -0500
-Date: Wed, 20 Nov 2002 13:15:02 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Mathias Kretschmer <mathias@lemur.sytes.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
-Message-ID: <20021120131502.GA1768@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Mathias Kretschmer <mathias@lemur.sytes.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3DDAE846.6080503@lemur.sytes.net>
+	id <S266069AbSKTNJI>; Wed, 20 Nov 2002 08:09:08 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:48376 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S266064AbSKTNJH>; Wed, 20 Nov 2002 08:09:07 -0500
+Date: Wed, 20 Nov 2002 14:14:38 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [RFC/CFT] Separate obj/src dir
+Message-ID: <20021120131438.GC16412@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+References: <20021119201110.GA11192@mars.ravnborg.org> <20021120131003.GB16412@riesen-pc.gr05.synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DDAE846.6080503@lemur.sytes.net>
+In-Reply-To: <20021120131003.GB16412@riesen-pc.gr05.synopsys.com>
 User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 08:41:26PM -0500, Mathias Kretschmer wrote:
- > I just patched my 2.4.20rc2 kernel. Now, it reports
- > 512K cache for my 2 Tualatin 1.26 GHz CPUs.
- > 
- > 'time make -j4 bzImage' went down from 3:30 to 3:04.
- > Not too bad.
+On Wed, Nov 20, 2002 at 02:10:03PM +0100, Alex Riesen wrote:
+> On Tue, Nov 19, 2002 at 09:11:10PM +0100, Sam Ravnborg wrote:
+> > The kbuild shell script takes a verbatim copy of all Makefiles,
+> > all Kconfig files and all defconfigs. I did not even look into
+> > using symlinks, I was not sure how they work across NFS
+> > and the like.
+> 
+> But Kconfigs and defconfigs belong to the sources, don't they?
+> 
+> Suppose you have a main source tree and multiple objdirs with a
+> purpose to test different .configs. Now if you update the main
+> tree (including it's Kconfigs), objdirs are broken. The copies
+> of Kconfigs are obsoleted and maybe unrelated at all. Also makefiles.
 
-That is quite an impressive gain.  The patch I sent Marcelo which
-also fixes up a problem with some tualatins and adds P4 trace cache
-support is at..
+Nevermind, found your script with symlinks.
 
-ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.4/2.4.20/descriptors.diff
-
-As you have tualatins can you try with the above patch and make sure
-theres no regressions there ?
-
-		Dave
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

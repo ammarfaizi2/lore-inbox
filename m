@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbTJWIdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 04:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTJWIdG
+	id S263151AbTJWIhu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 04:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTJWIhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 04:33:06 -0400
-Received: from natsmtp01.rzone.de ([81.169.145.166]:28083 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261722AbTJWIdD
+	Thu, 23 Oct 2003 04:37:50 -0400
+Received: from natsmtp01.rzone.de ([81.169.145.166]:10428 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263151AbTJWIht
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 04:33:03 -0400
-Message-ID: <3F979221.7070409@softhome.net>
-Date: Thu, 23 Oct 2003 10:32:33 +0200
+	Thu, 23 Oct 2003 04:37:49 -0400
+Message-ID: <3F97934F.4000007@softhome.net>
+Date: Thu, 23 Oct 2003 10:37:35 +0200
 From: "Ihar 'Philips' Filipau" <filia@softhome.net>
 Organization: Home Sweet Home
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927

@@ -1,69 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129153AbQKYJvC>; Sat, 25 Nov 2000 04:51:02 -0500
+        id <S129183AbQKYKhF>; Sat, 25 Nov 2000 05:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129228AbQKYJux>; Sat, 25 Nov 2000 04:50:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48388 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129153AbQKYJup>;
-        Sat, 25 Nov 2000 04:50:45 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011250917.eAP9HGK18904@flint.arm.linux.org.uk>
-Subject: Re: silly [< >] and other excess
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Sat, 25 Nov 2000 09:17:16 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <200011250433.eAP4Xbf113799@saturn.cs.uml.edu> from "Albert D. Cahalan" at Nov 24, 2000 11:33:37 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+        id <S129228AbQKYKgz>; Sat, 25 Nov 2000 05:36:55 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:36798 "EHLO
+        smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+        id <S129183AbQKYKgr>; Sat, 25 Nov 2000 05:36:47 -0500
+To: buhr@stat.wisc.edu (Kevin Buhr)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test5 bug: invalid "shmid_kernel" passed to "shm_nopage_core"
+In-Reply-To: <vbaaeapf4ti.fsf@mozart.stat.wisc.edu>
+From: Christoph Rohland <cr@sap.com>
+Date: 25 Nov 2000 11:05:45 +0100
+In-Reply-To: buhr@stat.wisc.edu's message of "24 Nov 2000 15:17:13 -0600"
+Message-ID: <m3g0kggydi.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> ---- example report of the above crash ----
-> kernel NULL (0000002c) accessed from c01a4b98
-> GPRs c0294041 00000000 c01a4600 0000000a 00000200 c0258000 ffffffff
-> OSRs 00000000 00403100 c0100000 00000002
-> RAR c0105344 SP c0294080 FCR 00000000 FSR 00000000
-> Stack: 00000000 00000000 00000000 00000000 00000000 00000000
->        00000000 00000000 00000000 00000000 00000000 00000000
->        00000000 00000000 00000000 00000000 00000000 00000000
->        00000000 00000000 00000000 00000000 00000000 00000000
-> Trace: bad stack frame
-> Code: 8a739052 c000000a 41310001 87052926
-> 
-> Symbols:
-> c000000a __start
-> c0105344 qfs_frob_directory
-> c01a4600 qfs_cleaner
-> c01a4b98 qfs_hash_file_record
-> -------------------------------------------
-> 
-> Well, that first symbol (__start) was really "jump +10", but the
-> extra noise doesn't hurt anyone. You get what you need, no matter
-> how mangled the oops is. It can be word-wrapped, missing chunks...
-> The tool doesn't need to care.
+Hi Kevin,
 
-However, now rather than just reading the dump as you can with ksymoops
-or whatever, you have to look at the raw data and try to match it up with
-a symbol in the list.
+buhr@stat.wisc.edu (Kevin Buhr) writes:
+> The SHM locking has thwarted my attempts at understanding.  Maybe
+> someone else can see the bug or reassure me that it's already been
+> fixed in test11?
 
-So, with that ARM dump I gave you, we'd potentially end up with about 100
-lines of symbols, where about 90 of them are useless.  That would be a
-backwards step in the development of Linux IMHO.
+This is the first report of such corruption. If it's real it is _not_
+fixed between test5 and test11. There is probably no way to reproduce
+it since you ask if it's fixed in test11, right?
 
-PS, you're not going to convince me unless you can come up with something
-that produces ksymoops-like output, so there's no point continuing.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+        Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

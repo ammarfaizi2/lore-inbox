@@ -1,45 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290209AbSAWXgL>; Wed, 23 Jan 2002 18:36:11 -0500
+	id <S290210AbSAWXhv>; Wed, 23 Jan 2002 18:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290210AbSAWXgC>; Wed, 23 Jan 2002 18:36:02 -0500
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:21499 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id <S290209AbSAWXfz>; Wed, 23 Jan 2002 18:35:55 -0500
-Message-ID: <313680C9A886D511A06000204840E1CF40B60A@whq-msgusr-02.pit.comms.marconi.com>
-From: "Punj, Arun" <Arun.Punj@marconi.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: NEWBIE : can't find /lib/modules/2.4.17/modules.dep error
-Date: Wed, 23 Jan 2002 18:35:47 -0500
+	id <S290211AbSAWXhp>; Wed, 23 Jan 2002 18:37:45 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:27402 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290210AbSAWXhc>;
+	Wed, 23 Jan 2002 18:37:32 -0500
+Date: Wed, 23 Jan 2002 21:37:16 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <linux-mm@kvack.org>
+Cc: <linux-kernel@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH *] rmap VM, 12a
+Message-ID: <Pine.LNX.4.33L.0201232135500.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks go out to David Miller and Badari Pulavarty for helping
+me to quickly track down and fix the bugs from rmap-12.
 
-Folks,
+The first maintenance release of the 12th version of the reverse
+mapping based VM is now available.
+This is an attempt at making a more robust and flexible VM
+subsystem, while cleaning up a lot of code at the same time.
+The patch is available from:
 
-I upgraded the 2.4.7-10 kernel that comes with RH7.2 to 2.4.17. 
-[ I could compile it fine and grub is able to load it too...]
-
-However, I see the error : can't find /lib/modules/2.4.17/modules.dep
-multiple times.
-
-Afcourse there is no such file or directory. I suspect that this
-directory and file should have been created when I compiled 2.4.17 
-kernel but it did not. ( I did make bzImage )
-
-Can you please point out the problem and also the effect of this
-error because I cannot see any side effect of this error.
-
-Thanks
-Arun
+           http://surriel.com/patches/2.4/2.4.17-rmap-12a
+and        http://linuxvm.bkbits.net/
 
 
-This e-mail and any attachments are confidential. If you are not the
-intended recipient, please notify us immediately by reply e-mail and then
-delete this message from your system. Do not copy this e-mail or any
-attachment, use the contents for any purposes, or disclose the contents to
-any other person: to do so could be a breach of confidence.
+My big TODO items for a next release are:
+  - RSS ulimit enforcement
+  - auto-tuning readahead, readahead per VMA
+
+rmap 12a:
+  - fix the compile warning in buffer.c                   (me)
+  - fix divide-by-zero on highmem initialisation  DOH!    (me)
+  - remove the pgd quicklist (suspicious ...)             (DaveM, me)
+rmap 12:
+  - keep some extra free memory on large machines         (Arjan van de Ven, me)
+  - higher-order allocation bugfix                        (Adrian Drzewiecki)
+  - nr_free_buffer_pages() returns inactive + free mem    (me)
+  - pages from unused objects directly to inactive_clean  (me)
+  - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
+  - remove sleep_on from wakeup_kswapd                    (Arjan van de Ven)
+  - page waitqueue cleanup                                (Christoph Hellwig)
+rmap 11c:
+  - oom_kill race locking fix                             (Andres Salomon)
+  - elevator improvement                                  (Andrew Morton)
+  - dirty buffer writeout speedup (hopefully ;))          (me)
+  - small documentation updates                           (me)
+  - page_launder() never does synchronous IO, kswapd
+    and the processes calling it sleep on higher level    (me)
+  - deadlock fix in touch_page()                          (me)
+rmap 11b:
+  - added low latency reschedule points in vmscan.c       (me)
+  - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
+  - wake up kswapd sleeper tasks on OOM kill so the
+    killed task can continue on its way out               (me)
+  - tune page allocation sleep point a little             (me)
+rmap 11a:
+  - don't let refill_inactive() progress count for OOM    (me)
+  - after an OOM kill, wait 5 seconds for the next kill   (me)
+  - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
+rmap 11:
+  - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
+  - fix it again in the morning                           (me)
+  - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
+    seems PPC calls pte_alloc() before mem_map[] init     (me)
+  - disable the debugging code in rmap.c ... the code
+    is working and people are running benchmarks          (me)
+  - let the slab cache shrink functions return a value
+    to help prevent early OOM killing                     (Ed Tomlinson)
+  - also, don't call the OOM code if we have enough
+    free pages                                            (me)
+  - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
+  - replace the per-page waitqueue with a hashed
+    waitqueue, reduces size of struct page from 64
+    bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
+rmap 10:
+  - fix the livelock for real (yeah right), turned out
+    to be a stupid bug in page_launder_zone()             (me)
+  - to make sure the VM subsystem doesn't monopolise
+    the CPU, let kswapd and some apps sleep a bit under
+    heavy stress situations                               (me)
+  - let __GFP_HIGH allocations dig a little bit deeper
+    into the free page pool, the SCSI layer seems fragile (me)
+rmap 9:
+  - improve comments all over the place                   (Michael Cohen)
+  - don't panic if page_remove_rmap() cannot find the
+    rmap in question, it's possible that the memory was
+    PG_reserved and belonging to a driver, but the driver
+    exited and cleared the PG_reserved bit                (me)
+  - fix the VM livelock by replacing > by >= in a few
+    critical places in the pageout code                   (me)
+  - treat the reclaiming of an inactive_clean page like
+    allocating a new page, calling try_to_free_pages()
+    and/or fixup_freespace() if required                  (me)
+  - when low on memory, don't make things worse by
+    doing swapin_readahead                                (me)
+rmap 8:
+  - add ANY_ZONE to the balancing functions to improve
+    kswapd's balancing a bit                              (me)
+  - regularize some of the maximum loop bounds in
+    vmscan.c for cosmetic purposes                        (William Lee Irwin)
+  - move page_address() to architecture-independent
+    code, now the removal of page->virtual is portable    (William Lee Irwin)
+  - speed up free_area_init_core() by doing a single
+    pass over the pages and not using atomic ops          (William Lee Irwin)
+  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
+rmap 7:
+  - clean up and document vmscan.c                        (me)
+  - reduce size of page struct, part one                  (William Lee Irwin)
+  - add rmap.h for other archs (untested, not for ARM)    (me)
+rmap 6:
+  - make the active and inactive_dirty list per zone,
+    this is finally possible because we can free pages
+    based on their physical address                       (William Lee Irwin)
+  - cleaned up William's code a bit                       (me)
+  - turn some defines into inlines and move those to
+    mm_inline.h (the includes are a mess ...)             (me)
+  - improve the VM balancing a bit                        (me)
+  - add back inactive_target to /proc/meminfo             (me)
+rmap 5:
+  - fixed recursive buglet, introduced by directly
+    editing the patch for making rmap 4 ;)))              (me)
+rmap 4:
+  - look at the referenced bits in page tables            (me)
+rmap 3:
+  - forgot one FASTCALL definition                        (me)
+rmap 2:
+  - teach try_to_unmap_one() about mremap()               (me)
+  - don't assign swap space to pages with buffers         (me)
+  - make the rmap.c functions FASTCALL / inline           (me)
+rmap 1:
+  - fix the swap leak in rmap 0                           (Dave McCracken)
+rmap 0:
+  - port of reverse mapping VM to 2.4.16                  (me)
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131352AbRDIBqC>; Sun, 8 Apr 2001 21:46:02 -0400
+	id <S132592AbRDIBxz>; Sun, 8 Apr 2001 21:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132592AbRDIBpw>; Sun, 8 Apr 2001 21:45:52 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:45068 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S131352AbRDIBpl>; Sun, 8 Apr 2001 21:45:41 -0400
-Date: Mon, 9 Apr 2001 09:46:15 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Chua <jchua@fedex.com>
-Subject: 2.4.4-pre1 Unresolved symbols "strstr"
-Message-ID: <Pine.LNX.4.33.0104090940520.5815-100000@boston.corp.fedex.com>
+	id <S132600AbRDIBxp>; Sun, 8 Apr 2001 21:53:45 -0400
+Received: from mackman.submm.caltech.edu ([131.215.85.46]:10920 "EHLO
+	mackman.net") by vger.kernel.org with ESMTP id <S132592AbRDIBxc>;
+	Sun, 8 Apr 2001 21:53:32 -0400
+Date: Sun, 8 Apr 2001 18:53:30 -0700 (PDT)
+From: Ryan Mack <rmack@mackman.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [QUESTIONS] Transision from pcmcia-cs to 2.4 built-in PCMCIA
+In-Reply-To: <3AD1084F.A916D361@torque.net>
+Message-ID: <Pine.LNX.4.30.0104081846460.16728-100000@mackman.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a 3c595 CardBus card and a Lucent Orinoco card
 
-depmod version 2.4.5
+under pcmcia-cs I used the following drivers:
 
+pcmcia_core, ds, and (I think) cs for low level stuff,
+i82365 for the controller,
+cb_enabler and 3c595_cb for the 3c595,
+and wvlan_cs for the Orinoco
 
-Compiled 2.4.4-pre1 but running "depmod" generates a lot of these ...
+under the kernel pcmcia support, I use:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/kernel/drivers/char/ltmodem.o
-depmod:         strstr
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/kernel/drivers/char/serial.o
-depmod:         strstr
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-depmod:         strstr
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-mod.o
-depmod:         strstr
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-probe-mod.o
-depmod:         strstr
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.4-pre1/pcmcia/xirc2ps_cs.o
-depmod:         strstr
+pcmcia_core and ds for low level stuff,
+yenta_socket for the controller,
+3c59x (same driver as PCI) for the 3c595,
+and hermes and orinoco_cs for the Orinoco
 
+Now after awhile I figured out what new drivers I should start using, but
+I have a few things about the change that still confuse me...
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+First, why have I stopped needing cs and cb_enabler?
+
+Second, why is yenta_socket only compiled if I enable CardBus support in
+the kernel?  I'm running an Orinoco card on another machine, and since I
+don't think it's CardBus (am I wrong?), I didn't enable CB in the kernel.
+The i82365 driver is the only one compiled, but it seems to work fine on
+that machine.  Should I enable CardBus support and use yenta_socket
+instead?
+
+Third, on the first machine with both cards, neither card works if I use
+i82365 instead of yenta_socket, why?  The Orinoco gets Tx timeouts on
+every packet, and inserting the 3c595 causes the controller (socket) to
+time out waiting for reset and it doesn't recognize the 3c595.
+
+Despite the confusion of changing systems, I must say that the orinoco
+driver works much better than wvlan_cs for me, as the two Orinoco cards in
+IBSS Ad-Hoc mode would get intermittent Tx timeouts with the wvlan_cs
+driver.  It's also nice not to have to rebuild pcmcia-cs when I upgrade my
+kernel anymore.  Keep up the good work!
+
+Ryan
 

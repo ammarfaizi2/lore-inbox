@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314065AbSDQFKB>; Wed, 17 Apr 2002 01:10:01 -0400
+	id <S314067AbSDQFYV>; Wed, 17 Apr 2002 01:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314066AbSDQFKA>; Wed, 17 Apr 2002 01:10:00 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43272 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314065AbSDQFKA>; Wed, 17 Apr 2002 01:10:00 -0400
-Date: Tue, 16 Apr 2002 22:08:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Greg KH <greg@kroah.com>
-cc: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] USB device support for 2.5.8 (take 2)
-In-Reply-To: <20020417035236.GC29897@kroah.com>
-Message-ID: <Pine.LNX.4.33.0204162203510.15675-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314068AbSDQFYU>; Wed, 17 Apr 2002 01:24:20 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:18445 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S314067AbSDQFYU>;
+	Wed, 17 Apr 2002 01:24:20 -0400
+Date: Wed, 17 Apr 2002 01:18:42 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Robert Love <rml@tech9.net>
+Cc: davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+Message-ID: <20020417011842.A12455@mark.mielke.cc>
+In-Reply-To: <15548.22093.57788.557129@napali.hpl.hp.com> <Pine.LNX.4.44.0204161013050.1460-100000@blue1.dev.mcafeelabs.com> <15548.50859.169392.857907@napali.hpl.hp.com> <1019005044.1670.16.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 16, 2002 at 08:57:09PM -0400, Robert Love wrote:
+> On Tue, 2002-04-16 at 20:49, David Mosberger wrote:
+> > But since it's popular, I did measure it quickly on a relatively
+> > slow (old) Itanium box: with 100Hz, the kernel compile was about
+> > 0.6% faster than with 1024Hz (2.4.18 UP kernel).
+> One question I have always had is why 1024 and not 1000 ?
+> 
+> Because that is what Alpha does?  It seems to me there is no reason for
+> a power-of-two timer value, and using 1024 vs 1000 just makes the math
+> and rounding more difficult.
 
+Only from the perspective of time displayed to a user... :-)
 
-On Tue, 16 Apr 2002, Greg KH wrote:
->
-> It's code to be a USB client device, not a USB host device, which is
-> what we currently have.  It is used in embedded devices that run Linux,
-> like the new Sharp device (can't remember the name right now...)
+Of course, that may be one of the only factors...
 
-Ahhh.. A dim light goes on.
+mark
 
-It would have made more sense (I think) to call it "usb/client" instead of
-"usb/device", but maybe that's just because I didn't understand what the
-thing was all about.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-(Ask Davem some day about my irrational hang-ups about naming, and how I
-sometimes like the same code if it's just named differently ;)
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-> Sorry.  I spend most of my time on this code just cleaning the format
-> and removing build errors, instead of looking at the content :(
->
-> I'll work on fixing all of the crap before submitting it again.
-
-In this case, the only reason I started really looking at the content was
-that I didn't know what it was even supposed to do and was confused about
-the naming, so I started looked at a few files. Which didn't really make
-me go understand what it did, but _did_ make me puke.
-
-Maybe the rest of it is wonderfully beautiful code, and I was just unlucky
-in my selection ;)
-
-			Linus
+                           http://mark.mielke.cc/
 

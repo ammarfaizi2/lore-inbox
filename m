@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbUENSAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbUENSAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbUENSAq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 14:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUENSAp
+	id S261989AbUENSAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 14:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUENSAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 14:00:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261993AbUENSAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 14:00:16 -0400
-Date: Fri, 14 May 2004 11:00:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       luto@myrealbox.com, Chris Wright <chrisw@osdl.org>,
-       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] capabilites, take 2
-Message-ID: <20040514110009.T21045@build.pdx.osdl.net>
-References: <1084536213.951.615.camel@cube> <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1084548061.17741.119.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Fri, May 14, 2004 at 11:21:01AM -0400
+	Fri, 14 May 2004 14:00:23 -0400
+Received: from h00207813f68b.ne.client2.attbi.com ([24.91.60.206]:48527 "EHLO
+	buddha.badbelly.com") by vger.kernel.org with ESMTP id S261989AbUENR6s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 13:58:48 -0400
+Date: Fri, 14 May 2004 13:58:41 -0400 (EDT)
+From: gboyce@badbelly.com
+To: linux-kernel@vger.kernel.org
+Subject: Burning CDs with a CD-ROM is a bad idea
+Message-ID: <Pine.LNX.4.58.0405141352540.7746@buddha.badbelly.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> On Fri, 2004-05-14 at 08:03, Albert Cahalan wrote:
-> > This would be an excellent time to reconsider how capabilities
-> > are assigned to bits. You're breaking things anyway; you might
-> > as well do all the breaking at once. I want local-use bits so
-> > that the print queue management access isn't by magic UID/GID.
-> > We haven't escaped UID-as-priv if server apps and setuid apps
-> > are still making UID-based access control decisions.
-> 
-> Capabilities are a broken model for privilege management; try RBAC/TE
-> instead.  http://www.securecomputing.com/pdf/secureos.pdf has notes
-> about the history and comparison of capabilities vs. TE.
-> 
-> Instead of adding new capability bits, replace capable() calls with LSM
-> hook calls that offer you finer granularity both in operation and in
-> object-based decisions, and then use a security module like SELinux to
-> map that to actual permission checks.  SELinux provides a framework for
-> defining security classes and permissions, including both definitions
-> used by the kernel and definitions used by userspace policy enforcers
-> (ala security-enhanced X).
+Hello folks,
 
-exactly!
+Yesterday I made a slight thinko while attempting to burn a CD.  Rather 
+than specifying dev=/dev/hdd, I add dev=/dev/hdc, which is my CD-ROM 
+drive rather than my cd burner.  Whoops!
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Now, I believe I've done this before, and recieved an error message.  
+However, in this particular case with 2.6.6, the system behaved a bit 
+different.
+
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+
+It's been a day, and cdrecord is still trying.  I've tried cancelling or 
+killing cdrecord with no avail.  
+
+root     11461  0.0  0.0     0    0 ?        DW   May13   0:00 [cdrecord]
+
+This seems like the wrong behavior to me.  What I'm not sure of though is 
+if this is a kernel bug, or some sort of problem with cdrecord.  Thoughts?

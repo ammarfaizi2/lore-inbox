@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTD3RfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 13:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTD3RfX
+	id S262256AbTD3RgE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 13:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTD3RgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 13:35:23 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:38100 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262228AbTD3RfW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 13:35:22 -0400
-Date: Wed, 30 Apr 2003 19:45:30 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-rc1 compile failure [toshoboe]
-Message-ID: <20030430174530.GA453@elf.ucw.cz>
-References: <20030429015841.GA17454@bougret.hpl.hp.com>
-Mime-Version: 1.0
+	Wed, 30 Apr 2003 13:36:03 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:34785 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262256AbTD3Rf7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 13:35:59 -0400
+Message-Id: <200304301748.h3UHm5o3050696@westrelay04.boulder.ibm.com>
+From: john stultz <johnstul@us.ibm.com>
+Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
+To: Wojciech Sobczak <Wojciech.Sobczak@comarch.pl>,
+       linux-kernel@vger.kernel.org
+Mail-Copies-To: johnstul@us.ibm.com
+Date: Wed, 30 Apr 2003 10:45:28 -0700
+References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030429015841.GA17454@bougret.hpl.hp.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Wojciech Sobczak wrote:
 
-> > I get compile failure for 2.4.21-rc1:
-> > 
-> > "in irda_device_init: undefined reference to toshoboe_init".
-> 
-> 	Non-modular IrDA is not supported in 2.4.X and is known to be
-> broken in various way (see bottom of my web page). This was fixed in
-> 2.5.24, but won't be fixed in the 2.4.X serie. However, I always
-> accept trivial patches...
-> 	Have fun...
+> Helo,
+> I'm trying to boot from linux kernel 2.4 tree
+[snip]
+> i don't wat to use 2.5.x kernel.....
 
-Fix was to kill toshoboe_init() from irda_device_init(): it is
-module_init() so it gets called, anyway.
+Support for the x440 landed ~2.4.21-pre4. 
+Try a more recent 2.4 kernel.
 
-Unfortunately toshoboe in 2.4.21-rc1 works as badly as in 2.5: the
-"new" driver does not even detect it and the "old" driver breaks with
-max_baud > 9600.
+thanks
+-john
 
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

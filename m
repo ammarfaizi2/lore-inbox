@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135171AbRDLPci>; Thu, 12 Apr 2001 11:32:38 -0400
+	id <S133109AbRDLPcT>; Thu, 12 Apr 2001 11:32:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135172AbRDLPcT>; Thu, 12 Apr 2001 11:32:19 -0400
-Received: from [204.178.40.224] ([204.178.40.224]:17024 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135171AbRDLPcI>; Thu, 12 Apr 2001 11:32:08 -0400
-Date: Thu, 12 Apr 2001 11:28:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: johan.adolfsson@axis.com
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
-In-Reply-To: <070001c0c35f$201f3740$a8b270d5@homeip.net>
-Message-ID: <Pine.LNX.3.95.1010412111144.10857A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135172AbRDLPcJ>; Thu, 12 Apr 2001 11:32:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8207 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133109AbRDLPcB>;
+	Thu, 12 Apr 2001 11:32:01 -0400
+Date: Thu, 12 Apr 2001 16:31:53 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Cyrille Ngalle <Cyrille.Ngalle@smart-fusion.com>
+Cc: nak@apfbioelectronics.com, linux-kernel@vger.kernel.org,
+        linux-arm@lists.arm.linux.org.uk
+Subject: Re: kernel crash
+Message-ID: <20010412163153.B23165@flint.arm.linux.org.uk>
+In-Reply-To: <C4986887AFD0FE4FAB6D5EB312E9BDD30444E3@ncemx.smart-fusion.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <C4986887AFD0FE4FAB6D5EB312E9BDD30444E3@ncemx.smart-fusion.com>; from Cyrille.Ngalle@smart-fusion.com on Thu, Apr 12, 2001 at 05:16:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001 johan.adolfsson@axis.com wrote:
+On Thu, Apr 12, 2001 at 05:16:33PM +0200, Cyrille Ngalle wrote:
+> This is just to reinforce the message below.
 
-> Shouldn't a compiler be able to deal with this instead?
-> (Just a thought.)
-> /Johan
+And why is it of interest to LKML?  I can think if no one here who'd
+be interested in it.
 
-The compiler does deal with it. That's why you have a choice when
-you write code.
+> This crash is ver easy to reproduce.
+> 
+> Use bootldr (with the last patch from Nico)  [it also happens with
+> Redboot]
 
-The defacto standard has been that initialized data, regardless of
-whether it's initialized with zero, goes into the ".data" area (segment).
-Non initialized data, that gets zeroed at run-time goes into
-the ".bss" area.
+It is not a function of the bootloader, this is irrelevent.
 
-If you declare a file-scope variable as:
+Also, I believe that the original posters message was an April Fool's
+joke (was posted on the 1st April to the linux-arm lists).
 
-	int foo;
+However, the problem it describes is not, and I do have a fix in my
+tree, but the delta between my last patch and my current tree is one
+line, which hardly seems worth putting out a new ARM patch.
 
-it goes into '.bss'.
-
-If you declare it as:
-
-	int foo = 0;
-
-it goes into '.data'.
-
-Data that is in '.data' occupies space in the executable image. With
-the kernel, it makes the kernel larger than necessary.
-
-Data that is in '.bss' is just a single long int in the file header.
-It tells the loader how much space to allocate and zero. There is
-quite an obvious advantage to using '.bss' when possible, rather
-than '.data'.
-
-At one time, data that was declared as:
-
-	int foo;
-
-may, or may not, have been initialized to zero. This was "implementation
-defined". Therefore we were taught to always initialize these variables.
-
-The C98 standard now requires that such variables be initialized to
-zero so you don't need to do this anymore. This allows such variables
-to be put into space that is allocated at run-time, making executable
-files shorter.
+--- linux.rel/arch/arm/mm/fault-armv.c	Fri Apr  6 19:09:05 2001
++++ linux/arch/arm/mm/fault-armv.c	Thu Apr 12 16:30:25 2001
+@@ -490,7 +490,7 @@
+ bad_or_fault:
+ 	if (type == TYPE_ERROR)
+ 		goto bad;
+-
++	regs->ARM_pc -= 4;
+ 	/*
+ 	 * We got a fault - fix it up, or die.
+ 	 */
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbTDRNoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 09:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263048AbTDRNoJ
+	id S263056AbTDROHq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 10:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTDROHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 09:44:09 -0400
-Received: from ulm9-d9bb50d8.pool.mediaWays.net ([217.187.80.216]:9344 "EHLO
-	openworld.de") by vger.kernel.org with ESMTP id S263045AbTDRNoI
+	Fri, 18 Apr 2003 10:07:46 -0400
+Received: from watch.techsource.com ([209.208.48.130]:49640 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263056AbTDROHp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 09:44:08 -0400
-From: Artjom Simon <hoek@linuxartist.org>
-Reply-To: hoek@linuxartist.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67] SB-AWE32 + ALSA: "snd_sbawe: falsely claims to have parameter pnp"
-Date: Fri, 18 Apr 2003 15:56:42 +0200
-User-Agent: KMail/1.5.1
-References: <200304170126.07245.hoek@linuxartist.org>
-In-Reply-To: <200304170126.07245.hoek@linuxartist.org>
+	Fri, 18 Apr 2003 10:07:45 -0400
+Message-ID: <3EA00D04.6090705@techsource.com>
+Date: Fri, 18 Apr 2003 10:34:44 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] only use 48-bit lba when necessary
+References: <200304172137_MC3-1-34EB-2D39@compuserve.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304181556.42209.hoek@linuxartist.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
 
-I just wanted to inform people having the same problem, just update the 
-/usr/src/linux/sound and /usr/src/linux/sound/include subdirs with the files 
-in the alsa-kernel module in alsa CVS.
 
-Thanks to Ruslan U. Zakirov from the ALSA-dev list.
+Chuck Ebbert wrote:
 
-Artjom
+>Matt Mackall wrote:
+>
+>
+>  
+>
+>>FYI, GCC as of 3.2.3 doesn't yet reduce the if(...) form to branchless
+>>code but the & and && versions come out the same with -O2.
+>>    
+>>
+>
+>
+>  The operands of & can be evaluated in any order, while && requires
+>left-to-right and does not evaluate the right operand if the left one
+>is false.  Only the simplest cases could possibly generate the same
+>code.
+>
+>  
+>
+I have a vague memory of reading a kerneltrap.org article or comment 
+thread which discussed this.  The determination was that a compiler 
+could choose to fully evaluate the logical expression if there were no 
+side-effects.
+
+
+

@@ -1,98 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVBGOss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVBGOrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVBGOss (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVBGOss
+	id S261449AbVBGOrs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:47:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVBGOro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:48:48 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:2290 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261438AbVBGOpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:45:09 -0500
-Message-ID: <42077EE0.2060505@nortel.com>
-Date: Mon, 07 Feb 2005 08:44:48 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Mon, 7 Feb 2005 09:47:44 -0500
+Received: from alog0411.analogic.com ([208.224.222.187]:4224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261443AbVBGOqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 09:46:37 -0500
+Date: Mon, 7 Feb 2005 09:46:31 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
+Subject: Re: Reading Bad DVD Under 2.6.10 freezes the box.
+In-Reply-To: <1107783980.6191.154.camel@gonzales>
+Message-ID: <Pine.LNX.4.61.0502070939320.21570@chaos.analogic.com>
+References: <Pine.LNX.4.62.0502070728520.1743@p500> 
+ <Pine.LNX.4.61.0502070757580.21063@chaos.analogic.com> <1107783980.6191.154.camel@gonzales>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: question on symbol exports
-References: <41FECA18.50609@nortelnetworks.com>	 <1107243398.4208.47.camel@laptopd505.fenrus.org>	 <41FFA21C.8060203@nortelnetworks.com>	 <1107273017.4208.132.camel@laptopd505.fenrus.org>	 <20050204203050.GA5889@dmt.cnet>  <4203D793.1040604@nortel.com> <1107595148.30302.5.camel@gaston>
-In-Reply-To: <1107595148.30302.5.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-42337991-1107787591=:21570"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>It turns out that to call ptep_clear_flush_dirty() on ppc64 from a 
->>module I needed to export the following symbols:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--1879706418-42337991-1107787591=:21570
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+On Mon, 7 Feb 2005, Xavier Bestel wrote:
+
+> Le lundi 07 f=FF=FFvrier 2005 =FF=FF 08:05 -0500, linux-os a =FF=FFcrit :
+>
+>>> Main Question >> Why does Linux 'freeze up' when W2K gives a BadCRC err=
+or msg
+>>> (never freezes)?
 >>
->>__flush_tlb_pending
->>ppc64_tlb_batch
->>hpte_update
-> 
-> 
-> Any reason why you need to call that from a module ? Is the module
-> GPL'd ?
+>> Of course it should not. However, there were many incomplete changes
+>> made in 2.6.nn and some may involve problems with locking, etc.
+>
+> I don't remember a version of the kernel gracefully handling scratched
+> CD/DVD.
+>
+> =09Xav
+>
 
-I explained this at the beginning of the thread, but I'll do so again. 
-The module will be released under the GPL.
+Well `cdparanoia` will read, analyze/rip, and reject trashed CDs
+without ever hanging the Linux-2.4.22 kernel, but will immediately
+hang linux-2.6.10.
 
-The basic idea is that we want to be able to track pages dirtied by a 
-userspace process.  The system has no swap, so we use the dirty bit for 
-this.  On demand we look up the page tables for an address range 
-specified by the caller, store the addresses of any dirty pages, then 
-mark them clean so that the next write causes them to get marked dirty 
-again.  It is this act of marking them clean that requires the 
-additional exports.
+Basically, when you start getting the kernel error messages on
+linux-2.4.22, you can ^C out and everything will quiet down.
+With Linux-2.6.10, nothing entered from the keyboard will
+do anything. Since the Caps-Lock key still functions, interrupts
+are still active. However, it is likely the kernel-lock that
+prevents signals (like ^C or ^/) from being executed.
 
-I've included the current code below.  If there is any way to accomplish 
-this without the additional exports, I'd love to hear about it.
-
-Chris
-
-
-
-
-
-
-
-
-Note: this code is run while holding &mm->mmap_sem and &mm->page_table_lock.
-
-
-for(addr=start&PAGE_MASK; addr<=end; addr+=PAGE_SIZE) {
-	pte_t *ptep=0;
-
-	ptep = va_to_ptep_map(mm, addr);
-	if (!ptep)
-		goto unmap_continue;
-
-	if (!pte_dirty(*ptep))
-		goto unmap_continue;
-
-	/* We have a user readable dirty page.  Count it.*/
-	dirty_count++;
-
-	if (dirty_count <= entries) {
-		__put_user(addr, buf);
-		buf++;
-		ptep_clear_flush_dirty(find_vma(mm, addr), addr, ptep);
-
-		/* Handle option to stop early. */
-		if ((dirty_count == entries) &&
-			(options & STOP_WHEN_BUF_FULL))
-			addr=end+1;
-	}
-
-unmap_continue:
-	if (ptep)
-		pte_unmap(ptep);		
-}
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.
+--1879706418-42337991-1107787591=:21570--

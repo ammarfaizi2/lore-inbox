@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271985AbRIENXN>; Wed, 5 Sep 2001 09:23:13 -0400
+	id <S271988AbRIEN0N>; Wed, 5 Sep 2001 09:26:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272172AbRIENXD>; Wed, 5 Sep 2001 09:23:03 -0400
-Received: from dns.lineo.fr ([194.250.46.228]:13809 "EHLO mailhost.lineo.fr")
-	by vger.kernel.org with ESMTP id <S271985AbRIENWx>;
-	Wed, 5 Sep 2001 09:22:53 -0400
-Date: Wed, 5 Sep 2001 15:23:12 +0200
-From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac6
-Message-ID: <20010905152312.A11004@pc8.lineo.fr>
-In-Reply-To: <20010905145039.A10655@pc8.lineo.fr> <1269703968.999699248@[169.254.198.40]>
+	id <S272137AbRIENZz>; Wed, 5 Sep 2001 09:25:55 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:24845
+	"EHLO awak") by vger.kernel.org with ESMTP id <S271988AbRIENZt>;
+	Wed, 5 Sep 2001 09:25:49 -0400
+Subject: hang on disk discovery
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.08.30.16.57 (Preview Release)
+Date: 05 Sep 2001 15:21:34 +0200
+Message-Id: <999696095.14164.12.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1269703968.999699248@[169.254.198.40]>; from linux-kernel@alex.org.uk on mer, sep 05, 2001 at 15:14:09 +0200
-X-Mailer: Balsa 1.2.pre3
-X-Operating-System: Debian SID GNU/Linux 2.4.9 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My box hangs during disk discovery.
+Here is what I have in dmesg:
 
-Le mer, 05 sep 2001 15:14:09, Alex Bligh - linux-kernel a écrit :
-> > Would it not be possible with your scheme to package a closed source
-> > driver in an open source wrapper driver and then defeat your tainting
-> > technique.
-> 
-> It would also be theoretically possible for an evil driver merchant
-> to twiddle the flag back via /dev/kmem (for instance). Or load the
-> module by manipulation of /dev/kmem. Or for the bug-reporting user
-> to patch their kernel so that the flag never got set and hence
-> disguise the presence of an nvidia driver (etc.) in a misguided
-> attempt to wangle support out of Alan et al.
-> 
-> However, I understood the point of the exercize to be a first pass
-> hueristic to flag bug reports from systems running modules for
-> which Alan and others haven't got, and can't get the source. It's
-> not going to be perfect (see above), but equally doesn't need to be.
-> I'm sure users do all sorts of other 'well don't do that, then'
-> stuff which wastes the time of those reading bug reports.
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:DMA
+HPT370: IDE controller on PCI bus 00 dev 70
+HPT370: chipset revision 3
+HPT370: not 100% native mode: will probe irqs later
+    ide2: BM-DMA at 0xc800-0xc807, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xc808-0xc80f, BIOS settings: hdg:pio, hdh:pio
+hd1: C/H/S=0/0/0 from BIOS ignored
+hda: ST36531A, ATA DISK drive
+hdb: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
+hdc: HITACHI DVD-ROM GD-7500, ATAPI CD/DVD-ROM drive
+hdd: LG CD-RW CED-8080B, ATAPI CD/DVD-ROM drive
 
-Yes I agree that's not easy and certainly not the goal to avoid this kind
-of thing.
+Then it hangs there. If I push the power button, either it continues to
+boot normally, or it resets, or nothing happens.
 
-Btw I was thinking about a real case: I use in my laptop the lucent driver
-for their winmodem chipset. This driver is closed source but we use it
-relinked with proper opensource code. This avoid the use of 'insmod -f' and
-most of the bug (caused by missing symbols) but you can not trust the
-resulting module.
+If it continues booting, I have:
 
-Christophe
+hde: ST340824A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xb800-0xb807,0xbc02 on irq 11
+hda: 12706470 sectors (6506 MB) w/128KiB Cache, CHS=6204/64/32, UDMA(33)
+hde: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=77545/16/63, UDMA(100)
 
-> --
-> Alex Bligh
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
--- 
-Christophe Barbé
-Software Engineer - christophe.barbe@lineo.fr
-Lineo France - Lineo High Availability Group
-42-46, rue Médéric - 92110 Clichy - France
-phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-http://www.lineo.com
+etc.
+
+It happens with 2.4.9-ac7 and 2.4.8-ac7, but not with 2.4.5-ac19 and
+previous (and not with 2.2 series).
+I tried booting with noapic, it doesn't change anything.
+
+I have an ABit VP6 (dual PIII, VIA chipset), ACPI in kernel, I just put
+--no-mem-option in grub to see if it changes anything but no.
+The only intersting thing in dmesg seems the "unexpected IO-APIC".
+How can I help ?
+
+	Xav
+

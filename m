@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbSJVRcr>; Tue, 22 Oct 2002 13:32:47 -0400
+	id <S264811AbSJVRay>; Tue, 22 Oct 2002 13:30:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264816AbSJVRcr>; Tue, 22 Oct 2002 13:32:47 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:24472 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264815AbSJVRcq>; Tue, 22 Oct 2002 13:32:46 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 22 Oct 2002 10:47:43 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: "Charles 'Buck' Krasic" <krasic@acm.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <20021022172244.GA1314@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.44.0210221043420.1563-100000@blue1.dev.mcafeelabs.com>
+	id <S264814AbSJVRay>; Tue, 22 Oct 2002 13:30:54 -0400
+Received: from pheriche.sun.com ([192.18.98.34]:55231 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id <S264811AbSJVRax>;
+	Tue, 22 Oct 2002 13:30:53 -0400
+Message-ID: <3DB58CBD.3030207@sun.com>
+Date: Tue, 22 Oct 2002 10:37:01 -0700
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
+References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com>	<1035280294.31917.19.camel@irongate.swansea.linux.org.uk> 	<3DB58A47.4020404@sun.com> <1035308740.31873.107.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Mark Mielke wrote:
+Alan Cox wrote:
+> On Tue, 2002-10-22 at 18:26, Tim Hockin wrote:
+> 
+>>Alan Cox wrote:
+>>
+>>>Ok sanity check time. Why do you need qsort and bsearch for this kind of
+>>>thing. Just how many groups do you plan to support ?
+>>
+>>Unlimited - we've tested with tens of thousands.
+> 
+> 
+> Now how about the real world requirements ?
 
-> On Sat, Oct 19, 2002 at 09:10:52AM -0700, Charles 'Buck' Krasic wrote:
-> > Mark Mielke <mark@mark.mielke.cc> writes:
-> > > They still represent an excessive complicated model that attempts to
-> > > implement /dev/epoll the same way that one would implement poll()/select().
-> > epoll is about fixing one aspect of an otherwise well established api.
-> > That is, fixing the scalability of poll()/select() for applications
-> > based on non-blocking sockets.
->
-> epoll is not a poll()/select() enhancement (unless it is used in
-> conjuction with poll()/select()). It is a poll()/select()
-> replacement.
->
-> Meaning... purposefully creating an API that is designed the way one
-> would design a poll()/select() loop is purposefully limiting the benefits
-> of /dev/epoll.
->
-> It's like inventing a power drill to replace the common screw driver,
-> but rather than plugging the power drill in, manually turning the
-> drill as if it was a socket wrench for the drill bit.
->
-> I find it an excercise in self defeat... except that /dev/epoll used the
-> same way one would use poll()/select() happens to perform better even
-> when it is crippled.
+Those were real world requirements - we got the number 10,000 from our 
+product management, which (presumably) spoke with customers.  On the 
+hosting systems, it is really possible to have thousands of virtual sites.
 
-Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
-can mix sys_epoll handling with other methods like poll() and the AIO's
-POLL function when it'll be ready. For example, for devices that sys_epoll
-intentionally does not support, you can use a method like :
+Now, I don't much care if you want it to be a linear search, and I'll 
+revert it, if needed, but qsort() is already in in XFS specific code, 
+and bsearch is small.  It doesn't negatively impact any fast path, and 
+provides better behavior for the crazies that really want 10,000 groups.
 
-	put_sys_epoll_fd_inside_XXX();
-	...
-	wait_for_XXX_events();
-	...
-	if (XXX_event_fd() == sys_epoll_fd) {
-		sys_epoll_wait();
-		for_each_sys_epoll_event {
-			handle_fd_event();
-		}
-	}
+Tim
 
-
-
-- Davide
-
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
 

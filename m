@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbULKVd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbULKVkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbULKVd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 16:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbULKVd5
+	id S262019AbULKVkB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 16:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbULKVkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 16:33:57 -0500
-Received: from mout.alturo.net ([212.227.15.20]:21192 "EHLO mout.alturo.net")
-	by vger.kernel.org with ESMTP id S262017AbULKVdo (ORCPT
+	Sat, 11 Dec 2004 16:40:01 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:19120 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262019AbULKVj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 16:33:44 -0500
-Message-ID: <41BB4951.2080304@datafloater.de>
-Date: Sat, 11 Dec 2004 20:24:01 +0100
-From: Arne Caspari <arne@datafloater.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
+	Sat, 11 Dec 2004 16:39:59 -0500
+Date: Sat, 11 Dec 2004 22:39:55 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+cc: Simos Xenitellis <simos74@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: Improved console UTF-8 support for the Linux kernel?
+In-Reply-To: <20041211212533.GA13739@fargo>
+Message-ID: <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
+References: <1102784797.4410.8.camel@kl> <20041211173032.GA13208@fargo>
+ <Pine.LNX.4.53.0412112002020.30929@yvahk01.tjqt.qr> <20041211212533.GA13739@fargo>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/base/driver.c : driver_unregister
-References: <41BB4268.8020908@datafloater.de> <20041211191113.A13985@flint.arm.linux.org.uk>
-In-Reply-To: <20041211191113.A13985@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-
->On Sat, Dec 11, 2004 at 07:54:32PM +0100, Arne Caspari wrote:
->  
+>Indeed is weird. Are you sure you keyboard is generating an UTF-8
+>enconded "ö"? Just check it with echo:
 >
->>I think the meaning of this patch is obvious: In driver_unregister, the 
->>bus_remove_driver function call was called outside the driver unload 
->>semaphore which should obviously protect it.
->>    
->>
+>$ echo -n ö | od -t x1
 >
->No.  The semaphore is there to ensure that the function does not
->return until the driver structure has a use count of zero.  If you
->tested your patch, you'd find that your change would deadlock on
->the locked semaphore.
->  
->
+>0000000 c3 b6
+>0000002
 
-Russell,
+Yes it does generate 0xC3B6 (otherwise it would show up as garbage, because it
+would not be utf8-compliant if it only output 0xF6)
 
-Ah, now I understand that thing.  Reading the comments again, I should 
-have seen the reason for this earlier.
+>I'm using kernel 2.6.9 + Chris patch
 
-I am sorry I can not test that patch since unloading of the modules I am 
-currently testing blocks anyway. This makes it very hard to test the 
-patch :-( and currently this was the reason why I was going to this.
+I am using SUSE's KOTD 20041202 (2.6.8 + 2.6.9-rc2)
 
-Sorry if I caused any inconvenience.
+>I know :)). By the way, and this is offtopic, have you checked uim? I
+>was testing it the other day with good results, and like it a lot as
+>a japanese (or another script, although i only use this japanese) input
+>method. I've used it with anthy, just have to check it with skk.
 
- /Arne
+Have not seen it. What is it? Some sort of xterm?
 
 
+Jan Engelhardt
+-- 
+ENOSPC

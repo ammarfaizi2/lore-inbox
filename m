@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVA0KoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVA0KoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbVA0KoT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 05:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVA0Kms
+	id S262568AbVA0KoV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 05:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVA0Km2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 05:42:48 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31376 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262571AbVA0Kjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 05:39:49 -0500
-Date: Thu, 27 Jan 2005 11:39:42 +0100
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>, Andreas Gruenbacher <agruen@suse.de>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: 2.6.11-rc2/ext3 quota allocation bug on error path ...
-Message-ID: <20050127103942.GA18556@atrey.karlin.mff.cuni.cz>
-References: <20050122155044.GA4573@mail.13thfloor.at> <1106764346.13004.232.camel@winden.suse.de> <20050126112430.2daf812d.akpm@osdl.org> <20050126224116.GA20720@mail.13thfloor.at>
+	Thu, 27 Jan 2005 05:42:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:782 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262564AbVA0Khn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 05:37:43 -0500
+Date: Thu, 27 Jan 2005 11:37:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-mm <linux-mm@kvack.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: reiser4 core patches: [Was: [RFC] per thread page reservation patch]
+Message-ID: <20050127103740.GD28047@stusta.de>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com> <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <41DEDF87.8080809@grupopie.com> <m1llb5q7qs.fsf@clusterfs.com> <20050107132459.033adc9f.akpm@osdl.org> <1106671038.4466.81.camel@tribesman.namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050126224116.GA20720@mail.13thfloor.at>
+In-Reply-To: <1106671038.4466.81.camel@tribesman.namesys.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Jan 26, 2005 at 11:24:30AM -0800, Andrew Morton wrote:
-> > Andreas Gruenbacher <agruen@suse.de> wrote:
-> > >
-> > > > +cleanup_dquot:
-> > >  > +	DQUOT_FREE_BLOCK(inode, 1);
-> > >  > +	goto cleanup;
-> > >  > +
-> > >  >  bad_block:
-> > >  >  	ext3_error(inode->i_sb, __FUNCTION__,
-> > >  >  		   "inode %ld: bad block %d", inode->i_ino,
-> > > 
-> > >  looks good. Can this please be added?
-> > 
-> > Yup.  But nobody has sent the equivalent ext2 fix yet?
-> 
-> hmm, what about this one?
-  I have already made a fix and sent it to Andreas and linux-fsdevel.
-For ext2 it's actually a bit more complicated because ext2_sync_inode()
-can return with ENOSPC (because do_writepages() need not be able to
-write the dirty data of the inode) but inode would be written and hence
-in that case we should not release the quota (and we should release the
-old xattr block properly). Andreas proposed to just call write_inode()
-instead of ext2_sync_inode() to avoid the ENOSPC case but then we might
-end up with inconsistency between inode metadata and indirect blocks for
-SYNC inode (though the only way I see how this can happen is that we
-race against file write and the short time inconsistency might be
-bearable...).
-  I send a combination of mine and Herbert's patch.
+Hi Vladimir,
 
-								Honza
+a general request:
+
+If you add new EXPORT_SYMBOL's, I'd strongly prefer them being 
+EXPORT_SYMBOL_GPL's unless there's a very good reason for an 
+EXPORT_SYMBOL.
+
+cu
+Adrian
+
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
 
-Fix a subtle bug in error handling of ext2 xattrs. When ext2_sync_inode() fails
-because of ENOSPC (it could not write inode's dirty data) we want to keep
-xattrs in a consistent state and release the old block properly.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-
---- linux/fs/ext2/xattr.c	2005-01-27 12:56:25.782729816 +0100
-+++ linux/fs/ext2/xattr.c	2005-01-27 13:14:21.196242112 +0100
-@@ -706,8 +706,14 @@
- 	inode->i_ctime = CURRENT_TIME_SEC;
- 	if (IS_SYNC(inode)) {
- 		error = ext2_sync_inode (inode);
--		if (error)
-+		/* In case sync failed due to ENOSPC the inode was actually
-+		 * written (only some dirty data were not) so we just proceed
-+		 * as if nothing happened and cleanup the unused block */
-+		if (error && error != ENOSPC) {
-+			if (new_bh && new_bh != old_bh)
-+				DQUOT_FREE_BLOCK(inode, 1);
- 			goto cleanup;
-+		}
- 	} else
- 		mark_inode_dirty(inode);
- 

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264320AbTKNVdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTKNVdM
+	id S264472AbTKNVer (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTKNVer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:33:12 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:46061 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264320AbTKNVdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:33:11 -0500
-Date: Fri, 14 Nov 2003 13:57:53 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm3
-Message-ID: <103290000.1068847073@flay>
-In-Reply-To: <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com>
-References: <20031112233002.436f5d0c.akpm@osdl.org> <3210000.1068786449@[10.10.2.4]> <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 14 Nov 2003 16:34:47 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3055 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264472AbTKNVeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:34:37 -0500
+Message-ID: <3FB54A62.6020601@nortelnetworks.com>
+Date: Fri, 14 Nov 2003 16:34:26 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why no Kconfig in "kernel" subdir?
+References: <3FB50B4D.1000300@nortelnetworks.com> <20031114092319.5260bd01.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > - Several ext2 and ext3 allocator fixes.  These need serious testing on big
->> >   SMP.
->> 
->> Survives kernbench and SDET on ext2 at least on 16-way. I'll try ext3
->> later.
-> 
-> It's actually triple faulting my laptop (K6 family=5 model=8 step=12) when 
-> i have CONFIG_X86_4G enabled and try and run X11. The same kernel is fine 
-> on all my other test boxes. Any hints?
+Randy.Dunlap wrote:
 
-Linus had some debug thing for triple faults, a few months ago, IIRC ...
-probably in the archives somewhere ...
 
-M.
+> I consider PREEMPT and SMP arch-specific, not generic.
+
+Interesting.  Might I ask why?  I thought that most of PREEMPT was 
+pretty arch-neutral.
+
+> Will init/Kconfig do what you want?
+
+As long as there is some place to put generic options that are 
+applicable to the system as a whole, then I'm happy.
+
+Chris
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

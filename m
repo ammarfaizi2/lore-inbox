@@ -1,158 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUIXQPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUIXQgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268883AbUIXQPC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:15:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268896AbUIXQOp
+	id S268851AbUIXQgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268884AbUIXQga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:14:45 -0400
-Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:54656 "EHLO
-	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268883AbUIXQLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:11:36 -0400
-Date: Fri, 24 Sep 2004 17:11:32 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation, cleanups and a bugfix
-Message-ID: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
+	Fri, 24 Sep 2004 12:36:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50365 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268886AbUIXQQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 12:16:40 -0400
+Date: Fri, 24 Sep 2004 12:16:10 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.9-rc2-mm3
+In-Reply-To: <Xine.LNX.4.44.0409241127220.7816-300000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0409241210220.8009-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a
+On Fri, 24 Sep 2004, James Morris wrote:
 
-	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
+> I'm getting what looks like a deadlock during boot with this kernel, 
+> .config, bootlog and sysrq output attached.  Looks like it may be related 
+> to the serial/tty code?
 
-This includes the (off-list) discussed NTFS sparse annotations, some other
-cleanups and a fix for a bug found by the bitwise sparse annotations.  (-:
+Backing these out lets me boot again:
 
-Please apply.  Thanks!
++tty-driver-take-4-try-2.patch
++tty-locking-build-fix.patch
 
-For the benefit of non-BK users and to make code review easier, I am
-sending each ChangeSet in a separate email as a diff -u style patch.
+Also, here's what the NMI oopser says:
 
-Best regards,
+NMI Watchdog detected LOCKUP on CPU1, eip c03516ab, registers:
+Modules linked in:
+CPU:    1
+EIP:    0060:[<c03516ab>]    Not tainted VLI
+EFLAGS: 00000006   (2.6.9-rc2-mm3) 
+EIP is at _spin_lock_irqsave+0x1e/0x53
+eax: 00000000   ebx: 00000000   ecx: c1950ee0   edx: 00000006
+esi: c03eaec8   edi: c1950000   ebp: c1950e30   esp: c1950e24
+ds: 007b   es: 007b   ss: 0068
+Process init (pid: 1, threadinfo=c1950000 task=c194f9d0)
+Stack: f7bb537c f7bb537c 00000000 c1950e40 c026b3a4 f7bb537c c1950ee0 
+c1950e58 
+       c027f485 00009600 c049fd40 f7bb537c 00000013 c1950e94 c0283af1 00000000 
+       0001c200 00000000 00000202 c1950ec0 c014af00 00000000 0001c200 00000000 
+Call Trace:
+ [<c0106ba1>] show_stack+0x7a/0x90
+ [<c0106d22>] show_registers+0x152/0x1ca
+ [<c010797c>] die_nmi+0x50/0x83
+ [<c0112cdf>] nmi_watchdog_tick+0x9a/0xb6
+ [<c0107a0a>] default_do_nmi+0x5b/0xe7
+ [<c0107add>] do_nmi+0x40/0x4a
+ [<c01068d5>] nmi_stack_correct+0x1e/0x2e
+ [<c026b3a4>] tty_termios_baud_rate+0x11/0x67
+ [<c027f485>] uart_get_baud_rate+0x53/0xd4
+ [<c0283af1>] serial8250_set_termios+0x8d/0x348
+ [<c027f580>] uart_change_speed+0x4a/0x64
+ [<c0280664>] uart_set_termios+0x4f/0x162
+ [<c026e94f>] change_termios+0x1b3/0x21a
+ [<c026ea40>] set_termios+0x8a/0xf9
+ [<c026ad15>] tty_ioctl+0x152/0x44f
+ [<c0169687>] sys_ioctl+0x231/0x282
+ [<c0105d09>] sysenter_past_esp+0x52/0x71
+Code: 83 47 14 01 eb d2 e8 53 f3 ff ff eb e3 55 89 e5 57 56 89 c6 b8 00 f0 
+ff ff 53 21 e0 83 40 14 01 31 db 89 c7 9c 5a 
+fa 89 d8 86 06 <84> c0 7e 07 5b 89 d0 5e 5f 5d c3 52 9d 8b 47 08 83 6f 14 
+01 a8 
+console shuts up ...
 
-	Anton
+
+Looks like tty_termios_lock.
+
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-This will update the following files:
+James Morris
+<jmorris@redhat.com>
 
- Documentation/filesystems/ntfs.txt |    5 
- fs/ntfs/ChangeLog                  |   36 +
- fs/ntfs/Makefile                   |    4 
- fs/ntfs/attrib.c                   |    9 
- fs/ntfs/attrib.h                   |    4 
- fs/ntfs/collate.c                  |   20 
- fs/ntfs/collate.h                  |   12 
- fs/ntfs/compress.c                 |    8 
- fs/ntfs/dir.c                      |   62 -
- fs/ntfs/endian.h                   |   78 +-
- fs/ntfs/index.c                    |    4 
- fs/ntfs/inode.c                    |  148 +++-
- fs/ntfs/inode.h                    |    8 
- fs/ntfs/layout.h                   | 1216 ++++++++++++++++++-------------------
- fs/ntfs/logfile.c                  |    8 
- fs/ntfs/logfile.h                  |   68 +-
- fs/ntfs/mft.c                      |   12 
- fs/ntfs/mst.c                      |   23 
- fs/ntfs/ntfs.h                     |    2 
- fs/ntfs/quota.c                    |    2 
- fs/ntfs/super.c                    |   21 
- fs/ntfs/time.h                     |    6 
- fs/ntfs/types.h                    |   14 
- fs/ntfs/unistr.c                   |   12 
- fs/ntfs/upcase.c                   |    3 
- 25 files changed, 961 insertions(+), 824 deletions(-)
 
-through these ChangeSets:
-
-<aia21@cantab.net> (04/09/22 1.1947)
-   NTFS: - Remove BKL use from ntfs_setattr() syncing up with the rest of the
-           kernel.
-         - Update ->setattr (fs/ntfs/inode.c::ntfs_setattr()) to refuse to
-           change the uid, gid, and mode of an inode as we do not support NTFS
-           ACLs yet.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/22 1.1948)
-   NTFS: Get rid of the ugly transparent union in fs/ntfs/dir.c::ntfs_readdir()
-         and ntfs_filldir() as per suggestion from Al Viro.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/22 1.1949)
-   NTFS: Improve the previous transparent union removal.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/23 1.1951)
-   NTFS: Change '\0' and L'\0' to simply 0 as per advice from Linus Torvalds.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/23 1.1952)
-   NTFS: - Update ->truncate (fs/ntfs/inode.c::ntfs_truncate()) to check if the
-           inode size has changed and to only output an error if so.
-         - Rename fs/ntfs/attrib.h::attribute_value_length() to ntfs_attr_size().
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/24 1.1952.1.1)
-   NTFS: Begin of sparse annotations: new data types and endianness conversion.
-   
-   - Add le{16,32,64} as well as sle{16,32,64} data types to fs/ntfs/types.h.
-   - Change ntfschar to be le16 instead of u16 in fs/ntfs/types.h.
-   - Add le versions of VCN, LCN, and LSN called leVCN, leLCN, and leLSN,
-     respectively, to fs/ntfs/types.h.
-   - Update endianness conversion macros in fs/ntfs/endian.h to use the
-     new types as appropriate.
-   - Do proper type casting when using sle64_to_cpup() in fs/ntfs/dir.c
-     and index.c.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/24 1.1952.1.2)
-   NTFS: Continuing sparse annotations: finish data types and header files.
-   
-   - Add leMFT_REF data type to fs/ntfs/layout.h.
-   - Update all NTFS header files with the new little endian data types.
-     Affected files are fs/ntfs/layout.h, logfile.h, and time.h.
-   - Do proper type casting when using ntfs_is_*_recordp() in
-     fs/ntfs/logfile.c, mft.c, and super.c.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/24 1.1952.1.3)
-   NTFS: Finish off sparse annotation.
-   
-   - Fix all the sparse bitwise warnings.  Had to change all the enums
-     storing little endian values to #defines because we cannot set enums
-     to be little endian so we had lots of bitwise warnings from sparse.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/24 1.1952.1.4)
-   NTFS: 2.1.19 - Many cleanups, improvements, and a minor bug fix.
-   
-   - Fix bug found by the new sparse bitwise warnings where the default
-     upcase table was defined as a pointer to wchar_t rather than ntfschar
-     in fs/ntfs/ntfs.h and super.c.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-<aia21@cantab.net> (04/09/24 1.1956)
-   NTFS: Fix a stupid bug where I forgot to actually do the attribute lookup
-         and then went and used the looked up attribute...  Ooops.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 

@@ -1,64 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262706AbTCJEGI>; Sun, 9 Mar 2003 23:06:08 -0500
+	id <S262710AbTCJE1F>; Sun, 9 Mar 2003 23:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262708AbTCJEGI>; Sun, 9 Mar 2003 23:06:08 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:14803 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262706AbTCJEGH>;
-	Sun, 9 Mar 2003 23:06:07 -0500
-Message-ID: <32835.4.64.238.61.1047269795.squirrel@www.osdl.org>
-Date: Sun, 9 Mar 2003 20:16:35 -0800 (PST)
-Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <szaka@sienet.hu>
-In-Reply-To: <Pine.LNX.4.30.0303081613070.2790-100000@divine.city.tvnet.hu>
-References: <Pine.LNX.4.30.0303081100420.2790-100000@divine.city.tvnet.hu>
-        <Pine.LNX.4.30.0303081613070.2790-100000@divine.city.tvnet.hu>
-X-Priority: 3
-Importance: Normal
-Cc: <rddunlap@osdl.org>, <aia21@cantab.net>, <linux-kernel@vger.kernel.org>,
-       <linux-ntfs-dev@lists.sourceforge.net>
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S262711AbTCJE1F>; Sun, 9 Mar 2003 23:27:05 -0500
+Received: from mail.gmx.net ([213.165.64.20]:528 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262710AbTCJE1B>;
+	Sun, 9 Mar 2003 23:27:01 -0500
+Message-Id: <5.2.0.9.2.20030310052059.00c8f828@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Mon, 10 Mar 2003 05:42:04 +0100
+To: rwhron@earthlink.net
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: scheduler starvation running irman with 2.5.64bk2
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20030309025015.GA2843@rushmore>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_5116515==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> On Sat, 8 Mar 2003, Szakacsits Szabolcs wrote:
->>
->>  EFLAGS: 00010282
->>  eax: f6c0f080   ebx: 0000416d   ecx: 00010282 edx: f6c0f0f8
->>  esi: c040b078   edi: f6c0f0f8   ebp: f6dd1dbc esp: f6dd1db4
->>  ds: 007b   es: 007b   ss: 0068
->>
->>  3c0:       b9 06 00 00 00          mov    $0x6,%ecx
->>  ... not important ...
->>  3cc:       89 d7                   mov    %edx,%edi
->>  3ce:       89 55 f4                mov    %edx,0xfffffff4(%ebp) 3d1:
->>  f3 a5                   repz movsl %ds:(%esi),%es:(%edi) 3d3:       8d
->> 50 78                lea    0x78(%eax),%edx
->>  3d6:       8b 4d f4                mov    0xfffffff4(%ebp),%ecx 3d9:
->>  89 51 18                mov    %edx,0x18(%ecx)  ## OOPS ##
->>
->> So %ecx should be %edi-24 = f6c0f0e0, instead it's EFLAGS. Oops [indeed].
->> %ebp value is correct, I checked. So it seems a hardware, strong radiation
->> or an interrupt that didn't restore ecx.
->
-> Actually the "interrupt" did a pushfl and overwrote 0xfffffff4(%ebp). esp =
-> 0xfffffff4(%ebp). For kernel code the compiler shouldn't have generated the
-> above code.
->
-> 	Szaka
+--=====================_5116515==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Hi Szaka,
+At 09:50 PM 3/8/2003 -0500, rwhron@earthlink.net wrote:
+>irman triggers some odd behavior with 2.5.64bk2 on uniprocessor
+>K6/2 475.  "ps aux" hasn't returned for a couple hours, though
+>irman appears to be doing it's thing.  I haven't tried irman on smp.
 
-Should I just close this bugzilla entry as invalid or not an NTFS problem?
-I don't mind doing that.
+OK, can you do the following to determine whether we're both seeing the 
+_same_ problem?
 
-Thanks,
-~Randy
+1.)  build the attached rtnice utility (don't remember who wrote/posted this)
+2.)  login on vt1 and set the shell SCHED_RR via rtnice -n 1 -p <pid_of_sh> 
+-d RR
+3.)  login on vt2 and renice that shell to -10
+4.)  login on another vt as a normal user, and start irman
+5.)  try login/out on another vt, or ps or _whatever_ (doesn't matter) 
+until box is starving
+6.)  on vt2, try to do ps (it should hang despite -10 priority)
+7.)  on vt1, try to do ps (it should work just fine)
 
+cc to Ingo since stock .64 doesn't show this problem, and .64-combo and 
+.64-B2 do.
 
+         -Mike 
+--=====================_5116515==_
+Content-Type: text/plain; name="rtnice.c";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="rtnice.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPGdldG9wdC5o
+PgojaW5jbHVkZSA8c3RyaW5nLmg+CiNpbmNsdWRlIDxzeXMvdHlwZXMuaD4KI2luY2x1ZGUgPHNj
+aGVkLmg+CiNpbmNsdWRlIDxzeXMvdGltZS5oPgoKLyoKICogR3Jvc3MgaGFjaywganVzdCBpbiBj
+YXNlIGdsaWJjIGlzbid0IHVwIHRvIGRhdGUgeWV0LgogKiAoaXQgd2Fzbid0IHdoZW4gU0NIRURf
+SURMRSB3YXMgYWRkZWQgdG8gdGhlIGtlcm5lbCkKICovCiNpZm5kZWYgU0NIRURfSURMRQojZGVm
+aW5lIFNDSEVEX0lETEUgMwojZW5kaWYKCnN0YXRpYyBjaGFyICp1c2FnZSA9ICJVc2FnZTogJXMg
+LW4gPHByaW9yaXR5PiAtcCA8cGlkPiAtZCBGRnxUU3xSUnxJRCBbY29tbWFuZC4uLl1cbiI7Cgpz
+dGF0aWMgY2hhciBwcm9nbmFtZVsxMjhdOwoKbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQoJ
+ewoKCWludCBtaW5wcmksIG1heHByaTsKCWludCBjaDsKCWNoYXIgKnA7CglzdHJ1Y3QgdGltZXZh
+bCBpbnRlcnZhbDsKCXN0YXRpYyBzdHJ1Y3Qgc2NoZWRfcGFyYW0gcGFyYW07CglwaWRfdCBwaWQg
+PSAwOwoJaW50IGRvX3ByaW9yaXR5ID0gMDsKCWludCBkb19wb2xpY3kgPSAwOwoJaW50IHBvbGlj
+eSA9IDA7CglpbnQgcHJpb3JpdHkgPSAwOwoJaW50IGFyZ3MgPSAwOwoJZXh0ZXJuIGNoYXIgKm9w
+dGFyZzsKCWV4dGVybiBpbnQgb3B0aW5kOwoJCgkodm9pZCkgc3RyY3B5KHByb2duYW1lLCBhcmd2
+WzBdKTsKCgl3aGlsZSAoKGNoID0gZ2V0b3B0KGFyZ2MsIGFyZ3YsICJwOmQ6bjoiKSkgIT0gRU9G
+KQl7CgoJCXN3aXRjaCAoY2gpCXsKCQkJY2FzZSAncCc6CgkJCQlpZiAoc3NjYW5mKG9wdGFyZywg
+IiVkIiwgJnBpZCkgIT0gMSkJewoJCQkJCWZwcmludGYoc3RkZXJyLCIlczogQmFkIHBpZC5cbiIs
+IHByb2duYW1lKTsKCQkJCQlmcHJpbnRmKHN0ZGVyciwgdXNhZ2UsIHByb2duYW1lKTsKCQkJCQll
+eGl0KDMpOwoJCSAJCX0KCQkJCWFyZ3MrKzsKI2lmZGVmIERFQlVHCgkJCQlmcHJpbnRmKHN0ZGVy
+ciwgInBpZCA9ICVkLlxuIiwgcGlkKTsKI2VuZGlmCgoJCQlicmVhazsKCgkJCWNhc2UgJ2QnOgoK
+CQkJCWlmICghc3RyY21wKG9wdGFyZywgIlRTIikpCXsKCQkJCQlwb2xpY3kgPSBTQ0hFRF9PVEhF
+UjsKCQkgCQl9CgkJIAkJZWxzZQoJCSAJCWlmICghc3RyY21wKG9wdGFyZywgIlJSIikpCXsKCQkg
+CQkJcG9saWN5ID0gU0NIRURfUlI7CgkJIAkJfQoJCQkJZWxzZQoJCQkJaWYgKCFzdHJjbXAob3B0
+YXJnLCAiSUQiKSkKCQkJCQlwb2xpY3kgPSBTQ0hFRF9JRExFOwoJCSAJCWVsc2UKCQkgCQlpZiAo
+IXN0cmNtcChvcHRhcmcsICJGRiIpIHx8ICFzdHJjbXAob3B0YXJnLCAiRklGTyIpKQl7CgkJIAkJ
+CXBvbGljeSA9IFNDSEVEX0ZJRk87CgkJIAkJfQoJCSAJCWVsc2UJewoJCQkJCWZwcmludGYoc3Rk
+ZXJyLCIlczogQmFkIHNjaGVkdWxpbmcgZG9tYWluICclcycuXG4iLCBwcm9nbmFtZSwgb3B0YXJn
+KTsKCQkJCQlmcHJpbnRmKHN0ZGVyciwgdXNhZ2UsIHByb2duYW1lKTsKCQkJCQlleGl0KDQpOwoJ
+CSAJCX0KCQkJCWFyZ3MrKzsKCQkJCWRvX3BvbGljeSsrOwojaWZkZWYgREVCVUcKCQkJCWZwcmlu
+dGYoc3RkZXJyLCJwb2xpY3kgPSAlZC5cbiIsIHBvbGljeSk7CiNlbmRpZgoKCQkJYnJlYWs7CgoJ
+CQljYXNlICduJzoKCQkJCQkvKiB3ZSBoYXZlIG9uZSBkaWdpdCwgbGV0J3MgZ2V0IG1vcmUgKi8K
+CQkJCWlmIChzc2NhbmYob3B0YXJnLCAiJWQiLCAmcHJpb3JpdHkpICE9IDEpCXsKCQkJCQlmcHJp
+bnRmKHN0ZGVyciwiJXM6IEJhZCBwcmlvcml0eSB2YWx1ZS5cbiIsIHByb2duYW1lKTsKCQkJCQlm
+cHJpbnRmKHN0ZGVyciwgdXNhZ2UsIHByb2duYW1lKTsKCQkJCQlleGl0KDQpOwoJCSAJCX0KCQkJ
+CWRvX3ByaW9yaXR5Kys7CgkJCQlhcmdzKys7CiNpZmRlZiBERUJVRwoJCQkJZnByaW50ZihzdGRl
+cnIsICJwcmlvcml0eSA9ICVkLlxuIiwgcHJpb3JpdHkpOwojZW5kaWYKCgkJCWJyZWFrOwoKCQkJ
+ZGVmYXVsdDoKCQkJCWZwcmludGYoc3RkZXJyLCIlczogVW5yZWNvZ25pemVkIG9wdGlvbiAnJWMn
+LlxuIiwgcHJvZ25hbWUsIGNoKTsKCQkJCWZwcmludGYoc3RkZXJyLCB1c2FnZSwgcHJvZ25hbWUp
+OwoJCQkJZXhpdCg2KTsKCgkJCWJyZWFrOwoJCX0KCgl9CgoJYXJnYyAtPSBvcHRpbmQ7Cglhcmd2
+ICs9IG9wdGluZDsKCglpZiAoYXJncyA9PSAwKQl7CgkJZnByaW50ZihzdGRlcnIsIHVzYWdlLCBw
+cm9nbmFtZSk7CgkJZXhpdCg3KTsKCX0KCgoJaWYgKChtYXhwcmkgPSBzY2hlZF9nZXRfcHJpb3Jp
+dHlfbWF4KFNDSEVEX0ZJRk8pKSA9PSAtMSkJewoJCXBlcnJvcigic2NoZWRfZ2V0X3ByaW9yaXR5
+X21heCBmYWlscyIpOwoJCWV4aXQoOCk7Cgl9CgoJaWYgKChtaW5wcmkgPSBzY2hlZF9nZXRfcHJp
+b3JpdHlfbWluKFNDSEVEX0ZJRk8pKSA9PSAtMSkJewoJCXBlcnJvcigic2NoZWRfZ2V0X3ByaW9y
+aXR5X21pbiBmYWlscyIpOwoJCWV4aXQoMTApOwoJfQoKCWlmIChkb19wcmlvcml0eSkJewoJCWlm
+IChwcmlvcml0eSA+IG1heHByaSkJewoJCQlmcHJpbnRmKHN0ZGVyciwiJXM6IG1heGltdW0gcHJp
+b3JpdHkgYWxsb3dlZCBpcyAlZC5cbiIsIHByb2duYW1lLCBtYXhwcmkpOwoJCQlleGl0KDkpOwog
+CQl9CgoJCWlmIChwcmlvcml0eSA8IG1pbnByaSkJewoJCQlmcHJpbnRmKHN0ZGVyciwiJXM6IG1p
+bmltdW0gcHJpb3JpdHkgYWxsb3dlZCBpcyAlZC5cbiIsIHByb2duYW1lLCBtaW5wcmkpOwoJCQll
+eGl0KDExKTsKIAkJfQoJfQoKCWlmICghZG9fcG9saWN5KQl7CgkJaWYgKChwb2xpY3kgPSBzY2hl
+ZF9nZXRzY2hlZHVsZXIocGlkKSkgPT0gLTEpCXsKCQkJcG9saWN5ID0gU0NIRURfT1RIRVI7CgkJ
+fQoJfQoKCWlmICghZG9fcHJpb3JpdHkpCXsKCQlpZiAoc2NoZWRfZ2V0cGFyYW0ocGlkLCAmcGFy
+YW0pID09IDApCXsgLyogd2lsbCBmYWlsIGZvciBUUyEgKi8KCQkJcHJpb3JpdHkgPSBwYXJhbS5z
+Y2hlZF9wcmlvcml0eTsKIAkJfQogCQllbHNlCXsKIAkJCXByaW9yaXR5ID0gbWlucHJpOwogCQl9
+CiAJCWlmICghZG9fcG9saWN5ICYmIHBpZCkJeyAgLyogcHJpbnQgYW5kIGV4aXQgKi8KIAkJCXN0
+YXRpYyBjaGFyICpwb2w7ICAvKiBkZWZhdWx0ICovCiAJCQlpZiAocG9saWN5ID09IFNDSEVEX09U
+SEVSKSBwb2wgPSAiVFMiOwogCQkJaWYgKHBvbGljeSA9PSBTQ0hFRF9GSUZPKSBwb2wgPSAiRklG
+TyI7CiAJCQlpZiAocG9saWN5ID09IFNDSEVEX1JSKSBwb2wgPSAiUlIiOwoKIAkJCWZwcmludGYo
+c3Rkb3V0LCIlczogc2NoZWR1bGVyICVzIHByaW9yaXR5ICVkLlxuIiwgcHJvZ25hbWUsIHBvbCwg
+cHJpb3JpdHkpOwoKCQkJZXhpdCgwKTsKIAkJfQoJfQoJaWYgKHBvbGljeSA9PSBTQ0hFRF9PVEhF
+UiB8fCBwb2xpY3kgPT0gU0NIRURfSURMRSkKCQlwcmlvcml0eSA9IDA7CgoJcGFyYW0uc2NoZWRf
+cHJpb3JpdHkgPSBwcmlvcml0eTsKCglpZiAoc2NoZWRfc2V0c2NoZWR1bGVyKHBpZCwgcG9saWN5
+LCAmcGFyYW0pID09IC0xKQl7CgkJcGVycm9yKCJzY2hlZF9zZXRzY2hlZHVsZXIgZmFpbHMiKTsK
+CQlleGl0KDEzKTsKCX0KCglpZiAocGlkICE9IDApCXsgIC8qIG5vbi1sb2NhbCB0YXJnZXQgPT4g
+ZXhpdCAqLwoJCWV4aXQoMCk7Cgl9CgoJaWYgKCFhcmd2WzBdKQl7CgkJZnByaW50ZihzdGRlcnIs
+IiVzOiBubyB2YWxpZCBjb21tYW5kIGFyZ3MuXG4iLCBwcm9nbmFtZSk7CgkJZnByaW50ZihzdGRl
+cnIsIHVzYWdlLCBwcm9nbmFtZSk7CgoJCWV4aXQoMTQpOyAgLyogZG9uJ3QgZXhlYyBpZiB0YXJn
+ZXQgd2FzIG5vdCB1cyBvciBubyBhcmdzICAqLwoJfQoKCQkvKiB0aGUgYmlnIGxlYXAhICovCgkJ
+LyogaGFsOiBkYXZlLCB3aWxsIEkgZHJlYW0/ICovCgoJaWYgKCFleGVjdnAoYXJndlswXSwgJmFy
+Z3ZbMF0pKQl7CgkJcGVycm9yKCJydHJ1biBleGVjIGZhaWxzIik7CgkJZXhpdCgtMSk7Cgl9Cn0K
+--=====================_5116515==_--
 

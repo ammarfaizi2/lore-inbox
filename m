@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADEvm>; Wed, 3 Jan 2001 23:51:42 -0500
+	id <S129324AbRADE5X>; Wed, 3 Jan 2001 23:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRADEvc>; Wed, 3 Jan 2001 23:51:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9226 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129324AbRADEv0>; Wed, 3 Jan 2001 23:51:26 -0500
-Date: Wed, 3 Jan 2001 20:51:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bdflush synchronous IO on prerelease-diff 
-In-Reply-To: <Pine.LNX.4.21.0101040016580.839-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101032047590.8789-100000@penguin.transmeta.com>
+	id <S129436AbRADE5E>; Wed, 3 Jan 2001 23:57:04 -0500
+Received: from waste.org ([209.173.204.2]:4366 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129324AbRADE4v>;
+	Wed, 3 Jan 2001 23:56:51 -0500
+Date: Wed, 3 Jan 2001 22:56:48 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: <richbaum@acm.org>
+cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Remove more compile warnings in 2.4.0-prerelease
+In-Reply-To: <3A523DDE.23101.AC9EBA@localhost>
+Message-ID: <Pine.LNX.4.30.0101032249440.1971-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Jan 2001, Rich Baum wrote:
 
+> Here is a patch that removes more compile warnings from 2.4.0-
+> prerelease. I left out files that have been fixed by Alan or myself in
+> the ac kernels. I'll add more options to my config tomorrow to try to
+> find more of these warnings.
 
-Mind checking out the current prerelease-diff? It fixes this, and cleans
-up some remaining things (now that we don't task-switch into bdflush for
-all our cleanup, 'nrefill' should really be much lower to get smoother
-behavior).
+> -#endif I2C_PCF8584_H
+> +#endif /* I2C_PCF8584_H */
+[etc.]
 
-		Linus
+Here, try this:
+
+find -name "*.[ch]" | xargs perl -ne 'print "$ARGV:$_" if /#endif\s+\w/i'
+
+You'll find a few hundred of them. Then try this (untested):
+
+find -name "*.[ch]" |
+ xargs perl -i -pe 's/#endif\s+(\w.*)/#endif \/\* $1 \/\*/i'
+
+..and save yourself quite a bit of tedium.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

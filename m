@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266431AbUAIHwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 02:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266432AbUAIHwZ
+	id S266436AbUAIIFl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 03:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266438AbUAIIFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 02:52:25 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:15515 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S266431AbUAIHwY (ORCPT
+	Fri, 9 Jan 2004 03:05:40 -0500
+Received: from mail.kroah.org ([65.200.24.183]:10899 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266436AbUAIIFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 02:52:24 -0500
-Date: Thu, 8 Jan 2004 23:52:19 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, reiser@namesys.com,
-       joe@perches.com, green@linuxhacker.ru, mfedyk@matchmail.com,
-       torvalds@osdl.org, tim@cambrant.com, markhe@nextd.demon.co.uk,
-       manfred@colorfullife.com, matthew@wil.cx
-Subject: Re: Cleanup patches - comparison is always [true|false] +
- unsigned/signed compare, and similar issues.   (consolidating existing
- threads)
-Message-Id: <20040108235219.5d77f34b.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.56.0401081847190.10083@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.56.0401081847190.10083@jju_lnx.backbone.dif.dk>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 9 Jan 2004 03:05:35 -0500
+Date: Fri, 9 Jan 2004 00:00:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [PATCH] sysfs sound class patches - [0/2]
+Message-ID: <20040109080012.GB15962@kroah.com>
+References: <20040107232137.GC2540@kroah.com> <s5hvfnmxs3r.wl@alsa2.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hvfnmxs3r.wl@alsa2.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The key question in my view was what code was easiest to understand.
-This is closest to being the code that is shortest, stripped of all
-non-essential detail.  But not exactly.  Code is more like novel or
-essay in my view, than a poem.  I don't find haiku clear.  However,
-what is easiest to understand is a judgement call.
+On Thu, Jan 08, 2004 at 06:33:44PM +0100, Takashi Iwai wrote:
+> At Wed, 7 Jan 2004 15:21:37 -0800,
+> Greg KH wrote:
+> > 
+> > Here are 2 sysfs sound class patches against 2.6.1-rc2 (but should apply
+> > to 2.6.0) that add sysfs support for OSS and ALSA drivers.  This enables
+> > udev to see sound devices and create nodes for them.
+> > 
+> > I've divided it up into 2 patches:
+> > 	- sound support for OSS drivers
+> > 	- sound support for ALSA drivers
+> > 
+> > The ALSA driver patch requires the OSS driver (due to where struct
+> > sound_class is declared),
+> 
+> oh, sound_core.c is not the OSS driver ;)
 
-Since we were seeing here, with the remarks of folks such as myself,
-a nice example of that well known phenomenon where a committee will
-debate for hours over the $25 budget line item, and then pass the
-$3 million item without comment, your conclusion to try using the
-Trivial Patch Monkey sounds like a winner.  Rusty has good judgement,
-and for changes such as this, better one good judge making immediate
-decisions, than lengthy lkml threads.
+Heh, but the changes I made to it are in the OSS specific parts :)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> >  and it also modifies the i810 ALSA sound
+> > driver to provide a symlink in sysfs to the pci device being controlled
+> > by the device node.
+>  
+> it looks nice and easy.  i'll do that for all pci drivers, too, once
+> when these patches are merged.
+
+Thanks.
+
+> > I can provide patches to the other ALSA drivers to also add this
+> > information, as it's quite useful if you have more than one sound device
+> > in your system at once.
+> 
+> not only pci but also isapnp devices can provide dev pointer.
+
+Exactly.  So does USB.
+
+> in that case, should the driver gives symlinks of each isapnp devices,
+> too?
+
+Yes.  If the dev pointer is valid, the driver core will create the
+symlinks.
+
+> a module usually holds one isapnp card struct and several isapnp
+> devices below it.  but, hmm, it will need far more codes...
+
+Just set the dev pointer to the device that is associated with the sound
+device.  That's the best you can do.
+
+thanks,
+
+greg k-h

@@ -1,56 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTJXDrE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 23:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTJXDrE
+	id S261966AbTJXEQn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 00:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJXEQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 23:47:04 -0400
-Received: from web14915.mail.yahoo.com ([216.136.225.228]:49281 "HELO
-	web14915.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261959AbTJXDrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 23:47:02 -0400
-Message-ID: <20031024034701.16514.qmail@web14915.mail.yahoo.com>
-Date: Thu, 23 Oct 2003 20:47:01 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Multiple drivers for same hardware:, was: DRM and pci_driver conversion
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
-       kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>
-In-Reply-To: <3F987E18.9080606@pobox.com>
-MIME-Version: 1.0
+	Fri, 24 Oct 2003 00:16:42 -0400
+Received: from gandalf.tausq.org ([64.81.244.94]:30701 "EHLO pippin.tausq.org")
+	by vger.kernel.org with ESMTP id S261966AbTJXEQl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 00:16:41 -0400
+Date: Thu, 23 Oct 2003 21:20:03 -0700
+From: Randolph Chung <tausq@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] fix __div64_32 to do division properly
+Message-ID: <20031024042002.GA24406@tausq.org>
+Reply-To: Randolph Chung <tausq@debian.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about the fundamental question? We have several pairs of device drivers
-that want to control the same hardware. One example would be radeon DRM and
-radeon Framebuffer. How should these drivers coordinate probing and claiming
-resources?
+The generic __div64_32 in lib/div64.c only handles "small" divisors. If
+the divisor is full 32-bits, it returns invalid results. This patch 
+fixes it. (this is used e.g. in nanosleep)
 
-What should be the policy for multiple drivers?
-1) try new probe first and fall back to old scheme. First driver that loads
-gets the new probe, second gets the old. First driver reserves resources.
-2) Require a mini driver that handles probing. Then both drivers attach to the
-mini driver.
-3) Declare it illegal and make the drivers merge.
-4) Declare it illegal and only allow first one loaded to run.
+thanks
+randolph
 
-Right now radeonfb handles probing and resource reservation. DRM works in
-stealth mode. DRM uses all of the resources and never tells the kernel, that's
-how it avoids conflicting with framebuffer.
+Index: lib/div64.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/lib/div64.c,v
+retrieving revision 1.1
+diff -u -p -r1.1 div64.c
+--- lib/div64.c	29 Jul 2003 17:02:19 -0000	1.1
++++ lib/div64.c	24 Oct 2003 04:10:59 -0000
+@@ -25,25 +25,27 @@
+ 
+ uint32_t __div64_32(uint64_t *n, uint32_t base)
+ {
+-	uint32_t low, low2, high, rem;
++	uint64_t rem = *n;
++	uint64_t b = base;
++	uint64_t res = 0, d = 1;
+ 
+-	low   = *n   & 0xffffffff;
+-	high  = *n  >> 32;
+-	rem   = high % (uint32_t)base;
+-	high  = high / (uint32_t)base;
+-	low2  = low >> 16;
+-	low2 += rem << 16;
+-	rem   = low2 % (uint32_t)base;
+-	low2  = low2 / (uint32_t)base;
+-	low   = low  & 0xffff;
+-	low  += rem << 16;
+-	rem   = low  % (uint32_t)base;
+-	low   = low  / (uint32_t)base;
++	if (b > 0) {
++		while (b < rem) {
++			b <<= 1;
++			d <<= 1;
++		}
++	}
+ 
+-	*n = low +
+-		((uint64_t)low2 << 16) +
+-		((uint64_t)high << 32);
++	do {
++		if (rem >= b) {
++			rem -= b;
++			res += d;
++		}
++		b >>= 1;
++		d >>= 1;
++	} while (d);
+ 
++	*n = res;
+ 	return rem;
+ }
+ 
 
-DRM and framebuffer trade off control at VT switch. 2D state is save and
-restored. There is an assumption that framebuffer won't mess with the 3D state.
- I'm not sure that suspend/resume are coordinated in any way.
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+-- 
+Randolph Chung
+Debian GNU/Linux Developer, hppa/ia64 ports
+http://www.tausq.org/

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292260AbSBBKOe>; Sat, 2 Feb 2002 05:14:34 -0500
+	id <S292262AbSBBKVe>; Sat, 2 Feb 2002 05:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292262AbSBBKOY>; Sat, 2 Feb 2002 05:14:24 -0500
-Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:8969 "EHLO
-	manty.net") by vger.kernel.org with ESMTP id <S292260AbSBBKOI>;
-	Sat, 2 Feb 2002 05:14:08 -0500
-Date: Sat, 2 Feb 2002 11:14:03 +0100
-From: Santiago Garcia Mantinan <manty@manty.net>
+	id <S292263AbSBBKV0>; Sat, 2 Feb 2002 05:21:26 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:31449 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S292262AbSBBKVI>; Sat, 2 Feb 2002 05:21:08 -0500
+Date: 02 Feb 2002 10:54:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Cc: acpi@phobos.fachschaften.tu-muenchen.de
-Subject: Wake On Lan broken since kernel version 2.4.14
-Message-ID: <20020202101403.GA6122@man.beta.es>
-Mime-Version: 1.0
+Message-ID: <8I54PTF1w-B@khms.westfalen.de>
+In-Reply-To: <20020201152829.A2497@havoc.gtf.org>
+Subject: Re: Continuing /dev/random problems with 2.4
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3C5AF6B5.5080105@zytor.com> <a3enf3$93p$1@cesium.transmeta.com> <20020201124300.G763@lynx.adilger.int> <3C5AF6B5.5080105@zytor.com> <20020201152829.A2497@havoc.gtf.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+garzik@havoc.gtf.org (Jeff Garzik)  wrote on 01.02.02 in <20020201152829.A2497@havoc.gtf.org>:
 
-On kernel 2.4.13 with acpi compiled one could have at least the cards which
-use the driver 3c59x, when option enable_wol=1 was set, to wake his computer
-when a WOL packet had been sent to the net.
+> The userspace tools for i810 RNG specifically are available at the
+> website URL mentioned in the source code.  So if somebody cannot find
+> them, feel free to laugh.
 
-However, since version 2.4.14 and up to 2.4.18pre7 inclusive, WOL is not
-working, and it is again because of ACPI code, if you don't compile ACPI in
-and you compile for example APM, then it will work, but if you compile ACPI
-then it won't.
+I'm sure you didn't mean the URL to the tools is in the source of the  
+tools, right?
 
-I'd like to provide more info on this, but I don't know what else to say
-exept that this was tested on a PIII via chipset based machine and on a PIV
-intel based one with the same results, I'm using Donald Becker's ether-wake.
+So then, which other sources do you mean? "The Linux kernel", for example,  
+is an awful lot of source. And in any case, why would you expect anyone  
+(who probably hasn't heard that the i810 *has* a RNG) to look at it just  
+to find out if possibly there was a tool that could be helpful for  
+something?
 
-If you want more info I'll try to gatter it.
+What am I missing here? I hope I *am* missing something here ...
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+MfG Kai

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315410AbSFJRDS>; Mon, 10 Jun 2002 13:03:18 -0400
+	id <S315529AbSFJRCN>; Mon, 10 Jun 2002 13:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315546AbSFJRDS>; Mon, 10 Jun 2002 13:03:18 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:55245
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315410AbSFJRDQ>; Mon, 10 Jun 2002 13:03:16 -0400
-Date: Mon, 10 Jun 2002 10:03:09 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Message-ID: <20020610170309.GC14252@opus.bloom.county>
-In-Reply-To: <52d6v19r9n.fsf@topspin.com> <20020608.222903.122223122.davem@redhat.com> <15619.9534.521209.93822@nanango.paulus.ozlabs.org> <20020609.212705.00004924.davem@redhat.com> <523cvv9laj.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315546AbSFJRCM>; Mon, 10 Jun 2002 13:02:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45328 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315529AbSFJRCL>; Mon, 10 Jun 2002 13:02:11 -0400
+Date: Mon, 10 Jun 2002 10:02:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+cc: Andreas Dilger <adilger@clusterfs.com>, Dan Aloni <da-x@gmx.net>,
+        Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <Pine.GSO.4.05.10206101846060.17299-100000@mausmaki.cosy.sbg.ac.at>
+Message-ID: <Pine.LNX.4.44.0206100954250.30535-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 08:59:48AM -0700, Roland Dreier wrote:
-> >>>>> "David" == David S Miller <davem@redhat.com> writes:
-> 
->     Paul> This is the problem scenario.  Suppose we are doing DMA to a
->     Paul> buffer B and also independently accessing a variable X which
->     Paul> is not part of B.  Suppose that X and the beginning of B are
->     Paul> both in cache line C.
->    
->     David> I see what the problem is.  Hmmm...
-> 
->     David> I'm trying to specify this such that knowledge of
->     David> cachelines and whatnot don't escape the arch specific code,
->     David> ho hum...  Looks like that isn't possible.
-> 
-> So is the consensus now that in general drivers should make sure any
-> buffers passed to pci_map/unmap are aligned to SMP_CACHE_BYTES (and a
-> multiple of SMP_CACHE_BYTES in size)?  In other words if a driver uses
-> an unaligned buffer it should be fixed unless we can prove (and
-> document in a comment :) that it won't cause problems on an arch
-> without cache coherency and with a writeback cache.
 
-And how about we don't call it SMP_CACHE_BYTES too?  The processors
-where this matters certainly aren't doing SMP...
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+On Mon, 10 Jun 2002, Thomas 'Dent' Mirlacher wrote:
+>
+> ok, the point that *_t is hiding implementation details (when used for
+> structs is valid). but is there a general consens on not using typedefs
+> for structs?
+
+The linux coding style _tends_ to avoid using typedefs. It's not a hard
+rule (and I did in fact apply this patch, since it otherwise looked fine),
+but it's fairly common to use an explicit "struct xxxx" instead of
+"xxxx_t".
+
+I dislike type abstraction if it has no real reason. And saving on typing
+is not a good reason - if your typing speed is the main issue when you're
+coding, you're doing something seriously wrong.
+
+(Similarly, if you are trying to compress lines to be shorter, you have
+other problems, nothing to do with type names).
+
+Does code look "prettier" with a "_t" rather than a "struct "? I don't
+know. I personally don't think so, and I also hate the "_p" (or even more
+the just plain "p") convention for "pointer".
+
+Hiding the fact that it's a struct causes bad things if people don't
+realize it: allocating structs on the stack is something you should be
+aware of (and careful with), and passing them as parameters is is much
+better done explicitly as a "pointer to struct".
+
+There are _some_ exceptions. For example, "pte_t" etc might well be a
+struct on most architectures, and that's ok: it's expressly designed to be
+an opaque (and still fairly small) thing. This is an example of where
+there are clear _reasons_ for the abstraction, not just abstraction for
+its own sake.
+
+But in the end, maintainership matters. I personally don't want the
+typedef culture to get the upper hand, but I don't mind a few of them, and
+people who maintain their own code usually get the last word.
+
+		Linus
+

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318698AbSHANfL>; Thu, 1 Aug 2002 09:35:11 -0400
+	id <S318882AbSHANhG>; Thu, 1 Aug 2002 09:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318748AbSHANfL>; Thu, 1 Aug 2002 09:35:11 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17391 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318698AbSHANfL>; Thu, 1 Aug 2002 09:35:11 -0400
-Subject: Re: [PANIC] APM bug with -rc4 and -rc5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020801133202.GA200@pcw.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
-	<20020801121205.GA168@pcw.home.local>  <20020801133202.GA200@pcw.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 15:55:32 +0100
-Message-Id: <1028213732.14865.50.camel@irongate.swansea.linux.org.uk>
+	id <S318893AbSHANhG>; Thu, 1 Aug 2002 09:37:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50172 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318882AbSHANhF>; Thu, 1 Aug 2002 09:37:05 -0400
+Date: Thu, 1 Aug 2002 19:14:46 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Mala Anand <manand@us.ibm.com>
+Cc: Bill Hartner <Bill_Hartner@us.ibm.com>, linux-kernel@vger.kernel.org,
+       lse <lse-tech@lists.sourceforge.net>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
+Message-ID: <20020801191446.D32256@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <OF6D440764.727DFE3C-ON87256C08.0049B06D@boulder.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF6D440764.727DFE3C-ON87256C08.0049B06D@boulder.ibm.com>; from manand@us.ibm.com on Thu, Aug 01, 2002 at 08:31:45AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 14:32, Willy TARREAU wrote:
-> > I observe a kernel panic at boot time if I set apm=power-off. OK with apm=off.
-> > This is on an ASUS A7M266D with two Athlon XP 1800+. Since it works well on
-> > 2.4.19-pre10, I'm recompiling intermediate versions to check which one brought
-> > the problem.
-> > 
-> > This is rather strange, since the crash occurs in do_softirq, but 2 bytes after
+On Thu, Aug 01, 2002 at 08:31:45AM -0500, Mala Anand wrote:
+> 
+> Dipankar wrote..
+> >Isn't it possible to tune the cpucache limit by writing to
+> >/proc/slabinfo so that you avoid frequent draining of free objects ?
+> >Am I missing something here ?
+> 
+> Are you referring to raising the per cpu array limit? I don't think you
+> tune that using /proc/slabinfo.  However that does not solve the problem,
 
-I've only run -ac on the box (I need the IDE) and that has subtly
-different APM code. I do not however understand why it has changed
-behaviour. I could understand if it did it at the actual poweroff point
-but not earlier
+Hmm... then what does slabinfo_write()->kmem_tune_cpucache() do ?
 
+> it only delays it.  It needs to grow/shrink dynamically based on need. I
+> am not only referring to frequently draining of free objects but also
+> as a result of this refilling the object array due to subsequent
+> allocations and so on.
+
+If draining of free objects become rare, shouldn't refilling of the
+object also become rare ?
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270028AbUJHQv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270037AbUJHQxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270028AbUJHQv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270037AbUJHQv4
+	id S270037AbUJHQxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbUJHQxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:51:56 -0400
-Received: from open.hands.com ([195.224.53.39]:45522 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S270028AbUJHQvy (ORCPT
+	Fri, 8 Oct 2004 12:53:32 -0400
+Received: from open.hands.com ([195.224.53.39]:48338 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S270037AbUJHQxU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 12:51:54 -0400
-Date: Fri, 8 Oct 2004 18:03:00 +0100
+	Fri, 8 Oct 2004 12:53:20 -0400
+Date: Fri, 8 Oct 2004 18:04:26 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
-Message-ID: <20041008170300.GM5551@lkcl.net>
-References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <1097248370.26463.0.camel@tara.firmix.at>
+Message-ID: <20041008170426.GN5551@lkcl.net>
+References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <4166B1F3.4020102@didntduck.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097248370.26463.0.camel@tara.firmix.at>
+In-Reply-To: <4166B1F3.4020102@didntduck.org>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 X-hands-com-MailScanner: Found to be clean
 X-hands-com-MailScanner-SpamScore: s
@@ -27,25 +27,21 @@ X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 05:12:51PM +0200, Bernd Petrovitsch wrote:
+On Fri, Oct 08, 2004 at 11:27:47AM -0400, Brian Gerst wrote:
 
-> >  my alternative is to patch every single vfs-related sys_* in fs/*.c to
-> >  be able to "plug in" to these functions.
+> >>What are you trying to do?  
+> >
+> >
+> > call sys_rename, sys_pread, sys_create, sys_mknod, sys_rmdir
+> > etc. - everything that does file access.
+> >
 > 
-> Why not implement it in user-space?
+> Why?  What are you trying to do that cannot be done in userspace?
  
- that is the base that i am working from (fuse).
+ see other message: i'm trying to combine fuse + its example program
+ fusexmp into a kernelspace module: when i added xattrs i get a -512
+ pleasetrylater response which selinux cannot cope with.
 
- the problem comes when adding support to fuse for xattrs, and the
- subsequent use of those xattrs for SE/Linux.
-
- security/selinux/hooks.c cannot cope with the -512 response
- "please try later" which the fuse module always always always
- sends, in order for fuse to give the userspace daemon a chance
- to wake up and smell the roses.
-
- ... and i sure ain't gonna hack selinux about!
- 
  l.
 
 -- 

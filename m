@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130883AbRBTVUl>; Tue, 20 Feb 2001 16:20:41 -0500
+	id <S129144AbRBTVWL>; Tue, 20 Feb 2001 16:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130899AbRBTVUc>; Tue, 20 Feb 2001 16:20:32 -0500
-Received: from windsormachine.com ([206.48.122.28]:29447 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S130881AbRBTVUT>; Tue, 20 Feb 2001 16:20:19 -0500
-Message-ID: <3A92DF84.E39E415C@windsormachine.com>
-Date: Tue, 20 Feb 2001 16:20:04 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <01022020011905.18944@gimli> <96uijf$uer$1@penguin.transmeta.com> <3A92DCE0.BEE5E90E@sympatico.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+	id <S129461AbRBTVWB>; Tue, 20 Feb 2001 16:22:01 -0500
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:12816 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S129144AbRBTVVx>; Tue, 20 Feb 2001 16:21:53 -0500
+From: Colonel <klink@clouddancer.com>
+To: ttsig@tuxyturvy.com
+Cc: james@pcxperience.com, linux-kernel@vger.kernel.org
+In-Reply-To: <003701c09b75$59f56ff0$25040a0a@zeusinc.com>
+	(ttsig@tuxyturvy.com)
+Subject: Re: Reiserfs, 3 Raid1 arrays, 2.4.1 machine locks up
+Reply-To: klink@clouddancer.com
+In-Reply-To: <3A91A6E7.1CB805C1@pcxperience.com> <96s93d$hh6$1@lennie.clouddancer.com> <20010220135326.013DF682A@mail.clouddancer.com> <3A92AA23.9A0BAC43@pcxperience.com> <20010220181849.F1C68682B@mail.clouddancer.com> <003701c09b75$59f56ff0$25040a0a@zeusinc.com>
+Message-Id: <20010220212149.5960E682A@mail.clouddancer.com>
+Date: Tue, 20 Feb 2001 13:21:49 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the way i'm reading this, the problem is there's 65535 files in the directory
-/where/postfix/lives.  rm * or what have you, is going to take forever and
-ever, and bog the machine down while its doing it.  My understanding is you
-could do the rm *, and instead of it reading the tree over and over for every
-file that has to be deleted, it just jumps one or two blocks to the file that's
-being deleted, instead of thousands of files to be scanned for each file
-deleted.
+   From: "Tom Sightler" <ttsig@tuxyturvy.com>
+   Cc: <linux-kernel@vger.kernel.org>
+   Date: Tue, 20 Feb 2001 14:43:07 -0500
+   Content-Type: text/plain;
+	   charset="iso-8859-1"
 
-Jeremy Jackson wrote:
+   >    > >I'm building a firewall on a P133 with 48 MB of memory using RH 7.0,
+   >    > >latest updates, etc. and kernel 2.4.1.
+   >    > >I've built a customized install of RH (~200MB)  which I untar onto
+   the
+   >    > >system after building my raid arrays, etc. via a Rescue CD which I
+   >    > >created using Timo's Rescue CD project.  The booting kernel is
+   >    > >2.4.1-ac10, no networking, raid compiled in but raid1 as a module
+   >    >
+   >    > Hmm, raid as a module was always a Bad Idea(tm) in the 2.2 "alpha"
+   >    > raid (which was misnamed and is 2.4 raid).  I suggest you change that
+   >    > and update, as I had no problems with 2.4.2-pre2/3, nor have any been
+   >    > posted to the raid list.
+   >
+   >    I just tried with 2.4.1-ac14, raid and raid1 compiled in and it did the
+   >    same thing.  I'm going to try to compile reiserfs in (if I have enough
+   room
+   >    to still fit the kernel on the floppy with it's initial ramdisk, etc.)
+   and
+   >    see what that does.
 
-> > In article <01022020011905.18944@gimli>,
-> > Daniel Phillips  <phillips@innominate.de> wrote:
-> > >Earlier this month a runaway installation script decided to mail all its
-> > >problems to root.  After a couple of hours the script aborted, having
-> > >created 65535 entries in Postfix's maildrop directory.  Removing those
-> > >files took an awfully long time.  The problem is that Ext2 does each
-> > >directory access using a simple, linear search though the entire
-> > >directory file, resulting in n**2 behaviour to create/delete n files.
-> > >It's about time we fixed that.
->
-> In the case of your script I'm not sure this will help, but:
-> I've seen /home directories organised like /home/a/adamsonj,
-> /home/a/arthurtone, /home/b/barrettj, etc.
-> this way (crude) indexing only costs areas where it's needed,
-> without kernel modification. (app does it)  What other placed would we
-> need indexing *in* the filesystem?
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+   There seem to be several reports of reiserfs falling over when memory is
+   low.  It seems to be undetermined if this problem is actually reiserfs or MM
+   related, but there are other threads on this list regarding similar issues.
+   This would explain why the same disk would work on a different machine with
+   more memory.  Any chance you could add memory to the box temporarily just to
+   see if it helps, this may help prove if this is the problem or not.
 
+
+Well, I didn't happen to start the thread, but your comments may
+explain some "gee I wonder if it died" problems I just had with my
+2.4.1-pre2+reiser test box.  It only has 16M, so it's always low
+memory (never been a real problem in the past however).  The test
+situation is easily repeatable for me [1].  It's a 486 wall mount, so
+it's easier to convert the fs than add memory, and it showed about
+200k free at the time of the sluggishness.  Previous 2.4.1 testing
+with ext2 fs didn't show any sluggishness, but I also didn't happen to
+run the test above either.  When I come back to the office later, I'll
+convert the fs, repeat the test and pass on the results.
+
+
+[1]  Since I decided to try to catch up on kernels, I had just grabbed
+-ac18, cd to ~linux and run "rm -r *" via an ssh connection.  In a
+second connection, I tried a simple "dmesg" and waited over a minute
+for results (long enough to log in directly on the box and bring up
+top) followed by loading emacs for ftp transfers from kernel.org,
+which again 'went to sleep'.

@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261525AbTCOVZl>; Sat, 15 Mar 2003 16:25:41 -0500
+	id <S261569AbTCOVVL>; Sat, 15 Mar 2003 16:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261567AbTCOVZl>; Sat, 15 Mar 2003 16:25:41 -0500
-Received: from adsl-64-165-208-253.dsl.snfc21.pacbell.net ([64.165.208.253]:6065
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261525AbTCOVZj>; Sat, 15 Mar 2003 16:25:39 -0500
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-From: Robert Anderson <rwa@alumni.princeton.edu>
-To: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>
-Cc: arch <arch-users@lists.fifthvision.net>
-In-Reply-To: <20030315212205.CDE923D979@mx01.nexgo.de>
-References: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl> 
-	<20030315212205.CDE923D979@mx01.nexgo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Mar 2003 13:53:34 -0800
-Message-Id: <1047765218.9619.124.camel@lan1>
-Mime-Version: 1.0
+	id <S261574AbTCOVVL>; Sat, 15 Mar 2003 16:21:11 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:29634 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261569AbTCOVVJ>;
+	Sat, 15 Mar 2003 16:21:09 -0500
+Message-ID: <34070.4.64.238.61.1047763919.squirrel@www.osdl.org>
+Date: Sat, 15 Mar 2003 13:31:59 -0800 (PST)
+Subject: Re: [PATCH] update filesystems config. menu
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <azarah@gentoo.org>
+In-Reply-To: <20030315211151.40f1cf84.azarah@gentoo.org>
+References: <200303150920.h2F9KGm16328@mako.theneteffect.com>
+        <1047720287.3505.146.camel@workshop.saharact.lan>
+        <33707.4.64.238.61.1047748124.squirrel@www.osdl.org>
+        <20030315211151.40f1cf84.azarah@gentoo.org>
+X-Priority: 3
+Importance: Normal
+Cc: <rddunlap@osdl.org>, <mitch@theneteffect.com>, <davej@codemonkey.org.uk>,
+       <Randy.Dunlap@mako.theneteffect.com>, <randy.dunlap@verizon.net>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-15 at 13:25, Daniel Phillips wrote:
-> On Sat 15 Mar 03 17:21, Horst von Brand wrote:
-> > Daniel Phillips <phillips@arcor.de> said:
-> > > On Thu 13 Mar 03 01:52, Horst von Brand wrote:
-> >
-> > [...]
-> >
-> > > > I don't think so. As the user sees it, a directory is mostly a
-> > > > convenient labeled container for files. You think in terms of moving
-> > > > files around, not destroying one and magically creating an exact copy
-> > > > elsewhere (even if mv(1) does exactly this in some cases). Also, this
-> > > > breaks up the operation "mv foo bar/baz" into _two_ changes, and this
-> > > > is wrong as the file loses its revision history.
-> > >
-> > > No, that's a single change to one directory object.
-> >
-> > mv some/where/foo bar/baz
-> >
-> > How is that _one_ change to _one_ directory object?
-> 
-> Oops, sorry, I didn't read your bar/baz correctly.  Yes, it's two directory 
-> objects, but it's only one file object, and the history (not including the 
-> name changes) is attached to the file object, not the directory object.  This 
-> is implemented via an object id for each file object, something like an inode 
-> number.
-> 
-> > > > > ...then this part gets much easier.
-> > > >
-> > > > ... by screwing it up. This is exactly one of the problems noted for
-> > > > CVS.
-> > >
-> > > CVS doesn't have directory objects.
-> >
-> > And it doesn't keep history across moves, as the only way it knows to move
-> > a file is destroying the original and creating a fresh copy.
-> 
-> Ah, but it does.  Sorry for not explaining the object id thing earlier.
-> 
-> > > Does anybody have a convenient mailing list for this design discussion?
-> >
-> > Good idea to move this off LKML
-> 
-> Yup, but nobody has offered one yet, so...
+> On Sat, 15 Mar 2003 09:08:44 -0800 (PST)
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+>> I'm having trouble decoding...
+>> What is it that "should be safest for most people"?
+>> Are you suggesting any changes here?
+>>
+>> And some of us don't use fs modules, just build what we need into the
+>> kernel.  Do you know of any problems with doing this (related to ext2/ext3
+>> for example)?
+>>
+>
+> I was just saying that recommending it (ext2) compiled into the kernel and
+> not a module should be the safe route for newbies to kernel
+> compiles.
 
-I think the arch-users@lists.fifthvision.net list would be happy to host
-continuing discussion in this vein.  Considering Larry's repeated
-attempts to get people to look at arch as a "better fit," it seems
-particularly appropriate.
+Thanks for the clarification.
 
-Of course, you'd have to tolerate "arch community" views on a lot of
-these issues, but I suspect that might help focus the discussion.
+> Those of us that have build a few to feel comfortable with it, will know to
+> compile the fs of our / partition into the kernel.
+>
+> Except if ext2 is not the most commonly used fs anymore.  I guess a 'cool'
+> feature could be if the make system could 'detect' what your current root is
+> and warn if you do not have that compiled into your kernel, but I do not
+> know the limitations of it (the make system).
+>
+> Then on the other hand, would above be confusing if its a kernel
+> compiled for another box ?
 
-Bob
+Yes, I'd say so, although the message could say something like:
+  Kernel does not include a filesystem for / on this computer.
+And would it also have to check the capabilities of what's in the
+initrd?  (not that I'm advocating any of this)
+
+~Randy
+
 
 

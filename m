@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269147AbUICQOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269374AbUICQRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269147AbUICQOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269272AbUICQOJ
+	id S269374AbUICQRq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269369AbUICQRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:14:09 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:60544
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269147AbUICQOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:14:04 -0400
-To: akpm@osdl.org
-Subject: [PATCH] tidy AMD 768MPX fix
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
-Message-Id: <E1C3GhJ-0001YB-7N@localhost.localdomain>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Fri, 03 Sep 2004 17:13:57 +0100
+	Fri, 3 Sep 2004 12:17:45 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:62849 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S269374AbUICQRa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:17:30 -0400
+Message-ID: <413898B9.3000403@rtr.ca>
+Date: Fri, 03 Sep 2004 12:15:53 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: David Greaves <david@dgreaves.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: md RAID over SATA performance
+References: <1094169937l.17931l.0l@werewolf.able.es> <1094172444l.17931l.1l@werewolf.able.es> <413826C1.1010203@dgreaves.com>
+In-Reply-To: <413826C1.1010203@dgreaves.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert the AMD 768MPX errata #56 fix to use PAGE_SIZE instead of using
-4096 in line with other declarations in this file.  Also take the
-oppotunity to match indentation.
+ >blockdev --getra /dev/sda1
+ >blockdev --getra /dev/md0
+ >
+ >and if needed:
+ >blockdev --setra 4096 /dev/sda1
+ >blockdev --setra 4096 /dev/md0
 
-Revision: $Rev: 612 $
+The standard hdparm version of the above is the "-a" flag.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-
-diffstat 020-tidy-AMD-768MPX-fix
----
- setup.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/setup.c current/arch/i386/kernel/setup.c
---- reference/arch/i386/kernel/setup.c	2004-09-02 18:05:57.000000000 +0100
-+++ current/arch/i386/kernel/setup.c	2004-09-03 16:59:45.000000000 +0100
-@@ -1052,12 +1052,14 @@ static unsigned long __init setup_memory
- 	/* reserve EBDA region, it's a 4K region */
- 	reserve_ebda_region();
- 
--    /* could be an AMD 768MPX chipset. Reserve a page  before VGA to prevent
--       PCI prefetch into it (errata #56). Usually the page is reserved anyways,
--       unless you have no PS/2 mouse plugged in. */
-+	/*
-+	 * could be an AMD 768MPX chipset. Reserve a page before VGA to
-+	 * prevent PCI prefetch into it (errata #56). Usually the page is
-+	 * reserved anyways, unless you have no PS/2 mouse plugged in.
-+	 */
- 	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
- 	    boot_cpu_data.x86 == 6)
--	     reserve_bootmem(0xa0000 - 4096, 4096);
-+		reserve_bootmem(0xa0000 - PAGE_SIZE, PAGE_SIZE);
- 
- #ifdef CONFIG_SMP
- 	/*
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

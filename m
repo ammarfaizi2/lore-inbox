@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTE2QvH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 12:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTE2QvG
+	id S262378AbTE2Qx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 12:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTE2QxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 12:51:06 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:4260 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262363AbTE2QvB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 12:51:01 -0400
-Subject: [2.5.70][PATCH][TRIVIAL] cpufreq/longrun.c : eliminate unused
-	variable
-From: Andy Pfiffer <andyp@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054227828.12412.12.camel@andyp.pdx.osdl.net>
+	Thu, 29 May 2003 12:53:17 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:26126 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262378AbTE2Qwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 12:52:50 -0400
+Date: Thu, 29 May 2003 14:06:22 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] assorted he driver cleanup
+Message-ID: <20030529170621.GX24054@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	chas williams <chas@cmf.nrl.navy.mil>, davem@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20030529162125.GU24054@conectiva.com.br> <200305291632.h4TGWwsG022510@ginger.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 May 2003 10:03:48 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305291632.h4TGWwsG022510@ginger.cmf.nrl.navy.mil>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or
-higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1426  -> 1.1427 
-#	arch/i386/kernel/cpu/cpufreq/longrun.c	1.13    -> 1.14   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/29	andyp@andyp.pdx.osdl.net	1.1427
-# Remove a compile-time warning.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/cpu/cpufreq/longrun.c
-b/arch/i386/kernel/cpu/cpufreq/longrun.c
---- a/arch/i386/kernel/cpu/cpufreq/longrun.c	Thu May 29 09:56:52 2003
-+++ b/arch/i386/kernel/cpu/cpufreq/longrun.c	Thu May 29 09:56:53 2003
-@@ -224,7 +224,6 @@
- static int longrun_cpu_init(struct cpufreq_policy *policy)
- {
- 	int                     result = 0;
--	struct cpuinfo_x86 *c = cpu_data;
- 
- 	/* capability check */
- 	if (policy->cpu != 0)
+Em Thu, May 29, 2003 at 12:31:17PM -0400, chas williams escreveu:
+> In message <20030529162125.GU24054@conectiva.com.br>,Arnaldo Carvalho de Melo w
+> rites:
+> >> @@ -189,7 +187,7 @@
+> >>  #define HE_SPIN_LOCK(dev, flags)	spin_lock_irqsave(&(dev)->global_lock, 
+> >flags)
+> >>  #define HE_SPIN_UNLOCK(dev, flags)	spin_unlock_irqrestore(&(dev)->global_l
+> >ock, flags)
+> >
+> >Is the above really needed?
+> 
+> well, according to the programmer's guide:
 
+no, no, I was talking just about the need for HE_SPIN_LOCK wrapper, not the
+locking, i.e. couldn't it be just:
 
+spin_lock_irqsave(&dev->global_lock, flags)
 
+used so that it is clear that it is a irqsave variation, etc?
+
+- Arnaldo

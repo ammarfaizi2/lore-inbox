@@ -1,113 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUD1Umi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUD1Ull@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbUD1Umi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUD1UmQ
+	id S261205AbUD1Ull (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUD1UDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:42:16 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:48482 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262073AbUD1Uk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 16:40:59 -0400
-Date: Wed, 28 Apr 2004 15:39:10 -0500 (CDT)
-From: Brent Cook <busterbcook@yahoo.com>
-X-X-Sender: busterb@ozma.hauschen
-Reply-To: busterbcook@yahoo.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-In-Reply-To: <20040428124809.418e005d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
- <20040427230203.1e4693ac.akpm@osdl.org> <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
- <20040428124809.418e005d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Apr 2004 16:03:13 -0400
+Received: from mail14.atl.registeredsite.com ([64.224.219.88]:24139 "EHLO
+	mail14.atl.registeredsite.com") by vger.kernel.org with ESMTP
+	id S261380AbUD1TTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:19:23 -0400
+Date: Wed, 28 Apr 2004 15:18:41 -0400
+From: Vincent C Jones <vcjones@NetworkingUnlimited.com>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.6-rc3
+Message-ID: <20040428191841.GA4449@NetworkingUnlimited.com>
+References: <1PMQ9-5K6-3@gated-at.bofh.it> <20040428144801.B3708149A6@x23.networkingunlimited.com> <20040428160057.GA2252@mars.ravnborg.org> <408FE8C4.33B3BDB4@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <408FE8C4.33B3BDB4@users.sourceforge.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please capture the contents of /proc/meminfo and /proc/vmstats
-> when it's happening?
->
-> Thanks.
->
+On Wed, Apr 28, 2004 at 08:24:20PM +0300, Jari Ruusu wrote:
+> Sam Ravnborg wrote:
+> > On Wed, Apr 28, 2004 at 10:48:01AM -0400, Vincent C Jones wrote:
+> > >
+> > > loop-AES 2.0g has refused to compile since 2.6.6-rc1. No problems up
+> > > through 2.6.5. The make script cd's to the kernel source root, then
+> > > can't find any of the kernel include files, and it's all downhill from
+> > > there...
+> > 
+> > This is an external module - right?
+> > Could you mail me privately the Makefile used, or even better
+> > the full package (or link to it).
+> 
+> Full package:
+> http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.0g.tar.bz2
+> 
+> Patch to fix build problem:
+> http://loop-aes.sourceforge.net/updates/loop-AES-v2.0g-20040412.diff.bz2
+> 
+> New version of loop-AES will be released shortly after final 2.6.6 kernel is
+> released.
+> 
+> -- 
+> Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
 
-Here is the top of top for one machine:
+Thanks much for the quick response. With the loop-AES makefile patched,
+loop-AES and 2.6.6-rc3 are happy together.
 
- 15:36:55  up  7:09,  1 user,  load average: 1.00, 1.00, 1.00
-48 processes: 46 sleeping, 2 running, 0 zombie, 0 stopped
-CPU states:   0.1% user  99.8% system   0.0% nice   0.0% iowait   0.0% idle
-Mem:   256992k av,  117644k used,  139348k free,       0k shrd,   36464k buff
-        50968k active,              51592k inactive
-Swap:  514040k av,       0k used,  514040k free                   61644k cached
+One last question: Is there a reason there is no mention of the
+compile problem or presence of a patch on the loop-AES sourceforge home
+page (http://sourceforge.net/projects/loop-aes/)? Or is this common
+knowledge that everyone is supposed to know about sourceforge projects?
+At least with this thread, Google searches will no longer come up empty.
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
-    7 root      25   0     0    0     0 RW   99.4  0.0 415:26   0 pdflush
+Now all I need is an APM implementation which suspends while on A/C
+power and I can stop playing with kernel releases and concentrate
+on work.
 
-Here are memory stats for the same machine. The other machine's stats
-are similar; there doesn't appear to be anything out of the ordinary and
-its not even touching swap if these numbers are to be believed.
+Thanks again!
 
-busterb@snowball2:~$ cat /proc/meminfo
-MemTotal:       256992 kB
-MemFree:        139700 kB
-Buffers:         36464 kB
-Cached:          61516 kB
-SwapCached:          0 kB
-Active:          50536 kB
-Inactive:        51672 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       256992 kB
-LowFree:        139700 kB
-SwapTotal:      514040 kB
-SwapFree:       514040 kB
-Dirty:            1876 kB
-Writeback:           0 kB
-Mapped:           8552 kB
-Slab:            10924 kB
-Committed_AS:    14612 kB
-PageTables:        356 kB
-VmallocTotal:   778164 kB
-VmallocUsed:      2936 kB
-VmallocChunk:   774708 kB
+Vince
 
-busterb@snowball2:~$ cat /proc/vmstat
-nr_dirty 469
-nr_writeback 0
-nr_unstable 0
-nr_page_table_pages 89
-nr_mapped 2138
-nr_slab 2730
-pgpgin 79849
-pgpgout 121656
-pswpin 0
-pswpout 0
-pgalloc_high 0
-pgalloc_normal 1812796
-pgalloc_dma 18991
-pgfree 1866775
-pgactivate 55529
-pgdeactivate 14634
-pgfault 3622942
-pgmajfault 2322
-pgrefill_high 0
-pgrefill_normal 16726
-pgrefill_dma 49791
-pgsteal_high 0
-pgsteal_normal 11781
-pgsteal_dma 203
-pgscan_kswapd_high 0
-pgscan_kswapd_normal 10065
-pgscan_kswapd_dma 231
-pgscan_direct_high 0
-pgscan_direct_normal 2310
-pgscan_direct_dma 0
-pginodesteal 0
-slabs_scanned 4349
-kswapd_steal 9758
-kswapd_inodesteal 0
-pageoutrun 32
-allocstall 35
-pgrotated 0
-
+-- 
+Dr. Vincent C. Jones, PE              Expert advice and a helping hand
+Computer Network Consultant           for those who want to manage and
+Networking Unlimited, Inc.            control their networking destiny
+14 Dogwood Lane, Tenafly, NJ 07670
+http://www.networkingunlimited.com
+VCJones@NetworkingUnlimited.com  +1 201 568-7810  Fax: +1 201 568-7269 

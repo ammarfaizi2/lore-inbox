@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbULBSfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbULBSfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbULBSfC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:35:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULBSfC
+	id S261712AbULBSfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbULBSfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:35:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51625 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261704AbULBSe7 (ORCPT
+	Thu, 2 Dec 2004 13:35:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50603 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261712AbULBSfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:34:59 -0500
-Date: Thu, 2 Dec 2004 10:34:56 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Darrel Goeddel <dgoeddel@trustedcs.com>
-Subject: Re: [PATCH 4/6] Add dynamic context transition support to SELinux
-Message-ID: <20041202103456.O14339@build.pdx.osdl.net>
-References: <1102002189.26015.107.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 2 Dec 2004 13:35:08 -0500
+Date: Thu, 2 Dec 2004 10:33:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Grant Grundler <iod00d@hp.com>
+Cc: jgarzik@pobox.com, torvalds@osdl.org, clameter@sgi.com, hugh@veritas.com,
+       benh@kernel.crashing.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+ performance tests
+Message-Id: <20041202103347.68b08352.akpm@osdl.org>
+In-Reply-To: <20041202182716.GE25359@esmail.cup.hp.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
+	<41AEB44D.2040805@pobox.com>
+	<20041201223441.3820fbc0.akpm@osdl.org>
+	<20041202182716.GE25359@esmail.cup.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1102002189.26015.107.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, Dec 02, 2004 at 10:43:09AM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> This patch for 2.6.10-rc2-mm4 adds dynamic context transition support to SELinux via
+Grant Grundler <iod00d@hp.com> wrote:
+>
+> 2.6.odd/.even release described above is a variant of 2.6.10.n releases
+>  where n = {0, 1}. The question is how many parallel releases do people
+>  (you and linus) want us keep "alive" at the same time?
 
-This is nice to see.
+2.6.odd/.even is actually a significantly different process.  a) because
+there's only one tree, linearly growing.  That's considerably simpler than
+maintaining a branch.  And b) because everyone knows that there won't be a
+new development tree opened until we've all knuckled down and fixed the
+bugs which we put into the previous one, dammit.
 
-> +		/* Only allow single threaded processes to change context */
-> +		if (atomic_read(&p->mm->mm_users) != 1) {
-> +			struct task_struct *g, *t;
-> +			struct mm_struct *mm = p->mm;
-> +			read_lock(&tasklist_lock);
-> +			do_each_thread(g, t)
-> +				if (t->mm == mm && t != p) {
-> +					read_unlock(&tasklist_lock);
-> +					return -EPERM;
-> +				}
-> +			while_each_thread(g, t);
-> +			read_unlock(&tasklist_lock);
-
-That's heavy handed.  Can't you track this at clone time?  Or at least
-do this after the AVC check, so it's not always locking task list.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

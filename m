@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbTIBNHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 09:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTIBNHT
+	id S261352AbTIBRtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 13:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTIBRRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 09:07:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6631 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261874AbTIBNHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 09:07:07 -0400
-Date: Tue, 2 Sep 2003 15:06:58 +0200
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [BUG] mtime&ctime updated when it should not
-Message-ID: <20030902130657.GB30594@atrey.karlin.mff.cuni.cz>
-References: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz> <20030901121807.29119055.akpm@osdl.org> <20030901193128.GA26983@atrey.karlin.mff.cuni.cz> <20030901125830.6f8d8f04.akpm@osdl.org>
+	Tue, 2 Sep 2003 13:17:37 -0400
+Received: from mail.kroah.org ([65.200.24.183]:28856 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263290AbTIBRRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 13:17:35 -0400
+Date: Tue, 2 Sep 2003 10:17:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>, rmk@arm.linux.org.uk
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030902171729.GB17807@kroah.com>
+References: <20030831232812.GA129@elf.ucw.cz> <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org> <20030901211220.GD342@elf.ucw.cz> <20030901225243.D22682@flint.arm.linux.org.uk> <20030901221920.GE342@elf.ucw.cz> <20030901233023.F22682@flint.arm.linux.org.uk> <20030901224018.GA470@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030901125830.6f8d8f04.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030901224018.GA470@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jan Kara <jack@suse.cz> wrote:
-> >
-> >  > Isn't this sufficient?
-> >    I think it is not (I tried exactly the same patch but it didn't work)
-> >  - the problem is that vmtruncate() is called when prepare_write() fails
-> >  and this function also updates mtime and ctime.
+On Tue, Sep 02, 2003 at 12:40:18AM +0200, Pavel Machek wrote:
+> > I don't think PCI device support broke - Pat seems to have fixed up
+> > all that fairly nicely, so the driver model change should be
+> > transparent.
 > 
-> Oh OK.
-> 
-> So we would need to change each filesystem's ->truncate to not update the
-> inode times, then move the timestamp updating up into vmtruncate().
-  That is one solution. The other (less intrusive) is to just store old
-time stamps and restore times when you find out that write failed.
-  I'll have a look how much work would be your solution..
+> As far as I can test, yes, at least UHCI looks broken :-(. It is true
+> that calling convention at PCI level did not change.
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+UHCI is broken?  How?  
+
+Hey, I don't think that the USB code will work at all with suspend
+without just unloading the whole USB core.
+
+But I now have some patches in my tree that hook up the usb tree with
+the power model to allow usb drivers to be notified that they should
+save state in order to try to work on fixing this "problem".
+
+greg k-h
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-> Jan Kara <jack@suse.cz> wrote:
-> >
-> >  > Isn't this sufficient?
-> >    I think it is not (I tried exactly the same patch but it didn't work)
-> >  - the problem is that vmtruncate() is called when prepare_write() fails
-> >  and this function also updates mtime and ctime.
+On Tue, Sep 02, 2003 at 12:40:18AM +0200, Pavel Machek wrote:
+> > I don't think PCI device support broke - Pat seems to have fixed up
+> > all that fairly nicely, so the driver model change should be
+> > transparent.
 > 
-> Oh OK.
-> 
-> So we would need to change each filesystem's ->truncate to not update the
-> inode times, then move the timestamp updating up into vmtruncate().
-  That is one solution. The other (less intrusive) is to just store old
-time stamps and restore times when you find out that write failed.
-  I'll have a look how much work would be your solution..
+> As far as I can test, yes, at least UHCI looks broken :-(. It is true
+> that calling convention at PCI level did not change.
 
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+UHCI is broken?  How?  
+
+Hey, I don't think that the USB code will work at all with suspend
+without just unloading the whole USB core.
+
+But I now have some patches in my tree that hook up the usb tree with
+the power model to allow usb drivers to be notified that they should
+save state in order to try to work on fixing this "problem".
+
+greg k-h

@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRAEPIw>; Fri, 5 Jan 2001 10:08:52 -0500
+	id <S129383AbRAEPQd>; Fri, 5 Jan 2001 10:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130510AbRAEPId>; Fri, 5 Jan 2001 10:08:33 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56069 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129718AbRAEPIW>; Fri, 5 Jan 2001 10:08:22 -0500
-Subject: Re: 2.4 todo list update
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Fri, 5 Jan 2001 15:10:18 +0000 (GMT)
-Cc: tytso@MIT.EDU (Theodore Y. Ts'o), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101051244440.1295-100000@duckman.distro.conectiva> from "Rik van Riel" at Jan 05, 2001 12:58:34 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14EYVa-0007oG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129401AbRAEPQW>; Fri, 5 Jan 2001 10:16:22 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:27285 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129383AbRAEPQK>;
+	Fri, 5 Jan 2001 10:16:10 -0500
+Date: Fri, 5 Jan 2001 16:16:04 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101051516.QAA144658.aeb@texel.cwi.nl>
+To: Andries.Brouwer@cwi.nl, maillist@chello.nl
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+Cc: haegar@cut.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * VFS?VM - mmap/write deadlock (demo code seems to show lock
->   is there)
+> I need to look at fdisk, because it is doing things wrong.
 
-Linus fixed that.
+I don't think so, unless you have a really old version.
+
+> Linux sees the correct size, but fdisk still sees 32 GB.
+> Probably a recompile / upgrade.
+
+Yes, upgrade in case your version is older than 2.10i.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

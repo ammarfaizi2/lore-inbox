@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbSLUSCV>; Sat, 21 Dec 2002 13:02:21 -0500
+	id <S262384AbSLUSMr>; Sat, 21 Dec 2002 13:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbSLUSCV>; Sat, 21 Dec 2002 13:02:21 -0500
-Received: from dsl-213-023-066-023.arcor-ip.net ([213.23.66.23]:13964 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP
-	id <S262838AbSLUSCU>; Sat, 21 Dec 2002 13:02:20 -0500
-Date: Sat, 21 Dec 2002 19:08:52 +0100
-From: axel@pearbough.net
-To: Ro0tSiEgE <lkml@ro0tsiege.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel GCC Optimizations
-Message-ID: <20021221180852.GA31293@neon.pearbough.net>
-Mail-Followup-To: Ro0tSiEgE <lkml@ro0tsiege.org>,
-	linux-kernel@vger.kernel.org
-References: <200212211135.10289.lkml@ro0tsiege.org>
+	id <S262808AbSLUSMr>; Sat, 21 Dec 2002 13:12:47 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:26868 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262384AbSLUSMq>; Sat, 21 Dec 2002 13:12:46 -0500
+Date: Sat, 21 Dec 2002 19:20:44 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: [PATCH 2.5] cpufreq: elanfreq compile fix
+Message-ID: <20021221182044.GA2044@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212211135.10289.lkml@ro0tsiege.org>
 User-Agent: Mutt/1.4i
-Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ro0tSiEgE!
+min_freq is undefined
 
-On Sat, 21 Dec 2002, Ro0tSiEgE wrote:
+	Dominik
 
-> Is there any risk using -O3 instead of -O2 to compile the kernel, and why?
->  Also what about compiling against glibc 2.3.1 and gcc 3.2.x??
-
-I believe because of some assembler stuff that needs to be compiled as is and
-may not be optimized more that -O2 you cannot use -O3.
-
-There is no problem compiling the kernel with glibc 2.3.1 and gcc 3.2.x.
-
-Axel
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2002-12-21 14:53:44.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2002-12-21 19:18:39.000000000 +0100
+@@ -307,7 +307,7 @@
+ 	driver->policy[0].max    = max_freq;
+ 	driver->policy[0].policy = CPUFREQ_POLICY_PERFORMANCE;
+ 	driver->policy[0].cpuinfo.max_freq = max_freq;
+-	driver->policy[0].cpuinfo.min_freq = min_freq;
++	driver->policy[0].cpuinfo.min_freq = 1000;
+ 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;
+ 
+ 	elanfreq_driver = driver;

@@ -1,42 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbULPPWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbULPPbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbULPPWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 10:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbULPPWI
+	id S262691AbULPPbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 10:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbULPPbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 10:22:08 -0500
-Received: from motgate.mot.com ([129.188.136.100]:30971 "EHLO motgate.mot.com")
-	by vger.kernel.org with ESMTP id S261939AbULPPWG (ORCPT
+	Thu, 16 Dec 2004 10:31:22 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:43924 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S262691AbULPPbT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 10:22:06 -0500
-In-Reply-To: <1103173505.6052.282.camel@localhost>
-References: <1103173505.6052.282.camel@localhost>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <31B0C50E-4F76-11D9-8900-000393DBC2E8@freescale.com>
-Content-Transfer-Encoding: 7bit
-Cc: <mochel@digitalimplant.org>, "Greg KH" <greg@kroah.com>,
-       <ambx1@neo.rr.com>, <len.brown@intel.com>, <shaohua.li@intel.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <linux-kernel@vger.kernel.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [RFC] Device Resource Management
-Date: Thu, 16 Dec 2004 09:21:44 -0600
-To: "Robert Love" <rml@ximian.com>
-X-Mailer: Apple Mail (2.619)
+	Thu, 16 Dec 2004 10:31:19 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3TB disk hassles
+Date: Thu, 16 Dec 2004 15:37:02 +0000
+User-Agent: KMail/1.6.1
+Cc: Neil Conway <nconway_kernel@yahoo.co.uk>
+References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
+In-Reply-To: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200412161537.02804.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.19; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two issues that we have discussed for embedded usage would be making 
-resources 64-bit always.  We are starting to see more and more systems 
-with greater than 32-bits of physical address space while still having 
-32-bit effective.  The second is sharing resources.  On several devices 
-the IO memory region for one device may reside inside another.  One 
-example of this is the registers used to control ethernet MII PHYs 
-exist inside of an ethernet controllers register block.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Also, I liked having a name in resource.  It allows us to find the 
-specific resource we need if we have multiple resources of a given type 
-without assuming order.  And thus adding a device_find_iores_bynames().
 
-- kumar
+> Howdy...
+>
+> After much banging of heads on walls, I am throwing in the towel and
+> asking the experts ;-) ... To cut a long story short:
+>
+> Is it possible to make a 3TB disk work properly in Linux?
+>
+> Our "disk" is 12x300GB in RAID5 (with 1 hot-spare) on a 3ware 9500-S12,
+> so it's actually 2.7TiB ish.  It's also /dev/sda - i.e., the one and
+> only disk in the system.
+>
+> Problems are arising due to the 32-bit-ness of normal partition tables.
+>  I can use parted to make a 2.7TB partition (sda4), and
+> /proc/partitions looks fine until a reboot, whereupon the top bits are
+> lost and the big partition looks like a 700GB partition instead of a
+> 2.7TB one; this is a bad thing ;-)
+>
+> I've had my hopes raised by GPT, but after more reading it appears this
+> doesn't work on vanilla x86 PCs.
+>
+> Tips gratefully received.
+>
+> Neil
+>
+> PS: not on-list; I'll be reading the real-time archivers, but CCs of
+> any replies would be appreciated.
 
+Are you sure your card supports creating a single volume in excess of 2TB? 
+Some cards have such a limit, although you can create many 2TB volumes on the 
+same card.
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBwaueBn4EFUVUIO0RAhtLAKCK6ZcujlH1LGQ4SMssXlhoiifRqACgykSR
+uXt8wfwTM2N6nxPBOFNaGtc=
+=F7JI
+-----END PGP SIGNATURE-----

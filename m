@@ -1,89 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265304AbUAEU6b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:58:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUAEU6b
+	id S261368AbUAEUx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbUAEUx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:58:31 -0500
-Received: from ns.suse.de ([195.135.220.2]:13448 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265115AbUAEU6Z (ORCPT
+	Mon, 5 Jan 2004 15:53:28 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:29614 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261368AbUAEUxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:58:25 -0500
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
-References: <2938942704.1073325455@aslan.btc.adaptec.com.suse.lists.linux.kernel>
-	<m3brpi41q0.fsf@averell.firstfloor.org.suse.lists.linux.kernel>
-	<2997092704.1073333041@aslan.btc.adaptec.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Jan 2004 21:58:24 +0100
-In-Reply-To: <2997092704.1073333041@aslan.btc.adaptec.com.suse.lists.linux.kernel>
-Message-ID: <p73fzeu15an.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Mon, 5 Jan 2004 15:53:16 -0500
+Date: Mon, 5 Jan 2004 20:52:56 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] psmouse info in 2.6.1-rc1
+In-Reply-To: <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
+Message-ID: <Pine.LNX.4.58.0401052051180.27122@student.dei.uc.pt>
+References: <Pine.LNX.4.58.0401051711170.23750@student.dei.uc.pt>
+ <200401051317.23795.dtor_core@ameritech.net> <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" <gibbs@scsiguy.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > "Justin T. Gibbs" <gibbs@scsiguy.com> writes:
-> > 
-> >> Berkley Shands recently tripped over this problem.  The 2.6.X pci_map_sg
-> >> code for x86_64 modifies the passed in S/G list to compact it for mapping
-> >> by the GART.  This modification is not reversed when pci_unmap_sg is
-> >> called.  In the case of a retried SCSI command, this causes any attempt
-> > 
-> > Qlogic has the same bug.
-> 
-> Which bug is this?  Not updating use_sg, or mapping the command the
-> second time when it is retried?  If the latter, I don't think this is an
-> HBA bug.  The HBA driver doesn't know that the command has been mapped in
-> the past, so it will blindly map/unmap it again.
 
-In some cases x86-64 pci_map_sg causes a BUG() when you pass it an already
-mapped list. I've got reports of that happening with Qlogic.
+Hi there...
 
-I haven't analyzed it in detail, whether the mid layer or the driver
-or someone else is to blame.
- 
-> ...
-> 
-> >> DMA-API.txt doesn't seem to cover this issue.
-> > 
-> > It does actually, but not very clearly. I've suggested changes of wording
-> > recently to make this more clear, but it hasn't gotten in.
-> 
-> Can you point to the section of the document you believe applies?
+Somebody replied privatly to me about this patch, telling me to submit it
+somewhere... But I mistakenly deleted it :-(
 
-It documents that pci_map_sg rewrites the sg list and never guarantees
-that the rewriting is undone on pci_unmap_sg.
+Could that person please send it to me again?
 
-> > You should never remap an already mapped sg list.
-> 
-> But the sg list is no longer mapped.  The HBA driver did call pci_unmap_sg
-> on it.  Did you mean to say, "Never map an sg list again that has been
-> mapped in the past"?
+Thanks in advance,
+Mind Booster Noori
 
-Yep. While it would be in theory possible to reconstruct the list at
-unmap time it would be extremly costly (require lots of uncached
-memory access on x86-64) and is not done.
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
-> 
-> > Either reuse the already mapped list or keep a copy of the original list
-> > around. First is better because the later may have problems with the page
-> > reference counts.
-> 
-> The mid-layer doesn't map the list.  The HBA drivers do.  So you're saying
-> that either the mid-layer or the HBA drivers need to copy the list so it
-> can be restored just in case the command will be retried?
+On Mon, 5 Jan 2004, Marcos D. Marado Torres wrote:
 
-I'm just pointing out the requirements of pci_map_sg.
+> On Mon, 5 Jan 2004, Dmitry Torokhov wrote:
+>
+> > On Monday 05 January 2004 12:16 pm, Marcos D. Marado Torres wrote:
+> > > Hi there...
+> > > I don't really know if this is only in -rc1-mm1 but I suppose -rc1 is
+> > > affected also.
+> > >
+> > > The new changes in drivers/input/mouse/psmouse-base.c make that we
+> > > don't have anymore to give to kernel  psmouse_proto=imps, but only
+> > > proto=imps , so the info about it is wrong... Please apply the patch:
+> > >
+> > > --- linux-2.6.1-rc1-mm2/drivers/input/mouse/Kconfig     2004-01-05
+> > > 10:51:16.000000000 +0100 +++
+> > > linux-2.6.1-rc1-mm2-mbn1/drivers/input/mouse/Kconfig        2004-01-05
+> > > 13:34:26.000000000 +0100 @@ -30,7 +30,7 @@
+> > >                 http://www.geocities.com/dt_or/gpm/gpm.html
+> > >           to take advantage of the advanced features of the touchpad.
+> > >           If you do not want install specialized drivers but want
+> > > tapping -         working please use option psmouse.proto=imps.
+> > > +         working please use option proto=imps.
+> > >
+> > >           If unsure, say Y.
+> >
+> >
+> > It is psmouse.proto=imps if psmouse is built in the kernel and proto=imps
+> > if psmouse is compiled as a module. I mentioned only the first form because
+> > I assumed that most people have it built-in.
+>
+> Weird: I have it built in the kernel and need to do proto=imps and not
+> psmouse.proto=imps ...
+>
+> Anyway, wasn't the patch (one of) made so that users would have to pass to the
+> kernel the same for both cases?
+>
+> > Generally with the module_param macros kernel parameters have a prefix
+> > in form of "module_name." if module is built into the kernel.
+> >
+> > Dmitry
+> >
+>
+>
+> --
+> ==================================================
+> Marcos Daniel Marado Torres AKA Mind Booster Noori
+> /"\               http://student.dei.uc.pt/~marado
+> \ /                       marado@student.dei.uc.pt
+>  X   ASCII Ribbon Campaign
+> / \  against HTML e-mail and Micro$oft attachments
+> ==================================================
+>
+>
+> ------------ Output from gpg ------------
+> gpg: WARNING: using insecure memory!
+> gpg: please see http://www.gnupg.org/faq.html for more information
+> gpg: Signature made Mon 05 Jan 2004 06:29:23 PM WET using DSA key ID 6FA80F7E
+> gpg: Good signature from "Mind Booster Noori <marado@student.dei.uc.pt>"
+>
+>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-Either you can keep a flag around somewhere that says if the list is
-mapped or not and skip the remapping and don't do a unmap in
-between. Or copy and make sure the page reference counts are correctly
-maintained.  I'm not very intimate with the SCSI/block code so you
-guys have to decide what is more convenient.
+iD8DBQE/+c6rmNlq8m+oD34RAo1nAJ0QgWIzTkX/LL/KO5gzL0dFsVh/oQCfbEpB
+0iLrvtzbQtTfmiCXARnGP5I=
+=URqq
+-----END PGP SIGNATURE-----
 
--Andi

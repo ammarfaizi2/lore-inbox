@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289056AbSA3OlY>; Wed, 30 Jan 2002 09:41:24 -0500
+	id <S289148AbSA3Or0>; Wed, 30 Jan 2002 09:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289148AbSA3OlP>; Wed, 30 Jan 2002 09:41:15 -0500
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:9892 "EHLO e23.esmtp.ibm.com")
-	by vger.kernel.org with ESMTP id <S289056AbSA3OlE>;
-	Wed, 30 Jan 2002 09:41:04 -0500
-Date: Wed, 30 Jan 2002 20:13:04 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@redhat.com>, ak@suse.de, viro@math.psu.edu,
-        jgmyers@netscape.com
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Writeup on AIO design (uploaded)
-Message-ID: <20020130201304.A1859@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-In-Reply-To: <20020129205620.A1886@in.ibm.com> <20020129225600.A10775@redhat.com> <20020130143215.B1378@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130143215.B1378@in.ibm.com>; from suparna@in.ibm.com on Wed, Jan 30, 2002 at 02:32:15PM +0530
+	id <S289214AbSA3OrR>; Wed, 30 Jan 2002 09:47:17 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59663 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289148AbSA3OrM>;
+	Wed, 30 Jan 2002 09:47:12 -0500
+Date: Wed, 30 Jan 2002 12:46:53 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <E16VsPE-0000DZ-00@starship.berlin>
+Message-ID: <Pine.LNX.4.33L.0201301245240.11594-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> On January 30, 2002 10:07 am, Horst von Brand wrote:
 
-I have just uploaded the aio design notes to:
- http://lse.sourcefourge.net/io/aionotes.txt
+> > But most of this will be lost on exec(2).
 
-Thanks to all those who helped with inputs and reviews of the interim 
-drafts.
+> > Also, it is my impression that
+> > the tree of _running_ processes isn't usually very deep (Say init --> X -->
+> > [Random processes] --> [compilations &c], this would make 5 or 6 deep, no
+> > more.
 
-The writeup attempts to bring out some of the interesting design issues 
-and discuss the solutions to those issues and the approach taken in 
-Ben's design, and touches on the ideas for addressing some of the pending 
-issues, todo items and potential enhancements. It also looks at some of
-these aspects in the context of other implementations that exist or have 
-been attempted on Linux (SGI kaio, Univ of Winsconsin-Madison's BAIO, 
-Andi Kleen's early prototype), and the AIO related interfaces available 
-on other OS's (POSIX aio, NT IOCPs, BSD kqueues), and also the DAFS api 
-specifications. 
+> Here's my tree - on a non-very-busy laptop.  Why is my X tree so much deeper?
+> I suppose if I was running java this would look considerably more interesting.
 
-This was written with the intention of triggering discussions (though
-this writeup wouldn't have been possible without all the discusions we've
-already had :)). 
+>      |-bash---bash---xinit-+-XFree86
+>      |                     `-xfwm-+-xfce---gnome-terminal-+-bash---pstree
 
-So please do share your insights, perspectives and comments. 
+It doesn't matter how deep the tree is, on exec() all
+previously shared page tables will be blown away.
 
-All the more so, if you already have a good understanding the aio 
-design ! 
+In this part of the tree, I see exactly 2 processes
+which could be sharing page tables (the two bash
+processes).
 
-For those who are new to aio:
-The focus here is only the in-kernel aio design, so you won't find much 
-about actually using aio (Dan Kegel's page might be a better
-place to start on that). There should, however, be some insights,
-and pointers to the in-kernel primitives introduced as part of aio,
-say, if you intend to implement your own async state machine (for some 
-reason !). However, the writeup does not get into low level details and 
-is not intended to be a substitute for looking at the code :). 
-It should help you follow the code more easily though (I hope).
+regards,
 
-Regards
-Suparna
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTHZAsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 20:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTHZAsz
+	id S262368AbTHZBHO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 21:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTHZBHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 20:48:55 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:29583 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262261AbTHZAsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 20:48:53 -0400
-Subject: linux-2.4.22_ioapic-affinity-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061858911.23048.202.camel@laptop.cornchips.homelinux.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Aug 2003 17:48:32 -0700
+	Mon, 25 Aug 2003 21:07:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2021 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262368AbTHZBHN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 21:07:13 -0400
+Message-ID: <3F4AB2AB.5090709@pobox.com>
+Date: Mon, 25 Aug 2003 21:06:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, m.c.p@wolk-project.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow sysrq() via /proc/sys/kernel/magickey
+References: <200308252003.h7PK3EQq024312@hera.kernel.org>
+In-Reply-To: <200308252003.h7PK3EQq024312@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, All,
-	
-	In set_ioapic_affinity() we take a cpu mask which we normally pass into
-the apic. However, on xapics in clustered physical mode (ie: x440s) we
-need to convert this mask into a physical apicid before sending it to
-the apic. If clustered_apic_mode is XAPIC, this patch selects the lowest
-cpu in the mask and routes the interrupts there. This avoids
-timedoubling and other interrupt misdirection seen on x440s after
-playing with /proc/irq/x/smp_affinity. 
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1114, 2003/08/25 16:42:57-03:00, m.c.p@wolk-project.de
+> 
+> 	[PATCH] Allow sysrq() via /proc/sys/kernel/magickey
+> 	
+> 	Hi Marcelo,
+> 	
+> 	sysrq() is a good thing to debug things, but unfortunately you need to have
+> 	physical access to the keyboard. My company for instance maintains tons of
+> 	remote machines and sometimes we need to do sysrq() too, but it's not
+> 	possible to do so the remote way.
+> 	
+> 	Attached patch enables emulation of the Magic SysRq key (Alt-SysRq-key) via
+> 	the /proc interface. Just echo the desired character into the file and there
+> 	you go.
+> 	
+> 	Patch from Randy Dunlap!
 
-Please apply.
 
-thanks
--john
+This patch is completely unneeded and redundant.
 
+2.4.x already has /proc/sysrq-trigger for precisely this purpose.
 
-diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c	Fri Aug 22 19:05:33 2003
-+++ b/arch/i386/kernel/io_apic.c	Fri Aug 22 19:05:33 2003
-@@ -1365,6 +1365,13 @@
- static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
- {
- 	unsigned long flags;
-+
-+	/* pick a single cpu for clustered xapics */
-+	if(clustered_apic_mode == CLUSTERED_APIC_XAPIC){
-+		int cpu = ffs(mask)-1;
-+		mask = cpu_to_physical_apicid(cpu);
-+	}
-+
- 	/*
- 	 * Only the first 8 bits are valid.
- 	 */
+See fs/proc/proc_misc.c for more details.
+
+	Jeff
 
 
 

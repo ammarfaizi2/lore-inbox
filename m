@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136148AbREJMdT>; Thu, 10 May 2001 08:33:19 -0400
+	id <S136149AbREJMf3>; Thu, 10 May 2001 08:35:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136149AbREJMdH>; Thu, 10 May 2001 08:33:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42255 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136148AbREJMcp>; Thu, 10 May 2001 08:32:45 -0400
-Subject: Re: Linux thread problem
-To: sachin_76@lycos.com
-Date: Thu, 10 May 2001 13:36:51 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <NJMIGAKMNAMIKAAA@mailcity.com> from "sachin kitnawat" at May 10, 2001 02:19:41 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xpgb-0004hI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S136161AbREJMfT>; Thu, 10 May 2001 08:35:19 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:55177 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S136149AbREJMfL>; Thu, 10 May 2001 08:35:11 -0400
+From: Ulrich.Weigand@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: alan@lxorguk.ukuu.org.uk
+cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Message-ID: <C1256A48.00451BD1.00@d12mta11.de.ibm.com>
+Date: Thu, 10 May 2001 14:34:46 +0200
+Subject: Deadlock in 2.2 sock_alloc_send_skb?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I am porting an Threading Application from Hp-UX 11.0 
-> to Red Hat Linux 6.2. There is a system call pthread_condattr_setpshared 
-> and pthread_mutex_setpshared in HP-UX which is not available on Linux.
 
-They are actually library not system calls in Linux and may well not be
-in earlier glibc. You might want to see if glibc2.2 has them. 
 
-For Red Hat stuff there are Red Hat lists 
-	http://www.redhat.com/mailing-lists
+Hi Alan,
 
-Alan
+we've experienced deadlocks that appear to be caused by the loop in
+sock_alloc_send_skb().  To trigger this, you need to combine heavy
+network load with memory pressure.  In this situation, sock_wmalloc()
+can fail because it really can't allocate any more memory, even though
+the send buffer limit for this socket is not yet exhausted.
+
+If that happens, and the socket uses GFP_ATOMIC allocation, the while (1)
+loop in sock_alloc_send_skb() will endlessly spin, without ever calling
+schedule(), and all the time holding the kernel lock ...
+
+Do you agree that this is a problem?  What do you think about this fix:
+
+diff -ur linux-2.2.19/net/core/sock.c linux-2.2.19-s390/net/core/sock.c
+--- linux-2.2.19/net/core/sock.c   Sun Mar 25 18:37:41 2001
++++ linux-2.2.19-s390/net/core/sock.c    Thu May 10 14:02:11 2001
+@@ -752,9 +752,11 @@
+                    break;
+               try_size = fallback;
+          }
+-         skb = sock_wmalloc(sk, try_size, 0, sk->allocation);
++         skb = sock_wmalloc_err(sk, try_size, 0, sk->allocation, &err);
+          if (skb)
+               break;
++         if (err)
++              goto failure;
+
+          /*
+           *   This means we have too many buffers for this socket already.
+
+
+Test case is simple:  keep spawning lots of long-running 'ping' processes
+until physical memory is exhausted.
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
+--
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+
 

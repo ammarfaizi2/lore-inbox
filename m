@@ -1,17 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270381AbUJUKRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270513AbUJUKW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270381AbUJUKRu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270378AbUJUKQu
+	id S270513AbUJUKW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbUJUKUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:16:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:50402 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270643AbUJUKL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:11:56 -0400
-Date: Thu, 21 Oct 2004 12:11:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
+	Thu, 21 Oct 2004 06:20:41 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:22691
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S270611AbUJUKTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 06:19:47 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Jens Axboe <axboe@suse.de>
 Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
        LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
        mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
@@ -19,45 +20,59 @@ Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
        Florian Schmidt <mista.tapas@gmx.net>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021101103.GC10531@suse.de>
-References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas>
+In-Reply-To: <20041021101103.GC10531@suse.de>
+References: <20041015102633.GA20132@elte.hu>
+	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
+	 <20041020094508.GA29080@elte.hu>
+	 <30690.195.245.190.93.1098349976.squirrel@195.245.190.93>
+	 <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de>
+	 <1098352441.26758.30.camel@thomas>  <20041021101103.GC10531@suse.de>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098353505.26758.38.camel@thomas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098352441.26758.30.camel@thomas>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 12:11:45 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> On Thu, 2004-10-21 at 11:53, Jens Axboe wrote:
-> > On Thu, Oct 21 2004, Thomas Gleixner wrote:
-> > > On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
-> > > >  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
+On Thu, 2004-10-21 at 12:11, Jens Axboe wrote:
+> On Thu, Oct 21 2004, Thomas Gleixner wrote:
+> > On Thu, 2004-10-21 at 11:53, Jens Axboe wrote:
+> > > On Thu, Oct 21 2004, Thomas Gleixner wrote:
+> > > > On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
+> > > > >  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
+> > > > 
+> > > > As I already pointed out, this is a problem due to up(sema) in
+> > > > queuecommand. That's one of the semaphore abuse points, which needs to
+> > > > be fixed. 
+> > > > 
+> > > > The problem is that semaphores are hold by Process A and released by
+> > > > Process B, which makes Ingo's checks trigger
 > > > 
-> > > As I already pointed out, this is a problem due to up(sema) in
-> > > queuecommand. That's one of the semaphore abuse points, which needs to
-> > > be fixed. 
-> > > 
-> > > The problem is that semaphores are hold by Process A and released by
-> > > Process B, which makes Ingo's checks trigger
+> > > That's utter crap, it's perfectly valid use.
 > > 
-> > That's utter crap, it's perfectly valid use.
+> > It's not!
+> > 
+> > >From the code:
+> > 
+> >          init_MUTEX_LOCKED(&(us->sema));
+> > 
+> > This is used to wait for command completion and therefor we have the
+> > completion API. It was used this way because the ancestor of completion
+> > (sleep_on) was racy !
 > 
-> It's not!
-> 
-> >From the code:
-> 
->          init_MUTEX_LOCKED(&(us->sema));
-> 
-> This is used to wait for command completion and therefor we have the
-> completion API. It was used this way because the ancestor of completion
-> (sleep_on) was racy !
+> I didn't look at the USB code, I'm just saying that it's perfectly valid
+> use of a semaphore the pattern you describe (process A holding it,
+> process B releasing it).
 
-I didn't look at the USB code, I'm just saying that it's perfectly valid
-use of a semaphore the pattern you describe (process A holding it,
-process B releasing it).
+Yeah, for a semaphore it is, but not for a mutex.
 
--- 
-Jens Axboe
+IMHO, this is not clearly seperated and therefor produces a lot of
+confusion.
+
+tglx
+
 

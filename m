@@ -1,141 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbSL3QkZ>; Mon, 30 Dec 2002 11:40:25 -0500
+	id <S267007AbSL3Qyl>; Mon, 30 Dec 2002 11:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbSL3QkZ>; Mon, 30 Dec 2002 11:40:25 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12673 "EHLO
-	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S266997AbSL3QkX>;
-	Mon, 30 Dec 2002 11:40:23 -0500
-Date: Sun, 29 Dec 2002 20:58:29 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@bilbo.tmr.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] ctxbench - 25% drop in IPC rates
-Message-ID: <Pine.LNX.4.44.0212292052190.1144-100000@bilbo.tmr.com>
+	id <S267008AbSL3Qyl>; Mon, 30 Dec 2002 11:54:41 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:29392 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267007AbSL3Qyk>; Mon, 30 Dec 2002 11:54:40 -0500
+Date: Mon, 30 Dec 2002 09:02:58 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: kernel-janitor-discuss@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
+Message-ID: <299610000.1041267777@titus>
+In-Reply-To: <1041255152.544.14.camel@zion.wanadoo.fr>
+References: <129460000.1041214462@titus>
+ <1041255152.544.14.camel@zion.wanadoo.fr>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In these results, note that the IPC by signal and by SysV message queue 
-are down by ~25%. Something changed. Everything dropped a little, but 
-those two really fell off.
+>> ID Sev Owner State Result Summary
+>> 44 blo khoa@us.ibm.com OPEN radeonfb does not compile at all - seems
+>> incomplete? or w...
+>
+> Beeing worked on by James Simmons and myself. Working version in the PPC
+> tree, will be part of next round of fbdev updates
+>
+>> 69 nor mbligh@aracnet.com OPEN Framebuffer bug
+>> 72 nor khoa@us.ibm.com OPEN Framebuffer scrolls at the wrong times/places
+>> 79 nor khoa@us.ibm.com OPEN Framebuffer scrolling problem
+>
+> I've seen at least some of these discussed on the linux-fbdev mailing
+> list, though I can't talk for the maintainer, I beleive they are beeing
+> worked on.
 
-As always, "uni" is a single CPU, smp is dual CPU, nosmp is an smp kernel 
-running on one processor. All smp kernels show more variation between high 
-and low than uni.
+OK, trouble is I need someone with a bugzilla account to assign these to.
+I emailed James, if he doesn't want it, would you be willing to maintain
+that subsection in bugzilla?
 
-I am considering running with preempt on for these, but I have no historic 
-data for earlier kernels. Unless it really seems useful, I won't bother 
-building yet another kernel.
+>> 117 nor mbligh@aracnet.com OPEN build failure: arch/ppc/kernel/process.c
+>
+> Works in current ppc bk tree, probably waiting for next round of merges
+> by Paul Mackerras to Linus.
 
+According to DaveJ, this should be fixed in 51 ... anyone able to test?
 
-================================================================
-    Run information
-================================================================
-
-Run: 2.5.50nosmp-bl
-  CPU_MHz              498.049
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.50smp
-  Ncpu                 1
-Run: 2.5.50smp-bl
-  CPU_MHz              497.898
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.50smp
-  Ncpu                 2
-Run: 2.5.50uni-bl
-  CPU_MHz              497.953
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.50
-  Ncpu                 1
-Run: 2.5.52nosmp-bl
-  CPU_MHz              497.929
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.52smp
-  Ncpu                 1
-Run: 2.5.52smp-bl
-  CPU_MHz              497.934
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.52smp
-  Ncpu                 2
-Run: 2.5.52uni-bl
-  CPU_MHz              497.965
-  CPUtype              Celeron (Mendocino)
-  HostName             bilbo.tmr.com
-  KernelName           2.5.52
-  Ncpu                 1
-
-
-================================================================
-    Results by IPC type
-================================================================
-
-                                   loops/sec
-SIGUSR1                     low       high    average
-  2.5.50nosmp-bl          51675      56403      54818
-  2.5.50smp-bl             8841      55534      38632
-  2.5.50uni-bl            66374      66536      66434
-  2.5.52nosmp-bl          40230      40322      40264
-  2.5.52smp-bl            26179      39434      32565
-  2.5.52uni-bl            49606      50246      49939
-
-                                   loops/sec
-message queue               low       high    average
-  2.5.50nosmp-bl         104965     105261     105105
-  2.5.50smp-bl            46184     104640      71925
-  2.5.50uni-bl           121383     122357     121851
-  2.5.52nosmp-bl          78717      78841      78763
-  2.5.52smp-bl            47748      63108      53837
-  2.5.52uni-bl            93991      94909      94352
-
-                                   loops/sec
-pipes                       low       high    average
-  2.5.50nosmp-bl          81211      81529      81411
-  2.5.50smp-bl            42573      70910      56900
-  2.5.50uni-bl           127910     129669     128603
-  2.5.52nosmp-bl          76852      77215      77026
-  2.5.52smp-bl            49571      63707      57279
-  2.5.52uni-bl           111056     115477     113687
-
-                                   loops/sec
-semiphore                   low       high    average
-  2.5.50nosmp-bl         110582     112044     111450
-  2.5.50smp-bl            54085      78742      63654
-  2.5.50uni-bl           131425     132274     131794
-  2.5.52nosmp-bl         102732     103045     102924
-  2.5.52smp-bl            45872      70347      55434
-  2.5.52uni-bl           119345     130644     126665
-
-                                   loops/sec
-spin+yield                  low       high    average
-  2.5.50nosmp-bl         252055     252529     252361
-  2.5.50smp-bl           244146     344592     279022
-  2.5.50uni-bl           322742     325100     323594
-  2.5.52nosmp-bl         240059     240287     240149
-  2.5.52smp-bl           359924     435936     389357
-  2.5.52uni-bl           315797     317316     316650
-
-                                   loops/sec
-spinlock                    low       high    average
-  2.5.50nosmp-bl              3          3          3
-  2.5.50smp-bl          1194785    1194882    1194841
-  2.5.50uni-bl                3          3          3
-  2.5.52nosmp-bl              3          3          3
-  2.5.52smp-bl          1194666    1195555    1195141
-  2.5.52uni-bl                3          3          3
-
-
--- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
-
+M.
 

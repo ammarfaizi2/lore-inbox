@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUJNWOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUJNWOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267556AbUJNWOr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267984AbUJNWNp
+	id S267785AbUJNWOs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267769AbUJNWOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:13:45 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:11398 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S267294AbUJNVxN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 17:53:13 -0400
-Date: Thu, 14 Oct 2004 23:52:08 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, Andrew Morton <akpm@osdl.org>,
-       Bill Huey <bhuey@lnxw.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Adam Heath <doogie@debian.org>, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
-In-Reply-To: <20041014194854.GA14763@elte.hu>
-Message-Id: <Pine.OSF.4.05.10410142338390.20883-100000@da410.ifa.au.dk>
+	Thu, 14 Oct 2004 18:14:00 -0400
+Received: from baythorne.infradead.org ([81.187.226.107]:46484 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S267411AbUJNVxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:53:55 -0400
+Subject: Re: Fw: signed kernel modules?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410142331020.877@scrub.home>
+References: <Pine.LNX.4.61.0410132346080.7182@scrub.home>
+	 <1097626296.4013.34.camel@localhost.localdomain>
+	 <1096411448.3230.22.camel@localhost.localdomain>
+	 <1092403984.29463.11.camel@bach> <19388.1092301990@redhat.com>
+	 <30797.1092308768@redhat.com>
+	 <20040812111853.GB25950@devserv.devel.redhat.com>
+	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+	 <10345.1097507482@redhat.com>
+	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
+	 <1097534090.16153.7.camel@localhost.localdomain>
+	 <1097570159.5788.1089.camel@baythorne.infradead.org>
+	 <27277.1097702318@redhat.com> <16349.1097752349@redhat.com>
+	 <Pine.LNX.4.61.0410141357380.877@scrub.home>
+	 <1097755890.318.700.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0410141554330.877@scrub.home>
+	 <1097764251.318.724.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0410142256360.877@scrub.home>
+	 <1097789060.5788.2001.camel@baythorne.infradead.org>
+	 <Pine.LNX.4.61.0410142331020.877@scrub.home>
+Content-Type: text/plain
+Message-Id: <1097790753.5788.2031.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 14 Oct 2004 22:52:33 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004, Ingo Molnar wrote:
+On Thu, 2004-10-14 at 23:36 +0200, Roman Zippel wrote:
+> No. I still don't know, why the kernel has to do this? You avoided to 
+> answer this question already before.
 
-> 
-> * Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-> 
-> > >the overhead we can try to optimize later on. What problems do you see
-> > >with setting priorities on those IRQs?
-> > 
-> > Perhaps I am old fashioned, but in building a real time system, I
-> > consider hardware interrupt processing as something that is always at
-> > a higher priority than real time tasks. [...]
+Partly to protect against accidentally-corrupted modules causing damage.
+Partly to allow a sysadmin (or more likely an IT department) to enforce
+a policy that only known and approved modules shall be loaded onto
+machines which they're expected to support. Partly to allow other
+support providers to do likewise, or at least to _detect_ the fact that
+unsupported modules are loaded.
 
-
-Let us say you have a server taking in requests over the network. Then you
-want to run the ethernet device at very high priority - you can just as
-well run it in the interrupt directly. But let us say you are making an
-embedded device handling some hardware real-time but having a
-web-interface to configure it. Then you dont want the traffic on the
-network to take CPU from you real-time thread (if you don't have DMA it
-can take a lot of CPU just to read the packets out of the controller!)
-
-I do have real life experience with exactly this problem and the solution
-was to move the interrupt-handler into a low-priority thread.
-
-As I said on comments on lwn.net: Make these things parameters for the
-real-time guys to choose per driver for their specific system. There is no
-good setting useable for everybody. On normal systems let them stay in
-interrupt context and use normal spinlocks for must things That _performs_
-much better but gives higher latencies. Just make it possible for the
-real-time system developeres to configure their system compiletime along
-with choosing drivers, file systems etc.
-
-
-Esben
-
+-- 
+dwmw2
 
 

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSHGUk6>; Wed, 7 Aug 2002 16:40:58 -0400
+	id <S317385AbSHGUeN>; Wed, 7 Aug 2002 16:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSHGUk6>; Wed, 7 Aug 2002 16:40:58 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:44284 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S293680AbSHGUk5>; Wed, 7 Aug 2002 16:40:57 -0400
-Subject: Re: 2.4.19 crash
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michal Illich <michal@illich.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D516428.5070005@illich.cz>
-References: <3D516428.5070005@illich.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 23:04:06 +0100
-Message-Id: <1028757846.26991.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317424AbSHGUeM>; Wed, 7 Aug 2002 16:34:12 -0400
+Received: from dsl-213-023-022-051.arcor-ip.net ([213.23.22.51]:54955 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317385AbSHGUeI>;
+	Wed, 7 Aug 2002 16:34:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] Rmap speedup
+Date: Wed, 7 Aug 2002 22:39:15 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com,
+       Rik van Riel <riel@conectiva.com.br>
+References: <E17aiJv-0007cr-00@starship> <3D5177CB.D8CA77C2@zip.com.au> <E17cXFM-0004si-00@starship>
+In-Reply-To: <E17cXFM-0004si-00@starship>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17cXaO-0004xi-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 19:17, Michal Illich wrote:
-> 	I want to report multiple crashes while using last stable kernel, the message 
-> it gives is:
+On Wednesday 07 August 2002 22:17, Daniel Phillips wrote:
+> On Wednesday 07 August 2002 21:40, Andrew Morton wrote:
+> > > Vectoring up the pte chain nodes as
+> > > you do here doesn't help much because the internal fragmentation
+> > > roughly equals the reduction in link fields.
+> > 
+> > Are you sure about that?  The vectoring is only a loss for very low
+> > sharing levels, at which the space consumption isn't a problem anyway.
+> > At high levels of sharing it's almost a halving.
 > 
-> --------------------
-> Unable to handle kernel paging request at virtual address 45ca6234
->   printing eip:
+> Your vector will only be half full on average.
 
-See REPORTING-BUGS in the kernel source tree, and run the first oops it
-logged through the ksymoops tool. That'll make it a lot easier to see
-what happened.
+Ah, the internal fragmentation only exists in the first node, yes I see.
+So I'm correct at typical sharing levels, but for massive sharing, yes
+it approaches half the space, which is significant.  That's also when rmap
+should show the most advantage over virtual scanning, so we really truly
+do have to benchmark that.
 
+-- 
+Daniel

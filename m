@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266092AbUFIWrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUFIWs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266092AbUFIWrN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUFIWrN
+	id S266143AbUFIWs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266201AbUFIWs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:47:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:5264 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266092AbUFIWrH (ORCPT
+	Wed, 9 Jun 2004 18:48:56 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:41149 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266143AbUFIWsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:47:07 -0400
-Date: Wed, 9 Jun 2004 15:45:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Couple of sysfs patches
-Message-ID: <20040609224548.GA1393@kroah.com>
-References: <200406090221.24739.dtor_core@ameritech.net> <20040609221337.GG16653@kroah.com> <200406091732.28684.dtor_core@ameritech.net>
+	Wed, 9 Jun 2004 18:48:41 -0400
+Date: Wed, 9 Jun 2004 15:47:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
+Message-Id: <20040609154750.241df741.pj@sgi.com>
+In-Reply-To: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
+References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406091732.28684.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 05:32:28PM -0500, Dmitry Torokhov wrote:
-> Actually, I myself want someting else -
-> 
-> int platform_device_register_simple(struct platform_device **ppdev,
-> 				    const char *name, int id)
-> 
-> It will allocate platform device, set name and id and release function to
-> platform_device_simple_release which in turn will be hidden from outside
-> world. Since the function does allocation for user is should prevent the
-> abuse you were concerned about.
+> Clean up perfctr/virtual by using the new cpus_andnot() operation
 
-Ok, that sounds good.  I'll take patches for that kind of interface.
+Neat.
 
-But have the function return the pointer, like the class_simple
-functions work.  Not the ** like you just specified.
+Do you still need "tmp" ?  Perhaps you could further add the
+following patch (untested, unbuilt, ...).
 
-> > Unless you show me a real need for it..
-> > 
-> > And as for the whitespace cleanup, why?  The lack of spaces seem to be
-> > something that the original author liked doing.  There's nothing in the
-> > kernel coding style guidelines that really mention it that I can see.
-> >
->  
-> If you check the files in question there were already both styles present
-> (with and without spaces). And trailing whitespace looks bloody red in my
-> vi ;) Will you accept just trailing whitespace cleanup?
+This saves copies and stack space for one cpumask (that's
+512 bits on my SN2 systems).
 
-Hm, ok, you are correct about the duplicate styles, ok, I'll take the
-whole cleanup.  But things have changed in these files lately, and your
-patch doesn't apply :(  Care to resend this against the latest -mm
-release which has all of the changes in it?
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-thanks,
+Index: 2.6.7-rc3-mm1/drivers/perfctr/virtual.c
+===================================================================
+--- 2.6.7-rc3-mm1.orig/drivers/perfctr/virtual.c	2004-06-09 15:34:34.000000000 -0700
++++ 2.6.7-rc3-mm1/drivers/perfctr/virtual.c	2004-06-09 15:38:32.000000000 -0700
+@@ -403,11 +403,10 @@
+ 		return -EFAULT;
+ 
+ 	if (control.cpu_control.nractrs || control.cpu_control.nrictrs) {
+-		cpumask_t tmp, old_mask, new_mask;
++		cpumask_t old_mask, new_mask;
+ 
+-		tmp = perfctr_cpus_forbidden_mask;
+ 		old_mask = tsk->cpus_allowed;
+-		cpus_andnot(new_mask, old_mask, tmp);
++		cpus_andnot(new_mask, old_mask, perfctr_cpus_forbidden_mask);
+ 
+ 		if (cpus_empty(new_mask))
+ 			return -EINVAL;
 
-greg k-h
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132057AbRDGXdK>; Sat, 7 Apr 2001 19:33:10 -0400
+	id <S132072AbRDGXeb>; Sat, 7 Apr 2001 19:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132072AbRDGXdA>; Sat, 7 Apr 2001 19:33:00 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:2056 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S132057AbRDGXcr>;
-	Sat, 7 Apr 2001 19:32:47 -0400
-Date: Sun, 8 Apr 2001 02:32:28 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Michael Peddemors <michael@linuxmagic.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-Message-ID: <20010408023228.L805@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <20010404012102Z131724-406+7418@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010404012102Z131724-406+7418@vger.kernel.org>; from michael@linuxmagic.com on Tue, Apr 03, 2001 at 06:14:33PM -0700
+	id <S132077AbRDGXeW>; Sat, 7 Apr 2001 19:34:22 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:53512 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S132072AbRDGXeD>; Sat, 7 Apr 2001 19:34:03 -0400
+Message-Id: <200104072333.f37NXus90906@aslan.scsiguy.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx 6.1.10 breaks 2.4.3-ac3 
+In-Reply-To: Your message of "Sat, 07 Apr 2001 20:58:34 +0200."
+             <20010407205834.A2606@werewolf.able.es> 
+Date: Sat, 07 Apr 2001 17:33:56 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 06:14:33PM -0700, Michael Peddemors wrote:
-> This would be a shame, as he has been a valuable resource..
-> Why has the list become more restrictive?
+>> To be expected as you didn't apply the patch to scsi_lib.c that makes
+>> scsi_unblock_host() actually run the device queues to start the system
+>> back up again.
+>>
+>
+>There is no patch for 2.4.3-ac3. You could say, well if you want 6.1.10,
+>use plain 2.4.3.
 
-	I just verified this particular aspect of VGER's MTA
-	configurations.  It has been unmodified since 21-Mar-2000,
-	that is, over a year...
+Actually, I would say, "Apply the 2.4.3 patch.  It will probably apply
+cleanly to your kernel.  If it doesn't, and you don't know enough C
+to correct the problem, you shouldn't be playing around with kernel
+patches."
 
-	If e.g. Rik's ISP has added their dialup pools to DUL registry,
-	that might be the reason behind the change.
+>That is not the way to do things. It is supposed that what people can get
+>at your site is the aic driver.
 
-> I think that this is one list where we have to keep the ability to post
-> from individuals separate from the need to make sure that their ISP or
-> company is compliant to a set a of rules..  The LKML can't toe the
-> strictest of lines, without loosing some possibly valuable
-> contributors..
+Ahh, now I have people telling me what the content of my
+site should be. ;-)
 
-	Well, comparing how much spam goes thru linux-mm vs. linux-kernel,
-	I would say our methods are fairly effective.
+>If the patch contains something different, from the tarball, nobody knows.
 
-	The incentive behind the DUL is to force users not to post
-	straight out to the world, but to use their ISP's servers
-	for outbound email --- normal M$ users do that, after all.
-	Only spammers - and UNIX powerusers - want to post directly
-	to the world from dialups.  And UNIX powerusers should know
-	better, and be able to use ISP relay service anyway.
+I've figured this part out.
 
-> On 03 Apr 2001 18:01:42 -0300, Rik van Riel wrote:
-> > Hi,
-> > 
-> > this will be my last email to linux-kernel for a while since
-> > davem and matti are using DUL on vger.kernel.org
-> > 
-> > If you need to know something, don't count on me posting
-> > anything here. For memory management things, please use
-> > linux-mm@kvack.org instead.
-> > 
-> > Rik
-> > --
-> > Virtual memory is like a game you can't win;
-> > However, without VM there's truly nothing to lose...
-> > 
-> >               http://www.surriel.com/
-> > http://www.conectiva.com/     http://distro.conectiva.com.br/
-> 
-> -- 
-> "Catch the Magic of Linux..."
-> --------------------------------------------------------
-> Michael Peddemors - Senior Consultant
+>If there is a bug in kernel, please mail it to lkml.
+
+This has already happened in all cases save the functionality I've added
+in 6.1.10.  I haven't even gotten around to announcing 6.1.10 yet, so
+you can hardly fault me for not posting the SCSI layer changes yet.
+
+Anyway, posting something to LK doesn't help people running already
+released kernels.  Not everyone pushes the bleading edge by updating
+their kernel daily.  These people should be able to get driver updates
+if they need them.  As for people that run on the bleading edge, kernel
+"releases" occur far too often and in too many flavors for me to track
+them daily.  So, I work with Linus and Alan to get driver changes
+into their trees and provide patches against released kernels.
+
+>And in your site make VERY clear and independent the patch to correct
+>that thing in main SCSI subsystem from the patch to upgrade your drivers.
+
+People using the driver will have to have the other fixes.  They are
+not separable.  Separating them will only lead to more confusion.  For
+instance, 6.1.10 includes patches to Makefiles to correct for a link order
+issue.  This is another *required* change for the driver to work well.
+Does that need to be in a separate patch file too?
+
+--
+Justin

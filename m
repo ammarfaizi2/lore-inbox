@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265191AbUBIWQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 17:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUBIWQZ
+	id S265303AbUBIW3C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 17:29:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUBIW3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 17:16:25 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:23715 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S265191AbUBIWQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 17:16:23 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in 2.4.25-rc1 -- video1394
-Mail-Copies-To: never
-X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
-References: <873c9kebhw.fsf@mirexpress.internal.placard.fr.eu.org>
-	<20040209175731.GN1042@phunnypharm.org>
-From: Roland Mas <roland.mas@free.fr>
-Date: Mon, 09 Feb 2004 23:16:19 +0100
-In-Reply-To: <20040209175731.GN1042@phunnypharm.org> (Ben Collins's message
- of "Mon, 9 Feb 2004 12:57:31 -0500")
-Message-ID: <873c9j3nm4.fsf@mirexpress.internal.placard.fr.eu.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Feb 2004 17:29:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15336 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265303AbUBIW25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 17:28:57 -0500
+Date: Mon, 9 Feb 2004 14:28:42 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, scott.feldman@intel.com
+Subject: Re: 2.6.2 crash after network link failure
+Message-Id: <20040209142842.508ee3b7.davem@redhat.com>
+In-Reply-To: <20040209130134.GA14136@vana.vc.cvut.cz>
+References: <20040209130134.GA14136@vana.vc.cvut.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins, 2004-02-09 12:57:31 -0500 :
+On Mon, 9 Feb 2004 14:01:34 +0100
+Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
 
-[...]
+> It looks to me like that we've got skb on completion_queue which was connected
+> to a bit unhappy socket - one which had sk->sk_sleep uninitialized. Only problem 
+> is that only af_unix sets skb->destructor to sock_wfree, so I somehow miss how 
+> this could be triggered by e100 link change.
 
-> Looks to me like it is failing in alloc_dma_iso_ctx(), and then calling
-> free_dma_iso_ctx() where it encounters some bad data. I can't see off
-> hand where this might happen. Was there any message prior to this, like
-> maybe a video1394 error message?
+It is not only af_unix, any time we invoke skb_set_owner_w() we get sock_wfree()
+as the destructor, furthermore sock_def_write_space is the default such handler
+given to all sockets unless they override that.
 
-There were messages before that, yes.  Here come bits of my kern.log.
-,----
-| Feb  9 12:11:11 mirexpress kernel: mask: 8000000000000000 usage: 0000000000000000
-| Feb  9 12:11:11 mirexpress kernel: video1394_0: Iso transmit DMA: 8 buffers of size 163840 allocated for a frame size 163840, each with 320 prgs
-| Feb  9 12:11:11 mirexpress kernel: video1394_0: Iso context 0 talk on channel 63
-| Feb  9 12:11:21 mirexpress kernel: video1394_0: Iso context 0 stop talking on channel 63
-| Feb  9 12:12:51 mirexpress kernel: mask: 8000000000000000 usage: 0000000000000000
-| Feb  9 12:12:51 mirexpress kernel: dma_region_alloc: vmalloc_32() failed
-| Feb  9 12:12:51 mirexpress kernel: video1394_0: Failed to allocate dma buffer
-| Feb  9 12:12:51 mirexpress kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004Feb  9 12:12:51 mirexpress kernel:  printing eip:
-| Feb  9 12:12:51 mirexpress kernel: fcd81136
-| Feb  9 12:12:51 mirexpress kernel: *pde = 00000000
-| Feb  9 12:12:51 mirexpress kernel: Oops: 0002
-| Feb  9 12:12:51 mirexpress kernel: CPU:    0
-| Feb  9 12:12:51 mirexpress kernel: EIP:    0010:[<fcd81136>]    Not tainted
-| Feb  9 12:12:51 mirexpress kernel: EFLAGS: 00210246
-| [snip]
-`----
-The entries until 12:11:21 are when I used dvconnect (which worked).
-So there are indeed three lines before the actual oops, including two
-that look like error messages.
+Maybe e100 is mangling it's TX queue or in fact freeing things twice.
 
-  If there's anything else I can povide, just say so, I just can't
-think of anything.
+I think what might be happening is that somehow the TX queue is corrupted if
+e100_config() runs (due to link UP state change) while there are active normal
+SKB packets on the TX queue.  Or perhaps some TX queue handling locking issue.
 
-  Thanks,
-
-Roland.
--- 
-Roland Mas
-
-A man walks into a bar.
-Bang.
+Scott, any ideas?

@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130471AbRDGTP0>; Sat, 7 Apr 2001 15:15:26 -0400
+	id <S130485AbRDGTXh>; Sat, 7 Apr 2001 15:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbRDGTPP>; Sat, 7 Apr 2001 15:15:15 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:19759 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130471AbRDGTPD>; Sat, 7 Apr 2001 15:15:03 -0400
-Date: Sat, 7 Apr 2001 20:14:56 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-Cc: Michael Reinelt <reinelt@eunet.at>, Brian Gerst <bgerst@didntduck.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-Message-ID: <20010407201456.F3280@redhat.com>
-In-Reply-To: <3ACF1E35.F11E9673@eunet.at> <Pine.LNX.4.10.10104071445030.1530-100000@linux.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10104071445030.1530-100000@linux.local>; from groudier@club-internet.fr on Sat, Apr 07, 2001 at 03:01:57PM +0200
+	id <S130487AbRDGTX1>; Sat, 7 Apr 2001 15:23:27 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:47025 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130485AbRDGTXO>;
+	Sat, 7 Apr 2001 15:23:14 -0400
+Message-ID: <3ACF6920.465635A1@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 15:23:12 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Gunther Mayer <Gunther.Mayer@t-online.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mj@suse.cz,
+        reinelt@eunet.at
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de> <20010407200340.C3280@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim Waugh wrote:
+> It would allow support for new multi-IO cards to generally be the
+> addition of about two lines to two files (which is currently how it's
+> done), rather than having separate mutant hybrid monstrosity drivers
+> for each card (IMHO)..
 
---0rSojgWGcpz+ezC3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+;-)
 
-On Sat, Apr 07, 2001 at 03:01:57PM +0200, G=E9rard Roudier wrote:
+My point of view is that hacking the kernel so that two device drivers
+can pretend they are not driving the same hardware is silly.  With such
+hardware there are always inter-dependencies, and you can either hack
+special case code into two or more drivers, or create one central
+control point from which knowledge is dispatched.  Like I mentioned in a
+previous message, the Via parport code is ugly and should go into a Via
+superio driver.  It is simply not scalable to consider the alternative
+-- add superio code to parport_pc.c for each ISA bridge out there.  I
+think the same principle applies to this discussion as well.  It's just
+ugly to keep hacking in special cases to handle hardware that is
+multifunction like this.
 
-> PCI multi I/O boards _shall_ provide a separate function for each kind of
-> IO. Those that donnot are kind of PCI messy IO boards.
+	Jeff
 
-But they don't.  What are you going to do about it?
 
-> Cheap for whom?
-
-For the guys who make them, and for the ones who buy them.  Yes, it
-sucks.
-
-> > Again, how about other cards? Are there any PCI Multi-I/O-cards out
-> > there, which are supported by linux? I'd be interested in how the driver
-> > looks like....
->=20
-> I donnot know and will never know. I only use hardware that does not look
-> too shitty to me. Time is too much important for me to waste even seconds
-> with dubious hardware. :)
-
-Good luck finding a card that gets multifunction I/O right without
-wasting any seconds then.
-
-For a list of cards that are supported, or for which patches exist
-(using the 'two lines in a table' approach), see
-<URL:http://people.redhat.com/twaugh/parport/cards.html>.
-
-Tim.
-*/
-
---0rSojgWGcpz+ezC3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6z2cvONXnILZ4yVIRAgWKAJoCPGtEK5fD7eEgGShUCKfQR84IDwCeMuva
-hlFiT3HWevTMRnMzePoLLxo=
-=V27b
------END PGP SIGNATURE-----
-
---0rSojgWGcpz+ezC3--
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

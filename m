@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313911AbSDJWUX>; Wed, 10 Apr 2002 18:20:23 -0400
+	id <S313658AbSDJWb6>; Wed, 10 Apr 2002 18:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313914AbSDJWUW>; Wed, 10 Apr 2002 18:20:22 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:41670 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S313911AbSDJWUV>; Wed, 10 Apr 2002 18:20:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: 2.5.8-pre3: kernel BUG at usb.c:849! (preempt_count 1)
-Date: Thu, 11 Apr 2002 00:20:10 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net,
-        linux-usb-devel@lists.sourceforge.net,
-        Johannes Erdfelt <johannes@erdfelt.com>
-In-Reply-To: <E16vHsQ-0000Jy-00@baldrick> <E16vLJx-00028n-00@baldrick> <071e01c1e0b4$64f382e0$6800000a@brownell.org>
+	id <S313912AbSDJWb5>; Wed, 10 Apr 2002 18:31:57 -0400
+Received: from rwcrmhc54.attbi.com ([216.148.227.87]:53436 "EHLO
+	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
+	id <S313658AbSDJWb4>; Wed, 10 Apr 2002 18:31:56 -0400
+From: "Guillaume Boissiere" <boissiere@attbi.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 10 Apr 2002 18:31:46 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16vQRn-0000DD-00@baldrick>
+Subject: [STATUS]  Spring cleanup
+Message-ID: <3CB48512.17441.E3FE393@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 April 2002 7:23 pm, David Brownell wrote:
-> > > And what usb device driver(s) were supposed to have stopped
-> > > using "device 3"?  I've only noticed such device refcounting bugs
-> > > being caused by the USB device drivers with bad disconnect()
-> > > routines, not usbcore or any of the host controller drivers, but of
-> > > course that can change.
-> >
-> > Ha!
-> >
-> > $ cat /proc/bus/usb/drivers
-> >          usbfs
-> >          hub
-> >
-> > There are no other drivers!  I have a USB webcam and a modem
-> > ... has a user space driver that works via usbfs.
->
-> ... OK, this is sounding familiar.  "usbfs" has some recently noted
-> bugs in its disconnect() routine.  That SpeedTouch driver seems to
-> be triggering them with regularity, though more often with usb-ohci.
->
-> The ksymoops info you sent is compatible with the bug being in
-> the usbfs code:  exactly what I'd expect such a BUG() to show.
->
-> I hate to send around untested patches, but I think the one I've
-> attached is at least in the right direction.  (Attachment, to avoid
-> mangling by mailers...)  It's an update of what I sent around late
-> last month to address someone's SpeedTouch oopsing with
-> usb-ohci (!) on 2.4.19-pre2, redone against 2.5.8-pre3, which
-> compiles.  I hope it doesn't create new oopses.
->
-> If it works for you, let us know ...
->
-> - Dave
+These four items have been marked as Ready or Pending for a while and yet nothing 
+has happened for the last 2 months so I'm planning to change their status in the
+next status update.
+Comments?  Objections?
 
-It seems to work - thanks!  I will test more, but so far so good.
-System shutdown still completes with "preempt_count = 1"
-though.
+-- Guillaume
 
-All the best,
 
-Duncan.
+
+o Ready       Add hardware sensors drivers                    (lm_sensors team)
+--> Mark as Beta?  Reason: not in sync with latest kernel and problems with IBM Thinkpads
+
+o Ready       New kernel config system: CML2                  (Eric Raymond)
+--> Mark as Beta?  Reason: needs to be broken up in chunks before inclusion
+
+o Ready       Read-Copy Update Mutual Exclusion               (Dipankar Sarma, Rusty Russell, Andrea Arcangeli, LSE 
+Team)
+--> Mark as Beta?  Reason: patch exists against 2.5.7, but not sure if it needs more work 
+    before inclusion or there is objection from Linus?
+
+o Pending     Finalize new device naming convention           (Linus Torvalds)
+--> ???  I am not sure what is going on here -- it seems Linus is waiting for someone to step up and 
+    submit a patch following the new device naming convention he vaguely outlined a while back?
 

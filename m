@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265041AbSKAPA0>; Fri, 1 Nov 2002 10:00:26 -0500
+	id <S265042AbSKAPJq>; Fri, 1 Nov 2002 10:09:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265042AbSKAPA0>; Fri, 1 Nov 2002 10:00:26 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:60912 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S265041AbSKAPAZ>;
-	Fri, 1 Nov 2002 10:00:25 -0500
-Date: Fri, 1 Nov 2002 16:06:47 +0100
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK console] console updates.
-Message-ID: <20021101150647.GJ2659@pasky.ji.cz>
-Mail-Followup-To: Skip Ford <skip.ford@verizon.net>,
-	James Simmons <jsimmons@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net> <200210302332.g9UNWL5e001187@pool-141-150-241-241.delv.east.verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210302332.g9UNWL5e001187@pool-141-150-241-241.delv.east.verizon.net>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S265044AbSKAPJq>; Fri, 1 Nov 2002 10:09:46 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:46517 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265042AbSKAPJp>;
+	Fri, 1 Nov 2002 10:09:45 -0500
+Date: Fri, 1 Nov 2002 10:16:08 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Patrick Finnegan <pat@purdueriots.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+In-Reply-To: <Pine.LNX.4.44.0211010931090.10880-100000@ibm-ps850.purdueriots.com>
+Message-ID: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, Oct 31, 2002 at 12:32:18AM CET, I got a letter,
-where Skip Ford <skip.ford@verizon.net> told me, that...
-> James Simmons wrote:
-> > 
-> > bk://linuxconsole.bkbits.net
-> > 
-> > BTW I will make patches avaiable as soon as 2.5.45 comes out.
-> 
-> Don't even bother posting to the list without a patch.  Saying you want
-> testers and not providing a patch is just rediculous.
 
-As far as I understand it, he just provided you a status report so that you
-could see what's going on etc (especially relevant around the Oct-31 deadline),
-and he fullfiled his promise and sent the patches as soon as 2.5.45 came out,
-didn't he? So what's wrong?
 
--- 
- 
-				Petr "Pasky" Baudis
- 
-* ELinks maintainer                * IPv6 guy (XS26 co-coordinator)
-* IRCnet operator                  * FreeCiv AI occassional hacker
-.
-This host is a black hole at HTTP wavelengths. GETs go in, and nothing
-comes out, not even Hawking radiation.
-                -- Graaagh the Mighty on rec.games.roguelike.angband
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+On Fri, 1 Nov 2002, Patrick Finnegan wrote:
+
+> No, vendor == people who sold or gave us the softare.  Right now, Linus is
+> acting like he's a big evil corporation that won't add the change no
+> matter what we say:
+
+... to his tree.  Geez, why could that be?  Maybe because you don't have
+any rights to decide what patches does anybody else apply to their trees?
+
+It's not a fscking public service.  Linus has full control over his
+tree.  You have equally full control over your tree.  Linus can't
+tell you what patches to apply in your tree.  You can't tell Linus
+what patches he should apply to his.
+
+"I'm not satisfied with this tree, I'll try that one" is perfectly OK.
+"I'm not satisfied with either, so bend the fsck over and change your
+tree the way I want" is _NOT_.
+

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUBDATM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUBDATM
+	id S266248AbUBDAVe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266251AbUBDAVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:19:12 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:60565 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266240AbUBDATH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:19:07 -0500
-Subject: [patch] 2.4's sys_readahead is borked
-From: Robert Love <rml@ximian.com>
-To: marcelo.tosatti@cyclades.com
+	Tue, 3 Feb 2004 19:21:33 -0500
+Received: from gprs156-172.eurotel.cz ([160.218.156.172]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266248AbUBDAVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:21:16 -0500
+Date: Tue, 3 Feb 2004 23:20:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: the grugq <grugq@hcunix.net>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1075853962.8022.3.camel@localhost>
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+Message-ID: <20040203222030.GB465@elf.ucw.cz>
+References: <4017E3B9.3090605@hcunix.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Tue, 03 Feb 2004 19:19:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4017E3B9.3090605@hcunix.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4, sys_readahead() performs readahead against a maximum of half the
-number of inactive pages.  This is dumb, as it ignores the number of
-free pages completely.  Worse, in certain situations, such as boot, the
-inactive list can be quite small and the free list quite large, but
-readahead(2) won't do anything.
+Hi!
 
-The right thing to do is limit sys_readahead() to a maximum of half of
-the sum of the number of free pages and inactive pages, which is what
-2.6 does.
+>  }
+>  
+> +static inline void destroy_block(struct inode *inode, unsigned long block)
+> +{
+> +#ifdef CONFIG_EXT2_FS_PRIVACY
+> +	struct buffer_head	* bh;
+> +
+> +	bh = sb_getblk(inode->i_sb, block);
+> +
+> +	memset(bh->b_data, 0x00, bh->b_size);
+> +
+> +	mark_buffer_dirty(bh);
+> +	wait_on_buffer(bh);
+> +	brelse(bh);
+> +
+> +	return;
+> +#endif
+> +}
+> +
 
-Attached patch is against 2.4.25-pre8.  Please apply.
+Perhaps this should still be controlled by (chattr(1)) [its already
+documented, just not yet implemented].
 
-	Robert Love
+       When a file with the `s' attribute set is deleted, its blocks
+	are zeroed and written back to the disk.
 
- mm/filemap.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+...at which point config option is not really neccessary.
 
-diff -urN linux-2.4.25-pre8/mm/filemap.c.orig linux-2.4.25-pre8/mm/filemap.c
---- linux-2.4.25-pre8/mm/filemap.c.orig	2004-02-03 19:13:33.540115456 -0500
-+++ linux-2.4.25-pre8/mm/filemap.c	2004-02-03 19:13:49.468693944 -0500
-@@ -1965,7 +1965,7 @@
- 		nr = max;
- 
- 	/* And limit it to a sane percentage of the inactive list.. */
--	max = nr_inactive_pages / 2;
-+	max = (nr_free_pages() + nr_inactive_pages) / 2;
- 	if (nr > max)
- 		nr = max;
- 
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

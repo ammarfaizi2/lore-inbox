@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265689AbSKODoM>; Thu, 14 Nov 2002 22:44:12 -0500
+	id <S265700AbSKODtp>; Thu, 14 Nov 2002 22:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265700AbSKODoM>; Thu, 14 Nov 2002 22:44:12 -0500
-Received: from packet.digeo.com ([12.110.80.53]:39917 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265689AbSKODoL>;
-	Thu, 14 Nov 2002 22:44:11 -0500
-Message-ID: <3DD46F21.4012FCB0@digeo.com>
-Date: Thu, 14 Nov 2002 19:50:57 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S265705AbSKODtp>; Thu, 14 Nov 2002 22:49:45 -0500
+Received: from mta03ps.bigpond.com ([144.135.25.135]:55521 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265700AbSKODtm>; Thu, 14 Nov 2002 22:49:42 -0500
+From: Brad Hards <bhards@bigpond.net.au>
 To: Thomas Molina <tmolina@cox.net>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-References: <3DD4614B.A57EE8C5@digeo.com> <Pine.LNX.4.44.0211142132500.2229-100000@dad.molina>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 03:50:59.0792 (UTC) FILETIME=[35D56D00:01C28C5A]
+Date: Fri, 15 Nov 2002 14:46:44 +1100
+User-Agent: KMail/1.4.5
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211142132500.2229-100000@dad.molina>
+In-Reply-To: <Pine.LNX.4.44.0211142132500.2229-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200211151446.44969.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina wrote:
-> 
-> ...
-> Has my 2.5 Problem Report Status postings been useful?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think it's at the stage where it needs a "nag" factor.  Those little
-reminder emails from bugzilla are really irritating.
-
->  If so, when I
-> discussed this with Martin one of the roles we agreed I would play was
-> taking bug reports from the list and adding them to bugzilla.  I'll also
-> be a "filter" for some of the issues discussed in this thread, sort of a
-> janitor if you will.
-
-Sounds very useful.
- 
+On Fri, 15 Nov 2002 14:43, Thomas Molina wrote:
 > My question is how should compile failures figure into the bug database?
 > Most of the compile failures are typos or thinkos that get quickly fixed.
 > Should they get tracked, or dismissed quickly unless they linger on.  I
 > didn't track simple compile failures in my list.
+It probably depends where in the 2.5 cycle you are up to. 
 
-I'd say don't include them.  It's not as if we're likely to forget
-about them.
+While there are still a lot of changes going in, it isn't so critical.
+
+When it gets to 2.5.99 and later, you need to track absolutely everything. 
+Even if that means entering the problem, and 20 minutes later entering the 
+patch that corrects it, and the next day closing the bug against Linus' next 
+release. 
+
+Given a resourced bug tracker, and the various test projects, this could be a 
+nice smooth release producing a product without gaping holes. But its 
+probably a bit soon to tell...
+
+Brad
+
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE91G4kW6pHgIdAuOMRAkNiAKCNE7pvodft5ZC+e7nTqgbLeLO0ewCfQujm
+bNoeJoLIea10YFPSTfyRdnM=
+=SPCi
+-----END PGP SIGNATURE-----
+

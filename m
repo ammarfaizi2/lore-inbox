@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKOEvs>; Tue, 14 Nov 2000 23:51:48 -0500
+	id <S129322AbQKOEzu>; Tue, 14 Nov 2000 23:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129079AbQKOEv2>; Tue, 14 Nov 2000 23:51:28 -0500
-Received: from mail.dotcast.com ([63.80.240.20]:18181 "EHLO
-	DC-SRVR1.dotcast.com") by vger.kernel.org with ESMTP
-	id <S129069AbQKOEvQ>; Tue, 14 Nov 2000 23:51:16 -0500
-Message-ID: <52C41B218DE28244B071A1B96DD474F6280172@DC-SRVR1.dotcast.com>
-From: Marty Fouts <marty@dotcast.com>
-To: "'Steve VanDevender'" <stevev@efn.org>
-Cc: "'root@chaos.analogic.com'" <root@chaos.analogic.com>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Advanced Linux Kernel/Enterprise Linux Kernel
-Date: Tue, 14 Nov 2000 20:19:41 -0800
+	id <S129079AbQKOEzj>; Tue, 14 Nov 2000 23:55:39 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:59403 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129047AbQKOEz0>;
+	Tue, 14 Nov 2000 23:55:26 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011150425.eAF4P3l135592@saturn.cs.uml.edu>
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+To: rothwell@holly-springs.nc.us (Michael Rothwell)
+Date: Tue, 14 Nov 2000 23:25:02 -0500 (EST)
+Cc: Josue.Amaro@oracle.com, linux-kernel@vger.kernel.org,
+        unlisted-recipients:;;;@holly-springs.nc.us; (no To-header on input)
+In-Reply-To: <3A117311.8DC02909@holly-springs.nc.us> from "Michael Rothwell" at Nov 14, 2000 12:14:57 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Er, um, yes.  I stand corrected.
+Michael Rothwell writes:
 
+> 1) Convenient remote terminal use. 
+>
+> Telnet, ssh, X windows, rsh, vnc, "screen," ethernet,
+> serial, etc. I think we have this one.
 
------Original Message-----
-From: Steve VanDevender [mailto:stevev@efn.org]
-Sent: Tuesday, November 14, 2000 11:44 AM
-To: Marty Fouts
-Cc: 'root@chaos.analogic.com'; Michael Rothwell; Linux kernel
-Subject: RE: Advanced Linux Kernel/Enterprise Linux Kernel
+Nope: /dev/audio, /dev/cdrom, /dev/floppy, fonts, etc.
 
+Also one would want a local window manager for performance,
+but this tends to interfere with starting apps on the other
+system.
 
-Marty Fouts writes:
- > Actually, you have the sequence of events slightly out of order.  AT&T,
- > specifically Bell Labs, was one of the participants in the program that
- > would develop Multics. AT&T opted out of the program, for various
-reasons,
- > but it continued apace.  The PDP-8 of fame was one that, according to
- > Thompson, happened to be available and unused.
+> 4) A high reliability internal file system. 
 
-The original system on which UNIX development started was not a PDP-8,
-but a PDP-7.  The earliest UNIX was also written in assembler.  Thompson
-and Ritchie developed C as a higher-level implementation language during
-the process of porting UNIX from the PDP-7 to the PDP-11.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
+Now we want it distributed, with version control, with
+mirroring onto N of M machines and migration toward usage...
+
+> 5) Support for selective information sharing. 
+>
+> Linux has a rather poor security model -- the Unix one.
+> It needs ACLs no only on filesystem objects, but on other
+> OS features as well; such as the ability to use network
+> interfaces, packet types, display ACLs, console ACLs, etc.
+
+It would have been nice to have just put 2 entries right
+in the inode years ago. With the KISS method, we'd be using
+ACLs right now. Even just a list of UIDs that would share
+permission bits with the file's GID would be very useful.
+I just want to share a file with one other person!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261972AbREURwt>; Mon, 21 May 2001 13:52:49 -0400
+	id <S262091AbREUR43>; Mon, 21 May 2001 13:56:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbREURwj>; Mon, 21 May 2001 13:52:39 -0400
-Received: from tahoe.in-system.com ([207.70.22.1]:33036 "EHLO
-	tahoe.in-system.com") by vger.kernel.org with ESMTP
-	id <S261972AbREURw3>; Mon, 21 May 2001 13:52:29 -0400
-Message-Id: <200105211752.LAA12353@osprey.in-system.com>
-Date: Mon, 21 May 2001 11:52:18 -0600 (MDT)
-From: Jim Castleberry <jcastle@in-system.com>
-Reply-To: Jim Castleberry <jcastle@in-system.com>
-Subject: Re: "clock timer configuration lost" on Serverworks chipset
-To: jcastle@in-system.com, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: vdO8uWKxQGGwE/bCdsgYGg==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.4 SunOS 5.8 sun4u sparc 
+	id <S262255AbREUR4T>; Mon, 21 May 2001 13:56:19 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:1542 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262091AbREUR4D>;
+	Mon, 21 May 2001 13:56:03 -0400
+Date: Mon, 21 May 2001 13:58:57 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Wayne.Brown@altec.com
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy
+Message-ID: <20010521135857.B11361@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Wayne.Brown@altec.com, David Woodhouse <dwmw2@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <86256A53.0060ACF6.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <86256A53.0060ACF6.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Mon, May 21, 2001 at 12:36:48PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm confused.  The 2.2.19 time.c is already doing ">":
-    /* VIA686a test code... reset the latch if count > max */
-    if (count > LATCH-1) {
-        [adjust count and whine]
-The 2.2.20-pre2 patch doesn't change time.c, and I don't see
-this code in 2.4.4 or 2.4.5pre.
+Wayne.Brown@altec.com <Wayne.Brown@altec.com>:
+> Speaking from the perspective of a user of the CML tools, rather
+> than as a developer, all I've been trying to say is this: When I
+> type "make menuconfig" or "make oldconfig" in the future, I want to
+> see the same interface and the same results that I've always seen,
+> because it's always worked for me in the past.
 
-Are you saying the code should be doing the equivalent of
-"(count > LATCH)", or is 2.2.19 correct and the whines I'm
-seeing mean there really is a problem with the Serverworks
-chipset?
+Visual details will differ, but I've been careful about maintaining
+functional compatibility.  There was a phase of the development during
+which I was mostly processing feature requests from people who wanted
+features of the old system that I had not properly understood (such as
+the NEW tag).  That phase ended almost a month ago.  Nobody who has
+actually tried the CML2 tools more recently has reported that the UI
+changes present any difficulty.
 
-Thanks,
+CML2 drops its configuration results in the same place, in the same
+formats, as CML1.  So you should in fact be able to type `make menuconfig'
+and `make oldconfig' with good results.  Have you actually tried this?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-jcastle
-
-Alan Cox wrote:
->Jim Castleberry)wrote:
->> How well has the problem been nailed down?  Could it be that it just
->> showed up first on VIA and the real cause (and fix) remains to be
->> discovered?  Or does Serverworks somehow have an identical bug in
->> their chipset?
->
->There is a notional off by one in the check at least by the rules of the
->original chip which do allow the overflow value to be visible momentarily.
->Later -ac checks for > not >=
->
-
+The right of the citizens to keep and bear arms has justly been considered as
+the palladium of the liberties of a republic; since it offers a strong moral
+check against usurpation and arbitrary power of rulers; and will generally,
+even if these are successful in the first instance, enable the people to resist
+and triumph over them."
+        -- Supreme Court Justice Joseph Story of the John Marshall Court

@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSGVNbY>; Mon, 22 Jul 2002 09:31:24 -0400
+	id <S316397AbSGVGGT>; Mon, 22 Jul 2002 02:06:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317171AbSGVNbY>; Mon, 22 Jul 2002 09:31:24 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30980 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317221AbSGVNbX>; Mon, 22 Jul 2002 09:31:23 -0400
-Date: Mon, 22 Jul 2002 10:34:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
+	id <S316408AbSGVGGT>; Mon, 22 Jul 2002 02:06:19 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37019 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316397AbSGVGGS>;
+	Mon, 22 Jul 2002 02:06:18 -0400
+Date: Sun, 21 Jul 2002 23:06:58 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
 Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
-In-Reply-To: <3D3BAA5B.E3C100A6@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0207221029590.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Message-ID: <2725228.1027292816@[10.10.2.3]>
+In-Reply-To: <3D3B9A6F.12B096E1@zip.com.au>
+References: <3D3B9A6F.12B096E1@zip.com.au>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jul 2002, Andrew Morton wrote:
-> "Martin J. Bligh" wrote:
+>> > If we can get something in place which works acceptably on Martin
+>> > Bligh's machines, and we can see that the gains of rmap (whatever
+>> > they are ;)) are worth the as-yet uncoded pains then let's move on.
+>> > But until then, adding new stuff to the VM just makes a `patch -R'
+>> > harder to do.
+>> 
+>> I have the same kinds of machines and have already been testing with
+>> precisely the many tasks workloads he's concerned about for the sake of
+>> correctness, and efficiency is also a concern here. highpte_chain is
+>> already so high up on my priority queue that all other work is halted.
+> 
+> OK.  But we're adding non-trivial amounts of new code simply
+> to get the reverse mapping working as robustly as the virtual
+> scan.  And we'll always have rmap's additional storage requirements.
+> 
+> At some point we need to make a decision as to whether it's all
+> worth it.  Right now we do not even have the information on the
+> pluses side to do this.  That's worrisome.
 
-> > These large NUMA machines should actually be rmap's glory day in the
-> > sun.
->
-> "should be".  Sigh.  Be nice to see an "is" one day ;)
+These large NUMA machines should actually be rmap's glory day in the
+sun. Per-node kswapd, being able to free mem pressure on one node
+easily (without cross-node bouncing), breakup of the lru list into 
+smaller chunks, etc. These actually fix some of the biggest problems
+that we have right now and are hard to solve in other ways.
 
-You asked for a "minimal rmap" patch and you got it. ;)
+The large rmap overheads we still have to kill seem to me to be the
+memory usage and the fork overhead. There's also a certain amount of
+overhead to managing any more data structures, of course. I think we
+know how to kill most of it. I don't think adding highpte_chain is
+the correct thing to do ... seems like adding insult to injury. I'd
+rather see us drive a silver stake through the problem's heart and
+kill it properly ...
 
-Bill and I actually have code for many of the things listed
-but we haven't submitted it yet exactly because everybody
-wanted the code merged in small, manageable chunks.
-
-> Do you think that large pages alone would be enough to allow us
-> to leave pte_chains (and page tables?) in ZONE_NORMAL, or would
-> shared pagetables also be needed?
-
-Large pages should reduce the page table overhead by a factor
-of 1024 (or 512 for PAE) and have the same alignment restrictions
-that shared page tables have.
-
-OTOH, shared page tables would allow us to map in chunks smaller
-than 4MB ... but at what seems like a pretty horrible locking and
-accounting complexity, unless somebody comes up with a smart trick.
-
-Apart from both of these we'll also need code to garbage collect
-empty page tables so users can't clog up memory by mmaping a page
-every 4 MB ;)
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+M.
 

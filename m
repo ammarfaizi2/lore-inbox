@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVBYA6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVBYAyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVBYA6y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVBYAzO
+	id S262576AbVBYAyg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:54:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbVBYAxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 19:55:14 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:31649 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S262583AbVBYAvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 19:51:55 -0500
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: "Chad N. Tindel" <chad@tindel.net>
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Date: Fri, 25 Feb 2005 01:51:41 +0100
-User-Agent: KMail/1.7.1
-Cc: Chris Friesen <cfriesen@nortel.com>, Paulo Marques <pmarques@grupopie.com>,
-       Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
+	Thu, 24 Feb 2005 19:53:05 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1546 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262580AbVBXXj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:39:29 -0500
+Date: Fri, 25 Feb 2005 00:39:27 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: fuganti@netbank.com.br, Zwane Mwaikambo <zwane@commfireservices.com>,
        linux-kernel@vger.kernel.org
-References: <20050224075756.GA18639@calma.pair.com> <421E2EF9.9010209@nortel.com> <20050224200802.GA39590@calma.pair.com>
-In-Reply-To: <20050224200802.GA39590@calma.pair.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: [2.6 patch] drivers/char/watchdog/: make some code static
+Message-ID: <20050224233927.GW8651@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502250151.41793.ioe-lkml@axxeo.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chad N. Tindel wrote:
-> I think what we have are the need for two levels of applications:
->
-> 1.  That which wishes to be the highest priority userspace application, and
-> wishes to preempt all other userspace applications.  Such an application is
-> OK being preempted by the kernel when the kernel needs to do work.  IMHO,
-> this should be the default behavior for any SCHED_FIFO application.  If one
-> of these has a bug and goes CPU-bound, the worst it can do is prevent other
-> apps from ever using the CPU it is on.
+This patch makes some needlessly global code static.
 
-That is basically, what you do with SCHED_RR.
-(Be preempted after maximum quantum, even if having work to do)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> 2.  Applications which actually want to be the highest priority thing on
-> the system, including being higher than the kernel.  These applications are
-> OK with the fact that they may cause system hangs and deadlocks, and are
-> careful not to shoot themselves in the foot.
+---
 
-This is SCHED_FIFO.
-(Strict priority scheduling, allowed to starve anything below)
+This patch was already sent on:
+- 31 Jan 2005
 
-So just try to use the right scheduler for your application right now, ok?
+ drivers/char/watchdog/machzwd.c   |    2 +-
+ drivers/char/watchdog/sc1200wdt.c |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-If your system is busy with top priority task, why should the kernel disturb 
-it?
-
-Things will stop anyway, if your high priority task is needing a resource,
-which is blocked. Than it becomes unrunnable and other tasks have
-chances to continue. Kernel threads are likely to execute then, because they
-are likely runnable then. Your task could even migrate, if a lot of kernel 
-tasks 
-are waiting in one CPU and your task is NOT bound to a specific CPU.
-
-So the system is not brought down, but just busy in a infortunate way.
-Stupid applications can starve other applications for a while, but not
-forever, because the kernel is still running and deciding.
-
-
-Regards
-
-Ingo Oeser
-
+--- linux-2.6.11-rc2-mm2-full/drivers/char/watchdog/machzwd.c.old	2005-01-31 13:07:19.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/watchdog/machzwd.c	2005-01-31 13:07:27.000000000 +0100
+@@ -488,7 +488,7 @@
+ }
+ 
+ 
+-void __exit zf_exit(void)
++static void __exit zf_exit(void)
+ {
+ 	zf_timer_off();
+ 
+--- linux-2.6.11-rc2-mm2-full/drivers/char/watchdog/sc1200wdt.c.old	2005-01-31 13:07:48.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/watchdog/sc1200wdt.c	2005-01-31 13:08:26.000000000 +0100
+@@ -74,9 +74,9 @@
+ static int timeout = 1;
+ static int io = -1;
+ static int io_len = 2;		/* for non plug and play */
+-struct semaphore open_sem;
++static struct semaphore open_sem;
+ static char expect_close;
+-spinlock_t sc1200wdt_lock;	/* io port access serialisation */
++static spinlock_t sc1200wdt_lock;	/* io port access serialisation */
+ 
+ #if defined CONFIG_PNP
+ static int isapnp = 1;
+@@ -335,7 +335,7 @@
+ 
+ #if defined CONFIG_PNP
+ 
+-struct pnp_device_id scl200wdt_pnp_devices[] = {
++static struct pnp_device_id scl200wdt_pnp_devices[] = {
+ 	/* National Semiconductor PC87307/PC97307 watchdog component */
+ 	{.id = "NSC0800", .driver_data = 0},
+ 	{.id = ""},
 

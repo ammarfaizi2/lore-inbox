@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSG3UDR>; Tue, 30 Jul 2002 16:03:17 -0400
+	id <S316446AbSG3UEA>; Tue, 30 Jul 2002 16:04:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSG3UDR>; Tue, 30 Jul 2002 16:03:17 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63464 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S316322AbSG3UDQ>; Tue, 30 Jul 2002 16:03:16 -0400
-Date: Tue, 30 Jul 2002 16:06:31 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sanitize TLS API
-Message-ID: <20020730160631.R1596@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20020730174336.A18385@lst.de> <Pine.LNX.4.44.0207302059060.22902-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207302059060.22902-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Jul 30, 2002 at 09:00:09PM +0200
+	id <S316390AbSG3UEA>; Tue, 30 Jul 2002 16:04:00 -0400
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:41672 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S316342AbSG3UD4>; Tue, 30 Jul 2002 16:03:56 -0400
+Date: Tue, 30 Jul 2002 15:07:18 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+In-Reply-To: <200207191332.IAA65963@tomcat.admin.navo.hpc.mil>
+Message-ID: <Pine.LNX.4.33.0207301447130.28219-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 09:00:09PM +0200, Ingo Molnar wrote:
-> 
-> On Tue, 30 Jul 2002, Christoph Hellwig wrote:
-> 
-> > Currently sys_set_thread_area has a magic flags argument that might
-> > change it's behaivour completly.
-> > 
-> > Split out the TLS_FLAG_CLEAR case that has nothing in common with the
-> > rest into it's own syscall, sys_clear_thread_area and change the second
-> > argument to int writable.
-> 
-> i did not feel like wasting two syscall slots for this, but the cleanups
-> look fine to me otherwise.
+On Fri, 19 Jul 2002, Jesse Pollard wrote:
+[snip]
+> In even earlier OSs (DEC RSX, TOPS 10) the file index table was actually a file
+> in the filesystem (usually named index.idx (or was it file.idx...).
 
-Actually, is the clear operation really necessary?
-IMHO the best clear is movw $0x03, %gs, then all accesses through %gs will
-trap. Calling set_thread_area (0, 1); will result in 0xb segment
-acting exactly like %ds or %es.
+INDEXF.SYS, on TOPS-10.
 
-	Jakub
+>                                                                     I don't
+> know what it was called in MULTICs where the UNIX varient would have
+> started.
+>
+> Most of these filesystems were based on contigeuous allocation, or allocations
+> of contigeous segments.
+
+"Extents".  "Segments" were contiguous hunks of real memory that the MMU
+knew about, then as now.
+
+TOPS-20 used pagemaps.  A file on disk had a pagemap block filled with
+special invalid PTEs which pointed to the data blocks.  To open a file,
+locate its pagemap and page that in, then make references through it and
+the pager will pull in the data for you and update the map page.  (This is
+all separate from mapping a file over *process* virtual memory, but I seem
+to recall that PMAP% borrowed a lot of code from the disk I/O subsystem in
+this case.  It's been 20 years, though....)  TOPS-20 happily scattered
+file blocks all over the volume-set if need be.
+
+[snip]
+> Note - the version number had nothing to do with the file version -
+> it was used to aid file recovery and was only a reuse count of the index
+> node. The index node contents had to have the same version number as the
+> directory entry, or the directory entry was considered invalid. The
+> file name was a rad50, or sixbit (packed) characters, and sometimes was
+> stored in both inode and directory - again, for rebuilding the file system.
+
+No, RAD50 and SIXBIT are different.  You can (de)compose SIXBIT words with
+simple shift-and-mask operations, but RAD50 requires arithmetic.  (Hmmm,
+on TOPS-10 we called it RADIX50, so maybe it's different.)
+
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Who just last weekend rediscovered an MF10 core-plane hiding in the filing
+cabinet.
+

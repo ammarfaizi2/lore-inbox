@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261826AbSIXVk0>; Tue, 24 Sep 2002 17:40:26 -0400
+	id <S261823AbSIXVfa>; Tue, 24 Sep 2002 17:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261830AbSIXVk0>; Tue, 24 Sep 2002 17:40:26 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:36664 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S261826AbSIXVkY>;
-	Tue, 24 Sep 2002 17:40:24 -0400
-Subject: Re: 2.4.19: oops in ide-scsi
-From: James Stevenson <james@stev.org>
-To: Philippe Troin <phil@fifi.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87smzzksri.fsf@ceramic.fifi.org>
-References: <87n0q8tcs8.fsf@ceramic.fifi.org>
-	<1032891985.2035.1.camel@god.stev.org>  <87smzzksri.fsf@ceramic.fifi.org>
+	id <S261832AbSIXVf0>; Tue, 24 Sep 2002 17:35:26 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:48632 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261823AbSIXVfT>; Tue, 24 Sep 2002 17:35:19 -0400
+Subject: Kernel Panic: 2.4.20pre7-ac3 and earlier with PDC20276
+From: Andree Leidenfrost <aleidenf@bigpond.net.au>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 24 Sep 2002 22:41:46 +0100
-Message-Id: <1032903706.2445.4.camel@god.stev.org>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 25 Sep 2002 07:40:22 +1000
+Message-Id: <1032903623.1445.1157.camel@aurich>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-24 at 22:00, Philippe Troin wrote:
-> James Stevenson <james@stev.org> writes:
-> 
-> > Hi
-> > 
-> > i am glad somebody else sees the same crash as me the
-> > request Q gets set to NULL for some reson then tries to
-> > increment a stats counter in the null pointer.
-> > i know what the bug is i just dont know how to fix it :>
-> 
-> I'm not sure which Q you're talking about.
-> Is that rq (in idescsi_pc_intr())?
+I am experiencing kernel errors when accessing disks attached to the
+PDC20276. Executing command 'badblocks -svw /dev/hde' starts fine:
 
-the crash happens on
+sv-sap001:/home/andree# badblocks -svw /dev/hde
+Checking for bad blocks in read-write mode
+>From block 0 to 39082680
+Writing pattern 0xaaaaaaaa:   1266090/ 39082680
 
-if (status & ERR_STAT)
-	rq->errors++;
+After a while I start getting messages like the stuff below on the
+console (this manually copied from the console).
 
-because 
-struct request *rq = pc->rq;
-is NULL
+This happens on both drives and on both channels. Cables were replaced,
+so were the harddisks. I returned the machine to my dealer who tested
+things under WinXP and says that everything works fine. I have tried
+this with 2.4.19 and pretty much all 2.4.20preX and 2.4.20preX-acY
+version over the past three weeks without success. When I switch off DMA
+('hdparm -d0 /dev/hde') things are of course terribly slow but they work
+fine.
 
+I am trying hdaprm -d1 -X15 at the moment. It has been running for 40
+hours now and gotten as far as 27047040/39082680. So far it looks like I
+only get 'eepro100: wait_for_cmd_done timeout!' but no IDE errors.
 
+Sometimes I am getting a kernel Aiiii followed by a kernel panic saying
+something like 'Trying to kill interrupt handler'. I just haven't been
+able to reproduce it for this mail. :-(
 
-from ide-scsi.c
+I am happy to do other testing if  someone tells me what to do. Just
+bear in mind that though being an experienced Linux administrator I am
+nothing close to a kernel developer. ;-)
 
-static ide_startstop_t idescsi_pc_intr (ide_drive_t *drive)
-{
-	idescsi_scsi_t *scsi = drive->driver_data;
-	byte status, ireason;
-	int bcount;
-	idescsi_pc_t *pc=scsi->pc;
-	struct request *rq = pc->rq;
-	unsigned int temp;
-
-// SNIPED some code
-
-	if ((status & DRQ_STAT) == 0) {					/* No more interrupts */
-		if (test_bit(IDESCSI_LOG_CMD, &scsi->log))
-			printk (KERN_INFO "Packet command completed, %d bytes transferred\n",
-pc->actually_transferred);
-		ide__sti();
-		if (status & ERR_STAT)
-			rq->errors++;
-		idescsi_end_request (1, HWGROUP(drive));
-		return ide_stopped;
-	}
-	bcount = IN_BYTE (IDE_BCOUNT
+Best regards
+Andree
 
 
 
+Console output snippet:
+-----------------------
+
+hde: dma_rtimer_expiry: dma status == 0x21
+hde: timeout waiting for DMA
+PDC202XX: Primary channel reset.
+hde: timeout waiting for DMA
+hde: (__ide_dma_test_irq) called while not waiting
+hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+
+hde: drive not ready for command
+hde: status timeout: status=0xd0 { Busy }
+
+PDC202XX: Primary channel reset.
+hde: drive not ready for command
+ide2: reset: success
+
+eepro100: wait_for_cmd_done timeout!
+(repeated many times)
+
+hda: timeout waiting for DMA
+hda: timeout waiting for DMA
+hda: (__ide_dma_test_irq) called while not waiting
+hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+
+hda: drive not ready for command
+hda: status timeout: status=0xd0 { Busy }
+
+hda: no DRQ after issueing write
+ide0: reset: success
+
+
+Hardware:
+---------
+
+Motherboard: Gigabyte GA-7DPXW+
+Chipset: AMD-760MPX
+RAID: PDC20276
+CPU: 2 x AthlonMP 1800+
+-- 
+Andree Leidenfrost
+Sydney - Australia
 

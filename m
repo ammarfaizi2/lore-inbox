@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVBWUNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVBWURV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVBWUNL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 15:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVBWUNL
+	id S261560AbVBWURV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 15:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVBWURU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 15:13:11 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63379 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261562AbVBWUM1 (ORCPT
+	Wed, 23 Feb 2005 15:17:20 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:45219 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261560AbVBWURJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 15:12:27 -0500
-Date: Wed, 23 Feb 2005 12:12:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
+	Wed, 23 Feb 2005 15:17:09 -0500
+Date: Thu, 24 Feb 2005 07:16:29 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Sven Geggus <sven@geggus.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
-Message-Id: <20050223121207.412c7eeb.akpm@osdl.org>
-In-Reply-To: <421C7FC2.1090402@aitel.hist.no>
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<421C7FC2.1090402@aitel.hist.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: xfsdump broken with Kernel 2.6.11-rc4
+Message-ID: <20050224071629.A2517090@wobbly.melbourne.sgi.com>
+References: <cvi7c2$a3o$1@benzin.geggus.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <cvi7c2$a3o$1@benzin.geggus.net>; from sven@geggus.net on Wed, Feb 23, 2005 at 04:26:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@aitel.hist.no> wrote:
->
-> This kernel came up, but my boot script complained about no /dev/hdb3
->  when trying to mount /var.
->  (I have two IDE disks on the same cable, and an IDE cdrom on another.)
->  They are usually hda, hdb, and hdc.
+On Wed, Feb 23, 2005 at 04:26:58PM +0100, Sven Geggus wrote:
+> Hi there,
 > 
->  MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
->  /dev/hdq1 is at major:3 minor:1025 if I interpret things right. 
->  (/dev/hda1 is at 3:1, which is correct.)
->  These numbers did not work with my mknod, it created 7:1 instead.
->  So I didn't get to test this mysterious device.
+> looks like xfsdumpis broken with recent 2.6.11-rc Kernels. 2.6.11-rc4 is the
+> one I tried.
 > 
->  But I assume this is a mistake of some sort, I haven't heard about any
->  change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
+> Strange enough ist does seem to work _sometimes_, but it does not work
+> most of the time.
 > 
->  It may be interesting to note that my root raid-1 came up fine,
->  consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
+> If it does not work I just get the following message:
+> 
+> xfsdump: ERROR: /dev/sda2 does not identify a file system
 
-I don't know what could be causing that.  Please send .config.  If you set
-CONFIG_BASE_FULL=n, try setting it to `y'.
+Can you send me the output from a failing run with the -v5 argument added?
 
+thanks.
+
+-- 
+Nathan

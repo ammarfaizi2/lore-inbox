@@ -1,130 +1,388 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266651AbSISMyD>; Thu, 19 Sep 2002 08:54:03 -0400
+	id <S267242AbSISM7J>; Thu, 19 Sep 2002 08:59:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSISMyD>; Thu, 19 Sep 2002 08:54:03 -0400
-Received: from dp.samba.org ([66.70.73.150]:42724 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266651AbSISMyB>;
-	Thu, 19 Sep 2002 08:54:01 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] In-kernel module loader 1/7 
-In-reply-to: Your message of "Thu, 19 Sep 2002 12:44:47 +0200."
-             <Pine.LNX.4.44.0209191134360.28515-100000@serv> 
-Date: Thu, 19 Sep 2002 22:51:58 +1000
-Message-Id: <20020919125906.21DEA2C22A@lists.samba.org>
+	id <S267271AbSISM7J>; Thu, 19 Sep 2002 08:59:09 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:43786 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S267242AbSISM7E>;
+	Thu, 19 Sep 2002 08:59:04 -0400
+Date: Thu, 19 Sep 2002 16:04:08 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: compile error in pre7-ac2: usb & input
+Message-ID: <Pine.LNX.4.44.0209191555240.1928-100000@ondatra.tartu-labor>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209191134360.28515-100000@serv> you write:
-> Hi,
-> 
-> On Thu, 19 Sep 2002, Rusty Russell wrote:
-> 
-> > > I agree that the module load mechanism could be simplified, but why do yo
-u
-> > > want to do it in the kernel?
-> >
-> > Count the total lines of code in the kernel.  It's less than it was
-> > before.  Even for ia64, it's around the same IIRC.
-> 
-> That's not really difficult.
+drivers/usb/usbdrv.o: In function `hidinput_hid_event':
+drivers/usb/usbdrv.o(.text+0x11573): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x115ee): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x11600): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x11641): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x11664): undefined reference to `input_event'
+drivers/usb/usbdrv.o(.text+0x11682): more undefined references to `input_event' follow
+drivers/usb/usbdrv.o: In function `hidinput_connect':
+drivers/usb/usbdrv.o(.text+0x118d4): undefined reference to `input_register_device'
+drivers/usb/usbdrv.o: In function `hidinput_disconnect':
+drivers/usb/usbdrv.o(.text+0x118f3): undefined reference to `input_unregister_device'
 
-I know, I've done it for 5 architectures.
 
-> > Now add the userspace code, and it's obviously far simpler.  Not to
-> > mention not having to worry about problems like insmod dying between
-> > the two system calls...
-> 
-> A dying insmod is not really a problem. Removing the module after the
-> create call isn't a problem (I think that was already possible in my
-> version). Your current relocation code can be easily moved to userspace. I
-> agree that it can be far simpler, but doing two instead of one system call
-> doesn't really add any complexity.
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MK6=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_TSC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_IKCONFIG=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_IGNORE_USER_SUSPEND=y
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_OTHER=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_IDE=y
+CONFIG_HAZARD_READ=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_SCSI_SYM53C8XX_2=m
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=32
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_SYM53C8XX=m
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+CONFIG_NETDEVICES=y
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_TULIP=m
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_DE4X5=m
+CONFIG_8139TOO=m
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+CONFIG_SERIAL_DETECT_IRQ=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_AUTOFS4_FS=m
+CONFIG_HFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_MINIX_FS=m
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="iso8859-1"
+CONFIG_ZISOFS_FS=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_OSF_PARTITION=y
+CONFIG_AMIGA_PARTITION=y
+CONFIG_ATARI_PARTITION=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+CONFIG_LDM_PARTITION=y
+CONFIG_SGI_PARTITION=y
+CONFIG_ULTRIX_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_EFI_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY_GX=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_TRACEINIT=y
+CONFIG_SOUND_DMAP=y
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_YM3812=m
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_UHCI_ALT=y
+CONFIG_USB_AUDIO=m
+CONFIG_USB_EMI26=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_HP8200e=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_DC2XX=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_HPUSBSCSI=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_OV511=m
+CONFIG_USB_PWC=m
+CONFIG_USB_SE401=m
+CONFIG_USB_STV680=m
+CONFIG_USB_VICAM=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_CATC=m
+CONFIG_USB_CDCETHER=m
+CONFIG_USB_USBNET=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_PANIC_MORSE=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
 
-Of course it does.  Logically there should be a lock between the two
-operations: it's effectively an upcall to userspace, and that's messy.
+--- 
+Meelis Roos (mroos@linux.ee)
 
-> > I'm all for keeping things out of the kernel, but you can take things
-> > too far.  I was originally reluctant, but the beauty and simplicity of
-> > doing it in-kernel changed my mind.
-> 
-> Compared to the complexity of the current insmod I can I agree. On the
-> other hand with my module layout, I could load a module with ld and a few
-> lines of shell script (only the system calls are a bit tricky).
-
-Do that on sparc64, x86_64 or ppc64 and I'll be really impressed.  And
-of course, good luck fitting libbfd into busybox!
-
-> > > Most of the module related changes are rather cosmetic. You still have to
-> > > spread try_module_get() calls all over the kernel, one has to call it
-> > > before calling a function which might sleep, this means we will add it
-> > > everywhere just to be save.
-> >
-> > Yes.  It should be added everywhere.  One idea is to mark interfaces
-> > which are "safe", and if a module uses something else, refuse to
-> > unload it.
-> 
-> Now we get to the interesting part, cleaning up the module code is rather
-> simple to do, but getting everything else safe will be a bit more work and
-> how nicely it's done depends very much on which interfaces the module code
-> offers.
-
-Yes, see latest patchball (to follow).
-
-> > > What makes it worse is that it's not generally usable, a per object
-> > > reference count can also be used for module management, but the
-> > > module count can't be used for object management. This means for
-> > > modules with more dynamic interfaces, they have to do twice as much
-> > > work.
-> >
-> > Yes, you force reference counts in everything, whether you've got
-> > modules (or module unloading) or not.  You *do not* want to do this,
-> > for performance reasons if nothing else.
-> 
-> What else is try_module_get()? What is your problem with reference counts?
-
-Incrementing and decrementing a reference count for every network
-protocol (think: one for IPv4, one for TCP) is going to do terrible
-things for performance.  Now, if we *only* do it when IPv4 is a
-module, *and* we use bigrefs (which take about a page each 8(), it's
-not so bad.
-
-> Let's look again at the fs example I posted earlier:
-> 
-> static int __init init_fs(void)
-> {
->         inode_cachep = kmem_cache_create(...);
->         if (!inode_cachep)
->                 return -ENOMEM;
->         return register_filesystem(&fs_type);
-> }
-> 
-> static int __exit exit_fs(void)
-> {
->         int err;
->         err = unregister_filesystem(&fs_type);
->         if (err)
->                 return err;
->         kmem_cache_destroy(inode_cachep);
->         inode_cachep = NULL;
->         return 0;
-> }
-> 
-> Is this difficult to understand? I'n in doubt of this.
-
-This still has the init problem (well, not this example but...)
-
-Try doing this with IPv4, or LSM.
-
-If every single object in the kernel is reference counted, *yes* you
-can do this.  But they're not, and they will never be.  Changing them
-over to use try_module_get() is feasible, though.
-
-Of course, we could just say "you can't unload those module then!" and
-all those problems disappear.  You can see why I was so tempted 8)
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

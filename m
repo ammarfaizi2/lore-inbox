@@ -1,56 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbTC3Wk0>; Sun, 30 Mar 2003 17:40:26 -0500
+	id <S261306AbTC3Wvw>; Sun, 30 Mar 2003 17:51:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbTC3Wk0>; Sun, 30 Mar 2003 17:40:26 -0500
-Received: from paja.kn.vutbr.cz ([147.229.191.135]:52753 "EHLO
-	paja.kn.vutbr.cz") by vger.kernel.org with ESMTP id <S261304AbTC3WkZ>;
-	Sun, 30 Mar 2003 17:40:25 -0500
-Message-ID: <3E8774FA.7070209@kn.vutbr.cz>
-Date: Mon, 31 Mar 2003 00:51:38 +0200
-From: Michal Schmidt <schmidt@kn.vutbr.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: cs, en
+	id <S261312AbTC3Wvw>; Sun, 30 Mar 2003 17:51:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:45246 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261306AbTC3Wvv>;
+	Sun, 30 Mar 2003 17:51:51 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reproducible terrible interactivity since 2.5.64bk2
-References: <1048687681.6345.13.camel@spinel.tao.co.uk> <3E81945C.4010102@kn.vutbr.cz> <1048687681.6345.13.camel@spinel.tao.co.uk> <5.2.0.9.2.20030328181731.01997810@pop.gmx.net>
-In-Reply-To: <5.2.0.9.2.20030328181731.01997810@pop.gmx.net>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16007.29579.680218.567708@nanango.paulus.ozlabs.org>
+Date: Mon, 31 Mar 2003 08:45:31 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: [PATCH] update apm emulation for mac
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> Greetings potential victims :)
-> 
-> Care to see if the attached cures your woes?
-> 
-> This is a mixture of Ingo's last posted plus the scheduler tuning knobs 
-> patch (/proc/sys/sched/*).  I added three new knobs to watch the effect 
-> on different loads.  max_accel_slices limits the amount of sleep_time 
-> you may add in one activation.  retard_prct_slices is a percentage of a 
-> slice to deduct from sleep_time each activation (negative feedback for 
-> heavy context switchers.. dang irman process_load).  force_switch is 
-> there because I'm playing :)  I didn't do much to the scheduler itself, 
-> only made it switch arrays in something closer to a square wave.  With 
-> the settings as in the patch, and running a kernel build, top and irman, 
-> irman reports worst case response times of 150ms for NULL load, 316ms 
-> for memory_load, 414 for io_load, and 504ms for process_load.
-> 
-> Anyway, it's attached if you want to play with it ;-)
-> 
->         -Mike
-> 
-> Oh, it's against virgin 2.5.66.
+This patch updates the battery charge calculations for powerbooks.
+This is Ben Herrenschmidt's work.
 
+Please apply.
 
-Thanks, running 2.5.66 with the patch applied I could no more reproduce 
-the problem. I haven't tried playing with the knobs.
+Paul.
 
-Michal
-
+diff -urN linux-2.5/drivers/macintosh/apm_emu.c linuxppc-2.5/drivers/macintosh/apm_emu.c
+--- linux-2.5/drivers/macintosh/apm_emu.c	2003-01-08 23:03:45.000000000 +1100
++++ linuxppc-2.5/drivers/macintosh/apm_emu.c	2003-02-03 08:51:33.000000000 +1100
+@@ -436,40 +436,40 @@
+ 	int		percentage     = -1;
+ 	int             time_units     = -1;
+ 	int		real_count     = 0;
+-	int		charge         = -1;
+-	int		current        = 0;
+ 	int		i;
+ 	char *		p = buf;
+ 	char		charging       = 0;
++	long		charge	       = -1;
++	long		current        = 0;
++	unsigned long	btype          = 0;
+ 
+ 	ac_line_status = ((pmu_power_flags & PMU_PWR_AC_PRESENT) != 0);
+ 	for (i=0; i<pmu_battery_count; i++) {
+-		if (percentage < 0)
+-			percentage = 0;
+-		if (charge < 0)
+-			charge = 0;
+ 		if (pmu_batteries[i].flags & PMU_BATT_PRESENT) {
++			if (percentage < 0)
++				percentage = 0;
++			if (charge < 0)
++				charge = 0;
+ 			percentage += (pmu_batteries[i].charge * 100) /
+ 				pmu_batteries[i].max_charge;
+-			/* hrm... should we provide the remaining charge
+-			 * time when AC is plugged ? If yes, just remove
+-			 * that test --BenH
+-			 */
+-			if (!ac_line_status) {
+-				charge += pmu_batteries[i].charge;
+-				current += pmu_batteries[i].current;
+-			}
++			charge += pmu_batteries[i].charge;
++			current += pmu_batteries[i].current;
++			if (btype == 0)
++				btype = (pmu_batteries[i].flags & PMU_BATT_TYPE_MASK);
+ 			real_count++;
+ 			if ((pmu_batteries[i].flags & PMU_BATT_CHARGING))
+ 				charging++;
+ 		}
+ 	}
+ 	if (real_count) {
+-		time_units = (charge * 59) / (current * -1);
+-		if(!charging)
+-			battery_flag &= ~0x08;
++		if (current < 0) {
++			if (btype == PMU_BATT_TYPE_SMART)
++				time_units = (charge * 59) / (current * -1);
++			else
++				time_units = (charge * 16440) / (current * -60);
++		}
+ 		percentage /= real_count;
+-		if (battery_flag & 0x08) {
++		if (charging > 0) {
+ 			battery_status = 0x03;
+ 			battery_flag = 0x08;
+ 		} else if (percentage <= APM_CRITICAL) {

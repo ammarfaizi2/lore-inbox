@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261324AbSJLSNF>; Sat, 12 Oct 2002 14:13:05 -0400
+	id <S261326AbSJLSSH>; Sat, 12 Oct 2002 14:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261326AbSJLSNF>; Sat, 12 Oct 2002 14:13:05 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:10200 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261324AbSJLSND>; Sat, 12 Oct 2002 14:13:03 -0400
-To: neilb@cse.unsw.edu.au
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.42: build nfsd as module broken
+	id <S261327AbSJLSSH>; Sat, 12 Oct 2002 14:18:07 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:18102 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261326AbSJLSSG>; Sat, 12 Oct 2002 14:18:06 -0400
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>,
+       <user-mode-linux-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] 2.5.42: UML build error
+References: <Pine.LNX.4.44.0210121145510.17947-100000@chaos.physics.uiowa.edu>
 From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Sat, 12 Oct 2002 20:18:14 +0200
-Message-ID: <871y6vwmft.fsf@goat.bogus.local>
+Date: Sat, 12 Oct 2002 20:23:30 +0200
+Message-ID: <87smzbv7ml.fsf@goat.bogus.local>
 User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
  i386-debian-linux)
 MIME-Version: 1.0
@@ -19,100 +21,50 @@ Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# make modules_install
-gives the following error:
+Kai Germaschewski <kai-germaschewski@uiowa.edu> writes:
 
+> On Sat, 12 Oct 2002, Olaf Dietsche wrote:
+>
+>> When building 2.5.42 UML it fails with:
+>> [...]
+>
+> Okay, so here's a patch which fixes the UML build for me (i386) -
+> generally, UML could use some more kbuild work, but I'll leave that for
+> post-freeze ;)
+>
+> --Kai
+>
+>
+> Pull from http://linux-isdn.bkbits.net/linux-2.5.make
+>
+> (Merging changesets omitted for clarity)
+>
+> -----------------------------------------------------------------------------
+> ChangeSet@1.784, 2002-10-12 11:47:37-05:00, kai@tp1.ruhr-uni-bochum.de
+>   kbuild: Fix UML build
+>   
+>   Not perfectly clean yet, but uses the standard way to descend into subdirs
+>   and gives me working vmlinux and linux targets without spurious rebuilds.
+>
+>  ----------------------------------------------------------------------------
+>  Makefile               |   33 ++++++++++++++++++++-------------
+>  Makefile-i386          |   35 ++++++++++++++++-------------------
+>  sys-i386/util/Makefile |   14 ++++++++------
+>  util/Makefile          |   18 +++++++++---------
+>  4 files changed, 53 insertions(+), 47 deletions(-)
+>
+> =============================================================================
+> unified diffs follow for reference
+> =============================================================================
 [...]
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.42; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.42/kernel/fs/nfsd/nfsd.o
-depmod:         auth_domain_find
-depmod:         cache_fresh
-depmod:         unix_domain_find
-depmod:         auth_domain_put
-depmod:         cache_flush
-depmod:         cache_unregister
-depmod:         add_hex
-depmod:         cache_check
-depmod:         svcauth_unix_purge
-depmod:         get_word
-depmod:         cache_clean
-depmod:         cache_register
-depmod:         auth_unix_lookup
-depmod:         auth_unix_add_addr
-depmod:         cache_init
-depmod:         auth_unix_forget_old
-depmod:         add_word
 
-This patch adds several EXPORT_SYMBOL() to net/sunrpc/*.c. The kernel
-builds and boots. I haven't tested nfsd yet.
+Thanks! I was still trying to figure out, how all this is supposed to
+work :-).
+
+Though, it still gives one error right at the beginning:
+
+  gcc -E -Wp,-MD,arch/um/.uml.lds.s.d_ -D__ASSEMBLY__ -D__KERNEL__ -Iinclude -nostdinc -iwithprefix include   -Ui386 -DSTART=$((0xc0000000 - ((0 + 1) * 0x20000000))) -DELF_ARCH=i386 -DELF_FORMAT=\"elf32-i386\" -P -C -Uum   -o arch/um/uml.lds.s arch/um/uml.lds.S 
+/bin/sh: scripts/fixdep: No such file or directory
+make: *** [arch/um/uml.lds.s] Error 1
 
 Regards, Olaf.
-
-diff -urN a/net/sunrpc/Makefile b/net/sunrpc/Makefile
---- a/net/sunrpc/Makefile	Sat Oct 12 14:24:21 2002
-+++ b/net/sunrpc/Makefile	Sat Oct 12 19:37:20 2002
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_SUNRPC) += sunrpc.o
- 
--export-objs := sunrpc_syms.o
-+export-objs := sunrpc_syms.o svcauth.o svcauth_unix.o cache.o
- 
- sunrpc-y := clnt.o xprt.o sched.o \
- 	    auth.o auth_null.o auth_unix.o \
-diff -urN a/net/sunrpc/cache.c b/net/sunrpc/cache.c
---- a/net/sunrpc/cache.c	Sat Oct 12 14:24:21 2002
-+++ b/net/sunrpc/cache.c	Sat Oct 12 18:26:05 2002
-@@ -925,3 +925,14 @@
- 		return len;
- 	return -1;
- }
-+
-+EXPORT_SYMBOL(cache_fresh);
-+EXPORT_SYMBOL(cache_flush);
-+EXPORT_SYMBOL(cache_unregister);
-+EXPORT_SYMBOL(cache_check);
-+EXPORT_SYMBOL(cache_clean);
-+EXPORT_SYMBOL(cache_register);
-+EXPORT_SYMBOL(cache_init);
-+EXPORT_SYMBOL(add_word);
-+EXPORT_SYMBOL(add_hex);
-+EXPORT_SYMBOL(get_word);
-diff -urN a/net/sunrpc/svcauth.c b/net/sunrpc/svcauth.c
---- a/net/sunrpc/svcauth.c	Sat Oct 12 14:24:21 2002
-+++ b/net/sunrpc/svcauth.c	Sat Oct 12 19:36:38 2002
-@@ -16,6 +16,7 @@
- #include <linux/sunrpc/svcsock.h>
- #include <linux/sunrpc/svcauth.h>
- #include <linux/err.h>
-+#include <linux/module.h>
- 
- #define RPCDBG_FACILITY	RPCDBG_AUTH
- 
-@@ -189,3 +190,6 @@
- 	rv = auth_domain_lookup(&ad, 0);
- 	return rv;
- }
-+
-+EXPORT_SYMBOL(auth_domain_find);
-+EXPORT_SYMBOL(auth_domain_put);
-diff -urN a/net/sunrpc/svcauth_unix.c b/net/sunrpc/svcauth_unix.c
---- a/net/sunrpc/svcauth_unix.c	Sat Oct 12 14:24:21 2002
-+++ b/net/sunrpc/svcauth_unix.c	Sat Oct 12 18:25:16 2002
-@@ -5,6 +5,7 @@
- #include <linux/sunrpc/svcsock.h>
- #include <linux/sunrpc/svcauth.h>
- #include <linux/err.h>
-+#include <linux/module.h>
- 
- #define RPCDBG_FACILITY	RPCDBG_AUTH
- 
-@@ -462,3 +463,8 @@
- 	.release	= svcauth_unix_release,
- };
- 
-+EXPORT_SYMBOL(unix_domain_find);
-+EXPORT_SYMBOL(auth_unix_lookup);
-+EXPORT_SYMBOL(auth_unix_add_addr);
-+EXPORT_SYMBOL(auth_unix_forget_old);
-+EXPORT_SYMBOL(svcauth_unix_purge);

@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267649AbTAQTzF>; Fri, 17 Jan 2003 14:55:05 -0500
+	id <S267651AbTAQTyt>; Fri, 17 Jan 2003 14:54:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267652AbTAQTzF>; Fri, 17 Jan 2003 14:55:05 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:3076 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267649AbTAQTzD>;
-	Fri, 17 Jan 2003 14:55:03 -0500
-Date: Sun, 12 Jan 2003 15:27:40 +0100
+	id <S267652AbTAQTyt>; Fri, 17 Jan 2003 14:54:49 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:2564 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267651AbTAQTys>;
+	Fri, 17 Jan 2003 14:54:48 -0500
+Date: Fri, 10 Jan 2003 15:30:18 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] linux-2.5.54_delay-cleanup_A0
-Message-ID: <20030112142740.GA1691@elf.ucw.cz>
-References: <1041993975.1052.71.camel@w-jstultz2.beaverton.ibm.com>
+To: Larry McVoy <lm@work.bitmover.com>, venom@sns.it,
+       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: Honest does not pay here ...
+Message-ID: <20030110143018.GA193@elf.ucw.cz>
+References: <20030107232820.GB24664@merlin.emma.line.org> <Pine.LNX.4.43.0301080059460.24706-100000@cibs9.sns.it> <20030108003050.GF17310@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1041993975.1052.71.camel@w-jstultz2.beaverton.ibm.com>
+In-Reply-To: <20030108003050.GF17310@work.bitmover.com>
 User-Agent: Mutt/1.4i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,47 +25,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Linus, all, 
-> 	I've been busy with other things, so I've just been sitting on this for
-> a while. Anyway, I figured it was about time to resend. 
+> > In very semplicistic words:
+> > In 2.5/2.6 kernels, non GPL modules have a big
+> > penalty, because they cannot create their own queue, but have to use a default
+> > one.
 > 
-> This patch tries to cleanup the delay code by moving the timer-specific
-> implementations into the timer_ops struct. Thus, rather then doing:
-> 
-> 	if(x86_delay_tsc)
-> 		__rdtsc_delay(loops);
-> 	else if(x86_delay_cyclone)
-> 		__cyclone_delay(loops);
-> 	else if(whatever....
-> 
-> we just simply do:
-> 
-> 	if(timer)
-> 		timer->delay(loops);
-> 
-> diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
-> --- a/arch/i386/kernel/timers/timer_pit.c	Tue Jan  7 17:11:03 2003
-> +++ b/arch/i386/kernel/timers/timer_pit.c	Tue Jan  7 17:11:03 2003
-> @@ -27,6 +27,19 @@
->  	/* nothing needed */
->  }
->  
-> +static void delay_pit(unsigned long loops)
-> +{
-> +	int d0;
-> +	__asm__ __volatile__(
-> +		"\tjmp 1f\n"
-> +		".align 16\n"
-> +		"1:\tjmp 2f\n"
-> +		".align 16\n"
-> +		"2:\tdecl %0\n\tjns 2b"
-> +		:"=&a" (d0)
-> +		:"0" (loops));
-> +}
-> +
+> I may be showing my ignorance here (won't be the first time) but this makes
+> me wonder if Linux could provide a way to do "user level drivers".  I.e.,
+> drivers which ran in kernel mode but in the context of a process and had
+> to talk to the real kernel via pipes or whatever.  It's a fair amount of
+> plumbing but could have the advantage of being a more stable interface
+> for the drivers. 
 
-But... this is not using pit to do the delay, right? It is sensitive
-to CPU clock changes, pit-delay should not be.
+You don't need kernel mode to touch hw.
+
+> If you think about it, drivers are more or less open/close/read/write/ioctl.
+> They need kernel privileges to do their thing but don't need (and shouldn't
+> have) access to all the guts of the kernel.
+> 
+> Can any well traveled driver people see this working or is it nuts?
+
+Well, nbd was originally created just for that.
 
 								Pavel
 

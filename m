@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRJVPnv>; Mon, 22 Oct 2001 11:43:51 -0400
+	id <S276877AbRJVPtv>; Mon, 22 Oct 2001 11:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276877AbRJVPnl>; Mon, 22 Oct 2001 11:43:41 -0400
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:12818 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S276532AbRJVPnb>; Mon, 22 Oct 2001 11:43:31 -0400
-Message-ID: <00b401c15b10$3360f0c0$2a040a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: <Wayne.Brown@altec.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <86256AED.0053D3A6.00@smtpnotes.altec.com>
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 11:42:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S276907AbRJVPtb>; Mon, 22 Oct 2001 11:49:31 -0400
+Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:7440 "HELO
+	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S276877AbRJVPt2>; Mon, 22 Oct 2001 11:49:28 -0400
+Date: Mon, 22 Oct 2001 17:49:59 +0200
+From: Patrick Mau <mau@oscar.prima.de>
+To: Dan Kegel <dank@kegel.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: connect() to localhost non-blocking.
+Message-ID: <20011022174959.A31147@oscar.dorf.de>
+Reply-To: Patrick Mau <mau@oscar.prima.de>
+In-Reply-To: <3BD357B2.12AE9A5E@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BD357B2.12AE9A5E@kegel.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Speaking as a US citizen, I hope that someone outside the US will grab
-that info
-> as soon as it's available and make it accessible to everyone.  (Not that I
-need
-> it myself -- I have no interest in 2.2.20 -- but I like to see crap
-legislation
-> like the DMCA subverted wherever possible.)
+On Sun, Oct 21, 2001 at 04:18:10PM -0700, Dan Kegel wrote:
+> > Patrick Mau <mau@oscar.prima.de> writes:
+> > 
 
-Agreed, and it's exactly what we need to do.  Laws like these are much
-easier to overturn when they start making criminals out of everyday,
-ordinary people for just doing their normal jobs.  Suddenly even dumb judges
-and, especially, elected officials, get the idea because the pressure gets
-put on by everyone.
+[Snip]
 
-Of course, I still think this is an extremeist view of the DMCA.  I don't
-see were it keeps you from posting information about security fixes to your
-own code, just not other peoples products.
+> You have to be prepared to handle both immediate and delayed
+> connection, especially if you want to be portable.  (Solaris behaves 
+> a bit differently than Linux in this regard.)  See
+> http://www.kegel.com/dkftpbench/dkftpbench-0.37/ftp_client_pipe.cc
+> for an example of how to handle nonblocking connects more or less portably.
+> (You have to wade through quite a bit of code, tabstops 4, to find
+> all the connect-handling stuff -- sorry.)
+> - Dan
 
-Later,
-Tom
+Hallo Dan,
 
+thnaks for the pointer and your remarks, but I really
+wondered if linux _never_ immediatly accept()'s connections.
 
+I never saw a connect() call returning 0 (connected) on a
+non-blocking socket. Always EINPROGRESS. I guess I have to
+look at the kernel to see scheduling effects ...
 
-
+thanks,
+Patrick

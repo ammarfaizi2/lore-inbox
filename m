@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264172AbTCXMfr>; Mon, 24 Mar 2003 07:35:47 -0500
+	id <S264177AbTCXMkS>; Mon, 24 Mar 2003 07:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264173AbTCXMfr>; Mon, 24 Mar 2003 07:35:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56488
+	id <S264182AbTCXMkS>; Mon, 24 Mar 2003 07:40:18 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59560
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264172AbTCXMfq>; Mon, 24 Mar 2003 07:35:46 -0500
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
-	looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
+	id <S264177AbTCXMkR>; Mon, 24 Mar 2003 07:40:17 -0500
+Subject: Re: USB compile error with latest 2.5-bk
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Atanasov <alex@ssi.bg>
-Cc: Dominik Brodowski <linux@brodo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
-References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
+To: Greg KH <greg@kroah.com>
+Cc: Louis Garcia <louisg00@bellsouth.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030324095308.GB5934@kroah.com>
+References: <1048462471.1739.1.camel@tiger>
+	 <20030324095308.GB5934@kroah.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048514654.25136.6.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 13:59:33 +0000
+Date: 24 Mar 2003 14:04:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 09:55, Alexander Atanasov wrote:
-> i can't reproduce the hang but it seems that drives without driver can get
-> both in ata_unused and idedefault_driver.drives and lists go nuts.
-> It kills ata_unused and uses idedefault_driver.drives only,
-> boots fine here. I'd guess you have ide-cd as module, and the two drives
-> handled by it couse the trouble - first joins the lists second couses the
-> loop.
+On Mon, 2003-03-24 at 09:53, Greg KH wrote:
+> > drivers/usb/core/hcd.c:124: parse error before '>>' token
+> > drivers/usb/core/hcd.c:124: initializer element is not constant
+> > drivers/usb/core/hcd.c:124: (near initialization for
+> > `usb2_rh_dev_descriptor[12]')
+> 
+> I don't see this error with a older compiler.  I suggest filing a bug
+> with Red Hat's bugzilla.
 
-We need to know the difference between the two really so I would much rather
-ensure we don't end up on both lists at once (which is a bug) than lose a
-list
+I don't get this error with a current compiler either. Are you sure the 
+patching is ok ?
 

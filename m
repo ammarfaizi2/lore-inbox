@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130462AbQLGThC>; Thu, 7 Dec 2000 14:37:02 -0500
+	id <S130531AbQLGTlM>; Thu, 7 Dec 2000 14:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130442AbQLGTgm>; Thu, 7 Dec 2000 14:36:42 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:50180 "EHLO
-	anduin.gondor.com") by vger.kernel.org with ESMTP
-	id <S130429AbQLGTgg>; Thu, 7 Dec 2000 14:36:36 -0500
-Date: Thu, 7 Dec 2000 20:05:58 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org, adilger@turbolinux.com
-Subject: Re: fs corruption with invalidate_buffers()
-Message-ID: <20001207200558.A976@gondor.com>
-In-Reply-To: <20001206030723.A1136@gondor.com>
+	id <S130536AbQLGTlC>; Thu, 7 Dec 2000 14:41:02 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:46092 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130531AbQLGTkx>;
+	Thu, 7 Dec 2000 14:40:53 -0500
+Date: Thu, 7 Dec 2000 19:55:40 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Bernd Kischnick <kisch@mindless.com>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: patch: test12-pre7 cd stuff
+Message-ID: <20001207195539.P6832@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001206030723.A1136@gondor.com>; from jan@gondor.com on Wed, Dec 06, 2000 at 03:07:23AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 03:07:23AM +0100, Jan Niehusmann wrote:
-> While resizing the filesystem, invalidate_buffers() is called from the
-> lvm code. (lvm.c, line 2251, in lvm_do_lv_extend_reduce()) 
-> If I remove this call, the corruption goes away. But this is probably not
-> the correct fix, as it can cause problems when reducing the lv size.
+Hi,
 
-Some more details:
+I've put up a modified cd patch set against 2.4.0-test12-pre7. The
+changes are roughly as follows:
 
-I added the following code to put_last_free(bh) in buffer.c:
+o Fix SCSI CD-ROM on fs with < 2KB block size. I've briefly tested
+  with ext2 (1KB) and msdos (512b) and it appears to work. Would
+  the HFS folks try this too?
+o Per command timeout for CD-ROM generic packet
+o Per command quiet bit, as not to print a lot of sense stuff when
+  we know that something may fail
+o Major CDROM_SEND_PACKET cleanup
+o ide-cd shut up stuff (- sense logging in some cases)
+o Make sure that cdrom_sleep actually does that, sleeps
+o Let sr retry a PLAYTRKIND command with PLAYMSF for ide-scsi
+  and ATAPI.
+o Minor sr cleanups
 
---- buffer.c.orig	Wed Dec  6 17:19:57 2000
-+++ buffer.c	Thu Dec  7 19:55:39 2000
-@@ -500,6 +500,11 @@
- 	struct bh_free_head *head = &free_list[BUFSIZE_INDEX(bh->b_size)];
- 	struct buffer_head **bhp = &head->list;
- 
-+	if(bh->b_page && Page_Uptodate(bh->b_page)
-+			&& bh->b_page->mapping) { // XXX ???
-+		BUG();
-+	}
-+
- 	bh->b_state = 0;
- 
- 	spin_lock(&head->lock);
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test12-pre7/cd-2.bz2
 
+In addition I made another small fix after uploading this one. Audio
+ripping can fail with the vm failing to allocate enough contigous
+pages, if ripping programs specify large bites of frames to be ripped.
+Always default to allocating just a single page.
 
-That is, if I want to put a buffer to the free list, I check if it is 
-mapped and uptodate. If I understand the memory management correctly, this
-is a Bad Thing and should not happen. But guess what? It does, in
-invalidate_buffers. 
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test12-pre7/cd-2-cdda_alloc.bz2
 
-I think invalidate_buffers should check if the buffer belongs to a 
-mapped page, and if it does, invalidate this mapping.
-
-Jan
-
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

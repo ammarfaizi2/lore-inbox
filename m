@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVCBOyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCBO4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVCBOyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCBOyJ
+	id S262325AbVCBO4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCBO4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:54:09 -0500
-Received: from smtp4.wlink.com.np ([202.79.32.87]:24656 "HELO
-	smtp4.wlink.com.np") by vger.kernel.org with SMTP id S262323AbVCBOxx
+	Wed, 2 Mar 2005 09:56:07 -0500
+Received: from mailhub1.nextra.sk ([195.168.1.111]:779 "EHLO
+	mailhub1.nextra.sk") by vger.kernel.org with ESMTP id S262327AbVCBOz6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:53:53 -0500
-Reply-To: <bhamal@wlink.com.np>
-From: "bj" <bhamal@wlink.com.np>
-To: <linux-kernel@vger.kernel.org>
-Subject: investingating kernel :Cnx error 
-Date: Wed, 2 Mar 2005 09:52:15 +0545
-Message-ID: <000401c51edd$ae348390$0db3fea9@kath.state.gov>
+	Wed, 2 Mar 2005 09:55:58 -0500
+Message-ID: <4225D4B4.6020002@rainbow-software.org>
+Date: Wed, 02 Mar 2005 15:59:00 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+References: <20050228192001.GA14221@apps.cwi.nl> <1109721162.15795.47.camel@localhost.localdomain> <20050302075037.GH20190@apps.cwi.nl>
+In-Reply-To: <20050302075037.GH20190@apps.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Spam-Check-By: smtp3.wlink.com.np
-Spam: No ; -4.2 / 5.0
-X-Spam-Status-WL: No, hits=-4.2 required=5.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Andries Brouwer wrote:
+> On Tue, Mar 01, 2005 at 11:52:44PM +0000, Alan Cox wrote:
+> 
+>>On Llu, 2005-02-28 at 19:20, Andries Brouwer wrote:
+>>
+>>>One such case is the mtrr code, where struct mtrr_ops has an
+>>>init field pointing at __init functions. Unless I overlook
+>>>something, this case may be easy to settle, since the .init
+>>>field is never used.
+>>
+>>The failure to invoke the ->init operator appears to be the bug.
+>>The centaur code definitely wants the mcr init function to be called.
+> 
+> 
+> Yes, I expected that to be the answer. Therefore #if 0 instead of deleting.
+> But if calling ->init() is needed, and it has not been done the past
+> three years, the question arises whether there are any users.
 
-I am using Red Hat 8 with kernel 2.4.20-30.8.legacy
-
-I am facing the following error some times  .
-
-It hangs my computer when I am doing a make or am using x-windows .
-
-How do I go about investigating the cause of it ?
-
-Thank you for your help.
-
-Cheers,
-bj
+I'm running 2.6.10 on Cyrix MII PR333 and it works. Maybe the code is 
+broken but I haven't noticed :-)
 
 
-
-
-Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
-!
-Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
-!
-Feb 25 10:14:20 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=9 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=2 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
-!
-Feb 25 10:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=5 used bit was FALSE
-!
-Feb 28 09:44:22 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
-!
-Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=9 used bit was FALSE
-!
-Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
-!
-Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=3 used bit was FALSE
-!
-Feb 28 09:44:23 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
-!
-Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
-!
-Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
-!
-Feb 28 09:44:26 HOME kernel: cnxthsf_OsFloatSuffix: Id=4 used bit was FALSE
-!
-Feb 28 10:26:44 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
-!
-Feb 28 10:26:47 HOME kernel: cnxthsf_OsFloatSuffix: Id=6 used bit was FALSE
-!
-Mar  1 09:30:46 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
-!
-Mar  1 09:30:46 HOME kernel: cnxthsf_OsFloatSuffix: Id=0 used bit was FALSE
-!
-Mar  1 10:06:56 HOME kernel: cnxthsf_OsFloatSuffix: Id=1 used bit was FALSE
-!
-Mar  1 10:07:00 HOME kernel: cnxthsf_OsFloatSuffix: Id=8 used bit was FALSE
-!
-
+-- 
+Ondrej Zary

@@ -1,79 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262196AbSIZFxN>; Thu, 26 Sep 2002 01:53:13 -0400
+	id <S262198AbSIZGAD>; Thu, 26 Sep 2002 02:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262197AbSIZFxN>; Thu, 26 Sep 2002 01:53:13 -0400
-Received: from thunk.org ([140.239.227.29]:45215 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262196AbSIZFxL>;
-	Thu, 26 Sep 2002 01:53:11 -0400
-Date: Thu, 26 Sep 2002 01:57:55 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Ryan Cumming <ryan@completely.kicks-ass.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020926055755.GA5612@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Ryan Cumming <ryan@completely.kicks-ass.org>,
-	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209251645.40575.ryan@completely.kicks-ass.org> <20020926032756.GA4072@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209252223.13758.ryan@completely.kicks-ass.org>
-User-Agent: Mutt/1.3.28i
+	id <S262199AbSIZGAD>; Thu, 26 Sep 2002 02:00:03 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:11237 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262198AbSIZGAC>; Thu, 26 Sep 2002 02:00:02 -0400
+Message-ID: <3D92A41F.4000705@snapgear.com>
+Date: Thu, 26 Sep 2002 16:07:27 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
+References: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
->
-> It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
+Hi Matthew,
 
-Just to humor me, can you try it with gcc 2.95.4?  I just want to
-eliminate one variable....
+I just generated a new patch, linux-2.5.38uc2.
+Which addresses a lot of your comments. I did a
+lot of work cleaning the ethernet driver, would
+be very interreted in your thoughts on that now...
 
-> 3) While starting man(1), EXT3 began spewing messages in the form:
-> "EXT3-fs error (device (ide0(3,2)): ext3_readdir: directory #4243459 contains 
-> a hole at offset xxxxxx"
-
-what directory was 4243459?  You can use the debugfs's ncheck command
-to get back a pathname from an inode number?
-
-Are you sure the filesystem was consistent before you started this
-whole procedure?  
-
-It sounds like you hadn't started modifying directories at this point
-in the procedure.  Yet this error ("directory #XXXX contains a hole")
-is printed by the non-indexed-directory version of readdir.  So that
-would imply that the directory with the initial error reported on it
-was not an indexed directory.....  very strange!
-
-> The directory number stayed constant, but the offset was variable. fsck -fD 
-> had -not- been run at this point.
-> 4) On reboot, fsck reported:
-> "Directory inode has unallocated block #xx"
-> multiple times. fsck seemed to fully recover the filesystem. I rebooted again 
-> for good measure.
-
-What were the directory inode numbers, and what pathname did they map
-to?
-
-> 7) While KDE was trying to start, EXT3 dumped the following to the console:
-> "EXT3-fs error (device ide(3,2)) in start_transaction: Journal has aborted"
-
-This message will appear if previously some other part of ext2
-reported a filesystem inconsistency.  So it's a symptom, and not the
-root cause of the problem.
-
-> 8) I rebooted, and fsck said:
-> "Directory inode 131073,block3,offset 528: Directory corrupted"
-> I wasn't so lucky this time, and a good portion of my home directory got 
-> eaten.
+Regards
+Greg
 
 
-Against, what was the pathnmae to the inode #131073?
 
-This is strange, since I'm not seeing any of the problems that you're
-seeing.  I'm going to need a lot more information if I'm going to have
-a prayer of a chance of digging into it.
 
-						- Ted
+Matthew Wilcox wrote:
+> Thanks for splitting the patch up, makes it easier to see what's going on.
+> Let's have another go at making this better...
+> 
+> Motorola 5272 ethernet driver:
+> * In Config.in, let's conditionalise it on CONFIG_PPC or something
+> * Can you use module_init() so it doesn't need an entry in Space.c?
+> * You're defining CONFIG_* variables in the .c file.  I don't know whether
+>   this is something we're still trying to avoid doing ... Greg, you seem
+>   to be CodingStyle enforcer, what's the word?
+> * Why do you need to EXPORT_SYMBOL fec_register_ph and fec_unregister_ph?
+> * There's an awful lot of stuff conditionalised on CONFIG_M5272.  In general,
+>   having #ifdefs within functions is frowned upon.
+> 
+> Motorola 68328 and ColdFire serial drivers:
+> * Move to drivers/serial
+> * Lose this change from the Makefile:
+> -			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o
+> +			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o \
+> * Drop the custom MIN() definition.
+> * Port to new serial driver framework.
+> 
+> MTD driver patches for uClinux supported platforms:
+> I don't see any problems.  Submit to Linus via Dave Woodhouse, I guess.
+> 
+> Motorola 68328 framebuffer:
+> Don't see any problems here either.
+> 
+> uClinux FLAT file format exe loader:
+> * Drop the MAX() macro.
+> * +#include "../lib/inflate2.c".  Er.  You seem to have missed inflate2.c
+>   from your patch, and this really isn't the right way to do it anyway.
+>   Can't you share inflate.c these days?
+> * I'm also a little unsure about your per-arch #defines.  Could you put
+>   comments by each saying why they're necessary?
+> 
+> I haven't reveiwed the other two patches.
+> 
+
+-- 
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

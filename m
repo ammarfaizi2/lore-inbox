@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUGCEXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUGCEig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265065AbUGCEXG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 00:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUGCEXG
+	id S265044AbUGCEig (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 00:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUGCEig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 00:23:06 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:23563 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265065AbUGCEXD
+	Sat, 3 Jul 2004 00:38:36 -0400
+Received: from bay16-f42.bay16.hotmail.com ([65.54.186.92]:12043 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265044AbUGCEif
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 00:23:03 -0400
-To: <Andries.Brouwer@cwi.nl>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fat/inode.c
-References: <UTC200407021828.i62ISse29171.aeb@smtp.cwi.nl>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 03 Jul 2004 13:22:39 +0900
-In-Reply-To: <UTC200407021828.i62ISse29171.aeb@smtp.cwi.nl>
-Message-ID: <871xjt4t4g.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jul 2004 00:38:35 -0400
+X-Originating-IP: [220.224.27.225]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: jmorris@intercode.com.au, jmorris@redhat.com, linux-kernel@vger.kernel.org
+Subject: socket association
+Date: Sat, 03 Jul 2004 10:08:34 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY16-F42SHmFssIhJP000042b9@hotmail.com>
+X-OriginalArrivalTime: 03 Jul 2004 04:38:34.0618 (UTC) FILETIME=[99A44DA0:01C460B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<Andries.Brouwer@cwi.nl> writes:
+sure there is one who will help
 
-> Two years ago, OGAWA Hirofumi removed some ugly code and
-> added a few simple tests to the FAT filesystem code,
-> intended to avoid recognizing non-FAT as FAT (for people who
-> fail to specify rootfstype=, forcing the kernel to guess).
+in freebsd when a socket is created,
+the process  structure of the process creating socket
+is passed as an argument to socreate function.
+is there any mechanism in linux kernel where we can
+associate the process creating socket with the socket.
+or we can fetch the process structure of the owning
+process given the socket or sock data structure.
 
-Yes.
+--kartikey
 
-> That worked fairly well, until this year.
-> I have now seen a thread in Czech and a report from Holland
-> that involved the "FAT: bogus sectors-per-track value"
-> error message.
-> 
-> The patch below removes this test again. The advantage is that
-> some real-life FAT filesystems can be mounted again.
-> The disadvantage that more non-FAT fss will be accepted as FAT.
-> 
-> Ferry van Steen <freaky@bananateam.nl> reports
-> "the patch Andries Brouwer gave me seems to work".
+_________________________________________________________________
+Get Citibank Home Loan ! http://go.msnserver.com/IN/52043.asp At an 
+unbelievably low interest rate.
 
-Sounds good. Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbUL0XuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbUL1AFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbUL0XuX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 18:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUL0XuX
+	id S262005AbUL1AFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 19:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUL1AFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 18:50:23 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:9720 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S262004AbUL0XuO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 18:50:14 -0500
-Date: Tue, 28 Dec 2004 08:50:00 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>,
-       dwmw2@redhat.com
-Subject: [PATCH 2.6.10] mtd: added NEC uPD29F064115 support
-Message-Id: <20041228085000.5d2c4625.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 27 Dec 2004 19:05:09 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:52101 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262005AbUL1AFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 19:05:03 -0500
+Date: Tue, 28 Dec 2004 02:05:37 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: nico@cam.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add missing dependencies on MTD_PARTITIONS
+Message-ID: <20041228000537.GB13807@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20041227222348.GB13628@mellanox.co.il> <20041227225014.GD5345@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041227225014.GD5345@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
+Quoting r. Adrian Bunk (bunk@stusta.de) "[2.6 patch] add missing dependencies on MTD_PARTITIONS":
+> The patch below fixes them.
+> 
+> Please tell whether this fixes the problems you observed.
 
-This patch has added NEC uPD29F064115 support to jedec_probe.c.
-Please apply this patch.
+I have 2.6.10 so the patch didnt apply, with this reject:
 
-Yoichi
+***************
+*** 198,204 ****
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+   config MTD_NAND_NANDSIM
+        bool "Support for NAND Flash Simulator"
+-       depends on MTD_NAND
 
-diff -urN -X dontdiff a-orig/drivers/mtd/chips/jedec_probe.c a/drivers/mtd/chips/jedec_probe.c
---- a-orig/drivers/mtd/chips/jedec_probe.c	Sat Dec 25 06:35:40 2004
-+++ a/drivers/mtd/chips/jedec_probe.c	Tue Dec 28 00:56:41 2004
-@@ -32,6 +32,7 @@
- #define MANUFACTURER_HYUNDAI	0x00AD
- #define MANUFACTURER_INTEL	0x0089
- #define MANUFACTURER_MACRONIX	0x00C2
-+#define MANUFACTURER_NEC	0x0010
- #define MANUFACTURER_PMC	0x009D
- #define MANUFACTURER_SST	0x00BF
- #define MANUFACTURER_ST		0x0020
-@@ -115,6 +116,9 @@
- #define MX29F004T	0x0045
- #define MX29F004B	0x0046
- 
-+/* NEC */
-+#define UPD29F064115	0x221C
-+
- /* PMC */
- #define PM49FL002	0x006D
- #define PM49FL004	0x006E
-@@ -1186,6 +1190,22 @@
- 			  ERASEINFO(0x08000,1),
- 			  ERASEINFO(0x02000,2),
- 			  ERASEINFO(0x04000,1)
-+		}
-+	}, {
-+		.mfr_id		= MANUFACTURER_NEC,
-+		.dev_id		= UPD29F064115,
-+		.name		= "NEC uPD29F064115",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_0x0555_0x02AA,  /* x8 */
-+			[1] = MTD_UADDR_0x0555_0x02AA,  /* x16 */
-+		},
-+		.DevSize	= SIZE_8MiB,
-+		.CmdSet		= P_ID_AMD_STD,
-+		.NumEraseRegions= 3,
-+		.regions	= {
-+			ERASEINFO(0x2000,8),
-+			ERASEINFO(0x10000,126),
-+			ERASEINFO(0x2000,8),
- 		}
- 	}, {
- 		.mfr_id		= MANUFACTURER_PMC,
+        help
+          The simulator may simulate verious NAND flash chips for the
+--- 198,204 ----
+
+   config MTD_NAND_NANDSIM
+        bool "Support for NAND Flash Simulator"
++       depends on MTD_NAND && MTD_PARTITIONS
+
+        help
+          The simulator may simulate verious NAND flash chips for the
+
+
+However, MTD_NAND_NANDSIM simply does not seem to be there in 2.6.10,
+so thats probably ok.
+Otherwise the problem is fixed.
+I'd like to understand, why arent other map devices that seem to call
+del_mtd_partitions, missing this symbol?
+
+Thanks,
+mst 

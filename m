@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbSJWLmi>; Wed, 23 Oct 2002 07:42:38 -0400
+	id <S263837AbSJWLoW>; Wed, 23 Oct 2002 07:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbSJWLmh>; Wed, 23 Oct 2002 07:42:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25362 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263321AbSJWLmh>;
-	Wed, 23 Oct 2002 07:42:37 -0400
-Date: Wed, 23 Oct 2002 12:48:46 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: 2.5.44: How to decode call trace
-Message-ID: <20021023124846.L27461@parcelfarce.linux.theplanet.co.uk>
-References: <87elai82xb.fsf@goat.bogus.local.suse.lists.linux.kernel> <p73isztstim.fsf@oldwotan.suse.de> <878z0p1m2y.fsf@goat.bogus.local>
+	id <S263785AbSJWLoV>; Wed, 23 Oct 2002 07:44:21 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:1036 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263837AbSJWLoT>; Wed, 23 Oct 2002 07:44:19 -0400
+Date: Wed, 23 Oct 2002 13:50:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+Message-ID: <20021023115026.GB30182@dualathlon.random>
+References: <20021023020534.GJ11242@dualathlon.random> <Pine.LNX.4.44.0210230851170.2360-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <878z0p1m2y.fsf@goat.bogus.local>; from olaf.dietsche#list.linux-kernel@t-online.de on Wed, Oct 23, 2002 at 12:33:25PM +0200
+In-Reply-To: <Pine.LNX.4.44.0210230851170.2360-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 12:33:25PM +0200, Olaf Dietsche wrote:
-> When I build with "make -k EXTRA_CFLAGS=-g EXTRA_LDFLAGS=-g bzImage",
-> I get a ton of error messages from drivers/acpi/include/actypes.h and
-> other acpi related stuff, starting with: #error ACPI_MACHINE_WIDTH not
-> defined. Maybe this is not the usual way to build with -g, but I don't
-> get these errors with "make -k bzImage". Maybe someone is interested
-> in this.
+On Wed, Oct 23, 2002 at 09:19:23AM +0200, Ingo Molnar wrote:
+> theory (and i raised that possibility in the discussion), but i'd like to
+> see your patch first, because yet another vma tree is quite some
+> complexity and it further increases the size of the vma, which is not
+> quite a no-cost approach.
 
-Not really.  Users shouldn't be overriding EXTRA_CFLAGS, it's for the
-benefit of various parts of the kernel.  Some other parts of the kernel
-you break by doing this:
+it's not another vma tree, furthmore another vma tree indexed by the
+hole size wouldn't be able to defragment and it would find the best fit
+not the first fit on the left.
 
-./arch/i386/mach-generic/Makefile:EXTRA_CFLAGS  += -I../kernel
-./drivers/ide/pci/Makefile:EXTRA_CFLAGS := -Idrivers/ide
-./drivers/message/fusion/Makefile:EXTRA_CFLAGS += ${MPT_CFLAGS}
-./drivers/usb/storage/Makefile:EXTRA_CFLAGS     := -Idrivers/scsi
-./fs/smbfs/Makefile:EXTRA_CFLAGS += -DSMBFS_PARANOIA
-./fs/xfs/Makefile:EXTRA_CFLAGS +=        -Ifs/xfs -funsigned-char
-./sound/oss/emu10k1/Makefile:    EXTRA_CFLAGS += -DEMU10K1_DEBUG
-
-The normal way to do what you want is to edit the Makefile and add -g
-directly to CFLAGS.
-
--- 
-Revolutions do not require corporate support.
+Andrea

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbRBYWuE>; Sun, 25 Feb 2001 17:50:04 -0500
+	id <S129878AbRBYWvO>; Sun, 25 Feb 2001 17:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129878AbRBYWty>; Sun, 25 Feb 2001 17:49:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:57869 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129874AbRBYWto>;
-	Sun, 25 Feb 2001 17:49:44 -0500
-Date: Sun, 25 Feb 2001 23:49:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Steve Whitehouse <Steve@ChyGwyn.com>, torvalds@transmeta.com,
-        pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: NBD Cleanup patch and bugfix in ll_rw_blk.c
-Message-ID: <20010225234927.S7830@suse.de>
-In-Reply-To: <200102251957.TAA01718@gw.chygwyn.com> <20010225223913.A3627@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010225223913.A3627@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sun, Feb 25, 2001 at 10:39:13PM +0000
+	id <S129884AbRBYWvE>; Sun, 25 Feb 2001 17:51:04 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:27447 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129878AbRBYWui>; Sun, 25 Feb 2001 17:50:38 -0500
+Message-ID: <3A998C19.7010403@blue-labs.org>
+Date: Sun, 25 Feb 2001 14:50:01 -0800
+From: David <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac3 i686; en-US; 0.9) Gecko/20010225
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac4
+In-Reply-To: <E14X9kR-0004W6-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25 2001, Russell King wrote:
-> On Sun, Feb 25, 2001 at 07:57:29PM +0000, Steve Whitehouse wrote:
-> > -int nbd_init(void)
-> > +int __init nbd_init(void)
-> 
-> > -void cleanup_module(void)
-> > +void __exit nbd_cleanup(void)
-> 
-> > +
-> > +module_init(nbd_init);
-> > +module_exit(nbd_cleanup);
-> 
-> If you're using module_init/module_exit, shouldn't nbd_init/nbd_cleanup
-> be declared statically?
+Alan Cox wrote:
 
-And more importantly, the init calls from ll_rw_blk.c:blk_dev_init()
-should be removed too.
+> 	Not currently on
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 	until its happy again.
+> 
+> 	For the moment get it from
+> 
+> 	ftp://ftp.linux.org.uk/pub/linux/alan/2.4-ac
+> 
+> 2.4.2-ac4
 
--- 
-Jens Axboe
+
+Does this have any fixings for the RSS and CPU mis-allocations?  I put 
+2.4.2 ac3 on my notebook last night and Enlightenment is taking 9805% of 
+the cpu and about 4 terabytes is resident.
+
+That is the only process doing that.
+
+-d
 

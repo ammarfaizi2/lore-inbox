@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285125AbRLFLUE>; Thu, 6 Dec 2001 06:20:04 -0500
+	id <S285113AbRLFLQo>; Thu, 6 Dec 2001 06:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285126AbRLFLTy>; Thu, 6 Dec 2001 06:19:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48139 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285125AbRLFLTt>; Thu, 6 Dec 2001 06:19:49 -0500
-Subject: Re: 
-To: romain_giry@yahoo.fr (Romain Giry)
-Date: Thu, 6 Dec 2001 11:28:50 +0000 (GMT)
-Cc: dipak@monmouth.com (Dipak),
-        linux-kernel@vger.kernel.org (Linux-Kernel mailing list)
-In-Reply-To: <5.0.2.1.0.20011206113115.00a53c10@pop.mail.yahoo.fr> from "Romain Giry" at Dec 06, 2001 11:43:21 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S285114AbRLFLQe>; Thu, 6 Dec 2001 06:16:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:779 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S285113AbRLFLQX>; Thu, 6 Dec 2001 06:16:23 -0500
+Date: Thu, 6 Dec 2001 12:16:16 +0100
+From: Jan Kara <jack@suse.cz>
+To: Craig Christophel <merlin@transgeek.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: shrink_caches inconsistancy
+Message-ID: <20011206121615.A21816@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011205180526.DCB78C7382@smtp.transgeek.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Bwhu-0001Md-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20011205180526.DCB78C7382@smtp.transgeek.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One thing that may be difficult to implement is that i want to keep a TCP
-> connection running when i change the physical device. That's why maybe the
-> firewall solution may be better because when receiving packets i could fake
-> that they all come from the same physical device and have therefore the same
-> IP.
+  Hello,
 
-You set up multiple physical devices with the same IP and use the "route"
-command. Thats worked with TCP/IP protocols since day 1
+> 	This patch makes the comments match for icache,dcache,dqcache   shrink 
+> functions.  Initially the comment stated that a priority of 0 could be used, 
+> but after looking into mm/vmscan.c::shrink_caches this cannot be true.  So 
+> the comment now states that 1 is the highest priority.  This appears __really 
+> true as at priority 1 all of the cache possible is removed.
+> 
+> 	Also shrink_dqcache_memory now uses the count variable like everyone else.
+> 	
+> 	Possibly incorrect __GFP_FS check added to the dqcache function.  but again 
+> consistancy is my goal.  
+  This check really isn't needed for shrink_dqcache() function. This function can
+never recurse into fs so there's no need to have __GFP_FS set.
+
+> 	Another dqcache issue in that the dqcache was being shrunk at priority+1 
+> rather than at priority, this looked suspect, and with no comment around the 
+> code, it to has been remanded to consistancy.
+  OK :). If I remeber well I saw 'priority' could be 0 somewhere in the comment
+and so I added +1 to avoid division by zero. But you're right that code in vmscan.c
+actually never calls the functions with priority == 0.
+
+								Honza

@@ -1,235 +1,490 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312169AbSDNLeS>; Sun, 14 Apr 2002 07:34:18 -0400
+	id <S312178AbSDNLji>; Sun, 14 Apr 2002 07:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312178AbSDNLeR>; Sun, 14 Apr 2002 07:34:17 -0400
-Received: from ppp-225-71-155.friaco.access.uk.tiscali.com ([80.225.71.155]:260
-	"EHLO hoffman.vilain.net") by vger.kernel.org with ESMTP
-	id <S312169AbSDNLeP>; Sun, 14 Apr 2002 07:34:15 -0400
-Date: Sun, 14 Apr 2002 12:14:29 +0100
-From: Sam Vilain <sv@easyspace.com>
-To: t.sailer@alumni.ethz.ch
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: USB audio device - ABIT UA11 dual toslink I/O
-Message-Id: <20020414121429.45112a14.sv@easyspace.com>
-In-Reply-To: <3CB337B4.EE569F52@scs.ch>
-Organization: Easyspace Ltd
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: PI2{lKxF*i|]%@A&-0AV/%sXN)UJ<+SeG}%8Cn%**KZ[f_OSx{xw&Rstfu?!x^ZJ%LV@4Z% Zr"EZm.GQFy@;"V82_:?cJ`kQ3+
+	id <S312181AbSDNLjh>; Sun, 14 Apr 2002 07:39:37 -0400
+Received: from pD954F818.dip.t-dialin.net ([217.84.248.24]:39565 "EHLO
+	linux-buechse.de") by vger.kernel.org with ESMTP id <S312178AbSDNLjb>;
+	Sun, 14 Apr 2002 07:39:31 -0400
+Date: Sun, 14 Apr 2002 13:39:25 +0200
+From: "Juergen E. Fischer" <fischer@norbit.de>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch] aha152x.c
+Message-ID: <20020414113925.GA10001@linux-buechse.de>
+Reply-To: fischer@linux-buechse.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Sailer <sailer@scs.ch> wrote:
 
-> > usbaudio: unit 8: invalid PROCESSING_UNIT descriptor
-> Aparently this is due to a superfluous test in the audiocontrol
-> parsing...
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Would that be this test:
+Hi there,
 
-    case PROCESSING_UNIT:
-	if (   p1[0] <  13
-	   ||  p1[0] <   13 + p1[6] 
-	   ||  p1[0] < 	  13 + p1[6] + p1[ 11 + p1[6] ]
-	   ||  p1[0] <     13 + p1[6] + p1[ 11 + p1[6] ]
-		      + p1[ 13 + p1[6] + p1[ 11 + p1[6] ] ] )
-	{                       
-	    printk(KERN_ERR "usbaudio: unit %u: invalid PROCESSING_UNIT"
-		   "descriptor\n", unitid);
-	    return;
-        }
-        usb_audio_processingunit(state, p1);
-        return;
+attached a patch for the aha152x driver.
 
-This relates to this section of `lsusb':
+Jürgen
 
-      AudioControl Interface Descriptor:
-        bLength                16
-        bDescriptorType        36
-        bDescriptorSubtype      7 (PROCESSING_UNIT)
-        bUnitID                 8
-        wProcessType            3
-        bNrPins                 1
-        baSourceID( 0)          7
-        bNrChannels             2
-        wChannelConfig     0x0003
-          Left Front (L)
-          Right Front (R)
-        iChannelNames           0 
-        bControlSize            2
-        bmControls( 0)       0x03
-        bmControls( 1)       0x00
-          Enable Processing
-        iProcessing             0 
-        Process-Specific    
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="aha152x-2.5.diff"
 
-I removed the last one of those || tests, because it was the only
-figure that amounted to greater than p1[0] - it was 25, p1[0] was 16.
+diff -ur orig/linux-2.5/drivers/scsi/aha152x.c linux-2.5/drivers/scsi/aha152x.c
+--- orig/linux-2.5/drivers/scsi/aha152x.c	Wed Feb 20 03:10:54 2002
++++ linux-2.5/drivers/scsi/aha152x.c	Sun Apr 14 13:25:20 2002
+@@ -13,9 +13,14 @@
+  * General Public License for more details.
+  *
+  *
+- * $Id: aha152x.c,v 2.4 2000/12/16 12:53:56 fischer Exp $
++ * $Id: aha152x.c,v 2.5 2002/04/14 11:24:53 fischer Exp $
+  *
+  * $Log: aha152x.c,v $
++ * Revision 2.5  2002/04/14 11:24:53  fischer
++ * - isapnp support
++ * - abort fixed
++ * - 2.5 support
++ *
+  * Revision 2.4  2000/12/16 12:53:56  fischer
+  * - allow REQUEST SENSE to be queued
+  * - handle shared PCI interrupts
+@@ -222,7 +227,9 @@
+ #endif
+ 
+ #include <linux/sched.h>
++#include <asm/irq.h>
+ #include <asm/io.h>
++#include <linux/version.h>
+ #include <linux/blk.h>
+ #include "scsi.h"
+ #include "sd.h"
+@@ -306,15 +313,17 @@
+ 
+ #define DELAY_DEFAULT 1000
+ 
+-/* possible irq range */
+ #if defined(PCMCIA)
+ #define IRQ_MIN 0
+ #define IRQ_MAX 16
+ #else
+ #define IRQ_MIN 9
++#if defined(__PPC)
++#define IRQ_MAX (NR_IRQS-1)
++#else
+ #define IRQ_MAX 12
+ #endif
+-#define IRQS    IRQ_MAX-IRQ_MIN+1
++#endif
+ 
+ enum {
+ 	not_issued	= 0x0001,	/* command not yet issued */
+@@ -417,7 +426,7 @@
+ 	char *conf;
+ } setup[2];
+ 
+-static struct Scsi_Host *aha152x_host[IRQS];
++static struct Scsi_Host *aha152x_host[2];
+ 
+ /*
+  * internal states of the host
+@@ -593,6 +602,7 @@
+ #define SCDONE(SCpnt)		SCDATA(SCpnt)->done
+ #define SCSEM(SCpnt)		SCDATA(SCpnt)->sem
+ 
++#define SG_ADDRESS(buffer)	((char *) (page_address((buffer)->page)+(buffer)->offset))
+ 
+ /* state handling */
+ static void seldi_run(struct Scsi_Host *shpnt);
+@@ -668,7 +678,6 @@
+ 
+ /* possible i/o addresses for the AIC-6260; default first */
+ static unsigned short ports[] = { 0x340, 0x140 };
+-#define PORT_COUNT (sizeof(ports) / sizeof(unsigned short))
+ 
+ #if !defined(SKIP_BIOSTEST)
+ /* possible locations for the Adaptec BIOS; defaults first */
+@@ -684,7 +693,6 @@
+ 	0xeb800,		/* VTech Platinum SMP */
+ 	0xf0000,
+ };
+-#define ADDRESS_COUNT (sizeof(addresses) / sizeof(unsigned int))
+ 
+ /* signatures for various AIC-6[23]60 based controllers.
+    The point in detecting signatures is to avoid useless and maybe
+@@ -726,8 +734,6 @@
+ 	{ "DTC3520A Host Adapter BIOS", 0x318a, 26 },
+ 		/* DTC 3520A ISA SCSI */
+ };
+-
+-#define SIGNATURE_COUNT (sizeof(signatures) / sizeof(struct signature))
+ #endif
+ 
+ 
+@@ -806,7 +812,7 @@
+ #if defined(PCMCIA) || !defined(MODULE)
+ void aha152x_setup(char *str, int *ints)
+ {
+-	if(setup_count>2) {
++	if(setup_count>=ARRAY_SIZE(setup)) {
+ 		printk(KERN_ERR "aha152x: you can only configure up to two controllers\n");
+ 		return;
+ 	}
+@@ -849,7 +855,7 @@
+ #endif
+ 	int count=setup_count;
+ 
+-	get_options(str, sizeof(ints)/sizeof(int), ints);
++	get_options(str, ARRAY_SIZE(ints), ints);
+ 	aha152x_setup(str,ints);
+ 
+ 	return count<setup_count;
+@@ -903,10 +909,10 @@
+ 
+ #if !defined(PCMCIA)
+ 	int i;
+-	for (i = 0; i < PORT_COUNT && (setup->io_port != ports[i]); i++)
++	for (i = 0; i < ARRAY_SIZE(ports) && (setup->io_port != ports[i]); i++)
+ 		;
+ 
+-	if (i == PORT_COUNT)
++	if (i == ARRAY_SIZE(ports))
+ 		return 0;
+ #endif
+ 
+@@ -939,12 +945,25 @@
+ 	return 1;
+ }
+ 
++static inline struct Scsi_Host *lookup_irq(int irqno)
++{
++	int i;
++
++	for(i=0; i<ARRAY_SIZE(aha152x_host); i++)
++		if(aha152x_host[i] && aha152x_host[i]->irq==irqno)
++			return aha152x_host[i];
++
++	return 0;
++}
++
+ static void swintr(int irqno, void *dev_id, struct pt_regs *regs)
+ {
+-	struct Scsi_Host *shpnt = aha152x_host[irqno - IRQ_MIN];
++	struct Scsi_Host *shpnt = lookup_irq(irqno);
+ 
+-	if (!shpnt)
+-        	printk(KERN_ERR "aha152x%d: catched software interrupt for unknown controller.\n", HOSTNO);
++	if (!shpnt) {
++        	printk(KERN_ERR "aha152x%d: catched software interrupt %d for unknown controller.\n", HOSTNO, irqno);
++		return;
++	}
+ 
+ 	HOSTDATA(shpnt)->swint++;
+ 
+@@ -966,7 +985,7 @@
+ #endif
+ 	tpnt->proc_name = "aha152x"; 
+ 
+-	for (i = 0; i < IRQS; i++)
++	for (i = 0; i < ARRAY_SIZE(aha152x_host); i++)
+ 		aha152x_host[i] = (struct Scsi_Host *) NULL;
+ 
+ 	if (setup_count) {
+@@ -981,7 +1000,7 @@
+ 	}
+ 
+ #if defined(SETUP0)
+-	if (setup_count < 2) {
++	if (setup_count < ARRAY_SIZE(setup)) {
+ 		struct aha152x_setup override = SETUP0;
+ 
+ 		if (setup_count == 0 || (override.io_port != setup[0].io_port)) {
+@@ -1002,7 +1021,7 @@
+ #endif
+ 
+ #if defined(SETUP1)
+-	if (setup_count < 2) {
++	if (setup_count < ARRAY_SIZE(setup)) {
+ 		struct aha152x_setup override = SETUP1;
+ 
+ 		if (setup_count == 0 || (override.io_port != setup[0].io_port)) {
+@@ -1023,7 +1042,7 @@
+ #endif
+ 
+ #if defined(MODULE)
+-	if (setup_count<2 && (aha152x[0]!=0 || io[0]!=0 || irq[0]!=0)) {
++	if (setup_count<ARRAY_SIZE(setup) && (aha152x[0]!=0 || io[0]!=0 || irq[0]!=0)) {
+ 		if(aha152x[0]!=0) {
+ 			setup[setup_count].conf        = "";
+ 			setup[setup_count].io_port     = aha152x[0];
+@@ -1066,7 +1085,7 @@
+ 			       setup[setup_count].ext_trans);
+ 	}
+ 
+-	if (setup_count < 2 && (aha152x1[0]!=0 || io[1]!=0 || irq[1]!=0)) {
++	if (setup_count<ARRAY_SIZE(setup) && (aha152x1[0]!=0 || io[1]!=0 || irq[1]!=0)) {
+ 		if(aha152x1[0]!=0) {
+ 			setup[setup_count].conf        = "";
+ 			setup[setup_count].io_port     = aha152x1[0];
+@@ -1110,7 +1129,7 @@
+ #endif
+ 
+ #ifdef __ISAPNP__
+-	while ( setup_count<2 && (dev=isapnp_find_dev(NULL, ISAPNP_VENDOR('A','D','P'), ISAPNP_FUNCTION(0x1505), dev)) ) {
++	while ( setup_count<ARRAY_SIZE(setup) && (dev=isapnp_find_dev(NULL, ISAPNP_VENDOR('A','D','P'), ISAPNP_FUNCTION(0x1505), dev)) ) {
+ 		if (dev->prepare(dev) < 0)
+ 			continue;
+ 		if (dev->active)
+@@ -1145,11 +1164,11 @@
+ 
+ 
+ #if defined(AUTOCONF)
+-	if (setup_count < 2) {
++	if (setup_count<ARRAY_SIZE(setup)) {
+ #if !defined(SKIP_BIOSTEST)
+ 		ok = 0;
+-		for (i = 0; i < ADDRESS_COUNT && !ok; i++)
+-			for (j = 0; (j < SIGNATURE_COUNT) && !ok; j++)
++		for (i = 0; i < ARRAY_SIZE(addresses) && !ok; i++)
++			for (j = 0; j<ARRAY_SIZE(signatures) && !ok; j++)
+ 				ok = isa_check_signature(addresses[i] + signatures[j].sig_offset,
+ 								signatures[j].signature, signatures[j].sig_length);
+ 
+@@ -1162,7 +1181,7 @@
+ #endif				/* !SKIP_BIOSTEST */
+ 
+ 		ok = 0;
+-		for (i = 0; i < PORT_COUNT && setup_count < 2; i++) {
++		for (i = 0; i < ARRAY_SIZE(ports) && setup_count < 2; i++) {
+ 			if ((setup_count == 1) && (setup[0].io_port == ports[i]))
+ 				continue;
+ 
+@@ -1217,7 +1236,7 @@
+ 	for (i=0; i<setup_count; i++) {
+ 		struct Scsi_Host *shpnt;
+ 
+-		aha152x_host[setup[i].irq - IRQ_MIN] = shpnt =
++		aha152x_host[registered_count] = shpnt =
+ 		    scsi_register(tpnt, sizeof(struct aha152x_hostdata));
+ 
+ 		if(!shpnt) {
+@@ -1341,7 +1360,7 @@
+ 			scsi_unregister(shpnt);
+ 			registered_count--;
+ 			release_region(shpnt->io_port, IO_RANGE);
+-			aha152x_host[shpnt->irq - IRQ_MIN] = 0;
++			aha152x_host[registered_count] = 0;
+ 			shpnt = 0;
+ 			continue;
+ 		}
+@@ -1349,9 +1368,7 @@
+ 
+ 		printk(KERN_INFO "aha152x%d: trying software interrupt, ", HOSTNO);
+ 		SETPORT(DMACNTRL0, SWINT|INTEN);
+-		spin_unlock_irq(shpnt->host_lock);
+ 		mdelay(1000);
+-		spin_lock_irq(shpnt->host_lock);
+ 		free_irq(shpnt->irq, shpnt);
+ 
+ 		if (!HOSTDATA(shpnt)->swint) {
+@@ -1367,7 +1384,7 @@
+ 
+ 			registered_count--;
+ 			release_region(shpnt->io_port, IO_RANGE);
+-			aha152x_host[shpnt->irq - IRQ_MIN] = 0;
++			aha152x_host[registered_count] = 0;
+ 			scsi_unregister(shpnt);
+ 			shpnt=NULL;
+ 			continue;
+@@ -1382,10 +1399,11 @@
+ 		if (request_irq(shpnt->irq, intr, SA_INTERRUPT|SA_SHIRQ, "aha152x", shpnt) < 0) {
+ 			printk(KERN_ERR "aha152x%d: failed to reassign interrupt.\n", HOSTNO);
+ 
+-			scsi_unregister(shpnt);
+ 			registered_count--;
+ 			release_region(shpnt->io_port, IO_RANGE);
+-			shpnt = aha152x_host[shpnt->irq - IRQ_MIN] = 0;
++			aha152x_host[registered_count] = 0;
++			scsi_unregister(shpnt);
++			shpnt=NULL;
+ 			continue;
+ 		}
+ 	}
+@@ -1494,7 +1512,7 @@
+ 	   SCp.phase            : current state of the command */
+ 	if (SCpnt->use_sg) {
+ 		SCpnt->SCp.buffer           = (struct scatterlist *) SCpnt->request_buffer;
+-		SCpnt->SCp.ptr              = SCpnt->SCp.buffer->address;
++		SCpnt->SCp.ptr              = SG_ADDRESS(SCpnt->SCp.buffer);
+ 		SCpnt->SCp.this_residual    = SCpnt->SCp.buffer->length;
+ 		SCpnt->SCp.buffers_residual = SCpnt->use_sg - 1;
+ 	} else {
+@@ -1584,7 +1602,6 @@
+ 	if(HOSTDATA(shpnt)->debug & debug_eh) {
+ 		printk(DEBUG_LEAD "abort(%p)", CMDINFO(SCpnt), SCpnt);
+ 		show_queues(shpnt);
+-		mdelay(1000);
+ 	}
+ #endif
+ 
+@@ -1622,9 +1639,19 @@
+ 
+ static void timer_expired(unsigned long p)
+ {
+-	struct semaphore *sem = (void *)p;
++	Scsi_Cmnd	 *SCp   = (Scsi_Cmnd *)p;
++	struct semaphore *sem   = SCSEM(SCp);
++	struct Scsi_Host *shpnt = SCp->host;
++
++	/* remove command from issue queue */
++	if(remove_SC(&ISSUE_SC, SCp)) {
++		printk(KERN_INFO "aha152x: ABORT timed out - removed from issue queue\n");
++		kfree(SCp->host_scribble);
++		SCp->host_scribble=0;
++	} else {
++		printk(KERN_INFO "aha152x: ABORT timed out - not on issue queue\n");
++	}
+ 
+-	printk(KERN_INFO "aha152x: timer expired\n");
+ 	up(sem);
+ }
+ 
+@@ -1645,7 +1672,6 @@
+ 	if(HOSTDATA(shpnt)->debug & debug_eh) {
+ 		printk(INFO_LEAD "aha152x_device_reset(%p)", CMDINFO(SCpnt), SCpnt);
+ 		show_queues(shpnt);
+-		mdelay(1000);
+ 	}
+ #endif
+ 
+@@ -1663,13 +1689,13 @@
+ 	cmnd.request_bufflen = 0;
+ 
+ 	init_timer(&timer);
+-	timer.data     = (unsigned long) &sem;
++	timer.data     = (unsigned long) &cmnd;
+ 	timer.expires  = jiffies + 100*HZ;   /* 10s */
+ 	timer.function = (void (*)(unsigned long)) timer_expired;
+-	add_timer(&timer);
+ 
+ 	aha152x_internal_queue(&cmnd, &sem, resetting, 0, internal_done);
+ 
++	add_timer(&timer);
+ 	down(&sem);
+ 
+ 	del_timer(&timer);
+@@ -1719,7 +1745,6 @@
+ 	if(HOSTDATA(shpnt)->debug & debug_eh) {
+ 		printk(DEBUG_LEAD "aha152x_bus_reset(%p)", CMDINFO(SCpnt), SCpnt);
+ 		show_queues(shpnt);
+-		mdelay(1000);
+ 	}
+ #endif
+ 
+@@ -1878,7 +1903,7 @@
+ static void run(void)
+ {
+ 	int i;
+-	for (i = 0; i < IRQS; i++) {
++	for (i = 0; i<ARRAY_SIZE(aha152x_host); i++) {
+ 		struct Scsi_Host *shpnt = aha152x_host[i];
+ 		if (shpnt && HOSTDATA(shpnt)->service) {
+ 			HOSTDATA(shpnt)->service=0;
+@@ -1894,10 +1919,10 @@
+ 
+ static void intr(int irqno, void *dev_id, struct pt_regs *regs)
+ {
+-	struct Scsi_Host *shpnt = aha152x_host[irqno - IRQ_MIN];
++	struct Scsi_Host *shpnt = lookup_irq(irqno);
+ 
+ 	if (!shpnt) {
+-		printk(KERN_ERR "aha152x: catched interrupt for unknown controller.\n");
++		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
+ 		return;
+ 	}
+ 
+@@ -2681,7 +2706,7 @@
+                                		/* advance to next buffer */
+                                		CURRENT_SC->SCp.buffers_residual--;
+                                		CURRENT_SC->SCp.buffer++;
+-                               		CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address;
++                               		CURRENT_SC->SCp.ptr           = SG_ADDRESS(CURRENT_SC->SCp.buffer);
+                                		CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length;
+ 				} 
+                 	}
+@@ -2791,7 +2816,7 @@
+ 			/* advance to next buffer */
+ 			CURRENT_SC->SCp.buffers_residual--;
+ 			CURRENT_SC->SCp.buffer++;
+-			CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address;
++			CURRENT_SC->SCp.ptr           = SG_ADDRESS(CURRENT_SC->SCp.buffer);
+ 			CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length;
+ 		}
+ 
+@@ -2821,13 +2846,13 @@
+ 		CURRENT_SC->resid += data_count;
+ 
+ 		if(CURRENT_SC->use_sg) {
+-			data_count -= CURRENT_SC->SCp.ptr - CURRENT_SC->SCp.buffer->address;
++			data_count -= CURRENT_SC->SCp.ptr - SG_ADDRESS(CURRENT_SC->SCp.buffer);
+ 			while(data_count>0) {
+ 				CURRENT_SC->SCp.buffer--;
+ 				CURRENT_SC->SCp.buffers_residual++;
+ 				data_count -= CURRENT_SC->SCp.buffer->length;
+ 			}
+-			CURRENT_SC->SCp.ptr           = CURRENT_SC->SCp.buffer->address - data_count;
++			CURRENT_SC->SCp.ptr           = SG_ADDRESS(CURRENT_SC->SCp.buffer) - data_count;
+ 			CURRENT_SC->SCp.this_residual = CURRENT_SC->SCp.buffer->length + data_count;
+ 		} else {
+ 			CURRENT_SC->SCp.ptr           -= data_count;
+@@ -2955,10 +2980,9 @@
+ 	int pending;
+ 
+ 	DO_LOCK(flags);
+-	if(HOSTDATA(shpnt)->in_intr!=0)
+-	{
++	if(HOSTDATA(shpnt)->in_intr!=0) {
+ 		DO_UNLOCK(flags);
+-		/* _error never returns.. */
++		/* aha152x_error never returns.. */
+ 		aha152x_error(shpnt, "bottom-half already running!?");
+ 	}
+ 	HOSTDATA(shpnt)->in_intr++;
+@@ -3765,7 +3789,7 @@
+ 	unsigned long flags;
+ 	int thislength;
+ 
+-	for (i = 0, shpnt = (struct Scsi_Host *) NULL; i < IRQS; i++)
++	for (i = 0, shpnt = (struct Scsi_Host *) NULL; i<ARRAY_SIZE(aha152x_host); i++)
+ 		if (aha152x_host[i] && aha152x_host[i]->host_no == hostno)
+ 			shpnt = aha152x_host[i];
+ 
+diff -ur orig/linux-2.5/drivers/scsi/aha152x.h linux-2.5/drivers/scsi/aha152x.h
+--- orig/linux-2.5/drivers/scsi/aha152x.h	Wed Feb 20 03:10:55 2002
++++ linux-2.5/drivers/scsi/aha152x.h	Sun Apr 14 13:25:21 2002
+@@ -2,7 +2,7 @@
+ #define _AHA152X_H
+ 
+ /*
+- * $Id: aha152x.h,v 2.4 2000/12/16 12:48:48 fischer Exp $
++ * $Id: aha152x.h,v 2.5 2002/04/14 11:24:12 fischer Exp $
+  */
+ 
+ #if defined(__KERNEL__)
+@@ -27,7 +27,7 @@
+    (unless we support more than 1 cmd_per_lun this should do) */
+ #define AHA152X_MAXQUEUE 7
+ 
+-#define AHA152X_REVID "Adaptec 152x SCSI driver; $Revision: 2.4 $"
++#define AHA152X_REVID "Adaptec 152x SCSI driver; $Revision: 2.5 $"
+ 
+ /* Initial value of Scsi_Host entry */
+ #define AHA152X { proc_name:			"aha152x",		\
 
-here's the messages out now (I changed a few #ifdef 0's to 1, so
-there's a bit more debugging output, and added one on
-usb_audio_recurseunit so I could see it being run):
-
-usb.c: registered new driver audio
-usbaudio: device 5 audiocontrol interface 0 has 1 input and 1 output AudioStream
-ing interfaces
-usbaudio: valid input sample rate 48000
-usbaudio: valid input sample rate 32000
-usbaudio: valid input sample rate 44100
-usbaudio: device 5 interface 2 altsetting 1: format 0x00000010 sratelo 32000 sra
-tehi 48000 attributes 0x01
-usbaudio: valid input sample rate 48000
-usbaudio: valid input sample rate 32000
-usbaudio: valid input sample rate 44100
-usbaudio: device 5 interface 2 altsetting 2: format 0x80000010 sratelo 32000 sra
-tehi 48000 attributes 0x01
-usbaudio: device 5 interface 1 altsetting 0 does not have an endpoint
-usbaudio: valid output sample rate 48000
-usbaudio: valid output sample rate 32000
-usbaudio: valid output sample rate 44100
-usbaudio: device 5 interface 1 altsetting 1: format 0x00000010 sratelo 32000 sra
-tehi 48000 attributes 0x01
-usbaudio: valid output sample rate 48000
-usbaudio: valid output sample rate 32000
-usbaudio: valid output sample rate 44100
-usbaudio: device 5 interface 1 altsetting 2: format 0x80000010 sratelo 32000 sra
-tehi 48000 attributes 0x01
-usbaudio: registered dsp 14,19
-usbaudio: constructing mixer for Terminal 10 type 0x0301
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,9)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,8)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,7)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,4)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,1)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,5)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,2)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,6)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,3)
-usbaudio: warning: found 1 of 0 logical channels.
-usbaudio: assuming the channel found is the master channel (got a Philips camera
-?). Should be fine.
-usbaudio: unit 7 invalid MIXER_UNIT descriptor (bitmap too small)
-usbaudio: registered mixer 14,16
-usbaudio: constructing mixer for Terminal 13 type 0x0101
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,12)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,11)
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,2)
-usbaudio: selector unit 11: ignoring channel 1
-usbaudio: usb_audio_recurseunit(struct consmixstate *state,3)
-usbaudio: selector unit 11: input pins with varying channel numbers
-usbaudio: feature unit 12 source has no channels
-usbaudio: no mixer controls found for Terminal 13
-usb_audio_parsecontrol: usb_audio_state at ce0b1760
-audio.c: v1.0.0:USB Audio Class driver
-
-Sox says something different now:
-
-hoffman:~/sounds/tech_samps/reference$ strace -fo /tmp/trace play -d /dev/dsp1 trumpets1.wav 
-Process 4885 attached
-Process 4884 suspended
-Process 4884 resumed
-Process 4885 detached
-Process 4886 attached
-Process 4886 detached
-Process 4887 attached
-Process 4884 suspended
-sox: Unable to set audio speed to 44100 (set to 524288)
-Process 4884 resumed
-Process 4887 detached
-
-Here's the trace:
-4887  open("/dev/dsp1", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
-4887  fstat64(4, {st_mode=S_IFCHR|0660, st_rdev=makedev(14, 19), ...}) = 0
-4887  ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbffff9b8) = -1 ENOIOCTLCMD (errno 515)
-4887  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 
-0) = 0x40017000
-4887  fstat64(4, {st_mode=S_IFCHR|0660, st_rdev=makedev(14, 19), ...}) = 0
-4887  ioctl(4, SNDCTL_DSP_RESET, 0)     = 0
-4887  ioctl(4, SNDCTL_DSP_SYNC, 0)      = 0
-4887  ioctl(4, SNDCTL_DSP_GETFMTS, 0xbffffb14) = 0
-4887  ioctl(4, SOUND_PCM_READ_BITS, 0xbffffb14) = 0
-4887  ioctl(4, SNDCTL_DSP_STEREO, 0xbffffb14) = 0
-4887  ioctl(4, SOUND_PCM_READ_RATE, 0xbffffb14) = 0
-4887  write(2, "sox: ", 5)              = 5
-4887  write(2, "Unable to set audio speed to 441"..., 50) = 50
-4887  write(2, "\n", 1)                 = 1
-4887  ioctl(4, SNDCTL_DSP_GETBLKSIZE, 0x80a52f0) = 0
-4887  brk(0x80ae000)                    = 0x80ae000
-4887  munmap(0x40017000, 4096)          = 0
-4887  brk(0x80b4000)                    = 0x80b4000
-4887  brk(0x80ba000)                    = 0x80ba000
-4887  brk(0x80cb000)                    = 0x80cb000
-4887  brk(0x80d1000)                    = 0x80d1000
-4887  brk(0x80e2000)                    = 0x80e2000
-4887  brk(0x80eb000)                    = 0x80eb000
-4887  brk(0x80f4000)                    = 0x80f4000
-4887  read(3, "\31\0\345\377\31\0\326\377\16\0\313\377#\0\306\377\23\0"..., 8192
-) = 8192
-4887  read(3, "\311\371m\375\323\371\326\374\375\371Z\374-\376e\374\r"..., 8192)
- = 8192
-4887  write(4, "\31\0\345\377\32\0\344\377\33\0\342\377\34\0\340\377\35"..., 163
-84) = 16384
-4887  write(4, "\377\377\270\377\377\377\270\377\0\0\270\377\0\0\271\377"..., 16
-[...]
-4887  write(4, "\374\377\220\377\374\377\217\377\375\377\215\377\375\377"..., 16
-384) = 16384
-4887  close(3)                          = 0
-4887  munmap(0x40016000, 4096)          = 0
-4887  write(4, "\25\0\326\377\25\0\326\377\25\0\326\377\25\0\326\377\25"..., 111
-2) = 1112
-4887  close(4)                          = 0
-4887  _exit(0)                          = ?
-
-Something is now coming out of the output, but it sounds like it's
-being played with the wrong encoding or something like that.  It's
-really broken, but the total level of the sound output is somewhat not
-entirely unlike the sound I'm playing.  It also takes longer to play
-than it should - something less than twice as long as the audio file,
-so I doubt it's really being played with a sampling frequency of
-524288 :).  My MD player seems to be happily locked onto its output,
-so the device is really running at a sane sampling frequency.
-
-The error about the MIXER_UNIT is probably expected - I don't think
-that this device actually _has_ a mixer.  I suspect it's just a dumb
-straight-through digital audio interface.
-
-> > [pid  1892] ioctl(4, SNDCTL_DSP_RESET, 0) = 0
-> > [pid  1892] ioctl(4, SNDCTL_DSP_SYNC, 0) = 0
-> > [pid  1892] ioctl(4, SNDCTL_DSP_GETFMTS, 0xbffffc04) = 0
-> > [pid  1892] ioctl(4, SOUND_PCM_READ_BITS, 0xbffffc04) = 0
-> > [pid  1892] ioctl(4, SNDCTL_DSP_STEREO, 0xbffffc04) = 0
-> > [pid  1892] ioctl(4, SOUND_PCM_READ_RATE, 0xbffffc04) = 0
-> > [pid  1892] write(2, "sox: ", 5sox: )        = 5
-> > [pid  1892] write(2, "Unable to set audio speed to 441"..., 45Unable
-> > to set audio speed to 44100 (set to 0)) = 45
-> 
-> Spooky. It doesn't even try to set the sampling rate but complains...
-> somehow cannot be...
-
-I think it was probably complaining about this error:
-
-[pid  1892] ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbffffaa8) = -1 ENOIOCTLCMD
-(errno 515)
-
-it looks to me like it's trying to set the time base of sampler/sampling
-period.  It gets an error, so it then falls back to reading what the
-sampler is currently running at to see if it just happens to be what we
-want.  It reads a period of "0".  Hmm, a wave with a period of 0 ...
-that's the sound of one hand clapping isn't it?
-
-> > ioctl(3, SOUND_PCM_READ_BITS, 0xbffffab0) = -1 EINVAL (Invalid
-> > argument)
-> Again spooky, I don't see how audio.o ioctl handler could return EINVAL
-> at that call. EFAULT yes, but EINVAL??
-
-How would I go about debugging that?
---
-   Sam Vilain, sam@vilain.net     WWW: http://sam.vilain.net/
-    7D74 2A09 B2D3 C30F F78E      GPG: http://sam.vilain.net/sam.asc
-    278A A425 30A9 05B5 2F13
-
-  "God is a comedian playing to an audience too afraid to laugh."
- - Voltaire -
+--PEIAKu/WMn1b1Hv9--

@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316254AbSEKSVW>; Sat, 11 May 2002 14:21:22 -0400
+	id <S316237AbSEKSbN>; Sat, 11 May 2002 14:31:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316257AbSEKSVW>; Sat, 11 May 2002 14:21:22 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:16398 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S316254AbSEKSVU>; Sat, 11 May 2002 14:21:20 -0400
-Date: Sat, 11 May 2002 20:21:00 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.enlightnet.local>
-To: Rui Sousa <rui.sousa@laposte.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Via-rhine problems (2.4.19-pre8)
-In-Reply-To: <Pine.LNX.4.44.0205111651070.1365-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0205111911360.18398-100000@cola.enlightnet.local>
+	id <S316243AbSEKSbM>; Sat, 11 May 2002 14:31:12 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:35333 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S316237AbSEKSbL>; Sat, 11 May 2002 14:31:11 -0400
+Date: Sat, 11 May 2002 20:30:59 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 1/6: 64 bit jiffies
+In-Reply-To: <200205111815.g4BIF0Y02586@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33.0205112022030.29302-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002, Rui Sousa wrote:
+On Sat, 11 May 2002, Denis Vlasenko wrote:
 
-> kernel: eth0: reset did not complete in 10 ms.
-> kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> kernel: eth0: Transmit timed out, status 0000, PHY status 782d, 
-> resetting...
+> On 11 May 2002 08:25, Tim Schmielau wrote:
+> > +static inline void init_jiffieswrap_timer(void)
+> > +{
+> > +	init_timer(&jiffieswrap_timer);
+> > +	jiffieswrap_timer.expires = jiffies + CHECK_JIFFIESWRAP_INTERVAL;
+> > +	jiffieswrap_timer.function = check_jiffieswrap;
+> > +	add_timer(&jiffieswrap_timer);
+> > +}
 > 
-> Removing the ethernet cable, unloading/loading the module doesn't change a
-> thing, only a cold reboot fixes the problem (until next time).
+> I'm ignorant on the issue... does active timer mandate check for
+> expiration at every timer tick? 
+
+No, timers are implemented in a highly efficient manner. The above
+timer will just add O(1) cost to 4 table refills, meaning some 100 cycles 
+per quarter of a year.
+
+> If yes, it is somewhat silly to use timer:
+> such check would be more costly than
+> 	
+> 	if(!++jiffies) jiffies_hi++;
 > 
-> Is this a known problem? Any fixes?
+> (or similar) construct in timer int.
+> 
+> BTW, I always liked above thing more that any other 64 jiffy solution.
+> What's wrong with it?
 
-The effect (the timeout) can be caused by lots of things. Here it sounds
-like the chip has locked up (more or less) since you need a cold boot to
-recover. Why? Well ...
+It's slower than
 
-"Ivan G" has posted recently on via-rhine problems. For him it is only
-that the driver stalls but not the need for a full reboot (IIRC).
+	jiffies_64++;
 
-Simple things you could try is to test some other variants of the driver:
- + Donald Becker's original
-   http://www.scyld.com/network/via-rhine.html
- + VIAs modified version
-   http://www.viaarena.com/?PageID=71#lan
+which went into Linus' tree yesterday :-)
 
-If either works better then the next step would be to find out why (and 
-copy those bits).
-
-The diff between the VIA version and the other is large. I started looking
-at merging what they have done to the in-kernel driver.
-
-/Urban
+Tim
 

@@ -1,89 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272275AbTGYTm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272276AbTGYTm5
+	id S272276AbTGYTot (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272277AbTGYTot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:42:57 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:25606 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S272275AbTGYTmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:42:55 -0400
-Date: Fri, 25 Jul 2003 21:57:52 +0200
-From: Jurriaan <thunder7@xs4all.nl>
+	Fri, 25 Jul 2003 15:44:49 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:26300 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S272276AbTGYTor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 15:44:47 -0400
+Date: Fri, 25 Jul 2003 21:59:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: cutting down on boot messages
-Message-ID: <20030725195752.GA8107@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Subject: [patch] sched-2.6.0-test1-G3, interactivity changes, audio latency
+Message-ID: <Pine.LNX.4.44.0307252146550.16235-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I boot my system, there are copious messages. 
 
-For example:
+my current "interactivity changes" scheduler patchset can be found at:
 
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: considering hdc6 ...
-md:  adding hdc6 ...
-md: hdc5 has different UUID to hdc6
-md: hdc3 has different UUID to hdc6
-md: hdc1 has different UUID to hdc6
-md:  adding hda6 ...
-md: hda5 has different UUID to hdc6
-md: hda3 has different UUID to hdc6
-md: hda1 has different UUID to hdc6
-md: hdi2 has different UUID to hdc6
-md: hdi1 has different UUID to hdc6
-md: hde2 has different UUID to hdc6
-md: hde1 has different UUID to hdc6
-md: created md5
-md: bind<hda6>
-md: bind<hdc6>
-md: running: <hdc6><hda6>
-md5: setting max_sectors to 128, segment boundary to 32767
-raid1: raid set md5 active with 2 out of 2 mirrors
+	redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G3
 
-Now these messages are often uninteresting - but sometimes they are.
-So just deleting them, or requiring a recompile or reboot is not good
-enough.
-Also, I noted that these messages were almost always grouped together.
+(this patch is mostly orthogonal to Con's patchset, but obviously collides
+patch-wise. The patch should also cleanly apply to 2.6.0-test1-bk2.)
 
-Suppose these messages were removed from the normal output, but instead
-stored in a buffer in the kernel.
+Changes:
 
-Then, you could do
+ - cycle accuracy (nanosec resolution) timekeeping within the scheduler. 
+   This fixes a number of audio artifacts (skipping) i've reproduced. I
+   dont think we can get away without going cycle accuracy - reading the
+   cycle counter adds some overhead, but it's acceptable. The first
+   nanosec-accuracy patch was done by Mike Galbraith - this patch is
+   different but similar in nature. I went further in also changing the
+   sleep_avg to be of nanosec resolution.
 
-dmesg.raid
+ - more finegrained timeslices: there's now a timeslice 'sub unit' of 50 
+   usecs (TIMESLICE_GRANULARITY) - CPU hogs on the same priority level 
+   will roundrobin with this unit. This change is intended to make gaming
+   latencies shorter.
 
-to get at the raid-messages,
+ - include scheduling latency in sleep bonus calculation. This change 
+   extends the sleep-average calculation to the period of time a task
+   spends on the runqueue but doesnt get scheduled yet, right after
+   wakeup. Note that tasks that were preempted (ie. not woken up) and are 
+   still on the runqueue do not get this benefit. This change closes one 
+   of the last hole in the dynamic priority estimation, it should result 
+   in interactive tasks getting more priority under heavy load. This
+   change also fixes the test-starve.c testcase from David Mosberger.
 
-and 
+ - (some other, smaller changes.)
 
-dmesg.raid --clear 
+if you've experienced audio skipping in 2.6.0-test1 (and later) kernels
+then please give this patch a go. Reports, testing feedback and comments
+are welcome,
 
-to clear the buffer.
+	Ingo
 
-The same goes for other groups of messages, like the whole APIC/IRQ
-routing block, ide messages, usb messages etc.
-
-Would this keep the interesting information, but cut down on the amount
-of messages? I'm now at 22k of dmesg, including raid, usb, apic etc, for
-a single CPU system.
-
-I'd be interested in everyone's opinion on this!
-
-Jurriaan
--- 
-REAL LIFE MANAGEMENT 'DILBERT QUOTATIONS':
-11: One day my Boss asked me to submit a status report to him concerning a
-    project I was working on. I asked him if tomorrow would be soon
-    enough. He said "If I wanted it tomorrow, I would have waited until
-    tomorrow to ask for it!" (New business manager, Hallmark Greeting
-    Cards.)
-Debian (Unstable) GNU/Linux 2.6.0-test1-ac2 4112 bogomips load av: 1.00 1.00 1.00

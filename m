@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRLDDYc>; Mon, 3 Dec 2001 22:24:32 -0500
+	id <S283516AbRLCXqW>; Mon, 3 Dec 2001 18:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283593AbRLCXqX>; Mon, 3 Dec 2001 18:46:23 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55247 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S284407AbRLCK2f>; Mon, 3 Dec 2001 05:28:35 -0500
-Date: Mon, 3 Dec 2001 11:28:30 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Riccardo Facchetti <fizban@tin.it>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] s|sound/lowlevel/aedsp16.c|sound/aedsp16.c|
-Message-ID: <Pine.NEB.4.43.0112031122010.11219-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282147AbRLCXii>; Mon, 3 Dec 2001 18:38:38 -0500
+Received: from [213.96.224.204] ([213.96.224.204]:11268 "EHLO manty.net")
+	by vger.kernel.org with ESMTP id <S284460AbRLCLjs>;
+	Mon, 3 Dec 2001 06:39:48 -0500
+Date: Mon, 3 Dec 2001 12:39:44 +0100
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: linux-kernel@vger.kernel.org
+Subject: IDE pnp interface on a SB16 not working
+Message-ID: <20011203113944.GA1171@man.beta.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Riccardo,
+Hi!
 
-the patch below (against 2.4.17-pre2) corrects three files that referred
-to the old location of aedsp16.c
+I've been playing around with IDE interfaces for quite some time without
+problems, but this last days I have been trying to setup one on a SB16
+without any results.
 
+The card is a SB Vibra16 PNP, model number CT2940, I could get it to read
+the CD or HD id number and all that, however, when I want to access the
+device for other stuff I just get errors saying that the irq is not
+responding and things like that. I'm using kernel 2.4.16 with IDE PNP on it,
+even though I have tried other hand made configs also. None of them worked
 
---- drivers/sound/aedsp16.c.old	Mon Dec  3 11:22:05 2001
-+++ drivers/sound/aedsp16.c	Mon Dec  3 11:22:20 2001
-@@ -1,5 +1,5 @@
- /*
--   drivers/sound/lowlevel/aedsp16.c
-+   drivers/sound/aedsp16.c
+I have tried this on different machines, all of them showed the same
+problem, devices are recogniced but when they are accessed for any other
+thing I get interrupt errors. The interrupt that the IDE PNP is using is
+free and I have set up other devices to use that IRQ and those work ok.
 
-    Audio Excel DSP 16 software configuration routines
-    Copyright (C) 1995,1996,1997,1998  Riccardo Facchetti (fizban@tin.it)
---- Documentation/sound/AudioExcelDSP16.old	Mon Dec  3 11:19:41 2001
-+++ Documentation/sound/AudioExcelDSP16	Mon Dec  3 11:19:56 2001
-@@ -2,7 +2,7 @@
- ------
+Having seen that I thought of a problem on latest kernels, so I got my old
+IDE pnp device wich comes on a OPL3SA2 card that I have on another machine,
+and I have plugged it on one of the machines I had been using with the SB,
+the IDE port worked ok, so there is no problem with the IDE pnp.
 
- Informations about Audio Excel DSP 16 driver can be found in the source
--file lowlevel/aedsp16.c
-+file aedsp16.c
- Please, read the head of the source before using it. It contain useful
- informations.
+After seeing this I thought that maybe the IDE port of the card was broken,
+so as a last resort, I set up a windows 98 on one of the machines I had been
+using for the tests, and the interface worked ok, windows was using the same
+io ports and irqs that I had chosen under linux and everything looked pretty
+much the same as in Linux, but here it worked.
 
---- Documentation/Configure.help.old	Mon Dec  3 11:10:53 2001
-+++ Documentation/Configure.help	Mon Dec  3 11:18:01 2001
-@@ -18367,7 +18367,7 @@
-   questions.
+To sum this up, I got a machine with windows an Linux where the OPL3SA2
+IDE interface works on both OS, but the SB IDE interface does only work
+under windows.
 
-   Read the <file:Documentation/sound/README.OSS> file and the head of
--  <file:drivers/sound/lowlevel/aedsp16.c> as well as
-+  <file:drivers/sound/aedsp16.c> as well as
-   <file:Documentation/sound/AudioExcelDSP16> to get more information
-   about this driver and its configuration.
+Anybody has any idea of what can be going on here and how to solve this?
 
-
-cu
-Adrian
-
+Regards...
 -- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+Manty/BestiaTester -> http://manty.net

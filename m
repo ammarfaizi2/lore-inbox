@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278450AbRLDBWF>; Mon, 3 Dec 2001 20:22:05 -0500
+	id <S284753AbRLDAUx>; Mon, 3 Dec 2001 19:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284831AbRLDAUy>; Mon, 3 Dec 2001 19:20:54 -0500
-Received: from leeloo.zip.com.au ([203.12.97.48]:20236 "EHLO
-	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S284834AbRLDAR5>; Mon, 3 Dec 2001 19:17:57 -0500
-Message-ID: <3C0C1628.5D73F05A@zip.com.au>
-Date: Mon, 03 Dec 2001 16:17:44 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S284857AbRLDASJ>; Mon, 3 Dec 2001 19:18:09 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:41206 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S284930AbRLCSdd>; Mon, 3 Dec 2001 13:33:33 -0500
+Date: Mon, 3 Dec 2001 13:33:32 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: <mingo@devserv.devel.redhat.com>
+To: Brian McEntire <brianm@fsg1.nws.noaa.gov>
+cc: <linux-kernel@vger.kernel.org>, <systems@clifford.nws.noaa.gov>
+Subject: Re: PROBLEM: system hangs on dual 1GHz PIII system with 2.4.13-ac8
+In-Reply-To: <Pine.LNX.4.33.0112031300001.25875-400000@fsg1.nws.noaa.gov>
+Message-ID: <Pine.LNX.4.33.0112031332490.28071-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: Jan-Hendrik Palic <jan.palic@linux-debian.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EXT3 - freeze ups during disk writes
-In-Reply-To: <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain> <E16AX5E-0006pH-00@calista.inka.de>,
-			<E16AX5E-0006pH-00@calista.inka.de> <20011203085258.A4072@billgotchy.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Hendrik Palic wrote:
-> 
-> The IBook freezed and I reseted it .. but I had to install the whole
-> system .. the yaboot wasn't able to find a kernel on the / Partition.
-> (ext3 too) :)
-> 
 
-An unrecovered ext3 filesystem is probably unrecognisable to
-yaboot.  I'm told that yaboot 1.3.5 and later have changes which
-permit booting from unrecovered ext3 filesystems.
+i'd strongly suggest for you to try something like 2.4.17-2, does it lock
+up as well?
+
+	Ingo
+

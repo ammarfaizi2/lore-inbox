@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268717AbUJEAad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268719AbUJEAcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268717AbUJEAad (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 20:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUJEAad
+	id S268719AbUJEAcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 20:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268720AbUJEAcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 20:30:33 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:45193 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268717AbUJEAab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 20:30:31 -0400
-Date: Tue, 5 Oct 2004 02:28:14 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 2.6.9-rc3] Fix 'htmldocs' and friends with O=
-Message-ID: <20041005002814.GA32087@thundrix.ch>
-References: <20041004233958.GD32692@smtp.west.cox.net>
+	Mon, 4 Oct 2004 20:32:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52188 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268719AbUJEAcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 20:32:00 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm1-S9
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, thewade <pdman@aproximation.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20041004215315.GA17707@elte.hu>
+References: <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com>
+	 <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
+	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
+	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
+	 <20041004215315.GA17707@elte.hu>
+Content-Type: text/plain
+Message-Id: <1096936317.16648.103.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
-Content-Disposition: inline
-In-Reply-To: <20041004233958.GD32692@smtp.west.cox.net>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 04 Oct 2004 20:31:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-10-04 at 17:53, Ingo Molnar wrote:
+> i've released the -S9 VP patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-S9
+> 
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Does not compile:
 
-Salut,
+rlrevell@mindpipe:~/kernel-source/linux-2.6.8$ make
+  CHK     include/linux/version.h
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  GEN_INITRAMFS_LIST usr/initramfs_list
+Using shipped usr/initramfs_list
+  CC      arch/i386/kernel/irq.o
+arch/i386/kernel/irq.c:205: error: redefinition of 'is_irq_stack_ptr'
+include/asm/hardirq.h:25: error: previous definition of 'is_irq_stack_ptr' was here
+arch/i386/kernel/irq.c: In function `is_irq_stack_ptr':
+arch/i386/kernel/irq.c:209: error: `hardirq_stack' undeclared (first use in this function)
+arch/i386/kernel/irq.c:209: error: (Each undeclared identifier is reported only once
+arch/i386/kernel/irq.c:209: error: for each function it appears in.)
+arch/i386/kernel/irq.c:212: error: `softirq_stack' undeclared (first use in this function)
+make[1]: *** [arch/i386/kernel/irq.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
-On Mon, Oct 04, 2004 at 04:39:58PM -0700, Tom Rini wrote:
-> --- linux-2.6.9-rc3.orig/scripts/kernel-doc
-> +++ linux-2.6.9-rc3/scripts/kernel-doc
-> @@ -1531,7 +1531,7 @@ sub process_state3_type($$) {=20
->  }
-> =20
->  sub process_file($) {
-> -    my ($file) =3D @_;
-> +    my ($file) =3D "$ENV{'SRCTREE'}@_";
->      my $identifier;
->      my $func;
->      my $initial_section_counter =3D $section_counter;
+Lee
 
-=46rom performance/memory footprint standpoint it might be better to use
-the dot operator here for concatenation.
-
-			Tonnerre
-
---GvXjxJ+pjyke8COw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBYeqd/4bL7ovhw40RAuzAAJ0QGqJbm7hGnxea3nVmbIZAFWaKtgCeOOP4
-7DaSLlubTcEYN1//kdnu0ls=
-=D7B5
------END PGP SIGNATURE-----
-
---GvXjxJ+pjyke8COw--

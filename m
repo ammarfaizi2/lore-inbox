@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263314AbTDVRxh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 13:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTDVRxg
+	id S263311AbTDVRwO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 13:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263314AbTDVRwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 13:53:36 -0400
-Received: from air.nwconx.net ([216.211.26.26]:59397 "EHLO air.on.ca")
-	by vger.kernel.org with ESMTP id S263314AbTDVRxf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 13:53:35 -0400
-From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
-Reply-To: gkajmowi@tbaytel.net
-Organization: Garrett Kajmowicz
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: 2.4.20 Kernel panic in IDE-SCSI with CDROM drive
-Date: Tue, 22 Apr 2003 14:07:27 -0400
-User-Agent: KMail/1.5
-References: <200304212137.54302.gkajmowi@tbaytel.net> <20030422123641.7c2fa19d.skraw@ithnet.com>
-In-Reply-To: <20030422123641.7c2fa19d.skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Apr 2003 13:52:14 -0400
+Received: from to-telus.redhat.com ([207.219.125.105]:35836 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id S263311AbTDVRwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 13:52:14 -0400
+Date: Tue, 22 Apr 2003 14:04:19 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <20030422140419.F2944@redhat.com>
+References: <20030422165746.GK23320@dualathlon.random> <Pine.LNX.4.44.0304221324380.24424-100000@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304221407.27242.gkajmowi@tbaytel.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304221324380.24424-100000@devserv.devel.redhat.com>; from mingo@redhat.com on Tue, Apr 22, 2003 at 01:34:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On April 22, 2003 06:36 am, you wrote:
-> This BUG is fixed. Please have a look at the 2.4.21-rc1 ide-scsi patch I
-> posted to LKML lately.
+On Tue, Apr 22, 2003 at 01:34:46PM -0400, Ingo Molnar wrote:
+> is anything forcing us to fixing up mappings during a truncate? What we
+> need is just for the FS to recognize pages behind end-of-inode to still
+> potentially exist after truncation, if those areas were mapped before the
+> truncation. Apps that do not keep uptodate with truncaters can get
+> out-of-date data anyway, via read()/write() anyway. Are there good
+> arguments to be this strict across truncate()? We sure could make it safe
+> even thought it's not safe currently.
 
-I have tested the patch you provided - it did not apply properly so I made the 
-changes manually.  Everything now works great!
+Yes: access beyond EOF is required to SIGBUS according to various 
+standards.  But keep in mind that this is a slow path and doesn't have to 
+be anywhere near optimal, unlike page reclaim.
 
-For the record, it is working on Athlon-xp, only IDE system (with ide-scsi 
-emulation), 0.9.2 ALSA drivers and NVidia 1.0-4191 drivers.
-
-Thanks for the help.
-
->
-> On Mon, 21 Apr 2003 21:37:54 -0400
->
-> Garrett Kajmowicz <gkajmowi@tbaytel.net> wrote:
-> > I recieved the appened kernel oops while attempting to mount a cdrom, as
-> > well
-> >
-> > as to dd the CDROM into a file.  This as occured under 2.4.19 as well as
-> > 2.4.20 (reason why I tried upgrading).  The drive is bootable and works
-> > fine under Win98.
-> >
-> > The oops in question locks the system up completely and causes
-> > Caps+Scroll lock lights to blink.
-> >
-> > The drive in question is an HP CD-RW drive, attached via IDE using
-> > IDE-SCSI. I have also attached information on my drive, should it be
-> > useful.
-> >
-> > Thank you for all of yuor hard work.  Let me know if you need more info.
-> > Garrett Kajmowicz
-> > gkajmowi@tbayel.net
-> >
-
-<snip>
+		-ben
+-- 
+Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>

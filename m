@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266827AbRIKPB0>; Tue, 11 Sep 2001 11:01:26 -0400
+	id <S271032AbRIKPAh>; Tue, 11 Sep 2001 11:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272501AbRIKPBS>; Tue, 11 Sep 2001 11:01:18 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:15886 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S272467AbRIKPBI>; Tue, 11 Sep 2001 11:01:08 -0400
-Message-ID: <3B9E270C.95C478B7@mediascape.de>
-Date: Tue, 11 Sep 2001 17:00:28 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac10 i686)
-X-Accept-Language: de, en
+	id <S266827AbRIKPA0>; Tue, 11 Sep 2001 11:00:26 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:52744 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S272460AbRIKPAQ>;
+	Tue, 11 Sep 2001 11:00:16 -0400
+Date: Tue, 11 Sep 2001 11:59:54 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Gergely Tamas <dice@mfa.kfki.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel 
+ crash)
+In-Reply-To: <a05100304b7c3ab26db14@[192.168.239.101]>
+Message-ID: <Pine.GSO.4.21.0109111159190.20734-100000@jacui>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-In-Reply-To: <200109072337.f87NbPY92715@aslan.scsiguy.com> <3B9CC525.7E26ABC2@mediascape.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Zaplinski wrote:
-[...]
-> But how can I help to reproduce the error? Of course I could break the
-> mirror, compile the driver into the kernel (non-module) and do some stress
-> test on the SCSI drive. But it's not so good when I drive this machine into
-> a hang too often.
+On Tue, 11 Sep 2001, Jonathan Morton wrote:
 
-Well, I tried that actually:
+> >  > The correct working version is kt73c and the latest kt73r has this
+> >  > problem.
+> >
+> >And of course - sorry, I forgot it to write in previous mail - same mobo,
+> >ABIT KT7A and BIOSes are available at e.g.
+> >ftp://ftp.leo.org/pub/comp/general/devices/abit/bios/kt7/
+> 
+> I have a KT7 mb with the (fairly old) UL BIOS, works fine with my 
+> 1G/100 Athlon.  I also just got the system working again after a HD 
+> failure.  Perhaps I should try different BIOSes (including the 3C and 
+> 3R) and see if I get it to fail...
 
-- insmod'ed the new driver ('verbose', 'tcq=32')
-- broke mirror
-- mke2fs /dev/sda1
-- tar'ed / to /mnt (which was the mounted sda1)
+Here, old BIOS == YH new BIOS == 3R.
 
-=> no errors
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
 
-So it has to do with the RAID code, I think.
-
-Olaf

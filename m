@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265308AbSKNWFZ>; Thu, 14 Nov 2002 17:05:25 -0500
+	id <S265306AbSKNWEV>; Thu, 14 Nov 2002 17:04:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSKNWFY>; Thu, 14 Nov 2002 17:05:24 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:61923 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261609AbSKNWFW>; Thu, 14 Nov 2002 17:05:22 -0500
-Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA5AE0@fmsmsx114.fm.intel.com>
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       Rohit Seth <rseth@unix-os.sc.intel.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, "Seth, Rohit" <rohit.seth@intel.com>,
-       dada1 <dada1@cosmosbay.com>, Christoph Hellwig <hch@infradead.org>,
-       Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: RE: [patch] remove hugetlb syscalls
-Date: Thu, 14 Nov 2002 14:12:06 -0800
+	id <S265277AbSKNWEV>; Thu, 14 Nov 2002 17:04:21 -0500
+Received: from 159.221.vbnet.net ([205.140.159.221]:63104 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S265306AbSKNWET>; Thu, 14 Nov 2002 17:04:19 -0500
+Date: Thu, 14 Nov 2002 15:01:18 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@localhost.localdomain>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: <kbuild-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Have split-include take another argument
+In-Reply-To: <20021111170604.GA658@opus.bloom.county>
+Message-ID: <Pine.LNX.4.33.0211120917060.4022-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Nov 2002, Tom Rini wrote:
+
+> Hello.  The following patch makes split-include take another argument,
+> which is the prefix of what is being split up.  This is needed since I'm
+> working on a system which will allow for various params in the kernel to
+> be tweaked at compile-time, without offering numerous CONFIG options
+> (see http://marc.theaimsgroup.com/?l=linux-kernel&m=103669658505842&w=2).
+> I'm sending this out for two reasons.  First, does anyone see any
+> problems with the patch itself?  Second, Kai, would you be willing to
+> apply this patch now, or would should I wait until the system is ready?
+
+Hmmh, I think I'd rather like to wait for the rest of the patch to see 
+what its actual purpose is. If at all possible, I'd like to avoid 
+introducing further hacks like this into kbuild, but that's more easily 
+discussed when I can see what you're trying to achieve.
+
+--Kai
 
 
-> -----Original Message-----
-> From: William Lee Irwin III [mailto:wli@holomorphy.com] 
-> > 
-> On Thu, Nov 14, 2002 at 12:11:32PM -0800, Rohit Seth wrote:
-> > This is not the problem with MAP_SHARED.  It is the lack of  (arch
-> > specific) hugepage aligned function support in the kernel. 
-> You can use 
-> > the mmap on hugetlbfs using only MAP_FIXED with properly aligned 
-> > addresses (but then this also is only a hint to kernel).  
-> With addr == 
-> > NULL in mmap, the function is bound to fail almost all the times.
-> 
-> There's very little standing in the way of automatic 
-> placement. If in your opinion it should be implemented, I'll 
-> add that feature today.
-> 
-mmap with addr==NULL is in my opinion a very useful thing.
 
-> IIRC you mentioned you would like to export the arch-specific 
-> hugepage-aligned vma placement functions; once these are 
-> available, it should be trivial to reuse them.
-> 
-> 
-I will export those functions from arch specific trees.

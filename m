@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVBWWSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVBWWNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVBWWSp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVBWWRZ
+	id S261660AbVBWWNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVBWWIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:17:25 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30871 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261648AbVBWWOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:14:40 -0500
-Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0502232053320.14747@goblin.wat.veritas.com>
-References: <1109182061.16201.6.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
-	 <1109187381.3174.5.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>
-	 <1109190614.3126.1.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502232053320.14747@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 17:14:35 -0500
-Message-Id: <1109196876.4009.3.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Feb 2005 17:08:36 -0500
+Received: from mithra.immunix.com ([198.145.28.34]:1181 "EHLO mail.wirex.com")
+	by vger.kernel.org with ESMTP id S261643AbVBWWHd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:07:33 -0500
+Message-ID: <421CFEA0.4040900@immunix.com>
+Date: Wed, 23 Feb 2005 14:07:28 -0800
+From: Crispin Cowan <crispin@immunix.com>
+Organization: Immunix, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+Cc: rsbac@rsbac.org,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Thoughts on the "No Linux Security Modules framework" old claims
+References: <1108507089.3826.83.camel@localhost.localdomain>	<421CF7A6.2010004@immunix.com> <1109196037.3796.9.camel@localhost.localdomain>
+In-Reply-To: <1109196037.3796.9.camel@localhost.localdomain>
+X-Enigmail-Version: 0.83.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-23 at 21:03 +0000, Hugh Dickins wrote:
-> On Wed, 23 Feb 2005, Lee Revell wrote:
-> > > > 
-> > > > Thanks, your patch fixes the copy_pte_range latency.
-> > 
-> > clear_page_range is also problematic.
-> 
-> Yes, I saw that from your other traces too.
+Lorenzo Hernández García-Hierro wrote:
 
-Heh, sorry, that one was a dupe... I should know to give the files
-better names.
+>El mié, 23-02-2005 a las 13:37 -0800, Crispin Cowan escribió:
+>  
+>
+>>Lorenzo Hernández García-Hierro wrote:
+>>You are confused. It is Secure Computing Corporation that holds patents 
+>>that threaten SELinux 
+>>http://www.securecomputing.com/pdf/Statement_of_Assurance.pdf
+>>
+>>Immunix has never threatened any open source project with patent 
+>>infringement.
+>>    
+>>
+>You got it wrong, I was talking about SCC, not Immunix, relating the TE
+>patent, anyways, it's my fault to don't refer to SCC instead of "the
+>enterprise" which could lead to confusion.I apologize for that.
+>  
+>
+If that is what you meant, then we had no issue.
 
-Lee
+It looked like you were referring to Immunix because, in the quoted 
+text, one paragraph only discussed Immunix (by name) and then the 
+subsequent paragraph just said "them" and then talked about patents. 
+There was no mention of SCC.
+
+So even if you meant SCC, the casual reader only saw "Immunix" followed 
+by "patents", and would infer the obvious.
+
+Crispin
+
+-- 
+Crispin Cowan, Ph.D.  http://immunix.com/~crispin/
+CTO, Immunix          http://immunix.com
 

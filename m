@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbUKRPFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbUKRPKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbUKRPFP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 10:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbUKRPDw
+	id S262110AbUKRPKM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 10:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbUKRPKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 10:03:52 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:47621 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S262422AbUKRPBq (ORCPT
+	Thu, 18 Nov 2004 10:10:12 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:37000 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262110AbUKRPKF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 10:01:46 -0500
-Subject: [patch 1/1] akpm, please update your address in MAINTAINERS
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 18 Nov 2004 16:03:47 +0100
-Message-Id: <20041118150347.35A1F6E94D@zion.localdomain>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.79; host: ssc.unict.it)
+	Thu, 18 Nov 2004 10:10:05 -0500
+Date: Thu, 18 Nov 2004 17:11:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christian Meder <chris@onestepahead.de>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-0
+Message-ID: <20041118161129.GD12483@elte.hu>
+References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <1100773441.3434.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100773441.3434.4.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Christian Meder <chris@onestepahead.de> wrote:
 
-This patch does the work, i.e. replaces your email address with akpm@osdl.org.
+> On Wed, 2004-11-17 at 13:42 +0100, Ingo Molnar wrote:
+> > i have released the -V0.7.28-0 Real-Time Preemption patch, which can be
+> > downloaded from the usual place:
+> > 
+> > 	http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > this is a fixes & latency-reduction release.
+> 
+> Hi,
+> 
+> here's another message log this time on my Dell laptop when removing
+> my prism wlan pccard running the hostap driver.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+could you try this with the vanilla 2.6.10-rc2-mm1 kernel too? The crash
+you got is an escallation of a crash within a critical section, but that
+original crash does not seem to be directly related to PREEMPT_RT.
 
- linux-2.6.10-rc-paolo/MAINTAINERS |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+(also, please enable CONFIG_USE_FRAME_POINTER, to make the backtraces
+easier to parse.)
 
-diff -puN MAINTAINERS~akpm-update-your-address MAINTAINERS
---- linux-2.6.10-rc/MAINTAINERS~akpm-update-your-address	2004-11-18 15:59:28.812370000 +0100
-+++ linux-2.6.10-rc-paolo/MAINTAINERS	2004-11-18 16:00:44.468868464 +0100
-@@ -805,7 +805,7 @@ S:	Maintained
- 
- EXT3 FILE SYSTEM
- P:	Stephen Tweedie, Andrew Morton
--M:	sct@redhat.com, akpm@digeo.com, adilger@clusterfs.com
-+M:	sct@redhat.com, akpm@osdl.org, adilger@clusterfs.com
- L:	ext3-users@redhat.com
- S:	Maintained
- 
-@@ -1532,7 +1532,7 @@ S:	Maintained
- 
- NETWORK DEVICE DRIVERS
- P:	Andrew Morton
--M:	akpm@digeo.com
-+M:	akpm@osdl.org
- P:	Jeff Garzik
- M:	jgarzik@pobox.com
- L:	linux-net@vger.kernel.org
-_
+	Ingo

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271370AbRIFQpq>; Thu, 6 Sep 2001 12:45:46 -0400
+	id <S271365AbRIFQrq>; Thu, 6 Sep 2001 12:47:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271365AbRIFQpg>; Thu, 6 Sep 2001 12:45:36 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:35337 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S271370AbRIFQpa>; Thu, 6 Sep 2001 12:45:30 -0400
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-In-Reply-To: <E15f2BJ-0008R0-00@the-village.bc.nu> "from Alan Cox at Sep 6, 2001
- 05:39:09 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 6 Sep 2001 12:45:50 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
+	id <S271413AbRIFQrg>; Thu, 6 Sep 2001 12:47:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:17416 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271365AbRIFQr1>;
+	Thu, 6 Sep 2001 12:47:27 -0400
+Date: Thu, 6 Sep 2001 18:47:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: Wietse Venema <wietse@porcupine.org>,
         Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906164550.AD01BBC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
+Message-ID: <20010906184742.A10228@gruyere.muc.suse.de>
+In-Reply-To: <20010906193750.B22187@castle.nmd.msu.ru> <20010906155811.BC78DBC06C@spike.porcupine.org> <20010906204423.B23109@castle.nmd.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010906204423.B23109@castle.nmd.msu.ru>; from saw@saw.sw.com.sg on Thu, Sep 06, 2001 at 08:44:23PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> > 127.0.0.2 is not local on any of my systems. The only exceptions
-> > are some Linux boxen that I did not ask to do so.
+On Thu, Sep 06, 2001 at 08:44:23PM +0400, Andrey Savochkin wrote:
+> The question was which ip.address in user@[ip.address] should be treated as
+> local.
+> My comment was that the only reasonable solution on Linux is to treat this
+> way addresses explicitly specified in the configuration file.
+> Postfix may show its guess at the installation time.
 > 
-> Todays reading is from RFC990 in the book of Reynolds & Postel, page number 6
-> 
-> And the IETF spake thusly
-> 
-> |  The class A network number 127 is assigned the "loopback" function, that
-> | is, a datagram sent by a higher level protocol to a network 127 address
-> | should loop back inside the host. No datagram "sent" to a network 127
-> | address should ever appear on any network anywhere.
+> Now the question of recognizing user@[ip.address] as local is a question of a
+> simple table lookup.
 
-That's routing.
+It would be at least possible to ask the routing engine via RTM_GETROUTE
+and checking for RTN_LOCAL if it considers an address local.
+It won't cover all cases with netfilter rules etc.; but probably be a good
+enough approximation.
 
-I was talking about accepting connections. None of my systems
-accepts connections on 127.0.0.2, except for a couple Linux boxen
-that I did not ask to do so.
-
-	Wietse
+-Andi

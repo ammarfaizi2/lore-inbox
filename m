@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277782AbRKAEM1>; Wed, 31 Oct 2001 23:12:27 -0500
+	id <S278041AbRKAEmD>; Wed, 31 Oct 2001 23:42:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277791AbRKAEMI>; Wed, 31 Oct 2001 23:12:08 -0500
-Received: from ares.sot.com ([195.74.13.236]:50704 "EHLO ares.sot.com")
-	by vger.kernel.org with ESMTP id <S277782AbRKAEMG>;
-	Wed, 31 Oct 2001 23:12:06 -0500
-Date: Thu, 1 Nov 2001 06:12:41 +0200 (EET)
-From: Yaroslav Popovitch <yp@sot.com>
-To: Joachim Backes <backes@rhrk.uni-kl.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.12: Missing tty when logging in on the console
-Message-ID: <Pine.LNX.4.10.10111010601190.22300-100000@ares.sot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277966AbRKAElx>; Wed, 31 Oct 2001 23:41:53 -0500
+Received: from zok.sgi.com ([204.94.215.101]:51398 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S277949AbRKAEln>;
+	Wed, 31 Oct 2001 23:41:43 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cache colour task_structs 
+In-Reply-To: Your message of "01 Nov 2001 02:43:20 BST."
+             <p73668vqn9j.fsf@amdsim2.suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Nov 2001 15:42:12 +1100
+Message-ID: <28006.1004589732@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 01 Nov 2001 02:43:20 +0100, 
+Andi Kleen <ak@suse.de> wrote:
+>You could do that even today (without slab task_struct) by using a 
+>random/coloured at fork time value for esp0.  This could just be a static
+>colour counter that is subtracted.
+>
+>Just don't forget to teach ptrace and proc WCHAN and oops printing about it; 
+>they currently use hardcoded stack offsets. It'll also likely break kdb.
 
-Was it fixed?
-And where find this fix..
-
-
-Cheers,YP
-
-###########################################################
-after installation of kernel 2.4.12 (migrated from 2.4.10
-by "make oldconfig"), having problems when logging in on
-a virtual console:
-
-It sems that there is no correct tty attached to the console:
-
-1. the ps command lists _all_ processes actually running under
-   the correspondent userid and only those running under
-   the login shell.
-
-2. Starting a ssh command for some other box is rejected
-   by
-
-                You have no controlling tty and no DISPLAY.
-                Cannot read passphrase.
-
-I never had such problems when running 2.4.10 kernel.
-
-
+Should not affect kdb.  It uses current->esp0 for accessing user regs.
+Back trace unwinds the stack until it hits a 0 return address, it just
+not check for esp0.
 

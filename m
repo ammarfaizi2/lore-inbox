@@ -1,109 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbSJQU4Y>; Thu, 17 Oct 2002 16:56:24 -0400
+	id <S262067AbSJQUy0>; Thu, 17 Oct 2002 16:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262070AbSJQU4Y>; Thu, 17 Oct 2002 16:56:24 -0400
-Received: from crack.them.org ([65.125.64.184]:54282 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S262076AbSJQU4X>;
-	Thu, 17 Oct 2002 16:56:23 -0400
-Date: Thu, 17 Oct 2002 17:02:21 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: PATCH: fix task state reporting
-Message-ID: <20021017210221.GA18872@nevyn.them.org>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20021017213812.D3326@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017213812.D3326@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.1i
+	id <S262076AbSJQUy0>; Thu, 17 Oct 2002 16:54:26 -0400
+Received: from tsv.sws.net.au ([203.36.46.2]:54793 "EHLO tsv.sws.net.au")
+	by vger.kernel.org with ESMTP id <S262067AbSJQUyZ>;
+	Thu, 17 Oct 2002 16:54:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] remove sys_security
+Date: Thu, 17 Oct 2002 23:00:05 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+References: <20021017195015.A4747@infradead.org> <20021017201030.GA384@kroah.com> <3DAF1DC8.1090708@pobox.com>
+In-Reply-To: <3DAF1DC8.1090708@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210172300.05131.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 09:38:12PM +0100, Russell King wrote:
-> Hi,
-> 
-> While running a test here, I noticed that some threads kept entering
-> "T" state according to ps aux.  However, rather than stop, they'd
-> disappear on the next process listing, as though they weren't stopped.
-> 
-> Further investigation revealed the following when suspending processes:
-> 
-> root      1497  3.8  1.7  1472  544 ttyp1    Z    00:05   0:21 find / -name pro
-> 
-> Yes, 'Z' for suspended, 'T' for zombie.  Something smells fishy here.
-> 
-> #define TASK_RUNNING		0
-> #define TASK_INTERRUPTIBLE	1
-> #define TASK_UNINTERRUPTIBLE	2
-> #define TASK_STOPPED		4
-> #define TASK_ZOMBIE		8
-> #define TASK_DEAD		16
-> 
-> So that's R S D T Z W, but sched.c contains R S D Z T W (Z and T
-> reversed).  This patch corrects sched.c.  (Should we correct
-> the order of bits in sched.h instead?)
+On Thu, 17 Oct 2002 22:30, Jeff Garzik wrote:
+> Greg KH wrote:
+> > Hm, in looking at the SELinux documentation, here's a list of the
+> > syscalls they need:
+> > 	http://www.nsa.gov/selinux/docs2.html
+> >
+> > That's a lot of syscalls :)
+>
+> Any idea if security identifiers change with each syscall?
+>
+> If not, a lot of the xxx_secure syscalls could go away...
 
-fs/proc/array.c needs the same fix.  I sent this to Ingo but he must
-have lost my mail....
+None of them can go away.
 
-===== fs/proc/array.c 1.30 vs edited =====
---- 1.30/fs/proc/array.c	Mon Sep 30 05:06:43 2002
-+++ edited/fs/proc/array.c	Tue Oct  1 13:45:13 2002
-@@ -125,9 +125,9 @@
- 	"R (running)",		/*  0 */
- 	"S (sleeping)",		/*  1 */
- 	"D (disk sleep)",	/*  2 */
--	"Z (zombie)",		/*  4 */
--	"T (stopped)",		/*  8 */
--	"W (paging)"		/* 16 */
-+	"T (stopped)",		/*  4 */
-+	"Z (zombie)",		/*  8 */
-+	"X (dead)"		/* 16 */
- };
- 
- static inline const char * get_task_state(struct task_struct *tsk)
-@@ -135,8 +135,9 @@
- 	unsigned int state = tsk->state & (TASK_RUNNING |
- 					   TASK_INTERRUPTIBLE |
- 					   TASK_UNINTERRUPTIBLE |
-+					   TASK_STOPPED |
- 					   TASK_ZOMBIE |
--					   TASK_STOPPED);
-+					   TASK_DEAD);
- 	const char **p = &task_state_array[0];
- 
- 	while (state) {
+Security identifiers are for the operation you perform.  For example 
+open_secure() is so that you can specify the security context for a new file 
+that you are creating.  connect_secure() is used to specify the security 
+context of the socket you want to connect to.  In the default setup the only 
+way that connect_secure() and open_secure() can use the same SID is for unix 
+domain sockets (which are labeled with file types).  A TCP connection will be 
+to a process, the SID of a process is not a valid type label for a file.
 
-> 
-> --- orig/kernel/sched.c	Wed Oct 16 09:17:13 2002
-> +++ linux/kernel/sched.c	Thu Oct 17 21:32:42 2002
-> @@ -1798,7 +1798,7 @@
->  	unsigned long free = 0;
->  	task_t *relative;
->  	int state;
-> -	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
-> +	static const char * stat_nam[] = { "R", "S", "D", "T", "Z", "W" };
->  
->  	printk("%-13.13s ", p->comm);
->  	state = p->state ? __ffs(p->state) + 1 : 0;
-> 
-> -- 
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+lstat_secure(), recv_secure() and others are used to retrieve the security 
+context of the file, network message, etc.
 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+

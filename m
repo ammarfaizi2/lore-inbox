@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbVBYWjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVBYWqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbVBYWjT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 17:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVBYWjT
+	id S262787AbVBYWqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 17:46:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVBYWqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 17:39:19 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:55745 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262785AbVBYWjR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 17:39:17 -0500
-Subject: Re: init process and task_struct
-From: Robert Love <rml@novell.com>
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <421FA5FE.5040703@euroweb.net.mt>
-References: <421FA5FE.5040703@euroweb.net.mt>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 17:33:22 -0500
-Message-Id: <1109370802.24283.17.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Fri, 25 Feb 2005 17:46:40 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48886 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262787AbVBYWqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 17:46:37 -0500
+Message-ID: <421FAACB.4080207@acm.org>
+Date: Fri, 25 Feb 2005 16:46:35 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] I2C patch 2 - break up the SMBus formatting
+References: <421E62DD.5030608@acm.org> <20050225214439.GC27270@kroah.com>
+In-Reply-To: <20050225214439.GC27270@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-25 at 23:26 +0100, Josef E. Galea wrote:
+Greg KH wrote:
 
-> Does the init process have a task_struct associated with it, and if yes 
-> where is this structure created?
+>On Thu, Feb 24, 2005 at 05:27:25PM -0600, Corey Minyard wrote:
+>  
+>
+>>+
+>>+	/* It's wierd, but we use a usecount to track if an q entry is
+>>+	   in use and when it should be reported back to the user. */
+>>+	atomic_t usecount;
+>>    
+>>
+>
+>Please use a kref here instead of rolling your own.
+>  
+>
+There's a trick I'm playing to avoid having to use a lock on the normal 
+entry_put() case.  It let's the entry_get() routine detect that the 
+object is about to be destroyed.  You can't do it with the current kref, 
+but you could easily extend kref to allow it.  It's simple to implement, 
+but the documentation on how to use it will be 10 times larger than the 
+code :).
 
-Of course.
+I'll work on a patch to kref to add that, if you don't mind.
 
-Stored directly in init_task, declared in <linux/sched.h>, defined in
-arch-specific code (arch/i386/kernel/init_task.c on x86).
+>Oh, and can you cc: your patches to the sensors mailing list so the
+>other i2c developers are aware of them and can comment?  I'll stick with
+>just applying your first patch for now.
+>  
+>
+certainly.
 
-	Robert Love
+thanks
 
-
+-Corey

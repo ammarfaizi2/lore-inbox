@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275294AbRJJKuB>; Wed, 10 Oct 2001 06:50:01 -0400
+	id <S275097AbRJJKrL>; Wed, 10 Oct 2001 06:47:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275301AbRJJKtv>; Wed, 10 Oct 2001 06:49:51 -0400
-Received: from fismat1.fcfm.buap.mx ([148.228.125.1]:44718 "EHLO
-	fismat1.fcfm.buap.mx") by vger.kernel.org with ESMTP
-	id <S275294AbRJJKtm>; Wed, 10 Oct 2001 06:49:42 -0400
-Date: Wed, 10 Oct 2001 04:49:34 -0500 (CDT)
-From: Luis Montgomery <monty@fismat1.fcfm.buap.mx>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.11: scsi problem
-Message-ID: <Pine.GSO.4.21.0110100441530.27961-100000@fismat1.fcfm.buap.mx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275288AbRJJKrC>; Wed, 10 Oct 2001 06:47:02 -0400
+Received: from fe040.worldonline.dk ([212.54.64.205]:43026 "HELO
+	fe040.worldonline.dk") by vger.kernel.org with SMTP
+	id <S275097AbRJJKqo>; Wed, 10 Oct 2001 06:46:44 -0400
+Date: Wed, 10 Oct 2001 12:47:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: "David S. Miller" <davem@redhat.com>
+Subject: [patch] block highmem zero bounce #16
+Message-ID: <20011010124703.E3254@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I try to compile 2.4.11 and fail:
+I've uploaded a new version. Pretty much just a kernel update:
 
-scsi_debug.c: In function `scsi_debug_biosparam':
-scsi_debug.c:665: warning: unused variable `size'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.11/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
--include /usr/src/linux-2.4.11/include/linux/modversions.h   -c -o
-cpqfcTSinit.o cpqfcTSinit.c
-cpqfcTSinit.c: In function `cpqfcTS_ioctl':
-cpqfcTSinit.c:663: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in
-this function)
-cpqfcTSinit.c:663: (Each undeclared identifier is reported only once
-cpqfcTSinit.c:663: for each function it appears in.)
-cpqfcTSinit.c:681: `SCSI_IOCTL_FC_TDR' undeclared (first use in this
-function)
-make[2]: *** [cpqfcTSinit.o] Error 1
-make[2]: Saliendo directorio `/usr/src/linux-2.4.11/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Saliendo directorio `/usr/src/linux-2.4.11/drivers'
-make: *** [_mod_drivers] Error 2
+- Merge 2.4.11 (me)
+- Fix some pci64 patch deviates (me)
+- Fix sym53c8xx compile error (Marcus Alanen, others)
+- Don't hold io_request_lock on IDE b_end_io callback (me)
 
+Get it here:
 
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.11/
 
-Luis Montgomery
+There's a big version that includes the pci64 patch, and a block-only
+(mostly :-) version that requires the pci64 patch.
+
+-- 
+Jens Axboe
 

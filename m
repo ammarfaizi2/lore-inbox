@@ -1,48 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269100AbUJFHuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUJFHwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269100AbUJFHuM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 03:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUJFHuM
+	id S269113AbUJFHwB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 03:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUJFHwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 03:50:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22483 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269100AbUJFHt5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 03:49:57 -0400
-Date: Wed, 6 Oct 2004 09:51:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
-Message-ID: <20041006075125.GA1710@elte.hu>
-References: <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <32799.192.168.1.5.1096994246.squirrel@192.168.1.5> <20041005184226.GA10318@elte.hu> <32787.192.168.1.5.1097005084.squirrel@192.168.1.5> <20041005194458.GA15629@elte.hu> <1097021562.1359.5.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097021562.1359.5.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 6 Oct 2004 03:52:01 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:44299 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S269113AbUJFHvc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 03:51:32 -0400
+Message-ID: <4163A3E2.2060609@stud.feec.vutbr.cz>
+Date: Wed, 06 Oct 2004 09:50:58 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nuno Silva <nuno.silva@vgertech.com>
+CC: Patryk Jakubowski <patrics@interia.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Invisible threads in 2.6.9
+References: <S268296AbUJDTjb/20041004193948Z+2396@vger.kernel.org> <41630B2C.5020709@interia.pl> <4163619C.4070600@vgertech.com>
+In-Reply-To: <4163619C.4070600@vgertech.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0002]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> > i believe Andrew said that these USB problems should be fixed in the 
-> > next -mm iteration.
-> > 
+Nuno Silva wrote:
+> Yes, that's the new method trojans are using to hide tasks... No need to 
+> install complicated kernel modules anymore :-)
 > 
-> FWIW, this one does not work for me either, I get a USB-related Oops
-> on boot.
+> More seriously: That's a problem with current procps utils... They just 
+> don't show them. I can't complain too much because I'm not doing any 
+> code, but it would be nice to have a working top...
+> 
+> As a workaround, to at least see the threads without inspecting /proc 
+> directly, you can use the 'm' and 'H' flags to ps, i.e.
+> 
+> $ ps auwxH
+> 
 
-by next -mm iteration i meant -rc3-mm3, which is not released yet.
+It doesn't work for me:
 
-	Ingo
+# ps aux | grep [t]hread
+michich   7447  0.0  0.0     0    0 pts/1    Zl+  09:43   0:00 [threadbug] <defunct>
+# ps auwxH | grep [t]hread
+#
+
+And I can't inspect /proc directly:
+# cd /proc/7447
+# ls -l
+ls: cannot read symbolic link cwd: No such file or directory
+ls: cannot read symbolic link root: No such file or directory
+ls: cannot read symbolic link exe: No such file or directory
+total 0
+dr-xr-xr-x  2 root root 0 Oct  6 09:48 attr
+-r--------  1 root root 0 Oct  6 09:48 auxv
+-r--r--r--  1 root root 0 Oct  6 09:44 cmdline
+lrwxrwxrwx  1 root root 0 Oct  6 09:48 cwd
+-r--------  1 root root 0 Oct  6 09:48 environ
+lrwxrwxrwx  1 root root 0 Oct  6 09:48 exe
+dr-x------  2 root root 0 Oct  6 09:44 fd
+-r--r--r--  1 root root 0 Oct  6 09:48 maps
+-rw-------  1 root root 0 Oct  6 09:48 mem
+-r--r--r--  1 root root 0 Oct  6 09:48 mounts
+lrwxrwxrwx  1 root root 0 Oct  6 09:48 root
+-r--r--r--  1 root root 0 Oct  6 09:44 stat
+-r--r--r--  1 root root 0 Oct  6 09:48 statm
+-r--r--r--  1 root root 0 Oct  6 09:44 status
+dr-xr-xr-x  3 root root 0 Oct  6 09:45 task
+-r--r--r--  1 root root 0 Oct  6 09:48 wchan
+# cd task
+bash: cd: task: No such file or directory
+# ls -l task
+ls: task: No such file or directory
+# ls -l | grep task
+ls: cannot read symbolic link cwd: No such file or directory
+ls: cannot read symbolic link root: No such file or directory
+ls: cannot read symbolic link exe: No such file or directory
+dr-xr-xr-x  3 root root 0 Oct  6 09:45 task
+
+Isn't it strange?
+
+Michal Schmidt

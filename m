@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129616AbRBXVOq>; Sat, 24 Feb 2001 16:14:46 -0500
+	id <S129623AbRBXVpp>; Sat, 24 Feb 2001 16:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129617AbRBXVOg>; Sat, 24 Feb 2001 16:14:36 -0500
-Received: from mercury.ST.HMC.Edu ([134.173.57.219]:3332 "HELO
-	mercury.st.hmc.edu") by vger.kernel.org with SMTP
-	id <S129616AbRBXVOS>; Sat, 24 Feb 2001 16:14:18 -0500
-From: Nate Eldredge <neldredge@hmc.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15000.9242.867644.29523@mercury.st.hmc.edu>
-Date: Sat, 24 Feb 2001 13:14:02 -0800
+	id <S129627AbRBXVpg>; Sat, 24 Feb 2001 16:45:36 -0500
+Received: from mail.valinux.com ([198.186.202.175]:61188 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129623AbRBXVpY>;
+	Sat, 24 Feb 2001 16:45:24 -0500
+Date: Sat, 24 Feb 2001 13:45:23 -0800
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.2-ac3: loop threads in D state
-X-Mailer: VM 6.76 under Emacs 20.5.1
+Subject: Core dumps for threads
+Message-ID: <20010224134523.O26109@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Don Dugger <n0ano@valinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.2-ac3.
+Can anyone explain why this test is in routine `do_coredump'
+in file `fs/exec.c' in the 2.4.0 kernel?
 
- FLAGS   UID   PID  PPID PRI  NI   SIZE   RSS WCHAN       STA TTY TIME COMMAND
-    40     0   425     1  -1 -20      0     0 down        DW< ?   0:00 (loop0)
+    if (!current->dumpable || atomic_read(&current->mm->mm_users) != 1)
+	goto fail;
 
->From a look at the source it seems that this may be normal behavior
-(though I'm not sure).  However, it's still cosmetically annoying,
-because it throws off the load average (a D state process is counted
-as "running" for the loadavg calculation).
-
-My loopback-mounted fs seems to be working fine, nevertheless, which
-is a nice change from previous kernels.
+The only thing the test on `mm_users' seems to be doing is stopping
+a thread process from dumping core.  What's the rationale for this?
 
 -- 
-
-Nate Eldredge
-neldredge@hmc.edu
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@valinux.com
+Ph: 303/938-9838

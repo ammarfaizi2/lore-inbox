@@ -1,155 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUD0SUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264257AbUD0SYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUD0SUn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUD0SKJ
+	id S264257AbUD0SYz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUD0SYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:10:09 -0400
-Received: from ns.suse.de ([195.135.220.2]:49133 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264251AbUD0SHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:07:38 -0400
-Subject: Re: [PATCH] Return more useful error number when acls are too large
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040427112440.B604510@wobbly.melbourne.sgi.com>
-References: <1082973939.3295.16.camel@winden.suse.de>
-	 <20040427112440.B604510@wobbly.melbourne.sgi.com>
-Content-Type: multipart/mixed; boundary="=-DVLoEMfP8PouRNVgpMx1"
-Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1083089256.19655.284.camel@winden.suse.de>
+	Tue, 27 Apr 2004 14:24:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38418 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264257AbUD0SVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:21:24 -0400
+Date: Tue, 27 Apr 2004 19:21:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: stefan.eletzhofer@eletztrick.de, linux-kernel@vger.kernel.org
+Subject: Re: i2c_get_client() missing?
+Message-ID: <20040427192119.A21965@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, stefan.eletzhofer@eletztrick.de,
+	linux-kernel@vger.kernel.org
+References: <20040427150144.GA2517@gonzo.local> <20040427153512.GA19633@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 27 Apr 2004 20:07:36 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040427153512.GA19633@kroah.com>; from greg@kroah.com on Tue, Apr 27, 2004 at 08:35:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 27, 2004 at 08:35:12AM -0700, Greg KH wrote:
+> Where do you need to access it from?  Why do all of the current drivers
+> not need it?
 
---=-DVLoEMfP8PouRNVgpMx1
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The "traditional Linux" i2c model is one where the i2c bus is local to
+the card, so the overall driver knows where the bus is, and what devices
+to expect, and it's all nicely encapsulated.
 
-On Tue, 2004-04-27 at 03:24, Nathan Scott wrote:
-> hi Andreas,
-> 
-> On Mon, Apr 26, 2004 at 12:27:58PM +0200, Andreas Gruenbacher wrote:
-> > Hello,
-> > 
-> > could you please add this to mainline? Getting EINVAL when an acl
-> > becomes too large is quite confusing.
-> > 
-> >   	if (acl) {
-> >  		if (acl->a_count > EXT2_ACL_MAX_ENTRIES)
-> > -			return -EINVAL;
-> > +			return -ENOSPC;
-> 
-> That seems an odd error code to change it to, since its not
-> related to the device running out of free space right?  Maybe
-> use -E2BIG instead?
+The variant on that is the i2c sensor stuff, where the individual i2c
+bus device drivers export data to userspace themselves.
 
-I don't see a problem with giving ENOSPC this particular meaning here.
-The error number used must be among those defined for NFSv3, so E2BIG
-won't do.
+However, there's another class, where the i2c bus contains things like
+RTC and system control stuff, which can be found on embedded devices.
+Such an i2c bus is often shared between multiple parts of the system,
+and lumping them all together into one massive driver does not make
+sense.
 
-> XFS has a similar check (different limit as you know), so is
-> also affected by this; could you update XFS at the same time
-> with whatever value gets chosen, if its not EINVAL?  Or just
-> let me know what gets chosen & I'll fix it up later.
+For instance, one platform I have here has an i2c bus with a RTC on,
+and optionally a couple of EEPROMs giving the dimentions of the memory
+on a couple of expansion boards.  It doesn't make sense to lump the
+RTC code along side the memory controller configuration code, along
+with the i2c bus driver.
 
-I think this patch is correct for xfs. Nathan, would you mind to
-double-check? Thanks.
+I2C is much much more than sensors and graphics capture chips.
 
-
-Index: linux-2.6.6-rc2/fs/xfs/xfs_acl.c
-===================================================================
---- linux-2.6.6-rc2.orig/fs/xfs/xfs_acl.c
-+++ linux-2.6.6-rc2/fs/xfs/xfs_acl.c
-@@ -148,10 +148,7 @@ posix_acl_xattr_to_xfs(
- 			return EINVAL;
- 		}
- 	}
--	if (xfs_acl_invalid(dest))
--		return EINVAL;
--
--	return 0;
-+	return xfs_acl_invalid(dest);
- }
- 
- /*
-@@ -249,10 +246,9 @@ xfs_acl_vget(
- 	if (!size) {
- 		error = -posix_acl_xattr_size(XFS_ACL_MAX_ENTRIES);
- 	} else {
--		if (xfs_acl_invalid(xfs_acl)) {
--			error = EINVAL;
-+		error = xfs_acl_invalid(xfs_acl);
-+		if (error)
- 			goto out;
--		}
- 		if (kind == _ACL_TYPE_ACCESS) {
- 			vattr_t	va;
- 
-@@ -590,7 +586,7 @@ xfs_acl_invalid(
- 		goto acl_invalid;
- 
- 	if (aclp->acl_cnt > XFS_ACL_MAX_ENTRIES)
--		goto acl_invalid;
-+		return ENOSPC;
- 
- 	for (i = 0; i < aclp->acl_cnt; i++) {
- 		entry = &aclp->acl_entry[i];
-
-
-Thanks,
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
-
---=-DVLoEMfP8PouRNVgpMx1
-Content-Disposition: attachment; filename=acl-too-large-2
-Content-Type: text/x-patch; name=acl-too-large-2; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: linux-2.6.6-rc2/fs/xfs/xfs_acl.c
-===================================================================
---- linux-2.6.6-rc2.orig/fs/xfs/xfs_acl.c
-+++ linux-2.6.6-rc2/fs/xfs/xfs_acl.c
-@@ -148,10 +148,7 @@ posix_acl_xattr_to_xfs(
- 			return EINVAL;
- 		}
- 	}
--	if (xfs_acl_invalid(dest))
--		return EINVAL;
--
--	return 0;
-+	return xfs_acl_invalid(dest);
- }
- 
- /*
-@@ -249,10 +246,9 @@ xfs_acl_vget(
- 	if (!size) {
- 		error = -posix_acl_xattr_size(XFS_ACL_MAX_ENTRIES);
- 	} else {
--		if (xfs_acl_invalid(xfs_acl)) {
--			error = EINVAL;
-+		error = xfs_acl_invalid(xfs_acl);
-+		if (error)
- 			goto out;
--		}
- 		if (kind == _ACL_TYPE_ACCESS) {
- 			vattr_t	va;
- 
-@@ -590,7 +586,7 @@ xfs_acl_invalid(
- 		goto acl_invalid;
- 
- 	if (aclp->acl_cnt > XFS_ACL_MAX_ENTRIES)
--		goto acl_invalid;
-+		return ENOSPC;
- 
- 	for (i = 0; i < aclp->acl_cnt; i++) {
- 		entry = &aclp->acl_entry[i];
-
---=-DVLoEMfP8PouRNVgpMx1--
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

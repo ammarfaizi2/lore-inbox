@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269855AbUH0BuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269853AbUH0A6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269855AbUH0BuI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 21:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269813AbUH0Bst
+	id S269853AbUH0A6l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269796AbUH0Ayu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 21:48:49 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:8637 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269940AbUH0Bni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 21:43:38 -0400
-Message-ID: <412E91C4.5020901@yahoo.com.au>
-Date: Fri, 27 Aug 2004 11:43:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Thu, 26 Aug 2004 20:54:50 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55193 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269779AbUHZXwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:52:42 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <412E769B.1090508@namesys.com>
+Date: Thu, 26 Aug 2004 16:47:39 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm1
-References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <50490000.1093553473@flay>
-In-Reply-To: <50490000.1093553473@flay>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408261315110.2304@ppc970.osdl.org> <412E69D2.50503@namesys.com> <Pine.LNX.4.58.0408261625180.2304@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408261625180.2304@ppc970.osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> --On Thursday, August 26, 2004 21:07:39 +1000 Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> 
->>Andrew Morton wrote:
->>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/
+Linus Torvalds wrote:
+
+>
+>  
+>
+>>>And you might not be able to change the 
+>>>permissions or date on the named stream either, since it may or may not 
+>>>have a separate date/permission thing from the container.
+>>>      
 >>>
->>>
->>>- nicksched is still here.  There has been very little feedback, except that
->>>  it seems to slow some workloads on NUMA.
+>>You should be able to change the permission and data,
 >>
->>That's because most people aren't interested in a new cpu scheduler for
->>2.6. The current one works well enough in most situations and people
->>aren't trying -mm to fix their interactive problems since they are few
->>and far between. The only reports about adverse behaviour with 2.6 we track down to "It behaves differently to what I expect" or applications with no (b)locking between threads suck under load. Personally I think the latter is a good thing as it encourages better coding, and the former is something we'll have with any alternate design.
-> 
-> 
-> Well ... it'd be nice to know what nicksched was trying to fix. Then maybe
-> we could try to measure it. There's lots of stuff in the changelog about
-> what technical stuff was fiddled with ... but nothing I can see about what
-> it was meant to acheive.
-> 
+^data^date
 
-It is supposed to be "as simple as possible and no simpler" approach to
-the 2 array scheduler.
+>> but when you 
+>>change it, you change it for the whole container.
+>>    
+>>
+>
+>Why? I'd much rather disallow it, than allow it and then have "nonlocal" 
+>effects.
+>  
+>
+Sometimes you want the nonlocal effects and sometimes you don't, and by 
+decomposing streams into smaller primitives we can let users choose as 
+they want.
 
-The current one has a lot of 'unfairness' and temporal dependencies. Eg,
-"if a process has been in an interruptible sleep and woken from interrupt,
-and has been previously marked as 'interactive' then blah. If it has been
-in an uninterruptible sleep then do something completely different"
-(I just made that up)
 
-So, some people's watchdog process that is using *no* CPU get 50 second
-latencies. And you get unfairness problems where one CPU hog is given twice
-the amount of CPU time as another because it got marked as interactive long
-ago.
 
-Basically, the only inputs into nicksched are when a process sleeps and
-when it runs. The only per-process state is basically how much it runs and
-how much it sleeps. Everyone is treated the same.
-
-The kernbench regression is something I don't take lightly though. I'll see
-if I can get to the bottom of it.

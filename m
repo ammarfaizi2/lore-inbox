@@ -1,75 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSFQMg3>; Mon, 17 Jun 2002 08:36:29 -0400
+	id <S312619AbSFQMti>; Mon, 17 Jun 2002 08:49:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSFQMg2>; Mon, 17 Jun 2002 08:36:28 -0400
-Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:26808 "EHLO
-	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
-	id <S312590AbSFQMg0>; Mon, 17 Jun 2002 08:36:26 -0400
-To: linux-kernel@vger.kernel.org
-Subject: binary compatibity (mixing different gcc versions) in modules
-From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Date: 17 Jun 2002 14:36:25 +0200
-Message-ID: <7w3cvmdquu.fsf@avalon.france.sdesigns.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S312681AbSFQMth>; Mon, 17 Jun 2002 08:49:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8066 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S312619AbSFQMtg>; Mon, 17 Jun 2002 08:49:36 -0400
+Date: Mon, 17 Jun 2002 08:51:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Roberto Nibali <ratz@drugphish.ch>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Firewire Disks. (fwd)
+In-Reply-To: <3D04EDC1.8010402@drugphish.ch>
+Message-ID: <Pine.LNX.3.95.1020617081723.12517A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 10 Jun 2002, Roberto Nibali wrote:
 
-looking at nvidia proprietary driver, the makefile warns
-the user against insmod'ing a module compiled with a gcc
-version different from the one that was used to compile
-the kernel.
+> Hi,
+> 
+> > I know there is support for "firewire" in the kernel. Is there
+> > support for "firewire" disks? If so, how do I enable it?
+> 
+> Yes, there is and it is attached to the SCSI layer via the sbp2 driver. 
+> You need following set of modules to get it working:
+> 
+> scsi_mod, sd_mod, ohci1394, raw1394, ieee1394, sbp2
+> 
+> I know that you will find out which options you need to enable in the 
+> kernel config ;).
+> 
+> You might want to check out the CVS version of the ieee1394 drivers but 
+> I don't think it is necessary. It works perfectly back here with a 
+> Maxtor 160GB. Funny enough I had 158GB with the VFAT on it and 152GB 
+> with ext2/ext3.
+> 
+> The speed results were also quite interessing:
+> 
+> VFAT writing     : 12.8 Mbyte/s
+> ext2/ext3 writing: 19.2 Mbyte/s
+> 
+> I simply like that disk and it's a nice extension for a laptop :).
+> 
+> Cheers,
+> Roberto Nibali, ratz
 
-This sounds strange to me, since I never encountered this
-problem.
+Well. I have been experimenting and a Firewire CD-R/W is found and
+accessible. However, a 80 Gb Maxtor hard disk is not. I had to
+copy from an RS-232C screen because the resounding crash(es) repeat
+forever until I hit the reset switch. <EOL> == "end of line with
+data missing after".
 
-As a counterpart, what I'm sure of, is that you easily get system
-crashes when insmod'ing a module resulting of the linking together 
-(with ld -r) of object files (.o) that were not produced by the same gcc.
 
-Can someone give me a clue on what happens?
+ohci1394: $Revision: 1.80 $ Ben Collins <bcollins@debian.org>
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[9] MMIO=[febfd000-febfe000] Max
+Packet=[ <EOL>
+ieee1394: Device added: Node 0:1023, GUID 00063a0245003973
+ieee1394: sbp2: Driver forced to serialize I/O (serialize_io = 1)
+ieee1394: sbp2: Node 0:1023: Max speed [S400] - Max payload [1024]
+scsi2 : IEEE-1394 SBP-2 protocol driver
+scsi: unknown type 24
+  Vendor: GHIJKLMN  Model: OPQRSTUVWXYZ     Rev: "Unprintable junk"
+  Type:   Unknown                           ANSI SCSI revision: 03
+resize_dma_pool: unknown device type 24
 
-Everything is compiled with:
-cc 
- -O2 
- -DDEBUG=1
- -D__KERNEL__
- -DMODULE 
- -fomit-frame-pointer 
- -fno-strict-aliasing 
- -fno-common 
- -pipe 
- -mpreferred-stack-boundary=2  
- -Wno-import 
- -Wimplicit 
- -Wmain 
- -Wreturn-type 
- -Wswitch 
- -Wtrigraphs 
- -Wchar-subscripts 
- -Wuninitialized 
- -Wparentheses 
- -Wpointer-arith 
- -Wcast-align 
- -fcheck-new
 
-One gcc is 
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-the other one is 2.95-2.
+Startup messages continue without further references to either SCSI
+or IEEE1394. The crash occurs when my SCSI root-file system is first
+referenced after initrd completes (pivot_root).
 
-Would -O1 be a safer choice?
+When this 80 Gb drive is used under W$, on the same machine, I see
+no evidence of "GHIJKLMN" or "OPQRSTUVWXYZ" although the device-manager
+doesn't let you read physical device info like it does with SCSI.
 
-Sincerely yours,
+Number 24, shown above, is ^X, not part of the obvious
+ "ABCDEFGHIJKLMNOPQRSTUVWXYZ" string that we see parts of above. So
+it doesn't look like a read from the wrong offset during the device-
+inquiry.
 
-PS. Let's avoid to fall in a open source vs. binary only dialectics
-here, it's not really the point ;-)
 
--- 
-Emmanuel Michon
-Chef de projet
-REALmagic France SAS
-Mobile: 0614372733 GPGkeyID: D2997E42  
+I'm using Linux-2.4.18. Maybe there is a more "mature" version
+of sbp2 I should be using??
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

@@ -1,67 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265840AbSKAXJw>; Fri, 1 Nov 2002 18:09:52 -0500
+	id <S265821AbSKAXPR>; Fri, 1 Nov 2002 18:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265841AbSKAXJw>; Fri, 1 Nov 2002 18:09:52 -0500
-Received: from mtao-m01.ehs.aol.com ([64.12.52.73]:48778 "EHLO
-	mtao-m01.ehs.aol.com") by vger.kernel.org with ESMTP
-	id <S265840AbSKAXJv>; Fri, 1 Nov 2002 18:09:51 -0500
-Date: Fri, 01 Nov 2002 15:16:18 -0800
-From: John Gardiner Myers <jgmyers@netscape.com>
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-In-reply-to: <20021031154112.GB27801@bjl1.asuk.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Message-id: <3DC30B42.5020904@netscape.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
- Gecko/20021016
-References: <20021031154112.GB27801@bjl1.asuk.net>
- <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com>
- <20021031230215.GA29671@bjl1.asuk.net> <3DC1DEFB.6070206@free-market.net>
-To: unlisted-recipients:; (no To-header on input)
+	id <S265823AbSKAXPR>; Fri, 1 Nov 2002 18:15:17 -0500
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:42055 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S265821AbSKAXPQ>; Fri, 1 Nov 2002 18:15:16 -0500
+Date: Fri, 1 Nov 2002 15:28:10 -0800 (PST)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: "Donepudi, Suneeta" <sdonepudi@3eti.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel Panic during memcpy_toio to PCI card
+In-Reply-To: <EF5625F9F795C94BA28B150706A215480DF84D@MAIL>
+Message-ID: <Pine.LNX.4.44.0211011527460.27345-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew D. Hall wrote:
+Yes, grab the 4.1.1 stuff from lkcd.sourceforge.net.  Let the
+lkcd-general list know if you're having problems, one of us
+should be able to help.
 
-> *  There is a seemingly significant overhead in performing exactly one 
-> callback per event.
+--Matt
 
-The "exactly one callback per event" semantics of aio are important for 
-cancellation in thread pool environments.  When you're shutting down a 
-connection, you need to be able to get to a point where you know no 
-other thread is processing or will process an event for the connection, 
-so it is safe to free the connection state.
+On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
+|>Matt,
+|>
+|>Thanks for the response, I am using a 2.4.18 kernel with
+|>a busybox. This is an embedded system with the file system
+|>laid out by an 'initrd.gz'. I am new to Linux. Can LKCD
+|>still be used in our case ?
+|>
+|>
+|>Suneeta
+|>
+|>-----Original Message-----
+|>From: Matt D. Robinson [mailto:yakker@aparity.com]
+|>Sent: Friday, November 01, 2002 3:26 PM
+|>To: Donepudi, Suneeta; Matt D. Robinson
+|>Subject: Re: Kernel Panic during memcpy_toio to PCI card
+|>
+|>
+|>Hey, Suneeta.  Can you try LKCD and see if you can get
+|>a crash dump with it?  Also, is this 2.4 or 2.5?
+|>
+|>--Matt
+|>
+|>On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
+|>|>Hi,
+|>|>
+|>|>I would like help in diagnosing a kernel panic while accessing a PCI
+|>device.
+|>|>
+|>|>Everything runs fine for sometime and in about 1/2 hour I get a Kernel
+|>Panic
+|>|>message saying :
+|>|>
+|>|>"Unable to handle kernel paging request at virtual address 0xc2821000"
+|>|>
+|>|>Analysis with Ksymoops shows that it is happening during a memcpy_toio()
+|>|>with the PCI card. The PCI card uses three Base Address Registers with
+|>|>virtual addresses mapped as follows (after ioremap has been issued):
+|>|>
+|>|>BAR0 = 0xc280f000
+|>|>BAR1 = 0xc2811000
+|>|>BAR2 = 0xc2822000
+|>|>
+|>|>It seems like the kernel panic is complaining about an address which is a
+|>|>combination of BAR1 (lower bytes) and BAR2 (upper bytes). It should really
+|>|>be accessing the BAR1 address at the point the crash occurred.
+|>|>
+|>|>I put the following if-statement just before the memcpy_toio():
+|>|>-----------------------------------------------------------
+|>|>if (((long int)pci_bar1) == 0xc2821000)
+|>|>{
+|>|>	printk (KERN_ERR "Illegal address for BAR1\n");
+|>|>	return -1;
+|>|>}
+|>|>memcpy_toio (pci_bar1, in_ptr, len);
+|>|>------------------------------------------------------------
+|>|>
+|>|>It still caused the crash in the same manner and at the same location.
+|>|>Could someone help me with pointers to where I should start looking ?
+|>|>Disabling interrupts around the memcpy_toio() did not make any
+|>|>difference. Is this a hardware problem with the PCI card ? We are using
+|>|>a Xilinx core with out FPGA build into it.
+|>|>Is there a book I could read to learn more about debugging this in the 
+|>|>Kernel ?
+|>|>
+|>|>Thanks a bunch,
+|>|>Suneeta
+|>-
+|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|>the body of a message to majordomo@vger.kernel.org
+|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|>Please read the FAQ at  http://www.tux.org/lkml/
+|>
 
-> *  Only one queue per process or kernel thread.
-
-Having a single thread process multiple queues is not particularly 
-interesting (unless you have user-space threads or coroutines).  Being 
-able to have different threads in the same process process different 
-queues is interesting--it permits a library to set up its own queue, 
-using its own threads to process it.
-
-> *  No re-arming events.  They must be manually killed.
-
-Rearming events is a useful way to get the correct cancellation 
-semantics in thread pool environments.
-
-> -  Should the kernel attempt to prune the queue of "cancelled" events 
-> (hints later deemed irrelevant, untrue, or obsolete by newer events)? 
-
-This makes the cancellation semantics much easier to deal with in single 
-threaded event loops.  Single threaded cancellation is difficult in the 
-current aio interface because in the case where the canceled operation 
-already has an undelivered event in the queue, the canceling code has to 
-defer freeing the context until it receives that event.
-
-An additional point: In a thread pool environment, you want event wakeup 
-to be in LIFO order and use wake-one semantics.  You also want 
-concurrency control: don't deliver an event to a waiting thread if that 
-pool does not have fewer threads in runnable state than CPUs.
-
+-- 
 

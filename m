@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133083AbREHSGT>; Tue, 8 May 2001 14:06:19 -0400
+	id <S133067AbREHSMJ>; Tue, 8 May 2001 14:12:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133040AbREHSGJ>; Tue, 8 May 2001 14:06:09 -0400
-Received: from comverse-in.com ([38.150.222.2]:12234 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S133083AbREHSGD>; Tue, 8 May 2001 14:06:03 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678EA9@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Pavel Machek'" <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: PCMCIA IDE flash problem found
-Date: Tue, 8 May 2001 14:05:04 -0400 
-Importance: low
-X-Priority: 5
+	id <S133040AbREHSL7>; Tue, 8 May 2001 14:11:59 -0400
+Received: from relay.freedom.net ([207.107.115.209]:26891 "HELO
+	relay.freedom.net") by vger.kernel.org with SMTP id <S133062AbREHSL5>;
+	Tue, 8 May 2001 14:11:57 -0400
+X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQHIyBoVSEV6fqLNUl/zQRTpKiDLgMFiBekAEvgaqHsCqinr95Krr69b
+Date: Tue, 08 May 2001 12:11:26 -0600
+Old-From: cacook@freedom.net
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Jens Axboe <axboe@suse.de>
+CC: Ben Fennema <bfennema@ix.netcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: write to dvd ram
+In-Reply-To: <91FD33983070D21188A10008C728176C09421202@LDMS6003> <20010508145400Z132655-406+505@vger.kernel.org> <20010508100129.19740@dragon.linux.ix.netcom.com> <20010508195030.J505@suse.de>
+Content-Type: text/plain; charset = "us-ascii" 
+Content-Transfer-Encoding: 7bit
+From: cacook@freedom.net
+Message-Id: <20010508181158Z133062-406+575@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why did not you take care of the request_region() call and just disabled it?
-The ports will be considered free by the system, and another device might 
-grab them later on!
+Thanks, I'll try it.  Didn't get the prior response.
+--
+C.
 
-Vassilii
-
------Original Message-----
-From: Pavel Machek [mailto:pavel@suse.cz]
-Sent: Tuesday, May 08, 2001 8:14 AM
-To: kernel list
-Subject: PCMCIA IDE flash problem found
+The best way out is always through.
+      - Robert Frost  A Servant to Servants, 1914
 
 
-Hi!
 
-2.4.[123] changed name of ide-cs module, which means your pcmcia setup
-breaks... This is how to undo the damage. Works for me, do *not* apply
-into anything official.
+Jens Axboe wrote:
 
-								Pavel
+> On Tue, May 08 2001, Ben Fennema wrote:
+> > > The log is:
+> > > Apr 15 20:58:27 hydra kernel: UDF-fs INFO UDF 0.9.1 (2000/02/29) Mounting
+> > > volume 'UDF Volume', timestamp 2001/03/02 11:55 (1e98)
+> >
+> > At the very least, run 0.9.3 from sourceforce (or the cvs version) and
+> > see if it works any better.
+>
+> I was just about to say the same thing, 0.9.3 works well for me. In fact
+> so well, that I made a patch to bring 2.4.5-pre1 UDF up to date with
+> current CVS earlier this afternoon (hint hint, Ben :-).
+>
+> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5-pre1/
+>
+> udf-0.9.3-2.4.5p1-1.bz2
+>
+> --
+> Jens Axboe
 
---- clean/drivers/ide/ide-cs.c	Sun Apr  1 00:23:29 2001
-+++ linux/drivers/ide/ide-cs.c	Tue May  8 14:06:09 2001
-@@ -95,7 +96,7 @@
- static int ide_event(event_t event, int priority,
- 		     event_callback_args_t *args);
- 
--static dev_info_t dev_info = "ide-cs";
-+static dev_info_t dev_info = "ide_cs";
- 
- static dev_link_t *ide_attach(void);
- static void ide_detach(dev_link_t *);
-@@ -388,9 +389,12 @@
- 	MOD_DEC_USE_COUNT;
-     }
- 
-+#if 0
-     request_region(link->io.BasePort1, link->io.NumPorts1,"ide-cs");
-     if (link->io.NumPorts2)
- 	request_region(link->io.BasePort2, link->io.NumPorts2,"ide-cs");
-+#endif
-+    printk("Should call request_region\n");
-     
-     info->ndev = 0;
-     link->dev = NULL;
+
+
+

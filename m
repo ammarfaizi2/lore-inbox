@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310241AbSDCK1b>; Wed, 3 Apr 2002 05:27:31 -0500
+	id <S310435AbSDCKoF>; Wed, 3 Apr 2002 05:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310252AbSDCK1W>; Wed, 3 Apr 2002 05:27:22 -0500
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:25081 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S310241AbSDCK1P>; Wed, 3 Apr 2002 05:27:15 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 3 Apr 2002 03:25:50 -0700
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Jauder Ho <jauderho@carumba.com>,
-        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2 vs. ext3 recovery after crash
-Message-ID: <20020403102550.GT4735@turbolinux.com>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Jauder Ho <jauderho@carumba.com>,
-	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0204022144310.21070-100000@twinlark.arctic.org> <Pine.LNX.3.96.1020403045517.11049B-100000@gatekeeper.tmr.com>
+	id <S310438AbSDCKnz>; Wed, 3 Apr 2002 05:43:55 -0500
+Received: from monster.gotadsl.co.uk ([213.208.127.236]:62087 "EHLO
+	monster.gotadsl.co.uk") by vger.kernel.org with ESMTP
+	id <S310435AbSDCKnj>; Wed, 3 Apr 2002 05:43:39 -0500
+Subject: Re: Question about 'Hidden' Directories in ext2
+From: Craig Knox <crg@monster.gotadsl.co.uk>
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0204021704360.6590-100000@rtlab.med.cornell.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: 03 Apr 2002 11:53:59 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Scanner: VirusScanner *16siBr-0005YD-00*oGYy.1w6HnU*
+Message-Id: <20020403104348Z310435-617+3433@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 03, 2002  05:05 -0500, Bill Davidsen wrote:
-> C'mon, I've been doing this stuff since the MCC four floppy distribution
-> was king, I've seen a max mount counts message before.
+On Tue, 2002-04-02 at 23:16, Calin A. Culianu wrote:
+> 
+> Ok, so some hackers broke into one of our boxes and set up an ftp site.
+> They monopolized over 70gb of hard drive space with warez and porn.  We
+> aren't really that upset about it, since we thought it was kind of funny.
+> (Of course we don't like the idea that they are using out bandwidth and
+> disk space, but we can easily remedy that).
+> 
+> Anyway, the weird thing is they created 2 directories, both of which were
+> strangely hidden.  You can cd into them but you can't ls them.  I
+> 
+> /usr/lib/ypx and /usr/man/ypx were the two directories that contained both
+> the ftp software and the ftp root.  When you are in /usr/man and you do an
+> ls, you don't see the ypx directory (same when you are in /usr/lib).  The
+> ls binary we got is right off the redhat cd so it shouldn't still be
+> compromised by whatever rootkit was installed.
+> 
+> My question is this: can the data structures in ext2fs be somehow hacked
+> so a directory can't appear in a listing but can be otherwise located for
+> a stat or a chdir?  I should think no.. maybe we still haven't gotten rid
+> of the rootkit...
 
-OK, well I've seen your name around a lot, but you never know...
+If you are using the binary "ls" of the redhat CD they are probably
+using a kernel module to hide this directory.
+Have you tried running -> http://www.chkrootkit.org on the box?
 
-> This is purely a case of the *first* mount message being EXT2 instead
-> of EXT3, as if the journal wasn't detected in the first place.  However,
-> the r/w mount is always ext3 per fstab.
-
-Well, 'mount' output is useless w.r.t. the root filesystem, because it is
-simply copied from /etc/fstab.  You need to check /proc/mounts to see if
-it is _ever_ being mounted as ext3 (lots of people have this problem,
-especially if they use initrds and ext3 as a module).
-
-If it _is_ being mounted as ext2 sometimes and ext3 other times, it
-would be informative to get the dmesg output, because it will tell
-you why it couldn't load the journal.  Note that if there _is_ a
-journal in use, it would normally prevent the filesystem from being
-mounted as ext2 entirely after a crash.
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

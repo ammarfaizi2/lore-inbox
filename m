@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbTEOPDF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbTEOPDE
+	id S264066AbTEOPBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTEOPBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:03:04 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:29602 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264061AbTEOPDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:03:03 -0400
-Date: Thu, 15 May 2003 16:16:33 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: kraxel@suse.de, jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
-Message-ID: <20030515151633.GA6128@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andi Kleen <ak@muc.de>, kraxel@suse.de, jsimmons@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20030515145640.GA19152@averell>
+	Thu, 15 May 2003 11:01:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27852 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264066AbTEOPBn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 11:01:43 -0400
+Date: Thu, 15 May 2003 17:14:28 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Martin Waitz <tali@admingilde.org>
+Subject: Re: [PATCH] 2.4 laptop mode
+Message-ID: <20030515151428.GJ812@suse.de>
+References: <20030514093504.GE17033@suse.de> <20030515085912.GV1253@admingilde.org> <20030515100653.GF15261@suse.de> <20030515125413.GX1253@admingilde.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030515145640.GA19152@averell>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030515125413.GX1253@admingilde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 04:56:40PM +0200, Andi Kleen wrote:
+On Thu, May 15 2003, Martin Waitz wrote:
+> hi :)
+> 
+> On Thu, May 15, 2003 at 12:06:53PM +0200, Jens Axboe wrote:
+> > > it would be great if somethink like that could be ported to 2.5...
+> > What's stopping you?
+> 
+> well the group that did that work does not have enough money to
+> fund new staff, so i can't get paid to do it...
+> 
+> and i don't have enough free time :(
 
- > x86-64 cannot call the 32bit VESA BIOS. This means when vesafb is active
- > it does software copying in the vesa frame buffer. This is insanely slow
- > when the frame buffer is not marked for write combining. 
- > 
- > Some discussion showed that the use_mtrr flag was only off for some 
- > old broken ET4000 ISA card. x86-64 has no ISA, so this is no concern.
- > Make the default depend on CONFIG_ISA. 
+Ah
 
-There are PCI ET4000's too.  Though if we can get the PCI IDs for those,
-we can work around them with a quirk.  I have one *somewhere*, but it'll
-take me a while to dig it out.
+> but anyway, your work on this topic is great, too! :)
+> i am really looking forward to having a laptop-optimized os
 
-		Dave
+Thanks, I'll surely move it to 2.5 at some point in the near future. But
+only to the extent of what it does know, I don't care enough to take it
+further I'm afraid. The benefit would not justify the time spent,
+compared to what the OS only solution gets me :)
+
+-- 
+Jens Axboe
 

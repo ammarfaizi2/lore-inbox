@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVCAMJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVCAMNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVCAMJU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 07:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVCAMJT
+	id S261886AbVCAMNp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVCAMNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 07:09:19 -0500
-Received: from gprs215-195.eurotel.cz ([160.218.215.195]:46746 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261883AbVCAMI7 (ORCPT
+	Tue, 1 Mar 2005 07:13:45 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:57997 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261886AbVCAMNl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 07:08:59 -0500
-Date: Tue, 1 Mar 2005 13:08:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       barryn@pobox.com, marado@student.dei.uc.pt,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-ID: <20050301120843.GN1345@elf.ucw.cz>
-References: <20050228231721.GA1326@elf.ucw.cz> <20050301015231.091b5329.akpm@osdl.org> <m1u0nvr5cn.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1u0nvr5cn.fsf@ebiederm.dsl.xmission.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 1 Mar 2005 07:13:41 -0500
+Message-Id: <200503010153.j211rGXB006246@laptop11.inf.utfsm.cl>
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
+Subject: Re: SPARC64: Modular floppy? 
+In-Reply-To: Message from "David S. Miller" <davem@davemloft.net> 
+   of "Mon, 28 Feb 2005 15:51:42 -0800." <20050228155142.12ae31a7.davem@davemloft.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Mon, 28 Feb 2005 22:53:11 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 01 Mar 2005 09:13:08 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"David S. Miller" <davem@davemloft.net> said:
+> On Mon, 28 Feb 2005 17:07:43 -0300
+> Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-> > > In `subj` kernel, machine no longer powers down at the end of
-> > >  swsusp. 2.6.11-rc5-pavel works ok, as does 2.6.11-bk.
-> > 
-> > Binary searching indicates that this is due to
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc5/2.6.11-rc5-mm1/broken-out/acpi_power_off-bug-fix.patch.
-> > 
-> > 
-> > I'll drop it.  That patch is pretty ugly-looking anyway (ACPI code in
-> > drivers/base/power/?).
-> > 
-> > Perhaps someone who is hitting the problem which that patch addresses could
-> > raise a bugzilla entry.
-> > 
-> > Oh.  It has one.  http://bugme.osdl.org/show_bug.cgi?id=4041
-> > 
-> > Anyway.  It needs more work.
-> 
-> Agreed.
-> 
-> I threw it together to test a specific code path, and the fact it
-> fails in software suspend is actually almost confirmation that I am on
-> the right track.  This actually fixed the case I was testing.
-> 
-> In this case the failure is simply because system_state is
-> not set to SYSTEM_POWER_OFF before
-> kernel/power/disk.c:power_down() calls device_shutdown().
-> The appropriate reboot notifier is also not called..
+[...]
 
-Can you suggest patch to do it right? Or perhaps there should be
-just_plain_power_machine_down() that does all neccessary
-trickery?
-							Pavel
+> > So, either the dependencies have to get fixed so floppy can't be modular
+> > for this architecture, or the relevant functions have to move from entry.S
+> > to the module.
+
+> I think the former is the best solution.  The assembler code really
+> needs to get at floppy.c symbols.
+
+>From my cursory look the stuff depending on the floppy.c symbols is just
+in the floppy-related code. Can't that be just included in floppy.c?
+(Could be quite a mess, but it looks like short stretches).
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

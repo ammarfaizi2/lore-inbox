@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318288AbSIBMrq>; Mon, 2 Sep 2002 08:47:46 -0400
+	id <S318291AbSIBMu0>; Mon, 2 Sep 2002 08:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318290AbSIBMrq>; Mon, 2 Sep 2002 08:47:46 -0400
-Received: from ns1.mscsoftware.com ([192.207.69.10]:41967 "EHLO
-	draco.macsch.com") by vger.kernel.org with ESMTP id <S318288AbSIBMrp> convert rfc822-to-8bit;
-	Mon, 2 Sep 2002 08:47:45 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Knoblauch <martin.knoblauch@mscsoftware.com>
-Reply-To: martin.knoblauch@mscsoftware.com
-Organization: MSC.Software GmbH
-To: riel@conectiva.com.br
-Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
-Date: Mon, 2 Sep 2002 14:50:53 +0200
-User-Agent: KMail/1.4.2
-Cc: linux-kernel@vger.kernel.org
+	id <S318292AbSIBMuZ>; Mon, 2 Sep 2002 08:50:25 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:23031 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S318291AbSIBMuZ>; Mon, 2 Sep 2002 08:50:25 -0400
+Importance: Normal
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209021450.53449.martin.knoblauch@mscsoftware.com>
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.15.0.0; VDF: 6.15.0.6
-	 at mailmuc has not found any known virus in this email.
+Sensitivity: 
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFB29A6613.5FAAE384-ONC1256C28.00430C8B@de.ibm.com>
+From: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
+Date: Mon, 2 Sep 2002 14:54:47 +0200
+X-MIMETrack: Serialize by Router on D12ML032/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 02/09/2002 14:54:48,
+	Serialize complete at 02/09/2002 14:54:48
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I mean, besides making the kernel with as low latency as possible, 
-what 
->> is bad about the responsiveness in the kernel? If there's any lag in 
->> responsiveness that i see it's always something X related, 
-particularly 
->> Xfree86. 
->
->
->"low latency" != responsiveness 
->
->
->Any latency which is below the point the user can notice 
->is effectively zero, so whether the 10000 wakeups/minute 
->that the user doesn't notice are 2ms or 5ms don't really 
->matter. 
+Hi Daniel,
 
- absolugtely correct. My main grief wrt. responsiveness of desktop 
-systems is when the VM decides to grow the cache at the cost of pushing 
-parts of KDE into swap. As a result, "activating" windows that I 
-haven't touched for some time takes noticeable delays, which ruins the 
-interactiveness.
+>> Looks to me that this function itself has a bug: after the drop_pte 
+label
+>> it is checked if the current page has a mapping. If this is true there 
+is
+>> ...
+>Chances are, you've run into the subtle double-free race I've been 
+working
+>on for the last few days.  Would you like to try this patch as see if it
+>makes a difference?
+>http://nl.linux.org/~phillips/patches/lru.race-2.4.19
 
- My best setup for this is to have lots of memory and disable swap (and 
-live with the consequences- eg. triggering the OOM killer).
+Thanks for the patch but unfortunately it doesn't change the behaviour at
+all. This BUG is still 100% reproducible by just having 1 process which
+allocates memory chunks of 256KB and after each allocation writes to each
+of the pages in order to make them dirty.
 
- Admittedly, things seem to be much better now than six month ago.
-
-Martin
--- 
-Martin Knoblauch
-Senior System Architect
-MSC.software GmbH
-Am Moosfeld 13
-D-81829 Muenchen, Germany
-
-e-mail: martin.knoblauch@mscsoftware.com
-http://www.mscsoftware.com
-Phone/Fax: +49-89-431987-189 / -7189
-Mobile: +49-174-3069245
+regards,
+Heiko
 

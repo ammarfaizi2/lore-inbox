@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261656AbSIXMif>; Tue, 24 Sep 2002 08:38:35 -0400
+	id <S261663AbSIXMuR>; Tue, 24 Sep 2002 08:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261658AbSIXMif>; Tue, 24 Sep 2002 08:38:35 -0400
-Received: from ns.suse.de ([213.95.15.193]:61188 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261656AbSIXMie>;
-	Tue, 24 Sep 2002 08:38:34 -0400
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S261664AbSIXMuR>; Tue, 24 Sep 2002 08:50:17 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:10250 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261663AbSIXMuO>; Tue, 24 Sep 2002 08:50:14 -0400
+Date: Tue, 24 Sep 2002 13:55:27 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][RFC] oprofile 2.5.38 patch
-References: <20020923222933.GA33523@compsoc.man.ac.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 24 Sep 2002 14:43:47 +0200
-In-Reply-To: John Levon's message of "24 Sep 2002 00:31:55 +0200"
-Message-ID: <p73r8fjsgl8.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Message-ID: <20020924125527.GA53972@compsoc.man.ac.uk>
+References: <20020923222933.GA33523@compsoc.man.ac.uk.suse.lists.linux.kernel> <p73r8fjsgl8.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73r8fjsgl8.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <movement@marcelothewonderpenguin.com> writes:
+On Tue, Sep 24, 2002 at 02:43:47PM +0200, Andi Kleen wrote:
 
-> At :
-> 
-> http://oprofile.sourceforge.net/oprofile-2.5.html
+> wouldn't an on stack buffer do nicely to format a single number ? 
 
-+       page = (unsigned char *)__get_free_page(GFP_KERNEL);
-+       if (!page)
-+               return -ENOMEM;
-+
-+       spin_lock(&oprofilefs_lock);
-+       len = sprintf(page, "%lu\n", *value);
-+       spin_unlock(&oprofilefs_lock);
+Yes, this was a lazy adaption of other code. Will fix.
 
-wouldn't an on stack buffer do nicely to format a single number ? 
+> it doesn't length limit count before passing to kmalloc - hole.
+> Also has overflow bugs (consider someone passing 0xffffffff-1). 
 
-ulong_write_file: 
+Thanks.
 
-it doesn't length limit count before passing to kmalloc - hole.
-Also has overflow bugs (consider someone passing 0xffffffff-1). 
+> The sys_lookup_dcookie call looks like a security hole to me. After
 
-The sys_lookup_dcookie call looks like a security hole to me. After
-all it could allow everybody to lookup random paths by trying all 
-dcookies, even though the directories may be unreadable for him. It should 
-be probably made root only
+I'll make it CAP_SYS_ADMIN ?
 
-Adding a list_head to task_struct looks quite ugly to me. Is there
-surely no better way ? e.g. you could just put it in a file private
-structure and the daemon keeps the file open.
+> Adding a list_head to task_struct looks quite ugly to me. Is there
+> surely no better way ? e.g. you could just put it in a file private
+> structure and the daemon keeps the file open.
 
--Andi
+Well, if I'm going to "hard code" the unregister I can just remove the
+registration and let the oprofile code call dcookie_init/exit on event
+buffer open/release.
+
+thanks
+john

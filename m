@@ -1,199 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131127AbQLUOxj>; Thu, 21 Dec 2000 09:53:39 -0500
+	id <S130417AbQLUPOH>; Thu, 21 Dec 2000 10:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131088AbQLUOx2>; Thu, 21 Dec 2000 09:53:28 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:55058 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130281AbQLUOxS>;
-	Thu, 21 Dec 2000 09:53:18 -0500
-Date: Thu, 21 Dec 2000 15:22:49 +0100
-From: "Dr. Werner Fink" <werner@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kurt Garloff <garloff@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        miquels@cistron.nl, Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: TIOCGDEV ioctl
-Message-ID: <20001221152249.A12011@boole.suse.de>
-Mail-Followup-To: "Dr. Werner Fink" <werner@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kurt Garloff <garloff@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	miquels@cistron.nl, Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001216015537.G21372@garloff.suse.de> <Pine.LNX.4.10.10012151710040.1325-100000@penguin.transmeta.com>
+	id <S130386AbQLUPN5>; Thu, 21 Dec 2000 10:13:57 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:11782 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S130281AbQLUPNt>; Thu, 21 Dec 2000 10:13:49 -0500
+Date: Thu, 21 Dec 2000 15:42:01 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: AMD-Viper & Maxtor 91536U6 dieing
+Message-ID: <20001221154201.Q2157@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="w1A23YewkF9s+fLd"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012151710040.1325-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 15, 2000 at 05:11:07PM -0800
-Organization: SuSE GmbH
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BXVAT5kNtrzKuDFl
+--w1A23YewkF9s+fLd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 15, 2000 at 05:11:07PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Sat, 16 Dec 2000, Kurt Garloff wrote:
-> > 
-> > The kernel provides this information -- sort of:
-> > It contains the TIOCTTYGSTRUCT syscall which returns a struct. Of course,
-> > it changes between different kernel archs and revisions, so using it is
-> > an ugly hack. Grab for TIOCTTYGSTRUCT_HACK in the bootlogd.c file of the
-> > sysvinit sources. Shudder!
-> 
-> Please instead do the same thing /dev/tty does, namely a sane interface
-> that shows it as a symlink in /proc (or even in /dev)
+Hi Andre,
 
-Not a symlink but this is what is needed: if fd 0 of the current task is a
-tty then give the hash of the tty.  I'm using fd 0 because current->tty may
-not be set for spawned tasks of init.
+I wonder if you know anything about a issues with AMD-Irongate IDE
+controller and a Maxtor IDE disk?
 
-I've attached two patches, one for 2.4 and one for 2.2.  They're rather
-simple, therefore one may use this for setting a link.
+Here's what happens: The thing runs fine in (hdparm -d1 -m8 -c1) mode,
+giving good performance and no problems for some time (something like
+some days, a week, a month).
+Then, suddenly, during disk activity, the hard disk access stops.
+Linux is running fine, but as there is no more HD access possible,
+more and more processes start hanging.
 
+The strange thing: When rebooting using the reset button, the BIOS
+can not find the hard disk. You may press reset as often as you want
+to no avail.
+After a power cycle, everything is back to normal, again.
 
-        Werner
+This happened a couple of times now, already.
+I did not catch any syslog messages, unfortunately, but I'll configure
+syslog to log over the network, so the next time, I may have something.
 
-BTW: I'm missing a real replacement for my sys_revoke() patch done at the
-end of October.  Al Viro has wipe it out but never shows an alternative way
-of implementing such a beast.
+I suspect the drive's firmware or the AMD IDE chipset driver.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Description: linux-2.4-real-tty.patch
-Content-Disposition: attachment; filename="2.4real-tty.patch"
+Any ideas?
 
---- fs/proc/proc_tty.c
-+++ fs/proc/proc_tty.c	Thu Dec 21 15:16:08 2000
-@@ -9,6 +9,7 @@
- #include <linux/init.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
-+#include <linux/file.h>
- #include <linux/proc_fs.h>
- #include <linux/stat.h>
- #include <linux/tty.h>
-@@ -22,6 +23,8 @@
- 				 int count, int *eof, void *data);
- static int tty_ldiscs_read_proc(char *page, char **start, off_t off,
- 				int count, int *eof, void *data);
-+static int real_tty_read_proc(char *page, char **start, off_t off,
-+				int count, int *eof, void *data);
- 
- /*
-  * The /proc/tty directory inodes...
-@@ -128,7 +131,32 @@
- }
- 
- /*
-- * Thsi function is called by register_tty_driver() to handle
-+ * This is the handler for /proc/tty/tty
-+ */
-+static int real_tty_read_proc(char *page, char **start, off_t off,
-+				int count, int *eof, void *data)
-+{
-+	struct	file * zero = fcheck(0); /* of current task */
-+	struct	tty_struct * tty = NULL;
-+	unsigned int dev = 0;
-+	int	len = 0;
-+	off_t	begin = 0;
-+
-+	if (zero)
-+		tty = (struct tty_struct *)zero->private_data;
-+	if (tty && tty->magic == TTY_MAGIC)
-+		dev = kdev_t_to_nr(tty->device);
-+
-+	len += sprintf(page+len, "%u\n", dev);
-+
-+	if (off >= len+begin)
-+		return 0;
-+	*start = page + (off-begin);
-+	return ((count < begin+len-off) ? count : begin+len-off);
-+}
-+
-+/*
-+ * This function is called by register_tty_driver() to handle
-  * registering the driver's /proc handler into /proc/tty/driver/<foo>
-  */
- void proc_tty_register_driver(struct tty_driver *driver)
-@@ -178,4 +206,5 @@
- 
- 	create_proc_read_entry("tty/ldiscs", 0, 0, tty_ldiscs_read_proc,NULL);
- 	create_proc_read_entry("tty/drivers", 0, 0, tty_drivers_read_proc,NULL);
-+	create_proc_read_entry("tty/tty", 0, 0, real_tty_read_proc,NULL);
- }
+Some data:
+Kernel 2.2.16.SuSE (w/ your IDE patches ide.2.2.16.20000711-2-lvm)
+AMD Irongate mainboard (Asus K7M), Athlon-600, 256MB.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Description: linux-2.2-real-tty.patch
-Content-Disposition: attachment; filename="2.2real-tty.patch"
+ * linux/drivers/ide/amd7409.c          Version 0.03    Feb. 10, 2000
 
---- fs/proc/proc_tty.c
-+++ fs/proc/proc_tty.c	Thu Dec 21 15:14:12 2000
-@@ -9,6 +9,7 @@
- #include <linux/init.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
-+#include <linux/file.h>
- #include <linux/proc_fs.h>
- #include <linux/stat.h>
- #include <linux/tty.h>
-@@ -22,6 +23,8 @@
- 				 int count, int *eof, void *data);
- static int tty_ldiscs_read_proc(char *page, char **start, off_t off,
- 				int count, int *eof, void *data);
-+static int real_tty_read_proc(char *page, char **start, off_t off,
-+				 int count, int *eof, void *data);
- 
- /*
-  * The /proc/tty directory inodes...
-@@ -128,7 +131,32 @@
- }
- 
- /*
-- * Thsi function is called by register_tty_driver() to handle
-+ * This is the handler for /proc/tty/tty
-+ */
-+static int real_tty_read_proc(char *page, char **start, off_t off,
-+				 int count, int *eof, void *data)
-+{
-+	struct	file * zero = fcheck_task(current, 0);
-+	struct	tty_struct * tty = NULL;
-+	unsigned int dev = 0;
-+	int	len = 0;
-+	off_t	begin = 0;
-+
-+	if (zero)
-+		tty = (struct tty_struct *)zero->private_data;
-+	if (tty && tty->magic == TTY_MAGIC)
-+		dev = kdev_t_to_nr(tty->device);
-+
-+	len += sprintf(page+len, "%u\n", dev);
-+
-+	if (off >= len+begin)
-+		return 0;
-+	*start = page + (off-begin);
-+	return ((count < begin+len-off) ? count : begin+len-off);
-+}
-+
-+/*
-+ * This function is called by register_tty_driver() to handle
-  * registering the driver's /proc handler into /proc/tty/driver/<foo>
-  */
- void proc_tty_register_driver(struct tty_driver *driver)
-@@ -185,5 +213,7 @@
- 
- 	ent = create_proc_entry("tty/drivers", 0, 0);
- 	ent->read_proc = tty_drivers_read_proc;
--}
- 
-+	ent = create_proc_entry("tty/tty", 0, 0);
-+	ent->read_proc = real_tty_read_proc;
-+}
+00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-756 [Viper] IDE (re=
+v 03) (prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 32
+	I/O ports at f000
 
---BXVAT5kNtrzKuDFl--
+ Model=3DMaxtor 91536U6, FwRev=3DVA510PF0, SerialNo=3DW605BV5A
+ Config=3D{ Fixed }
+ RawCHS=3D16383/16/63, TrkSize=3D0, SectSize=3D0, ECCbytes=3D57
+ BuffType=3D3(DualPortCache), BuffSize=3D2048kB, MaxMultSect=3D16, MultSect=
+=3D8
+ DblWordIO=3Dno, OldPIO=3D2, DMA=3Dyes, OldDMA=3D0
+ CurCHS=3D16383/16/63, CurSects=3D16514064, LBA=3Dyes, LBAsects=3D30000096
+ tDMA=3D{min:120,rec:120}, DMA modes: mword0 mword1 mword2=20
+ IORDY=3Don/off, tPIO=3D{min:120,w/IORDY:120}, PIO modes: mode3 mode4=20
+ UDMA modes: mode0 mode1 *mode2 mode3 mode4=20
+ Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA=
+-4 ATA-5
+
+root@gum03:/usr/src/linux-2.2.16.SuSE/drivers/block # cat /proc/ide/ide0/co=
+nfig=20
+pci bus 00 device 39 vid 1022 did 7409 channel 0
+22 10 09 74 05 00 00 02 03 8a 01 01 00 20 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+01 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+03 00 00 00 00 00 00 00 a8 20 a8 20 ff 00 ff ff
+03 00 03 40 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations <k.garloff@phys.tue.nl>   [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
+
+--w1A23YewkF9s+fLd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6Qha5xmLh6hyYd04RAsXQAJ9lMpvCttc7NScz/zQA1KEDF6ZpEACdEQOO
+lJKoetK4qkFCZvMgP713rTc=
+=iPDm
+-----END PGP SIGNATURE-----
+
+--w1A23YewkF9s+fLd--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

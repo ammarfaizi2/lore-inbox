@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVAGNyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVAGOBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVAGNyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 08:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVAGNyv
+	id S261415AbVAGOBB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVAGOBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 08:54:51 -0500
-Received: from gprs214-191.eurotel.cz ([160.218.214.191]:9088 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261414AbVAGNyq (ORCPT
+	Fri, 7 Jan 2005 09:01:01 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:43026 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S261415AbVAGOAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 08:54:46 -0500
-Date: Fri, 7 Jan 2005 14:54:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>, vojtech@suse.cz
-Cc: Lion Vollnhals <webmaster@schiggl.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swsusp: properly suspend and resume *all* devices
-Message-ID: <20050107135418.GB1405@elf.ucw.cz>
-References: <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net> <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net> <loom.20050104T093741-631@post.gmane.org> <20050104214315.GB1520@elf.ucw.cz> <41DC0E70.4000005@schiggl.de> <20050106222927.GC25913@elf.ucw.cz> <s5hoeg1wduz.wl@alsa2.suse.de>
+	Fri, 7 Jan 2005 09:00:53 -0500
+Date: Fri, 7 Jan 2005 15:00:35 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Pierre Ossman <drzeus-list@drzeus.cx>, Al Viro <viro@ftp.uk.linux.org>,
+       Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MMC block removable flag
+Message-ID: <20050107140035.GA5920@pclin040.win.tue.nl>
+References: <41D3646F.5050408@drzeus.cx> <20041230095448.A9500@flint.arm.linux.org.uk> <41D4253D.8070006@drzeus.cx> <20050107123947.B23665@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hoeg1wduz.wl@alsa2.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050107123947.B23665@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > I have a problem with net-devices, ne2000 in particular, in 2.6.9 and 
-> > > 2.6.10, too. After a resume the ne2000-device doesn't work anymore. I 
-> > > have to restart it using the initscripts.
-> > > 
-> > > How do I add suspend/resume support (to ISA devices, like my ne2000)?
-> > > Can you point me to some information/tutorial?
-> > 
-> > Look how i8042 suspend/resume support is done and do it in similar
-> > way...
+On Fri, Jan 07, 2005 at 12:39:47PM +0000, Russell King wrote:
+> On Thu, Dec 30, 2004 at 04:56:45PM +0100, Pierre Ossman wrote:
+> > Russell King wrote:
+> > >On Thu, Dec 30, 2004 at 03:14:07AM +0100, Pierre Ossman wrote:
+> > >>A MMC card is a highly removable device. This patch makes the block 
+> > >>layer part of the MMC layer set the removable flag.
+> > >
+> > >I have this patch also floating around, but I've decided it isn't needed.
+> > >I believe this flag is to indicate that we have removable media for a
+> > >block device rather than to indicate that the block device can be removed.
+> > >
+> > >However, when we insert and remove a MMC card, we create and destroy the
+> > >block device itself.  Therefore, as far as the block layer is concerned,
+> > >the device itself is being inserted and removed, so telling the block
+> > >layer that the media is removable is just silly - you can't separate the
+> > >flash media from the on-board MMC controller.
+> > >
+> > >(Note: any block device can be removed - you just rmmod the module
+> > >supplying the block device driver, but this doesn't mean we mark all
+> > >block devices with GENHD_FL_REMOVABLE.)
+> >
+> > I suspect that the removable flag might be used in different GUI:s to 
+> > figure out with block devices should be presented to the user in a nice 
+> > way. It's usually just the removable devices that need some form of 
+> > special handling. So even though, as you point out, the entire device 
+> > disappears it might be useful from a user interface perspective to have 
+> > this hint set. From what I've found this flag doesn't seem to change any 
+> > handling inside the kernel, just how the device should be perceived.
 > 
-> Yep it's fairly easy to implement in that way (I did for ALSA).
-> 
-> But i8042 has also pm_register(), mentioning about APM.  Isn't it
-> redundant?
+> Can anyone comment on the purpose of this (GENHD_FL_REMOVABLE) flag?
+> Al?  Jens?
 
-Yes, it looks redundant. Vojtech, could you check why this is still
-needed? It should not be.
-								Pavel
+GENHD_FL_REMOVABLE is set by a number of drivers (floppy, CDROM, ...).
+It is used in two places:
+(1) to fill the file /sys/block/*/removable
+(2) in genhd to suppress listing a nonpartitioned removable device
+in /proc/partitions.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+In other words, it is for user space only, precisely as Pierre Ossman said.
+
+Andries

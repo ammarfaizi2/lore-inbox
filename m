@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUHJIno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUHJIpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUHJIno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 04:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUHJInh
+	id S262905AbUHJIpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 04:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUHJIpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 04:43:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40428 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262279AbUHJIml (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 04:42:41 -0400
-Date: Tue, 10 Aug 2004 09:53:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
-Message-ID: <20040810075331.GB25238@elte.hu>
-References: <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe> <1092117141.761.15.camel@mindpipe>
+	Tue, 10 Aug 2004 04:45:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48067 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262574AbUHJIoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 04:44:16 -0400
+Date: Tue, 10 Aug 2004 10:44:11 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
+Message-ID: <20040810084411.GI26174@fs.tum.de>
+References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rwEMma7ioTxnRzrJ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092117141.761.15.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0408100130470.20634@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Mon, 2004-08-09 at 22:06, Lee Revell wrote:
+On Tue, Aug 10, 2004 at 02:24:47AM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> > Same results here, the mlockall problem is not fixed by -O4:
+> On Mon, 9 Aug 2004, Sam Ravnborg wrote:
 > 
-> Correction, those traces did not involve mlockall at all, but
-> kmap_atomic and get_user_pages.
+> > No - kconfig gets it wrong.
+> > When selecting a config option kconfig shall secure that
+> > 'depends on' are evaluated also for the selected symbol.
 > 
-> Here is another one I got starting jackd.  Never seen it before today.
+> Which dependencies? select was more intended to select symbols without a 
+> prompt (it's dependency would be simply 'n'). The selected symbol can also 
+> have multiple prompts, how should these dependencies be merged?
+> The current select is intentionally simple, so the calculation is 
+> straightforward. Anything more complex I have to completely rethink the 
+> behaviour between depencies and selects, e.g. something like this:
 > 
-> (jackd/778): 14583us non-preemptible critical section violated 1100 us
-> preempt threshold starting at schedule+0x55/0x5a0 and ending at
-> schedule+0x2ed/0x5a0
+> 	A ---selects----> C ---selects----> D
+> 	B --depends on-->   --depends on--> E
+> 
+> If you want to change the behaviour of select how will it change the 
+> behaviour of the other dependencies and selects?
+>...
 
-can you trigger similar latencies via the attached mlock testcode?
-(written by Florian. Run it as root.)
+The current usage of select in the kernel covers many select's of 
+symbols that actually have a prompt.
 
-	Ingo
+I assume Sam thinks in the direction to let a symbol inherit the 
+dependencies off all symbols it selects.
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mlockall-test.cc"
+E.g. in
 
-// here is the code i used to test the mlockall caused xruns
-#include <sys/mman.h>
-#include <iostream>
-#include <sstream>
-#include <unistd.h>
+config A
+	depends on B
 
-int main (int argc, char *argv[]) {
-        if (argc < 2) {
-                std::cout << "how many kbytes you want allocated and mlockall'ed?" << std::endl;
-        }
-
-        std::stringstream stream(argv[1]);
-        int kbytes;
-        stream >> kbytes;
-        char *mem = new char[kbytes*1024];
-        std::cout << "filling with 0's" << std::endl;
-        for (int i = 0; i < kbytes*1024; ++i) {
-                mem[i] = 0;
-        }
-
-        std::cout << "ok, you want " << kbytes << "kb of memory mlocked.  going for it.." << std::endl;
-        int error = mlockall(MCL_CURRENT);
-        if (error != 0) { std::cout << "mlock error" << std::endl; }
-        else { std::cout << "mlock successfull" << std::endl;}
-}
+config C
+	select A
 
 
---rwEMma7ioTxnRzrJ--
+C should be treated as if it would depend on B.
+
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293373AbSCJXED>; Sun, 10 Mar 2002 18:04:03 -0500
+	id <S293380AbSCJXeO>; Sun, 10 Mar 2002 18:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293375AbSCJXDy>; Sun, 10 Mar 2002 18:03:54 -0500
-Received: from ce.fis.unam.mx ([132.248.33.1]:52610 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id <S293373AbSCJXDj>;
-	Sun, 10 Mar 2002 18:03:39 -0500
-Message-ID: <3C8BE68B.4619BA83@yahoo.com>
-Date: Sun, 10 Mar 2002 17:04:43 -0600
-From: Max Valdez <maxvaldez@yahoo.com>
-X-Mailer: Mozilla 4.78 [es] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
+	id <S293381AbSCJXeE>; Sun, 10 Mar 2002 18:34:04 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:49311 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S293380AbSCJXdt>; Sun, 10 Mar 2002 18:33:49 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Date: Mon, 11 Mar 2002 10:34:23 +1100 (EST)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Anybody succesfully compiled a CD-R capable 2.4.x kernel? 
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15499.60799.774246.580102@notabene.cse.unsw.edu.au>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID superblock....
+In-Reply-To: message from Rogier Wolff on Sunday March 10
+In-Reply-To: <200203101328.OAA15987@cave.bitwizard.nl>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Sunday March 10, R.E.Wolff@BitWizard.nl wrote:
+> 
+> Hi,
+> 
+> The MD code I see doing: 
+> 
+> 
+> 488         sb_offset = calc_dev_sboffset(rdev->dev, rdev->mddev, 1);
+> 489         rdev->sb_offset = sb_offset;
+> 490         fsync_dev(dev);
+> 491         set_blocksize (dev, MD_SB_BYTES);
+> 492         bh = bread (dev, sb_offset / MD_SB_BLOCKS, MD_SB_BYTES);
+> 
+> 
+> where sb_offset is calculated as: 
+> 
+> 290         if (blk_size[MAJOR(dev)])
+> 291                 size = blk_size[MAJOR(dev)][MINOR(dev)];
 
-I guess someone else did a similar question, but i didn't saw any good
-answer.
+You missed:
+	if (persistent)
+		size = MD_NEW_SIZE_BLOCKS(size);
 
-Has anybody tried to compile a 2.4.x with cd burning  capabilities?, I
-have a HP 8230 CD-R usable with RH 7.2 kernels, but when i try to
-upgrade to a bigger version (say 1.4.8 or 9pre2-ac4)  The drive is not
-recognized, not at boot nor when connected on running system.
+where MD_NEW_SIZE_BLOCKS is
+#define MD_NEW_SIZE_BLOCKS(x)		((x & ~(MD_RESERVED_BLOCKS - 1)) - MD_RESERVED_BLOCKS)
 
-I don't know if I'm missing some label on make config, i set scssi
-emulation, even the cd-r 82** module for the cd burner, and of course
-USB needed flags too.
+and there you have your "-1".
 
-Anyone have any advice for me?, I have even used a google found how-to,
-but nothing have worked in a couple of month of trials.
+> Anyway on the old machine, I still cannot find the raid superblock by
+> hand, but the drives now mount, so the kernel must have been able to
+> locate them somehow......
 
-Max
+The superblock should be located between 64K and 128K from the end of
+the device, on a 64K boundary.
+> 
 
+
+NeilBrown

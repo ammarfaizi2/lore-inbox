@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVAGFCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVAGFDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVAGFCA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 00:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVAGFCA
+	id S261245AbVAGFDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 00:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVAGFDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 00:02:00 -0500
-Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:25187 "HELO
-	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261242AbVAGFB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 00:01:56 -0500
-Subject: minor nit with decoding popf instruction - was Re: ptrace
-	single-stepping change breaks Wine
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Jesse Allen <the3dfxdude@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0412311359460.2280@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-	 <1104401393.5128.24.camel@gamecube.scs.ch>
-	 <1104411980.3073.6.camel@littlegreen> <200412311413.16313.sailer@scs.ch>
-	 <1104499860.3594.5.camel@littlegreen>
-	 <53046857041231074248b111d5@mail.gmail.com>
-	 <Pine.LNX.4.58.0412310753400.10974@bigblue.dev.mdolabs.com>
-	 <Pine.LNX.4.58.0412311359460.2280@ppc970.osdl.org>
+	Fri, 7 Jan 2005 00:03:54 -0500
+Received: from ngate.noida.hcltech.com ([202.54.110.230]:49849 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S261245AbVAGFDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 00:03:47 -0500
+Message-ID: <267988DEACEC5A4D86D5FCD780313FBB033EC250@exch-03.noida.hcltech.com>
+From: "Bhupesh Kumar Pandey, Noida" <bhupeshp@noida.hcltech.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Help regarding PCI Express hot Plug functionality in kernel 2
+	.6.8
+Date: Fri, 7 Jan 2005 10:30:47 +0530 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Message-Id: <1105073464.8135.17.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 06 Jan 2005 23:51:04 -0500
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 17:01, Linus Torvalds wrote:
-> On Fri, 31 Dec 2004, Davide Libenzi wrote:
-> > 
-> > I don't think Linus ever posted a POPF-only patch. Try to comment those 
-> > lines in his POPF patch ...
-> 
-> Here the two patches are independently, if people want to take a look.
-> 
-> If somebody wants to split (and test) the TF-careful thing further (the
-> "send_sigtrap()" changes are independent, I think), that would be
-> wonderful... Hint hint.
-> 
-> 		Linus
+Hi thanks a lot for a reply.
+Actually I want to use hot plug feature of PCI Express for FC-HBA. I have
+investigated for 2.4 kernels, but they do not support hot plug here.
+I don't have any idea about 2.6 series.
+I believe that in Kernel 2.6 the driver in the below mentioned is the same
+as the driver I am referring to.
+/usr/src/linux/drivers/pci/hotplug/pciehp
+So I want to know the functionality of hot plug support on PCI Express in
+Kernel 2.6.8. How the information flow and what are the limitations.
+Please help me out and thanks in advance for your concern.
 
-+static inline int is_at_popf(struct task_struct *child, struct pt_regs
-*regs)
-+{
-+       int i, copied;
-+       unsigned char opcode[16];
-+       unsigned long addr = convert_eip_to_linear(child, regs);
-+
-+       copied = access_process_vm(child, addr, opcode, sizeof(opcode),
-0);
-+       for (i = 0; i < copied; i++) {
-+               switch (opcode[i]) {
-+               /* popf */
-+               case 0x9d:
-+                       return 1;
-+               /* opcode and address size prefixes */
-+               case 0x66: case 0x67:
-+                       continue;
-+               /* irrelevant prefixes (segment overrides and repeats)
-*/
-+               case 0x26: case 0x2e:
-+               case 0x36: case 0x3e:
-+               case 0x64: case 0x65:
-+               case 0xf0: case 0xf2: case 0xf3:
-+                       continue;
-+
-+               /*
-+                * pushf: NOTE! We should probably not let
-+                * the user see the TF bit being set. But
-+                * it's more pain than it's worth to avoid
-+                * it, and a debugger could emulate this
-+                * all in user space if it _really_ cares.
-+                */
-+               case 0x9c:
-+               default:
-+                       return 0;
-+               }
-+       }
-+       return 0;
-+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Thanks and Best Regards
+Bhupesh Kumar Pandey
 
-In order to avoid false positives, I think you should remove the line
-case 0xf0: case 0xf2: case 0xf3:
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Friday, January 07, 2005 12:17 AM
+To: Bhupesh Kumar Pandey, Noida
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help regarding PCI Express hot Plug functionality in kernel
+2.6.8
 
-0xf0 corresponds to the lock prefix which would trigger an invalid
-opcode exception with a popf instruction.
+On Thu, Jan 06, 2005 at 11:43:59PM +0530, Bhupesh Kumar Pandey, Noida wrote:
+> hi all,
+> Please help me regarding PCI Express hot Plug functionality in kernel
+2.6.8.
 
-0xf2 and 0xf3 correspond to the repeat prefixes and are also not valid
-with popf
+What is not working for you?
 
+Also, please read REPORTING-BUGS in the kernel source tree for how to
+report an issue properly.
 
+thanks,
+
+greg k-h

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVBRQCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVBRQP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVBRQCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 11:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVBRQCY
+	id S261395AbVBRQP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 11:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVBRQP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 11:02:24 -0500
-Received: from gprs215-230.eurotel.cz ([160.218.215.230]:4773 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261393AbVBRQCV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 11:02:21 -0500
-Date: Fri, 18 Feb 2005 17:01:53 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Vojtech Pavlik <vojtech@suse.cz>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dmitry.torokhov@gmail.com
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050218160153.GC12434@elf.ucw.cz>
-References: <20050213004729.GA3256@stusta.de> <047401c515bb$437b5130$0f01a8c0@max> <20050218132651.GA1813@elf.ucw.cz> <200502181436.01943.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502181436.01943.oliver@neukum.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 18 Feb 2005 11:15:57 -0500
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:50182 "EHLO
+	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S261285AbVBRQPx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 11:15:53 -0500
+X-ME-UUID: 20050218161551300.492DE2400194@mwinf1012.wanadoo.fr
+Message-ID: <42161455.7030204@innova-card.com>
+Date: Fri, 18 Feb 2005 17:14:13 +0100
+From: Franck Bui-Huu <franck.bui-huu@innova-card.com>
+Reply-To: franck.bui-huu@innova-card.com
+Organization: Innova Card
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-os@analogic.com, Paul Fulghum <paulkf@microgate.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TTY] 2 points seems strange to me.
+References: <20050217175150.D8E015B874@frankbuss.de> <20050217181241.A22752@flint.arm.linux.org.uk> <4215B5AC.4050600@innova-card.com> <42160290.3070000@microgate.com> <421604DD.4080809@grupopie.com> <4216068E.90205@microgate.com> <Pine.LNX.4.61.0502181020480.23519@chaos.analogic.com> <42160973.5070808@grupopie.com>
+In-Reply-To: <42160973.5070808@grupopie.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > It has quite a lot of #ifdefs for CONFIG_APM/CONFIG_ARM/CONFIG_ACPI,
-> > and it will not work on i386/APM, anyway. I still believe right
-> > solution is to add input interface to ACPI. /proc/acpi/events needs to
-> > die, being replaced by input subsystem.
-> 
-> But aren't there power events (battery low, etc) which are not
-> input events?
+>>
+>> Ahaa!  That's how the bug got introduced. It used to be an
+>> array and then it got changed to a pointer! linux-2.4.26
+>> also shows a local array.
+>
+>
+> Yes, just looked at the revision history in linux.bkbits.net and Linus 
+> just fixed this 67 hours ago... So we're too late :)
+>
+ok, maybe next time :)
 
-Yes, there are. They can probably stay... Or we can get "battery low"
-key.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+          Franck
+

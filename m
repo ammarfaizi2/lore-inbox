@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268933AbRHPWhG>; Thu, 16 Aug 2001 18:37:06 -0400
+	id <S268951AbRHPWkG>; Thu, 16 Aug 2001 18:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268934AbRHPWg4>; Thu, 16 Aug 2001 18:36:56 -0400
-Received: from node-196.lofgren.sh ([212.214.21.196]:20230 "EHLO
-	vic20.blipp.com") by vger.kernel.org with ESMTP id <S268933AbRHPWgr>;
-	Thu, 16 Aug 2001 18:36:47 -0400
-Date: Fri, 17 Aug 2001 00:36:29 +0200 (CEST)
-From: Patrik Wallstrom <pawal@blipp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Red Hat precompiled kernels and the BreezeNet-driver
-Message-ID: <Pine.LNX.4.33.0108170028100.5950-100000@vic20.blipp.com>
+	id <S268941AbRHPWj4>; Thu, 16 Aug 2001 18:39:56 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:52920 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268934AbRHPWjt>;
+	Thu, 16 Aug 2001 18:39:49 -0400
+Subject: Re: kernel threads
+To: cwidmer@iiic.ethz.ch
+Date: Thu, 16 Aug 2001 23:37:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Christian Widmer" at Aug 17, 2001 12:23:35 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15XVl6-0006Dr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> schedule the call to kernel_thread using tq_schedule
 
-I have forever tried to compile this BreezeNet SA-PCR/D PRO.11. I have had
-Red Had 7.1 installed with a stock Red Hat kernel, and tried all the
-rawhide kernels as it has been updated. The pcmcia-cs driver has always
-crashed on me, and I couldn't understand why since I had reports of others
-using it. Today I compiled 2.4.9 myself and right after installed the
-driver, and it immediately!
+You still want to use daemonzie
 
-What exactly differs the Red Hat kernels from any original compiled
-kernel, and so much that this driver crashes the system?
+> - is there no need to call daemonize in the second variant - if yes why?
 
-The driver is found here:
- http://www.alvarion.com/Support_10010.asp?tNodeParam=35
+A task always has a parent, it'll just be a random task that ran the 
+kernel_thread request - in fact it might be a kernel thread and then 
+I dont guarantee what will occur. In fact I wouldnt try the tq_schedule one
 
-/pawal
+> - can i do both variants during interupt time (when there is no valid 
+> current)?
 
+No, but you can create a thread ready in case its needed then wake it from
+an IRQ

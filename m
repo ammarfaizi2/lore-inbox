@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313505AbSDUQHN>; Sun, 21 Apr 2002 12:07:13 -0400
+	id <S313492AbSDUQLB>; Sun, 21 Apr 2002 12:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSDUQHM>; Sun, 21 Apr 2002 12:07:12 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:28063 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313505AbSDUQHL>;
-	Sun, 21 Apr 2002 12:07:11 -0400
-Date: Sun, 21 Apr 2002 12:07:10 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Urban Widmark <urban@teststation.com>
-Cc: "Ivan G." <ivangurdiev@yahoo.com>, Shing Chuang <ShingChuang@via.com.tw>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [PATCH] Via-rhine minor issues
-Message-ID: <20020421120710.H2301@havoc.gtf.org>
-In-Reply-To: <02042101022001.00833@cobra.linux> <Pine.LNX.4.33.0204211151010.13036-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313500AbSDUQLA>; Sun, 21 Apr 2002 12:11:00 -0400
+Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:2195 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313492AbSDUQLA>;
+	Sun, 21 Apr 2002 12:11:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Date: Sat, 20 Apr 2002 18:10:12 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rob Landley <landley@trommello.org>, Jeff Garzik <garzik@havoc.gtf.org>,
+        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yx1z-0000jV-00@starship> <20020421165944.A20834@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16yxRE-0000jm-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 12:19:40PM +0200, Urban Widmark wrote:
-> On Sun, 21 Apr 2002, Ivan G. wrote:
+On Sunday 21 April 2002 17:59, Russell King wrote:
+> On Sat, Apr 20, 2002 at 05:44:07PM +0200, Daniel Phillips wrote:
+> > This may in fact be nothing more than a fear.  However if there is any
+> > chance I'm talking about a real phenomenon then I would indeed be remiss in
+> > failing to draw attention to it.
 > 
-> > DIFF-ED AGAINST:
-> > 2.4.19-pre3 ( I don't think there were changes to via-rhine 
-> > b-ween pre3 and pre7)
+> I've been trying to get you to quantify this further.  So far, all we've
+> seen are half-sides of the story.  Please give the full story:
 > 
-> You should probably send this to Jeff Garzik instead of Marcelo. Jeff
-> collects net driver patches.
+> 1. Quantify how much discussion about GNU patches there is on LKML in
+>    total.
+> 2. Quantify how much discussion about BK merges there is on LKML.
+
+I already did both, and posted the results.  I put considerable energy into
+it, and I am not going to put more time into it.  If you want to dispute my
+(unscientific) results then please repeat my survey or carry out one in
+accordance with your own, presumably higher standards.
+
+> And now this is the important bit that hasn't been done:
 > 
-> If you don't, Shing Chuang's changes are in -pre7-ac2, so a re-diff vs
-> that and seding it to Alan Cox may cause less merge work.
+>   Including how many of each class:
+>   a) have been included into Linus' tree.
+>   b) have not been included into Linus' tree.
 
-Does Ivan's patch look ok to you, Urban?  I'd like to get your initial
-sign-off on it.  From a quick look, it looks ok to me.
+True.  I suspect somebody can just look at some statistics somewhere to know
+that.  Personally, I don't know how to do that efficiently and I'm not going
+to do it.  I'll speculate though: I guess that BK patches outnumber GNU
+patches by more than a factor of 3.
 
-And yes, you are correct:  my preference would be to receive two
-submissions in my inbox:  Shing Chuang's patch, and then Ivan's patch
-(less Shing's work).
+> Then you can come up with sensible figures that actually mean something,
+> rather than some vague fear about a phenomenon that may in fact be a
+> fantasy.
+> 
+> Facts.  Facts.  Facts.
 
-If there are multiple issues, multiple patches are encouraged.  More
-split-up is always better than less.  :)
+Right.  I made the conjecture, if you wish to verify/disprove it then feel
+free.  I did my share of the work already.
 
-Regards,
-
-	Jeff
-
-
-
+-- 
+Daniel

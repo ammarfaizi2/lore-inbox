@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUIIOOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUIIORX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUIIOOw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUIIOOv
+	id S264377AbUIIORX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIIOPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:14:51 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:31914 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264665AbUIIOON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:14:13 -0400
-Subject: Re: [PATCH] missing pci_disable_device()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, bjorn.helgaas@hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41403075.1010103@jp.fujitsu.com>
-References: <413D0E4E.1000200@jp.fujitsu.com>
-	 <1094550581.9150.8.camel@localhost.localdomain>
-	 <413E7925.1010801@jp.fujitsu.com>
-	 <1094647195.11723.5.camel@localhost.localdomain>
-	 <413FF05B.8090505@jp.fujitsu.com> <20040909062009.GD10428@kroah.com>
-	 <41403075.1010103@jp.fujitsu.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094735472.14640.18.camel@localhost.localdomain>
+	Thu, 9 Sep 2004 10:15:14 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:19687 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S264377AbUIIOOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 10:14:04 -0400
+Date: Thu, 9 Sep 2004 16:14:04 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc1-bk16: DHCPACK, compile time error ...
+Message-ID: <20040909141403.GD14891@MAIL.13thfloor.at>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 09 Sep 2004 14:11:13 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-09 at 11:29, Kenji Kaneshige wrote:
-> > 	dev_warn(&pci_dev->dev, "Device was removed without properly "
-> > 				"calling pci_disable_device(), please fix.\n");
-> > 	WARN_ON(1);
-> > 
 
-"This may need fixing" would be better than "please fix" as it may be
-a wrong warning
+Hi Andrew!
 
-> I changed my patch based on your feedback. But I have one
-> concern about putting "WARN_ON(1);". I'm worrying that people
-> might be surprised if stack dump is shown on their console,
-> especially if the broken driver handles many devices.
 
-You could put
+diff -Nru a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+--- a/net/ipv4/ipconfig.c	2004-07-05 16:26:17 -07:00
++++ b/net/ipv4/ipconfig.c	2004-09-07 15:33:17 -07:00
+@@ -966,6 +966,11 @@
+ 				break;
+ 
+ 			case DHCPACK:
++				for (i = 0; (dev->dev_addr[i] == b->hw_addr[i])
++						&& (i < dev->addr_len); i++);
++				if (i < dev->addr_len)
++					goto drop_unlock;
++
+ 				/* Yeah! */
+ 				break;
+ 
 
-#ifdef CONFIG_DEBUG_KERNEL
+(from patch-2.6.9-rc1-bk16.bz2) results in:
 
-#endif
+net/ipv4/ipconfig.c: In function `ic_bootp_recv':
+net/ipv4/ipconfig.c:969: error: `i' undeclared (first use in this function)
+net/ipv4/ipconfig.c:969: error: (Each undeclared identifier is reported only once
+net/ipv4/ipconfig.c:969: error: for each function it appears in.)
 
-around that section, then only users selecting kernel debugging would
-be bothered by it.
+
+--- net/ipv4/ipconfig.c.orig	2004-09-09 15:18:26.000000000 +0200
++++ net/ipv4/ipconfig.c	2004-09-09 16:12:44.000000000 +0200
+@@ -913,7 +913,7 @@ static int __init ic_bootp_recv(struct s
+ #ifdef IPCONFIG_DHCP
+ 		if (ic_proto_enabled & IC_USE_DHCP) {
+ 			u32 server_id = INADDR_NONE;
+-			int mt = 0;
++			int i, mt = 0;
+ 
+ 			ext = &b->exten[4];
+ 			while (ext < end && *ext != 0xff) {
+
+fixes it ...
+
+best,
+Herbert
+
 

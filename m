@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbTJRLVf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 07:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTJRLVf
+	id S261555AbTJRLWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 07:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTJRLWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 07:21:35 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:44555 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S261552AbTJRLVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 07:21:34 -0400
-Date: Sat, 18 Oct 2003 13:23:30 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Console escape sequences
-Message-ID: <20031018112330.GH17198@DervishD>
-References: <20031018000531.GB17198@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 18 Oct 2003 07:22:08 -0400
+Received: from coderock.org ([193.77.147.115]:44804 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261555AbTJRLWD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 07:22:03 -0400
+From: Domen Puncer <domen@coderock.org>
+To: linux-kernel@vger.kernel.org
+Subject: intermezzo/replicator.c - bug in izo_rep_cache_clean() [2.6.0-test8]?
+Date: Sat, 18 Oct 2003 13:21:58 +0200
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031018000531.GB17198@DervishD>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Message-Id: <200310181321.58317.domen@coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+Hi.
 
-    My excuses, I've had problems with my mail and lost the two
-responses to my original mail. The fact is that I've already read the
-manpage you say (console_codes(4)), but that page seems to be from
-1996, so I was asking myself if a more recent referend existed.
+This is an old one... posted to intermezzo ml a couple of times, but
+still isn't fixed in -test8.
 
-    Is there any more up to date reference or any place in the source
-code? Thanks for the answer anyway :))) and thanks in advance for all
-your help, together with my excuses to the two persons who answered
-for having lost their emails.
 
-    Raúl Núñez de Arenas Coronado
+On Saturday 12 of July 2003 18:07, Matthew Wilcox wrote:
+> On Sat, Jul 12, 2003 at 05:22:55PM +0200, Domen Puncer wrote:
+> > ---
+> > fs/intermezzo/replicator.c:83: //izo_rep_cache_clean()
+> >                 tmp = bucket = &fset->fset_clients[i];
+> >
+> >                 tmp = tmp->next;
+> >                 while (tmp != bucket) {
+> >                         struct izo_offset_rec *offrec;
+> >                         tmp = tmp->next;
+> >                         list_del(tmp);
+> >                         offrec = list_entry(tmp, struct izo_offset_rec,
+> >                                             or_list);
+> >                         PRESTO_FREE(offrec, sizeof(struct
+> > izo_offset_rec)); }
+> >
+> > This code just doesn't look right.
+> > We delete tmp (tmp->next = LIST_POISON1)... next time we'll
+> >  list_del(LIST_POISON1)!!
+> > We also do not delete first entry in the list
+> > &fset->fset_clients[i]->next.
+>
+> Yup, looks like a bug.  I bet they meant to list_del(&tmp->prev).
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+I guess it could be written like this:
+        list_for_each_save(tmp, next, bucket) {
+                struct izo_offset_rec *offrec;
+                list_del(tmp);
+                ...
+
+
+        Domen
+

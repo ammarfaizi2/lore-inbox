@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267687AbUHJUAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267693AbUHJUH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267687AbUHJUAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 16:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUHJUAU
+	id S267693AbUHJUH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 16:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267698AbUHJUH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 16:00:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47773 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267687AbUHJUAO (ORCPT
+	Tue, 10 Aug 2004 16:07:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44220 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267693AbUHJUHz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 16:00:14 -0400
-Date: Tue, 10 Aug 2004 13:00:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kurt Garloff <garloff@suse.de>,
+	Tue, 10 Aug 2004 16:07:55 -0400
+Date: Tue, 10 Aug 2004 16:07:42 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kurt Garloff <garloff@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Greg KH <greg@kroah.com>
+       Stephen Smalley <sds@epoch.ncsc.mil>, Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040810130009.P1924@build.pdx.osdl.net>
-References: <1092150120.16939.25.camel@localhost.localdomain> <Xine.LNX.4.44.0408101512520.9121-100000@dhcp83-76.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Xine.LNX.4.44.0408101512520.9121-100000@dhcp83-76.boston.redhat.com>; from jmorris@redhat.com on Tue, Aug 10, 2004 at 03:22:19PM -0400
+In-Reply-To: <20040810130009.P1924@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0408101607170.9332-100000@dhcp83-76.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@redhat.com) wrote:
-> On Tue, 10 Aug 2004, Alan Cox wrote:
-> 
-> > On Maw, 2004-08-10 at 15:16, James Morris wrote:
-> > > On Tue, 10 Aug 2004, Kurt Garloff wrote:
-> > > 
-> > > > * Even with selinux=0 and capability loaded, the kernel takes a 
-> > > >   few percents in networking benchmarks (measured by HP on ia64); 
-> > > >   this is caused by the slowliness of indirect jumps on ia64.
-> > > 
-> > > Is this just an ia64 issue?  If so, then perhaps we should look at only
-> > > penalising ia64?  Otherwise, loading an LSM module is going to cause
-> > > expensive false unlikely() on _every_ LSM hook.
-> > 
-> > I see this on x86-32 to an extent. Its quite visible with gigabit as
-> > you'd expect. ia64 ought to be less affected providing the compiler is
-> > doing the right things with the unconditional jumps.
-> 
-> I did some benchmarking (full results below), and I'm not seeing anything
-> significant on a P4 Xeon.
+On Tue, 10 Aug 2004, Chris Wright wrote:
 
-Is this new (i.e. you just did this)?  It's basically the same result we
-had from a few years ago.
+> > I did some benchmarking (full results below), and I'm not seeing anything
+> > significant on a P4 Xeon.
+> 
+> Is this new (i.e. you just did this)?  It's basically the same result we
+> had from a few years ago.
 
-thanks,
--chris
+Yes, did it today.
+
+
+- James
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+James Morris
+<jmorris@redhat.com>
+
+

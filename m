@@ -1,64 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCUVPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCUVPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVCUVPR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 16:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVCUVNS
+	id S261925AbVCUVPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 16:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVCUVMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 16:13:18 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2439 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261898AbVCUVEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 16:04:14 -0500
-Date: Mon, 21 Mar 2005 22:04:11 +0100
+	Mon, 21 Mar 2005 16:12:33 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:15232 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261925AbVCUU7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:59:38 -0500
+Date: Mon, 21 Mar 2005 20:58:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: S2R gone with 2.6.12-rc1-mm1
-Message-ID: <20050321210411.GB29072@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 5/5] freepgt: mpnt to vma cleanup
+In-Reply-To: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0503212057520.1970@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+While dabbling here in mmap.c, clean up mysterious "mpnt"s to "vma"s.
 
-Sorry to bother you again, but I found that S2R does not work anymore
-with 2.6.12-rc1-mm1, while it works with the exact same software setup
-with 2.6.11-mm4.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-I unload the whole usb stuff (otherwise 2.6.11-mm4 won't work) and do
-exactely the same.
+ mm/mmap.c |   35 +++++++++++++++++------------------
+ 1 files changed, 17 insertions(+), 18 deletions(-)
 
-The differences in the kernel config files are trivial:
-
-new stuff I answered with yes:
-+CONFIG_ACPI_HOTKEY=y
-+CONFIG_PCMCIA_IOCTL=y
-+CONFIG_AOE_PARTITIONS=16
-
-stuff that has automatically changed (changed Kconfig I suppose)
--CONFIG_FW_LOADER=m
-+CONFIG_FW_LOADER=y
-
-and some modules I compiled but not use/load.
-
-With 2.6.12-rc1-mm1 the system starts, then nothing, black screen, no
-CapsLock light, no Sysrq, no sync hard disk led activity, just plane
-frozen.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-WINKLEY (n.)
-A lost object which turns up immediately you've gone and bought a
-replacement for it.
-			--- Douglas Adams, The Meaning of Liff
+--- freepgt4/mm/mmap.c	2005-03-21 19:06:48.000000000 +0000
++++ freepgt5/mm/mmap.c	2005-03-21 19:07:25.000000000 +0000
+@@ -1602,14 +1602,13 @@ static void unmap_vma(struct mm_struct *
+  * Ok - we have the memory areas we should free on the 'free' list,
+  * so release them, and do the vma updates.
+  */
+-static void unmap_vma_list(struct mm_struct *mm,
+-	struct vm_area_struct *mpnt)
++static void unmap_vma_list(struct mm_struct *mm, struct vm_area_struct *vma)
+ {
+ 	do {
+-		struct vm_area_struct *next = mpnt->vm_next;
+-		unmap_vma(mm, mpnt);
+-		mpnt = next;
+-	} while (mpnt != NULL);
++		struct vm_area_struct *next = vma->vm_next;
++		unmap_vma(mm, vma);
++		vma = next;
++	} while (vma);
+ 	validate_mm(mm);
+ }
+ 
+@@ -1720,7 +1719,7 @@ int split_vma(struct mm_struct * mm, str
+ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
+ {
+ 	unsigned long end;
+-	struct vm_area_struct *mpnt, *prev, *last;
++	struct vm_area_struct *vma, *prev, *last;
+ 
+ 	if ((start & ~PAGE_MASK) || start > TASK_SIZE || len > TASK_SIZE-start)
+ 		return -EINVAL;
+@@ -1729,14 +1728,14 @@ int do_munmap(struct mm_struct *mm, unsi
+ 		return -EINVAL;
+ 
+ 	/* Find the first overlapping VMA */
+-	mpnt = find_vma_prev(mm, start, &prev);
+-	if (!mpnt)
++	vma = find_vma_prev(mm, start, &prev);
++	if (!vma)
+ 		return 0;
+-	/* we have  start < mpnt->vm_end  */
++	/* we have  start < vma->vm_end  */
+ 
+ 	/* if it doesn't overlap, we have nothing.. */
+ 	end = start + len;
+-	if (mpnt->vm_start >= end)
++	if (vma->vm_start >= end)
+ 		return 0;
+ 
+ 	/*
+@@ -1746,11 +1745,11 @@ int do_munmap(struct mm_struct *mm, unsi
+ 	 * unmapped vm_area_struct will remain in use: so lower split_vma
+ 	 * places tmp vma above, and higher split_vma places tmp vma below.
+ 	 */
+-	if (start > mpnt->vm_start) {
+-		int error = split_vma(mm, mpnt, start, 0);
++	if (start > vma->vm_start) {
++		int error = split_vma(mm, vma, start, 0);
+ 		if (error)
+ 			return error;
+-		prev = mpnt;
++		prev = vma;
+ 	}
+ 
+ 	/* Does it split the last one? */
+@@ -1760,16 +1759,16 @@ int do_munmap(struct mm_struct *mm, unsi
+ 		if (error)
+ 			return error;
+ 	}
+-	mpnt = prev? prev->vm_next: mm->mmap;
++	vma = prev? prev->vm_next: mm->mmap;
+ 
+ 	/*
+ 	 * Remove the vma's, and unmap the actual pages
+ 	 */
+-	detach_vmas_to_be_unmapped(mm, mpnt, prev, end);
+-	unmap_region(mm, mpnt, prev, start, end);
++	detach_vmas_to_be_unmapped(mm, vma, prev, end);
++	unmap_region(mm, vma, prev, start, end);
+ 
+ 	/* Fix up all other VM information */
+-	unmap_vma_list(mm, mpnt);
++	unmap_vma_list(mm, vma);
+ 
+ 	return 0;
+ }

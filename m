@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312783AbSDFUSy>; Sat, 6 Apr 2002 15:18:54 -0500
+	id <S312790AbSDFUYs>; Sat, 6 Apr 2002 15:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312790AbSDFUSx>; Sat, 6 Apr 2002 15:18:53 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44292 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312783AbSDFUSw>; Sat, 6 Apr 2002 15:18:52 -0500
-Date: Sat, 6 Apr 2002 12:18:30 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: Brian Gerst <bgerst@didntduck.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Clean up x86 interrupt entry code
-In-Reply-To: <1018123940.899.104.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0204061216570.26740-100000@penguin.transmeta.com>
+	id <S312798AbSDFUYr>; Sat, 6 Apr 2002 15:24:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32273 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312790AbSDFUYq>; Sat, 6 Apr 2002 15:24:46 -0500
+Subject: Re: [WTF] ->setattr() locking changes
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 6 Apr 2002 21:41:08 +0100 (BST)
+Cc: viro@math.psu.edu (Alexander Viro),
+        trond.myklebust@fys.uio.no (Trond Myklebust),
+        haveblue@us.ibm.com (Dave Hansen), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204061020140.24305-100000@home.transmeta.com> from "Linus Torvalds" at Apr 06, 2002 10:23:10 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16twzk-0002c8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 6 Apr 2002, Robert Love wrote:
+> > Hmm...  While we are at it, why don't we remove suid/sgid on truncate(2)?
 > 
-> You removed GET_THREAD_INFO and there does not seem to be a
-> replacement.  Is there some assurance *thread_info is now pointed to by
-> %ebx here?
+> Are there any standards saying either way? But yes, it sounds logical.
 
-It seems to be always loaded by the common interrupt code (and %ebx is a 
-call-saved register, so calling the interrupt handlers and returning 
-doesn't clobber it).
-
-But testing it may be a good idea ;^p
-
-		Linus
-
+SuS v2 specifically says they may be cleared

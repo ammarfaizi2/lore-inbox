@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVDAGGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVDAGRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVDAGGT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 01:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDAGGT
+	id S261515AbVDAGRS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 01:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVDAGRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 01:06:19 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:3543 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261245AbVDAGGM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 01:06:12 -0500
-Date: Thu, 31 Mar 2005 22:05:26 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-Message-Id: <20050331220526.3719ed7f.pj@engr.sgi.com>
-In-Reply-To: <424C8956.7070108@yahoo.com.au>
-References: <200503312214.j2VMEag23175@unix-os.sc.intel.com>
-	<424C8956.7070108@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Apr 2005 01:17:18 -0500
+Received: from mailout3.samsung.com ([203.254.224.33]:11864 "EHLO
+	mailout3.samsung.com") by vger.kernel.org with ESMTP
+	id S261515AbVDAGRN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 01:17:13 -0500
+Date: Fri, 01 Apr 2005 15:15:49 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [PATCH] the MPU/noMMU support for ARM Linux 2.6.11.6 (-hsc0)
+In-reply-to: 
+To: uClinux development list <uclinux-dev@uclinux.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Cc: CE Linux Developers List <celinux-dev@tree.celinuxforum.org>,
+       rmk@arm.linux.org.uk
+Message-id: <0IE900JYS84MQI@mmp1.samsung.com>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Thread-index: AcU1BWcNVc0V74LDSaahcUiPaBabRQAAA+EQAF6QSaA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> Ingo had a cool patch to estimate dirty => dirty cacheline transfer latency
-> ... Unfortunately ... and it is an O(cpus^2) operation.
+Greetings,
 
-Yes - a cool patch.
+I'm glad to announce the MPU and noMMU support patch for ARM against
+2.6.11.6 at:
 
-If we had an arch-specific bit of code, that for any two cpus, could
-give a 'pseudo-distance' between them, where the only real requirements
-were that (1) if two pairs of cpus had the same pseudo-distance, then
-that meant they had the same size, layout, kind and speed of bus amd
-cache hardware between them (*), and (2) it was cheap - hardly more than
-a few lines of code and a subroutine call to obtain, then Ingo's code
-could be:
+http://opensrc.sec.samsung.com/download/linux-2.6.11.6-hsc0.patch.gz
 
-	for each cpu c1:
-	    for each cpu c2:
-		psdist = pseudo_distance(c1, c2)
-		if I've seen psdist before, use the latency computed for that psdist
-		else compute a real latency number and remember it for that psdist
+Actually the patch was "armnommu" architecture patch by 2.6.9, but it is
+just merged into "arm" architecture, and provides selection option, "MMU"
+for linux and "MPU", "NONE" for uclinux. It means that you can choose "MMU"
+or even "NONE" for your MMU based arm platform with a few modification (i.e.
+virtual addr --> physical addr), if you want to use "singular address space"
+which is proven to have performance improvement. (I'd like to provide some
+benchmark result on same h/w platform for both cases.)
 
-A generic form of pseudo_distance, which would work for all normal
-sized systems, would be:
+some addtional MPU support API is pending to support new features like
+memory protection for uclinux, but I need more suggestions on that.
 
-int pseudo_distance(int c1, int c2)
-{
-	static int x;
-	return x++;
-}
+You can reach the project at : http://opensrc.sec.samsung.com/
 
-Then us poor slobs with big honkin numa iron could code up a real
-pseudo_distance() routine, to avoid the actual pain of doing real work
-for cpus^2 iterations for large cpu counts.
+currently officially supported platforms are : s3c24a0, s5c7375, atmel,
+espd_s3c510b, P2001, s3c3410, s3cb0x.
 
-Our big boxes have regular geometries with much symmetry, so would
-provide significant opportunity to exploit equal pseudo-distances.
+Best Regards,
+Hyok
 
-And I would imagine that costs of K * NCPU * NCPU are tolerable in this
-estimation routine. for sufficiently small K, and existing values of
-NCPU.
+---
+CHOI, HYOK-SUNG
+Engineer (Kernel/System Architecture)
+Digital Media R&D Center, Samsung Electronics Co.,Ltd.
+tel: +82-31-200-8594  fax: +82-31-200-3427
+e-mail: hyok.choi@samsung.com
+[Linux 2.6 ARM MPU/noMMU Kernel Maintainer] http://opensrc.sec.samsung.com/
 
-(*) That is, if pseudo_distance(c1, c2) == pseudo_distance(d1, d2), then
-    this meant that however c1 and c2 were connected to each other in the
-    system (intervening buses and caches and such), cpus d1 and d2 were
-    connected the same way, so could be presumed to have the same latency,
-    close enough.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,67 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279684AbRKIJdq>; Fri, 9 Nov 2001 04:33:46 -0500
+	id <S279739AbRKIJfG>; Fri, 9 Nov 2001 04:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279739AbRKIJdh>; Fri, 9 Nov 2001 04:33:37 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33032 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S279684AbRKIJdW>; Fri, 9 Nov 2001 04:33:22 -0500
-Date: Fri, 9 Nov 2001 10:32:54 +0100
+	id <S279778AbRKIJfA>; Fri, 9 Nov 2001 04:35:00 -0500
+Received: from [194.213.32.133] ([194.213.32.133]:33665 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S279749AbRKIJeq>;
+	Fri, 9 Nov 2001 04:34:46 -0500
+Date: Thu, 8 Nov 2001 14:34:34 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Riley Williams <rhw@memalpha.cx>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011109103254.B2620@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011108132639.A14160@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0111082252500.14996-100000@Consulate.UFP.CX>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
+Subject: Re: [Acpi] Re: ACPI "hlt" mode and SMP systems?
+Message-ID: <20011108143433.A66@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0111061133250.22170-100000@segfault.osdlab.org> <Pine.LNX.4.33.0111061527500.22170-100000@segfault.osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111082252500.14996-100000@Consulate.UFP.CX>
-User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0111061527500.22170-100000@segfault.osdlab.org>; from mochel@osdl.org on Tue, Nov 06, 2001 at 03:32:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>>> least as KERN_DEBUG if not as KERN_NOTICE) whenever the RTC is
-> >>>> written to. It's too important a subsystem to be left hidden like
-> >>>> it currently is.
-> 
-> >>> This can be as well done in userland, enforced by whoever does rtc
-> >>> writes, no?
-> 
-> >> If some idiot writes a hwclock replacement that doesn't do logging...
-> 
-> > Then it is *his* problem. That's no excuse for putting it into kernel.
-> 
-> So you believe viruses are a good thing to have? Sorry, I have to
-> disagree with you.
+I have few comments...
+
+> +System sleep states are defined as follows:
+> +
+> +S0 - On
+> +   - System is running.
+> +
+> +S1 - "Power On Suspend"
+> +   - Processor power, and hence execution context, is preserved.
+> +   - Devices may have been put into a low power state.
+> +
+> +S2 - "Pseudo-Suspend To Ram"
+> +   - Processor power is removed.
+> +   - Devices may be placed into low power state.
+> +   - Memory is placed into self-refresh and retains context.
+> +   - Execution starts again from processor's reset vector
+> +   - Cache and MTRR configuration is lost during this state; the
+> +     firmware is responsible for restoring it to some known state.
+> +
+> +S3 - "Suspend to Ram"
+> +   - Processor power is removed.
+> +   - Devices are placed into a low power state.
+> +   - Power may be removed from all system buses.
+> +   - Memory context is preserved by placing memory in Self-Refresh
+> +   - Execution begins from processor's reset vector
+> +   - Cache and MTRR configuration is lost during this state; the
+> +     firmware is responsible for restoring it to some known state.
+
+If S2 and S3 are same, you should use exactly same text. It seems to say
+exactly same thing in slightly different words.
 
 
-> Take the position of a sysadmin who can't understand why the system
-> clock on his computer keeps getting randomly changed under Linux, and
-> has verified using another operating system that it isn't a hardware
-> problem, then ask yourself what said sysadmin would expect from the
-> kernel to help him/her track the problem down. Would said sysadmin
-> prefer to be told...
-> 
->  1. "Look in the system log - you'll get a message every time any
->     program writes to the RTC."
-> 
->  2. "Sorry, you'll have to go through every piece of software on
->     your system and find the one that's updating the system clock
->     that shouldn't be."
-> 
-> According to your comments, you prefer (2). I most definitely prefer
-> (1).
+> +S4 - "Suspend to Disk", aka "Hibernate"
+> +   - All power may be removed from the system.
+> +   - All device context may be lost.
+> +   - Context is usually written to persistant storage (e.g. disk).
+> +   - Execution begins at processor's reset vector; the firmware
+> +     will usually load the OS boot loader.
+> +
+> +S5 - Soft Off
+> +   - Technically not a sleep state
+> +   - No context is retained
+> +   - OS is not responsible for saving context
+> +   - OS must completely reinitialise itself on 'resume' (power-on)
+> +   - Wake events may still trigger the system to resume from sleep.
 
+...
 
-Hmm, and if some malicious software insmods kernel module to work
-around your printk()?
+> +G0 -
+> +     The system is in the S0 state.
+> +G1 -
+> +     The system is in one of the S1 - S4 sleep states.
+> +G2 -
+> +     The system is in the S4 sleep state.
+                             ~~
+				 this should be S5, no?
 
-We are talking root only here. If sofware with uid 0 is malicious, you
-have big problems.
+> +6. References
+> +~~~~~~~~~~~~~
+> +
+> +ACPI 2.0 Specification; esp. Ch 1 - 3.
+> +<http://acpi.info>
+    ~~~~~~~~~~~~~~~~
+		This url does not seem too real.
+
 								Pavel
 -- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

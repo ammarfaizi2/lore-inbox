@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbTIOL6E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 07:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTIOL6D
+	id S261291AbTIOMGE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 08:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTIOMGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 07:58:03 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36878 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261271AbTIOL6B
+	Mon, 15 Sep 2003 08:06:04 -0400
+Received: from catv-d5deb78c.bp13catv.broadband.hu ([213.222.183.140]:9606
+	"EHLO dap.index") by vger.kernel.org with ESMTP id S261291AbTIOMGC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 07:58:01 -0400
-Date: Mon, 15 Sep 2003 07:48:52 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: John Bradford <john@grabjohn.com>
-cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-In-Reply-To: <200309150632.h8F6WnHb000589@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.3.96.1030915074616.19165B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 08:06:02 -0400
+Subject: reproducable lockup on changing DMA state (2.4.22, cmd649)
+From: Pallai Roland <dap@mail.index.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1063627245.493.97.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 15 Sep 2003 14:00:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003, John Bradford wrote:
 
-    [... many good points ...]
+ changing DMA state (hdparm -d0/1) always lockups my system
+(2.4.21/2.4.22) if another drive does heavy I/O on same channel in DMA
+mode.. there's no problem if the another drive's in PIO mode or there's
+no I/O..
 
-> This makes it trivial to:
-> 
-> * Make a kernel for a distribution's initial install
->   Select all CPUs as supported, and optimise for 686.
-> 
-> * Make an optimised kernel for any system
->   Select only the target CPU as supported, and optimise for it
-> 
-> * Make a generic kernel for PIV, and Athlon
->   Select PIV and Athlon only as supported.  Optimise for either, or
->   optimise for 386, (yes, even though it is not supported), for a
->   small kernel, on the basis that it will maximise cache usage, and be
->   fairly optimal on both systems.
+ the biggest problem, that the kernel itself tries to change DMA state
+if DMA timeout occurs and it's lockups the system too..  I've a machine
+with 28 IDE disks on plain CMD649 controllers, and lots of lockups
+happens when a disk going to die soon.. :(
 
-That last is a good point for sure, I have seen several posts indicating
-that -Os is faster on small cache machines like old Celerons, it would be
-a sensible choice for a distro, and make the kernel smaller as well.
-Kernels are getting near the limits of some machines to boot them.
+
+# kernel 2.4.22
+# cmd649 ctrl
+# maxtor, samsung, quantum disks, nevermind
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+  DaP

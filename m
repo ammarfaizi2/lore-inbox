@@ -1,52 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267481AbUHEElK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267484AbUHEEnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267481AbUHEElK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 00:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHEElK
+	id S267484AbUHEEnD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 00:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHEEnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 00:41:10 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:45951 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267481AbUHEEk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 00:40:59 -0400
-Message-ID: <4111B460.5040408@yahoo.com.au>
-Date: Thu, 05 Aug 2004 14:15:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
-References: <1091638227.1232.1750.camel@cube> <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au> <411196EE.9050408@bigpond.net.au> <41119A3B.2020202@yahoo.com.au> <4111A39C.40200@bigpond.net.au> <4111A418.5030101@yahoo.com.au> <4111AB49.5010003@bigpond.net.au>
-In-Reply-To: <4111AB49.5010003@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 00:43:03 -0400
+Received: from holomorphy.com ([207.189.100.168]:60864 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267484AbUHEEle (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 00:41:34 -0400
+Date: Wed, 4 Aug 2004 21:41:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [sparc32] [3/13] sun4d cpu_present_map is a cpumask_t
+Message-ID: <20040805044130.GU2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040802015527.49088944.akpm@osdl.org> <20040805043817.GS2334@holomorphy.com> <20040805043957.GT2334@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805043957.GT2334@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Nick Piggin wrote:
-> 
->> Peter Williams wrote:
->>
->>> Nick Piggin wrote:
->>>
->>>> However if you add or remove scheduling policies, your
->>>> p->policy method breaks.
->>>
->>>
->>>
->>>
->>> Not if Albert's numbering system is used.
->>>
->>
->> What if another realtime policy is added? Or one is removed?
-> 
-> 
-> What if the "prio" field is removed?
-> 
+On Wed, Aug 04, 2004 at 09:39:57PM -0700, William Lee Irwin III wrote:
+> An analysis of the code determined that AP initialization called
+> init_idle() no less than three times, 2 out of the three with incorrect
+> numbers of arguments. This patch removes the superfluous calls.
 
-Dunno; the scheduler stops working?
+cpu_present_map is a cpumask_t. Sweep arch/sparc/kernel/sun4d_smp.c so
+that it is treated as such.
+
+Index: mm2-2.6.8-rc2/arch/sparc/kernel/sun4d_smp.c
+===================================================================
+--- mm2-2.6.8-rc2.orig/arch/sparc/kernel/sun4d_smp.c
++++ mm2-2.6.8-rc2/arch/sparc/kernel/sun4d_smp.c
+@@ -43,7 +43,6 @@
+ extern void calibrate_delay(void);
+ 
+ extern volatile int smp_processors_ready;
+-extern unsigned long cpu_present_map;
+ extern int smp_num_cpus;
+ static int smp_highest_cpu;
+ extern int smp_threads_ready;
+@@ -172,12 +171,12 @@
+ 		current_set[0] = NULL;
+ 
+ 	local_irq_enable();
+-	cpu_present_map = 0;
++	cpus_clear(cpu_present_map);
+ 
+ 	/* XXX This whole thing has to go.  See sparc64. */
+ 	for (i = 0; !cpu_find_by_instance(i, NULL, &mid); i++)
+-		cpu_present_map |= (1<<mid);
+-	SMP_PRINTK(("cpu_present_map %08lx\n", cpu_present_map));
++		cpu_set(mid, cpu_present_map);
++	SMP_PRINTK(("cpu_present_map %08lx\n", cpus_addr(cpu_present_map)[0]));
+ 	for(i=0; i < NR_CPUS; i++)
+ 		__cpu_number_map[i] = -1;
+ 	for(i=0; i < NR_CPUS; i++)
+@@ -195,7 +194,7 @@
+ 		if(i == boot_cpu_id)
+ 			continue;
+ 
+-		if(cpu_present_map & (1 << i)) {
++		if (cpu_isset(i, cpu_present_map)) {
+ 			extern unsigned long sun4d_cpu_startup;
+ 			unsigned long *entry = &sun4d_cpu_startup;
+ 			struct task_struct *p;
+@@ -252,19 +251,19 @@
+ 			}
+ 		}
+ 		if(!(cpu_callin_map[i])) {
+-			cpu_present_map &= ~(1 << i);
++			cpu_clear(i, cpu_present_map);
+ 			__cpu_number_map[i] = -1;
+ 		}
+ 	}
+ 	local_flush_cache_all();
+ 	if(cpucount == 0) {
+ 		printk("Error: only one Processor found.\n");
+-		cpu_present_map = (1 << hard_smp4d_processor_id());
++		cpu_present_map = cpumask_of_cpu(hard_smp4d_processor_id());
+ 	} else {
+ 		unsigned long bogosum = 0;
+ 		
+ 		for(i = 0; i < NR_CPUS; i++) {
+-			if(cpu_present_map & (1 << i)) {
++			if (cpu_isset(i, cpu_present_map)) {
+ 				bogosum += cpu_data(i).udelay_val;
+ 				smp_highest_cpu = i;
+ 			}
+@@ -344,12 +343,13 @@
+ 
+ 		/* Init receive/complete mapping, plus fire the IPI's off. */
+ 		{
+-			register unsigned long mask;
++			cpumask_t mask;
+ 			register int i;
+ 
+-			mask = (cpu_present_map & ~(1 << hard_smp4d_processor_id()));
++			mask = cpumask_of_cpu(hard_smp4d_processor_id());
++			cpus_andnot(mask, cpu_present_map, mask);
+ 			for(i = 0; i <= high; i++) {
+-				if(mask & (1 << i)) {
++				if (cpu_isset(i, mask)) {
+ 					ccall_info.processors_in[i] = 0;
+ 					ccall_info.processors_out[i] = 0;
+ 					sun4d_send_ipi(i, IRQ_CROSS_CALL);

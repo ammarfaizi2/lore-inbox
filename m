@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYJHN>; Thu, 25 Jan 2001 04:07:13 -0500
+	id <S129413AbRAYJHN>; Thu, 25 Jan 2001 04:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAYJHC>; Thu, 25 Jan 2001 04:07:02 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:7557 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129444AbRAYJGz>;
-	Thu, 25 Jan 2001 04:06:55 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129444AbRAYJHC>; Thu, 25 Jan 2001 04:07:02 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:4046 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129413AbRAYJGs>; Thu, 25 Jan 2001 04:06:48 -0500
+Date: Thu, 25 Jan 2001 09:06:33 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Sasi Peter <sape@iq.rulez.org>, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <E14LawQ-000893-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.4.21.0101250905140.15936-100000@orange.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14959.60545.51978.532381@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 01:06:09 -0800 (PST)
-To: Juri Haberland <juri.haberland@innominate.com>
-Cc: Jeremy Hansen <jeremy@xxedgexx.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <3A6FD7A0.B45964A8@innominate.com>
-In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com>
-	<3A6FD7A0.B45964A8@innominate.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 Jan 2001, Alan Cox wrote:
 
-Juri Haberland writes:
- > Forget it. I mailed them and this is the answer:
- > 
- > "As ECN is not a widely used internet standard, and as Cisco does not
- > have a stable OS for their routers that accepts ECN, anyone attempting
- > to access our site through a gateway or from a computer that uses ECN
- > will be unable to do so."
+> > I think, that is not what we need. Once Ingo wrote, that since HTTP 
+> > serving can also be viewed as a kind of fileserving, it should be 
+> > possible to create a TUX like module for the same framwork, that serves 
+> > using the SMB protocol instead of HTTP...
+> 
+> 
+> Kernel SMB is basically not a sane idea. sendfile can help it though
 
-The interesting bit is the "Cisco does not have a stable OS..." part.
+Right now, ISTR Samba is still a forking daemon?? This has less impact on
+performance than it would for an httpd, because of the long-lived
+sessions, but rewriting it as a state machine (no forking, threads or
+other crap, just use non-blocking I/O) would probably make much more
+sense.
 
-I've been told repeatedly by the Cisco folks that a stable supported
-patch is available from them for their firewall products which were
-rejecting ECN packets.
 
-I'd really like Cisco to reaffirm this and furthermore, and
-furthermore get in contact with and correct the hotmail folks
-if necessary.
-
-I have in fact noticed that some sites that did have the problem have
-installed the fix and are now accessible with ECN enabled.
-
-Later,
-David S. Miller
-davem@redhat.com
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

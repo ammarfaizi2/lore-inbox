@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUAWAbr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 19:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266499AbUAWAbq
+	id S266493AbUAWA3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 19:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266497AbUAWA3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 19:31:46 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:13735 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S266498AbUAWAaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 19:30:20 -0500
-Message-ID: <065201c3e148$12ac1bf0$03c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20040122181751.A2101@mail.kroptech.com> <20040122162348.46637991.akpm@osdl.org>
-Subject: Re: 2.6.1 oops in prune_dcache()
-Date: Thu, 22 Jan 2004 19:29:46 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 22 Jan 2004 19:29:03 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:16145 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S266493AbUAWA26
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 19:28:58 -0500
+Date: Thu, 22 Jan 2004 18:48:04 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Message-ID: <20040122234803.GC18316@widomaker.com>
+References: <200401221004.06645.chakkerz@optusnet.com.au> <400FB4AA.8000109@yahoo.com.br> <200401222252.41853.chakkerz@optusnet.com.au> <400FBE18.8010302@ihateaol.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <400FBE18.8010302@ihateaol.co.uk>
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Adam Kropelin <akropel1@rochester.rr.com> wrote:
->>
->> At 4 AM this morning (during cron run, I suppose) a box running 2.6.1
->> hit the oops below. It locked solid, had to hit the reset button to
->> reboot it. The machine had been running 2.6.1 for about a week prior
->> with no problems.
+Thu, 22 Jan 2004 @ 12:12 +0000, Kieran said:
 
-<snip>
+> How strange. I run slack 9.1 and 2.6.1, just grabbed the 4496 
+> pre-patched file from http://www.sh.nu/download/nvidia/ and installed it 
+> as I would on 2.4. Works a charm.
 
->> Jan 21 04:06:32 print kernel: eax: 00008000   ebx: c1dc83e0   ecx:
->> c577da74   edx: c577da74
->
-> Bit 15 of %eax got flipped.  The kernel indexed off it and oopsed.
->
-> This is most likely a hardware failure.
+How's the performance?
 
-Yikes...I should have noticed that bit. You're certainly right. Guess I'm in
-the market for some RAM. Sorry for the noise.
+I have found the 4496 and 5328 drivers lowered my performance.
 
---Adam
+5328 is supposed to be faster mip-mapping and faster when running with
+vertical blank sync, but I didn't see it myself.  It also caused quite a
+few sound artifacts from my Live! sound card.
 
+Anyone done a driver-by-driver benchmark?
+
+I got tired of it, but here's the performance order on my system from
+fastest to slowest:
+
+4620
+3xxx (last stable 3xxx driver)
+4496
+5328
+
+Mostly what I look for are not benchmark numbers, but notable hesitation
+in programs and interactive response, and side effects like bad sound
+artifacts.
+
+
+
+
+-- 
+UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com

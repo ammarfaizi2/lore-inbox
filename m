@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280222AbRJaN7Q>; Wed, 31 Oct 2001 08:59:16 -0500
+	id <S280213AbRJaOBG>; Wed, 31 Oct 2001 09:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280219AbRJaN7G>; Wed, 31 Oct 2001 08:59:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28895 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280213AbRJaN65>;
-	Wed, 31 Oct 2001 08:58:57 -0500
-Date: Wed, 31 Oct 2001 08:59:33 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-cc: Manuel Cepedello Boiso <manuel@cauchy.eii.us.es>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Oops when unmounting a floppy (linux 2.4.13)
-In-Reply-To: <3BDFF478.5030604@wipro.com>
-Message-ID: <Pine.GSO.4.21.0110310855110.5536-100000@weyl.math.psu.edu>
+	id <S280226AbRJaOA4>; Wed, 31 Oct 2001 09:00:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5135 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280213AbRJaOAp>; Wed, 31 Oct 2001 09:00:45 -0500
+Subject: Re: AMD SMP Support ?
+To: mschwarz_contron@yahoo.de (=?iso-8859-1?q?Marco=20Schwarz?=)
+Date: Wed, 31 Oct 2001 14:08:04 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011031133744.78351.qmail@web10303.mail.yahoo.com> from "=?iso-8859-1?q?Marco=20Schwarz?=" at Oct 31, 2001 02:37:44 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15yw2G-0003oi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> - Does the current kernel support Dual Athlon CPUs ?
 
+Yes.
 
-On Wed, 31 Oct 2001, BALBIR SINGH wrote:
+> - Is it possible to build one kernel for dual Athlon,
+> single Athlon, dual PIII and single PIII boxes ? 
 
-> Preliminary analysis shows that getblk now no longer holds lru_list_lock.
-> I am sure there is a good reason for that, I hope :-)
-> 
-> get_hash_table just holds hash_table_lock where as invalidate_buffer
-> holds lru_list_lock.
-
-So what?
-
+Yes. Build an SMP PII kernel and all should be fine. It won't make use
+of the athlon optimisations and you'll pay the SMP overhead on all boxes
+but its an acceptable trade off for easy management in most cases

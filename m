@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268817AbRHFVDk>; Mon, 6 Aug 2001 17:03:40 -0400
+	id <S268860AbRHFVMv>; Mon, 6 Aug 2001 17:12:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268832AbRHFVDa>; Mon, 6 Aug 2001 17:03:30 -0400
-Received: from r85m244.cybercable.tm.fr ([195.132.85.244]:20352 "HELO
-	picsou.chatons") by vger.kernel.org with SMTP id <S268817AbRHFVDZ>;
-	Mon, 6 Aug 2001 17:03:25 -0400
-Date: Mon, 6 Aug 2001 23:03:35 +0200
-From: David Monniaux <monniaux.remove_me_this_for_spam@di.ens.fr>
-To: linux-kernel@vger.kernel.org
-Subject: APM poweroff under Linux 2.4.7 / 2.4.2 RH 7.1
-Message-ID: <20010806230335.A2473@picsou.chatons>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S268952AbRHFVMk>; Mon, 6 Aug 2001 17:12:40 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:48143 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268860AbRHFVMd>; Mon, 6 Aug 2001 17:12:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] using writepage to start io
+Date: Mon, 6 Aug 2001 23:18:26 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-mm@kvack.org
+In-Reply-To: <755760000.997128720@tiny>
+In-Reply-To: <755760000.997128720@tiny>
+MIME-Version: 1.0
+Message-Id: <01080623182601.01864@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Monday 06 August 2001 22:12, Chris Mason wrote:
+> On Monday, August 06, 2001 09:45:12 PM +0200 Daniel Phillips
+>
+> <phillips@bonn-fries.net> wrote:
+> >> Almost ;-) memory pressure doesn't need to care about how long a
+> >> buffer has been dirty, that's kupdate's job.  kupdate doesn't care
+> >> if the buffer it is writing is a good candidate for freeing, that's
+> >> taken care of elsewhere. The two never need to talk (aside from
+> >> optimizations).
+> >
+> > My point is, they should talk, in fact they should be the same
+> > function. It's never right for bdflush to submit younger buffers
+> > when there are dirty buffers whose flush time has already passed.
+>
+> Grin, we're talking in circles.  My point is that by having two
+> threads, bdflush is allowed to skip over older buffers in favor of
+> younger ones because somebody else is responsible for writing the
+> older ones out.
 
-I have an Athlon on an ASUS A7V133.
-This machine powers off perfectly using a stock RedHat 7.1 kernel (2.4.2).
-However, it refuses to power off with 2.4.7, with all APM options set
-correctly (including power off in real mode).
+Yes, and you can't imagine an algorithm that could do that with *one* 
+thread?
 
-Now for the funny part: copying the 2.4.2 apm.c to the 2.4.7 and
-recompiling yielded a working poweroff. So *something* has been broken
-between 2.4.2 and 2.4.7 with APM poweroff. :-)
-
--- 
-David Monniaux            http://www.di.ens.fr/~monniaux
-Laboratoire d'informatique de l'École Normale Supérieure,
-Paris, France
+--
+Daniel

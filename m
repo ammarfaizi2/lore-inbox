@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbTEVBGK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 21:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTEVBGK
+	id S262437AbTEVBLn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 21:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbTEVBLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 21:06:10 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:28803 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262426AbTEVBGJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 21:06:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Date: Wed, 21 May 2003 20:25:47 -0500
-User-Agent: KMail/1.4.3
-References: <20030521152255.4aa32fba.akpm@digeo.com>
-In-Reply-To: <20030521152255.4aa32fba.akpm@digeo.com>
+	Wed, 21 May 2003 21:11:43 -0400
+Received: from dp.samba.org ([66.70.73.150]:25746 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262437AbTEVBLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 21:11:42 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305212025.47875.habanero@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16076.9908.786052.20735@argo.ozlabs.ibm.com>
+Date: Thu, 22 May 2003 11:24:04 +1000
+To: torvalds@transmeta.com
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] SET_MODULE_OWNER change in apm_emu.c
+X-Mailer: VM 7.15 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 May 2003 17:22, Andrew Morton wrote:
-> +o Overeager affinity in presence of repeated yields
-> +
-> +  http://www.hpl.hp.com/research/linux/kernel/o1-openmp.php
-> +
-> +  ingo: this is valid.  fix is in progress.
+Linus,
 
-I have seen this with SpecJBB on high warehouse runs in around 2.5.66, I am 
-testing now to see if it still exists in 2.5.69.  In 2.5.66 adding a bit to 
-try_to_wakeup to relocate p-task_cpu to an idle cpu (if available) if the 
-p->task_cpu is currently non idle helped dramatically.  This change is also 
-in Andrea's 2.4 kernel tree I believe.  Basically in some situations, a quick 
-push load balance before task activation.  
+The patch below fixes drivers/macintosh/apm_emu.c by replacing the
+SET_MODULE_OWNER with a statement that explicitly sets the owner field
+of the proc_dir_entry that it creates.
 
-Also, in this particular case, this behavior may go away with the use of 
-futexes in JVM, not sure yet, so I don't know if JVM and JBB are good 
-justifications to make this change.  
+Please apply.
 
--Andrew Theurer
+Thanks,
+Paul.
 
+diff -urN linux-2.5/drivers/macintosh/apm_emu.c pmac-2.5/drivers/macintosh/apm_emu.c
+--- linux-2.5/drivers/macintosh/apm_emu.c	2003-04-03 08:55:29.000000000 +1000
++++ pmac-2.5/drivers/macintosh/apm_emu.c	2003-05-21 13:40:54.000000000 +1000
+@@ -524,7 +524,7 @@
+ 		
+ 	apm_proc = create_proc_info_entry("apm", 0, NULL, apm_emu_get_info);
+ 	if (apm_proc)
+-		SET_MODULE_OWNER(apm_proc);
++		apm_proc->owner = THIS_MODULE;
+ 
+ 	misc_register(&apm_device);
+ 

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287748AbSAXMun>; Thu, 24 Jan 2002 07:50:43 -0500
+	id <S285482AbSAXM7h>; Thu, 24 Jan 2002 07:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287743AbSAXMu0>; Thu, 24 Jan 2002 07:50:26 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:63496 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S287731AbSAXMuM>; Thu, 24 Jan 2002 07:50:12 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Thu, 24 Jan 2002 13:36:50 +0100
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>, linux-kernel@vger.kernel.org
-Subject: Re: amd athlon cooling on kt266/266a chipset
-Message-ID: <20020124133650.B25946@alpha.logic.tuwien.ac.at>
-In-Reply-To: <Pine.LNX.4.40.0201241212250.7304-100000@infcip10.uni-trier.de> <1011874755.22707.17.camel@psuedomode>
+	id <S287769AbSAXM71>; Thu, 24 Jan 2002 07:59:27 -0500
+Received: from ns.suse.de ([213.95.15.193]:64269 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285482AbSAXM7U>;
+	Thu, 24 Jan 2002 07:59:20 -0500
+Date: Thu, 24 Jan 2002 13:59:17 +0100
+From: Dave Jones <davej@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: info@global-digicom.com, linux-kernel@vger.kernel.org
+Subject: Re: White Paper on the Linux kernel VM?
+Message-ID: <20020124135916.A14469@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>, info@global-digicom.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020124033618.20653.cpmta@c001.snv.cp.net> <Pine.LNX.4.33L.0201241004320.32617-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1011874755.22707.17.camel@psuedomode>
+In-Reply-To: <Pine.LNX.4.33L.0201241004320.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Thu, Jan 24, 2002 at 10:05:43AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Don, 24 Jan 2002, Ed Sweetman wrote:
-> Furthermore, I haven't heard of anyone where the patch actually makes an
-> improvement in temp with the patch.  But i have heard of people saying
+On Thu, Jan 24, 2002 at 10:05:43AM -0200, Rik van Riel wrote:
+ 
+ > I made a paper about the old VM in the 2.4 kernels, with some
+ > overview of its shortcomings and what needs to be fixed.
 
-Well, I am a counterexample. I used another patch doing the same
-(the one from www.vcool.de) and it reduced my CPU temp by around 15-20 C!
-In summer this can be of real good use!
+ And probably the closest thing to documentation for
+ the newer 2.4 VM is in some slides from Andrea..
+ ftp://ftp.suse.com/pub/people/andrea/talks/2001/pluto-dec-pub-0.tar.gz
 
-Best wishes
+ Some bits may have changed a little since those slides were done,
+ (especially in -aa VM) but for the most part they make interesting
+ reading.
 
-Norbert
-
------------------------------------------------------------------------
-Norbert Preining <preining@logic.at> 
-University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
------------------------------------------------------------------------
-`The best way to get a drink out of a Vogon is to stick 
-your finger down his throat...'
-
-                 --- The Book, on one of the Vogon's social inadequacies. 
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVBCRKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVBCRJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVBCRKB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 12:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVBCRKA
+	id S262752AbVBCRJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 12:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVBCRJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:10:00 -0500
-Received: from 28-218-114-200.fibertel.com.ar ([200.114.218.28]:56846 "HELO
-	28-218-114-200.fibertel.com.ar") by vger.kernel.org with SMTP
-	id S263430AbVBCRGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:06:46 -0500
-Date: Thu, 03 Feb 2005 18:58:26 +0200
-From: Carolina Hastings <kamalco@satyam.net.in>
-Subject: adjustable M o r t g a g e rate
-To: linux-kernel@vger.kernel.org
-Message-ID: <ED7C13FF.84593@cwix.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7Bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+	Thu, 3 Feb 2005 12:09:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53992 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S263313AbVBCRBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:01:20 -0500
+Date: Thu, 3 Feb 2005 17:01:11 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-fsdevel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: NFSD needs EXPORTFS
+Message-ID: <20050203170111.GE20386@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-Your mtg process is approved, for rates starting at 3.61% Fixed.
-Please use our secure site to fill-out your application, which does not
-ask for any sensative info.
- 
-After filling it out, you will recieve a 180,000.00 loan from one of our
-lenders.
- 
-Thank you.
-visit us at the link below:
- 
-http://www.dfpcn.com/index.php?refid=849
 
-Carolina Hastings
-Lending Specialist
+Got this report about 2.6.11-rc3.  Is this the correct solution?
 
-pps: It does NOT cost anything, just fillup a online form - 
-we request you to take just 2 minutes off your valuable time. 
-No obligation
+----- Forwarded message from Joel Soete <soete.joel@tiscali.be> -----
+
+A short analyse, it seems that's because NFSD was builtin while EXPORTFS
+was a module in my previous config file. Imho EXPORTFS would be build as
+NFSD?
+
+Is the following hunk would do the trick:
+--- fs/Kconfig.Orig     2005-02-03 16:45:13.562275206 +0100
++++ fs/Kconfig  2005-02-03 16:46:36.496469111 +0100
+@@ -1400,6 +1400,7 @@
+        tristate "NFS server support"
+        depends on INET
+        select LOCKD
++       select EXPORTFS
+        select SUNRPC
+        help
+          If you want your Linux box to act as an NFS *server*, so that other
+========><========
+
+Thanks in advance,
+    Joel
+
+----- End forwarded message -----
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

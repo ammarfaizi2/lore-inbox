@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318716AbSIKLOC>; Wed, 11 Sep 2002 07:14:02 -0400
+	id <S318718AbSIKLM5>; Wed, 11 Sep 2002 07:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318719AbSIKLOC>; Wed, 11 Sep 2002 07:14:02 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11673 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318716AbSIKLN7>;
-	Wed, 11 Sep 2002 07:13:59 -0400
-Date: Wed, 11 Sep 2002 13:24:21 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Paul McKenney <paul.mckenney@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Read-Copy Update 2.5.34
-In-Reply-To: <20020911164940.C28198@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209111323360.12332-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318719AbSIKLM5>; Wed, 11 Sep 2002 07:12:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:37132 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318718AbSIKLMz>;
+	Wed, 11 Sep 2002 07:12:55 -0400
+Date: Wed, 11 Sep 2002 13:17:40 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.5
+Message-ID: <20020911131740.A17141@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>
+References: <3D7E7D5F.F37D2D49@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D7E7D5F.F37D2D49@linux-m68k.org>; from zippel@linux-m68k.org on Wed, Sep 11, 2002 at 01:16:47AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Roman.
 
-On Wed, 11 Sep 2002, Dipankar Sarma wrote:
+Made it apply clean to 2.5.34 (not 2.5.35).
+Played a little with make xconfig.
 
-> Ingo, it will be nice to have your comments on this, specially since it
-> touches the scheduler.
+make xconfig
+- Do some selections
+- Use mouse to select save icon on tool-bar
+- File|Quit
+->Save Configuration? Press yes
+End result is an empty .config file
 
-i dont really understand why it has to change the scheduler. You want a
-facility to force a reschedule on any given CPU, correct?
+If I select No in the Save Configuration dialog everything is fine.
 
-	Ingo
-
+	Sam

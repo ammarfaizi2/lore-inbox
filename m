@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316778AbSEUX0R>; Tue, 21 May 2002 19:26:17 -0400
+	id <S316780AbSEUX1Q>; Tue, 21 May 2002 19:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316779AbSEUX0Q>; Tue, 21 May 2002 19:26:16 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:43434 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316778AbSEUX0P>;
-	Tue, 21 May 2002 19:26:15 -0400
-Date: Tue, 21 May 2002 22:08:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 65
-Message-ID: <20020521220854.A12368@ucw.cz>
-In-Reply-To: <3CEA7740.7060204@evision-ventures.com> <Pine.LNX.4.44.0205211041460.2634-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316782AbSEUX1Q>; Tue, 21 May 2002 19:27:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41741 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316780AbSEUX1P>; Tue, 21 May 2002 19:27:15 -0400
+Date: Tue, 21 May 2002 16:26:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+In-Reply-To: <20020521232001.GK22878@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0205211621310.22624-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 10:56:14AM -0700, Linus Torvalds wrote:
 
-> > The other things which ll_rw_blk.c doesn't get right is the
-> > fact that the current merge functions don't respect hard sector
-> > sizes
-> 
-> They aren't there to be respected by the ll_rw_blk layer - if some layer
-> above it has created a request larger than the hard sector size, THAT is
-> the problem, and there is nothing ll_rw_blk can do (except maybe BUG() on
-> it, but I don't think we've ever really seen those kinds of bugs).
+On Wed, 22 May 2002, Pavel Machek wrote:
+> Do you think I should modify schedule() to do freezing automatically?
+> I wanted to keep my hands off hot paths... I'd rather not do that. 
 
-Hum, I'm confused here - shouldn't that be "if some layer above it has
-created a request SMALLER than the hard sector size"? Or better a
-request that is not a multiple of hard sector size?
+No, I just suspect you could freeze them _while_ they sleep by just 
+picking up their information from the normal save area.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Yeah, I know, Linux tends to save a lot of the process stuff implicitly on
+the stack, so maybe that ends up being harder than it sounds, and you've 
+done it for other tasks with the signal handler code instead, but you 
+_should_ be able to do it without any signal handler hackery by just 
+saving off their kernel stack and the stuff in the thread structure.
+
+That's just a gut feeling, not having actually looked at the real details.
+
+		Linus
+

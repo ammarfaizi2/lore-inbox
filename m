@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130339AbRBKXcr>; Sun, 11 Feb 2001 18:32:47 -0500
+	id <S129997AbRBLARx>; Sun, 11 Feb 2001 19:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130703AbRBKXcg>; Sun, 11 Feb 2001 18:32:36 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:64038 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130339AbRBKXcU>; Sun, 11 Feb 2001 18:32:20 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Frank Davis <fdavis112@juno.com>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-ac10 compile error 
-In-Reply-To: Your message of "Sun, 11 Feb 2001 17:34:04 CDT."
-             <385378057.981930849661.JavaMail.root@web395-wra.mail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Feb 2001 10:32:12 +1100
-Message-ID: <30890.981934332@kao2.melbourne.sgi.com>
+	id <S130682AbRBLARc>; Sun, 11 Feb 2001 19:17:32 -0500
+Received: from lindy.SoftHome.net ([204.144.232.9]:6406 "HELO
+	lindy.softhome.net") by vger.kernel.org with SMTP
+	id <S129997AbRBLARX>; Sun, 11 Feb 2001 19:17:23 -0500
+Message-ID: <20010212004402.3433.qmail@lindy.softhome.net>
+To: linux-kernel@vger.kernel.org
+Subject: ext2: block > big ?
+Date: Sun, 11 Feb 2001 17:44:02 -0700
+From: Brian Grossman <brian@SoftHome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Feb 2001 17:34:04 -0500 (EST), 
-Frank Davis <fdavis112@juno.com> wrote:
->Hello,
->    I received the following while compiling 2.4.1-ac10:
->...
->make[3]: *** No rule to make target '/usr/src/linux/drivers/pci/devlist.h', needed by names.o'. Stop
->make[3]: Leaving directory '/usr/src/linux/drivers/pci'
->make[2]: *** [first_rule] Error 2
 
-None of the 2.4.1-ac patches hit drivers/pci/Makefile.  You have
-corrupted your source somewhere.  Building from 2.4.1-pristine +
-patch-2.4.1-ac10.bz2 gives this in drivers/pci/Makefile.
+What does a message like 'ext2: block > big' indicate?
 
-names.o: names.c devlist.h classlist.h
+This was kernel 2.2.18aa2.
 
-devlist.h classlist.h: pci.ids gen-devlist
-	./gen-devlist <pci.ids
+The machine was completely unresponsive when I got there.  There were a
+bunch of block>big messages on the screen, but no oops.
 
-gen-devlist: gen-devlist.c
-	$(HOSTCC) $(HOSTCFLAGS) -o gen-devlist gen-devlist.c
+In my grogginess, I didn't have the sense to copy down the whole message,
+but it did also mention the device (8,9?).  The major 8 scsi devices in use
+are three partitions of one disk -- two 15GB and one 50GB.
 
+Brian
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

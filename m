@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261802AbRESWUk>; Sat, 19 May 2001 18:20:40 -0400
+	id <S261988AbRESWfc>; Sat, 19 May 2001 18:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261937AbRESWUb>; Sat, 19 May 2001 18:20:31 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:45837 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261802AbRESWUX>; Sat, 19 May 2001 18:20:23 -0400
-Date: Sat, 19 May 2001 23:20:20 +0100 (BST)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Brown-paper-bag bug in m68k, sparc, and sparc64
- config files
-In-Reply-To: <20010519181026.A23730@thyrsus.com>
-Message-ID: <Pine.LNX.4.21.0105192318470.10339-100000@mrbusy.compsoc.man.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261965AbRESWfX>; Sat, 19 May 2001 18:35:23 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:44178 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261937AbRESWfS>; Sat, 19 May 2001 18:35:18 -0400
+Date: Sun, 20 May 2001 00:34:00 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben LaHaise <bcrl@redhat.com>,
+        Alexander Viro <viro@math.psu.edu>, Andrew Morton <andrewm@uow.edu.au>,
+        Andries.Brouwer@cwi.nl, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+Message-ID: <20010520003400.N754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu> <Pine.LNX.4.21.0105191132420.14472-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0105191132420.14472-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 19, 2001 at 11:34:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001, Eric S. Raymond wrote:
+On Sat, May 19, 2001 at 11:34:48AM -0700, Linus Torvalds wrote:
+[Reasons]
+> So the "English is bad" argument is a complete non-argument.
 
-> This bug unconditionally disables a configuration question -- and it's
-> so old that it has propagated across three port files, without either
-> of the people who did the cut and paste for the latter two noticing it.
+Jepp, I have to agree. 
 
-in fact it was originally in i386 too. I noticed and fixed it,
-didn't even think about the other archs.
+English is used more or less as an communication protocol in
+computer science and for operating computers.
 
-> This sort of thing would never ship in CML2, because the compiler
-> would throw an undefined-symbol warning on BLK_DEV_ST.  The temptation
-> to engage in sarcastic commentary at the expense of people who still
-> think CML2 is an unnecessary pain in the butt is great.  But I will
+Once you know how to operate an computer in English, you can
+operate nearly every computer in the world, because they have
+English as default locale.
 
-Most of these people don't seem to have been subscribed to kbuild-devel
-anyway, and missed most of the commentary over the past months.
+Let's not repeat Babel please :-(
 
-> -   if [ "$CONFIG_BLK_DEV_ST" != "n" ]; then
-> +   if [ "$CONFIG_CHR_DEV_ST" != "n" ]; then
+PS: English is neither mine, nor Linus native language. Why do
+   the English natives complain instead of us? ;-)
 
-john
+<off topic side note>
+   And be glad that's not German, that has this role. English
+   sentences are WAY easier to parse by computers, because it
+   doesn't use much suffixes and prefixes on words and has very
+   few exceptions. Also these exceptions are eleminated from
+   command languages WITHOUT influencing readability and
+   comprehensability.
+</off topic side note>
 
+
+Regards
+
+Ingo Oeser
 -- 
-"A reasonable probability is the only certainty."
-	- E. W. Howe
-
+To the systems programmer,
+users and applications serve only to provide a test load.

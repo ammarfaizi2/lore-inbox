@@ -1,101 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263938AbTDJGRe (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 02:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263985AbTDJGRd (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 02:17:33 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:8208 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263938AbTDJGRc (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 02:17:32 -0400
-Date: Thu, 10 Apr 2003 07:29:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: hendriks@lanl.gov
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Syscall numbers for BProc
-Message-ID: <20030410072910.A15440@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, hendriks@lanl.gov,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <20030404193218.GD15620@lanl.gov> <20030404203531.A29501@infradead.org> <20030405004427.GG15620@lanl.gov> <20030405064559.A2331@infradead.org> <20030405201537.GA18755@lanl.gov>
-Mime-Version: 1.0
+	id S263986AbTDJGlR (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 02:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263987AbTDJGlR (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 02:41:17 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:49377 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263986AbTDJGlN (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 02:41:13 -0400
+Date: Wed, 09 Apr 2003 23:52:42 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.67-mjb1
+Message-ID: <201640000.1049957562@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030405201537.GA18755@lanl.gov>; from hendriks@lanl.gov on Sat, Apr 05, 2003 at 01:15:37PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 05, 2003 at 01:15:37PM -0700, hendriks@lanl.gov wrote:
-> The reason it is the way it is because when I'm trying to avoid
-> stomping on other syscalls, having a small foot print is a good thing.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-Adding more syscalls isn't really a big deal - whether you add one or
-a bunch of them in a diff doesn't really matter.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-> Breaking out every call into a separate syscall number would also make
-> it more difficult to add new features in the future.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.67/patch-2.5.67-mjb1.bz2
 
-Which is a good thing :)  Having syscall multiplexers leads to very
-messy APIs like the one you proposed :)
+additional:
 
-> Since our nodes are running *nothing* but the Bproc slave, you can't
-> log in some other way to kill the slave and then reboot and you can't
-> run shutdown -r or something like that becuase there are no init
-> scripts.
+(these two form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/isp-update-1.patch
 
-We have a reboot notifier call chain in the kernel.
+(shared pagetables - will appear later ;-))
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.67/shpte
 
-> > Should be read() on a special file.
-> 
-> It started life like that but then I liked the idea of being able to
-> do it from any node in the system.  (remember no shared fs) 
+(some NUMA info, but scuppers some things)
+http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
 
-You have this no shared fs argument a few times - why don't you _add_
-a shared virtual filesystem for kerne, information?  This would clean
-up many of the messier APIs.
+Since 2.5.66-mjb2 (~ = changed, + = added, - = dropped)
 
-> > I'm pretty sure this would better be a /proc/<pid>/image file you
-> > can read from.
-> 
-> I'm a little fuzzy on what you mean here.  If you're suggesting that a
-> process read from its own /proc/pid/image, then that's hard because
-> the process is changing while you do it.  In the 3rd party case (which
-> vmadump doesn't support) it gets more tricky because you need to make
-> sure the process is stopped and the CPU state stored while you're
-> reading this.
+Notes:
 
-Okay, you're right - this should be a syscall.
+Now in Linus' tree:
 
-> VMADump doesn't depend on BProc at all.  You will, however, need a
-> system call for it the way it's written now :)
+3c509_fix					Martin J. Bligh
+scsi_sysfs_fix					Various People
+d_notify					Andrew Morton
+cs46xx_lib					Martin J. Bligh
 
-Yeah, conviencded.  Care to submit a separated out vmadump aptch with
-the syscalls for 2.5?
+New: 
 
-> 
-> > > 0x1030 - VMAD_LIB_CLEAR - clear the library list
-> > >   no arguments
-> > 
-> > What library lists are all those calls about?  Needs more explanation.
-> 
-> If you look at the virtual memory space of a dynamically linked
-> program, the percentage of space used by the program itself (i.e. not
-> libraries) is often very small.  In an effort to make process
-> migration really cheap, we're willing to say that files X, Y and Z are
-> available on the machine where we'll be restoring the process image.
-> The candidates for remote caching are, obviously, large shared
-> libraries.
-> 
-> So, the dumper needs to know what it can expect to find on the remote
-> system and what it can't.  That's where the library list comes in.  It
-> probably should just be called the remote file list or something.
-> It's a gross hack where we tell the kernel code what it doesn't need
-> to dump.  Anything that isn't dumped gets stored in the dump file as a
-> reference to a file.  (e.g. map X bytes of /lib/libc-2.3.2.so @ offset
-> Y)
-> 
-> And yeah, this might be cleaner as a writable special file but this
-> was easy given the big syscall mux.
++ ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
++ numameminfo fix				Martin J. Bligh
+	Correct /proc/meminfo.numa for zholes_size.
++ queuestat					William Lee Irwin
+	Provide queueing statistics for the scheduler
++ rmap_speedups					Andrew Morton
+	Speed up various things in rmap
+~ objrmap					Dave McCracken
+	Partial object based rmap
++ more_async					Andrew Morton
+	Make MS_ASYNC more async
++ separate_pmd					Dave Hansen
+	Separate kernel pmd per process
++ config_debug					Martin J. Bligh
+	Make '-g' for the kernel a config option
 
-I don't think you really want a device for this.  It's more an attribute
-of the mapping, so a MAP_ALWAYS_LOCAL flag to mmap sounds like the right
-thing.
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+Seperate kernel PMDs per process (Dave Hansen)
+Non-PAE aligned kernel splits (Dave Hansen)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+
+Present in this patch:
+
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+rmap_speedups					Andrew Morton
+	Speed up various things in rmap
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+objrmap_fix					Dave McCracken
+	Fix detection of anon pages
+
+objrmap_fixes					Dave McCracken / Hugh Dickins
+	Fix up some mapped sizing bugs in objrmap
+
+objrmap_mapcount				Dave McCracken
+	Fix up some mapped sizing bugs in objrmap
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+spinlock_inlining				Andrew Morton
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+summit_pcimap					Matt Dobson
+	Provide pci bus -> node mapping for x440
+
+# shpte						Dave McCracken
+	Shared pagetables
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+concurrent_balloc				Alex Tomas
+	Concurrent ext2 block allocation - makes SDET & dbench go whizzy fast.
+
+concurrent_inode				Alex Tomas
+	Concurrent ext2 inode allocation - makes SDET & dbench go whizzy fast.
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+sisfix						Martin J. Bligh
+	Fix warning & bug in sis900 driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+membind						Matt Dobson
+	NUMA memory binding API
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+early_printk_fix				Keith Mannthey
+	Fix commandline parsing in early printk (yay!)
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+sched_idle					Martin J. Bligh
+	Call load_balance with proper idle flag (pointed out by John Hawkes)
+
+diskstats					Rick Lindsley
+	Make disk stats available in /proc so they scale to lotsa disks.
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+numameminfo fix					Martin J. Bligh
+	Correct /proc/meminfo.numa for zholes_size.
+
+more_async					Andrew Morton
+	Make MS_ASYNC more async
+
+separate_pmd					Dave Hansen
+	Separate kernel pmd per process
+
+config_debug					Martin J. Bligh
+	Make '-g' for the kernel a config option
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
 

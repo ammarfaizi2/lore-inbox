@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268866AbTB0Afq>; Wed, 26 Feb 2003 19:35:46 -0500
+	id <S269141AbTB0Alg>; Wed, 26 Feb 2003 19:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268941AbTB0Afq>; Wed, 26 Feb 2003 19:35:46 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:9660 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268866AbTB0Afp>; Wed, 26 Feb 2003 19:35:45 -0500
-Date: Wed, 26 Feb 2003 16:45:49 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Mikael Pettersson <mikpe@user.it.uu.se>
-cc: Ion Badulescu <ionut@badula.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [BUG] 2.5.63: ESR killed my box!
-Message-ID: <10510000.1046306748@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302261559170.3527-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302261559170.3527-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S269142AbTB0Alg>; Wed, 26 Feb 2003 19:41:36 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:20191 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S269141AbTB0Alf>; Wed, 26 Feb 2003 19:41:35 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH]  Define __kernel_timer_t and __kernel_clockid_t on v850
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20030227005146.19C2F3748@mcspd15.ucom.lsi.nec.co.jp>
+Date: Thu, 27 Feb 2003 09:51:46 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  
->  	connect_bsp_APIC();
->  
-> -	phys_cpu_present_map = 1;
-> -	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
-> +	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
->  
->  	apic_pm_init2();
-
-If I'm reading this correctly, this is called out of APIC_init_uniprocessor
-from smp_init ... isn't that after people have finished using
-phys_cpu_present_map (eg setup_ioapic_ids_from_mpc)? 
-
-
-maybe change this bit in trap_init:
-
-@@ -665,7 +665,6 @@
- 	}
- 	set_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
- 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
--	boot_cpu_physical_apicid = 0;
- 	if (nmi_watchdog != NMI_NONE)
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
-to do:
-
-boot_cpu_physical_apicid = hard_smp_processor_id();
-phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
-
-or something like that? On the other hand, I can't see how this works right
-now (maybe it doesn't), so the above may be utterly wrong.
-
-M.
-
+diff -ruN -X../cludes linux-2.5.63-uc0.orig/include/asm-v850/posix_types.h linux-2.5.63-uc0/include/asm-v850/posix_types.h
+--- linux-2.5.63-uc0.orig/include/asm-v850/posix_types.h	2002-11-05 11:25:32.000000000 +0900
++++ linux-2.5.63-uc0/include/asm-v850/posix_types.h	2003-02-25 14:58:29.000000000 +0900
+@@ -1,8 +1,8 @@
+ /*
+  * include/asm-v850/posix_types.h -- Kernel versions of standard types
+  *
+- *  Copyright (C) 2001,02  NEC Corporation
+- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
++ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
++ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
+  *
+  * This file is subject to the terms and conditions of the GNU General
+  * Public License.  See the file COPYING in the main directory of this
+@@ -31,6 +31,8 @@
+ typedef long		__kernel_time_t;
+ typedef long		__kernel_suseconds_t;
+ typedef long		__kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int		__kernel_daddr_t;
+ typedef char *		__kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;

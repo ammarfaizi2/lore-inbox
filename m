@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314558AbSEVVqU>; Wed, 22 May 2002 17:46:20 -0400
+	id <S314645AbSEVVr1>; Wed, 22 May 2002 17:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314645AbSEVVqU>; Wed, 22 May 2002 17:46:20 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37779 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314558AbSEVVqT>; Wed, 22 May 2002 17:46:19 -0400
-Date: Wed, 22 May 2002 17:46:14 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
-        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
-Message-ID: <20020522174614.B2819@redhat.com>
-Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
-	"M. Edward Borasky" <znmeb@aracnet.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E17AXWu-0001vL-00@the-village.bc.nu> <1404136612.1022057787@[10.10.2.3]>
+	id <S314755AbSEVVr0>; Wed, 22 May 2002 17:47:26 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:49674 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S314645AbSEVVrX>; Wed, 22 May 2002 17:47:23 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <86256BC1.0076F247.00@smtpnotes.altec.com>
+Date: Wed, 22 May 2002 15:00:15 -0500
+Subject: Re: Linux-2.5.17
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 08:56:28AM -0700, Martin J. Bligh wrote:
-> > 7.3 has some of what is needed but not all. 
-> 
-> Can you outline the changes in this area? I want to make sure we're
-> not all fighting the same problems seperately ;-) I know bounce
-> buffers is one large element of that, though I believe you still
-> only go up to 4Gb, unless I'm mistaken?
 
-Yes, it only goes up to 4Gb.  It's because of the error handling code in 
-the SCSI mid-layer and above, it fails to properly handle the >4gb sg 
-entries on error conditions.  I'm working on that now and should have it 
-fixed soon.
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+Thanks for pointing me in the right direction; I found the same code in my copy
+of libgtop (1.0.9) and see the problem.  Maybe now I can hack something together
+to make it work.
+
+In comparing /proc/meminfo in 2.4.19-pre8 and 2.5.17 I see that there is very
+little difference except that the information gtop relies upon is missing.  The
+lines it needs aren't changed or rearranged, just gone altogether.  Was there
+any particular purpose for that, other than breaking programs like gtop?  I'm a
+firm believer that adding something new to a system should never break existing
+functionality unless absolutely necessary.  Was it necessary in this case, or
+was it done because someone was offended that it wasn't "clean" enough?
+
+
+
+
+
+Nick.Holloway@pyrites.org.uk (Nick Holloway) on 05/22/2002 06:49:59 AM
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Linux-2.5.17
+
+
+
+In <86256BC1.001146A6.00@smtpnotes.altec.com> Wayne.Brown@altec.com writes:
+> I can live with not building, crashing, or even eating filesystems.  Those
+> things will be fixed sooner or later.  But breaking userspace programs -- that
+> may well be permanent.
+
+Looking at the source code to libgtop-1.0.6 (the version I have
+easy access to), the parser used to extract the swap information from
+/proc/meminfo is extremely fragile (read: broken).  Rather than looking
+at the tag at the start of each line for the one it requires, it assumes
+that the "Swap:" details are on the 3rd line (and doesn't even verify
+the label).
+
+You can't expect the kernel to keep compatability for such poor user-space
+code (especially during a development cycle).
+
+The change to /proc/meminfo came about in 2.5.1, and this removed
+the first two lines from the old, inflexible layout (that has been
+deprecated for a while, and should probably been removed during the
+2.1.x development cycle).
+
+--
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

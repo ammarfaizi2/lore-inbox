@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272945AbTG3PM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 11:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272951AbTG3PM4
+	id S272934AbTG3PKf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 11:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272927AbTG3PJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 11:12:56 -0400
-Received: from gw-nl5.philips.com ([212.153.235.109]:38058 "EHLO
-	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S272945AbTG3PMU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 11:12:20 -0400
-Message-ID: <3F27E08F.2020406@basmevissen.nl>
-Date: Wed, 30 Jul 2003 17:13:19 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anuradha Ratnaweera <anuradha@ratnaweera.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Contributing to the kernel while being employed
-References: <1059576606.1759.31.camel@anuradha>
-In-Reply-To: <1059576606.1759.31.camel@anuradha>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 11:09:47 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:33193 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S272951AbTG3PHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 11:07:37 -0400
+Date: Wed, 30 Jul 2003 17:07:43 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ROOT NFS fixes ...
+Message-ID: <20030730150743.GD24587@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+References: <20030729211521.GA19594@www.13thfloor.at> <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva> <20030730140739.GA24587@www.13thfloor.at> <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva> <Pine.LNX.4.55L.0307301128200.29648@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.55L.0307301128200.29648@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anuradha Ratnaweera wrote:
-
+On Wed, Jul 30, 2003 at 11:28:46AM -0300, Marcelo Tosatti wrote:
 > 
-> Not always.  Some contracts talk about "employement", while others (most
-> are of this catagory) are about the "employement period".  The latter
-> _does_ include all 24 hours of the day (I have checked it with some
-> legal folks.)
+> On Wed, 30 Jul 2003, Marcelo Tosatti wrote:
+> > On Wed, 30 Jul 2003, Herbert Pötzl wrote:
+> > > On Wed, Jul 30, 2003 at 10:57:52AM -0300, Marcelo Tosatti wrote:
+> > > > On Tue, 29 Jul 2003, Herbert Pötzl wrote:
+> > > >
+> > > > >
+> > > > > Hi Marcelo!
+> > > > >
+> > > > > just verified that the NFS root bug-fix was not
+> > > > > included in 2.4.22-pre9, unfortunately I have
+> > > > > to ask you again, why you do not want to fix
+> > > > > this issue in 2.4.22 ...
+> > > > >
+> > > > > I do not understand why Trond obviously is
+> > > > > ignoring my mails, regarding this particular
+> > > > > issue, maybe he is just too busy to look at
+> > > > > four twoline changes, and more, I do not
+> > > > > understand why this isn't accepted into the
+> > > > > marcelo kernel tree, as it obviously fixes a
+> > > > > misbehaviour?
+> > > > >
+> > > > > please explain!
+> > > > >
+> > > > > It is okay for me, if your argumentation goes
+> > > > > like "I don't like you, that's reason enough
+> > > > > for me to not include your patches ...", but I
+> > > > > would like to know ...
+> > > >
+> > > > I do not consider the patch critical enough.
+> > > >
+> > > > Get it in 2.5 first, then come back :)
+> > >
+> > > I hope this is a joke, and you are still reading
+> > > your mail ...
+> >
+> > No, this is not a joke, at all.
+> >
+> > Let me repeat: I (and Trond) do not consider this patch critical.
 > 
+> Ok, I'm wrong. I just read Trond's mail saying the patch is OK.
+> 
+> I'll apply it to -pre10.
 
-This sounds very strange to me. Maybe it is usual in some places, but I 
-would think twice before signing such contract.
+hmm, maybe it _is_ too early to do this ;)
+but on the other hand, I'm a fearless creature ...
 
-BTW I got a bounce of the direct reply, sent by postmaser@virtusa.com. 
-Did you recieve the direct send? I can send you the bounce if you like.
-
-Bas.
-
-
+many thanks,
+Herbert
 

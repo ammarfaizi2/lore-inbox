@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279783AbRKFQGe>; Tue, 6 Nov 2001 11:06:34 -0500
+	id <S279782AbRKFQIe>; Tue, 6 Nov 2001 11:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279768AbRKFQGY>; Tue, 6 Nov 2001 11:06:24 -0500
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:30217 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S279739AbRKFQGI>; Tue, 6 Nov 2001 11:06:08 -0500
-Message-ID: <3BE80A55.95F73193@cis.nctu.edu.tw>
-Date: Wed, 07 Nov 2001 00:05:41 +0800
-From: Chun-Ying Huang <huangant@cis.nctu.edu.tw>
-X-Mailer: Mozilla 4.73 [en] (Windows NT 5.0; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with gigabit NIC acenic: 3c985b-sx
-Content-Type: text/plain; charset=us-ascii
+	id <S279243AbRKFQIY>; Tue, 6 Nov 2001 11:08:24 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:50693 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S279785AbRKFQIL>;
+	Tue, 6 Nov 2001 11:08:11 -0500
+Date: Tue, 6 Nov 2001 17:05:41 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: marcelo@conectiva.com.br, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: out_of_memory() heuristic broken for different mem configurations
+Message-Id: <20011106170541.7c06a383.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0111060714070.1988-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0111060928010.9782-100000@freak.distro.conectiva>
+	<Pine.LNX.4.33.0111060714070.1988-100000@penguin.transmeta.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Nov 2001 07:25:40 -0800 (PST) Linus Torvalds <torvalds@transmeta.com>
+wrote:
 
-    Dear all:
+> Note how you also go for seconds with no IO and no shrinking of the
+> caches, while shrink_cache() is apparently happy (and no, it does not take
+> several seconds to traverse even a 16GB inactive queue, there's something
+> else going on)
 
-	I've install a 3c985b-sx NIC on my linux 2.4.13 box.
-	But when loading the 'acenic' module, it shows the message:
+Did you time it? There is a lot of things going on in the shrink_cache loop
+including swap_out, wait_on_page, locks, ...
+It's not really simple traversing of a queue.
 
-eth1: 3Com 3C985 Gigabit Ethernet at 0xdf020000, irq 10
-  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:08:f7:04:1e
-  PCI bus width: 32 bits, speed: 33MHz, latency: 64 clks
-eth1: Firmware NOT running!
-
-	(PS. My eth0 is an intel eepro100)
-
-	It seems the driver detect the card but can't work.
-	Is this a bug of my NIC firmware or a problem of
-	the driver? Or what necessary steps I've missed?
-
-	Thanks in advance.
-
-	PS. Please CC your replis to me, thank you in advance.:)
-
---
-Regards,
-huangant <Chun-Ying Huang>

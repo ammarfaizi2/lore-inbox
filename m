@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269378AbUIIJTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269377AbUIIJTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269378AbUIIJTS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 05:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269379AbUIIJTS
+	id S269377AbUIIJTG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 05:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269378AbUIIJTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 05:19:18 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:11460 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S269378AbUIIJTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 05:19:08 -0400
-Message-ID: <4140200B.9060408@grupopie.com>
-Date: Thu, 09 Sep 2004 10:19:07 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 9 Sep 2004 05:19:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35498 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269377AbUIIJS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 05:18:59 -0400
+Subject: Re: What File System supports Application XIP
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
 To: colin <colin@realtek.com.tw>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: What File System supports Application XIP
-References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
 In-Reply-To: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.51; host: bipbip)
+References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Vt6Ia1PNA/RD0mn1KAyc"
+Organization: Red Hat UK
+Message-Id: <1094721529.2801.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 11:18:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-colin wrote:
-> 
+
+--=-Vt6Ia1PNA/RD0mn1KAyc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2004-09-09 at 10:55, colin wrote:
 > Hi there,
-> We are developing embedded Linux system. Performance is our consideration.
+> We are developing embedded Linux system. Performance is our consideration=
+.
 > We hope some applications can run as fast as possible,
-> and are think if they can be put in a filesystem image, which resides in
-> RAM, and run in XIP (eXecute In Place)  manners.
-> I know that Cramfs has supported Application XIP. Is there any other FS that
-> also supports it? Ramdisk? Ramfs? Romfs?
 
-Obvisously cramfs can not support XIP, because the "in-place" image
-is compressed (unless you have a processor that can execute compressed
-code :)
+well ramfs by definition is XIP :)
 
-AFAIK only tmpfs supports XIP because it works on a higher level
-without using block devices underneath. Ramdisks are simply RAM
-block devices that behave like any other block device.
+but I guess the filesystem comes from flash somewhere at which point
+jffs2 with compression might be a better choice; if you have enough ram
+then the apps run from the pagecache anyway and compression keeps you
+from transfering too much data from the slower flash. It's not XIP but I
+don't think you really want XIP...
 
-You can have a compressed image in flash (for instance), decompress
-everything into a tmpfs and execute from there.
+--=-Vt6Ia1PNA/RD0mn1KAyc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I'm not sure, however, that this will be such a performance gain.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-If you use cramfs (for instance) then the kernel will uncompress
-and run only the pages that are needed, and they will be cached in
-page cache so that they will be available again when needed. This
-way you only waste the RAM you actually need, and can still drop
-old pages if the application needs more RAM.
+iD8DBQBBQB/5xULwo51rQBIRAjzjAJ9B1SMN3ZkLf9AJMMXKaKNxz8Yq4wCfQ72Y
+xnW203QocX70oqKAZfujq2k=
+=/ITc
+-----END PGP SIGNATURE-----
 
-Just my two cents,
+--=-Vt6Ia1PNA/RD0mn1KAyc--
 
--- 
-Paulo Marques - www.grupopie.com
-
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978

@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVCVUgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVCVUja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbVCVUgC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 15:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVCVUgB
+	id S261844AbVCVUja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 15:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVCVUgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 15:36:01 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:55452
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261944AbVCVUef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 15:34:35 -0500
-Date: Tue, 22 Mar 2005 12:33:01 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050322123301.090cbfa6.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
-	<20050322034053.311b10e6.akpm@osdl.org>
-	<Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
-	<20050322110144.3a3002d9.davem@davemloft.net>
-	<20050322112125.0330c4ee.davem@davemloft.net>
-	<20050322112329.70bde057.davem@davemloft.net>
-	<Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 15:36:53 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:28117 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261844AbVCVUfr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 15:35:47 -0500
+Message-ID: <91888D455306F94EBD4D168954A9457C01AEB1F7@nacos172.co.lsil.com>
+From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
+Subject: RE: [PATCH] - Fusion-MPT much faster as module
+Date: Tue, 22 Mar 2005 13:35:20 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 19:36:46 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
+On Tuesday, March 22, 2005 12:05 PM, James Bottomley wrote:
+> On Tue, 2005-03-22 at 11:40 -0700, Moore, Eric Dean wrote:
+> > History on this:
+> > Between the 3.01.16 and 3.01.18, we introduced new method
+> > to passing command line options to the driver.  Some of the
+> > command line options are used for fine tuning dv(domain
+> > validation) in the driver.  By accident, these command line 
+> options were
+> > wrapped around #ifdef MODULE in the 3.01.18 version of the driver.
+> > What this meant is when the driver is compiled built-in the kernel,
+> > the optimal settings for dv were ignored, thus poor performance.  
+> 
+> OK, I'll add this to the queue.
+> 
+> Could I just point out that if your driver actually printed 
+> the results
+> of negotiation, this would have been an awful lot easier to debug.
+> 
+> Additionally, if you used the SPI transport class domain 
+> validation, the
+> issue wouldn't have arisen in the first place.
+> 
+> James
+> 
 
-> I notice that although both i386 and sparc64 use pgtable-nopud.h, the
-> i386 pud_clear does nothing at all and the sparc64 pud_clear resets to 0.
+Yes, I agree with you.
 
-This was a dead end.  I386 doesn't do anything with pud_clear() in
-order to work around a chip erratum.
+I'm actively working in the background to split the mptscish driver into
+separate bus type drivers.  One for fiber channel, one for SCSI, and
+one for eventually SAS.  This was a request from you long time back, at
+a time when I tried to submitting a patch having FC transport attributes
+support.
+I think once I submit that, then we can start taking a looking at supporting
+the SPI transport layer.  
 
-IA64 does clear in pud_clear() just like sparc64.
+I still wonder if the SPI transport layer will work for RAID volumes.  
+Do you know if the spi transport layer supports dv on hidden devices in a
+raid volume? 
+Meaning these hidden physical disks will not been seen by the block layer,
+however 
+spi transport layer would be aware so dv can be performed those hidden disk?
 
-I think it's the floor/ceiling stuff.
+Eric 
 
-At that pud_clear(), we do it if floor-->ceiling (after masking)
-covers the whole PUD.  Not whether start/end do, which is what
-the code sort of does right now.
 
-"start" and "end" say which specific entries we might be purging.
-"floor" and "ceiling" say that once that purging is done, the
-extent of the potential address space freed.
 
-I cooked up a quick patch that changes the logic to:
 
-	floor &= PUD_MASK;
-	ceiling &= PUD_MASK;
-	if (floor - 1 >= ceiling - 1)
-		return;
 
-	pmd = pmd_offset(pud, start);
-	pud_clear(pud);
-	pmd_free_tlb(tlb, pmd);
-
-and things start to basically work.
-
-When X started up my machine rebooted, but this was with
-all the tracing printk()'s enabled so I'm skeptical as to
-the reason.  I'll back out the debugging and play with this
-some more.
 

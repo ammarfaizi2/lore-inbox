@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261869AbSI1PfN>; Sat, 28 Sep 2002 11:35:13 -0400
+	id <S261964AbSI1Pkp>; Sat, 28 Sep 2002 11:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261871AbSI1PfN>; Sat, 28 Sep 2002 11:35:13 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44554 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S261869AbSI1PfM>; Sat, 28 Sep 2002 11:35:12 -0400
-Message-Id: <200209281540.g8SFeMRX010119@pincoya.inf.utfsm.cl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Kernel version [Was: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice driver]
-In-reply-to: Your message of "Sat, 28 Sep 2002 09:46:35 +0200."
-             <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sat, 28 Sep 2002 11:40:22 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261979AbSI1Pkp>; Sat, 28 Sep 2002 11:40:45 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:56788 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261964AbSI1Pkn>; Sat, 28 Sep 2002 11:40:43 -0400
+Message-ID: <3D95CE60.30504@informatik.tu-chemnitz.de>
+Date: Sat, 28 Sep 2002 17:44:32 +0200
+From: Janek Neubert <janek.neubert@informatik.tu-chemnitz.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Error with i845G
+References: <3D920EAE.2020602@informatik.tu-chemnitz.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -5.0 (-----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17vJnB-0002o2-00*Oe4PJSBYZac*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> said:
-> On Thu, 26 Sep 2002, Linus Torvalds wrote:
-> > On Thu, 26 Sep 2002, Jeff Garzik wrote:
-> > > Tangent question, is it definitely to be named 2.6?
-> > 
-> > I see no real reason to call it 3.0.
-> > 
-> > The order-of-magnitude threading improvements might just come closest to
-> > being a "new thing", but yeah, I still consider it 2.6.x. We don't have
-> > new architectures or other really fundamental stuff. In many ways the
-> > jump from 2.2 -> 2.4 was bigger than the 2.4 -> 2.6 thing will be, I
-> > suspect.
-> 
-> i consider the VM and IO improvements one of the most important things
-> that happened in the past 5 years - and it's definitely something that
-> users will notice. Finally we have a top-notch VM and IO subsystem (in
-> addition to the already world-class networking subsystem) giving
-> significant improvements both on the desktop and the server - the jump
-> from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
+Janek Neubert schrieb:
+ > Hi,
+ >
+ > i have a bought an EPOX board (4G4A+) with Intel i845G chipset. While i
+ > was trying a 2.4.18 kernel, the machine stops after "Ok, booting the
+ > kernel ...". I have to use the lilo command mem=<memory without shared
+ > graphic ram>M in megabytes. All kernels newer than 2.4.3 cause this
+ > error. Since version 2.4.19, this solution is unusable. I think, this is
+ > a kernel problem, because i know from other people having the same
+ > problem, but other boards with i845G. I need the 2.4.19 to use my
+ > HPT372. Please help and finf the error.
+ >
+ > I think the problem is a failure in the routine getting the size of
+ > memory from BIOS. Linux thinks, i have 640k!!! RAM. Only the
+ > mem-parameter can solve it.
 
-But is is as large as the jump from 1.2.x to 2.0.x?
 
-> I think due to these improvements if we dont call the next kernel 3.0 then
-> probably no Linux kernel in the future will deserve a major number. In 2-4
-> years we'll only jump to 3.0 because there's no better number available
-> after 2.8. That i consider to be ... boring :) [while kernel releases are
-> supposed to be a bit boring, i dont think they should be _that_ boring.]
+I have some more informations for you:
 
-What is wrong with 2.10, or 2.256 for that matter?
+dmesg - output with mem=248M
+
+Linux version 2.4.18 (root@server) (gcc version 2.95.4 20011002 (Debian
+prerelease)) #7 SMP Fre Sep 27 23:01:22 CEST 2002
+BIOS-provided physical RAM map:
+   BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+   BIOS-e820: 00000000000a0000 - 000000000f7f0000 (reserved)
+   BIOS-e820: 000000000f7f0000 - 000000000f7f3000 (ACPI NVS)
+   BIOS-e820: 000000000f7f3000 - 000000000f800000 (ACPI data)
+found SMP MP-table at 000f5b00
+hm, page 000f5000 reserved twice.
+hm, page 000f6000 reserved twice.
+hm, page 000f0000 reserved twice.
+hm, page 000f1000 reserved twice.
+On node 0 totalpages: 63488
+zone(0): 4096 pages.
+zone(1): 59392 pages.
+zone(2): 0 pages.
+Intel MultiProcessor Specification v1.4
+      Virtual Wire compatibility mode.
+OEM ID: OEM00000 Product ID: PROD00000000 APIC at: 0xFEE00000
+Processor #0 Unknown CPU [15:1] APIC version 17
+I/O APIC #2 Version 17 at 0xFEC00000.
+Processors: 1
+...
+
+
+Someone told me to post the output from the serial port. Sorry, i have used
+minicom, cat and a null modem cabel, but there's no output.
+
+When I use 256MB RAM, all works fine with mem=248M, if i use 512MB RAM and 
+mem=504M, the maschine crashs after a full memory use like compiling a kernel.
+
+Thx
+janek
+p.s. please send a cc to my email, i haven't subscribed this list
+
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+|Student of Computer Science, Chemnitz University of Technology
+|Reichenhainer Str. 37/395, 09126 Chemnitz
+|Telephon: (0177)2530625 URL: http://janek.eocom.de
+
+

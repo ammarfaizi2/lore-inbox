@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUIGMZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUIGM1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267977AbUIGMZt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 08:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267989AbUIGMZt
+	id S268004AbUIGM1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267998AbUIGM1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 08:25:49 -0400
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:43488 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267977AbUIGMXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 08:23:48 -0400
-Message-ID: <413DA83A.7010704@kolivas.org>
-Date: Tue, 07 Sep 2004 22:23:22 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Tue, 7 Sep 2004 08:27:03 -0400
+Received: from legaleagle.de ([217.160.128.82]:57514 "EHLO www.legaleagle.de")
+	by vger.kernel.org with ESMTP id S267994AbUIGM0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 08:26:19 -0400
+Date: Tue, 07 Sep 2004 14:26:22 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: David Masover <ninja@slaphack.com>,
+       Christer Weinigel <christer@weinigel.se>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
+       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Jamie Lokier <jamie@shareable.org>, Christoph Hellwig <hch@lst.de>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Chris Wedgwood <cw@f00f.org>, Christer Weinigel <christer@weinigel.se>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <413DA8EE.nailA301JQ74H@pluto.uni-freiburg.de>
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+ <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+In-Reply-To: <m3d60yjnt7.fsf@zoo.weinigel.se>
+User-Agent: nail 11.6pre 9/7/04
 MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: attribute warn_unused_result
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1B50B56EB1D2EA7D8FD8DBCB"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1B50B56EB1D2EA7D8FD8DBCB
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Christer Weinigel <christer@weinigel.se> wrote:
 
-Gcc3.4.1 has recently been complaining of a number of unused results 
-from function with attribute warn_unused_result set. I'm not sure of how 
-you want to tackle this so I'm avoiding posting patches. Should we 
-remove the attribute (seems the likely option) or set some dummy 
-variable (sounds stupid now that I ask it).
+> Additionally, files-as-directores does not solve the problem of 
+> "cp a b" losing named streams.  There is curently no copyfile syscall
+> in the Linux kernel, "cp a b" essentially does "cat a >b".  So unless
+> cp is modified we don't gain anything.  If cp is modified to know
+> about named streams, it really does not matter if named streams are
+> accessed as file-as-directories, via openat(3) or via a shared library
+> with some other interface.
 
-Con
+You cannot just 'modify cp'. cp is a programming interface standardized
+in POSIX.1. You can of course add non-standard extensions to some cp
+implementations, but it seems hardly evitable then that you either have
+to use cp in a non-standard manner regularly with Linux or risk to lose
+data.
 
---------------enig1B50B56EB1D2EA7D8FD8DBCB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+This is even more severe with tar/pax. Just patching GNU tar for file
+streams, as it was suggested earlier in this discussion, is still far
+away from a real solution because it neither solves the issues with
+the POSIX.1 pax standard nor those with other implementations of it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Given these facts, it does not seem so clear to me that adding named
+streams for Windows and Mac OS interoperability would be a win to Linux
+in the end. The loss of interoperability to Unix/POSIX/today's Linux
+might have much worse effects.
 
-iD8DBQFBPag7ZUg7+tp6mRURAiDMAJ0bovokQOPlNUfhGmDm0fb3gUPH2wCggQ22
-rnXYNW/f9eUFLLkFQj3txUU=
-=IB9E
------END PGP SIGNATURE-----
+The current xattr extension is much less of a problem because it only
+holds metadata, which is mostly not applicable to other environments
+anyway.
 
---------------enig1B50B56EB1D2EA7D8FD8DBCB--
+	Gunnar
+
+-- 
+http://omnibus.ruf.uni-freiburg.de/~gritter

@@ -1,79 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261271AbTCFXZW>; Thu, 6 Mar 2003 18:25:22 -0500
+	id <S261268AbTCFXZE>; Thu, 6 Mar 2003 18:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbTCFXZV>; Thu, 6 Mar 2003 18:25:21 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:42246
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261271AbTCFXZR>; Thu, 6 Mar 2003 18:25:17 -0500
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-From: Robert Love <rml@tech9.net>
-To: Martin Waitz <tali@admingilde.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20030306232730.GC1326@admingilde.org>
-References: <20030228202555.4391bf87.akpm@digeo.com>
-	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-	 <20030306220307.GA1326@admingilde.org>
-	 <1046988457.715.37.camel@phantasy.awol.org>
-	 <20030306223518.GB1326@admingilde.org>
-	 <1046991366.715.52.camel@phantasy.awol.org>
-	 <20030306232730.GC1326@admingilde.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046993765.715.101.camel@phantasy.awol.org>
+	id <S261271AbTCFXZD>; Thu, 6 Mar 2003 18:25:03 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:18087 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261268AbTCFXZA>; Thu, 6 Mar 2003 18:25:00 -0500
+Date: Fri, 7 Mar 2003 00:32:28 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: CaT <cat@zip.com.au>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64 - cpu freq not turned on
+Message-ID: <20030306233228.GK1016@brodo.de>
+References: <20030306152616.GB432@zip.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 06 Mar 2003 18:36:06 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030306152616.GB432@zip.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 18:27, Martin Waitz wrote:
+Hi,
 
-> schedule() does prev->sleep_timestamp = jiffies; just before
-> deactivating prev.
-> so i guess inactivity is counted towards sleep_avg, too
-
-That is just the initial value.  See activate_task() which actually sets
-the sleep_avg value.  If the task is never woken up, sleep_timestamp is
-never used and sleep_avg is not touched.
-
-sleep_avg is the important value.
-
-sleep_timestamp is missed named, its really just the jiffies value at
-which the task last ran.  Ingo renamed it "last_run" in his latest
-patch.
-
-> but most of the time, not _one_ process is waken up, but several at once
+On Fri, Mar 07, 2003 at 02:26:16AM +1100, CaT wrote:
+> There was a 2.5.x kernel that allowed me to use cpufreq with it but the
+> recent ones just give me this message:
 > 
-> if it happens that the first who gets to run is cpu-bound,
-> then all other interactive processes have to wait a long time, even
-> if they would only need 1ms to finish their work.
-
-Interactive tasks also have a higher dynamic priority.  So they will be
-the one to run.
-
-> scheduling overhead was successfully brought down to a minimum
-> thanks to the great work of a lot of people.
-> i think we should use that work to improve latency by reducing
-> the available timeslice for interactive processes.
->
-> if the process is still considered interactive after the time slice had run
-> out, nothing is lost; it simply gets another one.
+> cpufreq: Intel(R) SpeedStep(TM) for this chipset not (yet) available.
 > 
-> but the kernel should get the chance to frequently reschedule
-> when interactivity is needed.
+> Now I know it worked before cos I noticed it and played about with the 8
+> speed steps I had available to me (and I thought I only had 2).
 
-I understand your point, but we get that now without using super small
-timeslices.
+Actually, SpeedStep is (so far, Banias isn't out to the public market yet)
+only 2 states. What you had running was probably the p4-clockmod driver for
+Intel Pentium 4 processors. But that does only throttle the CPU, which
+causes (at best) linear energy saving while real "speedstep" is much better
+than that. You can see what cpufreq driver is loaded by cat'ting
+scaling_driver in the cpufreq sysfs directory for that cpu. 
 
-Giving interactive tasks larger timeslice ensures they can always run
-when they need to.  It also lets us set an upper bound and not have to
-recalculate timeslices constantly.
+This directory moved in 2.5.64 - and that's why you probably think there was
+some regression (in fact, there is, but patches to fix that are on their
+way...) - the sysfs interface to cpufreq is now in 
+/sys/devices/sys/cpu0/cpufreq/ 		or
+/sys/class/cpu/cpufreq/cpu0/cpufreq/
 
-If an interactive task _does_ use all its timeslice, then it is no
-longer interactive and that will be noted and it will lose its bonus.
+> What information is needed about my chipset to make the code detect it
+> properly?
 
-	Robert Love
+lspci -- maybe it's a ich4-m southbridge, then the attached patch (also sent to
+Linus a few moments ago) might help.
 
+	Dominik
+
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:56:18.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:57:07.000000000 +0100
+@@ -29,6 +29,9 @@
+ 
+ #include <asm/msr.h>
+ 
++#ifndef PCI_DEVICE_ID_INTEL_82801DB_12
++#define PCI_DEVICE_ID_INTEL_82801DB_12  0x24cc
++#endif
+ 
+ /* speedstep_chipset:
+  *   It is necessary to know which chipset is used. As accesses to 
+@@ -40,7 +43,7 @@
+ 
+ #define SPEEDSTEP_CHIPSET_ICH2M         0x00000002
+ #define SPEEDSTEP_CHIPSET_ICH3M         0x00000003
+-
++#define SPEEDSTEP_CHIPSET_ICH4M         0x00000004
+ 
+ /* speedstep_processor
+  */
+@@ -106,6 +109,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 		/* get PMBASE */
+ 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
+ 		if (!(pmbase & 0x01))
+@@ -166,6 +170,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 		/* get PMBASE */
+ 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
+ 		if (!(pmbase & 0x01))
+@@ -245,6 +250,7 @@
+ 	switch (speedstep_chipset) {
+ 	case SPEEDSTEP_CHIPSET_ICH2M:
+ 	case SPEEDSTEP_CHIPSET_ICH3M:
++	case SPEEDSTEP_CHIPSET_ICH4M:
+ 	{
+ 		u16             value = 0;
+ 
+@@ -277,6 +283,14 @@
+ static unsigned int speedstep_detect_chipset (void)
+ {
+ 	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
++			      PCI_DEVICE_ID_INTEL_82801DB_12, 
++			      PCI_ANY_ID,
++			      PCI_ANY_ID,
++			      NULL);
++	if (speedstep_chipset_dev)
++		return SPEEDSTEP_CHIPSET_ICH4M;
++
++	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
+ 			      PCI_DEVICE_ID_INTEL_82801CA_12, 
+ 			      PCI_ANY_ID,
+ 			      PCI_ANY_ID,

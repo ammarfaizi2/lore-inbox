@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbUCaTw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 14:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUCaTw2
+	id S262415AbUCaT53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 14:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCaT53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 14:52:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43240 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262370AbUCaTw0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 14:52:26 -0500
-Date: Wed, 31 Mar 2004 11:52:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Craig, Dave" <dwcraig@qualcomm.com>
-Cc: list@noduck.net, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-Message-Id: <20040331115213.225dd70b.akpm@osdl.org>
-In-Reply-To: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
-References: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Mar 2004 14:57:29 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:4569 "EHLO
+	mwinf0304.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262415AbUCaT51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 14:57:27 -0500
+Message-ID: <406B229C.9070801@gregory5.sytes.net>
+Date: Wed, 31 Mar 2004 21:57:16 +0200
+From: Auzanneau Gregory <mls@gregory5.sytes.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040312 Debian/1.6-3
+X-Accept-Language: fr, fr-fr, en, en-gb, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at net/core/dev.c:3031! (kernel 2.6.5-rc1)
+References: <406B0F9E.10504@gregory5.sytes.net> <20040331114332.6e5df3ef.davem@redhat.com>
+In-Reply-To: <20040331114332.6e5df3ef.davem@redhat.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBBA9F53939DB3649A9BAC670"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Craig, Dave" <dwcraig@qualcomm.com> wrote:
->
-> cascade: c1a1d5e0 != c1a0d5e0
->  hander=c028ee8d (igmp_ifc_timer_expire+0x0/0x3e)
->  Call Trace:
->   [<c012ca73>] cascade+0x79/0xa1
->   [<c028ee8d>] igmp_ifc_timer_expire+0x0/0x3e
->   [<c012d0b3>] run_timer_softirq+0x159/0x1c9
->   [<c012899d>] do_softirq+0xc9/0xcb
->   [<c0119c46>] smp_apic_timer_interrupt+0xd8/0x140
->   [<c0108c09>] default_idle+0x0/0x32
->   [<c010bab2>] apic_timer_interrupt+0x1a/0x20
->   [<c0108c09>] default_idle+0x0/0x32
->   [<c0108c36>] default_idle+0x2d/0x32
->   [<c0108cb4>] cpu_idle+0x3a/0x43
->   [<c0105000>] rest_init+0x0/0x68
->   [<c039c89f>] start_kernel+0x1b7/0x209
->   [<c039c427>] unknown_bootoption+0x0/0x124
-> 
->  Here is the result.  I am doing a lot of IPv4 multicast.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBBA9F53939DB3649A9BAC670
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 
-There's only a single bit difference between the expected and actual
-timer->base value.  So either your machine has flakey memory or the percpu
-data area happened to be separated by 64k.
 
-Is the machine SMP?  If so can you please run
+0000:00:07.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
 
-	nm vmliunx | grep __per_cpu
+This ethernet card is on my laptop motherboard, used with 8139too and
+8139_RXBUF_IDX=3
 
-and send the output?
+
+David S. Miller a écrit :
+> What kind of ethernet card do you use?
+
+-- 
+Auzanneau Grégory
+GPG 0x99137BEE
+
+--------------enigBBA9F53939DB3649A9BAC670
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQFAayKc3H6YHZkTe+4RAqSzAKCBoF10vpisCgTGslkVvpMAFmDd2QCg2jOB
+KPYrZk7ij2jbKgzV9sETT/I=
+=bL2s
+-----END PGP SIGNATURE-----
+
+--------------enigBBA9F53939DB3649A9BAC670--

@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUIBNOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268296AbUIBNQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268299AbUIBNOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 09:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUIBNOE
+	id S268296AbUIBNQt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 09:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUIBNQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 09:14:04 -0400
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:59838 "EHLO
-	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S268299AbUIBNOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 09:14:00 -0400
-Date: Thu, 2 Sep 2004 09:13:59 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: lkml@einar-lueck.de
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
-Message-ID: <20040902131359.GA11758@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	lkml@einar-lueck.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200409021401.42255.elueck@de.ibm.com>
+	Thu, 2 Sep 2004 09:16:49 -0400
+Received: from pD9E0EED0.dip.t-dialin.net ([217.224.238.208]:18309 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S268296AbUIBNQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 09:16:28 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com
+In-Reply-To: <20040902111003.GA4256@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
+	 <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+	 <20040902111003.GA4256@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094130969.5652.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409021401.42255.elueck@de.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 02 Sep 2004 15:16:09 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 02:01:42PM +0200, Einar Lueck wrote:
-> The complexity of the relevant setups necessitates an easy and 
-> requirements-driven configuration and solution approach. The overall 
-> concept of setting up a virtual device with a virtual IP adress and 
-> assigning this virtual IP adress as a Source VIPA to the devices which should
-> allow for a failover is well known from other operating system and expected 
-> by relevant enterprise customers.  IP routes and NAT allow to achieve the 
-> same effect with the exception mentioned above, but the corresponding 
-> configuration overhead is in the opinion of customers having enterprise 
-> setups too complex and complicated.  Our overall approach introduces 
-> this concept as a facility to address these requirements very clearly. 
+Ingo Molnar wrote :
+> i've released the -Q9 patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q9
 
-The problem here is not the kernel, it's the awful state of network
-management in the common initscripts and routing daemons, which have not
-evolved far beyond the traditional (static) BSD model of interfaces,
-despite the qualitative leap in functionality brought on by Alexey's
-contributions to Linux 2.2, netfilter and vlans in 2.4, and now IPsec in 2.6.
+With ACPI compiled in and booting with acpi=off (which again doesn't
+seem to be honoured), here's another weird one :
 
-While policy routing, traffic control, netfilter, etc., are extremely
-powerful separately and in combination, there is no unified mechanism
-for managing different aspects of network configuration (addressing,
-redundancy, security, QoS, etc.) that cut across each of these kernel
-mechanisms.
+preemption latency trace v1.0.5 on 2.6.9-rc1-VP-Q9
+--------------------------------------------------
+ latency: 2888 us, entries: 37 (37)
+    -----------------
+    | task: swapper/0, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: do_IRQ+0x19/0x1a0
+ => ended at:   do_IRQ+0x14d/0x1a0
+=======>
+00010000 0.000ms (+0.000ms): do_IRQ (common_interrupt)
+00010000 0.000ms (+0.000ms): do_IRQ (default_idle)
+00010000 0.000ms (+0.000ms): do_IRQ (<00000000>)
+00010001 0.000ms (+0.002ms): mask_and_ack_8259A (do_IRQ)
+00010001 0.002ms (+0.000ms): generic_redirect_hardirq (do_IRQ)
+00010000 0.002ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
+00010000 0.003ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
+00010001 0.003ms (+2.878ms): mark_offset_tsc (timer_interrupt)
+00010001 2.882ms (+0.000ms): do_timer (timer_interrupt)
+00010001 2.882ms (+0.000ms): update_process_times (do_timer)
+00010001 2.882ms (+0.000ms): update_one_process (update_process_times)
+00010001 2.882ms (+0.000ms): run_local_timers (update_process_times)
+00010001 2.882ms (+0.000ms): raise_softirq (update_process_times)
+00010001 2.882ms (+0.000ms): scheduler_tick (update_process_times)
+00010001 2.883ms (+0.000ms): sched_clock (scheduler_tick)
+00010001 2.883ms (+0.000ms): update_wall_time (do_timer)
+00010001 2.883ms (+0.000ms): update_wall_time_one_tick
+(update_wall_time)
+00010001 2.883ms (+0.000ms): profile_tick (timer_interrupt)
+00010001 2.884ms (+0.000ms): profile_hook (profile_tick)
+00010002 2.884ms (+0.000ms): notifier_call_chain (profile_hook)
+00010001 2.884ms (+0.000ms): profile_hit (timer_interrupt)
+00010001 2.884ms (+0.000ms): generic_note_interrupt (do_IRQ)
+00010001 2.884ms (+0.000ms): end_8259A_irq (do_IRQ)
+00010001 2.885ms (+0.000ms): enable_8259A_irq (do_IRQ)
+00000001 2.886ms (+0.000ms): do_softirq (do_IRQ)
+00000001 2.886ms (+0.000ms): __do_softirq (do_softirq)
+00000001 2.886ms (+0.000ms): wake_up_process (do_softirq)
+00000001 2.886ms (+0.000ms): try_to_wake_up (wake_up_process)
+00000001 2.886ms (+0.000ms): task_rq_lock (try_to_wake_up)
+00000002 2.886ms (+0.000ms): activate_task (try_to_wake_up)
+00000002 2.886ms (+0.000ms): sched_clock (activate_task)
+00000002 2.887ms (+0.000ms): recalc_task_prio (activate_task)
+00000002 2.887ms (+0.000ms): effective_prio (recalc_task_prio)
+00000002 2.887ms (+0.000ms): enqueue_task (activate_task)
+00000001 2.887ms (+0.000ms): preempt_schedule (try_to_wake_up)
+00000001 2.888ms (+0.000ms): sub_preempt_count (do_IRQ)
+00000001 2.888ms (+0.000ms): update_max_trace (check_preempt_timing)
 
-Several of the routing daemons (Quagga, Bird, etc.) have gotten partway
-there, but none is (AFAIK, correct me if I'm wrong) in a state where
-one can eliminate all of the other networking-related scripts from
-initscripts and just expect the daemon(s) to manage networking.
+Thomas
 
-It seems that effort would be better spent cleaning up userspace, by
-looking at use cases, identifying the right abstractions, and reifying
-them.  Choose a routing daemon, and turn it into a "Network Mgmt daemon".
 
-Should this be built on top of HAL/D-BUS?  I don't know, will HAL/D-BUS
-remain lightweight enough to be used in an embedded router?  I sure
-hope so.
-
-Regards,
-
-	Bill Rugolsky

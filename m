@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbRALI4w>; Fri, 12 Jan 2001 03:56:52 -0500
+	id <S130067AbRALI6c>; Fri, 12 Jan 2001 03:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130067AbRALI4o>; Fri, 12 Jan 2001 03:56:44 -0500
-Received: from [196.38.105.82] ([196.38.105.82]:24073 "EHLO www.webtrac.co.za")
-	by vger.kernel.org with ESMTP id <S129825AbRALI4d>;
-	Fri, 12 Jan 2001 03:56:33 -0500
-Date: Fri, 12 Jan 2001 10:56:00 +0200
-From: Craig Schlenter <craig@webtelecoms.co.za>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010112105600.A11049@webtelecoms.co.za>
-In-Reply-To: <Pine.LNX.4.10.10101120039130.32320-101000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <Pine.LNX.4.10.10101120039130.32320-101000@master.linux-ide.org>
+	id <S130177AbRALI6W>; Fri, 12 Jan 2001 03:58:22 -0500
+Received: from [213.97.45.174] ([213.97.45.174]:62698 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S130067AbRALI6E>;
+	Fri, 12 Jan 2001 03:58:04 -0500
+Date: Fri, 12 Jan 2001 09:57:54 +0100 (CET)
+From: Pau <linux4u@wanadoo.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: error compiling 2.4.1-pre3
+Message-ID: <Pine.LNX.4.30.0101120956240.1297-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 12:44:25AM -0800, Andre Hedrick wrote:
-> 
-> AMD Update.
-> HPT366 Update.
-> 
-> NASTY-ARSE!!!! dma-timeout "hack" as a compile option.
-[snip]
 
-ide_dma_timeout_revovery ?
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
+/usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c xor.c
+In file included from /usr/src/linux/include/linux/raid/md.h:51,
+                 from xor.c:22:
+/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
+/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end
+of non-void function
+xor.c: In function `calibrate_xor_block':
+xor.c:118: `HAVE_XMM' undeclared (first use in this function)
+xor.c:118: (Each undeclared identifier is reported only once
+xor.c:118: for each function it appears in.)
+{standard input}: Assembler messages:
+{standard input}:8: Warning: Ignoring changed section attributes for
+.modinfo
+make[2]: *** [xor.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/md'
+make[1]: *** [_modsubdir_md] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-s/revovery/recovery/ perhaps?
+ Pau
 
-Cheers,
-
---Craig
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbTKLMZL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 07:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbTKLMZL
+	id S262081AbTKLMfs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 07:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTKLMfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 07:25:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:31191 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261298AbTKLMZH
+	Wed, 12 Nov 2003 07:35:48 -0500
+Received: from auth22.inet.co.th ([203.150.14.104]:21264 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262081AbTKLMfr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 07:25:07 -0500
-Date: Wed, 12 Nov 2003 17:53:44 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@osdl.org>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [RFC 0/5] Backing Store for sysfs (Overhauled)
-Message-ID: <20031112122344.GD14580@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Nov 2003 07:35:47 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22 hangs upon echo > /proc/acpi/alarm
+Date: Wed, 12 Nov 2003 20:33:18 +0800
+User-Agent: KMail/1.5.2
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200311122033.18729.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+ACPI version is 20031002
 
-The following patch set has the overhauled prototype for sysfs backing store
-for comments. I have tried to keep all the comments and suggestions from the 
-last time in mind.
+Initial backtrace obtained with kdb:
 
-The main complaint was of over bloating kobject structure which becomes more
-painful when kobject is not part of sysfs. So now I have changed the data
-structures entirely. There is _no_ increase in the size of kobject structure.
-The kobject hierarchy is represented in the form of a new structure called
-sysfs_dirent (size 48 - bytes). sysfs_dirent will be there only for kobject
-elements (kobject, attribute, attribute group, symlink) which are represented 
-in sysfs. kobject structre has just one change. Now kobject has a field
-pointing to its sysfs_dirent instead of dentry.
+acpi_os_read_port+36
+acpi_hw_lowlevel_read+7b
+acpi_ev_gpe_detect+94
+acpi_ev_sci_xrupt_handler+3c
+acpi_irq+d
+handle_IRQ_event+31
+do_IRQ+72
+call_do_IRQ+5
+do_softirq+5a
+do_IRQ+a1
+proc_file_write+9b
+sys_write+be
+system_call+33
 
-struct sysfs_dirent {
-        struct list_head        s_sibling;
-        struct list_head        s_children;
-        void                    * s_element;
-        struct dentry           * s_dentry;
-        int                     s_type;
-        struct rw_semaphore     s_rwsem;
-};
+Further stepping shows endless loop around:
 
-The concept is still the same that in this prototype also we create dentry and 
-inode on the fly when they are first looked up. This is done for both leaf or 
-non-leaf dentries. The generic nature of sysfs_dirent makes it easy to do for 
-both leaf or non-leaf dentries. 
+acpi_ev_gpe_detect+80
+  acpi_hw_lowlevel_read
+    acpi_os_read_port
+    acpi_ut_get_region_name
+    acpi_ut_debug_print 
+  acpi_ut_debug_print
+  jmp acpi_ev_gpe_detect+80
 
-Please review the patches following this posting. For testing apply all
-the patches as they are splitted just for review.
+Debugging is compiled in, but no meesages go to dmesg
 
-Thanks
-Maneesh
+How to enable acpi_ut_debug_print output?
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+Regards
+Michael
+

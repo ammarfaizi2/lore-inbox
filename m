@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130144AbRASGYJ>; Fri, 19 Jan 2001 01:24:09 -0500
+	id <S130324AbRASGdd>; Fri, 19 Jan 2001 01:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130155AbRASGX6>; Fri, 19 Jan 2001 01:23:58 -0500
-Received: from pD905502B.dip.t-dialin.net ([217.5.80.43]:46597 "EHLO
-	tron.dynodns.net") by vger.kernel.org with ESMTP id <S130144AbRASGXt>;
-	Fri, 19 Jan 2001 01:23:49 -0500
-Message-ID: <003701c081e0$8544f440$0601a8c0@tron>
-From: "Daniel Mehrmnann" <kernel@tron.dynodns.net>
+	id <S130552AbRASGdX>; Fri, 19 Jan 2001 01:33:23 -0500
+Received: from pD905502B.dip.t-dialin.net ([217.5.80.43]:54277 "EHLO
+	tron.dynodns.net") by vger.kernel.org with ESMTP id <S130324AbRASGdH>;
+	Fri, 19 Jan 2001 01:33:07 -0500
+Message-ID: <004701c081e1$d21a7d70$0601a8c0@tron>
+From: "Daniel Mehrmnann" <daniel@tron.dynodns.net>
 To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14JRYM-0000Ns-00@plato.bork.org> <200101190610.f0J6AUK05724@caliban.org>
 Subject: Re: pppoe in 2.4.0
-Date: Fri, 19 Jan 2001 07:24:46 +0100
+Date: Fri, 19 Jan 2001 07:34:05 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -85,6 +84,7 @@ alias ppp-compress-26   ppp_deflate
 ---------------cut--------------------
 
 daniel
+
 
 
 -

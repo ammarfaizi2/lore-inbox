@@ -1,33 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVAAFti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVAAHNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVAAFti (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 00:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVAAFth
+	id S262197AbVAAHNM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 02:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVAAHNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 00:49:37 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:62399 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S261748AbVAAFth (ORCPT
+	Sat, 1 Jan 2005 02:13:12 -0500
+Received: from cathy.bmts.com ([216.183.128.202]:3998 "EHLO cathy.bmts.com")
+	by vger.kernel.org with ESMTP id S261755AbVAAHNH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 00:49:37 -0500
-Date: Fri, 31 Dec 2004 21:49:25 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: APIC, changing level/edge interrupt
-Message-ID: <20050101054925.GA13925@hockin.org>
-References: <41D1977D.2000600@drzeus.cx>
+	Sat, 1 Jan 2005 02:13:07 -0500
+Date: Sat, 1 Jan 2005 02:13:08 -0500
+From: Mike Houston <mikeserv@bmts.com>
+To: "Joseph D. Wagner" <technojoecoolusa@charter.net>
+Cc: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.10 Can't Open Initial Console on FC3
+Message-Id: <20050101021308.5a906479.mikeserv@bmts.com>
+In-Reply-To: <3khdbt$ffuljg@mxip05a.cluster1.charter.net>
+References: <3khdbt$ffuljg@mxip05a.cluster1.charter.net>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D1977D.2000600@drzeus.cx>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 28, 2004 at 06:27:25PM +0100, Pierre Ossman wrote:
-> How do you tell the APIC that a device uses level triggered interrupts, 
-> not edge triggered? I have a flash reader on the LPC bus which uses 
-> level triggered interrupts and /proc/interrupts show edge triggered. 
-> Some interrupts are missed by the APIC so I figured this might be why.
+Hello,
 
-BIOS should set this up.  Maybe ACPI has a way to do this?
+It is because you need to use an initrd. Your device nodes in
+FC3 are being managed by udev, and you otherwise won't have a
+/dev/console or /dev/hda at that stage of the boot. There's also the
+matter of LVM, if your root partition is a logical volume. Another
+reason you might need an initrd.
+
+Your mkinitrd script in FC3 will take care of these matters for you.
+
+Mike
+
+On Thu, 30 Dec 2004 23:00:14 -0600
+"Joseph D. Wagner" <technojoecoolusa@charter.net> wrote:
+
+> The newly compiled kernel gets through everything OK including
+> mounting the root file system as read-only EXT3.  However, it
+> freezes on the very last line, which says:
+> 
+>      Warning: unable to open an initial console
+> 
+> If I switch back over to the kernel that came with the distribution,
+> everything boots fine, so I'm assuming the problem lies in the way I
+> configured the kernel.
+> 

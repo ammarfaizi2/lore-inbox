@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVBHWnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVBHWoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVBHWnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVBHWnM
+	id S261644AbVBHWoe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVBHWnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:43:12 -0500
-Received: from hera.kernel.org ([209.128.68.125]:63148 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261601AbVBHWmF (ORCPT
+	Tue, 8 Feb 2005 17:43:22 -0500
+Received: from gprs215-154.eurotel.cz ([160.218.215.154]:24273 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261644AbVBHWmT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:42:05 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: the "Turing Attack" (was: Sabotaged PaXtest)
-Date: Tue, 8 Feb 2005 22:41:44 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cubf78$2s2$1@terminus.zytor.com>
-References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208164815.GA9903@elte.hu>
+	Tue, 8 Feb 2005 17:42:19 -0500
+Date: Tue, 8 Feb 2005 23:42:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Hu Gang <hugang@soulinfo.com>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
+Message-ID: <20050208224202.GD1347@elf.ucw.cz>
+References: <200501310019.39526.rjw@sisk.pl> <200502071208.50001.rjw@sisk.pl> <20050207162316.GA8299@elf.ucw.cz> <200502081929.19503.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1107902504 2947 127.0.0.1 (8 Feb 2005 22:41:44 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 8 Feb 2005 22:41:44 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502081929.19503.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20050208164815.GA9903@elte.hu>
-By author:    Ingo Molnar <mingo@elte.hu>
-In newsgroup: linux.dev.kernel
-> 
-> This, on the face of it, seems like a ridiculous possibility as the
-> chances of that are reverse proportional to the number of bits necessary
-> to implement the simplest Turing Machine. (which for anything even
-> closely usable are on the order of 2^10000, less likely than the
-> likelyhood of us all living to the end of the Universe.)
-> 
+Hi!
 
-2^10000?  Not even close.  You can build a fully Turing-complete
-interpreter in a few tens of bytes (a few hundred bits) on most
-architectures, and you have to consider ALL bit combinations that can
-form an accidental Turing machine.
+> +static inline void eat_page(void *page) {
 
-What is far less clear is whether or not you can use that accidental
-Turing machine to do real damage.  After all, it's not computation (in
-the strict sense) that causes security violations, it's I/O.  Thus,
-the severity of the problem depends on which I/O primitives the
-accidental Turing machine happens to embody.  Note that writing to the
-memory of the host process is considered I/O for this purpose.
+Please put { on new line.
 
-	-hpa
+Okay, as you can see, I could find very little wrong with this
+patch. That hopefully means it is okay ;-). I should still check error
+handling, but I guess I'll do it when it is applied because it is hard
+to do on a diff. I guess it should go into -mm just after 2.6.11 is
+released...
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,135 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVAXJHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVAXJru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVAXJHe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 04:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAXJHe
+	id S261324AbVAXJru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 04:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVAXJru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 04:07:34 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:27275 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261306AbVAXJHR (ORCPT
+	Mon, 24 Jan 2005 04:47:50 -0500
+Received: from asplinux.ru ([195.133.213.194]:1805 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S261324AbVAXJrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 04:07:17 -0500
-Date: Mon, 24 Jan 2005 10:07:12 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: negative diskspace usage
-Message-ID: <20050124090710.GB27675@wiggy.net>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	linux-kernel@vger.kernel.org
-References: <20050121141106.GG7147@wiggy.net> <20050122212328.GC11170@pclin040.win.tue.nl> <20050123225628.GA27675@wiggy.net> <20050123232649.GA24723@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050123232649.GA24723@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+	Mon, 24 Jan 2005 04:47:13 -0500
+Message-ID: <41F4C51F.2070908@sw.ru>
+Date: Mon, 24 Jan 2005 12:51:27 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Seth, Rohit" <rohit.seth@intel.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andrey Savochkin <saw@sawoct.com>, linux-kernel@vger.kernel.org
+Subject: Re: possible CPU bug and request for Intel contacts
+References: <01EF044AAEE12F4BAAD955CB7506494302E283BF@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <01EF044AAEE12F4BAAD955CB7506494302E283BF@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andries Brouwer wrote:
-> It is an interesting situation, but probably there is not enough
-> information to find out what happened. On the other hand, if your
-> dumpe2fs output is not too big you might as well post it.
+Hello Rohit,
 
-It is indeed not too big, so here it is:
+> Thanks for sending the detailed information. Based on our experiments
+> and analysis, we believe at this point that this is a known E80 issue
+> mentioned in the PIII spec update at this location
+> (http://www.intel.com/design/pentiumiii/specupdt/24445351.pdf)
 
-Filesystem volume name:   <none>
-Last mounted on:          <not available>
-Filesystem UUID:          33476a1a-cc34-4668-a4a3-fd0efaa01818
-Filesystem magic number:  0xEF53
-Filesystem revision #:    1 (dynamic)
-Filesystem features:      has_journal filetype needs_recovery sparse_super
-Default mount options:    (none)
-Filesystem state:         clean
-Errors behavior:          Continue
-Filesystem OS type:       Linux
-Inode count:              132480
-Block count:              264960
-Reserved block count:     13248
-Free blocks:              268779
-Free inodes:              129353
-First block:              0
-Block size:               4096
-Fragment size:            4096
-Blocks per group:         32768
-Fragments per group:      32768
-Inodes per group:         14720
-Inode blocks per group:   460
-Last mount time:          Wed Jan 19 16:38:17 2005
-Last write time:          Wed Jan 19 16:38:17 2005
-Mount count:              8
-Maximum mount count:      20
-Last checked:             Wed Aug 25 16:32:54 2004
-Check interval:           15552000 (6 months)
-Next check after:         Mon Feb 21 15:32:54 2005
-Reserved blocks uid:      0 (user root)
-Reserved blocks gid:      0 (group root)
-First inode:              11
-Inode size:		  128
-Journal inode:            8
-Journal backup:           inode blocks
+> Could you please try one of the suggested work arounds for this issue.  
+Yes, double cr3 reload and cpuid helps us. But rdtsc doesn't.
+
+BTW, can you explain why making pages non-global is the cure? Is it safe 
+  workaround for this bug?
+Double cr3 reload looks a bit unsafe to me, since interrupts or NMI can 
+occur between the reloads and probably reuse stale iTLB mappings... But 
+I'm not sure about this since it is much harder to catch and I have no 
+access to CPU internals. What is your opinion about this?
+
+Sorry for taking your time, I should have checked ERRATAs more 
+attentively myself.
+
+Thank you,
+Kirill
+
+>>Hello,
+>>
+>>Here are the details about CPU bug I mentioned in my previous post.
+>>Though it turned out later that it happens on P-III systems only I
+>>still 
+>>hope it can be of interest.
+>>
+>>Brief description
+>>~~~~~~~~~~~~~~~~~
+>>
+>>This issue was found by Vasily Averin (vvs@sw.ru) when playing
+>>with uselib security exploit on kernels with my 4gb split patch.
+>>
+>>This bug results in strange effects such as calltraces below,
+>>reboots, impossible call traces and so on.
+>>
+>>I started to resolve the bug, narrowed down uselib exploit and
+>>got a simple testcase for the bug, which can be found in attach.
+>>This testcase does a simple thing - it maps pages at low addresses
+>>from 0x04000000 downto 0x00000000, page by page and touches them
+>>for write. Sometimes when running this exploit I got oopses,
+>>sometimes reboots and I found that this is sensitive to the page
+>>addresses which exploit maps.
+>>
+>>Why it crashes? I think this is due to virtual addresses of
+>>kernel code and mapped user space pages overlap. I was able even to
+>>reboot machine if mapped user space pages were filled with some
+>>appropriate asm code.
+>>
+>>I found that Ingo Molnar 4gb split is not vulnerable, and after
+>>investigations I found that Ingo patch doesn't map kernel entry code
+>>(trampline) as _PAGE_GLOBAL. This was the answer.
+>>
+>>I tested it on 4 different P-III machines - all of them were
+>>vulnerable. 
+>>But lately I tested it on Celeron 2.4Ghz and P4 systems - it doesn't
+>>happen, so this bug can be of low interest to Intel people :(
+>>
+>>Below you can find the way how to reproduce the bug, call traces
+>>and why I think it's a hardware bug.
+>>
+>>How to reproduce a bug
+>>~~~~~~~~~~~~~~~~~~~~~~
+>>
+>>- take any FedoraCore kernel with Ingo Molnar 4gb split patch
+>>   or mainstream kernel and apply 4GB split patch
+>>- apply attached diff-arch-4gb-global patch to make
+>>   trampline code to be GLOBAL
+>>- compile kernel with turned on 4gb split, i.e. CONFIG_X86_4GB=y
+>>- boot the kernel and run the attached testcase:
+>>
+>># while true; do ./4gbtest; done;
+>>
+>>or
+>>
+>># ./elflbl -l ./lib -a 0x4000000  (where elflbl is uselib exploit)
+>>
+>>During each 4-5 test runs I get the following oops:
+>>
+>>Jan 21 12:15:17 ts Unable to handle kernel NULL pointer dereference at
+>>virtual address 000000c0
+>>Jan 21 12:15:17 ts  printing eip:
+>>Jan 21 12:15:17 ts 02114450
+>>Jan 21 12:15:17 ts *pde = 00000000
+>>Jan 21 12:15:17 ts Oops: 0002
+>>Jan 21 12:15:17 ts SMP
+>>Jan 21 12:15:17 ts Modules linked in:
+>>Jan 21 12:15:17 ts CPU:    0
+>>Jan 21 12:15:17 ts EIP:    0060:[<02114450>]    Not tainted
+>>Jan 21 12:15:17 ts EFLAGS: 00010246   (2.6.8-dev)
+>>Jan 21 12:15:17 ts EIP is at sys_mmap2+0x0/0xb0
+>>Jan 21 12:15:17 ts eax: 000000c0   ebx: 31524fc4   ecx: 00001000  
+>>edx: 004ec000
+>>Jan 21 12:15:17 ts esi: 00000032   edi: 00000000   ebp: 31524000  
+>>esp: 31524fc0
+>>Jan 21 12:15:17 ts ds: 007b   es: 007b   ss: 0068
+>>Jan 21 12:15:17 ts Process test (pid: 25, threadinfo=31524000
+>>task=31f680c0) Jan 21 12:15:17 ts Stack: fffec200 01a2a000 00001000
+>>00000003 00000032 00000000 00000000 000000c0
+>>Jan 21 12:15:17 ts        0000007b 0000007b 000000c0 08048541 00000073
+>>00000282 bffffdcc 0000007b
+>>Jan 21 12:15:17 ts Call Trace:
+>>Jan 21 12:15:17 ts Code: 55 bd f7 ff ff ff 57 31 ff 56 53 83 ec 18 8b
+>>44 24 38 89 c6
+>>
+>>  Unable to handle kernel NULL pointer dereference at virtual address
+>>000000c0
+>>  02114450
+>>  *pde = 00000000
+>>  Oops: 0002
+>>  CPU:    0
+>>  EIP:    0060:[<02114450>]    Not tainted
+>>  EFLAGS: 00010246   (2.6.8-dev)
+>>  eax: 000000c0   ebx: 31524fc4   ecx: 00001000   edx: 004ec000
+>>  esi: 00000032   edi: 00000000   ebp: 31524000   esp: 31524fc0
+>>  ds: 007b   es: 007b   ss: 0068
+>>  Stack: fffec200 01a2a000 00001000 00000003 00000032 00000000
+>>00000000 000000c0
+>>         0000007b 0000007b 000000c0 08048541 00000073 00000282
+>>bffffdcc 0000007b
+>>  Call Trace:
+>>  Code: 55 bd f7 ff ff ff 57 31 ff 56 53 83 ec 18 8b 44 24 38 89 c6
+>>
+>>
+>> >>EIP; 02114450 <sys_mmap2+0/b0>   <=====
+>>
+>> >>ebx; 31524fc4 <pg0+2eff8fc4/fdac0000>
+>> >>ebp; 31524000 <pg0+2eff8000/fdac0000>
+>> >>esp; 31524fc0 <pg0+2eff8fc0/fdac0000>
+>>
+>>Code;  02114450 <sys_mmap2+0/b0>
+>>00000000 <_EIP>:
+>>Code;  02114450 <sys_mmap2+0/b0>   <=====
+>>    0:   55                        push   %ebp   <=====
+>>Code;  02114451 <sys_mmap2+1/b0>
+>>    1:   bd f7 ff ff ff            mov    $0xfffffff7,%ebp
+>>Code;  02114456 <sys_mmap2+6/b0>
+>>    6:   57                        push   %edi
+>>Code;  02114457 <sys_mmap2+7/b0>
+>>    7:   31 ff                     xor    %edi,%edi
+>>Code;  02114459 <sys_mmap2+9/b0>
+>>    9:   56                        push   %esi
+>>Code;  0211445a <sys_mmap2+a/b0>
+>>    a:   53                        push   %ebx
+>>Code;  0211445b <sys_mmap2+b/b0>
+>>    b:   83 ec 18                  sub    $0x18,%esp
+>>Code;  0211445e <sys_mmap2+e/b0>
+>>    e:   8b 44 24 38               mov    0x38(%esp,1),%eax
+>>Code;  02114462 <sys_mmap2+12/b0>
+>>   12:   89 c6                     mov    %eax,%esi
+>>
+>>Why CPU is unable to handle paging request at 0x000000c0? There is no
+>>access to
+>>this addr in executing code! What has "push %ebp" to do with 0xc0?
+>>The answer is that %eax contains 0xc0 and the touched in user space
+>>pages contain 4092 zero bytes. And 0x0000 is an opcode for "addl %al,
+>>(%eax)". 
+>>So we see the situation when CPU is executing code from user space
+>>pages though we are in kernel space already and data peeks from these
+>>addresses
+>>shows us the correct code (code in call trace is correct!).
+>>I checked it and if these pages are filled with some other values,
+>>not zeroes, than it's possible to make CPU execute this code.
+>>
+>>And why this happens on sys_mmap2+0? Because entry code (system_call)
+>>is mapped at high addresses (> 0xffc00000) and is the same both in
+>>kernel 
+>>and user spaces, so entry.S code works ok.
+>>
+>>So we found 2 ways of curing this bug:
+>>- make trampline code to be non-GLOBAL
+>>- another observation was that PAE turned ON helps as well.
+>>
+>>Hypothesis
+>>~~~~~~~~~~
+>>I think that the problem is in code prefetch queue or somewhere in
+>>CPU. 
+>>It looks like CPU doesn't flush code prefetch queue after %cr3 reload
+>>(to kernel space) in entry.S and continues to execute prefetched code
+>>from user space pages.
+>>
+>>Why making entry code non-global helps the problem?
+>>I think that if the code at %eip is flushed on %cr3 reload than the
+>>_whole_ prefetch queue is flushed and when entry code is global than
+>>it is 
+>>not flushed on %cr3 reload and prefetch queue (including call to
+>>flushed sys_mmap2 code) is not flushed.
+>>
+>>Kirill
+>>
+>>
+>>
+>>>Hi Kirill,
+>>>
+>>>I appreciate you bringing this issue up.  Could you please send us
+>>>the information on how you are able to reproduce this issue (System
+>>>config, Linux kernel version and any test case).  We would like to
+>>>root cause the failure here at Intel. 
+>>>
+>>>Appreciate your help,
+>>>Thanks,
+>>>-rohit
+>>>
+>>>Kirill Korotaev <> wrote on Wednesday, January 19, 2005 8:08 AM:
+>>>
+>>>
+>>>
+>>>>Hello Linus,
+>>>>
+>>>>Linus, Ingo, I've got one strange CPU bug leading to oopses, reboots
+>>>>and so on. This bug can be reproduced with a little bit modified 4gb
+>>>>split and is probably related to CPU speculative execution. I'll
+>>>>post more information about this bug later, but I would like to ask
+>>>>you for Intel guys contacts who maybe interested in this
+>>>>information, so I could CC them as well. 
+>>>>
+>>>>Thank you,
+>>>>Kirill
+>>>>
+>>>>-
+>>>>To unsubscribe from this list: send the line "unsubscribe
+>>>>linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 
-Group 0: (Blocks 0-32767)
-  Primary superblock at 0, Group descriptors at 1-1
-  Block bitmap at 464 (+464), Inode bitmap at 465 (+465)
-  Inode table at 4-463 (+4)
-  24101 free blocks, 14708 free inodes, 1 directories
-  Free blocks: 3, 8667-20480, 20482-32767
-  Free inodes: 11, 13, 15-14720
-Group 1: (Blocks 32768-65535)
-  Backup superblock at 32768, Group descriptors at 32769-32769
-  Block bitmap at 33264 (+496), Inode bitmap at 33265 (+497)
-  Inode table at 32772-33231 (+4)
-  32303 free blocks, 14719 free inodes, 1 directories
-  Free blocks: 32770-32771, 33232-33263, 33266-55295, 55297-65535
-  Free inodes: 14722-29440
-Group 2: (Blocks 65536-98303)
-  Block bitmap at 66064 (+528), Inode bitmap at 66065 (+529)
-  Inode table at 65540-65999 (+4)
-  34308 free blocks, 14720 free inodes, 0 directories
-  Free blocks: 65536-65539, 66000-66063, 66066-98303
-  Free inodes: 29441-44160
-Group 3: (Blocks 98304-131071)
-  Backup superblock at 98304, Group descriptors at 98305-98305
-  Block bitmap at 98864 (+560), Inode bitmap at 98865 (+561)
-  Inode table at 98308-98767 (+4)
-  32303 free blocks, 14718 free inodes, 1 directories
-  Free blocks: 98306-98307, 98768-98863, 98866-129023, 129025-131071
-  Free inodes: 44162-44163, 44165-58880
-Group 4: (Blocks 131072-163839)
-  Block bitmap at 131664 (+592), Inode bitmap at 131665 (+593)
-  Inode table at 131076-131535 (+4)
-  32305 free blocks, 14719 free inodes, 1 directories
-  Free blocks: 131073-131075, 131536-131663, 131666-163839
-  Free inodes: 58882-73600
-Group 5: (Blocks 163840-196607)
-  Backup superblock at 163840, Group descriptors at 163841-163841
-  Block bitmap at 164464 (+624), Inode bitmap at 164465 (+625)
-  Inode table at 163844-164303 (+4)
-  32304 free blocks, 14720 free inodes, 0 directories
-  Free blocks: 163842-163843, 164304-164463, 164466-196607
-  Free inodes: 73601-88320
-Group 6: (Blocks 196608-229375)
-  Block bitmap at 197264 (+656), Inode bitmap at 197265 (+657)
-  Inode table at 196612-197071 (+4)
-  45805 free blocks, 14720 free inodes, 0 directories
-  Free blocks: 196608-196611, 197072-197263, 197266-229375
-  Free inodes: 88321-103040
-Group 7: (Blocks 229376-262143)
-  Backup superblock at 229376, Group descriptors at 229377-229377
-  Block bitmap at 230064 (+688), Inode bitmap at 230065 (+689)
-  Inode table at 229380-229839 (+4)
-  32304 free blocks, 14720 free inodes, 0 directories
-  Free blocks: 229378-229379, 229840-230063, 230066-262143
-  Free inodes: 103041-117760
-Group 8: (Blocks 262144-264959)
-  Block bitmap at 262864 (+720), Inode bitmap at 262865 (+721)
-  Inode table at 262148-262607 (+4)
-  14741 free blocks, 14720 free inodes, 0 directories
-  Free blocks: 262144-262147, 262608-262863, 262866-264959
-  Free inodes: 117761-132480
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVALANg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262943AbVALARY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbVALANg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 19:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbVALAJR
+	id S262943AbVALARY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 19:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVALAQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 19:09:17 -0500
-Received: from gort.metaparadigm.com ([203.117.131.12]:12749 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S262959AbVALAHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 19:07:16 -0500
-Message-ID: <41E46A59.2010205@metaparadigm.com>
-Date: Wed, 12 Jan 2005 08:07:53 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+	Tue, 11 Jan 2005 19:16:49 -0500
+Received: from people.pl ([212.85.96.54]:9222 "HELO v00054.home.net.pl")
+	by vger.kernel.org with SMTP id S262943AbVALAOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 19:14:45 -0500
+Message-ID: <41E46BF2.4030001@people.pl>
+Date: Wed, 12 Jan 2005 01:14:42 +0100
+From: Krzysiek Pawlik <krzysiek.pawlik@people.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041220)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jim Zajkowski <jamesez@umich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sparse LUN scanning - 2.4.x
-References: <cs182h$6nl$1@sea.gmane.org>
-In-Reply-To: <cs182h$6nl$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] 2.6.10-ck3
+References: <41E45F8D.2050204@kolivas.org>
+In-Reply-To: <41E45F8D.2050204@kolivas.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Zajkowski wrote:
+Con Kolivas wrote:
+> These are patches designed to improve system responsiveness. It is 
+> configurable to any workload but the default ck3 patch is aimed at the 
+> desktop and ck3-server is available with more emphasis on serverspace.
 
-> Hi there,
->
-> We have an Apple Xserve RAID, connected through a FC switch.  The RAID 
-> has LUN-masking enabled, such that one of our Linux boxes only gets 
-> LUN 1 and not LUN 0.  We're running the 2.4.x kernel series now, since 
-> this is under a RHEL envinronment.
->
-> The problem is this: since LUN 0 does not show up -- specifically, it 
-> can't read the vendor or model informaton -- the kernel SCSI scan does 
-> not match with the table to tell the kernel to do sparse LUN 
-> scanning... so the RAID does not appear.
->
-> I can make the RAID show up by injecting a add-single-device to the 
-> SCSI proc layer.  Trivially patching scsi_scan.c to always do sparse 
-> scanning works as well.  No hokery with max_scsi_luns or ghost devices 
-> works.
->
-> I'm considering making a patch to add a kernel option to force sparse 
-> scanning.  Is there a better way?
->
-Add the Xserve with the BLIST_SPARSELUN flag into the blacklist/quirks 
-table in drivers/scsi/scsi_scan.c
+Desktop version running fine :)
 
-~mc
+-- 
+Krzysiek 'Nelchael' Pawlik     RLU #322999    krzysiek.pawlik@people.pl
+gentoo base system - kernel 2.6.10-ck3                   GPG:0x7E226904
+http://fatcat.ftj.agh.edu.pl/~nelchael/

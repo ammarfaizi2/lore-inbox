@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313967AbSDPXpP>; Tue, 16 Apr 2002 19:45:15 -0400
+	id <S313969AbSDPXsN>; Tue, 16 Apr 2002 19:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313970AbSDPXpM>; Tue, 16 Apr 2002 19:45:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41227 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313967AbSDPXoR>; Tue, 16 Apr 2002 19:44:17 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8
-Date: 16 Apr 2002 16:43:56 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9icvs$1a6$1@cesium.transmeta.com>
-In-Reply-To: <m1n0w3iaii.fsf@frodo.biederman.org> <200204162327.g3GNRO606562@localhost.localdomain>
+	id <S313970AbSDPXsM>; Tue, 16 Apr 2002 19:48:12 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18443 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313969AbSDPXsL>; Tue, 16 Apr 2002 19:48:11 -0400
+Subject: Re: IDE Problems
+To: p.nikolic@btinternet.com (Peter Nikolic)
+Date: Wed, 17 Apr 2002 00:56:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16xcG3-0002D4-00@rhenium.btinternet.com> from "Peter Nikolic" at Apr 17, 2002 12:20:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xco4-00019Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200204162327.g3GNRO606562@localhost.localdomain>
-By author:    James Bottomley <James.Bottomley@HansenPartnership.com>
-In newsgroup: linux.dev.kernel
-> 
-> Not all boot managers work on voyager: grub and syslinux don't, lilo does (for 
-> now) but complains that EBDA is too big.
-> 
+> hda: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=2434/255/63, UDMA(33)
+> hdb: 16809660 sectors (8607 MB) w/128KiB Cache, CHS=1046/255/63, UDMA(33)
 
-If syslinux doesn't work, it's a bug.
+> end_request: I/O error, dev 03:03 (hda), sector 942192
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=2050682, 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+You have a bad block on /dev/hda3
+
+> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=2051106, 
+
+In fact a couple.
+
+Thats the Linux version of the good old "Abort, Retry, Ignore" in DOS when
+the disk fails. 
+
+Alan

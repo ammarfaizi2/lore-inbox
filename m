@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSHGC1i>; Tue, 6 Aug 2002 22:27:38 -0400
+	id <S316623AbSHGCiv>; Tue, 6 Aug 2002 22:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSHGC1i>; Tue, 6 Aug 2002 22:27:38 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38793 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316682AbSHGC1h>; Tue, 6 Aug 2002 22:27:37 -0400
-Date: Tue, 6 Aug 2002 21:28:58 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] automatic module_init ordering 
-In-Reply-To: <20020807020259.4CAED417A@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0208062117180.12314-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316674AbSHGCiv>; Tue, 6 Aug 2002 22:38:51 -0400
+Received: from mirapoint3.brutele.be ([212.68.203.242]:22893 "EHLO
+	mirapoint3.brutele.be") by vger.kernel.org with ESMTP
+	id <S316623AbSHGCit>; Tue, 6 Aug 2002 22:38:49 -0400
+Date: Wed, 7 Aug 2002 04:42:25 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: compile error : reiserfs - 2.4.19
+Message-Id: <20020807044225.17552f07.stephane.wirtel@belgacom.net>
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Rusty Russell wrote:
+my .config
 
-> > I'm not sure we should go this way. My main problem is that it only solves
-> > a single ordering problem - boot time ordering. What about suspend/wakeup?
-> > We have more of these ordering problems and driverfs is supposed to help
-> > with them, so I'd rather first would like to see how much we can fix this
-> > way.
-> 
-> suspend/wakeup is a device issue, solved well by devicefs.  This is
-> completely independent from the subtleties of initialization order in
-> the core kernel code: devices are not the problem.
-> 
-> Look at how many places have explicit initializers with #ifdef
-> CONFIG_XXX around them, because initialization order problems were too
-> hard before.  These can now be fixed as desired.
-> 
-> I really want *one* place where you can see what order things are
-> initalized.  If that means one big file with #ifdef's, fine.  But the
-> current approach of using link order, initializer levels and explicit
-> initializers is really hard to debug and modify.
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_CHECK=y
+CONFIG_REISERFS_PROC_INFO=y
 
-Since I'm still CC'ed, I thought I could add in my 2 cents, too ;)
+my error is as follows :
 
-I agree with Rusty, his ordered initcalls are really needed most at early 
-points during the system initialization, way before device discovery and 
-initialization. They allow for a lot of cleanup and clarification in that 
-area, so I definitely think they should go in.
+make -C reiserfs
+make[2]: Entering directory `/root/linux-2.4.19/fs/reiserfs'
+make all_targets
+make[3]: Entering directory `/root/linux-2.4.19/fs/reiserfs'
+gcc -D__KERNEL__ -I/root/linux-2.4.19/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i686-pc-linux-gnu/2.95.3/include -DKBUILD_BASENAME=bitmap  -c -o bitmap.o bitmap.c
+bitmap.c: In function `reiserfs_free_block':
+bitmap.c:132: parse error before `)'
+bitmap.c:133: parse error before `)'
+bitmap.c: In function `reiserfs_free_prealloc_block':
+bitmap.c:142: parse error before `)'
+bitmap.c:143: parse error before `)'
+bitmap.c: In function `do_reiserfs_new_blocknrs':
+bitmap.c:326: parse error before `)'
+bitmap.c:341: parse error before `)'
+bitmap.c:417: parse error before `)'
+make[3]: *** [bitmap.o] Error 1
+make[3]: Leaving directory `/root/linux-2.4.19/fs/reiserfs'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/root/linux-2.4.19/fs/reiserfs'
+make[1]: *** [_subdir_reiserfs] Error 2
+make[1]: Leaving directory `/root/linux-2.4.19/fs'
+make: *** [_dir_fs] Error 2
+bash-2.05a# 
 
-Those initcalls that only do pci_register_driver() and the like are
-typically the module_init() functions and are taken care of by Roman's
-patch. Also, inserting devices into the device tree and handling them can
-only happen after the kernel knows about the drivers, which it only does
-after the corresponding initcall has run. The place where to insert them
-is however an entirely different story, and that's handled by the device
-tree just fine.
+bitmap.c 
+In function `reiserfs_free_block':
+132 :    RFALSE(!s, "vs-4061: trying to free block on nonexistent device");
+133 :    RFALSE(is_reusable (s, block, 1) == 0, "vs-4071: can not free such block");
 
---Kai
+In function `reiserfs_free_prealloc_block':
+142 :    RFALSE(!th->t_super, "vs-4060: trying to free block on nonexistent device");
+143 :    RFALSE(is_reusable (th->t_super, block, 1) == 0, "vs-4070: can not free such block");
+
+In function `do_reiserfs_new_blocknrs':
+326 :    RFALSE( !s, "vs-4090: trying to get new block from nonexistent device");
+340 :    RFALSE( is_reusable (s, *free_blocknrs, 1) == 0, 
+341 :         "vs-4120: bad blocknr on free_blocknrs list");
 
 
+415 :    RFALSE( buffer_locked (SB_AP_BITMAP (s)[i]) ||
+416 :        is_reusable (s, search_start, 0) == 0,
+417 :        "vs-4140: bitmap block is locked or bad block number found");
 
+
+there are the RFALSE's define :
+
+#if defined( CONFIG_REISERFS_CHECK )
+#define RFALSE( cond, format, args... ) RASSERT( !( cond ), format, ##args )
+#else
+#define RFALSE( cond, format, args... ) do {;} while( 0 )
+#endif
+
+
+now i'm compiling my kernel without CONFIG_REISERFS_CHECK
+
+Stéphane Wirtel

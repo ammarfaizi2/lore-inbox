@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268151AbTBYRdD>; Tue, 25 Feb 2003 12:33:03 -0500
+	id <S268230AbTBYRl5>; Tue, 25 Feb 2003 12:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268152AbTBYRdD>; Tue, 25 Feb 2003 12:33:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58118 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268151AbTBYRdA>; Tue, 25 Feb 2003 12:33:00 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Minutes from Feb 21 LSE Call
-Date: Tue, 25 Feb 2003 17:38:31 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b3g9mn$27s$1@penguin.transmeta.com>
-References: <mbligh@aracnet.com> <200302251711.h1PHBct16624@mail.osdl.org>
-X-Trace: palladium.transmeta.com 1046194982 32154 127.0.0.1 (25 Feb 2003 17:43:02 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 25 Feb 2003 17:43:02 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S268231AbTBYRl5>; Tue, 25 Feb 2003 12:41:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53509 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268230AbTBYRly>; Tue, 25 Feb 2003 12:41:54 -0500
+Date: Tue, 25 Feb 2003 17:52:04 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: vherva@twilight.cs.hut.fi, mikael.starvik@axis.com,
+       linux-kernel@vger.kernel.org, tinglett@vnet.ibm.com
+Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
+Message-ID: <20030225175204.B21014@flint.arm.linux.org.uk>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	vherva@twilight.cs.hut.fi, mikael.starvik@axis.com,
+	linux-kernel@vger.kernel.org, tinglett@vnet.ibm.com
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se> <20030225092520.A9257@flint.arm.linux.org.uk> <20030225110704.GD159052@niksula.cs.hut.fi> <20030225113557.C9257@flint.arm.linux.org.uk> <20030225083811.797fbce6.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030225083811.797fbce6.rddunlap@osdl.org>; from rddunlap@osdl.org on Tue, Feb 25, 2003 at 08:38:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200302251711.h1PHBct16624@mail.osdl.org>,
-Cliff White  <cliffw@osdl.org> wrote:
->
->Well, here's one bit of data. Easy enough to do if you have a web browser.
->LMBench 2.0 on 1-way and 2-way, kernels 2.4.18 and 2.5.60 
->1-way (stp1-003 stp1-002) 
->2.4.18 http://khack.osdl.org/stp/7443/
->2.5.60 http://khack.osdl.org/stp/265622/ 
->
->2-way (stp2-003 stp2-000)
->2.4.18 http://khack.osdl.org/stp/3165/
->2.5.60 http://khack.osdl.org/stp/265643/
->
->Interesting items for me are the fork/exec/sh times and some of the file + VM 
->numbers
->LMBench 2.0 Data ( items selected from total of five runs )
->
->Processor, Processes - times in microseconds - smaller is better
->----------------------------------------------------------------
->Host                 OS  Mhz null null      open selct sig  sig  fork exec sh
->                             call  I/O stat clos TCP   inst hndl proc proc proc
->--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
->stp2-003.  Linux 2.4.18 1000 0.39 0.67 3.89 4.99  30.4 0.93 3.06 344. 1403 4465
->stp2-000.  Linux 2.5.60 1000 0.41 0.77 4.34 5.57  32.6 1.15 3.59 245. 1406 5795
+On Tue, Feb 25, 2003 at 08:38:11AM -0800, Randy.Dunlap wrote:
+> I'm just guessing that it will be difficult to convince you otherwise,
+> but I think you are missing the point of this.  It's not for someone
+> who already has scripts to handle this or already uses 3+ commands
+> to handle it every time that they build a new kernel.  It's for
+> people who are less organized than you are -- gosh, maybe even
+> for Linux users.
 
-Note that those numbers will look quite different (at least on a P4) if
-you use a modern library that uses the "sysenter" stuff. The difference
-ends up being something like this:
+Well, rather than creating yet another archive system, maybe we should
+just tar the lot up and make all boot loaders aware of the tar format?
+After all, everyone understands tar and .debs better than RPMs, don't
+they?
 
-Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
-                             call  I/O stat clos       inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
-i686-linu  Linux 2.5.30 2380  0.8  1.1    3    5 0.04K  1.1    3 0.2K   1K   3K
-i686-linu  Linux 2.5.62 2380  0.2  0.6    3    4 0.04K  0.7    3 0.2K   1K   3K
+8-)
 
-(Yeah, I've never run a 2.4.x kernel on this machine, so..) In other
-words, the system call has been speeded up quite noticeably. 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Yes, if you don't take advantage of sysenter, then all the sysenter
-support will just make us look worse ;(
-
-I'm surprised by your "sh proc" changes, they are quite big. I guess
-it's rmap and highmem that bites us, and yes, we've gotten slower there.
-
-		Linus

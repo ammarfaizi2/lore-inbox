@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbTI1Kys (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 06:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbTI1Kys
+	id S262538AbTI1K4E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 06:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTI1K4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 06:54:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17073 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262534AbTI1Kyr
+	Sun, 28 Sep 2003 06:56:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19121 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262538AbTI1K4B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 06:54:47 -0400
-Message-ID: <3F76BDEC.7090701@pobox.com>
-Date: Sun, 28 Sep 2003 06:54:36 -0400
+	Sun, 28 Sep 2003 06:56:01 -0400
+Message-ID: <3F76BE35.9060007@pobox.com>
+Date: Sun, 28 Sep 2003 06:55:49 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
 CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <1064737592.19950.1.camel@midux>
-In-Reply-To: <1064737592.19950.1.camel@midux>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [WIRELESS] Added probe declaration in arlan-main.c
+References: <20030928101013.GA11057@gondor.apana.org.au>
+In-Reply-To: <20030928101013.GA11057@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Hästbacka wrote:
-> CC [M]  drivers/net/wireless/arlan-main.o
-> drivers/net/wireless/arlan-main.c: In function `init_module':
-> drivers/net/wireless/arlan-main.c:1923: error: `probe' undeclared (first
-> use in this function)
-> drivers/net/wireless/arlan-main.c:1923: error: (Each undeclared
-> identifier is reported only once
-> drivers/net/wireless/arlan-main.c:1923: error: for each function it
-> appears in.)
-> make[3]: *** [drivers/net/wireless/arlan-main.o] Error 1
-> make[2]: *** [drivers/net/wireless] Error 2
-> make[1]: *** [drivers/net] Error 2
-> make: *** [drivers] Error 2
+Herbert Xu wrote:
+> Hi:
+> 
+> The declaration for probe got lost in the move from arlan to arlan-main.
+> This patch puts it back.
 
 
-already fixed... change headed to Linus soon.
+The patch puts it back in the wrong place, though... :)
+
+Linus, proper change headed your way in a few hours...
+
+	Jeff
+
+
 

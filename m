@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130225AbRACKqF>; Wed, 3 Jan 2001 05:46:05 -0500
+	id <S130781AbRACLDd>; Wed, 3 Jan 2001 06:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130306AbRACKpz>; Wed, 3 Jan 2001 05:45:55 -0500
-Received: from pD9040320.dip.t-dialin.net ([217.4.3.32]:52752 "HELO
-	grumbeer.hjb.de") by vger.kernel.org with SMTP id <S130225AbRACKpt>;
-	Wed, 3 Jan 2001 05:45:49 -0500
-Subject: Re: 2.2.18: Thread problem with smbfs
-To: urban@teststation.com (Urban Widmark)
-Date: Wed, 3 Jan 2001 11:16:15 +0100 (CET)
-Cc: hjb@pro-linux.de (Hans-Joachim Baader), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101022126540.31967-100000@cola.svenskatest.se> from "Urban Widmark" at Jan 02, 2001 10:13:25 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S130761AbRACLDW>; Wed, 3 Jan 2001 06:03:22 -0500
+Received: from [196.38.105.82] ([196.38.105.82]:42254 "EHLO www.webtrac.co.za")
+	by vger.kernel.org with ESMTP id <S130306AbRACLDK>;
+	Wed, 3 Jan 2001 06:03:10 -0500
+Date: Wed, 3 Jan 2001 12:32:30 +0200
+From: Craig Schlenter <craig@qualica.com>
+To: linux-kernel@vger.kernel.org
+Subject: strange swap behaviour - test11pre4
+Message-ID: <20010103123230.C23323@qualica.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010103101616.1E5D348262F@grumbeer.hjb.de>
-From: hjb@pro-linux.de (Hans-Joachim Baader)
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Urban,
+Hi
 
-> Anyway,
-> gdb is doing strange things to your testprogram on ext2 as well. Does it
-> work for you? I have not been able to reproduce a gdb hang (you do know
-> that there is a while(1); in main ... ;-), but it generates a lot of smbfs
-> messages and in one case made smbfs stop working.
+This seems strange to me:
 
-I put the while(1) there to give all threads time to do their work.
-You know, it was just a quick & dirty test case.
+(from vmstat 1):
 
-> 	Hmm, strange. Why does it only copy one file? Looking at the last
-> 	process gives a sleeping process in rt_sigsuspend, like you
-> 	reported in your strace. Am I using gdb incorrectly?
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
 
-I don't think so, but I'm not a gdb expert. In any case, I did test
-the program on ext2 and it behaved correctly all the time. You don't
-need gdb to reproduce the smbfs problems, you can also use strace.
-So there's nothing wrong with gdb.
+ 1  0  0 107252    956    204  44024 2376   4   594     1  256   304  11   4  85
+ 0  1  0 107272    952    204  43980 2436  60   641    15  284   324   5   7  88
+ 1  0  0 107308    952    204  43976 2344  68   586    31  256   279   5   9  86
+ 2  0  0 107284    952    204  43916 1488  24   372     6  199   257   5   6  89
+ 0  1  0 107268    952    204  43840 2328  12   582    13  259   294   5   2  93
+ 1  0  0 107252    952    204  43780 2580  32   645     8  272   312  12   1  87
+ 0  1  0 107220    952    204  43680 2436   4   643     1  290   298  13   3  84
+ 2  0  0 107176    952    204  43580 2324   0   581    10  273   299  10   3  87
+ 0  1  0 107216    956    204  43576 2532  84   633    21  296   298   6   5  89
+ 1  0  0 107172    952    204  43484 1948   0   487     0  251   273   6   2  92
+ 0  1  0 107152    956    204  43420 2348  24   593     6  266   288   5   5  90
 
-> The patch below vs 2.2.18 should remove the -512 (-ERESTARTSYS) errors.
-> 
-> But I don't like it at all. It blocks all signals, including SIGKILL, for
-> a while. The problem is that tcp_recvmsg checks if there is a signal (any
-> signal) and aborts with -ERESTARTSYS (a comment says it only cares about
-> SIGURG, maybe that could be changed instead).
-> 
-> Could you test if this fixes the gdb problem? And try gdb with all files
-> on ext2 too. For me there is no difference between that and smbfs vs a
-> NT4.
+There is a perl program running (80 Meg's in size, 20 Megs resident) that is
+chatting to a database and building up a large hash in memory. The machine has
+64M of RAM. The bit that doesn't make sense is why the cache is so large -
+the VM seems to have got stuck paging in stuff from swap repeatedly (bits of
+the perl program it would seem). Surely it should shrink the cache to provide 
+more breathing room or am I being an idiot about this?
 
-It seems to work perfectly. I tested with up to 10 threads in 2
-simulteneous processes with both ext2 and smbfs. I'll do further
-testing in the next days.
+Should I be running a different kernel? 2.2.19preXXX ? Should I be tuning
+vm things in proc and if so how?
 
-Many thanks for fixing that.
+Thank you,
 
-Regards,
-hjb
--- 
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/
+--Craig
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

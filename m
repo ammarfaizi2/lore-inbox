@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbTJ0No3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 08:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTJ0No3
+	id S262464AbTJ0Nn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 08:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbTJ0Nn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 08:44:29 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:52872 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262602AbTJ0No1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 08:44:27 -0500
-Subject: Re: 2.6.0-test9: selinux compile error with "make O=..."
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, James Morris <jmorris@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031026094923.GA925@mars.ravnborg.org>
-References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
-	 <20031026002209.GD23291@fs.tum.de> <20031026094923.GA925@mars.ravnborg.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1067262042.18818.11.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Oct 2003 08:40:42 -0500
+	Mon, 27 Oct 2003 08:43:27 -0500
+Received: from [212.55.154.22] ([212.55.154.22]:61347 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S262464AbTJ0Nn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 08:43:26 -0500
+Message-ID: <3F9D2111.3020109@vgertech.com>
+Date: Mon, 27 Oct 2003 13:43:45 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031020 Debian/1.5-1
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: Shaun Savage <savages@savages.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
+References: <3F9D196C.9080301@savages.net>
+In-Reply-To: <3F9D196C.9080301@savages.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-26 at 04:49, Sam Ravnborg wrote:
-> Hi Adrian.
-> Known problem that has been reported back to the maintainers about
-> one month ago. But they do not seem to care enough to fix it.
+Hi!
 
-I have no prior email regarding the issue. Who reported it, and to whom?
-Was it cc'd to any mailing list (e.g. lkml, lsm, or selinux)?
+Shaun Savage wrote:
+> I have just compiled and installed kernel 2.6t9 on my RH9 / Asus A7N8X 
+> Deluxe.  I find the disk access is slower using the 2.6 kernel than the 
+> 2.4.20 kernel.
+> 
+> To get it to work for 2.4.20 kernel I have to use
+> # hdparm -d1 -X88 /dev/hde
+> then the buffered disk read goes from 1.5M to 55M
+> 
+> On the 2.6 kernel the buffered disk read is only 16M
+> 
+> What do I have to do to increase the disk speed for kernel 2.6t9?
+> 
 
-> The use of "-include" is a bad way to include files. The reader will
-> not see that global.h is included at all and will wonder how that
-> information get pulled in.
+I bet it's the "beat to death in lkml" issue with readahead.
 
-True, and the original reason for it is no longer valid, so we can
-change this.
+What's the output of cat /proc/ide/hdX?
 
-> Furhtermore the location of the header files under security/include
-> is considered bad practice. All headerfiles used from more than one
-> directory belongs to include/xxx, in this case include/security.
-> Then they can be included using
-> #include <security/secuity.h>
+Regards,
+Nuno Silva
 
-This was discussed when SELinux was originally submitted for merging,
-but these header files are private to the SELinux kernel module are
-never included into out-of-tree code, so it seemed unjustified to move
-them.  Now, if this breaks the build process, we can move them, but I
-would appreciate clarification as to whether this is truly a limitation
-of the build process for make O=.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> Shaun Savage
+> 
 

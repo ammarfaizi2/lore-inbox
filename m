@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262917AbTCKMiL>; Tue, 11 Mar 2003 07:38:11 -0500
+	id <S262916AbTCKMsp>; Tue, 11 Mar 2003 07:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262919AbTCKMiL>; Tue, 11 Mar 2003 07:38:11 -0500
-Received: from hibernia.jakma.org ([212.17.36.87]:59542 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S262917AbTCKMiK>; Tue, 11 Mar 2003 07:38:10 -0500
-Date: Tue, 11 Mar 2003 12:48:47 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Kenn Humborg <kenn@linux.ie>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make f_pos accessible via /proc/PID/fd/N
-In-Reply-To: <20030303200323.A12223@excalibur.research.wombat.ie>
-Message-ID: <Pine.LNX.4.44.0303111243130.9346-100000@fogarty.jakma.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+	id <S262919AbTCKMsp>; Tue, 11 Mar 2003 07:48:45 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:20217 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262916AbTCKMso>;
+	Tue, 11 Mar 2003 07:48:44 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15981.56745.912228.109975@gargle.gargle.HOWL>
+Date: Tue, 11 Mar 2003 13:59:21 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic thread_info->status
+ field.
+In-Reply-To: <Pine.LNX.4.44.0303101658210.6802-100000@home.transmeta.com>
+References: <200303110056.h2B0uo6U005286@harpo.it.uu.se>
+	<Pine.LNX.4.44.0303101658210.6802-100000@home.transmeta.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, Kenn Humborg wrote:
+Linus Torvalds writes:
+ > > Sorry for being dense, but can you clarify: will current 2.{2,4,5}
+ > > kernels preserve or destroy the parent process' FPU control at fork()?
+ > 
+ > They're guaranteed to preserve the control state (it has to: you can't 
+ > just change the exception mask over a function call). However, that was 
+ > buggy at least in 2.5.x, and very possibly in 2.4.x too - haven't checked.
 
-> The attached patch sets the "size" for the /proc/PID/fd/N entries
-> to the current file position (file->f_pos).
-> 
-> In proc_lookupfd(), I fill inode->i_size with file->f_pos.  Then
-> in pid_fd_revalidate(), I refresh it again.
-> 
-> I would find this useful to be able to tell, for example, how far
-> a large outgoing SMTP transfer has got (so I can avoid rebooting
-> if it's almost finished), or how far a customer download from our
-> FTP server has got to.
+Thanks. Our use of unmasked FPU exceptions should be safe then, unless
+2.4 also has the bug you fixed in 2.5.
 
-Cute little addition. This would be very useful to have.
-
-> Was there any particular reason for fixing the "size" of these
-> files at 64?  Are there any tools that depend on this?
-
-If not it'd be very nice to have in the kernel.
-
-> Patch is against 2.5.63.
-> 
-> Later,
-> Kenn
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-Numeric stability is probably not all that important when you're guessing.
-
+/Mikael

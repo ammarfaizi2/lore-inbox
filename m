@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUGWDES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUGWDLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267509AbUGWDES (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 23:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUGWDES
+	id S267511AbUGWDLG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 23:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267513AbUGWDLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 23:04:18 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:35238
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S267509AbUGWDER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 23:04:17 -0400
-From: Rob Landley <rob@landley.net>
-To: linux-kernel@vger.kernel.org
-Subject: Interesting race condition...
-Date: Thu, 22 Jul 2004 22:04:46 -0500
-User-Agent: KMail/1.5.4
+	Thu, 22 Jul 2004 23:11:06 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:65413 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S267511AbUGWDLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 23:11:04 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Date: Fri, 23 Jul 2004 13:10:37 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407222204.46799.rob@landley.net>
+Message-ID: <16640.33197.366067.554037@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: raidstart used deprecated START_ARRAY ioctl
+In-Reply-To: message from Norberto Bensa on Friday July 9
+References: <200407090135.12493.norberto+linux-kernel@bensa.ath.cx>
+	<16622.11173.888745.161113@cse.unsw.edu.au>
+	<200407090230.24696.norberto+linux-kernel@bensa.ath.cx>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just saw a funky thing.  Here's the cut and past from the xterm...
+On Friday July 9, norberto+linux-kernel@bensa.ath.cx wrote:
+> 
+> >    This is done by set the partition type of all partitions that
+> >    contain part of an MD array to "Linux Raid Autodetect" (0xFD).
+> >    Then all arrays are found and assembled at boot time.
+> >    This requires having all of md (that you need) compiled into the
+> >    kernel, not as modules.
+> 
+> Did I get that right? Can I get rid of raidstart and the array will be 
+> "assembled by the kernel"?
 
-[root@(none) root]# ps ax | grep hack
- 9964 pts/1    R      0:00 grep hack HOSTNAME= SHELL=/bin/bash TERM=xterm HISTSIZE=1000 USER=root LS_COLORS=no=00:fi=00:di=00;34:ln=00;36:pi=40;33:so=00;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:ex=00;32:*.cmd=00;32:*.exe=00;32:*.com=00;32:*.btm=00;32:*.bat=00;32:*.sh=00;32:*.csh=00;32:*.tar=00;31:*.tgz=
-[root@(none) root]# ps ax | grep hack
- 9966 pts/1    S      0:00 grep hack
+Yes.  If all the components of the arrays are in partitions with type
+0xFD, and the md driver and raid personalities are compiled into the
+kernel (not modules), then the kernel will automatically start the
+arrays for you.
 
-Seems like some kind of race condition, dunno if it's in Fedore Core 1's ps
-or the 2.6.7 kernel or what...
-
-Rob
--- 
-www.linucon.org: Linux Expo and Science Fiction Convention
-October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
-
+NeilBrown

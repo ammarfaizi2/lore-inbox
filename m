@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265584AbUBFU4k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 15:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUBFU4j
+	id S265643AbUBFVFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265621AbUBFVFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 15:56:39 -0500
-Received: from h80ad2445.async.vt.edu ([128.173.36.69]:36998 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265584AbUBFU4i (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 15:56:38 -0500
-Message-Id: <200402062056.i16KuVS6020404@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Werner Almesberger <wa@almesberger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ? 
-In-Reply-To: Your message of "Fri, 06 Feb 2004 17:09:17 -0300."
-             <20040206170917.E18820@almesberger.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040206041223.A18820@almesberger.net> <20040206183746.GR4902@ca-server1.us.oracle.com>
-            <20040206170917.E18820@almesberger.net>
+	Fri, 6 Feb 2004 16:05:44 -0500
+Received: from mail.kroah.org ([65.200.24.183]:49389 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265643AbUBFVFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 16:05:43 -0500
+Date: Fri, 6 Feb 2004 13:04:26 -0800
+From: Greg KH <greg@kroah.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: gene.heskett@verizon.net, Azog <slashmail@arnor.net>,
+       Adrian Bunk <bunk@fs.tum.de>, Tom Rini <trini@kernel.crashing.org>,
+       Andre Noll <noll@mathematik.tu-darmstadt.de>,
+       Linux-Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] remove USB_SCANNER
+Message-ID: <20040206210426.GA1803@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <20040205011423.GA6092@kroah.com> <1076001658.3225.101.camel@moria.arnor.net> <200402052015.22926.gene.heskett@verizon.net> <4024001D.80308@tmr.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1834550369P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 06 Feb 2004 15:56:31 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4024001D.80308@tmr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1834550369P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Feb 06, 2004 at 03:59:09PM -0500, Bill Davidsen wrote:
+> I think the problem is not that it doesn't work with kernel, but it 
+> doesn't work with the application. And while some people may be able to 
+> ignore having a system which will work with both 2.4 and 2.6 kernels, 
+> for many systems it may not be practical to change config to something 
+> which will not work in 2.4 in hopes it might work in 2.6.
 
-On Fri, 06 Feb 2004 17:09:17 -0300, Werner Almesberger <wa@almesberger.net>  said:
+The libusb solution for scanner devices works just fine with 2.4 also.
 
-> Hmm, "all, but the f_pos read-modify-write" sounds more like how
-> an insurance company would define "all" :-)
-> 
-> What's puzzling here is that the standard would introduce such an
-> important concept in the discussion of threads.
+thanks,
 
-Well... it's the sort of problem that's very Schrodenger unless you have
-another thread/process observing.
-
---==_Exmh_-1834550369P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAI/9/cC3lWbTT17ARAueGAKCsWuAgFNQGQ4XCdPOi80CirD8wfACgyjKR
-GtvGp07PsCP6PI6zG6nlTIM=
-=hv93
------END PGP SIGNATURE-----
-
---==_Exmh_-1834550369P--
+greg k-h

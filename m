@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbTHYK2r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTHYK1n
+	id S261674AbTHYKe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbTHYKe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:27:43 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:20167 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261621AbTHYK1f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:27:35 -0400
-Date: Mon, 25 Aug 2003 12:27:20 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2.6] 1/3 Serio: claim serio early
-Message-ID: <20030825102720.GA4369@ucw.cz>
-References: <200308230131.50388.dtor_core@ameritech.net>
+	Mon, 25 Aug 2003 06:34:27 -0400
+Received: from vaxjo.synopsys.com ([198.182.60.75]:57057 "EHLO
+	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S261674AbTHYKe0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:34:26 -0400
+Date: Mon, 25 Aug 2003 12:34:20 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O18.1int
+Message-ID: <20030825103420.GL16080@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <200308231555.24530.kernel@kolivas.org> <yw1xr83accpa.fsf@users.sourceforge.net> <20030825094240.GJ16080@Synopsys.COM> <yw1xad9yca8j.fsf@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200308230131.50388.dtor_core@ameritech.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xad9yca8j.fsf@users.sourceforge.net>
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 23, 2003 at 01:31:50AM -0500, Dmitry Torokhov wrote:
-> Hi, 
+Måns Rullgård, Mon, Aug 25, 2003 12:17:16 +0200:
+> Alex Riesen <alexander.riesen@synopsys.COM> writes:
 > 
-> I think that serio_dev in serio_open should claim serio before calling 
-> "open" function as it has already been decided that (in case of success)
-> this serio belongs to that serio_dev. Otherwise it might try to find an
-> owner on its own, like i8042 module that calls serio_interrupt which in 
-> turn will do serio_rescan. From that point on 2 instances may start 
-> fighting over the same serio.
+> >> XEmacs still spins after running a background job like make or grep.
+> >> It's fine if I reverse patch-O16.2-O16.3. The spinning doesn't happen
+> >> as often, or as long time as with O16.3, but it's there and it's
+> >> irritating.
+> >
+> > another example is RXVT (an X terminal emulator). Starts spinnig after
+> > it's child has exited. Not always, but annoyingly often. System is
+> > almost locked while it spins (calling select).
 > 
-> What you think about the patch below?
+> It sounds like the same bug.  IMHO, it's rather bad, since a
+> non-privileged process can make the system unusable for a non-zero
+> amount of time.
 
-Agreed.
+the source of RXVT looks more like the bug: it does not check for
+errors, even though it is a bit tricky to get portably.
+It is still a problem, though: "_almost_ locked" does not make it nice.
 
-> 
-> Dmitry
-> 
-> diff -urN --exclude-from=/usr/src/exclude 2.6.0-test4/drivers/input/serio/serio.c linux-2.6.0-test4/drivers/input/serio/serio.c
-> --- 2.6.0-test4/drivers/input/serio/serio.c	2003-08-22 21:53:29.000000000 -0500
-> +++ linux-2.6.0-test4/drivers/input/serio/serio.c	2003-08-22 22:58:37.000000000 -0500
-> @@ -204,9 +204,11 @@
->  /* called from serio_dev->connect/disconnect methods under serio_sem */
->  int serio_open(struct serio *serio, struct serio_dev *dev)
->  {
-> -	if (serio->open(serio))
-> -		return -1;
->  	serio->dev = dev;
-> +	if (serio->open(serio)) {
-> +		serio->dev = NULL;
-> +		return -1;
-> +	}
->  	return 0;
->  }
->  
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> How should I do to capture some information about this thing?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Use "top" and look at the dynamic priority.
+
+

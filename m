@@ -1,37 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUIDSOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUIDSVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUIDSOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 14:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUIDSOk
+	id S265287AbUIDSVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 14:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUIDSVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 14:14:40 -0400
-Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:65502 "EHLO
-	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
-	id S265230AbUIDSOk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 14:14:40 -0400
-Subject: Re: [BUG] r200 dri driver deadlocks
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org, wli@holomorphy.com
-In-Reply-To: <d577e569040904021631344d2e@mail.gmail.com>
-References: <d577e569040904021631344d2e@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Sat, 04 Sep 2004 14:14:55 -0400
-Message-Id: <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-Mime-Version: 1.0
+	Sat, 4 Sep 2004 14:21:47 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37111 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265287AbUIDSVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 14:21:45 -0400
+Date: Sat, 4 Sep 2004 14:26:12 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH][8/8] Arch agnostic completely out of line locks / x86_64
+In-Reply-To: <20040904111605.GA12165@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0409041420590.11262@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com>
+ <20040904111605.GA12165@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 05:16 -0400, Patrick McFarland wrote:
-> 
-> All of this was tested with a virgin 2.6.8.1 (with debug info and
-> frame pointers enabled) and Debian's XFree86 4.3.0.1, [...]
+On Sat, 4 Sep 2004, Andi Kleen wrote:
 
-What version of the DRI driver?
+> On Thu, Sep 02, 2004 at 08:03:02PM -0400, Zwane Mwaikambo wrote:
+> >  arch/x86_64/kernel/time.c        |   13 +++++++++++++
+> >  arch/x86_64/kernel/vmlinux.lds.S |    1 +
+> >  include/asm-x86_64/ptrace.h      |    4 ++++
+> >  3 files changed, 18 insertions(+)
+> >
+> > Andi, i'm not so sure about that return address in profile_pc, i think i
+> > need to read a bit more.
+>
+> When frame pointers are enabled the code is correct. But you don't
+> even need frame pointers, because the spinlock code should not
+> spill any registers and in such a function the return address
+> is always *rsp. Same is true on i386 too.
 
+How about the following?
 
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+000001f0 <_spin_lock_irqsave>:
+ 1f0:   55                      push   %ebp
+ 1f1:   89 e5                   mov    %esp,%ebp
+ 1f3:   56                      push   %esi
+ 1f4:   89 c6                   mov    %eax,%esi
+ 1f6:   53                      push   %ebx
+ 1f7:   51                      push   %ecx
+ 1f8:   51                      push   %ecx
+ 1f9:   9c                      pushf
+ 1fa:   5b                      pop    %ebx
+ 1fb:   fa                      cli
+ 1fc:   b8 00 e0 ff ff          mov    $0xffffe000,%eax
+ 201:   21 e0                   and    %esp,%eax
+ 203:   8b 50 14                mov    0x14(%eax),%edx
+ 206:   42                      inc    %edx
+
+It was a lot easier with the spin stub only out of line (the first round
+of patches for i386, x86_64) so there i used esp and didn't depend on
+frame pointers.
+
+Thanks,
+	Zwane
+

@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266522AbUHRO3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUHROqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266522AbUHRO3b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 10:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUHRO3b
+	id S266775AbUHROqa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 10:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUHROqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 10:29:31 -0400
-Received: from digitalimplant.org ([64.62.235.95]:32153 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S266522AbUHRO3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 10:29:30 -0400
-Date: Wed, 18 Aug 2004 07:29:27 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [patch] enums to clear suspend-state confusion
-In-Reply-To: <1092812149.9932.180.camel@gaston>
-Message-ID: <Pine.LNX.4.50.0408180727390.6727-100000@monsoon.he.net>
-References: <20040812120220.GA30816@elf.ucw.cz>  <20040817212510.GA744@elf.ucw.cz>
- <20040817152742.17d3449d.akpm@osdl.org>  <20040817223700.GA15046@elf.ucw.cz>
- <20040817161245.50dd6b96.akpm@osdl.org>  <20040818002711.GD15046@elf.ucw.cz>
- <1092794687.10506.169.camel@gaston>  <20040818061227.GA7854@elf.ucw.cz>
- <1092812149.9932.180.camel@gaston>
+	Wed, 18 Aug 2004 10:46:30 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:22046 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266775AbUHROq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 10:46:28 -0400
+Date: Wed, 18 Aug 2004 15:46:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Jakob Oestergaard <jakob@unthought.net>
+cc: Gene Heskett <gene.heskett@verizon.net>, <linux-kernel@vger.kernel.org>,
+       Anders Saaby <as@cohaesio.com>, <sct@redhat.com>
+Subject: Re: oom-killer 2.6.8.1
+In-Reply-To: <20040818141118.GY27443@unthought.net>
+Message-ID: <Pine.LNX.4.44.0408181524550.14783-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 18 Aug 2004, Jakob Oestergaard wrote:
+> 
+> Looking thru the swapfile.c and oom killer code, one thing that is
+> making me scratch my head:
+> 
+> nr_swap_pages is a *signed* integer.  This does not make sense. There
+> are even tests in swapfile.c that explicitly test "nr_swap_pages <= 0"
+> instead of simply "!nr_swap_pages" - this does not make sense at all
+> either - or does it?
+> 
+> Stephen is that your code?
 
-On Wed, 18 Aug 2004, Benjamin Herrenschmidt wrote:
+I'm not Stephen, and it wasn't originally my code, but I do remember
+tidying this up to stop /proc/meminfo showing negative SwapFree
+(see nr_to_be_unused).
 
->
-> > Yes, that's exactly what I did... Unfortunately typedef means ugly
-> > code. So I'll just switch it back to enum system_state, and lets care
-> > about device power managment when it hits us, okay?
->
-> I don't agree... with this approach, we'll have to change all drivers
-> _twice_ when we move to something more descriptive than a scalar
+nr_swap_pages _may_ legitimately be negative, during sys_swapoff:
+that does "nr_swap_pages -= p->pages", which is liable to send it
+negative, before going on to "try_to_unuse", which slowly increments
+nr_swap_pages back up to its final value (0 if no other swap areas),
+page by page via delete_from_swap_cache's swap_free.
 
-I totally agree. Why be hasty? We need to do it right and do it once. If
-that means a couple of more weeks and several more emails, than so be it.
-Otherwise, we'll be stuck with a sub-par solution for who knows how long.
+Surprising, I agree, but it allows swap_free to increment
+nr_swap_pages without any special casing for swapoff.
 
+Hugh
 
-	Pat
+> See, if nr_swap_pages can validly be negative and some meaning is
+> attached to that (some meaning other than "we're out of swap"), the
+> oom_killer surely misses that, as it tests "nr_swap_pages > 0".
+> 
+> I don't think that nr_swap_pages can be negative (unless one adds a
+> *lot* of swap in which case this will unintentionally happen all by
+> itself),  but I felt I should chirp in with this comment in case
+> someone's looking at it anyway  :)
+

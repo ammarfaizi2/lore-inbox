@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUIJRwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUIJRzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267620AbUIJRwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 13:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUIJRwJ
+	id S267666AbUIJRzm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 13:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUIJRzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 13:52:09 -0400
-Received: from [69.28.190.101] ([69.28.190.101]:43208 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S267620AbUIJRwE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 13:52:04 -0400
-Date: Fri, 10 Sep 2004 13:52:02 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-Message-ID: <20040910175202.GA11054@havoc.gtf.org>
-References: <1094783022.2667.106.camel@gaston> <200409101328.57431.adaplas@hotpop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409101328.57431.adaplas@hotpop.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 10 Sep 2004 13:55:42 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:52156 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267666AbUIJRwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 13:52:24 -0400
+Message-ID: <4141E9D3.9080109@nortelnetworks.com>
+Date: Fri, 10 Sep 2004 11:52:19 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Hugh Dickins <hugh@veritas.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: having problems with remap_page_range() and virt_to_phys()
+References: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain> <4141C49E.3070509@nortelnetworks.com>
+In-Reply-To: <4141C49E.3070509@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 01:28:57PM +0800, Antonino A. Daplas wrote:
-> On Friday 10 September 2004 10:23, Benjamin Herrenschmidt wrote:
-> > Recent changes upstream are breaking fbdev on pmacs.
-> >
-> > I haven't had time to go deep into that (but I suspect Linus sees it
-> > too on his own g5 unless he removed offb from his .config).
-> >
-> > From what I see, it seems that offb is kicking in by default, reserves
-> > the mmio regions, and then whatever chip driver loads can't access them.
-> >
-> > offb is supposed to be a "fallback" driver in case no fbdev is taking
-> > over, it should also be "forced" in with video=ofonly kernel command
-> > line. This logic has been broken.
+Friesen, Christopher [CAR:VC21:EXCH] wrote:
 
-I dearly *hope* this is what I'm seeing with recent kernels, though I
-have my doubts....  What I *do* know is that with recent bk snapshots
-(post bk-1.2115) I have the following:  radeonfb seems to load, but when I
-try to load X, my y-resolution seems to be half of what it ought to be...
-The only code I see poking around at fb is yours...  *shrug*
+> So did I...the code finishes without errors, but the assembly language 
+> part doesn't work properly.  (And it does work with another method of 
+> getting memory, but that method breaks as soon as you go highmem...)
 
--Happy to try new patches David
+HIGHPTE, I should say.
+
+Chris

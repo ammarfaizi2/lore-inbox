@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUDSQv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 12:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUDSQv6
+	id S261439AbUDSQ4z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 12:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUDSQ4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 12:51:58 -0400
-Received: from gprs214-2.eurotel.cz ([160.218.214.2]:57987 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261451AbUDSQvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 12:51:16 -0400
-Date: Mon, 19 Apr 2004 18:51:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>
-Cc: seife@suse.de
-Subject: Big problems in acpi/event.c (needs seq_printf?)
-Message-ID: <20040419165103.GA27589@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 19 Apr 2004 12:56:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11150 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261528AbUDSQ4b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 12:56:31 -0400
+Message-ID: <408404B2.30602@pobox.com>
+Date: Mon, 19 Apr 2004 12:56:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Henrik Gustafsson <lkml@fnord.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: poor sata performance on 2.6
+References: <200404150236.05894.kos@supportwizard.com> <1082001287.407e0787f3c48@webmail.LaTech.edu> <200404151455.36307.kos@supportwizard.com> <1082044297.407eaf894ddda@webmail.LaTech.edu> <407F1C07.6050104@umn.edu> <407F30F5.1070305@pobox.com> <opr6pp57mvesu439@mail1.telia.com>
+In-Reply-To: <opr6pp57mvesu439@mail1.telia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Henrik Gustafsson wrote:
+> [cut]
+> 
+>> I _really_ like the SX4 -- it gives the programmer full control over 
+>> all aspects of RAID operation, while providing useful hardware 
+>> acceleration where it's needed.  And not getting in the way of the 
+>> programmer, when it's not needed.
+> 
+> 
+> Does this mean that the hardware-accelerated RAID5-mode will be 
+> compatible with soft-RAID5? So that I am able to create a RAID5-array 
+> today and get all the goodies from hardware-support later without having 
+> to do the backup - recreate-array - restore dance?
 
-acpi/event.c needs some heavy facelifting.
 
-This one is needed so that return value (ERESTARTSYS) is propagated
-from bus_receive_event(). If this is not done, suspend/resume causes
-cat /proc/acpi/event to fail with -EIO. Please apply.
+Who knows.  It depends on the XOR algorithm block size and such.  I 
+_think_ XOR'ing is compatible, but have not tested to verify that assertion.
 
-However, there are more problems with event.c:
+	Jeff
 
-* it uses spinlock_irq to protect event_is_open(). That's huge
-overkill, atomic_t should be enough here, and it is never accessed
-from interrupt anyway.
 
-* its racy w.r.t. concurent readers (and yes, you *can* have concurent
-readers, think threads). acpi_system_read_event() uses static
-variables, without any locking. Probably seq_printf() converstion is
-needed.
-								Pavel
 
---- clean/drivers/acpi/event.c	2003-02-15 18:51:16.000000000 +0100
-+++ linux/drivers/acpi/event.c	2004-04-19 18:43:58.000000000 +0200
-@@ -63,9 +58,8 @@
- 			return_VALUE(-EAGAIN);
- 
- 		result = acpi_bus_receive_event(&event);
--		if (result) {
--			return_VALUE(-EIO);
--		}
-+		if (result)
-+			return_VALUE(result);
- 
- 		chars_remaining = sprintf(str, "%s %s %08x %08x\n", 
- 			event.device_class?event.device_class:"<unknown>",
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

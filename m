@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTKVAFX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 19:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTKVAFW
+	id S261769AbTKVAdO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 19:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTKVAdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 19:05:22 -0500
-Received: from nico.bway.net ([216.220.96.3]:45272 "EHLO nico.bway.net")
-	by vger.kernel.org with ESMTP id S261735AbTKVAFQ (ORCPT
+	Fri, 21 Nov 2003 19:33:14 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:36868 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261769AbTKVAdN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 19:05:16 -0500
-Message-ID: <3FBEA83B.1060001@bangstate.com>
-Date: Fri, 21 Nov 2003 19:05:15 -0500
-From: Michael Welles <mike@bangstate.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030807
-X-Accept-Language: en-us, en
+	Fri, 21 Nov 2003 19:33:13 -0500
+Date: Sat, 22 Nov 2003 01:32:34 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Michael Welles <mike@bangstate.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Using get_cwd inside a module.
+In-Reply-To: <3FBEA83B.1060001@bangstate.com>
+Message-ID: <Pine.LNX.4.44.0311220123550.4193-100000@gaia.cela.pl>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Using get_cwd inside a module.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies in advance for a lengthy and probably stupid question.
+> ))(sys_call_table[__NR_getcwd]);
+> 
+> and use it as I used to:
+> 
+>          len = getcwd(fullnewname, MAX_PATH);
 
-I'm one of the authors of changedfiles (http://changedfiles.org), a 
-GPL'd application that monitors file operations and allows user 
-configurable actions to take place in userspace when any defined rules 
-are matched.  Currently we work w/ 2.2.x and 2.4.x kernel series, but 
-this question mostly concerns 2.4.x.
+sys_getcwd is the actual function name.
 
-When doing the initial development of the kernel module component of the 
-system, I needed getcwd() in kernel space.    Being lazy, and frankly 
-terrified to be working in kernel space, I ended up cutting and pasting 
-getcwd() from dcache.c and using the locally defined version in the module.
+> Everything built just fine, but whenever I load the module and the above 
+> statement runs,  the function returns -14.   This is true on my debian 
+> testing box, and also on my YDL 3.0 machine, where the old version (with 
+> the cut n' paste code) still runs just fine.
 
-This worked great for a couple of years, but recently when my debian 
-testing box starting using gcc 3.3 (I think this is the cause -- it's 
-just about the only thing that changed), I started getting NULL pointer 
-drefs inside the copied code.
+Well -14 is EFAULT - i.e. memory protection failure.  You are passing a 
+kernel area pointer (the buf) to a userspace oriented function - it checks 
+the access and fails it as the user process doesn't have access to the kernel 
+memory of your module (Ie it doesn't realise it is being called from the 
+kernel and checks whether the user process currently running would have 
+access to your modules memory (likely stack) - obviously it wouldn't and 
+thus it fails with -EFAULT.
 
-I figured it was high time I stoppied using cut n' paste code.  Instead 
-I thought I'd use sys_call_table[__NR_getcwd] instead -- since I could 
-run pwd in a shell without any kernel panics, I figured it must be 
-working OK.
+Don't think there is anyway around this - so you'll probably need to 
+cut'n'paste.  On the other hand if such functionality is required it is 
+probably best to split the fs/dcache.c sys_getcwd implementation into two 
+pieces - the userspace verify wrapper and the function which performs the 
+actual work.
 
-My powers of grep were sorely lacking, though, and I couldn't find 
-anywhere in the source where the function was assigned.  In a bit of 
-desperation, I guessed that somewhere, somehow, the getcwd() in dcache 
-was being assigned, so I used that function prototype:
+Cheers,
+MaZe.
 
-    int (*getcwd)(char *buf, unsigned long size);
-    getcwd = (int (*)(char * , unsigned long 
-))(sys_call_table[__NR_getcwd]);
-
-and use it as I used to:
-
-         len = getcwd(fullnewname, MAX_PATH);
-
-
-Everything built just fine, but whenever I load the module and the above 
-statement runs,  the function returns -14.   This is true on my debian 
-testing box, and also on my YDL 3.0 machine, where the old version (with 
-the cut n' paste code) still runs just fine.
-
-I'm not sure what to try next.  What am I doing wrong? 
-
-
-Thanks,
-
-Michael Welles
-
+PS. you'd basically need to stick everything except the kernel memory 
+allocation/freeing in a seperate helper function (probably named 
+do_getcwd).  sys_getcwd would alloc page, call helper, free page.
+Your code would just directly call the helper.  If you need further help 
+just holler.
 

@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbTANEIE>; Mon, 13 Jan 2003 23:08:04 -0500
+	id <S267444AbTANE2P>; Mon, 13 Jan 2003 23:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267442AbTANEIE>; Mon, 13 Jan 2003 23:08:04 -0500
-Received: from visp12-175.visp.co.nz ([210.54.175.12]:15111 "EHLO
-	mdew.dyndns.org") by vger.kernel.org with ESMTP id <S267292AbTANEIC>;
-	Mon, 13 Jan 2003 23:08:02 -0500
-Subject: Re: drivers/char/Kconfig:640: can't open file
-	"drivers/char/ipmi/Kconfig"
-From: mdew <mdew@mdew.dyndns.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030114040214.GB12277@codemonkey.org.uk>
-References: <1042516580.26487.9.camel@nirvana> 
-	<20030114040214.GB12277@codemonkey.org.uk>
-Content-Type: text/plain
+	id <S267447AbTANE2P>; Mon, 13 Jan 2003 23:28:15 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:7050 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267444AbTANE2O>;
+	Mon, 13 Jan 2003 23:28:14 -0500
+Message-ID: <000201c2bb97$02bc35e0$29060e09@andrewhcsltgw8>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: "Michael Hohnbaum" <hohnbaum@us.ibm.com>,
+       "Erich Focht" <efocht@ess.nec.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Robert Love" <rml@tech9.net>,
+       "Ingo Molnar" <mingo@elte.hu>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "lse-tech" <lse-tech@lists.sourceforge.net>
+References: <52570000.1042156448@flay><200301101734.56182.efocht@ess.nec.de> <967810000.1042217859@titus> <200301130055.28005.efocht@ess.nec.de> <1042507438.24867.153.camel@dyn9-47-17-164.beaverton.ibm.com>
+Subject: Re: [Lse-tech] Re: NUMA scheduler 2nd approach
+Date: Mon, 13 Jan 2003 20:45:08 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Jan 2003 17:16:50 +1300
-Message-Id: <1042517810.25527.14.camel@nirvana>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-14 at 17:02, Dave Jones wrote:
-> On Tue, Jan 14, 2003 at 04:56:20PM +1300, mdew wrote:
->  > from a bk-pull today,
->  > 
->  > drivers/char/Kconfig:640: can't open file "drivers/char/ipmi/Kconfig"
->  > make: *** [oldconfig] Error 1
+> Erich,
 > 
-> bk -r get
-> 
-> 		Dave
+> I played with this today on my 4 node (16 CPU) NUMAQ.  Spent most
+> of the time working with the first three patches.  What I found was
+> that rebalancing was happening too much between nodes.  I tried a
+> few things to change this, but have not yet settled on the best
+> approach.  A key item to work with is the check in find_busiest_node
+> to determine if the found node is busier enough to warrant stealing
+> from it.  Currently the check is that the node has 125% of the load
+> of the current node.  I think that, for my system at least, we need
+> to add in a constant to this equation.  I tried using 4 and that
+> helped a little.  
 
-thanks Dave.
+Michael,
 
--mdew
+in:
+
++static int find_busiest_node(int this_node)
++{
++ int i, node = this_node, load, this_load, maxload;
++ 
++ this_load = maxload = atomic_read(&node_nr_running[this_node]);
++ for (i = 0; i < numnodes; i++) {
++  if (i == this_node)
++   continue;
++  load = atomic_read(&node_nr_running[i]);
++  if (load > maxload && (4*load > ((5*4*this_load)/4))) {
++   maxload = load;
++   node = i;
++  }
++ }
++ return node;
++}
+
+You changed ((5*4*this_load)/4) to:
+  (5*4*(this_load+4)/4)
+or
+  (4+(5*4*(this_load)/4))  ?
+
+We def need some constant to avoid low load ping pong, right?
+
+Finally I added in the 04 patch, and that helped
+> a lot.  Still, there is too much process movement between nodes.
+
+perhaps increase INTERNODE_LB?
+
+-Andrew Theurer
 
 

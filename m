@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262949AbTC0Og3>; Thu, 27 Mar 2003 09:36:29 -0500
+	id <S262951AbTC0Oh0>; Thu, 27 Mar 2003 09:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262951AbTC0Og3>; Thu, 27 Mar 2003 09:36:29 -0500
-Received: from [216.239.30.242] ([216.239.30.242]:31748 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP
-	id <S262949AbTC0Og1>; Thu, 27 Mar 2003 09:36:27 -0500
-Message-Id: <200303271447.h2RElSa1006173@wind.enjellic.com>
-From: greg@wind.enjellic.com (Dr. Greg Wettstein)
-Date: Thu, 27 Mar 2003 08:47:28 -0600
-In-Reply-To: jlnance@unity.ncsu.edu
-       "Re: Ptrace hole / Linux 2.2.25" (Mar 24, 10:33am)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
+	id <S262952AbTC0Oh0>; Thu, 27 Mar 2003 09:37:26 -0500
+Received: from mail1-3.netinsight.se ([212.247.11.2]:53518 "HELO
+	ernst.netinsight.se") by vger.kernel.org with SMTP
+	id <S262951AbTC0OhX>; Thu, 27 Mar 2003 09:37:23 -0500
+Message-ID: <3E830EC7.651EB9CE@netinsight.se>
+Date: Thu, 27 Mar 2003 15:46:31 +0100
+From: Stephane <stephane.tessier@netinsight.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-16mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Stephane Tessier <stephane.tessier@netinsight.se>
+Subject: exit_mmap
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 24, 10:33am, jlnance@unity.ncsu.edu wrote:
-} Subject: Re: Ptrace hole / Linux 2.2.25
+I have a question about mmap and the close operation of a
+vm_area_struct.
+Is there a reason why in exit_mmap, when a process dies unexpectedly,
+the vm_ops->close is called before zap_page_range is called?
 
-Good morning to everyone.
+The problem is that if you have allocated one or several kernel pages
+for a vm_area_struct, you can not free them in the vm_ops->close
+operation since the count field of the pages is not 0 because they are
+still mapped. The count will be cleared when zap_page_range is called.
 
-> On Sun, Mar 23, 2003 at 08:44:23PM +0100, Martin Mares wrote:
-> 
-> > Do you really think that "People should either use vendor kernels or
-> > read LKML and be able to gather the fixes from there themselves" is a
-> > good strategy?
+This means that exit_mmap calls vm_ops->close and zap_page_range in the
+reverse order of a normal execution of the process, that is when the
+process unmap the area before dying.
 
-> Hi Martin,
->     I must say that I think it is an excellent strategy.  I will admit
-> though, that I have voiced this opinion several times in the past and
-> it seems that most people disagree with me.
->     I think we do a disservice to people by encouraging them to believe
-> that the kernels they download from kernel.org can be depended on to
-> work.  Kernel.org kernels are effectivly a way for people to participate
-> in the development process and to help with QA.  If you dont want to
-> be involved with these activities, you really do not want to use those
-> kernels.
->     We could try and make that guarantee if we wanted to, but it would
-> be a lot of work and the vendors are already doing it.  So why not
-> leverage their work?
+It would be more deterministic and simple if vm_ops->close was always
+called when all the pages of the area was unmapped.
 
-Let me state clearly that I don't have any problems with money being
-made off free software.  I also understand the importance of Linux
-vendors.
-
-That being said the reason not to leverage their work is that the
-reality of capitalism implies an imperative on the vendor to make
-decisions which make 'their' kernel more appealing from a marketing
-perspective.  Unfortunately the history of the software industry has
-pretty effectively demonstrated that making software appealing from a
-marketing perspective is at direct odds to producing a quality
-product.
-
-I personally have seen too many cases of vendor kernels exploding or
-having problems in environments where I run stock statically compiled
-kernels without problems.  That isn't meant as an indictment but an
-observational fact.
-
-I think the strategy of having a 'hot-list' of security or critical
-performance patches for the current release kernel makes the most
-amount of sense.  Those people that are comfortable with rolling their
-own kernels can grab the patches and have at it.  The presence of
-those patches shouldn't affect the steady progression of maintenance
-on the 'stable' kernel.
-
-> Jim
-
-}-- End of excerpt from jlnance@unity.ncsu.edu
-
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-4950            WWW: http://www.enjellic.com
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"Intel engineering seem to have misheard Intel marketing strategy.  The
-phrase was 'Divide and conquer' not 'Divide and cock up'".
-                                -- Alan Cox
+PS: please can you CC'ed the answer to stephane.tessier@netinsight.se
+-- 
+Stephane Tessier
+Net Insight AB          stephane.tessier@netinsight.se
+Västberga Allé 9        http://www.netinsight.se
+SE-126 30 Hägersten     phone:+46-8-685 04 60
+Sweden                  fax:  +46-8-685 04 20

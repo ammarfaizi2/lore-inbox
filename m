@@ -1,57 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTJSTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJSTyd
+	id S262176AbTJSTuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTJSTuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:54:33 -0400
-Received: from ncircle.nullnet.fi ([62.236.96.207]:1990 "EHLO
-	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262177AbTJSTyb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:54:31 -0400
-Message-ID: <50690.192.168.9.10.1066593270.squirrel@ncircle.nullnet.fi>
-In-Reply-To: <1066592564.745.12.camel@bonnie79>
-References: <1066592564.745.12.camel@bonnie79>
-Date: Sun, 19 Oct 2003 22:54:30 +0300 (EEST)
-Subject: Re: HighPoint 374
-From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-To: christian.guggenberger@physik.uni-regensburg.de
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+	Sun, 19 Oct 2003 15:50:25 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34053
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262176AbTJSTuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:50:17 -0400
+Date: Sun, 19 Oct 2003 12:44:57 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hans Reiser <reiser@namesys.com>
+cc: Erik Andersen <andersen@codepoet.org>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond '" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>,
+       "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>,
+       "'nikita@namesys.com '" <nikita@namesys.com>,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results are in
+In-Reply-To: <3F92D4FA.40405@namesys.com>
+Message-ID: <Pine.LNX.4.10.10310191230340.15306-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Okay Hans,
 
->>There really must be some explanation why some of us are
->>having really huge problems with HPT374-contollers while for
->>others it's working just fine. I haven't exactly heard anyone
->>been too succesfull for example with Epox 8K9A3+ motherboard
->>even on this mailing-list based on previous questions seen here.
->
-> well, it's not an Epox 8k9a3+ here, but an 8k5a3+ with two HPT374 onboard
-> and it is working well with recent 2.6.0-test* kernels.
-> I also just use JBOD - only one disk connected as /dev/hde to the first
-> HPT 374,
-> an IBM-DTLA-305040, and I really don't see any probs here.
+First if people will bother to remember that everything about storage is a
+"LIE".  Then the rest of the issue will be simple.
 
-Ok, this is good to know. Have you ever tried 2.4 based kernels with
-that motherboard ? Also, have you ever tried running multiple
-drives with that controller ? Somehow I still have this feeling
-that with only one disk connected to a HPT374-controller it might
-work without problems, while with multiple disks it becomes
-unstable (this is the case with a a friends Epox 4PCA3+
-based machine in addition to my two machines).
+The private version of DCO was jokingly referred to ad "dollars for
+gigabytes".
 
-Can you perhaps send me off-the-list your .config and output of
-/proc/interrupts so that I could compare those to mine ?
+Designed for the idiot and moron system administrator who only knows how
+to apply a snapshot image to a drive.  These are the special class of SA's
+who because the system was purchased w/ a 20MB drive, they could only
+install another 20MB drive.
 
-Regards,
-Tomi Orava
+The reality as Eric (maxtor) pointed out, drive companies can not keep
+drive lifetimes that long.  However the cheap path the drive industry took
+was to cheat the warrenty.  Now with DCO (vendor version), they could
+provide any drive as a "de-stroked" capacity they want.  Thus recall I
+added but now may have been removed "STROKE" option.
 
+Now the private version can alter the entire IDENTIFY page.
+
+So a 200GB drive can be made to look and report as that 20GB drive.
+This includes faking (the big lie) the model, capacity, features,
+revision, and firmware.  Additionally listing such "LIES" on company web
+sites as valid products.
+
+Now where did the joke come from?  If some one like me was to announce
+they have the means to detect such a DCO event, which I can not.  That
+person could sell at a price a tool to make disks magically grow in
+capacity.
+
+So depending on how much you were willing to pay and how much the
+individual want to charge, they could gradually expand your drive to full
+capacity (native) and charge you for each step.
+
+So now that the story of the DCO is out, have fun finding it.  Also do
+thank the lamers and brain dead SA's who could not live with a simple HPA,
+to force the creation of yet another storage "LIE".
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sun, 19 Oct 2003, Hans Reiser wrote:
+
+> Any time you want to just spell it out in plain english for the rest of 
+> the lkml, please do so.....
+> 
+> Hans
+> 
+> Andre Hedrick wrote:
+> 
+> >Erik,
+> >
+> >Nice quoting of the "public" version, now what did I really mean?
+> >Obviously you, Eric, and the rest of the mailing list were not in the
+> >smoke filled back room when Compaq and Dell were formalizing the proposal.
+> >
+> >Cheers,
+> >
+> >Andre Hedrick
+> >LAD Storage Consulting Group
+> >
+> >On Sun, 19 Oct 2003, Erik Andersen wrote:
+> >
+> >  
+> >
+> >>On Sun Oct 19, 2003 at 12:27:30PM +0400, Hans Reiser wrote:
+> >>    
+> >>
+> >>>What is DCO oh cryptic industry insider.;-)
+> >>>      
+> >>>
+> >>See "6.21 Device Configuration Overlay feature set" in 
+> >>the ATA6 spec...
+> >>
+> >>"The optional Device Configuration Overlay feature set allows a
+> >>utility program to modify some of the optional commands, modes,
+> >>and feature sets that a device reports as supported in the
+> >>IDENTIFY DEVICE or IDENTIFY PACKET DEVICE command response as
+> >>well as the capacity reported."
+> >>
+> >> -Erik
+> >>
+> >>--
+> >>Erik B. Andersen             http://codepoet-consulting.com/
+> >>--This message was written using 73% post-consumer electrons--
+> >>
+> >>    
+> >>
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >  
+> >
+> 
+> 
+> -- 
+> Hans
+> 
+> 
 

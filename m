@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314612AbSDTMaO>; Sat, 20 Apr 2002 08:30:14 -0400
+	id <S314608AbSDTMkl>; Sat, 20 Apr 2002 08:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314613AbSDTMaN>; Sat, 20 Apr 2002 08:30:13 -0400
-Received: from Ptrillia.EUnet.sk ([193.87.242.40]:20353 "EHLO meduna.org")
-	by vger.kernel.org with ESMTP id <S314612AbSDTMaM>;
-	Sat, 20 Apr 2002 08:30:12 -0400
-From: Stanislav Meduna <stano@meduna.org>
-Message-Id: <200204201229.g3KCTq407352@meduna.org>
-Subject: Re: Orinoco_plx, WEP and 0.7.6 fw
-To: david@gibson.dropbear.id.au (David Gibson)
-Date: Sat, 20 Apr 2002 14:29:52 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020415032853.GK24053@zax> from "David Gibson" at apr 15, 2002 01:28:53
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314609AbSDTMkk>; Sat, 20 Apr 2002 08:40:40 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:30472 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S314608AbSDTMkj>; Sat, 20 Apr 2002 08:40:39 -0400
+Date: Sat, 20 Apr 2002 14:40:31 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: O_LARGEFILE support in smbfs?
+In-Reply-To: <Pine.LNX.4.44.0204201411140.10869-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0204201436490.1218-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 20 Apr 2002, Roy Sigurd Karlsbakk wrote:
 
-> > I have the Siemens I-GATE 11M PCI card, which is a PrismII based
-> > PCMCIA card in the PLX9052 PCI-PCMCIA adapter. This card has
-> > firmware version 0.7.6 and definitely supports WEP - I am using
-> > 128-bit WEP in Windows without problems.
+> hi
 > 
-> The firmware supports WEP, but it is configured differently than
-> version 0.8 and later, and I've never managed to work out how to
-> properly activate it.
+> I'm having problems accessing large files (>2GB) across a mounted share on 
+> a win2k server. Is this a known problem?
+> 
+> I'm running 2.4.18
 
-I looked at what does actually fail and have some interesting
-datapoints. I used ethereal to watch two scenarios -
+2.4.18 or 2.4.18 with patches that enable large file support in smbfs?
 
-1. a communication between another client (a Pocket PC)
-   and the access point/router and machines behind it
+Patches are currently available from
+	http://www.hojdpunkten.ac.se/054/samba/index.html
+(don't miss the samba patch and additional mount option).
 
-2. a communication between own machine and the AP
+If you are using a patched 2.4.18 I'd like some more details on what the 
+problems are.
 
-The failures seem to be connected with the data transmitted.
-In the case 1 I had no problems to watch lengthy HTTP
-communications. However I have never seen the POP request
-going out (only answers).
-
-Sometimes I got lenghty conversations also in the case 2, but
-I also got a consistent failure mode - TCP checksum on the
-receiving direction incorrect and exactly one byte garbled -
-the last one. The resulting retry mostly had again the last byte
-garbled, but to a different one. In one case the retry
-succeeded and the following conversation was then flawless.
-
-The failed packets were short (less than 256 bytes long), so this
-is nothing that can be related to a fragment reassembling
-or something like that.
-
-That it is consistently the last byte that is garbled seems to
-suggest some kind of off-by-one bug. Maybe in the driver,
-maybe in the firmware...
-
-
-What is the legal situation regarding RC4 now - can it be used
-in the GPL software without risk, or is this still a grey area?
-I think there is a possibility to do the WEP in software
-(at least one source code I found does implement the encryption
-to avoid the weak IVs) and I am probably going to set the
-host en-/decrypt flags and give it a try. Would you accept
-such (optional) patch?
-
-Regards
--- 
-                                   Stano
+/Urban
 

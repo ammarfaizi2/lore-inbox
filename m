@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266266AbRGAWdN>; Sun, 1 Jul 2001 18:33:13 -0400
+	id <S265964AbRGAWrY>; Sun, 1 Jul 2001 18:47:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265964AbRGAWdD>; Sun, 1 Jul 2001 18:33:03 -0400
-Received: from thor.oit.pdx.edu ([131.252.120.40]:62902 "EHLO thor.oit.pdx.edu")
-	by vger.kernel.org with ESMTP id <S265961AbRGAWcx>;
-	Sun, 1 Jul 2001 18:32:53 -0400
-Date: Sun, 1 Jul 2001 15:32:51 -0700
-From: Marius Nita <marius@pdx.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Uncle Sam Wants YOU!
-Message-ID: <20010701153250.A7939@pdx.edu>
-In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG>
-Mime-Version: 1.0
+	id <S265966AbRGAWrO>; Sun, 1 Jul 2001 18:47:14 -0400
+Received: from elin.scali.no ([195.139.250.10]:2569 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S265964AbRGAWrD>;
+	Sun, 1 Jul 2001 18:47:03 -0400
+Message-ID: <3B3FA814.95670F59@scali.no>
+Date: Mon, 02 Jul 2001 00:45:40 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Router problems with transparent proxy
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010701130151.A10989@ChaoticDreams.ORG>; from lethal@ChaoticDreams.ORG on Sun, Jul 01, 2001 at 01:01:51PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 01, 2001 at 01:01:51PM -0700, Paul Mundt wrote:
+Hi,
 
-> You always have a choice, work elsewhere. If you're in a position where you're
-> working with MS products, you were the one who made the decision to do so.
-> MS is not at fault, claiming so is childish.
+I think I've triggered a bug in the ipchains/iptables part of the kernel. Here is the
+story :
 
-_I_ think it's childish to claim the above. You _may_ have a choice, yes, but 
-is that choice equal or fair? Microsoft has infected both the user area as 
-much as the business/work area. If you want to purchase a PC because your 
-computer just fried and you want to finish a paper or something, but you 
-_want_ to use KOffice on Linux, and you don't care for Windows/Word 
-whatsoever, what are the chances that if you run down to the computer store 
-your "choices" will be Windows/Word, _period_! You'll then have to make sure 
-that none of the hardware in it is Software driven-like winmodems-and that 
-it's supported by Linux (or whatever OS you prefer). Almost all computers out 
-there (from well-known compianies) ship with winmodems. How is that a choice? 
-You have a choice to waste $70 on a harware modem, when someone who uses 
-Windows doesn't?
+The server was a 866MHz PIII with 384 MByte of RAM running RH7.1 with a 2.4.5-ac21 kernel.
+It was used as a router/firewall with 2 netcards (not sure which type, but I don't think
+that's important). Using this machine as a plain router was no problem at all, and serving
+a class C net onto a 3 MBit line was a just a walk in the park, the machine was idle for
+most of the time. Then we decided to set up transparent proxy and used a pretty standard
+setup redirecting all port 80 accesses with ipchains to squid. Things worked fine for a
+while (about 2 hrs) until we noticed that the machine got extremly unresponsive on the
+console. A 'top' session showed us that the machine was almost a 100% in system time. If
+we disconnected the some of the segments on the C net, system time went down a bit. We
+rebooted the machine and noticed that the system time started at zero and went slowly
+upwards until it reached 100 (after about 2hrs) and we just needed to reboot again. We
+just disabled the ipchains stuff, and now the server is rock solid with a 'normal' proxy
+setup (and 100% idle almost all the time). Just for the record : We also tried standard
+RH7.1 kernels (2.4.2-2 and 2.4.3) with the same results.
 
-Then, when it comes to work, what are you choices there? You choose not to 
-Work for one of the Windows-based companies out there, and spend more time 
-looking for a different job, but at the same time you choose not to pay your 
-rent, feed your kids, etc. All I'm asking for is a _fair_ choice! Even if 
-one's lucky enough to get their preffered non-MS job, they will have to work 
-for some MS company while they scout around for it. So yes, we have a choice, 
-but going the MS way is the muuuuch easier route. And this is all owed to the 
-fact that MS is driving special campaigns instilling fear in the hearts of 
-non-MS companies, offering "great deals on software packages", "solving your 
-problems the right way", making you feel that if you don't go MS you're 
-screwed, etc. You never see SUN, do that, do you?
+Any ideas ? Anybody experienced similar behaviour ? It looks like a resource leak
+somewhere in the IP filter code to me.
 
-So what I call a choice is a fare choice. And I don't see one here.
-
+Regards,
 -- 
-   Marius Nita
-$_='hfflbwfsbhfzp
-vs';s/(^.{4})(.{7
-})(.+$)/$3 $2 $1/
-;y/b-z/a-z/;print 
-
+  Steffen Persvold               Systems Engineer
+  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
+  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
+  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway

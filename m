@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265274AbUATIhe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUATIhd
+	id S265264AbUATIhV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUATIhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:37:33 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:34728 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S265274AbUATIhU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Jan 2004 03:37:20 -0500
-Message-ID: <400CE9A6.90208@stesmi.com>
-Date: Tue, 20 Jan 2004 09:41:10 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Tim Hockin <thockin@hockin.org>, Rusty Russell <rusty@au1.ibm.com>,
-       vatsa@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       akpm@osdl.org, rml@tech9.net
+Received: from [66.35.79.110] ([66.35.79.110]:38058 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S265264AbUATIhJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:37:09 -0500
+Date: Tue, 20 Jan 2004 00:37:01 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: vatsa@in.ibm.com, lhcs-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       rml@tech9.net
 Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au>
-In-Reply-To: <400CE354.8060300@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040120083700.GB15733@hockin.org>
+References: <20040120063316.GA9736@hockin.org> <20040120082232.ED1282C2ED@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040120082232.ED1282C2ED@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
->> We have a conflict of priority here.  If an RT task is affined to CPU 
->> A and
->> CPU A gets yanked out, what do we do?
->>
->> Obviously the RT task can't keep running as it was.  It was affined to A.
->> Maybe for a good reason.  I see we have a few choices here:
->>
->> * re-affine it automatically, thereby silently undoing the explicit
->>  affinity.
->> * violate it's RT scheduling by not running it until it has been 
->> re-affined
->>  or CPU A returns to the pool/
->>
->> Sending it a SIGPWR means you have to run it on a different CPU that 
->> it was
->> affined to, which is already a violation.
->>
+On Tue, Jan 20, 2004 at 06:45:41PM +1100, Rusty Russell wrote:
+> In message <20040120063316.GA9736@hockin.org> you write:
+> > I added a new TASK_UNRUNNABLE state for these tasks, too.  By adding the
+> > task's current (or most recent) CPU and the task's cpus_allowed and
+> > cpus_allowed_mask to /proc/pid/status, we gave simple tools for finding
+> > these unrunnable tasks.
+> > 
+> > I think the sanest thing for a CPU removal is to migrate everything off the
+> > processor in question, move unrunnable tasks into TASK_UNRUNNABLE state,
+> > then notify /sbin/hotplug.  The hotplug script can then find and handle the
+> > unrunnable tasks.  No SIGPWR grossness needed.
 > 
-> At least the task has the option to handle the problem.
+> Interesting.
+> 
+> The downside is that you now need some script needs to know what to do
+> with the tasks (unless you have something like DBUS, but that's a ways
 
-Why not make a flag that handles that choice explicitly.
+Well, if we provide a sane example script, the rest is up to the distros or
+the people with this hardware to decide.
 
-If the task sets the affinity itself the default is to
-re-affine it if the cpu gets yanked but if the task wants to
-be suspended until the CPU reappears it can set a flag for
-that to happen if the CPU is yanked.
+> off).  There are no correctness concerns AFAICT with userspace not
+> being on a particular CPU, just performance.
 
-If we have a program that can start another program on a
-specific CPU then that program can dictate how the task
-should respond by setting the flag the same way
-as the task would if the task would be the one selecting
-a specific CPU. Doesn't that fix the problem?
+Correctness does matter if an affined task violates that affinity.  If we
+are going to provide explicit affinity, we need to honor it under all
+conditions, or at least provide an option to honor it.
 
-If the default was to re-affine to another CPU then
-we can optionally send it a SIGPWR as well to let it
-know it was re-affined.
+> The SIGPWR solution lets a random process deal appropriately without
+> having to interface with /sbin/hotplug, if it wants to.  And it's a
+> lot less invasive.
 
-But the SIGPWR is in my eyes optional and the above scenario
-should handle the cases imo.
+I agree about invasiveness.  Maybe a combo?  Send SIGPWR iff a task is
+actually handling it, otherwise mark it TASK_UNRUNNABLE and let hotplug
+handle it?  A new signal would be much more polite, but SIGPWR can be made
+to work.  What if a process catches SIGPWR, but does not handle CPU removal?
+Do we wait for it's signal handler to finish before re-evaluating it for
+TASK_UNRUNNABLE?  Yuck.  If a CPU gets yanked with no warning, where do we
+run the signal handler?  Violating affinity again.
 
-// Stefan
-
+Tim

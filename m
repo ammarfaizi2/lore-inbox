@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUHZDRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUHZDWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUHZDRc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 23:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHZDRc
+	id S267380AbUHZDWz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 23:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHZDWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 23:17:32 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7629 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266878AbUHZDR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 23:17:28 -0400
-Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Scott Wood <scott@timesys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, manas.saksena@timesys.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, nando@ccrma.stanford.edu
-In-Reply-To: <20040824195122.GA9949@yoda.timesys>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <20040824195122.GA9949@yoda.timesys>
-Content-Type: text/plain
-Message-Id: <1093490252.5678.56.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 25 Aug 2004 23:17:32 -0400
+	Wed, 25 Aug 2004 23:22:55 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:9106 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S267380AbUHZDWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 23:22:53 -0400
+Message-ID: <005401c48b1b$fae38890$6401a8c0@novustelecom.net>
+From: "Zarakin" <zarakin@hotpop.com>
+To: <linux-kernel@vger.kernel.org>
+References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net> <20040825160107.GA562@zaniah>
+Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
+Date: Wed, 25 Aug 2004 20:22:53 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 15:51, Scott Wood wrote:
-> On Mon, Aug 23, 2004 at 06:18:16PM -0400, Scott Wood wrote:
-> > I have attached a port of the voluntary preempt patch to PPC and
-> > PPC64.  The patch is against P7, but it applies against P8 as well.
-> > 
-> > I've tested it on a dual G5 Mac, both in uniprocessor and SMP.
-> > 
-> > Some notes on changes to the generic part of the patch/existing
-> > generic code:
-> 
-> Another thing that I forgot to mention is that I have some doubts as
-> to the current generic_synchronize_irq() implementation.  Given that
-> IRQs are now preemptible, a higher priority RT thread calling
-> synchronize_irq can't just spin waiting for the IRQ to complete, as
-> it never will (and it wouldn't be a great idea for non-RT tasks
-> either).  I see that a do_hardirq() call was added, presumably to
-> hurry completion of the interrupt, but is that really safe?  It looks
-> like that could end up re-entering handlers, and you'd still have a
-> partially executed handler after synchronize_irq() finishes (causing
-> not only an extra end() call, but possibly code being executed after
-> it's been unloaded, and other synchronization violations).
-> 
-> If I'm missing something, please let me know, but I don't see a good
-> way to implement it without blocking for the IRQ thread's completion
-> (such as with the per-IRQ waitqueues in M5).
+> try this patch please.
+>
+> --- linux-2.5/arch/i386/kernel/nmi.c~ 2004-06-15 10:52:00.000000000 +0200
+> +++ linux-2.5/arch/i386/kernel/nmi.c 2004-08-25 17:33:45.000000000 +0200
+> @@ -376,7 +376,13 @@
+>   clear_msr_range(0x3F1, 2);
+>   /* MSR 0x3F0 seems to have a default value of 0xFC00, but current
+>      docs doesn't fully define it, so leave it alone for now. */
+> - clear_msr_range(0x3A0, 31);
+> + if (boot_cpu_data.x86_model >= 0x3) {
+> + /* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
+> + clear_msr_range(0x3A0, 26);
+> + clear_msr_range(0x3BC, 3);
+> + } else {
+> + clear_msr_range(0x3A0, 31);
+> + }
+>   clear_msr_range(0x3C0, 6);
+>   clear_msr_range(0x3C8, 6);
+>   clear_msr_range(0x3E0, 2);
 
-I think Scott may be on to something.  There are several reports that P9
-does not work on SMP machines at all - it either doesn't boot, locks up
-the first time there is heavy IRQ activity (starting KDE), or locks up
-as soon as the first RT process is run.  This is exactly the behavior
-that would be expected if Scott is correct.  See this thread:
+It worked, my machine boots now fine with nmi_watchdog=2.
 
-http://ccrma-mail.stanford.edu/pipermail/planetccrma/2004-August/005899.html
-
-Does anyone have P9 working on SMP?  Fernando, can you see if M5 works
-on SMP?  If this works it would seem that the preemptible IRQs are the
-problem.
-
-Lee
+I can also confirm that oprofile is broken due to the missing
+MSR_P4_IQ_ESCR0/1:
+http://marc.theaimsgroup.com/?l=oprofile-list&m=109323108114060&w=2
 
 

@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUHWH5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUHWIQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267478AbUHWH5i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 03:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUHWH5i
+	id S267502AbUHWIQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 04:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUHWIQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 03:57:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24969 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267478AbUHWH5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 03:57:21 -0400
-Subject: Re: [PATCH] via-velocity: use common crc16 code for WOL
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408222213.i7MMDm57014913@hera.kernel.org>
-References: <200408222213.i7MMDm57014913@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1f0C8PZWXVQvVIa7EeAh"
-Organization: Red Hat UK
-Message-Id: <1093247839.2792.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 09:57:20 +0200
+	Mon, 23 Aug 2004 04:16:33 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:61130 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267502AbUHWIQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 04:16:32 -0400
+Date: Mon, 23 Aug 2004 04:20:49 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
+       wli@holomorphy.com
+Subject: Re: [PATCH][1/4] Completely out of line spinlocks / i386
+In-Reply-To: <20040822214040.4c866da2.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0408230420270.27390@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408221740090.27390@montezuma.fsmlabs.com>
+ <22241.1093220988@ocs3.ocs.com.au> <20040822214040.4c866da2.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Aug 2004, David S. Miller wrote:
 
---=-1f0C8PZWXVQvVIa7EeAh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Mon, 23 Aug 2004 10:29:48 +1000
+> Keith Owens <kaos@ocs.com.au> wrote:
+>
+> > I find that the decoding the lock is useful but not required,
+> > the function that contended on the lock is more interesting.
+>
+> This is my belief as well.
 
-On Sat, 2004-07-03 at 08:20, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1757.72.2, 2004/07/03 02:20:30-04:00, romieu@fr.zoreil.com
->=20
-> 	[PATCH] via-velocity: use common crc16 code for WOL
-> =09
-> 	- use common crc16 code for WOL;
-> 	- remove unused ether_crc.
-> =09
-
-
-ehhh my BK tree doesn't have linux/crc16.h ...
-
---=-1f0C8PZWXVQvVIa7EeAh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBKaNfxULwo51rQBIRAujtAKClVRDIEI5hv0EA7Q8wWNhDofFL5QCfblzq
-w9JG9Bij1fNR/IpOQS8Cn2k=
-=UwFM
------END PGP SIGNATURE-----
-
---=-1f0C8PZWXVQvVIa7EeAh--
+That's great then, we have that covered =)
 

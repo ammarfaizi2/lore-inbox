@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267912AbRG3Uu1>; Mon, 30 Jul 2001 16:50:27 -0400
+	id <S267904AbRG3Uth>; Mon, 30 Jul 2001 16:49:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267837AbRG3UuU>; Mon, 30 Jul 2001 16:50:20 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:553 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S267885AbRG3Utx>; Mon, 30 Jul 2001 16:49:53 -0400
-Message-ID: <3B65C72E.3040508@chello.nl>
-Date: Mon, 30 Jul 2001 22:44:30 +0200
-From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
+	id <S267890AbRG3Ut1>; Mon, 30 Jul 2001 16:49:27 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:34272 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S267885AbRG3UtI>;
+	Mon, 30 Jul 2001 16:49:08 -0400
+Date: Mon, 30 Jul 2001 16:49:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mike Touloumtzis <miket@bluemug.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] initramfs patch
+In-Reply-To: <20010730132957.A20284@bluemug.com>
+Message-ID: <Pine.GSO.4.21.0107301646050.19391-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA KT133A / athlon / MMX
-In-Reply-To: <20010729222830.A25964@pckurt.casa-etp.nl> <20010730125012Z268576-720+7896@vger.kernel.org> <20010730154458.C4859@pckurt.casa-etp.nl> <20010730151538.A5600@debian> <20010730174653.D4859@pckurt.casa-etp.nl> <20010730204354.B26097@pckurt.casa-etp.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
 
-Kurt Garloff wrote:
 
- > It seemed to solved the trouble here on first sight (booting went further
- > then normal) but in the end did not turn out to solve the trouble here.
- > (Here means: MSI K7T Turbo (Ver.3) with AMD K7 1.2GHz.)
+On Mon, 30 Jul 2001, Mike Touloumtzis wrote:
 
-from your lspci output I seem to have exactly the same system as you 
-have. I tried your patch (247-viakt133.diff) and came up with the same 
-result here: it seemed to come further than last time with only 
-2.4.6ac5, but then it crashed anyway. If you know of any BIOS parameters 
-  that might help for this mobo, please let me know. I could not 
-identify a parameter that does the same as the "DRAM Prefetch" for Abit 
-mobos.
+> On Mon, Jul 30, 2001 at 02:05:55AM -0400, Alexander Viro wrote:
+> > 
+> > The thing unpacks cpio archive (currently - linked into the kernel image)
+> > on root ramfs and execs /init. After that we are in userland code. Said
+> > code (source in init/init.c and init/nfsroot.c) emulates the vanilla
+> > 2.4 behaviour. You can replace it with your own - that's just the default
+> > that gives (OK, is supposed to give) a backwards-compatible behaviour.
+> 
+> One thing that would make embedded systems developers very happy
+> is the ability to map a romfs or cramfs filesystem directly from
+> the kernel image, avoiding the extra copy necessitated by the cpio
+> archive.  Are there problems with this approach?
 
-Regards,
-
-Gerbrand van der Zouw
-
+a) IIRC, both are read-only.
+b) what stops you from doing initramfs + romfs-on-initrd? It works.
 

@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVC0Wyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVC0XIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVC0Wyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 17:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVC0Wyy
+	id S261517AbVC0XIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 18:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVC0XIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 17:54:54 -0500
-Received: from mail.dif.dk ([193.138.115.101]:3503 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261616AbVC0Wyv (ORCPT
+	Sun, 27 Mar 2005 18:08:53 -0500
+Received: from neveragain.de ([217.69.76.1]:64942 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S261517AbVC0XIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 17:54:51 -0500
-Date: Mon, 28 Mar 2005 00:56:53 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Dave Jones <davej@redhat.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pekka Enberg <penberg@gmail.com>,
-       Paul Jackson <pj@engr.sgi.com>, rlrevell@joe-job.com,
-       linux-os@analogic.com, Arjan van de Ven <arjan@infradead.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, Jesper Juhl <juhl-lkml@dif.dk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <20050327174026.GA708@redhat.com>
-Message-ID: <Pine.LNX.4.62.0503280033130.2459@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
- <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
- <1111825958.6293.28.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
- <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
- <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
- <20050327174026.GA708@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Mar 2005 18:08:50 -0500
+Date: Mon, 28 Mar 2005 01:08:35 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Problems on Apple iBook with ALSA and snd-powermac [2.6.11.5]
+Message-ID: <20050327230835.GA9006@minerva.local.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+X-Greylist: Sender succeded SMTP AUTH authentication, not delayed by milter-greylist-1.4 (hobbit.neveragain.de [217.69.76.1]); Mon, 28 Mar 2005 01:08:38 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 27 Mar 2005, Dave Jones wrote:
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Am I the only person who is completely fascinated by the
-> effort being spent here micro-optimising something thats
-> almost never in a path that needs optimising ?
-> I'd be amazed if any of this masturbation showed the tiniest
-> blip on a real workload, or even on a benchmark other than
-> one crafted specifically to test kfree in a loop.
-> 
-> That each occurance of this 'optimisation' also saves a handful
-> of bytes in generated code is it's only real benefit afaics.
-> Even then, if a functions cache performance is better off because
-> we trimmed a few bytes from the tail of a function, I'd be
-> completely amazed.
-> 
+Hi folks,
 
-I agree, it's amazing that this is treated like a big issue, it's not, and 
-I never meant for it to be a matter of such debate. 
+given that the alsa-user-mailinglist has some strange kind of authentication
+mechanism, and admin-authorization and whatever, I'm writing this mail to t=
+he
+LKML (it would have been CCed here anyway).
 
-The whole thing (viewed from where I'm sitting) started when I noticed a 
-few of those redundant NULL checks while reading code, thought I'd clean 
-them up since they were clearly not needed and submit those patches. When 
-those patches then got merged I thought "ok, so this is something that's 
-actually appreciated, guess I might as well do some more when I come 
-across them or maybe even seek them out and get rid of them once and for 
-all"... So I started doing that and more of the patches got merged which 
-(at least to me) confirmed that it was a worthwhile activity, until at 
-some point voices were raised in objection.
+The current snd-powermac module from ALSA seems to have trouble with modern
+Apple iBook computers (and possible other Apple notebooks, but I can't tell
+for sure). With 2.6.11.5 and having snd-powermac loaded, playing some sound
+results in a very noisy playback; you can only hear that if you turn volume
+on the PCM and VOL mixers up to the maximum, and even then, it's very hard=
+=20
+to hear. After removing snd-powermac and loading the "old" pmac-driver, the
+sound playback works just fine.
 
-At that point I felt I needed to explain the "why" of why I was doing it 
-and try and show that it might actually be a bennefit (and I believe the 
-small test I wrote shows it to be either a bennefit in the usual case or 
-at worst a trivial performance hit in the not-so-common case).
-What I'm trying to find out now is if there's a general consensus that 
-these patches are worthwile and wanted or if they are unwanted and I'm 
-wasting my time.  If the patches are wanted I don't mind doing them, but 
-if they are not wanted I don't want to waste my time (nor anyone elses) on 
-them.  So, if I could just get peoples comment on that "wanted vs 
-not-wanted" then I could get on with either producing some patches for 
-people or get on with other things and drop this... Or I guess I could 
-just go on making those patches, submit them and then just leave it in the 
-hands of the individual maintainers (which was more or less how I started 
-out)...
+I have been able to find out that with 2.6.8 (at least with the version that
+Debian ships currently), the problem does not appear; snd-powermac does its
+job very nicely there. Given that 2.6.11 included some ALSA changes, I just
+compiled 2.6.10 on this box and booted it, and had the same problems I have
+with snd-powermac on 2.6.11.5.
 
+Is this a known problem and is a fix available for it? If not, what can I do
+to help with hunting this bug? I really like ALSA and prefer it over the old
+pmac-sound-driver.
 
--- 
-Jesper Juhl
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCRzzyHPo+jNcUXjARAkRHAKCirfqu8IiSs9y2SGCdMYUYkpUwtACglrnq
+HuQvPKwcw+XDjgzxNxawpUE=
+=IbrA
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbUBXLLY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 06:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBXLLY
+	id S262227AbUBXLV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 06:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBXLV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 06:11:24 -0500
-Received: from users.linvision.com ([62.58.92.114]:9137 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262226AbUBXLKo (ORCPT
+	Tue, 24 Feb 2004 06:21:57 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:29315 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262227AbUBXLVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 06:10:44 -0500
-Date: Tue, 24 Feb 2004 12:10:41 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Gautam Pagedar <gautam@cins.unipune.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can i modify ls
-Message-ID: <20040224111041.GA25565@bitwizard.nl>
-References: <005601c3fd75$1c681510$8c01080a@crayii>
+	Tue, 24 Feb 2004 06:21:55 -0500
+Date: Tue, 24 Feb 2004 12:21:54 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Does Flushing the Queue after PG REALLY a Necessity?
+Message-ID: <20040224112154.GA19216@MAIL.13thfloor.at>
+Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <c16rdh$gtk$1@terminus.zytor.com> <4039D599.7060001@greatcn.org> <20040223151815.GA403@zaniah> <403AB897.8070002@greatcn.org> <20040223205522.66d7fb4f.rddunlap@osdl.org> <403B169E.4000006@greatcn.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <005601c3fd75$1c681510$8c01080a@crayii>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+In-Reply-To: <403B169E.4000006@greatcn.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 28, 2004 at 02:33:00AM +0530, Gautam Pagedar wrote:
->    i am new to this mailing list, so please bear with me if i don't follow
-> certain rules till i get used to it.  I am a research student and currently
-> working on a project to tweak the working of 'ls' command depending on my
-> requirement. I have observed that 'ls' show ALL THE FILES and DIRECTORIES in
-> a particular location even though a user has no access rights to it. I want
-> to hide all
-> such files for that particular user.
+On Tue, Feb 24, 2004 at 05:17:18PM +0800, Coywolf Qi Hunt wrote:
+> Btw, could you please do not show others email address when you reply? 
+> Change your mail client's configuration. I don't like my this email 
+> address be grabbed by spammers. thanks
 
-It already works like you expect it to do:
+hmm, ever heard of the evil From: header?
 
-erik@zurix:/tmp/test >mkdir a b
-erik@zurix:/tmp/test >touch a/c
-erik@zurix:/tmp/test >ls -lR
-.:
-total 1
-drwxr-xr-x    2 erik     users          72 Feb 24 11:49 a/
+best,
+Herbert
 
-./a:
-total 0
--rw-r--r--    1 erik     users           0 Feb 24 11:49 c
-
-erik@zurix:/tmp/test >chmod -r a
-erik@zurix:/tmp/test >ls -lR
-.:
-total 1
-d-wx--x--x    2 erik     users          72 Feb 24 11:49 a/
-
-ls: ./a: Permission denied
-erik@zurix:/tmp/test >chmod -x a
-erik@zurix:/tmp/test >cd a
-a: Permission denied.
-
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+> 	Coywolf
+> 
+> -- 
+> Coywolf Qi Hunt
+> Admin of http://GreatCN.org and http://LoveCN.org
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTD3TsH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTD3TsH
+	id S262366AbTD3Tv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTD3Tv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:48:07 -0400
-Received: from [66.62.77.7] ([66.62.77.7]:31177 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S262364AbTD3TsE (ORCPT
+	Wed, 30 Apr 2003 15:51:57 -0400
+Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:28085 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S262366AbTD3Tvz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:48:04 -0400
-Date: Wed, 30 Apr 2003 14:00:24 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: dkelson@mooru.gurulabs.com
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Downing, Thomas" <Thomas.Downing@ipc.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-In-Reply-To: <20030430172107.GA25347@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0304301337320.24575-100000@mooru.gurulabs.com>
+	Wed, 30 Apr 2003 15:51:55 -0400
+From: Gabriel Devenyi <devenyga@mcmaster.ca>
+To: sfrench@us.ibm.com
+Subject: [PATCH] Linux 2.5.68 - Fix FreeXid after return in fs/cifs/inode.c
+Date: Thu, 1 May 2003 16:04:13 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305011604.14175.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry, in your opening remarks you stated:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-"The open source community, in my opinion, is certainly a contributing
-factor in the emergence of the DMCA and DRM efforts."
+This patch applies to 2.5.68, it is listed at kbugs.org. FreeXid(xid); is after return so it is never executed.
 
-DMCA, clearly no, the time frame is wrong.
+Please CC me with any discussion.
+- -- 
+Building the Future,
+Gabriel Devenyi
+devenyga@mcmaster.ca
 
-Current --in production-- DRM. Clearly no. Current DRM is mostly all
-targeted to audio / video content protection.
+- ---FILE---
 
-So, nothing that we have *today* is a response to Open Source. And
-speaking to your statement, Open Source wasn't the cause of it emerging in
-the first place.
+- --- linux-2.5.68/fs/cifs/inode.c	2003-04-19 22:48:49.000000000 -0400
++++ linux-2.5.68-changed/fs/cifs/inode.c	2003-05-01 15:10:32.000000000 -0400
+@@ -450,10 +450,10 @@
+ 	cifs_sb_source = CIFS_SB(source_inode->i_sb);
+ 	pTcon = cifs_sb_source->tcon;
+ 
+- -	if (pTcon != cifs_sb_target->tcon) {    
++	if (pTcon != cifs_sb_target->tcon) {
++		FreeXid(xid);
+ 		return -EXDEV;	/* BB actually could be allowed if same server, but
+                      different share. Might eventually add support for this */
+- -        	FreeXid(xid);
+ 	}
+ 
+ 	fromName = build_path_from_dentry(source_direntry);
 
-Is "Trusted Computing/Palladium" a response to Open Source apps reading
-file formats from commercial products? Maybe.
+- ---ENDFILE---
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Or is it an attempt (well, it isn't out yet) of MS to:
-
-1. Finally "solve" the Windows virus problem? 
-2. Make developers pay a fee to MS get their app signed so it will run
-on Windows?
-3. Solve software piracy?
-
-I hope it does solve software piracy. If users were confronted with the 
-true cost of running the pirated commercial software installed on their 
-windows boxes, they will likely look for alternatives like Open Source 
-software.
-
-Dax Kelson
+iD8DBQE+sX297I5UBdiZaF4RAmZdAKCMDNHfhNlT3aUsuuVvPAp3Qae7TwCbBXJe
+JfPpUBFc/wfsuUa9WfBFuZk=
+=wm6g
+-----END PGP SIGNATURE-----
 

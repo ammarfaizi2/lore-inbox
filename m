@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277264AbRJVRii>; Mon, 22 Oct 2001 13:38:38 -0400
+	id <S277262AbRJVRfs>; Mon, 22 Oct 2001 13:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277258AbRJVRhV>; Mon, 22 Oct 2001 13:37:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26380 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277246AbRJVRgP>; Mon, 22 Oct 2001 13:36:15 -0400
-Subject: Re: Linux 2.2.20pre11
-To: davem@redhat.com (David S. Miller)
-Date: Mon, 22 Oct 2001 18:42:34 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022.103038.85410182.davem@redhat.com> from "David S. Miller" at Oct 22, 2001 10:30:38 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277255AbRJVRem>; Mon, 22 Oct 2001 13:34:42 -0400
+Received: from hatrack.unc.edu.ar ([170.210.248.6]:21958 "EHLO
+	hatrack.unc.edu.ar") by vger.kernel.org with ESMTP
+	id <S277230AbRJVRda>; Mon, 22 Oct 2001 13:33:30 -0400
+Date: Mon, 22 Oct 2001 14:29:23 -0300 (ART)
+From: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
+To: <linux-kernel@vger.kernel.org>
+Subject: kjournald and disk sleeping
+Message-ID: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vj5u-0002iQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1) publish a patch (ie. telling us all the changes)
-> 2) describe the set of changes which are not security
->    related (ie. telling us the non-security related
->    changes)
-> 
-> By deduction aren't you in fact "telling us what the secutiry related
-> changes are"? :-)
 
-Not directly, and if you have enough skill to work through the code you
-could do so anyway. Whether reading the source code for that purpose is
-legal I don't know.
+	Hi. first of all, I'm not suscribed to the mailing list, so cc to
+me in the replies. thanks. and I'm running 2.4.10.
 
-Have fun
+	what I'm doing is to try to put the disks to sleep at night, or
+when I'm not using the machine. I found what proceses to shutdown, mainly
+those that do things from time to time, like the MTA. then I send a STOP
+signal to kupdated. so far, so good. that works.
 
-Alan
+	then I switched to ext3 and kjournald started to appear on the
+processes list. and it commits the transactions very often. I know I can
+set the commit interval to a high value, but both I don't know exactly
+how, and I think that it's not the solution I need. sending STOP signals
+to kjournald doesn't work, it seems to ignore them. what can I do?
+
+	One thing I thought: how is this supposed to work on laptops? can
+they be suspended? a question related to this one: I also have ACPI turned
+on and APM turned off. how can I switch to stanby states? is there a way?
+again, how does it works on laptops?
+
+	remember to cc to me. bye.
+
+-- 
+"y, bueno, yo soy muy ilogico. lo que pasa es que ustedes me toman
+demasiado en serio"
+                                          --JLB
+

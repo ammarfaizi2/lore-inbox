@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317421AbSGRIyc>; Thu, 18 Jul 2002 04:54:32 -0400
+	id <S317464AbSGRJUn>; Thu, 18 Jul 2002 05:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSGRIyc>; Thu, 18 Jul 2002 04:54:32 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:62693 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317421AbSGRIyc>;
-	Thu, 18 Jul 2002 04:54:32 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, Art Haas <ahaas@neosoft.com>
-Subject: Re: Remain Calm: Designated initializer patches for 2.5 
-In-reply-to: Your message of "Thu, 18 Jul 2002 00:32:43 -0300."
-             <20020718033243.GA2031@conectiva.com.br> 
-Date: Thu, 18 Jul 2002 17:42:25 +1000
-Message-Id: <20020718085812.1B4234198@lists.samba.org>
+	id <S317498AbSGRJUn>; Thu, 18 Jul 2002 05:20:43 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:45575 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S317464AbSGRJUn>; Thu, 18 Jul 2002 05:20:43 -0400
+Date: Thu, 18 Jul 2002 11:23:40 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020718092340.GB31998@louise.pinerecords.com>
+References: <3D361091.13618.16DC46FB@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D361091.13618.16DC46FB@localhost>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 43 days, 22:48
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020718033243.GA2031@conectiva.com.br> you write:
-> Did this ones touched the net/{ipv4,ipv6,appletalk} dirs? I'm working on
-> general cleanups in those and this is one of the things I'm doing, again
-> just a heads up.
+> After feature freeze:
+>
+> o New kernel build system (kbuild 2.5)            (Keith Owens)
 
-Not yet, but if you get in first, Art won't have to.
+Kai, what are your intentions w/ kbuild 2.5?
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I hope I'm not speaking just for myself when I say I feel it'd be
+a great pity if it weren't merged.
+
+T.

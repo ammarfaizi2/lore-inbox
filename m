@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287255AbSALSVM>; Sat, 12 Jan 2002 13:21:12 -0500
+	id <S287279AbSALS3L>; Sat, 12 Jan 2002 13:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287274AbSALSU5>; Sat, 12 Jan 2002 13:20:57 -0500
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:8701 "EHLO
-	filestore.kroptech.com") by vger.kernel.org with ESMTP
-	id <S287255AbSALSTr>; Sat, 12 Jan 2002 13:19:47 -0500
-Message-ID: <00fd01c19b95$b3ec3a40$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <009e01c19b7c$463457d0$02c8a8c0@kroptech.com> <20020112173018.Q1482@inspiron.school.suse.de>
-Subject: Re: Writeout in recent kernels/VMs poor compared to last -ac
-Date: Sat, 12 Jan 2002 13:19:41 -0500
+	id <S287283AbSALS24>; Sat, 12 Jan 2002 13:28:56 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:42506 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S287279AbSALS2m>;
+	Sat, 12 Jan 2002 13:28:42 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200201121828.g0CISaM342258@saturn.cs.uml.edu>
+Subject: Re: [PATCH] 1-2-3 GB
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Sat, 12 Jan 2002 13:28:36 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020112184216.U1482@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 12, 2002 06:42:16 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 12 Jan 2002 18:19:41.0384 (UTC) FILETIME=[B3E7F480:01C19B95]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Andrea Arcangeli" <andrea@suse.de>
-To: "Adam Kropelin" <akropel1@rochester.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, January 12, 2002 11:30 AM
-Subject: Re: Writeout in recent kernels/VMs poor compared to last -ac
+Andrea Arcangeli writes:
+> On Sat, Jan 12, 2002 at 12:26:35PM -0500, Albert D. Cahalan wrote:
 
-
-> On Sat, Jan 12, 2002 at 10:17:39AM -0500, Adam Kropelin wrote:
-> > I recently began regularly transferring large (600 MB+) files to my
-> > Linux-based fileserver and have noticed what I would characterize as poor
-> > writeout behavior under this load. I've done a bit of comparison testing
-> > which may help reveal the problem better.
-
-<snip>
-
-> I think you simply want to trigger the soft-bdflush event earlier, with
-> -aa something like this may do the trick:
+>> The numbers are wrong anyway, because of vmalloc() and PCI space.
+>> The PCI space is motherboard-dependent AFAIK, but you could at
+>> least account for the 128 MB vmalloc() area:
 >
-> echo 5 500 64 256 500 3000 60 2 0 > /proc/sys/vm/bdflush
->
-> this way you'll wakeup as soon as 5% of the 118mbytes (+ free memory,
-> none in this case) are dirty, and bdflush will stop as soon as the level
-> is back to 2% (then kupdate will take care of the 2%). Those suggested
-> values may be too strict but this way you should get the idea if it
-> helps somehow or not :)
+> looks dirty, the size of the kernel direct mapping is mainly in function
+> of #defines that can be changed freely, they're not constant in function
+> of CONFIG_1G etc.. and it changes also in function of smp/up/4G/64G
+> options.  The 3GB/2GB/1GB/3.5GB visible into the menuconfig are exact
+> instead.  So I wouldn't mention inprecise stuff that can changed under
+> us (and the exact size of the kernel direct mapping doesn't matter to
+> the user anyways I think [and if it matters I think it means he's
+> skilled enough to know about vmalloc space ;) ]).
 
-Thanks for the idea. Unfortunately, it didn't help. :(
+The problem is that the "1GB" option doesn't cover 1 GB.
+It is common for people to buy 1 GB of memory (power of 2),
+and then complain that Linux only sees 896 MB of memory.
 
-Blocks definitely do begin hitting the disk much sooner after I begin the
-transfer, but the overall time is basically unchanged: 7:08. vmstat still shows
-the widely oscillating bo value.
+So how will you make the choices clear to such people?
+There are 3 options, not counting the slram block device:
 
---Adam
+a. give up 128 MB (12.5 %) of memory
+b. suffer the kmap overhead
+c. give up some user virtual address space
 
+None of this is obvious. The user sees "1GB" and will
+innocently believe that this is good for a 1 GB system!
 
+BTW, do we no longer require that the kernel side of things
+(whole thing, including vmalloc space) be a power of two?
+There used to be a bitwise operation in the user access stuff.

@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUH2J0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUH2Jfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267446AbUH2J0R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 05:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267455AbUH2J0R
+	id S267455AbUH2Jfq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 05:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267461AbUH2Jfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 05:26:17 -0400
-Received: from wasp.net.au ([203.190.192.17]:11665 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S267446AbUH2J0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 05:26:14 -0400
-Message-ID: <4131A15A.7090201@wasp.net.au>
-Date: Sun, 29 Aug 2004 13:26:50 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
-X-Accept-Language: en-us, en
+	Sun, 29 Aug 2004 05:35:46 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:26849 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S267455AbUH2Jfl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 05:35:41 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Libata VIA woes continue. Worked around - *wrong*
-References: <412F3DEA.2070307@wasp.net.au> <41318680.8080102@wasp.net.au> <41318C87.9010806@pobox.com> <4131910B.6020000@wasp.net.au> <41319C1F.6030207@pobox.com>
-In-Reply-To: <41319C1F.6030207@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16689.41835.805352.462598@thebsh.namesys.com>
+Date: Sun, 29 Aug 2004 13:35:39 +0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com, Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: reiser4 plugins
+In-Reply-To: <41311907.7010605@namesys.com>
+References: <20040825152805.45a1ce64.akpm@osdl.org>
+	<412D9FE6.9050307@namesys.com>
+	<20040826014542.4bfe7cc3.akpm@osdl.org>
+	<1093522729.9004.40.camel@leto.cs.pocnet.net>
+	<20040826124929.GA542@lst.de>
+	<1093525234.9004.55.camel@leto.cs.pocnet.net>
+	<20040826130718.GB820@lst.de>
+	<1093526273.11694.8.camel@leto.cs.pocnet.net>
+	<20040826132439.GA1188@lst.de>
+	<1093527307.11694.23.camel@leto.cs.pocnet.net>
+	<20040826134034.GA1470@lst.de>
+	<1093528683.11694.36.camel@leto.cs.pocnet.net>
+	<412E786E.5080608@namesys.com>
+	<16687.9051.311225.697109@thebsh.namesys.com>
+	<412F7A59.8060508@namesys.com>
+	<16687.33718.571411.76990@thebsh.namesys.com>
+	<41305619.9030401@namesys.com>
+	<16688.36091.861155.985990@gargle.gargle.HOWL>
+	<41311907.7010605@namesys.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hans Reiser writes:
 
-> * look at the changes from 2.6.5 -> 2.6.6 and see which change breaks 
-> things.  You can get a list of each change like this:
-> 
->     bk changes -rv2.6.5..v2.6.6
-> 
-> then you can revert each patch in order, or bsearch.  Here's an example 
-> of reverting each libata patch in order:
-> 
-> bk clone http://linux.bkbits.net/linux-2.5 vanilla-2.6
-> bk clone -ql -rv2.6.6 vanilla-2.6 brad-test-2.6.6
-> cd brad-test-2.6.6
-> bk -r co -Sq
-> bk changes -rv2.6.5.. > /tmp/changes-list.txt
-> less /tmp/changes-list.txt    # scan for a libata-related change
-> bk cset -x1.1587.39.2        # applies reverse of cset 1.1587.39.2
-> make                # create test
->                 # ... test fails
-> bk cset -x1.1587.39.1        # applies reverse of cset 1.1587.39.1
->                 # _on top of_ previous reverted patch
-> -
+[...]
 
-Ooooohh. I have been looking for a "Dummies guide to regression testing with BK" and not been able
-to find one. I have cc'd this to linux-kernel purely for the purpose of more googleable archives for
-future reference for BK newbies like me.
+ > 
+ > I remember talking with not just you but zam about how we could fix it, 
+ > and there was too much in the queue of work, and everyone was 
+ > complaining to me that we should be debugging not optimizing, and you 
+ > were the only one who thought it was a big deal.  I guess you still 
 
-Cheers Jeff!
+You are trying to evade the point. And the point is not how performance
+in these phases (and their impact on other phases) can be improved, or
+what excuses did you have for not `doing' it, but the fact that after it
+was found that large keys behave badly, these phases were turned off,
+others were switched to lexicographical operation, _and_ resulting
+benchmark is used as a basis to call other people names.
 
-I'll start hammering on this tonight.
+ > think it is a big issue and I still think things are good enough to use 
+ > without it.  I still think Zam understood the issues better than you did 
+ > (allocation is his code not yours).
+ > 
+ > There are some layout optimizations that a repacker can do best.  Still, 
+ > there are some rough spots in the current allocation policy, and we 
+ > should look at it.
+ > 
+ > Probably you will have reason to howl if we setup a benchmark which 
 
-(It's actually between 2.6.6 and 2.6.7-rc1 that the breakage occurs, I had just been running 2.6.5
-until I recently got a dodgy hard disk which showed up flaws in the libata error handling, thus I
-tried to move to 2.6.8.1 to debug that and found it broke some of my drives in other ways. I have
-already cloned the relevant trees, I just could not figure out how to break it down to cset granularity)
+Surely, as a `big dog' what other sounds can I produce? :)
 
-Regards,
-Brad
+ > disturbs things with these phases, runs the repacker (I hope to have one 
+ > in 6 months), and then measures our read performance compared to other 
+ > filesystems without a repacker....;-)
 
+That's ok with me, but it would make sense to remove unfair benchmarks
+from the site until then.
+
+ > 
+ > Hans
+
+Nikita.

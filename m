@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbTEGVim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 17:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTEGVim
+	id S264299AbTEGVjC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 17:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTEGVjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 17:38:42 -0400
-Received: from watch.techsource.com ([209.208.48.130]:4019 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S264298AbTEGVil
+	Wed, 7 May 2003 17:39:02 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:16145 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264299AbTEGVi7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 17:38:41 -0400
-Message-ID: <3EB980AA.9060207@techsource.com>
-Date: Wed, 07 May 2003 17:54:50 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Pollard <jesse@cats-chateau.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: top stack (l)users for 2.5.69
-References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]> <03050716305002.07468@tabby>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 17:38:59 -0400
+Date: Wed, 7 May 2003 23:54:30 +0200
+To: "David S. Miller" <davem@redhat.com>
+Cc: wli@holomorphy.com, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, akpm@digeo.com
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+Message-ID: <20030507215430.GA1109@hh.idb.hist.no>
+References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507.064010.42794250.davem@redhat.com>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Jesse Pollard wrote:
-> On Wednesday 07 May 2003 12:13, Jonathan Lundell wrote:
-> [snip]
+On Wed, May 07, 2003 at 06:40:10AM -0700, David S. Miller wrote:
+>    From: William Lee Irwin III <wli@holomorphy.com>
+>    Date: Wed, 7 May 2003 07:41:00 -0700
+>    
+>    In another thread, you mentioned that a certain netfilter cset had
+>    issues; I think it might be good to add that as a second possible
+>    cause.
 > 
->>One thing that would help (aside from separate interrupt stacks)
->>would be a guard page below the stack. That wouldn't require any
->>physical memory to be reserved, and would provide positive indication
->>of stack overflow without significant runtime overhead.
-> 
-> 
-> It does take up a page table entry, which may also be in short supply
+> Good point, Helge what netfilter stuff do you have in use?
+> Are you doing NAT?
 
-Now, I'm sure this has GOT to be a terribly ignorant question, but I'll 
-try anyhow:
+I have compiled in almost everything from netfilter, except
+from "Amanda backup protocol support" and "NAT of local connections"
 
-What happens if you simply neglect to provide a mapping for that page? 
-I'm sure that will cause some sort of page fault.  Why would you have to 
-do something different?
+I also have ipv6 compiled, but no ipv6-netfilter.
+
+I don't do any NAT.  I used to have some firewall rules, but not currently
+as some previous dev-kernel broke on that.  So I have iptables
+with no rules, just an ACCEPT policy for everything. I do no
+routing either, only one network card is used.
+
+Helge Hafting
 

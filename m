@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVAVHYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbVAVHiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbVAVHYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 02:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVAVHYk
+	id S262677AbVAVHiN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 02:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVAVHiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 02:24:40 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55545 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262675AbVAVHYh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 02:24:37 -0500
-Message-ID: <41F1FFAA.4090707@mvista.com>
-Date: Fri, 21 Jan 2005 23:24:26 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
+	Sat, 22 Jan 2005 02:38:13 -0500
+Received: from ozlabs.org ([203.10.76.45]:32129 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262677AbVAVHhp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 02:37:45 -0500
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic tick patch
-References: <20050119000556.GB14749@atomide.com> <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com> <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com> <41F16551.6090706@mvista.com> <Pine.LNX.4.61.0501211429270.18199@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0501211429270.18199@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16882.705.142187.82807@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Jan 2005 18:37:37 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: anton@samba.org, linas@linas.org
+Subject: [PATCH] PPC64: Trivial Cleanup: EEH_REGION
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> Hello George,
-> 
-> On Fri, 21 Jan 2005, George Anzinger wrote:
-> 
-> 
->>The VST patch on sourceforge
->>(http://sourceforge.net/projects/high-res-timers/) uses the local apic timer
->>to do the wake up.  This is the same timer that is used for the High Res work.
-> 
-> 
-> I've been meaning to look into it, although it's quite a bit of work going 
-> through all the extra code from the highres timer patch.
+This patch is originally from Linas Vepstas <linas@linas.org>.
 
-Well, really all it uses is the HR timer.  The rest of HRT is not really used 
-for VST.  (Unless, of course, you are refering to the work over of the tsc timer 
-tick code.)
+This is a dumb, dorky cleanup patch:
+Per last round of emails, the concept of EEH_REGION is gone, 
+but a few stubs remained.  This patch removes them.
 
--g
-> 
-> Thanks,
-> 	Zwane
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Signed-off-by: Linas Vepstas <linas@linas.org>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-
+diff -urN linux-2.5/arch/ppc64/mm/hash_utils.c test/arch/ppc64/mm/hash_utils.c
+--- linux-2.5/arch/ppc64/mm/hash_utils.c	2005-01-06 13:13:08.000000000 +1100
++++ test/arch/ppc64/mm/hash_utils.c	2005-01-22 16:42:48.000000000 +1100
+@@ -294,12 +294,6 @@
+ 		vsid = get_kernel_vsid(ea);
+ 		break;
+ #if 0
+-	case EEH_REGION_ID:
+-		/*
+-		 * Should only be hit if there is an access to MMIO space
+-		 * which is protected by EEH.
+-		 * Send the problem up to do_page_fault 
+-		 */
+ 	case KERNEL_REGION_ID:
+ 		/*
+ 		 * Should never get here - entire 0xC0... region is bolted.
+diff -urN linux-2.5/arch/ppc64/mm/slb.c test/arch/ppc64/mm/slb.c
+--- linux-2.5/arch/ppc64/mm/slb.c	2005-01-06 13:13:08.000000000 +1100
++++ test/arch/ppc64/mm/slb.c	2005-01-22 16:44:26.000000000 +1100
+@@ -78,7 +78,7 @@
+ void switch_slb(struct task_struct *tsk, struct mm_struct *mm)
+ {
+ 	unsigned long offset = get_paca()->slb_cache_ptr;
+-	unsigned long esid_data;
++	unsigned long esid_data = 0;
+ 	unsigned long pc = KSTK_EIP(tsk);
+ 	unsigned long stack = KSTK_ESP(tsk);
+ 	unsigned long unmapped_base;
+@@ -97,11 +97,8 @@
+ 	}
+ 
+ 	/* Workaround POWER5 < DD2.1 issue */
+-	if (offset == 1 || offset > SLB_CACHE_ENTRIES) {
+-		/* flush segment in EEH region, we shouldn't ever
+-		 * access addresses in this region. */
+-		asm volatile("slbie %0" : : "r"(EEHREGIONBASE));
+-	}
++	if (offset == 1 || offset > SLB_CACHE_ENTRIES)
++		asm volatile("slbie %0" : : "r" (esid_data));
+ 
+ 	get_paca()->slb_cache_ptr = 0;
+ 	get_paca()->context = mm->context;
+diff -urN linux-2.5/include/asm-ppc64/page.h test/include/asm-ppc64/page.h
+--- linux-2.5/include/asm-ppc64/page.h	2005-01-06 13:13:10.000000000 +1100
++++ test/include/asm-ppc64/page.h	2005-01-22 16:42:48.000000000 +1100
+@@ -205,10 +205,8 @@
+ #define KERNELBASE      PAGE_OFFSET
+ #define VMALLOCBASE     ASM_CONST(0xD000000000000000)
+ #define IOREGIONBASE    ASM_CONST(0xE000000000000000)
+-#define EEHREGIONBASE   ASM_CONST(0xA000000000000000)
+ 
+ #define IO_REGION_ID       (IOREGIONBASE>>REGION_SHIFT)
+-#define EEH_REGION_ID      (EEHREGIONBASE>>REGION_SHIFT)
+ #define VMALLOC_REGION_ID  (VMALLOCBASE>>REGION_SHIFT)
+ #define KERNEL_REGION_ID   (KERNELBASE>>REGION_SHIFT)
+ #define USER_REGION_ID     (0UL)

@@ -1,104 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbUKHRLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUKHRMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbUKHRLC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:11:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKHRJU
+	id S261939AbUKHRMN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUKHRIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:09:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12224 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261853AbUKHQh7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:37:59 -0500
-Date: Mon, 8 Nov 2004 08:37:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sripathi Kodi <sripathik@in.ibm.com>
-cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       dino@in.ibm.com
-Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
-In-Reply-To: <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org>
-References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org>
- <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org>
- <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 12:08:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53165 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261939AbUKHQi4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:38:56 -0500
+Date: Mon, 8 Nov 2004 16:38:55 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, "Li, Shaohua" <shaohua.li@intel.com>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>,
+       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [ACPI] [PATCH/RFC 0/4]Bind physical devices with ACPI devices
+Message-ID: <20041108163855.GC32374@parcelfarce.linux.theplanet.co.uk>
+References: <3ACA40606221794F80A5670F0AF15F84041AC033@pdsmsx403>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC033@pdsmsx403>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 Nov 2004, Linus Torvalds wrote:
+On Tue, Nov 09, 2004 at 12:08:03AM +0800, Yu, Luming wrote:
+> >On Mon, Nov 08, 2004 at 10:46:30PM +0800, Yu, Luming wrote:
+> >> >All we need is an acpi_get_gendev_handle that takes a 
+> >struct device and
+> >> >returns the acpi_handle for it.  Now, maybe that'd be best 
+> >> >done by placing
+> >> >a pointer in the struct device, but I bet it'd be just as 
+> >good to walk
+> >> >the namespace looking for the corresponding device.
 > 
-> Actually, this part of the patch is bogus. If our "put_task_struct" is the
-> last one, it doesn't help at all that we're insidfe the tasklist_lock. 
-> We'll just release the task structure ourselves.
+>   We need not only able to locate acpi object IDE0
+> but also we need to locate object PRIM underneath
+> IDE0,  and MSTR underneath PRIM. Thus, IDE driver 
+> can fully take advantage from ACPI, in terms of 
+> configuration and power management.
 > 
-> The problem remains, though: "do_wait()" does end up accessing "tsk" in
-> 
-> 	tsk = next_thread(tsk);
-> 
-> and as far as I can see, "tsk" may be gone by then.
-> 
-> Is there anything else protecting us? This looks like a serious (if 
-> extremely unlikely) bug..
+>   Maybe we need to invent a method called
+> map_device_addr_to_acpi_handle to be  generic solution.
 
-It also looks like we should have gotten an oops in do_wait() if this ever
-happened with SLAB poisoning. Google doesn't seem to find any reports like
-that.
+I think we're saying the same thing in different words here ...
 
-Of course, the race to make this happen is likely extremely small indeed,
-so the reason may just be that nobody ever triggers it in practice (and it
-almost certainly requires that a threaded app waits for its children in
-multiple threads, which is also fairly unusual - so this is likely a very
-small race coupled with an access pattern that doesn't actually happen in
-real life).
+Note that an acpi_get_gendev_handle() or map_device_addr_to_acpi_handle()
+function doesn't *preclude* putting a void * in struct device.  It does
+let us choose whether or not to do so.
 
-But maybe it's because I just missed some reason why this all is ok. I'd 
-love to be wrong about it.
-
-Anyway, if I'm right, the suggested fix would be something like this (this 
-replaces the earlier patches, since it also makes the zero return case go 
-away - we don't need to mark anything runnable, since we restart the whole 
-loop).
-
-NOTE! -EAGAIN should be safe, because the other routines involved can only
-return -EFAULT as an error, so this is all unique to the "try again"  
-case.
-
-Ok, three patches for the same piece of code withing minutes. Please tell 
-me this one is not also broken..
-
-			Linus
-
-----
-===== kernel/exit.c 1.166 vs edited =====
---- 1.166/kernel/exit.c	2004-11-04 11:13:19 -08:00
-+++ edited/kernel/exit.c	2004-11-08 08:34:37 -08:00
-@@ -1201,8 +1201,15 @@
- 		write_unlock_irq(&tasklist_lock);
- bail_ref:
- 		put_task_struct(p);
--		read_lock(&tasklist_lock);
--		return 0;
-+		/*
-+		 * We are returning to the wait loop without having successfully
-+		 * removed the process and having released the lock. We cannot
-+		 * continue, since the "p" task pointer is potentially stale.
-+		 *
-+		 * Return -EAGAIN, and do_wait() will restart the loop from the
-+		 * beginning. Do _not_ re-acquire the lock.
-+		 */
-+		return -EAGAIN;
- 	}
- 
- 	/* move to end of parent's list to avoid starvation */
-@@ -1343,6 +1350,8 @@
- 							   (options & WNOWAIT),
- 							   infop,
- 							   stat_addr, ru);
-+				if (retval == -EAGAIN)
-+					goto repeat;
- 				if (retval != 0) /* He released the lock.  */
- 					goto end;
- 				break;
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

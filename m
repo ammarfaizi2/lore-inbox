@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288669AbSADPIu>; Fri, 4 Jan 2002 10:08:50 -0500
+	id <S288668AbSADPI3>; Fri, 4 Jan 2002 10:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288667AbSADPIk>; Fri, 4 Jan 2002 10:08:40 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:25217 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S288666AbSADPIZ>;
-	Fri, 4 Jan 2002 10:08:25 -0500
-Date: Fri, 4 Jan 2002 16:08:23 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200201041508.QAA12387@harpo.it.uu.se>
-To: macro@ds2.pg.gda.pl
-Subject: Re: [PATCH] 2.4.17/2.5.1 apic.c LVTERR fixes
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        torvalds@transmeta.com
+	id <S288667AbSADPIU>; Fri, 4 Jan 2002 10:08:20 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:56457 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288666AbSADPIG>;
+	Fri, 4 Jan 2002 10:08:06 -0500
+Date: Fri, 4 Jan 2002 18:05:23 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Anton Blanchard <anton@samba.org>
+Subject: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+Message-ID: <Pine.LNX.4.33.0201041743050.8766-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002 13:12:44 +0100 (MET), Maciej W. Rozycki wrote:
->  Still the
->APIC looks insane for me -- it should really signal an error only once an
->interrupt is received, like it does for interrupts from remote sources.
 
-But a remote interrupt source supplies a vector, doesn't it? If we
-assume that the local APIC checks the vector on arrival _of_the_vector_,
-then it does make some sense that it also flags a null vector written
-to one of the LVT entries as an error. The bug really is that it forgets
-to take the mask bit into account. However, the behaviour _is_ there and
-we have to avoid triggering it.
+this is the next release of the O(1) scheduler:
 
->> +		if (maxlvt > 3)		/* Due to Pentium errata 3AP and 11AP. */
->> +			apic_write(APIC_ESR, 0);
->
-> Use apic_write_around() instead as the 11AP workaround -- it was
->introduced specifically for this purpose.  Using anything else doesn't
->guarantee no back-to-back APIC writes due to interrupts (specifically
->writes to the EOI register).
+	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-A1.patch
+	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-A1.patch
 
-I disagree. The write doesn't occur on P5s, so 11AP doesn't apply.
-If I had used an unconditional write_around() instead, then someone
-would complain that I'm violating erratum 3AP (even though it doesn't
-matter in this case). The test as written unambiguously handles both
-3AP and 11AP, and is identical to the "clear ESR" code in
-setup_local_APIC() around line 385.
+this release includes fixes and small improvements. (The 2.5.2-A1 patch is
+against the 2.5.2-pre7 kernel.) I cannot reproduce any more failures with
+this patch, but i couldnt test the vfat lockup problem. The X lockup
+problem never occured on any of my boxes, but it might be fixed by one of
+the changes included in this patch nevertheless.
 
-/Mikael
+Changes:
+
+ - idle process notification fixes. This fixes the idle=poll breakage
+   reported by Anton Blanchard.
+
+ - fix a bug in setscheduler() which crashed if a non-SCHED_OTHER task did
+   a setscheduler() call. This fixes the crash reported by Randy Hron. The
+   Linux Test Project's syscall tests do not cause a crash anymore.
+
+ - do some more unlikely()/likely() tagging of branches along the hotpath,
+   suggested by Jeff Garzik.
+
+ - fix the compile failures in md.c and loop.c and other files, reported
+   by many people.
+
+ - fix the too-big-by-one error in the bitmat sizing define, noticed by
+   Anton Blanchard.
+
+ - fix a bug in rt_lock() + setscheduler() that had a potential for a
+   spinlock lockup.
+
+ - introduce the idle_tick() function, so that idle CPUs can do
+   load-balancing as well.
+
+ - do LINUX_VERSION_CODE checking in jffs2 (Jeff Garzik)
+
+ - optimize the big-kernel-lock releasing/acquiring code some more. From
+   now on it's absolutely illegal to schedule() from cli()-ed code. (not
+   that it was legal.) This moves a few instructions off the scheduler
+   hotpath.
+
+ - move the ->need_resched setting into idle_init().
+
+ - do not clear RT tasks in reparent_to_init(). There's nothing bad with
+   running RT tasks in the background.
+
+ - RT task's priority order was inverted, it should be 0-99, not 99-0.
+
+ - make load-balancing a bit less eager when there are lots of processes
+   running: it needs a ~10% imbalance in runqueue lengths to trigger a
+   rebalance.
+
+ - (there is a small hack in serial.c in the 2.5.2-pre7 patch, to make it
+   compile.)
+
+Comments, bug reports, suggestions are welcome,
+
+	Ingo
+

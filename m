@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263716AbTKDGBD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 01:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTKDGBD
+	id S263760AbTKDG3P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 01:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTKDG3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 01:01:03 -0500
-Received: from out1.mx.nwbl.wi.voyager.net ([169.207.3.119]:42178 "EHLO
-	out1.mx.nwbl.wi.voyager.net") by vger.kernel.org with ESMTP
-	id S263716AbTKDGBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 01:01:00 -0500
-Message-ID: <3FA7418B.3A6F83BF@megsinet.net>
-Date: Tue, 04 Nov 2003 00:04:59 -0600
-From: "M.H.VanLeeuwen" <vanl@megsinet.net>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.6.0-test9 i686)
-X-Accept-Language: en
+	Tue, 4 Nov 2003 01:29:15 -0500
+Received: from [217.30.254.34] ([217.30.254.34]:2176 "EHLO
+	alpha.linuxassembly.org") by vger.kernel.org with ESMTP
+	id S263760AbTKDG3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 01:29:14 -0500
+Date: Tue, 4 Nov 2003 09:30:28 +0300 (MSK)
+From: Konstantin Boldyshev <konst@linuxassembly.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <marcelo.tosatti@cyclades.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: minix fs corruption fix for 2.4
+In-Reply-To: <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.43L.0311040919460.1136-100000@alpha.linuxassembly.org>
+Organization: Linux Assembly [http://linuxassembly.org]
 MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test8 ISAPNP ne.c initialization
-References: <Pine.LNX.4.10.10009211329001.1627-100000@penguin.transmeta.com> <3F97596F.3E1A6F23@megsinet.net> <20031103234311.GE16854@neo.rr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
-> 
-> How about something like this? (untested)
+On Mon, 3 Nov 2003, Linus Torvalds wrote:
 
-I had the same reservation with re-ordering inits...
+> > Enclosed is a simple patch to fix corruption of minix filesystem
+> > when deleting character and block device nodes (special files).
+> > From what I've found out the bug was introduced somehwere in 2.3
+> > and is present in all 2.4 versions, and I guess also goes into 2.6.
+>
+> Oops, yes.
+>
+> The problem is that block and character devices put not a block
+> number but a _device_ number in the place where other files put
+> their block allocations.
 
-Removed my patch, added this one, compiled and booted; works for me.
+Yes, it took some time to find out why particular blocks
+are being freed when I delete particular device nodes.
 
-Thanks,
-Martin
+> Your patch is wrong, though - you shouldn't test for APPEND
+> and IMMUTABLE here. That should be done at higher layers.
 
-> 
-> The patch removes the legacy probing function from dev.c and gives it its
-> own initcall later in the cycle.  Any testing would be appreciated.  I
-> also have some patches that update the probing code in some of these
-> drivers so that they don't have to use legacy techniques but they need
-> to be updated to test9.  This fix is probably the least intrusive.
-> 
-> --- a/drivers/net/Space.c       2003-10-25 18:42:56.000000000 +0000
-> +++ b/drivers/net/Space.c       2003-11-01 22:15:01.000000000 +0000
-> @@ -422,7 +422,7 @@
->  extern int loopback_init(void);
-> 
->  /*  Statically configured drivers -- order matters here. */
-> -void __init probe_old_netdevs(void)
-> +int __init net_olddevs_init(void)
->  {
->         int num;
-> 
-> @@ -450,8 +450,12 @@
->  #ifdef CONFIG_LTPC
->         ltpc_probe();
->  #endif
-> +
-> +       return 0;
->  }
-> 
-> +device_initcall(net_olddevs_init);
-> +
->  /*
->   * The @dev_base list is protected by @dev_base_lock and the rtln
->   * semaphore.
-> --- a/include/linux/netdevice.h 2003-10-25 18:44:45.000000000 +0000
-> +++ b/include/linux/netdevice.h 2003-11-01 22:11:04.000000000 +0000
-> @@ -494,7 +494,6 @@
->  extern struct net_device               *dev_base;              /* All devices */
->  extern rwlock_t                                dev_base_lock;          /* Device list lock */
-> 
-> -extern void            probe_old_netdevs(void);
->  extern int                     netdev_boot_setup_add(char *name, struct ifmap *map);
->  extern int                     netdev_boot_setup_check(struct net_device *dev);
->  extern struct net_device    *dev_getbyhwaddr(unsigned short type, char *hwaddr);
-> --- a/net/core/dev.c    2003-10-25 18:43:39.000000000 +0000
-> +++ b/net/core/dev.c    2003-11-02 16:10:51.000000000 +0000
-> @@ -3007,8 +3007,6 @@
-> 
->         dev_boot_phase = 0;
-> 
-> -       probe_old_netdevs();
-> -
->         open_softirq(NET_TX_SOFTIRQ, net_tx_action, NULL);
->         open_softirq(NET_RX_SOFTIRQ, net_rx_action, NULL);
+Perhaps. I just added the same check as ext2 code does in ext2_truncate().
+
+-- 
+Regards,
+Konstantin
+

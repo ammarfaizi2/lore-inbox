@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269136AbTBZXQv>; Wed, 26 Feb 2003 18:16:51 -0500
+	id <S269073AbTBZXPn>; Wed, 26 Feb 2003 18:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269137AbTBZXQv>; Wed, 26 Feb 2003 18:16:51 -0500
-Received: from almesberger.net ([63.105.73.239]:35589 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S269136AbTBZXQt>; Wed, 26 Feb 2003 18:16:49 -0500
-Date: Wed, 26 Feb 2003 20:26:47 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-Message-ID: <20030226202647.H2092@almesberger.net>
-References: <20030217221837.Q2092@almesberger.net> <20030218050349.44B092C04E@lists.samba.org> <20030218042042.R2092@almesberger.net> <Pine.LNX.4.44.0302181252570.1336-100000@serv> <20030218111215.T2092@almesberger.net> <20030218142257.A10210@almesberger.net> <Pine.LNX.4.44.0302191454520.1336-100000@serv> <20030219231710.Y2092@almesberger.net> <Pine.LNX.4.44.0302212202020.1336-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302212202020.1336-100000@serv>; from zippel@linux-m68k.org on Sun, Feb 23, 2003 at 05:02:29PM +0100
+	id <S269131AbTBZXPm>; Wed, 26 Feb 2003 18:15:42 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:10659 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S269073AbTBZXPl>; Wed, 26 Feb 2003 18:15:41 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][2.4] Speedup 'make dep'
+Date: Thu, 27 Feb 2003 00:25:02 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benoit Poulot-Cazajous <Benoit.Poulot-Cazajous@Jaluna.com>
+References: <lnlm1ffh5d.fsf@walhalla.agaha>
+In-Reply-To: <lnlm1ffh5d.fsf@walhalla.agaha>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_QPVXTHB6QGC10MIVX3PC"
+Message-Id: <200302270025.02512.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Anyway, this alone would be not reason enough to change the module 
-> interface, but another module interface would give us more flexibility and 
-> reduce the locking complexity.
 
-Wait, wait ! :-) There's one step you've left out: what we actually
-expect the module interface to do. We have:
+--------------Boundary-00=_QPVXTHB6QGC10MIVX3PC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
- - what it currently does, or what it did in the past
- - what users think it does
- - what users want it to do
- - what we think the users should want
- - what we think is a comfortable compromise
+On Tuesday 21 January 2003 02:03, Benoit Poulot-Cazajous wrote:
 
-With "users", I mean primarily the guy who invokes "rmmod", or such.
+Hi Marcelo,
 
-Anyway, I'm afraid I can't offer much wisdom from experience for this
-part, for I'm not much of a module user myself. I'll have more to say
-on service interfaces, though.
+apply this too, please!
 
-Sorry for slowing down, but I'm currently quite busy absorbing all
-the cool stuff that's recently been happening with UML. (So, blame
-Jeff ;-))
+> During 'make dep', make spends most of its time (sometimes more
+> than 75%) uselessly analysing .hdepend. Delaying its production
+> makes 'make dep' much faster.
+> The following patch also builds .depend last, in order to make
+> the dependency information generation more resistant against
+> ^C and other failures.
+>
+> Regards,
+>
+>   -- Benoit
 
-- Werner
+--------------Boundary-00=_QPVXTHB6QGC10MIVX3PC
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="speedup-make-dep.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="speedup-make-dep.patch"
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2003-01-10 22:32:25.000000000 +0100
++++ b/Makefile	2003-01-20 09:52:43.000000000 +0100
+@@ -488,12 +488,13 @@
+ 	find . -type f -print | sort | xargs sum > .SUMS
+ 
+ dep-files: scripts/mkdep archdep include/linux/version.h
+-	scripts/mkdep -- init/*.c > .depend
+-	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
++	rm -f .depend .hdepend
+ 	$(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDIRS)"
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+ endif
++	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
++	scripts/mkdep -- init/*.c > .depend
+ 
+ ifdef CONFIG_MODVERSIONS
+ MODVERFILE := $(TOPDIR)/include/linux/modversions.h
+
+--------------Boundary-00=_QPVXTHB6QGC10MIVX3PC--
+

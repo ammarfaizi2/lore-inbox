@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271518AbRHUEJP>; Tue, 21 Aug 2001 00:09:15 -0400
+	id <S271348AbRHUCxs>; Mon, 20 Aug 2001 22:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271522AbRHUEI5>; Tue, 21 Aug 2001 00:08:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:27142 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271518AbRHUEIo>;
-	Tue, 21 Aug 2001 00:08:44 -0400
-Date: Tue, 21 Aug 2001 01:08:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8/2.4.9 VM problems
-In-Reply-To: <20010821040433Z16007-32383+623@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0108210106450.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271350AbRHUCxi>; Mon, 20 Aug 2001 22:53:38 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:6411 "EHLO aslan.scsiguy.com")
+	by vger.kernel.org with ESMTP id <S271348AbRHUCxX>;
+	Mon, 20 Aug 2001 22:53:23 -0400
+Message-Id: <200108210253.f7L2rPY47202@aslan.scsiguy.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: leroyljr@ccsi.com, linux-kernel@vger.kernel.org
+Subject: Re: Failure to Compile AIC7xxx Driver 
+In-Reply-To: Your message of "Tue, 21 Aug 2001 12:21:43 +1000."
+             <18449.998360503@kao2.melbourne.sgi.com> 
+Date: Mon, 20 Aug 2001 20:53:25 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, Daniel Phillips wrote:
-> On August 21, 2001 05:58 am, Rik van Riel wrote:
-> > On Tue, 21 Aug 2001, Daniel Phillips wrote:
-> > > This is hypothetical thrashing so far, have you see it in the wild?
-> >
-> > Yes.
->
-> Could you supply details please?
+>You have hit the precise problem that I raised in that thread, you
+>cannot rely on timestamps for files that are both generated and
+>shipped.
 
-No hard measurements since the kernel doesn't export the
-statistics for all of this yet, but I've seen the behaviour
-and after thinking for a few seconds I came up with the
-maths I gave you before to explain the situation.
+This is a completely different problem having to do with the build for
+the aicasm utility missing an explicit dependency regarding the generated,
+but certainly not shipped, y.tab.h file.  The grammer recently changed
+(a new token was added), so those with stale y.tab.h files were bitten.
+Its on my list of things to fix.
 
-Now it's your turn to come up with the maths to back up
-your assumptions.
-
-Rik
 --
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Justin

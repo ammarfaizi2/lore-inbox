@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266299AbUBLIlx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 03:41:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266302AbUBLIlx
+	id S266309AbUBLIzD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 03:55:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUBLIzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 03:41:53 -0500
-Received: from mail.shareable.org ([81.29.64.88]:48769 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266299AbUBLIlw
+	Thu, 12 Feb 2004 03:55:02 -0500
+Received: from mail.shareable.org ([81.29.64.88]:50049 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266309AbUBLIzA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 03:41:52 -0500
-Date: Thu, 12 Feb 2004 08:41:10 +0000
+	Thu, 12 Feb 2004 03:55:00 -0500
+Date: Thu, 12 Feb 2004 08:54:51 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Kyle <kyle@southa.com>
-Cc: Bas Mevissen <ml@basmevissen.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ICH5 with 2.6.1 very slow
-Message-ID: <20040212084110.GB20898@mail.shareable.org>
-References: <164601c3ec06$be8bd5a0$b8560a3d@kyle> <40227C20.80404@basmevissen.nl> <167301c3ec0d$4d8508c0$b8560a3d@kyle> <40227D9D.2070704@basmevissen.nl> <168301c3ec0e$24698be0$b8560a3d@kyle> <4023682E.3060809@basmevissen.nl> <001101c3ecf8$b0f50cc0$b8560a3d@kyle> <40274581.4030002@basmevissen.nl> <004501c3f0ae$ecdd2ec0$b8560a3d@kyle>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Message-ID: <20040212085451.GC20898@mail.shareable.org>
+References: <20040209115852.GB877@schottelius.org> <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au> <1076517309.21961.169.camel@shaggy.austin.ibm.com> <20040212004532.GB29952@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004501c3f0ae$ecdd2ec0$b8560a3d@kyle>
+In-Reply-To: <20040212004532.GB29952@hexapodia.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle wrote:
-> Today I tried with compile the kernel 2.6.1 with:
-> 
-> IGNORE word93 Validation BITS (IDEDMA_IVB) = y
-> 
-> The result looks a bit better, got 30MB/s at /dev/hda and 37MB/s at /dev/hdc
-> (38MB/s and 55MB/s at kernel 2.4.20)
+Andy Isaacson wrote:
+> Why on earth is JFS worried about the filename, anyways?  Why has it
+> *ever* had *any* behavior other than "string of bytes, delimited with /,
+> terminated with \0" ?
 
-Aha...
+Perhaps for the same reason that these other in-tree filesystems are
+sensitive to the character encoding:
 
-Have a look at the thread called "[RFC] IDE 80-core cable detect -
-chipset-specific code to over-ride eighty_ninty_three()".
+   Joliet (ISO-9660 extension), FAT/VFAT, NTFS, BeFS, SMBFS, CIFS.
 
-It specifically deals with ICH5 and is probably the same problem as
-you're seeing.
+Those filesystems will also fail, or give unexpected behaviour (such
+as bytes being changed to '?'), if you pass them names which are not
+in the appropriate encoding.
 
 -- Jamie

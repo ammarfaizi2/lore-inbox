@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130096AbRB1IWj>; Wed, 28 Feb 2001 03:22:39 -0500
+	id <S130102AbRB1Ibt>; Wed, 28 Feb 2001 03:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130102AbRB1IW2>; Wed, 28 Feb 2001 03:22:28 -0500
-Received: from www.wen-online.de ([212.223.88.39]:54290 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130096AbRB1IWV>;
-	Wed, 28 Feb 2001 03:22:21 -0500
-Date: Wed, 28 Feb 2001 06:25:51 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Shawn Starr <spstarr@sh0n.net>
-cc: <shawn@rhua.org>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Causes more then
- just  msgs
-In-Reply-To: <Pine.LNX.4.30.0102271651290.7968-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.33.0102280619030.1028-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130105AbRB1Ibj>; Wed, 28 Feb 2001 03:31:39 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:30982 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S130102AbRB1Iba>; Wed, 28 Feb 2001 03:31:30 -0500
+From: dth@HoHo.nl (Danny ter Haar)
+Subject: Re: making menuconfig on a 2.4.2-ac6 kernel :-)
+Date: Wed, 28 Feb 2001 08:31:26 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <97id0u$hmu$1@voyager.cistron.net>
+In-Reply-To: <DF71F1B1D60BD5118D2C0004AC538C650D08C9@db_srv>
+X-Trace: voyager.cistron.net 983349086 18142 62.216.31.57 (28 Feb 2001 08:31:26 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001, Shawn Starr wrote:
+Lombardo, Federico <FLombardo@grandistazioni.it> wrote:
+>Please report alan :-)
 
-> When added with BUG(); it will hang /dev/dsp.
+patch has already been posted here.
 
-If the device is opened and we oops before closing it, subsequent
-open attempts will fail (busy).  If it hangs after a failed high
-order allocation attempt without the BUG() insertion, that could
-be called a driver bug.
+Incremental ac patches are available at: www.bzimage.org
 
-	-Mike
+ac5-ac6 is patched with right EXTRAVERSION and make menuconfig patch.
+
+Danny
+
 

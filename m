@@ -1,114 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVANXes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVANXoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVANXes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVANXes
+	id S262024AbVANXoX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVANXoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:34:48 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:50619 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S261990AbVANXen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 18:34:43 -0500
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-Date: Sat, 15 Jan 2005 00:34:31 +0100
-User-Agent: KMail/1.7.1
-Cc: linux@horizon.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050108082535.24141.qmail@science.horizon.com> <200501142312.50861.ioe-lkml@axxeo.de> <Pine.LNX.4.58.0501141430320.2310@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501141430320.2310@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 14 Jan 2005 18:44:22 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:18921 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262024AbVANXoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:44:16 -0500
+Subject: Re: aacraid fails when RAID1 array is in anything but Optimal state
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Aaron Gowatch <aarong@divinia.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0501141156580.28993-100000@nuevo.divinia.com>
+References: <Pine.LNX.4.44.0501141156580.28993-100000@nuevo.divinia.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501150034.31880.ioe-lkml@axxeo.de>
+Message-Id: <1105742350.9838.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 14 Jan 2005 22:39:12 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Gwe, 2005-01-14 at 20:10, Aaron Gowatch wrote:
+> We're using Dell PowerEdge 750s with a Dell rebranded Adaptec CERC 1.5/6ch 
+> SATA adapter.  The systems have 2 disks configured as RAID1.  If the array 
+> is in any other state than 'Optimal' (ie. 'Degraded' or 'Rebuilding') the 
+> following error is displayed and the box subsequently panics because its 
+> unable to mount the root filesystem.
 
-Linus Torvalds wrote:
-> That's where it gets interesting. Everybody needs buffers, and they are
-> generally so easy to implement that there's no point in having much of a
-> "buffer library".
+Known bug in the 2.6 aacraid driver. It's fixed in current Fedora Core 3
+kernels, 2.6.10-ac or in 2.6.11rc1. I've attached the needed patch below
 
-But my hardware has the buffers on chip, if connected directly to each other.
-So no system level buffering is needed.
-
-> No. Use two totally separate fd's, and make it _cheap_ to move between
-> them. That's what "splice()" gives you - basically a very low-cost way to
-> move between two uni-directional things. No "memcpy()", because memcpy is
-> expensive for large streams of data.
-
-Here we agree already, so lets talk about the rest.
-
-> If you end up reading from a regular file (or writing to one), then yes,
-> the buffers end up being picked up from the buffer cache. But that's by no
-> means required. The buffers can be just anonymous pages (like the ones a
-> regular "write()" to a pipe generates), or they could be DMA pages
-> allocated for the data by a device driver. Or they could be the page that
-> contains a "skb" from a networking device.
->
-> I really think that splice() is what you want, and you call "wire()".
-
-That sounds really close to what I want.
-
-Now imagine this (ACSCII art in monospace font):
-
-[ chip A ] ------(1)------ [ chip B ]   [ CPU ]   [memory]  [disk]
-      |                        |           |         |        |
-      +----------(2)-----------+---(2)-----+----(2)--+--------+
-
-(1) Is a direct path between these chips.
-(2) Is the system bus (e.g. PCI)
-
-(1) works without any CPU intervention
-(2) needs the buffering scheme you described.
-
-I like to use (1) for obvious reasons, but still allow (2).
-User space should decide which one, since it's a policy decision.
-
-I need to open the chips with default to (2), because the driver
-doesn't know in advance, that it will be connected to a chip it can talk to 
-directly. Everything else will be quite ugly.
-
-Please note, that this is a simplified case and we actually have many chips of
-A/B and (1) is more like a software programmable "patch field" you
-might know from a server rack. I want user space to operate this "patch 
-field".
-
-Maybe "io router" is a descriptive term. No?
-
-> Yes, I believe that we're talking about the same thing. What you can do in
-> my vision is:
->
->  - create a pipe for feeding the audio decoder chip. This is just the
->    sound driver interface to a pipe, and it's the "device_open()" code I
->    gave as an example in my previous email, except going the other way (ie
->    the writer is the 'fd', and the driver is the "reader" of the data).
->
->    You'd do this with a simple 'fd = open("/dev/xxxx", O_WRONLY)",
->    together with some ioctl (if necessary) to set up the actual
->    _parameters_ for the piped device.
->
->  - do a "splice()" from a file to the pipe. A splice from a regular file
->    is really nothing but a page cache lookup, and moving those page cache
->    pages to the pipe.
->
->  - tell the receiving fd to start processing it (again, this might be an
->    ioctl - some devices may need directions on how to interpret the data,
->    or it might be implicit in the fact that the pipe got woken up by being
->    filled)
-
-Yes, I understand and support your vision. Now I would like to use path (1)
-the direct for this. Possible? 
-
-Maybe by making drivers optionally aware of splice() and defaulting to a 
-regular pipe, if they don't care?
-
-
-Thanks and Regards
-
-Ingo Oeser
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/drivers/scsi/aacraid/commsup.c linux-2.6.10/drivers/scsi/aacraid/commsup.c
+--- linux.vanilla-2.6.10/drivers/scsi/aacraid/commsup.c	2004-12-25 21:14:35.000000000 +0000
++++ linux-2.6.10/drivers/scsi/aacraid/commsup.c	2005-01-13 17:29:50.077160240 +0000
+@@ -768,28 +768,6 @@
+ 	memset(cp, 0,  256);
+ }
+ 
+-
+-/**
+- *	aac_handle_aif		-	Handle a message from the firmware
+- *	@dev: Which adapter this fib is from
+- *	@fibptr: Pointer to fibptr from adapter
+- *
+- *	This routine handles a driver notify fib from the adapter and
+- *	dispatches it to the appropriate routine for handling.
+- */
+-
+-static void aac_handle_aif(struct aac_dev * dev, struct fib * fibptr)
+-{
+-	struct hw_fib * hw_fib = fibptr->hw_fib;
+-	/*
+-	 * Set the status of this FIB to be Invalid parameter.
+-	 *
+-	 *	*(u32 *)fib->data = ST_INVAL;
+-	 */
+-	*(u32 *)hw_fib->data = cpu_to_le32(ST_OK);
+-	fib_adapter_complete(fibptr, sizeof(u32));
+-}
+-
+ /**
+  *	aac_command_thread	-	command processing thread
+  *	@dev: Adapter to monitor
+@@ -859,7 +837,6 @@
+ 			aifcmd = (struct aac_aifcmd *) hw_fib->data;
+ 			if (aifcmd->command == cpu_to_le32(AifCmdDriverNotify)) {
+ 				/* Handle Driver Notify Events */
+-				aac_handle_aif(dev, fib);
+ 				*(u32 *)hw_fib->data = cpu_to_le32(ST_OK);
+ 				fib_adapter_complete(fib, sizeof(u32));
+ 			} else {
+@@ -870,10 +847,6 @@
+ 				u32 time_now, time_last;
+ 				unsigned long flagv;
+ 				
+-				/* Sniff events */
+-				if (aifcmd->command == cpu_to_le32(AifCmdEventNotify))
+-					aac_handle_aif(dev, fib);
+-				
+ 				time_now = jiffies/HZ;
+ 
+ 				spin_lock_irqsave(&dev->fib_lock, flagv);
 

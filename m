@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263910AbUDFRUy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 13:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263917AbUDFRUx
+	id S261635AbUDFRTj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 13:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263910AbUDFRTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 13:20:53 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:26382 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S263910AbUDFRUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 13:20:50 -0400
-Date: Tue, 6 Apr 2004 14:18:03 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New compiler warning: 2.6.4->2.6.5
-Message-Id: <20040406141803.249bf06e.lcapitulino@prefeitura.sp.gov.br>
-In-Reply-To: <1081220649.13965.15.camel@lightning>
-References: <1081220649.13965.15.camel@lightning>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 6 Apr 2004 13:19:38 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:44752 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261635AbUDFRTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 13:19:37 -0400
+Subject: bugcheck! __get_free_pages calls __init function w/ CONFIG_NUMA
+From: Alex Williamson <alex.williamson@hp.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1081271975.2375.73.camel@patsy.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 06 Apr 2004 11:19:36 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi John,
+   I'm not sure why we haven't seen this before, but I started seeing a
+stack trace on reboot on my rx2600 ia64 box running latest 2.6.  Here it
+is:
 
-Em 05 Apr 2004 20:04:09 -0700
-John Cherry <cherry@osdl.org> escreveu:
+ [<a0000001006ba020>] get_boot_pages+0x0/0x2c0
+                                sp=e00000010267fc80 bsp=e000000102679130
+ [<a0000001004a8fb0>] sba_alloc_coherent+0x70/0x1a0
+                                sp=e00000010267fc80 bsp=e0000001026790f8
+ [<a00000010047e3b0>] mptscsih_synchronize_cache+0x1d0/0x640
+                                sp=e00000010267fc80 bsp=e000000102679010
+ [<a0000001004665e0>] mptbase_shutdown+0xc0/0xe0
+                                sp=e00000010267fd30 bsp=e000000102678fd8
+ [<a0000001003a9140>] device_shutdown+0x260/0x280
+                                sp=e00000010267fd30 bsp=e000000102678fa8
+ [<a0000001000b10a0>] sys_reboot+0x2e0/0x720
+                                sp=e00000010267fd30 bsp=e000000102678f50
 
-| 9 new compiler warnings between 2.6.4 and 2.6.5.
-| 
-| gcc: 3.2.2
-| arch: i386
-| 
-| drivers/acpi/events/evmisc.c:143: warning: too many arguments for format
-| drivers/char/applicom.c:523:2: warning: #warning "Je suis stupide. DW. -
-| copy*user in cli"
-| drivers/char/watchdog/cpu5wdt.c:305: warning: initialization discards
-| qualifiers from pointer target type
-| drivers/char/watchdog/cpu5wdt.c:305: warning: return discards qualifiers
-| from pointer target type
-| drivers/media/dvb/frontends/tda1004x.c:191: warning: `errno' defined but
-| not used
-| drivers/pcmcia/i82365.c:71: warning: `version' defined but not used
-| drivers/pcmcia/tcic.c:64: warning: `version' defined but not used
-| sound/isa/wavefront/wavefront_synth.c:1923: warning: `errno' defined but
-| not used
-| sound/oss/wavfront.c:2498: warning: `errno' defined but not used
 
- I fixed the ''errno''s warnings, the patches are in -mm.
+sba_alloc_coherent is simply calling __get_free_pages() to setup a DMA
+mapping for the mpt driver to sync a disk.  However, we've already
+cleared system_running in sys_reboot, so w/ CONFIG_NUMA, we blowup
+trying to call get_boot_pages, which was already freed.  I'm not sure if
+the proper fix is to make get_boot_pages not an __init function or if
+the CONFIG_NUMA code really intends to be keying off something else. 
+Thoughts on the right fix?  Thanks,
 
-PS: I think they are not new.
+	Alex
 
 -- 
-Luiz Fernando N. Capitulino
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
+Alex Williamson                             HP Linux & Open Source Lab
+

@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbTGOHY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 03:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266597AbTGOHY5
+	id S266774AbTGOH0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 03:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266788AbTGOH0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 03:24:57 -0400
-Received: from mail2.zrz.TU-Berlin.DE ([130.149.4.14]:20916 "EHLO
-	mail2.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
-	id S266590AbTGOHY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 03:24:56 -0400
-Message-ID: <4299.194.175.125.228.1058254785.squirrel@mailbox.TU-Berlin.DE>
-Date: Tue, 15 Jul 2003 09:39:45 +0200 (CEST)
-Subject: Inspiron 8000 makes high pitch noise only with 2.6.0-test1
-From: <Daniel.Dorau@alumni.TU-Berlin.DE>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 15 Jul 2003 03:26:16 -0400
+Received: from smtp4.pacifier.net ([64.255.237.174]:34989 "EHLO
+	smtp4.pacifier.net") by vger.kernel.org with ESMTP id S266774AbTGOH0C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 03:26:02 -0400
+Date: Tue, 15 Jul 2003 00:40:49 -0700
+From: "B. D. Elliott" <bde@nwlink.com>
+To: linux-kernel@vger.kernel.org
+Subject: Stime/Settimeofday are still broken
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+Message-Id: <20030715071826.A891F6AB63@smtp4.pacifier.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
-yesterday I tried the 2.6.0-test1 kernel for the first time.
-Installation went flawlessly. However I noticed a high pitch
-noise from my notebook everytime after the ethernet driver
-was loaded, no matter which one (eepro100 or e100).
-It is exactly the noise that my notebook only did with 2.4
-when _actually_ transmitting data on IRDA.
-I have no clue whatsoever how the same noise is being triggered
-by the 2.6 kernel. Disabling IRDA (kernel+BIOS) didn't help.
-Since that noise is somewhat nerving, I would be very happy
-if someone has an idea how to fix that.
-This noise does definitely not appear on 2.4 kernel except when
-IRDA is active. On 2.6 I can hear it all the time one the
-ethernet driver is loaded. It is only interrupted by heavy disc
-activity.
-Does anybody has an idea?
+The problems described below still exist in -2.6.0-test1.
 
-Please CC me on reply.
+>Date: Wed, 18 Jun 2003 00:57:12 -0700
+>From: "B. D. Elliott" <bde@nwlink.com>
+>To: linux-kernel@vger.kernel.org
+>Subject: Sparc64-2.5.72: A Serious Time Problem
+>Mail-Followup-To: linux-kernel@vger.kernel.org
+>Mime-Version: 1.0
+>Content-Type: text/plain; charset=us-ascii
+>Content-Disposition: inline
+>User-Agent: Mutt/1.5.4i
+>Message-Id: <20030618073556.94E966A4FC@smtp4.pacifier.net>
+>Status: RO
+>Content-Length: 1651
+>Lines: 47
+>
+>There is a serious bug in setting time on 64-bit sparcs (and probably other
+>64-bit systems).  The symptom is that ntpdate or date set the time back to
+>1969 or 1970.  The underlying problems are that stime is broken, and any
+>settimeofday call fails with a bad fractional value.  Ntpdate falls back to
+>stime when settimeofday fails.
+>
+>The settimeofday problem is that the timeval and timespec structures are not
+>the same size.  In particular, the fractional part is an int in timeval, and
+>a long in timespec.  The stime problem is that the argument is not an int,
+>but a time_t, which is long on at least some 64-bit systems.
+>
+>The following patch appears to fix this on my sparc64.
+>
+>===================================================================
+>--- ./kernel/time.c.orig	2003-06-16 22:36:04.000000000 -0700
+>+++ ./kernel/time.c	2003-06-18 00:00:43.000000000 -0700
+>@@ -66,7 +66,7 @@
+>  * architectures that need it).
+>  */
+>  
+>-asmlinkage long sys_stime(int * tptr)
+>+asmlinkage long sys_stime(time_t * tptr)
+> {
+> 	struct timespec tv;
+> 
+>@@ -162,13 +162,15 @@
+> 
+> asmlinkage long sys_settimeofday(struct timeval __user *tv, struct timezone __user *tz)
+> {
+>+	struct timeval user_tv;
+> 	struct timespec	new_tv;
+> 	struct timezone new_tz;
+> 
+> 	if (tv) {
+>-		if (copy_from_user(&new_tv, tv, sizeof(*tv)))
+>+		if (copy_from_user(&user_tv, tv, sizeof(*tv)))
+> 			return -EFAULT;
+>-		new_tv.tv_nsec *= NSEC_PER_USEC;
+>+		new_tv.tv_sec = user_tv.tv_sec;
+>+		new_tv.tv_nsec = user_tv.tv_usec * NSEC_PER_USEC;
+> 	}
+> 	if (tz) {
+> 		if (copy_from_user(&new_tz, tz, sizeof(*tz)))
+>===================================================================
 
-Thank you
-Daniel
-
-
-
-
+-- 
+B. D. Elliott   bde@nwlink.com

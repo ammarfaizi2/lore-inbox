@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319212AbSIDQce>; Wed, 4 Sep 2002 12:32:34 -0400
+	id <S319219AbSIDQqb>; Wed, 4 Sep 2002 12:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319215AbSIDQce>; Wed, 4 Sep 2002 12:32:34 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45323 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319212AbSIDQc2>; Wed, 4 Sep 2002 12:32:28 -0400
-Date: Wed, 4 Sep 2002 09:36:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: One more bio for for floppy users in 2.5.33..
-In-Reply-To: <200209040725.g847PrUv089710@northrelay01.pok.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209040930110.1779-100000@home.transmeta.com>
+	id <S319215AbSIDQqb>; Wed, 4 Sep 2002 12:46:31 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:54746 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S319209AbSIDQqa>; Wed, 4 Sep 2002 12:46:30 -0400
+Date: Wed, 04 Sep 2002 10:50:09 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: James Bottomley <James.Bottomley@steeleye.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset? 
+Message-ID: <12750000.1031158209@aslan.btc.adaptec.com>
+In-Reply-To: <200209041613.g84GDtv02639@localhost.localdomain>
+References: <200209041613.g84GDtv02639@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 4 Sep 2002, Suparna Bhattacharya wrote:
+> dledford@redhat.com said:
+>> Now, granted, that is more complex than going straight to a BDR, but I
+>>  have to argue that it *isn't* that complex.  It certainly isn't the
+>> nightmare you make it sound like ;-) 
 > 
-> Oh yes, even I had this fixed this in the bio traversal patches 
-> I had posted (had this in the core patch, and mentioned it 
-> in the description in the note :) ), guess it went unnoticed.
+> It's three times longer even in pseudocode...
 
-Well, I've never seen a "this should go in" about it.
+To make this work, you really need to use the QErr bit in the
+disconnect/reconnect page and/or ECA or ACA.  QErr I believe is
+well supported in devices, but ECA (pre SCSI-3) and ACA most
+likely receive very little testing.
 
-Also, it was apparently mixed up with the "bio splitup" stuff, which was 
-discussed at least with Jens, and I feel strongly that we shouldn't split, 
-we should build up. Jens was working on exactly that.
+I will also voice my opinion (again) that watchdog timer recovery
+is in the wrong place in Linux.  It belongs in the controller drivers:
 
-In other words, I absolutely hate the fact that a major bug-fix was 
- (a) not marked as such and sent to me
-and
- (b) mixed up with experimental work for other drivers
+1) Only the controller driver knows when to start the timeout
+2) Only the controller driver knows the current status of the bus/transport
+3) Only the controller can close timeout/just completed races
+4) Only the controller driver knows the true transport type
+   (SPI/FC/ATA/USB/1394/IP) and what recovery actions are appropriate
+   for that transport type given the capabilities of the controller.
+5) The algorithm for recovery and maintaining order becomes quite simple:
+	1) Freeze the input queue for the controller
+	2) Return all transactions unqueued to a device to the mid-layer
+	3) Perform the recovery actions required
+	4) Unfreeze the controller's queue
+	5) Device type driver (sd, cd, tape, etc) decides what errors
+	   at what rates should cause the failure of a device.  The
+	   controller driver just needs to have the error codes so
+	   it can honestly and fully report to the type driver what
+	   really happens so it can make good decissions
 
-Even now (assuming I hadn't fixed it on my own), I would have preferred to
-get that fix separately, as it would have impacted the floppy driver, for
-example (the fix broke the floppy driver even more than it was before,
-because the floppy driver was stupidly trying to work around the original
-bug by hand).
+   This of course assumes that all transactions have a serial number and
+   that requeuing transactions orders them by serial number.  With QErr
+   set, the device closes the rest if the barrier race for you, but even
+   without barriers, full transaction ordering is required if you don't
+   want a read to inadvertantly pass a write to the same location during
+   recovery.
 
-Imagine what a horror it is to figure out why a large experimental patch 
-breaks an existing driver? My first reaction would have been to just throw 
-the large new patch away, since it obviously broke the floppy even more. 
-Instead, if I had been passed the bug-fix only, and the floppy had broken 
-worse that it was originally, it would have been absolutely _obvious_ 
-where the problem was.
+   For prior art, take a look at FreeBSD.  In the worst case, where
+   escalation to a bus reset is required, recovery takes 5 seconds.
 
-In short: please please PLEASE keep fixes to existing code separate from 
-new stuff. It makes everything easier, and I have absolutely no problems 
-with applying "obvious fixes" even if they might break something else.
-
-In contrast, the new stuff I really don't know if it should go in at all, 
-considering that it's trivial (and CPU-efficient) to build up legal bio 
-request on the fly and _not_ depend on splitting them later (or at least 
-making splitting a special thing only used by things like MD and other 
-such indirection layers).
-
-			Linus
-
+--
+Justin

@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129549AbQKCKEE>; Fri, 3 Nov 2000 05:04:04 -0500
+	id <S129042AbQKCK4a>; Fri, 3 Nov 2000 05:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130162AbQKCKDo>; Fri, 3 Nov 2000 05:03:44 -0500
-Received: from proxy.ovh.net ([213.244.20.42]:59660 "HELO proxy.ovh.net")
-	by vger.kernel.org with SMTP id <S129549AbQKCKD0>;
-	Fri, 3 Nov 2000 05:03:26 -0500
-Message-ID: <3A028D5C.1B30718F@ovh.net>
-Date: Fri, 03 Nov 2000 11:03:08 +0100
-From: octave klaba <oles@ovh.net>
-X-Mailer: Mozilla 4.73 [en] (Win98; I)
-X-Accept-Language: fr,en
+	id <S129078AbQKCK4U>; Fri, 3 Nov 2000 05:56:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12302 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129042AbQKCK4B>;
+	Fri, 3 Nov 2000 05:56:01 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011031038.eA3Accj30162@flint.arm.linux.org.uk>
+Subject: Re: USB init order dependencies.
+To: randy.dunlap@intel.com (Dunlap, Randy)
+Date: Fri, 3 Nov 2000 10:38:38 +0000 (GMT)
+Cc: dwmw2@infradead.org ('David Woodhouse'), torvalds@transmeta.com,
+        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBC8@orsmsx31.jf.intel.com> from "Dunlap, Randy" at Oct 31, 2000 10:10:49 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Mofeed Shahin <shahin@labf.org>
-Cc: linux-kernel@vger.kernel.org, mofeed@labf.org
-Subject: Re: eepro checksum problem.
-In-Reply-To: <Pine.LNX.4.21.0011031842200.7099-100000@darwin.labf.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> eth0: Invalid EEPROM checksum 0x8107, check settings before activating
-> this device.
+Dunlap, Randy writes:
+> David is entitled to his opinion (IMO).
+> And I dislike this patch, as he and I have already discussed.
+> 
+> Short of fixing the link order, I like Jeff's suggestion
+> better (if it actually works, that is):  go back to the
+> way it was a few months ago by calling usb_init()
+> from init/main.c and making the module_init(usb_init);
+> in usb.c conditional (#ifdef MODULE).
 
-all Cobalt's RAQ are this errors. 
+However, that breaks the OHCI driver on ARM.  Unless we're going to start
+putting init calls back into init/main.c so that we can guarantee the order
+of init calls which Linus will not like, you will end up with a lot of ARM
+guys complaining.
 
-Octave
+Linus, your opinion would be helpful at this point.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310637AbSEXVSo>; Fri, 24 May 2002 17:18:44 -0400
+	id <S311180AbSEXVUY>; Fri, 24 May 2002 17:20:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311180AbSEXVSn>; Fri, 24 May 2002 17:18:43 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:45178 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S310637AbSEXVSn>; Fri, 24 May 2002 17:18:43 -0400
-Message-Id: <5.1.0.14.2.20020524221011.05909ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 24 May 2002 22:18:30 +0100
-To: Andrea Arcangeli <andrea@e-mind.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs
-  (2.4.17)]
-Cc: Dan Kegel <dank@kegel.com>, Hugh Dickins <hugh@veritas.com>,
-        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20020524202658.GI15703@dualathlon.random>
+	id <S311710AbSEXVUX>; Fri, 24 May 2002 17:20:23 -0400
+Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:29064 "EHLO 
+	ayrnetworks.com") by vger.kernel.org with ESMTP id <S311180AbSEXVUW>;
+	Fri, 24 May 2002 17:20:22 -0400
+Date: Fri, 24 May 2002 14:18:56 -0700
+From: William Jhun <wjhun@ayrnetworks.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible discrepancy regarding streaming DMA mappings in DMA-mapping.txt?
+Message-ID: <20020524141856.M7205@ayrnetworks.com>
+In-Reply-To: <20020524133711.K7205@ayrnetworks.com> <20020524.132641.104219414.davem@redhat.com> <20020524135842.L7205@ayrnetworks.com> <20020524.135352.131897757.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Andrew Morton removed from CC: list as he doesn't want to be on it...]
+On Fri, May 24, 2002 at 01:53:52PM -0700, David S. Miller wrote:
+> Now that we've established that, you want a new operation.
+> That operation is "Re-prepare DMA memory so that PCI realm
+> will see it".  And the semantics of this would be to, on
+> CPUs which are no cache coherent with PCI, to flush the cache
+> to prevent inconsistencies between PCI and the CPU.
+> 
+> The CPU cache flush is needed in both cases to/from cases.
+> 
+> So do you finally understand why you must create a new interface
+> to accomplish what you want?
 
-Hi,
+Yes, that clears things up. I'll work on this.
 
-At 21:26 24/05/02, Andrea Arcangeli wrote:
->[ speaking for myself in this whole email, and CC'ed l-k ]
->
->On Fri, May 24, 2002 at 11:03:25AM -0700, Dan Kegel wrote:
-> > software patent on Tux... http://lwn.net/daily/
-
-This patent was filed on August 22, 2001. If this is after the code came 
-into public existence this would constitute prior art and hence invalidate 
-the patent... Of course I have no idea when the code you pointed out was 
-released...
-
-In either case, software patents are not allowed in the European Union 
-(yet), so we would just need to have an european kernel... (-;
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Thanks,
+William

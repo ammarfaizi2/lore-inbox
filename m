@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbRF1QFT>; Thu, 28 Jun 2001 12:05:19 -0400
+	id <S266005AbRF1QDt>; Thu, 28 Jun 2001 12:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266008AbRF1QFJ>; Thu, 28 Jun 2001 12:05:09 -0400
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:8606 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S266006AbRF1QE6>; Thu, 28 Jun 2001 12:04:58 -0400
-Date: Thu, 28 Jun 2001 12:04:38 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Alan Cox <laughing@shared-source.org>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac20
-In-Reply-To: <20010628164212.A27412@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0106281158070.3807-100000@sparrow.websense.net>
+	id <S266006AbRF1QDm>; Thu, 28 Jun 2001 12:03:42 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:47885 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S266005AbRF1QDb>;
+	Thu, 28 Jun 2001 12:03:31 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dhowells@redhat.com (David Howells),
+        linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [RFC] I/O Access Abstractions
+In-Reply-To: <E15FbuU-0006wH-00@the-village.bc.nu> <7040.993736538@redhat.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 28 Jun 2001 18:02:35 +0200
+In-Reply-To: David Woodhouse's message of "Thu, 28 Jun 2001 14:55:38 +0100"
+Message-ID: <d3bsn8bnj8.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Alan, all,
+>>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
 
-make[1]: Entering directory `/usr/src/linux-2.4.5/scripts'
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o tkparse.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
-gcc -o tkparse tkparse.o tkcond.o tkgen.o
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-drivers/net/Config.in: 149: can't handle dep_bool/dep_mbool/dep_tristate condition
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.5/scripts'
-make: *** [xconfig] Error 2
-XXXXXXXXXX make xconfig failed. Please fix the problem and restart.
+David> Having per-resource I/O methods would help us to remove some of
+David> the cruft which is accumulating in various non-x86 code. Note
+David> that the below is the _core_ routines for _one_ board - I'm not
+David> even including the extra indirection through the machine vector
+David> here....
 
-	Line 149 is
+Have you considered the method used by the 8390 Ethernet driver?
+For each device, add a pointer to the registers and a register shift.
 
-   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
+I really don't like hacing virtual access functions that makes memory
+mapped I/O look the same as I/O operations. For memory mapped I/O you
+want to be able to smart optimizations to reduce the access on the PCI
+bus (or similar).
 
-	, which I think would normally have a dependancy after the symbol.
-	The relevant part of the patch appears to be:
-
--   bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-+   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"Man who say it cannot be done should not interrupt man doing
-it."
-	-- Old Chinese Proverb
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
-
+Jes

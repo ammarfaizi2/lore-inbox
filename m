@@ -1,28 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbULSRWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbULSRes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbULSRWV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 12:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULSRWV
+	id S261315AbULSRes (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 12:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbULSRes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 12:22:21 -0500
-Received: from gprs215-234.eurotel.cz ([160.218.215.234]:640 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261317AbULSRWQ (ORCPT
+	Sun, 19 Dec 2004 12:34:48 -0500
+Received: from gprs215-234.eurotel.cz ([160.218.215.234]:16768 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261315AbULSReq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 12:22:16 -0500
-Date: Sat, 18 Dec 2004 08:50:03 +0100
+	Sun, 19 Dec 2004 12:34:46 -0500
+Date: Sun, 19 Dec 2004 18:34:33 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@berlios.de>
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       softwaresuspend-devel@lists.berlios.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [SoftwareSuspend-devel] 2.6 Suspend PM issues
-Message-ID: <20041218075003.GA3015@elf.ucw.cz>
-References: <200412171315.50463.mhf@berlios.de> <1103263067.19280.4.camel@desktop.cunninghams> <20041217092642.GH25573@elf.ucw.cz> <200412181014.30998.mhf@berlios.de> <20041218074202.GG29084@elf.ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc3-mm1: swsusp
+Message-ID: <20041219173433.GA1130@elf.ucw.cz>
+References: <200412181852.31942.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041218074202.GG29084@elf.ucw.cz>
+In-Reply-To: <200412181852.31942.rjw@sisk.pl>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,40 +27,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > > By what was discussed wrt ALSA issue I gather that you still resume
-> > > > > _all_ drivers after doing the atomic copy?
-> > > > >
-> > > > > As explained earlier this year, if this is the case, it is firstly
-> > > > > unacceptable as it will result in loss of data in many applications and
-> > > > > secondly very clumsy.
-> > > > >
-> > > > > Example With 2.4 OK, with 2.6 It would fail:
-> > > > > A datalogger connected to a seral port of a notebook in the field. Data
-> > > > > transfer in progress which can be put on hold bo lowering RTS (HW
-> > > > > handshake) but _cannot_ be restarted. Battery low, must suspend to
-> > > > > change battery, upon resume transfer can continue.
-> > > > >
-> > > > > Will this be taken care of?
-> > >
-> > > Driver will get enough info in its resume routine ("hey, it is resume,
-> > > but it is only resume after atomic copy"), so it can ignore the resume
-> > > if it really needs to.
-> > 
-> > Each driver has to make the decision when to ignore resume? that would add a 
-> > lot of bloat as well as lots of work to implement and test the changes for 
-> > 100s of drivers...
-> 
-> No, only those drivers where extra resume does some damage. So far I
-> know about one, and that's your data logging device.
+> I must say I'm really impressed with the progress that swsusp made since I 
+> tried it last time (close to 2.6.10-rc1 as I recall).  Now I've been using it 
+> for a couple of days on 2.6.10-rc3-mm1 and It's never refused to suspend the 
+> machine because of the lack of (contiguous) memory which happened very often 
+> before, and it seems to be much faster.  Using it my notebook has
+> reached 
 
-...which will not work anyway, swsusp1 or swsusp2. Have you actually
-tried it?
+Hmmm, unfortunately I did not changes in that area. Perhaps memory
+managment was fixed/improved?
 
-During boot, BIOS is probably going to play with RTS anyway. So no
-matter what you do during suspend, you are probably going to screw it
-up anyway on the boot just before resume.
+> Still, unfortunately, today it crashed on suspend and I wasn't able to get any 
+> useful information related to the crash, because swsusp apparently does not 
+> send some of its messages to the serial console.  In particular, anything 
+> from within the critical section is not printed there and that's why I think 
+> (I'm not sure though) that the crash occured in the critical section.  Could 
+> you tell me please if it's possible to make all of the swsusp messages appear 
+> on the serial console and, if so, how to do this (I've already tried "dmesg 
+> -n 8" and "echo 9 > /proc/sysrq-trigger" but none of them helps)?
 
-So there are currently 0 examples where extra resume hurts.
+Using regular vga console and digital camera seems to be popular way
+to get dumps. I'm not sure why swsusp critical section interferes with
+serial, perhaps serial console support has to "know" about serial
+console and not suspend it during suspend() call?
+
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

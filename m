@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271764AbRHURsj>; Tue, 21 Aug 2001 13:48:39 -0400
+	id <S271765AbRHURv7>; Tue, 21 Aug 2001 13:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271765AbRHURsb>; Tue, 21 Aug 2001 13:48:31 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:57832 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271764AbRHURsS>;
-	Tue, 21 Aug 2001 13:48:18 -0400
-Date: Tue, 21 Aug 2001 18:48:26 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: cfs+linux-kernel@cowlabs.com, "'Marco Colombo'" <marco@esi.it>,
-        "'Alex Bligh - linux-kernel'" <linux-kernel@alex.org.uk>
-Cc: "'David Wagner'" <daw@mozart.cs.berkeley.edu>,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: RE: /dev/random in 2.4.6
-Message-ID: <2348880141.998419706@[10.132.112.53]>
-In-Reply-To: <000801c12a63$9c9d54d0$0a90a5c7@cowlabs.com>
-In-Reply-To: <000801c12a63$9c9d54d0$0a90a5c7@cowlabs.com>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271767AbRHURvt>; Tue, 21 Aug 2001 13:51:49 -0400
+Received: from ip-a1-37024.keycomm.it ([62.152.37.24]:35174 "EHLO
+	gauss.campana.vi.it") by vger.kernel.org with ESMTP
+	id <S271765AbRHURvh>; Tue, 21 Aug 2001 13:51:37 -0400
+Date: Tue, 21 Aug 2001 19:52:46 +0200
+From: Ottavio Campana <bott@iol.it>
+To: linux-kernel@vger.kernel.org
+Subject: esssolo1 driver strange behaviuor
+Message-ID: <20010821195246.A1681@campana.vi.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux gauss 2.2.19 
+X-Organization: Lega per la soppressione del Visual Basic
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I dunno about you, but I want good random for session keys too!  You can
-> still capture network traffic and decrypt at your leisure if you can
-> determine what the "random" number was used in making the session key.
+Hi
 
-That's why the pool is hashed before use. Modulo the seeding issue,
-there is an implicit assumption in this argument that EITHER the
-hash is breakable, OR we might as well scrap the entropy stuff entirely
-and never block and speed up lots of applications that occasionally
-block as a biproduct. The position that the hash is unbreakable
-and never will be breakable, BUT we still need to block, is only
-tenable in the context of initial seeding (AFAICS).
+I just  compiled linux  2.4.9 on my  laptop. It has  got a  solo-1 based
+sound card. I've tried to compile  the kernel with the static support of
+the card  and, for  it is  a laptop and  it hasn't  got any  gameport, I
+didn't selected any joystick support.
 
---
-Alex Bligh
+The   kernel   cannot   compile,   I've   got   a   linking   error   in
+/usr/src/linux/drivers/sound/soundcore.o  because  it  cannot  find  the
+functions  gameport_register_port and  gameport_unregister_port  . If  I
+compile the driver as a module it is compiled succesfully and it works.
+
+I've looked at /usr/src/linux/drivers/sound/esssolo1.c and commented out
+the two lines (2378 and 2423)  that call the 2 functions for registering
+and unregistering  the gameport and  the driver compiles  statically and
+works.
+
+I know this  is just a little hack,  but I want to bring note  to you of
+this problem that I have found even with earlier 2.4 kernels (I've tryed
+2.4.5 , 2.4.6 and 2.4.8).
+
+I hope this email could be useful otherwise please excuse me.
+
+Bye
+
+PS: I don't have got the time  for following the mailing list so can you
+please cc any reply to bott@iol.it? Thank you.
+
+-- 
+Non c'è più forza nella normalità, c'è solo monotonia.

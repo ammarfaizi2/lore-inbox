@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132039AbRDCQjr>; Tue, 3 Apr 2001 12:39:47 -0400
+	id <S132194AbRDCQlh>; Tue, 3 Apr 2001 12:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132223AbRDCQjg>; Tue, 3 Apr 2001 12:39:36 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:31703 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132039AbRDCQj2>; Tue, 3 Apr 2001 12:39:28 -0400
-Date: Tue, 3 Apr 2001 17:38:39 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Juan Piernas Canovas <piernas@ditec.um.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED]Re: 2.2.19 && ppa: total lockup. No problem with 2.2.17
-Message-ID: <20010403173839.I9355@redhat.com>
-In-Reply-To: <20010330152921.Q10553@redhat.com> <Pine.LNX.4.21.0103310156530.23634-100000@ditec.um.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="y0Ed1hDcWxc3B7cn"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103310156530.23634-100000@ditec.um.es>; from piernas@ditec.um.es on Sat, Mar 31, 2001 at 01:59:39AM +0200
+	id <S132223AbRDCQl2>; Tue, 3 Apr 2001 12:41:28 -0400
+Received: from [212.17.18.2] ([212.17.18.2]:42769 "EHLO gw.ac-sw.com")
+	by vger.kernel.org with ESMTP id <S132194AbRDCQlO>;
+	Tue, 3 Apr 2001 12:41:14 -0400
+Message-Id: <200104031639.XAA32695@gw.ac-sw.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Perchine <dyp@perchine.com>
+To: linux-kernel@vger.kernel.org
+Subject: EATA driver with DPT SmartRAID V
+Date: Tue, 3 Apr 2001 23:38:12 +0700
+X-Mailer: KMail [version 1.2.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---y0Ed1hDcWxc3B7cn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I tried to make subj working on 2.4.2-ac28, but failed. Could you please give 
+me some advise about the situation.
 
-On Sat, Mar 31, 2001 at 01:59:39AM +0200, Juan Piernas Canovas wrote:
+pci shows:
 
-> Yes!!!. It works. I am happy now :-)
+  Bus  1, device   1, function  0:
+    PCI bridge: Distributed Processing Technology PCI Bridge (rev 2).
+      Master Capable.  Latency=64.  Min Gnt=3.
+  Bus  1, device   1, function  1:
+    I2O: Distributed Processing Technology SmartRAID V Controller (rev 2).
+      IRQ 24.
+      Master Capable.  Latency=64.  Min Gnt=1.Max Lat=1.
+      Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
 
-Unfortunately, the problem isn't solved, merely worked around.  We
-need to figure out why this is happening in the first place.
+When I try to modprobe driver I get:
 
-To recap, the system hangs completely when you load the ppa module.
+[root@axis /root]# modprobe eata
+/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: init_module: No such 
+deviceHint: insmod errors can be caused by incorrect module parameters, 
+including invalid IO or IRQ parameters
+/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: insmod 
+/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o failed
+/lib/modules/2.4.2-ac28/kernel/drivers/scsi/eata.o: insmod eata failed
 
-Are you using any special parport/ppa parameters?  Is this an SMP or a
-uniprocessor machine?  Come to that, which architecture is it?
+I tried also default settings provided in eata.c, but this does not help. 
 
-Are there any messages displayed to the console when the hang happens?
-If you could scatter some printks around (KERN_CRIT so they show up on
-the console) to figure out the example point at which it's hanging,
-that would be great.
+If anyone had a success with this device, please let me know.
 
-Thanks,
-Tim.
-*/
+Thanks in advance.
 
---y0Ed1hDcWxc3B7cn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+Sincerely Yours,
+Denis Perchine
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6yfyOONXnILZ4yVIRApwIAJ9qLRFg9xs1bffzJRwM0a9Rhol+iACZAeB0
-Mxm9npprNmTos0kc1Wq8uiY=
-=FSN/
------END PGP SIGNATURE-----
-
---y0Ed1hDcWxc3B7cn--
+----------------------------------
+E-Mail: dyp@perchine.com
+HomePage: http://www.perchine.com/dyp/
+FidoNet: 2:5000/120.5
+----------------------------------

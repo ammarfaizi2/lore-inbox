@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUJaVEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbUJaVFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbUJaVEq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUJaVEp
+	id S261435AbUJaVFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUJaVFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:04:45 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:46079 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261368AbUJaVEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:04:30 -0500
-Message-ID: <41855483.2090906@comcast.net>
-Date: Sun, 31 Oct 2004 13:09:23 -0800
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org> <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Oct 2004 16:05:49 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:55049 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261435AbUJaVFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:05:42 -0500
+Date: Sun, 31 Oct 2004 22:11:47 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 dies when starting X on radeon 9200 SE PCI
+Message-ID: <20041031211147.GA29351@hh.idb.hist.no>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+Linux 2.6.9 dies if I try to start x on my radeon 9200 SE pci card.
+The screen goes black, and there is no response from the keyboard.
+Sysrq doesn't work, I have to use the reset button.
 
-> FBUI does not have 3d acceleration?
+Running X with the same configuration is fine with linux 2.6.8.1.
 
-The problem is 3d non-acceleration i.e. VESA and VGA
-would still have to be supported. I'm no 3d expert but
-I think there must be some software-based 3d function
-would require using floating point, which isn't allowed
-in the kernel.
+There is also a matrox G550 AGP card in the machine, and I have compiled
+3D drivers for both cards.
 
-Also, might not software 3d open the kernel up to
-patent issues?
-
-Zachary Smith
+Helge Hafting

@@ -1,125 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUGNQ3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUGNQcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267436AbUGNQ3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUGNQ3z
+	id S267445AbUGNQcv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUGNQcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:29:55 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:13212 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267436AbUGNQ3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:29:50 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch]
-	Voluntary	Kernel	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>
-Cc: Takashi Iwai <tiwai@suse.de>, Andrew Morton <akpm@osdl.org>,
-       andrea@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1089816747.2789.14.camel@mindpipe>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <200407130001.i6D01pkJ003489@localhost.localdomain>
-	 <20040712170844.6bd01712.akpm@osdl.org>
-	 <20040713162539.GD974@dualathlon.random>
-	 <1089744137.20381.49.camel@mindpipe>
-	 <20040713142923.568fa35e.akpm@osdl.org>
-	 <1089755130.22175.21.camel@mindpipe> <s5hk6x79dk4.wl@alsa2.suse.de>
-	 <1089797791.2336.3.camel@mindpipe>  <s5hbriiamq9.wl@alsa2.suse.de>
-	 <1089816747.2789.14.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1089822589.2104.27.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 12:29:49 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 12:32:51 -0400
+Received: from core.ece.northwestern.edu ([129.105.5.1]:30864 "EHLO
+	core.ece.northwestern.edu") by vger.kernel.org with ESMTP
+	id S267445AbUGNQcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 12:32:45 -0400
+Message-ID: <1089822621.40f55f9dd4278@core.ece.northwestern.edu>
+Date: Wed, 14 Jul 2004 11:30:21 -0500
+From: lya755@ece.northwestern.edu
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about ramdisk
+References: <1089651469.40f2c30d44364@core.ece.northwestern.edu>  <ccugqu$tun$1@terminus.zytor.com>  <1089727279.40f3eb2f82a6c@core.ece.northwestern.edu>  <1089749203.22026.17.camel@mindpipe>  <1089753034.40f44fca074c2@core.ece.northwestern.edu> <1089753955.22175.8.camel@mindpipe> <1089817172.40f54a540e0c1@core.ece.northwestern.edu> <Pine.LNX.4.53.0407141154120.16363@chaos>
+In-Reply-To: <Pine.LNX.4.53.0407141154120.16363@chaos>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 138.15.107.179
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 10:52, Lee Revell wrote:
-> On Wed, 2004-07-14 at 06:48, Takashi Iwai wrote:
-> > At Wed, 14 Jul 2004 05:36:31 -0400,
-> > Lee Revell wrote:
-> > > 
-> > > On Wed, 2004-07-14 at 04:51, Takashi Iwai wrote:
-> > > > At Tue, 13 Jul 2004 17:45:30 -0400,
-> > > > Lee Revell wrote:
-> > > > > 
-> > > > > On Tue, 2004-07-13 at 17:29, Andrew Morton wrote:
-> > > > > > Lee Revell <rlrevell@joe-job.com> wrote:
-> > > > > > >
-> > > > > > > Would this explain these?  When running JACK with settings that need
-> > > > > > > sub-millisecond latencies, I get them when I generate any load at all on
-> > > > > > > the system (typing, switching windows, etc).  I also get lots of these
-> > > > > > > if I run JACK from an X terminal, but very few if I run it from a text
-> > > > > > > console, even if X is running in the background.
-> > > > > > > 
-> > > > > > > Jul 13 14:36:16 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:199: Unexpected hw_pointer value [1] (stream = 0, delta: -25, max jitter = 32): wrong interrupt acknowledge?
-> > > > > > 
-> > > > > > I'm wondering what this message actually means.  "Unexpected hw_pointer
-> > > > > > value"?
-> > > > > > 
-> > > > > > Does this actually indicate an underrun, or is the debug code screwy?
-> > > > > 
-> > > > > Not sure.  Here is what Takashi had to say about it:
-> > > > > 
-> > > > > "The message appears when an unexpected DMA pointer is read in the
-> > > > > interrupt handler.  Either the handling of irq was delayed more than
-> > > > > the buffer size, an irq is issued at the wrong timing, or the DMA
-> > > > > pointer reigster is somehow screwed up.
-> > > > > 
-> > > > > Since you're using quite small buffer, I guess the former case."
-> > > > > 
-> > > > > My response:
-> > > > > 
-> > > > > "I thought this was what an XRUN was, when the handling of the irq is
-> > > > > delayed more than the buffer size.  Sometimes these messages are
-> > > > > associated with XRUNs, sometimes not."
-> > > > > 
-> > > > > Haven't heard back yet. 
-> > > > > 
-> > > > > Is it possible that I am simply pushing my hardware past its limits? 
-> > > > > Keep in mind this is a 600Mhz C3 processor.
-> > > > 
-> > > > I think yes.  32 frames / 44.1kHz = 0.725 ms.
-> > > > 
-> > > 
-> > > I am runnign at 48kHz so it's actually 0.666 ms.  But, the average
-> > > response is quite good, 20-30 microseconds.  The spikes are infrequent
-> > > enought that I think this is achievable.  If not then 64 frames
-> > > definitely is.
-> > > 
-> > > So what is the difference between the above essage and an XRUN?  I
-> > > thought an XRUN occurred when the handling of the IRQ is delayed more
-> > > than the buffer size.
-> > 
-> > Yes, XRUN is so.
-> > 
-> > The message above is not directly related with XRUN.
-> > It appears when an unexpected DMA pointer is returned.  This can
-> > happen e.g. when the irq handler is called at the wrong timing,
-> > or the register returns a bogus value.
-> > 
+Thanks so much for the hint! Really appreciate it. I'll try out your 
+suggestions.
+
+I am still a bit confused, though. If the code is in ramdisk, then it will be 
+mapped to the process address space, which as I understand, does not involve 
+any actual data copy and transfer. This sounds very reasonable. But what if 
+the code is in hard disk? Would the kernel copy it to memory (somewhere 
+allocated) then map this region as the text section for the address space, and 
+then run the instructions from ram? That's the way I understand it, but I 
+don't know whether that is correct.
+
+Thanks!
+Lei
+
+Quoting "Richard B. Johnson" <root@chaos.analogic.com>:
+
+> On Wed, 14 Jul 2004 lya755@ece.northwestern.edu wrote:
 > 
-> I am still kind of confused.  It sounds like this is more serious than
-> an XRUN.  What would cause this to happen?
+> > Hello,
+> >
+> > I am now thinking of a way to verify what H. Peter Anvin says about the
+> > ramdisk, so that I can watch what is going on when the executable is
+> running.
+> > Is there any way to achieve that besides kernel debugging? I don't really
+> want
+> > to debug the kernel for now.
+> >
+> > Can I get the physical address of the text section with it's virtual
+> address?
+> > If I can know the physical address of the code in ramdisk and can know the
+> > physical address of the text section of process address space, maybe this
+> can
+> > be done.
+> >
+> > Any suggestions?
+> >
+> > Lei
+> >
+> 
+> The physical address will do you no good because your process
+> uses the virtual address to access everything.
+> 
+> Do `cat /proc/PID/maps` where PID is a process ID number. You
+> will see the virtual address of the executable and runtime
+> shared libraries that the task is using. These are memory-mapped
+> into the tasks address-space.
+> 
+> If your code is ANYWHERE, including on a RAM-Disk, it will
+> be memory-mapped into your address-space just like what you
+> see. This allows everybody to share all the executables and
+> all the run-time libraries so they don't need separate copies.
+> 
+> For instance, here's somebody running the `bash` shell:
+> 
+> 08048000-0808c000 r-xp 00000000 08:11 1440929    /usr/bin/bash
+> 0808c000-08092000 rw-p 00043000 08:11 1440929    /usr/bin/bash
+> 08092000-080a2000 rwxp 00000000 00:00 0
+> 40000000-4000a000 r-xp 00000000 08:11 475506     /usr/lib/ld-2.0.5.so
+> 4000a000-4000b000 rw-p 00009000 08:11 475506     /usr/lib/ld-2.0.5.so
+> 4000b000-4000c000 rwxp 00000000 00:00 0
+> 4000c000-40010000 r--p 00000000 08:11 163651     /etc/ld.so.cache
+> 40010000-40012000 rwxp 00000000 08:11 1030227    /lib/libtermcap.so.2.0.8
+> 40012000-40014000 rw-p 00001000 08:11 1030227    /lib/libtermcap.so.2.0.8
+> 40014000-4009f000 r-xp 00000000 08:11 475508     /usr/lib/libc-2.0.6.so
+> 4009f000-400a5000 rw-p 0008b000 08:11 475508     /usr/lib/libc-2.0.6.so
+> [SNIPPED...]
+> 
+> You can see the virtual address of your own stuff by compiling
+> and executing this:
+> 
+> #include <stdio.h>
+> extern char _start;
+> extern char _end;
+> char dat;
+> const char x[]="x";
+> 
+> int main()
+> {
+>     char foo;
+>     printf("start = %p\n", &_start);
+>     printf(" main = %p\n", main);
+>     printf(" data = %p\n", &dat);
+>     printf("const = %p\n", x);
+>     printf("stack = %p\n", &foo);
+>     printf("  end = %p\n", &_end);
+>     return 0;
+> }
+> 
+> The physical address in RAM could be anywhere. The kernel takes
+> pages of RAM from anywhere and makes them look contiguous for
+> each task. So what looks like linear address-space is made up
+> of (on ix86 0x1000 byte) pages of RAM.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-OK, I think I understand the distinction.  An XRUN is when a process is
-writing (or reading) to a PCM device, the buffer half empty interrupt
-occurs, and the interrupt handler runs, which makes the process ready to
-run, but the scheduler does not run it in time to write the next block
-of data to the buffer.
 
-The "Unexpected hw_pointer" error would occur when the device generates
-an interrupt, but there is a delay in running the interrupt handler, and
-by the time the interrupt handler runs, the hardware pointer has moved
-somewhere we don't expect it to be.  This would occur if we missed an
-interrupt, or several, due to interrupts being disabled for longer than
-the period size.  So the distinction is scheduler latency vs. interrupt
-response latency.
 
-What is the longest that the kernel disables interrupts?  I remember
-hearing 500 microseconds, but this was a while back.
-
-Lee
-
+_________________________________________________________
+This message was sent through the NU ECE webmail gateway.

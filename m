@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136967AbREJW3U>; Thu, 10 May 2001 18:29:20 -0400
+	id <S136974AbREJWje>; Thu, 10 May 2001 18:39:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136968AbREJW3K>; Thu, 10 May 2001 18:29:10 -0400
-Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:40174 "EHLO
-	tetsuo.applianceware.com") by vger.kernel.org with ESMTP
-	id <S136967AbREJW3F>; Thu, 10 May 2001 18:29:05 -0400
-Date: Thu, 10 May 2001 15:25:30 -0700
-From: Mike Panetta <mpanetta@applianceware.com>
+	id <S136975AbREJWjZ>; Thu, 10 May 2001 18:39:25 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10259 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136974AbREJWjM>; Thu, 10 May 2001 18:39:12 -0400
 To: linux-kernel@vger.kernel.org
-Subject: ACPI broken in 2.4.4-ac6
-Message-ID: <20010510152530.B12281@tetsuo.applianceware.com>
-Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ApplianceWare
-X-Mailer: mutt (ruff!  ruff!)
+From: hpa@transmeta.com (H. Peter Anvin)
+Subject: Re: Not a typewriter
+Date: 10 May 2001 15:38:32 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9df598$8d1$1@tazenda.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1010510173138.29690A-100000@chaos.analogic.com>
+Reply-To: hpa@transmeta.com (H. Peter Anvin)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI seems to be broken on 2.4.4-ac6 or atleast
-poweroff is broken.  During bootup all ACPI
-prints is that it was enabled, it used to
-(in plain jane 2.4.4) print the sleep levels
-supported by the bios but does not in ac6.
+Followup to:  <Pine.LNX.3.95.1010510173138.29690A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
+> 
+> I noticed that my favorite "errno" has now gotten trashed by
+> the newer 'C' runtime libraries.
+> 
+> ENOTTY has been for ages, "Not a typewriter".
+> It's now been changed to "Inappropriate ioctl for device".
+> 
+> Methinks that this means that ../linux/include/asm/errno.h now needs
+> to be updated:
+> 
+> 
+> -#define	ENOTTY		25	/* Not a typewriter */
+> +#define	ENOTTY		25	/* Inappropriate ioctl for device 
+> */
+> 
+> None of these strings are in the kernel, but the headers probably should
+> show the "latest standard".
+> 
 
-What could be the cause?
+Sounds like someone has just clarified what the heck it means.  "tty"
+and "typewriter" aren't exactly the same thing (even though "tty"
+stands for "teletypewriter" it has come to mean something completely
+different in a Unix context)... "not a typewriter" is just a
+completely confusing error message for the uninitiated.
 
-Thanks,
-Mike
+	-hpa
 -- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135931AbRDZVBs>; Thu, 26 Apr 2001 17:01:48 -0400
+	id <S135921AbRDZVBs>; Thu, 26 Apr 2001 17:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135936AbRDZVA4>; Thu, 26 Apr 2001 17:00:56 -0400
+	id <S135931AbRDZVAz>; Thu, 26 Apr 2001 17:00:55 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:128 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S135922AbRDZU7j>;
-	Thu, 26 Apr 2001 16:59:39 -0400
-Date: Thu, 26 Apr 2001 22:21:44 +0200
+	by vger.kernel.org with ESMTP id <S135940AbRDZU77>;
+	Thu, 26 Apr 2001 16:59:59 -0400
+Date: Thu, 26 Apr 2001 22:11:09 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010426222144.G819@athlon.random>
-In-Reply-To: <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu> <Pine.LNX.4.31.0104261303030.1118-100000@penguin.transmeta.com>
+Message-ID: <20010426221109.E819@athlon.random>
+In-Reply-To: <20010426214444.B819@athlon.random> <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0104261303030.1118-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Apr 26, 2001 at 01:08:25PM -0700
+In-Reply-To: <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Apr 26, 2001 at 03:55:19PM -0400
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 01:08:25PM -0700, Linus Torvalds wrote:
-> But the fact is that nobody should ever do the thing that could cause
-> problems.
+On Thu, Apr 26, 2001 at 03:55:19PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
+> 
+> > On Thu, Apr 26, 2001 at 03:34:00PM -0400, Alexander Viro wrote:
+> > > Same scenario, but with read-in-progress started before we do getblk(). BTW,
+> > 
+> > how can the read in progress see a branch that we didn't spliced yet? We
+> 
+> fd = open("/dev/hda1", O_RDONLY);
+> read(fd, buf, sizeof(buf));
 
-dump in 2.4 also gets uncoherent view of the data which make things even
-worse than in 2.2 (to change that we should hash in the buffer hashtable
-all the bh overlapped in the pagecache and no I'm not suggesting that
-relax). The only reason it has a chance to work with ext2 is because
-ext2 is very dumb and it misses an inode map and in turn inodes are at a
-predictable location on disk so it cannot run totally out of control.
+You misunderstood the context of what I said, I perfectly know the race
+you are talking about, I was answering Linus's question "the
+wait_on_buffer isn't even necessary to protect ext2 against ext2". You
+are talking about the other race that is "ext2" against "block_dev", and
+I obviously agree on that one since the first place as I immediatly
+answered you "correct".
+
+What I'm saying above is that even without the wait_on_buffer ext2 can
+screwup itself because the splice happens after the buffer are just all
+uptodate so any "reader" (I mean any reader through ext2 not through
+block_dev) will never try to do a bread on that blocks before they're
+just zeroed and uptodate.
 
 Andrea

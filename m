@@ -1,83 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUJJJMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUJJJXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267507AbUJJJMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 05:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUJJJMW
+	id S268212AbUJJJXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 05:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUJJJXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 05:12:22 -0400
-Received: from poulet.zoy.org ([80.65.228.129]:31671 "EHLO poulet.zoy.org")
-	by vger.kernel.org with ESMTP id S267507AbUJJJMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 05:12:19 -0400
-Date: Sun, 10 Oct 2004 11:12:18 +0200
-From: Sam Hocevar <sam@zoy.org>
-To: "Yoshinori K. Okuji" <okuji@gnu.org>
-Cc: linux-kernel@vger.kernel.org, videolan@videolan.org
-Subject: Re: possible GPL violation by Free
-Message-ID: <20041010091215.GD1750@zoy.org>
-References: <200410091958.25251.okuji@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410091958.25251.okuji@gnu.org>
-Mail-Copies-To: never
-X-No-CC: I read mailing-lists; do not CC me on replies.
-X-Snort: uid=0(root) gid=0(root)
-User-Agent: Mutt/1.5.4i
+	Sun, 10 Oct 2004 05:23:39 -0400
+Received: from fep03fe.ttnet.net.tr ([212.156.4.134]:17619 "EHLO
+	fep03.ttnet.net.tr") by vger.kernel.org with ESMTP id S268212AbUJJJXf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 05:23:35 -0400
+Message-ID: <4168FF34.2080007@ttnet.net.tr>
+Date: Sun, 10 Oct 2004 12:21:56 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: marcelo.tosatti@cyclades.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.28-pre4] e1000 driver, gcc-3.4 inlining fix
+Content-Type: multipart/mixed;
+	boundary="------------030306030204000800040607"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004, Yoshinori K. Okuji wrote:
+This is a multi-part message in MIME format.
+--------------030306030204000800040607
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
 
-> I got information about a possible GPL violation in France. A network
-> service company called "Free" provides a kind of ADSL modem named
-> "Freebox". This "Freebox" is not only an ADSL modem but also has
-> functions of a router, an IP phone and a TV, using video streaming via
-> ATM. Although the "Freebox" does not contain any information about GPL,
-> a rumor says that this runs Linux as the kernel and VideoLAN for the
-> video streaming.
+Marcelo:
+The changes to e1000_main.c introduced in -pre4 via the cset:
+"e1000 - white space corrections, other cleanups" results in
+the compiler failure below:
 
-   The Freebox does not run VideoLAN software but has a built-in
-hardware MPEG-2 decoder. Free uses VideoLAN software to stream video,
-but this is internal use and perfectly complies with the GPL. I may add
-that a VideoLAN developer works for Free and still commits code into the
-SVN repository, which he is not required to do.
+e1000_main.c: In function `e1000_up':
+e1000_main.c:132: sorry, unimplemented: inlining failed in call to 
+'e1000_irq_enable': function body not available
+e1000_main.c:277: sorry, unimplemented: called from here
 
-   If there is a problem here, it looks like a problem with Linux (and
-probably GNU) only.
+The attached patch, taken from 2.6, fixes it.
 
-> And, this company does not provide the source code
-> even to those who have Freeboxes. I don't know any other software used
-> in Freebox, but at least Linux and VideoLAN are under the term of GPL.
-> This information seems to be given by anonymous people working for the
-> company.
-> 
-> The company Free reasons that they don't need to make the source code
-> available, because they don't sell Freebox but merely _rents_ Freebox
-> to customers. So the company thinks that customers do not own Freebox
-> legally, and so they have no right to claim that they can ask the
-> source code.
+Ozkan Sezer
 
-   Do you have a reference to an official statement for this? A lot of
-companies are rumoured to say a lot of things, and you should really
-cautiously check your facts. If this is indeed they reasoning, it
-impugns the general GPL interpretation that renting a piece of hardware
-is distribution of the software therein.
 
-   To carefully verify this, you need to have a Freebox user ask
-Free for the Linux source code. No one else is entitled to do it.
-Maybe you could even find a Linux developer who has a Freebox and did
-contributions to the kernel significant enough that they must be in the
-Freebox.
+--------------030306030204000800040607
+Content-Type: text/plain;
+	name="e1000_gcc34.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="e1000_gcc34.diff"
 
-   If Free is using an unmodified kernel, they are already providing
-the sources for it (ftp://ftp.free.fr/pub/linux/kernel/). If they are
-using a modified version of the kernel, then they should be asked for
-the source. If anyone is going to do this, please be diplomatic, and
-try to rely on facts rather than Internet rumours. I would hate to see
-Free exasperated by Slashdot morons and deciding not to contribute to
-VideoLAN any longer.
+--- 28p4/drivers/net/e1000/e1000_main.c.BAK	2004-10-09 14:45:37.000000000 +0300
++++ 28p4/drivers/net/e1000/e1000_main.c	2004-10-10 12:15:15.000000000 +0300
+@@ -128,8 +128,8 @@
+ static struct net_device_stats * e1000_get_stats(struct net_device *netdev);
+ static int e1000_change_mtu(struct net_device *netdev, int new_mtu);
+ static int e1000_set_mac(struct net_device *netdev, void *p);
+-static inline void e1000_irq_disable(struct e1000_adapter *adapter);
+-static inline void e1000_irq_enable(struct e1000_adapter *adapter);
++static void e1000_irq_disable(struct e1000_adapter *adapter);
++static void e1000_irq_enable(struct e1000_adapter *adapter);
+ static irqreturn_t e1000_intr(int irq, void *data, struct pt_regs *regs);
+ static boolean_t e1000_clean_tx_irq(struct e1000_adapter *adapter);
+ #ifdef CONFIG_E1000_NAPI
+@@ -146,9 +146,9 @@
+ void set_ethtool_ops(struct net_device *netdev);
+ static void e1000_enter_82542_rst(struct e1000_adapter *adapter);
+ static void e1000_leave_82542_rst(struct e1000_adapter *adapter);
+-static inline void e1000_rx_checksum(struct e1000_adapter *adapter,
+-                                     struct e1000_rx_desc *rx_desc,
+-                                     struct sk_buff *skb);
++static void e1000_rx_checksum(struct e1000_adapter *adapter,
++                              struct e1000_rx_desc *rx_desc,
++                              struct sk_buff *skb);
+ static void e1000_tx_timeout(struct net_device *dev);
+ static void e1000_tx_timeout_task(struct net_device *dev);
+ static void e1000_smartspeed(struct e1000_adapter *adapter);
+@@ -2063,7 +2063,7 @@
+  * @adapter: board private structure
+  **/
+ 
+-static inline void
++static void
+ e1000_irq_disable(struct e1000_adapter *adapter)
+ {
+ 	atomic_inc(&adapter->irq_sem);
+@@ -2077,7 +2077,7 @@
+  * @adapter: board private structure
+  **/
+ 
+-static inline void
++static void
+ e1000_irq_enable(struct e1000_adapter *adapter)
+ {
+ 	if(likely(atomic_dec_and_test(&adapter->irq_sem))) {
+@@ -2582,7 +2582,7 @@
+  * @sk_buff: socket buffer with received data
+  **/
+ 
+-static inline void
++static void
+ e1000_rx_checksum(struct e1000_adapter *adapter,
+                   struct e1000_rx_desc *rx_desc,
+                   struct sk_buff *skb)
 
-Regards,
--- 
-Sam. <http://sam.zoy.org/>
+--------------030306030204000800040607--

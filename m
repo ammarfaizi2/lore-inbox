@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSLURgy>; Sat, 21 Dec 2002 12:36:54 -0500
+	id <S262425AbSLURim>; Sat, 21 Dec 2002 12:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSLURgy>; Sat, 21 Dec 2002 12:36:54 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:35521 "EHLO
+	id <S262449AbSLURim>; Sat, 21 Dec 2002 12:38:42 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:46530 "EHLO
 	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262266AbSLURgw>; Sat, 21 Dec 2002 12:36:52 -0500
-Date: Sat, 21 Dec 2002 18:45:14 +0100
+	id <S262425AbSLURii>; Sat, 21 Dec 2002 12:38:38 -0500
+Date: Sat, 21 Dec 2002 18:47:13 +0100
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org
-Subject: [PATCH 2.5] cpufreq: x86 tsc cpufreq notifier
-Message-ID: <20021221174514.GB1149@brodo.de>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: [PATCH 2.5] cpufreq: x86 per-CPU loops_per_jiffy notifier
+Message-ID: <20021221174713.GC1149@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,95 +19,72 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fast_gettimeoffset_quotient and the cpu_khz values should only be
-updated on UP -- on SMP, these values might be different for each CPU, so
-using the default values obtained at boot time should be safest.
-Additionally, to get rid of accumulating rounding errors, reference values
-are saved.
-cpu_data[cpu].loops_per_jiffy is independent of the TSC and will be changed
-in a different cpufreq notifier instead.
-
+The per-CPU loops_per_jiffy value should be adjusted on frequency transitions.
+To get rid of accumulating rounding errors, some reference values are
+stored.
 
 	Dominik
 
-diff -ruN linux-original/arch/i386/kernel/timers/timer_tsc.c linux/arch/i386/kernel/timers/timer_tsc.c
---- linux-original/arch/i386/kernel/timers/timer_tsc.c	2002-12-21 14:53:44.000000000 +0100
-+++ linux/arch/i386/kernel/timers/timer_tsc.c	2002-12-21 18:22:12.000000000 +0100
-@@ -186,45 +186,45 @@
+diff -ruN linux-original/arch/i386/kernel/cpu/common.c linux/arch/i386/kernel/cpu/common.c
+--- linux-original/arch/i386/kernel/cpu/common.c	2002-12-21 14:53:44.000000000 +0100
++++ linux/arch/i386/kernel/cpu/common.c	2002-12-21 18:34:34.000000000 +0100
+@@ -1,5 +1,7 @@
+ #include <linux/init.h>
+ #include <linux/string.h>
++#include <linux/cpufreq.h>
++#include <linux/notifier.h>
+ #include <linux/delay.h>
+ #include <linux/smp.h>
+ #include <asm/semaphore.h>
+@@ -61,6 +63,41 @@
+ #endif
+ __setup("notsc", tsc_setup);
  
- #ifdef CONFIG_CPU_FREQ
- 
-+static unsigned long fast_gettimeoffset_ref = 0;
-+static unsigned long cpu_khz_ref = 0;
++#ifdef CONFIG_CPU_FREQ
++static unsigned long loops_per_jiffy_ref = 0;
 +static unsigned int  ref_freq = 0;
 +
- static int
--time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
-+tsc_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
- 		       void *data)
- {
- 	struct cpufreq_freqs *freq = data;
--	unsigned int i;
- 
--	if (!cpu_has_tsc)
-+	if (!use_tsc)
- 		return 0;
- 
-+	if (!fast_gettimeoffset_ref) {
-+		fast_gettimeoffset_ref = fast_gettimeoffset_quotient;
-+		cpu_khz_ref = cpu_khz;
++static int
++loops_per_jiffy_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
++				       void *data)
++{
++	struct cpufreq_freqs *freq = data;
++
++	if (!loops_per_jiffy_ref) {
++		loops_per_jiffy_ref = cpu_data[freq->cpu].loops_per_jiffy;
 +		ref_freq = freq->old;
 +	}
 +
- 	switch (val) {
- 	case CPUFREQ_PRECHANGE:
--		if ((freq->old < freq->new) &&
--		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
--			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
--		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
-+		if (freq->old < freq->new) {
-+		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
-+		        cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
- 		}
--		for (i=0; i<NR_CPUS; i++)
--			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
--				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
- 		break;
--
- 	case CPUFREQ_POSTCHANGE:
--		if ((freq->new < freq->old) &&
--		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
--			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
--		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
-+		if (freq->new < freq->old) {
-+		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
-+		        cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
- 		}
--		for (i=0; i<NR_CPUS; i++)
--			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
--				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
- 		break;
++	switch (val) {
++	case CPUFREQ_PRECHANGE:
++		if (freq->old < freq->new)
++		        cpu_data[freq->cpu].loops_per_jiffy = cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
++		break;
++	case CPUFREQ_POSTCHANGE:
++		if (freq->new < freq->old)
++		        cpu_data[freq->cpu].loops_per_jiffy = cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
++		break;
++	}
++
++	return 0;
++}
++
++static struct notifier_block loops_per_jiffy_cpufreq_notifier_block = {
++	.notifier_call	= loops_per_jiffy_cpufreq_notifier
++};
++#endif
++
++
+ int __init get_model_name(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int *v;
+@@ -350,6 +387,9 @@
+ 		for ( i = 0 ; i < NCAPINTS ; i++ )
+ 			boot_cpu_data.x86_capability[i] &= c->x86_capability[i];
  	}
++	if (c == &boot_cpu_data) {
++			cpufreq_register_notifier(&loops_per_jiffy_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
++	}
  
- 	return 0;
- }
- 
--static struct notifier_block time_cpufreq_notifier_block = {
--	.notifier_call	= time_cpufreq_notifier
-+static struct notifier_block tsc_cpufreq_notifier_block = {
-+	.notifier_call	= tsc_cpufreq_notifier
- };
- #endif
- 
-@@ -278,8 +278,8 @@
- 	                	"0" (eax), "1" (edx));
- 				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
- 			}
--#ifdef CONFIG_CPU_FREQ
--			cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
-+#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_UP)
-+			cpufreq_register_notifier(&tsc_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
- #endif
- 			return 0;
- 		}
-
+ 	printk(KERN_DEBUG "CPU:             Common caps: %08lx %08lx %08lx %08lx\n",
+ 	       boot_cpu_data.x86_capability[0],

@@ -1,69 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263267AbTJ0PQF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 10:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJ0PQF
+	id S263281AbTJ0PUf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 10:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTJ0PUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 10:16:05 -0500
-Received: from msgdirector3.onetel.net.uk ([212.67.96.159]:42317 "EHLO
-	msgdirector3.onetel.net.uk") by vger.kernel.org with ESMTP
-	id S263267AbTJ0PPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 10:15:52 -0500
-Message-ID: <3F9D3643.9030400@tungstengraphics.com>
-Date: Mon, 27 Oct 2003 15:14:11 +0000
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Egbert Eich <eich@xfree86.org>,
-       Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
-       kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-References: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org> <3F9ACC58.5010707@pobox.com>
-In-Reply-To: <3F9ACC58.5010707@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Oct 2003 10:20:35 -0500
+Received: from [212.97.163.22] ([212.97.163.22]:33004 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263281AbTJ0PUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 10:20:22 -0500
+Date: Mon, 27 Oct 2003 16:20:01 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
+Message-ID: <20031027152001.GC27333@werewolf.able.es>
+References: <200310221855.15925.theman@josephdwagner.info> <20031023230542.GC2084@werewolf.able.es> <200310241301.41230.ioe-lkml@rameria.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200310241301.41230.ioe-lkml@rameria.de> (from ioe-lkml@rameria.de on Fri, Oct 24, 2003 at 13:01:41 +0200)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Linus Torvalds wrote:
+
+On 10.24, Ingo Oeser wrote:
+> Hi James,
 > 
->> Quite frankly, I'd much rather see a low-level graphics driver that does
->> _two_ things, and those things only:
->>
->>  - basic hardware enumeration and setup (and no, "basic setup" does not
->>    mean "mode switching": it literally means things like doing the    
->> pci_enable_device() stuff.
->>
->>  - serialization and arbitrary command queuing from a _trusted_ party (ie
->>    it could take command lists from the X server, but not from untrusted
->>    clients). This part basically boils down to "DMA and interrupts". 
->> This    is the part that allows others to wait for command completion, 
->> "enough    space in the ring buffers" etc. But it does _not_ know or 
->> care what the    commands are.
+> On Friday 24 October 2003 01:05, J.A. Magallon wrote:
+> > There are some other specific code that could be used in the kernel,
+> > for example mb() and so on can be implemented with {m,s,l}fence in p3/p4
+> > processors, instead of the old 'lock; insn' (attached also).
 > 
+> The sfence part might be ok (modulo errata not known to me), but
+> replacing "This Barrier not needed on x86" with an instruction means,
+> that either these instructions are NOPs or we have a real BUG there.
 > 
-> Thank you for saying it.  This is what I have been preaching (quietly) 
-> for years -- command submission and synchronization (and thus, DMA/irq 
-> handling) needs to be in the kernel.  Everything else can be in 
-> userspace (excluding hardware enable/enumerate, of course).
+> Not using these mfence and lfence insn would mean less instructions,
+> which is a good kernel optimization anyway ;-)
+> 
+> Puzzled
+> 
 
-To enable secure direct rendering on current hardware (ie without secure 
-command submission mechanisms), you need command valididation somewhere.  This 
-could be a layer on top of the minimal dma engine Linus describes.
+Patch inlined. Credits should go to Zwane Mwaikambo <zwane@linux.realnet.co.sz>.
+It adds the corresponding flags for PII) and P4, and in case thei are defined,
+the *fence insn are used.
 
-> Graphics processors are growing more general, too -- moving towards 
-> generic vector/data processing engines.  I bet you'll see an optimal 
-> model emerge where you have some sort of "JIT" for GPU microcode in 
-> userspace.  
+Included is also one other patch by Zwane, which states that smp_call_function
+needs mb() instead of wmb().
 
-You mean like the programmable fragment and vertex hardware that has been in 
-use for a couple of years now?
+I use them regularly, so they look safe. Are they really better ? At least they
+do not touch any register, like the trick used till now.
 
-Keith
+22-x86-mb:
 
+--- linux-2.4.21-pre5-jam1/arch/i386/config.in.orig	2003-03-07 03:50:19.000000000 +0100
++++ linux-2.4.21-pre5-jam1/arch/i386/config.in	2003-03-07 03:50:47.000000000 +0100
+@@ -113,6 +113,7 @@
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
++   define_bool CONFIG_X86_SFENCE y
+ fi
+ if [ "$CONFIG_MPENTIUM4" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 7
+@@ -121,6 +122,9 @@
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
++   define_bool CONFIG_X86_SFENCE y
++   define_bool CONFIG_X86_LFENCE y
++   define_bool CONFIG_X86_MFENCE y
+ fi
+ if [ "$CONFIG_MK6" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+--- linux-2.4.21-pre5-jam1/include/asm-i386/system.h.orig	2003-03-07 03:51:31.000000000 +0100
++++ linux-2.4.21-pre5-jam1/include/asm-i386/system.h	2003-03-07 03:51:40.000000000 +0100
+@@ -290,16 +290,33 @@
+  *
+  * Some non intel clones support out of order store. wmb() ceases to be a
+  * nop for these.
++ *
++ * Pentium III introduced the SFENCE instruction for serialising all store
++ * operations, Pentium IV further introduced LFENCE and MFENCE for load and
++ * memory barriers respecively.
+  */
+- 
++
++#ifdef CONFIG_X86_MFENCE
++#define mb()	__asm__ __volatile__ ("mfence": : :"memory")
++#else
+ #define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
++#endif
++
++#ifdef CONFIG_X86_LFENCE
++#define rmb()	__asm__ __volatile__ ("lfence": : :"memory")
++#else
+ #define rmb()	mb()
++#endif
+ 
++#ifdef CONFIG_X86_SFENCE
++#define wmb()	__asm__ __volatile__ ("sfence": : :"memory")
++#else
+ #ifdef CONFIG_X86_OOSTORE
+ #define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+ #else
+ #define wmb()	__asm__ __volatile__ ("": : :"memory")
+ #endif
++#endif /* CONFIG_X86_SFENCE */
+ 
+ #ifdef CONFIG_SMP
+ #define smp_mb()	mb()
+
+009-smp-call-mb:
+
+diff -u -p -B -r1.2 smp.c
+--- linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:11 -0000	1.2
++++ linux-2.4.20/arch/i386/kernel/smp.c	11 Apr 2003 13:44:27 -0000
+@@ -553,7 +553,7 @@ int smp_call_function (void (*func) (voi
+ 
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+-	wmb();
++	mb();
+ 	/* Send a message to all other CPUs and wait for them to respond */
+ 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+ 
+
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre8-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))

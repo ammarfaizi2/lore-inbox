@@ -1,50 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbTBGCWQ>; Thu, 6 Feb 2003 21:22:16 -0500
+	id <S267424AbTBGDul>; Thu, 6 Feb 2003 22:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267407AbTBGCWQ>; Thu, 6 Feb 2003 21:22:16 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:56653 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S267387AbTBGCWQ>;
-	Thu, 6 Feb 2003 21:22:16 -0500
-Date: Thu, 6 Feb 2003 18:25:02 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: James Bottomley <James.Bottomley@steeleye.com>, mikeand@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
-Message-ID: <20030206182502.A16364@beaverton.ibm.com>
-References: <20030203233156.39be7770.akpm@digeo.com><167540000.1044346173@[10.10.2.4]> <20030204001709.5e2942e8.akpm@digeo.com><384960000.1044396931@flay> <211570000.1044508407@[10.10.2.4]> <265170000.1044564655@[10.10.2.4]> <275930000.1044570608@[10.10.2.4]> <1044573927.2332.100.camel@mulgrave> <20030206172434.A15559@beaverton.ibm.com> <293060000.1044583265@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <293060000.1044583265@[10.10.2.4]>; from mbligh@aracnet.com on Thu, Feb 06, 2003 at 06:01:06PM -0800
+	id <S267426AbTBGDul>; Thu, 6 Feb 2003 22:50:41 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:4246 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S267424AbTBGDuk>; Thu, 6 Feb 2003 22:50:40 -0500
+Date: Fri, 07 Feb 2003 16:57:22 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [ACPI] Re: [PATCH] s4bios for 2.5.59 + apci-20030123
+In-reply-to: <20030206210542.GW1205@poup.poupinou.org>
+To: Ducrot Bruno <ducrot@poupinou.org>
+Cc: Pavel Machek <pavel@ucw.cz>, "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Swsusp <swsusp@lister.fornax.hu>
+Message-id: <1044590241.1649.41.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <F760B14C9561B941B89469F59BA3A847137FFE@orsmsx401.jf.intel.com>
+ <20030204221003.GA250@elf.ucw.cz>
+ <1044477704.1648.19.camel@laptop-linux.cunninghams>
+ <20030206101645.GO1205@poup.poupinou.org>
+ <1044560486.1700.13.camel@laptop-linux.cunninghams>
+ <20030206210542.GW1205@poup.poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 06, 2003 at 06:01:06PM -0800, Martin J. Bligh wrote:
+On Fri, 2003-02-07 at 10:05, Ducrot Bruno wrote:
+> On Fri, Feb 07, 2003 at 08:41:27AM +1300, Nigel Cunningham wrote:
+> > Sorry. Perhaps I should have been clearer. I haven't spent a lot of time
+> > doing timings, but there doesn't seem to be any significant difference.
+> > In both versions, the amount of time varies with the amount of memory in
 > 
-> Curious. I've no idea why the changes brought this out then ... I've done
-> hundreds and hundreds of reboots on 2.5 on all sorts of different kernels,
-> and never, ever seen this. Yet in 2.5.59-bk I see it every single time.
-> Very odd.
-> 
-> M.
+> Ah ok.  I understand now.  S4bios is completely different from swsusp.
+> It's just as if we were comparing APM suspend-to-disk and swsusp (and no, S4bios
+> is *not* APM suspend-to-disk either).
 
-Okay:
+FWIW, here are the results of some tests, timing
+2.4.21-pre3+acpi20030125+swsusp-beta18:
 
-There were some bk scsi changes that ignored the queue depth (qlogicisp
-sets them all to one). 
+Machine 1: Celeron 933 laptop 17MB/s disk throughput, 128MB RAM
+Machine 2: Duron 700 desktop, 30MB/s disk throughput, 320MB RAM
 
-Current bk (I just pulled and checked) has a fix, the cleaner shinier 
-better scsi_lib.c scsi_request_fn now has this code:
+Algorithm 1: Eat as much memory as possible, save remaining in one set
+of pages
+Algorithm 2: Save memory in two pages, only eating memory if necessary.
 
-	if (sdev->device_busy >= sdev->queue_depth)
-		break;
+Same code base, just different parameters to /proc/sys/kernel/swsusp.
+This means that the result for algorithm 1 are exactly the same as
+Pavel's code, but should give some idea.
 
-So the oops has to do with the isp handling multiple requests in a row or
-in quick succession.
+Columns:
+(1) Machine
+(2) Algorithm
+(3) Initial # pages free
+(4) Image size written to disk
+(5) Approximate time taken (date command run on other computer at same
+time as pressing enter to start command, then when computer restarts)
 
-Hopefully going to the latest bk will fix your oops.
+1  2  3           4     5
+---------------------------------
+1  1  25655/30592  1562 0:07
+1  2  26246/30592  4302 0:05
+1  1   1005/30592  5165 0:20
+1  2    900/30592 30126 0:16
+2  1  38604/79755     ? 0:49
+2  2  39122/79755 30398 0:21
+2  1   1113/79755     ? 0:50
+2  2   1109/79755 82149 0:40
 
--- Patrick Mansfield
+The question marks are because the desktop machine didn't successfully
+resume using this algorithm, so stats weren't logged (probably driver
+problems).
+
+In each case, the new method is slightly faster than the old, so we don't seem to loose anything.
+Particularly interesting to me was the fact that the gain was not as
+high as we might expect when the memory was heavily used. I guess the
+amount of I/O is getting to the point where benefits from not eating
+pages are being erroded. It would be interesting to see if a machine
+with more memory readed a point where it was faster to eat the memory
+instead of write it.
+
+Hope this is helpful.
+
+Nigel
+

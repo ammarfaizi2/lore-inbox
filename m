@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUHTIUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267856AbUHTIV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUHTIUk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUHTIUj
+	id S267856AbUHTIV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUHTIU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:20:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40352 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264278AbUHTISz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:18:55 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: hari@in.ibm.com, suparna@in.ibm.com, fastboot@osdl.org, litke@us.ibm.com,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [Fastboot] Re: [RFC]Kexec based crash dumping
-References: <20040817120239.GA3916@in.ibm.com>
-	<20040817154436.529ba9f6.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Aug 2004 02:17:35 -0600
-In-Reply-To: <20040817154436.529ba9f6.akpm@osdl.org>
-Message-ID: <m1isbe8bq8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Fri, 20 Aug 2004 04:20:58 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:50949 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267810AbUHTIUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:20:33 -0400
+Message-ID: <4125B539.6040402@hist.no>
+Date: Fri, 20 Aug 2004 10:24:25 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nigel Rantor <wiggly@wiggly.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CD/DVD record
+References: <Pine.LNX.4.53.0408190917140.19253@chaos> <4124AD0B.6090908@wiggly.org>
+In-Reply-To: <4124AD0B.6090908@wiggly.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Nigel Rantor wrote:
 
-> Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
-> >
-> > The patches that follow contain the initial implementation for kexec based
-> > crash dumping that we are working on.
-> 
-> It seems to be coming together nicely.
+> Richard B. Johnson wrote:
+>
+>> Hello all...
+>> Recording this stuff is basically sending some commands to
+>> a device and then keeping a FIFO full until done.
+>
+>
+> Lots of things that are easy to sum up on one sentence turn out the be 
+> hairy as a wookie, but yes, it does seem like a Simple(tm) problem.
+>
+>> If `cdrecord` doesn't do it, one can hack together something
+>> that works in a day or so,... really good stuff in a week.
+>
+>
+> Hmm...not sure about that. Not if you do want device specific fixes in 
+> there too...
 
-Well it is coming.  There is a lot of exploratory work still needed to
-find what it takes to reliably get a kernel working in the hostile
-environment present after a kernel panic.  That really has 
-barely begun and it likely to turn up some unexpected architecture
-specific issues.
+The question then becomes - how many percent of devices in use need 
+fixes to work?
+A simple program with _no_ fixes, that works with correct devices only 
+might not be that hard.
+After it becomes popular people simply take care to buy working 
+burners.  The old broken
+tend to get upgraded after a while, or they can be used with the old 
+cdrecord.
+[...]
 
-Eric
+> I'll admit to having some time on my hands but acquiring equipment to 
+> test with would be a stumbling block for me.
+
+Take one thing at a time.  If you want to try this, start writing a 
+program that works well
+with your particular burner.  Chances are it'll work with many others 
+too.  And then you
+get patches from people who have other equipment.  You won't need to 
+have everything
+yourself.
+
+>
+> It would be nice if everyone could just put their egos aside and 
+> provide a united front wrt FOSS cd/dvd recording.
+
+:-) This goes for all open source.  I don't think it'll happen though. :-/
+
+Helge Hafting

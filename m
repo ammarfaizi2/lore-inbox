@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbUD3Wly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUD3WrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUD3Wly (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUD3Wly
+	id S261752AbUD3WrR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUD3WrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:41:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:46289 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261756AbUD3Wll (ORCPT
+	Fri, 30 Apr 2004 18:47:16 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:57514 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261752AbUD3WrO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:41:41 -0400
-Date: Fri, 30 Apr 2004 15:41:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       speedtouch@ml.free.fr
-Subject: Re: [linux-usb-devel] 3 USB regressions (2.6.6-rc3-bk1) that should be fixed before 2.6.6
-Message-ID: <20040430224111.GB14643@kroah.com>
-References: <Pine.LNX.4.58.0404300113120.444@alpha.polcom.net> <200404300952.00454.baldrick@free.fr> <20040430155521.GA4463@kroah.com> <200404301810.56271.baldrick@free.fr>
+	Fri, 30 Apr 2004 18:47:14 -0400
+Date: Sat, 1 May 2004 00:47:13 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Allowing only "-g" compiled modules! (was: [PATCH] Blacklist binary-only modules lying about their license)
+Message-ID: <20040430224713.GX29503@lug-owl.de>
+Mail-Followup-To: 'lkml - Kernel Mailing List' <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <00b201c42eea$916f6c40$ca41cb3f@amer.cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1Wg5Vd7si6EhrIHA"
 Content-Disposition: inline
-In-Reply-To: <200404301810.56271.baldrick@free.fr>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <00b201c42eea$916f6c40$ca41cb3f@amer.cisco.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 06:10:56PM +0200, Duncan Sands wrote:
-> > Honestly, I don't see how some of these issues started showing up
-> > between those two kernel releases.  You can see the only changes made in
-> > the USB section broken out by patch at:
-> > 	kernel.org/pub/linux/kernel/people/gregkh/2.6/2.6.6-rc2/
-> 
-> Hi Greg, I'm not sure when these problems started showing up, maybe they
-> have been in 2.6.6- for a while.  One patch that may be worth having in 2.6.6
-> by the way is the one for device_disconnect in devio.c that changes
-> destroy_all_async to destroy_async_on_interface.  It's clearly correct and does
-> do some good!
 
-Care to point out which one this was?  I'm swimming in a sea of patches
-right now :)
+--1Wg5Vd7si6EhrIHA
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Fri, 2004-04-30 12:37:26 -0700, Hua Zhong <hzhong@cisco.com>
+wrote in message <00b201c42eea$916f6c40$ca41cb3f@amer.cisco.com>:
 
-greg k-h
+> user have a choice. A working computer which occasionally crashes is still
+> better to the user than a stable computer which doesn't do the job.
+
+WHAT!? I'm sorry, but to my eyes, an unstable computer is worth nothing.
+If I can't somewhat trust my machine, I'll take paper and pencil...
+
+However, I don't see a solution towards stopping companies from making
+(partially) binary-only drivers.
+
+Maybe we'd start to put more effort into disassemblers/re-assemblers and
+code-generators from disassembly dumps.
+
+Maybe we can use a simple solution: Only allow modules that contain full
+debug info :)
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--1Wg5Vd7si6EhrIHA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAktdxHb1edYOZ4bsRAsZEAJwM9zjB/GUs84UEJNVwxpT5nl/EVQCfbw01
+eLEkFquhPRPlVi2u/A26tDg=
+=XLGt
+-----END PGP SIGNATURE-----
+
+--1Wg5Vd7si6EhrIHA--

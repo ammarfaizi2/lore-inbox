@@ -1,105 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCIJGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVCIJaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVCIJGP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 04:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVCIJGP
+	id S262143AbVCIJaO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 04:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVCIJaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 04:06:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:22150 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261654AbVCIJF4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 04:05:56 -0500
-Date: Wed, 9 Mar 2005 01:05:50 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, alan@lxorguk.ukuu.org.uk, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Security contact info
-Message-ID: <20050309090550.GW28536@shell0.pdx.osdl.net>
+	Wed, 9 Mar 2005 04:30:14 -0500
+Received: from port-212-202-144-146.static.qsc.de ([212.202.144.146]:16875
+	"EHLO mail.hennerich.de") by vger.kernel.org with ESMTP
+	id S262143AbVCIJaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 04:30:09 -0500
+Date: Wed, 9 Mar 2005 10:27:40 +0100
+From: Tobias Hennerich <Tobias@Hennerich.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange memory leak in 2.6.x
+Message-ID: <20050309102740.D3382@bart.hennerich.de>
+References: <20050308133735.A13586@bart.hennerich.de> <20050308173811.0cd767c3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20050308173811.0cd767c3.akpm@osdl.org>; from akpm@osdl.org on Tue, Mar 08, 2005 at 05:38:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add security contact info and relevant documentation.
+Hello,
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+On Tue, Mar 08, 2005 at 05:38:11PM -0800, Andrew Morton wrote:
+> >  we kindly ask for some suggestions about how to trace a memory leak
+> >  which we suspect in the linux kernel version 2.6:
+> 
+> Please grab 2.6.11, apply the below patch, set CONFIG_PAGE_OWNER and follow
+> the below instructions.
 
- MAINTAINERS                |    5 +++++
- REPORTING-BUGS             |    4 ++++
- Documentation/SecurityBugs |   38 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 47 insertions(+)
+thank you for you mails. We installed the patch from Alex on a test-system
+last night and will switch it to the production machine this evening. The
+problem will start after 48-72 hours, so we hope to send feedback
+on friday.
 
-===== MAINTAINERS 1.284 vs edited =====
---- 1.284/MAINTAINERS	2005-03-08 16:26:50 -08:00
-+++ edited/MAINTAINERS	2005-03-09 00:28:12 -08:00
-@@ -1993,6 +1993,11 @@ M:	christer@weinigel.se
- W:	http://www.weinigel.se
- S:	Supported
- 
-+SECURITY CONTACT
-+P:	Security Officers
-+M:	security@kernel.org
-+S:	Supported
-+
- SELINUX SECURITY MODULE
- P:	Stephen Smalley
- M:	sds@epoch.ncsc.mil
-===== REPORTING-BUGS 1.2 vs edited =====
---- 1.2/REPORTING-BUGS	2002-02-04 23:39:13 -08:00
-+++ edited/REPORTING-BUGS	2005-03-09 00:50:58 -08:00
-@@ -16,6 +16,10 @@ code relevant to what you were doing. If
- describe how to recreate it. That is worth even more than the oops itself.
- The list of maintainers is in the MAINTAINERS file in this directory.
- 
-+      If it is a security bug, please copy the Security Contact listed
-+in the MAINTAINERS file.  They can help coordinate bugfix and disclosure.
-+See Documentation/SecurityBugs for more infomation.
-+
-       If you are totally stumped as to whom to send the report, send it to
- linux-kernel@vger.kernel.org. (For more information on the linux-kernel
- mailing list see http://www.tux.org/lkml/).
-===== Documentation/SecurityBugs 1.0 vs 1.1 =====
---- /dev/null	2005-02-25 10:10:30 -08:00
-+++ 1.1/Documentation/SecurityBugs	2005-03-09 01:01:52 -08:00
-@@ -0,0 +1,38 @@
-+Linux kernel developers take security very seriously.  As such, we'd
-+like to know when a security bug is found so that it can be fixed and
-+disclosed as quickly as possible.  Please report security bugs to the
-+Linux kernel security team.
-+
-+1) Contact
-+
-+The Linux kernel security team can be contacted by email at
-+<security@kernel.org>.  This is a private list of security officers
-+who will help verify the bug report and develop and release a fix.
-+It is possible that the security team will bring in extra help from
-+area maintainers to understand and fix the security vulnerability.
-+
-+As it is with any bug, the more information provided the easier it
-+will be to diagnose and fix.  Please review the procedure outlined in
-+REPORTING-BUGS if you are unclear about what information is helpful.
-+Any exploit code is very helpful and will not be released without
-+consent from the reporter unless it has already been made public.
-+
-+2) Disclosure
-+
-+The goal of the Linux kernel security team is to work with the
-+bug submitter to bug resolution as well as disclosure.  We prefer
-+to fully disclose the bug as soon as possible.  It is reasonable to
-+delay disclosure when the bug or the fix is not yet fully understood,
-+the solution is not well-tested or for vendor coordination.  However, we
-+expect these delays to be short, measurable in days, not weeks or months.
-+A disclosure date is negotiated by the security team working with the
-+bug submitter as well as vendors.  However, the kernel security team
-+holds the final say when setting a disclosure date.  The timeframe for
-+disclosure is from immediate (esp. if it's already publically known)
-+to a few weeks.  As a basic default policy, we expect report date to
-+disclosure date to be on the order of 7 days.
-+
-+3) Non-disclosure agreements
-+
-+The Linux kernel security team is not a formal body and therefore unable
-+to enter any non-disclosure agreements.
+Best regards	Tobias
+
+-- 
+T+T Hennerich GmbH --- Zettachring 12a --- 70567 Stuttgart
+Fon:+49(711)720714-0  Fax:+49(711)720714-44  Vanity:+49(700)HENNERICH
+UNIX - Linux - Java - C  Entwicklung/Beratung/Betreuung/Schulung
+http://www.hennerich.de/

@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbSJBVhv>; Wed, 2 Oct 2002 17:37:51 -0400
+	id <S262606AbSJBVbY>; Wed, 2 Oct 2002 17:31:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262614AbSJBVhv>; Wed, 2 Oct 2002 17:37:51 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:245 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S262611AbSJBVhu>; Wed, 2 Oct 2002 17:37:50 -0400
-Date: Wed, 2 Oct 2002 17:43:20 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
-Message-ID: <20021002174320.J28857@redhat.com>
-References: <3D9B62AC.30607@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D9B62AC.30607@us.ibm.com>; from haveblue@us.ibm.com on Wed, Oct 02, 2002 at 02:18:36PM -0700
+	id <S262608AbSJBVbY>; Wed, 2 Oct 2002 17:31:24 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:53677 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262606AbSJBVbX>;
+	Wed, 2 Oct 2002 17:31:23 -0400
+Message-ID: <3D9B66EE.90001@colorfullife.com>
+Date: Wed, 02 Oct 2002 23:36:46 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 02:18:36PM -0700, Dave Hansen wrote:
-> I've resynced Ben's patch against 2.5.40.  However, I'm getting some 
-> strange failures.  The patch is good enough to pass LTP, but 
-> consistently freezes when I run tcpdump on it.
+akpm wrote:
+> It's not really clear why that yield is in there at all?  Unless that
+> code is really, really slow (milliseconds) then probably it should just
+> be deleted.
+> 
+It looks like a very simple starvation control:
 
-Try running tcpdump with the stack checking patch applied.  That should 
-give you a decent backtrace for the problem.
+thread 1:
+	for(;;) {
+		F_LOCK
+		<do a few seconds work>
+		F_UNLCK
+	}
+thread 2:
+	F_LOCK.
 
-		-ben
+If there is no yield after unlock, thread 2 might never receive the lock.
+Is it possible to figure out if someone is waiting on the lock? F_UNLCK 
+should schedule, if there is a waiter with higher priority.
+
+--
+	Manfred
+
+
+

@@ -1,103 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUCXUOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUCXUOQ
+	id S261184AbUCXURw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUCXURw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:14:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:211 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261160AbUCXUOJ (ORCPT
+	Wed, 24 Mar 2004 15:17:52 -0500
+Received: from holomorphy.com ([207.189.100.168]:24453 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261184AbUCXURs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:14:09 -0500
-Date: Wed, 24 Mar 2004 12:16:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Hoogerhuis <alexh@boxed.no>
-Cc: linux-kernel@vger.kernel.org, marcel@holtmann.org
-Subject: Re: 2.6.5-rc2-mm2
-Message-Id: <20040324121614.10d22568.akpm@osdl.org>
-In-Reply-To: <87smfynvhn.fsf@dorker.boxed.no>
-References: <20040323232511.1346842a.akpm@osdl.org>
-	<87smfynvhn.fsf@dorker.boxed.no>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 24 Mar 2004 15:17:48 -0500
+Date: Wed, 24 Mar 2004 12:17:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040324201734.GL791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]> <20040324061957.GB2065@dualathlon.random> <24560000.1080143798@[10.10.2.4]> <20040324162116.GQ2065@dualathlon.random> <20040324200156.GK791@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040324200156.GK791@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis <alexh@boxed.no> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
-> >
-> > [SNIP]
-> >
->  
-> I'm getting this oops when booting my shiny new HP nc6000 laptop
-> (PM-1.6 with integrated bluetooth and stuff) with bluetooth enabled:
-> 
-> Bluetooth: HCI device and connection manager initialized
-> Bluetooth: HCI socket layer initialized
-> Bluetooth: HCI USB driver ver 2.5
-> drivers/usb/core/usb.c: registered new driver hci_usb
-> Unable to handle kernel NULL pointer dereference at virtual address 00000004
->  printing eip:
-> e08c56be
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT
-> CPU:    0
-> EIP:    0060:[<e08c56be>]    Not tainted VLI
-> EFLAGS: 00010282   (2.6.5-rc2-mm2)
-> EIP is at usb_disable_interface+0x11/0x3f [usbcore]
-> eax: dea7f000   ebx: 00000000   ecx: c03a1310   edx: deb39080
-> esi: 00000001   edi: 00000000   ebp: deb65d50   esp: deb65d40
-> ds: 007b   es: 007b   ss: 0068
-> Process khubd (pid: 5147, threadinfo=deb65000 task=deb423b0)
-> Stack: dea7f000 dea7f000 00000001 00000002 deb65d88 e08c5904 00000001 00000002
->        00000001 00000000 00000000 00001388 00000000 ddab4db0 deb39080 00000000
->        ddab4b80 ddab4c38 deb65e34 e09419da 00000246 deb65dd8 00000018 00000003
-> Call Trace:
->  [<e08c5904>] usb_set_interface+0x92/0x143 [usbcore]
->  [<e09419da>] hci_usb_probe+0x226/0x46e [hci_usb]
->  [<c01a675e>] inode_doinit_with_dentry+0x3e/0x59a
->  [<e08c0064>] usb_probe_interface+0x56/0x63 [usbcore]
->  [<c01fb727>] bus_match+0x35/0x5e
->  [<c01fb78f>] device_attach+0x3f/0x8f
->  [<c0166129>] dput+0x1c/0x252
->  [<c01fb945>] bus_add_device+0x67/0x9f
->  [<c01fa9d8>] device_add+0x94/0x128
->  [<e08c5c6d>] usb_set_configuration+0x1c9/0x251 [usbcore]
->  [<e08c0f87>] usb_new_device+0x23f/0x3ae [usbcore]
->  [<c011c8a7>] printk+0x121/0x172
->  [<e08c26c3>] hub_port_connect_change+0x172/0x265 [usbcore]
->  [<e08c2a3e>] hub_events+0x288/0x2fa [usbcore]
->  [<e08c2ae0>] hub_thread+0x30/0xdd [usbcore]
->  [<c0118aa1>] default_wake_function+0x0/0xc
->  [<e08c2ab0>] hub_thread+0x0/0xdd [usbcore]
->  [<c0105269>] kernel_thread_helper+0x5/0xb
+On Wed, Mar 24, 2004 at 12:01:56PM -0800, William Lee Irwin III wrote:
+> Don't confuse unslabify and the ->list removal. The ->list removal went
+> around insisting the known universe stop using ->lru because of the
+> relatively arbitrary choice that slab.c use ->lru. The unslabify patch
+> attempts to update one user of ->lru by backing out the code using it.
+> Do note that non-list-heads like ->index, ->private, or ->mapping are
+> also unused on slab pages, and could have saved some pain for this
+> former user of ->list had they been chosen.
 
-As far as I can tell, this is impossible.  usb_set_interface() has just
-checked that local variable `iface' is non-null, but the crash in
-usb_disable_interface() says that incoming arg `intf' is indeed NULL.  So
-colour me confused.
+Updating the user instead of backing them out would have looked
+something like the following (totally untested, not even compiletested):
 
 
-
-I do note a bug in drivers/bluetooth/hci_usb.c:hci_usb_probe(), but it
-doesn't explain your oops:
-
-#ifdef CONFIG_BT_HCIUSB_SCO
-	if (isoc_iface) {
-		BT_DBG("isoc ifnum %d alts %d", isoc_ifnum, isoc_alts);
-		if (usb_set_interface(udev, isoc_ifnum, isoc_alts)) {
-			BT_ERR("Can't set isoc interface settings");
-			isoc_iface = NULL;
-		}
-		usb_driver_claim_interface(&hci_usb_driver, isoc_iface, husb);
-
-If usb_set_interface() failed we pass a NULL isoc_iface into
-usb_driver_claim_interface(), which will promptly return -EINVAL, which is
-then cheerfully ignored.  The error handling here seems flakey.
+-- wli
 
 
-
+Index: mm2-2.6.5-rc2-1/arch/i386/mm/pageattr.c
+===================================================================
+--- mm2-2.6.5-rc2-1.orig/arch/i386/mm/pageattr.c	2004-03-19 16:11:06.000000000 -0800
++++ mm2-2.6.5-rc2-1/arch/i386/mm/pageattr.c	2004-03-21 07:15:40.000000000 -0800
+@@ -75,7 +75,7 @@
+ 		return;
+ 
+ 	spin_lock_irqsave(&pgd_lock, flags);
+-	list_for_each_entry(page, &pgd_list, lru) {
++	for (page = pgd_list; page; page = (struct page *)page->index) {
+ 		pgd_t *pgd;
+ 		pmd_t *pmd;
+ 		pgd = (pgd_t *)page_address(page) + pgd_index(address);
+Index: mm2-2.6.5-rc2-1/arch/i386/mm/pgtable.c
+===================================================================
+--- mm2-2.6.5-rc2-1.orig/arch/i386/mm/pgtable.c	2004-03-21 07:14:22.000000000 -0800
++++ mm2-2.6.5-rc2-1/arch/i386/mm/pgtable.c	2004-03-21 07:18:41.000000000 -0800
+@@ -172,7 +172,27 @@
+  * -- wli
+  */
+ spinlock_t pgd_lock = SPIN_LOCK_UNLOCKED;
+-LIST_HEAD(pgd_list);
++struct page *pgd_list;
++
++static inline void pgd_list_add(pgd_t *pgd)
++{
++	struct page *page = virt_to_page(pgd);
++	page->index = (unsigned long)pgd_list;
++	if (pgd_list)
++		pgd_list->private = (unsigned long)&page->index;
++	pgd_list = page;
++	page->private = (unsigned long)&pgd_list;
++}
++
++static inline void pgd_list_del(pgd_t *pgd)
++{
++	struct page *next, **pprev, *page = virt_to_page(pgd);
++	next = (struct page *)page->index;
++	pprev = (struct page **)page->private;
++	*pprev = next;
++	if (next)
++		next->private = (unsigned long)pprev;
++}
+ 
+ void pgd_ctor(void *pgd, kmem_cache_t *cache, unsigned long unused)
+ {
+@@ -188,7 +208,7 @@
+ 	if (PTRS_PER_PMD > 1)
+ 		return;
+ 
+-	list_add(&virt_to_page(pgd)->lru, &pgd_list);
++	pgd_list_add(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+ 	memset(pgd, 0, USER_PTRS_PER_PGD*sizeof(pgd_t));
+ }
+@@ -199,7 +219,7 @@
+ 	unsigned long flags; /* can be called from interrupt context */
+ 
+ 	spin_lock_irqsave(&pgd_lock, flags);
+-	list_del(&virt_to_page(pgd)->lru);
++	pgd_list_del(pgd);
+ 	spin_unlock_irqrestore(&pgd_lock, flags);
+ }
+ 
+Index: mm2-2.6.5-rc2-1/include/asm-i386/pgtable.h
+===================================================================
+--- mm2-2.6.5-rc2-1.orig/include/asm-i386/pgtable.h	2004-03-19 16:11:34.000000000 -0800
++++ mm2-2.6.5-rc2-1/include/asm-i386/pgtable.h	2004-03-21 08:27:30.000000000 -0800
+@@ -35,7 +35,7 @@
+ extern kmem_cache_t *pgd_cache;
+ extern kmem_cache_t *pmd_cache;
+ extern spinlock_t pgd_lock;
+-extern struct list_head pgd_list;
++extern struct page *pgd_list;
+ 
+ void pmd_ctor(void *, kmem_cache_t *, unsigned long);
+ void pgd_ctor(void *, kmem_cache_t *, unsigned long);

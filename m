@@ -1,941 +1,1701 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUDTJGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbUDTJPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbUDTJGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 05:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUDTJGZ
+	id S262470AbUDTJPD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 05:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUDTJPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 05:06:25 -0400
-Received: from adsl-76-231.38-151.net24.it ([151.38.231.76]:36365 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S262370AbUDTJFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 05:05:09 -0400
-Date: Tue, 20 Apr 2004 11:05:02 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.26 IRDA BUG - blocker
-Message-ID: <20040420090502.GB6363@picchio.gall.it>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040419175718.GA7959@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-In-Reply-To: <20040419175718.GA7959@bougret.hpl.hp.com>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
+	Tue, 20 Apr 2004 05:15:02 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:37269 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S262442AbUDTJKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 05:10:40 -0400
+Message-ID: <4084E8A9.14A8F215@nospam.org>
+Date: Tue, 20 Apr 2004 11:08:57 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Dynamic System Calls & System Call Hijacking
+ 	 - patch
+Content-Type: multipart/mixed;
+ boundary="------------5FCC92470DB48B0E1CC0DEFB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---3uo+9/B/ebqu+fSQ
+This is a multi-part message in MIME format.
+--------------5FCC92470DB48B0E1CC0DEFB
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-On Mon, Apr 19, 2004 at 10:57:18AM -0700, Jean Tourrilhes wrote:
-> 	Same story, please read my web page on how to report bugs. And
-> I bet the problem is the same.
-
-You won the bet.
-The echo 115200 > /proc/sys/net/irda/max_baud_rate made the trick.
-
-What about putting some of that useful documentation under Documention/ ?
-I took your web page, removed everything that looked unecessary or that
-required frequent updates, and made the attached patch.
-
-Before writing I made a grep -r irda linux-2.6.4/Documentation/, but
-found nothing interesting. Since I was offline at the time, I could
-not check google or irda.sf.net.
-
-Perhaps this patch can reduce the amount of useless and unproper bug
-reports against IrDA.
-
-Bye.
-
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
-
-
---3uo+9/B/ebqu+fSQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="irda.diff"
-
-diff -Naur linux-2.6.5/Documentation/networking/irda.txt linux-irda-2.6.5/Documentation/networking/irda.txt
---- linux-2.6.5/Documentation/networking/irda.txt	2003-12-19 10:34:29.000000000 +0100
-+++ linux-irda-2.6.5/Documentation/networking/irda.txt	2004-04-20 10:52:22.000000000 +0200
-@@ -1,6 +1,9 @@
--To use the IrDA protocols within Linux you will need to get a suitable copy
--of the IrDA Utilities. More detailed information about these and associated
--programs can be found on http://irda.sourceforge.net/
-+Linux-IrDA documentation by Jean Tourrilhes
-+A page with much more informations, patches, links and current status can
-+be found at: http://www.hpl.hp.com/personal/Jean_Tourrilhes/IrDA/IrDA.html
-+
-+The home page of the Linux-IrDA Project, with latest versions of user space
-+utilities is here: http://irda.sourceforge.net/
  
- For more information about how to use the IrDA protocol stack, see the
- Linux Infared HOWTO (http://www.tuxmobil.org/Infrared-HOWTO/Infrared-HOWTO.html)
-@@ -9,6 +12,858 @@
- There is an active mailing list for discussing Linux-IrDA matters called
-     irda-users@lists.sourceforge.net
- 
-+                               ------------------
-+
-+   The instructions presented here should work for Linux Kernel 2.4.X and
-+   Kernel 2.6.X. And they may work equally well for later kernels and kernel
-+   2.2.15, and maybe others. Some other documentations on the web, like the
-+   Linux-IrDA Howto are more generic and complete but not totally up to
-+   date, so beware...
-+
-+                               ------------------
-+
-+Tutorial : How to use Linux-IrDA
-+
-+   A lot of IrDA novices mix up the low level and high level of the IrDA
-+   stack. A few words...
-+
-+     * Low level of Linux-IrDA : this is the part of the IrDA stack dealing
-+       with the IrDA hardware on your computer and managing it. The key words
-+       are IrDA driver, IrDA ports (either SIR or FIR), IrDA dongles and
-+       TTY/serial port.
-+     * High level of Linux-IrDA : this is the part of the IrDA stack dealing
-+       with communicating with the other IrDA device and exchanging the data
-+       (the protocol). The key words are protocol, IrCOMM, IrLPT, OBEX, IrLAN
-+       and IrNET.
-+
-+   The low level and high level are totally independant of each other,
-+   however each need to be configured properly for what you want to do.
-+
-+   The procedure to get IrDA working looks usually like this :
-+
-+     * Configure everything
-+     * Set up the low level to recognise your IrDA hardware
-+     * Verify that the low level works
-+     * Set up your application on top of the proper high level protocol
-+
-+   I also offer various debugging tips at the end of this document.
-+
-+                               ------------------
-+
-+Common configuration
-+
-+   Most Linux kernels don't come with IrDA enabled, and most distributions
-+   come with very approximate config scripts. I don't trust those and I
-+   always do things by myself.
-+
-+     * Get kernel of your choice, unpack the source in /usr/src
-+     * Compile yourself a fresh kernel and make it boot properly.
-+     * Configure the IrDA stack as a module, enable all options (as module if
-+       possible) and the driver/protocols you need (as modules).
-+     * Configure serial port as a module. Static is ok as well, except for
-+       the NSC or FIR setup.
-+     * Recompile the modules and install them :
-+
-+ > make modules ; make modules_install
-+
-+     * Install irda-utils-0.9.15 or later
-+     * Add the following stuff in /etc/modules.conf :
-+
-+ # IrDA stuff...
-+ alias tty-ldisc-11 irtty
-+ alias char-major-161 ircomm-tty         # if you want IrCOMM support
-+ # These values are hard-coded in irattach (not instance order)
-+ alias irda-dongle-0  tekram             # Tekram IrMate IR-210B
-+ alias irda-dongle-1  esi                # ESI JetEye
-+ alias irda-dongle-2  actisys            # ACTiSYS IR-220L
-+ alias irda-dongle-3  actisys            # ACTiSYS IR-220L+
-+ alias irda-dongle-4  girbil             # Greenwich GIrBIL
-+ alias irda-dongle-5  litelink           # Parallax LiteLink/ESI JetEye
-+ alias irda-dongle-6  airport            # Adaptec Airport 1000 and 2000
-+ alias irda-dongle-7  old_belkin         # Belkin (old) SmartBeam dongle
-+ alias irda-dongle-8  ep7211_ir          # Cirrus Logic EP7211 Processor (ARM)
-+ alias irda-dongle-9  mcp2120            # MCP2120 (Microchip) based
-+ alias irda-dongle-10 act200l            # ACTiSYS Ir-200L
-+ alias irda-dongle-11 ma600              # Mobile Action ma600
-+ # IrNET module...
-+ alias char-major-10-187 irnet           # Official allocation of IrNET
-+
-+     * Create the IrDA devices :
-+
-+ > mknod /dev/ircomm0 c 161 0
-+ > mknod /dev/ircomm1 c 161 1
-+ > mknod /dev/irlpt0 c 161 16
-+ > mknod /dev/irlpt1 c 161 17
-+ > mknod /dev/irnet c 10 187
-+ > chmod 666 /dev/ir*
-+
-+     * Reboot
-+
-+   Now, it's time to check which hardware you want to make run...
-+
-+                               ------------------
-+
-+Kernel 2.6.X differences
-+
-+   Kernel 2.6.X drivers are slightly different from kernel 2.4.X described
-+   above. The main driver differences are listed below. This list is known to
-+   not be final.
-+
-+     * Driver irtty-sir replaces irtty for SIR mode
-+     * Dongles drivers for irtty-sir have the -sir prefix added to their name
-+       (to distinguish them from old style dongle drivers).
-+     * Driver donauboe replaces toshoboe
-+     * Driver smsc-ircc2 may replace smc-ircc
-+
-+   Module configuration is also different, you need to add the following in
-+   /etc/modules.conf :
-+
-+ alias tty-ldisc-11 irtty-sir
-+ alias char-major-161 ircomm-tty
-+ alias irda-dongle-0 tekram-sir
-+ alias irda-dongle-1 esi-sir
-+ alias irda-dongle-2 actisys-sir
-+ alias irda-dongle-3 actisys-sir
-+ alias char-major-10-187 irnet
-+
-+                               ------------------
-+
-+Low level drivers
-+
-+   This really depend on the IrDA hardware that you have. I describe a few of
-+   the options below. The two safest options are Laptop in SIR mode and
-+   Serial dongle.
-+
-+                               ------------------
-+
-+Serial dongle (using irtty driver)
-+
-+   For all serial dongles, you need an IrDA driver, which is irtty, and a
-+   dongle driver. The dongle I use if the Actisys 220L+, and the dongle
-+   driver is called actisys (see list above). The setup for other dongles
-+   should be very similar. I'm also using the first serial port in this
-+   example (ttyS0), you may need to adapt to your case.
-+
-+     * Attach dongle to the serial port, and check which serial port it is.
-+     * Check if the serial config is ok :
-+
-+ > setserial /dev/ttyS0
-+ /dev/ttyS0, UART: 16550A, Port: 0x03f8, IRQ: 4
-+
-+     * If it say UART: unknown, your serial configuration is invalid.
-+     * Start the IrDA stack :
-+
-+ > irattach /dev/ttyS0 -d actisys -s
-+
-+     * If you want to unload/stop the IrDA stack just kill all the IrDA
-+       applications and do :
-+
-+ > killall irattach
-+ > rmmod irtty actisys
-+ > rmmod irda
-+
-+   Note : all the modern ESI dongles work better with the litelink driver.
-+
-+                               ------------------
-+
-+Laptop port in SIR mode (using irtty driver)
-+
-+   SIR (Serial Infrared) is not fast but almost always work and is easy to
-+   set-up, so it's a safe bet. It will work only if the BIOS is set to SIR
-+   mode, so don't bother otherwise. Some BIOS don't offer the setting and try
-+   to be clever and autodetect the proper setting, but it doesn't always
-+   works.
-+
-+   Note that some laptops (Toshiba) need special magic for their IrDA port to
-+   be enabled.
-+
-+   The irtty driver will use the standard Linux serial driver.
-+
-+     * Go in the BIOS of the laptop, enable the Infrared port, and set it to
-+       SIR mode.
-+     * While in the BIOS, note the IO address and IRQ assigned to it.
-+     * Using setserial or in the boot log messages, find the ttyS* that
-+       correspond to this port. Let's assume /dev/ttyS1 (as in my laptop).
-+     * Check if the serial config is ok :
-+
-+ > setserial /dev/ttyS1
-+ /dev/ttyS1, UART: 16550A, Port: 0x02f8, IRQ: 3
-+
-+     * If it say UART: unknown, your serial configuration is invalid. If the
-+       port and IRQ are different, it's usually OK.
-+     * Start the IrDA stack :
-+
-+ > irattach /dev/ttyS1 -s
-+
-+     * Refer to previous example for more
-+
-+   Now, you just need to figure out on which side of the laptop if the IrDA
-+   port...
-+
-+                               ------------------
-+
-+HP Omnibook 6000 in FIR mode
-+
-+   It seems that each laptop has its quirk when it come to FIR mode. I've
-+   managed to get my OB6000 to work (great laptop BTW). Other laptops will be
-+   different (different driver, different settings).
-+
-+     * Go in the BIOS of the laptop, enable the Infrared port, and set it to
-+       FIR mode.
-+     * Add the following stuff in /etc/modules.conf :
-+
-+ # NSC FIR chipset in the OB6000
-+ alias irda0 nsc-ircc
-+ options nsc-ircc dongle_id=0x08
-+
-+     * Remove the serial driver that gets in the way :
-+
-+ > setserial /dev/ttyS1 uart none
-+ > rmmod serial
-+
-+     * Start the IrDA stack :
-+
-+ > irattach irda0 -s
-+
-+   The NSC driver gives me some pretty good performance.
-+
-+                               ------------------
-+
-+Other laptops in FIR mode
-+
-+   There is different FIR hardwares included in the various laptops.
-+   Linux-IrDA support some of them (not all) in various degrees (from good to
-+   bad). Moreover, it seems that each laptop has its quirk, so it's difficult
-+   to list everything here.
-+
-+   For this reason, I recommend to make it work first in SIR mode. After
-+   that, you can experiment, check the Howto and query the mailing list...
-+
-+   THe setup for most FIR drivers will follow the same pattern as the
-+   Omnibook 6000 example above. You will need to find the proper value of the
-+   modules parameters, set the BIOS properly, take care of conflicting
-+   hardware (serial, Pcmcia cards and other interrupt conflicts) and start
-+   the stack with irattach.
-+
-+   As a rule of thumb, the NSC driver seems to be the most functional (if you
-+   set the proper dongle_id, which most likely 0x9, but sometimes 0x8), and
-+   the old SMC driver the most problematic.
-+
-+                               ------------------
-+
-+USB FIR dongles
-+
-+   This driver is included in recent kernel. It's not as efficient as other
-+   FIR hardware, but at least is supported and is relatively easy to get
-+   working. Also, all the current products are based on the same hardware,
-+   and we know most of its bugs.
-+
-+   The latest version of the driver has been tested with usb-uhci and
-+   usb-ohci.
-+
-+     * Start the USB stack. If you have an UHCI hardware, it looks like :
-+
-+ > modprobe usb-uhci
-+
-+     * Load USB driver and start the IrDA stack :
-+
-+ > modprobe irda-usb
-+ > irattach irda0 -s
-+
-+   If you have already some other IrDA hardware configured on the PC, the
-+   driver won't load as irda0, so check the message log with dmesg. Also, the
-+   driver can manage up to 4 IrDA-USB dongles per PC (that can be increased
-+   in the source).
-+
-+   Recently a new type of USB dongle from SigmaTel has appeared on the market
-+   which is not compliant with the IrDA-USB specification, and therefore
-+   doesn't work with this driver. On the other hand, SigmaTel has made
-+   available the full technical specification, so writing a driver for
-+   it is possible. There is an alpha driver for 2.6.X in my patch list.
-+
-+   The MA 620 USB dongle is a SIR USB dongle, there is some howto for it
-+   written by Martin Diehl.
-+
-+   Important note : in recent kernels, the USB team has added a driver called
-+   ir-usb. Not only this driver is not compatible with the IrDA stack (the
-+   IrDA driver is called irda-usb), but this driver will load automatically
-+   before irda-usb, therefore preventing you to use it. Solution : get rid of
-+   ir-usb. It may also be possible to blacklist ir-usb in
-+   /etc/hotplug/blacklist. I would like to thank warmly the USB team for the
-+   confusion they created. For complains, please direct to them.
-+
-+                               ------------------
-+
-+SIR with irport
-+
-+   The standard SIR driver is irtty, which uses the standard serial driver
-+   and tty layer. This is the easiest and safest way to get IrDA working.
-+
-+   However, the tty layer adds some overhead and doesn't understand the IrDA
-+   protocol, which make it unsuitable in some case (dongle without echo
-+   cancelation) and less performant in others (small packets). That is why
-+   there is a second driver, irport, which allow the IrDA stack direct access
-+   to the serial port.
-+
-+   Unfortunately, the procedure to use irport is more complicated and less
-+   well tested. Actually, I personally never managed to make irport work
-+   reliably on any of my systems.
-+
-+     * Remove the serial driver that gets in the way :
-+
-+ > setserial /dev/ttyS0 uart none
-+ > rmmod serial
-+
-+     * Load the irport driver and attach the dongle driver.
-+
-+ > modprobe irport io=0x3f8 irq=4
-+ > dongle_attach irda0 -d actisys+
-+
-+     * Start the IrDA stack :
-+
-+ > irattach irda0 -s
-+
-+                               ------------------
-+
-+Checking that it works
-+
-+   The first test is to check if the discovery is happening properly. If the
-+   IrDA driver is properly configured, the Linux-IrDA will discover other
-+   IrDA devices in range. If the discover doesn't work, this indicate that
-+   the low level is not configured properly (and you don't need to go any
-+   further).
-+
-+   You can check if there is any device listed in the discovery log with :
-+
-+ > cat /proc/net/irda/discovery
-+ IrLMP: Discovery log:
-+
-+ nickname: Jean Tourrilhes, hint: 0x8220, saddr: 0x913b1bbc, daddr: 0x5619b45e
-+
-+
-+   You can also check various other files in /proc, or use irdadump, check
-+   the debugging section.
-+
-+   Then, you might want to use a simple aplication, such as e-Squirt to
-+   verify that everything works fine. Or you can skip directly to the next
-+   section.
-+
-+   The big advantage of e-Squirt is that it is a really simple protocol,
-+   doesn't stress the IrDA stack too much and we have implementation for
-+   various platforms, so that you can test your setup with almost
-+   anything on the other side (Linux, Win32, WinCE or Palm).
-+
-+   Compile the Linux e-Squirt library and the test programs on all Linux
-+   computers, and go in the tests directory. On other platforms, load and
-+   start the relevant the e-Squirt application.
-+
-+   If you want to use Linux as a receiver, just do :
-+
-+ ./squirt
-+
-+   To use Linux as a sender, you can do :
-+
-+ ./ultra_beacon http://cooltown.hp.com/
-+ ./socket_squirt http://cooltown.hp.com/
-+
-+   With that, you should be able to exchange back and forth URLs and check
-+   that your IrDA stack works. If not, continue to read below.
-+
-+   On caveat : Most implementations have two exclusive receiving modes, IrDA
-+   and Ultra, and they switch between these (either as a preference setting,
-+   or automatically triggerd by discovery packets). Linux is an exception and
-+   can listen to both at the same time. This means that unless you do a
-+   Linux-Linux test, only one of the two sender tests listed above will work
-+   properly.
-+
-+                               ------------------
-+
-+Apps and protocols on top of the IrDA stack
-+
-+   If you want to run e-Squirt applications, you are done, and you just need
-+   to run the application themselves, they should work.
-+
-+   Other applications and protocols you may want to run :
-+
-+     * TCP/IP over IrNET
-+     * Terminal over IrCOMM
-+     * TCP/IP over IrCOMM
-+     * TCP/IP over IrLAN
-+     * Connect to a mobile phones
-+     * Obex to exchange files/objects with PDAs, Phones and other Obex devices
-+
-+   Note that I don't use IrCOMM and IrLAN, so I can't help much with that...
-+
-+                               ------------------
-+
-+Terminal over IrComm
-+
-+   This is a simple test to check that IrComm is working between two PCs.
-+   After that, you can try more complex applications such as PPP. The
-+   original instructions were sent on the mailing list.
-+
-+   Server side :
-+   Start the terminal server
-+
-+ > getty ircomm0 DT19200 vt100           # Red-Hat syntax
-+
-+   or
-+
-+ > getty -L ircomm0 19200 vt100          # Debian syntax
-+
-+   At this point, your text terminal should get reset and you come back to a
-+   login prompt. That's normal. I don't know what happen in X.
-+
-+   Client side with kermit :
-+   Start the terminal emulator
-+
-+ > kermit
-+ > > set line /dev/ircomm0
-+ > > set speed 19200
-+ > > connect
-+ > > > stty sane                         # Get backspace to work ok
-+
-+   The prompt shouls appear after connect. Also, you need to ignore the
-+   following message : "Warning: no access to tty (Inappropriate ioctl for
-+   device). Thus, no job control enabled", and "Can't open terminal /dev/tty"
-+
-+   Client side with minicom :
-+   Minicom is a bit more problematic, and I'm still fighting with it. I still
-+   don't understand how to connect. I managed to make it work like this :
-+
-+     * start minicom
-+     * Configure (^A O)
-+     * sub-menu serial
-+     * set to /dev/ircomm0
-+     * set speed to 19200
-+     * exit
-+     * sub-menu "save as dft"
-+     * exit
-+     * Exit (^A X)
-+     * restart minicom
-+
-+                               ------------------
-+
-+TCP/IP over IrCOMM between two PCs
-+
-+   This simple example of PPP over IrCOMM is somewhat similar to TCP/IP
-+   over IrNET, and is not much use, except to verify the IrCOMM works
-+   properly. Real life PPP over IrCOMM to a mobile phone will involve a much
-+   more complex configuration (to configure the modem and dial).
-+
-+   Server side :
-+   Start the ppp deamon
-+
-+ > pppd /dev/ircomm0 9600 local noauth passive
-+
-+   As you can see, the visible difference with IrNET is that we use
-+   /dev/ircomm0 instead of /dev/irnet. Also, IrCOMM doesn't have the advanced
-+   features of IrNET to specify IrDA peer.
-+
-+   Client side :
-+   Start the ppp deamon Start the terminal emulator
-+
-+ > pppd /dev/ircomm0 9600 local noauth
-+
-+   At this point, the IrDA stack should connect (check with irdadump) and PPP
-+   should create a new network device (usually ppp0) and configure IP and
-+   route. You should be able to ping and connect to the other side using its
-+   IP address.
-+
-+                               ------------------
-+
-+TCP/IP over IrLAN
-+
-+   I don't use IrLAN any longer, because I'm only using IrNET. I just did a
-+   refresh on the original instructions that I sent on the mailing list
-+   (removing mentions of irmanager which no longer exist).
-+
-+   IrLAN as an access option, which can be 1 (direct mode), 2 (peer to peer)
-+   and 3 (hosted). Basically, you would use 2 if you connect to another PC, 1
-+   if you connect to a transparent access point, and 3 if you are the access
-+   point (Dag, correct me if I'm wrong). The HP Netbeamer is an access point,
-+   but it accept connections only if the PC is in peer mode. Go figure...
-+
-+   PC -> HP NetBeamer :
-+   Here is how to hook to the NetBeamer... After aligning the IrDA port or
-+   after starting irattach, the light of the NetBeamer should flash. If it
-+   doesn't, you may want to play with the slot_timeout value.
-+
-+ > insmod irlan access=2
-+ > ifconfig irlan0 10.0.0.1 netmask 255.255.255.0 broadcast 10.0.0.255
-+
-+   At this point, the light goes solid green. Link is on, you can ping and
-+   everybody is happy. You may want to add a gateway with "route add default
-+   gw ...".
-+
-+   PC -> PC :
-+   Not everybody has a NetBeamer, so here is a step by step on how to create
-+   a link between two PCs.
-+
-+   On the first PC :
-+
-+ > insmod irlan access=2
-+ > ifconfig irlan0 10.0.0.1 netmask 255.255.255.0 broadcast 10.0.0.255
-+
-+   On the second PC :
-+
-+ > insmod irlan access=2
-+ > ifconfig irlan0 10.0.0.2 netmask 255.255.255.0 broadcast 10.0.0.255
-+
-+   After that, you should be able to ping and telnet...
-+
-+   Automated ifconfig :
-+   By default, /etc/irda/network.opts is not used. In the previous example,
-+   we ifconfig-ure irlan by hand. If you have a Red-Hat/Mandrake
-+   distribution, irmanager can do the job automatically at the condition that
-+   you create a file /etc/sysconfig/network-scripts/ifcfg-irlan0 and set the
-+   right values in there... There might be more needed, but I'm not totally
-+   expert on this...
-+
-+   For other distribution (like Debian), you need to replace the file
-+   /etc/irda/network with possibly something from a Pcmcia package, and with
-+   some editing you might get it to load network.opts...
-+
-+   You might also want to add in your /etc/conf.modules a "option irlan
-+   access=2". So, if you use modprobe instead of insmod, you won't have to
-+   specify access=2 on the command line.
-+
-+                               ------------------
-+
-+IrDA and mobile phones or PDAs
-+
-+   I don't have any mobile phone, and I don't use IrCOMM, so I can't help...
-+
-+   There is many people using IrDA to connect either to their mobile phone or
-+   PDA, and lot's of them have put instructions in their web pages. You may
-+   use OBEX to transfer simple objects, or PPP over IrCOMM to establish
-+   connections, depending on the application and the device. The people doing
-+   Gnokii are also quite knowledgeable in this area, so you may ask
-+   advice on their mailing list, but please report IrDA bugs in the IrDA
-+   mailing lists.
-+
-+   One of the most common gotcha is that applications need to be configured
-+   to use the proper IrCOMM virtual port (which most often is /dev/ircomm0).
-+
-+   If I can't reproduce your problem, I can't debug it, so I can't fix it. If
-+   I can't see anything obvious in the irdadump log, I won't bother. You may
-+   also want to try to reproduce the problem between two Linux boxes (because
-+   I may be able to reproduce that).
-+
-+                               ------------------
-+
-+Checking Linux-IrDA state and debugging
-+
-+   Of course, I'm sure that you won't get things smooth the first time.
-+   Actually, I'm pretty sure you will struggle a little bit.
-+
-+   If you get the Obex stuff out of the loop (so, using Ultra or Socket, as
-+   described above), the e-Squirt stuff is so simple that if anything doesn't
-+   work you can bet that it's the IrDA stack.
-+
-+   The first trick is to check is the modules are loaded :
-+
-+ > cat /proc/modules
-+ actisys                 1652   1 (autoclean)
-+ irtty                   7524   2 (autoclean)
-+ irda                  151905  11 (autoclean) [actisys irtty]
-+
-+   This is what a serial dongle setup would look like. If the modules don't
-+   show up, check you modules configuration and check the error messages in
-+   the log (with dmesg).
-+
-+   Then, check the bunch of files in /proc/net/irda :
-+
-+ > cat /proc/net/irda/discovery
-+ IrLMP: Discovery log:
-+
-+ nickname: Jean Tourrilhes, hint: 0x8220, saddr: 0x913b1bbc, daddr: 0x5619b45e
-+
-+ > cat /proc/net/irda/irlap
-+ irlap0 state: LAP_NDM
-+   device name: irda0, hardware name: ttyS0
-+   caddr: 0x52, saddr: 0x913b1bbc, daddr: 0x5619b45e
-+   win size: 1, win: 1, line capacity: 4800, bytes left: 4800
-+   tx queue len: 0 win queue len: 0 rbusy: FALSE mbusy: FALSE
-+   retrans: 0 vs: 2 vr: 2 va: 0
-+   qos   bps     maxtt   dsize   winsize addbofs mintt   ldisc   comp
-+   tx    9600    0       64      1       12      0       0
-+   rx    9600    0       64      1       12      0       0
-+ > cat /proc/net/irda/irias
-+ LM-IAS Objects:
-+ name: hp:esquirt, id=76371435
-+  - Attribute name: "IrDA:TinyTP:LsapSel", value[IAS_INTEGER]: 96
-+
-+ name: OBEX:ESquirt, id=76371435
-+  - Attribute name: "IrDA:TinyTP:LsapSel", value[IAS_INTEGER]: 95
-+
-+ name: Device, id=0
-+  - Attribute name: "IrLMPSupport", value[IAS_OCT_SEQ]: octet sequence
-+
-+  - Attribute name: "DeviceName", value[IAS_STRING]: "lagaffe"
-+
-+ name: hp:beacon, id=76371435
-+  - Attribute name: "IrDA:TinyTP:LsapSel", value[IAS_INTEGER]: 97
-+
-+
-+   There, you can see that the IrDA stack has discovered my Palm V, that my
-+   IrDA port is ttyS0, that I'm not connected, and you can also see that I
-+   have an e-Squirt application running that has opened a bunch of server
-+   sockets (of course, if you haven't started e-Squirt, the IAS won't
-+   contains all those sockets).
-+
-+   The ultimate debugging tool is irdadump (and remember that I require you
-+   to use version 0.9.15 or later). You should run irdadump while attempting
-+   to connect and check what's happening. A normal irdadump log with a IrDA
-+   device in front of the port (not connected) should show something like
-+   this :
-+
-+ > irdadump
-+ 22:04:48.000713 xid:cmd 6f1e8511 > ffffffff S=6 s=0 (14)
-+ 22:04:48.090705 xid:cmd 6f1e8511 > ffffffff S=6 s=1 (14)
-+ 22:04:48.180714 xid:cmd 6f1e8511 > ffffffff S=6 s=2 (14)
-+ 22:04:48.270734 xid:cmd 6f1e8511 > ffffffff S=6 s=3 (14)
-+ 22:04:48.270698 xid:rsp 6f1e8511 < fb48d412 S=6 s=2 Jean Tourrilhes hint=8220 [ PDA/Palmtop IrOBEX ] (32)
-+ 22:04:48.360742 xid:cmd 6f1e8511 > ffffffff S=6 s=4 (14)
-+ 22:04:48.450733 xid:cmd 6f1e8511 > ffffffff S=6 s=5 (14)
-+ 22:04:48.540762 xid:cmd 6f1e8511 > ffffffff S=6 s=* weblab10 hint=0400 [ Computer ] (24)
-+
-+   You see my Palm V answering the discoveries of Linux. The Palm shows the
-+   infamous "Waiting for sender" pop-up.
-+
-+   On the other hand, if the stack is not properly configured (wrong port,
-+   wrong driver), or if the device in front is not active, you will get
-+   something like this :
-+
-+ 22:02:47.988983 xid:cmd 6f1e8511 > ffffffff S=6 s=0 (14)
-+ 22:02:48.078981 xid:cmd 6f1e8511 > ffffffff S=6 s=1 (14)
-+ 22:02:48.168992 xid:cmd 6f1e8511 > ffffffff S=6 s=2 (14)
-+ 22:02:48.258995 xid:cmd 6f1e8511 > ffffffff S=6 s=3 (14)
-+ 22:02:48.349018 xid:cmd 6f1e8511 > ffffffff S=6 s=4 (14)
-+ 22:02:48.439035 xid:cmd 6f1e8511 > ffffffff S=6 s=5 (14)
-+ 22:02:48.529063 xid:cmd 6f1e8511 > ffffffff S=6 s=* weblab10 hint=0400 [ Computer ] (24)
-+
-+   As you can see, nobody answer us...
-+
-+   After that, send a good bug report to the Linux-IrDA mailing list.
-+
-+                               ------------------
-+
-+The connection just "hang"
-+
-+   The first type of hang is a very classical problem, where the connection
-+   hanging just after beeing negociated (after the packets called SNRM and
-+   UA). The irdadump looks like the following :
-+
-+
-+ 18:03:28.766071 xid:cmd ffffffff < af28ca67 S=6 s=0 (14)
-+ 18:03:28.856067 xid:cmd ffffffff < af28ca67 S=6 s=1 (14)
-+ 18:03:28.947685 xid:cmd ffffffff < af28ca67 S=6 s=2 (14)
-+ 18:03:29.037383 xid:cmd ffffffff < af28ca67 S=6 s=3 (14)
-+ 18:03:29.037549 xid:rsp 977f612c > af28ca67 S=6 s=3 lagaffe hint=4400 [ Computer LAN Access ] (23)
-+ 18:03:29.126099 xid:cmd ffffffff < af28ca67 S=6 s=4 (14)
-+ 18:03:29.216071 xid:cmd ffffffff < af28ca67 S=6 s=5 (14)
-+ 18:03:29.316257 xid:cmd ffffffff < af28ca67 S=6 s=* tanguy hint=4400 [ Computer LAN Access ] (22)
-+ 18:03:29.316433 snrm:cmd ca=fe pf=1 977f612c > af28ca67 new-ca=ba (32)
-+ 18:03:29.417508 ua:rsp ca=ba pf=1 977f612c < af28ca67 (31)
-+ 18:03:29.417646 rr:cmd > ca=ba pf=1 nr=0 (2)
-+ 18:03:29.666173 rr:cmd > ca=ba pf=1 nr=0 (2)
-+
-+
-+   If you are on the primary, you will see a series of rr:cmd until it
-+   times-out. On the secondary, you won't see anything after the ua:rsp and
-+   it will eventually timeout.
-+
-+   What most likely happening is that the negociated connection parameters
-+   don't match. Usually, one end doesn't implement properly the speed that is
-+   beeing negociated, so the two nodes can't hear each other after changing
-+   speed. And most likely it happens at FIR speeds.
-+
-+   Of course, it would be nice to fix the driver, but in the short term the
-+   solution is to force the IrDA stack to negociate a lower speed :
-+
-+ > echo 115200 > /proc/sys/net/irda/max_baud_rate
-+
-+   You can of course try lower values, and there is also other parameters you
-+   can tweak in this directory.
-+
-+   There is second type of hang, that may look similar but is not. You may
-+   see the IrDA stack "hanging" on transmitting a large packet (the last
-+   number between parenthesis). This seems due to a bug in the some FIR
-+   hardware.
-+
-+
-+ 18:03:30.458569 i:rsp  < ca=ba pf=1 nr=6 ns=5 LM slsap=12 dlsap=10 CONN_CMD TTP credits=0(12)
-+ 18:03:30.458740 i:cmd  > ca=ba pf=1 nr=6 ns=6 LM slsap=10 dlsap=12 CONN_RSP TTP credits=0(12)
-+ 18:03:30.466399 rr:rsp < ca=ba pf=1 nr=7 (2)
-+ 18:03:30.516548 rr:cmd > ca=ba pf=1 nr=6 (2)
-+ 18:03:30.537423 i:rsp  < ca=ba pf=1 nr=7 ns=6 LM slsap=12 dlsap=10 TTP credits=0 (29)
-+ 18:03:30.537663 rr:cmd > ca=ba pf=1 nr=7 (2)
-+ 18:03:30.547328 rr:rsp < ca=ba pf=1 nr=7 (2)
-+ 18:03:30.555025 i:cmd  > ca=ba pf=1 nr=7 ns=7 LM slsap=10 dlsap=12 TTP credits=1 (2050)
-+ 18:03:30.566804 i:cmd  > ca=ba pf=1 nr=7 ns=7 LM slsap=10 dlsap=12 TTP credits=1 (2050)
-+ 18:03:30.596405 i:cmd  > ca=ba pf=1 nr=7 ns=7 LM slsap=10 dlsap=12 TTP credits=1 (2050)
-+
-+
-+   It may look a bit different for you, but you get the idea, the packet
-+   doesn't goes through and is retried, and the communication just dies
-+   there.
-+
-+   As we can't fix the hardware, the solution is to force the IrDA stack to
-+   transmit smaller packets :
-+
-+ > echo 2000 > /proc/sys/net/irda/max_tx_data_size
-+
-+   Now, I've seen is a third type of hang which happen during the connection,
-+   and not related to a large packet. This happens with buggy phones, such as
-+   Ericsson phones (T39/T68/...).
-+
-+
-+ 14:53:57.741656 snrm:cmd ca=fe pf=1 2cc4b1b4 > 29c42130 new-ca=ae
-+         LAP QoS: Baud Rate=4000000bps Max Turn Time=500ms Data Size=2048B
-+ Window Size=7 Add BOFS=0 Min Turn Time=1000us Link Disc=12s (33)
-+ 14:53:57.877021 ua:rsp ca=ae pf=1 2cc4b1b4 < 29c42130  
-+         LAP QoS: Baud Rate=1152000bps Max Turn Time=500ms Data Size=256B Window
-+ Size=3 Add BOFS=0 Min Turn Time=0us Link Disc=12s (31)
-+ 14:53:57.877622 rr:cmd > ca=ae pf=1 nr=0 (2)
-+ 14:53:57.889399 rr:rsp < ca=ae pf=1 nr=0 (2)
-+ 14:53:57.889468 i:cmd  > ca=ae pf=1 nr=0 ns=0 LM slsap=11 dlsap=00 CONN_CMD (6)
-+ 14:53:57.895119 i:rsp  < ca=ae pf=1 nr=1 ns=0 LM slsap=00 dlsap=11 CONN_RSP (6)
-+ 14:53:57.895264 i:cmd  > ca=ae pf=1 nr=1 ns=1 LM slsap=11 dlsap=00
-+ GET_VALUE_BY_CLASS: "IrDA:IrCOMM" "Parameters" (28)
-+ 14:53:57.899848 i:rsp  < ca=ae pf=1 nr=2 ns=1 LM slsap=00 dlsap=11
-+ GET_VALUE_BY_CLASS: Success
-+         IrCOMM Parameters Service Type=NINE_WIRE THREE_WIRE Port Type=PARALLEL (19)
-+ 14:53:57.900690 i:cmd  > ca=ae pf=0 nr=2 ns=2 LM slsap=11 dlsap=00 DISC (6)
-+ 14:53:57.900803 i:cmd  > ca=ae pf=1 nr=2 ns=3 LM slsap=12 dlsap=00 CONN_CMD (6)
-+ 14:53:57.914408 rr:rsp < ca=ae pf=1 nr=4 (2)
-+ 14:53:57.914453 rr:cmd > ca=ae pf=1 nr=2 (2)
-+ 14:53:57.924388 rr:rsp < ca=ae pf=1 nr=4 (2)
-+ 14:53:57.965741 rr:cmd > ca=ae pf=1 nr=2 (2)
-+
-+
-+   The first interesting part of the log above is the Min Turn Time=0us. The
-+   peer says that it can turn the link around in 0us, but I've never seen any
-+   device that fast.
-+
-+   The problem here is that the Linux-IrDA stack gives the peer exactly what
-+   he ask for, and the Linux-IrDA stack can be very fast in turning around.
-+   And of course the peer can't keep up and doesn't receive properly the
-+   frames, and after that it usually goes downhill.
-+
-+   In those cases, you may want mandate that Linux uses a large turnaround
-+   time :
-+
-+ > echo 1000 > /proc/sys/net/irda/min_tx_turn_time
-+
-+   The second interesting part of the log above is that it fails just after
-+   the Linux-IrDA sends two consecutive packets. IrLAP is a windowed protocol
-+   (up to 7 consecutive frames), but some devices have trouble managing that
-+   (such as the Ericsson phones and USB dongles).
-+
-+   In those cases, you may want limit Linux to send one frame per IrLAP
-+   window :
-+
-+ > echo 1 > /proc/sys/net/irda/max_tx_window
-+
-+   Note that the patch adding max_tx_window to the IrDA stack is included
-+   only in kernel 2.4.22.
-+
-+                               ------------------
-+
-+irattach print "tcsetattr" in the log
-+
-+   People using FIR drivers (nsc-ircc, smc-ircc...) are often confronted to
-+   this simple problem. When they start irattach, it doesn't work and the
-+   following message (or similar) is printed in the log :
-+
-+ irattach: tcsetattr: Invalid argument
-+
-+   This is due to a conflict between the Linux-IrDA FIR driver and the
-+   regular Linux serial driver. Both want to manage the same hardware, the
-+   serial driver has registered the FIR port as a pseudo serial port and is
-+   owning it, and the kernel rightly prevent the FIR driver to get ownership
-+   of it (it's first come first serve).
-+
-+   The solution is simple. You need to tell the serial driver that it should
-+   not manage this port.
-+
-+   The safest way is to remove the serial driver :
-+
-+ > rmmod serial
-+
-+   Unfortunately, the trick above doesn't always work (non-modular driver,
-+   another serial port in use). Another way is to declare the port invalid :
-+
-+ > setserial /dev/ttyS1 uart none
-+
-+   On the other hand, if you do that, you won't be able to use irtty (SIR
-+   mode driver), because irtty uses the regular Linux serial driver. If you
-+   change your mind and want to use the irtty driver, you can reenable the
-+   serial port with :
-+
-+ > insmod serial
-+ > setserial /dev/ttyS1 uart 16550A
-+
-+                               ------------------
-+
-+Common pitfalls
-+
-+   There is many way to get the IrDA stack to not run properly. Not following
-+   instructions seems to be one of the most guaranteed way to reach that
-+   goal.
-+
-+   Here are mistakes I've seen user make :
-+
-+     * IrDA ports not properly aligned
-+     * irmanager running (it's obsolete, get rid of it)
-+     * Let the init scripts of the distribution do the job
-+     * irdaping running (prevent the LAP connection)
-+     * Obsolete irda-utils
-+     * using the wrong driver (FIR/irtty/irport)
-+     * using the wrong port (/dev/ttyS0 vs /dev/ttyS1)
-+     * Wrong permissions on the serial port (irattach must run as root)
-+     * Some other application (such as pppd) grabbing the serial port
-+     * Some other driver (most likely a Pcmcia card) using the IRQ that the
-+       IrDA driver needs (for Pcmcia drivers, play with "exclude" directives
-+       in /etc/pcmcia/config.opts)
-+     * Wrong irattach command (irattach /dev/ttySX for SIR vs irattach irdaX
-+       for FIR)
-+     * Multiple instances of irattach for the same port (staying in
-+       background)
-+     * Wrong modules names (should be ircomm-tty, not ircomm_tty)
-+     * IrDA modules not loaded
-+     * Mixing up /dev/ttySX and /dev/ircommX. The stack runs on top of
-+       /dev/ttySX and provides serial emulation through /dev/ircommX, so
-+       serial apps should run on top of /dev/ircommX.
-+     * Compiling the IrDA stack static (i.e. non module - it may work, but
-+       this is not what the developpers work with)
-+     * Compiling the IrDA stack without the IRDA_DEBUG option. This option
-+       enable extra checks that prevent your kernel to crash.
-+     * Mixing modules belonging to different versions of the IrDA stack
-+     * Unclean IrDA source (failed patch)
-+     * Mixing modules belonging to different kernel versions
-+     * Trying to load an IrDA module on a stack wich has this code compiled
-+       static (or loading module twice)
-+     * Wrong version of modules tools (for kernel 2.4)
-+     * Failed to do depmod -a (usually automatic at reboot)
-+     * Using a version of the kernel which is not used and recommended by
-+       developpers.
-+
-+                               ------------------
-+
-+Compilation problems
-+
-+   Sometimes, when you compile the IrDA stack or some various IrDA package,
-+   you may have the compiler complaining the things such as
-+   IRLMP_HINT_MASK_SET or IRDAPROTO_ULTRA are not defined.
-+
-+   This is because of a mess related to kernel headers and the way most
-+   distributions deal with it. If you have the 2.4.X kernel source lying
-+   around, the fix is simple. Just copy the header irda.h from the kernel to
-+   your include directory :
- 
-+ cp /usr/src/linux/include/linux/irda.h /usr/include/linux
- 
-+   That should fix it ;-)
- 
+--------------5FCC92470DB48B0E1CC0DEFB
+Content-Type: text/plain; charset=us-ascii;
+ name="dyn_syscall-2004-apr-19"
+Content-Disposition: inline;
+ filename="dyn_syscall-2004-apr-19"
+Content-Transfer-Encoding: 7bit
 
---3uo+9/B/ebqu+fSQ--
+diff -ruN 2.6.4.ref/arch/ia64/Kconfig 2.6.4.mig2-tmp/arch/ia64/Kconfig
+--- 2.6.4.ref/arch/ia64/Kconfig	Tue Mar 16 13:36:30 2004
++++ 2.6.4.mig2-tmp/arch/ia64/Kconfig	Mon Apr 19 10:41:55 2004
+@@ -218,6 +218,14 @@
+ 	  Access).  This option is for configuring high-end multiprocessor
+ 	  server systems.  If in doubt, say N.
+ 
++config DYN_SYSCALL
++        tristate "Support for dynamic system calls"
++	default m
++	help
++	  Say m if you want a module supporting to register / unregister or
++	  to hijack / restore system calls.
++	  This stuff is not foreseen to run inside the kernel.
++
+ config VIRTUAL_MEM_MAP
+ 	bool "Virtual mem map"
+ 	default y if !IA64_HP_SIM
+diff -ruN 2.6.4.ref/arch/ia64/kernel/Makefile 2.6.4.mig2-tmp/arch/ia64/kernel/Makefile
+--- 2.6.4.ref/arch/ia64/kernel/Makefile	Tue Mar 16 13:36:30 2004
++++ 2.6.4.mig2-tmp/arch/ia64/kernel/Makefile	Mon Apr 19 10:14:14 2004
+@@ -18,8 +18,11 @@
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_SMP)		+= smp.o smpboot.o
+ obj-$(CONFIG_PERFMON)		+= perfmon_default_smpl.o
++obj-$(CONFIG_DYN_SYSCALL)	+= dyn_syscall.o
+ obj-$(CONFIG_IA64_CYCLONE)	+= cyclone.o
+ 
++dyn_syscall-objs := dyn_syscall_asm.o dyn_syscall_main.o
++
+ # The gate DSO image is built using a special linker script.
+ targets += gate.so gate-syms.o
+ 
+diff -ruN 2.6.4.ref/arch/ia64/kernel/dyn_syscall_asm.S 2.6.4.mig2-tmp/arch/ia64/kernel/dyn_syscall_asm.S
+--- 2.6.4.ref/arch/ia64/kernel/dyn_syscall_asm.S	Thu Jan  1 01:00:00 1970
++++ 2.6.4.mig2-tmp/arch/ia64/kernel/dyn_syscall_asm.S	Mon Apr 19 10:14:19 2004
+@@ -0,0 +1,252 @@
++/*
++ * Dynamic System Calls & System Call Hijacking
++ * ============================================
++ *
++ * Version 0.1, 19th of April 2004
++ * By Zoltan Menyhart, Bull S.A. <Zoltan.Menyhart@bull.net>
++ * The usual GPL applies.
++ *
++ * See also "Documentation/dyn_syscall.txt".
++ */
++ 
++
++#include <asm/asmmacro.h>
++#include <asm/unistd.h>
++#define	_SOME_PRIVATE_DEFS_
++#include <asm/dyn_syscall.h>
++
++
++	.text
++	.align		32
++
++
++/*
++ * This is the link table for the dynamic / hijacked system calls:
++ *
++ *	struct {
++ *		<link code>;
++ *	} x_module_link[NR_syscalls];
++ *
++ * For a dynamic / hijacked system call, "sys_call_table[i]" is modified to
++ * point at "x_module_link[i]", where "i = <syscall number> - __NR_ni_syscall".
++ *
++ * Each "x_module_link[i].<link code>" puts "i * sizeof(assembler's long)" into
++ * "R2" and jumps to the common link routine.
++ */
++x_module_link:
++	.global		x_module_link
++	.set		tmp, 0
++	.rept		NR_syscalls
++	mov		r2 = tmp
++	br.sptk.few	common_link
++	;;
++	.set		tmp, tmp + 4		// sizeof(assembler's long)
++	.endr
++x_module_ln_end:
++	.global		x_module_ln_end
++
++
++/*
++ * This is the return linkage table for the dynamic / hijacked system calls:
++ *
++ *	struct {
++ *		<link code>;
++ *	} x_module_ret[NR_syscalls];
++ *
++ * A system call is invoked with "B0" pointing at "x_module_ret[i].<link code>",
++ *  where "i = <syscall number> - __NR_ni_syscall".
++ *
++ * Each "x_module_ret[i].<link code>" puts "i * sizeof(assembler's long)" into
++ * "R2" and jumps to the common return linkage routine.
++ */
++x_module_ret:
++	.set		tmp, 0
++	.rept		NR_syscalls
++	mov		r2 = tmp
++	br.sptk.few	common_ret
++	;;
++	.set		tmp, tmp + 4		// sizeof(assembler's long)
++	.endr
++
++
++/*
++ * Common link routine for the dynamic / hijacked system calls.
++ *
++ * Save "B0" in "x_module_b0_tab[i]" and jump at the function pointed at
++ * by "x_module_fp_tab[i]" if "x_module_sem_tab[i]" can be taken.
++ *
++ * Input:	R2:	(System call number - __NR_ni_syscall) *
++ *							sizeof(assembler's long)
++ * Output:	B0:	-> "x_module_ret[i].<link code>"
++ *
++ * Pseudo code:
++ *
++ *	int	tmp = x_module_sem_tab[i];
++ *
++ *	if (!(_SEM_WRITE_ & tmp))
++ *		if (cmpxchg_acq(&x_module_sem_tab[i], tmp, tmp + _SEM_RD_DELTA_)
++ *									== tmp){
++ *			(* x_module_fp_tab[i])(args, ...);
++ *			goto x_module_ret[i];
++ *		}
++ *	goto sys_ni_syscall;
++ */
++
++	.set		fp_tab_off, x_module_fp_tab - common_link
++	.set		b0_tab_off, x_module_b0_tab - common_link
++	.set		ret_off, x_module_ret - common_link
++	.set		sem_off, x_module_sem_tab - common_link
++	.set		sys_ni_off, x_module_sys_ni - common_link
++
++common_link:
++	mov		r15 = ip
++        movl		r14 = _SEM_WRITE_
++	mov		r8 = b0
++	;;
++	shladd		r20 = r2, 1, r15
++	shladd		r3 = r2, 2, r15
++	add		r18 = r2, r15
++	;;
++	add		r20 = b0_tab_off, r20	// -> x_module_b0_tab[i]
++	add		r17 = fp_tab_off, r3	// -> x_module_fp_tab[i].IP
++	add		r2 = fp_tab_off + 8, r3	// -> x_module_fp_tab[i].GP
++	add		r16 = ret_off, r3	// -> x_module_ret[i]
++	add		r18 = sem_off, r18	// -> x_module_sem_tab[i]
++	;;
++	st8		[r20] = r8		// Save old B0
++	ld8		r17 = [r17]		// New IP
++	mov		b0 = r16
++	ld4		r3 = [r18]		// Old x_module_sem_tab[i] value
++	;;
++	zxt4		r20 = r3
++	and		r14 = r3, r14		// if (!(_SEM_WRITE_ & tmp))
++	mov		b6 = r17
++	;;
++	cmp4.eq		p8, p9 = 0, r14
++	add		r17 = _SEM_RD_DELTA_, r20
++	mov		ar.ccv = r20
++	;;
++(p8)	cmpxchg4.acq	r3 = [r18], r17, ar.ccv
++	;;
++(p8)	cmp4.eq		p8, p9 = r3, r20
++	;;
++(p8)	ld8		r1 = [r2]
++(p8)	br.sptk.few	b6
++(p9)	add		r14 = sys_ni_off, r15
++	;;
++(p9)	ld8		r17 = [r14]		// -> sys_ni_syscall()
++	;;
++(p9)	mov		b6 = r17
++(p9)	br.sptk.few	b6
++
++
++/*
++ * Common return linkage routine for the dynamic / hijacked system calls.
++ *
++ * Restore "B0" from "x_module_b0_tab[i]", load the kernel "GP" and release
++ * "x_module_sem_tab[i]".
++ *
++ * Input:	R2:	(System call number - __NR_ni_syscall) *
++ *							sizeof(assembler's long)
++ *
++ * We are sure that "x_module_sem_tab[i]" is not taken and cannot be taken in
++ * the mean time, for write. However, "_SEM_WRITE_" can be OR-ed to the
++ * semaphore indicating that writer is waiting.
++ *
++ * Pseudo code:
++ *
++ *	int	tmp;
++ *
++ *	do {
++ *		tmp = x_module_sem_tab[i];
++ *	} while (cmpxchg_rel(&x_module_sem_tab[i], tmp, tmp - _SEM_RD_DELTA_)
++ *									!= tmp);
++ *	return;
++ */
++	.set		b0_tab_off_r, x_module_b0_tab - common_ret
++	.set		k_gp_off, x_module_k_gp - common_ret
++	.set		sem_off_r, x_module_sem_tab - common_ret
++
++common_ret:
++	mov		r15 = ip
++	;;
++	add		r16 = k_gp_off, r15	// -> kernel GP
++	shladd		r20 = r2, 1, r15
++	add		r18 = r2, r15
++	;;
++	add		r20 = b0_tab_off_r, r20	// -> x_module_b0_tab[i]
++	add		r18 = sem_off_r, r18	// -> x_module_sem_tab[i]
++	ld8		r1 = [r16]
++	;;
++	ld8		r20 = [r20]
++	;;
++1:	ld4		r3 = [r18]		// Old x_module_sem_tab[i] value
++	mov		b0 = r20
++	;;
++	zxt4		r3 = r3
++	;;
++	sub		r17 = _SEM_RD_DELTA_, r3
++	mov		ar.ccv = r3
++	;;
++	cmpxchg4.rel	r16 = [r18], r17, ar.ccv
++	;;
++	cmp4.eq		p8, p9 = r3, r16
++(p8)	br.sptk.few	b0
++(p9)	br.cond.dptk	1b
++	;;
++
++
++/*
++ * The GP of the kernel is saved here. Yes, in the text segment.
++ */
++x_module_k_gp:
++	.global		x_module_k_gp
++	.quad		0
++
++
++/*
++ * Address of "sys_ni_syscall()"
++ */
++x_module_sys_ni:
++	.global		x_module_sys_ni
++	.quad		0
++
++
++/*
++ * Pointers to the dynamic / hijacked system calls:
++ *
++ *	struct fdesc {
++ *		unsigned long	ip;
++ *		unsigned long	gp;
++ *	} x_module_fp_tab[NR_syscalls];
++ */
++x_module_fp_tab:
++	.global		x_module_fp_tab
++	.rept		NR_syscalls
++	.quad		0			// New IP
++	.quad		0			// New GP
++	.endr
++
++
++/*
++ * Table for saving the return addresses to the kernel:
++ *
++ *	unsigned long x_module_b0_tab[NR_syscalls];
++ */
++x_module_b0_tab:
++	.rept		NR_syscalls
++	.quad		0			// Old return address
++	.endr
++
++
++/*
++ * Semaphores:
++ *
++ *	x_mod_sem_t x_module_sem_tab[NR_syscalls];
++ */
++x_module_sem_tab:
++	.global		x_module_sem_tab
++	.rept		NR_syscalls
++	.long		_SEM_WRITE_		// Locked for write
++	.endr
++
+diff -ruN 2.6.4.ref/arch/ia64/kernel/dyn_syscall_main.c 2.6.4.mig2-tmp/arch/ia64/kernel/dyn_syscall_main.c
+--- 2.6.4.ref/arch/ia64/kernel/dyn_syscall_main.c	Thu Jan  1 01:00:00 1970
++++ 2.6.4.mig2-tmp/arch/ia64/kernel/dyn_syscall_main.c	Mon Apr 19 13:17:30 2004
+@@ -0,0 +1,903 @@
++#define	_TEST_
++
++
++/*
++ * Dynamic System Calls & System Call Hijacking
++ * ============================================
++ *
++ * This loadable kernel module "dyn_syscall.ko" is a wrapper module that provides
++ * for registering / unregistering or hijacking / restoring system calls.
++ *
++ * This wrapper module includes a shadow system call table that is spitted between
++ * "dyn_syscall_main.c" and in "dyn_syscall_asm.S", in order to facilitate assembly
++ * programming :-)
++ *
++ * The shadow system call table consists of:
++ *
++ *	"sh_syscall[NR_syscalls]" in "dyn_syscall_main.c":
++ *
++ *		- The name of the system call
++ *		- The saved entry from "sys_call_table"
++ *		- A pointer to "sys/kernel/dynamic_syscalls" or to
++ *		  to "sys/kernel/hijacked_syscalls" directory in the "/proc"
++ *		  file system
++ *		- A pointer to "sys/kernel/dynamic_syscalls/<name>" or to
++ *		  to "sys/kernel/hijacked_syscalls/<name>" entry in the "/proc"
++ *		  file system
++ *
++ *	in "dyn_syscall_asm.S":
++ *
++ *		- "x_module_sem_tab[]": table of the semaphores, see the man
++ *		  page of "syscall_unlock()" and "syscall_trylock()"
++ *		- "x_module_fp_tab[]": table of the function descriptors of the
++ *		  new system calls
++ *		- "x_module_b0_tab[]": room to save the return address to the
++ *		  kernel (from the register "B0")
++ *		- "x_module_link[]": contains linkage code used to invoke the
++ *		  new system calls
++ *		- "x_module_ret[]": contains linkage code used to return from
++ *		  the new system calls to the kernel
++ *
++ * Some notes about the synchronization strategy:
++ *
++ * - Dynamically assigned and hijacked system call entries form two distinct sets.
++ *   + For dynamic system call assignment:
++ *     * Atomically check & decrement "free_entries"
++ *     * If a specific system call number is requested, then reserve the
++ *       corresponding "sh_syscall[]" entry by use of a compare & swap
++ *       atomic operation
++ *     * Otherwise select a free entry in "sh_syscall[]" by use of a
++ *       compare & swap atomic operation
++ *   + For system call hijacking:
++ *     * Reserve the corresponding entry in "sh_syscall[]" by use of a
++ *       compare & swap atomic operation
++ *     * No nested hijacking
++ *
++ * - First the selected entry in "sh_syscall[i]" is prepared, including
++ *   "x_module_fp_tab[i]"
++ *
++ * - Then "sys_call_table[i]" is modified to point at the linkage code in
++ *   "x_module_link[i]"
++ *
++ * - Undo operations work in the reverse order
++ *
++ * Note that "dyn_syscall.ko" can be unloaded but it is unsafe.
++ * On the other hand, unloading modules which have correctly unregistered their
++ * system calls is 100% safe.
++ *
++ * See also "Documentation/dyn_syscall.txt".
++ *
++ * 19th of April 2004
++ */
++
++
++#include <linux/module.h>
++#include <linux/pagemap.h>	/* For IA64_GRANULE_SIZE */
++#include <linux/proc_fs.h>
++#include <asm/unistd.h>
++#include <linux/syscalls.h>
++#define	_SOME_PRIVATE_DEFS_
++#include <asm/dyn_syscall.h>
++
++
++MODULE_DESCRIPTION("Dynamic System Call Support Module");
++MODULE_VERSION("0.1");
++MODULE_AUTHOR("Zoltan Menyhart, Bull S.A., <Zoltan.Menyhart@bull.net>");
++MODULE_LICENSE("GPL");
++
++
++#if	defined(_TEST_)
++#define	STATIC
++#define	INLINE
++#else
++#define	STATIC		static
++#define	INLINE		inline
++#endif
++
++#define	PRINT(args...)	printk(args)
++
++
++static const char	headline[] = "Dynamic System Call Support Module";
++static const char	ill_syscall_no[] = "Illegal syscall no.: %d\n";
++static const char	syscall_inuse[] = "Syscall %d in use\n";
++static const char	not_free[] = "Not a free syscall, no.: %d\n";
++static const char	not_yours[] = "Syscall #%d is not yours\n";
++static const char	not_locked[] = "Syscall %d not locked\n";
++static const char	kernel_syms[] = "/proc/kallsyms";
++static const char	cant_find[] = "Can't find %s\n";
++static const char	_sys_call_table[] = "sys_call_table";
++static const char	_sys_ni_syscall[] = "sys_ni_syscall";
++static const char	_kernel_gp[] = "__gp";
++
++
++/* "sys_call_table" entries should have been declared as ones of this type */
++typedef	unsigned long	entry_t;
++
++/* "sys_call_table[]" defined in "itv.S */
++entry_t			*sys_call_table_addr;
++
++/* Address of the "syscall not implemented" function - not a function pointer */
++entry_t			sys_ni_syscall_addr;
++
++
++static atomic_t			free_entries = ATOMIC_INIT(0);
++static char			dyn_scall_dir[] = "sys/kernel/dynamic_syscalls";
++static struct proc_dir_entry	*dyn_pde_p;
++static char			hijack_dir[] = "sys/kernel/hijacked_syscalls";
++static struct proc_dir_entry	*hi_pde_p;
++
++
++/*
++ * Decrement "var" only if the condition (e.g. "> 0") is met.
++ *
++ * Returns TRUE if the operation has been successfully carried out.
++ */
++#define atomic_check_and_dec(var, condition)				\
++({									\
++	__s32	___old;							\
++	int	___rc;							\
++									\
++	do {								\
++		___old = atomic_read(var);				\
++		if (!(___rc = (___old condition)))			\
++			break;						\
++	} while	(cmpxchg(var, ___old, ___old - 1) != ___old);		\
++	___rc;								\
++})
++
++
++/*
++ * Returns the *OLD* value as usually one would expect.
++ */
++#define	my_fetch_add64(delta, v)					\
++	ia64_fetchadd(delta, &atomic64_read(v), rel);
++
++
++/*
++ * Shadow system call table.
++ *
++ * In order to facilitate assembly programming, several structure members have
++ * been moved into "dyn_syscall_asm.S":
++ * - System call semafores
++ * - Pointers to the dynamic / hijacked system calls
++ * - Saved the return addresses to the kernel
++ *
++ * A comment says in the "ivt.S" file where "sys_call_table" is defined, that
++ * the very first element must be "sys_ni_syscall()" => we shall not
++ * use "sh_syscall[0]".
++ *
++ * Usage of "entry":
++ *	- 0 means not in use
++ *	- 1 means reserved (going to be used)
++ *	- original "sys_call_table" entry | 1 means preparing to undo
++ *	- Otherwise saves the original "sys_call_table" entry (not an odd value)
++ */
++typedef struct {
++	const char		*name;
++	atomic64_t		entry;		/* Saved from "sys_call_table" */
++	struct proc_dir_entry	*pdentry;
++	struct proc_dir_entry	*p_pdentry;	/* Parent of "pdentry" */
++} sh_syscall_t;
++static sh_syscall_t sh_syscall[NR_syscalls];
++
++
++/*
++ * System call semafores.
++ */
++typedef unsigned int		x_mod_sem_t;		/* 4 byte quantity */
++extern x_mod_sem_t		x_module_sem_tab[];
++
++
++/*
++ * Pointers to the dynamic / hijacked system calls:
++ *
++ *	fdesc_t x_module_fp_tab[NR_syscalls];
++ */
++extern fdesc_t			x_module_fp_tab[];
++
++
++/*
++ * The linkage tables in "dyn_syscall_asm.S" are something like:
++ *
++ * The link table for the dynamic / hijacked system calls:
++ *
++ *	struct {
++ *		<link code>;
++ *	} x_module_link[NR_syscalls];
++ *
++ * For a dynamic / hijacked system call, "sys_call_table[i]" is modified to
++ * point at "x_module_link[i]", where "i = <syscall number> - __NR_ni_syscall".
++ */
++extern char			x_module_link[],
++				x_module_ln_end[];
++/* & x_module_link[i] */
++unsigned int			x_module_link_entry_size;
++#define	X_MODULE_LINK(i)	(x_module_link + i * x_module_link_entry_size)
++
++
++extern unsigned long		x_module_k_gp;		/* Kernel GP */
++extern unsigned long		x_module_sys_ni;	/* -> sys_ni_syscall() */
++
++
++STATIC INLINE int
++gimme_a_syscall(void);
++
++STATIC void
++install_syscall(const unsigned int, const dyn_syscall_t);
++
++STATIC int
++dsc_read_func(char *page, char **start, off_t off, int count, int *eof,
++								void *data);
++
++STATIC int
++make_proc_entry(struct proc_dir_entry * const, const char * const,
++							const unsigned int);
++
++
++/*
++ * Unlock a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++int
++syscall_unlock(const char * const name, const unsigned int scall_no)
++{
++	const int	scn = scall_no - __NR_ni_syscall;
++
++	if (scn < 1 || scn >= NR_syscalls){
++		PRINT(ill_syscall_no, scall_no);
++		return -EINVAL;
++	}
++	if ((entry_t) atomic64_read(&sh_syscall[scn].entry) <= 1 ||
++		sys_call_table_addr[scn] != (entry_t) X_MODULE_LINK(scn) ||
++				strcmp(sh_syscall[scn].name, name) != 0){
++		PRINT(not_yours, scall_no);
++		return -EBADF;
++	}
++	if (x_module_sem_tab[scn] != _SEM_WRITE_){
++		PRINT(not_locked, scall_no);
++		return -ENOLCK;
++	}
++	PRINT("Unlocking syscall \"%s\": No = %d\n", sh_syscall[scn].name,
++							scn + __NR_ni_syscall);
++	x_module_sem_tab[scn] = _SEM_FREE_;
++	return 0;
++}
++
++EXPORT_SYMBOL(syscall_unlock);
++
++
++/*
++ * Internal version of system call trylock.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scn:		System call number - __NR_ni_syscall
++ *
++ * Returns:	-EAGAIN is returned if we've failed to take lock. Can be retried.
++ *		As usual, -Exxx in case of errors
++ */
++STATIC int
++intern_trylock(const char * const name, const unsigned int scn)
++{
++	x_mod_sem_t	tmp;
++
++	tmp = x_module_sem_tab[scn];
++	/* No problem OR-ing more than once "_SEM_WRITE_" */
++	if (cmpxchg_acq(&x_module_sem_tab[scn], tmp, tmp | _SEM_WRITE_) != tmp)
++		return -EAGAIN;
++	if ((tmp & _READER_MASK_) != _SEM_FREE_)
++		return -EAGAIN;
++	PRINT("Successfully locking syscall \"%s\": No = %d\n",
++				sh_syscall[scn].name, scn + __NR_ni_syscall);
++	return 0;
++}
++
++
++/*
++ * Try to lock a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	-EAGAIN is returned if we've failed to take lock. Can be retried.
++ *		As usual, -Exxx in case of errors
++ */
++int
++syscall_trylock(const char * const name, const unsigned int scall_no)
++{
++	const int	scn = scall_no - __NR_ni_syscall;
++	entry_t		addr = (entry_t) atomic64_read(&sh_syscall[scn].entry);
++
++	if (scn < 1 || scn >= NR_syscalls){
++		PRINT(ill_syscall_no, scall_no);
++		return -EINVAL;
++	}
++	if (addr < KERNEL_START || !(addr & 1) ||
++				sys_call_table_addr[scn] != addr - 1 ||
++				strcmp(sh_syscall[scn].name, name) != 0){
++		PRINT(not_yours, scall_no);
++		return -EBADF;
++	}
++	return intern_trylock(name, scn);
++}
++
++EXPORT_SYMBOL(syscall_trylock);
++
++
++/*
++ * Register a dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *				(should persist while the system call is alive)
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *				(if it is 0, then I'll choose a number for you)
++ *		fp:		-> new system call
++ *
++ * Returns:	The system call number accepted / assigned.
++ *		As usual, -Exxx in case of errors
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()".
++ */
++int
++dyn_syscall_reg(const char * const name, const unsigned int scall_no,
++							const dyn_syscall_t fp)
++{
++	int	scn;		/* System call number - __NR_ni_syscall */
++	int	rc;
++
++	if (!atomic_check_and_dec(&free_entries, > 0)){
++		PRINT("No more free syscall entry\n");
++		return -ENOENT;
++	}
++	mb();			/* Make sure the new "free_entries" is seen */
++	if (scall_no == 0){
++		scn = gimme_a_syscall();
++		/* "h_syscall[scn]" has been marked as in use */
++	} else {
++		scn = scall_no - __NR_ni_syscall;
++		if (scn < 1 || scn >= NR_syscalls){
++			atomic_add(1, &free_entries);
++			PRINT(ill_syscall_no, scall_no);
++			return -EINVAL;
++		}
++		/* Try to mark the entry as in use */
++		if (cmpxchg(&sh_syscall[scn].entry, 0, 1) != 0){
++			atomic_add(1, &free_entries);
++			PRINT(syscall_inuse, scall_no);
++			return -EBUSY;
++		}
++		if (sys_call_table_addr[scn] != sys_ni_syscall_addr){
++			atomic64_set(&sh_syscall[scn].entry, 0);
++			mb();
++			atomic_add(1, &free_entries);
++			PRINT(not_free, scall_no);
++			return -EBUSY;
++		}
++	}
++	/* Create "/proc/sys/kernel/dynamic_syscalls/<name>" */
++	if ((rc = make_proc_entry(dyn_pde_p, name, scn)) < 0){
++		atomic64_set(&sh_syscall[scn].entry, 0);
++		mb();
++		atomic_add(1, &free_entries);
++		return rc;
++	}
++	sh_syscall[scn].name = name;
++	install_syscall(scn, fp);
++//	MOD_INC_USE_COUNT;
++	return scn + __NR_ni_syscall;
++}
++
++EXPORT_SYMBOL(dyn_syscall_reg);
++
++
++/*
++ * Allocate a free ("sys_ni_syscall()") and mark it as in use.
++ *
++ * Returns:	A system call number - __NR_ni_syscall
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()" => we shall not use "sh_syscall[0]".
++ */
++STATIC INLINE int
++gimme_a_syscall(void)
++{
++	unsigned int 	i;
++
++	/* Most of the usable entries are at the high indices */
++	for (i = NR_syscalls - 1; i > 0; i--){
++		if (sys_call_table_addr[i] != sys_ni_syscall_addr)
++			continue;
++		/* Try to mark the entry as in use */
++		if (cmpxchg(&sh_syscall[i].entry, 0, 1) != 0)
++			continue;
++		return i;
++	}
++	panic("\nWe've lost the \"sys_ni_syscall()\"-s ???\n");
++}
++
++
++/*
++ * Do install a dynamic system call.
++ *
++ * Arguments:	scn:		System call number - __NR_ni_syscall
++ *		fp:		-> new system call
++ */
++STATIC void
++install_syscall(const unsigned int scn, const dyn_syscall_t fp)
++
++{
++	PRINT("Syscall \"%s\": No = %d IP = 0x%lx GP = 0x%lx\n",
++				sh_syscall[scn].name, scn + __NR_ni_syscall,
++				((fdesc_t *) fp)->ip, ((fdesc_t *) fp)->gp);
++	x_module_fp_tab[scn] = * (fdesc_t *) fp;
++	atomic64_set(&sh_syscall[scn].entry,
++			sys_call_table_addr[scn]);	/* Must not be 0 */
++	mb();		/* "sys_call_table_addr[scn] =" must be the last */
++	sys_call_table_addr[scn] = (entry_t) X_MODULE_LINK(scn);
++}
++
++
++/*
++ * Do prepare to uninstall a dynamic / hijacked system call.
++ *
++ * Arguments:	scn:		System call number - __NR_ni_syscall
++ */
++STATIC INLINE void
++prepare_to_uninstall_syscall(const unsigned int scn)
++{
++	PRINT("Original IP = 0x%lx\n", atomic64_read(&sh_syscall[scn].entry));
++	sys_call_table_addr[scn] = my_fetch_add64(1, &sh_syscall[scn].entry);
++	mb();			/* "sys_call_table_addr[scn] =" must be seen */
++}
++
++
++/*
++ * Do uninstall a dynamic / hijacked system call.
++ *
++ * Arguments:	scn:		System call number - __NR_ni_syscall
++ */
++STATIC INLINE void
++uninstall_syscall(const unsigned int scn)
++{
++	PRINT("Restoring syscall \"%s\": No = %d\n", sh_syscall[scn].name,
++							scn + __NR_ni_syscall);
++	sh_syscall[scn].name = NULL;
++	mb();	/* "atomic64_set(&sh_syscall[scn].entry, 0)" must be the last */
++	atomic64_set(&sh_syscall[scn].entry, 0);
++}
++
++
++/*
++ * Common "/proc" read function. Outputs the system call number.
++ *
++ * System call number - __NR_ni_syscall is stored in "->data".
++ */
++#define MIN(a,b)	((a) < (b) ? (a) : (b))
++STATIC int
++read_func(char *page, char **start, off_t off, int count, int *eof, void *data)
++{
++	char		buff[6];		/* For "1234\n\0" */
++	unsigned int	ch_count;
++
++	sprintf(buff, "%4d\n", ((int) (long) data) + __NR_ni_syscall);
++	if (off >= sizeof(buff) - 1){
++		*eof = 1;
++		return 0;
++	}
++	ch_count = MIN(count, sizeof(buff) - 1 - off);
++	memcpy(page + off, &buff[off], ch_count);
++	return ch_count;
++}
++
++
++/*
++ * Create "/proc/sys/kernel/.../<name>" showing the actual system call number.
++ *
++ * Arguments:	p_pde_p:	-> parent /proc directory entry
++ *		name:		-> system call name
++ *		scn:		System call number - __NR_ni_syscall
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++STATIC int
++make_proc_entry(struct proc_dir_entry * const p_pde_p, const char * const name,
++							const unsigned int scn)
++{
++	struct proc_dir_entry	*pde_p;
++
++	if ((pde_p = create_proc_entry(name, S_IRUSR | S_IRGRP | S_IROTH,
++							p_pde_p)) == NULL){
++		PRINT("Cannot create /proc/sys/kernel/.../%s entry\n", name);
++		return -ENOMEM;
++	}
++	pde_p->read_proc = read_func;
++	pde_p->data = (void *) (long) scn;
++	pde_p->owner = THIS_MODULE;
++	sh_syscall[scn].pdentry = pde_p;
++	sh_syscall[scn].p_pdentry = p_pde_p;
++	return 0;
++}
++
++
++/*
++ * Hijack a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *				(should persist while the system call is alive)
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *		fp:		-> new system call
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()".
++ */
++int
++hijack_syscall(const char * const name, const unsigned int scall_no,
++							const dyn_syscall_t fp)
++{
++	const int	scn = scall_no - __NR_ni_syscall;
++	int		rc;
++
++	if (scn < 1 || scn >= NR_syscalls){
++		PRINT(ill_syscall_no, scall_no);
++		return -EINVAL;
++	}
++	/* Try to mark the entry as in use */
++	if (cmpxchg(&sh_syscall[scn].entry, 0, 1) != 0){
++		PRINT(syscall_inuse, scall_no);
++		return -EBUSY;
++	}
++	if (sys_call_table_addr[scn] == sys_ni_syscall_addr){
++		PRINT("Syscall is \"ni\"\n");
++		atomic64_set(&sh_syscall[scn].entry, 0);
++		return -ENOENT;
++	}
++	/* Create "/proc/sys/kernel/hijacked_syscalls/<name>" */
++	if ((rc = make_proc_entry(hi_pde_p, name, scn)) < 0){
++		atomic64_set(&sh_syscall[scn].entry, 0);
++		return rc;
++	}
++	sh_syscall[scn].name = name;
++	install_syscall(scn, fp);
++//	MOD_INC_USE_COUNT;
++	return 0;
++}
++
++EXPORT_SYMBOL(hijack_syscall);
++
++
++/*
++ * Prepare to restore a previously dynamic / hijacked dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	-EAGAIN is returned if we've failed to take lock. Can be retried.
++ *		As usual, -Exxx in case of errors
++ */
++int
++prep_restore_syscall(const char * const name, const unsigned int scall_no)
++{
++	const int	scn = scall_no - __NR_ni_syscall;
++
++	if (scn < 1 || scn >= NR_syscalls){
++		PRINT(ill_syscall_no, scall_no);
++		return -EINVAL;
++	}
++	if ((entry_t) atomic64_read(&sh_syscall[scn].entry) <= 1 ||
++		sys_call_table_addr[scn] != (entry_t) X_MODULE_LINK(scn) ||
++				strcmp(sh_syscall[scn].name, name) != 0){
++		PRINT(not_yours, scall_no);
++		return -EBADF;
++	}
++	PRINT("Preparing to restore syscall \"%s\": No = %d\n",
++						sh_syscall[scn].name, scall_no);
++	remove_proc_entry(name, sh_syscall[scn].p_pdentry);
++	sh_syscall[scn].pdentry = sh_syscall[scn].p_pdentry = NULL;
++	prepare_to_uninstall_syscall(scn);
++	return intern_trylock(name, scn);
++}
++
++EXPORT_SYMBOL(prep_restore_syscall);
++
++
++/*
++ * Finish restoring a previously hijacked dynamic system call.
++ * (Used by "dyn_syscall_unreg()", too.)
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++int
++restore_syscall(const char * const name, const unsigned int scall_no)
++{
++	const int	scn = scall_no - __NR_ni_syscall;
++	entry_t		addr = (entry_t) atomic64_read(&sh_syscall[scn].entry);
++
++	if (scn < 1 || scn >= NR_syscalls){
++		PRINT(ill_syscall_no, scall_no);
++		return -EINVAL;
++	}
++	if (addr < KERNEL_START || !(addr & 1) ||
++				sys_call_table_addr[scn] != addr - 1 ||
++				strcmp(sh_syscall[scn].name, name) != 0){
++		PRINT(not_yours, scall_no);
++		return -EBADF;
++	}
++	if (x_module_sem_tab[scn] != _SEM_WRITE_){
++		PRINT(not_locked, scall_no);
++		return -ENOLCK;
++	}
++	uninstall_syscall(scn);
++//	MOD_DEC_USE_COUNT;
++	return 0;
++}
++
++EXPORT_SYMBOL(restore_syscall);
++
++
++/*
++ * Finish restoring a previously registered dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++int
++dyn_syscall_unreg(const char * const name, const unsigned int scall_no)
++{
++	int	rc;
++
++	if (( rc = restore_syscall(name, scall_no)) == 0){
++		mb();	/* "atomic_add(1, &free_entries)" must be the last */
++		atomic_add(1, &free_entries);
++	}
++	return rc;
++}
++
++EXPORT_SYMBOL(dyn_syscall_unreg);
++
++
++/*
++ * Count the "free" entries in "sys_call_table".
++ *
++ * Returns:	The system call number accepted / assigned.
++ *		As usual, -Exxx in case of errors
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()".
++ */
++STATIC INLINE int
++count_free_syscalls(void)
++{
++	unsigned int	i;
++	entry_t		*p;
++
++	p = (entry_t *) sys_call_table_addr;
++	if (*p++ != sys_ni_syscall_addr){
++		PRINT("The 1st one must be sys_ni_syscall(), see ivt.S\n");
++		return -ENOENT;
++	}
++	for (i = 1; i < NR_syscalls; i++, p++)
++		if (*p == sys_ni_syscall_addr)
++			atomic_add(1, &free_entries);
++	PRINT("Number of free entries:\t%d\n", atomic_read(&free_entries));
++	if (atomic_read(&free_entries) < 1){
++		PRINT("Not enough free sys_call_table[] entries\n");
++		return -ENOENT;
++	}
++	return 0;
++}
++
++
++/*
++ * Set up the following "/proc" directories:
++ *	- "sys/kernel/dynamic_syscalls"
++ *	- "sys/kernel/hijacked_syscalls"
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++STATIC INLINE int
++init_proc_entries(void)
++{
++	if ((dyn_pde_p = proc_mkdir(dyn_scall_dir, NULL)) == NULL){
++		PRINT("Cannot create /proc/%s directory\n", dyn_scall_dir);
++		return -ENOMEM;
++	}
++	if ((hi_pde_p = proc_mkdir(hijack_dir, NULL)) == NULL){
++		PRINT("Cannot create /proc/%s directory\n", hijack_dir);
++		remove_proc_entry(dyn_scall_dir, NULL);
++		return -ENOMEM;
++	}
++	dyn_pde_p->owner = THIS_MODULE;
++	hi_pde_p->owner = THIS_MODULE;
++	return 0;
++}
++
++
++#define	RD_BUF_SIZE	80
++
++
++/*
++ * Read the next line from the "/proc/kallsyms" file.
++ * Truncate the lines longer than the buffer size.
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++STATIC INLINE int
++read_truncate_line(const int fd, char *buff)
++{
++	char	*p;
++	int	rc;
++
++	for (p = buff; p < &buff[RD_BUF_SIZE];){
++		if ((rc = sys_read(fd, p, 1)) < 0)
++			return rc;
++		if (rc == 0)
++			return -ENODATA;
++		if (*p++ == '\n')
++			break;
++	}
++	p--;
++	while (*p != '\n'){
++		if ((rc = sys_read(fd, p, 1)) < 0)
++			return rc;
++		if (rc == 0)
++			return -ENODATA;
++	}
++	*p = '\0';
++	return 0;
++}
++
++
++/*
++ * Check to see if the line contains any of the following symbols:
++ *	- address of "sys_ni_syscall()"
++ *	- address of "sys_call_table"
++ *	- the GP of the kernel "__gp"
++ *
++ * Returns:	TRUE if all the 3 symbols have already been found
++ */
++STATIC INLINE int
++check_line(char * const line)
++{
++	unsigned long	tmp;
++	char		*p, *q;
++
++	tmp = simple_strtoul(line, &p, 16);
++	for (p += 3, q = p; *p != '\0' && *p != '\t' && *p != ' '; p++);
++	*p = '\0';
++	if (strcmp(q, _sys_call_table) == 0){
++		sys_call_table_addr = (entry_t *) tmp;
++		PRINT("%s:\t\t0x%p\n", _sys_call_table, sys_call_table_addr);
++	} else if (strcmp(q, _sys_ni_syscall) == 0){
++		sys_ni_syscall_addr = tmp;
++		PRINT("%s():\t0x%lx\n", _sys_ni_syscall, sys_ni_syscall_addr);
++	} else if (strcmp(q, _kernel_gp) == 0){
++		x_module_k_gp = tmp;
++		PRINT("%s:\t\t\t0x%lx\n", _kernel_gp, x_module_k_gp);
++	}
++	return sys_call_table_addr != NULL &&
++			sys_ni_syscall_addr != 0 && x_module_k_gp != 0;
++}
++
++
++/*
++ * Pick up some kernel symbols from "/proc/kallsyms" which happen not be
++ * exported :-)
++ *	- address of "sys_ni_syscall()"
++ *	- address of "sys_call_table"
++ *	- the GP of the kernel "__gp"
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++STATIC INLINE int
++get_kernel_syms(void)
++{
++	char		buf[RD_BUF_SIZE];
++	int		fd;
++	int		rc;
++	mm_segment_t	orig_address_limit = get_fs();
++	mm_segment_t	tmp_address_limit = KERNEL_DS;
++
++	set_fs(tmp_address_limit);		/* Make "sys_open()" happy */
++	if ((fd = sys_open(kernel_syms, O_RDONLY, 0)) < 0){
++		PRINT("Can't open %s, error code: %d\n", kernel_syms, fd);
++		set_fs(orig_address_limit);
++		return fd;
++	}
++	while ((rc = read_truncate_line(fd, buf)) == 0)
++		if (check_line(buf))
++			break;
++	sys_close(fd);
++	set_fs(orig_address_limit);
++	if (rc != 0 && rc != -ENODATA)
++		return rc;
++	if (sys_call_table_addr == NULL){
++		PRINT(cant_find, _sys_call_table);
++		return -ENOENT;
++	}
++	if (sys_ni_syscall_addr == 0){
++		PRINT(cant_find, _sys_ni_syscall);
++		return -ENOENT;
++	}
++	if (x_module_k_gp == 0){
++		PRINT(cant_find, _kernel_gp);
++		return -ENOENT;
++	}
++	return 0;
++}
++
++
++/*
++ * Acquire some kernel symbols which happen not be exported :-)
++ *
++ * Set up the following "/proc" directories:
++ *	- "sys/kernel/dynamic_syscalls"
++ *	- "sys/kernel/hijacked_syscalls"
++ */
++STATIC int __init
++init_dyn_syscall(void)
++{
++	int	rc;
++
++	PRINT("\n%s\n", headline);
++	if ((rc = get_kernel_syms()) < 0)
++		return rc;
++	if (sys_call_table_addr < (entry_t *) KERNEL_START ||
++			sys_call_table_addr >= (entry_t *) (KERNEL_START +
++			IA64_GRANULE_SIZE - NR_syscalls * sizeof(entry_t))){
++		PRINT("Illegal %s address\n", "sys_call_table");
++		return -EFAULT;
++	}
++	if (sys_ni_syscall_addr < KERNEL_START || sys_ni_syscall_addr >=
++						(entry_t) sys_call_table_addr){
++		PRINT("Illegal %s address\n", "sys_ni_syscall()");
++		return -EFAULT;
++	}
++	if ((rc = count_free_syscalls()) < 0)
++		return rc;
++	/* Needed for "#define	X_MODULE_LINK(i)" */
++	x_module_link_entry_size = (x_module_ln_end - x_module_link) /
++								NR_syscalls;
++	if (x_module_k_gp < KERNEL_START || x_module_k_gp >=
++					KERNEL_START + IA64_GRANULE_SIZE){
++		PRINT("Illegal kernel GP\n");
++		return -EFAULT;
++	}
++	x_module_sys_ni = sys_ni_syscall_addr;
++	return init_proc_entries();
++}
++
++
++STATIC void __exit
++exit_dyn_syscall(void)
++{
++	PRINT("\n%s getting unloaded\n", headline);
++	remove_proc_entry(dyn_scall_dir, NULL);
++	remove_proc_entry(hijack_dir, NULL);
++}
++
++
++module_init(init_dyn_syscall);
++module_exit(exit_dyn_syscall);
++
+diff -ruN 2.6.4.ref/include/asm-ia64/dyn_syscall.h 2.6.4.mig2-tmp/include/asm-ia64/dyn_syscall.h
+--- 2.6.4.ref/include/asm-ia64/dyn_syscall.h	Thu Jan  1 01:00:00 1970
++++ 2.6.4.mig2-tmp/include/asm-ia64/dyn_syscall.h	Mon Apr 19 11:00:15 2004
+@@ -0,0 +1,151 @@
++/*
++ * Dynamic System Calls & System Call Hijacking
++ * ============================================
++ *
++ * Version 0.1, 19th of April 2004
++ * By Zoltan Menyhart, Bull S.A. <Zoltan.Menyhart@bull.net>
++ * The usual GPL applies.
++ *
++ * See also "Documentation/dyn_syscall.txt".
++ */
++
++
++#if	!defined(__ASSEMBLY__)
++
++
++#define	PROC_DYN_SYSCALL_DIR	"sys/kernel/dynamic_syscalls"
++#define	PROC_HIJCK_SYSCALL_DIR	"sys/kernel/hijacked_syscalls"
++
++
++typedef	long (* dyn_syscall_t)(const int, ...);
++
++
++/*
++ * Function pointer - why isn't it defined in an "official" .h file ?
++ */
++typedef struct fdesc {
++	unsigned long	ip;
++	unsigned long	gp;
++} fdesc_t;
++
++
++/*
++ * Register a dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *				(should persist while the system call is alive)
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *				(if it is 0, then I'll choose a number for you)
++ *		fp:		-> new system call
++ *
++ * Returns:	The system call number accepted / assigned.
++ *		As usual, -Exxx in case of errors
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()".
++ */
++extern int
++dyn_syscall_reg(const char * const name, const unsigned int scall_no,
++							const dyn_syscall_t fp);
++
++
++/*
++ * Hijack a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *				(should persist while the system call is alive)
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *		fp:		-> new system call
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ *
++ * Note:	A comment says in the "ivt.S" file where "sys_call_table" is
++ *		defined, that the very first element must be
++ *		"sys_ni_syscall()".
++ */
++extern int
++hijack_syscall(const char * const name, const unsigned int scall_no,
++							const dyn_syscall_t fp);
++
++
++/*
++ * Prepare to restore a previously dynamic / hijacked dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++extern int
++prep_restore_syscall(const char * const name, const unsigned int scall_no);
++
++
++/*
++ * Finish restoring a previously hijacked dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++extern int
++restore_syscall(const char * const name, const unsigned int scall_no);
++
++
++/*
++ * Finish restoring a previously registered dynamic system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++extern int
++dyn_syscall_unreg(const char * const name, const unsigned int scall_no);
++
++
++/*
++ * Unlock a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	As usual, -Exxx in case of errors
++ */
++extern int
++syscall_unlock(const char * const name, const unsigned int scall_no);
++
++
++/*
++ * Try to lock a system call.
++ *
++ * Arguments:	name:		-> unique ASCII string
++ *		scall_no:	System call number in the [__NR_ni_syscall + 1...
++ *				__NR_ni_syscall + NR_syscalls) range
++ *
++ * Returns:	-EAGAIN is returned if we've failed to take lock. Can be retried.
++ *		As usual, -Exxx in case of errors
++ */
++extern int
++syscall_trylock(const char * const name, const unsigned int scall_no);
++
++
++#endif	/* #if	!defined(__ASSEMBLY__) */
++
++
++#if	defined(_SOME_PRIVATE_DEFS_)
++
++#define	_SEM_WRITE_	0x80000000	/* Locked for write */
++#define	_READER_MASK_	0x7fffffff	/* Mask of the reader counter */
++#define	_SEM_FREE_	0		/* Unlocked */
++#define	_SEM_RD_DELTA_	1		/* Reades increment by one */
++
++#endif	/* #if	defined(_SOME_PRIVATE_DEFS_) */
++
+diff -ruN 2.6.4.ref/Documentation/dyn_syscall.txt 2.6.4.mig2-tmp/Documentation/dyn_syscall.txt
+--- 2.6.4.ref/D*/dyn*txt	Thu Jan  1 01:00:00 1970
++++ 2.6.4.mig2/Documentation/dyn_syscall.txt	Tue Apr 20 10:27:00 2004
+@@ -0,0 +1,303 @@
++Dynamic System Calls & System Call Hijacking
++============================================
++
++Version 0.1, 19th of April 2004
++Zoltan Menyhart, Bull S.A., <Zoltan.Menyhart@bull.net>
++
++
++- Disappointed, 'cause they don't wanna take your brand new syscall into the
++  kernel ?
++
++  + No problem, I'll do it for you.
++
++- Can't recompile the kernel, otherwise you gonna lose RedHat guarantee ?
++  Or some ISVs like whose name starts with an "O" and terminates with "racle"
++  ain't gonna support it ?
++
++  + No problem, I'll load your syscall in a module.
++
++- Got a syscall number conflict 'cause of an exotic patch slipped in before
++  your one ?
++
++  + No problem, I'll find a free syscall number for you dynamically.
++
++- Wanna try your own version of a syscall without recompiling the kernel or
++  rebooting it ?
++
++  + No problem, I'll hijack the syscall for you.
++
++- Fed up with the infinite number of different kernel configurations ?
++  Can't follow any more what .config you've done for which of your clients ?
++
++  + No problem, make a minimal kernel with almost nothing in it and load
++    dynamically the syscalls actually needed. 
++
++My loadable kernel module "dyn_syscall.ko" provides for
++registering / unregistering or hijacking / restoring system calls.
++
++Sure, it's a loadable kernel module, who wants to modify the kernel ? :-)
++
++My patch is against the version 2.6.4. As there is not much in the way of
++direct dependency on the kernel, it should work with more recent versions, too.
++
++Playing with the system call mechanism is very much architecture dependent.
++Its key element is written in assembly.
++I've got an IA64 version only.
++
++
++How can it be used ?
++--------------------
++
++Assuming you've got a system call like "asmlinkage long sys_foo(...)" in a
++loadable kernel module. 
++You can register it with an unused system call number:
++
++	const char name[] = "foo";
++	rc = dyn_syscall_reg(name, syscall_no, (dyn_syscall_t) sys_foo);
++
++If "syscall_no" is zero, I'll find a free system call number for you.
++(Do check the return code. On success, it's your system call number.)
++Or you can register your system call over an existing one:
++
++	rc = hijack_syscall(name, syscall_no, (dyn_syscall_t) sys_foo);
++
++Having fully initialized your system call, you can make it available:
++
++	rc = syscall_unlock(name, syscall_no);
++
++This sequence is usually included in the "module_init(...)" function.
++
++User applications can find out what your system call number is by consulting
++"/proc/sys/kernel/dynamic_syscalls/foo" or
++"/proc/sys/kernel/hijacked_syscalls/foo", respectively.
++
++Having played enough with your system call, you can launch the module unload
++procedure, without worrying about the "living calls" which may be "part way"
++through your module:
++
++	rc = prep_restore_syscall(name, syscall_no);
++
++This function locks out further calls to the "syscall_no" (they will be refused
++with the return code "-ENOSYS"). It returns "-EAGAIN" if there is still someone
++inside your system call.
++In this latter case you can wait until your last client leaves:
++
++	while((rc = syscall_trylock(name, syscall)) == -EAGAIN)
++		schedule();
++
++If you have a blocking system call, then instead of busy waiting, wake up the
++waiting tasks and go to sleep a bit in the mean time.
++Finally, you can invoke:
++
++	rc = dyn_syscall_unreg(name, syscall_no);
++
++or
++
++	rc = restore_syscall(name, syscall_no);
++
++to remove completely your registered or hijacked system call, respectively.
++
++This sequence is usually included in the "module_exit(...)" function.
++
++The function prototypes are in "asm/dyn_syscall.h".
++
++In order to configure this module, say "m" in:
++
++        Processor type and features:
++                Support for dynamic system calls
++
++
++man pages:
++----------
++
++
++--------------------------------------------------------------------------------
++
++
++NAME
++
++	dyn_syscall_reg, hijack_syscall - Register a system call
++
++SYNOPSIS
++
++	#include <asm/dyn_syscall.h>
++
++	int
++	dyn_syscall_reg(const char *name,
++			const unsigned int syscall_no,
++			const dyn_syscall_t fp);
++	int
++	hijack_syscall(const char *name,
++			const unsigned int syscall_no,
++			const dyn_syscall_t fp);
++
++DESCRIPTION
++
++	"dyn_syscall_reg()" and "hijack_syscall()" are exported services
++	available for loadable kernel modules.
++
++	"dyn_syscall_reg()" registers a new, dynamic system call.
++	If "syscall_no" is zero, then an otherwise unused system call number
++	will be assigned.
++
++	"hijack_syscall()" registers a system call which overloads an
++	existing one.
++
++	"name" points to a string that shall persist while the system call is
++	alive.
++
++	"syscall_no" should be in the range of
++	[__NR_ni_syscall + 1... __NR_ni_syscall + NR_syscalls).
++
++	"fp" refers to the new system call.
++	For the IA64 architecture, the function descriptor "dyn_syscall_t"
++	refers to a structure containing the program counter and the global
++	pointer.
++
++	User applications can find this system call number in
++	"/proc/sys/kernel/dynamic_syscalls/<name>" or in
++	"/proc/sys/kernel/hijacked_syscalls/<name>", respectively.
++	On read, each of these files contains a 4 digit decimal number
++	terminated with a '\n' character.
++
++RETURN VALUE
++
++	On success, the system call number accepted / assigned is returned.
++
++	On error, the following codes may be returned:
++
++	-ENOENT:	No more free system call is available -
++			"dyn_syscall_reg()" only
++	-EINVAL:	Illegal system call number - both
++	-EBUSY:		System call is already in use - "dyn_syscall_reg()" only
++	-ENOMEM:	Cannot create "/proc/..." - both
++
++SEE ALSO
++
++	syscall_unlock, prep_restore_syscall, syscall_trylock,
++	dyn_syscall_unreg, restore_syscall
++
++
++--------------------------------------------------------------------------------
++
++
++NAME
++
++	syscall_unlock, syscall_trylock - Unlock / try to lock a system call
++	prep_restore_syscall - Prepare to unregister a system call
++
++SYNOPSIS
++
++	#include <asm/dyn_syscall.h>
++
++	int
++	syscall_unlock(const char *name,
++			const unsigned int syscall_no);
++	int
++	syscall_trylock(const char *name,
++			const unsigned int syscall_no);
++
++	int
++	prep_restore_syscall(const char *name,
++			const unsigned int syscall_no);
++
++DESCRIPTION
++
++	"syscall_unlock()", "syscall_trylock()" and "prep_restore_syscall()"
++	are exported services available for loadable kernel modules.
++
++	Each system call is protected by a semaphore.
++
++	When a new system call is added, it is locked for write.
++	Regular system call invocation tries to take the semaphore for read.
++	Unless it is "syscall_unlock()"-ed, any attempt to use the system call
++         will be refused and "-ENOSYS" will be reported.
++
++	Before undoing a system call registration, it is necessary to lock out
++	any further invocation of the system call by re-locking it for write.
++	(They will be refused by returning "-ENOSYS".)
++	Apart from some small administration task, "prep_restore_syscall()"
++	attempts to do it. If it fails (indicated by "-EAGAIN" returned), then
++	there is at least one "living call" which may be "part way" through
++	the system call code.
++
++	"syscall_trylock()" should be invoked repeatedly while it returns
++	"-EAGAIN". In order not to over penalise other tasks, "schedule()"
++	should be invoked at each iteration. If the system call is blocking,
++         i.e. there can be tasks sleeping inside the system call, then they have
++         to be woke up. In such a case, it is recommended to sleep a bit
++         between two iterations of "syscall_trylock()".
++
++	"name" should be the same as that was used during the registration.
++
++	"syscall_no" should be in the range of
++	[__NR_ni_syscall + 1... __NR_ni_syscall + NR_syscalls).
++
++RETURN VALUE
++
++	On success, zero is returned.
++
++	"syscall_trylock()" and "prep_restore_syscall()" return "-EAGAIN" if
++         they have failed to take the semaphore for write.
++	
++	On error, the following codes can be returned:
++
++	-EBADF:		Name or system call number does not match the parameters
++			which was used during the system call registration
++	-EINVAL:	Illegal system call number
++
++SEE ALSO
++
++	dyn_syscall_reg, hijack_syscall, dyn_syscall_unreg, restore_syscall
++
++
++--------------------------------------------------------------------------------
++
++
++NAME
++
++	dyn_syscall_unreg, restore_syscall - Unregister a system call
++
++SYNOPSIS
++
++	#include <asm/dyn_syscall.h>
++
++	int
++	dyn_syscall_unreg(const char *name,
++			const unsigned int syscall_no);
++	int
++	restore_syscall(const char *name,
++			const unsigned int syscall_no);
++
++DESCRIPTION
++
++	"dyn_syscall_unreg()" and "restore_syscall()" are exported services
++	available for loadable kernel modules.
++
++	"dyn_syscall_unreg()" unregisters a dynamic system call.
++
++	"restore_syscall()" restores a hijacked system call.
++
++	"name" should be the same as that was used during the registration.
++
++	"syscall_no" should be in the range of
++	[__NR_ni_syscall + 1... __NR_ni_syscall + NR_syscalls).
++
++RETURN VALUE
++
++	On success, zero is returned.
++
++	On error, the following codes can be returned:
++
++	-EBADF:		Name or system call number does not match the parameters
++			which was used during the system call registration
++	-EINVAL:	Illegal system call number
++
++SEE ALSO
++
++	dyn_syscall_reg, hijack_syscall,
++	syscall_unlock, syscall_trylock,  prep_restore_syscall
++
++
++--------------------------------------------------------------------------------
++
+
+--------------5FCC92470DB48B0E1CC0DEFB--
+

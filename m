@@ -1,125 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVBWV4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVBWV61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVBWV4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 16:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVBWV4c
+	id S261625AbVBWV61 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 16:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVBWV44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 16:56:32 -0500
-Received: from scrat.cs.umu.se ([130.239.40.18]:51412 "EHLO scrat.cs.umu.se")
-	by vger.kernel.org with ESMTP id S261613AbVBWVzP (ORCPT
+	Wed, 23 Feb 2005 16:56:56 -0500
+Received: from hostmaster.org ([212.186.110.32]:59613 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S261629AbVBWVzv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 16:55:15 -0500
-Date: Wed, 23 Feb 2005 22:55:08 +0100
-From: Peter Hagervall <hager@cs.umu.se>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, trivial@rustcorp.com.au
-Subject: [PATCH] A few more sparse fixes
-Message-ID: <20050223215508.GC21912@peppar.cs.umu.se>
+	Wed, 23 Feb 2005 16:55:51 -0500
+Subject: tun/tap(bochs) on AMD64
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q37hyykiZdgFfB8/F8lP"
+Date: Wed, 23 Feb 2005 22:54:48 +0100
+Message-Id: <1109195688.4387.28.camel@hostmaster.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the sparse warnings about using plain integer as NULL pointer in
-the following files:
 
-arch/i386/oprofile/backtrace.c
-drivers/char/isicom.c
-drivers/char/drm/radeon_state.c
-drivers/mtd/maps/nettel.c
-drivers/net/wireless/prism54/isl_ioctl.c
-drivers/serial/8250_early.c
-fs/reiserfs/namei.c
+--=-q37hyykiZdgFfB8/F8lP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+I am trying to get bochs to use tun/tap on x86_64, strace reveals the
+following problem:
+
+open("/dev/net/tun", O_RDWR)            =3D 7
+ioctl(7, TUNSETIFF, 0x7fffffffe6c0)     =3D -1 EINVAL (Invalid argument)
+
+I wonder if this a tun/tap or a bochs problem. Any clues?
+
+Tom
+
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
+
+Linux is like a Wigwam..  No Windows, no Gates, and Apache inside.
 
 
-Signed-off-by: Peter Hagervall <hager@cs.umu.se>
-
---
 
 
-===== arch/i386/oprofile/backtrace.c 1.1 vs edited =====
---- 1.1/arch/i386/oprofile/backtrace.c	2005-01-05 03:48:23 +01:00
-+++ edited/arch/i386/oprofile/backtrace.c	2005-02-21 16:02:15 +01:00
-@@ -27,7 +27,7 @@
- 	/* frame pointers should strictly progress back up the stack
- 	 * (towards higher addresses) */
- 	if (head >= head->ebp)
--		return 0;
-+		return NULL;
- 
- 	return head->ebp;
- }
-===== drivers/char/isicom.c 1.41 vs edited =====
---- 1.41/drivers/char/isicom.c	2005-01-06 19:53:25 +01:00
-+++ edited/drivers/char/isicom.c	2005-02-21 15:57:22 +01:00
-@@ -1271,7 +1271,7 @@
- 	}	
- 	port->flags &= ~ASYNC_INITIALIZED;
- 	/* 3rd October 2000 : Vinayak P Risbud */
--	port->tty = 0;
-+	port->tty = NULL;
- 	spin_unlock_irqrestore(&card->card_lock, flags);
- 	
- 	/*Fix done by Anil .S on 30-04-2001
-===== drivers/char/drm/radeon_state.c 1.44 vs edited =====
---- 1.44/drivers/char/drm/radeon_state.c	2005-02-08 10:57:35 +01:00
-+++ edited/drivers/char/drm/radeon_state.c	2005-02-21 15:55:24 +01:00
-@@ -1842,7 +1842,7 @@
- 				dev_priv->surfaces[s->surface_index].refcount--;
- 				if (dev_priv->surfaces[s->surface_index].refcount == 0)
- 					dev_priv->surfaces[s->surface_index].flags = 0;
--				s->filp = 0;
-+				s->filp = NULL;
- 				radeon_apply_surface_regs(s->surface_index, dev_priv);
- 				return 0;
- 			}
-===== drivers/mtd/maps/nettel.c 1.8 vs edited =====
---- 1.8/drivers/mtd/maps/nettel.c	2005-01-05 18:17:45 +01:00
-+++ edited/drivers/mtd/maps/nettel.c	2005-02-21 15:58:36 +01:00
-@@ -479,7 +479,7 @@
- 	}
- 	if (nettel_intel_map.virt) {
- 		iounmap(nettel_intel_map.virt);
--		nettel_intel_map.virt = 0;
-+		nettel_intel_map.virt = NULL;
- 	}
- #endif
- }
-===== drivers/net/wireless/prism54/isl_ioctl.c 1.28 vs edited =====
---- 1.28/drivers/net/wireless/prism54/isl_ioctl.c	2004-10-09 14:43:06 +02:00
-+++ edited/drivers/net/wireless/prism54/isl_ioctl.c	2005-02-21 16:00:41 +01:00
-@@ -1750,7 +1750,7 @@
- 	u8 wpa_ie[MAX_WPA_IE_LEN];
- 	int wpa_ie_len;
- 	size_t len = 0; /* u16, better? */
--	u8 *payload = 0, *pos = 0;
-+	u8 *payload = NULL, *pos = NULL;
- 	int ret;
- 
- 	/* I think all trapable objects are listed here.
-===== drivers/serial/8250_early.c 1.1 vs edited =====
---- 1.1/drivers/serial/8250_early.c	2004-11-19 08:03:10 +01:00
-+++ edited/drivers/serial/8250_early.c	2005-02-21 16:01:48 +01:00
-@@ -164,7 +164,7 @@
- 
- 	if ((options = strchr(options, ','))) {
- 		options++;
--		device->baud = simple_strtoul(options, 0, 0);
-+		device->baud = simple_strtoul(options, NULL, 0);
- 		length = min(strcspn(options, " "), sizeof(device->options));
- 		strncpy(device->options, options, length);
- 	} else {
-===== fs/reiserfs/namei.c 1.66 vs edited =====
---- 1.66/fs/reiserfs/namei.c	2005-01-05 03:48:14 +01:00
-+++ edited/fs/reiserfs/namei.c	2005-02-21 16:03:36 +01:00
-@@ -608,7 +608,7 @@
-         goto out_failed;
-     }
- 
--    retval = reiserfs_new_inode (&th, dir, mode, 0, 0/*i_size*/, dentry, inode);
-+    retval = reiserfs_new_inode (&th, dir, mode, NULL, 0/*i_size*/, dentry, inode);
-     if (retval)
-         goto out_failed;
- 	
+--=-q37hyykiZdgFfB8/F8lP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iQEVAwUAQhz7qGD1OYqW/8uJAQLuRgf6AtKxE47Eq8oKkA6jrFUO8GdlQovpXOL4
+U74Cr99S0pVm7wdIuu1pZIAF5UP7ZqDrmHgNjnEZAFo1fzABkJh6DhxYwN8v4dTn
+aTglc8HBJtXtO7mh8b01bZSe7hfvDZKDnp6edwcFujHEwLqGuY7C1v68HKYUxQ9V
+eFShwdUgMYzj+E/gfROabPPKkwSp4MPSsKnhNSVlRc5YvgG38WnjjP9IRCAKQMOB
+DVDaczONKQ1i0NcrFYSbWz0eveBMsT8RjtB/0WReQHePKVJ3t8gPj+ZkLr5nbwte
+lkt5X9EPjkfiLfv3bSl33DaUgBL2xiTkJlNgaYPNK+YYvJOROXRZFA==
+=YOkr
+-----END PGP SIGNATURE-----
+
+--=-q37hyykiZdgFfB8/F8lP--
+

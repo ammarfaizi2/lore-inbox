@@ -1,38 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263135AbUKTRXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUKTRd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263135AbUKTRXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 12:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbUKTRXv
+	id S263134AbUKTRd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 12:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUKTRd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 12:23:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13834 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263135AbUKTRXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 12:23:48 -0500
-Date: Sat, 20 Nov 2004 17:23:45 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: sparse segfaults
-Message-ID: <20041120172345.G13550@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20041120143755.E13550@flint.arm.linux.org.uk> <Pine.LNX.4.58.0411200853150.20993@ppc970.osdl.org>
+	Sat, 20 Nov 2004 12:33:28 -0500
+Received: from verein.lst.de ([213.95.11.210]:30114 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S263134AbUKTRd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 12:33:26 -0500
+Date: Sat, 20 Nov 2004 18:33:22 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: mantel@suse.de, jason.davis@unisys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: please revert patches.arch/es7000-exports in SLES9SP1
+Message-ID: <20041120173321.GA25602@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0411200853150.20993@ppc970.osdl.org>; from torvalds@osdl.org on Sat, Nov 20, 2004 at 08:58:28AM -0800
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 08:58:28AM -0800, Linus Torvalds wrote:
-> Trivial fix checked in and pushed out. Thanks,
+Hi Hubert,
 
-Confirmed fixed, thanks.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+these exports that Unisys sent you have been rejected for legal reasons
+(as unisys wants to sneak in hooks for their binary only modules),
+please remove them from your tree aswell, thanks.

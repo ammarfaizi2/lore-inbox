@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264528AbTKNFVw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 00:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTKNFVv
+	id S264569AbTKNFY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 00:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264570AbTKNFY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 00:21:51 -0500
-Received: from relay.pair.com ([209.68.1.20]:35592 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S264528AbTKNFVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 00:21:48 -0500
-X-pair-Authenticated: 68.42.66.6
-Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-In-Reply-To: <16308.18387.142415.469027@notabene.cse.unsw.edu.au>
-References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RkWuvu1JK8aWraOfTs3x"
-Message-Id: <1068787304.4157.8.camel@localhost>
+	Fri, 14 Nov 2003 00:24:26 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:59637 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264569AbTKNFYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 00:24:25 -0500
+Date: Fri, 14 Nov 2003 00:13:00 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Davide Libenzi <davidel@xmailserver.org>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031114051300.GA3466@pimlott.net>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random> <3FAFE22B.3030108@zytor.com> <20031110193101.GF6834@x30.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 00:21:45 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031110193101.GF6834@x30.random>
+User-Agent: Mutt/1.3.28i
+From: Andrew Pimlott <andrew@pimlott.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 10, 2003 at 08:31:01PM +0100, Andrea Arcangeli wrote:
+> It maybe also cleaner to use a slightly more complicated but more
+> compact algorithm, this would make a potential new rsync command line
+> option cleaner since only 1 sequence file would need to be specified:
+> 
+> 	do {
+> 		seq = fetch(sequence-file);
+> 		if (seq & 1)
+> 			break;
+> 		rsync
+> 		if (seq != fetch(sequence-file))
+> 			seq = 1;
+> 	} while (seq & 1 && sleep 10 /* ideally exponential backoff */)
+> 
+> this way only 1 sequence-file is needed for each repository that we want
+> to checkout. the server side only has to increase twice the same file
+> before and after each update of the repository, so the server side is
+> even simpler (with the only additional requirement that the sequence
+> number has to start "even"), only the client side is a bit more complicated.
 
---=-RkWuvu1JK8aWraOfTs3x
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+For transparency, I would change the file contents to "updating"
+during an update, instead of the even-odd thing.  I think this will
+make it more obvious to people how to use it properly.
 
-On Thu, 2003-11-13 at 22:11, Neil Brown wrote:
-> RFCI =3D=3D Request For Clever Ideas.
->=20
-> Hi all..
->=20
->  I want be able to partition "md" raid arrays.
->  e.g. I want to be able to use RAID1 to mirror sda and sdb as whole
->  drives, and then partitions that into root, swap, other (or whatever
->  suits the particular situation).
-
-<snip>
-
-Can't LVM do this?  I have a raid array (mirror) that is LVM'd into
-multiple partitions.  It currently runs 2.4, but it should work fine
-with 2.6, right?  All the rest of my boxes have 2.6 and LVM, but no raid
-(no duplicate hard drives).
---=20
-Daniel Gryniewicz <dang@fprintf.net>
-
---=-RkWuvu1JK8aWraOfTs3x
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/tGZoomPajV0RnrERAuh7AJ0WQxWWuEO+vqBJ/7viUNzCIZfD0gCeO4EW
-FaibFFLk8+xk2dneYnDgjdg=
-=Llhx
------END PGP SIGNATURE-----
-
---=-RkWuvu1JK8aWraOfTs3x--
+Andrew

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbUKEMBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbUKEMCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbUKEMBd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 07:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbUKEMBd
+	id S262654AbUKEMCL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 07:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUKEMCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 07:01:33 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:11396
-	"EHLO ladymac.shadowen.org") by vger.kernel.org with ESMTP
-	id S262658AbUKEMB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 07:01:28 -0500
-To: akpm@osdl.org
-Subject: [PATCH] fix pnpbios fault message
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1CQ2mU-0004xT-QX@ladymac.shadowen.org>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Fri, 05 Nov 2004 12:01:26 +0000
+	Fri, 5 Nov 2004 07:02:11 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:63678 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262654AbUKEMCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 07:02:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=bLjjXl6bQKpfChhdSHh2MQ9v+F50d5UElnIHgvhYuFM4Gve9F1YVf6coq30ZemW1KD1NsSeMcdayhDNXiANNOCCthhRFsRIZhJA5uAk2H1y6fVQJM5SyxLRvOM69Neu6tMC9qhu797BbV+geApK1kkz3SVL3Z0OcFnGkp/093N8=
+Message-ID: <aad1205e04110504023d53ce65@mail.gmail.com>
+Date: Fri, 5 Nov 2004 20:02:00 +0800
+From: andyliu <liudeyan@gmail.com>
+Reply-To: andyliu <liudeyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]add an ifdef in sched.c
+Cc: mingo@elte.hu, akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When your plug-n-play BIOS is truly broken and generates a fault
-during use, we report this and suggest disabling it.  The message
-produced suggests using "nobiospnp" to achive this, the correct
-option is "pnpbios=off".  This patch upates the message.
+hi
 
-Revision: $Rev: 741 $
+I have found that in sched.c. the macro for_each_domain only useful
+for the config
+that has CONFIG_SMP defined. so i add an ifdef in sched.c.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+below is the patch
 
-diffstat 500-fix-pnpbios-fault-message
----
+--- linux-2.6.10-rc1/kernel/sched.c     2004-10-23 05:40:05.000000000 +0800
++++ linux-2.6.10-rc1-new/kernel/sched.c 2004-11-04 16:34:55.000000000 +0800
+@@ -281,8 +281,10 @@
 
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/drivers/pnp/pnpbios/bioscalls.c current/drivers/pnp/pnpbios/bioscalls.c
---- reference/drivers/pnp/pnpbios/bioscalls.c
-+++ current/drivers/pnp/pnpbios/bioscalls.c
-@@ -165,7 +165,7 @@ static inline u16 call_pnp_bios(u16 func
- 	if(pnp_bios_is_utter_crap)
- 	{
- 		printk(KERN_ERR "PnPBIOS: Warning! Your PnP BIOS caused a fatal error. Attempting to continue\n");
--		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"nobiospnp\" option to operate stably\n");
-+		printk(KERN_ERR "PnPBIOS: You may need to reboot with the \"pnpbios=off\" option to operate stably\n");
- 		printk(KERN_ERR "PnPBIOS: Check with your vendor for an updated BIOS\n");
- 	}
- 
+ static DEFINE_PER_CPU(struct runqueue, runqueues);
+
+-#define for_each_domain(cpu, domain) \
++#ifdef CONFIG_SMP
++# define for_each_domain(cpu, domain) \
+        for (domain = cpu_rq(cpu)->sd; domain; domain = domain->parent)
++#endif
+
+ #define cpu_rq(cpu)            (&per_cpu(runqueues, (cpu)))
+ #define this_rq()              (&__get_cpu_var(runqueues))
+
+
+
+
+thanks for reading.
+-- 
+Yours andyliu

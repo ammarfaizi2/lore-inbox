@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUHGAI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUHGAL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUHGAI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 20:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUHGAI1
+	id S268258AbUHGAL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 20:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUHGAL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 20:08:27 -0400
-Received: from nef.ens.fr ([129.199.96.32]:58898 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S268255AbUHGAIZ (ORCPT
+	Fri, 6 Aug 2004 20:11:58 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:56228 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268258AbUHGALz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 20:08:25 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: What PM should be and do (Was Re: Solving suspend-level confusion)
-In-Reply-To: <1091744073.2597.15.camel@laptop.cunninghams>
-References: <20040730164413.GB4672@elf.ucw.cz> <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston> <200408032030.41410.david-b@pacbell.net> <1091594872.3191.71.camel@laptop.cunninghams> <20040805181925.GB30543@kroah.com> <1091744073.2597.15.camel@laptop.cunninghams>
-Date: Sat, 7 Aug 2004 02:08:24 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <20040807000824.C657C18122@quatramaran.ens.fr>
-From: ebrunet@quatramaran.ens.fr ( =?ISO-8859-1?Q?=C9ric?= Brunet)
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Sat, 07 Aug 2004 02:08:24 +0200 (CEST)
+	Fri, 6 Aug 2004 20:11:55 -0400
+Date: Sat, 7 Aug 2004 01:11:21 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Keith Whitwell <keith@tungstengraphics.com>, Ian Romanick <idr@us.ibm.com>,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: DRM function pointer work..
+In-Reply-To: <20040806171641.14189.qmail@web14928.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0408070100360.13601@skynet>
+References: <20040806171641.14189.qmail@web14928.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dans ens.mailing-lists.linux-kernel, vous avez écrit :
->> > - support for telling what class of device a driver is handling (I'm
->> > particularly interested in keeping the keyboard, screen and storage
->> > devices alive while suspending).
->> 
->> You can see that info today from userspace by looking in
->> /sys/class/input, /sys/class/graphics, and /sys/block
 
-It is a minor point, but as many people are working on swsuspend right
-now, I thought I'd mentionned it. It seems (as of 2.6.8.rc1) that the
-screen is not shut down or put in a low power state when suspending to
-disk.
+>
+> fbdev is in exactly this model and it isn't causing anyone problems.
+> The simple rule is that if you want to upgrade fbdev past the current
+> version you have to do it in entirety. You do that for fbdev but
+> pulling bk://fbdev.bkbits.net/. But Joe user doesn't do that, that is
+> something only developers do.
 
-I guess that for 99.5 % of the population, it is not an issue as the
-monitor is usually plugged in the power supply of the computer and
-power is cut when the computer shuts down. My monitor, however, is
-directly plugged in the mains outlet and, after a suspend to disk, it
-displays indefinitely an information box stating that it has no video
-signal coming in.
+fbdev only has one distribution vector - the kernel, DRM has multiple
+distribution vectors, kernel, DRI snapshots, X releases, they all contain
+their own DRM modules, also people with older kernels should be able to
+use new drivers with little hassle, if we force people to upgrade their
+kernel we are restricting what we allow them to do now ...
 
-The X server knows how to shutdown (DPMS) the screen afer some
-inactivity, so I guess the kernel could do that while suspending. And it
-would be very nice if it would. But I believe there is no device
-driver handling the monitor, so I don't know where to do it.
+If we do go for a library split, we should use the kernel config system
+like I mentioned and fight any attempts to change it, to re-iterate, if
+you build drm into the kernel you have to build the graphics drivers in as
+well, (we can use a symbol to enforce it), if you build the drm as a
+module all drivers have to be modular, and the DRM makefile installs the
+core DRM, we could also create a drm_ver.h file that gets
+generateed at compile time automatically and then included into
+both drm core and module at build time, if this differs just refuse to
+load and stick a FAQ up telling the user they are messing something up ..
 
-Éric Brunet
+> The key here is that distributions release new kernels at a rapid pace.
+> This is not X where we get a new release every five years. The standard
+> mechanism for upgrading device drivers in Linux is to add them to the
+> kernel and wait for a release.  If DRM uses that mechanism for
+> distribution we won't have problems.
+>
+
+Like Keith I don't buy this argument too much either, I think we should be
+able to continue as much as possible with what people can do now ..
+especially snapshot type systems..
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

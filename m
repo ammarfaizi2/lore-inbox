@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUKBNsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbUKBNw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUKBNsS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 08:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbUKBNsR
+	id S261242AbUKBNw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 08:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUKBNw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 08:48:17 -0500
-Received: from [212.209.10.221] ([212.209.10.221]:41940 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S262937AbUKBNFG
+	Tue, 2 Nov 2004 08:52:26 -0500
+Received: from [212.209.10.221] ([212.209.10.221]:26580 "EHLO
+	krynn.se.axis.com") by vger.kernel.org with ESMTP id S262922AbUKBNFB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 08:05:06 -0500
+	Tue, 2 Nov 2004 08:05:01 -0500
 From: "Mikael Starvik" <mikael.starvik@axis.com>
 To: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: [PATCH 6/10] CRIS architecture update - Core kernel
-Date: Tue, 2 Nov 2004 14:04:45 +0100
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C748A@exmail1.se.axis.com>
+Subject: [PATCH 3/10] CRIS architecture update - Ethernet
+Date: Tue, 2 Nov 2004 14:04:36 +0100
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C7487@exmail1.se.axis.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01DA_01C4C0E4.E88FEF40"
+	boundary="----=_NextPart_000_01D1_01C4C0E4.E3679770"
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook, Build 10.0.6626
@@ -27,856 +27,755 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_01DA_01C4C0E4.E88FEF40
+------=_NextPart_000_01D1_01C4C0E4.E3679770
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Updates for core kernel functionality.
-  * Optimized MMU refill handling.
-  * Improved multiple IRQ handling.
-  * Added profiler.
-  * Updated for 2.6.9.
+Update ethernet driver to use generic mii interface.
 
 Signed-Off-By: starvik@axis.com
 
 /Mikael
 
-------=_NextPart_000_01DA_01C4C0E4.E88FEF40
+------=_NextPart_000_01D1_01C4C0E4.E3679770
 Content-Type: application/octet-stream;
-	name="cris269_6.patch"
+	name="cris269_3.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="cris269_6.patch"
+	filename="cris269_3.patch"
 
 diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/entry.S =
-lx25/arch/cris/arch-v10/kernel/entry.S=0A=
---- ../linux/arch/cris/arch-v10/kernel/entry.S	Mon Oct 18 23:53:51 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/entry.S	Tue Oct 19 15:07:37 2004=0A=
+../linux/arch/cris/arch-v10/drivers/ethernet.c =
+lx25/arch/cris/arch-v10/drivers/ethernet.c=0A=
+--- ../linux/arch/cris/arch-v10/drivers/ethernet.c	Mon Oct 18 23:54:07 =
+2004=0A=
++++ lx25/arch/cris/arch-v10/drivers/ethernet.c	Mon Oct 18 16:49:03 2004=0A=
 @@ -1,4 +1,4 @@=0A=
--/* $Id: entry.S,v 1.18 2004/05/11 12:28:25 starvik Exp $=0A=
-+/* $Id: entry.S,v 1.23 2004/10/19 13:07:37 starvik Exp $=0A=
+-/* $Id: ethernet.c,v 1.22 2004/05/14 07:58:03 starvik Exp $=0A=
++/* $Id: ethernet.c,v 1.31 2004/10/18 14:49:03 starvik Exp $=0A=
   *=0A=
-  *  linux/arch/cris/entry.S=0A=
+  * e100net.c: A network driver for the ETRAX 100LX network controller.=0A=
   *=0A=
-@@ -7,6 +7,23 @@=0A=
-  *  Authors:	Bjorn Wesen (bjornw@axis.com)=0A=
+@@ -7,6 +7,27 @@=0A=
+  * The outline of this driver comes from skeleton.c.=0A=
   *=0A=
-  *  $Log: entry.S,v $=0A=
-+ *  Revision 1.23  2004/10/19 13:07:37  starvik=0A=
-+ *  Merge of Linux 2.6.9=0A=
+  * $Log: ethernet.c,v $=0A=
++ * Revision 1.31  2004/10/18 14:49:03  starvik=0A=
++ * Use RX interrupt as random source=0A=
 + *=0A=
-+ *  Revision 1.22  2004/06/21 10:29:55  starvik=0A=
-+ *  Merge of Linux 2.6.7=0A=
++ * Revision 1.30  2004/09/29 10:44:04  starvik=0A=
++ * Enabed MAC-address output again=0A=
 + *=0A=
-+ *  Revision 1.21  2004/06/09 05:30:27  starvik=0A=
-+ *  Clean up multiple interrupt handling.=0A=
-+ *    Prevent interrupts from interrupting each other.=0A=
-+ *    Handle all active interrupts.=0A=
++ * Revision 1.29  2004/08/24 07:14:05  starvik=0A=
++ * Make use of generic MDIO interface and constants.=0A=
 + *=0A=
-+ *  Revision 1.20  2004/06/08 08:55:32  starvik=0A=
-+ *  Removed unused code=0A=
++ * Revision 1.28  2004/08/20 09:37:11  starvik=0A=
++ * Added support for Intel LXT972A. Creds to Randy Scarborough.=0A=
 + *=0A=
-+ *  Revision 1.19  2004/06/04 11:56:15  starvik=0A=
-+ *  Implemented page table lookup for refills in assembler for improved =
-performance.=0A=
++ * Revision 1.27  2004/08/16 12:37:22  starvik=0A=
++ * Merge of Linux 2.6.8=0A=
 + *=0A=
-  *  Revision 1.18  2004/05/11 12:28:25  starvik=0A=
-  *  Merge of Linux 2.6.6=0A=
++ * Revision 1.25  2004/06/21 10:29:57  starvik=0A=
++ * Merge of Linux 2.6.7=0A=
++ *=0A=
++ * Revision 1.23  2004/06/09 05:29:22  starvik=0A=
++ * Avoid any race where R_DMA_CH1_FIRST is NULL (may trigger cache bug).=0A=
++ *=0A=
+  * Revision 1.22  2004/05/14 07:58:03  starvik=0A=
+  * Merge of changes from 2.4=0A=
   *=0A=
-@@ -238,7 +255,9 @@=0A=
- #include <asm/errno.h>=0A=
- #include <asm/thread_info.h>=0A=
- #include <asm/arch/offset.h>=0A=
--		=0A=
-+#include <asm/page.h>=0A=
-+#include <asm/pgtable.h>=0A=
-+			=0A=
- 	;; functions exported from this file=0A=
- 	=0A=
- 	.globl system_call=0A=
-@@ -539,11 +558,63 @@=0A=
- 	;; It needs to stack the CPU status and overall is different=0A=
- 	;; from the other interrupt handlers.=0A=
+@@ -252,6 +273,7 @@=0A=
+ /* Information that need to be kept for each board. */=0A=
+ struct net_local {=0A=
+ 	struct net_device_stats stats;=0A=
++	struct mii_if_info mii_if;=0A=
  =0A=
--mmu_bus_fault:	=0A=
--	sbfs	[$sp=3D$sp-16]	; push the internal CPU status=0A=
-+mmu_bus_fault:=0A=
-+	;; For refills we try to do a quick page table lookup. If it is=0A=
-+	;; a real fault we let the mm subsystem handle it.=0A=
-+	=0A=
- 	;; the first longword in the sbfs frame was the interrupted PC=0A=
- 	;; which fits nicely with the "IRP" slot in pt_regs normally used to=0A=
--	;; contain the return address. used by Oops to print kernel errors..=0A=
-+	;; contain the return address. used by Oops to print kernel errors.=0A=
-+	sbfs	[$sp=3D$sp-16]	; push the internal CPU status=0A=
-+	push	$dccr=0A=
-+	di=0A=
-+	subq	2*4, $sp=0A=
-+	movem	$r1, [$sp]=0A=
-+	move.d  [R_MMU_CAUSE], $r1=0A=
-+	;; ETRAX 100LX TR89 bugfix: if the second half of an unaligned   =0A=
-+	;; write causes a MMU-fault, it will not be restarted correctly.=0A=
-+	;; This could happen if a write crosses a page-boundary and the=0A=
-+	;; second page is not yet COW'ed or even loaded. The workaround=0A=
-+	;; is to clear the unaligned bit in the CPU status record, so=0A=
-+	;; that the CPU will rerun both the first and second halves of=0A=
-+	;; the instruction. This will not have any sideeffects unless=0A=
-+	;; the first half goes to any device or memory that can't be=0A=
-+	;; written twice, and which is mapped through the MMU.=0A=
-+	;; =0A=
-+	;; We only need to do this for writes.=0A=
-+	btstq	8, $r1		   ; Write access?=0A=
-+	bpl	1f=0A=
-+	nop=0A=
-+	move.d	[$sp+16], $r0	   ; Clear unaligned bit in csrinstr =0A=
-+	and.d	~(1<<5), $r0=0A=
-+	move.d	$r0, [$sp+16]=0A=
-+1:	btstq	12, $r1		   ; Refill?=0A=
-+	bpl	2f=0A=
-+	lsrq	PMD_SHIFT, $r1     ; Get PMD index into PGD (bit 24-31)=0A=
-+	move.d  [current_pgd], $r0 ; PGD for the current process=0A=
-+	move.d	[$r0+$r1.d], $r0   ; Get PMD=0A=
-+	beq	2f=0A=
-+	nop=0A=
-+	and.w	PAGE_MASK, $r0	   ; Remove PMD flags=0A=
-+	move.d  [R_MMU_CAUSE], $r1=0A=
-+	lsrq	PAGE_SHIFT, $r1=0A=
-+	and.d	0x7ff, $r1         ; Get PTE index into PMD (bit 13-24)=0A=
-+	move.d	[$r0+$r1.d], $r1   ; Get PTE=0A=
-+	beq	2f=0A=
-+	nop=0A=
-+	;; Store in TLB=0A=
-+	move.d  $r1, [R_TLB_LO]=0A=
-+	;; Return=0A=
-+	movem	[$sp+], $r1=0A=
-+	pop	$dccr=0A=
-+	rbf	[$sp+]		; return by popping the CPU status=0A=
-+	=0A=
-+2:	; PMD or PTE missing, let the mm subsystem fix it up.=0A=
-+	movem	[$sp+], $r1=0A=
-+	pop	$dccr=0A=
-+=0A=
-+	; Ok, not that easy, pass it on to the mm subsystem=0A=
-+	; The MMU status record is now on the stack =0A=
- 	push	$srp		; make a stackframe similar to pt_regs=0A=
- 	push	$dccr=0A=
- 	push	$mof=0A=
-@@ -556,7 +627,7 @@=0A=
- =0A=
- 	move.d	$sp, $r10	; pt_regs argument to handle_mmu_bus_fault=0A=
- 		=0A=
--	jsr	handle_mmu_bus_fault  ; in arch/cris/mm/fault.c=0A=
-+	jsr	handle_mmu_bus_fault  ; in arch/cris/arch-v10/mm/fault.c=0A=
- =0A=
- 	;; now we need to return through the normal path, we cannot just=0A=
- 	;; do the RBFexit since we might have killed off the running=0A=
-@@ -566,51 +637,23 @@=0A=
- 	moveq	0, $r9		; busfault is equivalent to an irq=0A=
- 		=0A=
- 	ba	ret_from_intr=0A=
--	nop=0A=
-+	nop	=0A=
- 		=0A=
- 	;; special handlers for breakpoint and NMI=0A=
--#if 0			=0A=
- hwbreakpoint:=0A=
- 	push	$dccr=0A=
--	di=0A=
--	push	$r10=0A=
--	push	$r11=0A=
--	push	$r12=0A=
--	push	$r13=0A=
--	clearf	b=0A=
--	move	$brp,$r11=0A=
--	move.d	[hw_bp_msg],$r10=0A=
--	jsr	printk=0A=
--	setf	b=0A=
--	pop	$r13=0A=
--	pop	$r12=0A=
--	pop	$r11=0A=
--	pop	$r10=0A=
--	pop	$dccr=0A=
--	retb=0A=
--	nop=0A=
--#else=0A=
--hwbreakpoint:=0A=
--	push	$dccr=0A=
--	di=0A=
--#if 1=0A=
-+	di	=0A=
- 	push	$r10=0A=
- 	push	$r11=0A=
- 	move.d	[hw_bp_trig_ptr],$r10=0A=
--	move.d	[$r10],$r11=0A=
--	cmp.d	42,$r11=0A=
--	beq	1f=0A=
--	nop=0A=
- 	move	$brp,$r11=0A=
- 	move.d	$r11,[$r10+]=0A=
- 	move.d	$r10,[hw_bp_trig_ptr]=0A=
- 1:	pop	$r11=0A=
- 	pop	$r10=0A=
--#endif=0A=
- 	pop	$dccr=0A=
- 	retb=0A=
- 	nop=0A=
--#endif=0A=
- 	=0A=
- IRQ1_interrupt:=0A=
- =0A=
-@@ -719,29 +762,23 @@=0A=
- 	push	$r10		; push orig_r10=0A=
- 	clear.d [$sp=3D$sp-4]	; frametype =3D=3D 0, normal frame=0A=
- 	=0A=
--	move.d	irq_shortcuts + 8, $r1=0A=
- 	moveq	2, $r2		; first bit we care about is the timer0 irq=0A=
- 	move.d	[R_VECT_MASK_RD], $r0; read the irq bits that triggered the =
-multiple irq=0A=
-+	move.d	$r0, [R_VECT_MASK_CLR] ; Block all active IRQs=0A=
- 1:	=0A=
- 	btst	$r2, $r0	; check for the irq given by bit r2=0A=
--	bmi	_do_shortcut	; actually do the shortcut=0A=
--	nop=0A=
-+	bpl	2f=0A=
-+	move.d  $r2, $r10	; First argument to do_IRQ=0A=
-+	move.d  $sp, $r11	; second argument to do_IRQ=0A=
-+	jsr	do_IRQ=0A=
-+2:		=0A=
- 	addq	1, $r2		; next vector bit=0A=
--	addq	4, $r1		; next vector=0A=
- 	cmp.b	32, $r2=0A=
- 	bne	1b	; process all irq's up to and including number 31=0A=
--	nop=0A=
-+	moveq	0, $r9  ; make ret_from_intr realise we came from an ir=0A=
- 	=0A=
--	;; strange, we didn't get any set vector bits.. oh well, just return=0A=
--	=0A=
--	ba	_Rexit=0A=
--	nop=0A=
--=0A=
--_do_shortcut:=0A=
--	test.d	[$r1]=0A=
--	beq	_Rexit=0A=
--	nop=0A=
--	jump	[$r1]		; jump to the irq handlers shortcut=0A=
-+	move.d	$r0, [R_VECT_MASK_SET] ;  Unblock all the IRQs=0A=
-+	jump    ret_from_intr=0A=
- =0A=
- do_sigtrap:=0A=
- 	;; =0A=
-@@ -1079,7 +1116,9 @@=0A=
- 	.long sys_mq_timedreceive	/* 280 */=0A=
- 	.long sys_mq_notify=0A=
- 	.long sys_mq_getsetattr=0A=
--		=0A=
-+	.long sys_ni_syscall		/* reserved for kexec */=0A=
-+	.long sys_waitid=0A=
-+	=0A=
-         /*=0A=
-          * NOTE!! This doesn't have to be exact - we just have=0A=
-          * to make sure we have _enough_ of the "sys_ni_syscall"=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/head.S =
-lx25/arch/cris/arch-v10/kernel/head.S=0A=
---- ../linux/arch/cris/arch-v10/kernel/head.S	Mon Oct 18 23:55:21 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/head.S	Fri May 14 09:58:01 2004=0A=
-@@ -336,14 +336,14 @@=0A=
- #endif=0A=
- =0A=
- 	;; Set up waitstates etc according to kernel configuration.=0A=
--#ifndef CONFIG_SVINTO_SIM=0A=
-+#ifndef CONFIG_SVINTO_SIM	=0A=
- 	move.d   CONFIG_ETRAX_DEF_R_WAITSTATES, $r0=0A=
- 	move.d   $r0, [R_WAITSTATES]=0A=
- =0A=
- 	move.d   CONFIG_ETRAX_DEF_R_BUS_CONFIG, $r0=0A=
- 	move.d   $r0, [R_BUS_CONFIG]=0A=
- #endif=0A=
--=0A=
-+	=0A=
- 	;; We need to initialze DRAM registers before we start using the DRAM=0A=
- =0A=
- 	cmp.d	RAM_INIT_MAGIC, $r8	; Already initialized?=0A=
-@@ -652,7 +652,7 @@=0A=
- #if defined(CONFIG_ETRAX_DEF_R_PORT_G24_DIR_OUT)=0A=
-        or.d      IO_STATE (R_GEN_CONFIG, g24dir, out),$r0=0A=
- #endif=0A=
--=0A=
-+	=0A=
- 	move.d	$r0,[genconfig_shadow] ; init a shadow register of R_GEN_CONFIG=0A=
- =0A=
- #ifndef CONFIG_SVINTO_SIM=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/irq.c =
-lx25/arch/cris/arch-v10/kernel/irq.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/irq.c	Mon Oct 18 23:54:08 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/irq.c	Wed Jun  9 07:30:27 2004=0A=
-@@ -1,4 +1,4 @@=0A=
--/* $Id: irq.c,v 1.1 2002/12/11 15:42:02 starvik Exp $=0A=
-+/* $Id: irq.c,v 1.2 2004/06/09 05:30:27 starvik Exp $=0A=
-  *=0A=
-  *	linux/arch/cris/kernel/irq.c=0A=
-  *=0A=
-@@ -23,12 +23,8 @@=0A=
-  */=0A=
- =0A=
- void=0A=
--set_int_vector(int n, irqvectptr addr, irqvectptr saddr)=0A=
-+set_int_vector(int n, irqvectptr addr)=0A=
+ 	/* Tx control lock.  This protects the transmit buffer ring=0A=
+ 	 * state along with the "tx full" state of the driver.  This=0A=
+@@ -271,8 +293,8 @@=0A=
+ struct transceiver_ops=0A=
  {=0A=
--	/* remember the shortcut entry point, after the prologue */=0A=
--=0A=
--	irq_shortcuts[n] =3D saddr;=0A=
--=0A=
- 	etrax_irv->v[n + 0x20] =3D (irqvectptr)addr;=0A=
- }=0A=
- =0A=
-@@ -106,17 +102,6 @@=0A=
- 	IRQ31_interrupt=0A=
+ 	unsigned int oui;=0A=
+-	void (*check_speed)(void);=0A=
+-	void (*check_duplex)(void);=0A=
++	void (*check_speed)(struct net_device* dev);=0A=
++	void (*check_duplex)(struct net_device* dev);=0A=
  };=0A=
  =0A=
--static void (*sinterrupt[NR_IRQS])(void) =3D {=0A=
--	NULL, NULL, sIRQ2_interrupt, sIRQ3_interrupt,=0A=
--	sIRQ4_interrupt, sIRQ5_interrupt, sIRQ6_interrupt, sIRQ7_interrupt,=0A=
--	sIRQ8_interrupt, sIRQ9_interrupt, sIRQ10_interrupt, sIRQ11_interrupt,=0A=
--	sIRQ12_interrupt, sIRQ13_interrupt, NULL, NULL,	=0A=
--	sIRQ16_interrupt, sIRQ17_interrupt, sIRQ18_interrupt, =
-sIRQ19_interrupt,	=0A=
--	sIRQ20_interrupt, sIRQ21_interrupt, sIRQ22_interrupt, =
-sIRQ23_interrupt,	=0A=
--	sIRQ24_interrupt, sIRQ25_interrupt, NULL, NULL, NULL, NULL, NULL,=0A=
--	sIRQ31_interrupt=0A=
--};=0A=
--=0A=
- static void (*bad_interrupt[NR_IRQS])(void) =3D {=0A=
-         NULL, NULL,=0A=
- 	NULL, bad_IRQ3_interrupt,=0A=
-@@ -137,12 +122,12 @@=0A=
+ struct transceiver_ops* transceiver;=0A=
+@@ -295,25 +317,6 @@=0A=
+ /* =0A=
+ ** MDIO constants.=0A=
+ */=0A=
+-#define MDIO_BASE_STATUS_REG                0x1=0A=
+-#define MDIO_BASE_CONTROL_REG               0x0=0A=
+-#define MDIO_PHY_ID_HIGH_REG                0x2=0A=
+-#define MDIO_PHY_ID_LOW_REG                 0x3=0A=
+-#define MDIO_BC_NEGOTIATE                0x0200=0A=
+-#define MDIO_BC_FULL_DUPLEX_MASK         0x0100=0A=
+-#define MDIO_BC_AUTO_NEG_MASK            0x1000=0A=
+-#define MDIO_BC_SPEED_SELECT_MASK        0x2000=0A=
+-#define MDIO_STATUS_100_FD               0x4000=0A=
+-#define MDIO_STATUS_100_HD               0x2000=0A=
+-#define MDIO_STATUS_10_FD                0x1000=0A=
+-#define MDIO_STATUS_10_HD                0x0800=0A=
+-#define MDIO_STATUS_SPEED_DUPLEX_MASK	 0x7800=0A=
+-#define MDIO_ADVERTISMENT_REG               0x4=0A=
+-#define MDIO_ADVERT_100_FD                0x100=0A=
+-#define MDIO_ADVERT_100_HD                0x080=0A=
+-#define MDIO_ADVERT_10_FD                 0x040=0A=
+-#define MDIO_ADVERT_10_HD                 0x020=0A=
+-#define MDIO_LINK_UP_MASK                   0x4=0A=
+ #define MDIO_START                          0x1=0A=
+ #define MDIO_READ                           0x2=0A=
+ #define MDIO_WRITE                          0x1=0A=
+@@ -329,6 +332,11 @@=0A=
+ #define MDIO_TDK_DIAGNOSTIC_RATE          0x400=0A=
+ #define MDIO_TDK_DIAGNOSTIC_DPLX          0x800=0A=
  =0A=
- void arch_setup_irq(int irq)=0A=
++/*Intel LXT972A specific*/=0A=
++#define MDIO_INT_STATUS_REG_2			0x0011=0A=
++#define MDIO_INT_FULL_DUPLEX_IND		( 1 << 9 )=0A=
++#define MDIO_INT_SPEED				( 1 << 14 )=0A=
++=0A=
+ /* Network flash constants */=0A=
+ #define NET_FLASH_TIME                  (HZ/50) /* 20 ms */=0A=
+ #define NET_FLASH_PAUSE                (HZ/100) /* 10 ms */=0A=
+@@ -409,36 +417,40 @@=0A=
+ static void e100_hardware_send_packet(char *buf, int length);=0A=
+ static void update_rx_stats(struct net_device_stats *);=0A=
+ static void update_tx_stats(struct net_device_stats *);=0A=
+-static int e100_probe_transceiver(void);=0A=
++static int e100_probe_transceiver(struct net_device* dev);=0A=
++=0A=
++static void e100_check_speed(unsigned long priv);=0A=
++static void e100_set_speed(struct net_device* dev, unsigned long speed);=0A=
++static void e100_check_duplex(unsigned long priv);=0A=
++static void e100_set_duplex(struct net_device* dev, enum duplex);=0A=
++static void e100_negotiate(struct net_device* dev);=0A=
+ =0A=
+-static void e100_check_speed(unsigned long dummy);=0A=
+-static void e100_set_speed(unsigned long speed);=0A=
+-static void e100_check_duplex(unsigned long dummy);=0A=
+-static void e100_set_duplex(enum duplex);=0A=
+-static void e100_negotiate(void);=0A=
++static int e100_get_mdio_reg(struct net_device *dev, int phy_id, int =
+location);=0A=
++static void e100_set_mdio_reg(struct net_device *dev, int phy_id, int =
+location, int value);=0A=
+ =0A=
+-static unsigned short e100_get_mdio_reg(unsigned char reg_num);=0A=
+-static void e100_set_mdio_reg(unsigned char reg, unsigned short data);=0A=
+ static void e100_send_mdio_cmd(unsigned short cmd, int write_cmd);=0A=
+ static void e100_send_mdio_bit(unsigned char bit);=0A=
+ static unsigned char e100_receive_mdio_bit(void);=0A=
+-static void e100_reset_transceiver(void);=0A=
++static void e100_reset_transceiver(struct net_device* net);=0A=
+ =0A=
+ static void e100_clear_network_leds(unsigned long dummy);=0A=
+ static void e100_set_network_leds(int active);=0A=
+ =0A=
+-static void broadcom_check_speed(void);=0A=
+-static void broadcom_check_duplex(void);=0A=
+-static void tdk_check_speed(void);=0A=
+-static void tdk_check_duplex(void);=0A=
+-static void generic_check_speed(void);=0A=
+-static void generic_check_duplex(void);=0A=
++static void broadcom_check_speed(struct net_device* dev);=0A=
++static void broadcom_check_duplex(struct net_device* dev);=0A=
++static void tdk_check_speed(struct net_device* dev);=0A=
++static void tdk_check_duplex(struct net_device* dev);=0A=
++static void intel_check_speed(struct net_device* dev);=0A=
++static void intel_check_duplex(struct net_device* dev);=0A=
++static void generic_check_speed(struct net_device* dev);=0A=
++static void generic_check_duplex(struct net_device* dev);=0A=
+ =0A=
+-struct transceiver_ops transceivers[] =3D=0A=
++struct transceiver_ops transceivers[] =3D =0A=
  {=0A=
--  set_int_vector(irq, interrupt[irq], sinterrupt[irq]);=0A=
-+  set_int_vector(irq, interrupt[irq]);=0A=
+ 	{0x1018, broadcom_check_speed, broadcom_check_duplex},  /* Broadcom */=0A=
+ 	{0xC039, tdk_check_speed, tdk_check_duplex},            /* TDK 2120 */=0A=
+ 	{0x039C, tdk_check_speed, tdk_check_duplex},            /* TDK 2120C */=0A=
++        {0x04de, intel_check_speed, intel_check_duplex},     	/* Intel =
+LXT972A*/=0A=
+ 	{0x0000, generic_check_speed, generic_check_duplex}     /* Generic, =
+must be last */=0A=
+ };=0A=
+ =0A=
+@@ -456,12 +468,15 @@=0A=
+ etrax_ethernet_init(void)=0A=
+ {=0A=
+ 	struct net_device *dev;=0A=
++        struct net_local* np;=0A=
+ 	int i, err;=0A=
+ =0A=
+-	printk(KERN_INFO=0A=
++	printk(KERN_INFO =0A=
+ 	       "ETRAX 100LX 10/100MBit ethernet v2.0 (c) 2000-2003 Axis =
+Communications AB\n");=0A=
+ =0A=
+ 	dev =3D alloc_etherdev(sizeof(struct net_local));=0A=
++	np =3D dev->priv;=0A=
++=0A=
+ 	if (!dev)=0A=
+ 		return -ENOMEM;=0A=
+ =0A=
+@@ -545,6 +560,7 @@=0A=
+ 	current_speed =3D 10;=0A=
+ 	current_speed_selection =3D 0; /* Auto */=0A=
+ 	speed_timer.expires =3D jiffies + NET_LINK_UP_CHECK_INTERVAL;=0A=
++        duplex_timer.data =3D (unsigned long)dev;=0A=
+ 	speed_timer.function =3D e100_check_speed;=0A=
+         =0A=
+ 	clear_led_timer.function =3D e100_clear_network_leds;=0A=
+@@ -552,8 +568,17 @@=0A=
+ 	full_duplex =3D 0;=0A=
+ 	current_duplex =3D autoneg;=0A=
+ 	duplex_timer.expires =3D jiffies + NET_DUPLEX_CHECK_INTERVAL;		=0A=
++        duplex_timer.data =3D (unsigned long)dev;=0A=
+ 	duplex_timer.function =3D e100_check_duplex;=0A=
+ =0A=
++        /* Initialize mii interface */=0A=
++	np->mii_if.phy_id =3D mdio_phy_addr;=0A=
++	np->mii_if.phy_id_mask =3D 0x1f;=0A=
++	np->mii_if.reg_num_mask =3D 0x1f;=0A=
++	np->mii_if.dev =3D dev;=0A=
++	np->mii_if.mdio_read =3D e100_get_mdio_reg;=0A=
++	np->mii_if.mdio_write =3D e100_set_mdio_reg;=0A=
++=0A=
+ 	/* Initialize group address registers to make sure that no */=0A=
+ 	/* unwanted addresses are matched */=0A=
+ 	*R_NETWORK_GA_0 =3D 0x00000000;=0A=
+@@ -644,8 +669,8 @@=0A=
+ =0A=
+ 	/* allocate the irq corresponding to the receiving DMA */=0A=
+ =0A=
+-	if (request_irq(NETWORK_DMA_RX_IRQ_NBR, e100rxtx_interrupt, 0,=0A=
+-			cardname, (void *)dev)) {=0A=
++	if (request_irq(NETWORK_DMA_RX_IRQ_NBR, e100rxtx_interrupt, =0A=
++			SA_SAMPLE_RANDOM, cardname, (void *)dev)) {=0A=
+ 		goto grace_exit0;=0A=
+ 	}=0A=
+ =0A=
+@@ -733,7 +758,7 @@=0A=
+ 	restore_flags(flags);=0A=
+ 	=0A=
+ 	/* Probe for transceiver */=0A=
+-	if (e100_probe_transceiver())=0A=
++	if (e100_probe_transceiver(dev))=0A=
+ 		goto grace_exit3;=0A=
+ =0A=
+ 	/* Start duplex/speed timers */=0A=
+@@ -759,45 +784,54 @@=0A=
+ =0A=
+ =0A=
+ static void=0A=
+-generic_check_speed(void)=0A=
++generic_check_speed(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_ADVERTISMENT_REG);=0A=
+-	if ((data & MDIO_ADVERT_100_FD) ||=0A=
+-	    (data & MDIO_ADVERT_100_HD))=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_ADVERTISE);=0A=
++	if ((data & ADVERTISE_100FULL) ||=0A=
++	    (data & ADVERTISE_100HALF))=0A=
+ 		current_speed =3D 100;=0A=
+ 	else=0A=
+ 		current_speed =3D 10;=0A=
  }=0A=
  =0A=
- void arch_free_irq(int irq)=0A=
+ static void=0A=
+-tdk_check_speed(void)=0A=
++tdk_check_speed(struct net_device* dev)=0A=
  {=0A=
--  set_int_vector(irq, bad_interrupt[irq], 0);=0A=
-+  set_int_vector(irq, bad_interrupt[irq]);=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_TDK_DIAGNOSTIC_REG);=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+MDIO_TDK_DIAGNOSTIC_REG);=0A=
+ 	current_speed =3D (data & MDIO_TDK_DIAGNOSTIC_RATE ? 100 : 10);=0A=
  }=0A=
  =0A=
- void weird_irq(void);=0A=
-@@ -187,20 +172,20 @@=0A=
-         =0A=
- 	/* set all etrax irq's to the bad handlers */=0A=
- 	for (i =3D 2; i < NR_IRQS; i++)=0A=
--		set_int_vector(i, bad_interrupt[i], 0);=0A=
-+		set_int_vector(i, bad_interrupt[i]);=0A=
-         =0A=
- 	/* except IRQ 15 which is the multiple-IRQ handler on Etrax100 */=0A=
+ static void=0A=
+-broadcom_check_speed(void)=0A=
++broadcom_check_speed(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_AUX_CTRL_STATUS_REG);=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+MDIO_AUX_CTRL_STATUS_REG);=0A=
+ 	current_speed =3D (data & MDIO_BC_SPEED ? 100 : 10);=0A=
+ }=0A=
  =0A=
--	set_int_vector(15, multiple_interrupt, 0);=0A=
-+	set_int_vector(15, multiple_interrupt);=0A=
- 	=0A=
- 	/* 0 and 1 which are special breakpoint/NMI traps */=0A=
- =0A=
--	set_int_vector(0, hwbreakpoint, 0);=0A=
--	set_int_vector(1, IRQ1_interrupt, 0);=0A=
-+	set_int_vector(0, hwbreakpoint);=0A=
-+	set_int_vector(1, IRQ1_interrupt);=0A=
- =0A=
- 	/* and irq 14 which is the mmu bus fault handler */=0A=
- =0A=
--	set_int_vector(14, mmu_bus_fault, 0);=0A=
-+	set_int_vector(14, mmu_bus_fault);=0A=
- =0A=
- 	/* setup the system-call trap, which is reached by BREAK 13 */=0A=
- =0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/ptrace.c =
-lx25/arch/cris/arch-v10/kernel/ptrace.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/ptrace.c	Mon Oct 18 23:55:28 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/ptrace.c	Tue Oct 19 15:07:37 2004=0A=
-@@ -23,8 +23,37 @@=0A=
-  */=0A=
- #define DCCR_MASK 0x0000001f     /* XNZVC */=0A=
- =0A=
--extern inline long get_reg(struct task_struct *, unsigned int);=0A=
--extern inline long put_reg(struct task_struct *, unsigned int, unsigned =
-long);=0A=
-+/*=0A=
-+ * Get contents of register REGNO in task TASK.=0A=
-+ */=0A=
-+inline long get_reg(struct task_struct *task, unsigned int regno)=0A=
+ static void=0A=
+-e100_check_speed(unsigned long dummy)=0A=
++intel_check_speed(struct net_device* dev)=0A=
 +{=0A=
-+	/* USP is a special case, it's not in the pt_regs struct but=0A=
-+	 * in the tasks thread struct=0A=
-+	 */=0A=
-+=0A=
-+	if (regno =3D=3D PT_USP)=0A=
-+		return task->thread.usp;=0A=
-+	else if (regno < PT_MAX)=0A=
-+		return ((unsigned long *)user_regs(task->thread_info))[regno];=0A=
-+	else=0A=
-+		return 0;=0A=
++	unsigned long data;=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MDIO_INT_STATUS_REG_2);=0A=
++	current_speed =3D (data & MDIO_INT_SPEED ? 100 : 10);=0A=
 +}=0A=
 +=0A=
-+/*=0A=
-+ * Write contents of register REGNO in task TASK.=0A=
-+ */=0A=
-+inline int put_reg(struct task_struct *task, unsigned int regno,=0A=
-+			  unsigned long data)=0A=
-+{=0A=
-+	if (regno =3D=3D PT_USP)=0A=
-+		task->thread.usp =3D data;=0A=
-+	else if (regno < PT_MAX)=0A=
-+		((unsigned long *)user_regs(task->thread_info))[regno] =3D data;=0A=
-+	else=0A=
-+		return -1;=0A=
-+	return 0;=0A=
-+}=0A=
- =0A=
- /*=0A=
-  * Called by kernel/ptrace.c when detaching.=0A=
-@@ -50,6 +79,7 @@=0A=
++static void=0A=
++e100_check_speed(unsigned long priv)=0A=
  {=0A=
- 	struct task_struct *child;=0A=
- 	int ret;=0A=
-+	unsigned long __user *datap =3D (unsigned long __user *)data;=0A=
++	struct net_device* dev =3D (struct net_device*)priv;=0A=
+ 	static int led_initiated =3D 0;=0A=
+ 	unsigned long data;=0A=
+ 	int old_speed =3D current_speed;=0A=
  =0A=
- 	lock_kernel();=0A=
- 	ret =3D -EPERM;=0A=
-@@ -102,7 +132,7 @@=0A=
- 			if (copied !=3D sizeof(tmp))=0A=
- 				break;=0A=
- 			=0A=
--			ret =3D put_user(tmp,(unsigned long *) data);=0A=
-+			ret =3D put_user(tmp,datap);=0A=
- 			break;=0A=
- 		}=0A=
- =0A=
-@@ -115,7 +145,7 @@=0A=
- 				break;=0A=
- =0A=
- 			tmp =3D get_reg(child, addr >> 2);=0A=
--			ret =3D put_user(tmp, (unsigned long *)data);=0A=
-+			ret =3D put_user(tmp, datap);=0A=
- 			break;=0A=
- 		}=0A=
- 		=0A=
-@@ -213,7 +243,7 @@=0A=
- 			for (i =3D 0; i <=3D PT_MAX; i++) {=0A=
- 				tmp =3D get_reg(child, i);=0A=
- 				=0A=
--				if (put_user(tmp, (unsigned long *) data)) {=0A=
-+				if (put_user(tmp, datap)) {=0A=
- 					ret =3D -EFAULT;=0A=
- 					goto out_tsk;=0A=
- 				}=0A=
-@@ -231,7 +261,7 @@=0A=
- 			unsigned long tmp;=0A=
- 			=0A=
- 			for (i =3D 0; i <=3D PT_MAX; i++) {=0A=
--				if (get_user(tmp, (unsigned long *) data)) {=0A=
-+				if (get_user(tmp, datap)) {=0A=
- 					ret =3D -EFAULT;=0A=
- 					goto out_tsk;=0A=
- 				}=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/setup.c =
-lx25/arch/cris/arch-v10/kernel/setup.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/setup.c	Mon Oct 18 23:54:55 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/setup.c	Fri May 14 09:58:01 2004=0A=
-@@ -1,4 +1,4 @@=0A=
--/*=0A=
-+/*  =0A=
-  *=0A=
-  *  linux/arch/cris/arch-v10/kernel/setup.c=0A=
-  *=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/signal.c =
-lx25/arch/cris/arch-v10/kernel/signal.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/signal.c	Mon Oct 18 23:53:08 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/signal.c	Tue Oct 19 15:07:37 2004=0A=
-@@ -264,7 +264,6 @@=0A=
- {=0A=
- 	struct rt_sigframe __user *frame =3D (struct rt_sigframe *)rdusp();=0A=
- 	sigset_t set;=0A=
--	stack_t st;=0A=
- =0A=
-         /*=0A=
-          * Since we stacked the signal on a dword boundary,=0A=
-@@ -288,11 +287,8 @@=0A=
- 	if (restore_sigcontext(regs, &frame->uc.uc_mcontext))=0A=
- 		goto badframe;=0A=
- =0A=
--	if (__copy_from_user(&st, &frame->uc.uc_stack, sizeof(st)))=0A=
-+	if (do_sigaltstack(&frame->uc.uc_stack, NULL, rdusp()) =3D=3D -EFAULT)=0A=
- 		goto badframe;=0A=
--	/* It is more difficult to avoid calling this function than to=0A=
--	   call it and ignore errors.  */=0A=
--	do_sigaltstack(&st, NULL, rdusp());=0A=
- =0A=
- 	return regs->r10;=0A=
- =0A=
-@@ -388,9 +384,9 @@=0A=
- 		/* trampoline - the desired return ip is the retcode itself */=0A=
- 		return_ip =3D (unsigned long)&frame->retcode;=0A=
- 		/* This is movu.w __NR_sigreturn, r9; break 13; */=0A=
--		err |=3D __put_user(0x9c5f,         (short *)(frame->retcode+0));=0A=
--		err |=3D __put_user(__NR_sigreturn, (short *)(frame->retcode+2));=0A=
--		err |=3D __put_user(0xe93d,         (short *)(frame->retcode+4));=0A=
-+		err |=3D __put_user(0x9c5f,         (short =
-__user*)(frame->retcode+0));=0A=
-+		err |=3D __put_user(__NR_sigreturn, (short =
-__user*)(frame->retcode+2));=0A=
-+		err |=3D __put_user(0xe93d,         (short =
-__user*)(frame->retcode+4));=0A=
+-	data =3D e100_get_mdio_reg(MDIO_BASE_STATUS_REG);=0A=
+-	if (!(data & MDIO_LINK_UP_MASK)) {=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_BMSR);=0A=
++	if (!(data & BMSR_LSTATUS)) {=0A=
+ 		current_speed =3D 0;=0A=
+ 	} else {=0A=
+-		transceiver->check_speed();=0A=
++		transceiver->check_speed(dev);=0A=
  	}=0A=
- =0A=
- 	if (err)=0A=
-@@ -448,9 +444,9 @@=0A=
- 		/* trampoline - the desired return ip is the retcode itself */=0A=
- 		return_ip =3D (unsigned long)&frame->retcode;=0A=
- 		/* This is movu.w __NR_rt_sigreturn, r9; break 13; */=0A=
--		err |=3D __put_user(0x9c5f,            (short *)(frame->retcode+0));=0A=
--		err |=3D __put_user(__NR_rt_sigreturn, (short *)(frame->retcode+2));=0A=
--		err |=3D __put_user(0xe93d,            (short *)(frame->retcode+4));=0A=
-+		err |=3D __put_user(0x9c5f,            (short =
-__user*)(frame->retcode+0));=0A=
-+		err |=3D __put_user(__NR_rt_sigreturn, (short =
-__user*)(frame->retcode+2));=0A=
-+		err |=3D __put_user(0xe93d,            (short =
-__user*)(frame->retcode+4));=0A=
- 	}=0A=
- =0A=
- 	if (err)=0A=
-@@ -482,10 +478,9 @@=0A=
- =0A=
- extern inline void=0A=
- handle_signal(int canrestart, unsigned long sig,=0A=
--	      siginfo_t *info, sigset_t *oldset, struct pt_regs * regs)=0A=
-+	      siginfo_t *info, struct k_sigaction *ka, =0A=
-+              sigset_t *oldset, struct pt_regs * regs)=0A=
- {=0A=
--	struct k_sigaction *ka =3D &current->sighand->action[sig-1];=0A=
--=0A=
- 	/* Are we from a system call? */=0A=
- 	if (canrestart) {=0A=
- 		/* If so, check system call restarting.. */=0A=
-@@ -547,6 +542,7 @@=0A=
- {=0A=
- 	siginfo_t info;=0A=
- 	int signr;=0A=
-+        struct k_sigaction ka;=0A=
- =0A=
- 	/*=0A=
- 	 * We want the common case to go fast, which=0A=
-@@ -560,10 +556,10 @@=0A=
- 	if (!oldset)=0A=
- 		oldset =3D &current->blocked;=0A=
- =0A=
--	signr =3D get_signal_to_deliver(&info, regs, NULL);=0A=
-+	signr =3D get_signal_to_deliver(&info, &ka, regs, NULL);=0A=
- 	if (signr > 0) {=0A=
- 		/* Whee!  Actually deliver the signal.  */=0A=
--		handle_signal(canrestart, signr, &info, oldset, regs);=0A=
-+		handle_signal(canrestart, signr, &info, &ka, oldset, regs);=0A=
- 		return 1;=0A=
- 	}=0A=
- =0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/time.c =
-lx25/arch/cris/arch-v10/kernel/time.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/time.c	Mon Oct 18 23:54:39 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/time.c	Wed Sep 29 08:12:46 2004=0A=
-@@ -1,4 +1,4 @@=0A=
--/* $Id: time.c,v 1.3 2004/06/01 05:38:42 starvik Exp $=0A=
-+/* $Id: time.c,v 1.5 2004/09/29 06:12:46 starvik Exp $=0A=
-  *=0A=
-  *  linux/arch/cris/arch-v10/kernel/time.c=0A=
-  *=0A=
-@@ -200,6 +200,8 @@=0A=
- =0A=
- //static unsigned short myjiff; /* used by our debug routine =
-print_timestamp */=0A=
- =0A=
-+extern void cris_do_profile(struct pt_regs *regs);=0A=
-+=0A=
- static inline irqreturn_t=0A=
- timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)=0A=
- {=0A=
-@@ -228,6 +230,8 @@=0A=
- =0A=
- 	do_timer(regs);=0A=
  	=0A=
-+        cris_do_profile(regs); /* Save profiling information */=0A=
-+        =0A=
- 	/*=0A=
- 	 * If we have an externally synchronized Linux clock, then update=0A=
- 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/mm/fault.c lx25/arch/cris/arch-v10/mm/fault.c=0A=
---- ../linux/arch/cris/arch-v10/mm/fault.c	Mon Oct 18 23:55:28 2004=0A=
-+++ lx25/arch/cris/arch-v10/mm/fault.c	Mon Sep  6 08:36:14 2004=0A=
-@@ -40,23 +40,25 @@=0A=
- handle_mmu_bus_fault(struct pt_regs *regs)=0A=
+ 	if ((old_speed !=3D current_speed) || !led_initiated) {=0A=
+@@ -811,71 +845,74 @@=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-e100_negotiate(void)=0A=
++e100_negotiate(struct net_device* dev)=0A=
  {=0A=
- 	int cause;=0A=
--#ifdef DEBUG=0A=
- 	int select;=0A=
-+#ifdef DEBUG=0A=
- 	int index;=0A=
- 	int page_id;=0A=
- 	int acc, inv;=0A=
- #endif=0A=
--	int miss, we, writeac;=0A=
-+	pgd_t* pgd =3D (pgd_t*)current_pgd;=0A=
- 	pmd_t *pmd;=0A=
- 	pte_t pte;=0A=
-+	int miss, we, writeac;=0A=
- 	unsigned long address;=0A=
-+	unsigned long flags;=0A=
+-	unsigned short data =3D e100_get_mdio_reg(MDIO_ADVERTISMENT_REG);=0A=
++	unsigned short data =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+MII_ADVERTISE);=0A=
  =0A=
- 	cause =3D *R_MMU_CAUSE;=0A=
+ 	/* Discard old speed and duplex settings */=0A=
+-	data &=3D ~(MDIO_ADVERT_100_HD | MDIO_ADVERT_100_FD | =0A=
+-	          MDIO_ADVERT_10_FD | MDIO_ADVERT_10_HD);=0A=
++	data &=3D ~(ADVERTISE_100HALF | ADVERTISE_100FULL | =0A=
++	          ADVERTISE_10HALF | ADVERTISE_10FULL);=0A=
+   =0A=
+ 	switch (current_speed_selection) {=0A=
+ 		case 10 :=0A=
+ 			if (current_duplex =3D=3D full)=0A=
+-				data |=3D MDIO_ADVERT_10_FD;=0A=
++				data |=3D ADVERTISE_10FULL;=0A=
+ 			else if (current_duplex =3D=3D half)=0A=
+-				data |=3D MDIO_ADVERT_10_HD;=0A=
++				data |=3D ADVERTISE_10HALF;=0A=
+ 			else=0A=
+-				data |=3D MDIO_ADVERT_10_HD |  MDIO_ADVERT_10_FD;=0A=
++				data |=3D ADVERTISE_10HALF | ADVERTISE_10FULL;=0A=
+ 			break;=0A=
  =0A=
- 	address =3D cause & PAGE_MASK; /* get faulting address */=0A=
-+	select =3D *R_TLB_SELECT;=0A=
+ 		case 100 :=0A=
+ 			 if (current_duplex =3D=3D full)=0A=
+-				data |=3D MDIO_ADVERT_100_FD;=0A=
++				data |=3D ADVERTISE_100FULL;=0A=
+ 			else if (current_duplex =3D=3D half)=0A=
+-				data |=3D MDIO_ADVERT_100_HD;=0A=
++				data |=3D ADVERTISE_100HALF;=0A=
+ 			else=0A=
+-				data |=3D MDIO_ADVERT_100_HD |  MDIO_ADVERT_100_FD;=0A=
++				data |=3D ADVERTISE_100HALF | ADVERTISE_100FULL;=0A=
+ 			break;=0A=
  =0A=
- #ifdef DEBUG=0A=
--	select =3D *R_TLB_SELECT;=0A=
- 	page_id =3D IO_EXTRACT(R_MMU_CAUSE,  page_id,   cause);=0A=
- 	acc     =3D IO_EXTRACT(R_MMU_CAUSE,  acc_excp,  cause);=0A=
- 	inv     =3D IO_EXTRACT(R_MMU_CAUSE,  inv_excp,  cause);  =0A=
-@@ -66,85 +68,31 @@=0A=
- 	we      =3D IO_EXTRACT(R_MMU_CAUSE,  we_excp,   cause);=0A=
- 	writeac =3D IO_EXTRACT(R_MMU_CAUSE,  wr_rd,     cause);=0A=
+ 		case 0 : /* Auto */=0A=
+ 			 if (current_duplex =3D=3D full)=0A=
+-				data |=3D MDIO_ADVERT_100_FD | MDIO_ADVERT_10_FD;=0A=
++				data |=3D ADVERTISE_100FULL | ADVERTISE_10FULL;=0A=
+ 			else if (current_duplex =3D=3D half)=0A=
+-				data |=3D MDIO_ADVERT_100_HD | MDIO_ADVERT_10_HD;=0A=
++				data |=3D ADVERTISE_100HALF | ADVERTISE_10HALF;=0A=
+ 			else=0A=
+-				data |=3D MDIO_ADVERT_100_HD | MDIO_ADVERT_100_FD | =
+MDIO_ADVERT_10_FD | MDIO_ADVERT_10_HD;=0A=
++				data |=3D ADVERTISE_10HALF | ADVERTISE_10FULL |=0A=
++				  ADVERTISE_100HALF | ADVERTISE_100FULL;=0A=
+ 			break;=0A=
  =0A=
--	/* ETRAX 100LX TR89 bugfix: if the second half of an unaligned=0A=
--	 * write causes a MMU-fault, it will not be restarted correctly.=0A=
--	 * This could happen if a write crosses a page-boundary and the=0A=
--	 * second page is not yet COW'ed or even loaded. The workaround=0A=
--	 * is to clear the unaligned bit in the CPU status record, so =0A=
--	 * that the CPU will rerun both the first and second halves of=0A=
--	 * the instruction. This will not have any sideeffects unless=0A=
--	 * the first half goes to any device or memory that can't be=0A=
--	 * written twice, and which is mapped through the MMU.=0A=
--	 *=0A=
--	 * We only need to do this for writes.=0A=
--	 */=0A=
+ 		default : /* assume autoneg speed and duplex */=0A=
+-			data |=3D MDIO_ADVERT_100_HD | MDIO_ADVERT_100_FD | =0A=
+-			        MDIO_ADVERT_10_FD | MDIO_ADVERT_10_HD;=0A=
++			data |=3D ADVERTISE_10HALF | ADVERTISE_10FULL |=0A=
++				  ADVERTISE_100HALF | ADVERTISE_100FULL;=0A=
+ 	}=0A=
+ =0A=
+-	e100_set_mdio_reg(MDIO_ADVERTISMENT_REG, data);=0A=
++	e100_set_mdio_reg(dev, mdio_phy_addr, MII_ADVERTISE, data);=0A=
+ =0A=
+ 	/* Renegotiate with link partner */=0A=
+-	data =3D e100_get_mdio_reg(MDIO_BASE_CONTROL_REG);=0A=
+-	data |=3D MDIO_BC_NEGOTIATE;=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_BMCR);=0A=
++	data |=3D BMCR_ANENABLE | BMCR_ANRESTART;=0A=
+ =0A=
+-	e100_set_mdio_reg(MDIO_BASE_CONTROL_REG, data);=0A=
++	e100_set_mdio_reg(dev, mdio_phy_addr, MII_BMCR, data);=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-e100_set_speed(unsigned long speed)=0A=
++e100_set_speed(struct net_device* dev, unsigned long speed)=0A=
+ {=0A=
+ 	if (speed !=3D current_speed_selection) {=0A=
+ 		current_speed_selection =3D speed;=0A=
+-		e100_negotiate();=0A=
++		e100_negotiate(dev);=0A=
+ 	}=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-e100_check_duplex(unsigned long dummy)=0A=
++e100_check_duplex(unsigned long priv)=0A=
+ {=0A=
++	struct net_device *dev =3D (struct net_device *)priv;=0A=
++	struct net_local *np =3D (struct net_local *)dev->priv;=0A=
+ 	int old_duplex =3D full_duplex;=0A=
+-	transceiver->check_duplex();=0A=
+-	if (old_duplex !=3D full_duplex) {=0A=
++	transceiver->check_duplex(dev);=0A=
++	if (old_duplex !=3D full_duplex) { =0A=
+ 		/* Duplex changed */=0A=
+ 		SETF(network_rec_config_shadow, R_NETWORK_REC_CONFIG, duplex, =
+full_duplex);=0A=
+ 		*R_NETWORK_REC_CONFIG =3D network_rec_config_shadow;=0A=
+@@ -884,47 +921,56 @@=0A=
+ 	/* Reinitialize the timer. */=0A=
+ 	duplex_timer.expires =3D jiffies + NET_DUPLEX_CHECK_INTERVAL;=0A=
+ 	add_timer(&duplex_timer);=0A=
++	np->mii_if.full_duplex =3D full_duplex;=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-generic_check_duplex(void)=0A=
++generic_check_duplex(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_ADVERTISMENT_REG);=0A=
+-	if ((data & MDIO_ADVERT_100_FD) ||=0A=
+-	    (data & MDIO_ADVERT_10_FD))=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_ADVERTISE);=0A=
++	if ((data & ADVERTISE_10FULL) ||=0A=
++	    (data & ADVERTISE_100FULL))=0A=
+ 		full_duplex =3D 1;=0A=
+ 	else=0A=
+ 		full_duplex =3D 0;=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-tdk_check_duplex(void)=0A=
++tdk_check_duplex(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_TDK_DIAGNOSTIC_REG);=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+MDIO_TDK_DIAGNOSTIC_REG);=0A=
+ 	full_duplex =3D (data & MDIO_TDK_DIAGNOSTIC_DPLX) ? 1 : 0;=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-broadcom_check_duplex(void)=0A=
++broadcom_check_duplex(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned long data;=0A=
+-	data =3D e100_get_mdio_reg(MDIO_AUX_CTRL_STATUS_REG);=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+MDIO_AUX_CTRL_STATUS_REG);        =0A=
+ 	full_duplex =3D (data & MDIO_BC_FULL_DUPLEX_IND) ? 1 : 0;=0A=
+ }=0A=
+ =0A=
++static void=0A=
++intel_check_duplex(struct net_device* dev)=0A=
++{=0A=
++	unsigned long data;=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MDIO_INT_STATUS_REG_2); =
+       =0A=
++	full_duplex =3D (data & MDIO_INT_FULL_DUPLEX_IND) ? 1 : 0;=0A=
++}=0A=
++=0A=
+ static void =0A=
+-e100_set_duplex(enum duplex new_duplex)=0A=
++e100_set_duplex(struct net_device* dev, enum duplex new_duplex)=0A=
+ {=0A=
+ 	if (new_duplex !=3D current_duplex) {=0A=
+ 		current_duplex =3D new_duplex;=0A=
+-		e100_negotiate();=0A=
++		e100_negotiate(dev);=0A=
+ 	}=0A=
+ }=0A=
+ =0A=
+-static int=0A=
+-e100_probe_transceiver(void)=0A=
++static int =0A=
++e100_probe_transceiver(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned int phyid_high;=0A=
+ 	unsigned int phyid_low;=0A=
+@@ -933,17 +979,17 @@=0A=
+ =0A=
+ 	/* Probe MDIO physical address */=0A=
+ 	for (mdio_phy_addr =3D 0; mdio_phy_addr <=3D 31; mdio_phy_addr++) {=0A=
+-		if (e100_get_mdio_reg(MDIO_BASE_STATUS_REG) !=3D 0xffff)=0A=
++		if (e100_get_mdio_reg(dev, mdio_phy_addr, MII_BMSR) !=3D 0xffff)=0A=
+ 			break;=0A=
+ 	}=0A=
+ 	if (mdio_phy_addr =3D=3D 32)=0A=
+ 		 return -ENODEV;=0A=
+ =0A=
+ 	/* Get manufacturer */=0A=
+-	phyid_high =3D e100_get_mdio_reg(MDIO_PHY_ID_HIGH_REG);=0A=
+-	phyid_low =3D e100_get_mdio_reg(MDIO_PHY_ID_LOW_REG);=0A=
++	phyid_high =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_PHYSID1);=0A=
++	phyid_low =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_PHYSID2);=0A=
+ 	oui =3D (phyid_high << 6) | (phyid_low >> 10);=0A=
 -=0A=
--	if(writeac)=0A=
--		regs->csrinstr &=3D ~(1 << 5);=0A=
--	=0A=
- 	D(printk("bus_fault from IRP 0x%lx: addr 0x%lx, miss %d, inv %d, we =
-%d, acc %d, dx %d pid %d\n",=0A=
- 		 regs->irp, address, miss, inv, we, acc, index, page_id));=0A=
++	=0A=
+ 	for (ops =3D &transceivers[0]; ops->oui; ops++) {=0A=
+ 		if (ops->oui =3D=3D oui)=0A=
+ 			break;=0A=
+@@ -953,16 +999,16 @@=0A=
+ 	return 0;=0A=
+ }=0A=
  =0A=
--	/* for a miss, we need to reload the TLB entry */=0A=
--=0A=
--	if (miss) {=0A=
--		/* see if the pte exists at all=0A=
--		 * refer through current_pgd, dont use mm->pgd=0A=
--		 */=0A=
--=0A=
--		pmd =3D (pmd_t *)(current_pgd + pgd_index(address));=0A=
--		if (pmd_none(*pmd)) {=0A=
--			do_page_fault(address, regs, 0, writeac);=0A=
--			return;=0A=
--		}=0A=
--		if (pmd_bad(*pmd)) {=0A=
--			printk("bad pgdir entry 0x%lx at 0x%p\n", *(unsigned long*)pmd, pmd);=0A=
--			pmd_clear(pmd);=0A=
--			return;=0A=
--		}=0A=
--		pte =3D *pte_offset_kernel(pmd, address);=0A=
--		if (!pte_present(pte)) {=0A=
--			do_page_fault(address, regs, 0, writeac);=0A=
--			return;=0A=
--		}=0A=
--=0A=
--#ifdef DEBUG=0A=
--		printk(" found pte %lx pg %p ", pte_val(pte), pte_page(pte));=0A=
--		if (pte_val(pte) & _PAGE_SILENT_WRITE)=0A=
--			printk("Silent-W ");=0A=
--		if (pte_val(pte) & _PAGE_KERNEL)=0A=
--			printk("Kernel ");=0A=
--		if (pte_val(pte) & _PAGE_SILENT_READ)=0A=
--			printk("Silent-R ");=0A=
--		if (pte_val(pte) & _PAGE_GLOBAL)=0A=
--			printk("Global ");=0A=
--		if (pte_val(pte) & _PAGE_PRESENT)=0A=
--			printk("Present ");=0A=
--		if (pte_val(pte) & _PAGE_ACCESSED)=0A=
--			printk("Accessed ");=0A=
--		if (pte_val(pte) & _PAGE_MODIFIED)=0A=
--			printk("Modified ");=0A=
--		if (pte_val(pte) & _PAGE_READ)=0A=
--			printk("Readable ");=0A=
--		if (pte_val(pte) & _PAGE_WRITE)=0A=
--			printk("Writeable ");=0A=
--		printk("\n");=0A=
+-static unsigned short=0A=
+-e100_get_mdio_reg(unsigned char reg_num)=0A=
++static int=0A=
++e100_get_mdio_reg(struct net_device *dev, int phy_id, int location)=0A=
+ {=0A=
+ 	unsigned short cmd;    /* Data to be sent on MDIO port */=0A=
+-	unsigned short data;   /* Data read from MDIO */=0A=
++	int data;   /* Data read from MDIO */=0A=
+ 	int bitCounter;=0A=
+ 	=0A=
+ 	/* Start of frame, OP Code, Physical Address, Register Address */=0A=
+-	cmd =3D (MDIO_START << 14) | (MDIO_READ << 12) | (mdio_phy_addr << 7) |=0A=
+-		(reg_num << 2);=0A=
++	cmd =3D (MDIO_START << 14) | (MDIO_READ << 12) | (phy_id << 7) |=0A=
++		(location << 2);=0A=
+ 	=0A=
+ 	e100_send_mdio_cmd(cmd, 0);=0A=
+ 	=0A=
+@@ -977,19 +1023,19 @@=0A=
+ }=0A=
+ =0A=
+ static void=0A=
+-e100_set_mdio_reg(unsigned char reg, unsigned short data)=0A=
++e100_set_mdio_reg(struct net_device *dev, int phy_id, int location, int =
+value)=0A=
+ {=0A=
+ 	int bitCounter;=0A=
+ 	unsigned short cmd;=0A=
+ =0A=
+-	cmd =3D (MDIO_START << 14) | (MDIO_WRITE << 12) | (mdio_phy_addr << 7) =
+|=0A=
+-	      (reg << 2);=0A=
++	cmd =3D (MDIO_START << 14) | (MDIO_WRITE << 12) | (phy_id << 7) |=0A=
++	      (location << 2);=0A=
+ =0A=
+ 	e100_send_mdio_cmd(cmd, 1);=0A=
+ =0A=
+ 	/* Data... */=0A=
+ 	for (bitCounter=3D15; bitCounter>=3D0 ; bitCounter--) {=0A=
+-		e100_send_mdio_bit(GET_BIT(bitCounter, data));=0A=
++		e100_send_mdio_bit(GET_BIT(bitCounter, value));=0A=
+ 	}=0A=
+ =0A=
+ }=0A=
+@@ -1042,15 +1088,15 @@=0A=
+ }=0A=
+ =0A=
+ static void =0A=
+-e100_reset_transceiver(void)=0A=
++e100_reset_transceiver(struct net_device* dev)=0A=
+ {=0A=
+ 	unsigned short cmd;=0A=
+ 	unsigned short data;=0A=
+ 	int bitCounter;=0A=
+ =0A=
+-	data =3D e100_get_mdio_reg(MDIO_BASE_CONTROL_REG);=0A=
++	data =3D e100_get_mdio_reg(dev, mdio_phy_addr, MII_BMCR);=0A=
+ =0A=
+-	cmd =3D (MDIO_START << 14) | (MDIO_WRITE << 12) | (mdio_phy_addr << 7) =
+| (MDIO_BASE_CONTROL_REG << 2);=0A=
++	cmd =3D (MDIO_START << 14) | (MDIO_WRITE << 12) | (mdio_phy_addr << 7) =
+| (MII_BMCR << 2);=0A=
+ =0A=
+ 	e100_send_mdio_cmd(cmd, 1);=0A=
+ 	=0A=
+@@ -1087,7 +1133,7 @@=0A=
+ 	=0A=
+ 	/* Reset the transceiver. */=0A=
+ 	=0A=
+-	e100_reset_transceiver();=0A=
++	e100_reset_transceiver(dev);=0A=
+ 	=0A=
+ 	/* and get rid of the packets that never got an interrupt */=0A=
+ 	while (myFirstTxDesc !=3D myNextTxDesc)=0A=
+@@ -1157,7 +1203,7 @@=0A=
+ 	unsigned long irqbits =3D *R_IRQ_MASK2_RD;=0A=
+  =0A=
+ 	/* Disable RX/TX IRQs to avoid reentrancy */=0A=
+-	*R_IRQ_MASK2_CLR =3D=0A=
++	*R_IRQ_MASK2_CLR =3D =0A=
+ 	  IO_STATE(R_IRQ_MASK2_CLR, dma0_eop, clr) |=0A=
+ 	  IO_STATE(R_IRQ_MASK2_CLR, dma1_eop, clr);=0A=
+ =0A=
+@@ -1169,7 +1215,8 @@=0A=
+ =0A=
+ 		/* check if one or more complete packets were indeed received */=0A=
+ =0A=
+-		while (*R_DMA_CH1_FIRST !=3D virt_to_phys(myNextRxDesc)) {=0A=
++		while ((*R_DMA_CH1_FIRST !=3D virt_to_phys(myNextRxDesc)) &&=0A=
++		       (myNextRxDesc !=3D myLastRxDesc)) {=0A=
+ 			/* Take out the buffer and give it to the OS, then=0A=
+ 			 * allocate a new buffer to put a packet in.=0A=
+ 			 */=0A=
+@@ -1208,7 +1255,7 @@=0A=
+ 	}=0A=
+ =0A=
+ 	/* Enable RX/TX IRQs again */=0A=
+-	*R_IRQ_MASK2_SET =3D=0A=
++	*R_IRQ_MASK2_SET =3D =0A=
+ 	  IO_STATE(R_IRQ_MASK2_SET, dma0_eop, set) |=0A=
+ 	  IO_STATE(R_IRQ_MASK2_SET, dma1_eop, set);=0A=
+ =0A=
+@@ -1224,7 +1271,7 @@=0A=
+ =0A=
+ 	/* check for underrun irq */=0A=
+ 	if (irqbits & IO_STATE(R_IRQ_MASK0_RD, underrun, active)) { =0A=
+-		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, clr);=0A=
++		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, clr);	=0A=
+ 		*R_NETWORK_TR_CTRL =3D network_tr_ctrl_shadow;=0A=
+ 		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, nop);=0A=
+ 		np->stats.tx_errors++;=0A=
+@@ -1238,7 +1285,7 @@=0A=
+ 	}=0A=
+ 	/* check for excessive collision irq */=0A=
+ 	if (irqbits & IO_STATE(R_IRQ_MASK0_RD, excessive_col, active)) { =0A=
+-		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, clr);=0A=
++		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, clr);	=0A=
+ 		*R_NETWORK_TR_CTRL =3D network_tr_ctrl_shadow;=0A=
+ 		SETS(network_tr_ctrl_shadow, R_NETWORK_TR_CTRL, clr_error, nop);=0A=
+ 		*R_NETWORK_TR_CTRL =3D IO_STATE(R_NETWORK_TR_CTRL, clr_error, clr);=0A=
+@@ -1407,30 +1454,30 @@=0A=
+ 			data->phy_id =3D mdio_phy_addr;=0A=
+ 			break;=0A=
+ 		case SIOCGMIIREG: /* Read MII register */=0A=
+-			data->val_out =3D e100_get_mdio_reg(data->reg_num);=0A=
++			data->val_out =3D e100_get_mdio_reg(dev, mdio_phy_addr, =
+data->reg_num);=0A=
+ 			break;=0A=
+ 		case SIOCSMIIREG: /* Write MII register */=0A=
+-			e100_set_mdio_reg(data->reg_num, data->val_in);=0A=
++			e100_set_mdio_reg(dev, mdio_phy_addr, data->reg_num, data->val_in);=0A=
+ 			break;=0A=
+ 		/* The ioctls below should be considered obsolete but are */=0A=
+ 		/* still present for compatability with old scripts/apps  */	=0A=
+ 		case SET_ETH_SPEED_10:                  /* 10 Mbps */=0A=
+-			e100_set_speed(10);=0A=
++			e100_set_speed(dev, 10);=0A=
+ 			break;=0A=
+ 		case SET_ETH_SPEED_100:                /* 100 Mbps */=0A=
+-			e100_set_speed(100);=0A=
++			e100_set_speed(dev, 100);=0A=
+ 			break;=0A=
+ 		case SET_ETH_SPEED_AUTO:              /* Auto negotiate speed */=0A=
+-			e100_set_speed(0);=0A=
++			e100_set_speed(dev, 0);=0A=
+ 			break;=0A=
+ 		case SET_ETH_DUPLEX_HALF:              /* Half duplex. */=0A=
+-			e100_set_duplex(half);=0A=
++			e100_set_duplex(dev, half);=0A=
+ 			break;=0A=
+ 		case SET_ETH_DUPLEX_FULL:              /* Full duplex. */=0A=
+-			e100_set_duplex(full);=0A=
++			e100_set_duplex(dev, full);=0A=
+ 			break;=0A=
+ 		case SET_ETH_DUPLEX_AUTO:             /* Autonegotiate duplex*/=0A=
+-			e100_set_duplex(autoneg);=0A=
++			e100_set_duplex(dev, autoneg);=0A=
+ 			break;=0A=
+ 		default:=0A=
+ 			return -EINVAL;=0A=
+@@ -1487,11 +1534,11 @@=0A=
+ 				return -EPERM;=0A=
+ 			}=0A=
+ 			if (ecmd.autoneg =3D=3D AUTONEG_ENABLE) {=0A=
+-				e100_set_duplex(autoneg);=0A=
+-				e100_set_speed(0);=0A=
++				e100_set_duplex(dev, autoneg);=0A=
++				e100_set_speed(dev, 0);=0A=
+ 			} else {=0A=
+-				e100_set_duplex(ecmd.duplex =3D=3D DUPLEX_HALF ? half : full);=0A=
+-				e100_set_speed(ecmd.speed =3D=3D SPEED_10 ? 10: 100);=0A=
++				e100_set_duplex(dev, ecmd.duplex =3D=3D DUPLEX_HALF ? half : full);=0A=
++				e100_set_speed(dev, ecmd.speed =3D=3D SPEED_10 ? 10: 100);=0A=
+ 			}=0A=
+ 		}=0A=
+ 		break;=0A=
+@@ -1500,7 +1547,7 @@=0A=
+ 			struct ethtool_drvinfo info;=0A=
+ 			memset((void *) &info, 0, sizeof (info));=0A=
+ 			strncpy(info.driver, "ETRAX 100LX", sizeof(info.driver) - 1);=0A=
+-			strncpy(info.version, "$Revision: 1.22 $", sizeof(info.version) - 1);=0A=
++			strncpy(info.version, "$Revision: 1.31 $", sizeof(info.version) - 1);=0A=
+ 			strncpy(info.fw_version, "N/A", sizeof(info.fw_version) - 1);=0A=
+ 			strncpy(info.bus_info, "N/A", sizeof(info.bus_info) - 1);=0A=
+ 			info.regdump_len =3D 0;=0A=
+@@ -1512,7 +1559,7 @@=0A=
+ 		break;=0A=
+ 		case ETHTOOL_NWAY_RST:=0A=
+ 			if (current_duplex =3D=3D autoneg && current_speed_selection =3D=3D =
+0)=0A=
+-				e100_negotiate();=0A=
++				e100_negotiate(dev);=0A=
+ 		break;=0A=
+ 		default:=0A=
+ 			return -EOPNOTSUPP;=0A=
+@@ -1530,17 +1577,17 @@=0A=
+ 	switch(map->port) {=0A=
+ 		case IF_PORT_UNKNOWN:=0A=
+ 			/* Use autoneg */=0A=
+-			e100_set_speed(0);=0A=
+-			e100_set_duplex(autoneg);=0A=
++			e100_set_speed(dev, 0);=0A=
++			e100_set_duplex(dev, autoneg);=0A=
+ 			break;=0A=
+ 		case IF_PORT_10BASET:=0A=
+-			e100_set_speed(10);=0A=
+-			e100_set_duplex(autoneg);=0A=
++			e100_set_speed(dev, 10);=0A=
++			e100_set_duplex(dev, autoneg);=0A=
+ 			break;=0A=
+ 		case IF_PORT_100BASET:=0A=
+ 		case IF_PORT_100BASETX:=0A=
+-			e100_set_speed(100);=0A=
+-			e100_set_duplex(autoneg);=0A=
++			e100_set_speed(dev, 100);=0A=
++			e100_set_duplex(dev, autoneg);=0A=
+ 			break;=0A=
+ 		case IF_PORT_100BASEFX:=0A=
+ 		case IF_PORT_10BASE2:=0A=
+@@ -1742,9 +1789,9 @@=0A=
+ 		/* Make LED red, link is down */=0A=
+ #if defined(CONFIG_ETRAX_NETWORK_RED_ON_NO_CONNECTION)=0A=
+ 		LED_NETWORK_SET(LED_RED);=0A=
+-#else=0A=
++#else		=0A=
+ 		LED_NETWORK_SET(LED_OFF);=0A=
 -#endif=0A=
--=0A=
--		/* load up the chosen TLB entry=0A=
--		 * this assumes the pte format is the same as the TLB_LO layout.=0A=
--		 *=0A=
--		 * the write to R_TLB_LO also writes the vpn and page_id fields from=0A=
--		 * R_MMU_CAUSE, which we in this case obviously want to keep=0A=
--		 */=0A=
--=0A=
--		*R_TLB_LO =3D pte_val(pte);=0A=
--=0A=
--		return;=0A=
++#endif		=0A=
+ 	}=0A=
+ 	else if (light_leds) {=0A=
+ 		if (current_speed =3D=3D 10) {=0A=
+@@ -1778,7 +1825,7 @@=0A=
+ 			return 0;=0A=
+ 		}=0A=
+ 		sa.sa_data[i] =3D (char)tmp;=0A=
 -	}=0A=
--=0A=
- 	/* leave it to the MM system fault handler */=0A=
--	do_page_fault(address, regs, 1, we);=0A=
-+	if (miss) =0A=
-+		do_page_fault(address, regs, 0, writeac);=0A=
-+        else	=0A=
-+		do_page_fault(address, regs, 1, we);=0A=
-+=0A=
-+        /* Reload TLB with new entry to avoid an extra miss exception. =0A=
-+	 * do_page_fault may have flushed the TLB so we have to restore=0A=
-+	 * the MMU registers.=0A=
-+	 */=0A=
-+	local_save_flags(flags);=0A=
-+	local_irq_disable();=0A=
-+	pmd =3D (pmd_t *)(pgd + pgd_index(address));=0A=
-+	if (pmd_none(*pmd))=0A=
-+		return;=0A=
-+	pte =3D *pte_offset_kernel(pmd, address);          =0A=
-+	if (!pte_present(pte))=0A=
-+		return;=0A=
-+	*R_TLB_SELECT =3D select;=0A=
-+	*R_TLB_HI =3D cause;=0A=
-+	*R_TLB_LO =3D pte_val(pte);=0A=
-+	local_irq_restore(flags);=0A=
- }=0A=
++	}	=0A=
  =0A=
- /* Called from arch/cris/mm/fault.c to find fixup code. */=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/mm/tlb.c lx25/arch/cris/arch-v10/mm/tlb.c=0A=
---- ../linux/arch/cris/arch-v10/mm/tlb.c	Mon Oct 18 23:55:29 2004=0A=
-+++ lx25/arch/cris/arch-v10/mm/tlb.c	Thu Jun 24 12:38:41 2004=0A=
-@@ -65,7 +65,7 @@=0A=
- flush_tlb_mm(struct mm_struct *mm)=0A=
- {=0A=
- 	int i;=0A=
--	int page_id =3D mm->context;=0A=
-+	int page_id =3D mm->context.page_id;=0A=
- 	unsigned long flags;=0A=
- =0A=
- 	D(printk("tlb: flush mm context %d (%p)\n", page_id, mm));=0A=
-@@ -103,7 +103,7 @@=0A=
- 	       unsigned long addr)=0A=
- {=0A=
- 	struct mm_struct *mm =3D vma->vm_mm;=0A=
--	int page_id =3D mm->context;=0A=
-+	int page_id =3D mm->context.page_id;=0A=
- 	int i;=0A=
- 	unsigned long flags;=0A=
- =0A=
-@@ -147,7 +147,7 @@=0A=
- 		unsigned long end)=0A=
- {=0A=
- 	struct mm_struct *mm =3D vma->vm_mm;=0A=
--	int page_id =3D mm->context;=0A=
-+	int page_id =3D mm->context.page_id;=0A=
- 	int i;=0A=
- 	unsigned long flags;=0A=
- =0A=
-@@ -208,6 +208,18 @@=0A=
- }=0A=
- #endif=0A=
- =0A=
-+/*=0A=
-+ * Initialize the context related info for a new mm_struct=0A=
-+ * instance.=0A=
-+ */=0A=
-+=0A=
-+int=0A=
-+init_new_context(struct task_struct *tsk, struct mm_struct *mm)=0A=
-+{=0A=
-+	mm->context.page_id =3D NO_CONTEXT;=0A=
-+	return 0;=0A=
-+}=0A=
-+=0A=
- /* called in schedule() just before actually doing the switch_to */=0A=
- =0A=
- void =0A=
-@@ -231,6 +243,6 @@=0A=
- 	=0A=
- 	D(printk("switching mmu_context to %d (%p)\n", next->context, next));=0A=
- =0A=
--	*R_MMU_CONTEXT =3D IO_FIELD(R_MMU_CONTEXT, page_id, next->context);=0A=
-+	*R_MMU_CONTEXT =3D IO_FIELD(R_MMU_CONTEXT, page_id, =
-next->context.page_id);=0A=
- }=0A=
- =0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/kgdb.c =
-lx25/arch/cris/arch-v10/kernel/kgdb.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/kgdb.c	Mon Oct 18 23:55:17 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/kgdb.c	Thu Oct  7 15:59:08 2004=0A=
-@@ -18,6 +18,9 @@=0A=
- *! Jul 21 1999  Bjorn Wesen     eLinux port=0A=
- *!=0A=
- *! $Log: kgdb.c,v $=0A=
-+*! Revision 1.5  2004/10/07 13:59:08  starvik=0A=
-+*! Corrected call to set_int_vector=0A=
-+*!=0A=
- *! Revision 1.4  2003/04/09 05:20:44  starvik=0A=
- *! Merge of Linux 2.5.67=0A=
- *!=0A=
-@@ -68,7 +71,7 @@=0A=
- *!=0A=
- =
-*!-----------------------------------------------------------------------=
-----=0A=
- *!=0A=
--*! $Id: kgdb.c,v 1.4 2003/04/09 05:20:44 starvik Exp $=0A=
-+*! $Id: kgdb.c,v 1.5 2004/10/07 13:59:08 starvik Exp $=0A=
- *!=0A=
- *! (C) Copyright 1999, Axis Communications AB, LUND, SWEDEN=0A=
- *!=0A=
-@@ -1557,7 +1560,7 @@=0A=
- 	/* could initialize debug port as well but it's done in head.S =
-already... */=0A=
- =0A=
-         /* breakpoint handler is now set in irq.c */=0A=
--	set_int_vector(8, kgdb_handle_serial, 0);=0A=
-+	set_int_vector(8, kgdb_handle_serial);=0A=
- 	=0A=
- 	enableDebugIRQ();=0A=
- }=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/crisksyms.c =
-lx25/arch/cris/arch-v10/kernel/crisksyms.c=0A=
---- ../linux/arch/cris/arch-v10/kernel/crisksyms.c	Thu Jan  1 01:00:00 =
-1970=0A=
-+++ lx25/arch/cris/arch-v10/kernel/crisksyms.c	Wed Jun  2 10:24:38 2004=0A=
-@@ -0,0 +1,17 @@=0A=
-+#include <linux/config.h>=0A=
-+#include <linux/module.h>=0A=
-+#include <asm/io.h>=0A=
-+#include <asm/arch/svinto.h>=0A=
-+=0A=
-+/* Export shadow registers for the CPU I/O pins */=0A=
-+EXPORT_SYMBOL(genconfig_shadow);=0A=
-+EXPORT_SYMBOL(port_pa_data_shadow);=0A=
-+EXPORT_SYMBOL(port_pa_dir_shadow);=0A=
-+EXPORT_SYMBOL(port_pb_data_shadow);=0A=
-+EXPORT_SYMBOL(port_pb_dir_shadow);=0A=
-+EXPORT_SYMBOL(port_pb_config_shadow);=0A=
-+EXPORT_SYMBOL(port_g_data_shadow);=0A=
-+=0A=
-+/* Cache flush functions */=0A=
-+EXPORT_SYMBOL(flush_etrax_cache);=0A=
-+EXPORT_SYMBOL(prepare_rx_descriptor);=0A=
+ 	default_mac =3D sa;=0A=
+ 	return 1;=0A=
 
-------=_NextPart_000_01DA_01C4C0E4.E88FEF40--
+------=_NextPart_000_01D1_01C4C0E4.E3679770--
 

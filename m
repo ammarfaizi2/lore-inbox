@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbTANRlu>; Tue, 14 Jan 2003 12:41:50 -0500
+	id <S264857AbTANRmy>; Tue, 14 Jan 2003 12:42:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbTANRlu>; Tue, 14 Jan 2003 12:41:50 -0500
-Received: from mail-2.tiscali.it ([195.130.225.148]:16486 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S264856AbTANRls>;
-	Tue, 14 Jan 2003 12:41:48 -0500
-Date: Tue, 14 Jan 2003 18:49:11 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: kuznet@ms2.inr.ac.ru
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030114174911.GA796@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20030103051033.1A2AA2C003@lists.samba.org> <200301132232.BAA09527@sex.inr.ac.ru>
+	id <S264859AbTANRmy>; Tue, 14 Jan 2003 12:42:54 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:21462 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S264857AbTANRmt>;
+	Tue, 14 Jan 2003 12:42:49 -0500
+Subject: Re: Linux 2.4.21-pre3-ac4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ross Biro <rossb@google.com>
+Cc: Alan Cox <alan@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E244D96.4040008@google.com>
+References: <200301131946.h0DJk1w32012@devserv.devel.redhat.com>
+	 <1042565893.587.66.camel@zion.wanadoo.fr>  <3E244D96.4040008@google.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042566769.587.69.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301132232.BAA09527@sex.inr.ac.ru>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 14 Jan 2003 18:52:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Tue, Jan 14, 2003 at 01:32:56AM +0300, Alexey N. Kuznetsov ha scritto: 
-> Which does not matter at all, because the hole
+On Tue, 2003-01-14 at 18:49, Ross Biro wrote:
+> Benjamin Herrenschmidt wrote:
 > 
-> void cleanup_module(void)
-> {
-> <an instance is cloned here>
->         unregister_qdisc(&cbq_qdisc_ops);
-> }
-> 
-> remained in any case, be it under some preemptive, nonprepemtive lock or
-> not under a lock at all.
+> >Ok, but PIIX runs on intel platforms with real IOs, so there is no need
+> >to perform a read... If we go the hwif->IOSYNC() way, we might well set
+> >it up to no-op on x86 PIO iops by default and read of alt-status on
+> >other archs if it's safe enough on other controllers/drives...
+> >
+> I believe that this will corrupt any inprogress UDMA transfer on the 
+> promise 20265 chip and probably others.  It would be better to read the 
+> dma registers for the Promise controllers.
 
-Hmm, this can't happen now. The try_module_get() will fail if the module
-is going away and so qdisc_create won't create a new qdisc.
+You mean on the chip's other channel ? As we discussed earlier, we don't
+need to enforce this delay at all for DMA as we wait for the DMA
+controller to complete in the interrupt anyway. Or did I miss a race ?
 
-> BTW, Rusty, a question... I do not understand, what is purpose of this
-> "new" module stuff at all?
-
-The  idea  is  to  use   try_module_get()  before  using  any  interface
-registered by the module. Every module has  a state associated to it: if
-the module  has been  loaded but  it is  still in  its init  section its
-state  will be  MODULE_STATE_COMING  (and  try_module_get() will  fail);
-if  the  module is  in  process  of being  unloaded  its  state will  be
-MODULE_STATE_LIVE (and try_module_get() will  fail); otherwise the state
-will be MODULE_STATE_LIVE (and try_module_get() will success).
-
-If we use try_module_get() before using the module and module_put() when
-we are done everything will work:
-
-int create_foo(foo **new) {
-        if (try_module_get(foo->owner) == 0)
-                /* Module is being unloaded, it's not safe to use it */
-                return -ENOSYS;
-
-        *new = foo->new_foo();
-}
-
-void destroy_foo(foo *foo) {
-        foo->finalize();
-
-        module_put(foo->owner);
-}
+Ben.
 
 
-This is  what I've  done for the  packet scheduler:  try_module_get() is
-called *before*  cloning the qdisc  and if it  fails the qdisc  won't be
-cloned. module_put()  is called  in qdisc_destroy(),  after ->destroy(),
-when we are sure that nobody will ever use a reference to the qdisc.
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Non capisco tutta questa eccitazione per il Multitasking: 
-io sono anni che leggo in bagno.

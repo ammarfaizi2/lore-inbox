@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRA2VoY>; Mon, 29 Jan 2001 16:44:24 -0500
+	id <S130765AbRA2VtF>; Mon, 29 Jan 2001 16:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130765AbRA2VoP>; Mon, 29 Jan 2001 16:44:15 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:1337 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129534AbRA2VoD>; Mon, 29 Jan 2001 16:44:03 -0500
-Message-ID: <3A75E3DB.C13C380F@linux.com>
-Date: Mon, 29 Jan 2001 13:42:51 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jonathan Earle <jearle@nortelnetworks.com>
-CC: "'Jeremy M. Dolan'" <jmd@foozle.turbogeek.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] doc update/fixes for sysrq.txt
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCE3@zcard00g.ca.nortel.com>
+	id <S130761AbRA2Vsz>; Mon, 29 Jan 2001 16:48:55 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:15216
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129396AbRA2Vsq>; Mon, 29 Jan 2001 16:48:46 -0500
+Date: Mon, 29 Jan 2001 22:48:38 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: lnz@dandelion.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] drivers/scsi/BusLogic.c: No resource probing before pci_enable_device (241p11)
+Message-ID: <20010129224838.I603@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Earle wrote:
+Hi.
 
-> > On Sun, 28 Jan 2001 11:35:50 +0000, David Ford wrote:
-> > > AFAIK, this hasn't ever been true.  I have never had to specifically
-> > > enable it at run time.
-> >
-> > I was suspicious of that in the old doc but thought I'd leave it in...
-> > Should have asked for feedback on it, but you caught it
-> > anyway, thanks!
-> >
-> > Here's a patch against the first that simply removes the lines.
->
-> I'd suggest leaving those lines in; I've never had it enabled by default.
-> I've run Debian and Redhat systems, and both had to have the option
-> specifically turned ON via startup script - simply compiling it into a
-> kernel did not enable it.
->
-> Jon
+The following patch makes drivers/scsi/BusLogic.c wait with probing
+pdev->irq and pdev->resource[] until we call pci_enable_device. This
+is recommended due to hot-plug considerations (according to Jeff Garzik).
 
-I suggest compiling it in and booting with init=/bin/bash, mounting /proc
-and checking the value.  It is enabled by default.  A few distributions have
-a boot script that enables or disables it based on the sysconfig.
+It applies against ac12 and 241p11.
 
--d
+Comments?
 
 
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+--- linux-ac12-clean/drivers/scsi/BusLogic.c	Sat Jan 27 21:16:24 2001
++++ linux-ac12/drivers/scsi/BusLogic.c	Sat Jan 27 21:32:33 2001
+@@ -770,15 +770,19 @@
+       BusLogic_ModifyIOAddressRequest_T ModifyIOAddressRequest;
+       unsigned char Bus = PCI_Device->bus->number;
+       unsigned char Device = PCI_Device->devfn >> 3;
+-      unsigned int IRQ_Channel = PCI_Device->irq;
+-      unsigned long BaseAddress0 = pci_resource_start(PCI_Device, 0);
+-      unsigned long BaseAddress1 = pci_resource_start(PCI_Device, 1);
+-      BusLogic_IO_Address_T IO_Address = BaseAddress0;
+-      BusLogic_PCI_Address_T PCI_Address = BaseAddress1;
++      unsigned int IRQ_Channel;
++      unsigned long BaseAddress0;
++      unsigned long BaseAddress1;
++      BusLogic_IO_Address_T IO_Address;
++      BusLogic_PCI_Address_T PCI_Address;
+ 
+       if (pci_enable_device(PCI_Device))
+       	continue;
+       
++      IRQ_Channel = PCI_Device->irq;
++      IO_Address  = BaseAddress0 = pci_resource_start(PCI_Device, 0);
++      PCI_Address = BaseAddress1 = pci_resource_start(PCI_Device, 1);
++
+       if (pci_resource_flags(PCI_Device, 0) & IORESOURCE_MEM)
+ 	{
+ 	  BusLogic_Error("BusLogic: Base Address0 0x%X not I/O for "
 
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-
+"The obvious mathematical breakthrough would be development of an easy way
+to factor large prime numbers." 
+  -- Bill Gates, The Road Ahead, Viking Penguin (1995)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

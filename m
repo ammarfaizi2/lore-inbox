@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSEEPH7>; Sun, 5 May 2002 11:07:59 -0400
+	id <S313014AbSEEPSY>; Sun, 5 May 2002 11:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313014AbSEEPH6>; Sun, 5 May 2002 11:07:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:22223 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S312938AbSEEPH6>; Sun, 5 May 2002 11:07:58 -0400
-Date: Sun, 5 May 2002 17:03:20 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Danijel Schiavuzzi <dschiavu@public.srce.hr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel patching 2.4.19pre1 -> 2.4.19pre2
-In-Reply-To: <200205051454.g45EsM89006510@jagor.srce.hr>
-Message-ID: <Pine.NEB.4.44.0205051701330.283-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S313026AbSEEPSX>; Sun, 5 May 2002 11:18:23 -0400
+Received: from ool-182c923d.dyn.optonline.net ([24.44.146.61]:63628 "EHLO
+	www.milanese.cc") by vger.kernel.org with ESMTP id <S313014AbSEEPSX>;
+	Sun, 5 May 2002 11:18:23 -0400
+Message-ID: <1020611972.3cd54d84bf75d@www.milanese.cc>
+Date: Sun,  5 May 2002 11:19:32 -0400
+From: "Peter J. Milanese" <peterm@milanese.cc>
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMBfs / Unicode problem perhaps?
+In-Reply-To: <Pine.LNX.4.33.0205051239110.4444-100000@cola.enlightnet.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002, Danijel Schiavuzzi wrote:
+Greeting Urban-
 
-> Hi.
+Quoting Urban Widmark <urban@teststation.com>:
 
-Hi Danijel,
+> On Sat, 4 May 2002, Peter J. Milanese wrote:
+> 
+> > Every 1st letter of the directory contents.
+> > 
+> > I could not find anything about this in the archive, and was curious as
+> to
+> > anyone else having this problem, and any input I could get-
+> 
+> Look for some messages from 3 days ago. You need to upgrade your samba to
+> 2.2.3a.
 
-> I'm trying to patch a 2.4.17 clean source tree to the latest 2.4.19-pre8 tree.
-> I can patch it until the 2.4.19pre1.
-> When I try to apply patch-2.4.19pre2.bz2, this happens:
->...
-> Where's the problem?
->...
+:\ - I am running 2.2.3a... I'll look at those messages and see if there is a
+corelation. Thanks for the tip-
 
-the 2.4.19pre patches are all against 2.4.18, IOW:
-pre2 contains everything that is in pre1, too.
+P
 
-You should apply the 2.4.19pre8 patch directly to the 2.4.18 kernel
-sources.
+> 
+> /Urban
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-cu
-Adrian
 
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
 

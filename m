@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274930AbRI1APL>; Thu, 27 Sep 2001 20:15:11 -0400
+	id <S274951AbRI1AYv>; Thu, 27 Sep 2001 20:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274936AbRI1APB>; Thu, 27 Sep 2001 20:15:01 -0400
-Received: from attila.bofh.it ([213.92.8.2]:24017 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S274930AbRI1AOr>;
-	Thu, 27 Sep 2001 20:14:47 -0400
-Date: Fri, 28 Sep 2001 02:14:54 +0200
-From: "Marco d'Itri" <md@Linux.IT>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-        jones <little.jones.family@ntlworld.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: newsgroup of all mailing lists ?
-Message-ID: <20010928021454.A4394@wonderland.linux.it>
-In-Reply-To: <Pine.LNX.4.33.0109261149130.24652-100000@twin.uoregon.edu> <200109261935.f8QJZIk01204@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200109261935.f8QJZIk01204@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-User-Agent: Mutt/1.3.22i
+	id <S274953AbRI1AYl>; Thu, 27 Sep 2001 20:24:41 -0400
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:42691 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S274951AbRI1AYb>; Thu, 27 Sep 2001 20:24:31 -0400
+Message-ID: <8FB7D6BCE8A2D511B88C00508B68C2081971D5@orsmsx102.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'James Simmons'" <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: RE: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+Date: Thu, 27 Sep 2001 17:24:47 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 26, Wayne Whitney <whitney@math.berkeley.edu> wrote:
+> From: James Simmons [mailto:jsimmons@transvirtual.com]
+> > > different VCs. The current system allows it too but it is 
+> more of a later
+> > > add on hack. I have a much cleaner implementation which 
+> does what you ask 
+> > > of the above.         
+> > 
+> > The requirements of ACPI may yet see you get your wish ...
+> 
+> Let me guess. Insane like the rest of it.
 
- >> the group linux.kernel which is a unidirectional mail-news gateway
- >> (as it should be) from anti-phl.bofh.it appears to be working
- >> currently...  
+Aww why'd you have to go and say that? Alan for once didn't bash ACPI
+(;-)))) and you have to step up and do so?
 
- >Anyone know a gateway based in the US?
-The linux.* hierarchy is supposed to be global, if your upstream does
-not carry it I can provide feeds (not to leaf/small nodes, please).
-FAQ: http://www.linux.it/~md/linux-faq
+Knowing ACPI intimately, I can say it deserves several unflattering
+adjectives (insane isn't one of them) but also many good qualities that will
+be obvious once implementation is complete.
 
-Maybe this should be added to the lkml FAQ.
-
--- 
-ciao,
-Marco
+Regards -- Andy
+(Insane ACPI maintainer)

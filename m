@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbTL3MON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 07:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265786AbTL3MON
+	id S265742AbTL3McH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 07:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbTL3McH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 07:14:13 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:61372 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265785AbTL3MOL (ORCPT
+	Tue, 30 Dec 2003 07:32:07 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:62359 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265742AbTL3McG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 07:14:11 -0500
-Date: Tue, 30 Dec 2003 04:14:03 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, wim@iguana.be, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] 2.6.0 - Watchdog patches
-Message-Id: <20031230041403.3ec6f2e4.pj@sgi.com>
-In-Reply-To: <3FF0903F.1030604@pobox.com>
-References: <20030906125136.A9266@infomag.infomag.iguana.be>
-	<20031229205246.A32604@infomag.infomag.iguana.be>
-	<Pine.LNX.4.58.0312291209150.2113@home.osdl.org>
-	<3FF0903F.1030604@pobox.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Dec 2003 07:32:06 -0500
+Message-ID: <3FF1703D.8050909@samwel.tk>
+Date: Tue, 30 Dec 2003 13:31:57 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kiko Piris <kernel@pirispons.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: A couple of questions about laptop-mode for 2.6, version
+ 4
+References: <20031230092831.GA20414@sacarino.pirispons.net> <3FF15849.60005@samwel.tk> <20031230111408.GA22920@sacarino.pirispons.net>
+In-Reply-To: <20031230111408.GA22920@sacarino.pirispons.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another possibility I like is to recreate my changes (what few so far
-...) against a clean bk tree, before sending.  Hide all my internal
-iterations and changes from others.
+Kiko Piris wrote:
+> Btw, have you had reliability reports? Do you know if it's going to be
+> included in 2.6 "official" tree shortly?
 
-I will pull frequently and liberally into the bk clones that I use to
-track 2.6, 2.6-mm and whatever else I am based on.  These in turn I pull
-into my main working bk tree, along with pulling in the various changes
-I have in progress, each from their own bk clone.
+I've gotten no reliability reports whatsoever, but nobody's complained. 
+I've run it for a couple of days and it worked fine for me, so that give 
+me some level of confidence. As for your second question: I have no 
+clue, this is out of my hands. I'm not even sure if I have to do 
+anything specific (like officially submitting to Linus or something) in 
+order to have it included. Can anyone tell me how this is usually done?
 
-Then when it comes time to send out a patch, I:
-
-  1) Generate an old fashioned patch (bk export -tpatch),
-     containing just the revisions relevant to what I will send.
-  2) Clone a fresh bk tree that is closest to whatever
-     the recipient of my patch would like to work with
-  3) Apply the patch to the fresh clone, generating a
-     clean history of one change for just that patch.
-  4) Double check that that builds and boots.
-  5) Then send that change out, usually by exporting it as a
-     -second- old fashioned patch, since for reasons not
-     relevant here, I end up sending patches, not bk pulls,
-     down stream.
-
-The objective being:
-
-  My final "published work" is that patch - it should be
-  as clean as practical.
-
-By going into and back out of old fashioned patches, I isolate
-the anal history that bk kept of all my interim changes from
-the rest of the world.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Bart

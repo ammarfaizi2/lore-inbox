@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130194AbRBBWN6>; Fri, 2 Feb 2001 17:13:58 -0500
+	id <S130358AbRBBWWK>; Fri, 2 Feb 2001 17:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130293AbRBBWNs>; Fri, 2 Feb 2001 17:13:48 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:39392 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S130194AbRBBWNb>; Fri, 2 Feb 2001 17:13:31 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200102022213.f12MDCR27812@devserv.devel.redhat.com>
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 2 Feb 2001 17:13:12 -0500 (EST)
-Cc: alan@redhat.com (Alan Cox), mason@suse.com (Chris Mason),
-        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com,
-        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
-In-Reply-To: <3A7B269F.A028388C@namesys.com> from "Hans Reiser" at Feb 03, 2001 12:29:03 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130357AbRBBWWC>; Fri, 2 Feb 2001 17:22:02 -0500
+Received: from meta.math.spbu.ru ([195.19.229.66]:60164 "EHLO
+	meta.math.spbu.ru") by vger.kernel.org with ESMTP
+	id <S130277AbRBBWVv>; Fri, 2 Feb 2001 17:21:51 -0500
+Date: Sat, 3 Feb 2001 01:23:18 +0300 (MSK)
+From: Igor Nekrestyanov <igor@meta.math.spbu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1: DMA gets disabled due to irq timeout
+Message-ID: <Pine.LNX.4.21.0102030103340.5440-100000@meta.math.spbu.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> my convenience matters as much as that of the users.  I don't want to use
-> #ifdefs, I want it to die explosively and verbosely informatively.  make isn't
-> the most natural language for that, but I am sure Yura can find a way.
+Hi,
 
-Run a small shell check and let it fail if the shell stuff errors.
+I was trying 2.4.1 kernel but under some IO load (bonnie++)
+DMA gets disabled with following messages:
 
-The fragment you want is
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
+ide0: reset: success
 
-if [ -e /bin/rpm ]; then
-        X=`rpm -q gcc`
-        if [ "$X" = "gcc-2.96-54" ]; then
-                echo "*** GCC 2.96-54 will miscompile Reiserfs. Please update your compiler"
-                echo "See http://www.redhat.com/support/errata/RHBA-2000-132.html"
-                exit 255
-        fi
-fi
+I am wondering is there known way how to fix (workaround) this problem?
 
+May it be because of ServerWorks chipset (support for ServerWorks was
+compiled in)? or SMP?
 
-> Please delay shipping the 3.0 CVS branch on RedHat for a while.:-)  Sorry, I
-> couldn't resist.
+Here is except from dmesg:
 
-Grin. gcc 3.0 is going to be just as much fun Im sure, but finally should give
-everyone a stable C and more importantly C++ base including the LSB standards.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+ServerWorks OSB4: chipset revision 0
+ServerWorks OSB4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:pio, hdd:pio
+hda: FUJITSU MPG3307AT, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: 60046560 sectors (30744 MB) w/2048KiB Cache, CHS=3737/255/63, UDMA(33)
 
-Alan
+I will appreciate your help, 
+
+-igor
+
+p.s.
+  Please cc: me explicitly, because i am not on the list now.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

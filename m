@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265114AbSKNRsp>; Thu, 14 Nov 2002 12:48:45 -0500
+	id <S265108AbSKNRnD>; Thu, 14 Nov 2002 12:43:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265126AbSKNRso>; Thu, 14 Nov 2002 12:48:44 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:7568 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S265114AbSKNRsn> convert rfc822-to-8bit;
-	Thu, 14 Nov 2002 12:48:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Irfan Hamid <irfan_hamid@softhome.net>
-Reply-To: irfan_hamid@softhome.net
-Organization: Air Weapons Complex
-To: chandrasekhar.nagaraj@patni.com, linux-kernel@vger.kernel.org
-Subject: Re: Path Name to kdev_t
-Date: Thu, 14 Nov 2002 22:50:48 +0000
-User-Agent: KMail/1.4.1
-References: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
-In-Reply-To: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
+	id <S265111AbSKNRnD>; Thu, 14 Nov 2002 12:43:03 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:34437
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265108AbSKNRnC>; Thu, 14 Nov 2002 12:43:02 -0500
+Date: Thu, 14 Nov 2002 12:47:49 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Andreas Steinmetz <ast@domdv.de>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: make distclean and make dep??
+In-Reply-To: <20021114174246.GB10723@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0211141247180.1073-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211142250.48514.irfan_hamid@softhome.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in all functions of the driver where you will need the kdev_t (e.g.: the VFS 
-layer hooks) you will receive either a struct inode* and/or the struct file* 
-of the device file. the i_rdev member of struct inode is defined as the 
-kdev_t of the particular device.
+On Thu, 14 Nov 2002, Sam Ravnborg wrote:
 
-hope this helps.
+> On Thu, Nov 14, 2002 at 09:35:53AM -0600, Kai Germaschewski wrote:
+> > I think there's good reasons for both distclean and mrproper, distclean is
+> > the standard target which most projects use, and mrproper is the
+> > traditional Linux kernel target. So I would vote for keeping them both
+> > (and share a common help entry).
+> > 
+> > What I don't see is why we would need different semantics, though, 
+> > anybody?
+> How about the following:
+> clean	Delete all intermidiate files, including symlinks and modversions
+> mrproper	clean + deletes .config and .config.old
+> distclean	mrproper + all editor backup, patch backup files
 
-regards,
-irfan.
+Looks sensible to me.
 
-On Thursday 14 November 2002 01:49 pm, chandrasekhar.nagaraj wrote:
-> Hi,
->
-> In one of the part of my driver module , I have a path name to a device
-> file (for eg:- /dev/hda1) .Now if I want to obtain the associated major
-> number and minor number i.e. device ID(kdev_t) of this file what would be
-> the procedure?
->
-> Thanks and Regards
-> Chandrasekhar
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+Nicolas
 

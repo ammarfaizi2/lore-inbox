@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUCILLb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCILLb
+	id S261874AbUCILS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 06:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUCILS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:11:31 -0500
-Received: from smtp05.web.de ([217.72.192.209]:1803 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261875AbUCILKD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:10:03 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-Date: Tue, 9 Mar 2004 12:09:50 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200403090014.03282.thomas.schlichter@web.de> <20040308163316.47b8172b.akpm@osdl.org>
-In-Reply-To: <20040308163316.47b8172b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200403091209.52324.thomas.schlichter@web.de>
+	Tue, 9 Mar 2004 06:18:27 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5841 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261874AbUCILSZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 06:18:25 -0500
+Subject: Re: Benh Kernel 2.4.25 and 2.6.3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040309092406.6513fd7c@zrr.local>
+References: <20040309092406.6513fd7c@zrr.local>
+Content-Type: text/plain
+Message-Id: <1078830927.9745.6.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 22:15:27 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 9. März 2004 01:33 schrieb Andrew Morton:
-> Thomas Schlichter <thomas.schlichter@web.de> wrote:
-> > P.S.: Wouldn't it be nice if gcc complained about these mistakes?
->
-> It does, with -W.  But -W creates vast amounts of less useful warnings.
+On Tue, 2004-03-09 at 19:24, Zeno R.R. Davatz wrote:
+> Hi
+> 
+> I build in a new 80 GB HDD in my G3 Pismo. Then I build the system from Gentoo-LiveCD and installed the kernel from source. Problems:
+> 
+> 2.4.25-benh
+> ***********
+> I rsync'd with rsync.penguinppc.org::linux-2.4-benh and build the kernel.
+> 
+> When I boot my G3 Pismo I get:
+> OOps: kernel access of bad area, sig: 11
+> NIP: C0012C6 XER: 00000000 LR: C0307120  SP: C02B0CE0 REGS: c02b0c30 TRAP: 0300 Not tainted
+> MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
+> DAR: 00000000, DSISR: 40000000
+> TASK= c02aed30[0] etc
+> 
+> this repeats twice and then reboots the maschine. 
 
-Ah, OK... Thanks!
+A lookup of those values (NIP and LR at least) in System.map would be
+useful.
+
+> 2.6.3-benh (gentoo: ppc-development-sources)
+> **********
+> This one boots fine till /proc .....   [ok]
+> 
+> than the maschine just hangs. I got udev installed.
+
+Can you test with current linus bk snapshots ? Let me know.
+
+Ben.
+
 

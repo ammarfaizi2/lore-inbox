@@ -1,158 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVBXEUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVBXEeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVBXEUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 23:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVBXETN
+	id S261812AbVBXEeT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 23:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVBXEcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 23:19:13 -0500
-Received: from ozlabs.org ([203.10.76.45]:16310 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261787AbVBXENY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 23:13:24 -0500
-Date: Thu, 24 Feb 2005 15:00:52 +1100
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@pobox.com>, Pavel Roskin <proski@gnu.org>,
-       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [8/14] Orinoco driver updates - PCMCIA initialization cleanups
-Message-ID: <20050224040052.GJ32001@localhost.localdomain>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Pavel Roskin <proski@gnu.org>,
-	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20050224035355.GA32001@localhost.localdomain> <20050224035445.GB32001@localhost.localdomain> <20050224035524.GC32001@localhost.localdomain> <20050224035650.GD32001@localhost.localdomain> <20050224035718.GE32001@localhost.localdomain> <20050224035804.GF32001@localhost.localdomain> <20050224035957.GH32001@localhost.localdomain> <20050224040024.GI32001@localhost.localdomain>
+	Wed, 23 Feb 2005 23:32:08 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:13283 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261812AbVBXESv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 23:18:51 -0500
+Subject: Re: ext2/3 files per directory limits
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ron Peterson <rpeterso@mtholyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050224031107.GA8656@mtholyoke.edu>
+References: <20050224031107.GA8656@mtholyoke.edu>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 23:18:50 -0500
+Message-Id: <1109218730.4957.14.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050224040024.GI32001@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup the various bits of initialization code for PCMCIA / PC-Card
-orinoco devices.  This includes one important bugfix where we could
-fail to take the lock in some circumstances.
+On Wed, 2005-02-23 at 22:11 -0500, Ron Peterson wrote:
+> I would like to better understand ext2/3's performance characteristics.
+> 
+> I'm specifically interested in how ext2/3 will handle a /var/spool/mail
+> directory w/ ~6000 mbox format inboxes, handling approx 1GB delivered as
+> 75,000 messages daily.  Virtually all access is via imap, w/ approx
+> ~1000 imapd processes running during peak load.  Local delivery is via
+> procmail, which by default uses both kernel-supported locking calls and
+> .lock files.
+> 
+> I understand that various tuning parameters will have an impact,
+> e.g. putting the journal on a separate device, setting the noatime mount
+> option, etc.  I also understand that there are other mailbox formats and
+> other strategies for locating mail spools (e.g. in user's home
+> directories).
+> 
+> I'm interested in people's thoughts on these issues, but I'm mostly
+> interested in whether or not the scenario I described falls within
+> ext2/3's designed capabilities.
 
-Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
+Yes, ext2 and ext3 can handle that load easily.  You should not have to
+do any special tuning.
 
-Index: working-2.6/drivers/net/wireless/orinoco_cs.c
-===================================================================
---- working-2.6.orig/drivers/net/wireless/orinoco_cs.c	2005-02-18 12:04:03.157157240 +1100
-+++ working-2.6/drivers/net/wireless/orinoco_cs.c	2005-02-18 12:11:49.000000000 +1100
-@@ -57,8 +57,8 @@
- /* Some D-Link cards have buggy CIS. They do work at 5v properly, but
-  * don't have any CIS entry for it. This workaround it... */
- static int ignore_cis_vcc; /* = 0 */
--
- module_param(ignore_cis_vcc, int, 0);
-+MODULE_PARM_DESC(ignore_cis_vcc, "Allow voltage mismatch between card and socket");
- 
- /********************************************************************/
- /* Magic constants						    */
-@@ -128,6 +128,7 @@
- 	if (err)
- 		return err;
- 
-+	msleep(100);
- 	clear_bit(0, &card->hard_reset_in_progress);
- 
- 	return 0;
-@@ -166,9 +167,10 @@
- 	link->priv = dev;
- 
- 	/* Interrupt setup */
--	link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
-+	link->irq.Attributes = IRQ_TYPE_EXCLUSIVE | IRQ_HANDLE_PRESENT;
- 	link->irq.IRQInfo1 = IRQ_LEVEL_ID;
--	link->irq.Handler = NULL;
-+	link->irq.Handler = orinoco_interrupt;
-+	link->irq.Instance = dev; 
- 
- 	/* General socket configuration defaults can go here.  In this
- 	 * client, we assume very little, and rely on the CIS for
-@@ -184,6 +186,7 @@
- 	dev_list = link;
- 
- 	client_reg.dev_info = &dev_info;
-+	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
- 	client_reg.EventMask =
- 		CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
- 		CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
-@@ -309,8 +312,8 @@
- 		cistpl_cftable_entry_t *cfg = &(parse.cftable_entry);
- 		cistpl_cftable_entry_t dflt = { .index = 0 };
- 
--		if (pcmcia_get_tuple_data(handle, &tuple) != 0 ||
--				pcmcia_parse_tuple(handle, &tuple, &parse) != 0)
-+		if ( (pcmcia_get_tuple_data(handle, &tuple) != 0)
-+		    || (pcmcia_parse_tuple(handle, &tuple, &parse) != 0))
- 			goto next_entry;
- 
- 		if (cfg->flags & CISTPL_CFTABLE_DEFAULT)
-@@ -349,8 +352,7 @@
- 			    dflt.vpp1.param[CISTPL_POWER_VNOM] / 10000;
- 		
- 		/* Do we need to allocate an interrupt? */
--		if (cfg->irq.IRQInfo1 || dflt.irq.IRQInfo1)
--			link->conf.Attributes |= CONF_ENABLE_IRQ;
-+		link->conf.Attributes |= CONF_ENABLE_IRQ;
- 
- 		/* IO window settings */
- 		link->io.NumPorts1 = link->io.NumPorts2 = 0;
-@@ -402,14 +404,7 @@
- 	 * a handler to the interrupt, unless the 'Handler' member of
- 	 * the irq structure is initialized.
- 	 */
--	if (link->conf.Attributes & CONF_ENABLE_IRQ) {
--		link->irq.Attributes = IRQ_TYPE_EXCLUSIVE | IRQ_HANDLE_PRESENT;
--		link->irq.IRQInfo1 = IRQ_LEVEL_ID;
--  		link->irq.Handler = orinoco_interrupt; 
--  		link->irq.Instance = dev; 
--		
--		CS_CHECK(RequestIRQ, pcmcia_request_irq(link->handle, &link->irq));
--	}
-+	CS_CHECK(RequestIRQ, pcmcia_request_irq(link->handle, &link->irq));
- 
- 	/* We initialize the hermes structure before completing PCMCIA
- 	 * configuration just in case the interrupt handler gets
-@@ -434,8 +429,6 @@
- 	SET_MODULE_OWNER(dev);
- 	card->node.major = card->node.minor = 0;
- 
--	/* register_netdev will give us an ethX name */
--	dev->name[0] = '\0';
- 	SET_NETDEV_DEV(dev, &handle_to_dev(handle));
- 	/* Tell the stack we exist */
- 	if (register_netdev(dev) != 0) {
-@@ -458,8 +451,7 @@
- 	if (link->conf.Vpp1)
- 		printk(", Vpp %d.%d", link->conf.Vpp1 / 10,
- 		       link->conf.Vpp1 % 10);
--	if (link->conf.Attributes & CONF_ENABLE_IRQ)
--		printk(", irq %d", link->irq.AssignedIRQ);
-+	printk(", irq %d", link->irq.AssignedIRQ);
- 	if (link->io.NumPorts1)
- 		printk(", io 0x%04x-0x%04x", link->io.BasePort1,
- 		       link->io.BasePort1 + link->io.NumPorts1 - 1);
-@@ -525,12 +517,12 @@
- 	case CS_EVENT_CARD_REMOVAL:
- 		link->state &= ~DEV_PRESENT;
- 		if (link->state & DEV_CONFIG) {
--			orinoco_lock(priv, &flags);
-+			unsigned long flags;
- 
-+			spin_lock_irqsave(&priv->lock, flags);
- 			netif_device_detach(dev);
- 			priv->hw_unavailable++;
--
--			orinoco_unlock(priv, &flags);
-+			spin_unlock_irqrestore(&priv->lock, flags);
- 		}
- 		break;
- 
+The real question is why in the world you would want to use mbox format
+for this.  It simply does not scale.  Use maildir.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
-				| _around_!
-http://www.ozlabs.org/people/dgibson
+Lee
+

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261772AbSJIOI4>; Wed, 9 Oct 2002 10:08:56 -0400
+	id <S261776AbSJIOJR>; Wed, 9 Oct 2002 10:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261776AbSJIOI4>; Wed, 9 Oct 2002 10:08:56 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:64016
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261772AbSJIOIy>; Wed, 9 Oct 2002 10:08:54 -0400
+	id <S261782AbSJIOJR>; Wed, 9 Oct 2002 10:09:17 -0400
+Received: from Morgoth.ESIWAY.NET ([193.194.16.157]:4621 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S261776AbSJIOI7>; Wed, 9 Oct 2002 10:08:59 -0400
+Date: Wed, 9 Oct 2002 16:14:35 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-From: Robert Love <rml@tech9.net>
-To: Marco Colombo <marco@esi.it>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, riel@conectiva.com.br
-In-Reply-To: <Pine.LNX.4.44.0210091606000.26363-100000@Megathlon.ESI>
-References: <Pine.LNX.4.44.0210091606000.26363-100000@Megathlon.ESI>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 10:14:26 -0400
-Message-Id: <1034172868.746.3707.camel@phantasy>
-Mime-Version: 1.0
+In-Reply-To: <3DA33250.FB61BAAE@digeo.com>
+Message-ID: <Pine.LNX.4.44.0210091612160.26363-100000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 10:10, Marco Colombo wrote:
+On Tue, 8 Oct 2002, Andrew Morton wrote:
 
-> >  #define O_NOFOLLOW	0400000 /* don't follow links */
-> >  #define O_NOFOLLOW	0x20000	/* don't follow links */
-> ...
-> 04000000 != 0x400000
+> I'd say that if you were designing a new application which
+> streams large amount of data then yes, you would design it
+> to use O_DIRECT.  You would instantiate a separate IO worker
+> thread and a message passing mechanism so that thread would
+> pump your data for you, and would peform your readahead, etc.
 > 
-> or am I missing something?
+> If your filesystem supports O_DIRECT, of course.  Not all do.
+> 
+> The strength of O_STREAMING is that you can take an existing,
+> working, megahuge application and make it play better with the
+> VM by changing a single line of code.  No big redesign needed.
 
-No need.  See for example O_NOFOLLOW right above.  Each architecture can
-do has it pleases (I wish otherwise, but...).
+Such as perl:
 
-> (do different archs dream of different O_STREAMING values?)
+sysopen(MYKERNEL, "/boot/vmlinuz", 04000000);
 
-If they so choose.  Just look at the formats of the two numbers you
-posted, even those are different.
+O_DIRECT support is another beast, IMHO.
 
-	Robert Love
-
+.TM.
 

@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265777AbTAFA5Z>; Sun, 5 Jan 2003 19:57:25 -0500
+	id <S265612AbTAFAuh>; Sun, 5 Jan 2003 19:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbTAFA5Z>; Sun, 5 Jan 2003 19:57:25 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:52919 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S265777AbTAFA5Y>;
-	Sun, 5 Jan 2003 19:57:24 -0500
-Subject: Re: Honest does not pay here...
-From: Steven Barnhart <sbarn03@softhome.net>
+	id <S265628AbTAFAuh>; Sun, 5 Jan 2003 19:50:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19727 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265612AbTAFAug>; Sun, 5 Jan 2003 19:50:36 -0500
 To: linux-kernel@vger.kernel.org
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Jan 2003 20:05:52 -0500
-Message-Id: <1041815156.14592.4.camel@sbarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
+Date: 5 Jan 2003 16:58:49 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <avakc9$ct6$1@cesium.transmeta.com>
+References: <m3k7hjq5ag.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0301051040020.11848-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Jan 2003 13:01:41 +1300, Andrew McGregor wrote:
-> I've had some discussion with an ex-NVidia guy who was there while
-they 
-> were doing the driver release.
+Followup to:  <Pine.LNX.4.44.0301051040020.11848-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
 > 
-> They wanted to dual GPL/BSD license the kernel part in the first
-place, 
-> then they realised they had a problem.  They don't own the copyright
-on all 
-> that code themselves, nor do they have the right to redistribute specs
-for 
-> all of the hardware without NDA, because it consists in part of
-purchased 
-> 'IP blocks' (as hardware people call libraries).  So in the end
-they've 
-> opened up as far as they were allowed by preexisting constraints.
+> Now, that SYSENTER_CS thing is very rare indeed, and by keeping track of 
+> what the previous value was (ie just caching the SYSENTER_CS value in the 
+> thread_struct), we could get rid of it with a conditional jump instead. 
+> Want to try it?
 > 
-> Remember, the hardware was not constructed with an open source driver
-in 
-> mind.  It's fairly easy to build hardware which can have open source 
-> drivers (you choose your IP block vendors carefully), but NVidia did
-not do 
-> that in the first place, and now they are stuck.
-> 
-> So your belief about hardware is just plain false, unfortunately. 
-You're 
-> free not to buy their hardware, but I don't think you are being fair
-to dis 
-> them when they appear to have gotten the point of open source but been
-> stymied by other vendors.  NVidia do try hard to give you the right to
-use 
-> their stuff with Linux, but there is only so far they can go.
-> 
-> I expect if Linux makes them enough money, they might buy the rights
-they 
-> don't have, and release the driver in full.  But don't expect that to 
-> happen soon, because if you think proprietary software licenses can be
-> expensive, you haven't seen hardware.
-> 
-> Andrew
 
-Finally someone who explained this to everyone. Thanks Andrew you
-cleared this up to quite a few people.
+This seems like the first thing to do.
+
+Dealing with the SYSENTER_ESP issue is a lot tricker.  It seems that
+it can be done with a magic EIP range test in the #DB handler, the
+range is the part that finds the top of the real kernel stack and
+pushfl's to it; the #DB handler if it receives a trap in this region
+could emulate this piece of code (including pushing the pre-exception
+flags onto the stack) and then invoke the instruction immediately
+after the pushf..
+
+Yes, it's ugly, but it should be relatively straightforward, and since
+this particular chunk is assembly code by necessity it shouldn't be
+brittle.
+
+The other variant (which I have suggested) is to simply state "TF set
+in user space is not honoured."  This would require a system call to
+set TF -> 1.  That way the kernel already has the TF state for all
+processes.
+
+Again, it's ugly.
+
+	-hpa
+
+
+
+
 -- 
-Steven
-sbarn03@softhome.net
-GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

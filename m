@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267134AbSLKNXX>; Wed, 11 Dec 2002 08:23:23 -0500
+	id <S267151AbSLKNc4>; Wed, 11 Dec 2002 08:32:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbSLKNXX>; Wed, 11 Dec 2002 08:23:23 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:3339 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267134AbSLKNXW>; Wed, 11 Dec 2002 08:23:22 -0500
-Date: Wed, 11 Dec 2002 14:32:46 +0100
-From: DervishD <raul@pleyades.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com
-Subject: [PATCH] mmap.c - do_mmap_pgoff() small correction
-Message-ID: <20021211133246.GE48@DervishD>
+	id <S267149AbSLKNcz>; Wed, 11 Dec 2002 08:32:55 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:24587 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267151AbSLKNcv>; Wed, 11 Dec 2002 08:32:51 -0500
+Subject: Re: "bio too big" error
+From: Wil Reichert <wilreichert@yahoo.com>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021211051100.GA13718@kroah.com>
+References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com>
+	 <1039577938.388.9.camel@darwin>  <20021211051100.GA13718@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039614035.478.48.camel@darwin>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6zdv2QT/q3FMhpsV"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 11 Dec 2002 08:40:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Did you try the dm patches that were just posted to lkml today?
 
---6zdv2QT/q3FMhpsV
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Just subscribed today, missed 'em.  You're refering to
 
-    Hi Linus :)
+http://people.sistina.com/~thornber/patches/2.5-stable/2.5.50/2.5.50-dm-2.tar.bz2 ?
 
-    This is a correction for a patch I sent you that you included in
-the 2.5.x tree. The patch I sent you fixed a corner case for the
-mmap() syscall, where the requested size was too big (namely, bigger
-than SIZE_MAX-PAGE_SIZE). Unfortunately, the patch did a wrong
-assumption that is not true in some archs where TASK_SIZE is the full
-address space available, as sparc64. So, the patch didn't fix
-anything on those archs :((
+They result in:
 
-    David S. Miller <davem@redhat.com> pointed this and made this new
-patch that fixes the spot. Now it should work in all archs.
+darwin:~# /etc/init.d/lvm2 start
+Initializing LVM: device-mapper: device /dev/discs/disc4/disc too small
+for target
+device-mapper: internal error adding target to table
+device-mapper: destroying table
+  device-mapper ioctl cmd 2 failed: Invalid argument
+  Couldn't load device 'cheese_vg-blah'.
+  0 logical volume(s) in volume group "cheese_vg" now active
+lvm2.
 
-    If you have any doubt, just tell.
+Guess I'll give 2.5.51 w/ the dm patches a shot.
 
-    Raúl
+Wil
 
---6zdv2QT/q3FMhpsV
-Content-Type: text/plain; charset=iso-8859-1
-Content-Description: mmap.c.diff
-Content-Disposition: attachment; filename="mmap.c.2.5.51.diff"
 
---- linux/mm/mmap.c.orig	2002-12-11 14:27:04.000000000 +0100
-+++ linux/mm/mmap.c	2002-12-11 14:28:09.000000000 +0100
-@@ -421,14 +421,14 @@
- 	if (file && (!file->f_op || !file->f_op->mmap))
- 		return -ENODEV;
- 
--	if (!len)
-+	if (len == 0)
- 		return addr;
- 
--	if (len > TASK_SIZE)
--		return -EINVAL;
--
- 	len = PAGE_ALIGN(len);
- 
-+	if (len > TASK_SIZE || len == 0)
-+		return -EINVAL;
-+
- 	/* offset overflow? */
- 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
- 		return -EINVAL;
 
---6zdv2QT/q3FMhpsV--

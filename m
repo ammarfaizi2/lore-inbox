@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbSJVUKG>; Tue, 22 Oct 2002 16:10:06 -0400
+	id <S264888AbSJVULM>; Tue, 22 Oct 2002 16:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264852AbSJVUJA>; Tue, 22 Oct 2002 16:09:00 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:34709 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S264853AbSJVUIS> convert rfc822-to-8bit; Tue, 22 Oct 2002 16:08:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-Date: Tue, 22 Oct 2002 15:13:41 -0500
-User-Agent: KMail/1.4.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com> <200210221303.47488.pollard@admin.navo.hpc.mil> <20021022194512.GA18955@bluemug.com>
-In-Reply-To: <20021022194512.GA18955@bluemug.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210221513.41729.pollard@admin.navo.hpc.mil>
+	id <S264892AbSJVULL>; Tue, 22 Oct 2002 16:11:11 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:64954 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264852AbSJVUK3>; Tue, 22 Oct 2002 16:10:29 -0400
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jan Kasprzak <kas@informatics.muni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021022195807.GA26620@win.tue.nl>
+References: <20021022185958.GB26585@win.tue.nl>
+	<Pine.LNX.4.44L.0210221625440.27942-100000@freak.distro.conectiva>
+	<20021022193226.GC26585@win.tue.nl> <20021022203504.A7770@infradead.org> 
+	<20021022195807.GA26620@win.tue.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 21:32:08 +0100
+Message-Id: <1035318728.31873.145.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 October 2002 02:45 pm, Mike Touloumtzis wrote:
-> On Tue, Oct 22, 2002 at 01:03:47PM -0500, Jesse Pollard wrote:
-> > And I really doubt that anybody has 10000 unique groups (or even
-> > close to that) running under any system. The center I'm at has
-> > some of the largest UNIX systems ever made, and there are only
-> > about 600 unique groups over the entire center. The largest number
-> > of groups a user can be in is 32. And nobody even comes close.
->
-> Large CVS hosting operations like GNU Savannah have historically used
-> patches to increase NGROUPS.  Using one group per project in CVS is the
-> sanest way to manage a big repository with complex permissions.
+On Tue, 2002-10-22 at 20:58, Andries Brouwer wrote:
+> The default 1K buffer was not large enough. Some utilities have now
+> been patched to tell stdio to use a 16K buffer. We won't have to wait
+> long before also that will turn out to be insufficient.
+> 
+> It is bad that one has to patch mount and the ext2 utilities and fdisk
+> and I don't know what other programs because some irrelevant (to mount etc.)
+> and changing stuff was added to /proc/partitions.
 
-OK, I'll bite..
+There are two items to dela with
 
-Why is this?
+#1 A bug - which Christoph fixed
+#2 A question about field lengths varying - which is true if the fstab
+is updated for other reasons but more likely now. Fixable by using fixed
+width fields
 
-I saw the post about having to have access to a lock directory by a
-cvsuser, but how is that different than having that directory with an
-ACL entry that includes the cvsuser? Or an ACL that includes the
-group that the cvsuser is a member of?
-
-Granted, each project repository would have such a directory for
-locks belonging to the project, but that seems to already be the
-case. Setting up the ACL would just be one additional step in
-setting up a project.
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

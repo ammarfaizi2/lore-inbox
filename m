@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQKLO27>; Sun, 12 Nov 2000 09:28:59 -0500
+	id <S130899AbQKLOb3>; Sun, 12 Nov 2000 09:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130745AbQKLO2u>; Sun, 12 Nov 2000 09:28:50 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:2565 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129340AbQKLO2g>;
-	Sun, 12 Nov 2000 09:28:36 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011121428.RAA16557@ms2.inr.ac.ru>
-Subject: Re: Missing ACKs with Linux 2.2/2.4?
-To: ak@suse.DE (Andi Kleen)
-Date: Sun, 12 Nov 2000 17:26:57 +0300 (MSK)
-Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <20001112143047.A9227@gruyere.muc.suse.de> from "Andi Kleen" at Nov 12, 0 04:45:01 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S130903AbQKLObU>; Sun, 12 Nov 2000 09:31:20 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28176 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130745AbQKLObD>;
+	Sun, 12 Nov 2000 09:31:03 -0500
+Date: Sun, 12 Nov 2000 09:30:59 -0500
+Message-Id: <200011121430.JAA22978@havoc.gtf.org>
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: viro@math.psu.edu, Rasmus Andersen <rasmus@jaquet.dk>,
+        linux-kernel@vger.kernel.org
+Subject: PATCH 2.4.0.11.3: sysctl.h fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Rasmus Andersen wrote:
+> I tried to include <linux/types.h> in md.c and had to include 
+> <linux/blkdev.h> also. Otherwise I got the following:
 
-> NetBSD ignores 0 timestamps. Although that's a hack it is IMHO a reasonable one and 
-> Linux should probably do it too. Even when the 0 is generated legitimately by wrapping
-> counters it is probably not a big problem to lose timestamps for such few packets.
+Here is the solution I prefer...  md builds fine with this, core kernel builds fine with this, and
+I'm about 3/4 of the way through a "build everything" build with this.
 
-Sorry, ignoring some values of timestamp is simply impossible.
-It is PAWS. One packet is more than enough to kill you. 8)
+I tried to avoid including fs.h, but I do prefer updating sysctl.h, because it fixes potential
+breakage similar to md's as well.
 
-Zero _echo_ is ignored in RTTM, which is required by the way.
+	Jeff
 
-Alexey
 
+
+
+Index: include/linux/sysctl.h
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/include/linux/sysctl.h,v
+retrieving revision 1.1.1.8
+diff -u -r1.1.1.8 sysctl.h
+--- include/linux/sysctl.h	2000/10/31 21:19:40	1.1.1.8
++++ include/linux/sysctl.h	2000/11/12 14:28:04
+@@ -24,7 +24,11 @@
+ #ifndef _LINUX_SYSCTL_H
+ #define _LINUX_SYSCTL_H
+ 
++#include <linux/kernel.h>
++#include <linux/types.h>
+ #include <linux/list.h>
++
++struct file;
+ 
+ #define CTL_MAXNAME 10
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

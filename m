@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbULCLig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbULCLwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbULCLig (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 06:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbULCLif
+	id S262163AbULCLwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 06:52:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbULCLwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 06:38:35 -0500
-Received: from holomorphy.com ([207.189.100.168]:9401 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262166AbULCLhN (ORCPT
+	Fri, 3 Dec 2004 06:52:02 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:51726 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262163AbULCLv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 06:37:13 -0500
-Date: Fri, 3 Dec 2004 03:37:04 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rudolf Usselmann <rudi@asics.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9, 64bit, 4GB memory => panics ...
-Message-ID: <20041203113704.GD2714@holomorphy.com>
-References: <1102072834.31282.1450.camel@cpu0>
+	Fri, 3 Dec 2004 06:51:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=EGnvTq4u7R53Vo3jOSZn3qdJb+oEtt2S1un6T3MGpQhimcYG7GxbmNWb+r0Ydwa2cG/EwHPpry/r29a1hWqVfHqWUYYusLuC+ZGXE55sVmQqCijkhwNbsCDmTMeT72ORcbvU/YLjY0r4Qjtg8B4/t+VoF6a2P8KsDN3jQO+LTvI=
+Message-ID: <5b64f7f041203035133c53d10@mail.gmail.com>
+Date: Fri, 3 Dec 2004 06:51:57 -0500
+From: Rahul Karnik <deathdruid@gmail.com>
+Reply-To: Rahul Karnik <deathdruid@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: cdrecord dev=ATA cannont scanbus as non-root [u]
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0412030834330.26749@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102072834.31282.1450.camel@cpu0>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1101763996l.13519l.0l@werewolf.able.es>
+	 <20041130071638.GC10450@suse.de>
+	 <1101935773.11949.86.camel@nosferatu.lan>
+	 <200412021723.48883.astralstorm@gorzow.mm.pl>
+	 <Pine.LNX.4.53.0412030834330.26749@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 06:20:34PM +0700, Rudolf Usselmann wrote:
-> I just installed Fedora Core 3, x86_64. It boots fine, but
-> crashes. The "crash" part occurs as soon as I start any
-> app that apparently uses some "larger" amount of memory.
-> At first I thought there was a problem with X, and my video
-> card. So I tried to login on one of the virtual screens (ALT-F1).
-> Here I was able to see a kernel panic screen when I started
-> several random apps. I am working in duplicating that and
-> capturing the full panic message.
+On Fri, 3 Dec 2004 08:35:32 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
+> > Ok, so I am a bit confused here.  We basically have 3 ways to use
+> >> cdrecord on linux-2.6 without ide-scsi:
+> >>
+> >> 1) cdrecord dev=/dev/hdx
+> >> 2) cdrecord dev=ATA
+> >> 3) cdrecord dev=ATAPI
+> >>
+> >> Now, if I run all three and grep for '^Warning', I get:
+> 
+> Worse, yet, there is no DMA for any of these three :-(
 
-The full panic message would help a lot. We can't do much without it.
+Not true in 2.6. 1 definitely uses DMA now (disregard the damn
+warning). And why would anyone use 2 or 3?
 
-
--- wli
+-Rahul

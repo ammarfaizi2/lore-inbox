@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTEZX4U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 19:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbTEZX4U
+	id S262383AbTE0AEq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 20:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbTE0AEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 19:56:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44303 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262373AbTEZX4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 19:56:19 -0400
-Date: Mon, 26 May 2003 17:09:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <3ED2AA37.4000304@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0305261705070.15826-100000@home.transmeta.com>
+	Mon, 26 May 2003 20:04:46 -0400
+Received: from pop.gmx.net ([213.165.65.60]:42086 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262383AbTE0AEi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 20:04:38 -0400
+Message-ID: <3ED2AEA9.1000401@gmx.net>
+Date: Tue, 27 May 2003 02:17:45 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5] [Cool stuff] "checking" mode for kernel builds
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-On Tue, 27 May 2003, Nick Piggin wrote:
->
-> There is an elevator notifier which is called on request
-> completion in Andrew's tree (needed for AS io scheduler). This
-> can be used to do what you want.
+while eagerly waiting for the release of that tool, I have a few
+comments about the patch itself.
 
-Well, yeah, sure, you can use it to keep track of outstanding requests. 
-But wouldn't it be nicer to see them in the first place?
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 03/05/07	torvalds@home.transmeta.com	1.1063.14.3
+> # Support a "checking" mode for kernel builds, that runs a
+> # user-supplied source checker on all C files before compiling
+> # them.
+> # 
+> # I'll release the actual checker once I've cleaned it up a
+> # bit more (yay, all the copyright paperwork completed!)
+> # --------------------------------------------
+> #
+> [...]
+> @@ -172,6 +182,7 @@
+>  DEPMOD		= /sbin/depmod
+>  KALLSYMS	= scripts/kallsyms
+>  PERL		= perl
+> +CHECK		= /home/torvalds/parser/check
 
-The question being: how do you sanely avoid adding more requests to the 
-queue if you start seeing starvation? Or if adding more requests, at least 
-using an ordered tag or a barrier or whatever to make sure that you tell 
-the disk that the new request must not be done before the old one has 
-finally been satisfied?
+Hardcoded path
 
-I think you'd want to see the old requests in order to be able to make 
-that decision reasonably well. 
+>  MODFLAGS	= -DMODULE
+>  CFLAGS_MODULE   = $(MODFLAGS)
+>  AFLAGS_MODULE   = $(MODFLAGS)
+> @@ -66,6 +66,12 @@
+>  	 $(subdir-ym) $(always)
+>  	@:
+>  
+> +# Linus's kernel sanity checking tool
 
-This is clearly not a 2.6.x issue, btw.
+IIRC my english lessons it should be
++# Linus' kernel sanity checking tool
 
-			Linus
+> +ifneq ($(KBUILD_CHECKSRC),0)
+> +quiet_cmd_checksrc = CHECK   $<
+> +      cmd_checksrc = $(CHECK) $(CFLAGS) $< ;
+> +endif
+> + 
+>  # Module versioning
+>  # ------------------------------------------------------
+>  
+
+Regards,
+Carl-Daniel
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262176AbSJASRL>; Tue, 1 Oct 2002 14:17:11 -0400
+	id <S262234AbSJATL3>; Tue, 1 Oct 2002 15:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262177AbSJASRL>; Tue, 1 Oct 2002 14:17:11 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47012 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262176AbSJASRJ>; Tue, 1 Oct 2002 14:17:09 -0400
-Date: Tue, 1 Oct 2002 15:22:14 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Jens Axboe <axboe@suse.de>,
-       <Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
-       <zippel@linux-m68k.org>, <linux-m68k@lists.linux-m68k.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 mm trouble [possible lru race]
-In-Reply-To: <E17wRXo-0005vk-00@starship>
-Message-ID: <Pine.LNX.4.44L.0210011520360.653-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262224AbSJATL3>; Tue, 1 Oct 2002 15:11:29 -0400
+Received: from tbaytel3.tbaytel.net ([206.47.150.179]:9431 "EHLO tbaytel.net")
+	by vger.kernel.org with ESMTP id <S262240AbSJATL2> convert rfc822-to-8bit;
+	Tue, 1 Oct 2002 15:11:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
+Reply-To: gkajmowi@tbaytel.net
+Organization: Garrett Kajmowicz
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH, TRIVIAL] 2.4.20-pre8 BeFS Config.in modification
+Date: Tue, 1 Oct 2002 15:12:08 -0400
+User-Agent: KMail/1.4.1
+References: <200210011448.06125.gkajmowi@tbaytel.net> <20021001190648.GA24193@suse.de>
+In-Reply-To: <20021001190648.GA24193@suse.de>
+Cc: davej@codemonkey.org.uk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210011512.08679.gkajmowi@tbaytel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Oct 2002, Daniel Phillips wrote:
+> If those filesystems had a dozen options each, it'd be worthwhile
+> perhaps. Saving 1-2 lines per-fs for the whole fs/Config.in
+> makes this seem not-so-worthwhile imo, but others may think otherwise..
+>
+> 		Dave
 
-> The horse isn't dead yet, it's still twitching a little.  At this
-> point we still need to speculate about wny anyone would want an
-> SMP Dragonball machine ;-)
+I am not doing this to reduce the size of the Config.in files.  I am doing it 
+because my main project (writing a script to provide stripped-down versions 
+of the Linux kernel source code for people over slower connections) all but 
+requires everything neat and in it's own directory for optimal performance.  
+I could use a lot of grep/gawk but that would cause more problems for people 
+who wanted to download the stripped source code.
 
-I've seen an SMP 68k box, a DIAB DATA machine. I think
-Bull shipped them, too.
+Besides, it's The Right Thing To Do {tm}
 
-What is that coloured spot on the pavement ?
-Could it be a horse died there, long ago ?
-Now, stop beating the pavement.
+Please Cc any comments to:
 
-cheers,
-
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Garrett Kajmowicz
+gkajmowi@tbaytel.net

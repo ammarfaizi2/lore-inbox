@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316579AbSE0LMg>; Mon, 27 May 2002 07:12:36 -0400
+	id <S316585AbSE0LUD>; Mon, 27 May 2002 07:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316580AbSE0LMf>; Mon, 27 May 2002 07:12:35 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:49282 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316579AbSE0LMe> convert rfc822-to-8bit;
-	Mon, 27 May 2002 07:12:34 -0400
-Message-Id: <200205271112.g4RBCH103186@mail.pronto.tv>
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] 2.4 VM sucks. Again
-Date: Mon, 27 May 2002 13:12:16 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Martin.Bligh@us.ibm.com (Martin J. Bligh), linux-kernel@vger.kernel.org
-In-Reply-To: <E17BGj9-0006VQ-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S316583AbSE0LUC>; Mon, 27 May 2002 07:20:02 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:24068 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316582AbSE0LUA>; Mon, 27 May 2002 07:20:00 -0400
+Date: Mon, 27 May 2002 13:19:52 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com, colin@gibbs.dhs.org,
+        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
+Subject: Re: [aurora-sparc-devel] Re: 2.4 SRMMU bug revisited
+Message-ID: <20020527111951.GA1302@louise.pinerecords.com>
+In-Reply-To: <20020527092408.GD345@louise.pinerecords.com> <20020527.031732.95158135.davem@redhat.com> <20020527062044.GA6737@beth.pinerecords.com> <20020527.034039.120708891.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: GNU/Linux 2.2.21 SMP
+X-Architecture: sparc
+X-Uptime: 3:29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > How much RAM do you have, and what does /proc/meminfo
-> > > and /proc/slabinfo say just before the explosion point?
-> >
-> > I have 1 gig - highmem (not enabled) - 900 megs.
-> > for what I can see, kernel can't reclaim buffers fast enough.
-> > ut looks better on -aa.
->
-> What sort of setup. I can't duplicate the problem here ?
+>    > %99 of people with sparc32 problems are totally unwilling (or unable)
+>    > to help fix the bugs themselves, they merely whine.  It gets a bit
+>    > old after a while (which for me amount to roughly 7 years).
+>    
+>    Sure, I'm willing to try to write the fix if someone takes the time
+>    to explain to me what's happening -- I'm quite fluent in C but know
+>    nothing about the anatomy of the problem.
+> 
+> See the part where I mention "unable".
 
-The setup is 2-4 drives in raid0, with chunk size 1MB.
 
-If I try to do ~50 simultanous reads from disk, it's no problem as long as 
-the data is being read from the nic with the same speed as it's being read 
-from disk. The server apps are running via inetd (testing), and have 2MB of 
-buffer each. (read 2MB from disk, write 2MB to NIC).
+Whoa. Let me recapitulate:
+	- first I provide feedback on patches.
 
-The server chrashes within minutes. The same problem occurs when using Tux
+	-> I'm told I'm not helping but merely whining.
 
-thanks
+	- then I offer to fix the problem myself given somebody explains
+	what's going on in the code so that I at least know where to start
+	and what to look for.
 
-roy
+	-> I am told by DaveM to re-read a sentence by DaveM that seems
+	to inform me that even if I'm willing to help, I'm likely not able
+	to, anyway.
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+Hello!! How exactly is *this* helping then?
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+
+T.

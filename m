@@ -1,64 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132682AbRDKReZ>; Wed, 11 Apr 2001 13:34:25 -0400
+	id <S132686AbRDKRgo>; Wed, 11 Apr 2001 13:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132683AbRDKReO>; Wed, 11 Apr 2001 13:34:14 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:15590 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S132682AbRDKRd7>; Wed, 11 Apr 2001 13:33:59 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE823@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Miles Lane'" <miles@megapathdsl.net>,
-        Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5 module development mailing list needed?  [Fwd: Linux Secu
-	rity Module Interface]
-Date: Wed, 11 Apr 2001 10:33:43 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132684AbRDKRge>; Wed, 11 Apr 2001 13:36:34 -0400
+Received: from t2.redhat.com ([199.183.24.243]:9214 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S132683AbRDKRgY>; Wed, 11 Apr 2001 13:36:24 -0400
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 rw_semaphores fix
+In-Reply-To: Your message of "Wed, 11 Apr 2001 09:56:09 PDT."
+             <3AD48CA9.CA03B85D@uow.edu.au>
+Date: Wed, 11 Apr 2001 18:36:23 +0100
+Message-ID: <17325.987010583@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	Proper place to do this discussion is 
-> linux-kernel@vger.kernel.org
-> 
-> It sounds good in theory.  In practice, though, almost all of the
-> design discussions have been occuring in private e-mail.
-> For example, I have seen none of the messages discussing
-> the changes planned for the power management stuff in 2.5,
-> even though these changes will apparantly touch every single
-> modular driver.  I know for a fact that the changes planned
-> to enable better implementation of PCMCIA support have
-> gone on between only a few developers.  Also, from the
-> announcement from the Security Module folks, I gather that
-> there discussions haven't been held on LKML and aren't
-> planned to migrate here.
+Andrew Morton wrote:
+> I think that's a very good approach.  Sure, it's suboptimal when there
+> are three or more waiters (and they're the right type and order).  But
+> that never happens.  Nice design idea.
 
-IMO, the non-LKML lists exist so that developers can go off and have long,
-boring, highly technical discussions without everyone having to wade through
-it. It's not private email, it's just another list. So, subscribe, or look
-at the archives. Most people don't care about this stuff, so the ones that
-do should opt-in to whatever list.
+Cheers.
 
-> So, if you really think that all these module-related design
-> discussions should happen on LKML, we're going to have
-> to convince a bunch of people to move their discussions
-> here.  This will not necessarily be easy.  I know that the
-> reason that many of these discussions occur between only
-> a few people is that these folks want a decent signal to
-> noise ratio.  That's why I proposed a "2.5-module-devel"
-> list.  It would allow people who really care about this stuff
-> to coordinate their work.
+> These numbers are infinity :)
 
-I am not positive that your initial premise is entirely correct. For
-example, it's way too early to say definitively, but right now I don't see
-ACPI or power management requiring any changes to the module architecture.
-(Driver arch maybe, but not module arch)
+I know, but I think Linus may be happy with the resolution for the moment. It
+can be extended later by siphoning off excess quantities of waiters into a
+separate counter (as is done now) and by making the access count use a larger
+part of the variable.
 
-So, maybe you should just copy the two lists (hotplug and security) in
-question?
+Unfortunately, managing the count and siphoned-off count together is tricky.
 
-Regards -- Andy
+> You need sterner testing stuff :)  I hit the BUG at the end of rwsem_wake()
+> in about a second running rwsem-4.  Removed the BUG and everything stops
+> in D state.
+>
+> Grab rwsem-4 from
+> ...
+
+Will do.
+
+> It's very simple.  But running fully in-kernel shortens the
+> code paths enormously and allows you to find those little
+> timing windows.
+
+I thought I'd got them all by using an activity counter incremented by both
+read and write lockers.
+
+> - rwsemdebug(FMT, ...) doesn't compile with egcs-1.1.2.  Need
+> to remove the comma.
+
+This is tricky... you get all sorts of horrible warnings with gcc-2.96 if you
+remove the comma. What I've done is now ANSI-C99 compliant, but egcs is not.
+
+> - The comments in down_write and down_read() are inaccurate.
+> RWSEM_ACTIVE_WRITE_BIAS is 0xffff0001, not 0x00010001
+
+Done.
+
+> - It won't compile when WAITQUEUE_DEBUG is turned on. I
+> guess you knew that.
+
+Currently putting in separate debugging stuff for rwsems.
+
+> - The comments above the functions in semaphore.h need
+> updating.
+
+Done. (BTW in the latest patch, they're actually split out into separate
+header files as per Linus's suggestion).
+
+> - What on earth does __xg() do?  (And why do people write
+> code like that without explaining why?  Don't answer this
+> one).
+
+Stolen from the xchg() macro/function, but I'm not sure what it does. Plus I
+don't use it now.
+
+> - Somewhat offtopic: the `asm' statements in semaphore.c
+> are really dangerous.
+
+Now all got .text in.
 

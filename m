@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317152AbSHBV0D>; Fri, 2 Aug 2002 17:26:03 -0400
+	id <S317034AbSHBV1d>; Fri, 2 Aug 2002 17:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSHBV0D>; Fri, 2 Aug 2002 17:26:03 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8200 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317152AbSHBV0C>; Fri, 2 Aug 2002 17:26:02 -0400
-Date: Fri, 2 Aug 2002 14:29:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Banai Zoltan <bazooka@emitel.hu>, Alexander Viro <viro@math.psu.edu>,
-       Thomas Molina <tmolina@cox.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.30
-In-Reply-To: <1028290998.18309.9.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0208021424520.2532-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317078AbSHBV1d>; Fri, 2 Aug 2002 17:27:33 -0400
+Received: from mnh-1-15.mv.com ([207.22.10.47]:34309 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317034AbSHBV1c>;
+	Fri, 2 Aug 2002 17:27:32 -0400
+Message-Id: <200208022233.RAA04165@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Accelerating user mode linux 
+In-Reply-To: Your message of "Fri, 02 Aug 2002 13:48:49 -0400."
+             <200208021748.g72HmnV08218@devserv.devel.redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 02 Aug 2002 17:33:51 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alan@redhat.com said:
+> That really makes all the existing code not work with it.
 
-On 2 Aug 2002, Alan Cox wrote:
->
-> The PnPBIOS gdt setup changes I did are wrong somewhere.
+Can you be more specific?  If you're thinking I'm talking about breaking
+mmap, munmap, and mprotect by adding another argument, I'm not.  I'm talking
+about adding new syscalls, mmap2, munmap2, mprotect2 (or something more
+imaginative), which have the extra argument, having them take -1 as meaning
+"fiddle the current address space" and pursuading libc to use them instead
+of the current syscalls.  Then we would start the current ones on their way
+to the happy syscall hunting grounds in the sky.
 
-Alan, in your PnP patches you seem to have changed the 
+> Doing an altmm is easy in the sense that it doesn't require 20 new
+> syscall
 
-	"set_limit()"
+I don't think I mentioned 20 new syscalls anywhere :-)  If you count the
+ones above as replacements and not new, I'm talking about one new syscall -
+switch_mm(), which I didn't mention before, that would switch to a given
+address space.  This would be the basis of UML's switch_mm.
 
-to a 
+> and doesnt slow down the main kernel paths for a single odd
+> case.
 
-	"_set_limit()"
+Which main kernel paths are you referring to here?
 
-which looks wrong (or at least doesn't look consistent with the notion of 
-just doing the same code as before, except on all CPU's).
-
-It _looks_ to me like the QX_SET_SET() macros should be have the "_" 
-removed from the set_limit part. As it is, _set_limit() gets the address 
-calculations wrong (because you don't cast it to "char *") and also gets 
-the limit wrong (because you no longer do the page size adjustment).
-
-Does it work with that small change? I have no idea about the pnpbios 
-code, I'm just looking at Alan's diff.
-
-		Linus
+				Jeff
 

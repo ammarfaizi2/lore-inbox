@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317290AbSFCGTT>; Mon, 3 Jun 2002 02:19:19 -0400
+	id <S317291AbSFCGdK>; Mon, 3 Jun 2002 02:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317291AbSFCGTS>; Mon, 3 Jun 2002 02:19:18 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31241 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317290AbSFCGTS>; Mon, 3 Jun 2002 02:19:18 -0400
-Message-ID: <3CFAFCB0.5030304@evision-ventures.com>
-Date: Mon, 03 Jun 2002 07:20:48 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TRIVIAL: rwhron@earthlink.net: remove space in cache
- names
-In-Reply-To: <E17El4U-0007ha-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317292AbSFCGdJ>; Mon, 3 Jun 2002 02:33:09 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:53718 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S317291AbSFCGdI>; Mon, 3 Jun 2002 02:33:08 -0400
+Date: Sun, 02 Jun 2002 23:30:22 -0700
+From: Jeff Jenkins <jefreyr@pacbell.net>
+Subject: Newbie SMP question
+To: linux-kernel@vger.kernel.org
+Message-id: <3CFB0CFE.8040501@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4.1)
+ Gecko/20020314 Netscape6/6.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> rwhron@earthlink.net: remove space in _proc_slabinfo cache_name:
->   Most /proc/slabinfo cache_names are in the format:
->   cache_name.  There are a couple with spaces in the
->   name, which is inconsistent and requires a special case
->   when scripting.
->   
->   Changes "fasync cache" and "file lock cache" to have
->   the usual underscore.
->   
->   Tested on 2.5.18.  Applies to 2.4.19-pre8 with offset.
-
-
-If you are looking in this area already plese remove
-the completely redundant and inconsistently used cache
-suffix for some entry names too. Slabinfo is about allocation
-caches and nothing else.
+I am familiar with a command on Solaris, namely "psrinfo".  This 
+dispalys that # of CPUs on a box + additional info.  Is there a similar 
+command on Linux that will display the # of CPUs on a system and any 
+info about the CPUs ( make/model/etc.)?
+-- jrj
 

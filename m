@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbSIXPI6>; Tue, 24 Sep 2002 11:08:58 -0400
+	id <S261394AbSIXPQz>; Tue, 24 Sep 2002 11:16:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbSIXPI6>; Tue, 24 Sep 2002 11:08:58 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58281
-	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S261689AbSIXPI5>; Tue, 24 Sep 2002 11:08:57 -0400
-Date: Tue, 24 Sep 2002 08:13:51 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kbuild-devel@lists.sourceforge.net
-Subject: [PATCH 2.5] Make scripts/Configure follow the definition of 'int'
-Message-ID: <20020924151351.GA788@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261418AbSIXPQz>; Tue, 24 Sep 2002 11:16:55 -0400
+Received: from [202.64.97.34] ([202.64.97.34]:5386 "EHLO main.coppice.org")
+	by vger.kernel.org with ESMTP id <S261394AbSIXPQz>;
+	Tue, 24 Sep 2002 11:16:55 -0400
+Message-ID: <3D90831A.7060709@coppice.org>
+Date: Tue, 24 Sep 2002 23:22:02 +0800
+From: Steve Underwood <steveu@coppice.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020911
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: USB IEEE1284 gadgets and ppdev
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, scripts/Configure has code for the 'int' verb to take a
-min/max.  This violates the spec described in
-Documentation/kbuild/config-language.txt.  It also requires that if a
-default is outside of +/- 10,000,000 that defaults be provided, or
-'config' and 'oldconfig' will get stuck.  The following removes the
-support for a min/max from scripts/Configure.
+Hi,
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Can the USB driver for USB to IEEE1284 gadgets be used with the ppdev 
+interface? I looked through the documentation and couldn't find a 
+mention of this one way or the other. The structures used by parport and 
+the USB stuff look similar, but I couldn't see how to get ppdev to play 
+with the USB driver.
 
-===== scripts/Configure 1.6 vs edited =====
---- 1.6/scripts/Configure	Wed Jun  5 17:40:52 2002
-+++ edited/scripts/Configure	Tue Sep 24 07:58:59 2002
-@@ -415,25 +415,15 @@
- #
- # int processes an integer argument with optional limits
- #
--#	int question define default [min max]
-+#	int question define default
- #
- function int () {
- 	old=$(eval echo "\${$2}")
- 	def=${old:-$3}
--	if [ $# -gt 3 ]; then
--	  min=$4
--	else
--	  min=-10000000    # !!
--	fi
--	if [ $# -gt 4 ]; then
--	  max=$5
--	else
--	  max=10000000     # !!
--	fi
- 	rndval $2
- 	while :; do
- 	  readln "$1 ($2) [$def] " "$def" "$old"
--	  if expr \( \( $ans + 0 \) \>= $min \) \& \( $ans \<= $max \) >/dev/null 2>&1 ; then
-+	  if expr "$ans" : '[0-9]*$' > /dev/null; then
-             define_int "$2" "$ans"
- 	    break
-           else
+The documentation tells you how to do this using the special driver for 
+those USB to IEEE1284 devices using the USS720 chip, but I have yet to 
+see anything using that available for sale in these parts.
+
+Regards,
+Steve
+

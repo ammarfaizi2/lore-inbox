@@ -1,146 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263075AbTIGL1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 07:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTIGL1V
+	id S263133AbTIGLZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 07:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTIGLZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 07:27:21 -0400
-Received: from nan-smtp-06.noos.net ([212.198.2.75]:27155 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id S263075AbTIGL1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 07:27:16 -0400
-Subject: Sensors and linux 2.6.0-test4-bk8 question
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: lm78@stimpy.netroedge.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-scQmpSv1XJXK2Qdu4l48"
-Organization: Adresse personnelle
-Message-Id: <1062934034.7923.2.camel@rousalka.dyndns.org>
+	Sun, 7 Sep 2003 07:25:58 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:9129 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263133AbTIGLZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 07:25:55 -0400
+Date: Sun, 7 Sep 2003 13:25:55 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andreas Dilger <adilger@clusterfs.com>
+Subject: latest checkstack.pl
+Message-ID: <20030907112555.GB20414@wohnheim.fh-wedel.de>
+References: <20030907025757.A18482@schatzie.adilger.int>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Sun, 07 Sep 2003 13:27:14 +0200
+Content-Type: multipart/mixed; boundary="KsGdsel6WgEHnImy"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030907025757.A18482@schatzie.adilger.int>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-scQmpSv1XJXK2Qdu4l48
-Content-Type: text/plain
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+Hi!
+
+Not sure when I posted my last version and Andreas just sent me some
+small improvements, including ia64 support.
+
+Since I'm off for something a bit bigger right now, here is the latest
+working code.  Dan Kegel, Andreas and maybe others have some small
+updates, nothing major, but still nice.  So if anyone wants to use it
+or even maintain it, just go ahead.
+
+In a while, there should be a big improvement to it, so I prefer to
+ignore most of the small stuff for now.  A lot of it may become
+obsolete anyway, once my vaporware comes into being.
+
+Jörn
+
+-- 
+The wise man seeks everything in himself; the ignorant man tries to get
+everything from somebody else.
+-- unknown
+
+
+--KsGdsel6WgEHnImy
+Content-Type: application/x-perl
+Content-Disposition: attachment; filename="checkstack.pl"
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-Please bear with me and enlighten me a bit. I've been fiddling with
-2.5/2.6 for some time, and got most of my hardware working (including
-acpi...) better than in 2.4. (in fact now I'm using only 2.6). So now I
-got to the point where I'm looking at nice-to-have stuff like sensors.
-
-I know libsensors is not yet 2.6 aware, but I thought sensed values
-where available in sysfs if one wanted to manually read them. Since I
-have via hardware:
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host
-Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
-00:0a.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 02)
-00:0c.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24
-[CrystalClear SoundFusion Audio Accelerator] (rev 01)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus
-Master IDE (rev 06)
-00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139/8139C/8139C+ (rev 10)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
-(rev 04)
-
-I build-in via-pro and VIA686A:
-CONFIG_I2C_VIAPRO=3Dy
-CONFIG_SENSORS_VIA686A=3Dy
-
-Now there is no sensor-related message as far as I can see in my dmesg,
-and I do not seem to find any temperature/fan related info in /sys:
-
-root@rousalka root]# find /sys/| grep i2c
-/sys/class/i2c-dev
-/sys/class/i2c-dev/i2c-3
-/sys/class/i2c-dev/i2c-3/dev
-/sys/class/i2c-dev/i2c-3/driver
-/sys/class/i2c-dev/i2c-3/device
-/sys/class/i2c-dev/i2c-2
-/sys/class/i2c-dev/i2c-2/dev
-/sys/class/i2c-dev/i2c-2/driver
-/sys/class/i2c-dev/i2c-2/device
-/sys/class/i2c-dev/i2c-1
-/sys/class/i2c-dev/i2c-1/dev
-/sys/class/i2c-dev/i2c-1/driver
-/sys/class/i2c-dev/i2c-1/device
-/sys/class/i2c-dev/i2c-0
-/sys/class/i2c-dev/i2c-0/dev
-/sys/class/i2c-dev/i2c-0/driver
-/sys/class/i2c-dev/i2c-0/device
-/sys/class/i2c-adapter
-/sys/class/i2c-adapter/i2c-3
-/sys/class/i2c-adapter/i2c-3/driver
-/sys/class/i2c-adapter/i2c-3/device
-/sys/class/i2c-adapter/i2c-2
-/sys/class/i2c-adapter/i2c-2/driver
-/sys/class/i2c-adapter/i2c-2/device
-/sys/class/i2c-adapter/i2c-1
-/sys/class/i2c-adapter/i2c-1/driver
-/sys/class/i2c-adapter/i2c-1/device
-/sys/class/i2c-adapter/i2c-0
-/sys/class/i2c-adapter/i2c-0/driver
-/sys/class/i2c-adapter/i2c-0/device
-/sys/bus/i2c
-/sys/bus/i2c/drivers
-/sys/bus/i2c/drivers/dev_driver
-/sys/bus/i2c/drivers/i2c_adapter
-/sys/bus/i2c/devices
-/sys/devices/pci0000:00/0000:00:11.0/i2c-3
-/sys/devices/pci0000:00/0000:00:11.0/i2c-3/name
-/sys/devices/pci0000:00/0000:00:11.0/i2c-3/power
-/sys/devices/pci0000:00/0000:00:11.0/i2c-3/power/state
-/sys/devices/pci0000:00/0000:00:11.0/i2c-3/detach_state
-/sys/devices/legacy/i2c-2
-/sys/devices/legacy/i2c-2/name
-/sys/devices/legacy/i2c-2/power
-/sys/devices/legacy/i2c-2/power/state
-/sys/devices/legacy/i2c-2/detach_state
-/sys/devices/legacy/i2c-1
-/sys/devices/legacy/i2c-1/name
-/sys/devices/legacy/i2c-1/power
-/sys/devices/legacy/i2c-1/power/state
-/sys/devices/legacy/i2c-1/detach_state
-/sys/devices/legacy/i2c-0
-/sys/devices/legacy/i2c-0/name
-/sys/devices/legacy/i2c-0/power
-/sys/devices/legacy/i2c-0/power/state
-/sys/devices/legacy/i2c-0/detach_state
-/sys/cdev/major/i2c
-
-So I'd like to know how I'm supposed to check if the kernel sensors part
-works (and eventualy get some useful info out of it)
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-scQmpSv1XJXK2Qdu4l48
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/WxYRI2bVKDsp8g0RAqcvAKC9qYkkSTUD403m+UvJIdXzPCvgxQCeIWGA
-aUY8iTMYfLP18nRlPisFzDw=
-=Of0j
------END PGP SIGNATURE-----
-
---=-scQmpSv1XJXK2Qdu4l48--
-
+#!/usr/bin/perl=0A=0A#	Check the stack usage of functions=0A#=0A#	Copyright=
+ Joern Engel <joern@wh.fh-wedel.de>=0A#	Inspired by Linus Torvalds=0A#	Orig=
+inal idea maybe from Keith Owens=0A#	s390 port and big speedup by Arnd Berg=
+mann <arnd@bergmann-dalldorf.de>=0A#	Mips port by Juan Quintela <quintela@m=
+andrakesoft.com>=0A#	IA64 port via Andreas Dilger=0A#=0A#	Usage:=0A#	objdum=
+p -d vmlinux | stackcheck_ppc.pl [arch]=0A#=0A#	TODO :	Port to all architec=
+tures (one regex per arch)=0A=0A# check for arch=0A# =0A# $re is used for t=
+hree matches:=0A# $& (whole re) matches the complete objdump line with the =
+stack growth=0A# $1 (first bracket) matches the code that will be displayed=
+ in the output=0A# $2 (second bracket) matches the size of the stack growth=
+=0A#=0A# use anything else and feel the pain ;)=0A{=0A	my $arch =3D shift;=
+=0A	if ($arch eq "") {=0A		$arch =3D `uname -m`;=0A	}=0A=0A	$x	=3D "[0-9a-f=
+]";	# hex character=0A	$xs	=3D "[0-9a-f ]";	# hex character or space=0A	if =
+($arch =3D~ /^i[3456]86$/) {=0A		#c0105234:       81 ec ac 05 00 00       s=
+ub    $0x5ac,%esp=0A		$re =3D qr/^.*(sub    \$(0x$x{3,5}),\%esp)$/o;=0A	} e=
+lsif ($arch =3D~ /^ia64$/) {=0A		#e0000000044011fc:       01 0f fc 8c     a=
+dds r12=3D-384,r12=0A		$re =3D qr/.*(adds.*r12=3D-(([0-9]{2}|[3-9])[0-9]{2}=
+),r12)/o;=0A	} elsif ($arch =3D~ /^mips64$/) {=0A		#8800402c:       67bdfff=
+0        daddiu  sp,sp,-16=0A		$re =3D qr/.*(daddiu.*sp,sp,-(([0-9]{2}|[3-9=
+])[0-9]{2}))/o;=0A	} elsif ($arch =3D~ /^mips$/) {=0A		#88003254:       27b=
+dffe0        addiu   sp,sp,-32=0A		$re =3D qr/.*(addiu.*sp,sp,-(([0-9]{2}|[=
+3-9])[0-9]{2}))/o;=0A	} elsif ($arch =3D~ /^ppc$/) {=0A		#c00029f4:       9=
+4 21 ff 30     stwu    r1,-208(r1)=0A		$re =3D qr/.*(stwu.*r1,-($x{3,5})\(r=
+1\))/o;=0A	} elsif ($arch =3D~ /^s390x?$/) {=0A		#   11160:       a7 fb ff =
+60             aghi   %r15,-160=0A		$re =3D qr/.*(ag?hi.*\%r15,-(([0-9]{2}|=
+[3-9])[0-9]{2}))/o;=0A	} else {=0A		print("wrong or unknown architecture\n"=
+);=0A		exit=0A	}=0A}=0A=0Asub bysize($) {=0A	($asize =3D $a) =3D~ s/$re/\2/=
+;=0A	($bsize =3D $b) =3D~ s/$re/\2/;=0A	$asize =3D hex($asize) if ($asize =
+=3D~ /^0x/);=0A	$bsize =3D hex($bsize) if ($bsize =3D~ /^0x/);=0A	$bsize <=
+=3D> $asize=0A}=0A=0A#=0A# main()=0A#=0A$funcre =3D qr/^$x* \<(.*)\>:$/;=0A=
+while ($line =3D <STDIN>) {=0A	if ($line =3D~ m/$funcre/) {=0A		($func =3D =
+$line) =3D~ s/$funcre/\1/;=0A		chomp($func);=0A	}=0A	if ($line =3D~ m/$re/)=
+ {=0A		(my $addr =3D $line) =3D~ s/^($xs{8}).*/0x\1/o;=0A		chomp($addr);=0A=
+=0A		my $intro =3D "$addr $func:";=0A		my $padlen =3D 56 - length($intro);=
+=0A		while ($padlen > 0) {=0A			$intro .=3D '	';=0A			$padlen -=3D 8;=0A		}=
+=0A		(my $code =3D $line) =3D~ s/$re/\1/;=0A=0A		$stack[@stack] =3D "$intro=
+ $code";=0A	}=0A}=0A=0A@sortedstack =3D sort bysize @stack;=0A=0Aforeach $i=
+ (@sortedstack) {=0A	print("$i");=0A}=0A
+--KsGdsel6WgEHnImy--

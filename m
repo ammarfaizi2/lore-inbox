@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbRECWUg>; Thu, 3 May 2001 18:20:36 -0400
+	id <S135277AbRECWU4>; Thu, 3 May 2001 18:20:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135277AbRECWU1>; Thu, 3 May 2001 18:20:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55305 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135266AbRECWUN>; Thu, 3 May 2001 18:20:13 -0400
-Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
-To: brownfld@irridia.com (Ken Brownfield)
-Date: Thu, 3 May 2001 23:23:23 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        macro@ds2.pg.gda.pl (Maciej W. Rozycki), linux-kernel@vger.kernel.org,
-        hugh@veritas.com (Hugh Dickins)
-In-Reply-To: <200105032207.RAA11260@asooo.flowerfire.com> from "Ken Brownfield" at May 03, 2001 03:07:39 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135281AbRECWUr>; Thu, 3 May 2001 18:20:47 -0400
+Received: from marine.sonic.net ([208.201.224.37]:37124 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S135277AbRECWUh>;
+	Thu, 3 May 2001 18:20:37 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Thu, 3 May 2001 15:20:32 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: CML2 <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Urban Widmark <urban@teststation.com>,
+        John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
+        Peter Samuelson <peter@cadcamlab.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Hierarchy doesn't solve the problem
+Message-ID: <20010503152031.A27366@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Urban Widmark <urban@teststation.com>,
+	John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
+	Peter Samuelson <peter@cadcamlab.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010503030431.A25141@thyrsus.com> <Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com> <20010503034620.A27880@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vRVN-0006Ke-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <20010503034620.A27880@thyrsus.com>; from esr@thyrsus.com on Thu, May 03, 2001 at 03:46:20AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the distributions use _the_ kernel.  Even if -ac is fixed, it's not 
-> really something I would be willing to put in production.  Until I found 
+On Thu, May 03, 2001 at 03:46:20AM -0400, Eric S. Raymond wrote:
+> What's to prefer?  You get essentially the same behavior unless you start
+> with a broken config.
 
-Actually by unit count Linus is currently losing to me on 2.4 shipping.
-Thats one reason I really want to get the stuff I have back into the main
-tree.
+What's going to happen when this interconnected behavior results in a
+previously acceptable config becomes broken (by definition) with a later
+kernel version?
 
-> the noapic work-around, we were basically going to have to move off of 
-> Linux.  I could very well be an isolated case, but the APIC issues I'm 
-> seeing scare me, and not just for my sake.
+We're going to have hundreds of people complaining about this.  Not just
+one or two.
 
-Can you give me the detailed boot up messages from one of your HP boxes and
-some more info. Also can you run dmidecode.c from
-	ftp://ftp.linux.org.uk/pub/linux/alan
-
-on them and send me the DMI strings. You will need to run it as root but
-it can be run on a live system (at least I dont know of any bugs in it and
-it only reads from raw BIOS memory not writes).
-
-Alan
-
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

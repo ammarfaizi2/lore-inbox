@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUELWEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbUELWF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUELWEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbUELWEQ
+	id S261439AbUELWF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUELWF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:04:16 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:65187 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S262079AbUELWEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:04:15 -0400
-Date: Thu, 13 May 2004 02:03:45 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Assembler warnings on Alpha
-Message-ID: <20040513020345.A24739@jurassic.park.msu.ru>
-References: <yw1x1xlpv0pj.fsf@kth.se> <xlthdulpdcl.fsf@shookay.newview.com> <yw1xwu3htjp9.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <yw1xwu3htjp9.fsf@kth.se>; from mru@kth.se on Wed, May 12, 2004 at 11:32:50PM +0200
+	Wed, 12 May 2004 18:05:26 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:23283 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261439AbUELWFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:05:12 -0400
+To: Zan Lynx <zlynx@acm.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Davide Libenzi <davidel@xmailserver.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+References: <20040512020700.6f6aa61f.akpm@osdl.org>
+	<20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com>
+	<20040512193349.GA14936@elte.hu>
+	<Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
+	<20040512200305.GA16078@elte.hu>
+	<Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com>
+	<20040512211255.GA20800@elte.hu>
+	<1084398565.27252.42.camel@localhost.localdomain>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 12 May 2004 15:05:07 -0700
+In-Reply-To: <1084398565.27252.42.camel@localhost.localdomain>
+Message-ID: <52hdul9u98.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 12 May 2004 22:05:07.0625 (UTC) FILETIME=[2FB5C990:01C4386D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 11:32:50PM +0200, Måns Rullgård wrote:
-> Sounds promising.  I guess I'll just give it a try.  Now, does anyone
-> know what causes those warnings?
+  > Being curious, I tried that and got the same results.  But this:
+  > 
+  > int f(unsigned int x)
+  > {
+  >         return x * (1000 / 1000);
+  > }
+  > 
+  > creates this:
+  > f:
+  >         pushl   %ebp
+  >         movl    %esp, %ebp
+  >         movl    8(%ebp), %eax
+  >         leave
+  >         ret
 
-For some weird reasons, the new GAS doesn't like "s" (SMALL_DATA)
-attribute for the .got section (see asm-alpha/module.h).
-These warnings are harmless. I hope the GAS will eventually be
-fixed though...
+Of course the compiler can optimize (1000 / 1000) into 1 at compile
+time.  However, the original code was doing something like
 
-Ivan.
+	x * HZ / 1000
+
+if you change that to
+
+	x * (HZ / 1000)
+
+then obviously that breaks if HZ is not a multiple of 1000.
+
+ - Roland

@@ -1,62 +1,219 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264294AbRFOJNV>; Fri, 15 Jun 2001 05:13:21 -0400
+	id <S264307AbRFOJlo>; Fri, 15 Jun 2001 05:41:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264307AbRFOJNL>; Fri, 15 Jun 2001 05:13:11 -0400
-Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:55180 "EHLO
-	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
-	id <S264294AbRFOJNA>; Fri, 15 Jun 2001 05:13:00 -0400
-Message-ID: <3B29D19B.48A62E4B@bigfoot.com>
-Date: Fri, 15 Jun 2001 02:12:59 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20p2-ai i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?iso-8859-1?Q?Jos=E9?= Luis Domingo =?iso-8859-1?Q?L=F3pez?= 
-	<jldomingo@crosswinds.net>
-Subject: Re: [BUG] 2.2.19 -> 80% Packet Loss
-In-Reply-To: <20010615011415.A5210@dardhal.mired.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S264298AbRFOJle>; Fri, 15 Jun 2001 05:41:34 -0400
+Received: from [212.1.33.3] ([212.1.33.3]:33386 "EHLO borg4.zapnet.de")
+	by vger.kernel.org with ESMTP id <S264297AbRFOJlQ>;
+	Fri, 15 Jun 2001 05:41:16 -0400
+Message-Id: <200106150941.LAA18088@borg4.zapnet.de>
+Date: Fri, 15 Jun 2001 11:41:14 +0200
+From: Ivan Schreter <is@zapwerk.com>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buffer management - interesting idea
+In-Reply-To: <3B29D048.4E19D545@idb.hist.no>
+In-Reply-To: <01060613422800.07218@linux>
+	<3B29D048.4E19D545@idb.hist.no>
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.8; Linux 2.2.16; i686)
+Organization: zapwerk AG
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Fri__15_Jun_2001_11:41:14_+0200_081ac500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-José Luis Domingo López wrote:
-> 
-> On Thursday, 14 June 2001, at 14:17:11 -0700,
-> chuckw@altaserv.net wrote:
-> 
-> >
-> > 1. When pinging a machine using kernel 2.2.19 I consistently get an 80%
-> > packet loss when doing a ping -f with a packet size of 64590 or higher.
-> >
-> What happens here is (under kernel 2.2.19):
-> ping -f -s 49092 localhost -->>   0 % packet loss
-> ping -f -s 49093 localhost -->> 100 % packet loss
+This is a multi-part message in MIME format.
 
-[tim@abit cron.daily]# ping -w 10 -f -s 49093 localhost
-PING localhost (127.0.0.1) from 127.0.0.1 : 49093(49121) bytes of data.
-Warning: no SO_RCVTIMEO support, falling back to poll
-.
---- localhost ping statistics ---
-8051 packets transmitted, 8051 packets received, 0% packet loss
-round-trip min/avg/max/mdev = 0.517/0.751/25.336/0.678 ms
+--Multipart_Fri__15_Jun_2001_11:41:14_+0200_081ac500
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-> Maybe this has something to do with fragmentation of IP packets to fit in
-> the underlying protocol's MTU (3929 in my loopback device).
+Hello,
 
-[tim@abit cron.daily]# ifconfig lo
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:3924  Metric:1
-          RX packets:1197462 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1197462 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
+Please CC: replies to me, since I am not subscribed.
 
-[tim@abit cron.daily]# cat /proc/version
-Linux version 2.2.20p2-ai (root@abit) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #12 Fri May 25 16:31:02 PDT 2001
+>>         http://citeseer.nj.nec.com/63909.html
+
+> The "resistance to scanning" seemed interesting, maybe one-time
+> activities like a "find" run or big cat/dd will have less impact with
+> this.
+
+Exactly. But not only that.
+
+I have made some experimental tests. When you have totally random access
+to data, you get degradation to LRU performance (but no worse). However,
+when doing normal work, results are quite encouraging. Speedup percentage
+is computed assuming processing in-memory buffer takes x and loading
+on-disk buffer takes 100x time:
+
+#blocks	buffers	P	hitLRU	hit2Q	2Q+	speedup
+262400	16384	8	19.29%	24.89%	29%	7.365%
+262400	16384	4	11.56%	14.23%	23%	3.084%
+1024K	16384	32	16.90%	22.82%	35%	7.573%
+1024K	16384	16	9.00%	11.94%	33%	3.305%
+1024K	16384	8	4.94%	6.38%	29%	1.515%
+4096K	16384	64	8.40%	11.39%	36%	3.339%
+4096K	16384	32	4.32%	5.79%	34%	1.536%
+
+I used reasonable figures for filesystem size (1G, 4G and 16G) and buffer
+cache (64MB), with blocksize 4K. All simulations used 10% for A1in and 25%
+for A1out queues. Almost all simulations show over 30% better hit rate as
+LRU, translating to ~3% real time speedup for normal workload. Speedup for
+scanning type workload (find, cat large file, etc.) should be even better
+- write access pattern generator and try it :-)
+
+Constant P determines "randomness" of accesses as follows:
+
+int x = random() % (NR * LEVEL);
+for (int i = LEVEL - 1; i > 0; --i)
+	if (x >= NR * i) x = (x - NR * i) / (i + 1);
+
+where x is generated block # to be accessed, LEVEL is P and NR is # of
+disk blocks.
+
+I attach a crude program to simulate LRU, 2Q and FIFO buffer management
+policies. If you want, you can play with parameters a little bit and
+simulate other workloads (e.g., record what's going on in the system and
+then simulate real system block accesses).
+
+I would like to hear from you if you have some interesting results.
 
 --
+Ivan Schreter
+is@zapwerk.com
+
+--Multipart_Fri__15_Jun_2001_11:41:14_+0200_081ac500
+Content-Type: text/plain;
+ name="test_bufrep.cpp"
+Content-Disposition: attachment;
+ filename="test_bufrep.cpp"
+Content-Transfer-Encoding: base64
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdHJpbmcuaD4KI2luY2x1ZGUgPHN0ZGxpYi5o
+PgojaW5jbHVkZSA8dGltZS5oPgojaW5jbHVkZSA8c2lnbmFsLmg+CgppbnQgb3BzID0gMCwgaGl0
+X2xydSA9IDAsIGhpdF8ycSA9IDAsIGhpdF9maWZvID0gMDsKCiNkZWZpbmUJQlVGUwkxNjM4NAkv
+LyAjIG9mIGJ1ZmZlciBlbnRyaWVzIGluIG1lbW9yeQojZGVmaW5lCU5SCTI2MjQwMAkvLyAjIG9m
+IERCIGJ1ZmZlcnMKI2RlZmluZQlMRVZFTAk4CS8vIG1heC4gdGVzdCBsZXZlbCAoMT10b3RhbCBy
+YW5kb20pCgovLyNkZWZpbmUJVVNFX0ZBU1RBR0UKCgojZGVmaW5lCUJVRlNBMUlOCShCVUZTLzEw
+KQojZGVmaW5lCUJVRlNBMU9VVAkoQlVGUy80KQoKdHlwZWRlZiBzdHJ1Y3QgewoKCWludAluZXh0
+OwoJaW50CXByZXY7CglpbnQgCWlkOwoJaW50CWFnZTsKCn0gbHJ1X2VudHJ5OwoKCmxydV9lbnRy
+eQlscnVbQlVGU107CmludAkJbHJ1X2lkeFtOUl07CmludAkJbHJ1X2ZyZWUgPSAwLCBscnVfaGVh
+ZCA9IDAsIGxydV90YWlsID0gMDsKCgp2b2lkIGxydV9wYWdlKGludCB4KQp7CglpZiAobHJ1X2lk
+eFt4XSA+PSAwKSB7CgkJaGl0X2xydSsrOwoKCQkvLyBtb3ZlIHRvIGJlZ2lubmluZyBvZiB0aGUg
+YnVmZmVyCgkJeCA9IGxydV9pZHhbeF07CgkJaWYgKHggPT0gbHJ1X2hlYWQpIHJldHVybjsKCgkJ
+bHJ1W2xydVt4XS5wcmV2XS5uZXh0ID0gbHJ1W3hdLm5leHQ7CgkJaWYgKHggPT0gbHJ1X3RhaWwp
+IHsKCQkJbHJ1X3RhaWwgPSBscnVbeF0ucHJldjsKCQl9IGVsc2UgewoJCQlscnVbbHJ1W3hdLm5l
+eHRdLnByZXYgPSBscnVbeF0ucHJldjsKCQl9CgkJbHJ1W3hdLnByZXYgPSAtMTsKCQlscnVbeF0u
+bmV4dCA9IGxydV9oZWFkOwoJCWxydVtscnVfaGVhZF0ucHJldiA9IHg7CgkJbHJ1X2hlYWQgPSB4
+OwoKCQlyZXR1cm47Cgl9CgoJaWYgKGxydV9mcmVlID09IC0xKSB7CgoJCS8vIHJlbW92ZSBvbmUg
+ZnJvbSB0YWlsCgkJbHJ1W2xydV90YWlsXS5uZXh0ID0gbHJ1X2ZyZWU7CgkJbHJ1W2xydV90YWls
+ID0gbHJ1W2xydV9mcmVlID0gbHJ1X3RhaWxdLnByZXZdLm5leHQgPSAtMTsKCQlscnVfaWR4W2xy
+dVtscnVfZnJlZV0uaWRdID0gLTE7Cgl9CgoJLy8gYWRkIHRvIGhlYWQKCWludCByID0gbHJ1X2Zy
+ZWU7CglscnVfZnJlZSA9IGxydVtyXS5uZXh0OwoKCWxydVtyXS5wcmV2ID0gLTE7CglscnVbcl0u
+bmV4dCA9IGxydV9oZWFkOwoJbHJ1W3JdLmlkID0geDsKCWxydVtscnVfaGVhZF0ucHJldiA9IHI7
+CglpZiAobHJ1X2hlYWQgPCAwKSBscnVfdGFpbCA9IHI7CglscnVfaGVhZCA9IHI7CgoJbHJ1X2lk
+eFt4XSA9IHI7Cn0KCgpscnVfZW50cnkJcjJxW0JVRlNdOwppbnQJCXIycV9hMW91dFtCVUZTQTFP
+VVRdOwppbnQJCXIycV9pZHhbTlJdOwppbnQJCXIycV9mcmVlID0gMCwgcjJxX2hlYWQgPSAtMSwg
+cjJxX3RhaWwgPSAtMTsKaW50CQlyMnFfYTFpX2hlYWQgPSAtMSwgcjJxX2ExaV90YWlsID0gLTEs
+IHIycV9hMWlfY250ID0gMDsKaW50CQlyMnFfYTFvX2hlYWQgPSAwLCByMnFfYTFvX3RhaWwgPSAw
+LCByMnFfYWdlID0gMDsKCiNkZWZpbmUJUjJRX01BU0sJMHhmZmZmZmYKI2RlZmluZQlSMlFfRkxH
+X01BU0sJMHhmZjAwMDAwMAojZGVmaW5lCVIyUV9BMUlfRkxHCTB4MTAwMDAwMAojZGVmaW5lCVIy
+UV9BMU9fRkxHCTB4MjAwMDAwMAojZGVmaW5lCVIyUV9BTV9GTEcJMHg0MDAwMDAwCgp2b2lkIHIy
+cV9yZWNsYWltKCkKewoJLy8gZnJlZSBvbmUgcGFnZQoKCWlmIChyMnFfYTFpX2NudCA+IEJVRlNB
+MUlOKSB7CgoJCS8vIHJlbW92ZSBsYXN0IHBhZ2UgZnJvbSBBMWluIGFuZCBwdXQgdG8gQTFvdXQK
+CgkJaW50IHIgPSByMnFfYTFpX3RhaWw7CiNpZiAwCmlmIChyIDwgMCkgewoJcHJpbnRmKCJSZWNs
+YWltIGVycjogJWQgLSAlZFxuIiwgcjJxX2ExaV90YWlsLCByMnFfYTFpX2hlYWQpOwoJcmFpc2Uo
+U0lHU0VHVik7Cn0KI2VuZGlmCgkJcjJxX2ExaV90YWlsID0gcjJxW3JdLnByZXY7CgkJcjJxW3Iy
+cV9hMWlfdGFpbF0ubmV4dCA9IC0xOwoJCS0tcjJxX2ExaV9jbnQ7Ci8vcHJpbnRmKCJEZWwyICVk
+LCBjbnQgPSAlZFxuIiwgciwgcjJxX2ExaV9jbnQpOwoKCQlpbnQgeCA9IHIycVtyXS5pZDsKCQly
+MnFbcl0ubmV4dCA9IHIycV9mcmVlOwoJCXIycV9mcmVlID0gcjsKCgkJcjJxX2lkeFt4XSA9IFIy
+UV9NQVNLIHwgUjJRX0ExT19GTEc7CgovL2lmICh4ID49IE5SIHx8IHggPCAwKSBwcmludGYoInNl
+dCBhdCAlZCA9ICVkIChAJWQpLCBoZWFkICVkXG4iLAovLwlyMnFfYTFvX3RhaWwsIHgsIHIsIHIy
+cV9hMW9faGVhZCk7CgkJcjJxX2Exb3V0W3IycV9hMW9fdGFpbCsrXSA9IHg7CgkJaWYgKHIycV9h
+MW9fdGFpbCA9PSBCVUZTQTFPVVQpIHIycV9hMW9fdGFpbCA9IDA7CgkJaWYgKHIycV9hMW9fdGFp
+bCA9PSByMnFfYTFvX2hlYWQpIHsKCgkJCS8vIG92ZXJmbG93LCByZW1vdmUgZnJvbSBidWYKCgkJ
+CWludCBkID0gcjJxX2Exb3V0W3IycV9hMW9faGVhZCsrXTsKCQkJaWYgKHIycV9hMW9faGVhZCA9
+PSBCVUZTQTFPVVQpIHIycV9hMW9faGVhZCA9IDA7CgoJCQkvLyB1bm1hcmsgaW4gaW5kZXgKCQkJ
+cjJxX2lkeFtkXSAmPSB+UjJRX0ExT19GTEc7CgkJfQoJCXJldHVybjsKCX0KCgkvLyByZW1vdmUg
+ZnJvbSB0YWlsIG9mIEFtLCBkbyBub3QgcHV0IGluIEExb3V0IChpdCB3YXMgbGVhc3QgcmVjZW50
+bHkKCS8vIHVzZWQsIHNvIG5vIHBvaW50IGluIGtlZXBpbmcgaXQpCgoJaW50IHggPSByMnFbcjJx
+X3RhaWxdLmlkOwoJaW50IHIgPSByMnFfdGFpbDsKCXIycV9pZHhbeF0gPSBSMlFfTUFTSzsKCXIy
+cV90YWlsID0gcjJxW3JdLnByZXY7CglyMnFbcjJxX3RhaWxdLm5leHQgPSAtMTsKCXIycVtyXS5u
+ZXh0ID0gcjJxX2ZyZWU7CglyMnFfZnJlZSA9IHI7Cn0KCnZvaWQgcjJxX3BhZ2UoaW50IHgpCnsK
+CWludCByID0gcjJxX2lkeFt4XSAmIFIyUV9NQVNLLCBybSA9IHIycV9pZHhbeF0gJiBSMlFfRkxH
+X01BU0s7CgoJaWYgKHJtICYgUjJRX0FNX0ZMRykgewoKCQkvLyBhbHJlYWR5IGluIGJ1ZmZlcgoJ
+CWhpdF8ycSsrOwoKCQkvLyBpbiBMUlUgYnVmZmVyLCBtb3ZlIHRvIGZpcnN0CgkJaWYgKHIgPT0g
+cjJxX2hlYWQpIHJldHVybjsKCgkJcjJxW3IycVtyXS5wcmV2XS5uZXh0ID0gcjJxW3JdLm5leHQ7
+CgkJaWYgKHIgPT0gcjJxX3RhaWwpIHsKCQkJcjJxX3RhaWwgPSByMnFbcl0ucHJldjsKCQl9IGVs
+c2UgewoJCQlyMnFbcjJxW3JdLm5leHRdLnByZXYgPSByMnFbcl0ucHJldjsKCQl9CgkJcjJxW3Jd
+LnByZXYgPSAtMTsKCQlyMnFbcl0ubmV4dCA9IHIycV9oZWFkOwoJCXIycVtyMnFfaGVhZF0ucHJl
+diA9IHI7CgkJcjJxX2hlYWQgPSByOwoKCQlyZXR1cm47CgoJfSBlbHNlIGlmIChybSAmIFIyUV9B
+MU9fRkxHKSB7CgoJCS8vIHdhcyBpbiBBMW91dCwgcHV0IHRvIGhlYWQgb2YgQW0KCgkJaWYgKHJt
+ICYgUjJRX0ExSV9GTEcpIHsKCgkJCS8vIHJlbW92ZSBmcm9tIEExaW4gKGFscmVhZHkgaW4gbWVt
+b3J5KQoJCQloaXRfMnErKzsKCgkJCS0tcjJxX2ExaV9jbnQ7CgkJCWlmIChyID09IHIycV9hMWlf
+aGVhZCkgewoJCQkJcjJxX2ExaV9oZWFkID0gcjJxW3JdLm5leHQ7CgkJCQlpZiAocjJxX2ExaV9j
+bnQpIHIycVtyMnFfYTFpX2hlYWRdLnByZXYgPSAtMTsKCQkJfSBlbHNlIGlmIChyID09IHIycV9h
+MWlfdGFpbCkgewoJCQkJcjJxX2ExaV90YWlsID0gcjJxW3JdLnByZXY7CgkJCQlyMnFbcjJxX2Ex
+aV90YWlsXS5uZXh0ID0gLTE7CgkJCX0gZWxzZSB7CgkJCQkvLyBpbiB0aGUgbWlkZGxlCgkJCQly
+MnFbcjJxW3JdLm5leHRdLnByZXYgPSByMnFbcl0ucHJldjsKCQkJCXIycVtyMnFbcl0ucHJldl0u
+bmV4dCA9IHIycVtyXS5uZXh0OwoJCQl9Ci8vcHJpbnRmKCJEZWwgJWQsIGNudCA9ICVkXG4iLCBy
+LCByMnFfYTFpX2NudCk7CgoJCX0gZWxzZSB7CgoJCQkvLyBub3QgeWV0IGluIG1lbW9yeQoJCQlp
+ZiAocjJxX2ZyZWUgPCAwKSByMnFfcmVjbGFpbSgpOwoKCQkJciA9IHIycV9mcmVlOwoJCQlyMnFf
+ZnJlZSA9IHIycVtyXS5uZXh0OwoJCQlyMnFbcl0uaWQgPSB4OwoKCQkJcjJxX2lkeFt4XSA9IHI7
+CgkJfQoKCQkvLyBhZGQgdG8gaGVhZCBvZiBBbQoJCXIycVtyXS5wcmV2ID0gLTE7CgkJcjJxW3Jd
+Lm5leHQgPSByMnFfaGVhZDsKCQlpZiAocjJxX2hlYWQgPCAwKSByMnFfdGFpbCA9IHI7CgkJZWxz
+ZSByMnFbcjJxX2hlYWRdLnByZXYgPSByOwoJCXIycV9oZWFkID0gcjsKCgkJLy8gbXVzdCBjaGVj
+ayBvdXQgZmxhZywgbWF5IGJlIGNoYW5nZWQgYnkgcmVjbGFpbQoJCXIycV9pZHhbeF0gPSByIHwg
+UjJRX0FNX0ZMRyB8IChyMnFfaWR4W3hdICYgUjJRX0ExT19GTEcpOwoKCQlyZXR1cm47CgoJfSBl
+bHNlIGlmIChybSAmIFIyUV9BMUlfRkxHKSB7CgoJCS8vIGRvIG5vdGhpbmcgLSBpcyBpbiBtZW1v
+cnkgaW4gQTFpbiBxdWV1ZQoKCQloaXRfMnErKzsKCiNpZmRlZiBVU0VfRkFTVEFHRQojd2Fybmlu
+ZyBVc2luZyBGYXN0QWdlCgoJCS8vIG1hcmsgaW50byBSMlFfQTFPIHdoZW4gaW4gbGFzdCAyNSUg
+b3Igc28uLi4KCQlpbnQgYWdlID0gcjJxX2FnZSAtIHIycVtyXS5hZ2U7CgoJCS8vIGFnZSBjYW5u
+b3QgYmUgc2lnbmlmaWNhbnRseSBtb3JlIHRoYW4gcjJxX2NudCwgbm9ybWFsbHkgaXMKCQkvLyBs
+ZXNzCgoJCWlmICgocjJxX2ExaV9jbnQgLSBhZ2UpIDwgKHIycV9hMWlfY250IDw8IDIpKSB7CgkJ
+CS8vIGlzIGluIGxhc3QgMjUlIG9mIGl0cyBsaWZlLCBwdXQgdG8gb3V0IHBhZ2VzCgkJCXIycV9p
+ZHhbeF0gfD0gUjJRX0ExT19GTEc7CgoJCQlyMnFfYTFvdXRbcjJxX2Exb190YWlsKytdID0geDsK
+CQkJaWYgKHIycV9hMW9fdGFpbCA9PSBCVUZTQTFPVVQpIHIycV9hMW9fdGFpbCA9IDA7CgkJCWlm
+IChyMnFfYTFvX3RhaWwgPT0gcjJxX2Exb19oZWFkKSB7CgoJCQkJLy8gb3ZlcmZsb3csIHJlbW92
+ZSBmcm9tIGJ1ZgoKCQkJCWludCBkID0gcjJxX2Exb3V0W3IycV9hMW9faGVhZCsrXTsKCQkJCWlm
+IChyMnFfYTFvX2hlYWQgPT0gQlVGU0ExT1VUKSByMnFfYTFvX2hlYWQgPSAwOwoKCQkJCS8vIHVu
+bWFyayBpbiBpbmRleAoJCQkJcjJxX2lkeFtkXSAmPSB+UjJRX0ExT19GTEc7CgkJCX0KCQl9CiNl
+bmRpZgoKCQlyZXR1cm47CgoJfSBlbHNlIHsKCgkJLy8gaXMgaW4gbm8gcXVldWUsIGxvYWQgJiBh
+ZGQgdG8gaGVhZCBvZiBBMWluCgkJaWYgKHIycV9mcmVlIDwgMCkgcjJxX3JlY2xhaW0oKTsKCgkJ
+ciA9IHIycV9mcmVlOwoJCXIycV9mcmVlID0gcjJxW3JdLm5leHQ7CgkJcjJxW3JdLmlkID0geDsK
+CQlyMnFbcl0uYWdlID0gcjJxX2FnZSsrOwoJCXIycVtyXS5uZXh0ID0gcjJxX2ExaV9oZWFkOwoJ
+CXIycVtyXS5wcmV2ID0gLTE7CgkJaWYgKCFyMnFfYTFpX2NudCkgewoJCQkvLyBmaXJzdCBpdGVt
+LCBzZXQgYWxzbyB0YWlsCgkJCXIycV9hMWlfdGFpbCA9IHI7CgkJfSBlbHNlIHsKCQkJcjJxW3Iy
+cV9hMWlfaGVhZF0ucHJldiA9IHI7CgkJfQoJCXIycV9hMWlfY250Kys7CgkJcjJxX2ExaV9oZWFk
+ID0gcjsKLy9wcmludGYoIkFkZCAlZCwgY250ID0gJWRcbiIsIHIsIHIycV9hMWlfY250KTsKLy9p
+ZiAociA9PSAwICYmIHIycV9hMWlfY250ID4gMSkgcmFpc2UoU0lHU1RPUCk7CgoJCXIycV9pZHhb
+eF0gPSByIHwgUjJRX0ExSV9GTEc7Cgl9Cn0KCmludAlmaWZvX2lkeFtOUl07CmludAlmaWZvW0JV
+RlNdOwppbnQJZmlmb19oZWFkID0gMCwgZmlmb190YWlsID0gMDsKCnZvaWQgZmlmb19wYWdlKGlu
+dCB4KQp7CglpZiAoZmlmb19pZHhbeF0gPj0gMCkgewoJCWhpdF9maWZvKys7CgkJcmV0dXJuOwoJ
+fQoKCWZpZm9faWR4W3hdID0gZmlmb19oZWFkOwoJZmlmb1tmaWZvX2hlYWQrK10gPSB4OwoJaWYg
+KGZpZm9faGVhZCA9PSBCVUZTKSBmaWZvX2hlYWQgPSAwOwoJaWYgKGZpZm9faGVhZCA9PSBmaWZv
+X3RhaWwpIHsKCQlmaWZvX2lkeFtmaWZvW2ZpZm9fdGFpbCsrXV0gPSAtMTsKCQlpZiAoZmlmb190
+YWlsID09IEJVRlMpIGZpZm9fdGFpbCA9IDA7Cgl9Cn0KCmludCBtYWluKCkKewoJbWVtc2V0KGxy
+dV9pZHgsIC0xLCBzaXplb2YobHJ1X2lkeCkpOwoJbWVtc2V0KGZpZm9faWR4LCAtMSwgc2l6ZW9m
+KGZpZm9faWR4KSk7Cglmb3IgKGludCBpID0gMDsgaSA8IE5SOyArK2kpIHIycV9pZHhbaV0gPSBS
+MlFfTUFTSzsKCglmb3IgKGludCBpID0gMDsgaSA8IEJVRlMgLSAxOyArK2kpIHsKCQlscnVbaV0u
+bmV4dCA9IGkgKyAxOwoJCXIycVtpXS5uZXh0ID0gaSArIDE7Cgl9CglscnVbQlVGUy0xXS5uZXh0
+ID0gLTE7CglyMnFbQlVGUy0xXS5uZXh0ID0gLTE7CgoJdGltZV90IHRtID0gdGltZShOVUxMKTsK
+CWZvciAoOzspIHsKCQlpbnQgeCA9IHJhbmRvbSgpICUgKE5SICogTEVWRUwpOwoJCWZvciAoaW50
+IGkgPSBMRVZFTCAtIDE7IGkgPiAwOyAtLWkpCgkJCWlmICh4ID49IE5SICogaSkgeCA9ICh4IC0g
+TlIgKiBpKSAvIChpICsgMSk7CgoJCWxydV9wYWdlKHgpOwoJCXIycV9wYWdlKHgpOwoJCWZpZm9f
+cGFnZSh4KTsKCQlvcHMrKzsKCQl0aW1lX3QgY3VyX3RtID0gdGltZShOVUxMKTsKCQlpZiAoY3Vy
+X3RtICE9IHRtKSB7CgoJCQlpbnQgbHJ1X3B0aW1lID0gKG9wcyArIDk5ICogKG9wcyAtIGhpdF9s
+cnUpKSAvIDEwMDA7CgkJCWludCByMnFfcHRpbWUgPSAob3BzICsgOTkgKiAob3BzIC0gaGl0XzJx
+KSkgLyAxMDAwOwoKCQkJcHJpbnRmKCJPcHM6ICVkLCBMUlU6ICVkICUuMmYlJSwgMlE6ICVkICUu
+MmYlJSwgIgoJCQkJIkZJRk86ICVkICUuMmYlJSwgMlEvTFJVICUuMmZcbiIKCQkJCSJMUlUgcHRp
+bWU6ICVkLCAyUSBwdGltZTogJWQsICIKCQkJCSJyYXRpbyAyUS9MUlU6ICUuM2YlJSArJS4zZiUl
+XG4iLAoJCQkJb3BzIC8gMTAwMCwgaGl0X2xydSAvIDEwMDAsCgkJCQloaXRfbHJ1ICogMTAwLjAg
+LyBvcHMsCgkJCQloaXRfMnEgLyAxMDAwLCBoaXRfMnEgKiAxMDAuMCAvIG9wcywKCQkJCWhpdF9m
+aWZvIC8gMTAwMCwgaGl0X2ZpZm8gKiAxMDAuMCAvIG9wcywKCQkJCWhpdF8ycSAqIDEuMCAvIGhp
+dF9scnUsCgkJCQlscnVfcHRpbWUsIHIycV9wdGltZSwKCQkJCXIycV9wdGltZSAqIDEwMC4wIC8g
+bHJ1X3B0aW1lLAoJCQkJbHJ1X3B0aW1lICogMTAwLjAgLyByMnFfcHRpbWUgLSAxMDAuMCk7CgkJ
+CXRtID0gY3VyX3RtOwoJCX0KCX0KCXJldHVybiAwOwp9Cgo=
+
+--Multipart_Fri__15_Jun_2001_11:41:14_+0200_081ac500--

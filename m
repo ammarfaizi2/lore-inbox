@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263968AbSJOSvr>; Tue, 15 Oct 2002 14:51:47 -0400
+	id <S264754AbSJOSsl>; Tue, 15 Oct 2002 14:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264021AbSJOSvr>; Tue, 15 Oct 2002 14:51:47 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:31982 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261645AbSJOSvg>; Tue, 15 Oct 2002 14:51:36 -0400
-Date: Tue, 15 Oct 2002 14:57:31 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Dan Kegel <dank@kegel.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+	id <S264755AbSJOSsl>; Tue, 15 Oct 2002 14:48:41 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:62862 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264754AbSJOSsk>; Tue, 15 Oct 2002 14:48:40 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Oct 2002 12:02:41 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Shailabh Nagar <nagar@watson.ibm.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
        David Miller <davem@redhat.com>,
        Linus Torvalds <torvalds@transmeta.com>,
        Stephen Tweedie <sct@redhat.com>
 Subject: Re: [PATCH] async poll for 2.5
-Message-ID: <20021015145731.J14596@redhat.com>
-References: <3DAB46FD.9010405@watson.ibm.com> <20021015110501.B11395@redhat.com> <3DAC4B0E.EBB3A2AB@kegel.com> <3DAC59ED.2070405@watson.ibm.com> <3DAC643C.86A016B4@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DAC643C.86A016B4@kegel.com>; from dank@kegel.com on Tue, Oct 15, 2002 at 11:53:48AM -0700
+In-Reply-To: <3DAC5C11.4060507@watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210151201300.1554-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 11:53:48AM -0700, Dan Kegel wrote:
-> Seems like the thing to do is to move /dev/epoll over to use
-> Ben's event system rather than worry about the old /dev/epoll interface.
-> But like signal-per-fd, we will want to collapse readiness events,
-> which is something Ben's event system might not do naturally.
-> (I wouldn't know -- I haven't actually looked at Ben's code.)
+On Tue, 15 Oct 2002, Shailabh Nagar wrote:
 
-If you look at how /dev/epoll does it, the collapsing of readiness 
-events is very elegant: a given fd is only allowed to report a change 
-in its state once per run through the event loop.  The ioctl that swaps 
-event buffers acts as a barrier between the two possible reports.
+> Davide Libenzi wrote:
+> > On Tue, 15 Oct 2002, Benjamin LaHaise wrote:
+> >
+> >
+> >>On Tue, Oct 15, 2002 at 01:38:53PM -0400, Shailabh Nagar wrote:
+> >>
+> >>>So I guess the question would now be: whats keeping /dev/epoll from
+> >>>being included in the kernel given the time left before the feature freeze ?
+> >>
+> >>We don't need yet another event reporting mechanism as /dev/epoll presents.
+> >>I was thinking it should just be its own syscall but report its events in
+> >>the same way as aio.
+> >
+> >
+> > Yes, Linus ( like myself ) hates magic inodes inside /dev. At that time it
+> > was the fastest way to have a kernel interface exposed w/out having to beg
+> > for a syscall. I'm all for a new syscall obviously, and IMHO /dev/epoll
+> > might be a nice complement to AIO for specific applications.
+>
+>
+> So what would the syscall look like ? Could you give a few more details on the interface ?
 
-As to how this would interact with the aio event loops, I thought the 
-"barrier" syscall could be the point at which aio event slots are reserved 
-and freed.  Interest registration would be the other syscall (which would 
-naturally have to reserve an event for the descriptor in the current set 
-of readiness notifications).  Anyways, just a few thoughts...
+Since i guess that w/out having the bility to add fds to the monitores set
+would make the API useless ...
 
-		-ben
--- 
-"Do you seek knowledge in time travel?"
+int sys_epoll_addfd(int epd, int fd);
+
+
+
+
+- Davide
+
+

@@ -1,71 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbUCOTDR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 14:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbUCOTDR
+	id S262689AbUCOTHK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 14:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbUCOTHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 14:03:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43653 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262709AbUCOTDG (ORCPT
+	Mon, 15 Mar 2004 14:07:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39381 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262703AbUCOTGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 14:03:06 -0500
-Date: Mon, 15 Mar 2004 11:02:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: piggin@cyberone.com.au, riel@redhat.com, marcelo.tosatti@cyclades.com,
-       j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-Message-Id: <20040315110240.24ae4bad.akpm@osdl.org>
-In-Reply-To: <20040315185147.GH30940@dualathlon.random>
-References: <Pine.LNX.4.44.0403150822040.12895-100000@chimarrao.boston.redhat.com>
-	<4055BF90.5030806@cyberone.com.au>
-	<20040315145020.GC30940@dualathlon.random>
-	<20040315103510.25c955a3.akpm@osdl.org>
-	<20040315185147.GH30940@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 14:06:38 -0500
+Date: Mon, 15 Mar 2004 14:06:30 -0500 (EST)
+From: Matthew Galgoci <mgalgoci@redhat.com>
+X-X-Sender: mgalgoci@lacrosse.corp.redhat.com
+To: Pavel Machek <pavel@ucw.cz>, <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] atkbd shaddup
+In-Reply-To: <20040315183541.GB258@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0403151404190.26525-100000@lacrosse.corp.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> The effect is that you can do stuff like 'cvs up' and you will end up
->  caching just 1G instead of 2G. Or do I miss something? If I would own a
->  2G box I would hate to be able to cache just 1 G (yeah, the cache is 2G
->  but half of that cache is pinned and it sits there with years old data,
->  so effectively you lose 50% of the ram in the box in terms of cache
->  utilization).
 
-Nope, we fill all zones with pagecache and once they've all reached
-pages_low we scan all zones in proportion to their size.  So the
-probability of a page being scanned is independent of its zone.
+Ok, here is the revised patch based on Pavel's feedback:
 
-It took a bit of diddling, but it seems to work OK now.  Here are the
-relevant bits of /proc/vmstat from a 1G machine, running 2.6.4-rc1-mm1 with
-13 days uptime:
 
-pgalloc_high 65658111
-pgalloc_normal 384294820
-pgalloc_dma 617780
+--- linux-2.6.4/drivers/input/keyboard/atkbd.c.orig	2004-03-15 12:40:01.578423740 -0500
++++ linux-2.6.4/drivers/input/keyboard/atkbd.c	2004-03-15 12:45:02.545009523 -0500
+@@ -197,7 +197,7 @@
+ 
+ #if !defined(__i386__) && !defined (__x86_64__)
+ 	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && !atkbd->resend && atkbd->write) {
+-		printk("atkbd.c: frame/parity error: %02x\n", flags);
++		printk(KERN_WARNING "atkbd.c: frame/parity error: %02x\n", flags);
+ 		serio_write(serio, ATKBD_CMD_RESEND);
+ 		atkbd->resend = 1;
+ 		goto out;
+@@ -258,7 +258,7 @@
+ 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+-			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
++			printk(KERN_INFO "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+ 			goto out;
+ 	}
+ 
 
-pgrefill_high 5980273
-pgrefill_normal 11873490
-pgrefill_dma 69861
+If there are no more objections, please apply.
 
-pgsteal_high 2377905
-pgsteal_normal 10504356
-pgsteal_dma 4756
+Regards,
 
-pgscan_kswapd_high 3621882
-pgscan_kswapd_normal 15652593
-pgscan_kswapd_dma 99
+Matthew Galgoci
 
-pgscan_direct_high 54120
-pgscan_direct_normal 162353
-pgscan_direct_dma 69377
 
-These are approximately balanced wrt the zone sizes, with a bias towards
-ZONE_NORMAL because of non-highmem allocations.  It's not perfect, but we
-did fix a few things up after 2.6.4-rc1-mm1.
+On Mon, 15 Mar 2004, Pavel Machek wrote:
+
+> > Hi,
+> > 
+> > Pavel, how is this:
+> > 
+> > --- linux-2.6.4/drivers/input/keyboard/atkbd.c.orig	2004-03-15 12:40:01.578423740 -0500
+> > +++ linux-2.6.4/drivers/input/keyboard/atkbd.c	2004-03-15 12:45:02.545009523 -0500
+> > @@ -197,7 +197,7 @@
+> >  
+> >  #if !defined(__i386__) && !defined (__x86_64__)
+> >  	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && !atkbd->resend && atkbd->write) {
+> > -		printk("atkbd.c: frame/parity error: %02x\n", flags);
+> > +		printk(KERN_WARNING "atkbd.c: frame/parity error: %02x\n", flags);
+> >  		serio_write(serio, ATKBD_CMD_RESEND);
+> >  		atkbd->resend = 1;
+> >  		goto out;
+> 
+> Ok.
+> 
+> > @@ -258,7 +258,7 @@
+> >  			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+> >  			goto out;
+> >  		case ATKBD_RET_ERR:
+> > -			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+> > +			printk(KERN_INFO "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+> >  			goto out;
+> >  	}
+> >  
+> 
+> Ok.
+> 
+> > @@ -274,15 +274,15 @@
+> >  		case ATKBD_KEY_NULL:
+> >  			break;
+> >  		case ATKBD_KEY_UNKNOWN:
+> > -			printk(KERN_WARNING "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
+> > +			printk(KERN_INFO "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
+> >  				atkbd->release ? "released" : "pressed",
+> >  				atkbd->translated ? "translated" : "raw", 
+> >  				atkbd->set, code, serio->phys);
+> >  			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
+> > -				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
+> > +				printk(KERN_INFO "atkbd.c: This is an XFree86 bug. It shouldn't access"
+> >  					" hardware directly.\n");
+> >  			else
+> > -				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
+> > +				printk(KERN_INFO "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
+> >  			break;
+> 
+> I'd leave those at WARNING level.
+> 
+> >  		default:
+> >  			value = atkbd->release ? 0 :
+> > @@ -496,8 +496,8 @@
+> >  	atkbd->id = (param[0] << 8) | param[1];
+> >  
+> >  	if (atkbd->id == 0xaca1 && atkbd->translated) {
+> > -		printk(KERN_ERR "atkbd.c: NCD terminal keyboards are only supported on non-translating\n");
+> > -		printk(KERN_ERR "atkbd.c: controllers. Use i8042.direct=1 to disable translation.\n");
+> > +		printk(KERN_WARNING "atkbd.c: NCD terminal keyboards are only supported on non-translating\n");
+> > +		printk(KERN_WARNING "atkbd.c: controllers. Use i8042.direct=1 to disable translation.\n");
+> >  		return -1;
+> >  	}
+> >  
+> 
+> This is hard error. Leave it as such.
+> 
+> > @@ -588,7 +588,7 @@
+> >   */
+> >  
+> >  	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE)) {
+> > -		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
+> > +		printk(KERN_WARNING "atkbd.c: Failed to enable keyboard on %s\n",
+> >  			atkbd->serio->phys);
+> >  		return -1;
+> >  	}
+> 
+> Same here.
+> 
+> > @@ -744,7 +744,7 @@
+> >  	int i;
+> >  
+> >          if (!dev) {
+> > -                printk(KERN_DEBUG "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
+> > +                printk(KERN_WARNING "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
+> >                  return -1;
+> >          }
+> > 
+> 
+> I do not know about this one....
+> 
+> 									Pavel
+> 
+> 
+
+-- 
+Matthew Galgoci
+System Administrator
+Red Hat, Inc
+919.754.3700 x44155
+

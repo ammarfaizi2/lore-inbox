@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbTFURnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 13:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbTFURnV
+	id S265252AbTFUSIA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 14:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTFUSIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 13:43:21 -0400
-Received: from pD9532908.dip.t-dialin.net ([217.83.41.8]:35589 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S265229AbTFURnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 13:43:19 -0400
-Date: Sat, 21 Jun 2003 17:53:59 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrey Panin <pazke@donpac.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.72
-Message-ID: <20030621175358.A2848@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Andrey Panin <pazke@donpac.ru>, linux-kernel@vger.kernel.org
-References: <20030620061020.GC786@pazke> <Pine.LNX.3.96.1030620135641.17926A-101000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.3.96.1030620135641.17926A-101000@gatekeeper.tmr.com>; from davidsen@tmr.com on Fri, Jun 20, 2003 at 02:00:14PM -0400
+	Sat, 21 Jun 2003 14:08:00 -0400
+Received: from brmea-mail-2.Sun.COM ([192.18.98.43]:52885 "EHLO
+	brmea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S265252AbTFUSH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 14:07:59 -0400
+Date: Sat, 21 Jun 2003 11:22:00 -0700
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Subject: Re: Announce: kdb v4.3 is available for kernels 2.4.20, 2.4.21
+In-reply-to: <4310.1056174819@firewall.ocs.com.au>
+To: Keith Owens <kaos@sgi.com>
+Cc: kdb@oss.sgi.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1056219720.21882.87.camel@biznatch>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2)
+Content-type: multipart/signed; boundary="=-HAPowZ13ISHG3EYIaHu6";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <4310.1056174819@firewall.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 02:00:14PM -0400, Bill Davidsen wrote:
-> On Fri, 20 Jun 2003, Andrey Panin wrote:
-> 
-> > On 171, 06 20, 2003 at 06:55:47AM +0100, Russell King wrote:
-> > > The problem is one of a lack of historical information on why it was
-> > > added.  The driver itself allows serial ports to share interrupts between
-> > > themselves.  Maybe tytso knows why the "Rockwell 56K ACF II Fax+Data+Voice
-> > > Modem" is unable to share IRQs?
-> > 
-> > It was me who added this crappy quirk.
-> > 
-> > My ELine modem which identified itself "Rockwell 56K ACF II Fax+Data+Voice Modem"
-> > was going mad when its IRQ was shared with any device. So I decided to add this
-> > quirk.
-> > 
-> > Personally I think that ISA IRQ sharing should be absolutely last resort technic,
-> > because ISA bus was never designed to support IRQ sharing sanely. If you have to
-> > enable ISA PnP device and do not have enough IRQ, you must print BIG FAT WARNING
-> > before doing this. May be kernel config options must be added for brave guys
-> > wanting to use ISA IRQ sharing.
 
-Problem is, 'unprepared' ISA cards are electrically unable to share interrupts 
-(like in: an interrupting card cant't drive the interrupt line high while at 
-the same time another one actively drives it at a low level). You _can_ make 
-things work when you replace the IRQ-selection-jumper on all sharing devices 
-with a diode and add a pull down resistor.  BTDT - works sufficiently well.
+--=-HAPowZ13ISHG3EYIaHu6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> But dumb multiport boards support sharing just fine:
+On Fri, 2003-06-20 at 22:53, Keith Owens wrote:
+> On Fri, 20 Jun 2003 17:22:41 -0700,=20
+> Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
+> >On Fri, 2003-06-20 at 00:07, Keith Owens wrote:
+> >
+> >>   Other 2.4.21 arch patches will appear later.
+> >
+> >Here is a pointer to the sparc64 arch patch:
+> >
+> >http://www.dslextreme.com/users/tomduffy/kdb-v4.3-2.4.21-sparc64-1.bz2
+> >
+> >It includes very minor changes to make it work on 2.4.21.
+>=20
+> Thanks Tom.  Uploaded to ftp://oss.sgi.com/projects/kdb/download/v4.3
 
-Yes, they usually contain the necessary sharing circuity onboard. But you 
-can't share them with other instances of the same or other cards unless you 
-make the modifications above.
+2003-06-21 Tom Duffy <Thomas.Duffy.99@alumni.brown.edu>
 
-Unfortunately on-board serial ports seldom have IRQ-jumpers - which makes them 
-practically not shareable at all.
+        * got rid of kdb_eframe_t per Keith's request
+        * fixed double printing on kdb command line
+        * kdb v4.3-2.4.21-sparc64-2
 
-And for PNP devices, well they also don't have jumpers. It is possible
-to find the necessary wires on the pcb though ..... ;-) 
+can be found on:
 
-Bye,
-Thorsten
+http://www.dslextreme.com/users/tomduffy/kdb-v4.3-2.4.21-sparc64-2.bz2
 
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+-tduffy
+
+--=20
+Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+
+--=-HAPowZ13ISHG3EYIaHu6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+9KJIdY502zjzwbwRAhkSAJ9asRlPNZ5eoBDoKoZwO4228G4LugCfaTy4
+gMVCDpu5jLDQ/r1tM3dO1Tw=
+=7YEo
+-----END PGP SIGNATURE-----
+
+--=-HAPowZ13ISHG3EYIaHu6--
+

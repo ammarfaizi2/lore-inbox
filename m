@@ -1,88 +1,347 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVAVUtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVAVUtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVAVUtS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 15:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbVAVUsV
+	id S262735AbVAVUtT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 15:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVAVUsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 15:48:21 -0500
-Received: from ns.suse.de ([195.135.220.2]:49360 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262737AbVAVUeb (ORCPT
+	Sat, 22 Jan 2005 15:48:03 -0500
+Received: from ns.suse.de ([195.135.220.2]:48080 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262735AbVAVUeb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 22 Jan 2005 15:34:31 -0500
-Message-Id: <20050122203619.669767000@blunzn.suse.de>
+Message-Id: <20050122203619.570180000@blunzn.suse.de>
 References: <20050122203326.402087000@blunzn.suse.de>
-Date: Sat, 22 Jan 2005 21:34:08 +0100
+Date: Sat, 22 Jan 2005 21:34:07 +0100
 From: Andreas Gruenbacher <agruen@suse.de>
 To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
        Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
        Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
-Subject: [patch 8/13] Add noacl nfs mount option
-Content-Disposition: inline; filename=patches.suse/nfs-access-acl
+Subject: [patch 7/13] Encode and decode arbitrary XDR arrays
+Content-Disposition: inline; filename=patches.suse/sunrpc-xdr-arrays
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the noacl mount option, nfs clients stop using the ACCESS RPC
-which they usually use to get an access decision from the server.
-Instead, they make the decision based on the file ownership and
-file mode permission bits.
-
-Security-wise using this option can lead to illicit read access to data
-cached locally on the client if the server uses POSIX ACLs.  Local
-access decisions are correct as long as the server does not support
-POSIX access control lists.
-
-This approach was discussed with Trond Myklebust <trond.myklebust@fys.uio.no>
-and Olaf Kirch <okir@suse.de>. Requires a patch to mount (util-linux).
+Add xdr_encode_array2 and xdr_decode_array2 functions for encoding
+end decoding arrays with arbitrary entries, such as acl entries. The
+goal here is to do this without allocating a contiguous temporary
+buffer.
 
 Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-Signed-off-by: Olaf Kirch <okir@suse.de>
+Acked-by: Olaf Kirch <okir@suse.de>
 
-Index: linux-2.6.11-rc2/fs/nfs/dir.c
+Index: linux-2.6.11-rc2/include/linux/sunrpc/xdr.h
 ===================================================================
---- linux-2.6.11-rc2.orig/fs/nfs/dir.c
-+++ linux-2.6.11-rc2/fs/nfs/dir.c
-@@ -1497,6 +1497,7 @@ out:
+--- linux-2.6.11-rc2.orig/include/linux/sunrpc/xdr.h
++++ linux-2.6.11-rc2/include/linux/sunrpc/xdr.h
+@@ -146,7 +146,8 @@ extern void xdr_shift_buf(struct xdr_buf
+ extern void xdr_buf_from_iov(struct kvec *, struct xdr_buf *);
+ extern int xdr_buf_subsegment(struct xdr_buf *, struct xdr_buf *, int, int);
+ extern int xdr_buf_read_netobj(struct xdr_buf *, struct xdr_netobj *, int);
+-extern int read_bytes_from_xdr_buf(struct xdr_buf *buf, int base, void *obj, int len);
++extern int read_bytes_from_xdr_buf(struct xdr_buf *, int, void *, int);
++extern int write_bytes_to_xdr_buf(struct xdr_buf *, int, void *, int);
  
- int nfs_permission(struct inode *inode, int mask, struct nameidata *nd)
+ /*
+  * Helper structure for copying from an sk_buff.
+@@ -168,6 +169,22 @@ struct sockaddr;
+ extern int xdr_sendpages(struct socket *, struct sockaddr *, int,
+ 		struct xdr_buf *, unsigned int, int);
+ 
++extern int xdr_encode_word(struct xdr_buf *, int, u32);
++extern int xdr_decode_word(struct xdr_buf *, int, u32 *);
++
++struct xdr_array2_desc;
++typedef int (*xdr_xcode_elem_t)(struct xdr_array2_desc *desc, void *elem);
++struct xdr_array2_desc {
++	unsigned int elem_size;
++	unsigned int array_len;
++	xdr_xcode_elem_t xcode;
++};
++
++extern int xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
++                             struct xdr_array2_desc *desc);
++extern int xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
++			     struct xdr_array2_desc *desc);
++
+ /*
+  * Provide some simple tools for XDR buffer overflow-checking etc.
+  */
+Index: linux-2.6.11-rc2/net/sunrpc/sunrpc_syms.c
+===================================================================
+--- linux-2.6.11-rc2.orig/net/sunrpc/sunrpc_syms.c
++++ linux-2.6.11-rc2/net/sunrpc/sunrpc_syms.c
+@@ -129,6 +129,10 @@ EXPORT_SYMBOL(xdr_encode_netobj);
+ EXPORT_SYMBOL(xdr_encode_pages);
+ EXPORT_SYMBOL(xdr_inline_pages);
+ EXPORT_SYMBOL(xdr_shift_buf);
++EXPORT_SYMBOL(xdr_encode_word);
++EXPORT_SYMBOL(xdr_decode_word);
++EXPORT_SYMBOL(xdr_encode_array2);
++EXPORT_SYMBOL(xdr_decode_array2);
+ EXPORT_SYMBOL(xdr_buf_from_iov);
+ EXPORT_SYMBOL(xdr_buf_subsegment);
+ EXPORT_SYMBOL(xdr_buf_read_netobj);
+Index: linux-2.6.11-rc2/net/sunrpc/xdr.c
+===================================================================
+--- linux-2.6.11-rc2.orig/net/sunrpc/xdr.c
++++ linux-2.6.11-rc2/net/sunrpc/xdr.c
+@@ -868,8 +868,34 @@ out:
+ 	return status;
+ }
+ 
+-static int
+-read_u32_from_xdr_buf(struct xdr_buf *buf, int base, u32 *obj)
++/* obj is assumed to point to allocated memory of size at least len: */
++int
++write_bytes_to_xdr_buf(struct xdr_buf *buf, int base, void *obj, int len)
++{
++	struct xdr_buf subbuf;
++	int this_len;
++	int status;
++
++	status = xdr_buf_subsegment(buf, &subbuf, base, len);
++	if (status)
++		goto out;
++	this_len = min(len, (int)subbuf.head[0].iov_len);
++	memcpy(subbuf.head[0].iov_base, obj, this_len);
++	len -= this_len;
++	obj += this_len;
++	this_len = min(len, (int)subbuf.page_len);
++	if (this_len)
++		_copy_to_pages(subbuf.pages, subbuf.page_base, obj, this_len);
++	len -= this_len;
++	obj += this_len;
++	this_len = min(len, (int)subbuf.tail[0].iov_len);
++	memcpy(subbuf.tail[0].iov_base, obj, this_len);
++out:
++	return status;
++}
++
++int
++xdr_decode_word(struct xdr_buf *buf, int base, u32 *obj)
  {
-+	struct nfs_server *server = NFS_SERVER(inode);
- 	struct rpc_cred *cred;
- 	int res;
+ 	u32	raw;
+ 	int	status;
+@@ -881,6 +907,14 @@ read_u32_from_xdr_buf(struct xdr_buf *bu
+ 	return 0;
+ }
  
-@@ -1515,7 +1516,7 @@ int nfs_permission(struct inode *inode, 
++int
++xdr_encode_word(struct xdr_buf *buf, int base, u32 obj)
++{
++	u32	raw = htonl(obj);
++
++	return write_bytes_to_xdr_buf(buf, base, &raw, sizeof(obj));
++}
++
+ /* If the netobj starting offset bytes from the start of xdr_buf is contained
+  * entirely in the head or the tail, set object to point to it; otherwise
+  * try to find space for it at the end of the tail, copy it there, and
+@@ -891,7 +925,7 @@ xdr_buf_read_netobj(struct xdr_buf *buf,
+ 	u32	tail_offset = buf->head[0].iov_len + buf->page_len;
+ 	u32	obj_end_offset;
  
- 	lock_kernel();
+-	if (read_u32_from_xdr_buf(buf, offset, &obj->len))
++	if (xdr_decode_word(buf, offset, &obj->len))
+ 		goto out;
+ 	obj_end_offset = offset + 4 + obj->len;
  
--	if (!NFS_PROTO(inode)->access)
-+	if ((server->flags & NFS_MOUNT_NOACL) || !NFS_PROTO(inode)->access)
- 		goto out_notsup;
- 
- 	cred = rpcauth_lookupcred(NFS_CLIENT(inode)->cl_auth, 0);
-Index: linux-2.6.11-rc2/fs/nfs/inode.c
-===================================================================
---- linux-2.6.11-rc2.orig/fs/nfs/inode.c
-+++ linux-2.6.11-rc2/fs/nfs/inode.c
-@@ -539,6 +539,7 @@ static int nfs_show_options(struct seq_f
- 		{ NFS_MOUNT_NOAC, ",noac", "" },
- 		{ NFS_MOUNT_NONLM, ",nolock", ",lock" },
- 		{ NFS_MOUNT_BROKEN_SUID, ",broken_suid", "" },
-+		{ NFS_MOUNT_NOACL, ",noacl", "" },
- 		{ 0, NULL, NULL }
- 	};
- 	struct proc_nfs_info *nfs_infop;
-Index: linux-2.6.11-rc2/include/linux/nfs_mount.h
-===================================================================
---- linux-2.6.11-rc2.orig/include/linux/nfs_mount.h
-+++ linux-2.6.11-rc2/include/linux/nfs_mount.h
-@@ -58,6 +58,7 @@ struct nfs_mount_data {
- #define NFS_MOUNT_KERBEROS	0x0100	/* 3 */
- #define NFS_MOUNT_NONLM		0x0200	/* 3 */
- #define NFS_MOUNT_BROKEN_SUID	0x0400	/* 4 */
-+#define NFS_MOUNT_NOACL		0x0800  /* 4 */
- #define NFS_MOUNT_STRICTLOCK	0x1000	/* reserved for NFSv4 */
- #define NFS_MOUNT_SECFLAVOUR	0x2000	/* 5 */
- #define NFS_MOUNT_FLAGMASK	0xFFFF
+@@ -924,3 +958,194 @@ xdr_buf_read_netobj(struct xdr_buf *buf,
+ out:
+ 	return -1;
+ }
++
++/* Returns 0 on success, or else a negative error code. */
++static int
++xdr_xcode_array2(struct xdr_buf *buf, unsigned int base,
++		 struct xdr_array2_desc *desc, int encode)
++{
++	char elem[desc->elem_size], *c;
++	unsigned int copied = 0, todo, avail_here;
++	struct page **ppages = NULL;
++	int err = 0;
++
++	if (encode) {
++		if (xdr_encode_word(buf, base, desc->array_len) != 0)
++			return -EINVAL;
++	} else {
++		if (xdr_decode_word(buf, base, &desc->array_len) != 0 ||
++		    (unsigned long) base + 4 + desc->array_len *
++				    desc->elem_size > buf->len)
++			return -EINVAL;
++	}
++	base += 4;
++
++	if (!desc->xcode)
++		return 0;
++
++	todo = desc->array_len * desc->elem_size;
++	
++	/* process head */
++	if (todo && base < buf->head->iov_len) {
++		c = buf->head->iov_base + base;
++		avail_here = min_t(unsigned int, todo,
++				   buf->head->iov_len - base);
++		todo -= avail_here;
++
++		while (avail_here >= desc->elem_size) {
++			err = desc->xcode(desc, c);
++			if (err)
++				goto out;
++			c += desc->elem_size;
++			avail_here -= desc->elem_size;
++		}
++		if (avail_here) {
++			if (encode) {
++				err = desc->xcode(desc, elem);
++				if (err)
++					goto out;
++				memcpy(c, elem, avail_here);
++			} else
++				memcpy(elem, c, avail_here);
++			copied = avail_here;
++		}
++		base = buf->head->iov_len;  /* align to start of pages */
++	}
++
++	/* process pages array */
++	base -= buf->head->iov_len;
++	if (todo && base < buf->page_len) {
++		avail_here = min(todo, buf->page_len - base);
++		todo -= avail_here;
++
++		base += buf->page_base;
++		ppages = buf->pages + (base >> PAGE_CACHE_SHIFT);
++		base &= ~PAGE_CACHE_MASK;
++		unsigned int avail_page = min_t(unsigned int,
++			PAGE_CACHE_SIZE - base, avail_here);
++		c = kmap(*ppages) + base;
++
++		while (avail_here) {
++			avail_here -= avail_page;
++			if (copied || avail_page < desc->elem_size) {
++				unsigned int l = min(avail_page,
++					desc->elem_size - copied);
++				if (encode) {
++					if (!copied) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++					}
++					memcpy(c, elem + copied, l);
++					copied += l;
++					if (copied == desc->elem_size)
++						copied = 0;
++				} else {
++					memcpy(elem + copied, c, l);
++					copied += l;
++					if (copied == desc->elem_size) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++						copied = 0;
++					}
++				}
++				avail_page -= l;
++				c += l;
++			}
++			while (avail_page >= desc->elem_size) {
++				err = desc->xcode(desc, c);
++				if (err)
++					goto out;
++				c += desc->elem_size;
++				avail_page -= desc->elem_size;
++			}
++			if (avail_page) {
++				unsigned int l = min(avail_page,
++					    desc->elem_size - copied);
++				if (encode) {
++					if (!copied) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++					}
++					memcpy(c, elem + copied, l);
++					copied += l;
++					if (copied == desc->elem_size)
++						copied = 0;
++				} else {
++					memcpy(elem + copied, c, l);
++					copied += l;
++					if (copied == desc->elem_size) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++						copied = 0;
++					}
++				}
++			}
++			if (avail_here) {
++				kunmap(*ppages);
++				ppages++;
++				c = kmap(*ppages);
++			}
++
++			avail_page = min(avail_here,
++				 (unsigned int) PAGE_CACHE_SIZE);
++		}
++		base = buf->page_len;  /* align to start of tail */
++	}
++
++	/* process tail */
++	base -= buf->page_len;
++	if (todo) {
++		c = buf->tail->iov_base + base;
++		if (copied) {
++			unsigned int l = desc->elem_size - copied;
++
++			if (encode)
++				memcpy(c, elem + copied, l);
++			else {
++				memcpy(elem + copied, c, l);
++				err = desc->xcode(desc, elem);
++				if (err)
++					goto out;
++			}
++			todo -= l;
++			c += l;
++		}
++		while (todo) {
++			err = desc->xcode(desc, c);
++			if (err)
++				goto out;
++			c += desc->elem_size;
++			todo -= desc->elem_size;
++		}
++	}
++	
++out:
++	if (ppages)
++		kunmap(*ppages);
++	return err;
++}
++
++int
++xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
++		  struct xdr_array2_desc *desc)
++{
++	if (base >= buf->len)
++		return -EINVAL;
++
++	return xdr_xcode_array2(buf, base, desc, 0);
++}
++
++int
++xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
++		  struct xdr_array2_desc *desc)
++{
++	if ((unsigned long) base + 4 + desc->array_len * desc->elem_size >
++	    buf->head->iov_len + buf->page_len + buf->tail->iov_len)
++		return -EINVAL;
++
++	return xdr_xcode_array2(buf, base, desc, 1);
++}
 
 --
 Andreas Gruenbacher <agruen@suse.de>

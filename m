@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318152AbSHMPk0>; Tue, 13 Aug 2002 11:40:26 -0400
+	id <S318176AbSHMPsS>; Tue, 13 Aug 2002 11:48:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318176AbSHMPkZ>; Tue, 13 Aug 2002 11:40:25 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:57610 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318152AbSHMPkZ>; Tue, 13 Aug 2002 11:40:25 -0400
-Date: Tue, 13 Aug 2002 16:44:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-Message-ID: <20020813164415.A11554@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Aug 13, 2002 at 05:09:03PM +0200
+	id <S318186AbSHMPsS>; Tue, 13 Aug 2002 11:48:18 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:7173 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318176AbSHMPsR>;
+	Tue, 13 Aug 2002 11:48:17 -0400
+Date: Tue, 13 Aug 2002 08:48:28 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+In-Reply-To: <200208131413.g7DEDd502174@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0208130847380.5175-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 05:09:03PM +0200, Ingo Molnar wrote:
-> 
-> the attached patch implements a new syscall on x86, clone_startup().
-> The parameters are:
-> 
-> 	clone_startup(fn, child_stack, flags, tls_desc, pid_addr)
+On Tue, 13 Aug 2002, James Bottomley wrote:
 
-First the name souns horrible.  What about spawn_thread or create_thread
-instead?  it's not our good old clone and not a lookalike, it's some
-pthreadish monster..
+| > > -             if (ret) {
+| > > +             if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+| >
+| > Do you really need to hardcode this values ?
+|
+| We have no #defines for the asc and ascq codes (they are interpreted in
+| constants.c but the values are hardcoded in there too).  There is a #define
+| for sense_key 0x05 as ILLEGAL_REQUEST in scsi/scsi.h, but these #defines have
+| annoyed a lot of people by being rather namespace polluting.
 
-> with the help of this syscall glibc's next-generation pthreads code
+and that's precisely the wrong attitude IMO.
 
-have you discussed this code with IBM's pthread group?  I think we don't
-want to add a new syscall that is only useful to glibc..
+I was glad to see that Marcelo asked about the hardcoded values.
+They hurt.
+
+-- 
+~Randy
 

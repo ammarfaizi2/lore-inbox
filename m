@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRINUhz>; Fri, 14 Sep 2001 16:37:55 -0400
+	id <S270825AbRINUnz>; Fri, 14 Sep 2001 16:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270825AbRINUho>; Fri, 14 Sep 2001 16:37:44 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:52747 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S270795AbRINUhg>; Fri, 14 Sep 2001 16:37:36 -0400
-Message-ID: <3BA26AA6.CAC6D2D9@bluewin.ch>
-Date: Fri, 14 Sep 2001 22:37:58 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S270847AbRINUno>; Fri, 14 Sep 2001 16:43:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12549 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270825AbRINUnd>; Fri, 14 Sep 2001 16:43:33 -0400
+Date: Fri, 14 Sep 2001 13:43:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lazy umount (1/4)
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0109141341100.1769-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alex Stewart <alex@foogod.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: How errorproof is ext2 fs?
-In-Reply-To: <3BA1258F.5CC18A2C@bluewin.ch> <3BA1E670.9010300@foogod.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > it does not need a good  error proof fs. Still can't ext2 be made a little more
-> > error proof?
-> 
-> First, you seem to be making quite a few assumptions which are not
-> necessarily correct:
-> 
-> 1) Just because an OS does not _tell_ you there was a problem does not
-> necessarily mean there wasn't one.  In particular, MacOS is notorious
-> for not "bothering" users with detailed (or in many cases any)
-> information about problems.  I don't know about HFS fragility in
-> 
-Well I can assure you I used DiskFirstAid and Norton Utilities on the Mac.
-Neither found any problems. Since I use MacOS9, my Mac crashes at least once a
-month but I never ever lost anything. Most of the time my USB-keyboard/-mouse
-doesn't react anymore after switching back from my Linux system. Usually I
-simply press the reset switch after a few minutes. 
 
-Besides Linux also does not react occasionally when switching my
-USB-keyboard/-mouse but since I also have an AT-keyboard handy I don't have to
-reset it.
+On Fri, 14 Sep 2001, Alexander Viro wrote:
+>
+> There are only two things to take care of -
+> 	a) if we detach a parent we should do it for all children
+> 	b) we should not mount anything on "floating" vfsmounts.
+> Both are obviously staisfied for current code (presence of children
+> means that vfsmount is busy and we can't mount on something that
+> doesn't exist).
 
-> 3) You're basing your linux experience on (apparently) only one
-> incident.  As a professional sysadmin, I've experienced many many
+I disagree about the "we can't mount on something that doesn't exist"
+part.
 
-I'm not bashing linux, I'm only stating that MacOS9 (or HFS+) has a nice feature
-Linux (or its fs's) lacks. My experience shows clearly that I had at least 10
-craches on the Mac durning the last year but I never lost anything. During the
-same time I had 2 crashes on my linux, one due to the USB-problem without a
-handy AT-keyboard, the second now due to a malfunction el3diag.
+If the detached mount is busy, it might be busy exactly because somebody
+has his working directory in it. Which means that
 
-O. Wyss
+	mount /dev/hda ./xxxx
+
+by such a process could cause a mount within the "nonexisting" mount.
+
+		Linus
+

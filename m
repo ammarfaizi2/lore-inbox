@@ -1,149 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292149AbSBBALV>; Fri, 1 Feb 2002 19:11:21 -0500
+	id <S292151AbSBBALV>; Fri, 1 Feb 2002 19:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292151AbSBBALM>; Fri, 1 Feb 2002 19:11:12 -0500
-Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:24061 "EHLO
+	id <S292150AbSBBALN>; Fri, 1 Feb 2002 19:11:13 -0500
+Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:8189 "EHLO
 	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S292150AbSBBAK7>; Fri, 1 Feb 2002 19:10:59 -0500
+	id <S292149AbSBBAK5>; Fri, 1 Feb 2002 19:10:57 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
-To: Larry McVoy <lm@bitmover.com>,
-        Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Subject: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
-Date: Fri, 1 Feb 2002 18:45:59 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Keith Owens <kaos@ocs.com.au>,
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        Larry McVoy <lm@work.bitmover.com>, Keith Owens <kaos@ocs.com.au>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <lm@bitmover.com> <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de> <20020201083855.C8664@work.bitmover.com>
-In-Reply-To: <20020201083855.C8664@work.bitmover.com>
+Subject: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
+Date: Fri, 1 Feb 2002 15:47:16 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
+In-Reply-To: <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there>
+Message-Id: <20020202001056.UXDI10685.femail14.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 February 2002 11:38 am, Larry McVoy wrote:
-
-> You are presupposing that all the developers are checking in many bad
-> changes and only one good change.  And that all the bad changes are
-> obscuring the good ones.  That a correct statement of your beliefs?
+On Friday 01 February 2002 06:11 am, Horst von Brand wrote:
+> Larry McVoy <lm@bitmover.com> said:
+> > On Fri, Feb 01, 2002 at 11:29:58AM +1100, Keith Owens wrote:
+> > > That sounds almost like what I was looking for, with two differences.
+> > >
+> > > (1) Implement the collapsed set so bk records that it is equivalent to
+> > >     the individual patchsets.  Only record that information in my tree.
+> > >     I need the detailed history of what changes went into the collapsed
+> > >     set, nobody else does.
+> > >
+> > > (2) Somebody else creates a change against the collapsed set and I pull
+> > >     that change.  bk notices that the change is again a collapsed set
+> > >     for which I have local detail.  The external change becomes a
+> > >     branch off the last detailed patch in the collapsed set.
+> >
+> > This is certainly possible to do.  However, unless you are willing to
+> > fund this development, we aren't going to do it.  We will pick up the
+> > costs of making changes that you want if and only if we have commercial
+> > customers who want (or are likely to want) the same thing.  Nothing
+> > personal, it's a business and we make tradeoffs like that all the time.
 >
-> If so, what you are describing is called "hacking" in the negative
-> sense of the word, and what my customers do is called "programming".
+> I wonder how your commercial customers develop code then. Either each
+> programmer futzes around in his/her own tree, and then creates a patch (or
+> some such) for everybody to see (then I don't see the point of source
+> control as a help to the individual developer), or everybody sees all the
+> backtracking going on everywhere (in which case the repository is a mostly
+> useless mess AFAICS).
 
-Designing while coding is not a bad thing.  It's often considerably more 
-efficient than spending a bunch of time up front coming up with an ivory 
-tower design that doesn't work in practice.  Very few battle plans survive 
-the first engagement with the enemy.  (It's nice to HAVE one.  But if you 
-can't adapt when you're in the thick of things, you're in trouble.)
+Speaking from my experience on OS/2 back at IBM (I.E. about as big as it 
+gets), they simply don't mind having amazing amounts of cruft in the database 
+dating back to at least the last time they switched source control systems.
 
-> It's quite rare to see the sort of mess that you described, it happens,
-> but it is rare.
+Under those circumstances, looking at the code history becomes a major 
+archaeological expedition, and you either still have the original 
+implementors around who have it all in their heads and don't NEED the 
+database, or you have people who just look at the code and try to guess what 
+it means, possibly asking colleagues about particularly confusing bits.
 
-In your user base, sure.  Because your tool can't handle it.
+IBM's source control system always struck me as a graveyard of old code more 
+than anything else.  Lots of the really old stuff was stored offline on tapes 
+and CDs filed lockers nobody ever opened, with backup copies at some big "we 
+have a vault beneath NORAD" data warehousing company.
 
-Please don't confuse effect with cause...
+That's my impression, anyway.  (A few years out of date now.)  My experience 
+with the source control system was that it DID have the complete revision 
+history in it going back to the 1980's, but it was far more work than it was 
+worth to try to mine through it to find something unless you were 
+specifically looking to place blame and prove something wasn't YOUR fault.  
+Nobody really ever had time to actually go through it for any other reason, 
+we had far too much new stuff backlogged.  (And yeah a lot of changes were 
+made where some old timer would pipe up afterwards "we tried that five years 
+ago, and it didn't work for the same reason you just noticed".  But this was 
+the kind of state that was usefully kept in people's heads, not in the source 
+control system.)
 
-> I don'tknow how else to explain it, but it is not the
-> norm in the professional world to try a zillion different approaches
-> and revision control each and every one.
+Now in an open source, the source control system with history might be a 
+useful educational resource.  (Non-commercial developers don't have to hit 
+the ground running the way commercial ones do.)  But too much granularity 
+would definitely diminish that usefulness.  Flood people with low signal and 
+high noise, and only archaeologists will ever care about it.
 
-The distinction here is "should bitkeeper be of use to the company", or 
-"should bitkeeper be of use to the individual developer".  Bitkeeper is aimed 
-at only serving ONE of those two niches right now (as I'll explain in a 
-moment), and one thing to realise is that the development teams at companies 
-are made up of individual developers who might find bitkeeper significantly 
-more useful if it met more of their needs.
+A system that maintained obscene amounts of granularity but HID it (showing 
+you only diffs between release versions unless you specifically asked so see 
+more detail) would be a distinct improvement over a system that forces every 
+query be an archaeological dig.  But since 99% of the people do NOT want to 
+go on an archaeological dig, and since for most things only the most active 
+10% of the developers even care about the -pre releases and only have time to 
+track/sync with the main releases...
 
-> The norm is:
-> 	clone a repository
-> 	edit the files
-> 	modify/compile/debug until it works
-> 	check in
-> 	push the patch up the shared repository
-> I'm really at a loss as to why that shouldn't be the norm here as well.
+Maintaining the "reverted before it left the original implementors tree" 
+state at ALL is clearly more trouble than it's worth.  If the original 
+IMPLEMENTOR is likely to delete that after they ship, nobody else should EVER 
+care unless they're writing some sort of biography of that developer or 
+simply engaged in hero-worship.
 
-You'll notice that bitkeeper is totally useless between the clone and the 
-check in, in your model.  It can't really be used DURING development, only 
-before and after.
+I.E. yes, I think we honestly do want an easy way to limit the granularity of 
+propogated diffs.  We can do this right now by exporting to patch and 
+re-importing, but it seems that if we do, then bitkeeper's sync mechanism 
+becomes a problem to be worked around.  I'd say this instance of all-out-war 
+between what developers are trying to do and what bitkeeper is trying to do 
+highlights a design gap in bitkeeper.
 
-You may not notice this so much in the Fortune 500.  I've worked for some 
-really big companies.  Your commercial developers are often implementing to a 
-spec that was argued over in meetings, with donuts, for weeks before an 
-"implementor" was allowed near a keyboard.  This IS a different development 
-model from the way open source generally works. :)  (And the bigger the 
-company, the more likely they are to ensure their design is perfected before 
-they ever actually try to implement a prototype and find out the whole theory 
-doesn't really work in practice.  And you wonder how anybody could ever 
-manage to spend a billion dollars a year writing software and still ship 
-crap.  But that's a seperate argument.  Neither method is inherently 
-superior, and most real world development is a blance between up-front design 
-and implementation evolution.  Go too far in either direction and you get 
-chaos or stagnation.)
-
-As for a simple example of when your model above breaks down, a lot of 
-developers who use things like emacs have their source control system as part 
-of their integrated development environment.  When they "save and compile", 
-it's checked into the RCS (often with a terse three or four word comment 
-that's intended as a label to jog the developer's memory).  For one thing, 
-this is a nice backup against stupid things like fat-fingering "gcc blah.c -o 
-blah.c", which I personally did first thing in the morning (before the 
-caffiene could kick in) a few days ago and set myself back just about a whole 
-day because my laptop does NOT have any variant of source control on it.  
-(Screaming is certainly a quick and aerobic way to wake up, I will admit 
-that.  I wouldn't recommend it though.)
-
-The real reason people go with full-blown source control for their backups 
-is so that when they ARE doing modify/compile/debug, they can easily back up 
-to what they had an hour ago if they find out they went down a culdesac (as 
-happens a lot: not always "I couldn't make this work if I kept going" but 
-"wait, there's an easier way to do this").  Of course not all changes in 
-direction are clean reverts.  Sometimes you want to save part of your work 
-and change the other parts yourself, and it's easier to fix up manually and 
-check the fixup in than reimplement just to look like you knew what you were 
-doing all along.  And sometimes if it's a bug fix inserting a bunch of 
-printfs and test code while actually fixing a multi-stage bug, they don't 
-bother rolling back to remove the printfs.  Once they've fixed the bug, it's 
-easier to delete the instrumentation and false tries rather than roll back to 
-a clean version and recreate the entire (possibly long and complicated) fix 
-against the fresh tree.)
-
-The problem is, if they use bitkeeper (with a temporary respository), all 
-these temporary commits (debugging tries saved in case they want to roll back 
-during development) get propagated into the main repository when they do a 
-merge.  They can't tell it "done, okay, squash this into one atomic change to 
-check in somewhere else, with the whole change history as maybe one comment".
-
-What you're saying is that people who use the source control tools in a way 
-you do not expect them to are bad programmers.  A stylistic difference does 
-not equal stupidity.
-
-People sometimes really do want to be able to squash between checkpoints, 
-which might just be a case of squashing a scratch repository used to create 
-the checkpoint.  (If the scratch repository is deleted in the process, then 
-the "merge granular and squashed versions" thing doesn't really arise, so 
-possibly people just want to be able to do their development in a temporary 
-repository which they squash and delete when they issue a release.  Not a 
-100% solution, it means the original developer can't keep the original highly 
-granular version around without potentially confusing bitkeeper, but it's 
-probably an acceptable solution in 80-90% of cases, and is probably doable 
-with a script rather than any real change to bitkeeper.)
-
-You do not seem to be used to implementors doing any real designing, and you 
-do not seem to be used to your source control system being used during the 
-throes of minute-by-minute development.  (Once again, you seem to be arguing 
-against  feedback from the community, by saying "you don't really want to do 
-that,  your process is bad and should be adapted to my tools".  I hope this 
-is just another miscommunication.  We're trying to say "your tools aren't any 
-good at what we're trying to use them for, but they could be."  If you don't 
-want your tool to serve a certain group of users, fine.  Your tools may serve 
-an existing niche fairly well, but if you'd like to expand to a broader 
-audience listening to feedback would be helpful.)
-
-Perhaps some of this is just a documentation issue.  If we can explain what 
-we want but can't easily figure out how to get bitkeeper to do it, some kind 
-of tutorial or prepackaged scripts might be a good idea...
+Just my opinion, your mileage may vary. :)
 
 Rob
 

@@ -1,99 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUI2PU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268484AbUI2PXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbUI2PU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUI2PUC
+	id S268484AbUI2PXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268633AbUI2PVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 11:20:02 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:34294 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S268633AbUI2PSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 11:18:49 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE Hotswap
-Date: Wed, 29 Sep 2004 14:08:55 +0200
-User-Agent: KMail/1.6.2
-Cc: Suresh Grandhi <Sureshg@ami.com>,
-       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com> <200409290354.38440.bzolnier@elka.pw.edu.pl> <1096422632.14637.30.camel@localhost.localdomain>
-In-Reply-To: <1096422632.14637.30.camel@localhost.localdomain>
+	Wed, 29 Sep 2004 11:21:32 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:31756 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S268484AbUI2POS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 11:14:18 -0400
+Date: Wed, 29 Sep 2004 18:13:44 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
+       tony.luck@intel.com, acpi-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org
+Subject: Re: [ACPI] [PATCH] Updated patches for PCI IRQ resource deallocation
+ support [2/3]
+In-Reply-To: <415A28B9.6080504@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.61.0409291809270.3056@musoma.fsmlabs.com>
+References: <Pine.LNX.4.53.0409251356110.2914@musoma.fsmlabs.com>
+ <Pine.LNX.4.53.0409251401560.2914@musoma.fsmlabs.com>
+ <Pine.LNX.4.53.0409251416570.2908@musoma.fsmlabs.com> <4157A9D7.4090605@jp.fujitsu.com>
+ <Pine.LNX.4.61.0409281702580.3052@musoma.fsmlabs.com> <415A28B9.6080504@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200409291408.55211.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 September 2004 03:50, Alan Cox wrote:
-> On Mer, 2004-09-29 at 02:54, Bartlomiej Zolnierkiewicz wrote:
-> > Your patch is a nice start but it don't solve main issues, not to even
-> > mention minor stuff like leaving /proc/ide/<chipset> around.
-> > Merging it now is asking for problems.
+On Wed, 29 Sep 2004, Kenji Kaneshige wrote:
+
+> I'm trying to update my patch based on the feedback from you. Updated
+> patch defines acpi_unregister_gsi() in both include/asm-i386/acpi.h
+> and include/asm-ia64/acpi.h. But now I'm having one concern about it.
 > 
-> Oh I agree. There is a patch but it isn't the final answer. There is a
-> small resource bug (harmless but a bug) in the 2.6.8.1-ac patch. I
-> hadn't noticed proc/ide/<chipset> leaking but I'll take a look when I
-> get time to sort that out. 
-
-/proc/ide/<chipset> is the smallest problem
-
-Don't waste your time on it, I've almost killed this bloat in my tree.
-
-> > > like suspend mean the nasties in 2.4 for sequencing have gone away. No
-> > > refcounting needed since the block and fs layer are doing it all for
-> > 
-> > It helps but you still get bunch of races.  Refcounting is _really_ needed.
+> Some arch specific functions would be called from acpi_unregister_gsi()
+> when it is implemented. But include/asm-xxx/acpi.h is included before
+> many other header files, so many 'implicit declaration of function xxx'
+> warning message would be appeared. These warning messages are disappeared
+> if we declare all functions called by acpi_unregister_gsi() also in
+> include/asm-xxx/acpi.h. But I don't like this approach very much.
 > 
-> Even in 2.4 ide drive hotplug was easy. The drive hotplug comes out
-> trivially because your controllers are fairly constant. As we all know
-> driver level hotplug is a bit trickier although the block layer has
-> really made this vastly easier in 2.6
-> 
-> For drive level hotplug you don't actually need refcounting at all
-> providing you've got a couple of locking issues dealt with.
+> After all, now I think it is better not to define acpi_unregister_gsi()
+> in header files.
 
-These issues can't be solved without refcounting.
+Ok i think i may have not conveyed my meaning properly, my mistake. What i 
+think would be better is if the architectures which have no-op 
+acpi_unregister_gsi to declare them as static inline in header files. For 
+architectures (such as ia64) which have a functional acpi_unregister_gsi, 
+we can declare them in a .c file with the proper exports etc.
 
-Feel free to probe me wrong, you can start with fixing
-->open vs unregister race (drive->usage involved). :)
+Thanks Kenji and sorry for the confusion.
+	Zwane
 
-> Firstly the drive never goes away as a high level object (in fact you
-> don't want it to as then you can't ioctl it to make it come back!). That
-> means the upper layers don't know anything about it.
-
-ioctls on not present devices are layering VIOLATION
-
-> At the IDE layer the 2.4 code simply enforced the rule that you must be
-> the only opener of the device in order to hot unplug it. That means we
-
-"enforced" - there are a couple of races, sorry but ROTFL
-
-> know its quiescent and not mounted. The only 2.4 race I know about is
-
-- double unlock obvious mistake
-- ->open() vs unregister
-- /proc races (the same you fixed in your 2.6 patch)
-- ioctl races
-
-I'm sure there is more.
-
-> suspend in parallel to hot unplug, and 2.6 has the mechanism to fix that
-> properly because suspend is a command state machine.
-> 
-> Providing hot unplug is about making drive->present stuff vary and
-> flipping to ide_default drivers the world is happy. The moment you want
-> to make /dev/hda 'disappear' to the block layer its fun, and on 2.4 its
-> as good as impossible.
-
-gendisk layer and block layer enforces you to make /dev/hda disappear.
-Does sysfs ring any bells?  Ask viro about static objects vs sysfs.
-And yes not only gendisk and block enforces this, Patrick added basic,
-premature sysfs support to IDE driver in the middle of 2.5 series.
-
-We can get back to discussion when you get familiar with issues involved.
-
-Bartlomiej

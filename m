@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbUEGETN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUEGERX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUEGETN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 00:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbUEGETN
+	id S262882AbUEGERX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 00:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUEGERX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 00:19:13 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:32184 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262896AbUEGETK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 00:19:10 -0400
-Subject: Re: [ACPI] [PATCH] can we compile ACPI without define CONFIG_PM ?
-From: Len Brown <len.brown@intel.com>
-To: sergiomb@netcabo.pt
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F9FD0@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F9FD0@hdsmsx403.hd.intel.com>
+	Fri, 7 May 2004 00:17:23 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:49284 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262882AbUEGERV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 00:17:21 -0400
+Subject: Re: 2.6.6-rc3-mm2
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bruce Guenter <bruceg@em.ca>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040506195223.017cd7f6.akpm@osdl.org>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	 <20040506214635.GA29187@em.ca>  <20040506195223.017cd7f6.akpm@osdl.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1083903538.2296.248.camel@dhcppc4>
+Message-Id: <1083903398.7481.43.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 07 May 2004 00:18:58 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 07 May 2004 14:16:38 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Never occurred to me to build ACPI w/o CONFIG_PM...
-There are #ifdef CONFIG_PM in the acpi code, so I guess this was on
-purpose, but it makes ACPI a lot less interesting.
+On Fri, 2004-05-07 at 12:52, Andrew Morton wrote:
+> Bruce Guenter <bruceg@em.ca> wrote:
+> >
+> > On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
+> > > Move-saved_command_line-to-init-mainc.patch
+> > >   Move saved_command_line to init/main.c
+> > 
+> > This patch appears to be breaking serial console for me.  Reverting this
+> > patch with patch -R makes it work again.  I can't tell from the contents
+> > of the patch why it causes problems, but it does.  I'd be happy to
+> > provide any further details if required.
+> 
+> Thanks for narrowing it down - I'd been meaning to look into the serial
+> console problem.
+> 
+> Rusty, can you have a ponder please?
 
-But I'm inclined to leave 2.4 alone except for real system failures. 
-The only clean-up I'm really interested in doing in 2.4 is when it makes
-maintenance via backporting from 2.6 easier.
+Works for me: I use serial console.  Config please.
 
--Len
-
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

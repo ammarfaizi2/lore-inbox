@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136591AbREGSdT>; Mon, 7 May 2001 14:33:19 -0400
+	id <S136581AbREGSfJ>; Mon, 7 May 2001 14:35:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136581AbREGSdJ>; Mon, 7 May 2001 14:33:09 -0400
-Received: from ns.snowman.net ([63.80.4.34]:25607 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S136577AbREGSc6>;
-	Mon, 7 May 2001 14:32:58 -0400
-Date: Mon, 7 May 2001 14:30:28 -0400 (EDT)
-From: <nick@snowman.net>
-To: Dan Hollis <goemon@anime.net>
-cc: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        "Bene, Martin" <Martin.Bene@KPNQwest.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-In-Reply-To: <Pine.LNX.4.30.0105071122290.5820-100000@anime.net>
-Message-ID: <Pine.LNX.4.21.0105071429560.9994-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136597AbREGSfA>; Mon, 7 May 2001 14:35:00 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:61612 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S136581AbREGSeq>; Mon, 7 May 2001 14:34:46 -0400
+Message-Id: <5.1.0.14.2.20010507185638.00a91520@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 07 May 2001 19:35:23 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brian Gerst <bgerst@didntduck.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta
+ .com>
+In-Reply-To: <E14wmbg-0003b3-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yep, totally.  I've worked on hundreds of systems and less than 20 of the
-workstations or PCs have been useing ECC.  Most servers do, but not even
-all of them.
-	Nick
+At 18:12 07/05/2001, Linus Torvalds wrote:
+>Untested.
+>
+>In particular, does anybody have a buggy Pentium to test with the F0 0F
+>lock-up bug?
 
-On Mon, 7 May 2001, Dan Hollis wrote:
+Yes, I have one. 2.4.3-ac6 (plus a few patches) detects the bug on boot up 
+and enables the work around. Running the f00f test program from SGI results 
+in the correct behaviour of a SIGILL signal being sent to the program.
 
-> On Mon, 7 May 2001, Simon Richter wrote:
-> > On Mon, 7 May 2001, Bene, Martin wrote:
-> > > Definitely not caused by:
-> > > 	Bad Rams, mb-chipset.
-> > Erm, it was bad RAM everytime it happened to me. On standard PCs, you
-> > don't see those because you don't have ECC and the error is simply not
-> > detected.
-> 
-> So a 440bx motherboard with ECC ram is a non-standard PC?
-> 
-> -Dan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>If anybody has such a beast, please try this kernel patch _and_ running
+
+Oh my, I always considered it as a cute, fluffy bunny. No need to 
+bestialize it unnecessarily... (-;
+
+>the F0 0F bug-producing program (search for it on the 'net - it must be
+>out there somewhere) to verify that the code still correctly handles that
+>case.
+
+Am compiling 2.4.5-pre1 with your patch (manually applied as parts of it 
+were already in .5-pre1) right now. I will follow-up with results when it 
+has finished and I have tested it (i.e. don't hold your breath, it might be 
+a beast but it is a slow one...)
+
+Best regards,
+
+Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

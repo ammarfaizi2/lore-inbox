@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbTJMKZM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 06:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTJMKZM
+	id S261640AbTJMKVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 06:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJMKVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 06:25:12 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:12469 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261659AbTJMKZJ (ORCPT
+	Mon, 13 Oct 2003 06:21:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1168 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261640AbTJMKVR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 06:25:09 -0400
-Message-ID: <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "John Bradford" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
-Date: Mon, 13 Oct 2003 19:24:00 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	Mon, 13 Oct 2003 06:21:17 -0400
+Date: Mon, 13 Oct 2003 03:24:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org, vs@thebsh.namesys.com,
+       nikita@namesys.com
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+Message-Id: <20031013032431.1ed40c25.akpm@osdl.org>
+In-Reply-To: <3F8A3CE0.4060705@namesys.com>
+References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
+	<20031012071447.GJ8724@pegasys.ws>
+	<3F8A3CE0.4060705@namesys.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford replied to me:
-
-> > How can I tell Linux to read every sector in the partition?  Oh, I might
-> > know this one,
-> >   dd if=/dev/hda8 of=/dev/null
-> > I want to make sure that the drive is now using a non-defective
-> > replacement sector.
+Hans Reiser <reiser@namesys.com> wrote:
 >
-> A read won't necessarily do that.  You might have to write to a
-> defective sector to force re-allocation.
+> In theory it is cleaner and purer to do it the way we did.  In practice, 
+>  Alex's problem seems like a real one, and I don't know how hard it is to 
+>  change tar to do the right thing.  We'll discuss it in a small seminar 
+>  today.
 
-I agree, we are not sure if a read will do that.  That is the reason why two
-of my preceding questions were:
+It would be best to make this change.  minix, ext2 and ext3 do set ctime,
+so it is "the Linux standard".
 
-   How can I find out which file contains the bad sector?  I would like to
-   try to recreate the file from a source of good data.
+btw, this code:
 
-   How can I tell Linux to mark the sector as bad, knowing the LBA sector
-   number?
+      old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+      new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
+      old_inode->i_ctime = CURRENT_TIME;
 
-And that is also the reason why my last question, which Mr. Bradford replied
-to, had the stated purpose of making sure that the drive is now using a
-non-defective replacement sector after the preceding operations have been
-carried out.
+should avoid evaluating CURRENT_TIME three times: is has some computational
+cost and if an interrupt happens at the wrong time you end up with
+differing times in the inode(s).
 
-Please, the important questions are important.  Doesn't anyone really know
-what Linux does with bad blocks, how to find out which file contains them,
-how to get Linux to force them to be marked and reallocated?
 

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVBVNAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVBVNMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVBVNAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 08:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVBVNAh
+	id S262290AbVBVNMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 08:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVBVNMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 08:00:37 -0500
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:57200 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S262288AbVBVNAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 08:00:30 -0500
-Message-ID: <1109077222.421b2ce6739f8@webmail.tu-harburg.de>
-Date: Tue, 22 Feb 2005 14:00:22 +0100
-From: Jan Blunck <j.blunck@tu-harburg.de>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [RFC] pdirops: vfs patch
-References: <1109073273.421b1d7923204@webmail.tu-harburg.de> <m3vf8kx0ll.fsf@bzzz.home.net>
-In-Reply-To: <m3vf8kx0ll.fsf@bzzz.home.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
+	Tue, 22 Feb 2005 08:12:24 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:51353 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262290AbVBVNMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 08:12:20 -0500
+Date: Tue, 22 Feb 2005 08:12:19 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
+In-reply-to: <20050222085326.GD7524@ip68-4-98-123.oc.oc.cox.net>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200502220812.19664.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200502211216.35194.gene.heskett@verizon.net>
+ <20050222085326.GD7524@ip68-4-98-123.oc.oc.cox.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alex Tomas <alex@clusterfs.com>:
+On Tuesday 22 February 2005 03:53, Barry K. Nathan wrote:
 
-> >>>>> Jan Blunck (JB) writes:
->
->  >> 1) i_sem protects dcache too
->
->  JB> Where? i_sem is the per-inode lock, and shouldn't be used else.
->
-> read comments in fs/namei.c:read_lookup()
->
+>Is your USB 1.1 controller UHCI or OHCI? If it's UHCI, perhaps you
+> could try an OHCI controller (e.g. some USB PCI cards) and see if
+> that makes any difference. (I remember reading something about OHCI
+> being more efficient than UHCI in some cases, although I don't
+> remember the details now.)
 
-i_sem does NOT protect the dcache. Also not in real_lookup(). The lock must be
-acquired for ->lookup() and because we might sleep on i_sem, we have to get it
-early and check for repopulation of the dcache.
+I'm already useing the OHCI version, its an nforce2 chipset.
 
-> we've already done this for ext3. it works.
-> it speeds some loads up significantly.
-> especially on big directories.
-> and you can control this via mount option,
-> so almost zero cost for fs that doesn't support pdirops.
+And I think the lack of 'efficiency' is the jpg decodeing.  That just 
+means I can't run the capture full time, only when its triggered.  
+Thats doable...
 
-Ok.
+>-Barry K. Nathan <barryn@pobox.com>
 
-Jan
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,27 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264035AbRFOVQh>; Fri, 15 Jun 2001 17:16:37 -0400
+	id <S264479AbRFOVTr>; Fri, 15 Jun 2001 17:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264252AbRFOVQ1>; Fri, 15 Jun 2001 17:16:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18952 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264035AbRFOVQR>; Fri, 15 Jun 2001 17:16:17 -0400
-Subject: Re: Linux 2.4.5-ac14
-To: tvlists@networx.com.br (Thiago Vinhas de Moraes)
-Date: Fri, 15 Jun 2001 22:15:11 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200106162255.SAA02119@olimpo.networx.com.br> from "Thiago Vinhas de Moraes" at Jun 15, 2001 06:05:25 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15B0vv-000780-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264463AbRFOVTh>; Fri, 15 Jun 2001 17:19:37 -0400
+Received: from [195.161.132.168] ([195.161.132.168]:38150 "HELO 777")
+	by vger.kernel.org with SMTP id <S264252AbRFOVTc>;
+	Fri, 15 Jun 2001 17:19:32 -0400
+Reply-To: =?ISO-8859-1?Q? "=C1=E5=EB=EE=E1=EE=F0=EE=E4=EE=E2?= " 
+	  <visaexit@yahoo.com>
+From: =?ISO-8859-1?Q? "=C1=E5=EB=EE=E1=EE=F0=EE=E4=EE=E2?= " 
+	<visaexit@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Organization: "T&T"
+X-Priority: 1
+X-MSMail-Priority: High
+Subject: =?ISO-8859-1?Q?=C2=E8=E7=FB.?= =?ISO-8859-1?Q?=CF=E0=F1=EF=EE=F0=F2=E0.?= =?ISO-8859-1?Q?=C3=F0=E0=E6=E4=E0=ED=F1=F2=E2=E0.?= =?ISO-8859-1?Q?=CF=F0=EE=E1=EB=E5=EC=FB.?= =?ISO-8859-1?Q?=D0=E5=F8=E5=ED=E8=FF.?= =?ISO-8859-1?Q?=D1=EE=F5=F0=E0=ED=E8=F2=E5?= - =?ISO-8859-1?Q?=EF=F0=E8=E3=EE=E4=E8=F2=F1=FF.?=
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1251"
+Date: Sat, 16 Jun 2001 01:21:04 +0400
+Message-Id: <20010615211932Z264252-17720+4400@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why the 2.4.5-ac series doesn't have merges from Linus 2.4.6-pre anymore?
+"Нет неразрешимых ситуаций, есть только нежелание их    
+                                                    разрешить."
+Уважаемые господа.
+Предлагаем реальную помощь в решении вопросов 
+выезда.
+Паспорта. Визы. Гражданства. Проблемы. Решения.
+Включая получение виз стран Шенгенского пространства.
+Оформление паспортов(в том числе и МИД).
+Получение виз США, Канады, Германии и еще некоторых 
+стран 
+без собеседования.
+Самые реальные(очень недорогие) цены.
+Сроки от 1 дня.
+Скидки агенствам\агентам\посредникам до 50 %.
+Работаем с посредниками.
 
-Because right now I dont consider the 2.4.6 page cache ext2 stuff safe
-enough to merge. I'm letting someone else be the sucide squad.. so far it
-looks like it is indeed fine but I want to wait and see more yet
+Приносим свои извинения за беспокойство.
+Если для Вас это неинтересно, но более беспокоить Вас не 
+будем.
+Визы. Паспорта. Гражданства. Проблемы. Решения. 
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US
+DO NOT SPAM. IT HURTS ALL OF US

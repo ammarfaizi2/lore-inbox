@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317347AbSIEJBW>; Thu, 5 Sep 2002 05:01:22 -0400
+	id <S317349AbSIEJBd>; Thu, 5 Sep 2002 05:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317349AbSIEJBW>; Thu, 5 Sep 2002 05:01:22 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45062
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317347AbSIEJBV>; Thu, 5 Sep 2002 05:01:21 -0400
-Date: Thu, 5 Sep 2002 02:05:17 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>,
-       kernel mailing list <linux-kernel@vger.kernel.org>,
-       ataraid mailing list <ataraid-list@redhat.com>,
-       Jeff Nguyen <jeff@aslab.com>
-Subject: Re: 3 ultra100 controllers
-In-Reply-To: <1031182589.2796.141.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10209050201310.8071-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S317354AbSIEJBd>; Thu, 5 Sep 2002 05:01:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:20931 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317349AbSIEJBc>;
+	Thu, 5 Sep 2002 05:01:32 -0400
+Date: Thu, 5 Sep 2002 14:40:23 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: rusty@rustcorp.com.au
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Dave Miller <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Important per-cpu fix.
+Message-ID: <20020905144023.A14040@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well Jeff will need to verify, but iirc many of those boxes he build and
-sold power "amazon.com".  I got a charge knowing that factoid, when
-everyone was slamming the reliablity and strenghts of ATA servers.
+In article <20020904023535.73D922C12D@lists.samba.org> Rusty Russell wrote:
+> Frankly, I'm amazed the kernel worked for long without this.
 
-Also there were select systems that may have been VIA but they were hand
-picked boards.
+> Every linker script thinks the section is called .data.percpu.
+> Without this patch, every CPU ends up sharing the same "per-cpu"
+> variable.
 
-Anyways, Jeff will need to comment on this part.  However I know he has
-shipped with 4 and maybe even 5 cards in a box that ran fine and stable.
+> This might explain the wierd per-cpu problem reports from Andrew and
+> Dave, and also that nagging feeling that I'm an idiot...
 
-Cheers,
+Not only does this fix the tasklet BUG with 2.5.32 but it also fixes a serial
+console hang with my 2.5.32 version of Ingo/Davem/Alexey's scalable timers 
+code that I have been debugging for the last two days. I use
+a per-cpu tasklet to run the timers, so it was probably killing me
+there.
 
-On 5 Sep 2002, Alan Cox wrote:
-
-> On Wed, 2002-09-04 at 20:48, Andre Hedrick wrote:
-> > 5 have been done!
-> > 
-> > Ask "Jeff Nguyen", all it means is that only two cards will be setup by
-> > their BIOS.  The remaining cards will be setup by the driver.
-> > IIRC, there was a special RIO version with 8 card or 32 drives.
-> 
-> I wouldnt like to see the performance of the resulting box or try it on
-> a VIA chipset or anything else I didn't trust 100% to handle contention
-> on the PCI bus
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

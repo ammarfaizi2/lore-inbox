@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287852AbSAIVm6>; Wed, 9 Jan 2002 16:42:58 -0500
+	id <S289030AbSAIVoT>; Wed, 9 Jan 2002 16:44:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289028AbSAIVmt>; Wed, 9 Jan 2002 16:42:49 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:52752 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S287852AbSAIVmn>;
-	Wed, 9 Jan 2002 16:42:43 -0500
-Date: Wed, 9 Jan 2002 13:40:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109214022.GE21963@kroah.com>
-In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
+	id <S289032AbSAIVoG>; Wed, 9 Jan 2002 16:44:06 -0500
+Received: from cygnus.equallogic.com ([65.170.102.10]:8452 "HELO
+	cygnus.equallogic.com") by vger.kernel.org with SMTP
+	id <S289030AbSAIVnh>; Wed, 9 Jan 2002 16:43:37 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 12 Dec 2001 17:23:29 -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <15420.47491.912922.569746@pkoning.dev.equallogic.com>
+Date: Wed, 9 Jan 2002 16:43:31 -0500 (EST)
+From: Paul Koning <pkoning@equallogic.com>
+To: dewar@gnat.com
+Cc: mrs@windriver.com, gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <20020109203213.56A64F2FEB@nile.gnat.com>
+X-Mailer: VM 6.75 under 21.1 (patch 11) "Carlsbad Caverns" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 09:34:34PM +0000, Anton Altaparmakov wrote:
-> Partition discovery is currently done within the kernel itself. The code 
-> will effectively 'just' move out into user space. As such it is not present 
-> in /sbin now but it will be in initramfs. The same is true for various 
-> other code I can imagine moving out of kernel mode into initramfs...
+>>>>> "dewar" == dewar  <dewar@gnat.com> writes:
 
-For this code, I can see it staying in the kernel source tree, and being
-built as part of the kernel build process, right?
+> <<Ah... so (paraphrasing) -- if you have two byte size
+> volatile objects, and they happen to end up adjacent in
+> memory, the compiler is explicitly forbidden from turning an
+> access to one of them into a wider access -- because that
+> would be an access to both of them, which is a *different*
+> side effect.  (Certainly that exactly matches the
+> hardware-centric view of why "volatile" exists.)  And the
+> compiler isn't allowed to change side effects, including
+> causing them when the source code didn't ask you to cause
+> them.
 
-greg k-h
+ dewar> Right, and as you see that is covered by the language on
+ dewar> external effects in the Ada standard (remember the intent in
+ dewar> Ada was to exactly match the C rules :-)
+
+ dewar> But one thing in the Ada world that we consider left open is
+ dewar> whether a compiler is free to combine two volatile loads into
+ dewar> a single load. Probably the answer should be no, but the
+ dewar> language at least in the Ada standard does not seem strong
+ dewar> enough to say this.
+
+Would ordering rules help answer that?  If you write two separate
+loads you have two separate side effects that are ordered in time,
+while for a single big load they occur concurrently.  If the construct
+where those two loads occur does not allow for side effects to be
+interleaved, then the "as if" principle seems to say you cannot
+legally merge the loads.
+
+	paul
+
+

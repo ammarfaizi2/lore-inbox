@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbTJUAql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 20:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTJUAql
+	id S262874AbTJUArR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 20:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTJUArR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 20:46:41 -0400
-Received: from h80ad257c.async.vt.edu ([128.173.37.124]:1920 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262854AbTJUAqi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 20:46:38 -0400
-Message-Id: <200310210046.h9L0kHFg001918@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test8-mm1 
-In-Reply-To: Your message of "Mon, 20 Oct 2003 17:27:32 PDT."
-             <20031020172732.6b6b3646.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031020020558.16d2a776.akpm@osdl.org> <200310201811.18310.schlicht@uni-mannheim.de> <20031020144836.331c4062.akpm@osdl.org> <200310210001.08761.schlicht@uni-mannheim.de> <200310210014.h9L0EZFP003073@turing-police.cc.vt.edu>
-            <20031020172732.6b6b3646.akpm@osdl.org>
+	Mon, 20 Oct 2003 20:47:17 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:2950 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262874AbTJUArM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 20:47:12 -0400
+Date: Tue, 21 Oct 2003 02:47:09 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide write barrier support
+Message-ID: <20031021004709.GA11523@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3F902E0A.5060908@colorfullife.com> <20031017180612.GB8230@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1887342736P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 20 Oct 2003 20:46:17 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031017180612.GB8230@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1887342736P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <1901.1066697159.1@turing-police.cc.vt.edu>
+On Fri, 17 Oct 2003, Jens Axboe wrote:
 
-On Mon, 20 Oct 2003 17:27:32 PDT, Andrew Morton said:
-> Valdis.Kletnieks@vt.edu wrote:
-> >
-> > This ring any bells?  What you want tested? etc etc....
+> On Fri, Oct 17 2003, Manfred Spraul wrote:
+> > Jens wrote:
+> > 
+> > >The problem is that as far as I can see the best way to make fsync
+> > >really work is to make the last write a barrier write. That
+> > >automagically gets everything right for you - when the last block goes
+> > >to disk, you know the previous ones have already. And when the last
+> > >block completes, you know the whole lot is on platter.
+> > >
+> > Are you sure?
+> > What prevents the io scheduler from writing the last block before other 
+> > blocks?
 > 
-> Can you try disabling all fbdev stuff in config?
+> Very sure, the io scheduler will never put the barrier write before
+> previously comitted writes. So yes, it will work as described.
 
-OK.. That booted just fine, didn't hang in pty_init, didn't hit the
-WARN_ON added to fs_inoce.c.
+If the "last block" is special however (containing a "complete" marker
+for instance), the order needs to be:
 
-So we have:
+write1 write2 write3 write4 barrier write-last barrier
 
-works:
-#  CONFIG_FB is not set
+This will guarantee write-last will happen after write4.
 
-Doesn't work:
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
+The drive is free to permute the order of write1 ... write4, no?
 
-I've not had a chance to play binary search on those options yet..  Graphics
-card is an NVidia GeForce 440Go, and was previous working just fine with
-framebuffer over on vc1-6 and NVidia's driver on an XFree86 on vc7. (OK, I
-admit I didn't stress test the framebuffer side much past "penguins and
-scroiled text"...)
+Manfred, was that your idea?
 
+-- 
+Matthias Andree
 
---==_Exmh_1887342736P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/lIHYcC3lWbTT17ARApF3AKDgMlT3xPJBvSwCVvIfzCeKvTOQaACgreus
-1D0iOzxbeyt9kyEK/ZKdzME=
-=Chp5
------END PGP SIGNATURE-----
-
---==_Exmh_1887342736P--
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132122AbRCYRNu>; Sun, 25 Mar 2001 12:13:50 -0500
+	id <S132128AbRCYRim>; Sun, 25 Mar 2001 12:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132127AbRCYRNk>; Sun, 25 Mar 2001 12:13:40 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15075 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132122AbRCYRNV>;
-	Sun, 25 Mar 2001 12:13:21 -0500
-Message-ID: <3ABE2708.E9422DD8@mandrakesoft.com>
-Date: Sun, 25 Mar 2001 12:12:40 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre7 i686)
-X-Accept-Language: en
+	id <S132130AbRCYRic>; Sun, 25 Mar 2001 12:38:32 -0500
+Received: from cable039.201.eneco.bart.nl ([195.38.201.39]:27149 "EHLO
+	procyon.wilson.nl") by vger.kernel.org with ESMTP
+	id <S132128AbRCYRiV>; Sun, 25 Mar 2001 12:38:21 -0500
+From: "Michel Wilson" <michel@procyon14.yi.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Larger dev_t
+Date: Sun, 25 Mar 2001 19:37:36 +0200
+Message-ID: <NEBBLEJBILPLHPBNEEHICEPPCAAA.michel@procyon14.yi.org>
 MIME-Version: 1.0
-To: Michel Wilson <michel@procyon14.yi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t
-In-Reply-To: <NEBBLEJBILPLHPBNEEHIEEPNCAAA.michel@procyon14.yi.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <5.0.2.1.2.20010325180537.04690940@pop.cus.cam.ac.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michel Wilson wrote:
-> Ever thought about how you would kill a process: kill -9 127892752 doesn't
-> sound very appealing to me.
+> Ever heard of cut-and-paste? Surely you can afford a mouse... And 
+> for when 
+> you you are not inputting manually but running a script/whatever, 
+> who cares 
+> what the numbers are...
+> 
+> Cheers,
+> 
+>          Anton
+Oops. Okay, you're right.
 
-man killall(1).  Kill processes by name.
-
-> So you'd also need to implement a mechanism that allows for 'easy' selection
-> of processes to kill, for example giving every process with the same name
-> a unique identifier (like httpd_0, httpd_1, httpd_2 and so on).
-
-huh?
-
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full moon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.

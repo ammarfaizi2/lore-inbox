@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbULNWye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbULNWsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbULNWye (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:54:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWx2
+	id S261717AbULNWsr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:53:28 -0500
-Received: from h142-az.mvista.com ([65.200.49.142]:26053 "HELO
-	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S261709AbULNWvx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:51:53 -0500
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Tue, 14 Dec 2004 15:51:50 -0700
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Russell King <rmk@arm.linux.org.uk>,
-       Manish Lachwani <mlachwani@mvista.com>,
-       Brian Waite <brian@waitefamily.us>,
-       "Steven J. Hill" <sjhill@realitydiluted.com>
-Subject: [PATCH 7/6] mv643xx_eth: Remove use of MV_SET_REG_BITS macro
-Message-ID: <20041214225150.GA21869@xyzzy>
-References: <20041213220949.GA19609@xyzzy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041213220949.GA19609@xyzzy>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 14 Dec 2004 17:46:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43146 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261709AbULNWo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:44:56 -0500
+Date: Tue, 14 Dec 2004 14:44:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Roland McGrath <roland@redhat.com>, Christoph Lameter <clameter@sgi.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
+ clock_* syscalls
+In-Reply-To: <41BF6879.3090900@redhat.com>
+Message-ID: <Pine.LNX.4.58.0412141441080.3279@ppc970.osdl.org>
+References: <200412142150.iBELoJc0011582@magilla.sf.frob.com>
+ <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org> <41BF6879.3090900@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, I missed this in my first set of patches for the mv643xx_eth driver.
 
-This patch removes the need for the MV_SET_REG_BITS macro in the mv643xx_eth
-driver.
 
-Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
+On Tue, 14 Dec 2004, Ulrich Drepper wrote:
+> 
+> Indeed.  It's so much easier to grant additional rights at a later time 
+> than to take something away for whatever reasons.
 
-Index: linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c
-===================================================================
---- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.c	2004-12-14 15:07:49.537387217 -0700
-+++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c	2004-12-14 15:07:53.721135861 -0700
-@@ -1845,8 +1845,9 @@
- 	MV_WRITE(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
- 		 mp->port_serial_control);
- 
--	MV_SET_REG_BITS(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
--			MV64340_ETH_SERIAL_PORT_ENABLE);
-+	MV_WRITE(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
-+		MV_READ(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num)) |
-+						MV64340_ETH_SERIAL_PORT_ENABLE);
- 
- 	/* Assign port SDMA configuration */
- 	MV_WRITE(MV64340_ETH_SDMA_CONFIG_REG(eth_port_num),
+Yes.
+
+> Globally accessible clocks would need to have the semantic carefully 
+> defined, SELinux hooks would have to be added etc.
+
+More interestingly (where "interesting" is defined as "could be really 
+nasty") it's likely to interact very badly in cases where we have some 
+_physically_ local clocks. Ie we might have some situation where we do 
+some node-local thing for intra-node scheduling, with some other clock for 
+inter-node scheduling. Exposing such a clock to a process that isn't 
+actually using it could result in the node-local clock source suddenly 
+needing to be exposed outside the node.
+
+Think single-image clusters etc.
+
+So in general, it's better to try to keep things as local as possible, 
+even if it's not a visibility issue today. Some day you might be happy you 
+did..
+
+		Linus

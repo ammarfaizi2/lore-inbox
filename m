@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263782AbTCUSo6>; Fri, 21 Mar 2003 13:44:58 -0500
+	id <S263738AbTCUSfB>; Fri, 21 Mar 2003 13:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263777AbTCUSng>; Fri, 21 Mar 2003 13:43:36 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17284
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263772AbTCUSmy>; Fri, 21 Mar 2003 13:42:54 -0500
-Date: Fri, 21 Mar 2003 19:58:09 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303211958.h2LJw91a026151@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: S/390 typo fixes
+	id <S263728AbTCUSdz>; Fri, 21 Mar 2003 13:33:55 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:28424 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262595AbTCUScp>; Fri, 21 Mar 2003 13:32:45 -0500
+Date: Fri, 21 Mar 2003 19:43:37 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.65 + matrox framebuffer: life is good!
+Message-ID: <20030321184337.GA1837@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-s390x/bitops.h linux-2.5.65-ac2/include/asm-s390x/bitops.h
---- linux-2.5.65/include/asm-s390x/bitops.h	2003-03-03 19:20:16.000000000 +0000
-+++ linux-2.5.65-ac2/include/asm-s390x/bitops.h	2003-03-20 18:46:14.000000000 +0000
-@@ -55,7 +55,7 @@
- 
- #ifdef CONFIG_SMP
- /*
-- * SMP save set_bit routine based on compare and swap (CS)
-+ * SMP safe set_bit routine based on compare and swap (CS)
-  */
- static inline void set_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-@@ -80,7 +80,7 @@
- }
- 
- /*
-- * SMP save clear_bit routine based on compare and swap (CS)
-+ * SMP safe clear_bit routine based on compare and swap (CS)
-  */
- static inline void clear_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-@@ -105,7 +105,7 @@
- }
- 
- /*
-- * SMP save change_bit routine based on compare and swap (CS)
-+ * SMP safe change_bit routine based on compare and swap (CS)
-  */
- static inline void change_bit_cs(unsigned long nr, volatile unsigned long *ptr)
- {
-@@ -130,7 +130,7 @@
- }
- 
- /*
-- * SMP save test_and_set_bit routine based on compare and swap (CS)
-+ * SMP safe test_and_set_bit routine based on compare and swap (CS)
-  */
- static inline int
- test_and_set_bit_cs(unsigned long nr, volatile unsigned long *ptr)
-@@ -157,7 +157,7 @@
- }
- 
- /*
-- * SMP save test_and_clear_bit routine based on compare and swap (CS)
-+ * SMP safe test_and_clear_bit routine based on compare and swap (CS)
-  */
- static inline int
- test_and_clear_bit_cs(unsigned long nr, volatile unsigned long *ptr)
-@@ -184,7 +184,7 @@
- }
- 
- /*
-- * SMP save test_and_change_bit routine based on compare and swap (CS) 
-+ * SMP safe test_and_change_bit routine based on compare and swap (CS) 
-  */
- static inline int
- test_and_change_bit_cs(unsigned long nr, volatile unsigned long *ptr)
+Just to let people know there's a new version of Petr's ongoing work
+with the matrox framebuffer available:
+
+ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
+
+the file is called mga-2.5.65.gz, and it works wonderfully.
+
+As far as I know, this patch was only announced on the fbdev-developers
+mailing-list. I assume there are more matrox-users here.
+
+Good luck,
+Jurriaan
+-- 
+Felisin's hands ... ah, they have graped and touched, they have been
+slick and they have been soiled, and yet held nothing. Life slips
+through them like a ghost.
+	Steven Erikson - Deadhouse Gates
+GNU/Linux 2.5.65-mm3 SMP/ReiserFS 4276 bogomips load av: 0.50 0.25 0.09

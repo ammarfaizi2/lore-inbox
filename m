@@ -1,241 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTFAKPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 06:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTFAKPK
+	id S262985AbTFAKlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 06:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTFAKlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 06:15:10 -0400
-Received: from [209.123.232.253] ([209.123.232.253]:24301 "EHLO zero.voxel.net")
-	by vger.kernel.org with ESMTP id S262805AbTFAKPG (ORCPT
+	Sun, 1 Jun 2003 06:41:25 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:46814 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S262985AbTFAKlX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 06:15:06 -0400
-Message-ID: <16178.24.195.0.157.1054463309.squirrel@zero.voxel.net>
-Date: Sun, 1 Jun 2003 06:28:29 -0400 (EDT)
-Subject: [PATCH] 2.5.70-mm3: 64bit kdev_t architecture updates
-From: "Andres Salomon" <dilinger@voxel.net>
-To: <akpm@digeo.com>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>, <Andries.Brouwer@cwi.nl>
-X-Mailer: SquirrelMail (version 1.2.10)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20030601062829_64982"
+	Sun, 1 Jun 2003 06:41:23 -0400
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Re: [PATCH] rmap 15j for 2.4.21-rc6
+Date: Sun, 01 Jun 2003 13:00:22 +0200
+Organization: privat
+Message-ID: <bbcmc6$74t$1@ID-44327.news.dfncis.de>
+References: <fa.nvklblk.jl430u@ifi.uio.no> <fa.h329tc5.1djcrol@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: susi.maya.org 1054465222 7325 192.168.1.3 (1 Jun 2003 11:00:22 GMT)
+X-Complaints-To: abuse@fu-berlin.de
+User-Agent: KNode/0.7.2
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20030601062829_64982
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-Since only i386's __kernel_dev_t is updated for a 64bit kdev_t, this patch
-updates the rest of the archs.  Again, it includes asm/types.h to handle
-the dirty work of deciding what type each arch needs for u64.  I'm testing
-this out w/ an ultrasparc1 box; so far, no major (compile) issues.
 
 
-------=_20030601062829_64982
-Content-Type: application/octet-stream; name="64-bit-kdev_t-arch-updates.patch"
-Content-Disposition: attachment; filename="64-bit-kdev_t-arch-updates.patch"
-Content-Transfer-Encoding: base64
 
-LS0tIGEvaW5jbHVkZS9hc20tYWxwaGEvcG9zaXhfdHlwZXMuaAkyMDAzLTA1LTMxIDE5OjU5OjEz
-LjAwMDAwMDAwMCAtMDQwMAorKysgYi9pbmNsdWRlL2FzbS1hbHBoYS9wb3NpeF90eXBlcy5oCTIw
-MDMtMDYtMDEgMDU6MTQ6MjUuMDAwMDAwMDAwIC0wNDAwCkBAIC0xLDEzICsxLDE1IEBACiAjaWZu
-ZGVmIF9BTFBIQV9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9BTFBIQV9QT1NJWF9UWVBFU19ICiAK
-KyNpbmNsdWRlIDxhc20vdHlwZXMuaD4KKwogLyoKICAqIFRoaXMgZmlsZSBpcyBnZW5lcmFsbHkg
-dXNlZCBieSB1c2VyLWxldmVsIHNvZnR3YXJlLCBzbyB5b3UgbmVlZCB0bwogICogYmUgYSBsaXR0
-bGUgY2FyZWZ1bCBhYm91dCBuYW1lc3BhY2UgcG9sbHV0aW9uIGV0Yy4gIEFsc28sIHdlIGNhbm5v
-dAogICogYXNzdW1lIEdDQyBpcyBiZWluZyB1c2VkLgogICovCiAKLXR5cGVkZWYgdW5zaWduZWQg
-aW50CV9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NAkJX19rZXJuZWxfZGV2X3Q7CiB0eXBl
-ZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9pbm9fdDsKIHR5cGVkZWYgdW5zaWduZWQgaW50CV9f
-a2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWduZWQgaW50CV9fa2VybmVsX25saW5rX3Q7Ci0t
-LSBhL2luY2x1ZGUvYXNtLWFybS9wb3NpeF90eXBlcy5oCTIwMDMtMDUtMzEgMTk6NTk6MTMuMDAw
-MDAwMDAwIC0wNDAwCisrKyBiL2luY2x1ZGUvYXNtLWFybS9wb3NpeF90eXBlcy5oCTIwMDMtMDYt
-MDEgMDU6MTU6MDAuMDAwMDAwMDAwIC0wNDAwCkBAIC0xMywxMyArMTMsMTUgQEAKICNpZm5kZWYg
-X19BUkNIX0FSTV9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9fQVJDSF9BUk1fUE9TSVhfVFlQRVNf
-SAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8qCiAgKiBUaGlzIGZpbGUgaXMgZ2VuZXJh
-bGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5lZWQgdG8KICAqIGJlIGEg
-bGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBvbGx1dGlvbiBldGMuICBBbHNvLCB3ZSBj
-YW5ub3QKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNlZC4KICAqLwogCi10eXBlZGVmIHVuc2ln
-bmVkIHNob3J0CQlfX2tlcm5lbF9kZXZfdDsKK3R5cGVkZWYgX191NjQJCQlfX2tlcm5lbF9kZXZf
-dDsKIHR5cGVkZWYgdW5zaWduZWQgbG9uZwkJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVmIHVuc2ln
-bmVkIHNob3J0CQlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIHNob3J0CQlfX2tl
-cm5lbF9ubGlua190OwotLS0gYS9pbmNsdWRlL2FzbS1jcmlzL3Bvc2l4X3R5cGVzLmgJMjAwMy0w
-NS0zMSAxOTo1OToxMy4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tY3Jpcy9wb3Np
-eF90eXBlcy5oCTIwMDMtMDYtMDEgMDU6MTU6MTkuMDAwMDAwMDAwIC0wNDAwCkBAIC03LDYgKzcs
-NyBAQAogI2RlZmluZSBfX0FSQ0hfQ1JJU19QT1NJWF9UWVBFU19ICiAKICNpbmNsdWRlIDxhc20v
-Yml0b3BzLmg+CisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CiAKIC8qCiAgKiBUaGlzIGZpbGUgaXMg
-Z2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5lZWQgdG8KQEAg
-LTE0LDcgKzE1LDcgQEAKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNlZC4KICAqLwogCi10eXBl
-ZGVmIHVuc2lnbmVkIHNob3J0CV9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NAkJX19rZXJu
-ZWxfZGV2X3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVm
-IHVuc2lnbmVkIHNob3J0CV9fa2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWduZWQgc2hvcnQJ
-X19rZXJuZWxfbmxpbmtfdDsKLS0tIGEvaW5jbHVkZS9hc20taDgzMDAvcG9zaXhfdHlwZXMuaAky
-MDAzLTA1LTMxIDE5OjU5OjEzLjAwMDAwMDAwMCAtMDQwMAorKysgYi9pbmNsdWRlL2FzbS1oODMw
-MC9wb3NpeF90eXBlcy5oCTIwMDMtMDYtMDEgMDU6MTY6MDIuMDAwMDAwMDAwIC0wNDAwCkBAIC0x
-LDEzICsxLDE1IEBACiAjaWZuZGVmIF9fQVJDSF9IODMwMF9QT1NJWF9UWVBFU19ICiAjZGVmaW5l
-IF9fQVJDSF9IODMwMF9QT1NJWF9UWVBFU19ICiAKKyNpbmNsdWRlIDxhc20vdHlwZXMuaD4KKwog
-LyoKICAqIFRoaXMgZmlsZSBpcyBnZW5lcmFsbHkgdXNlZCBieSB1c2VyLWxldmVsIHNvZnR3YXJl
-LCBzbyB5b3UgbmVlZCB0bwogICogYmUgYSBsaXR0bGUgY2FyZWZ1bCBhYm91dCBuYW1lc3BhY2Ug
-cG9sbHV0aW9uIGV0Yy4gIEFsc28sIHdlIGNhbm5vdAogICogYXNzdW1lIEdDQyBpcyBiZWluZyB1
-c2VkLgogICovCiAKLXR5cGVkZWYgdW5zaWduZWQgc2hvcnQJX19rZXJuZWxfZGV2X3Q7Cit0eXBl
-ZGVmIF9fdTY0CQlfX2tlcm5lbF9kZXZfdDsKIHR5cGVkZWYgdW5zaWduZWQgbG9uZwlfX2tlcm5l
-bF9pbm9fdDsKIHR5cGVkZWYgdW5zaWduZWQgc2hvcnQJX19rZXJuZWxfbW9kZV90OwogdHlwZWRl
-ZiB1bnNpZ25lZCBzaG9ydAlfX2tlcm5lbF9ubGlua190OwotLS0gYS9pbmNsdWRlL2FzbS1pYTY0
-L3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0zMSAxOTo1OToxMy4wMDAwMDAwMDAgLTA0MDAKKysrIGIv
-aW5jbHVkZS9hc20taWE2NC9wb3NpeF90eXBlcy5oCTIwMDMtMDYtMDEgMDU6MTY6MjMuMDAwMDAw
-MDAwIC0wNDAwCkBAIC0xLDYgKzEsOCBAQAogI2lmbmRlZiBfQVNNX0lBNjRfUE9TSVhfVFlQRVNf
-SAogI2RlZmluZSBfQVNNX0lBNjRfUE9TSVhfVFlQRVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVz
-Lmg+CisKIC8qCiAgKiBUaGlzIGZpbGUgaXMgZ2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBz
-b2Z0d2FyZSwgc28geW91IG5lZWQgdG8KICAqIGJlIGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFt
-ZXNwYWNlIHBvbGx1dGlvbiBldGMuICBBbHNvLCB3ZSBjYW5ub3QKQEAgLTEwLDcgKzEyLDcgQEAK
-ICAqCURhdmlkIE1vc2Jlcmdlci1UYW5nIDxkYXZpZG1AaHBsLmhwLmNvbT4KICAqLwogCi10eXBl
-ZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9kZXZfdDsKK3R5cGVkZWYgX191NjQJCV9fa2VybmVs
-X2Rldl90OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVmIHVu
-c2lnbmVkIGludAlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGludAlfX2tlcm5l
-bF9ubGlua190OwotLS0gYS9pbmNsdWRlL2FzbS1tNjhrL3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0z
-MSAxOTo1OToxNC4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tbTY4ay9wb3NpeF90
-eXBlcy5oCTIwMDMtMDYtMDEgMDU6MTc6MDIuMDAwMDAwMDAwIC0wNDAwCkBAIC0xLDEzICsxLDE1
-IEBACiAjaWZuZGVmIF9fQVJDSF9NNjhLX1BPU0lYX1RZUEVTX0gKICNkZWZpbmUgX19BUkNIX002
-OEtfUE9TSVhfVFlQRVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8qCiAgKiBUaGlz
-IGZpbGUgaXMgZ2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5l
-ZWQgdG8KICAqIGJlIGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBvbGx1dGlvbiBl
-dGMuICBBbHNvLCB3ZSBjYW5ub3QKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNlZC4KICAqLwog
-Ci10eXBlZGVmIHVuc2lnbmVkIHNob3J0CV9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NAkJ
-X19rZXJuZWxfZGV2X3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfaW5vX3Q7CiB0
-eXBlZGVmIHVuc2lnbmVkIHNob3J0CV9fa2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWduZWQg
-c2hvcnQJX19rZXJuZWxfbmxpbmtfdDsKLS0tIGEvaW5jbHVkZS9hc20tbWlwcy9wb3NpeF90eXBl
-cy5oCTIwMDMtMDUtMzEgMTk6NTk6MTcuMDAwMDAwMDAwIC0wNDAwCisrKyBiL2luY2x1ZGUvYXNt
-LW1pcHMvcG9zaXhfdHlwZXMuaAkyMDAzLTA2LTAxIDA1OjE3OjE4LjAwMDAwMDAwMCAtMDQwMApA
-QCAtOSwxMyArOSwxNSBAQAogI2lmbmRlZiBfQVNNX1BPU0lYX1RZUEVTX0gKICNkZWZpbmUgX0FT
-TV9QT1NJWF9UWVBFU19ICiAKKyNpbmNsdWRlIDxhc20vdHlwZXMuaD4KKwogLyoKICAqIFRoaXMg
-ZmlsZSBpcyBnZW5lcmFsbHkgdXNlZCBieSB1c2VyLWxldmVsIHNvZnR3YXJlLCBzbyB5b3UgbmVl
-ZCB0bwogICogYmUgYSBsaXR0bGUgY2FyZWZ1bCBhYm91dCBuYW1lc3BhY2UgcG9sbHV0aW9uIGV0
-Yy4gIEFsc28sIHdlIGNhbm5vdAogICogYXNzdW1lIEdDQyBpcyBiZWluZyB1c2VkLgogICovCiAK
-LXR5cGVkZWYgdW5zaWduZWQgaW50CV9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NAkJX19r
-ZXJuZWxfZGV2X3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfaW5vX3Q7CiB0eXBl
-ZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIGludAkJX19rZXJuZWxf
-bmxpbmtfdDsKLS0tIGEvaW5jbHVkZS9hc20tbWlwczY0L3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0z
-MSAxOTo1OToxNy4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tbWlwczY0L3Bvc2l4
-X3R5cGVzLmgJMjAwMy0wNi0wMSAwNToxNzozMS4wMDAwMDAwMDAgLTA0MDAKQEAgLTksMTMgKzks
-MTUgQEAKICNpZm5kZWYgX0FTTV9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9BU01fUE9TSVhfVFlQ
-RVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8qCiAgKiBUaGlzIGZpbGUgaXMgZ2Vu
-ZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5lZWQgdG8KICAqIGJl
-IGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBvbGx1dGlvbiBldGMuICBBbHNvLCB3
-ZSBjYW5ub3QKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNlZC4KICAqLwogCi10eXBlZGVmIHVu
-c2lnbmVkIGludAlfX2tlcm5lbF9kZXZfdDsKK3R5cGVkZWYgX191NjQJCV9fa2VybmVsX2Rldl90
-OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVmIHVuc2lnbmVk
-IGludAlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9ubGlu
-a190OwotLS0gYS9pbmNsdWRlL2FzbS1wYXJpc2MvcG9zaXhfdHlwZXMuaAkyMDAzLTA1LTMxIDE5
-OjU5OjE4LjAwMDAwMDAwMCAtMDQwMAorKysgYi9pbmNsdWRlL2FzbS1wYXJpc2MvcG9zaXhfdHlw
-ZXMuaAkyMDAzLTA2LTAxIDA1OjE3OjQyLjAwMDAwMDAwMCAtMDQwMApAQCAtMSwxMiArMSwxNCBA
-QAogI2lmbmRlZiBfX0FSQ0hfUEFSSVNDX1BPU0lYX1RZUEVTX0gKICNkZWZpbmUgX19BUkNIX1BB
-UklTQ19QT1NJWF9UWVBFU19ICiAKKyNpbmNsdWRlIDxhc20vdHlwZXMuaD4KKwogLyoKICAqIFRo
-aXMgZmlsZSBpcyBnZW5lcmFsbHkgdXNlZCBieSB1c2VyLWxldmVsIHNvZnR3YXJlLCBzbyB5b3Ug
-bmVlZCB0bwogICogYmUgYSBsaXR0bGUgY2FyZWZ1bCBhYm91dCBuYW1lc3BhY2UgcG9sbHV0aW9u
-IGV0Yy4gIEFsc28sIHdlIGNhbm5vdAogICogYXNzdW1lIEdDQyBpcyBiZWluZyB1c2VkLgogICov
-Ci10eXBlZGVmIHVuc2lnbmVkIGludAkJX19rZXJuZWxfZGV2X3Q7Cit0eXBlZGVmIF9fdTY0CQkJ
-X19rZXJuZWxfZGV2X3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJCV9fa2VybmVsX2lub190Owog
-dHlwZWRlZiB1bnNpZ25lZCBzaG9ydAkJX19rZXJuZWxfbW9kZV90OwogdHlwZWRlZiB1bnNpZ25l
-ZCBzaG9ydAkJX19rZXJuZWxfbmxpbmtfdDsKLS0tIGEvaW5jbHVkZS9hc20tcHBjL3Bvc2l4X3R5
-cGVzLmgJMjAwMy0wNS0zMSAxOTo1OToxOC4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9h
-c20tcHBjL3Bvc2l4X3R5cGVzLmgJMjAwMy0wNi0wMSAwNToxNzo1Mi4wMDAwMDAwMDAgLTA0MDAK
-QEAgLTEsMTMgKzEsMTUgQEAKICNpZm5kZWYgX1BQQ19QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9Q
-UENfUE9TSVhfVFlQRVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8qCiAgKiBUaGlz
-IGZpbGUgaXMgZ2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5l
-ZWQgdG8KICAqIGJlIGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBvbGx1dGlvbiBl
-dGMuICBBbHNvLCB3ZSBjYW5ub3QKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNlZC4KICAqLwog
-Ci10eXBlZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9kZXZfdDsKK3R5cGVkZWYgX191NjQJCV9f
-a2VybmVsX2Rldl90OwogdHlwZWRlZiB1bnNpZ25lZCBsb25nCV9fa2VybmVsX2lub190OwogdHlw
-ZWRlZiB1bnNpZ25lZCBpbnQJX19rZXJuZWxfbW9kZV90OwogdHlwZWRlZiB1bnNpZ25lZCBzaG9y
-dAlfX2tlcm5lbF9ubGlua190OwotLS0gYS9pbmNsdWRlL2FzbS1wcGM2NC9wb3NpeF90eXBlcy5o
-CTIwMDMtMDUtMzEgMTk6NTk6MTguMDAwMDAwMDAwIC0wNDAwCisrKyBiL2luY2x1ZGUvYXNtLXBw
-YzY0L3Bvc2l4X3R5cGVzLmgJMjAwMy0wNi0wMSAwNToxODowMi4wMDAwMDAwMDAgLTA0MDAKQEAg
-LTEsNiArMSw4IEBACiAjaWZuZGVmIF9QUEM2NF9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9QUEM2
-NF9QT1NJWF9UWVBFU19ICiAKKyNpbmNsdWRlIDxhc20vdHlwZXMuaD4KKwogLyoKICAqIFRoaXMg
-ZmlsZSBpcyBnZW5lcmFsbHkgdXNlZCBieSB1c2VyLWxldmVsIHNvZnR3YXJlLCBzbyB5b3UgbmVl
-ZCB0bwogICogYmUgYSBsaXR0bGUgY2FyZWZ1bCBhYm91dCBuYW1lc3BhY2UgcG9sbHV0aW9uIGV0
-Yy4gIEFsc28sIHdlIGNhbm5vdApAQCAtMTIsNyArMTQsNyBAQAogICogMiBvZiB0aGUgTGljZW5z
-ZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KICAqLwogCi10eXBlZGVm
-IHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfZGV2X3Q7Cit0eXBlZGVmIF9fdTY0CQlfX2tlcm5lbF9k
-ZXZfdDsKIHR5cGVkZWYgdW5zaWduZWQgbG9uZwlfX2tlcm5lbF9pbm9fdDsKIHR5cGVkZWYgdW5z
-aWduZWQgbG9uZyAgCV9fa2VybmVsX25saW5rX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGludAlfX2tl
-cm5lbF9tb2RlX3Q7Ci0tLSBhL2luY2x1ZGUvYXNtLXMzOTAvcG9zaXhfdHlwZXMuaAkyMDAzLTA1
-LTMxIDE5OjU5OjE4LjAwMDAwMDAwMCAtMDQwMAorKysgYi9pbmNsdWRlL2FzbS1zMzkwL3Bvc2l4
-X3R5cGVzLmgJMjAwMy0wNi0wMSAwNToxOTowMy4wMDAwMDAwMDAgLTA0MDAKQEAgLTksNiArOSw4
-IEBACiAjaWZuZGVmIF9fQVJDSF9TMzkwX1BPU0lYX1RZUEVTX0gKICNkZWZpbmUgX19BUkNIX1Mz
-OTBfUE9TSVhfVFlQRVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8qCiAgKiBUaGlz
-IGZpbGUgaXMgZ2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwgc28geW91IG5l
-ZWQgdG8KICAqIGJlIGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBvbGx1dGlvbiBl
-dGMuICBBbHNvLCB3ZSBjYW5ub3QKQEAgLTM0LDcgKzM2LDcgQEAKIAogI2lmbmRlZiBfX3MzOTB4
-X18KIAotdHlwZWRlZiB1bnNpZ25lZCBzaG9ydCAgX19rZXJuZWxfZGV2X3Q7Cit0eXBlZGVmIF9f
-dTY0ICAgICAgICAgICBfX2tlcm5lbF9kZXZfdDsKIHR5cGVkZWYgdW5zaWduZWQgbG9uZyAgIF9f
-a2VybmVsX2lub190OwogdHlwZWRlZiB1bnNpZ25lZCBzaG9ydCAgX19rZXJuZWxfbW9kZV90Owog
-dHlwZWRlZiB1bnNpZ25lZCBzaG9ydCAgX19rZXJuZWxfbmxpbmtfdDsKQEAgLTUxLDcgKzUzLDcg
-QEAKIAogI2Vsc2UgLyogX19zMzkweF9fICovCiAKLXR5cGVkZWYgdW5zaWduZWQgaW50ICAgIF9f
-a2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NCAgICAgICAgICAgX19rZXJuZWxfZGV2X3Q7CiB0
-eXBlZGVmIHVuc2lnbmVkIGludCAgICBfX2tlcm5lbF9pbm9fdDsKIHR5cGVkZWYgdW5zaWduZWQg
-aW50ICAgIF9fa2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWduZWQgaW50ICAgIF9fa2VybmVs
-X25saW5rX3Q7Ci0tLSBhL2luY2x1ZGUvYXNtLXNoL3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0zMSAx
-OTo1OToxOC4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tc2gvcG9zaXhfdHlwZXMu
-aAkyMDAzLTA2LTAxIDA1OjE5OjE4LjAwMDAwMDAwMCAtMDQwMApAQCAtMSwxMyArMSwxNSBAQAog
-I2lmbmRlZiBfX0FTTV9TSF9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9fQVNNX1NIX1BPU0lYX1RZ
-UEVTX0gKIAorI2luY2x1ZGUgPGFzbS90eXBlcy5oPgorCiAvKgogICogVGhpcyBmaWxlIGlzIGdl
-bmVyYWxseSB1c2VkIGJ5IHVzZXItbGV2ZWwgc29mdHdhcmUsIHNvIHlvdSBuZWVkIHRvCiAgKiBi
-ZSBhIGxpdHRsZSBjYXJlZnVsIGFib3V0IG5hbWVzcGFjZSBwb2xsdXRpb24gZXRjLiAgQWxzbywg
-d2UgY2Fubm90CiAgKiBhc3N1bWUgR0NDIGlzIGJlaW5nIHVzZWQuCiAgKi8KIAotdHlwZWRlZiB1
-bnNpZ25lZCBzaG9ydAlfX2tlcm5lbF9kZXZfdDsKK3R5cGVkZWYgX191NjQJCV9fa2VybmVsX2Rl
-dl90OwogdHlwZWRlZiB1bnNpZ25lZCBsb25nCV9fa2VybmVsX2lub190OwogdHlwZWRlZiB1bnNp
-Z25lZCBzaG9ydAlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIHNob3J0CV9fa2Vy
-bmVsX25saW5rX3Q7Ci0tLSBhL2luY2x1ZGUvYXNtLXNwYXJjL3Bvc2l4X3R5cGVzLmgJMjAwMy0w
-NS0zMSAxOTo1OToxOC4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tc3BhcmMvcG9z
-aXhfdHlwZXMuaAkyMDAzLTA2LTAxIDA1OjE5OjQ2LjAwMDAwMDAwMCAtMDQwMApAQCAtMSw2ICsx
-LDggQEAKICNpZm5kZWYgX19BUkNIX1NQQVJDX1BPU0lYX1RZUEVTX0gKICNkZWZpbmUgX19BUkNI
-X1NQQVJDX1BPU0lYX1RZUEVTX0gKIAorI2luY2x1ZGUgPGFzbS90eXBlcy5oPgorCiAvKgogICog
-VGhpcyBmaWxlIGlzIGdlbmVyYWxseSB1c2VkIGJ5IHVzZXItbGV2ZWwgc29mdHdhcmUsIHNvIHlv
-dSBuZWVkIHRvCiAgKiBiZSBhIGxpdHRsZSBjYXJlZnVsIGFib3V0IG5hbWVzcGFjZSBwb2xsdXRp
-b24gZXRjLiAgQWxzbywgd2UgY2Fubm90CkBAIC0xNyw3ICsxOSw3IEBACiB0eXBlZGVmIHVuc2ln
-bmVkIHNob3J0ICAgICAgICAgX19rZXJuZWxfaXBjX3BpZF90OwogdHlwZWRlZiB1bnNpZ25lZCBz
-aG9ydCAgICAgICAgIF9fa2VybmVsX3VpZF90OwogdHlwZWRlZiB1bnNpZ25lZCBzaG9ydCAgICAg
-ICAgIF9fa2VybmVsX2dpZF90OwotdHlwZWRlZiB1bnNpZ25lZCBzaG9ydCAgICAgICAgIF9fa2Vy
-bmVsX2Rldl90OwordHlwZWRlZiBfX3U2NCAgICAgICAgICAgICAgICAgIF9fa2VybmVsX2Rldl90
-OwogdHlwZWRlZiB1bnNpZ25lZCBsb25nICAgICAgICAgIF9fa2VybmVsX2lub190OwogdHlwZWRl
-ZiB1bnNpZ25lZCBzaG9ydCAgICAgICAgIF9fa2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWdu
-ZWQgc2hvcnQgICAgICAgICBfX2tlcm5lbF91bW9kZV90OwotLS0gYS9pbmNsdWRlL2FzbS1zcGFy
-YzY0L3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0zMSAxOTo1OToxOC4wMDAwMDAwMDAgLTA0MDAKKysr
-IGIvaW5jbHVkZS9hc20tc3BhcmM2NC9wb3NpeF90eXBlcy5oCTIwMDMtMDYtMDEgMDU6MjA6MDUu
-MDAwMDAwMDAwIC0wNDAwCkBAIC0xLDYgKzEsOCBAQAogI2lmbmRlZiBfX0FSQ0hfU1BBUkM2NF9Q
-T1NJWF9UWVBFU19ICiAjZGVmaW5lIF9fQVJDSF9TUEFSQzY0X1BPU0lYX1RZUEVTX0gKIAorI2lu
-Y2x1ZGUgPGFzbS90eXBlcy5oPgorCiAvKgogICogVGhpcyBmaWxlIGlzIGdlbmVyYWxseSB1c2Vk
-IGJ5IHVzZXItbGV2ZWwgc29mdHdhcmUsIHNvIHlvdSBuZWVkIHRvCiAgKiBiZSBhIGxpdHRsZSBj
-YXJlZnVsIGFib3V0IG5hbWVzcGFjZSBwb2xsdXRpb24gZXRjLiAgQWxzbywgd2UgY2Fubm90CkBA
-IC0xNiw3ICsxOCw3IEBACiB0eXBlZGVmIGludCAgICAgICAgICAgICAgICAgICAgX19rZXJuZWxf
-aXBjX3BpZF90OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQgICAgICAgICAgIF9fa2VybmVsX3VpZF90
-OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQgICAgICAgICAgIF9fa2VybmVsX2dpZF90OwotdHlwZWRl
-ZiB1bnNpZ25lZCBpbnQgICAgICAgICAgIF9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NCAg
-ICAgICAgICAgICAgICAgIF9fa2VybmVsX2Rldl90OwogdHlwZWRlZiB1bnNpZ25lZCBsb25nICAg
-ICAgICAgIF9fa2VybmVsX2lub190OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQgICAgICAgICAgIF9f
-a2VybmVsX21vZGVfdDsKIHR5cGVkZWYgdW5zaWduZWQgc2hvcnQgICAgICAgICBfX2tlcm5lbF91
-bW9kZV90OwotLS0gYS9pbmNsdWRlL2FzbS12ODUwL3Bvc2l4X3R5cGVzLmgJMjAwMy0wNS0zMSAx
-OTo1OToxOS4wMDAwMDAwMDAgLTA0MDAKKysrIGIvaW5jbHVkZS9hc20tdjg1MC9wb3NpeF90eXBl
-cy5oCTIwMDMtMDYtMDEgMDU6MjA6MjUuMDAwMDAwMDAwIC0wNDAwCkBAIC0xNCw3ICsxNCw5IEBA
-CiAjaWZuZGVmIF9fVjg1MF9QT1NJWF9UWVBFU19IX18KICNkZWZpbmUgX19WODUwX1BPU0lYX1RZ
-UEVTX0hfXwogCi10eXBlZGVmIHVuc2lnbmVkIGludAlfX2tlcm5lbF9kZXZfdDsKKyNpbmNsdWRl
-IDxhc20vdHlwZXMuaD4KKwordHlwZWRlZiBfX3U2NAkJX19rZXJuZWxfZGV2X3Q7CiB0eXBlZGVm
-IHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcgbG9u
-ZyBfX2tlcm5lbF9pbm82NF90OwogdHlwZWRlZiB1bnNpZ25lZCBpbnQJX19rZXJuZWxfbW9kZV90
-OwotLS0gYS9pbmNsdWRlL2FzbS14ODZfNjQvcG9zaXhfdHlwZXMuaAkyMDAzLTA1LTMxIDE5OjU5
-OjE5LjAwMDAwMDAwMCAtMDQwMAorKysgYi9pbmNsdWRlL2FzbS14ODZfNjQvcG9zaXhfdHlwZXMu
-aAkyMDAzLTA2LTAxIDA1OjIwOjUwLjAwMDAwMDAwMCAtMDQwMApAQCAtMSwxMyArMSwxNSBAQAog
-I2lmbmRlZiBfQVNNX1g4Nl82NF9QT1NJWF9UWVBFU19ICiAjZGVmaW5lIF9BU01fWDg2XzY0X1BP
-U0lYX1RZUEVTX0gKIAorI2luY2x1ZGUgPGFzbS90eXBlcy5oPgorCiAvKgogICogVGhpcyBmaWxl
-IGlzIGdlbmVyYWxseSB1c2VkIGJ5IHVzZXItbGV2ZWwgc29mdHdhcmUsIHNvIHlvdSBuZWVkIHRv
-CiAgKiBiZSBhIGxpdHRsZSBjYXJlZnVsIGFib3V0IG5hbWVzcGFjZSBwb2xsdXRpb24gZXRjLiAg
-QWxzbywgd2UgY2Fubm90CiAgKiBhc3N1bWUgR0NDIGlzIGJlaW5nIHVzZWQuCiAgKi8KIAotdHlw
-ZWRlZiB1bnNpZ25lZCBsb25nCV9fa2VybmVsX2Rldl90OwordHlwZWRlZiBfX3U2NAkJX19rZXJu
-ZWxfZGV2X3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJX19rZXJuZWxfaW5vX3Q7CiB0eXBlZGVm
-IHVuc2lnbmVkIGludAlfX2tlcm5lbF9tb2RlX3Q7CiB0eXBlZGVmIHVuc2lnbmVkIGxvbmcJX19r
-ZXJuZWxfbmxpbmtfdDsK
 
-------=_20030601062829_64982--
+
+Michael Frank wrote:
+
+> On Saturday 31 May 2003 22:48, Rik van Riel wrote:
+>>
+>> Today I finally merged rmap15j forward to marcelo's latest
+>> release.  The IO stall fixes should be especially interesting:
+>>
+> 
+> Patched rc6 ex BK OK and compiled with gcc295-3 OK
+> 
+> On a P4/533-2.4Ghz/512MB with udma5 IDE ~50MB/s:
+> 
+> Shows severe interactivity problems and hangs
+> 
+> Scroll and mouse hangs and delayed response to keyboard
+> greater 1s are easily observable.
+> 
+
+Well, I did the test with 2.4.21rc6 after patching your script (I got syntax
+errors):
+
+When I'm using the script as seen in the patch, I'm getting problems with df
+(it's mostly very lazy, about 20s delay or more), the load is 4, doing an
+ls on some other directories is extremly slow. Mouse and keyboard are
+hanging some times.
+The write speed shown in xosview was between 1 and 15MB/s. Often the HD LED
+was on, but no data seemed to be put to the HD.
+
+
+My system:
+AMD Athlon(tm) XP 2000+
+512 MB RAM
+Chipsatz Apollo KT266/A/333
+WDC WD205AA, udma4, 20,5 GB
+             (multcount    = 16 (on),I/O support  =  1 (32-bit),
+             unmaskirq    =  1 (on),using_dma    =  1 (on),
+             readahead    =  8 (on)
+             )
+reiserfs
+
+
+Regards,
+Andreas Hartmann
+
+
+--- /home/Andreas/tstinter      Sun Jun  1 11:03:10 2003
++++ tstinter    Sun Jun  1 11:27:18 2003
+@@ -138,7 +138,7 @@
+     sleep 1
+    fi
+  #invoke dd write loops
+-   while (( i-- )); do
++   while (( i=`expr $i - 1` )); do
+      $TSTINTER _xwrite "$2" $i
+      sleep 1
+    done
+@@ -163,13 +163,13 @@
+  #
+  _read)
+    if [ "$2" = "" ]; then
+-     count=100K
++     count=100000
+    else
+      count=$2
+    fi
+-   dd if=/dev/zero of=$TEMPFILE$3 bs=4K count=$count
++   dd if=/dev/zero of=$TEMPFILE$3 bs=4096 count=$count
+    while (( 1 )); do
+-     time dd if=$TEMPFILE$3 of=/dev/null bs=4K count=$count &> /dev/null
++     time dd if=$TEMPFILE$3 of=/dev/null bs=4096 count=$count &> /dev/null
+    done
+    ;;
+  #
+@@ -181,12 +181,12 @@
+  #
+  _write)
+    if [ "$2" = "" ]; then
+-     count=100K
++     count=100000
+    else
+      count=$2
+    fi
+    while (( 1 )); do
+-     time dd if=/dev/zero of=$TEMPFILE$3 bs=4K count=$count
++     time dd if=/dev/zero of=$TEMPFILE$3 bs=4096 count=$count
+    done
+    ;;
+  #
 

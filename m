@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262314AbSKTT6W>; Wed, 20 Nov 2002 14:58:22 -0500
+	id <S262312AbSKTT6G>; Wed, 20 Nov 2002 14:58:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSKTT6W>; Wed, 20 Nov 2002 14:58:22 -0500
-Received: from bitmover.com ([192.132.92.2]:51407 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262314AbSKTT6U>;
-	Wed, 20 Nov 2002 14:58:20 -0500
-Date: Wed, 20 Nov 2002 12:05:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Cort Dougan <cort@fsmlabs.com>, Andre Hedrick <andre@linux-ide.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Mark Mielke <mark@mark.mielke.cc>, Rik van Riel <riel@conectiva.com.br>,
-       David McIlwraith <quack@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262314AbSKTT6G>; Wed, 20 Nov 2002 14:58:06 -0500
+Received: from relay.snowman.net ([66.92.156.198]:15886 "EHLO
+	relay.snowman.net") by vger.kernel.org with ESMTP
+	id <S262312AbSKTT6C> convert rfc822-to-8bit; Wed, 20 Nov 2002 14:58:02 -0500
+From: nick@snowman.net
+Date: Wed, 20 Nov 2002 14:16:49 -0500 (EST)
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Dana Lacoste <dana.lacoste@peregrine.com>,
+       Thomas =?ISO-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>,
+       linux-kernel@vger.kernel.org
 Subject: Re: spinlocks, the GPL, and binary-only modules
-Message-ID: <20021120120518.L13503@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrew Morton <akpm@digeo.com>, Cort Dougan <cort@fsmlabs.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	Mark Mielke <mark@mark.mielke.cc>,
-	Rik van Riel <riel@conectiva.com.br>,
-	David McIlwraith <quack@bigpond.net.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021120123145.B17249@duath.fsmlabs.com> <Pine.LNX.4.10.10211201137110.3892-100000@master.linux-ide.org> <20021120124405.C17249@duath.fsmlabs.com> <3DDBEA20.C8E1DC2C@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DDBEA20.C8E1DC2C@digeo.com>; from akpm@digeo.com on Wed, Nov 20, 2002 at 12:01:36PM -0800
-X-MailScanner: Found to be clean
+In-Reply-To: <Pine.LNX.4.10.10211201143030.3892-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.21.0211201415380.11473-100000@ns>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make it ignore BK and/or SCCS files.
+7% of the code you're takeing from, or 7% of the code you're adding
+to?  Either of these can be abused badly.  What do you
+count?  Words?  Lines?  Uncommented lines?  Non-blank uncommented
+lines?  I think it should and can be argued that the 7 second rule is
+sound for code as well as music.
+	Nick
 
-> open(FIND, "find . -name \*.[ch] |") || die "couldn't run find on *.[ch]\n";
-> while ($f = <FIND>) {
-> 	chop $f;
-	next if m|SCCS/s\.|;
-	next if m|BitKeeper/|;
+On Wed, 20 Nov 2002, Andre Hedrick wrote:
 
+> 
+> How about 7% of code max that can pollute the headers and not taint the
+> closed source.
+> 
+> 
+> On Wed, 20 Nov 2002 nick@snowman.net wrote:
+> 
+> > Ahh, but that's 7 seconds of *PREFORMED* music.  This implies that no
+> > matter how much past work has gone into it, if it can be run in under 7
+> > seconds it can't be copyrighted.  I rather like this interpretation.
+> > 	Nick
+> > 
+> > On 20 Nov 2002, Dana Lacoste wrote:
+> > 
+> > > On Wed, 2002-11-20 at 13:57, Thomas Langås wrote:
+> > > > If someone snags 10-20 secs of a song,
+> > > > and puts it into his/her song that's violation of the copyrights (given
+> > > > that the person didn't ask for permission). But, then there's "what's the
+> > > > minimum"-question
+> > > 
+> > > 7 seconds for music.
+> > > 
+> > > What's 7 seconds worth of code? :)
+> > > 
+> > > -- 
+> > > Dana Lacoste
+> > > Ottawa, Canada
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> 
 
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

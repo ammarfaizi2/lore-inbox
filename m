@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267852AbTGLUzl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 16:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268473AbTGLUzl
+	id S268511AbTGLVE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 17:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268513AbTGLVE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 16:55:41 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:34699 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S267852AbTGLUzk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 16:55:40 -0400
-Message-ID: <3F10793E.5080202@portrix.net>
-Date: Sat, 12 Jul 2003 23:10:22 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: agpgart, nforce2, radeon and agp fastwrite
-References: <3F102E8E.4030507@portrix.net> <20030712202622.GB7741@suse.de>
-In-Reply-To: <20030712202622.GB7741@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Jul 2003 17:04:59 -0400
+Received: from ev2.cpe.orbis.net ([209.173.192.122]:55460 "EHLO srv.foo21.com")
+	by vger.kernel.org with ESMTP id S268511AbTGLVE5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 17:04:57 -0400
+Date: Sat, 12 Jul 2003 16:19:41 -0500
+From: Eric Varsanyi <e0206@foo21.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030712211941.GD15643@srv.foo21.com>
+References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk> <20030712205114.GC15643@srv.foo21.com> <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Sat, Jul 12, 2003 at 05:51:42PM +0200, Jan Dittmer wrote:
->  > just took me half a hour to figure out. On nforce2 you have to disable 
->  > agp fastwrites, otherwise X locks hard on startup with the following 
->  > (from serial console).
->  > ...
->  > 
->  > Without AGP Fastwrites turned on, it all works wonderful. Just if 
->  > anybody encounters the same problem.
->  > Mainboard is nForce2 based, graphics is radeon 8500le (R200).
+> > The problem with all the level triggered schemes (poll, select, epoll w/o
+> > EPOLLET) is that they call every driver and poll status for every call into
+> > the kernel. This appeared to be killing my app's performance and I verified
+> > by writing some simple micro benchmarks.
 > 
-> Could be that the nforce & radeon don't play well together.
-> Anyone using fast writes without problems with non-ATI cards & nforce ?
-> If it works there, it's trivial to blacklist ATI cards and make them
-> unable to enable fast writes in the gart driver.
-> 
-Forgot to mention I had to use this patchlet to get nvidia-agp to link 
-properly.
+> Look this is false for epoll. Given N fds inside the set and M hot/ready
+> fds, epoll scale O(M) and not O(N) (like poll/select). There's a huge
+> difference, expecially with real loads.
 
-Jan
+Apologies, I did not benchmark epoll level triggered, just select.
+The man page claimed epoll in level triggered mode was just a better
+interface so I assumed it had to call each driver to check status.
 
---- linux-mm/drivers/char/agp/generic.c Thu Jul  3 15:04:06 2003
-+++ 2.5.73-mm3/drivers/char/agp/generic.c       Wed Jul  9 10:04:34 2003
-@@ -39,7 +39,7 @@
+Reading thru it I see (I think) the clever trick of just repolling things
+that have already triggered (basically polling just for the trailing
+edge after having seen a leading edge async), cool!
 
-  __u32 *agp_gatt_table;
-  int agp_memory_reserved;
--
-+EXPORT_SYMBOL(agp_memory_reserved)
-  /*
-   * Generic routines for handling agp_memory structures -
-   * They use the basic page allocation routines to do the brunt of the 
-work.
+If it seems unpopular/unwise to add the extra poll event to show read EOF
+using this level triggered mode would likely do the job for my app (the
+extra polls every time for un-consumed events will be nothing compared to
+calling every fd's poll every time). 
 
+I guess my only argument would be that edge triggered mode isn't really
+workable with TCP connections if there's no way to solve the ambiguity
+between EOF and no data in buffer (at least w/o an extra syscall). I just
+realized that the race you mention in the man page (reading data from
+the 'next' event that hasn't been polled into user mode yet) will lead to
+the same issue: how do you know if you got this event because you consumed
+the data on the previous interrupt or if this is an EOF condition.
 
--- 
-Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
-
+-Eric Varsanyi

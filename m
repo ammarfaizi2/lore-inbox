@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUHOXzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUHOX4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUHOXzE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 19:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267276AbUHOXzE
+	id S267283AbUHOX4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 19:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbUHOX4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 19:55:04 -0400
-Received: from zero.aec.at ([193.170.194.10]:42501 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S267278AbUHOXzA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 19:55:00 -0400
-To: Mark Lord <lkml@rtr.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: new tool:  blktool
-References: <2tATw-7md-25@gated-at.bofh.it> <2tCLz-dp-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 16 Aug 2004 01:54:57 +0200
-In-Reply-To: <2tCLz-dp-3@gated-at.bofh.it> (Mark Lord's message of "Mon, 16
- Aug 2004 01:40:05 +0200")
-Message-ID: <m3wu00c5ym.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Sun, 15 Aug 2004 19:56:15 -0400
+Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:50306 "EHLO
+	server.home") by vger.kernel.org with ESMTP id S267285AbUHOX4G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 19:56:06 -0400
+Date: Sun, 15 Aug 2004 16:55:57 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.home
+To: Andi Kleen <ak@muc.de>
+cc: Christoph Lameter <clameter@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+  pte locks?
+In-Reply-To: <m31xi8dkm2.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.58.0408151654240.4346@server.home>
+References: <2ttIr-2e4-17@gated-at.bofh.it> <2tzE4-6sw-25@gated-at.bofh.it>
+ <2tCiw-8pK-1@gated-at.bofh.it> <m31xi8dkm2.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -4.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord <lkml@rtr.ca> writes:
+On Mon, 16 Aug 2004, Andi Kleen wrote:
 
-> hdparm works for some SCSI devices already, and support for
-> more is already on the way.  I imagine I can have it handle
-> whatever new ioctls() are being provided from libata as well.
+> Christoph Lameter <clameter@sgi.com> writes:
+>
+> > On Sun, 15 Aug 2004, David S. Miller wrote:
+> >
+> >>
+> >> Is the read lock in the VMA semaphore enough to let you do
+> >> the pgd/pmd walking without the page_table_lock?
+> >> I think it is, but just checking.
+> >
+> > That would be great.... May I change the page_table lock to
+> > be a read write spinlock instead?
+>
+> That's probably not a good idea. r/w locks are extremly slow on
+> some architectures. Including ia64.
 
-I can see Jeff's point that the one letter options are not 
-very nice (I often have to look them up in the man page too ...) 
-And it's probably true that it will soon run out of letters.
-
-Any chance you could add GNU style long options using getopt_long()?
-
--Andi
+I was thinking about a read write spinlock not an readwrite
+semaphore. Look at include/asm-ia64/spinlock.h.
+The implementations are almost the same. Are you sure
+about this?
 

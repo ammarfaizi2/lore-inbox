@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUAFOYT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 09:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbUAFOYT
+	id S264353AbUAFOgC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 09:36:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbUAFOgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 09:24:19 -0500
-Received: from ns.suse.de ([195.135.220.2]:31943 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263544AbUAFOYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 09:24:14 -0500
-Date: Tue, 6 Jan 2004 15:24:12 +0100
-From: Kurt Garloff <kurt@garloff.de>
-To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 Huge pages not working as expected
-Message-ID: <20040106142412.GN3248@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20031226105433.GA25970@axis.demon.co.uk> <20031226115647.GH27687@holomorphy.com> <20031226201011.GA32316@axis.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TXIPBuAs4GDcsx9K"
+	Tue, 6 Jan 2004 09:36:02 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20172 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264353AbUAFOf7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 09:35:59 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Christophe Saout <christophe@saout.de>
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+Date: Tue, 6 Jan 2004 15:38:48 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401060059.52833.bzolnier@elka.pw.edu.pl> <20040106113330.GA5827@leto.cs.pocnet.net>
+In-Reply-To: <20040106113330.GA5827@leto.cs.pocnet.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031226201011.GA32316@axis.demon.co.uk>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.4.21-166-default i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE(DE), TU/e(NL)
+Message-Id: <200401061538.48904.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 06 of January 2004 12:33, Christophe Saout wrote:
+> On Tue, Jan 06, 2004 at 12:59:52AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 05 of January 2004 23:51, Christophe Saout wrote:
+> > > Remember? Can bio be NULL somewhere? Or what do you mean? It's our
+> > > scratchpad and ide_multwrite never puts a NULL bio on it.
+> >
+> > After last sector of the whole transfer is processed ide_multwrite() will
+> > set it to NULL.
+>
+> No, it doesn't.
 
---TXIPBuAs4GDcsx9K
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yep, you are right, bio is NULL, but rq->bio is not set...
 
-On Fri, Dec 26, 2003 at 08:10:11PM +0000, Nick Craig-Wood wrote:
-> (Interesting note - the 700 MHz P3 laptop is nearly twice as fast as
-> the 1.7 GHx P4 dekstop (261ms vs 489ms) at the span 4096 case, but the
-> P4 beats the P3 by a factor of 23 for the stride 1 (3ms vs 71 ms)!)
+--bart
 
-The factor is 6.2 (11.5ms vs 71ms), which is 2 * 1700/550.
-Still impressive: P4 is doing twice the work per cycle compared to PIII.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux:SCSI, Security           <garloff@suse.de>    [SUSE Nuernberg, DE]
-
---TXIPBuAs4GDcsx9K
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+sUMxmLh6hyYd04RAjyuAJ4rdI4KefyFzO13TBzgIN0f+avzKACfQwcU
-5hmhltVuGCJvRCtpHYLnSFo=
-=TS70
------END PGP SIGNATURE-----
-
---TXIPBuAs4GDcsx9K--

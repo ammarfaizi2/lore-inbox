@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVCIJvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVCIJxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVCIJvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 04:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVCIJvu
+	id S262213AbVCIJxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 04:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCIJxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 04:51:50 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:63641 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262211AbVCIJvr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 04:51:47 -0500
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: "pbadari@us.ibm.com" <pbadari@us.ibm.com>, Daniel McNeil <daniel@osdl.org>,
-       "suparna@in.ibm.com" <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-aio kvack.org" <linux-aio@kvack.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050309040757.GY27331@ca-server1.us.oracle.com>
-References: <1110189607.11938.14.camel@frecb000686>
-	 <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com>
-	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
-	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
-	 <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
-	 <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050309040757.GY27331@ca-server1.us.oracle.com>
-Date: Wed, 09 Mar 2005 10:50:59 +0100
-Message-Id: <1110361859.14594.44.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/03/2005 11:00:53,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/03/2005 11:00:56,
-	Serialize complete at 09/03/2005 11:00:56
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=iso-8859-15
+	Wed, 9 Mar 2005 04:53:51 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:55963 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262213AbVCIJxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 04:53:38 -0500
+Date: Wed, 9 Mar 2005 09:52:46 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+In-Reply-To: <20050309083923.GA20461@kroah.com>
+Message-ID: <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
+References: <20050309083923.GA20461@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCT-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 08 mars 2005 à 20:07 -0800, Joel Becker a écrit :
-> On Tue, Mar 08, 2005 at 03:54:04PM -0800, Badari Pulavarty wrote:
-> > > 1. return EINVAL if the DIO goes past EOF.
-> > > 
-> > > 2. truncate the request to file size (which is what your patch does)
-> > >     and if it works, it works.
-> > > 
-> > > 3. truncate the request to a size that actually works - like a multiple
-> > >     of 512.
-> > > 
-> > > 4. Do the full i/o since the user buffer is big enough, truncate the
-> > >     result returned to file size (and clear out the user buffer where it
-> > >     read past EOF).
-> > > 
-> > > Number 4 would make it easy on the user-level code, but AIO DIO might be
-> > > a bit tricky and might be a security hole since the data would be dma'ed
-> > > there and then cleared.  I need to look at the code some more.
-> 
-> 	Solaris, which does forcedirectio as a mount option, actually
-> will do buffered I/O on the trailing part.  Consider it like a bounce
-> buffer.  That way they don't DMA the trailing data and succeed the I/O.
-> The I/O returns actual bytes till EOF, just like read(2) is supposed to.
-> 	Either this or a fully DMA'd number 4 is really what we should
-> do.  If security can only be solved via a bounce buffer, who cares?  If
-> the user created themselves a non-aligned file to open O_DIRECT, that's
-> their problem if the last part-sector is negligably slower.
-> 
-> Joel
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  From a user's perspective, I tend to agree with Joel. A read going
-past EOF should IMHO return the data till EOF and reflect it in the
-return value. The penalty incured by the trailing part going buffered
-is the price to pay for not having a fully aligned file.
+On Wed, 9 Mar 2005, Greg KH wrote:
 
-  I think doing otherwise would break read(2) semantics.
+> which is a patch against the 2.6.11.1 release.  If consensus arrives
+> that this patch should be against the 2.6.11 tree, it will be done that
+> way in the future.
 
-  Sébastien.
+IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt againt
+the last -rc but against 2.6.x.
 
-------------------------------------------------------
+Marcos Marado
 
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-  
-------------------------------------------------------
+iD8DBQFCLsdwmNlq8m+oD34RApSIAJ4rAaaDduX7Xp1ChqGj9KJkqg/HuwCfYb5X
+5UAEW4srRcpOqspM8JaScAM=
+=REDu
+-----END PGP SIGNATURE-----
 

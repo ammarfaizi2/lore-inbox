@@ -1,186 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266701AbUHIQGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUHIQJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266701AbUHIQGK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHIQGJ
+	id S266703AbUHIQJB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266708AbUHIQHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:06:09 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:41386 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266731AbUHIQDn
+	Mon, 9 Aug 2004 12:07:43 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:14743 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S266703AbUHIQCN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:03:43 -0400
-Message-ID: <41179ED1.2000909@watson.ibm.com>
-Date: Mon, 09 Aug 2004 11:57:05 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Mon, 9 Aug 2004 12:02:13 -0400
+Date: Mon, 09 Aug 2004 12:00:11 -0400
+From: consolebandit@netscape.net (Maurice)
+To: vda@port.imtp.ilyichevsk.odessa.ua (Denis Vlasenko),
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.xSMP and IPv4 issues (ifconfig(s))
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: Erich Focht <efocht@hpce.nec.com>, Paul Jackson <pj@sgi.com>,
-       mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com,
-       ckrm-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <200408071722.36705.efocht@hpce.nec.com> <41168B97.1010704@watson.ibm.com>
-In-Reply-To: <41168B97.1010704@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <5D229985.7782B8C2.345005B1@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 169.244.70.148
+X-AOL-Language: english
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please add ckrm-tech@lists.sourceforge.net if CKRM isses are requested.
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
-See further comments to this thread below.
+>
+>You should connect your box to another one and verify that
+>network is ok (it is working under non-SMP kernel, right?).
+>Most probably you already did this. :)
+>
+>Then, do this ping test again, and while ping is running, do
+>
+>tcpdump -nleieth0 -s0 -vvv
+>
+>on both boxes. You will see what is happening on the wire.
+>For example, does other box actually hear anything?
+>
+>> New! Netscape Toolbar for Internet Explorer
+>
+>Heh.
+>--
+>vda
+>
+>
 
--- Hubertus
+Not to switch gears on you, but...
 
-Shailabh Nagar wrote:
+I have a "fix", through some feedback from the fedora-legacy-project list I was directed to send the command 'noapic' at boot time.  To see if this would have some effect on the IPv4 problem.
 
-> Erich Focht wrote:
-> 
->> On Saturday 07 August 2004 08:10, Paul Jackson wrote:
->>
->> Cpusets are a complex resource which needs to be managed. You already
->> provided an interface for management but on the horizon there is this
->> CKRM thing... I really don't care too much about the interface as long
->> as it is comfortable (advocating for your bitset manipulation routines
->> here ;-). CKRM will some day come in and maybe try to unify the
->> resource control through a generalized interface. In my understand
->> CKRM "classes" are (for the cpusets resource) your "sets". I was
->> trying to anticipate that CKRM might want to present the single entry
->> point for managing resources, including cpusets.
-> 
-> 
-> That is the intended utility of the CKRM core+interface, atleast for any 
-> resource for which it is useful to impose controls on a group of objects 
-> at once, as opposed to individually.
-> 
->>
->> If I understand correctly, CKRM is fine for simple resources like
->> amount of memory or cputime and designed to control flexible sharing
->> of these resources and ensure some degree of fairness. Cpusets is a
->> complex NUMA specific compound resource which actually only allows for
->> a rather static distribution across processes (especially with the
->> exclusive bits set). Including cpusets control into CKRM will be
->> trivial, because you already provide all that's needed.
-> 
-> 
-> If we move to the new model where each controller has an independent 
-> hierarchy, this becomes a real possibility. We'd still need to negotiate 
-> on the interface. Implementationally its pretty simple....the main 
-> question is - should there be some uniformity in the interfaces at the 
-> /rcfs/<?> level for each controller or not. If there isn't, the only 
-> thing that CKRM brings to the table (for cpusets) is the filesystem.
-> 
->>
->> What I proposed was to include cpusets ASAP. As we learned from
->> Hubertus, CKRM is undergoing some redesign (after the kernel summit),
->> so let's now get used to cpusets and forget about the generic resource
->> controller until that is mature to enter the kernel. 
-> 
+This allowed IPv4 to operate with the SMP kernel!!!
 
-Let's look where the restructuring is conceptually heading.
-As indicated by Shailabh above (and requested at the kernel summit),
-the resource controllers are becoming external entities in that they
-will be addressed directly by through the /rcfs/<rc>/<class-hierarchy>,
-rather then indirectly through their association with the classtypes
-right now.
+So, can anyone explane what is going on with this...
+Is it my motherboard/bios having communication issues with the SMP kernel, but not with the non-SMP kernel?
 
-In essense, the /rcfs interface can be used if a strict hierarchy can be
-generated in the class hierarchy for a given resource.
-Furthermore, each resource controller manipulates a set of attributes 
-and constraints. Today we are talking about shares (min,max, guarantee).
-There is no reason why these attributes/constraints can not be resource 
-controller specific. For instance for the cpu sets, the attribute would 
-be "cpus_allowed" and the controller would verify its own constraints,
-such as cpus_allowed has to be a subset of its parents cpus.
-Whether at this point "shares" is still the right filename is debateable.
+Thanks, Denis, for you assistance with this issue.
 
 
-> Might ? :-) We think its a home run :-)
-> 
->> and the
->> cpusets user interface will be yet another filesystem for controlling
->> some hierarchical structures... The complaints about the huge size of
->> the patch should therefore have in mind that we might well get rid of
->> the user interface part of it. The core infrastructure of cpusets will
->> be needed anyway and the amount of code is the absolutely required
->> minimum, IMHO.
->>
->>
->>
->>> The other reason that this suggestion worries me is a bit more
->>> philosophical.  I'm sure that for all the other, well known,
->>> resources that CKRM manages, no one is proposing replacing whatever
->>> existing names and mechanisms exist for those resources, such as
->>> bandwidth, compute cycles, memory, ...  Rather I presume that CKRM
->>> provides an additional resource management layer on top of the
->>> existing resources, which retain their classic names and apparatus.
->>> [...]
->>
->>
->>
->> I hope cpusets will be an "existing resource" when CKRM comes into
->> play. It's a compound resource built of cpus and memories (and the
->> name cpuset is a bit misleading) but it fully makes sense on a NUMA
->> machine to have these two elementary resources glued together. If CKRM
->> was to build a resource controller for cpu masks and memories, or two
->> separate resource controllers, the really acceptable end result would
->> look like the current cpusets infrastructure. So why waste time?
->>
->> Later cpusets could borrow the user interface of CKRM or, if the
->> cpusets user interface is better suited, maybe we can just have a
->> /rcfs/cpusets/ directory tree with the current cpusets look and feel?
->> Question to CKRM people: would it make sense to have a class with
->> another way of control than the shares/targets/members files?
+--------
+-Maurice
 
-See above.. I think if we relax the fixed attributes that currently
-exist for "shares" and "stats" into something where the attribute
-names are verified and interpreted by the resource controller than
-that's effectively what you suggest here.
+"Linux -- it not just for breakfast anymore..."
+-Moe
 
-> 
-> 
-> Need to mull this over in ckrm-tech, as mentioned earlier.
-> There are two issues:
-> - should controllers be allowed to create their own virtual files ?
-> - are all of the existing shares/targets/members files sufficiently 
-> useful to existing and future controllers to make them available by 
-> default (and offer the user some consistency) ?
-> 
-> I feel the answer to the second one is a yes though I'm not convinced 
-> that the attributes within the shares file need to be the same.
-> 
-> But saying yes to the first one will mean controllers have to implement 
-> some filesystem-related code (as is done by CKRM's Classification Engine 
-> modules, which also sit under /rcfs but have a completely different 
-> interface in terms of virtual files). We could work something out where 
-> controllers could use common code where available and then roll their 
-> own extras.
 
-I don't think we need to worry about the file system here (yet).
-rcfs takes care of the class object hierarchy and passes (as done today
-in other cases ) its attribute-setting strings down to the resource 
-controllers. We won't however have to do the parsing at /rcfs level.
 
-> 
-> If there's interest in this idea from the cpusets team and if we can 
-> come up with a way in which cpu/mem/io etc. could continue to share 
-> common rcfs code (as they do today) CKRM could consider this option.
-> 
-> -- Shailabh
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by OSTG. Have you noticed the changes on
-> Linux.com, ITManagersJournal and NewsForge in the past few weeks? Now,
-> one more big change to announce. We are now OSTG- Open Source Technology
-> Group. Come see the changes on the new OSTG site. www.ostg.com
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
-> 
+__________________________________________________________________
+Switch to Netscape Internet Service.
+As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
 
+Netscape. Just the Net You Need.
+
+New! Netscape Toolbar for Internet Explorer
+Search from anywhere on the Web and block those annoying pop-ups.
+Download now at http://channels.netscape.com/ns/search/install.jsp

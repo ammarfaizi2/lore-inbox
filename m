@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270325AbTHLNv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270342AbTHLNv2
+	id S270383AbTHLOBI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbTHLOBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:51:28 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:22546 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270325AbTHLNv1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:51:27 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Matthew Peters <matthew@greycloaklabs.ca>
-Subject: Re: PROBLEM: kswapd and toshiba libretto 50ct
-Date: Tue, 12 Aug 2003 21:50:37 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0308120622050.11089-100000@gateway.greycloaklabs.ca>
-In-Reply-To: <Pine.LNX.4.44.0308120622050.11089-100000@gateway.greycloaklabs.ca>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308122150.37582.mhf@linuxmail.org>
+	Tue, 12 Aug 2003 10:01:08 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:56838 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270383AbTHLOBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 10:01:05 -0400
+Subject: Re: [PATCH]O15int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xekzr9hn9.fsf@users.sourceforge.net>
+References: <200308122226.11557.kernel@kolivas.org>
+	 <yw1xekzr9hn9.fsf@users.sourceforge.net>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1060696858.748.7.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 12 Aug 2003 16:00:58 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 August 2003 21:24, Matthew Peters wrote:
-> i have managed to resolder that pin, the kernel detects a clock speed of
-> 75mhz again. The 2.4 kernels still don't work though. I've tried using
-> both a modular build and one with everything tailored to the system.
->
-> I don't have the oops message on hand, but i can get it if required. As
-> always, i can't check it on the hardware itself.
->
-> Thanks in advance,
->     Matthew
+On Tue, 2003-08-12 at 14:36, Måns Rullgård wrote:
+> Con Kolivas <kernel@kolivas.org> writes:
+> 
+> > Patch against 2.6.0-test3-mm1:
+> 
+> I'd appreciate patches against the previous version, in this case
+> O14.1, as well as the full patch.  Would this require much work?
 
-Please check
- - selected processor type: Pentium-Classic
- - compiled with gcc295 or equivalent
- - Leave frame buffers out
- - put only minimal drivers (including serial port and console on serial port)
-
-If it still does not work, please get the oops via serial console, run
-it through ksymoops, without it is not much we can do.
-
-Regards
-Michael
-
-
--- 
-Powered by linux-2.6. Compiled with gcc-2.95-3 - mature and rock solid
-
-2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
-2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
-
-More info on swsusp: http://sourceforge.net/projects/swsusp/
+2.6.0-test3-mm1 does already have O14.1, so you can apply O15 on top of
+what you have. Also, look at http://kernel.kolivas.org/2.5. There you
+will find patches against vanilla 2.6.
 

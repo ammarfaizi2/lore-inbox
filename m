@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKUSfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbUKUS4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUKUSfM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 13:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbUKUSfM
+	id S261783AbUKUS4I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 13:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUKUS4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 13:35:12 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33740 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261781AbUKUSfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 13:35:07 -0500
-Date: Sun, 21 Nov 2004 19:13:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041121181345.GB729@openzaurus.ucw.cz>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz> <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu> <20041118144634.GA7922@openzaurus.ucw.cz> <E1CVmN5-0007qq-00@dorka.pomaz.szeredi.hu>
+	Sun, 21 Nov 2004 13:56:07 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:6496 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261783AbUKUS4G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 13:56:06 -0500
+Date: Sun, 21 Nov 2004 19:56:46 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Andreas Steinmetz <ast@domdv.de>, Sam Ravnborg <sam@ravnborg.org>,
+       Blaisorblade <blaisorblade_spam@yahoo.it>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Why INSTALL_PATH is not /boot by default?
+Message-ID: <20041121185646.GA7811@mars.ravnborg.org>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	Andreas Steinmetz <ast@domdv.de>, Sam Ravnborg <sam@ravnborg.org>,
+	Blaisorblade <blaisorblade_spam@yahoo.it>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <200411160127.15471.blaisorblade_spam@yahoo.it> <20041121094308.GA7911@mars.ravnborg.org> <41A06FF0.7090808@domdv.de> <Pine.LNX.4.61.0411211400530.3418@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CVmN5-0007qq-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.LNX.4.61.0411211400530.3418@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Nov 21, 2004 at 02:03:24PM +0100, Jesper Juhl wrote:
+ > Please note that there are cases where you build a kernel for machine x on
+> > machine y. Which means: don't unconditionally uncomment this line.
+> > 
+> Huh, in that case wouldn't you just copy the kernel image from the source 
+> dir on machine y to whereever it needs to liveon machine x by hand? At 
+> least that's what I do, the Makefile and its INSTALL_PATH never comes into 
+> play then.
 
-> So I would go along the lines of 2).  However there is no way to know
-> when pages are dirtied (ther is no fault), so accounting the dirty
-> pages exactly is not possible.  However accounting the _writable_
-> pages should be possible with no overhead, since there is a fault when
-> the page of a mapping is first touched.
+In scripting it's much easier to have:
+make INSTALL_MOD_PATH=/nfs/frodo/ modules_install
+make INSTALL_PATH=/nfs/frodo/ install
 
-Ugh, this is going to be "interesting". Perhaps it can have little overhead,
-but hacking pagefault handlers is going to be hard.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+And everything 'just works'.
 
+	Sam

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbTBEANx>; Tue, 4 Feb 2003 19:13:53 -0500
+	id <S267607AbTBEALB>; Tue, 4 Feb 2003 19:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbTBEANx>; Tue, 4 Feb 2003 19:13:53 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:9222 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267610AbTBEANu>; Tue, 4 Feb 2003 19:13:50 -0500
-Date: Wed, 5 Feb 2003 00:23:19 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Frank Davis <fdavis@si.rr.com>
+	id <S267605AbTBEALA>; Tue, 4 Feb 2003 19:11:00 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25492 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267602AbTBEAKW>;
+	Tue, 4 Feb 2003 19:10:22 -0500
+Subject: Re: gcc 2.95 vs 3.21 performance
+From: Andy Pfiffer <andyp@osdl.org>
+To: b_adlakha@softhome.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.59: drivers/media/video/bt819.c
-Message-ID: <20030205002319.A10956@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302041915490.4326-100000@master>
+In-Reply-To: <courier.3E404FD0.00004E4F@softhome.net>
+References: <1044385759.1861.46.camel@localhost.localdomain>
+	 <200302041935.h14JZ69G002675@darkstar.example.net>
+	 <b1pbt8$2ll$1@penguin.transmeta.com>
+	 <20030204232101.GA9034@work.bitmover.com>
+	 <courier.3E404FD0.00004E4F@softhome.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044404395.28335.8.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302041915490.4326-100000@master>; from fdavis@si.rr.com on Tue, Feb 04, 2003 at 07:18:44PM -0500
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 04 Feb 2003 16:19:55 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 07:18:44PM -0500, Frank Davis wrote:
-> +
-> +I2C_CLIENT_INSMOD;
+On Tue, 2003-02-04 at 15:42, b_adlakha@softhome.net wrote:
+> >> I'd love to see a small - and fast - C compiler, and I'd be willing to
+> >> make kernel changes to make it work with it.  
+> 
+> tcc looks like a cool project to me...
+> Its small enough to be distributed through this mailing list! 
 
-Please don't use these magic macros, they will go away soon.
-Use Rusty's new unified parameter support instead.
+Don't overlook lcc -- last I knew most users were using GNU's cpp, but
+other than that, it is available for the curious:
 
->  static struct i2c_driver i2c_driver_bt819 = {
-> -	"bt819",		/* name */
-> -	I2C_DRIVERID_BT819,	/* ID */
-> -	I2C_DF_NOTIFY,
-> -	bt819_probe,
-> -	bt819_detach,
-> -	bt819_command
-> +        .name = "bt819",		/* name */
-> +	.id = I2C_DRIVERID_BT819,	/* ID */
-> +	.flags = I2C_DF_NOTIFY,
-> +	.attach_adapter = bt819_probe,
-> +	.detach_client = bt819_detach,
-> +	.command = bt819_command
+http://www.cs.princeton.edu/software/lcc/
 
-This is missing a .owner and the indentation looks strange.  It
-should be something like:
 
-static struct i2c_driver i2c_driver_bt819 = {
-	.owner			= THIS_MODULE,
-	.name			= "bt819",
-	.id			= I2C_DRIVERID_BT819,
-	.flags			= I2C_DF_NOTIFY,
-	.attach_adapter		= bt819_probe,
-	.detach_client		= bt819_detach,
-	.command		= bt819_command,
-};
+
 

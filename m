@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310283AbSCLBGd>; Mon, 11 Mar 2002 20:06:33 -0500
+	id <S310264AbSCLBJE>; Mon, 11 Mar 2002 20:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310280AbSCLBGV>; Mon, 11 Mar 2002 20:06:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32017 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310279AbSCLBGH>; Mon, 11 Mar 2002 20:06:07 -0500
-Subject: Re: [BETA] First test release of Tigon3 driver
-To: tngo@broadcom.com (Timothy Ngo)
-Date: Tue, 12 Mar 2002 01:21:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, tngo@broadcom.com, gignatin@broadcom.com,
-        gyoung@broadcom.com
-In-Reply-To: <030801c1c960$ed24f470$f665030a@lt-ir002050.broadcom.com> from "Timothy Ngo" at Mar 11, 2002 04:57:44 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S310279AbSCLBIl>; Mon, 11 Mar 2002 20:08:41 -0500
+Received: from zero.tech9.net ([209.61.188.187]:20754 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S310280AbSCLBHZ>;
+	Mon, 11 Mar 2002 20:07:25 -0500
+Subject: Re: Upgrading Headers?
+From: Robert Love <rml@tech9.net>
+To: Brian S Queen <bqueen@nas.nasa.gov>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203120100.RAA00468@marcy.nas.nasa.gov>
+In-Reply-To: <200203120100.RAA00468@marcy.nas.nasa.gov>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16kaz3-0002P6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 11 Mar 2002 20:07:05 -0500
+Message-Id: <1015895241.928.107.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> different styles to writing a device driver, not just the style advocated by
-> a couple of arrogant Linux people.
+On Mon, 2002-03-11 at 20:00, Brian S Queen wrote:
 
-Documentation/CodingStyle
+> When a person switches to, or upgrades a kernel, how do they upgrade the
+> associated header files?  The headers in /usr/include won't match the kernel.
+> I don't see anything about that in the documentation.
+> 
+> When I want to program with my new kernel I need to use the new headers, so I 
+> have to use #include <linux/fcntl.h> instead of #include <fcntl.h>.  This 
+> seems odd.
 
-Its the standard everyone holds to, be they Dave Miller or IBM Corp. If
-you wan't your driver in the main tree then its not something you need
-to care about
+You don't.  The headers in /usr/include/linux and /usr/include/asm
+(which may be a symlink to /usr/src/linux/include/linux and
+/usr/src/linux/include/asm, respectively) should point to the kernel
+headers that were present when _glibc_ was compiled.
 
-The standard held for the mainstream kernel are very high - and they need
-to be. Nobody makes you hold to it, and in fact that you have written a 
-GPL driver is great - whatever it looks like. Its allowed those people who
-do care to not only bitch about it but to actually go and try and do a
-better job - at their own expense not yours.
+Thus the kernel headers should match your current glibc, not your
+current kernel.  This is fine because the kernel will maintain backward
+compatibility with the previous interfaces.
 
-Alan
+If there is something in the new kernel you want/need, recompile your
+glibc against those new kernel headers and install accordingly.
+
+	Robert Love
+
 

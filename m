@@ -1,252 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUF0RfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264414AbUF0Rkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264206AbUF0RfI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 13:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUF0RfH
+	id S264414AbUF0Rkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 13:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUF0Rkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 13:35:07 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:17852 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264206AbUF0RdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 13:33:13 -0400
-Subject: [BK PATCH] SCSI updates to 2.6.7
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Sun, 27 Jun 2004 13:40:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43447 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264414AbUF0Rkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 13:40:36 -0400
+Date: Sun, 27 Jun 2004 10:39:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 27 Jun 2004 12:33:06 -0500
-Message-Id: <1088357587.1747.67.camel@mulgrave>
-Mime-Version: 1.0
+Subject: Re: more (insane) jiffies ranting
+In-Reply-To: <20040627015501.GA14647@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58.0406271022430.16079@ppc970.osdl.org>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
+ <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+ <20040627015501.GA14647@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the set of patches (barring uncovered bug fixes) that I'd like
-to get in before the current kernel goes -rc
-
-The patch is mainly bugfixes, clean ups and janatorial stuff.  It also
-includes the deprecation of the drivers/scsi/hosts.h file---all current
-in-tree drivers have been converted to get this from
-include/scsi/scsi_hosts.h instead.  To take advantage of our new page
-allocation routine that favours clustering, I've turned it on in the two
-drivers I can verify that it makes quite a difference.
-
-The major API update is the addition of the flexible timeout
-infrastructure which, hopefully, will help Adaptec to get their current
-out of tree updates into a mergeable condition.
-
-I'm afraid we have another qlogic firmware update skewing the diffstats
-again...
-
-The patch is available from:
-
-bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
-
-The short changelog is:
-
-Alan Cox:
-  o Further aacraid work
-
-Alan Stern:
-  o (as333) BLIST flag for non-lockable devices
-
-Andrew Morton:
-  o mptbase.c build fix
-
-Andrew Vasquez:
-  o qla2xxx: Remove qla_os.h
-  o [18/18] qla2xxx: Update driver version
-  o [17/18] qla2xxx: Bus reset handler fixes
-  o [16/18] qla2xxx: 23xx/63xx firmware updates
-  o [15/18] qla2xxx: SRB handling cleanup and fixes
-  o [14/18] qla2xxx: Use proper include files
-  o [13/18] qla2xxx: Remove TRUE/FALSE usage
-  o [12/18] qla2xxx: Extend firmware dump support
-  o [11/18] qla2xxx: Misc. fixes
-  o [10/18] qla2xxx: Additional tape handling fixes
-  o [9/18]  qla2xxx: Tape command handling fixes
-  o [8/18]  qla2xxx: Remove dead code
-  o [7/18]  qla2xxx: Tape command handling fixes
-  o [6/18]  qla2xxx: Initialization fixes
-  o [5/18]  qla2xxx: Add module parameter permissions
-  o [4/18]  qla2xxx: ISR RISC paused fixes
-  o [3/18]  qla2xxx: PCI DMA mappings rework
-  o qla2xxx: remove unnecessary command direction determination
-  o [2/18]  qla2xxx: Correct residual counts
-  o [1/18]  qla2xxx: Add wmb() to critical paths
-
-Arjan van de Ven:
-  o final hosts.h usage removal
-
-Brian King:
-  o ipr bump version to 2.0.10
-  o ipr only tcq cancel all
-  o ipr abort hang fix
-
-Christoph Hellwig:
-  o some tmscsim consolidation
-  o MPT Fusion driver 3.01.09 update
-  o avoid obsolete APIs in atp870u
-  o avoid obsolete APIs in fdomain
-  o avoid obsolete APIs in sr
-  o wd33c93 update
-  o wd7000 updates
-  o avoiding obsolete scsi APIs in dc395
-  o switch scsi core and sd to <scsi/*.h> headers
-
-Douglas Gilbert:
-  o More advansys fixes
-
-Guennadi Liakhovetski:
-  o kill obsolete typedefs and wrappers from tmscsim
-  o tmscsim: host_lock use in LLD
-  o tmscsim: init / exit cleanup
-
-James Bottomley:
-  o ncr53c8xx turn on clustering
-  o Fix up fdomain after mismerge
-  o fix aic7xxx probing
-  o advansys: add warning and convert #includes
-  o HSV100 is verified as supporting REPORT LUNs
-  o [patch-kj] kernel_thread() audit drivers/scsi/aacraid/rx.c
-  o SCSI Flexible timout intfrastructure
-  o Enable clustering in the 53c700 driver
-
-Jeremy Higdon:
-  o SCSI whitelist changes
-
-Joel Soete:
-  o Make ncr53c8xx respect clustering
-
-Mark Haverkamp:
-  o aacraid 32bit app ioctl compat patch (Updated)
-
-Matthew Wilcox:
-  o ncr53c8xx updates
-
-Maximilian Attems:
-  o kernel_thread() audit drivers/scsi/aacraid/sa.c
-  o [patch-kj] kernel_thread() audit drivers/scsi/aacraid/rkt.c
-
-Randy Dunlap:
-  o fdomain screwup
-
-The diffstats are:
-
- b/Documentation/scsi/scsi_mid_low_api.txt |   27 
- b/drivers/block/cciss_scsi.c              |    2 
- b/drivers/fc4/fc.c                        |    2 
- b/drivers/ieee1394/sbp2.c                 |    2 
- b/drivers/message/fusion/linux_compat.h   |   10 
- b/drivers/message/fusion/mptbase.c        | 1156 --
- b/drivers/message/fusion/mptbase.h        |   72 
- b/drivers/message/fusion/mptctl.c         |  171 
- b/drivers/message/fusion/mptlan.c         |   16 
- b/drivers/message/fusion/mptscsih.c       |  365 
- b/drivers/net/fc/iph5526.c                |    2 
- b/drivers/scsi/53c700.c                   |    2 
- b/drivers/scsi/Kconfig                    |    2 
- b/drivers/scsi/Makefile                   |    9 
- b/drivers/scsi/NCR_Q720.c                 |    6 
- b/drivers/scsi/aacraid/README             |   18 
- b/drivers/scsi/aacraid/TODO               |    2 
- b/drivers/scsi/aacraid/aachba.c           |  118 
- b/drivers/scsi/aacraid/aacraid.h          |   73 
- b/drivers/scsi/aacraid/commctrl.c         |  121 
- b/drivers/scsi/aacraid/comminit.c         |   11 
- b/drivers/scsi/aacraid/linit.c            |   79 
- b/drivers/scsi/aacraid/rkt.c              |   81 
- b/drivers/scsi/aacraid/rx.c               |   83 
- b/drivers/scsi/aacraid/sa.c               |   34 
- b/drivers/scsi/advansys.c                 |  126 
- b/drivers/scsi/advansys.h                 |    8 
- b/drivers/scsi/aha152x.c                  |    2 
- b/drivers/scsi/aic7xxx/aic7xxx_osm.c      |   13 
- b/drivers/scsi/aic7xxx/aic7xxx_osm.h      |    2 
- b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c  |    3 
- b/drivers/scsi/arm/acornscsi.c            |    2 
- b/drivers/scsi/arm/arxescsi.c             |    2 
- b/drivers/scsi/arm/cumana_1.c             |    2 
- b/drivers/scsi/arm/cumana_2.c             |    2 
- b/drivers/scsi/arm/ecoscsi.c              |    2 
- b/drivers/scsi/arm/eesox.c                |    2 
- b/drivers/scsi/arm/fas216.c               |    2 
- b/drivers/scsi/arm/oak.c                  |    2 
- b/drivers/scsi/arm/powertec.c             |    2 
- b/drivers/scsi/atp870u.c                  |   80 
- b/drivers/scsi/atp870u.h                  |   23 
- b/drivers/scsi/constants.c                |    9 
- b/drivers/scsi/dc395x.c                   |   55 
- b/drivers/scsi/fdomain.c                  |   45 
- b/drivers/scsi/fdomain.h                  |   24 
- b/drivers/scsi/gdth.c                     |    2 
- b/drivers/scsi/hosts.c                    |    4 
- b/drivers/scsi/hosts.h                    |    2 
- b/drivers/scsi/ipr.c                      |   20 
- b/drivers/scsi/ipr.h                      |    6 
- b/drivers/scsi/ncr53c8xx.c                | 1442 +-
- b/drivers/scsi/ncr53c8xx.h                |   53 
- b/drivers/scsi/pcmcia/fdomain_stub.c      |   12 
- b/drivers/scsi/pcmcia/nsp_cs.c            |    2 
- b/drivers/scsi/qla2xxx/Makefile           |    2 
- b/drivers/scsi/qla2xxx/ql2100.c           |    1 
- b/drivers/scsi/qla2xxx/ql2200.c           |    1 
- b/drivers/scsi/qla2xxx/ql2300.c           |    1 
- b/drivers/scsi/qla2xxx/ql2300_fw.c        |14098 ++++++++++++++--------------
- b/drivers/scsi/qla2xxx/ql2322.c           |    1 
- b/drivers/scsi/qla2xxx/ql2322_fw.c        |14646 +++++++++++++++---------------
- b/drivers/scsi/qla2xxx/ql6312.c           |    1 
- b/drivers/scsi/qla2xxx/ql6312_fw.c        |12858 +++++++++++++-------------
- b/drivers/scsi/qla2xxx/ql6322.c           |    1 
- b/drivers/scsi/qla2xxx/ql6322_fw.c        |13500 +++++++++++++--------------
- b/drivers/scsi/qla2xxx/qla_dbg.c          |   22 
- b/drivers/scsi/qla2xxx/qla_dbg.h          |    6 
- b/drivers/scsi/qla2xxx/qla_def.h          |   42 
- b/drivers/scsi/qla2xxx/qla_gbl.h          |    7 
- b/drivers/scsi/qla2xxx/qla_gs.c           |    2 
- b/drivers/scsi/qla2xxx/qla_init.c         |  136 
- b/drivers/scsi/qla2xxx/qla_inline.h       |    4 
- b/drivers/scsi/qla2xxx/qla_iocb.c         |  109 
- b/drivers/scsi/qla2xxx/qla_isr.c          |   65 
- b/drivers/scsi/qla2xxx/qla_mbx.c          |   76 
- b/drivers/scsi/qla2xxx/qla_os.c           |  349 
- b/drivers/scsi/qla2xxx/qla_rscn.c         |    6 
- b/drivers/scsi/qla2xxx/qla_sup.c          |    4 
- b/drivers/scsi/qla2xxx/qla_version.h      |    4 
- b/drivers/scsi/scsi.c                     |   24 
- b/drivers/scsi/scsi_devinfo.c             |   16 
- b/drivers/scsi/scsi_error.c               |   28 
- b/drivers/scsi/scsi_ioctl.c               |   14 
- b/drivers/scsi/scsi_lib.c                 |   12 
- b/drivers/scsi/scsi_priv.h                |    1 
- b/drivers/scsi/scsi_proc.c                |    3 
- b/drivers/scsi/scsi_scan.c                |    7 
- b/drivers/scsi/scsi_syms.c                |   19 
- b/drivers/scsi/scsi_sysfs.c               |    3 
- b/drivers/scsi/scsicam.c                  |    5 
- b/drivers/scsi/scsiiom.c                  |  399 
- b/drivers/scsi/sd.c                       |   20 
- b/drivers/scsi/sr.c                       |   23 
- b/drivers/scsi/sr.h                       |    6 
- b/drivers/scsi/sr_ioctl.c                 |   36 
- b/drivers/scsi/sr_vendor.c                |   20 
- b/drivers/scsi/sym53c8xx_comm.h           |  703 -
- b/drivers/scsi/sym53c8xx_defs.h           |  710 -
- b/drivers/scsi/tmscsim.c                  |  803 -
- b/drivers/scsi/tmscsim.h                  |  276 
- b/drivers/scsi/wd33c93.c                  |   98 
- b/drivers/scsi/wd33c93.h                  |   21 
- b/drivers/scsi/wd7000.c                   |  179 
- b/drivers/scsi/zalon.c                    |   42 
- b/drivers/usb/image/hpusbscsi.c           |    2 
- b/drivers/usb/image/microtek.c            |    2 
- b/include/scsi/scsi_devinfo.h             |    1 
- b/include/scsi/scsi_host.h                |   20 
- drivers/scsi/qla2xxx/qla_os.h             |   94 
- 110 files changed, 30983 insertions(+), 32961 deletions(-)
-
-James
 
 
+On Sat, 26 Jun 2004, Chris Wedgwood wrote:
+> 
+> On Sat, Jun 26, 2004 at 03:48:34PM -0700, Linus Torvalds wrote:
+> 
+> > But for most data structures, the way to control access is either
+> > with proper locking (at which point they aren't volatile any more)
+> > or through proper accessor functions (ie "jiffies_64" should
+> > generally only be accessed with something that understands about
+> > low/high word and update ordering and re-testing).
+> 
+> I don't entirely buy this.  Right now x86 code just assumes 32-bit
+> loads are atomic and does them blindly in lots of places (ie. every
+> user of jiffies just about).
+> 
+> Without the volatile it seems entirely reasonable gcc will produce
+> correct, but wrong code here so I would argue 'volatile' is a property
+> of the data in this case.
+
+It's a property of the data _iff_:
+ - it is _always_ volatile
+ - it is only ever used atomically: this also means that it must be 
+   totally independent of _all_ other data structures and have no linkages 
+   to anything else.
+
+Snd basically, the above is pretty much never true except possibly for 
+real I/O accesses and sometimes things like simple "flags" (ie it's fine 
+to use "volatile sigatomic_t flag;" in user programs to have signal 
+handlers say "something happened" in a single-threaded environment).
+
+NOTE! The "single-threaded environment" part really is important, and is 
+one of the historical reasons for volatile having been more useful than it 
+is today. If you are single-threaded and don't have issues like CPU memory 
+ordering etc, then you can let the compiler do more of the work, and there 
+are a lot of lockless algorithms that you can use that only depend on 
+fairly simple semantics for "volatile".
+
+But the fact is, for the kernel none of the above is ever really true. 
+A 32-bit-atomic "jiffies" comes the closest, but even there the "always" 
+property wasn't true - it wasn't true in the update phase, and we 
+literally used to have something like this:
+
+	*((unsigned long *)&jiffies)++;
+
+to update jiffies and still get good code generation (now that we have a
+64-bit jiffies and need to do more complex stuff anyway, we don't have
+that any more, but you should be able to find it in 2.3.x kernels if I
+remember correctly).
+
+And _anything_ that has any data dependencies, "volatile" is totally
+useless. Even the (acceptable in single-threaded user-space) "flag" thing 
+is not valid usage in the kernel, since for a flag in a multi-threaded 
+environment you still need an explicit CPU memory barrier in the code, 
+making it impossible for the compiler to do the right thing anyway.
+
+> > I repeat: it is the _code_ that knows about volatile rules, not the
+> > data structure.
+> 
+> Except as I mentioned we have exceptions to this right now.
+
+No we don't. The _only_ accepted exception is the special case of "the low
+bits of jiffies", and that's accepted partly because of historical
+reasons, and partly because it's fundamentally a data structure we don't
+really care that much about. There should be no other ones.
+
+And that special case _literally_ is only for people who don't care that 
+much. Anybody who cares about "real time" needs to get xtime_lock and do 
+the proper magic to get a real date.
+
+So I don't see your argument. I'm obviously saying that "yes, we have 
+_one_ case where we make a data structure volatile", but at the same time, 
+that case is very much a "we don't really care too much about precision 
+there, and even so people think we should have real accessor functions".
+
+So I stand by the rule: we should make _code_ have the access rules, and
+the data itself should never be volatile. And yes, jiffies breaks that
+rule, but hey, that's not something I'm proud of.
+
+		Linus

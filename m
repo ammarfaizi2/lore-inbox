@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUBMAJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUBMAJC
+	id S266598AbUBMAJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 19:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUBMAJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:09:02 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:28919 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S266591AbUBMAI7 (ORCPT
+	Thu, 12 Feb 2004 19:09:44 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:18612 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S266598AbUBMAJk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:08:59 -0500
-Date: Fri, 13 Feb 2004 01:08:57 +0100
+	Thu, 12 Feb 2004 19:09:40 -0500
+Date: Fri, 13 Feb 2004 01:09:38 +0100
 From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: update used the obsolete bdflush
-Message-ID: <20040213000857.GA3966@werewolf.able.es>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange problem with emu10k1 and gcc-3.4
+Message-ID: <20040213000938.GC3966@werewolf.able.es>
+References: <20040212231802.GG4092@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040212231802.GG4092@werewolf.able.es> (from jamagallon@able.es on Fri, Feb 13, 2004 at 00:18:02 +0100)
 X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
 
-I get this in syslog:
+On 02.13, J.A. Magallon wrote:
+> Hi al...
+> 
+> I have tried to build 2.6.3-rc2-mm1 with gcc-3.4, and it works apart from this:
+> 
+> werewolf:/boot# modprobe emu10k1
+> FATAL: Error inserting emu10k1 (/lib/modules/2.6.3-rc1-jam1-gcc34/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown symbol in module, or unknown parameter (see dmesg)
+> 
+> dmesg:
+> ...
+> emu10k1: Unknown symbol strcpy
+> 
+> I think this solves the problem:
+> 
 
-  warning: process `update' used the obsolete bdflush system call
-  Fix your initscripts?
-
-What is this ?
-
-TIA
+Nope, that was not enough. Any ideas ?
 
 -- 
 J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:

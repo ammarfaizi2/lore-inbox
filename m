@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264824AbTE1SgM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 14:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbTE1SgM
+	id S264825AbTE1SjU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 14:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbTE1SjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 14:36:12 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:1550 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id S264824AbTE1SgL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 14:36:11 -0400
-Date: Wed, 28 May 2003 11:47:37 -0700
-To: Jens Axboe <axboe@suse.de>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
-       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
-       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528184737.GA2726@eskimo.com>
-References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de>
+	Wed, 28 May 2003 14:39:20 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:63105 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264825AbTE1SjT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 14:39:19 -0400
+Message-Id: <200305281852.h4SIqWHJ015026@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: berrymount.save/customers/marvel/compulead
+Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs ! 
+In-Reply-To: Message from Rob van Nieuwkerk <robn@verdi.et.tudelft.nl> 
+   of "Wed, 28 May 2003 19:58:42 +0200." <20030528175842.GA13657@verdi.et.tudelft.nl> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528125312.GV845@suse.de>
-User-Agent: Mutt/1.5.4i
-From: Elladan <elladan@eskimo.com>
+Content-Type: text/plain
+Date: Wed, 28 May 2003 20:52:32 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 02:53:12PM +0200, Jens Axboe wrote:
-> On Wed, May 28 2003, Marc-Christian Petersen wrote:
-> > On Wednesday 28 May 2003 13:27, Andrew Morton wrote:
-> > 
-> > Hi Akpm,
-> > 
-> > > > Does the attached one make sense?
-> > > Nope.
-> > nm.
-> > 
-> > > Guys, you're the ones who can reproduce this.  Please spend more time
-> > > working out which chunk (or combination thereof) actually fixes the
-> > > problem.  If indeed any of them do.
-> > As I said, I will test it this evening. ATM I don't have time to
-> > recompile and reboot. This evening I will test extensively, even on
-> > SMP, SCSI, IDE and so on.
-> 
-> May I ask how you are reproducing the bad results? I'm trying in vain
-> here...
 
-It might be useful to check what video hardware and X servers people are
-using here.  If the behavior is just mouse freezups, the "silken mouse"
-feature of XFree might have some effect, since it involves XFree binding
-a signal to mouse device events.
+I wrote:
+> It turns out that Linux is updating inode timestamps of fifos (named
+> pipes) that are written to while residing on a read-only filesystem.
+> It is not only updating in-ram info, but it will issue *physical*
+> writes to the read-only fs on the disk !
+	.
+	.
+	.
+> Sysinfo:
+> --------
+> - various 2.4 kernels including RH-2.4.20-13.9,
+>   but also straight 2.4(ac) ones.
+> - CompactFlash (= IDE disk)
+> - Geode GX1 CPU (i586 compatible)
 
--J
+Forgot to mention: I use an ext2 fs, but maybe it's a generic,
+fs-independant problem.
+
+	greetings,
+	Rob van Nieuwkerk

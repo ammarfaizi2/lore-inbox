@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268281AbTALL62>; Sun, 12 Jan 2003 06:58:28 -0500
+	id <S264715AbTALMKO>; Sun, 12 Jan 2003 07:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268282AbTALL62>; Sun, 12 Jan 2003 06:58:28 -0500
-Received: from [210.82.244.135] ([210.82.244.135]:43533 "HELO msn.com")
-	by vger.kernel.org with SMTP id <S268281AbTALL60>;
-	Sun, 12 Jan 2003 06:58:26 -0500
-Message-ID: <000210a7ab75$eae67431$34588482@ouvhsfd.iyf>
-From: <maxav@msn.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Lose 32 pounds by February
-Date: Sun, 12 Jan 2003 16:49:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 1
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Importance: Normal
+	id <S265077AbTALMKO>; Sun, 12 Jan 2003 07:10:14 -0500
+Received: from adedition.com ([216.209.85.42]:36877 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S264715AbTALMKN>;
+	Sun, 12 Jan 2003 07:10:13 -0500
+Date: Sun, 12 Jan 2003 07:27:26 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Richard Stallman <rms@gnu.org>
+Cc: R.E.Wolff@BitWizard.nl, jalvo@mbay.net, linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030112122726.GA30618@mark.mielke.cc>
+References: <E18WB8R-0004k9-00@fencepost.gnu.org> <010101c2b786$794d87a0$0200a8c0@wsl3> <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com> <E18WvqM-0000U7-00@fencepost.gnu.org> <20030110194145.A16712@bitwizard.nl> <E18Xghu-0004I0-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18Xghu-0004I0-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 12, 2003 at 06:55:14AM -0500, Richard Stallman wrote:
+>     There is a reason why I am not named Mark Mielke-Newman, and our newborn
+>     son is not named Ethan Mielke-Herighty-Newman-Marr.
+> It isn't a good analogy.  Your son wasn't developed by starting with
+> you and adding some pieces.
 
-If you're like me, you've tried EVERYTHING to lose
-weight.  I know how you feel - the special diets,
-miracle pills, and fancy exercise equipment never helped
-me lose a pound either.  It seemed like the harder I tried,
-the bigger I got, until I heard about a product called
-Power Diet Plus.
+I assume you believe in the stork, too...
 
-You're probably thinking to yourself, "Oh geez, not another
-miracle diet pill!"  Like you, I was skeptical at first, but 
-my sister swore it helped her lose 23 pounds in just two weeks, 
-so I told her I'd give it a shot.  I mean, there was nothing 
-to lose except a lot of weight!  Let me tell you, it was
-the best decision I've ever made. Period.  Six months later,
-as I'm writing this message to you, I've gone from 355 pounds
-to 210 pounds, and I haven't changed my exercise routine or diet
-at all.  Yes, I still eat pizza, and lots of it!
+mark
 
-I was so happy with the results that I contacted the manufacturer
-and got permission to resell it - at a BIG discount.  I want
-to help other people lose weight like I did, because it
-does so much for your self-esteem, not to mention your health.
-I give you my personal pledge that Power Diet Plus
-absolutely WILL WORK FOR YOU.  If it doesn't, you can return it
-any time for a full refund.    
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-If you are frustrated with trying other products, not having 
-any success, and just not getting the results you were promised,
-then I recommend the only product that worked for me - POWER DIET
-PLUS.
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-You're probably asking yourself, "Ok, so how does this stuff
-actually work?"
+                           http://mark.mielke.cc/
 
-Power Diet Plus contains Lipotropic fat burners which are 
-scientifically proven to increase metabolism and cause rapid 
-weight loss. No "hocus pocus" in these pills - just RESULTS, RESULTS, 
-RESULTS!! 
-
-Here is the bottom line ...
-
-I can help you lose 10-15 pounds per week naturally, without
-exercising and without having to eat rice cakes all day.  
-Just try it for one month - there's nothing to lose, and everything 
-to gain.  You will lose weight fast - GUARANTEED.  That is my
-pledge to you.  
-
-To order Power Diet Plus on our secure server, just click
-on the link below:
-
-http://www.discountshaven.com/powerorder.htm
-
-To see what some of our customers have said about this product, 
-visit http://www.discountshaven.com/testimonials.htm
-
-To see a list of ingredients and for more information
-on test studies and how it will help you lose weight, visit 
-http://www.discountshaven.com/howitworks.htm
-
-9990KZyK0-724WCWl15

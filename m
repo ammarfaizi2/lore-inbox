@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271557AbSISQe1>; Thu, 19 Sep 2002 12:34:27 -0400
+	id <S271562AbSISQhz>; Thu, 19 Sep 2002 12:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271562AbSISQe1>; Thu, 19 Sep 2002 12:34:27 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:3847 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S271557AbSISQe0>; Thu, 19 Sep 2002 12:34:26 -0400
-Date: Thu, 19 Sep 2002 18:39:16 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
-Subject: alan@redhat.com: Linux 2.4.20-pre7-ac2 - How's the IDE thing coming?
-Message-ID: <20020919163916.GA15635@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+	id <S271575AbSISQhz>; Thu, 19 Sep 2002 12:37:55 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5640 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271562AbSISQhy>; Thu, 19 Sep 2002 12:37:54 -0400
+Date: Thu, 19 Sep 2002 09:43:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
+In-Reply-To: <20020919163542.GA14951@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Forwarded message from Alan Cox <alan@redhat.com> -----
 
-From: Alan Cox <alan@redhat.com>
-Subject: Linux 2.4.20-pre7-ac2
-To: linux-kernel@vger.kernel.org
-Date: Wed, 18 Sep 2002 17:33:43 -0400 (EDT)
+On Thu, 19 Sep 2002, Andries Brouwer wrote:
+> > 
+> > Which means that if the tty is going away, it has to be removed from _all_ 
+> > tasks, not just from the one session that happened to be the most recent 
+> > one.
+> 
+> [POSIX 1003.1-2001]
 
-**
-**	Ok thats the worst of the queue cleared. I still need to sort
-**	out the JFS module cond_resched stuff. This kernel also reports
-**	itself as -ac1. I know, but I only just noticed..
-**
+Gaah. Good that somebody else has the energy to actually read the 
+standards instead of just trying to desperately remember some dusty 
+details..
 
------ End forwarded message -----
+> The controlling terminal is inherited by a child process during a fork()
+> function call. A process relinquishes its controlling terminal when it creates
+> a new session with the setsid() function; other processes remaining in the
+> old session that had this terminal as their controlling terminal continue
+> to have it.
 
-In terms of IDE reliability - how would you rate it? Is it 'safe' again,
-or is the IDE thing still shaping up?
+Well, that certainly clinches the fact that the controlling terminal _can_ 
+and does continue to be hold by processes outside the current session 
+group.
 
-Thanks,
-Jurriaan
--- 
-"I resent it as well," said Scharde. "I am working to keep my rage under
-control."
-        Jack Vance - Ecce and Old Earth
-GNU/Linux 2.4.19-ac4 SMP/ReiserFS 2x1402 bogomips load av: 0.00 0.00 0.00
+I suspect that to handle controlling terminals efficiently (ie without
+iterating over all tasks), the "current->tty" thing needs to be expanded
+with a linked list of processes sharing the tty or something (probably
+with the head of the list being in the tty structure itself).
+
+On the other hand, I don't think it necessarily is a problem to walk all 
+threads either - the controlling terminal changes should be rare, and this 
+is O(n) rather than some quadratic or other behaviour.
+
+Anyway, that seems to make Ingo's patch wrong for this case at least. 
+Ingo?
+
+		Linus
+

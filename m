@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269632AbUJAAWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269633AbUJAAXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269632AbUJAAWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269633AbUJAAWP
+	id S269633AbUJAAXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269636AbUJAAXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:22:15 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:51599 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S269632AbUJAAWM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:22:12 -0400
-Date: Fri, 01 Oct 2004 00:22:11 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc2-mm4
-To: linux-kernel@vger.kernel.org
-References: <20040926181021.2e1b3fe4.akpm@osdl.org>
-	<1096586774l.5206l.1l@werewolf.able.es>
-	<20040930170505.6536197c.akpm@osdl.org>
-	<1096589834l.11697l.0l@werewolf.able.es>
-In-Reply-To: <1096589834l.11697l.0l@werewolf.able.es> (from
-	jamagallon@able.es on Fri Oct  1 02:17:14 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1096590131l.11697l.1l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+	Thu, 30 Sep 2004 20:23:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10943 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269633AbUJAAXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 20:23:03 -0400
+Date: Thu, 30 Sep 2004 17:22:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] mlockall(MCL_FUTURE) unlocks currently locked mappings
+Message-ID: <20040930172259.Y1924@build.pdx.osdl.net>
+References: <20040929114244.Q1924@build.pdx.osdl.net> <20040930164744.30db3fdc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040930164744.30db3fdc.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 30, 2004 at 04:47:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2004.10.01, J.A. Magallon wrote:
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> >
+> > Calling mlockall(MCL_FUTURE) will erroneously unlock any currently locked
+> > mappings.  Fix this up, and while we're at it, remove the essentially
+> > unused error variable.
 > 
-> On 2004.10.01, Andrew Morton wrote:
-> > "J.A. Magallon" <jamagallon@able.es> wrote:
-> > >
-> > > 
-> > > On 2004.09.27, Andrew Morton wrote:
-> > > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm4/
-> > > > 
-> > > > - ppc64 builds are busted due to breakage in bk-pci.patch
-> > > > 
-> > > > - sparc64 builds are busted too.  Also due to pci problems.
-> > > > 
-> > > > - Various updates to various things.  In particular, a kswapd artifact which
-> > > >   could cause too much swapout was fixed.
-> > > > 
-> > > > - I shall be offline for most of this week.
-> > > > 
-> > > 
-> > > I have a 'little' problem. PS2 mouse is jerky as hell, an when you mismatch
-> > > the protocol in X. Both in console and X.
-> > 
-> > The above sentence is a bit hard to decrypt.  Want to try again?
-> > 
+> eek.
 > 
-> Sorry, it is late and I try to type faster than I think...
+> I've always assumed that mlockall(MCL_FUTURE) pins all your current pages
+> as well as future ones.  But no, that's what MCL_CURRENT|MCL_FUTURE does.
 > 
-> Problem: my PS2 trackball is not working. When I move it, the cursor (both
-> in console and in X) jumps, instead of smoothly following the ball. The
-> behavior is similar as when (in old days) you tried to use a mouse in X and
-> put the wrong 'Protocol' in XF86Config. Or as if the driver was only
-> getting one interrupt out of each hundred. Now with /dev/input/mice you don't.
-> have to explicitly say the protocol.
+> So when we fix this bug, we'll break my buggy test apps.
 > 
+> I wonder what other apps we'll break?
 
-I have found this on dmesg. Is it correct ?
+I don't think it will break apps.  The only difference is that it won't
+unlock already locked mappings.
 
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard on isa0060/serio0
-input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-
-If not, how can I change the protocol ? A kernel bootparam ?
-In old X, i used 'Option "Protocol" "MouseManPlusPS/2"'.
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc2-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

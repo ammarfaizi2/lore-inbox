@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314502AbSEHQHw>; Wed, 8 May 2002 12:07:52 -0400
+	id <S314503AbSEHQV0>; Wed, 8 May 2002 12:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314503AbSEHQHv>; Wed, 8 May 2002 12:07:51 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16325 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S314502AbSEHQHv>; Wed, 8 May 2002 12:07:51 -0400
-Date: Wed, 8 May 2002 10:07:44 -0600
-Message-Id: <200205081607.g48G7in11351@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Patrick Mochel <mochel@osdl.org>,
-        Thunder from the hill <thunder@ngforever.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <20020508091442.A16868@flint.arm.linux.org.uk>
+	id <S314513AbSEHQV0>; Wed, 8 May 2002 12:21:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38645 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S314503AbSEHQVZ>; Wed, 8 May 2002 12:21:25 -0400
+Subject: Re: x86 question: Can a process have > 3GB memory?
+From: Robert Love <rml@tech9.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Clifford White <ctwhite@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020508102934.Z31998@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 08 May 2002 09:21:38 -0700
+Message-Id: <1020874898.2147.102.camel@bigsur>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> On Tue, May 07, 2002 at 04:03:50PM -0600, Richard Gooch wrote:
-> > But it's not actually broken, now that the locking is fixed.
+On Wed, 2002-05-08 at 01:29, Andrea Arcangeli wrote:
+
+> On Tue, May 07, 2002 at 04:08:55PM -0700, Robert Love wrote:
+>
+> > The attached patch (for which credit goes elsewhere - Ingo or Randy, I
+> > think?) implements the full range of 1 to 3.5GB user space partitioning,
 > 
-> Really?  What about the case of the missing BKL for device opens that
-> you haven't really commented on?
+> actually I'm the one who wrote the 3.5G config option both in 2.2 and
+> recently I forward ported it to 2.4 due the number of requests I was
+> getting.
 
-I did comment to you, privately, saying I was waiting to see what the
-consensus was on the issue of whether to move the BKL or not. I'll be
-sending a patch later this week to fix it.
+Apologies - credit where credit is due.  It clearly came from -aa, what
+with the 00_ naming prefix :)
 
-> Seems like devfs _still_ has locking problems.
+Nice patch.
 
-A pretty minor one, given the comment I was responding to: "devfs is
-unfixable". I've noticed that even Al has gone quiet on the "devfs
-races" issue, now that the new code is in place :-)
+	Robert Love
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

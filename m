@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSLFM1b>; Fri, 6 Dec 2002 07:27:31 -0500
+	id <S262416AbSLFMb1>; Fri, 6 Dec 2002 07:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSLFM1b>; Fri, 6 Dec 2002 07:27:31 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:32267 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S262414AbSLFM1a>; Fri, 6 Dec 2002 07:27:30 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/3: FBDEV: VGA State Save/Restore
-	module
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0212060051080.31967-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0212060051080.31967-100000@phoenix.infradead.org>
-Content-Type: text/plain
+	id <S262420AbSLFMb1>; Fri, 6 Dec 2002 07:31:27 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:20494 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S262416AbSLFMb0>;
+	Fri, 6 Dec 2002 07:31:26 -0500
+Date: Fri, 6 Dec 2002 15:39:33 +0300
+From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+X-Mailer: The Bat! (v1.61)
+Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+Organization: CITL MIEE
+X-Priority: 3 (Normal)
+Message-ID: <1421466772557.20021206153933@wr.miee.ru>
+To: linux-kernel@vger.kernel.org
+CC: Adam Belay <ambx1@neo.rr.com>
+Subject: [2.5.50] oops while read accessing to /proc/bus/pnp/escd
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 20:27:16 +0500
-Message-Id: <1039188475.1405.0.camel@localhost.localdomain>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 05:53, James Simmons wrote:
-> > 
-> > Only the structure definition of fb_vgastate is in fb.h.  For drivers
-> > without a vga core, they'll just won't link to it and it won't be
-> > compiled.  Plus, vga.h is not a common header (not located in
-> > include/asm or include/linux) and it contains a lot of declarations and
-> > definitions which are irrelevant to most drivers or are already
-> > duplicated.  This will be messier, I think.  
-> 
-> I like to move vga.h to include/video. And yes I like to clean it up. The 
-> reason is I like to implement the function in vga.h and some in vgastate 
-> into vgacon.c. It would be nice if vgacon could support different hardware 
-> states per VC instead of changing every virtual console for everything. 
-> The other dream is I like to see vgacon become firmware independent. 
-> 
-OK.
-
-Tony
+cat /proc/bus/pnp/escd couses an oops.
+oops caused while executing this func.
+static int __pnp_bios_read_escd(char *data, u32 nvram_base)
+{
+        u16 status;
+        if (!pnp_bios_present())
+                return ESCD_FUNCTION_NOT_SUPPORTED;
+        status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0,
+                               data, 65536, (void *)nvram_base, 65536);
+        return status;
+}
+but i don't have access to my computer and can't send full oops.
+I've tried to solve this problem myself, but couldn't.
+I think that the problem is in nvram_base because we don't alocate
+memory page for it. We get address from pnp_bios_escd_info, but in PnP
+BIOS spec wrote that
+  "In this case, it is the responsibility of the caller to construct a
+16-bit data segment descriptor with base = NVStorageBase, a limit
+of 64K and read/write access."
+I didn't find something like memory aloc between getting escd info and
+calling this func.
+Best regards.
+             Ruslan.
+PS And please CC patch to me if it'll be fixed before I do it myself.
+PS And last, any comments and explanations will be desirable.
 

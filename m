@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264875AbUAOPy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 10:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAOPyz
+	id S264325AbUAOPuF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 10:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbUAOPuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 10:54:55 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:19358
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S264875AbUAOPyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 10:54:53 -0500
-Message-ID: <4006B78E.2000607@tmr.com>
-Date: Thu, 15 Jan 2004 10:53:50 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Thu, 15 Jan 2004 10:50:05 -0500
+Received: from [213.226.134.105] ([213.226.134.105]:27606 "EHLO mx.ktv.lt")
+	by vger.kernel.org with ESMTP id S264325AbUAOPuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 10:50:01 -0500
+Date: Thu, 15 Jan 2004 17:42:34 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+To: linux-kernel@vger.kernel.org
+Cc: Cheng Huang <cheng@cs.wustl.edu>
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Valdis.Kletnieks@vt.edu, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What SCSI in the IBM?
-References: <20040109150512.GF24295@rdlg.net> <200401091515.i09FFSDM030918@turing-police.cc.vt.edu> <20040109152016.GH24295@rdlg.net>
-In-Reply-To: <20040109152016.GH24295@rdlg.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: INLINE
+References: <Pine.GSO.4.58.0401150308350.1943@siesta.cs.wustl.edu>
+ <20040115114922.GI1254@edu.joroinen.fi>
+In-Reply-To: <20040115114922.GI1254@edu.joroinen.fi>
+X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
+Message-Id: <20040115154755.C9B835D99@mx.ktv.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
-> Thus spake Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu):
+On Thu, 15 Jan 2004 13:49:22 +0200 Pasi Kärkkäinen <pasik@iki.fi> wrote:
+
+> On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
+> > I have to use kernel 2.4.18 because I need to install KURT (realtime
+> > linux) with it. However, my system hangs on boot with the following
+> > message:
 > 
+> I think there has been a lot of bug fixes in the latest 2.4 kernels for
+> promise cards.
 > 
->>On Fri, 09 Jan 2004 10:05:12 EST, "Robert L. Harris" <Robert.L.Harris@rdlg.net>  said:
->>
->>
->>>The network cards in this IBM came up great once I found the right port.
->>>Now though I'm trying to find what SCSI driver to use. 
->>
->>What IBM?  Laptop? PC? Netfinity? RS6K? e/i/p/z-series?
+> I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
 > 
-> 
-> Ok, I found the "isa-pnp" module which fixed the unresolved module but
-> now the sym driver also just give no device errors.  This is a 2U Xeon
-> "eServer" model number x345.
+> Merge the promise driver from later 2.4.x kernels to 2.4.18 and recompile? 
 
-Unfortunately all mine have ServRAID cards to do the SCSI ops, so I have 
-no idea. However:
+When I used 2.4.18 I had Andre's ide.2.4.18-rc1.02152002.patch.bz2
+applied.
 
+Regards,
+Nerijus
 
-
-$ lspci
-00:00.0 Host bridge: ServerWorks: Unknown device 0012 (rev 13)
-00:00.1 Host bridge: ServerWorks: Unknown device 0012
-00:00.2 Host bridge: ServerWorks: Unknown device 0000
-00:05.0 Bridge: IBM: Unknown device 010f
-00:06.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 Host bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB Controller (rev 05)
-00:0f.3 ISA bridge: ServerWorks: Unknown device 0225
-00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 03)
-02:03.0 RAID bus controller: IBM Netfinity ServeRAID controller
-06:08.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-06:08.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet 
-Controller (rev 01)
-08:02.0 RAID bus controller: IBM Netfinity ServeRAID controller
-
-is what I show. I guess that doesn't help.
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbUCOAwP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 19:52:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUCOAwP
+	id S262089AbUCOBYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 20:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUCOBYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 19:52:15 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:10439 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262154AbUCOAwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 19:52:12 -0500
-Date: Sun, 14 Mar 2004 19:52:12 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] proper alignment of init task in kernel image
-In-Reply-To: <20040315000340.GZ20174@waste.org>
-Message-ID: <Pine.LNX.4.58.0403141951340.28447@montezuma.fsmlabs.com>
-References: <20040315000340.GZ20174@waste.org>
+	Sun, 14 Mar 2004 20:24:32 -0500
+Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:15734 "EHLO
+	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262089AbUCOBYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 20:24:30 -0500
+Message-ID: <405505CC.3090407@blueyonder.co.uk>
+Date: Mon, 15 Mar 2004 01:24:28 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2004 01:24:29.0225 (UTC) FILETIME=[4301D990:01C40A2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Mar 2004, Matt Mackall wrote:
+Valdis . Kletnieks wrote:
+ > On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones 
+<adam@xxxxxxxxxxxxxxxxxxxx> said:
+ >>/ In a futile gesture against entropy, Sid Boyce wrote:/
+ >>/ > Max Valdez wrote:/
+ >>/ /
+ >>/ > >Been using nvidia modules for quite a few 2.6.x kernels, most of 
+them mmX./
 
-> This keeps the alignment of the init task matched with the stack size.
-> Saves 4k for 4k stacks, keeps system from exploding with 16k. Please apply.
+ >>/ > >without problems/
+ >/> /
+ >>/ I'm using it here with 2.6.4, no problems as yet./
+ >>/ /
+ >>/ > Something strange happened, I shall try 2.6.4-mm1 shortly to see 
+if it /
+ >>/ > is still the same. I reckon though that I've suffered a filesystem /
+ >>/ > corruption./
+ >>/ /
+ >>/ A quick thought - have you got CONFIG_REGPARM enabled in the kernel/
+ >>/ config? If so, disable it and try again. (It's almost certain to/
+ >>/ cause crashes with binary modules.)/
 
-Don't forget the following minor patch;
+ > Also, the NVidia driver uses a bit of kernel stack, so it's incompatible
+ > with the CONFIG_4KSTACKS option in recent -mm kernels...
 
-Index: linux-2.6.4-mm1/arch/i386/kernel/init_task.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.4-mm1/arch/i386/kernel/init_task.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 init_task.c
---- linux-2.6.4-mm1/arch/i386/kernel/init_task.c	11 Mar 2004 15:26:38 -0000	1.1.1.1
-+++ linux-2.6.4-mm1/arch/i386/kernel/init_task.c	15 Mar 2004 00:51:14 -0000
-@@ -20,7 +20,7 @@ EXPORT_SYMBOL(init_mm);
- /*
-  * Initial thread structure.
-  *
-- * We need to make sure that this is 8192-byte aligned due to the
-+ * We need to make sure that this is THREAD_SIZE aligned due to the
-  * way process stacks are handled. This is done by having a special
-  * "init_task" linker map entry..
-  */
+I have that enabled, so I shall turn it off. /var/log/XFree86.0.log 
+shows it's getting so far then the lockup happens.
+(==) ModulePath set to "/usr/X11R6/lib/modules"
+(**) Option "AllowMouseOpenFail"
+(**) Option "Xinerama" "off"
+(**) Option "RandR" "on"
+(++) using VT number 7
+
+(WW) Open APM failed (/dev/apm_bios) (No such device)
+(II) Module ABI versions:
+        XFree86 ANSI C Emulation: 0.2
+        XFree86 Video Driver: 0.6
+        XFree86 XInput driver : 0.4
+        XFree86 Server Extension : 0.2
+        XFree86 Font Renderer : 0.4
+(II) Loader running on linux
+(II) LoadModule: "bitmap"
+Regards
+Sid.
+
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
+

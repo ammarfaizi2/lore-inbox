@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262642AbRE2Ern>; Tue, 29 May 2001 00:47:43 -0400
+	id <S263206AbRE2Evd>; Tue, 29 May 2001 00:51:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262710AbRE2Erd>; Tue, 29 May 2001 00:47:33 -0400
-Received: from [203.237.32.200] ([203.237.32.200]:31651 "EHLO
-	eunhasu.kjist.ac.kr") by vger.kernel.org with ESMTP
-	id <S262642AbRE2ErT>; Tue, 29 May 2001 00:47:19 -0400
-Message-ID: <3B1329A4.E72D9D62@kjist.ac.kr>
-Date: Tue, 29 May 2001 13:46:28 +0900
-From: "G. Hugh Song" <ghsong@kjist.ac.kr>
-Organization: KJIST, Dept of Info. & Commun.
-X-Mailer: Mozilla 4.75 [ko] (X11; U; Linux 2.4.4-ac11 i686)
-X-Accept-Language: en, ko
+	id <S263205AbRE2EvX>; Tue, 29 May 2001 00:51:23 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:55569 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S263203AbRE2EvP>; Tue, 29 May 2001 00:51:15 -0400
+Date: Tue, 29 May 2001 00:50:59 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland.hansa.lan>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: AT keyboard optional on i386?
+In-Reply-To: <Pine.LNX.4.10.10105282027030.3783-100000@transvirtual.com>
+Message-ID: <Pine.LNX.4.33.0105290021420.12495-100000@portland.hansa.lan>
 MIME-Version: 1.0
-To: Jakob =?EUC-KR?B?2HN0ZXJnYWFyZA==?= <jakob@unthought.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Plain 2.4.5 VM...
-In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr> <20010529061039.D29962@unthought.net>
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakob,
+Hi, James!
 
-My Alpha has 2GB of physical memory.  In this case how much swap space
-should
-I assign in these days of kernel 2.4.*?  I had had trouble with 1GB of
-swap space
-before switching back to 2.2.20pre2aa1.
+> So as you can see even USB keyboards depend on pc_keyb.c. So their is
+> no way around this.
 
-Thanks
+Perhaps redefining kbd_read_input() will help. It's cruel, I know :-)
+
+> You can a few nice tricks with it like plug in two PS/2 keyboards. I
+> have this for my home setup. The only thing is make sure you don't
+> have both keyboards plugged in when you turn your PC on. I found BIOS
+> get confused by two PS/2 keyboards. As you can it is very easy to
+> multiplex many keyboards with the above design. I have had 4 different
+> keyboards hooked up to my system and functioning at the same time. We
+> even got a Sun keyboard to work on a intel box :-)
+
+That's what we like Linux for. It doesn't get confused when everything
+else does :-)
+
+Thanks for your very interesting reply.
 
 -- 
-G. Hugh Song
+Regards,
+Pavel Roskin
+

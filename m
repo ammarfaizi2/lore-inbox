@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269804AbUJMTve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269758AbUJMUBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269804AbUJMTve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 15:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbUJMTvF
+	id S269758AbUJMUBq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 16:01:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbUJMUBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 15:51:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52384 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269804AbUJMTqx
+	Wed, 13 Oct 2004 16:01:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24994 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269758AbUJMUBn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 15:46:53 -0400
-Message-ID: <416D8620.5090001@pobox.com>
-Date: Wed, 13 Oct 2004 15:46:40 -0400
+	Wed, 13 Oct 2004 16:01:43 -0400
+Message-ID: <416D8999.7080102@pobox.com>
+Date: Wed, 13 Oct 2004 16:01:29 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@linux.kernel.org
-Subject: Re: PATCH: IDE generic tweak
-References: <1097677476.4764.9.camel@localhost.localdomain>	 <20041013153152.GA5458@havoc.gtf.org>	 <1097678363.4696.16.camel@localhost.localdomain>	 <20041013154916.GA6832@havoc.gtf.org> <1097679269.4696.18.camel@localhost.localdomain>
-In-Reply-To: <1097679269.4696.18.camel@localhost.localdomain>
+To: Brad Fitzpatrick <brad@danga.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.6.9-rc4, dual Opteron, NUMA, 8GB
+References: <Pine.LNX.4.58.0410131204580.31327@danga.com>
+In-Reply-To: <Pine.LNX.4.58.0410131204580.31327@danga.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2004-10-13 at 16:49, Jeff Garzik wrote:
+Brad Fitzpatrick wrote:
+> I'm reporting an oops.  Details follow.
 > 
->>nVidia for example specifically wanted it because future __SATA__
->>hardware will appear at the legacy IDE addresses, and end users were
->>requesting for similar reasons.
+> I have two of these machines.  I will happily be anybody's guinea pig
+> to debug this.  (more details, access to machine, try patches, kernels...)
+> Machines aren't in production.
+> 
+> - Brad
 > 
 > 
-> Guess we need a pair of options with similar names to specify who
-> grabs the generic devices. That should be fine because it never wants
-> to be automatic anyway
+> Kernel:  2.6.9-rc4 vanilla (.config below)
+> 
+> Hardware:  IBM eServer 325, Dual Opteron 8GB ram (more info below)
+> 
+> Pre-crash and crash:
+> 
+> a1:~# mke2fs /dev/mapper/raid10-data
+> mke2fs 1.35 (28-Feb-2004)
+> Filesystem label=
+> OS type: Linux
+> Block size=4096 (log=2)
+> Fragment size=4096 (log=2)
+> 25608192 inodes, 51200000 blocks
+> 2560000 blocks (5.00%) reserved for the super user
+> First data block=0
+> 1563 block groups
+> 32768 blocks per group, 32768 fragments per group
+> 16384 inodes per group
+> Superblock backups stored on blocks:
+>         32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+>         4096000, 7962624, 11239424, 20480000, 23887872
+> 
+> Writing inode tables: 1091/1563
+> Message from syslogd@localhost at Wed Oct 13 11:46:01 2004 ...
+> localhost kernel: Oops: 0000 [1] SMP
+> 
+> Message from syslogd@localhost at Wed Oct 13 11:46:01 2004 ...
+> localhost kernel: CR2: 0000000000001770
 
-Can two drivers declare __setup() with the same string, I wonder?
 
-Then you could do 'idegeneric=yes' and 'idegeneric=libata' or somesuch.
+What's your block device configuration?  What block devices are sitting 
+on top of what other block devices?
 
 	Jeff
-
 
 

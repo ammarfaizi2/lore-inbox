@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268480AbUIPQhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268340AbUIPRpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268480AbUIPQhH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268274AbUIPQff
+	id S268340AbUIPRpW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUIPRo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:35:35 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:63456 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268158AbUIPQa2 (ORCPT
+	Thu, 16 Sep 2004 13:44:26 -0400
+Received: from cantor.suse.de ([195.135.220.2]:3301 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268577AbUIPRlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:30:28 -0400
-Date: Thu, 16 Sep 2004 09:30:09 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
-Subject: Re: device driver for the SGI system clock, mmtimer
-In-Reply-To: <200409160909.12840.jbarnes@engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409160929440.6765@schroedinger.engr.sgi.com>
-References: <200409161003.39258.bjorn.helgaas@hp.com> <200409160909.12840.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Sep 2004 13:41:07 -0400
+Date: Thu, 16 Sep 2004 19:41:06 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] arch/ppc/syslib/open_pic2.c ENODEV undeclared
+Message-ID: <20040916174106.GA15963@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004, Jesse Barnes wrote:
 
-> > As far as I can see, drivers/char/hpet.c talks to the same hardware.
-> > HP sx1000 machines (and probably others) also implement the HPET.
->
-> No, it's different hardware.
->
-> > I think you should look at adding your functionality to hpet.c
-> > rather than adding a new driver.
->
-> I think Christoph already looked at that.  And HPET doesn't provide mmap
-> functionality, does it?  I.e. allow a userspace program to dereference the
-> counter register directly?
+2.6.9-rc2-bk2 gives this with my ppc g5 config
 
-HPET also allows mmaping to userspace.
+arch/ppc/syslib/open_pic2.c: In function `init_openpic2_sysfs':
+arch/ppc/syslib/open_pic2.c:694: error: `ENODEV' undeclared (first use in this function)
+arch/ppc/syslib/open_pic2.c:694: error: (Each undeclared identifier is reported only once
+arch/ppc/syslib/open_pic2.c:694: error: for each function it appears in.)
 
+possible fix below.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+--- ./arch/ppc/syslib/open_pic2.c.orig	2004-09-16 19:25:37.892805000 +0200
++++ ./arch/ppc/syslib/open_pic2.c	2004-09-16 19:35:25.024163478 +0200
+@@ -20,6 +20,7 @@
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
+ #include <linux/sysdev.h>
++#include <linux/errno.h>
+ #include <asm/ptrace.h>
+ #include <asm/signal.h>
+ #include <asm/io.h>
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

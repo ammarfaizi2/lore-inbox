@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTJNKSR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 06:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTJNKSR
+	id S262356AbTJNKbl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 06:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTJNKbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 06:18:17 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:13953 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262310AbTJNKSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 06:18:15 -0400
-Date: Tue, 14 Oct 2003 11:19:20 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310141019.h9EAJKT2001118@81-2-122-30.bradfords.org.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Wes Janzen <superchkn@sbcglobal.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <3F8BB7AE.2040507@namesys.com>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
- <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
- <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
- <20031014064925.GA12342@bitwizard.nl>
- <3F8BA037.9000705@sbcglobal.net>
- <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk>
- <20031014074020.GC13117@bitwizard.nl>
- <200310140811.h9E8Bxq1000831@81-2-122-30.bradfords.org.uk>
- <3F8BB7AE.2040507@namesys.com>
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
+	Tue, 14 Oct 2003 06:31:41 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:47594 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262356AbTJNKbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 06:31:38 -0400
+Message-ID: <3F8BD085.6020107@namesys.com>
+Date: Tue, 14 Oct 2003 14:31:33 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: John Bradford <john@grabjohn.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens
+ to them?
+References: <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk> <20031014074020.GC13117@bitwizard.nl> <200310140811.h9E8Bxq1000831@81-2-122-30.bradfords.org.uk> <3F8BB7AE.2040507@namesys.com> <20031014094629.GA16683@bitwizard.nl> <3F8BC896.6020106@namesys.com> <20031014101021.GE16683@bitwizard.nl>
+In-Reply-To: <20031014101021.GE16683@bitwizard.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I know I said my previous post was the last one on this subject, but
-we seem to have moved on to a slightly different area).
+Rogier Wolff wrote:
 
-Quote from Hans Reiser <reiser@namesys.com>:
-> Perhaps we should tell people to first write to the bad block, and only 
-> if the block remains bad after triggering the remapping by writing to it 
-> should you make any effort to get the filesystem to remap it for you.  
-> What do you think?
+>On Tue, Oct 14, 2003 at 01:57:42PM +0400, Hans Reiser wrote:
+>  
+>
+>>Rogier Wolff wrote:
+>>    
+>>
+>>>Of course, I left my drive that indicated it had problems (i.e. it
+>>>didn't spot the sector going bad before it became unreadable), in the
+>>>machine for another two days. It's getting replaced ASAP (i.e. the
+>>>next hour or so).
+>>>      
+>>>
+>
+>  
+>
+>>replacing the drive is reasonable caution.  I think though that the 
+>>other poster is right that IFF you want to remap bad blocks, the drive 
+>>should do it not reiserfs.
+>>    
+>>
+>
+>It is a "pretty much for free" feature. In your in-kernel
+>implementation you hopefully already have the ability to skip blocks
+>in use by other files. So allocating it to a special file will take
+>care of the kernel part. Next you need one line in your fsck to
+>prevent that "dangling inode" getting linked into lost+found. Then you
+>do need a utility to actually be able to mark blocks as bad. 
+>
+>			Roger. 
+>
+>  
+>
+We DO have it.  It is present in Reiser4, and there is a patch around 
+somewhere for V3 that I would be happy to have someone merge into the 
+latest V3 code and test (we are too focused on shipping V4 to do it 
+ourselves right now).
 
-I'm not convinced that this belongs in the filesystem.  I can see how
-it makes sense in some ways for magnetic disk devices, but that's not
-the filesystem's concern.  How would we know that the write isn't
-being cached by hardware further along the line, for example?  What
-are the negative effects of repeated writes if the filesystem is on
-flash, or a tape.  A damaged tape could be damaged more by winding
-back and forth, for example, (OK, tape is a bad example, but some
-future storage technology that we don't know about could have an
-analogous problem.  My point is that just because 99% of installations
-will use ReiserFS on disk device, is it right to put disk device
-specifics in the FS?).
+I agree that the FS should be able to do it, but I also think that the 
+drive doing it is best.
 
-Also, one corner case that occurs to me is that the first remapping
-worked, and then the newly allocated area went bad in the time before
-we verified it.  Then it could look like a persistant fault, when it
-is infact it's two separate faults.  Realistically, though, I suspect
-that is only likely to happen on a rapidly dieing disk, in which case
-there isn't much we can do anyway.
+-- 
+Hans
 
-In general, though, the question is really, should ReiserFS be usable
-on a device which doesn't do it's own bad block handling?  I suggest
-no.
 
-The ultimate point is that only the drive firmware really knows what's
-going on, and it can make informed decisions based on things that
-nothing external to the drive knows about.  How much error correction
-it needed to read a block, the number of errors per physical head, and
-per physical cylinder, etc.  The filesystem can only generally make a
-decision based on whether there is an error or not.
-
-> Rogier has not indicated that he has tried writing to the bad sector, 
-> has he?
-
-I don't think so.
-
-John.

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbTLVWVv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 17:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTLVWVv
+	id S264599AbTLVWOx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 17:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTLVWOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 17:21:51 -0500
-Received: from ofmail.of.pl ([217.97.243.238]:41625 "EHLO ofmail.of.pl")
-	by vger.kernel.org with ESMTP id S264522AbTLVWVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 17:21:48 -0500
-From: =?iso-8859-2?q?Pawe=B3=20Goleniowski?= <pawelg@dabrowa.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH 2.4] rivafb & 16 bit
-Date: Mon, 22 Dec 2003 23:21:52 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_A625/uxvEBaZ9x6"
-Message-Id: <200312222321.52434.pawelg@dabrowa.pl>
+	Mon, 22 Dec 2003 17:14:53 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:51930 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S264599AbTLVWOu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 17:14:50 -0500
+Subject: Re: atomic copy_from_user?
+From: Rob Love <rml@ximian.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031222215933.GA3189@rudolph.ccur.com>
+References: <1072054100.1742.156.camel@cube>
+	 <20031222150026.GD27687@holomorphy.com>
+	 <20031222182637.GA2659@rudolph.ccur.com> <1072126506.3318.31.camel@fur>
+	 <20031222212237.GA2865@rudolph.ccur.com> <1072129210.3318.34.camel@fur>
+	 <20031222215933.GA3189@rudolph.ccur.com>
+Content-Type: text/plain
+Message-Id: <1072131288.3318.48.camel@fur>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 22 Dec 2003 17:14:48 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-12-22 at 16:59, Joe Korty wrote:
 
---Boundary-00=_A625/uxvEBaZ9x6
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>  I do not see why a non-preempt kernel would care at all about
+> the value of preempt_count.  (kmap_atomic is obviously setting it,
+> where is the place in a non-preempt kernel where the set value
+> is being acted upon?).
 
-There is a problem with 16 bit mode with rivafb. Colors are sometimes broken 
-(specialy under Midnight Commander). This small patch fixes it. I've been 
-using it for last months and it works without any problems.
+Last I checked, the architecture-specific page fault handlers.  They do
+something like:
 
-Pawel 'Goldi' Goleniowski
+	if (in_atomic())
+		goto do_not_service_fault;
 
---Boundary-00=_A625/uxvEBaZ9x6
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="patch-rivafb.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="patch-rivafb.diff"
+This let us implement the atomic copy_*_user() functions.
 
---- linux/drivers/video/riva/accel.c	2003-12-22 22:46:27.000000000 +0100
-+++ linux/drivers/video/riva/accel.c	2003-12-22 19:47:19.000000000 +0100
-@@ -300,8 +300,8 @@
- 
- static inline void convert_bgcolor_16(u32 *col)
- {
--	*col = ((*col & 0x00007C00) << 9)
--             | ((*col & 0x000003E0) << 6)
-+	*col = ((*col & 0x0000F800) << 8)
-+             | ((*col & 0x000007E0) << 5)
-              | ((*col & 0x0000001F) << 3)
-              |          0xFF000000;
- }
+kmap_atomic() needs to mark the system atomic, so the in_atomic() will
+fail.
 
---Boundary-00=_A625/uxvEBaZ9x6--
+This was done around ~2.5.30 by akpm.
+
+	Rob Love
+
 

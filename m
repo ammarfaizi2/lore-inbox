@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbTD3S6T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 14:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbTD3S6T
+	id S262358AbTD3TH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTD3TH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 14:58:19 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:50751 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262322AbTD3S6F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 14:58:05 -0400
-Date: Wed, 30 Apr 2003 12:11:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list for 2.6.0
-Message-Id: <20030430121105.454daee1.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.51.0304301212130.1728@dns.toxicfilms.tv>
-References: <20030429155731.07811707.akpm@digeo.com>
-	<Pine.LNX.4.51.0304301212130.1728@dns.toxicfilms.tv>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 30 Apr 2003 15:07:58 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:2434 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262358AbTD3TH4 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:07:56 -0400
+Message-Id: <200304301920.h3UJKE5J007310@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!] 
+In-Reply-To: Your message of "Wed, 30 Apr 2003 14:19:13 EDT."
+             <3EB013A1.9030301@techsource.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com>
+            <3EB013A1.9030301@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_851387756P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Apr 2003 19:10:19.0169 (UTC) FILETIME=[23F4E910:01C30F4C]
+Date: Wed, 30 Apr 2003 15:20:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
->
-> > kernel/
-> > -------
-> >
-> > - O(1) scheduler starvation, poor behaviour seems unresolved.
-> >
-> >   Jens: "I've been running 2.5.67-mm3 on my workstation for two days, and
-> >   it still doesn't feel as good as 2.4.  It's not a disaster like some
-> >   revisisons ago, but it still has occasional CPU "stalls" where it feels
-> >   like a process waits for half a second of so for CPU time.  That's is very
-> >   noticable."
-> Well, i had similar problems with 2.5 stalling, but now that i disabled
-> preemtible kernel, it is better now. Are there no complaints about preemt?
+--==_Exmh_851387756P
+Content-Type: text/plain; charset=us-ascii
 
-I have not heard of any, apart from yours.
+On Wed, 30 Apr 2003 14:19:13 EDT, Timothy Miller said:
 
-> Also there is one issue, i am not sure if this may be a kernel issue,
-> but with setiathome running in a X desktop environment all apps work fine,
-> but when i run openoffice, openoffice responds with 5 second delay.
+> I mean, when will Sun, IBM, or Compaq ever start shipping tcsh or bash 
+> as the default shell?  Don't they realize that people make typos and 
+> would like to reedit the line they just typed?  Why are they still in 
+> the dark ages?
 
-That'll be the changed sched_yield() semantics.
+Odd.. I use the vendor-provided 'ksh' on Solaris, AIX, and Tru64 (now an HP
+product), and they all have supported re-editing the line just typed for
+*years* (I can't prove it's over a decade, but I'm fairly sure it is).
 
-The below patch should fix that up, but we need to decide whether the (rather
-unclear) advantages of the sched_yield() change outweigh the breakage which
-it caused linuxthreads applications.
+Remember that a major reason for 'bash' being created was because of licensing
+issues with the 'ksh' source.
 
+--==_Exmh_851387756P
+Content-Type: application/pgp-signature
 
-diff -puN kernel/sched.c~sched_yield-hack kernel/sched.c
---- 25/kernel/sched.c~sched_yield-hack	2003-04-30 12:08:51.000000000 -0700
-+++ 25-akpm/kernel/sched.c	2003-04-30 12:09:11.000000000 -0700
-@@ -1992,7 +1992,7 @@ asmlinkage long sys_sched_yield(void)
- 	 */
- 	if (likely(!rt_task(current))) {
- 		dequeue_task(current, array);
--		enqueue_task(current, rq->expired);
-+		enqueue_task(current, array);
- 	} else {
- 		list_del(&current->run_list);
- 		list_add_tail(&current->run_list, array->queue + current->prio);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-_
+iD8DBQE+sCHucC3lWbTT17ARAmjeAKCwIoLbXzGJMoLusKGZV/humM1hFACfdgSc
+ql5HBok8BWQ1dNyzm+TLzaI=
+=nYoJ
+-----END PGP SIGNATURE-----
 
+--==_Exmh_851387756P--

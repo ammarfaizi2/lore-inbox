@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSHYH5b>; Sun, 25 Aug 2002 03:57:31 -0400
+	id <S317035AbSHYH6R>; Sun, 25 Aug 2002 03:58:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSHYH5b>; Sun, 25 Aug 2002 03:57:31 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:32131 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S317034AbSHYH5a>;
-	Sun, 25 Aug 2002 03:57:30 -0400
-Message-ID: <3D688EE4.3060907@colorfullife.com>
-Date: Sun, 25 Aug 2002 10:01:40 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S317054AbSHYH6R>; Sun, 25 Aug 2002 03:58:17 -0400
+Received: from samar.sasken.com ([164.164.56.2]:48051 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S317035AbSHYH6Q>;
+	Sun, 25 Aug 2002 03:58:16 -0400
+Date: Sun, 25 Aug 2002 13:34:33 +0530 (IST)
+From: Madhavi <madhavis@sasken.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: unresolved symbols
+Message-ID: <Pine.LNX.4.33.0208251327260.9582-100000@pcz-madhavis.sasken.com>
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re:  packet re-ordering on SMP machines.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > 2)  Is there any standard (ie configurable) way to enforce strict
- > ordering on an SMP system?
 
-2 cpus, 2 network cards? What happens if you bind the interrupts to cpus?
+Hi
 
-echo 1 > /proc/irq/<irq_of_card_1>/smp_affinity
-echo 2 > /proc/irq/<irq_of_card_2>/smp_affinity
+I have written a loadable kernel module for linux-2.4.19-pre10 (PPC). When
+I try to do insmod, I am getting the following errors:
 
---
-	Manfred
+unresolved symbol __save_flags_ptr
+unresolved symbol xmon
+unresolved symbol __restore_flags
+unresolved symbol __cli
+
+When I compile the kernel without KMOD and MODEVERSIONS, I am not getting
+these errors. There are some other symbols I am exporting from kernel
+which seem to be getting resolved fine with and without MODVERSIONS and
+KMOD.
+
+I have included <asm/system.h> and <linux/module.h> in my files and I am
+compiling the module with -D__KERNEL__ flags.
+
+Any idea why this is happening?
+
+regards
+Madhavi.
 

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268102AbTGVTwD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 15:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbTGVTwC
+	id S269036AbTGVT6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 15:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbTGVT6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 15:52:02 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:19950 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S268102AbTGVTwB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 15:52:01 -0400
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-Cc: Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F1D7C80.6020605@gibraltar.at>
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>
-	 <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-	 <3F1D7C80.6020605@gibraltar.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058904025.4160.30.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Jul 2003 21:00:25 +0100
+	Tue, 22 Jul 2003 15:58:10 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:18363 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S269036AbTGVT6J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 15:58:09 -0400
+Date: Tue, 22 Jul 2003 13:13:12 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200307222013.h6MKDCwp010706@napali.hpl.hp.com>
+To: dennis.miyoshi@hp.com, sam@ravnborg.org
+Subject: RE: Build fails for ia64 with linux-2.6.0-test1-bk2 with missing file .
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F341E03C8ED6D311805E00902761278C0D2A2BE4@xfc04.fc.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If it is not expected behaviour that the kernel processes no longer 
-> close their fds open an pivot_root, then I'd like to debug this (is my 
-> use of pivot_root correct or am I doing something wrong here ?). I will 
-> try with vanilla 2.4.21 now and see how that goes (or should I rather 
-> try 2.4.22-pre7 ?).
+Note that Linus' tree at any given time may or may not work on ia64.
+You'd probably be better off using the ia64 patch at:
 
-2.4.22pre7 has the unshare_files fix - its a security fix.
+  ftp://ftp.kernel.org/pub/linux/kernel/ports/ia64/v2.5/
 
-It should not have changed the behaviour so I'm very interested to know if
-that specific patch set changes the behaviour and precisely what your code
-is doing
+Alternatively, if you want to try bleeding edge bits, you can pull from:
 
+  bk://lia64.bkbits.net/linux-ia64-2.5/
+
+	--david

@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265954AbSKBMoo>; Sat, 2 Nov 2002 07:44:44 -0500
+	id <S265958AbSKBNLn>; Sat, 2 Nov 2002 08:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265956AbSKBMoo>; Sat, 2 Nov 2002 07:44:44 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:4356 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265954AbSKBMoh>;
-	Sat, 2 Nov 2002 07:44:37 -0500
-Date: Fri, 1 Nov 2002 22:11:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK console] console updates.
-Message-ID: <20021101211153.GA171@elf.ucw.cz>
-References: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
+	id <S265963AbSKBNLn>; Sat, 2 Nov 2002 08:11:43 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:40404 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP
+	id <S265958AbSKBNLm>; Sat, 2 Nov 2002 08:11:42 -0500
+Date: Sat, 2 Nov 2002 14:20:30 +0100
+From: Romain Lievin <rlievin@free.fr>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kconfig (qt) -> Gconfig (gtk+)
+Message-ID: <20021102132029.GB323@free.fr>
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211012119290.6949-100000@serv> <20020625221306.GA439@free.fr> <Pine.LNX.4.44.0211021254420.6949-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <Pine.LNX.4.44.0211021254420.6949-100000@serv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
->    Along with the new fbdev api I also have rewritten the console layer.
-> The goals are:
+On Sat, Nov 02, 2002 at 12:59:22PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 26 Jun 2002, Romain Lievin wrote:
+> 
+> > I noticed there is a new configuration tool written in qt for replacing the tcl/tk one.
+> > 
+> > Is there any plan to write a similar configuration tool in GTK+ ? 
+> > I will be interested in writing a such one...
+> 
+> I'm not planning to do it myself, so go ahead. If you have any questions, 
+> just ask.
 
-Current 2.5.45 (and previous 2.5's) has funny problems on my vesafb
-machines [like half of letters appearing during emacs session, to the
-point you do ^L to repaint]. I hope this fixes it....
-								Pavel
+ok, let's go !
+BTW, is there any doc about your library ?
+
+> 
+> bye, Roman
+> 
+> 
+
+regards, roms.
 -- 
-When do you have heart between your knees?
+Romain Lievin, aka 'roms'  	<roms@lpg.ticalc.org>
+Web site 			<http://lpg.ticalc.org/prj_tilp>
+"Linux, y'a moins bien mais c'est plus cher !"
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263213AbUDEVKH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 17:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUDEVHz
+	id S263203AbUDEVHm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 17:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUDEVHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:07:55 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:3596 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263199AbUDEVHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:07:37 -0400
-Message-ID: <4071CF6E.4030104@techsource.com>
-Date: Mon, 05 Apr 2004 17:28:14 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-CC: John Stoffel <stoffel@lucent.com>, Helge Hafting <helgehaf@aitel.hist.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel stack challenge
-References: <20040405205412.60071.qmail@web40504.mail.yahoo.com>
-In-Reply-To: <20040405205412.60071.qmail@web40504.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 17:07:41 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:33408 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263196AbUDEVFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:05:55 -0400
+Date: Mon, 5 Apr 2004 23:05:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Right url for linux-on-laptops
+Message-ID: <20040405210544.GA3541@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+This fixes url in Kconfig. Please apply,
+						Pavel
+--- tmp/linux/kernel/power/Kconfig	2004-01-09 20:24:27.000000000 +0100
++++ linux/kernel/power/Kconfig	2004-02-23 20:20:42.000000000 +0100
+@@ -9,9 +9,9 @@
+ 
+ 	  Power Management is most important for battery powered laptop
+ 	  computers; if you have a laptop, check out the Linux Laptop home
+-	  page on the WWW at
+-	  <http://www.cs.utexas.edu/users/kharker/linux-laptop/> and the
+-	  Battery Powered Linux mini-HOWTO, available from
++	  page on the WWW at <http://www.linux-on-laptops.com/> or
++	  Tuxmobil - Linux on Mobile Computers at <http://www.tuxmobil.org/>
++	  and the Battery Powered Linux mini-HOWTO, available from
+ 	  <http://www.tldp.org/docs.html#howto>.
+ 
+ 	  Note that, even if you say N here, Linux on the x86 architecture
 
-Sergiy Lozovsky wrote:
-
-> 
-> 
-> All LISP errors are incapsulated within LISP VM.
->  
-
-
-A LISP VM is a big, giant, bloated.... *CHOKE* *COUGH* *SPUTTER* 
-*SUFFOCATE* ... thing which SHOULD NEVER be in the kernel.
-
-If you want to use a more abstract language for describing kernel 
-security policies, fine.  Just don't use LISP.
-
-The right way to do it is this:
-
-- A user space interpreter reads text-based config files and converts 
-them into a compact, easy-to-interpret code used by the kernel.
-
-- A VERY TINY kernel component is fed the security policy and executes it.
-
-
-Move as much of the processing as reasonable into user space.  It's 
-absolutely unnecessary to have the parser into the kernel, because 
-parsing of the config files is done only when the ASCII text version 
-changes.
-
-It's absolutely unnecessary to have something as complex as LISP to 
-interpret it, when something simple and compact could do just as well.
-
-Why do you choose LISP?  Don't you want to use a language that sysadmins 
-will actually KNOW?
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

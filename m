@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTIIUev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTIIUdE
+	id S264550AbTIIU3m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTIIU1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:33:04 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:12771 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264460AbTIIUbn (ORCPT
+	Tue, 9 Sep 2003 16:27:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47751 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264437AbTIIUYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:31:43 -0400
-Date: Tue, 9 Sep 2003 22:31:32 +0200 (MEST)
-Message-Id: <200309092031.h89KVWIA027982@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: mathieu.desnoyers@polymtl.ca
-Subject: Re: PROBLEM: APIC on a Pentium Classic SMP, 2.4.21-pre2 and 2.4.21-pre3 ksymoops
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+	Tue, 9 Sep 2003 16:24:44 -0400
+Date: Tue, 9 Sep 2003 22:24:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs explaining to you?
+Message-ID: <20030909202443.GA20800@suse.de>
+References: <20030823114738.B25729@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308250840360.1157-100000@cherise> <20030825172737.E16790@flint.arm.linux.org.uk> <20030901120208.GC1358@openzaurus.ucw.cz> <20030902174126.GB14209@suse.de> <1063138756.642.48.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1063138756.642.48.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 08 Sep 2003 19:22:17 -0400, Mathieu Desnoyers wrote:
->> >On kernel 2.4.21-pre2, there is a kernel oops before this, with a
->> >"Dereferencing NULL pointer".
->> 
->> You didn't run that through ksymoops and post it, so how is anyone
->> supposed to be able to debug it?
->
->As only 2.4.21-pre2 and 2.4.21-pre3 kernels show this problem, I thought
->it has been corrected in 2.4.21-pre4. But, as it can be very useful in
->finding the problem, here are the ksymoops for 2.4.21-pre2 and
->2.4.21-pre3 kernels, quite similar though.
-...
->Code;  c0115da7 <IO_APIC_get_PCI_irq_vector+17/130>
->00000000 <_EIP>:
->Code;  c0115da7 <IO_APIC_get_PCI_irq_vector+17/130>   <=====
->   0:   83 3c 90 ff               cmpl   $0xffffffff,(%eax,%edx,4)   <=====
+On Tue, Sep 09 2003, Benjamin Herrenschmidt wrote:
+> 
+> > ide-cd should have a flush write cache as well, for mtr, dvd-ram, cd-rw
+> > with packet writing, etc.
+> 
+> This is currently not done by the ide-cd suspend state machine, I did
+> the infrastructure and ide-disk implementation, but I'm leaving things
+> like ide-cd to you :)
 
-Ok, that one is line 295 in io_apic.c. It bombs in 2.4.21-pre{2,3}
-because mp_bus_id_to_pci_bus was changed from a static array to
-a dynamically allocated array. On your machine, smp_read_mpc() in
-mpparse.c doesn't get to the point where it allocates that array,
-so the array is NULL in io_apic.c and you get an oops.
+That is fine, I'll take care of it :). Just wanted to point out that it
+is indeed _not_ a given that ide-cd doesn't need sync cache support.
 
-Fixing the oops is easy (see below), but the real problem is
-that 2.4.21-pre2 apparently broke MP table parsing on your HW.
-I suggest you sprinkle tracing printk()s in setup/smpboot/mpparse
-and compare 2.4.20 (good) and later (bad) to see where things
-start to diverge.
+-- 
+Jens Axboe
 
-/Mikael
-
---- linux-2.4.21-pre2/arch/i386/kernel/io_apic.c.~1~	2003-09-09 21:27:39.000000000 +0200
-+++ linux-2.4.21-pre2/arch/i386/kernel/io_apic.c	2003-09-09 22:17:02.464082064 +0200
-@@ -292,7 +292,7 @@
- 
- 	Dprintk("querying PCI -> IRQ mapping bus:%d, slot:%d, pin:%d.\n",
- 		bus, slot, pin);
--	if (mp_bus_id_to_pci_bus[bus] == -1) {
-+	if ((mp_bus_id_to_pci_bus==NULL) || mp_bus_id_to_pci_bus[bus] == -1) {
- 		printk(KERN_WARNING "PCI BIOS passed nonexistent PCI bus %d!\n", bus);
- 		return -1;
- 	}

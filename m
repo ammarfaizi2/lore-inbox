@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbUKOVdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbUKOUlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUKOVdG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 16:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbUKOUpu
+	id S261691AbUKOUlI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKOUjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:45:50 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:57624 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261697AbUKOUnl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:43:41 -0500
-Date: Mon, 15 Nov 2004 20:43:20 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs free_inodes leak
-Message-ID: <Pine.LNX.4.44.0411152041180.4131-100000@localhost.localdomain>
+	Mon, 15 Nov 2004 15:39:48 -0500
+Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:1000 "EHLO
+	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
+	id S261691AbUKOUfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 15:35:18 -0500
+Date: Mon, 15 Nov 2004 15:35:14 -0500 (EST)
+From: Nickolai Zeldovich <kolya@MIT.EDU>
+To: linux-kernel@vger.kernel.org
+cc: csapuntz@stanford.edu
+Subject: [patch] Fix GDT re-load on ACPI resume
+Message-ID: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When new_inode failed, shmem_get_inode forgot to restore free_inodes.
+The ACPI resume code currently uses a real-mode 16-bit lgdt instruction to
+reload the GDT.  This only restores the lower 24 bits of the GDT base
+address.  In recent kernels, the GDT seems to have moved out of the lower
+16 megs, thereby causing the ACPI resume to fail -- an invalid GDT was
+being loaded.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+This simple patch adds the 0x66 prefix to lgdt, which forces it to load
+all 32 bits of the GDT base address, thereby removing any restrictions on
+where the GDT can be placed in memory.  This makes ACPI resume work for me
+on a Thinkpad T40 laptop.
 
---- 2.6.10-rc2/mm/shmem.c	2004-11-15 16:21:24.000000000 +0000
-+++ linux/mm/shmem.c	2004-11-15 19:13:10.535493992 +0000
-@@ -1314,6 +1314,10 @@ shmem_get_inode(struct super_block *sb, 
- 		case S_IFLNK:
- 			break;
- 		}
-+	} else if (sbinfo) {
-+		spin_lock(&sbinfo->stat_lock);
-+		sbinfo->free_inodes++;
-+		spin_unlock(&sbinfo->stat_lock);
- 	}
- 	return inode;
- }
+-- kolya
 
+--- linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 09:00:34	1.1
++++ linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 20:33:27
+@@ -67,6 +67,8 @@
+ 	movw	$0x0e00 + 'i', %fs:(0x12)
+
+ 	# need a gdt
++	.byte	0x66			# force 32-bit operands in case
++					# the GDT is past 16 megabytes
+ 	lgdt	real_save_gdt - wakeup_code
+
+ 	movl	real_save_cr0 - wakeup_code, %eax

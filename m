@@ -1,170 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbTLaPqO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 10:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265156AbTLaPqO
+	id S265173AbTLaQA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 11:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTLaQA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 10:46:14 -0500
-Received: from rat-5.inet.it ([213.92.5.95]:57219 "EHLO rat-5.inet.it")
-	by vger.kernel.org with ESMTP id S265154AbTLaPqH (ORCPT
+	Wed, 31 Dec 2003 11:00:29 -0500
+Received: from pdbn-d9bb868a.pool.mediaWays.net ([217.187.134.138]:25619 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S265173AbTLaQAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 10:46:07 -0500
-From: Paolo Ornati <ornati@lycos.it>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.1-rc1 [resend]
-Date: Wed, 31 Dec 2003 16:45:23 +0100
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <200312311619.27812.ornati@lycos.it> <20031231152052.GR27687@holomorphy.com>
-In-Reply-To: <20031231152052.GR27687@holomorphy.com>
+	Wed, 31 Dec 2003 11:00:15 -0500
+Date: Wed, 31 Dec 2003 17:00:11 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Xan <DXpublica@telefonica.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: i18n for kernel 2.7.x?
+Message-ID: <20031231160011.GA13360@citd.de>
+References: <200312311332.15422.DXpublica@telefonica.net> <20031231125156.GA12588@citd.de> <200312311625.25178.DXpublica@telefonica.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312311645.23348.ornati@lycos.it>
+In-Reply-To: <200312311625.25178.DXpublica@telefonica.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 December 2003 16:20, you wrote:
-> On Wednesday 31 December 2003 16:06, you wrote:
-> >> What io scheduler are you using? Or, could you post /var/log/dmesg?
->
-> On Wed, Dec 31, 2003 at 04:19:27PM +0100, Paolo Ornati wrote:
-> > "dmesg" and "config" attached.
->
-> Could you try this with elevator=deadline?
+On Wed, Dec 31, 2003 at 04:25:24PM +0100, Xan wrote:
+> Dimecres 31 Desembre 2003 13:51, en/na Matthias Schniedermeyer (<Matthias 
+> Schniedermeyer <ms@citd.de>>) va escriure:
+> 
+> > On Wed, Dec 31, 2003 at 01:32:15PM +0100, Xan wrote:
+> > > Hi,
+> > >
+> > > Just a thing: why not internationalization of kernel. That is, why not
+> > > that the kernel could display error or debug messages in different
+> > > languages (for example)?
+> >
+> > This is a FAQ.
+> >
+> > http://www.kernel.org/pub/linux/docs/lkml/#s9-16
+> >
+> > So it should be better to end this before it begins (again).
+> 
+> It appears that you (kernel developers) have panic about it. Wow!. What a 
+> contundent message!. It appears as a tabu topic.
 
-ok, I have just tried...
-I don't see any big difference.
+I'm not a kernel developer so i don't "panic". But this discussions
+comes up about every half a year and i know the outcome from the past.
+-> forget it.
 
-The output of this script:
-_________________________________________________
-#!/bin/bash
+And btw. None of your points are "new(tm)" (including the part i striped
+in this mail) and all have be discussed (to death) in the past.
+The outcome was always:
+not practical and/or too much hassle for the developers and/or unmaintainable
 
-echo "HD test for linux `uname -r`"
-echo
 
-ra=8
-for i in `seq 7`; do
-    echo "READAHEAD = $ra";
-    hdparm -a $ra /dev/hda;
-    for j in `seq 3`; do
-	hdparm -t /dev/hda;
-    done;
-    ra=$(($ra*2));
-done
-_________________________________________________
 
-is:
-_________________________________________________
-HD test for linux 2.6.1-rc1
+Btw2:
+"Those who fail to learn history are doomed to repeat it; those who fail
+to learn history correctly -- why, they are simply doomed."
+(Andromeda (TV-Series), Season 1.3)
 
-READAHEAD = 8
 
-/dev/hda:
- setting fs readahead to 8
- readahead    =  8 (on)
 
-/dev/hda:
- Timing buffered disk reads:  64 MB in  4.79 seconds = 13.37 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  4.79 seconds = 13.36 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  4.79 seconds = 13.37 MB/sec
-READAHEAD = 16
-
-/dev/hda:
- setting fs readahead to 16
- readahead    = 16 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.48 seconds = 25.80 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.45 seconds = 26.14 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.43 seconds = 26.30 MB/sec
-READAHEAD = 32
-
-/dev/hda:
- setting fs readahead to 32
- readahead    = 32 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.44 seconds = 26.23 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.43 seconds = 26.32 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.44 seconds = 26.27 MB/sec
-READAHEAD = 64
-
-/dev/hda:
- setting fs readahead to 64
- readahead    = 64 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.43 seconds = 26.38 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.44 seconds = 26.27 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.43 seconds = 26.36 MB/sec
-READAHEAD = 128
-
-/dev/hda:
- setting fs readahead to 128
- readahead    = 128 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.43 seconds = 26.33 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.44 seconds = 26.20 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.42 seconds = 26.40 MB/sec
-READAHEAD = 256
-
-/dev/hda:
- setting fs readahead to 256
- readahead    = 256 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.41 seconds = 26.56 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.41 seconds = 26.55 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.41 seconds = 26.54 MB/sec
-READAHEAD = 512
-
-/dev/hda:
- setting fs readahead to 512
- readahead    = 512 (on)
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.41 seconds = 26.52 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.40 seconds = 26.67 MB/sec
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.41 seconds = 26.54 MB/sec
-_________________________________________________
-
->
->
-> -- wli
+Bis denn
 
 -- 
-	Paolo Ornati
-	Linux v2.6.1-rc1
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

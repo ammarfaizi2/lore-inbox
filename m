@@ -1,70 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSKGSuL>; Thu, 7 Nov 2002 13:50:11 -0500
+	id <S261472AbSKGSuY>; Thu, 7 Nov 2002 13:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261472AbSKGSuL>; Thu, 7 Nov 2002 13:50:11 -0500
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:31542 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261448AbSKGSuK>;
-	Thu, 7 Nov 2002 13:50:10 -0500
-Message-ID: <3DCAC5FC.2010205@mvista.com>
-Date: Thu, 07 Nov 2002 13:58:52 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en
+	id <S261478AbSKGSuX>; Thu, 7 Nov 2002 13:50:23 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:51091 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261472AbSKGSuV> convert rfc822-to-8bit; Thu, 7 Nov 2002 13:50:21 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
+Subject: [ANNOUNCE] WOLK v3.7.1 UPDATE // [PATCH]
+Date: Thu, 7 Nov 2002 19:57:14 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NMI handling rework
-References: <Pine.LNX.3.95.1021107115259.9343A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211071957.14365.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+Hi there,
 
->On Thu, 7 Nov 2002, Zwane Mwaikambo wrote:
->
->  
->
->>On Thu, 7 Nov 2002, Corey Minyard wrote:
->>
->>    
->>
->>>NMIs cannot be masked, they are by definition non-maskable :-).  You can 
->>>get an NMI while executing an NMI.
->>>      
->>>
->>"After an NMI interrupt is recognized by the P6 family, Pentium, Intel486, 
->>Intel386, and Intel 286 processors, the NMI interrupt is masked until the 
->>first IRET instruction is executed, unlike the 8086 processor."
->>
->>- 18.22.2 NMI Interrupts, Intel IA32 System Developer's Manual vol3d 
->>
-Thanks, and thanks to everyone else that pointed this out.
+just an update for 3.7 FINAL to fix some major build problems.
 
-It is still possible, though unlikely, that two NMI sources could occur 
-at the same time.  Maybe that's not worth worrying about, and maybe for 
-the APICs it works fine.
 
->>>An NMI-based timer?  I can see the use if you REALLY need accurate 
->>>intervals, but you can't do much in an NMI, no spinlocks, even.
->>>      
->>>
->[SNIPPED...]
->
->You can use a spinlock and, in fact, that's the only way you can
->protect a critical section. The other CPU will spin of course, just
->like the other CPU in a maskable interrupt. That's what spin-locks
->are for. With maskable interrupts, the "cli" affects only the CPU
->that actually fetches that instruction. That's why you need spin-lock
->protection when you have more than one CPU. With NMI, no CPU has
->the effect a "cli" would provide, so they just spin at the lock
->until the lock is released.
->
-I should have been more precise here.  You cannot use a spinlock that 
-you use outside of the NMI, too.  You might be holding the spinlock when 
-the NMI occurs, and you would then be in deadlock.
+Changelog from v3.7 -> v3.7.1
+-----------------------------
+o   add:        autoregulating timeslice duration (from -ck13)
+o   add:        IDE-SCSI (start DMA at the right time)
+o   add:        csum and csum_copy routines with boot-time selection
+o   add:        LVM updates from 2.4.19 and 2.4.20-pre11
+o   add:        USB: KB Gear JamStudio tablet support 
+o   add:        2.4 VM suckiness fixes
++   add:        More Framebuffer Boot Logos
++   fixed:      kernel/timer.c: parse error before `}'
++   fixed:      fs/ext3/resize.c: undefined reference to `get_empty_inode'
++   fixed:      internal.h:48: redefinition of `PDE'
++   fixed:      include/linux/seq_file.h: void *private
+o   fixed:      net/ipsec/alg/* wrong symlinks
+o   fixed:      unresolved symbol: tcp_v4_lookup_listener
+o   fixed:      Crypto Hardware Accelerator Support conflicts with CryptoAPI
+o   fixed:      Win4Lin: missing kernel/sched.c additions
+o   fixed:      "If I run mldonkey, WOLK oops() and sometimes panic()"
+o   fixed:      Win4Lin: should now work with Preempt
+o   update:     Win4Lin: latest MKI-Adapter patch
+                 Supporting Win4Lin v3.0.6 and v4.0.x
+o   update:     CPU Frequency Scaling v2.4.19-10
+o   update:     Device-Mapper v1.03-ioctl (2002-08-14)
+o   update:     Oracle Cluster File System (OCFS) latest snapshots
+o   change:     Moved CryptoAPI to Security Options menu
+o   change:     ALSA and kernel sound core are selectable at the same time
++   change:     Moved AFS to Network Filesystems
 
--Corey
+
+
+Release Info:
+-------------
+Date   : November, 7th, 2002
+Time   : 8:00 pm CET
+URL    : http://sf.net/projects/wolk
+
+
+md5sums:
+--------
+2e8b0824a4e211a53ad998e3aad97637 *linux-2.4.18-wolk3.7-to-3.7.1.patch.bz2
+5b3afd4c71e796a5e81c9f7547674d88 *linux-2.4.18-wolk3.7-to-3.7.1.patch.gz
+
+
+Have fun!
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
+
 

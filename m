@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbTCOOeh>; Sat, 15 Mar 2003 09:34:37 -0500
+	id <S261461AbTCOOhY>; Sat, 15 Mar 2003 09:37:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbTCOOeh>; Sat, 15 Mar 2003 09:34:37 -0500
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:5265 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261456AbTCOOeg>; Sat, 15 Mar 2003 09:34:36 -0500
-Subject: Re: 2.5.64-mm7
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047739525.2275.16.camel@mars.goatskin.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 15 Mar 2003 09:45:25 -0500
+	id <S261463AbTCOOhY>; Sat, 15 Mar 2003 09:37:24 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S261461AbTCOOhX>; Sat, 15 Mar 2003 09:37:23 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303151450.h2FEo1eX001775@81-2-122-30.bradfords.org.uk>
+Subject: Re: SCSI errors in logs
+To: smpcomputing@free.fr (Philip Dodd)
+Date: Sat, 15 Mar 2003 14:50:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E725DA5.4070108@free.fr> from "Philip Dodd" at Mar 14, 2003 11:54:29 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-[..SNIP..]
-
+> Running debian testing with 2.4.20 + preempt + bttv kernel patches with 
+> 1GB of RAM - high memory enabled, I get big bunches of the following in 
+> /var/log/messages.
 > 
-> > . Niggling bugs in the anticipatory scheduler are causing problems.
-I've 
-> > reset the default to elevator=deadline until we get these fixed up. 
 > 
-> I haven't still experienced those bugs using mm6 and AS. 
+> Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+> SE mode
+> Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+> LVD mode
+> Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+> SE mode
+> Mar 14 20:41:27 gandalf kernel: scsi0: Transceiver State Has Changed to 
+> LVD mode
+> 
+> On several occasions my logs have been filled with theses messages. 
+> Adaptec driver is compiled in the kernel, and scsi0 is unused (scsi1 is 
+> the other channel on my adaptec 39160, scsi2 is ide-scsi).  Nothing is 
+> physically plugged in to this channel (yet!).
+> 
+> I'd be grateful for any ideas - is this hardware?
 
+Plug a device in to it, make sure it's properly terminated, and it
+should work :-).
 
-	Me either. 
+I suspect that the SE/LVD negotiation is confused, because there are
+no devices on the bus.
 
-
-> Is there an easy way to reproduce them? 
-
-
-	If there was, they'd be fixed.
-
-I get bit by the AS bugs on recent -mm kernels. It is reproducible every
-time I start X. Here are a few points to my setup that might help
-someone to reproduce the problem.
-
-1. My home dir is on a LVM striped LV across two IDE disks.
-
-2. Recently I had modified my .xinitrc like this:
-
-	# Nice smooth X under load
-	#sudo /usr/bin/renice -10 $(pgrep -u root X)
-
-	exec gnome-session
-
-I have confirmed that removing the renice allows X/gnome to progress
-further through the startup.
-
-Shane
-
-
-
-
-
-
-
-
+John.

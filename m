@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbULTADz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbULTAWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbULTADz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 19:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbULTADy
+	id S261358AbULTAWd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 19:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbULTAWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 19:03:54 -0500
-Received: from webmail.sub.ru ([213.247.139.22]:36100 "HELO techno.sub.ru")
-	by vger.kernel.org with SMTP id S261357AbULTADx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 19:03:53 -0500
-From: Mikhail Ramendik <mr@ramendik.ru>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Date: Mon, 20 Dec 2004 03:03:35 +0300
-User-Agent: KMail/1.7.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lista4@comhem.se,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org
-References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2> <41C6073B.6030204@yahoo.com.au> <20041219155722.01b1bec0.akpm@digeo.com>
-In-Reply-To: <20041219155722.01b1bec0.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Dec 2004 19:22:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59660 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261358AbULTAWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 19:22:31 -0500
+Date: Mon, 20 Dec 2004 01:22:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Armin Schindler <armin@melware.de>
+Cc: isdn4linux@listserv.isdn4linux.de,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       developers@melware.de
+Subject: Re: RFC: [2.6 patch] Eicon: disable debuglib for modules
+Message-ID: <20041220002225.GJ21288@stusta.de>
+References: <20041030072256.GH4374@stusta.de> <Pine.LNX.4.31.0410301343450.24225-100000@phoenix.one.melware.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412200303.35807.mr@ramendik.ru>
+In-Reply-To: <Pine.LNX.4.31.0410301343450.24225-100000@phoenix.one.melware.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+> > Is there a good reason why debuglib is enabled for modules?
+> 
+> Yes.
+> Without it, there would be no possibility to use the maintainance module
+> to debug the isdn/card/capi interaction.
+> 
+> > If not, I'd propose the patch below to disable it.
+> 
+> I have to disagree. This patch would disable a major feature of the
+> diva driver collection.
 
-> - Ask Voluspa to do
->
-> 	echo 0 > /proc/sys/vm/swap_token_timeout
->
->   on 2.6.10-rc3 and retest.
+How do I enable this maintainance module in the kernel?
 
-He did, and I did (but I have not sent my report to lkml). In both cases, 
-screen freezes remained but were now less in duration (up to 10-20 sec). In 
-mu case I also monitored CPU loading and the big load peaks were there (the 
-biggest one was in the beginning).
+> Armin
 
-> (We still don't know why it chews tons of CPU, do we?)
-
-It does! Any way to dig into this?
+cu
+Adrian
 
 -- 
-Yours, Mikhail Ramendik
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

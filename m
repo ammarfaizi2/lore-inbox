@@ -1,49 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262990AbUDONE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 09:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDONE5
+	id S263015AbUDONW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 09:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUDONW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 09:04:57 -0400
-Received: from sea2-f69.sea2.hotmail.com ([207.68.165.69]:58888 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262990AbUDONEy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 09:04:54 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Make modules and make modules_install :copy all files to /lib/modules/ - newbie
-Date: Thu, 15 Apr 2004 16:04:51 +0300
+	Thu, 15 Apr 2004 09:22:57 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16560
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263015AbUDONWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 09:22:53 -0400
+Date: Thu, 15 Apr 2004 15:22:56 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking objrmap under memory pressure
+Message-ID: <20040415132256.GC2150@dualathlon.random>
+References: <20040414233931.GU2150@dualathlon.random> <Pine.LNX.4.44.0404151050370.6938-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F69TaGmvSVMum000047350@hotmail.com>
-X-OriginalArrivalTime: 15 Apr 2004 13:04:51.0432 (UTC) FILETIME=[3D000680:01C422EA]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0404151050370.6938-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I am working with 2.4.20 kernel.
-I had changed one  driver only . (one source file).
-It is the network driver I use. (under /drivers/net)
-I type make modules. Evrything is OK: It creates one new .o file.
-It was (and still is) a loadable module. (when I type
-make menuconfig I see it with <M>).
+On Thu, Apr 15, 2004 at 11:21:30AM +0100, Hugh Dickins wrote:
+> On Thu, 15 Apr 2004, Andrea Arcangeli wrote:
+> > On Wed, Apr 14, 2004 at 06:48:40PM +0100, Hugh Dickins wrote:
+> > > This is just your guess at present, isn't it, Andrea?  Any evidence?
+> > 
+> > the evidence is pretty obvious, the single fact it's painful to remove
+> > the page_table_lock with anonmm around the vma manipulations, and the
+> > little benefit that the vma->page_table_lock provides with anonmm is
+> > quite a tangible measurements, I'm talking about the 256 ways here, any
+> > UP measurements is pretty useless.
+> 
+> Quite possibly.  Quite possibly not (anonmm can perfectly well use a
+> different lock than the page_table_lock to make find_vma safe against
+> try_to_unmap, if page_table_lock too contended, or split into vmas).
 
-I perform make_install:
-I see that all the modules (*.o files ) are copied to 
-/lib/modules/version....
+"use another global mm wide lock" == less scalable
 
-Is there a way that only the relevant file (or files) that were changed will
-be copied to /lib/modules/version....  (Except of course copying one by one 
-the *.o file/files
-that their sources were changed).
+> A good hypothesis for you to base your design on.  But the evidence
+> is yet to come.  My own bet is that it will make very little difference
+> to 256-way performance, whether anonmm or anon_vma: that their issues
+> will be with the file-based.
 
+it depends on the workload.
 
-regards,
-sting
+> The worst that will happen with anonmm's mremap move, is that some
+> app might go slower and need more swap.  Unlikely, but agreed possible.
 
-_________________________________________________________________
-Tired of spam? Get advanced junk mail protection with MSN 8. 
-http://join.msn.com/?page=features/junkmail
+this is exactly the point and I cannot take that risk in -aa, perod,
+taking a dozen more mbytes of ram with some dozen kde task in a desktop
+machine would be an huge penalty, the kde people worked hard to make the
+library design possible and save ram with anonymous COW memory whenever
+possible, I cannot risk to screw their effort, plus I've absolutely no
+idea if any big proprietary app may be hurted too, and I cannot take
+that risk either, the 12 bytes per vma are nothing compared a potential
+invalidation of cow through mremap, plus the anon-vma provided other
+advantages as well.
 
+> In your case, some app may actually break (I was going to say
+> mysteriously, but that's unfair, ptrace should quickly identify it):
+> because of your limitations on anon vma merging, and the way mremap
+> is only allowed on a single vma.  Again, unlikely, but possible.
+
+any application relaying on the vma merging to make mremap work is
+definitely totally broken period, no need to argue further about this
+point. the vma merging is a "best effort" provided by the VM, it's
+something userspace must not be aware about since it can change over
+time, and it's not available at all with mlock and with older 2.4
+kernels. so you're definitely wrong claiming I take any risk with
+mremap, plus I'm actually _fixing_ mremap by disabling the vma merging
+there, and that's the primary reason I disabled the vma merging, the vma
+merging of mremap has never been able to retire correctly, so if there
+would be an oom failure during a pagetable allocation the vma merging in
+2.4 the extension generated by the vma merging wouldn't be retired
+correctly. I didn't fix that in 2.4 because it's not possible to
+reproduce an oom failure exactly in the move_page_tables and secondly
+because it's not exploitable anyways even if it triggers the oom failure
+there, unless you also can join this kernel bug with an userspace bug,
+so the probability is near zero and even in the extremely unlikely case
+it's not exploitable remotely, but with anon-vma I made the probability
+zero by disabling the merging in 2.6, until it gets implemented properly
+(maybe we should disable it in 2.4 too and go 100% safe, but I didn't
+bother to disable it in 2.4).
+
+as for mprotect you're right it can in some extremely unlikely case
+merge less, but that's the feature, so the swapping will be more
+efficient, and the locking scalable too during paging. It's a trade-off
+and I think it makes lots of sense. If an application wants merging it
+should create adiacent mappings in the first place. Secondly if an
+applications creates an hole inside an anonymous mapping I still
+guarantee that the gap-fill will be merged 100%. So I think this is an
+unrelistic problem, something I don't need to worry about, unlike the
+mremap cow-break that anonmm might introduce in some app.
+
+> I'm sure the right answer to that is to fix mremap to work across vmas:
+
+the limitation on the mremap on a single vma is stupid indeed, it's just
+that the implementation was lazy, that needs fixing anyways eventually,
+but it's not a problem at all as far as anon-vma is concerned, in no way
+an application can relay on the vma merging to do mremap or mlock and
+older 2.4 kernels would break too.
+
+> it's unique and wrong to be letting the kernel implementation detail of
+> vma percolate up to userspace semantics.  But, on the other hand,
+> I'm glad of any excuse not to have to go in there and fix it!
+
+I definitely don't need to go in there and fix it either.
+
+> (Of course, your file vma merging will make some mremaps
+> possible which were ruled out before: that's nice.)
+
+yes, that's a major benefit, doing vma merging with file mappings is a
+lot more important than for anonymous ram, most people only uses
+mprotect to switch the write bit on the vma before/after using some
+MAP_SHARED segment, if a bug accours while they don't use the mapping
+they won't risk to corrupt the data. That's a very common behaviour for
+big apps and it has never been possible to merge until now in anon-vma.
+
+But this is pretty orthgonal with the anon-vma vs anonmm comparison, if
+you're ok to deal with the anon-vma complexity you can merge this bit on
+top of anonmm too, the compexity of doing anon-vma merging is the same
+one of doing the inode-vma merging.

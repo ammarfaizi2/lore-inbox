@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264593AbRFTULt>; Wed, 20 Jun 2001 16:11:49 -0400
+	id <S264606AbRFTUMJ>; Wed, 20 Jun 2001 16:12:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264606AbRFTULj>; Wed, 20 Jun 2001 16:11:39 -0400
-Received: from voyager.powersurfr.com ([24.109.67.8]:54034 "EHLO
-	unity.starfire") by vger.kernel.org with ESMTP id <S264593AbRFTULZ>;
-	Wed, 20 Jun 2001 16:11:25 -0400
-From: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-Date: Wed, 20 Jun 2001 14:11:20 -0600
-To: Tom Diehl <tdiehl@pil.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-Message-ID: <20010620141119.A5660@wintermute.starfire>
-In-Reply-To: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.18i
+	id <S264607AbRFTUL7>; Wed, 20 Jun 2001 16:11:59 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:36742 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S264606AbRFTUL4>; Wed, 20 Jun 2001 16:11:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Tony Hoyle <tmh@magenta-netlogic.com>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [OT] Threads, inelegance, and Java
+Date: Wed, 20 Jun 2001 11:10:55 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Russell Leighton <russell.leighton@247media.com>,
+        linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
+In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org> <3B30D776.5090902@magenta-netlogic.com>
+In-Reply-To: <3B30D776.5090902@magenta-netlogic.com>
+MIME-Version: 1.0
+Message-Id: <01062011105507.00776@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 04:55:10PM -0400, Tom Diehl wrote:
-> On Tue, 19 Jun 2001, Alan Cox wrote:
-> 
-> > Other than making sure you configure it for the box it will eventually run
-> > on - nope you have it all sorted. If you use modules you'll want to install
-> > the modules on the target machine too
-> 
-> What is the best way to install the modules? Is there a directory _all_ of
-> the modules exist in b4 you do "make modules_install". I usually end up
-> setting EXTRAVERSION to something unique and doing a make modules_install.
-> That way it does not hose up the modules for the build machine.
-> Is there a better way?
+On Wednesday 20 June 2001 13:03, Tony Hoyle wrote:
 
-Change MODLIB in $(TOPDIR)/Makefile (e.g. /usr/src/linux/Makefile). I do this
-to compile the kernel and modules without root priviledges at all. make
-modules_install will fail at the end when trying to run 'depmod', but that's
-okay - you can do that yourself:
+> (Just came back from a .NET conference...  MS are currently rewriting
+> all their apps in bytecode... whoopee...  They're even porting *games*
+> to run on it.  I can see it now 'MS Flight Simulator .NET' (Requires
+> quad Pentium 4 1.6Ghz minimum) :-o )
 
-(TOPDIR=${HOME}/linux, MODLIB=${HOME}/kernel/<revision>/modules)
+Well, that ought to make Intel happy.  The price of a new desktop box around 
+these parts has dropped to about $250, and that comes preassembled.  $25 for 
+ram, $80 hard drive, $40 processor in ~$30 motherboard, and the floppy, case, 
+power supply, and keyboard are all a rounding error.  The monitor's still 
+expensive, but those are recycled from system to system and you can get a 17 
+inch for $99 from goodwill computers.
 
-cd $TOPDIR
-make config dep clean bzImage modules && cp arch/i386/boot/bzImage System.map \
-${MODLIB}/../ && make modules_install || echo modules_install failed as expected
-cd ${MODLIB}/../
-mkdir -p lib/modules
-ln -s ${PWD}/modules lib/modules/`uname -r`
-depmod -F System.map -C /dev/null -b $PWD -r -a
+So how exactly DOES MS expect to stop the Linux folks from reverse 
+engineering .NET apps?  Patents?  Giving up on the client side and moving to 
+an ASP business model (toe to toe with AOL)?  Constant gratuitous 
+compatability changes to try to prevent all those nasty GPL viruses from 
+evolving an immunity to their new proprietary drug?  (Without, of course, 
+being obvious enough to trigger a third antitrust trial after the 1995 and 
+1998 ones...)
 
-Note that Joe Average user can do all of this, root need not be involved at
-all.
+Just curious...
 
-Then fix up the resulting modules.dep with sed, I don't remember what depmod
-gives you exactly so I can't type out the exact command.. then clean up:
-
-rm lib/modules/`uname -r` ; rmdir lib/modules lib
-
-Now you have a nice kernel package ready to go in $HOME/kernel. Don't forget
-to copy $MODLIB into the right spot (rename the directory to the kernel's
-revision) and chown -R root or modutils will pout, unless you are making a
-romfs or such where the only user is root :-)  nfs will work just fine without
-security qualms since the kernel installation is non-root owned. (for
-large-scale deployment, you probably can't beat having machines booting from
-a server and fetching new romfs images each boot.)
-
-btw, the abuse of depmod in this way isn't very nice, but afaics there is no
-other way. I would personally like depmod to dump dependency information for
-any valid module tree, expanding the definition of valid to include trees not
-prefixed by /lib/modules/`uname -r`, but oh well, it gets by in the end as so
-many other things do ;-)
-
-Maciek
+> Tony

@@ -1,79 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbUCDFHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 00:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUCDFHV
+	id S261451AbUCDFKw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 00:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUCDFKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 00:07:21 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:51141 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261452AbUCDFHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 00:07:19 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Andi Kleen <ak@suse.de>, George Anzinger <george@mvista.com>
-Subject: Re: kgdb support in vanilla 2.6.2
-Date: Thu, 4 Mar 2004 10:36:58 +0530
-User-Agent: KMail/1.5
-Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       piggy@timesys.com, trini@kernel.crashing.org
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <40467BC3.7030708@mvista.com> <20040304015056.4d2cc3ee.ak@suse.de>
-In-Reply-To: <20040304015056.4d2cc3ee.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 4 Mar 2004 00:10:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54493 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261451AbUCDFKu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 00:10:50 -0500
+Date: Wed, 3 Mar 2004 21:10:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: peter@mysql.com, riel@redhat.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+Message-Id: <20040303211042.33cd15ce.akpm@osdl.org>
+In-Reply-To: <20040304045212.GG4922@dualathlon.random>
+References: <20040228072926.GR8834@dualathlon.random>
+	<Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com>
+	<20040229014357.GW8834@dualathlon.random>
+	<1078370073.3403.759.camel@abyss.local>
+	<20040303193343.52226603.akpm@osdl.org>
+	<1078371876.3403.810.camel@abyss.local>
+	<20040303200704.17d81bda.akpm@osdl.org>
+	<20040304045212.GG4922@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403041036.58827.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 Mar 2004 6:20 am, Andi Kleen wrote:
-> On Wed, 03 Mar 2004 16:43:47 -0800
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> George Anzinger <george@mvista.com> wrote:
-> > Andi Kleen wrote:
-> > > On Tue, Mar 02, 2004 at 01:27:51PM -0800, Andrew Morton wrote:
-> > >>George Anzinger <george@mvista.com> wrote:
-> > >>> Often it is not clear just why we are in the stub, given that
-> > >>>we trap such things as kernel page faults, NMI watchdog, BUG macros
-> > >>> and such.
-> > >>
-> > >>Yes, that can be confusing.  A little printk on the console prior to
-> > >>entering the debugger would be nice.
-> > >
-> > > What I did for kdb and panic some time ago was to flash the keyboard
-> > > lights. If you use a unique frequency (different from kdb
-> > > and from panic) it works quite nicely.
+> On Wed, Mar 03, 2004 at 08:07:04PM -0800, Andrew Morton wrote:
+>  > That's a larger difference than I expected.  But then, everyone has been
+> 
+>  mysql is threaded
 
-Flashing keyboard lights is far simpler compared to a printk. Printk is too 
-heavy. Once a system is unstable, it's more important to run into kgdb code 
-asap. Calling printk and co may be too much.
+There is a patch in -mm's 4g/4g implementation
+(4g4g-locked-userspace-copy.patch) which causes all kernel<->userspace
+copies to happen under page_table_lock.  In some threaded apps on SMP this
+is likely to cause utterly foul performance.
 
-> >
-> > Assuming a key board and a clear (no spin locks) path to it.  Still it
-> > only says
->
-> I think it's reasonable to just write to the keyboard without any locking.
-> The keyboard driver will recover.
+That's why I'm keeping it as a separate patch.  The problem which it fixes
+is very obscure indeed and I suspect most implementors will simply drop it
+after they'e had a two-second peek at the profile results.
 
-Flashing keyboard lights is easy on x86 and x86_64 platforms. Is that easy on 
-ppc workstations/servers? Embedded boards don't have keyboards.
+hm, I note that the changelog in that patch is junk.  I'll fix that up.
 
->
-> > we are in kgdb, now why.
->
-> The big advantage is that it works even when you are in X (like most
-> people) printks are often not visible.
+Something like:
 
-Yep.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+  The current 4g/4g implementation does not guarantee the atomicity of
+  mprotect() on SMP machines.  If one CPU is in the middle of a read() into
+  a user memory region and another CPU is in the middle of an
+  mprotect(!PROT_READ) of that region, it is possible for a race to occur
+  which will result in that read successfully completing _after_ the other
+  CPU's mprotect() call has returned.
+
+  We believe that this could cause misbehaviour of such things as the
+  boehm garbage collector.  This patch provides the mprotect() atomicity by
+  performing all userspace copies under page_table_lock.
+
+
+It is a judgement call.  Personally, I wouldn't ship a production kernel
+with this patch.  People need to be aware of the tradeoff and to think and
+test very carefully.
 

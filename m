@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270194AbRHSIDf>; Sun, 19 Aug 2001 04:03:35 -0400
+	id <S270256AbRHSILq>; Sun, 19 Aug 2001 04:11:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270250AbRHSID0>; Sun, 19 Aug 2001 04:03:26 -0400
-Received: from mx1.sac.fedex.com ([199.81.208.10]:14853 "EHLO
-	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S270194AbRHSIDQ>; Sun, 19 Aug 2001 04:03:16 -0400
-Date: Sun, 19 Aug 2001 16:04:35 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Paul <set@pobox.com>
-cc: Jeff Chua <jchua@fedex.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
-In-Reply-To: <20010819014049.A1315@squish.home.loc>
-Message-ID: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
+	id <S270255AbRHSILg>; Sun, 19 Aug 2001 04:11:36 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33043 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S270250AbRHSIL0>; Sun, 19 Aug 2001 04:11:26 -0400
+X-Apparently-From: <clint?maxwell@yahoo.com>
+From: "Clint Maxwell" <clint_maxwell@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel suggestion
+Date: Sun, 19 Aug 2001 03:11:38 -0500
+Message-ID: <FBEJLMIEKBNCFFPBBGEPMEGPCAAA.clint_maxwell@yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I have a suggestion for any upcoming version of the kernel, if you could
+pass this on to the appropriate people who might be interested in tackling
+this project.  I would like to see, if possible, support for the Philips
+CDD4801 CD-R/RW.  Your work on this would be greatly appreciated.
 
-On Sun, 19 Aug 2001, Paul wrote:
-> 	Actually, it works fine for me too, _if_ I use DOS 5 as
-> the boot image, but I changed to DOS 6.22, and its has oops'd
-> every time Ive tried it that way. Its just a trigger for whatever
-> the real problem is.
->
-> Paul
-> set@pobox.com
-
-I'm using dosemu-1.1.1.tgz with Windows 98 [Version 4.10.2222]
-
-Does "dos" command works for you instead of "xdos" ?
-
-Did you check your shmmax?
-
-Try ...
-	echo 1000000000 >/proc/sys/kernel/shmmax
+Sincerely,
+Clint Maxwell
+clint_maxwell@yahoo.com
 
 
-
-Jeff
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

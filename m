@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288643AbSADOOw>; Fri, 4 Jan 2002 09:14:52 -0500
+	id <S288640AbSADOTm>; Fri, 4 Jan 2002 09:19:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288641AbSADOOo>; Fri, 4 Jan 2002 09:14:44 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:7280 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288640AbSADOOe>; Fri, 4 Jan 2002 09:14:34 -0500
-Date: Fri, 4 Jan 2002 15:14:38 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: "M.H.VanLeeuwen" <vanl@megsinet.net>, andihartmann@freenet.de,
-        riel@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+	id <S288641AbSADOTc>; Fri, 4 Jan 2002 09:19:32 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:37977 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288640AbSADOTV>; Fri, 4 Jan 2002 09:19:21 -0500
+Date: Fri, 4 Jan 2002 14:18:36 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Wakko Warner <wakko@animx.eu.org>,
+        Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
         linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020104151438.M1561@athlon.random>
-In-Reply-To: <Pine.LNX.4.33L.0112292256490.24031-100000@imladris.surriel.com> <3C2F04F6.7030700@athlon.maya.org> <3C309CDC.DEA9960A@megsinet.net> <20011231185350.1ca25281.skraw@ithnet.com> <3C351012.9B4D4D6@megsinet.net> <20020104133321.39287b2d.skraw@ithnet.com>
+Subject: Re: 2.4.16 with es1370 pci
+Message-ID: <20020104141836.A31331@grobbebol.xs4all.nl>
+In-Reply-To: <20020101104611.A30843@animx.eu.org> <E16LSVd-0000pj-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020104133321.39287b2d.skraw@ithnet.com>; from skraw@ithnet.com on Fri, Jan 04, 2002 at 01:33:21PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <E16LSVd-0000pj-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
+X-OS: Linux grobbebol 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 01:33:21PM +0100, Stephan von Krawczynski wrote:
-> On Thu, 03 Jan 2002 20:14:42 -0600
-> "M.H.VanLeeuwen" <vanl@megsinet.net> wrote:
->  
-> > Stephan,
-> > 
-> > Here is what I've run thus far.  I'll add nfs file copy into the mix also...
-> 
-> Ah, Martin, thanks for sending the patch. I think I saw the voodoo in your
-> patch. When I did that last time I did _not_ do this:
-> 
-> +                       if (PageReferenced(page)) {
-> +                               del_page_from_inactive_list(page);
-> +                               add_page_to_active_list(page);
-> +                       } 
-> +                       continue;
-> 
-> This may shorten your inactive list through consecutive runs.
-> 
-> And there is another difference here:
-> 
-> +       if (max_mapped <= 0 && nr_pages > 0)
-> +               swap_out(priority, gfp_mask, classzone);
-> +
-> 
-> It sounds reasonable _not_ to swap in case of success (nr_pages == 0).
-> To me this looks pretty interesting. Is something like this already in -aa?
-> This patch may be worth applying in 2.4. It is small and looks like the right
-> thing to do.
+On Tue, Jan 01, 2002 at 05:15:28PM +0000, Alan Cox wrote:
+> Boot withg the "noapic" option. Quite how your system has managed to
+> lose an interrupt in the APIC hardware I don't know, but the APIC's
+> certainly have bugs. It could also be an edge/level trigger but if the BIOS
+> confused it because IRQ15 was for some kind of IDE device, but I see no
+> evidence of that.
 
--aa swapout as soon as max_mapped hits zero. So it basically does it
-internally (i.e. way more times) and so it will most certainly be able
-to sustain an higher swap transfer rate. You can check with the mtest01
--w test from ltp.
+I also have had a lot of problems with /dev/dsp in a SMP setup and with
+noapic, all at least lives for weeks without problems.
 
-Andrea
+this was with a SB16, if that matters, with opensound.
+
+-- 
+Grobbebol's Home                        |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel            | Use your real e-mail address   /\
+Linux 2.4.17 (noapic) SMP 466MHz/768 MB |        on Usenet.             _\_v  

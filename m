@@ -1,134 +1,246 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317003AbSHNMEL>; Wed, 14 Aug 2002 08:04:11 -0400
+	id <S317054AbSHNMLg>; Wed, 14 Aug 2002 08:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSHNMEK>; Wed, 14 Aug 2002 08:04:10 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:32922 "EHLO nick")
-	by vger.kernel.org with ESMTP id <S317003AbSHNMEJ>;
-	Wed, 14 Aug 2002 08:04:09 -0400
-Date: Wed, 14 Aug 2002 13:12:43 +0100 (BST)
-From: Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
+	id <S317341AbSHNMLg>; Wed, 14 Aug 2002 08:11:36 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:39946 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317054AbSHNMLe>;
+	Wed, 14 Aug 2002 08:11:34 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: GA-7DX+ crashes
-Message-ID: <Pine.LNX.4.44.0208141239380.1472-100000@r2-pc.dcs.qmul.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: mb
-X-uvscan-result: clean (17ewwU-00075d-00)
+Subject: [patch] 2.4.20-pre2 RTFM Documentation/oops-tracing.txt
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 14 Aug 2002 22:15:14 +1000
+Message-ID: <6089.1029327314@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In the hope that this will reduce the number of "what does this oops
+mean?" and "what do I need to report?" questions on l-k.  Hits all
+architectures, only tested on i386 but "obviously correct" (yeah,
+right!).
 
-We're very much at a loss as to why the 60 new PCs we've bought largely
-don't run Linux (various 2.4 kernels including 2.4.19, limbo1-BOOT) for
-very long without crashing. One of them seems to work OK; its /proc/pci is 
-identical, but the batch number on the southbridge seems one lower--is 
-this dodgy VIA hardware again? We'll be trying a different IDE controller 
-next, but 60 of those ain't cheap..
+Print "Read Documentation/oops-tracing.txt before reporting this
+problem" before oops, nmi lockup etc.  If somebody is maintaining a bug
+database, I don't mind if the message is modified to also point to the
+bug database.
 
-Has anyone else had success or failure stories in particular with this 
-motherboard? We don't really have a significant number of data points just 
-yet, but are willing to try pretty much anything anyone might suggest!
+There is no consistency between architectures.  Call read_oops_text()
+in the die() routine if the arch has one, otherwise in the
+die_if_kernel() routine.  For some awkward architectures, even call
+read_oops_text() from open code.
 
-Matt
-
-symptoms
-- random data corruption (sometimes memory, more often HDD)
-- somtimes oopsing, but never in the same place
-
-what we think we've ascertained so far
-- they pass memtest86
-- we've tried different HDDs, no effect
-- tried ide=nodma, possibly makes it crash after longer
-- tried noapic, no effect
-- tried all sorts of BIOS settings, no effect (except--possibly--turning 
-	off the on board IDE controller and playing nfsroot games)
-- ..and yet they seem to run that other OS fine :-(
-- extra cooling/underclocking doesn't seem to help
-- seems to be fs-independent (tried ext3, reiserfs, jfs)
-
-hardware
-- GA-7DX+ motherboard
-- AMD 761 northbridge 
-- VIA 686B southbridge
-- Athlon 2000XP
-- 256MB DDR RAM
-
-/proc/pci and /proc/cpuinfo:
-
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System Controller (rev 20).
-      Master Capable.  Latency=32.  
-      Prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
-      Prefetchable 32 bit memory at 0xee006000 [0xee006fff].
-      I/O at 0xd000 [0xd003].
-  Bus  0, device   1, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] AGP Bridge (rev 0).
-      Master Capable.  Latency=32.  Min Gnt=14.
-  Bus  0, device   7, function  0:
-    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 64).
-  Bus  0, device   7, function  1:
-    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
-      Master Capable.  Latency=32.  
-      I/O at 0xd400 [0xd40f].
-  Bus  0, device   7, function  2:
-    USB Controller: VIA Technologies, Inc. UHCI USB (rev 26).
-      IRQ 11.
-      Master Capable.  Latency=32.  
-      I/O at 0xd800 [0xd81f].
-  Bus  0, device   7, function  3:
-    USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 26).
-      IRQ 11.
-      Master Capable.  Latency=32.  
-      I/O at 0xdc00 [0xdc1f].
-  Bus  0, device   7, function  4:
-    SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 64).
-      IRQ 9.
-  Bus  0, device   7, function  5:
-    Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 80).
-      IRQ 5.
-      I/O at 0xe000 [0xe0ff].
-      I/O at 0xe400 [0xe403].
-      I/O at 0xe800 [0xe803].
-  Bus  0, device  13, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 16).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0xec00 [0xecff].
-      Non-prefetchable 32 bit memory at 0xee004000 [0xee0040ff].
-  Bus  0, device  15, function  0:
-    FireWire (IEEE 1394): Texas Instruments TSB12LV23 IEEE-1394 Controller (rev 0).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=15.Max Lat=15.
-      Non-prefetchable 32 bit memory at 0xee005000 [0xee0057ff].
-      Non-prefetchable 32 bit memory at 0xee000000 [0xee003fff].
-  Bus  1, device   5, function  0:
-    VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX) (rev 178).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xec000000 [0xecffffff].
-      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
-
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(tm) XP 2000+
-stepping	: 2
-cpu MHz		: 1675.283
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips	: 3342.33
-
-
+diff 20-pre2.1/include/linux/kernel.h
+--- 20-pre2.1/include/linux/kernel.h
++++ 20-pre2.1/include/linux/kernel.h
+@@ -110,6 +110,12 @@ extern const char *print_tainted(void);
+ 
+ extern void dump_stack(void);
+ 
++static inline
++void read_oops_text(void)
++{
++	printk(KERN_ERR "Read Documentation/oops-tracing.txt before reporting this problem\n");
++}
++
+ #if DEBUG
+ #define pr_debug(fmt,arg...) \
+ 	printk(KERN_DEBUG fmt,##arg)
+diff 20-pre2.1/arch/alpha/kernel/traps.c
+--- 20-pre2.1/arch/alpha/kernel/traps.c
++++ 20-pre2.1/arch/alpha/kernel/traps.c
+@@ -177,6 +177,7 @@ die_if_kernel(char * str, struct pt_regs
+ {
+ 	if (regs->ps & 8)
+ 		return;
++	read_oops_text();
+ #ifdef CONFIG_SMP
+ 	printk("CPU %d ", hard_smp_processor_id());
+ #endif
+@@ -581,6 +582,7 @@ got_exception:
+  	 */
+ 	lock_kernel();
+ 
++	read_oops_text();
+ 	printk("%s(%d): unhandled unaligned exception\n",
+ 	       current->comm, current->pid);
+ 
+diff 20-pre2.1/arch/arm/kernel/traps.c
+--- 20-pre2.1/arch/arm/kernel/traps.c
++++ 20-pre2.1/arch/arm/kernel/traps.c
+@@ -160,6 +160,7 @@ NORET_TYPE void die(const char *str, str
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
+ 
++	read_oops_text();
+ 	printk("Internal error: %s: %x\n", str, err);
+ 	printk("CPU: %d\n", smp_processor_id());
+ 	show_regs(regs);
+diff 20-pre2.1/arch/cris/kernel/traps.c
+--- 20-pre2.1/arch/cris/kernel/traps.c
++++ 20-pre2.1/arch/cris/kernel/traps.c
+@@ -253,6 +253,7 @@ die_if_kernel(const char * str, struct p
+ 	stop_watchdog();
+ #endif
+ 
++	read_oops_text();
+ 	printk("%s: %04lx\n", str, err & 0xffff);
+ 
+ 	show_registers(regs);
+diff 20-pre2.1/arch/i386/kernel/nmi.c
+--- 20-pre2.1/arch/i386/kernel/nmi.c
++++ 20-pre2.1/arch/i386/kernel/nmi.c
+@@ -358,6 +358,7 @@ void nmi_watchdog_tick (struct pt_regs *
+ 			 * to get a message out.
+ 			 */
+ 			bust_spinlocks(1);
++			read_oops_text();
+ 			printk("NMI Watchdog detected LOCKUP on CPU%d, eip %08lx, registers:\n", cpu, regs->eip);
+ 			show_registers(regs);
+ 			printk("console shuts up ...\n");
+diff 20-pre2.1/arch/i386/kernel/traps.c
+--- 20-pre2.1/arch/i386/kernel/traps.c
++++ 20-pre2.1/arch/i386/kernel/traps.c
+@@ -287,6 +287,7 @@ void die(const char * str, struct pt_reg
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
+ 	bust_spinlocks(1);
++	read_oops_text();
+ 	handle_BUG(regs);
+ 	printk("%s: %04lx\n", str, err & 0xffff);
+ 	show_registers(regs);
+diff 20-pre2.1/arch/ia64/kernel/traps.c
+--- 20-pre2.1/arch/ia64/kernel/traps.c
++++ 20-pre2.1/arch/ia64/kernel/traps.c
+@@ -103,6 +103,7 @@ die (const char *str, struct pt_regs *re
+ 		die.lock_owner = smp_processor_id();
+ 		die.lock_owner_depth = 0;
+ 		bust_spinlocks(1);
++		read_oops_text();
+ 	}
+ 
+ 	if (++die.lock_owner_depth < 3) {
+diff 20-pre2.1/arch/m68k/kernel/traps.c
+--- 20-pre2.1/arch/m68k/kernel/traps.c
++++ 20-pre2.1/arch/m68k/kernel/traps.c
+@@ -1112,6 +1112,7 @@ void die_if_kernel (char *str, struct pt
+ 		return;
+ 
+ 	console_verbose();
++	read_oops_text();
+ 	printk("%s: %08x\n",str,nr);
+ 	printk("PC: [<%08lx>]\nSR: %04x  SP: %p  a2: %08lx\n",
+ 	       fp->pc, fp->sr, fp, fp->a2);
+diff 20-pre2.1/arch/mips/kernel/traps.c
+--- 20-pre2.1/arch/mips/kernel/traps.c
++++ 20-pre2.1/arch/mips/kernel/traps.c
+@@ -333,6 +333,7 @@ void __die(const char * str, struct pt_r
+ {
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
++	read_oops_text();
+ 	printk("%s", str);
+ 	if (where)
+ 		printk(" in %s, line %ld", where, line);
+diff 20-pre2.1/arch/mips64/kernel/traps.c
+--- 20-pre2.1/arch/mips64/kernel/traps.c
++++ 20-pre2.1/arch/mips64/kernel/traps.c
+@@ -225,6 +225,7 @@ void die(const char * str, struct pt_reg
+ 
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
++	read_oops_text();
+ 	printk("%s\n", str);
+ 	show_regs(regs);
+ 	printk("Process %s (pid: %d, stackpage=%08lx)\n",
+diff 20-pre2.1/arch/parisc/kernel/traps.c
+--- 20-pre2.1/arch/parisc/kernel/traps.c
++++ 20-pre2.1/arch/parisc/kernel/traps.c
+@@ -224,6 +224,7 @@ void die_if_kernel(char *str, struct pt_
+ 	if (!console_drivers)
+ 		pdc_console_restart();
+ 	
++	read_oops_text();
+ 	printk(KERN_CRIT "%s (pid %d): %s (code %ld)\n",
+ 		current->comm, current->pid, str, err);
+ 	show_regs(regs);
+diff 20-pre2.1/arch/s390/kernel/traps.c
+--- 20-pre2.1/arch/s390/kernel/traps.c
++++ 20-pre2.1/arch/s390/kernel/traps.c
+@@ -265,6 +265,7 @@ void die(const char * str, struct pt_reg
+         console_verbose();
+         spin_lock_irq(&die_lock);
+ 	bust_spinlocks(1);
++	read_oops_text();
+         printk("%s: %04lx\n", str, err & 0xffff);
+         show_regs(regs);
+ 	bust_spinlocks(0);
+diff 20-pre2.1/arch/s390x/kernel/traps.c
+--- 20-pre2.1/arch/s390x/kernel/traps.c
++++ 20-pre2.1/arch/s390x/kernel/traps.c
+@@ -267,6 +267,7 @@ void die(const char * str, struct pt_reg
+         console_verbose();
+         spin_lock_irq(&die_lock);
+ 	bust_spinlocks(1);
++	read_oops_text();
+         printk("%s: %04lx\n", str, err & 0xffff);
+         show_regs(regs);
+ 	bust_spinlocks(0);
+diff 20-pre2.1/arch/sh/kernel/traps.c
+--- 20-pre2.1/arch/sh/kernel/traps.c
++++ 20-pre2.1/arch/sh/kernel/traps.c
+@@ -60,6 +60,7 @@ void die(const char * str, struct pt_reg
+ {
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
++	read_oops_text();
+ 	printk("%s: %04lx\n", str, err & 0xffff);
+ 	show_regs(regs);
+ 	spin_unlock_irq(&die_lock);
+diff 20-pre2.1/arch/sparc/kernel/traps.c
+--- 20-pre2.1/arch/sparc/kernel/traps.c
++++ 20-pre2.1/arch/sparc/kernel/traps.c
+@@ -91,6 +91,7 @@ void die_if_kernel(char *str, struct pt_
+ {
+ 	int count = 0;
+ 
++	read_oops_text();
+ 	/* Amuse the user. */
+ 	printk(
+ "              \\|/ ____ \\|/\n"
+diff 20-pre2.1/arch/sparc64/kernel/traps.c
+--- 20-pre2.1/arch/sparc64/kernel/traps.c
++++ 20-pre2.1/arch/sparc64/kernel/traps.c
+@@ -1446,6 +1446,7 @@ void die_if_kernel(char *str, struct pt_
+ 	int count = 0;
+ 	struct reg_window *lastrw;
+ 	
++	read_oops_text();
+ 	/* Amuse the user. */
+ 	printk(
+ "              \\|/ ____ \\|/\n"
+diff 20-pre2.1/arch/x86_64/kernel/nmi.c
+--- 20-pre2.1/arch/x86_64/kernel/nmi.c
++++ 20-pre2.1/arch/x86_64/kernel/nmi.c
+@@ -361,6 +361,7 @@ void nmi_watchdog_tick (struct pt_regs *
+ 			 * to get a message out.
+ 			 */
+ 			bust_spinlocks(1);
++			read_oops_text();
+ 			printk("NMI Watchdog detected LOCKUP on CPU%d, eip %16lx, registers:\n", cpu, regs->rip);
+ 			show_registers(regs);
+ 			printk("console shuts up ...\n");
+diff 20-pre2.1/arch/x86_64/kernel/traps.c
+--- 20-pre2.1/arch/x86_64/kernel/traps.c
++++ 20-pre2.1/arch/x86_64/kernel/traps.c
+@@ -349,6 +349,7 @@ void die(const char * str, struct pt_reg
+ 	console_verbose();
+ 	notifier_call_chain(&die_chain,  DIE_DIE, &args); 
+ 	bust_spinlocks(1);
++	read_oops_text();
+ 	handle_BUG(regs);		
+ 	printk(KERN_EMERG "%s: %04lx\n", str, err & 0xffff);
+ 	cpu = smp_processor_id(); 
 

@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSGBVMB>; Tue, 2 Jul 2002 17:12:01 -0400
+	id <S311749AbSGBV26>; Tue, 2 Jul 2002 17:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310206AbSGBVMA>; Tue, 2 Jul 2002 17:12:00 -0400
-Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:2822 "HELO
-	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S293680AbSGBVMA>; Tue, 2 Jul 2002 17:12:00 -0400
-X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
-Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBB07243E@AUSXMPS308.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: marcelo@conectiva.com.br, alan@redhat.com
-cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: [PATCH] GUID Partition Tables for 2.4.x
-Date: Tue, 2 Jul 2002 16:14:21 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 113CC83A589495-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S311752AbSGBV25>; Tue, 2 Jul 2002 17:28:57 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.247.199]:9491 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S311749AbSGBV24>; Tue, 2 Jul 2002 17:28:56 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: ptrace vs /proc
+Date: 2 Jul 2002 21:16:50 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <aft582$mq0$1@abraham.cs.berkeley.edu>
+References: <Pine.LNX.4.44.0206201742170.18444-100000@lin114-02.cise.ufl.edu> <1024609747.922.0.camel@sinai> <20020702004706.GB107@elf.ucw.cz>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1025644610 23360 128.32.153.211 (2 Jul 2002 21:16:50 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 2 Jul 2002 21:16:50 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resend, pine confusion ate my From header)
+Pavel Machek  wrote:
+>I believe such proc interface is wrong thing to do. ptrace() is really
+>very *very* special thing, and you don't want it hidden in some kind
+>of /proc magic.
 
-Marcelo and Alan:
+Five years ago I believed all that mattered was the functionality:
+whether it was exposed via ptrace() and signals or via /proc and ioctls
+was irrelevant.  Since then, having spent a lot of time using both Linux
+ptrace() and Solaris /proc, I've learned that there is a huge difference
+between the two.  The Solaris implementation, via /proc, is very clean.
+The Linux implementation, via ptrace(), is icky.
 
-Posted to http://domsch.com/linux/patches/gpt is the GUID Partition Table 
-code, copied from the IA64 port patch and applied to 2.4.19-pre1 and 
-2.4.19-pre10-ac2.  This code is identical to that included in the IA64 
-port patch already, and has been in use on IA64 for many many months.  
-Equivalent code is already included in the 2.5 kernel series.  I'm 
-submitting now for 2.4.x so that a partition table scheme which supports 
-Large Block Devices will be available if/when Peter Chubb's work on such 
-is backported from 2.5.x.  I've tested this on x86.
+For example, ptrace() uses signals as part of its interface; this
+is a gross kludgy hack, and it breaks various things.  For instance,
+overloading the meaning of signals causes wait4() to break in the traced
+process, and you have to do all sorts of workarounds in the tracer
+to make tracing transparent.  Go read the source code to strace(1).
+I think if you spend the time to understand it all, you'll agree with
+me that it is sadly hairy stuff.
 
-The work consist of two parts:
-1) Changes efi_guid_t typedef to match the 2.5.x implementation.  This 
-code is already included in the ia64 port patch for 2.4.x, and I have 
-David Mosberger's approval to submit this directly for 2.4.x.
+The Solaris /proc implementation, in contrast, was much cleaner,
+in my experience.  I suspect this is partially because the Solaris
+implementation was more carefully thought-through, but also the interface
+helped: by not overloading the meaning of signals, the Solaris /proc
+interface avoids changing the semantics of signal-related functionality
+in the traced process, and this makes for cleaner code.
 
- arch/ia64/kernel/efivars.c |   21 +++++----------------
- arch/ia64/kernel/mca.c     |   28 +++++++++++++---------------
- include/asm-ia64/efi.h     |   36 +++++++++++++++++++++++++++---------
- include/asm-ia64/sal.h     |   36 ++++++++++++++++++------------------
- 4 files changed, 63 insertions, 58 deletions
-
-
-2) Adds fs/partitions/efi.[ch] and associated small changes to related 
-files.  The arch/ia64/defconfig change removes a stale entry.
-
- Documentation/Configure.help |   11
- arch/ia64/defconfig          |    1
- fs/partitions/Config.in      |    1
- fs/partitions/Makefile       |    2
- fs/partitions/check.c        |    4
- fs/partitions/efi.c          |  804
-+++++++++++++++++++++++++++++++++++++++++++
- fs/partitions/efi.h          |  119 ++++++
- fs/partitions/msdos.c        |   11
- 8 files changed, 943 insertions, 10 deletions
-
-
-The patches are in both BK Changeset form and traditional diff.
-
-BK:
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt.cset
-
-Patch:
-http://domsch.com/linux/patches/gpt/linux-2.4.19-rc1-efiguidt.patch
-http://domsch.com/linux/patches/gpt/linux-2.4.19-rc1-gpt.patch
-
-
-Marcelo, I understand you won't wish to apply this before 2.4.19 final.  I 
-don't expect any conflicts to arise between this code and anything 
-expected in 2.4.19 final, so please try to apply this after 2.4.19 is out.
-
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
-
-
+Solaris /proc also had other nice features, like the ability to follow
+fork() automatically and so on.  (Check out what strace has to do with
+ptrace(): it actually does binary code-rewriting of the traced process
+on the fly to work around lack of functionality in ptrace().)  Many of
+these features, of course, were orthogonal to whether the process tracing
+was implemented via ptrace() and signals or /proc and ioctls.

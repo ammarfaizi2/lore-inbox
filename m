@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267425AbTALTil>; Sun, 12 Jan 2003 14:38:41 -0500
+	id <S267436AbTALTpW>; Sun, 12 Jan 2003 14:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267427AbTALTil>; Sun, 12 Jan 2003 14:38:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12293 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267425AbTALTgz>; Sun, 12 Jan 2003 14:36:55 -0500
-Date: Sun, 12 Jan 2003 11:41:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jaroslav Kysela <perex@suse.cz>
-cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [PATCH] PnP update - drivers
-In-Reply-To: <Pine.LNX.4.33.0301122025520.611-100000@pnote.perex-int.cz>
-Message-ID: <Pine.LNX.4.44.0301121139450.14031-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267437AbTALTpW>; Sun, 12 Jan 2003 14:45:22 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:46733 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267436AbTALTpU>; Sun, 12 Jan 2003 14:45:20 -0500
+Date: Sun, 12 Jan 2003 20:53:47 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Rob Wilkens <robw@optonline.net>
+Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030112195347.GJ3515@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <1042400219.1208.29.camel@RobsPC.RobertWilkens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042400219.1208.29.camel@RobsPC.RobertWilkens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 12 Jan 2003, Jaroslav Kysela wrote:
+> [robw@optonline.net]
 >
-> You can import this changeset into BK by piping this whole message to:
-> '| bk receive [path to repository]' or apply the patch as usual.
+> Am I wrong that the above would do the same thing without generating the
+> sphagetti code that a goto would give you.  Gotos are BAD, very very
+> bad.
 
-STOP THIS F*CKING MADNESS ALREADY.
+Whom do I pay to have this annoying clueless asshole shot?
+OH MY GOD, I really can't take any more.
 
-If you send BK patches, at least do it right, and make sure your BK patch 
-is a proper child of something I actually _have_, so that I don't get 
-results like:
-
-	takepatch: can't find parent ID
-	        perex@suse.cz|ChangeSet|20030111100546|48939
-	        in RESYNC/SCCS/s.ChangeSet
-
-and if you only want to send the patch and not use BK merges, then don't 
-even bother to _use_ the BK merge stuff.
-
-		Linus
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

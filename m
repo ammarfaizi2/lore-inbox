@@ -1,142 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262316AbRFBJV6>; Sat, 2 Jun 2001 05:21:58 -0400
+	id <S262355AbRFBJXI>; Sat, 2 Jun 2001 05:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262355AbRFBJVj>; Sat, 2 Jun 2001 05:21:39 -0400
-Received: from host213-123-127-165.btopenworld.com ([213.123.127.165]:6668
-	"EHLO argo.dyndns.org") by vger.kernel.org with ESMTP
-	id <S262316AbRFBJV2>; Sat, 2 Jun 2001 05:21:28 -0400
-X-test: X
-To: linux-kernel@vger.kernel.org
-From: lk@mailandnews.com
-Subject: CUV4X-D lockup on boot
-Date: 02 Jun 2001 10:21:26 +0100
-Message-ID: <m31yp3qlt5.fsf@fork.man2.dom>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S262379AbRFBJW6>; Sat, 2 Jun 2001 05:22:58 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:40342 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S262355AbRFBJWw>; Sat, 2 Jun 2001 05:22:52 -0400
+Date: Sat, 2 Jun 2001 11:21:59 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Frank Eichentopf <frei@hap-bb.de>
+cc: <linux-kernel@vger.kernel.org>,
+        "Rose, Daniel" <daniel.rose@datalinesoutions.com>,
+        Yiping Chen <YipingChen@via.com.tw>,
+        Felix Maibaum <f.maibaum@tu-bs.de>,
+        Jonathan Morton <chromi@cyberspace.org>,
+        David Vrabel <dv207@hermes.cam.ac.uk>,
+        Donald Becker <becker@scyld.com>
+Subject: [patch][CFT] Re: via-rhine DFE-530TX rev A1
+In-Reply-To: <01053111335702.04024@server>
+Message-ID: <Pine.LNX.4.30.0106021027190.23124-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0106021032341.23124@cola.teststation.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an ASUS CUV4X-D Dual Processor Mainboard based on a VIA
-694XDP chipset. I notice from the archives that someone else
-has also reported a lockup with the m/b when using two cpus
-and have some info that may be useful to track it down.
 
-Using kernel 2.4.5 the kernel locks up sporadically at boot
-time. When I enable the NMI watchdog it occasionally gets
-enabled prior to the lockup and perhaps can be useful for
-debugging the problem. Here's what happens:
+> >Are you sure. What's the version of your driver. Please tell me. It's
+> >important.
+> >I remember we have fixed it already. 
+> 
+> The driver version (dlkfet.sys) is 2.52 from 08/06/2000. this is the lastest
+> driver from the original dlink site.
 
-I typed this in, so there may be typos:
-..TIMER: vector=49 pin1=2 pin2=0
-activating NMI Watchdog ... done.
-[locks up here, or before activating NMI watchdog]
-[this normally happens next but not in this case
- number of MP IRQ sources: 21.
- number of IO-APIC #2 registers: 24.
- testing the IO APIC.......................
-]
-NMI Watchdog detected LOCKUP on CPU1, registers:
-CPU : 1
-EIP: 0010:[<c0235cdb>]
-EFLAGS: 00000246
-eax: 00000000 ebx: 00000000 ecx: 00000001 edx: 00000001
-esi: 00000000 edi: 00000000 ebp: 00000000 esp: cfff5fa4
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, stackpage = cfff5000)
-Stack: 00000000 00000000 00000000 00000000 c0235e8f 00000001 00000002 c0235eaa
-       00000000 00000019 00000000 c1442000 00002700 0000b00f 00000000 00000000
-       0000000d 0000000e 00000000 00000000 c00bcf60 00000000 c0172029
-Call Trace: [<c0172029>]
-Code: 85 c0 74 bf 00 e0 ff ff 21 e7 31 f6 bd 10 00 00 00 31 db
-Console shuts up ...
+Perhaps Yiping Chen was talking about a D-Link linux driver?
+David Vrabel has found a D-Link driver ("1.11") based on Donald Beckers
+that fixes the "00:00:00:00:00 after rebooting from win98" problem.
 
-[ksymoops output]
-Warning (compare_maps): ksyms_base symbol __VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring ksyms_base entry
-activating NMI Watchdog ... done.
-[locks up here, or before activating NMI watchdog]
-NMI Watchdog detected LOCKUP on CPU1, registers:
-EIP: 0010:[<c0235cdb>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000246
-eax: 00000000 ebx: 00000000 ecx: 00000001 edx: 00000001
-esi: 00000000 edi: 00000000 ebp: 00000000 esp: cfff5fa4
-ds: 0018 es: 0018 ss: 0018
-Stack: 00000000 00000000 00000000 00000000 c0235e8f 00000001 00000002 c0235eaa
-       00000000 00000019 00000000 c1442000 00002700 0000b00f 00000000 00000000
-       0000000d 0000000e 00000000 00000000 c00bcf60 00000000 c0172029
-Call Trace: [<c0172029>]
-Code: 85 c0 74 bf 00 e0 ff ff 21 e7 31 f6 bd 10 00 00 00 31 db
+Here is a patch vs 2.4.5-ac4 that may fix this (if I didn't break it).
 
->>EIP; c0235cdb <synchronize_tsc_ap+1b/a0>   <=====
-Trace; c0172029 <set_cursor+69/80>
-Code;  c0235cdb <synchronize_tsc_ap+1b/a0>
-00000000 <_EIP>:
-Code;  c0235cdb <synchronize_tsc_ap+1b/a0>   <=====
-   0:   85 c0                     test   %eax,%eax   <=====
-Code;  c0235cdd <synchronize_tsc_ap+1d/a0>
-   2:   74 bf                     je     ffffffc3 <_EIP+0xffffffc3> c0235c9e <synchronize_tsc_bp+1ee/210>
-Code;  c0235cdf <synchronize_tsc_ap+1f/a0>
-   4:   00 e0                     add    %ah,%al
-Code;  c0235ce1 <synchronize_tsc_ap+21/a0>
-   6:   ff                        (bad)  
-Code;  c0235ce2 <synchronize_tsc_ap+22/a0>
-   7:   ff 21                     jmp    *(%ecx)
-Code;  c0235ce4 <synchronize_tsc_ap+24/a0>
-   9:   e7 31                     out    %eax,$0x31
-Code;  c0235ce6 <synchronize_tsc_ap+26/a0>
-   b:   f6 bd 10 00 00 00         idiv   0x10(%ebp),%al
-Code;  c0235cec <synchronize_tsc_ap+2c/a0>
-  11:   31 db                     xor    %ebx,%ebx
+http://www.hojdpunkten.ac.se/054/via-rhine-2.4.5-ac4-dlink-3.patch
+
+Please test and let me know if it works. It should apply vs any 2.4.5*
+kernel. I have added those that I know have reported this problem before
+to the Cc list.
 
 
-2 warnings issued.  Results may not be reliable.
+What the driver does differently at init time is disable wake-on-lan and
+power-management-events and then reload the MAC Address from EEPROM.
 
-# cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 937.557
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 1867.77
+The reload code is also in the latest test version (1.10) from Donald
+Becker at www.scyld.com, and that is the code I have used with slight
+modification. I don't know if reloading from EEPROM alone is enough to fix
+the 00:00:00:00:00 bug.
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 937.557
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 1874.32
-
-If this doesn't make someone go "aha!" then I can set up a serial
-port for debugging and repeat this a few times.
-
-Thanks,
-
-Paul
+There is also a minor thing with 0x01 being a reserved bit in TxConfig,
+that should probably be 0x02 to set it to loopback.
 
 
+The D-Link driver has some other changes for various things. I have been
+unable to find the driver on dlinks site, but I have the copy David sent
+me:
+http://www.hojdpunkten.ac.se/054/via-rhineb1.zip
 
+/Urban
 

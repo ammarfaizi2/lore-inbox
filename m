@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUEEPgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUEEPsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUEEPgm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 11:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbUEEPgm
+	id S264704AbUEEPsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 11:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUEEPsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 11:36:42 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:33999 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264701AbUEEPgG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 11:36:06 -0400
-Date: Wed, 5 May 2004 17:36:01 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove dead drivers/ide/ppc/swarm.c
-In-Reply-To: <Pine.LNX.4.55.0405041621370.32082@jurand.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.55.0405051555170.17257@jurand.ds.pg.gda.pl>
-References: <200405040134.22092.bzolnier@elka.pw.edu.pl>
- <200405041428.50592.bzolnier@elka.pw.edu.pl> <20040504124349.GA15664@linux-mips.org>
- <200405041510.41731.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.55.0405041621370.32082@jurand.ds.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Wed, 5 May 2004 11:48:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52976 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264704AbUEEPsL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 11:48:11 -0400
+Date: Wed, 05 May 2004 08:47:56 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: jos.dehaes@bigfoot.com
+Subject: [Bug 2642] New: Oops when mounting a smb filesystem
+Message-ID: <479820000.1083772076@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, Maciej W. Rozycki wrote:
+http://bugme.osdl.org/show_bug.cgi?id=2642
 
-> > The basic question is whether disk used on SiByte can be read i.e. on x86.
-> > If not than we may have serious problems with some special commands with
-> > current implementation (similar problem as on Atari Q40/Q60).
-> 
->  I can check the GPIO attachment with 2.4 (which should behave the same
-> way here).  I don't have a PCI IDE board.
+           Summary: Oops when mounting a smb filesystem
+    Kernel Version: Linux knudde.be.ubizen.com 2.6.5 #20 Fri Apr 30 17:19:26
+                    CEST 20
+            Status: NEW
+          Severity: normal
+             Owner: fs_samba-smb@kernel-bugs.osdl.org
+         Submitter: jos.dehaes@bigfoot.com
 
- Here is the result:
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-SiByte onboard IDE configured as device 0
-hda: ST310211A, ATA DISK drive
-ide0 at 0xffffffff340b3e00-0xffffffff340b3e07,0xffffffff340b7ec0 on irq 36
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 19541088 sectors (10005 MB) w/1024KiB Cache, CHS=19386/16/63
-Partition check:
- hda:
-[...]
-# dd if=/dev/hda bs=512 count=1 2>/dev/null | od -Ax -tx1
-000000 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-*
-0001f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 aa
-000200
+Distribution: Gentoo Linux
+Hardware Environment: x86, dell optiplex gx1, ati mach64
+Software Environment: Linux 2.6.5 vanilla preempt + supermount patch, glibc
+2.3.2 NPTL, gcc 2.3.3, samba 3.0.2a
 
-so barring the completely bogus addresses reported (the interface is
-decoded at 0x100b0000 and that's MMIO, unrelated to the PCI I/O space -- I
-guess fixing it would require a significant update to ide-probe.c and
-elsewhere), it looks OK.  This is in a little-endian configuration -- I'll
-recheck for big endianness once I have appropriate userland installed
-(which is likely not very soon).  It shouldn't matter much, though -- I've
-checked documentation and I've found out that while the generic bus (the
-IDE connector is wired to) is big-endian externally, the internal logic
-does swapping if the system is configured for little-endian operation.  
+Gnu C                  3.3.3
+Gnu make               3.80
+binutils               2.14.90.0.8
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.0
+e2fsprogs              1.35
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.1
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.0
+Modules Loaded         vmnet vmmon binfmt_misc sd_mod usb_storage scsi_mod
+uhci_hcd usbcore
 
- FYI, the interface is currently fixed at PIO3, but perhaps it could get
-improved to handle other speeds.  Bus-master DMA is unsupported, but
-perhaps one of the data movers could get engaged for a third-party DMA
-support.  The generic bus is clocked at 100MHz, so faster operation is
-possible, at least in theory.
 
-  Maciej
+Problem Description: Sometimes smb mount gives oops in syslog, but not always.
+The offending process is always nautilus (version 2.6.1). After that that
+accessing the mount point gives processes in uninterruptable sleep. 
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+oops:
+smb_lookup: find //.Trash-jos failed, error=-5
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010246   (2.6.5)
+EIP is at 0x0
+eax: d9f94c20   ebx: d68a3f30   ecx: c015e7c0   edx: d81c4ae0
+esi: d68a3fa0   edi: c1329600   ebp: d44d85e0   esp: d68a3efc
+ds: 007b   es: 007b   ss: 0068
+Process nautilus (pid: 6808, threadinfo=d68a2000 task=d6d1cd60)
+Stack: c01c16d6 d44d85e0 d68a3fa0 c015e7c0 d68a3f30 00000000 00000002 00000004
+       d43c4ec4 00000000 d43c0000 d81c4ae0 d4ac8b60 00000000 fffe7b2a d44d85e0
+       00000000 00000000 d43c0000 00000002 00000000 00000000 00000001 00000004
+Call Trace:
+ [<c01c16d6>] smb_readdir+0x3f6/0x5a0
+ [<c015e7c0>] filldir64+0x0/0x120
+ [<c015e489>] vfs_readdir+0x89/0xa0
+ [<c015e7c0>] filldir64+0x0/0x120
+ [<c015e94e>] sys_getdents64+0x6e/0xaa
+ [<c015e7c0>] filldir64+0x0/0x120
+ [<c0107009>] sysenter_past_esp+0x52/0x71
+ 
+Code:  Bad EIP value.
+
+Steps to reproduce:
+mount an smb filesystem.
+Doesn't happen allways, but has bitten me at least 5 times the last weeks. To
+reproduce for this bugreport, it happened on the first try.
+
+

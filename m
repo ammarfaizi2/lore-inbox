@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbTIIV5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTIIV5O
+	id S264502AbTIIWEf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTIIWEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:57:14 -0400
-Received: from smtp1.fre.skanova.net ([195.67.227.94]:18385 "EHLO
-	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S264604AbTIIV5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:57:09 -0400
-Subject: 2.6.0-test5: Was: [2.6.0-test4-mm5] [BLUETOOTH] rfcomm: kernel BUG
-	at include/net/sock.h:459!
-From: Fredrik Noring <noring@nocrew.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: NoCrew
-Message-Id: <1063144449.2935.15.camel@h9n1fls20o980.bredband.comhem.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 09 Sep 2003 23:54:09 +0200
+	Tue, 9 Sep 2003 18:04:35 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:12464 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S264502AbTIIWEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 18:04:32 -0400
+Message-ID: <3F5E4E6E.1070806@wmich.edu>
+Date: Tue, 09 Sep 2003 18:04:30 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Markus Plail <linux-kernel@gitteundmarkus.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: atapi write support? No
+References: <3F5E2BA4.60704@wmich.edu> <20030909195428.GQ4755@suse.de>	<3F5E338F.2000007@wmich.edu> <87brttemlk.fsf@gitteundmarkus.de>
+In-Reply-To: <87brttemlk.fsf@gitteundmarkus.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2003-09-03 20:46:45 cb-lkml wrote:
-> I get this BUG (twice) during boot when the rfcomm init script runs.
+Markus Plail wrote:
+> On Tue, 09 Sep 2003, Ed Sweetman wrote:
+> 
+> 
+>>Jens Axboe wrote: 
+>>
+>>>On Tue, Sep 09 2003, Ed Sweetman wrote:
+>>
+>>There is no other information needed.
+> 
+> 
+> There is...
 
-I get a similar crash (three times) and now this also shows up in 2.6.0-test5.
+You seemed to get it without any more.
 
-	Fredrik
+> 
+>>By use atapi write support i mean Get it to do anything besides error
+>>out reporting that it cant access the drive. If you can query the
+>>drive much less actually write anything to it using the ATAPI
+>>interface than that's more than i've been able to do.
+>>
+>>for example   cdrecord dev=ATAPI:1,0,0 checkdisk
+> 
+> 
+> ATAPI: is most likely wrong for what you want to do. It's meant for
+> notebooks (PCATA or something).
+> If you just want to get rid of ide-scsi, you have to use dev=/dev/hdX in
+> cdrecord.
 
-Bluetooth: Core ver 2.2
-NET: Registered protocol family 31
-Bluetooth: HCI device and connection manager initialized
-Bluetooth: HCI socket layer initialized
-Bluetooth: HCI USB driver ver 2.4
-hci_usb: probe of 1-2:1 failed with error -5
-hci_usb: probe of 1-2:2 failed with error -5
-drivers/usb/core/usb.c: registered new driver hci_usb
-Bluetooth: L2CAP ver 2.1
-Bluetooth: L2CAP socket layer initialized
-------------[ cut here ]------------
-kernel BUG at include/net/sock.h:459!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<e0921786>]    Not tainted
-EFLAGS: 00010286
-EIP is at l2cap_sock_alloc+0xb6/0xc0 [l2cap]
-eax: e09ad400   ebx: dc700d54   ecx: dc5f6d98   edx: dc700d54
-esi: 00000000   edi: ffffffa3   ebp: dc5f6d98   esp: debdfeec
-ds: 007b   es: 007b   ss: 0068
-Process sdpd (pid: 1005, threadinfo=debde000 task=def4e690)
-Stack: dc5f6d98 00000000 00000024 000000d0 dc5f6d98 00000000 e09217fa dc5f6d98
-       00000000 000000d0 e09ad604 e09a10db dc5f6d98 00000000 0000001f 00000005
-       00000000 c024f5f6 dc5f6d98 00000000 00000000 0804d000 ffffff9f 00000000
-Call Trace:
- [<e09217fa>] l2cap_sock_create+0x6a/0x90 [l2cap]
- [<e09a10db>] bt_sock_create+0x7b/0xc0 [bluetooth]
- [<c024f5f6>] sock_create+0xe6/0x220
- [<c024f75b>] sys_socket+0x2b/0x60
- [<c0250871>] sys_socketcall+0xc1/0x2c0
- [<c011011a>] do_gettimeofday+0x1a/0x90
- [<c010aa39>] sysenter_past_esp+0x52/0x71
- 
-Code: 0f 0b cb 01 5c 48 92 e0 eb 81 83 ec 10 89 5c 24 0c 8b 5c 24
- <3>hci_usb_isoc_rx_submit: hci0 isoc rx submit failed urb dc5fed60 err -22
+this method states that the method of access is unsupported and 
+unintentional.  Which is why i didn't think that it was the right way to 
+use cdrecord on atapi devices without ide-scsi.
 
+
+> regards
+> Markus
+> 
+> PS: A little change in attitude towards people who are willing to help
+> you wouldn't be the worst idea. IMHO of course.
+> 
+
+If you make what is a general question too specific with details you 
+limit your responses if anyone thinks their response is correct for you 
+anyway.  I limited my question as much as i wanted to, with the desired 
+effect no less.
+
+
+apparently cdrecord's documention is a little behind it's code. Now 
+tracking down why it seems to be botching audio cds for me would require 
+a full bugreport style mail now that i know cdrecord is being used in 
+the correct manner.
 

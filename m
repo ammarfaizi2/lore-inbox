@@ -1,71 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVBFMPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVBFMQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVBFMPC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:15:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBFMPC
+	id S261189AbVBFMQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBFMQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:15:02 -0500
-Received: from av9-1-sn1.fre.skanova.net ([81.228.11.115]:20119 "EHLO
-	av9-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261189AbVBFMOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:14:34 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc3-mm1
-References: <20050204103350.241a907a.akpm@osdl.org> <m3d5vengs2.fsf@telia.com>
-	<1107686024.30303.52.camel@gaston>
-From: Peter Osterlund <petero2@telia.com>
-Date: 06 Feb 2005 13:14:20 +0100
-In-Reply-To: <1107686024.30303.52.camel@gaston>
-Message-ID: <m3acqhnaw3.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sun, 6 Feb 2005 07:16:27 -0500
+Received: from gprs214-130.eurotel.cz ([160.218.214.130]:52911 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261235AbVBFMPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 07:15:16 -0500
+Date: Sun, 6 Feb 2005 13:15:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050206121504.GB1151@elf.ucw.cz>
+References: <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com> <20050206035417.GB15853@atomide.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050206035417.GB15853@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Hi!
 
-> On Sun, 2005-02-06 at 11:07 +0100, Peter Osterlund wrote:
-> > Andrew Morton <akpm@osdl.org> writes:
-> > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
-> > 
-> > It gives me a kernel panic at boot if I have CONFIG_FB_RADEON
-> > enabled. If I also have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get this
-> > output:
-> > 
-> >         Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> >         ...
-> >         PREEMPT
-> >         ...
-> >         EIP is a strncpy_from_user+0x33/0x47
-> >         ...
-> >         Call Trace:
-> >          getname+0x69/0xa5
-> >          sys_open+0x12/0xc6
-> >          sysenter_past_esp+0x52/0x75
-> >         ...
-> >         Kernel panic - not syncing: Attempted to kill init!
-> > 
-> > If I don't have CONFIG_FRAMEBUFFER_CONSOLE enabled, I get a screen
-> > with random junk and some blinking colored boxes, and the machine
-> > hangs.
-> 
-> That's very strange... I don't see what in radeonfb could cause this.
-> Just in case, can you try commenting out the call to radeon_pm_init() in
-> radeon_base.c, see if it makes any difference (though I don't think so).
+> +extern void disable_pit_tick(void);
+> +extern void reprogram_pit_tick(int jiffies_to_skip);
+> +extern void reprogram_apic_timer(unsigned int count);
+> +extern void reprogram_pit_tick(int jiffies_to_skip);
 
-No, it didn't make any difference. I added a printk to do_getname()
-and I see that it is called with filename==0.
-
-I disabled the framebuffer so I could boot the kernel, then wrote a
-small test program that does open(0, O_RDONLY). This also calls
-do_getname() with filename==0, but does not generate an oops. Maybe
-there is something wrong with exception handling that early in the
-boot sequence.
-
+reprogram_pit_tick is here twice; but perhaps this should be moved to
+some kind of header file.
+									Pavel
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

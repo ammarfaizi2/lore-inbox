@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262941AbTDBUuF>; Wed, 2 Apr 2003 15:50:05 -0500
+	id <S263140AbTDBU4M>; Wed, 2 Apr 2003 15:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262961AbTDBUuF>; Wed, 2 Apr 2003 15:50:05 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:49814 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262941AbTDBUuE>; Wed, 2 Apr 2003 15:50:04 -0500
-Date: Wed, 2 Apr 2003 16:03:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Dennis Cook <cook@sandgate.com>
-cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Deactivating TCP checksumming
-In-Reply-To: <b6fi8m$j4g$1@main.gmane.org>
-Message-ID: <Pine.LNX.4.53.0304021555160.32710@chaos>
-References: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
- <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org>
- <20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org>
+	id <S263142AbTDBU4M>; Wed, 2 Apr 2003 15:56:12 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:48064 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S263140AbTDBU4K>; Wed, 2 Apr 2003 15:56:10 -0500
+Message-ID: <3E8B5119.5000508@rcn.com>
+Date: Wed, 02 Apr 2003 16:07:37 -0500
+From: Mike Tangolics <mtangolics@rcn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthew Hall <matt@ecsc.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Kernel Framebuffer Problems
+References: <E190QXQ-0004Uz-00@smtp01.mrf.mail.rcn.net> <1049282302.745.24.camel@sheeta>
+In-Reply-To: <1049282302.745.24.camel@sheeta>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Apr 2003, Dennis Cook wrote:
+Matthew Hall wrote:
 
-> What I was looking for is a general capability to keep the SW transport
-> stack from
-> computing outgoing TCP/UDP/IP checksums so that the HW can be allowed to do
-> it,
-> similar to Windows checksum offload capability.
-REALLY? Who are you kidding. Windows has no such capability.
+>On Tue, 2003-04-01 at 19:31, mtangolics@rcn.com wrote:
+>  
+>
+>>I've had a couple of problems with framebuffer console, when 
+>>compiling several different versions of the 2.5 kernel.  I 
+>>included all the FB support, but when I boot up using, LILO 
+>>option, vga=791 or anything about normal, the screen either 
+>>goes black, and the system stops responding or the entire 
+>>screen becomes scrambled.  I have an NVidia Geforce4 video 
+>>card if that matters.  I've talked to a couple other users 
+>>who have encountered the same problem.  It's most likely just 
+>>a stupid mistake on my part, but any help would be extremely 
+>>appreciated.
+>>    
+>>
+>
+>What does your lilo.conf line for 2.5 look like?
+>You may need to append some video information, eg.
+>
+>append="video=rivafb,xres:1024,yres:768,bpp:8"
+>
+>Matt
+>  
+>
+My lilo.conf line looks this generally:
+I left out the minor numbers because I don't have a specific kernel 
+running right now..
 
-Check \WINDOWS\SYSTEM32\DRIVERS\ETC\* and see who they stole
-the TCP/IP stack from!
+image=/boot/vmlinuz-2.5
+root = /dev/hdb2
+label = Linux-2.5
+read-only
 
-Further, when you perform normal user->TCP/IP operations, you
-get checksumming for free as part of the copy operation. It's
-only when you don't even copy data that you can get any advantage
-of not checksumming. That's why sendfile disables it.
+plus at the top:
+vga=791
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 

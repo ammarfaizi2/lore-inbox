@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267678AbSLFH0i>; Fri, 6 Dec 2002 02:26:38 -0500
+	id <S267679AbSLFHZO>; Fri, 6 Dec 2002 02:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267681AbSLFH0i>; Fri, 6 Dec 2002 02:26:38 -0500
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:43153
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S267678AbSLFH0h>; Fri, 6 Dec 2002 02:26:37 -0500
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <3DF050EB.108DCF8@digeo.com>
-References: <3DF049F9.6F83D13@digeo.com>
-	 <1039158861.16565.10.camel@localhost>  <3DF050EB.108DCF8@digeo.com>
-Content-Type: text/plain
+	id <S267680AbSLFHZO>; Fri, 6 Dec 2002 02:25:14 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:24255 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267679AbSLFHZN>; Fri, 6 Dec 2002 02:25:13 -0500
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1039160042.16565.15.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 06 Dec 2002 01:34:03 -0600
+Message-ID: <15856.21342.982592.432584@sofia.bsd2.kbnes.nec.co.jp>
+Date: Fri, 6 Dec 2002 16:35:58 +0900
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] nbd.[ch] is broken by MAJOR_NR removal
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 01:25, Andrew Morton wrote:
-> GrandMasterLee wrote:
-> > 
-[...]
-> > Just curious, but how long would it take a system with 8GB RAM, using 4G
-> > or 64G kernel to fall over?
-> 
-> A few seconds if you ran the wrong thing.  Never if you ran something
-> else.
-> 
-> > One thing I've noticed, is that 2.4.19aa2
-> > runs great on a box with 8GB when I don't allocate all that much, but
-> > seems to run into issues after a large DB has been running on it for
-> > several days. (i.e. the system get's generally a little slower, less
-> > responsive, and in some cases crashes after 7 days).
-> 
-> "crashes"?  kernel, or application?   What additional info is
-> available?
+nbd.h now does not include blk.h, so nbd.c needs to include it.  In
+nbd.h an ifdef was removed without removing the closing endif.  Patch
+is against bk-latest.
 
-Machine will panic. I've actually captured some and sent them to this
-list, but I've been told that my stack was corrupt. Problem is, ATM, I
-can't find a memory problem. Memtest86 locks up on test 4(as in, machine
-needs hard booting), no matter if it's 8GB or 4GB RAM installed. An no
-matter if *known good* ram is being tested as well. So I don't think
-it's that per se. 
+--- linus-2.5/drivers/block/nbd.c.orig	Fri Dec  6 11:56:52 2002
++++ linus-2.5/drivers/block/nbd.c	Fri Dec  6 15:48:55 2002
+@@ -54,6 +54,7 @@
+ #include <asm/types.h>
+ 
+ #include <linux/nbd.h>
++#include <linux/blk.h>
+ 
+ #define LO_MAGIC 0x68797548
+ 
+--- linus-2.5/include/linux/nbd.h.orig	Fri Dec  6 11:56:52 2002
++++ linus-2.5/include/linux/nbd.h	Fri Dec  6 16:11:40 2002
+@@ -53,7 +53,6 @@
+ 	int blksize_bits;
+ 	u64 bytesize;
+ };
+-#endif
+ 
+ /* This now IS in some kind of include file...	*/
+ 
 
-> > Yes, I know, sounds like a memory leak in something, but aside from
-> > patching Oracle from 8.1.7.4(dba's can't find any new patches ATM), I've
-> > tried everything except changing my kernel.
-> > 
-> > Could this be similar behaviour?
-> 
-> No, it's something else.  Possibly a leak, possibly vma structures.
-
-Could that yield a corrupt stack?
-
-> You should wait until the machine is sluggish, then capture
-> the output of:
-> 
-> 	vmstat 1
-> 	cat /proc/meminfo
-> 	cat /proc/slabinfo
-> 	ps aux
-
-I shall gather the information sometime 12/06/2002. TIA
-
---The GrandMaster

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310178AbSCAXZJ>; Fri, 1 Mar 2002 18:25:09 -0500
+	id <S310179AbSCAXdC>; Fri, 1 Mar 2002 18:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310177AbSCAXY7>; Fri, 1 Mar 2002 18:24:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52745 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310173AbSCAXYq>;
-	Fri, 1 Mar 2002 18:24:46 -0500
-Message-ID: <3C800D66.F613BBAA@zip.com.au>
-Date: Fri, 01 Mar 2002 15:23:18 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: queue_nr_requests needs to be selective
-In-Reply-To: <20020301132254.A11528@vger.timpanogas.org> <3C7FE7DD.98121E87@zip.com.au>,
-		<3C7FE7DD.98121E87@zip.com.au>; from akpm@zip.com.au on Fri, Mar 01, 2002 at 12:43:09PM -0800 <20020301162016.A12413@vger.timpanogas.org>
+	id <S310181AbSCAXcw>; Fri, 1 Mar 2002 18:32:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:28167 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310179AbSCAXch>;
+	Fri, 1 Mar 2002 18:32:37 -0500
+Date: Sat, 2 Mar 2002 00:32:36 +0100
+From: Dave Jones <davej@suse.de>
+To: svetljo <galia@st-peter.stw.uni-erlangen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: troubles with isofs linux-2.5.5-xfs-dj2
+Message-ID: <20020302003236.R7662@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	svetljo <galia@st-peter.stw.uni-erlangen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C7FF756.806@st-peter.stw.uni-erlangen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7FF756.806@st-peter.stw.uni-erlangen.de>; from galia@st-peter.stw.uni-erlangen.de on Fri, Mar 01, 2002 at 10:49:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> 
-> The issue here is that it sleeps too much
-> and what's really happening and that we are forcing 8 disk drives
-> toshare 64/128 request buffers rather than provide each physical disk
-> with what it really needs.
+On Fri, Mar 01, 2002 at 10:49:10PM +0100, svetljo wrote:
+ > i'm having strange troubles with isofs in linux-2.5.5-xfs-dj2
+ > compiled in i got ' iso9660 filesystem not suported by kernel '
+ > i don't get it, what's wrong
 
-OK.  So would it suffice to make queue_nr_requests an argument to
-a new blk_init_queue()?
+ The makefile is horked. Quick fix is to back out the changes
+ to fs/isofs/Makefile in the -dj2 patch.  I've something better
+ queued (or at least it looks better, I need to play with it a bit)
+ for -dj3.
 
--	blk_init_queue(q, sci_request);
-+	blk_init_queue_ng(q, sci_request, 1024);
-
-
-
--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

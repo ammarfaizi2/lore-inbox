@@ -1,110 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269173AbUJFNv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269176AbUJFN4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269173AbUJFNv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 09:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269177AbUJFNv7
+	id S269176AbUJFN4P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 09:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269177AbUJFN4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 09:51:59 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:14716 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269173AbUJFNvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 09:51:50 -0400
-Message-ID: <4163F6A9.7000604@yahoo.com.au>
-Date: Wed, 06 Oct 2004 23:44:09 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Wed, 6 Oct 2004 09:56:14 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:49288 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269176AbUJFN4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 09:56:06 -0400
+Date: Wed, 6 Oct 2004 15:55:52 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Willy Tarreau <willy@w.ods.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
+ availlable
+In-Reply-To: <20041006133310.GD8386@wohnheim.fh-wedel.de>
+Message-ID: <Pine.GSO.4.61.0410061548390.20160@waterleaf.sonytel.be>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
+ <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua>
+ <20041006043458.GB19761@alpha.home.local> <Pine.GSO.4.61.0410061038590.20160@waterleaf.sonytel.be>
+ <20041006121534.GA8386@wohnheim.fh-wedel.de> <Pine.GSO.4.61.0410061504140.20160@waterleaf.sonytel.be>
+ <20041006133310.GD8386@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       "'Andrew Morton'" <akpm@osdl.org>
-Subject: Re: [patch] sched: auto-tuning task-migration
-References: <200410060042.i960gn631637@unix-os.sc.intel.com> <20041006132930.GA1814@elte.hu>
-In-Reply-To: <20041006132930.GA1814@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-869693583-1097070945=:20160"
+Content-ID: <Pine.GSO.4.61.0410061555510.20160@waterleaf.sonytel.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-> 
-> 
->>Since we are talking about load balancing, we decided to measure
->>various value for cache_hot_time variable to see how it affects app
->>performance. We first establish baseline number with vanilla base
->>kernel (default at 2.5ms), then sweep that variable up to 1000ms.  All
->>of the experiments are done with Ingo's patch posted earlier.  Here
->>are the result (test environment is 4-way SMP machine, 32 GB memory,
->>500 disks running industry standard db transaction processing
->>workload):
->>
->>cache_hot_time  | workload throughput
->>--------------------------------------
->>         2.5ms  - 100.0   (0% idle)
->>         5ms    - 106.0   (0% idle)
->>         10ms   - 112.5   (1% idle)
->>         15ms   - 111.6   (3% idle)
->>         25ms   - 111.1   (5% idle)
->>         250ms  - 105.6   (7% idle)
->>         1000ms - 105.4   (7% idle)
-> 
-> 
-> the following patch adds a new feature to the scheduler: during bootup
-> it measures migration costs and sets up cache_hot value accordingly.
-> 
-> The measurement is point-to-point, i.e. it can be used to measure the
-> migration costs in cache hierarchies - e.g. by NUMA setup code. The
-> patch prints out a matrix of migration costs between CPUs. 
-> (self-migration means pure cache dirtying cost)
-> 
-> Here are a couple of matrixes from testsystems:
-> 
-> A 2-way Celeron/128K box:
-> 
->  arch cache_decay_nsec: 1000000
->  migration cost matrix (cache_size: 131072, cpu: 467 MHz):
->          [00]  [01]
->  [00]:    9.6  12.0
->  [01]:   12.2   9.8
->  min_delta: 12586890
->  using cache_decay nsec: 12586890 (12 msec)
-> 
-> a 2-way/4-way P4/512K HT box:
-> 
->  arch cache_decay_nsec: 2000000
->  migration cost matrix (cache_size: 524288, cpu: 2379 MHz):
->          [00]  [01]  [02]  [03]
->  [00]:    6.1   6.1   5.7   6.1
->  [01]:    6.7   6.2   6.7   6.2
->  [02]:    5.9   5.9   6.1   5.0
->  [03]:    6.7   6.2   6.7   6.2
->  min_delta: 6053016
->  using cache_decay nsec: 6053016 (5 msec)
-> 
-> an 8-way P3/2MB Xeon box:
-> 
->  arch cache_decay_nsec: 6000000
->  migration cost matrix (cache_size: 2097152, cpu: 700 MHz):
->          [00]  [01]  [02]  [03]  [04]  [05]  [06]  [07]
->  [00]:   92.1 184.8 184.8 184.8 184.9  90.7  90.6  90.7
->  [01]:  181.3  92.7  88.5  88.6  88.5 181.5 181.3 181.4
->  [02]:  181.4  88.4  92.5  88.4  88.5 181.4 181.3 181.4
->  [03]:  181.4  88.4  88.5  92.5  88.4 181.5 181.2 181.4
->  [04]:  181.4  88.5  88.4  88.4  92.5 181.5 181.3 181.5
->  [05]:   87.2 181.5 181.4 181.5 181.4  90.0  87.0  87.1
->  [06]:   87.2 181.5 181.4 181.5 181.4  87.9  90.0  87.1
->  [07]:   87.2 181.5 181.4 181.5 181.4  87.9  87.0  90.0
->  min_delta: 91815564
->  using cache_decay nsec: 91815564 (87 msec)
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Very cool. I reckon you may want to make the final number
-non linear if possible, because a 2MB cache probably doesn't
-need double the cache decay time of a 1MB cache.
+---559023410-869693583-1097070945=:20160
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Content-ID: <Pine.GSO.4.61.0410061555511.20160@waterleaf.sonytel.be>
 
-And possible things need to be tuned a bit, eg. 12ms for the
-128K celeron may be a bit large (even though it does have a
-slow bus).
+On Wed, 6 Oct 2004, [iso-8859-1] Jörn Engel wrote:
+> On Wed, 6 October 2004 15:07:05 +0200, Geert Uytterhoeven wrote:
+> > On Wed, 6 Oct 2004, [iso-8859-1] Jörn Engel wrote:
+> > > Point is that above patch is simpler and empiria didn't give me a
+> > > reason to worry about anything else.
+> > 
+> > I'll give you another reason :-)
+> > 
+> > If I do have multiple active struct consoles registered (e.g. normal tty0 or
+> > ttyS0 and a debug console without a real tty), and the /dev/console demux
+> > thinks the debug console is the real one (the one opened if you open
+> > /dev/console), printk() messages will appear on both active consoles, but
+> > /dev/console cannot be opened.
+> > 
+> > To avoid this problem, the /dev/console demux should walk the list of active
+> > consoles until it finds one that can be opened, or fall back to /dev/null if
+> > none is found.
+> > 
+> > Does that sound reasonable?
+> 
+> Not to me, no.  But I was wrong before.
+> 
+> Having no console at all is a valid design.  It used to cause
 
-But this is a nice starting point.
+One problem is that `console' means multiple things:
+  1. The output device for printk() (multiple consoles are allowed, cfr.
+     multiple console= kernel parameters and debug-only consoles)
+  2. The tty (both input and output) for /sbin/init (only one instance, cfr.
+     the last console= kernel parameter)
+
+I suggested to change the logic for 2 not to use the last console= kernel
+parameter if it turns out not to support input (cfr. the return value of struct
+console.device()), but try the other registered struct consoles.
+
+> problems, my patch fixes them.  A command-line option like
+> "console=/dev/null" doesn't fix it because it doesn't do what it
+> appears to do at first glance, so the patch is needed.
+
+Indeed. Because the /dev/null driver doesn't call register_console().
+It could be made to work that way (`console=null'), though, but make sure to
+register your null-console _first_.
+But I think it's simpler to just check console->device() and take appropriate
+actions.
+
+> Having a non-working console, esp. for debug, is a rather odd design.
+> My approach would be to either explicitly tell the kernel to use the
+> other as default console via "console=/dev/ttyS0" or not have the
+> debug thing in the kernel in the first place.  Either way, no patch is
+> needed.
+
+It was not `designed' to be that way. But due to how `the console' (nr. 2 from
+above) works, registration order matters. If people make the mistake (or just
+forget) to say `console=ttyS0', a debug console registered later causes
+problems.
+
+And the reason the debug consoles (read: capturers) use register_console() is
+to avoid code duplication.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+---559023410-869693583-1097070945=:20160--

@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316635AbSFZPVb>; Wed, 26 Jun 2002 11:21:31 -0400
+	id <S316637AbSFZPcm>; Wed, 26 Jun 2002 11:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316636AbSFZPVa>; Wed, 26 Jun 2002 11:21:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6536 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316635AbSFZPV2>; Wed, 26 Jun 2002 11:21:28 -0400
-Date: Wed, 26 Jun 2002 11:23:41 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Shawn Starr <spstarr@sh0n.net>
-cc: alexander.riesen@synopsys.COM,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MCE Error - 2.5.24 - Whats this?
-In-Reply-To: <1025103458.31334.1.camel@unaropia>
-Message-ID: <Pine.LNX.3.95.1020626111937.25673A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316644AbSFZPcl>; Wed, 26 Jun 2002 11:32:41 -0400
+Received: from [62.40.73.125] ([62.40.73.125]:45194 "HELO Router")
+	by vger.kernel.org with SMTP id <S316637AbSFZPck>;
+	Wed, 26 Jun 2002 11:32:40 -0400
+Date: Tue, 25 Jun 2002 12:00:57 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday problem
+Message-ID: <20020625100057.GC7500@vagabond>
+Reply-To: Jan Hudec <bulb@vagabond.cybernet.cz>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
+References: <3D17BB4B.F5E2571F@sympatico.ca> <200206251043.28051.bhards@bigpond.net.au> <3D17CF60.1DD1B82D@sympatico.ca> <ecmfhuopshut8luclo6asqorsj4b1sa13q@4ax.com> <3D183540.6CA7CB00@sympatico.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D183540.6CA7CB00@sympatico.ca>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jun 2002, Shawn Starr wrote:
+On Tue, Jun 25, 2002 at 05:17:52AM -0400, Christian Robert wrote:
+> John Alvord wrote:
+> > Maybe this is the result of floating point rounding errors. Floating
+> > point is notorious for occaisional strange results. I suggest redoing
+> > the test program to keep all results in integer and seeing what
+> > happens...
+> You were close. 
+> Programming error on my part.
 
-> I don't understand that decoded result ;) 
-> 
-> Is it a phony result or is there a real problem with the CPU itself?
-> It's brand new!
-> 
+What about comparing the struct timeval things directly? There is even a
+timercmp macro for that (well I noticed that in the manpage when I
+have olrady had the test written; the macro can only do sharp comparsions).
 
-It looks to me like a ECC error in external tag RAM (part of the
-external cache).
+Something like this:
+(I am now running it on three machines - Athlon 850, Pentium 1500 and dual
+Pentium III 500 - all seem to be OK so far)
 
-The CPU is fine, but since it already read bad data from the cache,
-it can't be allowed to restart.
+#include<stdio.h>
+#include<errno.h>
+#include<sys/time.h>
+#include<signal.h>
+
+volatile int loop = 1;
+
+void sigint(int foo) {
+	loop = 0;
+}
+
+int main(void) {
+	unsigned long long cnt = 0, bcnt = 0, ecnt = 0;
+	struct timeval old, new = {0, 0};
+
+	signal(SIGINT, sigint);
+	while(loop && cnt < (1LLU<<54)) {
+		cnt++;
+		old = new;
+		if(gettimeofday(&new, NULL)) {
+			ecnt++;
+			printf("Error #%llu: count=%llu"
+			       " error/count=0.%04llu errno=%i (%s)\n",
+			       ecnt, cnt, (10000*ecnt)/cnt, errno,
+			       sys_errlist[errno]);
+			continue;
+		}
+		if((new.tv_sec < old.tv_sec) || ((new.tv_sec == old.tv_sec) && (new.tv_usec < old.tv_usec))) {
+			bcnt++;
+			printf("Skew #%llu: count=%llu errors=%llu"
+			       " skew/good count=0.%04llu, new=(%li,"
+			       " %li) old=(%li, %li)\n", bcnt, cnt,
+			       ecnt, (10000*bcnt)/(cnt-ecnt),
+			       new.tv_sec, new.tv_usec, old.tv_sec,
+			       old.tv_usec);
+		}
+	}
+
+	printf("Counted %llu, errors %llu (0.%04llu), skews %llu"
+	       " (0.%04llu)\n", cnt, ecnt, (10000*ecnt)/cnt, bcnt,
+	       (10000*bcnt)/(cnt-ecnt));
+	return 0;
+}
 
 
-Cheers,
-Dick Johnson
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

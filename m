@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318737AbSG0LhZ>; Sat, 27 Jul 2002 07:37:25 -0400
+	id <S318738AbSG0LiC>; Sat, 27 Jul 2002 07:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318738AbSG0LhZ>; Sat, 27 Jul 2002 07:37:25 -0400
-Received: from t5o913p16.telia.com ([212.181.179.16]:27011 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S318737AbSG0LhY>;
-	Sat, 27 Jul 2002 07:37:24 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, ldm@flatcap.org
-Subject: Re: Linux v2.5.29
-References: <Pine.LNX.4.33.0207262004550.1357-100000@penguin.transmeta.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 27 Jul 2002 13:40:28 +0200
-In-Reply-To: <Pine.LNX.4.33.0207262004550.1357-100000@penguin.transmeta.com>
-Message-ID: <m28z3x761f.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S318739AbSG0LiB>; Sat, 27 Jul 2002 07:38:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9557 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S318738AbSG0LiA>; Sat, 27 Jul 2002 07:38:00 -0400
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Erik Andersen <andersen@codepoet.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Andreas Dilger <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Header files and the kernel ABI
+References: <Pine.LNX.4.44.0207251455460.17906-100000@waste.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Jul 2002 05:29:09 -0600
+In-Reply-To: <Pine.LNX.4.44.0207251455460.17906-100000@waste.org>
+Message-ID: <m1adodif3u.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Oliver Xymoron <oxymoron@waste.org> writes:
+> 
+> The idea of maintaining them separately is that people won't be able to
+> touch the ABI without explicitly going through a gatekeeper whose job is
+> to minimize breakage. Linus usually catches ABI changes but not always.
+> 
+> I explicitly did _not_ suggest making it the job of libc maintainers. And
+> the whole point of the exercise is to avoid ABI of the day anyway. The ABI
+> should change less frequently than the kernel or libc. It's more analogous
+> to something like modutils.
 
-> <ldm@flatcap.org>:
->   o New LDM Driver (Windows Dynamic Disks)
+Except for ioctls.  Until we can get those under control the abi headers
+need to remain part of the kernel.  Gatekeeping on the ioctls is something
+we need.
 
-Breaks "make xconfig". Here is a patch to fix it:
+And even if the code is part of the kernel, Linus can still delegate
+the work of verifying it he wants.
 
---- linux/fs/partitions/Config.in.orig	Sat Jul 27 13:31:54 2002
-+++ linux/fs/partitions/Config.in	Sat Jul 27 13:16:15 2002
-@@ -25,7 +25,7 @@
-       bool '    Solaris (x86) partition table support' CONFIG_SOLARIS_X86_PARTITION
-       bool '    Unixware slices support' CONFIG_UNIXWARE_DISKLABEL
-    fi
--   dep_bool '  Windows Logical Disk Manager (Dynamic Disk) support' CONFIG_LDM_PARTITION
-+   bool '  Windows Logical Disk Manager (Dynamic Disk) support' CONFIG_LDM_PARTITION
-    if [ "$CONFIG_LDM_PARTITION" = "y" ]; then
-       bool '    Windows LDM extra logging' CONFIG_LDM_DEBUG
-    fi
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Eric

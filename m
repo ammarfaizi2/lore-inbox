@@ -1,46 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTIUCyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 22:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTIUCyw
+	id S261716AbTIUD5w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 23:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbTIUD5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 22:54:52 -0400
-Received: from h-69-3-93-149.SNVACAID.covad.net ([69.3.93.149]:32488 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S262273AbTIUCyv
+	Sat, 20 Sep 2003 23:57:52 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:60073 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S261716AbTIUD5u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 22:54:51 -0400
-Date: Sat, 20 Sep 2003 18:51:26 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200309210151.h8L1pQA00853@freya.yggdrasil.com>
-To: sam@ravnborg.org
-Subject: Re: linux-2.6.0-test5/drivers/eisa verbose build failure
-Cc: ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
-       maz@wild-wind.fr.eu.org, mec@shout.net
+	Sat, 20 Sep 2003 23:57:50 -0400
+Message-ID: <3F6D22DE.10001@terra.com.br>
+Date: Sun, 21 Sep 2003 01:02:38 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Cciss-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] Memory leak in block/cciss.c driver
+Content-Type: multipart/mixed;
+ boundary="------------020600000609000607020506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Sep 2003 13:29:12 +0200, Sam Ravnborg:
-[...]
->The following patch fixes it for me.
->Would you mind trying this and report back.
+This is a multi-part message in MIME format.
+--------------020600000609000607020506
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->	Sam
+	Hi Linus,
 
->===== scripts/Makefile.lib 1.20 vs edited =====
->--- 1.20/scripts/Makefile.lib	Sun Jun  8 20:06:56 2003
->+++ edited/scripts/Makefile.lib	Sat Sep 20 09:11:28 2003
->@@ -225,7 +225,7 @@
-> 
-> # If quiet is set, only print short version of command
-> 
->-cmd = @$(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))' &&) $(cmd_$(1))
->+cmd = @$(if $($(quiet)cmd_$(1)),echo '  $(subst ','\'',$($(quiet)cmd_$(1)))' &&) $(cmd_$(1))
-> 
-> #	$(call descend,<dir>,<target>)
-> #	Recursively call a sub-make in <dir> with target <target> 
+	Patch against 2.6-test5 which removes a few memory leaks from the cciss 
+block driver.
 
-Thank you for the patch.  It seems to fix the problem for me.
+	Bug found by smatch checker.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
+	Please apply,
+
+	Cheers.
+
+Felipe
+-- 
+It's most certainly GNU/Linux, not Linux. Read more at
+http://www.gnu.org/gnu/why-gnu-linux.html
+
+--------------020600000609000607020506
+Content-Type: text/plain;
+ name="cciss-leak.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cciss-leak.patch"
+
+--- linux-2.6.0-test5/drivers/block/cciss.c	Mon Sep  8 16:50:32 2003
++++ linux-2.6.0-test5-fwd/drivers/block/cciss.c	Sun Sep 21 00:46:33 2003
+@@ -754,16 +754,24 @@
+ 			status = -ENOMEM;
+ 			goto cleanup1;
+ 		}
+-		if (copy_from_user(ioc, (void *) arg, sizeof(*ioc)))
+-			return -EFAULT;
++		if (copy_from_user(ioc, (void *) arg, sizeof(*ioc))) {
++			status = -EFAULT;
++			goto cleanup1;
++		}
+ 		if ((ioc->buf_size < 1) &&
+-			(ioc->Request.Type.Direction != XFER_NONE))
+-				return -EINVAL;
++			(ioc->Request.Type.Direction != XFER_NONE)) {
++				status = -EINVAL;
++				goto cleanup1;
++		}
+ 		/* Check kmalloc limits  using all SGs */
+-		if (ioc->malloc_size > MAX_KMALLOC_SIZE)
+-			return -EINVAL;
+-		if (ioc->buf_size > ioc->malloc_size * MAXSGENTRIES)
+-			return -EINVAL;
++		if (ioc->malloc_size > MAX_KMALLOC_SIZE) {
++			status = -EINVAL;
++			goto cleanup1;
++		}
++		if (ioc->buf_size > ioc->malloc_size * MAXSGENTRIES) {
++			status = -EINVAL;
++			goto cleanup1;
++		}
+ 		buff = (unsigned char **) kmalloc(MAXSGENTRIES * 
+ 				sizeof(char *), GFP_KERNEL);
+ 		if (!buff) {
+
+--------------020600000609000607020506--
+

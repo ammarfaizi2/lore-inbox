@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUDHRKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHRKY
+	id S262064AbUDHRSz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUDHRSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:10:24 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:37293
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262080AbUDHRKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:10:18 -0400
-Date: Thu, 8 Apr 2004 19:10:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-Message-ID: <20040408171017.GJ31667@dualathlon.random>
-References: <Pine.LNX.4.44.0404081500520.7116-100000@localhost.localdomain> <1081435237.1885.144.camel@mulgrave> <20040408151415.GB31667@dualathlon.random> <1081438124.2105.207.camel@mulgrave> <20040408153412.GD31667@dualathlon.random> <1081439244.2165.236.camel@mulgrave> <20040408161610.GF31667@dualathlon.random> <1081441791.2105.295.camel@mulgrave>
-Mime-Version: 1.0
+	Thu, 8 Apr 2004 13:18:55 -0400
+Received: from zero.aec.at ([193.170.194.10]:44554 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262064AbUDHRSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 13:18:54 -0400
+To: "Mathieu Giguere" <Mathieu.Giguere@ericsson.ca>
+cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: IPv4 and IPv6 stack multi-FIB, scalable in the million of
+ entries.
+References: <1IJuR-8qH-39@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 08 Apr 2004 19:18:41 +0200
+In-Reply-To: <1IJuR-8qH-39@gated-at.bofh.it> (Mathieu Giguere's message of
+ "Thu, 08 Apr 2004 17:21:01 +0200")
+Message-ID: <m3ptaiwfpq.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081441791.2105.295.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 08, 2004 at 11:29:50AM -0500, James Bottomley wrote:
-> On Thu, 2004-04-08 at 11:16, Andrea Arcangeli wrote:
-> > softirq tasklets would be unsafe too, oh well, if you take it really
-> > from irq context (irq/softirq/tasklet) then just a spinlock isn't
-> > enough, it'd need to be an irq safe lock or whatever similar plus you
-> > must be sure to never generate exceptions triggering the call inside the
-> > critical section. sounds like we need some per-arch abstraction to cover
-		      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > this, we for sure don't want an irq spinlock for this, then we can as
-> > well leave the semaphore for all archs but parisc.
-> 
-> Erm, well, I think this is a global problem.  All VI archs have to use
-> the flush_ APIs in cachetlb.txt to ensure coherence.  It's just that
-> sparc seems to have some nice cache manipulation instructions that
-> relieve it of the necessity of traversing the mappings.
-> 
-> Why don't we want an irq safe spinlock?  As Hugh said, we'd abstract it
-> so as to be a nop on PI archs.
+"Mathieu Giguere" <Mathieu.Giguere@ericsson.ca> writes:
 
-I said above per-arch abstraction, a per-arch abstraction isn't an irq
-safe spinlock, we cannot add an irq safe spinlock there, it'd be too bad
-for all the common archs that don't need to walk those lists (actually
-trees in my -aa tree) from irq context.
+[you should probably discuss that on netdev@oss.sgi.com instead, cc'ed]
 
-if you implement the locking abstraction with an irq safe spinlock it's
-your own business then.
+>     We currently looking for a multi-FIB, scalable routing table in the
+> million of entries, no routing cache for IPv4 and IPv6.  We want a IP stack
+
+No routing cache? Doesn't sound like a good idea.
+
+> that can have a log(n) (or better) insertion/deletion and lookup
+> performance.  Predictable performance, even in the million of entries.
+
+And even more vast overkill for most linux users than the existing
+routing code already is.  Linux has at least the beginnings of a pluggable
+FIB interface (fib_table), which has slightly bit rotted, but probably
+not too bad. I would suggest you clean that up, make the existing
+hash table really optional and then you can just plug in anything you want.
+
+>     I join a patch with the fib_hash in IPv4 replace with a patricia tree
+> ready for multi-FIB base on a 2.4.22 kernel.  This is the beginning of a
+> long cleanup.
+
+What do you consider dirty in the current stack? 
+
+-Andi
+

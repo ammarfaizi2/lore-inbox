@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUA3SWh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUA3SWh
+	id S263424AbUA3SSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUA3SSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:22:37 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:62864 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S263166AbUA3SW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:22:29 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: lspci & idebus=xx confusion
-Date: Fri, 30 Jan 2004 13:22:28 -0500
-User-Agent: KMail/1.6
+	Fri, 30 Jan 2004 13:18:09 -0500
+Received: from pop.gmx.net ([213.165.64.20]:61334 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263424AbUA3SRz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 13:17:55 -0500
+X-Authenticated: #4512188
+Message-ID: <401A9FCB.4080804@gmx.de>
+Date: Fri, 30 Jan 2004 19:17:47 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Greg KH <greg@kroah.com>
+CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 015 release
+References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <20040130172310.GB5265@kroah.com> <401A97E0.4010704@gmx.de> <20040130174935.GC5265@kroah.com>
+In-Reply-To: <20040130174935.GC5265@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401301322.28228.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.53.166] at Fri, 30 Jan 2004 12:22:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+Greg KH wrote:
+ > On Fri, Jan 30, 2004 at 06:44:00PM +0100, Prakash K. Cheemplavam wrote:
+ >
+ >>>What does:
+ >>>	usbinfo -a -p /sys/class/usb/scanner0
+ >>>say?
+ >>
+ >
+ > Oops, sorry, that should have been 'udevinfo' not 'usbinfo'.
+ >
+ > Not awake yet...
 
-In an lspci -vv, all devices have a Cap and 66 in the report,
-but some show it s a + and some show it as a -, like this:
----
-[root@coyote root]# lspci -vv|grep 66Mhz
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
----
-So I set the option "idebus=66" on the grub command line and rebooted.
-But eventually it reports in dmesg:
----
-VP_IDE: User given PCI clock speed impossible (66000), using 33 MHz instead.
-VP_IDE: Use ide0=ata66 if you want to assume 80-wire cable.
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
---
-that its resetting the speed back to 33mhz.  The boot process seemed
-to be faster till then.  I'm going to try the ide0=ata66 and ide1=ata66
-next.
+Ok, but it doesn't help, as I guess the scanner0 entry will only appear 
+if I use the scanner module, which I don't want to...so no scanner0 
+entry in my case.
 
-I've read the lspci manpage, and the kernel-parameters.txt without
-getting any real insight re this.
+But I basicaly managed to get support vie libusb (doing a brute chmod 
+666 on the proc device). Just need to set the rights correctly to the 
+device via a script and let hotplug do the rest. Everything new to me, 
+but makes sense somehow...
 
-Can someone explain what the + an - signs in the lspci output are
-really telling me?
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Prakash

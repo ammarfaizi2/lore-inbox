@@ -1,97 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318162AbSHZVKz>; Mon, 26 Aug 2002 17:10:55 -0400
+	id <S318299AbSHZVQc>; Mon, 26 Aug 2002 17:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSHZVKz>; Mon, 26 Aug 2002 17:10:55 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35080
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318162AbSHZVKy>; Mon, 26 Aug 2002 17:10:54 -0400
-Subject: Re: [PATCH] make raid5 checksums preempt-safe
-From: Robert Love <rml@tech9.net>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208261507590.3234-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0208261507590.3234-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
+	id <S318302AbSHZVQc>; Mon, 26 Aug 2002 17:16:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6674 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318299AbSHZVQa>;
+	Mon, 26 Aug 2002 17:16:30 -0400
+Message-ID: <3D6A9E4D.DBCC5D0A@zip.com.au>
+Date: Mon, 26 Aug 2002 14:31:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: MM patches against 2.5.31
+References: <3D644C70.6D100EA5@zip.com.au> <E17jO6g-0002XU-00@starship> <20020826200048.3952.qmail@thales.mathematik.uni-ulm.de> <E17jQB8-0002Zi-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Aug 2002 17:15:07 -0400
-Message-Id: <1030396507.15007.452.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-26 at 17:09, Thunder from the hill wrote:
+Daniel Phillips wrote:
+> 
+> ...
+> > If you think about who is going to remove the page from the lru you'll
+> > see the problem.
+> 
+> Nope, still don't see it.  Whoever hits put_page_testzero frees the page,
+> secure in the knowlege that there are no other references to it.
 
-> These will suck when on if, I guess... 
+Sure. But this requires that the caller of page_cache_release() has
+previously removed the page from the LRU.  We (used to) do that for truncate
+and page reclaim.   But we did not do that for anon pages.
 
-hm?
+For anon pages, we perform magical LRU removal when the page refcount
+goes to zero.
 
-> Anyway, will this compile at all?  There seems no semicolon after the
-> asm volatile ()
+The fact that we performed explicit removal in one place, and magical removal
+in the other was unfortunate.  I nuked the explicit removal and made it
+all magical (explicit removal in truncate_complete_page() was wrong anyway - the
+page could have been rescued and anonymised by concurrent pagefault and must
+stay on the LRU).
 
-Ah yes, curses.  Thanks.
+Possibly, we could go back to explicit removal everywhere.   Haven't
+really looked at that, but I suspect we're back to a similar problem:
+to do you unracily determine whether the page should be removed from
+the LRU?  Take ->page_table_lock and look at page_count(page)?  Worried.
 
-	Robert Love
+I like the magical-removal-just-before-free, and my gut feel is that
+it'll provide a cleaner end result.
 
-diff -urN linux-2.5.31/include/asm-i386/xor.h linux/include/asm-i386/xor.h
---- linux-2.5.31/include/asm-i386/xor.h	Sat Aug 10 21:41:20 2002
-+++ linux/include/asm-i386/xor.h	Sat Aug 24 20:14:43 2002
-@@ -20,6 +20,7 @@
- 
- #define FPU_SAVE							\
-   do {									\
-+	preempt_disable();						\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		__asm__ __volatile__ (" clts;\n");			\
- 	__asm__ __volatile__ ("fsave %0; fwait": "=m"(fpu_save[0]));	\
-@@ -30,6 +31,7 @@
- 	__asm__ __volatile__ ("frstor %0": : "m"(fpu_save[0]));		\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		stts();							\
-+	preempt_enable();						\
-   } while (0)
- 
- #define LD(x,y)		"       movq   8*("#x")(%1), %%mm"#y"   ;\n"
-@@ -543,6 +545,7 @@
-  */
- 
- #define XMMS_SAVE				\
-+	preempt_disable();			\
- 	__asm__ __volatile__ ( 			\
- 		"movl %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
-@@ -564,7 +567,8 @@
- 		"movl 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory");			\
-+	preempt_enable()
- 
- #define ALIGN16 __attribute__((aligned(16)))
- 
-diff -urN linux-2.5.31/include/asm-x86_64/xor.h linux/include/asm-x86_64/xor.h
---- linux-2.5.31/include/asm-x86_64/xor.h	Sat Aug 10 21:41:23 2002
-+++ linux/include/asm-x86_64/xor.h	Sat Aug 24 20:05:41 2002
-@@ -38,7 +38,8 @@
- /* Doesn't use gcc to save the XMM registers, because there is no easy way to 
-    tell it to do a clts before the register saving. */
- #define XMMS_SAVE				\
--	asm volatile ( 			\
-+	preempt_disable();			\
-+	asm volatile (				\
- 		"movq %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
- 		"movups %%xmm0,(%1)	;\n\t"	\
-@@ -59,7 +60,8 @@
- 		"movq 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory");			\
-+	preempt_enable()
- 
- #define OFFS(x)		"16*("#x")"
- #define PF_OFFS(x)	"256+16*("#x")"
+Making presence on the LRU contribute to page->count is attractive,
+if only because it removes some irritating and expensive page_cache_gets
+and puts from shrink_cache and refill_inactive.  But for it to be useful,
+we must perform explicit removal everywhere.
 
+Making presence on the LRU contribute to page->count doesn't fundamentally
+change anything of course - it offsets the current problems by one.
+
+Then again, it would remove all page_cache_gets/releases from vmscan.c
+and may thus make the race go away.  That's a bit of a timebomb though.

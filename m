@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289183AbSANKQc>; Mon, 14 Jan 2002 05:16:32 -0500
+	id <S289185AbSANKSZ>; Mon, 14 Jan 2002 05:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289182AbSANKQW>; Mon, 14 Jan 2002 05:16:22 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:2313 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289183AbSANKQP>;
-	Mon, 14 Jan 2002 05:16:15 -0500
-Message-ID: <3C42AF6B.6050304@debian.org>
-Date: Mon, 14 Jan 2002 11:14:03 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S289184AbSANKSO>; Mon, 14 Jan 2002 05:18:14 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:22030 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289185AbSANKSD>; Mon, 14 Jan 2002 05:18:03 -0500
+Date: Mon, 14 Jan 2002 11:16:44 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: <yodaiken@fsmlabs.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
+        Kenneth Johansson <ken@canit.se>, <arjan@fenrus.demon.nl>,
+        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020113180559.A18194@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0201140957490.28512-100000@serv>
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <fa.dardpev.1m1emjp@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jan 2002 10:16:13.0843 (UTC) FILETIME=[7EE3F630:01C19CE4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
+Hi,
 
+yodaiken@fsmlabs.com wrote:
 
-> With this change, generating a report on ISA hardware and other
-> facilities configured in at boot time would be trivial.  This would
-> make the autoconfigurator much more capable.  Best of all, the only
-> change required to accomplish this would be safe edits of print format
-> strings.
+> I mean, that these conversations are not very useful if you don't
+> read what the other people write.
 
+Oh, I do read everything that's for me, but it happens I'm not answering
+everything, but thanks for your kind reminder.
 
-Better: create a /proc/driver and every driver will register in it.
-This file can help some bug report (and not only autoconfigurator).
+> Here's a prior response by Andrew to a post by you.
+>
+> I've heard this so many times, and it just ain't so.   The overwhelming
+> majority of problem areas are inside locks.  All the complexity and
+> maintainability difficulties to which you refer exist in the preempt
+> patch as well.    There just is no difference.
 
-BTW, my new tests for:
-   memory (request_mem_region)
-   io port (request_region)
-   irq (request_irq)
-   dma (request_dma)
-are nearly completes.
-I think every ISA card should registers one of
-these resources.
-With the check of register_blkdev, register_chrdev
-and miscdevices we should have a complete list of the
-old ISA devices.
-(this would detect only already detected devices,
-but autoconfigure is not yet designed for bootfloppies
-makers).
+There is a difference. There is of course the maintenance work which have
+both approaches in common, every kernel has to be tested for new latency
+problems. What differs is the amount of problems that needs fixing, as
+preempt can handle the problems outside of locks automatically, but
+inserting schedule points for these cases is usually quite simple. (I
+leave it open whether these problem are really only the minority, it
+doesn't matter much, it only matters that they do exist.)
+The remaining problems need to be examined again by either approach.
+Breaking up the locks and inserting (implicit or explicit) schedule points
+is often the simpler solution, but analyzing the problem and adjusting the
+algorithm leads usually to the cleaner solution. Anyway, this is again
+pretty much common for both approaches.
+There is an additional cost for maintaining the explicit schedule points,
+as they mean additional code all over the kernel, which has to be
+maintained and to be verified overtime something is changed in that area.
+This work has to be done by someone, if the ll patch would be included
+into the standard kernel, the burden would be put onto every maintainer of
+the systems that were changed. The easy approach by these maintainers
+could be of course to just drop these schedule points, but then the ll
+maintainer can start from zero and it adds up to the testing costs above.
+This additional cost does not exist for all cases that are automatically
+handled by preempting.
 
-With such new test: no patch to kernel and nearly automatic
-generation of probes.
-
-Some patch are still welcome. I.e.:
-some people with copy+paste have not changes the driver
-string. A kernel patch will help distinguish the two drivers.
-watchdog: to many driver register as 'watchdog' (or 'serial',
-or 'ps2mouse'. This will create some difficulties to
-autoconfigurators. A patch will help us (but it would break
-other userspace tools?)
-
-	giacomo
-
+bye, Roman
 

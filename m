@@ -1,34 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbRCBWeP>; Fri, 2 Mar 2001 17:34:15 -0500
+	id <S130102AbRCBWdz>; Fri, 2 Mar 2001 17:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129594AbRCBWeH>; Fri, 2 Mar 2001 17:34:07 -0500
-Received: from ns.dkik.dk ([194.234.39.2]:45064 "HELO dkik.dk")
-	by vger.kernel.org with SMTP id <S129593AbRCBWdw> convert rfc822-to-8bit;
-	Fri, 2 Mar 2001 17:33:52 -0500
-Message-ID: <004f01c0a368$db0b6fe0$5f01a8c0@worm>
-From: "Christian Worm Mortensen" <worm@dkik.dk>
-To: <lartc@mailman.ds9a.nl>, <linux-kernel@vger.kernel.org>,
-        <linux-net@vger.kernel.org>
-Subject: Re: [ANNOUNCE] New version of the WRR network scheduler
-Date: Fri, 2 Mar 2001 23:33:51 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S129594AbRCBWdr>; Fri, 2 Mar 2001 17:33:47 -0500
+Received: from f280.law14.hotmail.com ([64.4.20.155]:22534 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129581AbRCBWdc>;
+	Fri, 2 Mar 2001 17:33:32 -0500
+X-Originating-IP: [212.46.197.1]
+From: "John Being" <olonho@hotmail.com>
+To: manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strange nonmonotonic behavior of gettimeoftheday
+Date: Fri, 02 Mar 2001 22:33:25 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F280ueD0WeOnFl0YldT00002135@hotmail.com>
+X-OriginalArrivalTime: 02 Mar 2001 22:33:26.0118 (UTC) FILETIME=[CC050060:01C0A368]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+OK, short status from the same box. It was up for about 2 weeks, but
+yesterday due this problem it become unuseable, as X failed at startup with 
+message about failed select(). Before reboot I made some tests
+and found:
+- it triggered by starting of X (without X no backjumps)
+- it has something with interrupts, at least when I run program above
+    (it is correct, at least it can determine problem) as
+    while [ 1 ]; do ./clo; done
+    and pressed key, it printed much less strings
+- jumps are about 300-2000 microseconds
+- there are some cases of such behaviour on Usenet (mainly diagnosed as 
+screen  flickering due incorrect  screensaver startup)
 
-> I have just released a new version of the WRR scheduler supporting the 
-> 2.4 kernels besides 2.2 as always .
 
-Oops, I forgot to write that it is available from http://wipl-wrr.dkik.dk/wrr/
+After reboot problem goes away( nothing changed in config). Maybe it related 
+to APM (as I did several suspends before this problem appears). Program 
+testing RDTSC works OK now. If this problem appears again - I will run it.
+  Thanks for help.
 
 
-Christian.
+>From: Manfred Spraul <manfred@colorfullife.com>
+>To: olonho@hotmail.com
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: strange nonmonotonic behavior of gettimeoftheday
+>Date: Fri, 02 Mar 2001 18:06:05 +0100
+>
+> >
+> > on AMD K6, VIA Technologies VT 82C586, Compaq Presario XL119.
+> > [snip]
+> > gives following result on box in question
+> > root@******:# ./clo
+> > Leap found: -1687 msec
+> > and prints nothing on all other my boxes.
+>
+>Perhaps APM or SMI problems?
+>Could you run the attached program?
+>
+>--
+>	Manfred
+>#include <stdio.h>
+>#include <sys/time.h>
+>#include <unistd.h>
+>#include <time.h>
+>
+>static unsigned long long get_tsc(void)
+>{
+>     	unsigned long v1;
+>	unsigned long v2;
+>	__asm__ __volatile__(
+>		"rdtsc\n\t"
+>		: "=a" (v1), "=d" (v2));
+>	return (((unsigned long long)v2)<<32)+v1;
+>}
+>
+>int main(int argc, char** argv)
+>{
+>	unsigned long long t1;
+>	unsigned long long t2;
+>
+>	printf("RDTSC tester\n");
+>	t1 = get_tsc();
+>	for(;;) {
+>		t2 = get_tsc();
+>		if(t1 > t2) {
+>			printf("tsc jumped backwards: from %lld to %lld.\n",
+>					t1, t2);
+>		}
+>#if 0
+>		printf("diff is %lld-%lld=%d.\n",t2,t1,t2-t1);
+>#endif
+>		t1 = t2;
+>
+>	}
+>	return 1;
+>}
+>
+
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

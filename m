@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265180AbSKVS0H>; Fri, 22 Nov 2002 13:26:07 -0500
+	id <S265190AbSKVS0e>; Fri, 22 Nov 2002 13:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265190AbSKVS0G>; Fri, 22 Nov 2002 13:26:06 -0500
-Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:61567 "EHLO
-	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S265180AbSKVS0G> convert rfc822-to-8bit; Fri, 22 Nov 2002 13:26:06 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: linux-kernel@vger.kernel.org, perex@perex.cz
-Subject: sleeping function called from illegal context at mm/slab.c:1304
-Date: Fri, 22 Nov 2002 19:33:22 +0100
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211221933.22395.dreher@math.tu-freiberg.de>
+	id <S265191AbSKVS0e>; Fri, 22 Nov 2002 13:26:34 -0500
+Received: from imail.ricis.com ([64.244.234.16]:28433 "EHLO imail.ricis.com")
+	by vger.kernel.org with ESMTP id <S265190AbSKVS0d>;
+	Fri, 22 Nov 2002 13:26:33 -0500
+Date: Fri, 22 Nov 2002 12:33:41 -0600
+From: Lee Leahu <lee@ricis.com>
+To: linux-kernel@vger.kernel.org
+Subject: snd-emu10k1.o
+Message-Id: <20021122123341.577b1894.lee@ricis.com>
+Organization: RICIS, Inc.
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Note: Send abuse reports to abuse@[(Private IP)].
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+hello.
 
-this is with 2.5.48 (and several kernels before).
+i am running the 2.4.18-64GB-SMP kernel.  with this kernel, i have in my /lib/modules/2.4.18-64GB-SMP/ directory, the snd-emu10k1.o module.
 
-Best regards,
-Michael
+i rebuilt my kernel to be 2.4.18-4GB-SMP.  in my new /lib/modules/2.4.18-4GB-SMP/ directory, i no longer have the snd-emu10k1.o module.
 
+i searched with the command 'find /usr/src/ -name "snd-*"' , but there were no files found.
 
+i am running the suse 8.0 professional distribution.
 
+does anyone have any ideas of whats going on here?  am I missing some files? 
+please help me
 
-Debug: sleeping function called from illegal context at mm/slab.c:1304
-kernel: Call Trace:
-kernel:  [__might_sleep+84/96] __might_sleep+0x54/0x60
-kernel:  [kmem_flagcheck+30/80] kmem_flagcheck+0x1e/0x50
-kernel:  [kmalloc+75/288] kmalloc+0x4b/0x120
-kernel:  [<e08a80bb>] build_via_table+0x5b/0x190 [snd-via82xx]
-kernel:  [__delay+19/48] __delay+0x13/0x30
-kernel:  [<e08a858e>] snd_via82xx_setup_periods+0x2e/0x130 [snd-via82xx]
-kernel:  [<e08a888e>] snd_via82xx_playback_prepare+0x7e/0x90 
-[snd-via82xx]
-kernel:  [<e0897ed1>] snd_pcm_prepare+0x21/0x210 [snd-pcm]
-kernel:  [<e0897fd9>] snd_pcm_prepare+0x129/0x210 [snd-pcm]
-kernel:  [<e0899ce6>] snd_pcm_common_ioctl1+0x1d6/0x2b0 [snd-pcm]
-kernel:  [<e089a05e>] snd_pcm_playback_ioctl1+0x29e/0x2b0 [snd-pcm]
-kernel:  [<e089a300>] snd_pcm_playback_ioctl+0x20/0x30 [snd-pcm]
-kernel:  [sys_ioctl+537/624] sys_ioctl+0x219/0x270
-kernel:  [error_code+45/56] error_code+0x2d/0x38
-kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-
+-- 
++----------------------------------+---------------------------------+
+| Lee Leahu                        | voice -> 708-444-2690           |
+| Internet Technology Specialist   | fax -> 708-444-2697             |
+| RICIS, Inc.                      | email -> lee@ricis.com          |
++----------------------------------+---------------------------------+
+| I cannot conceive that anybody will require multiplications at the |
+| rate of 40,000 or even 4,000 per hour ...                          |
+|		-- F. H. Wales (1936)                                |
++--------------------------------------------------------------------+

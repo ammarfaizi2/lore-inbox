@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276547AbRI2QpC>; Sat, 29 Sep 2001 12:45:02 -0400
+	id <S276550AbRI2RCs>; Sat, 29 Sep 2001 13:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276548AbRI2Qox>; Sat, 29 Sep 2001 12:44:53 -0400
-Received: from otter.mbay.net ([206.40.79.2]:28420 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S276547AbRI2Qon>;
-	Sat, 29 Sep 2001 12:44:43 -0400
-Date: Sat, 29 Sep 2001 09:45:04 -0700 (PDT)
-From: John Alvord <jalvo@mbay.net>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel changes
-In-Reply-To: <20010929131902.J22640@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net>
+	id <S276551AbRI2RCj>; Sat, 29 Sep 2001 13:02:39 -0400
+Received: from mustard.heime.net ([194.234.65.222]:33953 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S276550AbRI2RCb>; Sat, 29 Sep 2001 13:02:31 -0400
+Date: Sat, 29 Sep 2001 19:02:57 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 32-bit uid's
+Message-ID: <Pine.LNX.4.30.0109291901380.22789-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001, Ville Herva wrote:
+Hi all
 
-> On Fri, Sep 28, 2001 at 02:32:05PM -0700, you [Pavel Zaitsev] said:
-> > I have been watching development of 2.4 since 2.4.2, I wonder wether there
-> > would be reversion to old process where kernel source will be solidified
-> > before starting development branch.
-> 
-> I think you can think of each new 2.4.x kernel as a candidate for
-> solification. The part of the linux community a like me (and perhaps you?)
+I've read/heard that linux now supports 32-bit uid's.
 
-One aspect that bothers me is the absence of a success criteria. The
-current competition for best VM is a good example. The fact is that every
-operating system will fail with a high enough load. The best you can hope
-for is a better degradation then the prior release. At the moment both
-2.4.10 and 2.4.9-ac16 are better then 2.2.19. But people keep testing
-under higher and higher loads and (surprise) they both fail... initiating
-a search for better degradation logic.
+Is this the case?
+If it is, what libraries do I need to make use of it?
 
-Without a success criteria, this process cannot end.
+Please cc: to me, as I'm not on the list.
 
-Other examples are recent updates for multi-quad NUMA machines and changes
-to handle locking problems on 8-way machines.
+best regards
 
-john alvord
+roy
 

@@ -1,41 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUFPQHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFPQJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264101AbUFPQHC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 12:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUFPQHC
+	id S264103AbUFPQJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 12:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUFPQJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 12:07:02 -0400
-Received: from pat.uio.no ([129.240.130.16]:52126 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264101AbUFPQFp (ORCPT
+	Wed, 16 Jun 2004 12:09:36 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40626 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S264103AbUFPQJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:05:45 -0400
-To: linux-kernel@vger.kernel.org
-Cc: viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] atime on devices
-X-Draft-From: ("fa.linux.kernel" 488302)
-References: <fa.j3j5n9a.12n2f8g@ifi.uio.no> <fa.gbo3vfu.1e429hc@ifi.uio.no>
-From: Sturle Sunde <sturle.sunde@usit.uio.no>
-Organization: Universitetets senter for informasjonsteknologi
-Date: Wed, 16 Jun 2004 17:30:34 +0200
-In-Reply-To: <fa.gbo3vfu.1e429hc@ifi.uio.no> (Jan-Benedict Glaw's message of "Wed, 16 Jun 2004 13:15:50 GMT")
-Message-ID: <riqpt7z8qqt.fsf@maggie.uio.no>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Wed, 16 Jun 2004 12:09:02 -0400
+Subject: Re: Linux 2.6.7 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1087402141.28212.0.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 16 Jun 2004 09:09:01 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de> writes:
-> On Wed, 2004-06-09 16:20:17 +0200, Sturle Sunde <sturle.sunde@usit.uio.no>
-> wrote in message <riqhdtkke3i.fsf@maggie.uio.no>:
->> Some software use access times on device files to check if there is
->> mouse or keyboard activity on the console.  This used to work in old
->> kernels, or perhaps it was old hardware, but not any more.  Google
->> didn't find any other portable ways of checking for mouse or keyboard
->> activity without accessing the X11 display.
-> open() /dev/input/evdev* and select() on them?
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Requires root privileges, and you can't see how long the device was
-idle before you did select.
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
+2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
+2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
+2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
--- 
-Sturle
-~~~~~
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+
+

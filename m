@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262310AbTCMSR4>; Thu, 13 Mar 2003 13:17:56 -0500
+	id <S262428AbTCMSZ3>; Thu, 13 Mar 2003 13:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262424AbTCMSR4>; Thu, 13 Mar 2003 13:17:56 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:21177 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262310AbTCMSRz>; Thu, 13 Mar 2003 13:17:55 -0500
-Message-ID: <20030313182812.7679.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S262482AbTCMSZ3>; Thu, 13 Mar 2003 13:25:29 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24783
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262428AbTCMSZ2>; Thu, 13 Mar 2003 13:25:28 -0500
+Subject: Re: dpt_i2o.c memleak/incorrectness
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       deanna_bonds@adaptec.com
+In-Reply-To: <20030313182819.GA2213@linuxhacker.ru>
+References: <20030313182819.GA2213@linuxhacker.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: axboe@suse.de, jeremy@goop.org
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 13 Mar 2003 19:28:12 +0100
-Subject: Re: 2.5.64-mm6: kernel BUG at kernel/timer.c:155!
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Organization: 
+Message-Id: <1047584663.25948.75.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 13 Mar 2003 19:44:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Jens Axboe <axboe@suse.de> 
-Date: 	Thu, 13 Mar 2003 18:54:54 +0100 
-To: Jeremy Fitzhardinge <jeremy@goop.org> 
-Subject: Re: 2.5.64-mm6: kernel BUG at kernel/timer.c:155! 
- 
-> On Thu, Mar 13 2003, Jeremy Fitzhardinge wrote: 
-> > I was reading back a freshly burned CD from my shiny new Plexwriter 
-> > 48/24/48A.  I'm using ide-scsi, so this is an iso9660 filesystem mounted 
->  
-> out of curiousity, why? ide-cd should work much better than ide-scsi in 
-> 2.5, if it doesn't I'd like to know. 
- 
-There are still userspace CD burning programs that do not yet 
-support ATAPI burning interface. "cdrecord" does support it, 
-but K3B (a KDE burning frontend to cdrecord and company) 
-only works with SCSI or IDE-SCSI burners (well, or at least 
-I have been unable to convince it to use the ATAPI interface 
-to my Sony burner). 
- 
-Best regards, 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+On Thu, 2003-03-13 at 18:28, Oleg Drokin wrote:
+> Hello!
+> 
+>    There is something strange going on in drivers/scsi/dpt_i2o.c in both
+>    2.4 and 2.5. adpt_i2o_reset_hba() function allocates 4 bytes 
+>    for "status" stuff, then tries to reset controller, then 
+>    if timeout on first reset stage is reached, frees "status" and returns,
+>    otherwise it proceeds to monitor "status" (which is modified by hardware
+>    now, btw), and if timeout is reached, just exits.
 
-Powered by Outblaze
+Correctly - I2O does the same thing in this case. Its just better to
+throw a few bytes away than risk corruption
+

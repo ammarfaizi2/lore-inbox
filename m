@@ -1,92 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbTBFJ36>; Thu, 6 Feb 2003 04:29:58 -0500
+	id <S265857AbTBFJiY>; Thu, 6 Feb 2003 04:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbTBFJ36>; Thu, 6 Feb 2003 04:29:58 -0500
-Received: from port.lamport.ru ([193.111.92.50]:45577 "HELO port.lamport.ru")
-	by vger.kernel.org with SMTP id <S265816AbTBFJ3z>;
-	Thu, 6 Feb 2003 04:29:55 -0500
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.21pre4aa1 - hard lockup (PCnet32 related?).
-Date: Thu, 6 Feb 2003 12:39:35 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20030131014020.GA8395@dualathlon.random> <20030205231627.GS19678@dualathlon.random> <3E419CB8.5090601@rackable.com>
-In-Reply-To: <3E419CB8.5090601@rackable.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302061239.35263.rathamahata@php4.ru>
+	id <S265863AbTBFJiY>; Thu, 6 Feb 2003 04:38:24 -0500
+Received: from f16.mail.ru ([194.67.57.46]:48910 "EHLO f16.mail.ru")
+	by vger.kernel.org with ESMTP id <S265857AbTBFJiX>;
+	Thu, 6 Feb 2003 04:38:23 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: hdb=flash doesn't help
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 172.29.17.23 via proxy [62.112.80.99]
+Date: Thu, 06 Feb 2003 12:48:00 +0300
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E18gidU-000Ams-00@f16.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
+Hello
 
-About 4 hours of heavy load on 2 of my boxs lead to hard lockup.
+We have a system with 2 CF-disks connected 
+directly to the IDE-controller (PIIX4). We 
+used before the "old" IDE-driver hd.c and it 
+worked fine, until we had to use a larger 
+disk (1.5GB). Then we disabled hd.c, and 
+appended hdb=flash. Then initially at boot 
+both drives are identified:
+PIIX4: IDE controller...
+PIIX4 chipset revision 1
+PIIX4: not 100% native mode...
+    ide0: BM-DMA at...
+hda: Hitachi...
+hdb: ...
+ide0 at...
+hdb: 31488 sectors (16MB)...
+Partition check:
+ hdb: hdb1
+...
+And that's it. hda never appears again. And 
+what is also strange, the order of hda/b is
+swapped, compared to the old hd.c driver and
+to BIOS settings. What's the reason for this 
+behaviour and how do we fix it?
 
-Before the lockup there are a lot of messages like:
-"eth0: Bus master arbitration failure, status ffff"
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
-There is no such problems on 2.4.18rc2aa1 and 2.4.19rc1aa2
-
-Both Systems are IBM Netfinity 5100.
-
-[rathamahata@bo linux]$ /sbin/lspci
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:01.0 VGA compatible controller: S3 Inc. Savage 4 (rev 04)
-00:02.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 44)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 4f)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
-01:03.0 SCSI storage controller: Adaptec 7899P (rev 01)
-01:03.1 SCSI storage controller: Adaptec 7899P (rev 01)
-01:05.0 RAID bus controller: IBM Netfinity ServeRAID controller
-
-[rathamahata@bo linux]$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 996.758
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1985.74
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 996.758
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1992.29
-
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266246AbUBJShl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUBJShT
+	id S266310AbUBJS6L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUBJS6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:37:19 -0500
-Received: from mail.kroah.org ([65.200.24.183]:58006 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266240AbUBJSfe (ORCPT
+	Tue, 10 Feb 2004 13:58:10 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:59401 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S266310AbUBJS6I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:35:34 -0500
-Date: Tue, 10 Feb 2004 10:35:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Mike Bell <kernel@mikebell.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210183539.GJ28111@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20040210113417.GD4421@tinyvaio.nome.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210113417.GD4421@tinyvaio.nome.ca>
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Feb 2004 13:58:08 -0500
+Date: Tue, 10 Feb 2004 19:57:55 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andreas Fester <Andreas.Fester@gmx.de>
+cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [2.6 PATCH] persist qconf options
+In-Reply-To: <4028895C.4010101@gmx.de>
+Message-ID: <Pine.LNX.4.58.0402101952100.7851@serv>
+References: <4028075E.1070809@gmx.de> <Pine.LNX.4.58.0402100050230.7851@serv>
+ <4028895C.4010101@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 03:34:18AM -0800, Mike Bell wrote:
-> I've been reading a lot lately about udev and how it's both very
-> different to and much better than devfs, and with _most_ of the reasons
-> given, I can't see how either is the case. I'd like to lay out why I
-> think that is.
+Hi,
 
-One final comment:  Can you implement a persistent device naming scheme
-using devfs today?  If so, please show me how you would:
-	- always name a USB printer the same /dev name no matter when it
-	  is discovered by the USB core (before or after any other USB
-	  printer.)
-	- always name your SCSI disk the same /dev name no matter where
-	  in the scsi probe sequence it is (yank it out and plug it into
-	  another place in your scsi rack.)
+On Tue, 10 Feb 2004, Andreas Fester wrote:
 
-This is the main problem that udev solves.  The fact that it also gives
-you a dynamic /dev is just extra goodness.
+> > All these access functions are really not neccessary.
+>
+> Well, I think in the sense of an Object Oriented interface
+> with getter/setter methods they probably *do* make sense ...
 
-thanks,
+They have the tendency to bloat the source and I try to keep it small.
 
-greg k-h
+> > Bonus points if you also save the list mode and the position of the
+> > splitter. :)
+>
+> Lets see if I can win them :-)
+
+Great, I'm looking forward to it.
+Thanks.
+
+bye, Roman

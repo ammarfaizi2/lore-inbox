@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVANVI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVANVLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbVANVI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVANVIj
+	id S262165AbVANVLk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVANVJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:08:39 -0500
-Received: from mailout.zma.compaq.com ([161.114.64.104]:6415 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S262134AbVANVHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:07:55 -0500
-Date: Fri, 14 Jan 2005 15:07:50 -0600
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Atro.Tossavainen@helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: CCISS problems continue with 2.4.28
-Message-ID: <20050114210750.GA24705@beardog.cca.cpqcorp.net>
-References: <200501121008.j0CA8uX5013590@kruuna.helsinki.fi> <20050112105045.GB30115@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050112105045.GB30115@logos.cnet>
-User-Agent: Mutt/1.5.6i
+	Fri, 14 Jan 2005 16:09:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262169AbVANVHo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:07:44 -0500
+Message-ID: <41E833F4.8090800@redhat.com>
+Date: Fri, 14 Jan 2005 13:04:52 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: short read from /dev/urandom
+References: <41E7509E.4030802@redhat.com> <20050114191056.GB17481@thunk.org>
+In-Reply-To: <20050114191056.GB17481@thunk.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig0B40E8DA58C5C1E721BBF375"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 08:50:45AM -0200, Marcelo Tosatti wrote:
-> On Wed, Jan 12, 2005 at 12:08:56PM +0200, Atro Tossavainen wrote:
-> > (Attn mikem, really.)
-> > 
-> > Upgraded the Proliant DL380 (see lkml traffic from mid-November 2004)
-> > to 2.4.28.  The cciss partition lookup freezes just the same as before.
-> > 2.4.26 is still the most recent 2.4 series kernel that will boot.
-> 
-> Mike? 
-Sorry, I let this one drop though the cracks. Try booting with acpi=off. It appears the interrupt is not being detected properly. If acpi=off works try updating the system ROM. We have been known to have buggy acpi tables.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig0B40E8DA58C5C1E721BBF375
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Again, sorry for the delay,
-mikem
+Theodore Ts'o wrote:
+> What do you think?  Does gcc -pg calls sigaction with SA_RESTART, to
+> avoid changing the behaviour of the programs that it is profiling?
+
+Profiling certainly uses SA_RESTART.  But this was just one possible 
+problem case.
+
+I'm concerned that there is isgnificant code out there relying on the 
+no-short-read promise.  And perhaps more importantly, other 
+implementations promise the same.
+
+The code in question comes from a crypto library which is in wide use 
+(http://www.cryptopp.com) and it is using urandom under this assumption. 
+  I fear there is quite a bit more code like this out there.  Changing 
+the ABI after the fact is no good and dangerous in this case.
+
+I know this is making the device special, but I really think the 
+no-short-reads property should be perserved for urandom.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+
+--------------enig0B40E8DA58C5C1E721BBF375
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFB6DP12ijCOnn/RHQRArhGAKCntucrVd6mrfqVbZX7ERKHevasYQCgsZ3c
+i7a3WS+dsthMNyZsCTm17sI=
+=1Ofs
+-----END PGP SIGNATURE-----
+
+--------------enig0B40E8DA58C5C1E721BBF375--

@@ -1,97 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUGLTzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUGLT4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbUGLTzT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUGLTzS
+	id S262079AbUGLT4N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUGLT4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:55:18 -0400
-Received: from mail.convergence.de ([212.84.236.4]:16539 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261932AbUGLTy4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:54:56 -0400
-Message-ID: <40F2EC8C.7080101@convergence.de>
-Date: Mon, 12 Jul 2004 21:54:52 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
+	Mon, 12 Jul 2004 15:56:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52612 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262079AbUGLT4J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:56:09 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: sdake@mvista.com
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Date: Mon, 12 Jul 2004 15:54:12 -0400
+User-Agent: KMail/1.6.2
+Cc: Daniel Phillips <phillips@istop.com>, David Teigland <teigland@redhat.com>,
+       linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>
+References: <200407050209.29268.phillips@redhat.com> <200407120023.44773.phillips@redhat.com> <1089656497.608.4.camel@persist.az.mvista.com>
+In-Reply-To: <1089656497.608.4.camel@persist.az.mvista.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arthur Othieno <a.othieno@bluewin.ch>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       a.othieno@bluewin.ch
-Subject: [PATCH][2.6] fix return codes after i2c_add_driver() in tea6415c
- and tea6420
-References: <20040622154839.GI1473@mars>
-In-Reply-To: <20040622154839.GI1473@mars>
-Content-Type: multipart/mixed;
- boundary="------------030206030800090904080902"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407121554.12274.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030206030800090904080902
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 12 July 2004 14:21, Steven Dake wrote:
+> On Sun, 2004-07-11 at 21:23, Daniel Phillips wrote:
+> > On Monday 12 July 2004 00:08, Steven Dake wrote:
+> > > On Sun, 2004-07-11 at 12:44, Daniel Phillips wrote:
+> > > Oom conditions are another fact of life for poorly sized systems.
+> > > If a cluster is within an OOM condition, it should be removed
+> > > from the cluster (because it is in overload, under which unknown
+> > > and generally bad behaviors occur).
+> >
+> > You missed the point.  The memory deadlock I pointed out occurs in
+> > _normal operation_.  You have to find a way around it, or kernel
+> > cluster services win, plain and simple.
+>
+> The bottom line is that we just don't know if any such deadlock
+> occurs, under normal operations.
 
-Hello Linus, Andrew,
+I thought I demonstrated that, should I restate?  You need to point out 
+the flaw in my argument (about the deadlock, not about philosophy). 
+If/when you succeed, I will be pleased.  Until you do succeed, there's 
+a deadlock.
 
-in two of my i2c helper drivers the return value of i2c_add_driver() is 
-ignored. Thanks to Arthur Othieno for finding these bugs.
+Regards,
 
-The patch is trivial. Please apply.
-
-CU
-Michael.
-
---------------030206030800090904080902
-Content-Type: text/plain;
- name="misc-i2c-module-fixes.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="misc-i2c-module-fixes.diff"
-
-- [V4L] - i2c_add_driver() may actually fail, but both tea6420 and tea6415c driver return 0 regardless
-
-Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
-Signed-off-by: Michael Hunold <hunold@linuxtv.org>
-
---- a/drivers/media/video/tea6420.c	2003-12-18 03:58:49.000000000 +0100
-+++ b/drivers/media/video/tea6420.c	2004-06-04 18:14:36.000000000 +0200
-@@ -197,13 +197,12 @@ static struct i2c_driver driver = {
-         .command	= tea6420_command,
- };
- 
--static int tea6420_init_module(void)
-+static int __init tea6420_init_module(void)
- {
--	i2c_add_driver(&driver);
--	return 0;
-+	return i2c_add_driver(&driver);
- }
- 
--static void tea6420_cleanup_module(void)
-+static void __exit tea6420_cleanup_module(void)
- {
-         i2c_del_driver(&driver);
- }
---- a/drivers/media/video/tea6415c.c	2003-12-18 03:59:16.000000000 +0100
-+++ b/drivers/media/video/tea6415c.c	2004-03-31 20:24:35.000000000 +0200
-@@ -217,13 +217,12 @@ static struct i2c_driver driver = {
-         .command	= tea6415c_command,
- };
- 
--static int tea6415c_init_module(void)
-+static int __init tea6415c_init_module(void)
- {
--	i2c_add_driver(&driver);
--	return 0;
-+	return i2c_add_driver(&driver);
- }
- 
--static void tea6415c_cleanup_module(void)
-+static void __exit tea6415c_cleanup_module(void)
- {
-         i2c_del_driver(&driver);
- }
-
---------------030206030800090904080902--
+Daniel

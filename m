@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279005AbRKAObM>; Thu, 1 Nov 2001 09:31:12 -0500
+	id <S279028AbRKAOgx>; Thu, 1 Nov 2001 09:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279018AbRKAObC>; Thu, 1 Nov 2001 09:31:02 -0500
-Received: from ns.suse.de ([213.95.15.193]:52498 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279005AbRKAOav>;
-	Thu, 1 Nov 2001 09:30:51 -0500
-To: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-In-Reply-To: <Pine.LNX.4.21.0111010944050.16656-100000@deadlock.et.tudelft.nl.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Nov 2001 15:30:42 +0100
-In-Reply-To: Joris van Rantwijk's message of "1 Nov 2001 10:15:31 +0100"
-Message-ID: <p733d3yr2b1.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S279029AbRKAOgn>; Thu, 1 Nov 2001 09:36:43 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:23819 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S279018AbRKAOg3>; Thu, 1 Nov 2001 09:36:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+        Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+Date: Thu, 1 Nov 2001 16:35:52 +0000
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>, J Sloan <jjs@lexus.com>
+In-Reply-To: <Pine.LNX.4.30.0111010144570.31417-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.30.0111010144570.31417-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Message-Id: <01110116355201.01137@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joris van Rantwijk <joris@deadlock.et.tudelft.nl> writes:
-> 
-> So... Shouldn't dev_queue_xmit_nit() also process ptype_base then ?
+On Thursday 01 November 2001 00:52, Tim Schmielau wrote:
 
-Interesting bug.
+> OK, absolutely last patch for today. Sorry to bother everyone, but the
+> jiffies wraparound logic was broken in the previous patch.
+>
+> As stated before, I would kindly ask for widespread testing PROVIDED IT IS
+> OK FOR YOU TO RISK THE STABILITY OF YOUR BOX!
 
-It probably should, but unfortunately then it would loop back to all normal
-protocols (IP, IPv6, ARP etc.) too, which would not be good.
+I see you dropped jiffies_hi update in timer int.
+IMHO argument on wasting 6 CPU cycles or so per each timer int:
 
-It may be best to change af_packet to always use ptype_all and match
-the protocols itself. Alternatively there would need to be a special
-case.
+-	jiffies++;
++	if(++jiffies==0) jiffies_hi++;
 
--Andi
+is not justified. I'd rather see simple and correct code in timer int
+rather than jumping thru the hoops in get_jiffies_64().
+
+For CPU cycle saving zealots: I advocate saving 2 static longs in get_jiffies
+instead :-)
+--
+vda

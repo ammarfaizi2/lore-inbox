@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTLAS4H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 13:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbTLAS4H
+	id S263903AbTLATCW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 14:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263906AbTLATCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 13:56:07 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13584
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263898AbTLAS4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 13:56:05 -0500
-Date: Mon, 1 Dec 2003 10:56:02 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Larry McVoy <lm@work.bitmover.com>, Tim Cambrant <tim@cambrant.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Too soon for stable release?
-Message-ID: <20031201185602.GJ1566@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>, Tim Cambrant <tim@cambrant.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20031129174916.GA4592@cambrant.com> <20031129170104.GA15333@work.bitmover.com> <20031129171646.GB19856@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Dec 2003 14:02:22 -0500
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:183 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S263903AbTLATCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 14:02:21 -0500
+Message-ID: <20031201190218.24029.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20031129171646.GB19856@holomorphy.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Perry Gilfillan" <perrye@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 02 Dec 2003 01:02:17 +0600
+Subject: Kernel's supporting large files
+X-Originating-Ip: 68.12.215.127
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 09:16:46AM -0800, William Lee Irwin III wrote:
-> ISTR something about 2.4.9 lasting far, far, far, far, far, far longer
-> than it should have... and it's not dead yet!!!
+Hello,
 
-Which was the last one to use the riel-pre-rmap VM.  It also got most of the
-updates and was more like 2.4.14 but without the new VM.
+Would some one kindly inform me at which kernel version's support for large files is considered safe?
 
-2.4.14 was one of the first reliable kernels for me.
+Thanks,
+
+Perry Gilfillan
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
+
+
+Powered by Outblaze

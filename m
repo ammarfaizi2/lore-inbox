@@ -1,102 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280878AbRKTFVo>; Tue, 20 Nov 2001 00:21:44 -0500
+	id <S280892AbRKTFbo>; Tue, 20 Nov 2001 00:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280892AbRKTFVf>; Tue, 20 Nov 2001 00:21:35 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:43025 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S280878AbRKTFVR>;
-	Tue, 20 Nov 2001 00:21:17 -0500
-Date: Mon, 19 Nov 2001 22:19:03 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: [PATCH] PCI Hotplug core bugfix
-Message-ID: <20011119221903.D3736@kroah.com>
-Mime-Version: 1.0
+	id <S280902AbRKTFbf>; Tue, 20 Nov 2001 00:31:35 -0500
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:32029 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S280892AbRKTFbX>; Tue, 20 Nov 2001 00:31:23 -0500
+Message-ID: <3BF9EBDC.6590A1AD@mindspring.com>
+Date: Mon, 19 Nov 2001 21:36:28 -0800
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jakob Kemi <jakob.kemi@telia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 cpia driver IS broke
+In-Reply-To: <3BF89B8D.BDE2DB1F@mindspring.com> <200111191106.fAJB65a12171@d1o849.telia.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Well that would explain the bug.  Does anyone have a fix?  Other than reverting
+back?
 
-Here's a patch against 2.4.15-pre7 that fixes a potential overflow
-problem in the PCI Hotplug core code.  Thanks to Andrew Morton for
-pointing this out to me.
+Joe
 
-thanks,
-
-greg k-h
-
-
-diff --minimal -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
---- a/drivers/hotplug/pci_hotplug_core.c	Mon Nov 19 20:55:21 2001
-+++ b/drivers/hotplug/pci_hotplug_core.c	Mon Nov 19 20:55:21 2001
-@@ -622,7 +622,7 @@
- static ssize_t power_write_file (struct file *file, const char *ubuff, size_t count, loff_t *offset)
- {
- 	struct hotplug_slot *slot = file->private_data;
--	const char *buff;
-+	char *buff;
- 	unsigned long lpower;
- 	u8 power;
- 	int retval = 0;
-@@ -639,10 +639,11 @@
- 		return -ENODEV;
- 	}
- 
--	buff = kmalloc (count, GFP_KERNEL);
-+	buff = kmalloc (count + 1, GFP_KERNEL);
- 	if (!buff)
- 		return -ENOMEM;
--
-+	memset (buff, 0x00, count + 1);
-+ 
- 	if (copy_from_user ((void *)buff, (void *)ubuff, count)) {
- 		retval = -EFAULT;
- 		goto exit;
-@@ -732,7 +733,7 @@
- static ssize_t attention_write_file (struct file *file, const char *ubuff, size_t count, loff_t *offset)
- {
- 	struct hotplug_slot *slot = file->private_data;
--	const char *buff;
-+	char *buff;
- 	unsigned long lattention;
- 	u8 attention;
- 	int retval = 0;
-@@ -749,9 +750,10 @@
- 		return -ENODEV;
- 	}
- 
--	buff = kmalloc (count, GFP_KERNEL);
-+	buff = kmalloc (count + 1, GFP_KERNEL);
- 	if (!buff)
- 		return -ENOMEM;
-+	memset (buff, 0x00, count + 1);
- 
- 	if (copy_from_user ((void *)buff, (void *)ubuff, count)) {
- 		retval = -EFAULT;
-@@ -868,7 +870,7 @@
- static ssize_t test_write_file (struct file *file, const char *ubuff, size_t count, loff_t *offset)
- {
- 	struct hotplug_slot *slot = file->private_data;
--	const char *buff;
-+	char *buff;
- 	unsigned long ltest;
- 	u32 test;
- 	int retval = 0;
-@@ -885,9 +887,10 @@
- 		return -ENODEV;
- 	}
- 
--	buff = kmalloc (count, GFP_KERNEL);
-+	buff = kmalloc (count + 1, GFP_KERNEL);
- 	if (!buff)
- 		return -ENOMEM;
-+	memset (buff, 0x00, count + 1);
- 
- 	if (copy_from_user ((void *)buff, (void *)ubuff, count)) {
- 		retval = -EFAULT;
+> It's the new parport code in 2.4.14 which breaks things.
+> I haven't been able to use my Webcam drivers either since 2.4.14. And after
+> some research in the parport code I found that something is broken with the
+> new (2.4.14) code when doing ECP transfers (maybe EPP as well).
+>
+> On Mondayen den 19 November 2001 06.41, Joe wrote:
+> > Earlier this week I reported cpia driver not finidng the /dev/video0 as
+> > a bug.  I did a little research and at first I thought it was RH 7.2 or
+> > the linux kernel, but it is not RH it is the linux kernel.  The cpia
+> > driver in 2.4.14 is broke! (at least on my system)
+> >
+> > This is the driver for the webcam II parallel port module.
+> >
+> > (From 2.4.13) The output of the file /proc/cpia/video0 should show the
+> > following:
+> >
+> >  cat /proc/cpia/video0 |head
+> > read-only
+> > -----------------------
+> > V4L Driver version:       0.7.4
+> > CPIA Version:             1.20 (1.0)
+> > CPIA PnP-ID:              0553:0002:0100
+> > VP-Version:               1.0 0100
+> > system_state:             0x02
+> > grab_state:               0x00
+> > stream_state:             0x00
+> > fatal_error:              0x00
+> > Current Directory = ~
+> >
+> > but it does not, in fact in 2.4.14 it shows CPIA Version:  0.00 and
+> > everything else is 0 as well.
+> >
+> > I have reverted back to 2.4.13 but would like to let the maintainers
+> > know.  If you look at the 2.4.14 patch the code for the cpia driver has
+> > changed.  I am not sure if it is the cpia driver itselef or the video
+> > subsystem (v4l/v4l2).  If anyone knows how to contact the maintainers
+> > and let them know that this code is not working great.
+> >
+> > zcat /public/untarred/patch-2.4.14.gz |grep cpia |head
+> > diff -u --recursive --new-file v2.4.13/linux/drivers/media/video/cpia.c
+> > linux/drivers/media/video/cpia.c
+> > --- v2.4.13/linux/drivers/media/video/cpia.c Tue Oct  9 17:06:51 2001
+> > +++ linux/drivers/media/video/cpia.c Thu Oct 25 13:53:47 2001
+> > - proc_cpia_create();
+> > - request_module("cpia_pp");
+> > - request_module("cpia_usb");
+> >
+> > oh I am not on the list
+> > thanks
+> > Joe
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 

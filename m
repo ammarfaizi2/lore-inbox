@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbUCNRCx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 12:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUCNRCw
+	id S261443AbUCNRAM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 12:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbUCNRAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 12:02:52 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:32389 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261444AbUCNRCv (ORCPT
+	Sun, 14 Mar 2004 12:00:12 -0500
+Received: from mail.kroah.org ([65.200.24.183]:2700 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261443AbUCNRAI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 12:02:51 -0500
-To: <linux-kernel@vger.kernel.org>
-Cc: netdev@oss.sgi.com
-Subject: Tulip 21040 hangs with ifconfig promisc
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 14 Mar 2004 17:54:38 +0100
-Message-ID: <m3wu5nnzch.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Sun, 14 Mar 2004 12:00:08 -0500
+Date: Sat, 13 Mar 2004 18:55:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kref, a tiny, sane, reference count object
+Message-ID: <20040314025504.GA5071@kroah.com>
+References: <20040313082003.GA13084@kroah.com> <20040313163451.3c841ac2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040313163451.3c841ac2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 13, 2004 at 04:34:51PM -0800, Andrew Morton wrote:
+> > +struct kref * kref_get(struct kref *kref)
+> > +{
+> > +	if (kref) {
+> > +		WARN_ON(!atomic_read(&kref->refcount));
+> > +		atomic_inc(&kref->refcount);
+> > +	}
+> > +	return kref;
+> > +}
+> 
+> Why is a NULL arg permitted here?
 
-This is:
-Linux version ~2.6.4 (Red Hat Linux 3.3.2-1)) SMP kernel, UNI CPU.
-(as of Mar 12 in bkcvs/linux-2.5/).
+Because kobjects permitted it?  :)
 
-Acorp VIA77 mobo - AMD-K6 3D 500 MHz + VIA MVP3 chipset.
-SMC EtherPower^2 (dual DECchip 21040 + 21050 PCI-PCI bridge)
-All running out of ramdisk.
+I think you are correct, if we are passing a NULL pointer to these
+functions, we deserve the oops we get, as other, much worse things could
+happen (as a kref lives inside another structure.)
 
-Doing "ifconfig eth0 promisc" kills the ethernet. Interrupts are gone,
-nothing in dmesg. -promisc nor ifconfig down/up doesn't fix it,
-only driver rmmod/insmod does.
+I'll go take those checks out.
 
-de2104x PCI Ethernet driver v0.6 (Sep 1, 2003)
-eth0: 21040 at 0xca81e000, 00:00:c0:d8:66:e0, IRQ 11
-eth1: 21040 at 0xca820000, 00:00:c0:16:1b:c0, IRQ 12
-eth0: enabling interface
-eth0: set link 10baseT-HD
-eth0:    mode 0xfffc0040, sia 0xffffffc4,0xffff8f01,0xffffffff,0xffff0000
-eth0:    set mode 0xfffc0000, set sia 0x8f01,0xffff,0x0
-eth0: link up, media 10baseT-HD
-device eth0 entered promiscuous mode
+thanks,
 
-Any idea?
--- 
-Krzysztof Halasa, B*FH
+greg k-h

@@ -1,59 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270054AbTGMBDL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 21:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270055AbTGMBDL
+	id S266147AbTGMBK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 21:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270053AbTGMBK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 21:03:11 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:36107 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S270054AbTGMBDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 21:03:08 -0400
-Date: Sun, 13 Jul 2003 11:17:35 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "David S. Miller" <davem@redhat.com>
-cc: jkenisto@us.ibm.com, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <akpm@osdl.org>, <jgarzik@pobox.com>, <alan@lxorguk.ukuu.org.uk>,
-       <rddunlap@osdl.org>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
-In-Reply-To: <20030711224142.557b5b5e.davem@redhat.com>
-Message-ID: <Mutt.LNX.4.44.0307131052420.2146-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Jul 2003 21:10:56 -0400
+Received: from mail3.panix.com ([166.84.1.74]:20194 "EHLO mail3.panix.com")
+	by vger.kernel.org with ESMTP id S266147AbTGMBKz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 21:10:55 -0400
+Date: Sat, 12 Jul 2003 18:25:43 -0700
+From: Jeff Lightfoot <jeffml@pobox.com>
+To: j.dittmer@portrix.net (Jan Dittmer)
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 'NFS stale file handle' with 2.5
+Message-Id: <20030712182543.2be6c988.jeffml@pobox.com>
+In-Reply-To: <3F1068C9.1070900@portrix.net>
+References: <3F1068C9.1070900@portrix.net>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: $n=Rh`fC)-'~T?N4{k<m#PDTgj\,OYTK+D(!TTIdBm&(^y:ydlx9:~xe.1@_]/h!~a]D.Ja
+ T)qLF2A(b!G{>=V~zorpO2&"J`qbq{|eiZ&k.#tAz{{7.3M_}Y?qY1sB}1,-F
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003, David S. Miller wrote:
+On Sat, 12 Jul 2003 13:05:13 -0700
+j.dittmer@portrix.net (Jan Dittmer) wrote:
 
-> > +	/* Don't bother queuing skb if kernel socket has no input function */
-> > +        if (nlk->pid == 0 && !nlk->data_ready)
-> > +        	goto no_dst;
-> > +
-> 
-> Oops, turns out this doesn't work.  data_ready is never NULL, look at
-> how netlink_kernel_create() works.
+> I'm experiencing really big problems with nfs on 2.5 - and I'm a bit
+> stuck debugging.
 
-It's ok: sk->data_ready is never null, but nlk_sk(sk)->data_ready will be 
-null unless an input function is provided there.
+I'm going to throw in a 'me too' on this one also.  I haven't done
+much to narrow it down because at first I thought I fixed it by using
+the same kernel version on both client and server.  Once the stale
+file handle errors started showing up again I noticed that Trond
+mentioned on LK the problem with soft versus hard.  So I figured some
+changes in the NFS code finally caused soft mounts to not work so
+well.
 
-> Also, the broadcast case probably needs to be handled
-> too?
+I changed over to hard,intr but the stale file handles have shown up
+again.  It looks like it might be something that shows up over time
+because it works fine for awhile after reboots but eventually
+starts giving errors.
 
-Netlink sockets created by netlink_kernel_create() do not subscribe to any 
-groups and are not broadcast to.
+UP for both, 2.5.75-mm1
 
-> As an aside, to be honest what's so wrong with the socket receive
-> buffer filling up?  The damage is limited to the receive buffer size
-> of the kernel netlink socket, but that's it.
+I'm willing to help debug also.
 
-Agreed, it's not really harmful, but it's sloppy.  Better to let the
-application know that it can't send to the socket rather than let it keep
-sending (with successful return codes) until the kernel socket buffer 
-fills up.
+> # grep NFS .config
+> CONFIG_NFS_FS=m
+> CONFIG_NFS_V3=y
+> CONFIG_NFS_V4=y
+> CONFIG_NFS_DIRECTIO=y
+> CONFIG_NFSD=m
+> CONFIG_NFSD_V3=y
+> CONFIG_NFSD_V4=y
+> CONFIG_NFSD_TCP=y
 
+Just in case this will help: (server and client)
 
-- James
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V4 is not set
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V4 is not set
+# CONFIG_NFSD_TCP is not set
+
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
+Jeff Lightfoot    --    jeffml@pobox.com    --    http://thefoots.com/
+    "I see the light at the end of the tunnel now ... someone please
+    tell me it's not a train" -- Cracker

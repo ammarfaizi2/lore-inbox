@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUH3AIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUH3A0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUH3AIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 20:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUH3AIi
+	id S268372AbUH3A0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 20:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268382AbUH3A0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 20:08:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63395 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268367AbUH3AIV (ORCPT
+	Sun, 29 Aug 2004 20:26:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:44465 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268372AbUH3A0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 20:08:21 -0400
-Message-ID: <41326FE1.2050508@redhat.com>
-Date: Sun, 29 Aug 2004 20:08:01 -0400
-From: Neil Horman <nhorman@redhat.com>
-Reply-To: nhorman@redhat.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
-   IDE bus)
-References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org>
-In-Reply-To: <cgsuq2$7cb$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 29 Aug 2004 20:26:13 -0400
+Date: Sun, 29 Aug 2004 17:26:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Message-ID: <20040830002604.GB5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andries Brouwer <Andries.Brouwer@cwi.nl>,
+	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+	Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com> <20040829192617.GB24937@apps.cwi.nl> <20040829212350.GX5492@holomorphy.com> <20040829232543.GC24937@apps.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829232543.GC24937@apps.cwi.nl>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Strämke wrote:
+On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
+> That is good - although so far I have not heard complaints
+> about readprofile's memory use. Maybe multiple MB is not
+> so excessive these days.
+> But improvement is always good.
+> On the other hand, I like stability. Maybe readprofile is just some
+> kind of throwaway utility, not very important, but nevertheless,
+> some people use it, and they have habits and hate to relearn,
+> and they have scripts, and hate to adapt these scripts.
+> So, if the internal code is improved, excellent, but I am not so
+> happy if the invocation is changed without a very good reason.
+> Maybe you can make a cross: your improved algorithm inside the
+> old framework with options and locale?
 
-> Neil Horman wrote:
->
->> Its been awhile, but the last time that I looked at the relevant 
->> code, there was a table of drive vendor/device strings that were used 
->> to identify CFA devices and differentiate them from regular ide 
->> devices.  If this particular device isn't a match in that table, it 
->> would be mis-identified, and that could be leading to your above 
->> problem.
->> Neil
->>
->
-> Thx for the suggestion. The only table i could find is in 
-> drive_is_flashcard, which is only checked if drive->removable is set, 
-> which is not the case with the newer card (but is with the old one).
-> Another thing which is weird is that the old card returns an 
-> id->config value of 0x848a which according to manuals from SanDisk is 
-> for a Compactflash card NOT running in True Ide mode, but instead in 
-> memory mapped IO mode (iam no expert for Compactflash, so i dont even 
-> know the exact difference), but as far as i can tell are both cards 
-> wired by the IDE adapter so that they should run in True IDE mode, and 
-> if i understand the Compactflash specification correctly, this is the 
-> only mode of operation which is electrically compatible with the 
-> IDE/ATA bus, isnt it?
-> I tried forcing both the drive->removable and drive->is_flash flags to 
-> the true, my dmesg output then shows me the card as a CFA DISK drive, 
-> but i still get the same errors when reading or writing from/to the 
-> device.
->
-> TIA for any further hints,
-> Marc
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Easy enough, though I suppose there are also stylistic improvements.
 
-What kernel are you looking at?  I'm looking at 2.4.21, and it seems to 
-get checked more-or-less universally.  Also, I noticed this:
-|| !strncmp(id->model, "SunDisk SDCFB", 13)    /* SunDisk */
-I've not heard of SunDisk.  SunDisk->SanDisk == Typo?
-Are you using a SanDisk CFA card?  Could this perhaps be part of your issue?
-Neil
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+On Sun, Aug 29, 2004 at 02:23:50PM -0700, William Lee Irwin III wrote:
+>> The removal of -V was intentional, as I consider it bloat.
 
+On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
+> Don't you know that whenever there are complaints about software
+> the very first question is "which version?"?
+
+Okay, I suppose asking to look at external information with dpkg, rpm,
+etc. may not be feasible/desirable under all circumstances.
+
+
+On Sun, Aug 29, 2004 at 02:23:50PM -0700, William Lee Irwin III wrote:
+>> I wasn't really expecting much to come of it besides prodding people
+>> to clean up bloat. The reduced functionality alone likely precludes it
+>> from consideration for inclusion. Supposing that there is greater
+>> interest, which I don't expect, I can fix these things up and so on.
+
+On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
+> Well, you sent me something. I have three choices: take it as
+> replacement for the current version, ignore it, work on it.
+> I have no time to work on it, so am only happy with what you send
+> if it can replace the current version.
+
+I'll look around to see how much interest there is, or if others
+complain about the issues I'm concerned with, or others find them
+sufficiently compelling, and send an update for inclusion of the
+form that appears to be preferred if so.
+
+
+-- wli

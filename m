@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265243AbUAER3C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:29:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUAER3C
+	id S265216AbUAERge (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:36:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUAERgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:29:02 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:47059 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265243AbUAER2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:28:54 -0500
-From: Christian Borntraeger <kernel@borntraeger.net>
+	Mon, 5 Jan 2004 12:36:33 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:55257 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S265216AbUAERg3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 12:36:29 -0500
+Date: Mon, 5 Jan 2004 17:36:07 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6: spinlock bug in sound/oss/dmabuf.c
-Date: Mon, 5 Jan 2004 18:28:52 +0100
-User-Agent: KMail/1.5.4
+Subject: CREDITS file 
+Message-ID: <Pine.LNX.4.58.0401051735170.23750@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401051828.52363.kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think I found a bug in sound/oss/dmabuf.c
+Greetings,
 
-DMAbuf_getrdbuffer holds a spinlock and possibly calls dma_reset_input. The 
-dma_reset_input tries to hold that spinlock again:
+Where we read "he can't even be second-to-last" in the CREDITS file, shouldn't
+it be "he can't even be third-to-last"?
 
-int DMAbuf_getrdbuffer(int dev, char **buf, int *len, int dontblock)
-{
-        struct audio_operations *adev = audio_devs[dev];
-        unsigned long flags;
-        int err = 0, n = 0;
-        struct dma_buffparms *dmap = adev->dmap_in;
-[...]
-                spin_lock_irqsave(&dmap->lock,flags);
-                if (!timeout) {
-                        /* FIXME: include device name */
-                        err = -EIO;
-                        printk(KERN_WARNING "Sound: DMA (input) timed out..
-                        dma_reset_input(dev);
-[...]
+Best regards,
+Mind Booster Noori
 
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-static void dma_reset_input(int dev)
-{
-        struct audio_operations *adev = audio_devs[dev];
-        unsigned long flags;
-        struct dma_buffparms *dmap = adev->dmap_in;
-
-        spin_lock_irqsave(&dmap->lock,flags);
-
-
-Any opinions?
-
-cheers
-
-Christian
+iD8DBQE/+aCMmNlq8m+oD34RAge7AKCcV5a/+omv0eh+d7D2bfnKo5LReACeOHNA
+77lcH4soGOQYi6GNKATdaQ4=
+=5414
+-----END PGP SIGNATURE-----
 

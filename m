@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbUASUIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 15:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUASUIz
+	id S262731AbUASUNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 15:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUASUNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 15:08:55 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:26793 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262564AbUASUIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 15:08:55 -0500
-Date: Mon, 19 Jan 2004 12:08:04 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jes Sorensen <jes@trained-monkey.org>, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com,
-       torvalds@osdl.org
-Subject: Re: [patch] increse MAX_NR_MEMBLKS to same as MAX_NUMNODES on NUMA
-Message-ID: <4990000.1074542883@[10.10.2.4]>
-In-Reply-To: <E1AiZ5h-00043I-00@jaguar.mkp.net>
-References: <E1AiZ5h-00043I-00@jaguar.mkp.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 19 Jan 2004 15:13:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57018 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262730AbUASUNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 15:13:22 -0500
+Date: Mon, 19 Jan 2004 15:13:15 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Clay Haapala <chaapala@cisco.com>
+cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Add CRC32C chksums to crypto routines
+In-Reply-To: <yqujisje43q9.fsf@chaapala-lnx2.cisco.com>
+Message-ID: <Xine.LNX.4.44.0401191512140.1564-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since we now support # of CPUs > BITS_PER_LONG with cpumask_t it would
-> be nice to be able to support more than BITS_PER_LONG memory blocks.
+On Wed, 14 Jan 2004, Clay Haapala wrote:
 
-Nothing uses them. We're probably better off just removing them altogether.
+> This patch against 2.6.1 adds CRC32C checksumming capabilities to the
+> crypto routines.  The structure of it is based wholly on the existing
+> digest (md5) routines, the main difference being that chksums are
+> often used in an "accumulator" fashion, effectively requiring one to
+> set the seed, and the digest algorithms don't do that.
 
-M.
+Looks good to me.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

@@ -1,56 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275983AbRJUMWA>; Sun, 21 Oct 2001 08:22:00 -0400
+	id <S275989AbRJUMZw>; Sun, 21 Oct 2001 08:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275989AbRJUMVv>; Sun, 21 Oct 2001 08:21:51 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:32516 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S275983AbRJUMVe>;
-	Sun, 21 Oct 2001 08:21:34 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15314.48596.433523.34566@cargo.ozlabs.ibm.com>
-Date: Sun, 21 Oct 2001 22:21:40 +1000 (EST)
-To: "Kalyan" <kalyand@cruise-controls.com>
-Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: wild pointer!!!!!
-In-Reply-To: <017f01c159b7$83943520$aac8a8c0@cruise>
-In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com>
-	<m33d4gjaoa.fsf@linux.local>
-	<20011020171730.A28057@parallab.uib.no>
-	<3BD28673.1060302@sap.com>
-	<20011021120755.A1252@parallab.uib.no>
-	<017f01c159b7$83943520$aac8a8c0@cruise>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+	id <S275990AbRJUMZm>; Sun, 21 Oct 2001 08:25:42 -0400
+Received: from relay.swspn.net.au ([203.87.88.2]:50445 "EHLO
+	relay.swspn.net.au") by vger.kernel.org with ESMTP
+	id <S275989AbRJUMZX>; Sun, 21 Oct 2001 08:25:23 -0400
+Message-Id: <4.3.2.7.2.20011021222816.00c60270@mail.ispdr.net.au>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 21 Oct 2001 22:29:47 +1000
+To: linux-kernel@vger.kernel.org
+From: Anthony <aslan@ispdr.net.au>
+Subject: Are we still alive?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kalyan writes:
+Hi everyone. Just a test message to see if we're still alive? This list is 
+usually really active, and I haven't had an E-Mail from it for 2 days! No 
+need for anyone to respond to this... :)
 
->         I recently ported the linux kernel v 2.4.11-pre5  to MDPPro (
-> MPC860T processor ) board..the kernel dies with an Oops and everytime at a
-> different place....
 
-What code base did you start from?  Linus' official 2.4.11-pre5
-release, or the linuxppc_2_4_devel PPC development tree at
-ppc.bkserver.net?  See http://www.penguinppc.org/dev/kernel.shtml for
-details on how to access the PPC development tree.  That tree would
-have the most up-to-date support for the MPC860T processor.
+----------------------------
+Anthony (aslan@ispdr.net.au)
+----------------------------
 
->         upon back tracing i found that at some point the kernel tries to
-> execute code in Letext ( according to System.map)....
-
-Hmmm, I don't know where that symbol would have come from, sorry.  It
-doesn't appear anywhere in the kernel source that I can find.  Did you
-add it?
-
->         it'd be great if someone can explain me what this Letext is and why
-> is the control going there???
-
-I suggest you ask on the linuxppc-dev@lists.linuxppc.org mailing list,
-you will find other hackers working on Linux for MPC8xx processors
-there.
-
-Paul.

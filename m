@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUBXIop (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 03:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUBXIop
+	id S262206AbUBXIq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 03:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUBXIqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 03:44:45 -0500
-Received: from terra.irts.fr ([194.206.161.9]:11459 "EHLO ns1.terranet.fr")
-	by vger.kernel.org with ESMTP id S262215AbUBXIof (ORCPT
+	Tue, 24 Feb 2004 03:46:25 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:1921 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262206AbUBXIqG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 03:44:35 -0500
-Message-ID: <403B0E92.60903@laposte.net>
-Date: Tue, 24 Feb 2004 09:42:58 +0100
-From: MALET JL <malet.jean-luc@laposte.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; fr-FR; rv:1.5) Gecko/20031007
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Chris Lingard <chris@ukpost.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [linux 2.6.3] [gcc 3.3.3] compile errors
-References: <403911B3.10601@laposte.net> <20040223074221.5f711665.rddunlap@osdl.org> <403A2ADB.9040002@laposte.net> <200402231658.53516.chris@ukpost.com>
-In-Reply-To: <200402231658.53516.chris@ukpost.com>
-X-Enigmail-Version: 0.82.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF653E2B56BA70722D3A5AB98"
-Content-Transfer-Encoding: 8bit
+	Tue, 24 Feb 2004 03:46:06 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 24 Feb 2004 19:45:59 +1100
+Cc: LKML <linux-kernel@vger.kernel.org>, manfred@colorfullife.com
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory exceeds 2.5GB (correction)
+Message-ID: <20040224084559.GA993@cse.unsw.EDU.AU>
+References: <403AF155.1080305@colorfullife.com> <20040223225659.4c58c880.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20040223225659.4c58c880.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF653E2B56BA70722D3A5AB98
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
 
-Chris Lingard a écrit :
+Yes the machine is using ECC though I will need to confirm tommorrow that
+it is enabled, from memory it is. I am currently running memtest over the
+memory however it is limited to testing 2GB because it uses malloc, so this
+is not a reliable test.
+I will continue to swap the memory modules to see if I can find a failed
+module.
+                                                                                                                             
+If this fails to help I will then look for the offending atomic_t or
+spinlock_t.
+                                                                                                                             
+Thanks for the replies
+Darren 
 
->On Monday 23 February 2004 4:31 pm, MALET JL wrote:
->
->  
->
->>copy from /usr/src/linux/include/asm to /usr/include/asm
->>copy from /usr/src/linux/include/asm-generic to /usr/include/asm-generic
->>copy from /usr/src/linux/include/linux to /usr/include/linux
->>
->>is this wrong ? I've done this all the time (since 2.4.2 kernel) without
->>problem..... if i'm wrong please correct my behaviour
->>    
->>
->
->You should use the kernel headers to build glibc; and sanitised headers
->such as RedHat's or http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
->to build the rest of the system.  Suggest you follow www.linuxfromscratch.org 
->for further details.
->
->Chris
->  
->
-O_O! question what is the purpose of having two set of headers? do you 
-think this is good work to provide a unsable set of headers with a 
-software? why not include the RedHat's one then......
+Mon, 23 Feb 2004, Andrew Morton wrote:
 
---------------enigF653E2B56BA70722D3A5AB98
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFAOw6Zcl3j/qUaL14RAqr1AJ9W0WdwHtTsNTyq43fvmu1VUus1pgCeK5mT
-g1irtDM2koCq3IuDJ+ZpXlA=
-=gs/V
------END PGP SIGNATURE-----
-
---------------enigF653E2B56BA70722D3A5AB98--
-
+> Manfred Spraul <manfred@colorfullife.com> wrote:
+> >
+> >  From your logs:
+> > 
+> > >Feb 23 14:54:24 calypso kernel: Slab corruption: start=e00000017e84ea00, expend=e00000017e84f1ff, problemat=e00000017e84f020
+> > >Feb 23 14:54:24 calypso kernel: Last user: [<a0000001003c9f30>](kfree_skbmem+0x30/0x80)
+> > >Feb 23 14:54:24 calypso kernel: Data: ************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!
+> **!
+> > ***************************************
+> > >Feb 23 14:54:28 calypso kernel: **************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************6A *************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!
+> **!
+> > ***************************************
+> > >Feb 23 14:54:28 calypso kernel: ************************************************************A5 
+> > >  
+> > >
+> > "6a" instead of 0x6b. One bit is wrong, this is often an indication of a 
+> > hardware problem. Do you use ECC memory and is ECC enabled in the BIOS?
+> 
+> Actually, it's often caused by someone doing atomic_dec_and_test() against
+> something which was already freed.  Or spin_lock().  One would need to work
+> out what field is at that offset.  If it is an atomic_t or a spinlock_t,
+> there you are.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

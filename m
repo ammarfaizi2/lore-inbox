@@ -1,209 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263343AbRFEUsf>; Tue, 5 Jun 2001 16:48:35 -0400
+	id <S263353AbRFEVCL>; Tue, 5 Jun 2001 17:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263344AbRFEUsZ>; Tue, 5 Jun 2001 16:48:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9116 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263343AbRFEUsK>;
-	Tue, 5 Jun 2001 16:48:10 -0400
-Date: Tue, 5 Jun 2001 16:48:08 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] more fs/super.c cleanups (3)
-Message-ID: <Pine.GSO.4.21.0106051645190.4799-100000@weyl.math.psu.edu>
+	id <S263357AbRFEVBw>; Tue, 5 Jun 2001 17:01:52 -0400
+Received: from www.wen-online.de ([212.223.88.39]:38668 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S263353AbRFEVBs>;
+	Tue, 5 Jun 2001 17:01:48 -0400
+Date: Tue, 5 Jun 2001 23:00:59 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Benjamin C.R. LaHaise" <blah@kvack.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Comment on patch to remove nr_async_pages limitA
+In-Reply-To: <Pine.LNX.3.96.1010605151500.25725C-100000@kanga.kvack.org>
+Message-ID: <Pine.LNX.4.33.0106052211490.2310-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chunk 3:
-	Takes the normal mounting into a helper similar to do_loopback()
-et.al., makes do_mount() cleaner. Please, apply
-								Al
+On Tue, 5 Jun 2001, Benjamin C.R. LaHaise wrote:
 
-diff -urN S6-pre1-do_mount/fs/super.c S6-pre1-do_add_mount/fs/super.c
---- S6-pre1-do_mount/fs/super.c	Tue Jun  5 08:15:33 2001
-+++ S6-pre1-do_add_mount/fs/super.c	Tue Jun  5 08:16:35 2001
-@@ -1203,6 +1203,76 @@
- 	return do_remount_sb(nd->mnt->mnt_sb, flags, data);
- }
- 
-+static int do_add_mount(struct nameidata *nd, char *type, int flags,
-+			char *name, void *data)
-+{
-+	struct file_system_type * fstype;
-+	struct nameidata nd;
-+	struct vfsmount *mnt = NULL;
-+	struct super_block *sb;
-+	int retval = 0;
-+
-+	if (!type || !memchr(type, 0, PAGE_SIZE))
-+		return -EINVAL;
-+
-+	/* we need capabilities... */
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
-+	/* ... filesystem driver... */
-+	fstype = get_fs_type(type);
-+	if (!fstype)		
-+		return -ENODEV;
-+
-+	/* get superblock, locks mount_sem on success */
-+	if (fstype->fs_flags & FS_NOMOUNT)
-+		sb = ERR_PTR(-EINVAL);
-+	else if (fstype->fs_flags & FS_REQUIRES_DEV)
-+		sb = get_sb_bdev(fstype, name, flags, data);
-+	else if (fstype->fs_flags & FS_SINGLE)
-+		sb = get_sb_single(fstype, flags, data);
-+	else
-+		sb = get_sb_nodev(fstype, flags, data);
-+
-+	retval = PTR_ERR(sb);
-+	if (IS_ERR(sb))
-+		goto fs_out;
-+
-+	/* Something was mounted here while we slept */
-+	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-+		;
-+
-+	/* Refuse the same filesystem on the same mount point */
-+	retval = -EBUSY;
-+	if (nd->mnt->mnt_sb == sb && nd->mnt->mnt_root == nd->dentry)
-+		goto fail;
-+
-+	retval = -ENOENT;
-+	if (!nd->dentry->d_inode)
-+		goto fail;
-+	retval = -ENOTDIR;
-+	if (!S_ISDIR(nd->dentry->d_inode->i_mode))
-+		goto fail;
-+	down(&nd->dentry->d_inode->i_zombie);
-+	if (!IS_DEADDIR(nd->dentry->d_inode)) {
-+		retval = -ENOMEM;
-+		mnt = add_vfsmnt(nd, sb->s_root, name);
-+	}
-+	up(&nd->dentry->d_inode->i_zombie);
-+	if (!mnt)
-+		goto fail;
-+	retval = 0;
-+unlock_out:
-+	up(&mount_sem);
-+fs_out:
-+	put_filesystem(fstype);
-+	return retval;
-+
-+fail:
-+	kill_super(sb);
-+	goto unlock_out;
-+}
-+
- static int copy_mount_options (const void *data, unsigned long *where)
- {
- 	int i;
-@@ -1253,10 +1323,7 @@
- long do_mount(char * dev_name, char * dir_name, char *type_page,
- 		  unsigned long flags, void *data_page)
- {
--	struct file_system_type * fstype;
- 	struct nameidata nd;
--	struct vfsmount *mnt = NULL;
--	struct super_block *sb;
- 	int retval = 0;
- 
- 	/* Discard magic */
-@@ -1276,86 +1343,16 @@
- 	if (retval)
- 		return retval;
- 
--	/* just change the flags? - capabilities are checked in do_remount() */
--	if (flags & MS_REMOUNT) {
--		retval = do_remount(&nd, flags&~MS_REMOUNT, (char *)data_page);
--		goto nd_out;
--	}
--
--	/* "mount --bind"? Equivalent to older "mount -t bind" */
--	/* No capabilities? What if users do thousands of these? */
--	if (flags & MS_BIND) {
-+	if (flags & MS_REMOUNT)
-+		retval = do_remount(&nd, flags&~MS_REMOUNT,
-+				  (char *)data_page);
-+	else if (flags & MS_BIND)
- 		retval = do_loopback(&nd, dev_name);
--		goto nd_out;
--	}
--
--	/* For the rest we need the type */
--
--	retval = -EINVAL;
--	if (!type_page || !memchr(type_page, 0, PAGE_SIZE))
--		goto nd_out;
--
--	retval = -EPERM;
--	/* for the rest we _really_ need capabilities... */
--	if (!capable(CAP_SYS_ADMIN))
--		goto nd_out;
--
--	retval = -ENODEV;
--	/* ... filesystem driver... */
--	fstype = get_fs_type(type_page);
--	if (!fstype)		
--		goto nd_out;
--
--	/* get superblock, locks mount_sem on success */
--	if (fstype->fs_flags & FS_NOMOUNT)
--		sb = ERR_PTR(-EINVAL);
--	else if (fstype->fs_flags & FS_REQUIRES_DEV)
--		sb = get_sb_bdev(fstype, dev_name, flags, data_page);
--	else if (fstype->fs_flags & FS_SINGLE)
--		sb = get_sb_single(fstype, flags, data_page);
- 	else
--		sb = get_sb_nodev(fstype, flags, data_page);
--
--	retval = PTR_ERR(sb);
--	if (IS_ERR(sb))
--		goto fs_out;
--
--	/* Something was mounted here while we slept */
--	while(d_mountpoint(nd.dentry) && follow_down(&nd.mnt, &nd.dentry))
--		;
--
--	/* Refuse the same filesystem on the same mount point */
--	retval = -EBUSY;
--	if (nd.mnt && nd.mnt->mnt_sb == sb
--	    	   && nd.mnt->mnt_root == nd.dentry)
--		goto fail;
--
--	retval = -ENOENT;
--	if (!nd.dentry->d_inode)
--		goto fail;
--	retval = -ENOTDIR;
--	if (!S_ISDIR(nd.dentry->d_inode->i_mode))
--		goto fail;
--	down(&nd.dentry->d_inode->i_zombie);
--	if (!IS_DEADDIR(nd.dentry->d_inode)) {
--		retval = -ENOMEM;
--		mnt = add_vfsmnt(&nd, sb->s_root, dev_name);
--	}
--	up(&nd.dentry->d_inode->i_zombie);
--	if (!mnt)
--		goto fail;
--	retval = 0;
--unlock_out:
--	up(&mount_sem);
--fs_out:
--	put_filesystem(fstype);
--nd_out:
-+		retval = do_add_mount(&nd, type_page, flags,
-+				      dev_name, data_page);
- 	path_release(&nd);
- 	return retval;
--
--fail:
--	kill_super(sb);
--	goto unlock_out;
- }
- 
- asmlinkage long sys_mount(char * dev_name, char * dir_name, char * type,
+> On Tue, 5 Jun 2001, Mike Galbraith wrote:
+>
+> > Yes.  If we start writing out sooner, we aren't stuck with pushing a
+> > ton of IO all at once and can use prudent limits.  Not only because of
+> > potential allocation problems, but because our situation is changing
+> > rapidly so small corrections done often is more precise than whopping
+> > big ones can be.
+>
+> Hold on there big boy, writing out sooner is not better.  What if the
+
+(do definitely beat my thoughts up, please don't use condescending terms)
+
+In some cases, it definitely is.  I can routinely improve throughput
+by writing more.. that is a measurable and reproducable fact.  I know
+also from measurement that it is not _always_ the right thing to do.
+
+> memory shortage is because real data is being written out to disk?
+
+(I would hope that we're doing our best to always be writing real data
+to disk.  I also know that this isn't always the case.)
+
+> Swapping early causes many more problems than swapping late as extraneous
+> seeks to the swap partiton severely degrade performance.
+
+That is not the case here at the spot in the performance curve I'm
+looking at (transition to throughput).
+
+Does this mean the block layer and/or elevator is having problems?  Why
+would using avaliable disk bandwidth vs letting it lie dormant be a
+generically bad thing?.. this I just can't understand.  The elevator
+deals with seeks, the vm is flat not equipped to do so.. it contains
+such concept.
+
+Avoiding write is great, delaying write is not at _all_ great.
+
+	-Mike
 

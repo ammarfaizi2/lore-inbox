@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSE0Kax>; Mon, 27 May 2002 06:30:53 -0400
+	id <S316573AbSE0Kcf>; Mon, 27 May 2002 06:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316568AbSE0Kaw>; Mon, 27 May 2002 06:30:52 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:44994 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S316542AbSE0Kav>; Mon, 27 May 2002 06:30:51 -0400
-To: Andreas Hartmann <andihartmann@freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Kernel 2.4.x
-In-Reply-To: <acsuv2$30v$1@ID-44327.news.dfncis.de>
-Mail-Followup-To: Andreas Hartmann <andihartmann@freenet.de>,
- linux-kernel@vger.kernel.org
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Mon, 27 May 2002 12:28:25 +0200
-Message-ID: <87661951h2.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316572AbSE0Kce>; Mon, 27 May 2002 06:32:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:56213 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316568AbSE0Kcc>;
+	Mon, 27 May 2002 06:32:32 -0400
+Date: Mon, 27 May 2002 03:17:32 -0700 (PDT)
+Message-Id: <20020527.031732.95158135.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com, colin@gibbs.dhs.org,
+        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
+Subject: Re: 2.4 SRMMU bug revisited
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020527092408.GD345@louise.pinerecords.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann <andihartmann@freenet.de> writes:
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Mon, 27 May 2002 11:24:08 +0200
+   
+   I can't say I like these fixes much.
 
-> Unfortunately, the memory management of kernel 2.4.x didn't get
-> better until today. It is very easy to make a machine dead. Take the
-> following script:
+How about contributing some time to figuring out what
+the problem is instead of complaining all the time?
 
-Use an -ac kernel with disabled overcommitment.
+%99 of people with sparc32 problems are totally unwilling (or unable)
+to help fix the bugs themselves, they merely whine.  It gets a bit
+old after a while (which for me amount to roughly 7 years).
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274194AbRJEWXD>; Fri, 5 Oct 2001 18:23:03 -0400
+	id <S274234AbRJEWpg>; Fri, 5 Oct 2001 18:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274248AbRJEWWw>; Fri, 5 Oct 2001 18:22:52 -0400
-Received: from astcc-132.astound.net ([24.219.123.215]:23556 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S274194AbRJEWWn>; Fri, 5 Oct 2001 18:22:43 -0400
-Date: Fri, 5 Oct 2001 15:23:16 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Sean Swallow <sean@swallow.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20268 UDMA troubles
-In-Reply-To: <Pine.LNX.4.33.0110051254070.15665-100000@lsd.nurk.org>
-Message-ID: <Pine.LNX.4.10.10110051522120.4222-100000@master.linux-ide.org>
+	id <S274236AbRJEWp1>; Fri, 5 Oct 2001 18:45:27 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:43442 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S274234AbRJEWpW>;
+	Fri, 5 Oct 2001 18:45:22 -0400
+Date: Fri, 05 Oct 2001 23:45:46 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: 2.2.19 poor speed creating/deleting interfaces
+Message-ID: <393662386.1002325546@[195.224.237.69]>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Sean Swallow wrote:
+I am looking at a VRRP implementation which is problematic
+on large numbers of interfaces. The configuration has
+over 300 interfaces, which, each being on their own
+VLAN of the same physical interface, tend to change
+state at the same time.
 
-> Andre,
-> 
-> Thank you for the reply.
-> 
-> I was wondering if both controllers (PDC20268 and PDC20267) should show up
-> when I cat /proc/ide/pdc202xx ?
-> 
-> I'm not disabling the BURST_BIT, I think the driver is, but only on the
-> second card. Thus, I can't get udma5 on all 4 chains.
-> 
-> This is from dmesg:
-> 
-> PDC20267: IDE controller on PCI bus 00 dev 40
-> PDC20267: chipset revision 2
-> PDC20267: not 100% native mode: will probe irqs later
-> PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
->     ide2: BM-DMA at 0x1080-0x1087, BIOS settings: hde:DMA, hdf:pio
->     ide3: BM-DMA at 0x1088-0x108f, BIOS settings: hdg:DMA, hdh:pio
-> PDC20268: IDE controller on PCI bus 00 dev 50
-> PDC20268: chipset revision 2
-> PDC20268: not 100% native mode: will probe irqs later
-> PDC20268: (U)DMA Burst Bit DISABLED Primary MASTER Mode Secondary MASTER
-> Mode.
->     ide4: BM-DMA at 0x10d0-0x10d7, BIOS settings: hdi:pio, hdj:pio
->     ide5: BM-DMA at 0x10d8-0x10df, BIOS settings: hdk:pio, hdl:pio
-> 
-> Let me know if you need more information.
-> 
-> cheers,
-> 
-> -- 
-> Sean J. Swallow
-> pgp (6.5.2) keyfile @ https://nurk.org/keyfile.txt
-> 
-> 
-> On Thu, 4 Oct 2001 andre@linux-ide.org wrote:
-> 
-> >
-> > There is nothing wrong with the procfs.
-> > The HOST performs a sense mode on the contents of the taskfile registers
-> > when loading a setfeature to change the transfer rate.  Mode 5 is the
-> > same
-> > timings as Mode 4; however, the internal base clocks are different.
-> >
-> > Also why are we disabling the BUSRT BIT?
-> >
-> >
-> 
+The VRRP stuff runs mostly as a kernel thread, which
+on a state change, causes the VRRP virtual interface
+to be added/removed. It does this via a call to
+devinet_ioctl (with normal segment kludges), and
+does (essentially) SIOCIFADDR, SIOCIFMASK, SIOCIFBRADDR,
+on the virtual VLAN interface, and a SIOCADDMULTI(*) on
+the main VLAN interface. On transition to VRRP backup,
+it does the opposite (DELMULTI, the SOICIFFLAGS to
+delete the interface).
 
-The procfs api does not parse several cards at this time.
+It all works, but each interface addition / removal
+takes over a tenth of a second. This isn't great
+when you have over 300 of them and are trying to
+do hot standby (>40 seconds for some VLANs is
+not so hot).
 
-Cheers,
+I'm using Acenics, 2.2.19, patches for VRRP
+VLAN, Acenic, to log rather less and not
+try and load modules for VLAN interfaces.
 
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Tel: (510) 857-0055 x103
-38875 Cherry Street                           Fax: (510) 857-0010
-Newark, CA 94560                              Web: www.aslab.com
+Any idea what takes the time in interface
+addition / removal and/or multicast addition / removal?
 
+'All' the 300 odd kernel threads do is look
+at a state machine, issue IOCTLs, queue
+the odd packet, and call interruptible_sleep_on_timeout.
+I would have thought the non-ioctl stuff should be efficient.
+
+(*)=don't ask why I need to do this bit
+
+--
+Alex Bligh

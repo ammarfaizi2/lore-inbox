@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131253AbRABXbR>; Tue, 2 Jan 2001 18:31:17 -0500
+	id <S131652AbRABXcH>; Tue, 2 Jan 2001 18:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131133AbRABXa5>; Tue, 2 Jan 2001 18:30:57 -0500
-Received: from anime.net ([63.172.78.150]:23309 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S131081AbRABXaq>;
-	Tue, 2 Jan 2001 18:30:46 -0500
-Date: Tue, 2 Jan 2001 14:59:04 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Jens Axboe <axboe@suse.de>
-cc: David Woodhouse <dwmw2@infradead.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Hakan Lennestal <hakanl@cdt.luth.se>,
-        Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Chipsets, DVD-RAM, and timeouts....
-In-Reply-To: <20010102235037.B17330@suse.de>
-Message-ID: <Pine.LNX.4.30.0101021458510.15782-100000@anime.net>
+	id <S131133AbRABXb5>; Tue, 2 Jan 2001 18:31:57 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:63498
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131081AbRABXbq>; Tue, 2 Jan 2001 18:31:46 -0500
+Date: Tue, 2 Jan 2001 14:49:32 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dan Hollis <goemon@anime.net>, David Woodhouse <dwmw2@infradead.org>,
+        Hakan Lennestal <hakanl@cdt.luth.se>, linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts.... 
+In-Reply-To: <Pine.LNX.4.10.10101021444010.1037-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101021447070.26680-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Jens Axboe wrote:
-> On Tue, Jan 02 2001, Dan Hollis wrote:
-> > Also, using CDROM on hpt366 is recipe for disaster...
-> ATAPI in general actually, and as I understand it only with DMA.
+On Tue, 2 Jan 2001, Linus Torvalds wrote:
 
-Nope I can blow it up with PIO also...
+> Does the Maxtor and/or CDROM problems have anything to do with udma66? Ie
+> if you can test, can you please check whether it's ok when they are added
+> to the blacklists (or if udma66 is just disabled by default)?
 
--Dan
+Once I resend you the patches I have media-type block code for DMA on know
+hosts.
+
+Basically I have not gotten the time to add the extra DMA engine code to
+handle ATAPI on these controllers in question.  Yes they do have
+different address locations and rules for doing DMA/ATA33/66/100 ATAPI.
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

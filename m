@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbSJOGw1>; Tue, 15 Oct 2002 02:52:27 -0400
+	id <S263081AbSJOGww>; Tue, 15 Oct 2002 02:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbSJOGw1>; Tue, 15 Oct 2002 02:52:27 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5124 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263143AbSJOGw1>;
-	Tue, 15 Oct 2002 02:52:27 -0400
-Date: Mon, 14 Oct 2002 18:52:02 +0200
+	id <S263039AbSJOGww>; Tue, 15 Oct 2002 02:52:52 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:5636 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263173AbSJOGwu>;
+	Tue, 15 Oct 2002 02:52:50 -0400
+Date: Mon, 14 Oct 2002 18:33:13 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Hu Gang <hugang@soulinfo.com>, linux-kernel@vger.kernel.org
-Subject: Re: patch for 2.5.42. 2/2
-Message-ID: <20021014185202.C585@elf.ucw.cz>
-References: <20021013112019.496010fc.hugang@soulinfo.com> <Pine.LNX.4.44L.0210130133070.22735-100000@imladris.surriel.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Input - Make i8042.c less picky about AUX ports [1/3]
+Message-ID: <20021014183313.B585@elf.ucw.cz>
+References: <200210100725.JAA00155@bug.ucw.cz> <20021010093631.A7994@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0210130133070.22735-100000@imladris.surriel.com>
+In-Reply-To: <20021010093631.A7994@ucw.cz>
 User-Agent: Mutt/1.3.23i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,25 +24,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > --- linux-2.5.42/drivers/net/3c59x.c	Sat Oct 12 21:25:00 2002
-> > +++ linux-2.5.42-suspend/drivers/net/3c59x.c	Sat Oct 12 21:20:48 2002
+> > > ChangeSet@1.597.3.1, 2002-10-08 17:36:32+02:00, vojtech@suse.cz
+> > >   Make i8042.c even less picky about detecting an AUX port because of
+> > >   broken chipsets that don't support the LOOP command or report failure
+> > >   on the TEST command. Hopefully this won't screw any old 386/486
+> > >   systems without the AUX port.
+> > 
+> > would it make sense to at least printk() on such
+> > broken chipsets? 
 > 
-> > +#ifdef CONFIG_PM
-> > +	int in_suspend;
-> > +#endif
-> 
-> This looks like a serious design mistake.  Surely it would be
-> better to just have the network layer stop operations when the
-> system is going into suspend, instead of having to modify 100
-> individual network drivers ?
+> Maybe. But if we wanted to printk() on every chipset which doesn't
+> follow the i8042 spec in some way, we'd keep the logs full ...
 
-Whole userland is stopped at that point. That should mean that new
-requests can not come.
-
-OTOH packet from the network *can* come, and higher levels can not do
-much with that. [They could ifconfig down the network interface... But
-that can have sideefects we don't want to see...]
-
+If you keep it one line per bug, it should not be more than 2 lines on
+normal chipsets, right? :-). And we may get better hardware in future
+by doing this.
 								Pavel
 -- 
 When do you have heart between your knees?

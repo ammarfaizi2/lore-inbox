@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUGJLyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUGJMBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUGJLyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 07:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUGJLyH
+	id S266218AbUGJMBS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 08:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUGJMBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 07:54:07 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:35764 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S266216AbUGJLyE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 07:54:04 -0400
-Date: Sat, 10 Jul 2004 13:54:04 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alberto Bertogli <albertogli@telpin.com.ar>, linux-kernel@vger.kernel.org
-Subject: Re: Syncing a file's metadata in a portable way
-Message-ID: <20040710115404.GA11420@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andrew Morton <akpm@osdl.org>,
-	Alberto Bertogli <albertogli@telpin.com.ar>,
-	linux-kernel@vger.kernel.org
-References: <20040709030637.GB5858@telpin.com.ar> <20040709023948.59497dca.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040709023948.59497dca.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Sat, 10 Jul 2004 08:01:18 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:43156 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266218AbUGJMBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 08:01:16 -0400
+Message-ID: <40EFDA89.4020001@yahoo.com.au>
+Date: Sat, 10 Jul 2004 22:01:13 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: FabF <fabian.frederick@skynet.be>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: autoregulation needed
+References: <1089453053.3646.18.camel@localhost.localdomain>
+In-Reply-To: <1089453053.3646.18.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 02:39:48AM -0700, Andrew Morton wrote:
+FabF wrote:
+> Hi,
+> 
+> 	I've been surprised these last days to read ar wasn't that interesting
+> (!!!) so I did a slight bench :
+> 
+> http://fabian.unixtech.be/kernel/autoregulate/
+> 
+> Well, I hope we can have that pretty stuff in mainline.I'm bored
+> patching it again and again.
+> 
+> If some persons could confirm GUI is relaxed with autoregulation (well
+> its my case but I could use a box from Mars or smthg :) ).
+> 
 
-> It depends on the Linux filesystem.  On ext3, for example, fsync() will
-> sync all of the filesytem's metadata (and data in journalled and ordered
-> data mode).
+That is a good start.
 
-I've noticed that on ext3, SQLite transactions are nearly useless, with the
-smallest transactions causing 5 megabyte/s writout activity based on
-relatively small writes. kjournald bore a large part of that according to
-laptop_mode's block dump.
+I don't think we need to rush in changes here on the basis that
+they improve a *really* thrashing workload, although obviously
+that is interesting, and a definitely positive point.
 
-Do we actually need to flush the journal on fsync? I'm no fs theorist but I
-wonder if having data in the journal isn't good enough - in case of failure,
-the data will be there on recovery?
+I didn't see Con's newest autoswappiness patch do a great deal
+for kbuild here. The inactivation thing seems to help more - it
+appears to increase the rate of active list scanning, which is
+consistient with the sort of behaviour I have seen. However, the
+problem with increased active list scanning is that it can be
+quicker to evict RSS over throwaway data which is bad.
 
-
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Changes should be tested one at a time if possible, and when they
+are determined to be an improvement, we should try to look into
+what the "auto tuning" magic is doing right, and see if that can
+be implemented in a simpler way (although it may be already as
+simple as possible).

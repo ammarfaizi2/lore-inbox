@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTJ1CNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 21:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTJ1CNV
+	id S263830AbTJ1C6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 21:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTJ1C6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 21:13:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36813 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261506AbTJ1CNU
+	Mon, 27 Oct 2003 21:58:33 -0500
+Received: from auth22.inet.co.th ([203.150.14.104]:20998 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263830AbTJ1C6c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 21:13:20 -0500
-Message-ID: <3F9DD0A6.1010703@pobox.com>
-Date: Mon, 27 Oct 2003 21:12:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 27 Oct 2003 21:58:32 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+Date: Tue, 28 Oct 2003 10:58:16 +0800
+User-Agent: KMail/1.5.2
+Cc: cliff white <cliffw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200310261201.14719.mhf@linuxmail.org> <1067305071.1693.14.camel@laptop-linux> <3F9DCAE0.1010109@cyberone.com.au>
+In-Reply-To: <3F9DCAE0.1010109@cyberone.com.au>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-To: bill davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test9
-References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org> <20031026120521.GD32168@vic20.blipp.com> <20031027182141.GH32168@vic20.blipp.com> <bnk7ha$lqi$1@gatekeeper.tmr.com>
-In-Reply-To: <bnk7ha$lqi$1@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310281058.16710.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bill davidsen wrote:
-> In article <20031027182141.GH32168@vic20.blipp.com>,
-> Patrik Wallstrom  <pawal@blipp.com> wrote:
+On Tuesday 28 October 2003 09:48, Nick Piggin wrote:
 > 
-> | This patch worked for the Promise-controller:
-> | http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-promise20378.patch
+> Nigel Cunningham wrote:
 > 
-> If this patch solves the problem, might I hope that it will be
-> considered critical enough a bugfix to get into the mainline? I assume
-> the SATA code added in test9 was intended to work, rather than as a
-> place holder.
+> >I'll try it with my software suspend patch. Under 2.4, I get around 45
+> >pages per jiffy written when suspending. Under 2.6, I'm currently
+> >getting 2-4, so any improvement should be obvious!
+> >
+> 
+> It might speed it up a bit for you. Although maybe you are measuring
+> with 100 vs 1000 jiffies/s?
 
+Good point ;)
 
-The above patch solves the 'problem' of a particular PCI id not being 
-listed in the driver.
-
-IOW it _adds_ new hardware support.
-
-	Jeff
-
-
+Regards
+Michael
 

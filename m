@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289542AbSAVXRQ>; Tue, 22 Jan 2002 18:17:16 -0500
+	id <S289540AbSAVXQY>; Tue, 22 Jan 2002 18:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289541AbSAVXQy>; Tue, 22 Jan 2002 18:16:54 -0500
-Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:27146 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S289542AbSAVXQn>;
-	Tue, 22 Jan 2002 18:16:43 -0500
-Date: Tue, 22 Jan 2002 23:21:12 +0000
-From: Ian Molton <spyro@armlinux.org>
+	id <S289541AbSAVXQO>; Tue, 22 Jan 2002 18:16:14 -0500
+Received: from hermes.cicese.mx ([158.97.1.34]:27875 "EHLO hermes.cicese.mx")
+	by vger.kernel.org with ESMTP id <S289540AbSAVXQE>;
+	Tue, 22 Jan 2002 18:16:04 -0500
+Message-ID: <3C4DF2AD.66BC3F6C@cicese.mx>
+Date: Tue, 22 Jan 2002 15:15:57 -0800
+From: Serguei Miridonov <mirsev@cicese.mx>
+Organization: CICESE Research Center, Ensenada, B.C., Mexico
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: ru, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon PSE/AGP Bug
-Message-Id: <20020122232112.3ccdb3d5.spyro@armlinux.org>
-In-Reply-To: <1011711077.10474.3.camel@psuedomode>
-In-Reply-To: <B575BF98FA79D4119BD20008C7A4516502E1C488@ffz00za9.wwz1me.mail.dresdner.net>
-	<1011711077.10474.3.camel@psuedomode>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Subject: Console output for debugging
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a sunny 22 Jan 2002 09:51:12 -0500 Ed Sweetman gathered a sheaf of
-electrons and etched in their motions the following immortal words:
+Q: Is there any function in the kernel which I can call
+safely from a module to print debug message on the console
+screen?
 
-> I've had two different kinds of athlon's (K7-2 and Tbird 1.33Ghz) with
-> V3 agp and Matrox G450 agp but both of the times it was on Abit
-> motherboards
+I don't want to use printk for some reasons. One of them is
+that I want messages to appear on the screen immediately,
+even from interrupt processing routines. Another is to be
+able to see messages until the system freezes completely in
+case of software or hardware bug.
 
-> I dont deny the existance of the "bug" in linux but it's just strange
-> how a cpu bug is turning up with some people and not others.   Perhaps
-> only some chips from all the batches are affected?  whatever the case
-> tuxracer works perfectly here.  
+Thank you.
 
-Same here. I have a Duron 800 (running at 1GHz) on an ASUS A7M with a
-Radeon 64 DDR VIVO, and its running SWEEEET at AGP 4x.
+
+--
+Serguei Miridonov                CICESE, Research Center,
+CICESE, Optics Dept.             Ensenada B.C., Mexico
+PO Box 434944                    E-mail: mirsev@cicese.mx
+San Diego, CA 92143-4944         FAX: +52 (646) 1750553
+U.S.A.
+
+
+

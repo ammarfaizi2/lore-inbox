@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCWHh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbVCWH5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVCWHh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 02:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVCWHh0
+	id S262858AbVCWH5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVCWH5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:37:26 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:55162 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262846AbVCWHhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:37:20 -0500
-Message-ID: <42411CAC.5000808@yahoo.com.au>
-Date: Wed, 23 Mar 2005 18:37:16 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Wed, 23 Mar 2005 02:57:08 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:49096 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262843AbVCWHzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 02:55:01 -0500
+Date: Wed, 23 Mar 2005 02:54:53 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+In-Reply-To: <20050323071604.GA32712@elte.hu>
+Message-ID: <Pine.LNX.4.58.0503230251180.13140@localhost.localdomain>
+References: <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu>
+ <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu>
+ <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu>
+ <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu>
+ <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu>
+ <20050323071604.GA32712@elte.hu>
 MIME-Version: 1.0
-To: Arun Srinivas <getarunsri@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related
- questions?
-References: <BAY10-F5987CA2A1E1D6C406F5371D94F0@phx.gbl>
-In-Reply-To: <BAY10-F5987CA2A1E1D6C406F5371D94F0@phx.gbl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arun Srinivas wrote:
-> If the SMT (apart from SMP) support is enabled in the  .config file, 
-> does the kernel recogonize the 2 logical processor as 2 logical or 2 
-> physical processors?
-> 
 
-You shouldn't be able to select SMT if SMP is not enabled.
-If SMT and SMP is selected, then the scheduler will recognise
-the 2 processors as logical ones.
 
-> Also, as the hyperthreaded processor may schedule 2 threads in the 2 
-> logical cpu's, and it may not necessarily be form the same process i.e., 
-> the 2 thread it schedules may be from the same or from the different 
-> process.
-> 
+On Wed, 23 Mar 2005, Ingo Molnar wrote:
 
-Yes.
+>
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+> > That callback will be queued on CPU#2 - while the task still keeps
+> > current->rcu_data of CPU#1. It also means that CPU#2's read counter
+> > did _not_ get increased - and a too short grace period may occur.
+> >
+> > it seems to me that that only safe method is to pick an 'RCU CPU' when
+> > first entering the read section, and then sticking to it, no matter
+> > where the task gets migrated to. Or to 'migrate' the +1 read count
+> > from one CPU to the other, within the scheduler.
+>
+> i think the 'migrate read-count' method is not adequate either, because
+> all callbacks queued within an RCU read section must be called after the
+> lock has been dropped - while with the migration method CPU#1 would be
+> free to process callbacks queued in the RCU read section still active on
+> CPU#2.
+>
 
-> So, is there any way I can tell the scheduler (assuming I make the 
-> scheduler recogonize my 2 threads..i.e., it knows their pid) to schedule 
-> always my 2 threads @ the same time? How do I go abt it?
-> 
+Hi Ingo,
 
-Use sched_setaffinity to force each thread onto the particular
-CPU. Use sched_setscheduler to acquire a realtime scheduling
-policy. Then use mutexes to synchronise your threads so they
-run the desired code segment at the same time.
+Although you can't disable preemption for the duration of the
+rcu_readlock, what about pinning the process to a CPU while it has the
+lock.  Would this help solve the migration issue?
+
+-- Steve
 

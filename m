@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280161AbRJaLcu>; Wed, 31 Oct 2001 06:32:50 -0500
+	id <S280163AbRJaLek>; Wed, 31 Oct 2001 06:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280162AbRJaLck>; Wed, 31 Oct 2001 06:32:40 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:47291 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S280161AbRJaLcb>; Wed, 31 Oct 2001 06:32:31 -0500
-Date: Wed, 31 Oct 2001 12:31:30 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] making the printk buffer bigger 
-In-Reply-To: <3709761319.1004437141@mbligh.des.sequent.com>
-Message-ID: <Pine.GSO.3.96.1011031122155.10781A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280162AbRJaLeb>; Wed, 31 Oct 2001 06:34:31 -0500
+Received: from [194.90.137.3] ([194.90.137.3]:45830 "EHLO MAILGW")
+	by vger.kernel.org with ESMTP id <S280163AbRJaLeR>;
+	Wed, 31 Oct 2001 06:34:17 -0500
+Date: Wed, 31 Oct 2001 13:34:38 +0200
+From: Michael Rozhavsky <mrozhavsky@opticalaccess.com>
+To: Kirill Ratkin <kratkin@egartech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call kernel function from module
+Message-ID: <20011031133438.O24143@opticalaccess.com>
+In-Reply-To: <01103112311302.00794@nemo> <3BDFD866.E6E997CC@egartech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BDFD866.E6E997CC@egartech.com>; from kratkin@egartech.com on Wed, Oct 31, 2001 at 01:54:30PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Martin J. Bligh wrote:
+[snip]
+> 
+> Hi! Could somebody help me? I added several functions (not sys calls) to
+> kernel as hardcoded part. Then I write modules which will be call these
+> functions. But when I load module insmod says me 'can't resolve symbol
+> my_func_name'.
+> I exported all my functions in netsyms.c file. Do you know how I can see
+> my function?
 
-> I don't just want it for development, I believe in capturing my boot messages 
-> all the time. If they're not visible, why bother printing them?
+use EXPORT_SYMBOL macro from include/module.h
 
- Assuming the code is correct at one stage, what do you need detailed
-debug data, for? 
+> 
+> Regards,
+> Niktar.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+Best regards.
 
-> The correct solution is probably to either size it dynamically, or have a
-> seperate boot time buffer that we throw away afterwards. But for the 
-> sake of another 48Kb on machines with 2 - 16Gb of RAM, it's not worth
-> coding it, testing it, and risking the change.
-
- There are 4MB systems out there, too.  Sizing the buffer dynamically is
-probably OK.
-
-> PS. Alan's solution was to turn off half the garbage that gets printed on
-> boot, which would work too. Especially half the stuff from the mps tables,
-> which we throw in the bin 2 nanoseconds after printing it. We could
-> turn off APIC_DEBUG by default, which would kill all the Dprintk's as
-> far as I can see ....
-
- The MPS tables are tiny comparing to other stuff, I'm told.  Switching
-them to KERN_DEBUG is a good idea at this stage; as is probably undefining
-APIC_DEBUG.  Anyway, I'm told APIC debug messages are small comparing to
-ones output by certain other subsystems. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+--
+   Michael Rozhavsky			Tel:    +972-4-9936248
+   mrozhavsky@opticalaccess.com		Fax:    +972-4-9890564
+   Optical Access  
+   Senior Software Engineer		www.opticalaccess.com

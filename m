@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271182AbUJVLIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271189AbUJVLKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271182AbUJVLIu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271183AbUJVLIu
+	id S271189AbUJVLKC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271183AbUJVLKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:08:50 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:3339 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271182AbUJVLIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:08:46 -0400
-Date: Fri, 22 Oct 2004 12:08:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-ID: <20041022110846.GA17866@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20041022032039.730eb226.akpm@osdl.org> <20041022103910.GB17526@infradead.org> <20041022035400.28131d76.akpm@osdl.org>
+	Fri, 22 Oct 2004 07:10:01 -0400
+Received: from holomorphy.com ([207.189.100.168]:5058 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S271189AbUJVLJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:09:24 -0400
+Date: Fri, 22 Oct 2004 04:09:16 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: root@chaos.analogic.com, John Cherry <cherry@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IA32 (2.6.9 - 2004-10-20.21.30) - 11 New warnings (gcc 3.2.2)
+Message-ID: <20041022110916.GP17038@holomorphy.com>
+References: <200410211240.i9LCeDk8015277@cherrypit.pdx.osdl.net> <Pine.LNX.4.61.0410210942230.11962@chaos.analogic.com> <1098390149.3705.16.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022035400.28131d76.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <1098390149.3705.16.camel@krustophenia.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:54:00AM -0700, Andrew Morton wrote:
-> > Your tree also has various rejected core changes for it still.
-> 
-> Which were they?
+On Thu, 21 Oct 2004, John Cherry wrote:
+>>> drivers/char/mem.c:213: warning: `remap_page_range' is deprecated
+>>>   (declared at include/linux/mm.h:767)
 
-reiser4-aliased-dir.patch
-reiser4-allow-drop_inode-implementation.patch
-reiser4-export-inode_lock.patch
-reiser4-kobject-umount-race.patch
-reiser4-unstatic-kswapd.patch
+On Thu, 2004-10-21 at 09:44, Richard B. Johnson wrote:
+>> Hmmm. What does one use instead???  We still use mmap in drivers
+>> or is that going to be removed too?
+
+On Thu, Oct 21, 2004 at 04:22:30PM -0400, Lee Revell wrote:
+> remap_pfn_range I think.
+
+remap_pfn_range() has identical functionality. It's been given a
+distinct entrypoint name so people don't feed it raw physical addresses
+by accident. It is an improvement because its interface doesn't truncate
+physical addresses. I've got no idea what happened to the
+drivers/char/mem.c hunk of my patch. Just check the archives, and see
+that the patches I posted do actually sweep drivers/char/mem.c.
 
 
-I'm not completely sure what problems the following one could
-cause (or rather which problems of the scheme it's needed for
-it doesn't solve):
-
-reiser4-reget-page-mapping.patch
-
-> > > +hfs-export-type-creator-via-xattr.patch
-> > 
-> > I haven't heard an answer on the comments on this on on -fsdevel yet..
-> 
-> To use the generic xattr code?  Yes, we're waiting to hear back on that.
-
-I'm more concerned about the lacking xattr name prefix as that's a
-published API.
-
+-- wli

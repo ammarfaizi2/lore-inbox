@@ -1,81 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262990AbUDARYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUDARYU
+	id S262976AbUDAR0i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUDAR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:24:20 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:9374 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262990AbUDARYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:24:15 -0500
-Date: Thu, 1 Apr 2004 14:24:01 -0300
-From: Flavio Bruno Leitner <fbl@conectiva.com.br>
-To: "Craig, Dave" <dwcraig@qualcomm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Rafael D'Halleweyn (List)" <list@noduck.net>,
+	Thu, 1 Apr 2004 12:26:37 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:64129 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S262976AbUDAR0e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:26:34 -0500
+Date: Thu, 1 Apr 2004 09:26:23 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: bert hubert <ahu@ds9a.nl>, Larry McVoy <lm@bitmover.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-Message-ID: <20040401172401.GD2132@conectiva.com.br>
-References: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com> <20040401142458.GB2132@conectiva.com.br>
+Subject: Re: who is merlin.fit.vutbr.cz?
+Message-ID: <20040401172623.GA25496@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>, bert hubert <ahu@ds9a.nl>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <200403290108.i2T18T8d024595@work.bitmover.com> <20040331182039.GA29397@outpost.ds9a.nl> <20040331213143.GC20693@mail.shareable.org> <20040331214517.GB1599@outpost.ds9a.nl> <20040401133912.GA25163@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040401142458.GB2132@conectiva.com.br>
-User-Agent: Mutt/1.5.5.1i
-X-Bogosity: No, tests=bogofilter, spamicity=0.025835, version=0.16.3
+In-Reply-To: <20040401133912.GA25163@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 01, 2004 at 02:39:12PM +0100, Jamie Lokier wrote:
+> bert hubert wrote:
+> > On Wed, Mar 31, 2004 at 10:31:43PM +0100, Jamie Lokier wrote:
+> > > > RCU for BitKeeper trees? :-)
+> > > 
+> > > Last I heard, RCU is patented by IBM, with permission to use it in GPL
+> > > programs (maybe limited to version 2 of the GPL?), so that Linux can use it.
+> > 
+> > This is really astonishing. It is not possible to say one thing about
+> > bitkeeper without descending into a discussion on patents and licenses!
+> 
+> No.  It's an unfortunate coincidence that you mentioned RCU on a
+> BitKeeper(tm) thread.  A suggestion to use RCU in, say, Mozilla or
+> FreeBSD would have elicited a similar response.
+> 
+> RCU patents were mentioned numerous times in the news when RCU was
+> added to the kernel.  One presumes, then, that IBM was keen for it to
+> be known the technique is patented, and one would be wise to tread
+> carefully if intending to copy the technique as it is used in Linux,
+> as you jokingly suggested.
+> 
+> In case you misunderstood, the grandparent post was not an attack on
+> BitMover.  Fwiw, I'm on BitMover's side if the RCU patent is relevant,
+> which it probably is not.  I doubt if the patent extends beyond task
+> scheduling done in a certain way, although as I said I have not read it.
 
-Another output with all debug options enabled.
-
-cascade: c03b3128 != c03b28c0           
-kernel/timer.c:296: spin_lock(kernel/timer.c:c03b28c0) already locked by kernel/timer.c/401
-handler=c03b3120 (0xc03b3120)                                                              
-Call Trace:                  
- [<c01347ef>] cascade+0x7f/0xb0
- [<c0135025>] run_timer_softirq+0x315/0x3f0
- [<c012fa35>] do_softirq+0xa5/0xb0         
- [<c010caea>] do_IRQ+0x21a/0x360  
- [<c012b5bf>] profile_hook+0x1f/0x23
- [<c010a934>] common_interrupt+0x18/0x20
- [<c0107066>] default_idle+0x26/0x40    
- [<c01070f4>] cpu_idle+0x34/0x40    
- [<c0434829>] start_kernel+0x189/0x1e0
- [<c0434540>] unknown_bootoption+0x0/0x120
-
-cascade: c03b2f88 != c03b28c0
-handler=c03b2f80 (0xc03b2f80)
-Call Trace:                  
- [<c01347ef>] cascade+0x7f/0xb0
- [<c0135025>] run_timer_softirq+0x315/0x3f0
- [<c012fa35>] do_softirq+0xa5/0xb0         
- [<c010caea>] do_IRQ+0x21a/0x360  
- [<c012b5bf>] profile_hook+0x1f/0x23
- [<c010a934>] common_interrupt+0x18/0x20
- [<c0107066>] default_idle+0x26/0x40    
- [<c01070f4>] cpu_idle+0x34/0x40    
- [<c0434829>] start_kernel+0x189/0x1e0
- [<c0434540>] unknown_bootoption+0x0/0x120
-                                          
-cascade: c03b2910 != c03b28c0
-handler=c03b2908 (0xc03b2908)
-Call Trace:                  
- [<c01347ef>] cascade+0x7f/0xb0
- [<c0135025>] run_timer_softirq+0x315/0x3f0
- [<c012fa35>] do_softirq+0xa5/0xb0         
- [<c010caea>] do_IRQ+0x21a/0x360  
- [<c012b5bf>] profile_hook+0x1f/0x23
- [<c010a934>] common_interrupt+0x18/0x20
- [<c0107066>] default_idle+0x26/0x40    
- [<c01070f4>] cpu_idle+0x34/0x40    
- [<c0434829>] start_kernel+0x189/0x1e0
- [<c0434540>] unknown_bootoption+0x0/0x120
-
-
-
+BitMover could care less about RCU, please leave us out of this discussion.
 -- 
-Flávio Bruno Leitner <fbl@conectiva.com.br>
-[ E74B 0BD0 5E05 C385 239E  531C BC17 D670 7FF0 A9E0 ]
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

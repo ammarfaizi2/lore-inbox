@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135232AbQLNXLC>; Thu, 14 Dec 2000 18:11:02 -0500
+	id <S129257AbQLNXPW>; Thu, 14 Dec 2000 18:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135233AbQLNXKs>; Thu, 14 Dec 2000 18:10:48 -0500
-Received: from raven.toyota.com ([205.180.183.200]:18948 "EHLO
-	raven.toyota.com") by vger.kernel.org with ESMTP id <S133089AbQLNXKY>;
-	Thu, 14 Dec 2000 18:10:24 -0500
-Message-ID: <3A394C2F.C2895995@toyota.com>
-Date: Thu, 14 Dec 2000 14:39:43 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129773AbQLNXPN>; Thu, 14 Dec 2000 18:15:13 -0500
+Received: from pop.gmx.net ([194.221.183.20]:46416 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129260AbQLNXPA>;
+	Thu, 14 Dec 2000 18:15:00 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+Date: Thu, 14 Dec 2000 23:41:54 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: "No rule to make target `irlan/irlan.o " in 2.4.0-test12pre1
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-In-Reply-To: <E146h1W-000081-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00121423412500.08962@nmb>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hallo,
 
-> > slrnpull --expire on a news-spool of about 600 Mb in 200,000 files gave
-> > a lot of 'trying_to_free..' errors.
-> >
-> > 2.2.18 + VM-global, booted with mem=32M:
-> >
-> > slrnpull --expire on the same spool worked fine.
->
-> I think Andrea just earned his official God status ;)
+compiling a fresh patched 2.4.0.13pre1 and make modules shows me following 
+error:
 
-So, maybe his divine VM patches will make it into 2.2.19?
+make[2]: *** No rule to make target `irlan/irlan.o', needed by `modules'.  
+Stop.make[2]: Leaving directory `/usr/src/linux-2.4.0.13pre1/net/irda'
+make[1]: *** [_modsubdir_irda] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.0.13pre1/net'
+make: *** [_mod_net] Error 2
 
-jjs
+make modules_install shows:
 
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.0-test12/kernel/fs/nfs/nfs.o
+depmod:         lockd_up_Rsmp_f6933c48
+depmod:         nlmclnt_proc_Rsmp_0f4e5e85
+depmod:         lockd_down_Rsmp_a7b91a7b
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.0-test12/kernel/fs/nfsd/nfsd.o
+depmod:         lockd_up_Rsmp_f6933c48
+depmod:         nlmsvc_ops_Rsmp_d56c4cfc
+depmod:         nlmsvc_invalidate_client_Rsmp_b1c3f825
+depmod:         lockd_down_Rsmp_a7b91a7b
+
+using 2.4.0.12 seems o.K. to me (installed a patch for 8139.too manually.)
+
+kind regards
+
+Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

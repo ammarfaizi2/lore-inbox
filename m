@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUJAABY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269629AbUJAANq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269628AbUJAABY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269629AbUJAABY
+	id S269629AbUJAANq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269631AbUJAANq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:01:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50351 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269628AbUJAABP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:01:15 -0400
-Date: Thu, 30 Sep 2004 17:05:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.9-rc2-mm4
-Message-Id: <20040930170505.6536197c.akpm@osdl.org>
-In-Reply-To: <1096586774l.5206l.1l@werewolf.able.es>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org>
-	<1096586774l.5206l.1l@werewolf.able.es>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Sep 2004 20:13:46 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:35978 "HELO
+	server5.heliogroup.fr") by vger.kernel.org with SMTP
+	id S269629AbUJAANo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 20:13:44 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB storage crash report in 2.6 SMP
+Date: Thu, 30 Sep 2004 23:54:45 GMT
+Message-ID: <04E3EF912@server5.heliogroup.fr>
+X-Mailer: Pliant 92
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> 
-> On 2004.09.27, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm4/
-> > 
-> > - ppc64 builds are busted due to breakage in bk-pci.patch
-> > 
-> > - sparc64 builds are busted too.  Also due to pci problems.
-> > 
-> > - Various updates to various things.  In particular, a kswapd artifact which
-> >   could cause too much swapout was fixed.
-> > 
-> > - I shall be offline for most of this week.
-> > 
-> 
-> I have a 'little' problem. PS2 mouse is jerky as hell, an when you mismatch
-> the protocol in X. Both in console and X.
+Copying a large amount of datas (several gigabytes) between two USB 2.0 attached
+disks will crash any Linux 2.6 SMP kernel, including 2.6.9-rc3.
 
-The above sentence is a bit hard to decrypt.  Want to try again?
+The stack report is:
+qh_completions 0x7B/0x118 [ehci_hcd]
+scan_async
+ehci_work
+echi_irq
+handle_IRQ_event
+commnon_interrupt
+default_idle
+default_idle
+cpu_idle
 
-Is this new behaviour?  Is current -linus OK?  Was 2.6.9-rc2-mm3 OK?
+The crash will append on any attempt to copy something like 100 GB.
+Copying something like 1 GB or less works nicely.
+Switching to an UP kernel solves the problem.
+Switching to a 2.4 kernel solves the problem.
+I tested it on two different machines, with two different disks sets.
 
-> I'm lucky I have an usb mouse.
-> 
-> One other question. Isn't /dev/input/mice supposed to be a multiplexor
-> for mice ? I think I remember some time when I could have both a PS2 and
-> a USB mouse connected and X pointer followed both. Now if I boot with the
-> USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
-> and plug it after boot, both work; usb mouse works fine, and PS2 just
-> jumps half screen each time I move it, and with big delays.
-> 
-> Something is broken in PS2 handling ?
-> 
-> NOTE: they are not really standard protocol mice, but trackballs; PS2 one is
-> a Logitech TrackMan Marble FX, and the other a Cordless Trackman FX, usb.
-
-Suitable people added to Cc: ;)

@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbTHTIXX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 04:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTHTIMm
+	id S261783AbTHTICI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 04:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTHTIAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 04:12:42 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:57293 "EHLO
+	Wed, 20 Aug 2003 04:00:42 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:28621 "EHLO
 	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261817AbTHTIER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 04:04:17 -0400
-Date: Wed, 20 Aug 2003 18:05:26 +1000
-Message-Id: <200308200805.h7K85QXi011792@theirongiant.lochness.weebeastie.net>
+	id S261775AbTHTIAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 04:00:17 -0400
+Date: Wed, 20 Aug 2003 18:01:26 +1000
+Message-Id: <200308200801.h7K81QQP011681@theirongiant.lochness.weebeastie.net>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 14/16] C99: 2.6.0-t3-bk7/include
+Subject: [PATCH 6/16] C99: 2.6.0-t3-bk7/arch/h8300
 Cc: Linus Torvalds <torvalds@osdl.org>
 From: CaT <cat@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -aur linux.backup/include/asm-arm/proc-armo/processor.h linux/include/asm-arm/proc-armo/processor.h
---- linux.backup/include/asm-arm/proc-armo/processor.h	Thu Oct 31 11:42:20 2002
-+++ linux/include/asm-arm/proc-armo/processor.h	Wed Aug 20 16:40:22 2003
-@@ -43,7 +43,7 @@
- 	uaccess_t	*uaccess;		/* User access functions*/
- 
- #define EXTRA_THREAD_STRUCT_INIT		\
--	uaccess:	&uaccess_kernel,
-+	.uaccess	= &uaccess_kernel,
- 
- #define start_thread(regs,pc,sp)					\
- ({									\
-diff -aur linux.backup/include/asm-arm/xor.h linux/include/asm-arm/xor.h
---- linux.backup/include/asm-arm/xor.h	Thu Oct 31 11:42:54 2002
-+++ linux/include/asm-arm/xor.h	Wed Aug 20 16:40:22 2003
-@@ -125,11 +125,11 @@
+diff -aur linux.backup/arch/h8300/kernel/setup.c linux/arch/h8300/kernel/setup.c
+--- linux.backup/arch/h8300/kernel/setup.c	Sat Aug 16 15:02:35 2003
++++ linux/arch/h8300/kernel/setup.c	Wed Aug 20 16:40:22 2003
+@@ -91,12 +91,12 @@
  }
  
- static struct xor_block_template xor_block_arm4regs = {
--	name:	"arm4regs",
--	do_2:	xor_arm4regs_2,
--	do_3:	xor_arm4regs_3,
--	do_4:	xor_arm4regs_4,
--	do_5:	xor_arm4regs_5,
-+	.name	= "arm4regs",
-+	.do_2	= xor_arm4regs_2,
-+	.do_3	= xor_arm4regs_3,
-+	.do_4	= xor_arm4regs_4,
-+	.do_5	= xor_arm4regs_5,
+ static const struct console gdb_console = {
+-	name:		"gdb_con",
+-	write:		gdb_console_output,
+-	device:		NULL,
+-	setup:		gdb_console_setup,
+-	flags:		CON_PRINTBUFFER,
+-	index:		-1,
++	.name		= "gdb_con",
++	.write		= gdb_console_output,
++	.device		= NULL,
++	.setup		= gdb_console_setup,
++	.flags		= CON_PRINTBUFFER,
++	.index		= -1,
  };
+ #endif
  
- #undef XOR_TRY_TEMPLATES
-diff -aur linux.backup/include/asm-arm26/processor.h linux/include/asm-arm26/processor.h
---- linux.backup/include/asm-arm26/processor.h	Mon Jul 21 23:35:02 2003
-+++ linux/include/asm-arm26/processor.h	Wed Aug 20 16:40:22 2003
-@@ -51,7 +51,7 @@
-         uaccess_t       *uaccess;         /* User access functions*/
- 
- #define EXTRA_THREAD_STRUCT_INIT                \
--        uaccess:        &uaccess_kernel,
-+        .uaccess        = &uaccess_kernel,
- 
- // FIXME?!!
- 
-diff -aur linux.backup/include/asm-arm26/xor.h linux/include/asm-arm26/xor.h
---- linux.backup/include/asm-arm26/xor.h	Thu Jun 26 23:47:49 2003
-+++ linux/include/asm-arm26/xor.h	Wed Aug 20 16:40:22 2003
-@@ -125,11 +125,11 @@
+@@ -260,8 +260,8 @@
  }
  
- static struct xor_block_template xor_block_arm4regs = {
--	name:	"arm4regs",
--	do_2:	xor_arm4regs_2,
--	do_3:	xor_arm4regs_3,
--	do_4:	xor_arm4regs_4,
--	do_5:	xor_arm4regs_5,
-+	.name	= "arm4regs",
-+	.do_2	= xor_arm4regs_2,
-+	.do_3	= xor_arm4regs_3,
-+	.do_4	= xor_arm4regs_4,
-+	.do_5	= xor_arm4regs_5,
+ struct seq_operations cpuinfo_op = {
+-	start:	c_start,
+-	next:	c_next,
+-	stop:	c_stop,
+-	show:	show_cpuinfo,
++	.start	= c_start,
++	.next	= c_next,
++	.stop	= c_stop,
++	.show	= show_cpuinfo,
  };
- 
- #undef XOR_TRY_TEMPLATES

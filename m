@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268357AbUJMF1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUJMFa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268357AbUJMF1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 01:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUJMF1M
+	id S268368AbUJMFa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 01:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUJMFa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 01:27:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:56434 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268357AbUJMF1E (ORCPT
+	Wed, 13 Oct 2004 01:30:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36782 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268368AbUJMFaS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 01:27:04 -0400
-Message-ID: <b2fa632f041012222745006916@mail.gmail.com>
-Date: Wed, 13 Oct 2004 10:57:00 +0530
-From: Raj <inguva@gmail.com>
-Reply-To: Raj <inguva@gmail.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	Wed, 13 Oct 2004 01:30:18 -0400
+Message-ID: <416CBC9C.8010905@osdl.org>
+Date: Tue, 12 Oct 2004 22:26:52 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Raj <inguva@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, pazke@donpac.ru
 Subject: Re: Build problems with APM/Subarch type
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <416CB8FC.9020503@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <b2fa632f04101204385c09459f@mail.gmail.com>	 <416CB8FC.9020503@osdl.org> <b2fa632f041012222745006916@mail.gmail.com>
+In-Reply-To: <b2fa632f041012222745006916@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <b2fa632f04101204385c09459f@mail.gmail.com>
-	 <416CB8FC.9020503@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Using an editor or make *config?  which *config?
+Raj wrote:
+>>Using an editor or make *config?  which *config?
+>>
 > 
-xconfig
+> xconfig
+> 
+> 
+>>>The build failed with an error 'Undefined reference to machine_real_restart'
+>>
+>>Yep, I see that also.
+>>
+>>
+>>>It seems that , unless Subarch is PC-Compatible ( CONFIG_PC ) ,
+>>>CONFIG_X86_BIOS_REBOOT will not be set and thusly, reboot.c would not be
+>>>compiled.
+>>>
+>>>( yeah, i know messing around with configs is suicidal, but.... )
+>>>
+>>>Can this be fixed ?? At the very least, hide APM options #if !(CONFIG_PC) ??
+>>
+>>Do you/we/maintainer know that APM is not applicable to all of the
+>>other PC sub-arches?
+>>
+>>I agree that it should be fixed, one way or another.
+> 
+> 
+> i am not aware much about the apm dependencies. maintainers might answer 
+> this more correctly. 
 
-> > The build failed with an error 'Undefined reference to machine_real_restart'
-> 
-> Yep, I see that also.
-> 
-> > It seems that , unless Subarch is PC-Compatible ( CONFIG_PC ) ,
-> > CONFIG_X86_BIOS_REBOOT will not be set and thusly, reboot.c would not be
-> > compiled.
-> >
-> > ( yeah, i know messing around with configs is suicidal, but.... )
-> >
-> > Can this be fixed ?? At the very least, hide APM options #if !(CONFIG_PC) ??
-> 
-> Do you/we/maintainer know that APM is not applicable to all of the
-> other PC sub-arches?
-> 
-> I agree that it should be fixed, one way or another.
+True.  I should have copied Andrey on it earlier.
 
-i am not aware much about the apm dependencies. maintainers might answer 
-this more correctly. 
+Andrey, any thoughts about how to keep VISWS from building APM
+support?  use Kconfig?  or does VISWS support APM?
 
 -- 
-######
-raj
-######
+~Randy

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270784AbRHNUVY>; Tue, 14 Aug 2001 16:21:24 -0400
+	id <S270821AbRHNU2X>; Tue, 14 Aug 2001 16:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270795AbRHNUVN>; Tue, 14 Aug 2001 16:21:13 -0400
-Received: from anime.net ([63.172.78.150]:29456 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S270784AbRHNUVD>;
-	Tue, 14 Aug 2001 16:21:03 -0400
-Date: Tue, 14 Aug 2001 13:19:53 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Chris Crowther <chrisc@shad0w.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CDP handler for linux
-In-Reply-To: <Pine.LNX.4.33.0108141934130.3283-100000@monolith.shad0w.org.uk>
-Message-ID: <Pine.LNX.4.30.0108141318370.30363-100000@anime.net>
+	id <S270815AbRHNU2H>; Tue, 14 Aug 2001 16:28:07 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49162 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S270808AbRHNU1r>;
+	Tue, 14 Aug 2001 16:27:47 -0400
+Date: Tue, 14 Aug 2001 17:27:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Petr Baudis <pasky@pasky.ji.cz>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
+In-Reply-To: <20010814220545.D31070@pasky.ji.cz>
+Message-ID: <Pine.LNX.4.33L.0108141727030.6118-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Chris Crowther wrote:
-> 	1) am I nuts
-> 	2) is anyone else interested in this
+On Tue, 14 Aug 2001, Petr Baudis wrote:
 
-I cant see real justification to put cdp handler in kernelspace.
-IMHO this belongs in userspace eg cdpd
+> I also propose to half badness of
 
--Dan
+Selecting which process to kill is not the problem
+we are currently facing.
 
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+The problem is WHEN to kill something. Once we have
+that fixed we can always work on refining the selection
+algorithm ;))
+
+Rik
+--
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

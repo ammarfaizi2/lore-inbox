@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTKETmw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTKETmv
+	id S263158AbTKETqf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTKETqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:42:51 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:2813 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263129AbTKETmV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:42:21 -0500
-Date: Wed, 5 Nov 2003 20:41:58 +0100 (MET)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Flavio Bruno Leitner <fbl@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE disk information changed from 2.4 to 2.6
-In-Reply-To: <20031105184203.GG5304@conectiva.com.br>
-Message-ID: <Pine.SOL.4.30.0311052031510.1988-100000@mion.elka.pw.edu.pl>
+	Wed, 5 Nov 2003 14:46:35 -0500
+Received: from smtp02.web.de ([217.72.192.151]:53259 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263158AbTKETqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 14:46:31 -0500
+Cc: lkml <linux-kernel@vger.kernel.org>, psavo@iki.fi, clepple@ghz.cc
+To: Tony Lindgren <tony@atomide.com>, john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+References: <20031104002243.GC1281@atomide.com> <1067971295.11436.66.camel@cog.beaverton.ibm.com> <20031104191504.GB1042@atomide.com>
+Message-ID: <oprx6jpvyfwilrtr@smtp.web.de>
+From: Felix Maibaum <f.maibaum@web.de>
+Content-Type: text/plain; format=flowed; charset=utf-8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Date: Wed, 05 Nov 2003 20:42:57 +0100
+In-Reply-To: <20031104191504.GB1042@atomide.com>
+User-Agent: Opera7.21/Linux M2 build 480
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Nov 2003 11:15:04 -0800, Tony Lindgren <tony@atomide.com> wrote:
 
-On Wed, 5 Nov 2003, Flavio Bruno Leitner wrote:
 
-> On Wed, Nov 05, 2003 at 06:29:07PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On Wed, 5 Nov 2003, Flavio Bruno Leitner wrote:
-> > > Using 2.4:
-> > > hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=784/255/63, UDMA (33)
-> > >
-> > > Using 2.6:
-> > > hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=13328/15/63, UDMA (33)
->
-> The line with CHS=784/255/63 is LBA and CHS=13328/15/63 is NORMAL.
->
-> Where kernel check to see if is LBA or NORMAL? BIOS? Which line is correct?
+> I've heard of timing problems if it's compiled in, but supposedly they 
+> don't
+> happen when loaded as module.
 
-Nowhere, kernel uses LBA whenever possible.
+As of 2.4.22 they happen regardless of compiling the code as a module or 
+statically
 
-In 2.6.x it doesn't even read BIOS info (which is wrong IMO, it should
-do this but only as last resort - if partition can't be mounted).
 
-Difference in CHS translation should matter only if you have some old DOS
-partitions created using CHS information.  Then you can force geometry
-using boot parameter "hd?=".  Unfortunately I've seen recently bugreport
-when 2.4.20 (?) works and 2.6.x fails even with forced geometry.
 
---bartlomiej
+> So it looks like there are some dependencies to other drivers that need 
+> to
+> be sorted out, or amd76x_pm needs to be loaded after some other
+> initializations.
 
+In an older thread it was mentioned that the module should sync the TSCs 
+to the bios clock, or at least between the processors when it wakes up.
+
+regards
+
+Felix
+
+-- 
+LINUX - because booting is for adding hardware!

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268946AbTCARPW>; Sat, 1 Mar 2003 12:15:22 -0500
+	id <S268916AbTCAR2J>; Sat, 1 Mar 2003 12:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268949AbTCARPW>; Sat, 1 Mar 2003 12:15:22 -0500
-Received: from science.horizon.com ([192.35.100.1]:60211 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP
-	id <S268946AbTCARPV>; Sat, 1 Mar 2003 12:15:21 -0500
-Date: 1 Mar 2003 17:25:39 -0000
-Message-ID: <20030301172539.15346.qmail@science.horizon.com>
-From: linux@horizon.com
-To: mikpe@user.it.uu.se
-Subject: Re: Playing with 2.5.63: APM blanking and "bio too big"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200303011658.h21GwTwu027100@harpo.it.uu.se>
+	id <S268922AbTCAR2J>; Sat, 1 Mar 2003 12:28:09 -0500
+Received: from a.smtp-out.sonic.net ([208.201.224.38]:54175 "HELO
+	a.smtp-out.sonic.net") by vger.kernel.org with SMTP
+	id <S268916AbTCAR2I>; Sat, 1 Mar 2003 12:28:08 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Sat, 1 Mar 2003 09:38:28 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Pavel Roskin <proski@gnu.org>
+Cc: David Hinds <dahinds@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fallback to PCI IRQs for TI bridges
+Message-ID: <20030301093814.A6700@sonic.net>
+References: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>* I had real problems with APM screen blanking enabled.  It reliably
->>  and repeatedly locked the machine HARD (no keyboard, no SysRq, no ping)
->>  when the scren blanker kicked in or trying to switch from X.  This is
->>  an Athlon on a KT133 Motherboard.  No problems in 2.4.  APM can corectly
->>  power the machine off, however.
+On Fri, Feb 28, 2003 at 08:30:36PM -0500, Pavel Roskin wrote:
+> 
+> David, I understand from the Linux MAINTAINERS file that you also maintain
+> the PCMCIA code in the kernel.  It's quite strange for me, because the
+> kernel code is quite different from what I used to see in pcmcia-cs.
 
-> Do you have CONFIG_X86_UP_APIC=y?
+Well, I'd have to say that I feel a little squeemish about being
+called the maintainer of the kernel code because I don't feel I can
+devote the time to it that it needs.  If someone else is willing to
+step up I'd happily cede the job to them.
 
-Right in one!
+> yenta_socket in 2.5.63 knows different models of the bridges and sets IRQ
+> routing to PCI for certain models.  I don't really like this approach.
 
-> To verify, hack apic.c and ensure that "dont_enable_local_apic_timer"
-> is initialised to 1. Also don't enable the NMI watchdog.
+I have not looked at the most recent 2.5.* kernels but if that is true
+then you're right, it is ill conceived.
 
-I'll try that.  Thanks!
+> The chip can be integrated into the motherboard, and we don't know if the
+> ISA IRQ lines are connected or not.  The architecture may not support ISA
+> bus (e.g. PowerPC), then there will be no ISA interrupts, no matter what
+> chip is used.
 
-> Another option, which is what I use now on all my local-APIC capable
-> machines, is to disable APM_DISPLAY_BLANK.
+Which raises an issue I've been wondering about, how to tell when a
+kernel is being built for a system with ISA bus capabilities.  The
+current code checks CONFIG_ISA but that's probably a bad idea.
 
-What I'm running now, and now that I understand, probably preferable.
-Maybe a warning in Configure.help?
+> I believe using PCI interrupts should not be considered as an inferior
+> approach compared to ISA interrupts.  The only driver I know that had
+> problems with PCI interrupts was ide-cs, but it's now fixed in the Alan's
+> tree, and hopefully in 2.4.21-pre5 (I didn't have a chance to test it).
+> 
+> Anyway, for the sake of backward compatibility, let's consider using PCI
+> interrupts a fallback that we use only if ISA interrupts don't work.
 
---- arch/i386/Kconfig   2003-02-24 14:05:10.000000000 -0500
-+++ arch/i386/Kconfig.new       2003-03-01 12:23:59.000000000 -0500
-@@ -922,6 +922,10 @@
- 	  backlight at all, or it might print a lot of errors to the console,
- 	  especially if you are using gpm.
- 
-+	  This also tends to interact badly with use of the local APIC.
-+	  You probably don't want this option unless you are building
-+	  for a laptop that you intend to use in text mode.
-+
- config APM_RTC_IS_GMT
- 	bool "RTC stores time in GMT"
- 	depends on APM
+This sounds fine to me.  I'd be concerned about giving up ISA
+interrupts completely, that some of the less used drivers have never
+been tested for compatibility with shared interrupts.
 
-
-Or should Linux mask the APIC timer before making the APM call?
-
-> I really despise BIOS writers.
-
-The BIOS interface is... non-obvious.
+-- Dave

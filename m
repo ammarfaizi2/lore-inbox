@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267898AbUHEStH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267927AbUHESlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267898AbUHEStH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 14:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267861AbUHESly
+	id S267927AbUHESlh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 14:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUHESkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 14:41:54 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:52649 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267896AbUHESjr convert rfc822-to-8bit (ORCPT
+	Thu, 5 Aug 2004 14:40:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11245 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267895AbUHESiR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 14:39:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Date: Thu, 5 Aug 2004 11:39:26 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F93C7@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Thread-Index: AcR68LEGW4yjhxQmQO6vFOGPJ8pkyQAKYUiA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Linh Dang" <linhd@nortelnetworks.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Aug 2004 18:39:27.0248 (UTC) FILETIME=[89627100:01C47B1B]
+	Thu, 5 Aug 2004 14:38:17 -0400
+Date: Thu, 5 Aug 2004 11:36:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ricklind@us.ibm.com, mbligh@aracnet.com, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: 2.6.8-rc2-mm2, schedstat-2.6.8-rc2-mm2-A4.patch
+Message-Id: <20040805113627.13e0feab.akpm@osdl.org>
+In-Reply-To: <20040805143249.GA23967@elte.hu>
+References: <20040804212658.GA26023@elte.hu>
+	<200408042210.i74MAF203428@owlet.beaverton.ibm.com>
+	<20040805143249.GA23967@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Linh Dang
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Rick Lindsley <ricklind@us.ibm.com> wrote:
 > 
-> Ulrich Drepper <drepper@redhat.com> wrote:
-> > The fast path for all locking primitives etc in nptl today is
-> > entirely at userlevel.  Normally just a single atomic operation with
-> > a dozen other instructions.  With the fusyn stuff each and every
-> > locking operation needs a system call to register/unregister the
-> > thread as it locks/unlocks mutex/rwlocks/etc.  Go figure how well
-> > this works.  We are talking about making the fast path of the
-> > locking primitives two/three/four orders of magnitude more
-> > expensive.  And this for absolutely no benefit for 99.999% of all
-> > the code which uses threads.
-> >
+>  > The version below is for 2.6.8-rc2-mm2 without the staircase code and
+>  > has been compiled cleanly but not yet run.
 > 
-> Is there an EFFICIENT way to add priority-inheritance to futex? the
-> lack of priority-inheritance is biggest headache for RT applications
-> running on top of NPTL/kernel-2.6. And there's is a LOT more of us (RT
-> users who want to use NPTL/kernel-2.6) than you might think. I guess
-> we're just not vocal.
+>  it looks good in principle, but this code needs a couple of cleanups
+>  before it can go into mainline. I've attached 3 patches, your original,
+>  the fixed up version and a delta that does the fixups relative to your
+>  patch.
 
-No.
+OK, thanks.  I dropped the three schedstats patches, added schedstat-v10. 
+My current rollup (which is pretty much rc3-mm1 with only that change) is
+at http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2.  Additional
+scheduler work should be against that tree, please.
 
-You need the concept of ownership (who do I have to boost?). You need 
-spinlocks to be able to traverse the who-is-waiting-for-whom trees
-(you might have three guys trying to lock from three different CPUs
-plus other guys preempting in the middle and you need to protect those
-trees.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

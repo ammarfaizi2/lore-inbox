@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130119AbRAKUBS>; Thu, 11 Jan 2001 15:01:18 -0500
+	id <S130743AbRAKUIb>; Thu, 11 Jan 2001 15:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131211AbRAKUBI>; Thu, 11 Jan 2001 15:01:08 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:38413 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S130119AbRAKUBA>;
-	Thu, 11 Jan 2001 15:01:00 -0500
-Message-ID: <3A5E10F5.716F83B7@holly-springs.nc.us>
-Date: Thu, 11 Jan 2001 15:00:53 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: named streams, extended attributes, and posix
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131211AbRAKUIV>; Thu, 11 Jan 2001 15:08:21 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:26889 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130743AbRAKUIE>;
+	Thu, 11 Jan 2001 15:08:04 -0500
+Date: Thu, 11 Jan 2001 21:08:02 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200101112008.VAA26010@db0bm.ampr.org>
+To: twaugh@redhat.com
+Subject: Re: Oops while loading ppa in 2.2.19-pre7
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that 2.4 is out, it will probably be a few .x releases until 2.5
-begins.
 
-A discussion on Named Streams and Extended Attributes was put off until
-2.5 earlier in the 2.4 development cycle. For compatibility with
-existing, widely-deployed filesystems (e.g., NFS, XFS, BeFS, HFS, etc.),
-Linux needs a standard way to expose and interact with these filesystem
-features. A draft of a paper proposing a methd for accomplishing this on
-Posix systems is available at:
+Hi Tim,
 
-http://www.flyingbuttmonkeys.com/streams-on-posix.txt
-http://www.flyingbuttmonkeys.com/streams-on-posix.pdf
+>> I got this non-fatal oops while loading the ppa module for my IOMEGA parallel
+>> port ZIP drive.
 
-Please read and comment! :)
+>It doesn't look like it's related to the ZIP drive though:
 
--M
+>> Warning: kfree_skb passed an skb still on a list (from c8074fc1).
+>> Oops: 0002
+>> CPU:    0
+>> EIP:    0010:[skb_recv_datagram+359/416]
+>>               ^^^^^^^^^^^^^^^^^
+
+>		Seems to be a networking problem..
+
+You are probably right as I can see in tne oops :
+Process tnt (pid: 388, process nr: 29, stackpage=c6fe1000)
+
+tnt is a program for hamradio (packet transmission over radio). And this is
+related to the network.
+
+----
+
+Regards
+
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

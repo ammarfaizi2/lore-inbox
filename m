@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUHWPqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUHWPqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUHWPqH (ORCPT <rfc822;willy@w.ods.org>);
+	id S265331AbUHWPqH (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Aug 2004 11:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUHWPqC
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUHWPpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:46:02 -0400
-Received: from [212.209.10.220] ([212.209.10.220]:39598 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S265808AbUHWPgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:36:40 -0400
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Sam Ravnborg'" <sam@ravnborg.org>,
-       "Mikael Starvik" <mikael.starvik@axis.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 2.4] CRIS architecture update
-Date: Mon, 23 Aug 2004 17:36:38 +0200
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668640E23@exmail1.se.axis.com>
+	Mon, 23 Aug 2004 11:45:51 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:27076 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265973AbUHWPl0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 11:41:26 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668013FA8A2@exmail1.se.axis.com>
-Importance: Normal
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] [broken?] Add MSI support to e1000
+Date: Mon, 23 Aug 2004 08:41:06 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240619D5A0@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
+Thread-Index: AcSG/vEQJLFTgQ+DSIGNq4rN+3++WQCJw/BA
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>, "cramerj" <cramerj@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+Cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 23 Aug 2004 15:41:09.0424 (UTC) FILETIME=[9C6B8B00:01C48927]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I'll send in a patch this week with basically the same
-things as in the 2.4 patch.
+On Friday, August 20 Roland Dreier wrote: 
+>However, on my Dell box with 865 chipset (lspci below), loading e1000
+>(from kernel 2.6.8.1 with this patch applied) with MSI=1 only works
+>for a short time (maybe ~1000 e1000 interrupts) before network traffic
+>stops.  
+>
+>Is there something wrong with the patch?  Something wrong with the
+>kernel MSI support?  Something wrong with the hardware?
 
-The new sub-arch will be added once we have the real hardware
-available (runs in silicon simulator today). 
+I do not see anything wrong with the patch and the kernel MSI support
+because it works for a short time. Ganesh may provide an answer on the 
+MSI support in e1000 hardware.
 
-/Mikael
-
------Original Message-----
-From: Sam Ravnborg [mailto:sam@ravnborg.org] 
-Sent: Monday, August 23, 2004 5:29 PM
-To: Mikael Starvik
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] CRIS architecture update
-
-
-On Mon, Aug 23, 2004 at 05:01:55PM +0200, Mikael Starvik wrote:
-> As requested on this list a while ago I send patches for the
-> CRIS architecture here before they are sent to Marcelo/Andrew.
-> Most of you doesn't care at all and that's just fine.
-
-Any plans for a 2.6 update soon?
-You mentioned a new sub-arch and moving drivers.
-
-	Sam
-
+Thanks,
+Long

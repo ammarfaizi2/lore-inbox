@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129987AbRCGD4S>; Tue, 6 Mar 2001 22:56:18 -0500
+	id <S130004AbRCGEDI>; Tue, 6 Mar 2001 23:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129986AbRCGD4H>; Tue, 6 Mar 2001 22:56:07 -0500
-Received: from mail.lightband.com ([199.79.199.3]:15885 "EHLO
-	mail.lightband.com") by vger.kernel.org with ESMTP
-	id <S129987AbRCGDzw>; Tue, 6 Mar 2001 22:55:52 -0500
-Message-ID: <20010307035507.14045.qmail@alongtheway.com>
-Date: Wed, 7 Mar 2001 03:55:07 +0000
-From: Jim Breton <jamesb-kernel@alongtheway.com>
+	id <S130008AbRCGECt>; Tue, 6 Mar 2001 23:02:49 -0500
+Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:63250 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S130004AbRCGECp>; Tue, 6 Mar 2001 23:02:45 -0500
+Message-ID: <3AA5B24E.D0ED2206@ixiacom.com>
+Date: Tue, 06 Mar 2001 20:00:14 -0800
+From: Bryan Rittmeyer <bryan@ixiacom.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: eject weirdness on NEC disc changer, kernel 2.4.2
-In-Reply-To: <20010304205046.15690.qmail@alongtheway.com> <3AA3DE27.E34DD4B3@staffnet.com>
-Mime-Version: 1.0
+Subject: Re: conducting TCP sessions with non-local IPs
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AA3DE27.E34DD4B3@staffnet.com>; from whampton@staffnet.com on Mon, Mar 05, 2001 at 01:42:47PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Walter Hofmann (walter.hofmann@physik.stud.uni-erlangen.de)
-Date: Mon Mar 05 2001 - 15:19:10 EST 
+Gregory Maxwell wrote:
 
->> cancelling a burn session with cdrecord I am unable to eject the disc. 
->> However that was on kernel 2.2.x and using "real" scsi (not ide-scsi). 
+> I didn't pick-up on the fact that you planned on have other computers
+> listening with those addresses.
 
->This was a bug in cdrecord which used generic scsi access to lock the 
->drive. The kernel cannot notice this. AFAIK this bug is fixed in 
->cdrecord. 
+We won't--without getting into the specifics (NDA) we are developing a
+TCP/IP load balance tester that needs to act--similtaneously--as many
+machines. It is certainly not designed to run on your average LAN, but
+rather on a carefully prepared test network using data assigned by a
+user who (presumably) has ensured the IPs we are using are not already
+assigned to other machines.
 
-K, thanks.  I will have to upgrade once I figure out why my burner box
-just beeps at me when I try to turn it on.  ;-\
+> This won't work without support from your routing device if you actually
+> have hosts on the addresses, just because of ARP.
 
-So, anybody know what is up with the kernel?  :)  Again the issue I
-originally posted about is a problem with standard ATAPI stuff (not
-ide-scsi).
+We have hacks in place for promiscous ARPing on any of the IPs we may
+want to use :)
+
+So, if I configure the interface as suggested ("/sbin/ip addr add
+10.0.0.0/24 dev eth0") can I really bind to any IP in 10.0.0.0/24 and
+conduct TCP sessions (as a client or server) using that IP--assuming all
+the ARP, etc, issues are worked out?
+
+Regards,
+
+Bryan
+-- 
+Bryan Rittmeyer
+mailto:bryan@ixiacom.com
+Ixia Communications
+26601 W. Agoura Rd.
+Calabasas, CA 91302

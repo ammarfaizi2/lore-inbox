@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317874AbSHLL3W>; Mon, 12 Aug 2002 07:29:22 -0400
+	id <S317888AbSHLMAH>; Mon, 12 Aug 2002 08:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317876AbSHLL3V>; Mon, 12 Aug 2002 07:29:21 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:48905 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S317874AbSHLL3V>;
-	Mon, 12 Aug 2002 07:29:21 -0400
-Date: Mon, 12 Aug 2002 12:33:03 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
-In-Reply-To: <E17e4C2-0005yH-00@sites.inka.de>
-Message-ID: <Pine.LNX.4.44.0208121209530.16360-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317891AbSHLMAH>; Mon, 12 Aug 2002 08:00:07 -0400
+Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:38552 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S317888AbSHLMAG>;
+	Mon, 12 Aug 2002 08:00:06 -0400
+Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
+	mips, m68k, sh, cris to use it
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20995.1029151008@redhat.com>
+References: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk> 
+	<Pine.LNX.4.44.0208082357170.8911-100000@serv>
+	<1028844681.1669.80.camel@ldb>   <20995.1029151008@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-FSGQDFUJR5MQe51Ot+eh"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Aug 2002 14:03:41 +0200
+Message-Id: <1029153821.4713.13.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Bernd Eckenfels wrote:
 
-> This sounds more like a micro benchmark tool, which is a good start, but the
-> real problem with VM optimizations is, that they have to take into account
-> real world load and especially user experience.
->
+--=-FSGQDFUJR5MQe51Ot+eh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The tool is a micro test and benchmark tool, true. It is known and noted
-in the documentation that this won't take overall system performance into
-account. Fortunatly there is a number of existing userland tools out there
-like lmbench that provide that type of information and there is a number
-of subjective reports available from users regarding interactivity.
+On Mon, 2002-08-12 at 13:16, David Woodhouse wrote:
+> 
+> alan@lxorguk.ukuu.org.uk said:
+> >  Possibly not - volatile doesnt guarantee the compiler won't do
+> > 	x = 1
+> > 	add *p into x
+> > 	store x into *p
+> 
+> Er, AIUI 'volatile' guarantees that '*p++' will do precisely that. It's a 
+> load, an add and a store, and the rules about volatile mean that the load 
+> and the store _must_ be separate.
 
-> applications like "connected to gui". This feature would need a test then,
-> which is no usual micro benchmark.
->
+I noticed that while testing how rmk's code behaved differently than
+mine (and corrected in the v2 patch).
+Before that, I just assumed that since the CPU must anyway issue a
+separate load and store, the compiler would use the faster instruction
+(that's why there is a LOCK prefix in the i386 instruction set).
 
-That type of information is different to what VM Regress aims to provide.
-VM Regress is aimed at providing performance and test data on individual
-parts of the VM.
 
-> hot code path, but it does not help much the developers in the problem of
-> simulating workload and measuring the interactive and real throughput.
->
-> But perhaps you can take this into account?
->
+--=-FSGQDFUJR5MQe51Ot+eh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I have taken it into account and decided after some thought that overall
-performance and throughput is not the place for a micro tool like VM
-Regress and more the domain of a userland test suite.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-I am more interested in answering questions like
+iD8DBQA9V6Qcdjkty3ft5+cRAtv4AJ9vHSVBZshyveJpn2CfcMMwVlKHiQCeNFf1
+2+25AhFYgCtq6fseSV9usBA=
+=pwoL
+-----END PGP SIGNATURE-----
 
-o Does subsystem X still work after changes made to it?
-o How well does subsystem X perform?
-o How long does it take to find pages to swap out?
-o How much overhead is introduced by feature Y?
-o What does my process space look like after vmscan does it's work?
-
-For example, in time, it'll be able to tell exactly how well rmap is
-performing and compare it to a VM without rmap in terms of "how long it
-took to find a page to replace" and "what did the address space look like
-after kswapd worked". I should be able to show that rmap kept the correct
-pages in memory for instance where as an overall benchmarking tool is
-going to tell me nothing new. Used in combination with a profiling tool
-like oprofile, I should be able to get very specific performance data that
-I suspect will be useful to developers and to a much lesser extent, users.
-
-I am making a persumption that if it can be shown that each individual
-component is working and performs well, then overall performance should
-improve.
-
--- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
-
+--=-FSGQDFUJR5MQe51Ot+eh--

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbTAOIPu>; Wed, 15 Jan 2003 03:15:50 -0500
+	id <S265863AbTAOIRB>; Wed, 15 Jan 2003 03:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbTAOIPu>; Wed, 15 Jan 2003 03:15:50 -0500
-Received: from dp.samba.org ([66.70.73.150]:41949 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265816AbTAOIPt>;
-	Wed, 15 Jan 2003 03:15:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface 
-In-reply-to: Your message of "Wed, 15 Jan 2003 04:31:47 -0300."
-             <20030115043147.A1840@almesberger.net> 
-Date: Wed, 15 Jan 2003 19:16:24 +1100
-Message-Id: <20030115082444.062EF2C0F0@lists.samba.org>
+	id <S265851AbTAOIRB>; Wed, 15 Jan 2003 03:17:01 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:7184 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S265863AbTAOIQk>; Wed, 15 Jan 2003 03:16:40 -0500
+Date: Wed, 15 Jan 2003 00:25:27 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030115082527.GA22689@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030115044644.GA18608@mark.mielke.cc>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030115043147.A1840@almesberger.net> you write:
-> kuznet@ms2.inr.ac.ru wrote:
-> > Somewhat overdone.
+On Tue, Jan 14, 2003 at 11:46:44PM -0500, Mark Mielke wrote:
+> On Tue, Jan 14, 2003 at 03:11:41PM -0800, Bob Miller wrote:
+> > On Tue, Jan 14, 2003 at 03:04:18PM -0800, Bob Miller wrote:
+> > > Or you can copy your all your args and env to a temporary place and
+> > > then re-build your args and env with the new argv[0] in it's place.
+> > > But you must be carefull that your new argv[0] length plus the 
+> > > length of all remaining args, envp and pointers is not greater than
+> > > the system defined size for this space.
+> > In thinking about this more this will NOT work.  The user stack starts
+> > right after your envp.  So, writing more info there would blow away
+> > your stack.
 > 
-> I think it would be nice to introduce in 2.7 a shutdowncall
-> (*) function class for modules that works like exitcall, but
-> with the following differences:
-> 
->  - does not return before the module has really de-registered
->    itself everywhere, including synchronization with any
->    callbacks, etc.
->  - has a return code, and can fail if it would have to sleep
->    for a possibly long time
-> 
-> Before calling the shutdown function, all symbols exported by
-> the module are hidden, and after the shutdown functions returns,
-> the module can be unloaded.
+> I can smell the next hack... memmove() the stack down to make room... :-)
 
-This already happens.  This is why all accesses to the module are
-protected by try_module_get().
+No need.  You can memcpy the environment.  See setenv(3),
+putenv(3) and related library routines.
 
-I've analyzed dozens of "here's my implementation idea" mails over the
-last two years.  Here's the executive summary:
+Once you've parsed your argv who cares if you overwrite it,
+put a double NULL at the end, set argc = 1 and argv[1] =
+NULL.  If argv[argc] - argv[0] + strlen(argv[argc] is
+shorter than what you overwrite it with you won't even need
+to relocate the environment block if you wish to preserve
+that.  Just don't leave any loose ends to confuse /proc and
+the ps utils.
 
-1) It's simply not a good idea to force 1600 modules to change, no
-   matter what timescale.  And changing it in a way that is *more*,
-   not *less* complex is even worse.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-2) It's bad enough to force the interfaces to change: at least the
-   primitive they are to use is one many of them are already using,
-   and is very simple to understand.
-
-Rusty.
-PS.  The *implementation* flaw in your scheme: someone starts using a
-     module as you try to deregister it.  Either you re-register the
-     module (ie. you can never unload security modules), or you leave
-     it half unloaded (even worse).
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+		Remember Cernan and Schmitt

@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbRFYIgo>; Mon, 25 Jun 2001 04:36:44 -0400
+	id <S262682AbRFYInY>; Mon, 25 Jun 2001 04:43:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262685AbRFYIge>; Mon, 25 Jun 2001 04:36:34 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:29196 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262660AbRFYIgX>;
-	Mon, 25 Jun 2001 04:36:23 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Reg Kernel Debugger kdb 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 12:41:53 +0530."
-             <Pine.LNX.4.10.10106251238230.28707-100000@blrmail> 
-Mime-Version: 1.0
+	id <S262685AbRFYInE>; Mon, 25 Jun 2001 04:43:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42057 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S262682AbRFYInA>; Mon, 25 Jun 2001 04:43:00 -0400
+To: David Lang <david.lang@digitalinsight.com>
+Cc: John Nilsson <pzycrow@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Some experience of linux on a Laptop
+In-Reply-To: <Pine.LNX.4.33.0106242308100.7535-100000@dlang.diginsite.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Jun 2001 02:38:22 -0600
+In-Reply-To: <Pine.LNX.4.33.0106242308100.7535-100000@dlang.diginsite.com>
+Message-ID: <m1u2159cox.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 25 Jun 2001 18:36:15 +1000
-Message-ID: <29330.993458175@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001 12:41:53 +0530 (IST), 
-"SATHISH.J" <sathish.j@tatainfotech.com> wrote:
->I would like to use a kernel debugger to set some breakpoints in some
->of the kernel functions. In SVR4 and unixware we use kdb. What is its
->equivalent in linux? Please tell me where the kernel debugger can be
->downloaded for linux.
+David Lang <david.lang@digitalinsight.com> writes:
 
-ftp://oss.sgi.com/projects/kdb/download.  The man pages are in the
-patch, in Documentation/kdb/...
+> if you don't preserve things running in userspace what advantage do you
+> have over rebooting?
 
+I use it as part of a bootloader.  Allowing me to boot one kernel
+directly from another.   I guess it really is a soft reboot that never
+touches any BIOS.  I don't know if anyone else would get value from it.
+ 
+> if you do preserve userspace stuff then you need to also preserve the
+> kernel state related to each user process (including network connections,
+> etc), and here you are back into the problem that the kernel structures
+> may change on you.
+
+Preserving userspace without out any help from user space is quite
+a tricky business.  Though with user space help it is fully doable
+though it may be a lot of work.
+
+What I have doesn't address perserving user space.  I offered because
+I didn't know what was wanted.  An easy kernel upgrade without touching
+running processes or a just a fast way to get into a new kernel.
+
+Eric

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262276AbREUA3z>; Sun, 20 May 2001 20:29:55 -0400
+	id <S262277AbREUAcZ>; Sun, 20 May 2001 20:32:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262277AbREUA3p>; Sun, 20 May 2001 20:29:45 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:21254 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S262276AbREUA3c>;
-	Sun, 20 May 2001 20:29:32 -0400
-To: John Cowan <jcowan@reutershealth.com>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 21 May 2001 02:29:17 +0200
-In-Reply-To: John Cowan's message of "Fri, 18 May 2001 11:51:28 -0400"
-Message-ID: <d31ypj1r4y.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S262279AbREUAcP>; Sun, 20 May 2001 20:32:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40182 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262277AbREUAcI>;
+	Sun, 20 May 2001 20:32:08 -0400
+Date: Sun, 20 May 2001 20:32:06 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <Pine.LNX.4.33.0105210135240.1569-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.21.0105202006200.10653-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "John" == John Cowan <jcowan@reutershealth.com> writes:
 
-John> Jes Sorensen wrote:
->> Telling them to install an updated gcc for kernel compilation is a
->> necessary evil, which can easily be done without disturbing the
->> rest of the system. Updating the system's python installation is
->> not a reasonable request.
 
-John> Au contraire.  It is very reasonable to have both python and
-John> python2 installed.  Having two different gcc versions installed
-John> is a big pain in the arse.
+On Mon, 21 May 2001, Ingo Molnar wrote:
 
-It's not unreasonable to have both installed, it's unreasonable to
-require it.
+> 
+> On Sun, 20 May 2001, Alexander Viro wrote:
+> 
+> > Linus, as much as I'd like to agree with you, you are hopeless
+> > optimist. 90% of drivers contain code written by stupid gits.
+> 
+> 90% of drivers contain code written by people who do driver development in
+> their spare time, with limited resources, most of the time serving as a
+> learning excercise. And they do this freely and for fun. Accusing them of
 
-Eric seems to think he can tell every distributor to ship Python2
-tomorrow. Well it's a fine dream but it's not going to happen; Most
-distributors do not ship new major versions of tools in their minor
-number release versions. I've seen him mention the number 6 months
-until everybody ships it, but a) thats not going to happen Red Hat is
-currently at 7.1 (if one looks at their release history, one would say
-there is a good chance there will be a 7.2) not to mention the release
-rate of Debian (not sure about the current state of all other
-distributions). 18 months is more realistic for it to be deployed
-widely enough.
+Probably 100% of drivers contains code from more than one author.
 
->> So far I haven't heard a single developer say something positive
->> about CML2, the most positive I have heard so far has been
->> "whatever", "it's his choice", "I don't care", "I want to
->> hack". The majority are of the "NO!" and "you got to be kiddin'".
+> being 'stupid gits' is just micharacterising the situation. People do not
+> get born as VFS hackers, there is a very steep learning curve, and only a
+> few make it to to have knowledge like you. Much of the learning curve of
+> various people has traces in drivers/*, it's more like the history of
+> Linux then some coherent image of people's capabilities.
 
-John> Anonymized hearsay evidence is less than convincing.
+Grrr... Ingo, could you read what I said? I'm not talking about problems
+coming from lack of knowledge about the kernel. I'm not saying that authors
+of drivers are stupid gits (in the cases when they in all probability are
+such they are usually anonymous - FUBAR Acme Inc. is all you see). I'm
+not saying that 90% of code in drivers is crap.
 
-Well I don't like to quote personal conversations without peoples'
-approval, now both David Woodhouse and Arjan are two examples.
+What I am saying is that in a lot of drivers you can find a code that
+is result of plain and simple lack of knowledge about basics of C. And I mean
+the basics, not the nontrivial parts.
 
-Jes
+"Oh, look, I don't know C, here's that project, let's write something and
+submit the patch" looks pretty stupid to me.
+
+I'm not talking about bugs. I'm not talking about stupid interfaces.
+I'm not talking about typos. I'm not talking about people doing strlen()
+on arrays that came from unverified source. I'm talking about the code
+that was obviously written by somebody who considers C as voodoo.
+
+The things Linus refered to pale on that background. On the bogosity
+scale we have a lot of code that is way higher. Since it manages to
+stay unnoticed for years...
+
+And no, I don't think that it's an arrogance. BTW, I don't know who
+the authors of these pieces are. I know that problems they had could
+be cured by reading any book on C (K&R, Bolsky, whatever) and considering
+how long some of that stuff had been in the tree... Well, doesn't speak
+highly of the intellect of those who'd written it.
+

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278492AbRKXNkr>; Sat, 24 Nov 2001 08:40:47 -0500
+	id <S278269AbRKXN6K>; Sat, 24 Nov 2001 08:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278450AbRKXNkh>; Sat, 24 Nov 2001 08:40:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:57097 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278381AbRKXNk0>;
-	Sat, 24 Nov 2001 08:40:26 -0500
-Date: Sat, 24 Nov 2001 11:40:11 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Journaling pointless with today's hard disks?
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
-Message-ID: <Pine.LNX.4.33L.0111241138070.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278358AbRKXN6B>; Sat, 24 Nov 2001 08:58:01 -0500
+Received: from ns.caldera.de ([212.34.180.1]:50598 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S278269AbRKXN5t>;
+	Sat, 24 Nov 2001 08:57:49 -0500
+Date: Sat, 24 Nov 2001 14:56:18 +0100
+Message-Id: <200111241356.fAODuIb30257@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: kaos@ocs.com.au (Keith Owens)
+Cc: linux-kernel@vger.kernel.org, kaih@khms.westfalen.de
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <2450.1006608941@ocs3.intra.ocs.com.au>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Nov 2001, Florian Weimer wrote:
+In article <2450.1006608941@ocs3.intra.ocs.com.au> you wrote:
+> kbuild 2.5 has standard support for running user specific install
+> scripts after installing the bootable kernel and modules.  That is, the
+> "update my bootloader" phase can be automated and will propagate from
+> one .config to the next when you make oldconfig.
 
-> In the German computer community, a statement from IBM[1] is
-> circulating which describes a rather peculiar behavior of certain IBM
-> IDE hard drivers (the DTLA series):
+Never 2.4 kernels already try to excecute ~/bin/installkernel in the
+'make install' pass on i386.
 
-That seems more like a case of "hard drives being pointless
-for people wanting to store their data" ;)
+My personal tip for people keeping lots of kernels around is grub, though.
+No need for a menu entry, one can just boot all kernel on the accessible
+filesystems.
 
-The disks which _do_ store your data right also tend to work
-great with journaling; in fact, they tend to work better with
-journaling if you make a habit of crashing your system by
-hacking the kernel...
+Together with the above "~/bin/installkernel" option I put my kernels always
+into /lib/modules/<version>/vmlinux so I can find them easily (IMHO this
+should be default in 2.5), so even lilo-using people could write simple
+scripts to add all kernels present in /lib/modules/ to their config.
+This does of course make the path '/lib/modules/' grossly misnamed, maybe
+we could change it into /kernel in 2.5 :)
 
-The article you point to seems more like a "if you value your
-data, don't use IBM DTLA" thingy.
+	Christoph
 
-regards,
-
-Rik
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Of course it doesn't work. We've performed a software upgrade.

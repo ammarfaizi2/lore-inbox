@@ -1,26 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154406-13019>; Fri, 27 Nov 1998 06:20:49 -0500
-Received: from wsdw01.win.tue.nl ([131.155.70.5]:3836 "EHLO wsdw01.win.tue.nl" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154639-13019>; Fri, 27 Nov 1998 05:53:43 -0500
-Date: Fri, 27 Nov 1998 13:31:40 +0100 (MET)
-From: dwguest@win.tue.nl (Guest section DW)
-Message-Id: <199811271231.NAA28103@wsdw01.win.tue.nl>
-To: dwguest@win.tue.nl, pavel@bug.ucw.cz
-Subject: Re: The history of the Linux OS
-Cc: linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <154184-14493>; Mon, 30 Nov 1998 00:36:17 -0500
+Received: from vindaloo.atnf.CSIRO.AU ([130.155.198.47]:1064 "HELO vindaloo.atnf.CSIRO.AU" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154170-14493>; Mon, 30 Nov 1998 00:35:48 -0500
+Date: Mon, 30 Nov 1998 18:28:13 +1100
+Message-Id: <199811300728.SAA02191@vindaloo.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@atnf.csiro.au>
+To: Billy Harvey <Billy.Harvey@thrillseeker.net>
+Cc: Stefan Monnier <monnier+lists/linux/kernel/news/@tequila.cs.yale.edu>, linux-kernel@vger.rutgers.edu
+Subject: Re: [PATCH] APM fixes, workarounds and tidying
+In-Reply-To: <3661946D.5EEB352F@thrillseeker.net>
+References: <"JS82M1.0.fn2.8_KOs"@tequila.cs.yale.edu> <5l1zmmzany.fsf@tequila.cs.yale.edu> <3661946D.5EEB352F@thrillseeker.net>
+Notfrom: spamlog@atnf.csiro.au
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-    From pavel@bug.ucw.cz Thu Nov 26 09:45:50 1998
+Billy Harvey writes:
+> Stefan Monnier wrote:
+> > 
+> > >>>>> "Richard" == Richard Gooch <rgooch@atnf.csiro.au> writes:
+> > > +  is stored in the RTC so it can update the system clock (which is
+> > > +  always GMT).
+> > 
+> > This is nitpicking, but the system time is generally considered as UTC rather
+> > than GMT.  Not that I know of any difference.
+> 
+> 
+> http://www.bldrdoc.gov/timefreq/glossary.htm is a good source of
+> definitions.  GMT was "committeed" away, and so is no longer a
+> politically correct statement.  I've always preferred the term Zulu,
+> based on personal background.
 
-    > # unix5
-    > Boot unix with @unix; login as root.
+Based on my personal background, I'll stick with the bigoted "GMT" :-)
+The committee will just have to live with my conservatism...
 
-    Where? Where can I get this one?
-                                    Pavel
+				Regards,
 
-ftp://ftp.digital.com/pub/DEC/sim/sources/
-
-
-Andries
+					Richard....
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

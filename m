@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbULSTi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbULSTny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbULSTi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 14:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbULSTi4
+	id S261332AbULSTny (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 14:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbULSTnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 14:38:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:29138 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261325AbULSTiy (ORCPT
+	Sun, 19 Dec 2004 14:43:53 -0500
+Received: from gprs215-234.eurotel.cz ([160.218.215.234]:50561 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261332AbULSTnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 14:38:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ari Pollak <aripollak@gmail.com>
-Subject: Re: VIA SATA I/O errors
-Date: Sun, 19 Dec 2004 14:38:20 -0500
-Message-ID: <cq4lc3$94g$1@sea.gmane.org>
-References: <cpsb8p$gsd$1@sea.gmane.org>
+	Sun, 19 Dec 2004 14:43:52 -0500
+Date: Sun, 19 Dec 2004 20:43:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Todor Todorov <ttodorov@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SWSUSP in 2.6.9 and 2.6.9-ac16 screws up the swap
+Message-ID: <20041219194337.GA1432@elf.ucw.cz>
+References: <41C498F2.7070603@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-In-Reply-To: <cpsb8p$gsd$1@sea.gmane.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C498F2.7070603@web.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just for the record (in case people see this in the archive and wonder 
-what the solution was) - the drive has had a steadily shorter uptime 
-over the past few days. When I re-ran WD diagnostics, it finally found a 
-problem with the drive, so I'm going to be exchanging it and hopefully a 
-new drive will fix the problem.
+Hi!
 
-Ari Pollak wrote:
-> Hi.
-> I have an Athlon64 machine running kernel 2.6.10-rc3 (but this problem 
-> has happened on 2.6.9-ac7 as well) with a VIA VT6420 SATA controller. 
-> Every few days (the problem is not chronologically consistent) and/or 
-> when there's heavy disk usage,  the main SATA disk (a Western Digital 
-> model WDC WD1200JD-00G) will just completely stop responding to any I/O, 
-> and a lot of SCSI error messages will be output to the console. After a 
-> few instances of this happening (which requires a hard power-off, then 
-> power-on.. just hitting the reset button causes the SATA controller not 
-> to recognize the drive on boot), I finally managed to capture some of 
-> the kernel messages, since somehow I could still read one of my log 
-> files (cached in memory, I guess). The same set of errors just keep 
-> repeating over and over. I also believe there was an ext3 error that 
-> showed up on the console and not in the log, but I assume this is not an 
-> ext3 problem anyway. The partial log file and the output of lspci -vvv 
-> are attached. I have no idea whether this is a software or hardware 
-> problem. Running Western Digital's diagnostics on the drive turned up no 
-> errors. If anyone has seen this problem before and it turned out to be 
-> hardware-related, I'd like to find out exactly which component is the 
-> culprit.
+> I have a Toshiba Satelite M30X laptop for which suspend-to-disk is 
+> reported to work. I tested with kernel 2.6.9 vanilla and -ac16 and 
+> suspending seemed to work ok, at least the computer shut down. On 
+> resuming I appended "resume=/dev/hda3" (my swap partition) to the boot 
+> options but saw no message about resuming form suspend image ot 
+> anything, it seems to be a normal boot. Later on when adding swap I got 
+> the error "Unable to find swap-space signature", `cat /proc/swaps` 
+> didn't show anything. I had to recreate the swap.
 > 
-> Thanks in advance,
-> Ari
+> Could anyone please look into this? I would provide any additional 
+> information requested. Please Cc: me when you answer. Thanks in advance.
 
+Read documentation/power/swsusp.txt; you are probably doing something
+wrong. If not add printks into resume code and find out what is wrong.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

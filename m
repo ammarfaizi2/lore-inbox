@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132846AbRDDPuv>; Wed, 4 Apr 2001 11:50:51 -0400
+	id <S132805AbRDDQDd>; Wed, 4 Apr 2001 12:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132849AbRDDPur>; Wed, 4 Apr 2001 11:50:47 -0400
-Received: from atlrel2.hp.com ([156.153.255.202]:61429 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S132846AbRDDPtR>;
-	Wed, 4 Apr 2001 11:49:17 -0400
-Message-ID: <3ACB4278.2E4F48C0@fc.hp.com>
-Date: Wed, 04 Apr 2001 09:49:12 -0600
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hubertus Franke <frankeh@us.ibm.com>, mingo@elte.hu,
-        Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <OFB30A8B18.2E3AD16C-ON85256A24.004BD696@pok.ibm.com> <20010404171227.W20911@athlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132772AbRDDQDY>; Wed, 4 Apr 2001 12:03:24 -0400
+Received: from mail.inup.com ([194.250.46.226]:50443 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S132755AbRDDQDO>;
+	Wed, 4 Apr 2001 12:03:14 -0400
+Date: Wed, 4 Apr 2001 18:07:20 +0200
+From: christophe barbe <christophe.barbe@lineo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: uninteruptable sleep
+Message-ID: <20010404180720.A14832@pc8.inup.com>
+In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <003501c0bc5c$e26e81c0$5517fea9@local>; from manfred@colorfullife.com on mar, avr 03, 2001 at 18:40:53 +0200
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Wed, Apr 04, 2001 at 10:03:10AM -0400, Hubertus Franke wrote:
-> > I understand the dilemma that the Linux scheduler is in, namely satisfy
-> > the low end at all cost. [..]
-> 
-> We can satisfy the low end by making the numa scheduler at compile time (that's
-> what I did in my patch at least).
-> 
-> Andrea
+This problem seems to be related with the recent post from David Howells <dhowells@cambridge.redhat.com> with the subject "rw_semaphore bug".
 
-I fully agree with this approach. It would be very hard to design a
-scheduler that performs equally well on a UP machine running couple of
-processes and a NUMA machine. These two cases represent the two ends of
-spectrum. The two schedulers should be separate IMO and one of them
-should be selected at compile time.
+Christophe
 
---
-Khalid
- 
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+On mar, 03 avr 2001 18:40:53 Manfred Spraul wrote:
+> > ps xl:
+> >   F UID PID PPID PRI NI VSZ RSS WCHAN STAT TTY TIME COMMAND
+> > 040 1000 1230 1 9 0 24320 4 down_w D ? 0:00
+> >           /home/data/mozilla/obj/dist/bin/mozi
+> >
+> down_w
+> 
+> Perhaps down_write_failed()? 2.4.3 converted the mmap semaphore to a
+> rw-sem.
+> Did you compile sysrq into your kernel? Then enable it with
+> 
+> #echo 1 > /proc/sys/kernel/sysrq
+> and press <Alt>+<SysRQ>+'t'
+> 
+> It prints the complete back trace, not just one function name
+> 
+> --
+>     Manfred
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+-- 
+Christophe Barbé
+Software Engineer
+Lineo High Availability Group
+42-46, rue Médéric
+92110 Clichy - France
+phone (33).1.41.40.02.12
+fax (33).1.41.40.02.01
+www.lineo.com

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262750AbRFCDlS>; Sat, 2 Jun 2001 23:41:18 -0400
+	id <S262747AbRFCDc3>; Sat, 2 Jun 2001 23:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262751AbRFCDlI>; Sat, 2 Jun 2001 23:41:08 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:40970 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S262750AbRFCDku>; Sat, 2 Jun 2001 23:40:50 -0400
-Date: Sat, 2 Jun 2001 20:40:04 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Andries.Brouwer@cwi.nl,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: keyboard hook?
-In-Reply-To: <991518977.5581.0.camel@gromit>
-Message-ID: <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262750AbRFCDcS>; Sat, 2 Jun 2001 23:32:18 -0400
+Received: from marine.sonic.net ([208.201.224.37]:5410 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S262747AbRFCDcF>;
+	Sat, 2 Jun 2001 23:32:05 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Sat, 2 Jun 2001 20:31:27 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: select() - Linux vs. BSD
+Message-ID: <20010602203125.A8378@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGIEBCCIAA.jcwren@jcwren.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 02, 2001 at 10:47:49PM -0400, John Chris Wren wrote:
+> I would have said just the opposite.  That if it you have a large number of
+> handles you're waiting on, and you have to go back through and set the bits
+> everytime you timeout that you would incur a larger overhead.  From the
 
-Hi!
+Use a temp fd_set and assignment.
 
-   Your best bet for a kernel driver is to use the linux input api like
-the usb keyboard do. The drivers are pretty simple to write and since all
-the keyboard drivers will be port over to this api it will save a lot of 
-work done the road. If you need help let me know. I will be glad to help.
-It sounds alot alike the p2 to serial driver just placed in our CVS. You
-can access our CVS by doing 
+fd_set readset;
 
-cvs -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole login
+readset=set_to_watch
 
-cvs -z3 -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole co ruby
+select(n, readset, NULL, NULL, timeout);
 
-The driver is in ruby/linux/drivers/input as ps2serkbd.c.
-
-> I'm beginning the process of writing a driver for the "Qoder"
-> keyboard-fob barcode scanner made by InterMec. It communicates with the
-> host computer using the PS/2 port by way of a "dock" that sits in
-> between the keyboard and the computer.
- 
-> One of them is "turn
-> numlock light on," which I can do with an ioctl from userspace (as root,
-> anyway), but also caps lock, num lock and carriage-return scancodes.
-
-EV_LED
-
-> The CueCat driver written by Pierre Coupard also modifies the keyboard
-> driver. It would be nice if it was possible to load modules that hook
-> into keyboard processing without requiring a kernel patch. And perhaps
-> there is, but I haven't run across it yet.
-
-input api :-)
- 
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSEYVHj>; Sat, 25 May 2002 17:07:39 -0400
+	id <S315375AbSEYVON>; Sat, 25 May 2002 17:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSEYVHi>; Sat, 25 May 2002 17:07:38 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:54800
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S315370AbSEYVHh>; Sat, 25 May 2002 17:07:37 -0400
-Date: Sat, 25 May 2002 23:07:35 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Jeremy White <jwhite@codeweavers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: isofs unhide option:  troubles with Wine
-Message-ID: <20020525230735.A18560@bouton.inet6-interne.fr>
-Mail-Followup-To: Jeremy White <jwhite@codeweavers.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1022301029.2443.28.camel@jwhiteh>
+	id <S315379AbSEYVON>; Sat, 25 May 2002 17:14:13 -0400
+Received: from ppp-217-133-216-97.dialup.tiscali.it ([217.133.216.97]:33200
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S315375AbSEYVOM>; Sat, 25 May 2002 17:14:12 -0400
+Subject: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1
+	-march=pentium{-mmx,3,4}
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-QZv9z27s94DCBow+65XG"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 May 2002 23:01:14 +0200
+Message-Id: <1022360474.21238.5.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 11:30:29PM -0500, Jeremy White wrote:
-> Greetings,
-> 
-> When installing Microsoft Office with Wine, we find that some
-> MS CDs have certain files marked as hidden on the CD.
-> [...]
-> 
-> Unfortunately, I don't have a strong feeling for what the
-> 'right' solution is.  I see several options:
-> 
->     1.  Invert the logic of the option, make it 'hide' instead
->         of unhide, and so unhide is the default.
-> 
->     2.  Make it possible to set this mount option from user
->         space (I don't like this, but it would get me around
->         the problem).
-> 
->     3.  Make it so that isofs/dir.c still strips out hidden
->         files, but enable isofs/namei.c to return a hidden file that
->         is opened directly by name.
-> 
-> I am willing to submit a patch to implement the appropriate solution.
-> 
-> Comments and opinions are greatly appreciated; please copy me directly
-> though, as I am not subscribed.
-> 
-> Thanks,
-> 
-> Jeremy
-> 
 
-With 3. Wine's FindFirstFile and FindNextFile wont't be able to report
-hidden files and Win32 programs could rely on that instead of using
-hard-coded filenames.
-If I'm not mistaken these functions return all files and put file flags
-in a struct. User apps are responsible of the hiding.
-One could argue that Win32 programs could rely on the file flags being
-reported correctly, but I find this far less probable.
+--=-QZv9z27s94DCBow+65XG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If one goal is to allow Wine to implement the Win32 syscalls as correctly as
-possible 3. is not an option IMHO.
+This trival patch adds support for GCC 3.1 -march=3Dpentium{-mmx,3,4}
+option and applies to both 2.4 and 2.5.
 
-Moreover I don't like the idea of files readable but not findable by common
-tools, seems broken to me.
+--- linux-vanilla/arch/i386/Makefile	Wed Apr 10 14:37:33 2002
++++ linux/arch/i386/Makefile	Sat May 25 22:53:08 2002
+@@ -43,7 +43,7 @@
+ endif
+=20
+ ifdef CONFIG_M586MMX
+-CFLAGS +=3D -march=3Di586
++CFLAGS +=3D $(shell if $(CC) -march=3Dpentium-mmx -S -o /dev/null -xc /dev=
+/null >/dev/null 2>&1; then echo "-march=3Dpentium-mmx"; else echo "-march=
+=3Di586"; fi)
+ endif
+=20
+ ifdef CONFIG_M686
+@@ -51,11 +51,11 @@
+ endif
+=20
+ ifdef CONFIG_MPENTIUMIII
+-CFLAGS +=3D -march=3Di686
++CFLAGS +=3D $(shell if $(CC) -march=3Dpentium3 -S -o /dev/null -xc /dev/nu=
+ll >/dev/null 2>&1; then echo "-march=3Dpentium3"; else echo "-march=3Di686=
+"; fi)
+ endif
+=20
+ ifdef CONFIG_MPENTIUM4
+-CFLAGS +=3D -march=3Di686
++CFLAGS +=3D $(shell if $(CC) -march=3Dpentium4 -S -o /dev/null -xc /dev/nu=
+ll >/dev/null 2>&1; then echo "-march=3Dpentium4"; else echo "-march=3Di686=
+"; fi)
+ endif
+=20
+ ifdef CONFIG_MK6
 
-2. will lead to entries in FAQ:
 
-Q: What does the "unhide" option mean in my /etc/fstab ?
-A: Lengthy explanation on ISO9660, Windows FS versus Unix FS and so on...
+--=-QZv9z27s94DCBow+65XG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-1. will do what Linux already does for other FAT/NTFS contents, simply show
-the info to the users even if Windows' tools hide it by default.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Personnaly I would choose 1. (I prefer short FAQs).
+iD8DBQA87/uZdjkty3ft5+cRAjifAKCVXxhOaGkwcJyh/vCMDSCsg4h4uACgmaLi
+YsaSQ4QYzCvcMwY+ISUb8dI=
+=e2VT
+-----END PGP SIGNATURE-----
 
-LB.
+--=-QZv9z27s94DCBow+65XG--

@@ -1,122 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTFBOS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 10:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTFBOS0
+	id S262362AbTFBO1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 10:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTFBO1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 10:18:26 -0400
-Received: from AToulouse-105-1-28-54.w81-51.abo.wanadoo.fr ([81.51.110.54]:32516
-	"EHLO choocroot.dyndns.org") by vger.kernel.org with ESMTP
-	id S262361AbTFBOSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 10:18:22 -0400
-Date: Mon, 2 Jun 2003 16:29:44 +0200
-From: =?iso-8859-15?B?Suly9G1lIEF1Z+k=?= <jauge@club-internet.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 can't set IDE DMA on harddrive (HDIO_SET_DMA failed: Operation not permitted)
-Message-ID: <20030602142944.GA2094@satellite.workgroup.fr>
-References: <20030602114838.GA1730@satellite.workgroup.fr> <200306022200.37685.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200306022200.37685.kernel@kolivas.org>
-Organization: none
-User-Agent: Mutt/1.5.4i
+	Mon, 2 Jun 2003 10:27:24 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4755 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262362AbTFBO1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 10:27:23 -0400
+Message-ID: <3EDB61C8.3020504@nortelnetworks.com>
+Date: Mon, 02 Jun 2003 10:40:08 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Andrew Morton <akpm@digeo.com>, Chris Wright <chris@wirex.com>,
+       gj@pointblue.com.pl, Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>,
+       Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: [PATCH][LSM] Early init for security modules and various	cleanups
+References: <20030602025450.C27233@figure1.int.wirex.com>	 <Pine.LNX.4.44.0306021205520.27640-100000@pointblue.com.pl>	 <20030602030946.H27233@figure1.int.wirex.com>	 <20030602034419.3776d3b7.akpm@digeo.com> <1054558223.1053.105.camel@moss-huskers.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 10:00:37PM +1000, Con Kolivas wrote:
-> On Mon, 2 Jun 2003 21:48, Jérôme Augé wrote:
-> > Hi,
-> >
-> > I'm now using kernel 2.4.20-13.8 (from RH8) and 2.4.21-ck1 (from Con
-> > Kolivas based on 2.4.21-rc6) and I'm unable to set the dma for my
-> > harddrive with hdparm:
+Stephen Smalley wrote:
+> On Mon, 2003-06-02 at 06:44, Andrew Morton wrote:
 > 
-> Feel free to blame me, but I haven't formally released 2.4.21-ck1, and you 
-> should really try the vanilla 2.4.21-rc kernel. Then you can post a bug 
-> report that the actual IDE developers can look at. Mine is a non-standard 
-> kernel tree and bug reports with that branch should just be directed to me.
+>>Chris Wright <chris@wirex.com> wrote:
+>>
+>>>security_capable() returns 0 if that capability bit is set. 
+>>>
+>>That's just bizarre.  Is there any logic behind it?
+>>
 > 
+> The LSM access control hooks all return 0 on success (i.e. permission
+> granted) and negative error code on failure, like most of the rest of
+> the kernel interfaces (e.g. consider permission())
 
-I just tried a vanilla 2.4.21-rc6 and I get the same error messages when
-trying to activate the DMA with hdparm.
+Maybe it should be called "security_incapable() and then the return code can be 
+treated as a boolean true/false....
 
-I guess this is related to the new E-IDE code 7.00 in the 2.4.21 kernel
-...
 
-Here is the IDE config of this 2.4.21-rc6 kernel:
-
---8<--
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_BLK_DEV_ADMA100 is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-# CONFIG_BLK_DEV_ATARAID_SII is not set
--->8--
+Chris
 
 -- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

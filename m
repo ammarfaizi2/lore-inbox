@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRDZEwx>; Thu, 26 Apr 2001 00:52:53 -0400
+	id <S133099AbRDZFEo>; Thu, 26 Apr 2001 01:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133099AbRDZEwn>; Thu, 26 Apr 2001 00:52:43 -0400
-Received: from MAIL1.ANDREW.CMU.EDU ([128.2.10.131]:50914 "EHLO
-	mail1.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S133106AbRDZEwY>; Thu, 26 Apr 2001 00:52:24 -0400
-Date: Thu, 26 Apr 2001 00:51:53 -0400 (EDT)
-From: Paul Komarek <komarek@andrew.cmu.edu>
+	id <S133108AbRDZFEe>; Thu, 26 Apr 2001 01:04:34 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:27017
+	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
+	with ESMTP id <S133099AbRDZFE2>; Thu, 26 Apr 2001 01:04:28 -0400
+Message-Id: <200104260504.OAA16871@toa006>
+Date: Thu, 26 Apr 2001 14:04:23 +0900 (JST)
+From: Tore Johansson <nrjtore@toa006.nrj.ericsson.se>
+Reply-To: Tore Johansson <nrjtore@toa006.nrj.ericsson.se>
+Subject: Tiny little problem
 To: linux-kernel@vger.kernel.org
-cc: ross@willow.seitz.com, komarek@andrew.cmu.edu
-Subject: 2.4.x APM interferes with FA311TX/natsemi.o
-Message-ID: <Pine.LNX.4.21L.0104260037320.17383-100000@unix49.andrew.cmu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: eRR9jIqWbSWkSCMWHICetw==
+X-Mailer: dtmail 1.2.1 CDE Version 1.2.1 SunOS 5.6 sun4u sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-SUMMARY:  the APM call
-  apm_bios_call_simple(APM_FUNC_SET_STATE, 0x100, APM_STATE_READY, &eax)
-causes my Netgear FA311TX to enter a sleep mode.
+I have a problem with accessing a magneto opto drive in Linux.
+Since I upgraded the kernel from 2.3 to 2.4 I can mount the MO
+drive but if I try to access a file on the drive the kernel oopses...
 
-DESCRIPTION:
-I am having difficulties with the natsemi.o driver with a Netgear FA311TX.  
-When the call
-  apm_bios_call_simple(APM_FUNC_SET_STATE, 0x100, APM_STATE_READY, &eax)
-is made, the PMEEN (PME enable) bit in the CCSR register on my FA311
-mysteriously changes from 0 to 1, causing the card to stop processing
-received packets.  This APM call is made when unblanking the screen, for
-instance when switching from KD_GRAPHICS to KD_TEXT with the KDSETMODE
-ioctl on a virtual terminal.
+After the kernel oops the MO can't be unmounted.
 
-I've modified this APM call to report the status of the PMEEN bit before
-and after the short sequence of assembly statement in
-apm_bios_call_simple() is executed.  I'm guessing there isn't any
-interrupt activity between my "before" and "after" checks.  At least the
-natsemi.o driver's interrupt handler isn't being called, but I can't vouch
-for other interrupt handlers.
+The MO is has a SCSI-2 interface and the SCSI interface is a Symbios
+NCR8xx type.
 
-I'm more-or-less stuck for what to do next.  I'm a complete novice with
-the kernel, the PCI bus, APM, or network cards, and this is my first
-project.  I'd appreciate pointers for what to try next, since I've
-received no responses from the driver maintainers Donald Becker, Tjeerd
-Mulder, and Jeff Garzik yet.
+Any ideas??
 
-Please cc me in any responses, as I'm not currently subscribed to the
-kernel mailing list.  Thanks in advance.
-
--Paul Komarek
-
-
-
-
+Cheers,
+/Tore
 

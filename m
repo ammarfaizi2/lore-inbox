@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263647AbTDTRgd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 13:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTDTRgd
+	id S263645AbTDTRfe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 13:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTDTRfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 13:36:33 -0400
-Received: from tag.witbe.net ([81.88.96.48]:61703 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S263647AbTDTRfp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 13:35:45 -0400
-From: "Paul Rolland" <rol@witbe.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: IDE messages at boot
-Date: Sun, 20 Apr 2003 19:47:45 +0200
-Organization: Witbe.net
-Message-ID: <004401c30764$f364a810$2101a8c0@witbe>
+	Sun, 20 Apr 2003 13:35:33 -0400
+Received: from siaag1ad.compuserve.com ([149.174.40.6]:62858 "EHLO
+	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S263645AbTDTRfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 13:35:33 -0400
+Date: Sun, 20 Apr 2003 13:44:34 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304201347_MC3-1-353A-3A31@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-At boot, probably while running hdparm to set specific parameters
-for the IDE disks, I have the following messages :
-hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
-DataRequest }
-blk: queue c066f31c, I/O limit 4095mb (mask 0xffffffff)
-hda: channel busy
-hda: dma_timer_expiry: dma status == 0x60
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
-hdb: set_drive_speed_status: status=0xd0 { Busy }
-blk: queue c066f648, I/O limit 4095mb (mask 0xffffffff)
-hdb: channel busy
-hda: dma_timer_expiry: dma status == 0x60
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
+>>   I have some ugly code that forces all reads from a mirror set to
+>> a specific copy, set via a global sysctl.  This lets you do things
+>> like make a backup from disk 0, then verify against disk 1 and take
+>> action if something is wrong.
+>
+> That's interesting.  Have you thought of making it read from _both_
+> disks and check that the data matches, before passing it back?
 
-Is this normal ?
 
-Running again the same hdparm command line doesn't result in more
-messages...
+  It didn't seem to be worth doing, since a userspace program could
+be written to do the same thing using my small patch.  Only problem
+is, it uses a global sysctl that affects every mirror set in the machine,
+so it could affect performance of every mirror if used during load.
 
-Regards,
-Paul
 
+------
+ Chuck

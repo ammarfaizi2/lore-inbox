@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVCAAHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVCAAOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVCAAHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 19:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVCAAHW
+	id S261831AbVCAAOg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 19:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVCAAOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 19:07:22 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:36304 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261832AbVCAAHN
+	Mon, 28 Feb 2005 19:14:36 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:38864 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261831AbVCAAOe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 19:07:13 -0500
-Subject: Re: [RFC][PATCH] add driver matching priorities
+	Mon, 28 Feb 2005 19:14:34 -0500
+Subject: Re: [RFC] PCI bridge driver rewrite
 From: Adam Belay <abelay@novell.com>
-To: Greg KH <greg@kroah.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, rml@novell.com,
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, greg@kroah.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20050225234107.GE29496@kroah.com>
-References: <1106951404.29709.20.camel@localhost.localdomain>
-	 <20050210084113.GZ32727@kroah.com>
-	 <1108055918.3423.23.camel@localhost.localdomain>
-	 <20050210184508.B5800@flint.arm.linux.org.uk>
-	 <1108071423.3423.46.camel@localhost.localdomain>
-	 <20050225234107.GE29496@kroah.com>
+In-Reply-To: <200502281538.18881.jbarnes@sgi.com>
+References: <1109226122.28403.44.camel@localhost.localdomain>
+	 <200502241502.15163.jbarnes@sgi.com>
+	 <1109633268.28403.77.camel@localhost.localdomain>
+	 <200502281538.18881.jbarnes@sgi.com>
 Content-Type: text/plain
-Date: Mon, 28 Feb 2005 19:05:54 -0500
-Message-Id: <1109635555.28403.117.camel@localhost.localdomain>
+Date: Mon, 28 Feb 2005 19:13:17 -0500
+Message-Id: <1109635997.28403.123.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-25 at 15:41 -0800, Greg KH wrote:
-> On Thu, Feb 10, 2005 at 04:37:03PM -0500, Adam Belay wrote:
-> > On Thu, 2005-02-10 at 18:45 +0000, Russell King wrote:
-> > > On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
-> > > > > I think the issue that Al raises about drivers grabbing devices, and
-> > > > > then trying to unbind them might be a real problem.
-> > > > 
-> > > > I agree.  Do you think registering every in-kernel driver before probing
-> > > > hardware would solve this problem?
-> > > 
-> > > In which case, consider whether we should be tainting the kernel if
-> > > someone loads a device driver, it binds to a device, and then they
-> > > unload that driver.
-> > > 
-> > > It's precisely the same situation, and precisely the same mechanics
-> > > as what I've suggested should be going on here.  If one scenario is
-> > > inherently buggy, so is the other.
-> > > 
-> > 
-> > I think it would depend on whether the user makes the device busy before
-> > the driver is unloaded.  Different device classes may have different
-> > requirements for when and how a device can be removed.  Are there other
-> > issues as well?  Maybe there are ways to improve driver start and stop
-> > mechanics.
+On Mon, 2005-02-28 at 15:38 -0800, Jesse Barnes wrote:
+> On Monday, February 28, 2005 3:27 pm, Adam Belay wrote:
+> > How can we specify which bus to target?
 > 
-> We never fail a device unbind from a driver, so this isn't as big a deal
-> as I originally thought.  Yes, userspace can get messy, but as userspace
-> was the one that loaded the new driver to bind, it's acceptable.
-> 
-> So, care to resubmit your patch?
-> 
+> Maybe we could have a list of legacy (ISA?) devices for drivers like vgacon to 
+> attach to?  The bus info could be stuffed into the legacy device structure 
+> itself so that the platform code would know what to do.
 
-Would you like me to include the portion that adds "*match" to "struct
-device_driver"?  After some more thought, I began considering having
-driver priority be a static quality of a device driver.  The question is
-whether we want a device driver to be able to return a variable priority
-based on bind device.  Also, "*match" could be used to split some
-detection and validation out of "*probe".  What are your reactions to
-this?
+Are these devices actually legacy, or PCI with compatibility interfaces?
 
-Finally, should every in-kernel driver be registered before devices are
-detected?
+I think a "struct isa_device" would be be useful.  Would a pointer to
+the "struct pci_bus" do the trick?
+
+> 
+> > Also is the legacy IO space mapped to IO Memory on the other side of the
+> > bridge?
+> 
+> How do you mean?  Legacy I/O port accesses just become strongly ordered memory 
+> transactions, afaik, and legacy memory accesses are dealt with the same way.
+> 
+> Jesse
+
+I was just wondering if we have to reserve a memory range for this?
 
 Thanks,
 Adam

@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbTDHU6y (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDHU6y (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:58:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51721 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261839AbTDHU6x (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 16:58:53 -0400
-Message-ID: <3E933AB2.8020306@zytor.com>
-Date: Tue, 08 Apr 2003 14:10:10 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jes Sorensen <jes@wildopensource.com>, Martin Hicks <mort@bork.org>,
-       linux-kernel@vger.kernel.org, wildos@sgi.com
-Subject: Re: [patch] printk subsystems
-References: <20030407201337.GE28468@bork.org> <20030408184109.GA226@elf.ucw.cz> <m3k7e4ycys.fsf@trained-monkey.org> <20030408210251.GA30588@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20030408210251.GA30588@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii
+	id S261743AbTDHVE4 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbTDHVE4 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:04:56 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:10471 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S261743AbTDHVEz (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 17:04:55 -0400
+Subject: Re: 2.5.67 kernel BUG at fs/buffer.c:2538
+From: Steven Cole <elenstev@mesatop.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1049815653.32665.1135.camel@spc9.esa.lanl.gov>
+References: <1049815653.32665.1135.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049836574.32480.1156.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2-3mdk 
+Date: 08 Apr 2003 15:16:14 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Tue, 2003-04-08 at 09:27, Steven Cole wrote:
+> This may be a case of:
 > 
-> Well, I think we should first kill all crappy messages -- that
-> benefits everyone. I believe that if we kill all unneccessary
-> (carrying no information  except perhaps copyright or advertising)
-> will help current problem a lot.
+> "It hurts when I do this:"
+> "Then don't do that!"
 > 
+> I started the latest security updated package of samba with
+> kernel 2.5.67, but I had forgotten to set CONFIG_SMB_FS.
+> The box became unresponsive, and then locked hard. Didn't respond
+> to pings, etc.  So I had to alt-sysrq-b. Now, samba is broken somehow, 
+> ERROR: Samba cannot create a SAM SID.
+> so I can't presently retest with SMB_FS=y and 2.5.67 or with
+> the vendor kernel (2.4.21-0.13mdk).  Unfortunately I had not yet 
+> tested the new security updated packages for samba with the vendor kernel.
+> 
+> However dumb it was to start samba without SMB_FS enabled,
+> the box shouldn't die like this.
+> 
+> I'm going to replace Bamboo with Shrike on that machine today,
+> so I won't be able to reproduce this anytime soon. (I hope).
+> 
+Replying to myself with an update.  After reading the fs/Kconfig help
+for SMB_FS I now realize that having that compiled in or not was 
+orthogonal to starting the samba server.
 
-That may sometimes be true, but a few things may be useful to be able to
-turn back on.
+I installed Redhat 9 (Shrike) on the test box, and tested samba with
+both the vendor kernel and 2.5.67 (with and without SMB_FS before I
+realized that was not the issue).  It all worked.  Then I upgraded
+the samba packages (security updates) and tested everything again, and
+it still all works. 
 
-	-hpa
+I cannot reproduce the kernel BUG at fs/buffer.c:2538, at least not yet.
 
+Steven
 

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSGATcL>; Mon, 1 Jul 2002 15:32:11 -0400
+	id <S316567AbSGATi0>; Mon, 1 Jul 2002 15:38:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316430AbSGATcK>; Mon, 1 Jul 2002 15:32:10 -0400
-Received: from balu.sch.bme.hu ([152.66.208.40]:14260 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S316408AbSGATcK>;
-	Mon, 1 Jul 2002 15:32:10 -0400
-Date: Mon, 1 Jul 2002 21:34:36 +0200 (MEST)
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc1 compile error
-In-Reply-To: <Pine.GSO.4.30.0207012130060.8423-200000@balu>
-Message-ID: <Pine.GSO.4.30.0207012134130.8423-100000@balu>
+	id <S316569AbSGATi0>; Mon, 1 Jul 2002 15:38:26 -0400
+Received: from mail.s3.kth.se ([130.237.48.5]:63504 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S316567AbSGATiZ>;
+	Mon, 1 Jul 2002 15:38:25 -0400
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
+References: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva>
+	<E17O7yk-0007w5-00@the-village.bc.nu>
+	<20020630035058.A884@localhost.park.msu.ru>
+	<20020701090353.B1957@tricia.dyndns.org>
+	<20020701180252.A15288@jurassic.park.msu.ru>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 01 Jul 2002 21:40:48 +0200
+In-Reply-To: Ivan Kokshaysky's message of "Mon, 1 Jul 2002 18:02:52 +0400"
+Message-ID: <yw1xvg7z1bjz.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-Oops, sorry about the noise here, known bug.
+> On Mon, Jul 01, 2002 at 09:03:53AM -0400, jlnance@intrex.net wrote:
+> > So how does Tru64 handle this?  It must have some way of knowing whether to
+> > mask the high bits or not.
+> 
+> No idea. Not sure if it handles this at all. Maybe you
+> just have to recompile.
+> 
+> > If the comment above is correct then this patch
+> > breaks new Tru64 binaries.
+> 
+> Last time I checked Tru64 v5.0 and above binaries didn't worked
+> under Linux for other reasons (missing libraries or something like that).
 
-On Mon, 1 Jul 2002, Pozsar Balazs wrote:
-
->
-> I got the error below.
-> .config attached.
->
-> gcc -D__KERNEL__ -I/home/pozsy/DEV/kernel/test2/linux-2.4.19-rc1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=do_mounts -c -o init/do_mounts.o init/do_mounts.c
-> init/do_mounts.c: In function `rd_load_image':
-> init/do_mounts.c:613: warning: implicit declaration of function `change_floppy'
->
-> [...]
->
-> ld -m elf_i386 -T /home/pozsy/DEV/kernel/test2/linux-2.4.19-rc1/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-> 	--start-group \
-> 	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-> 	 drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/md/mddev.o drivers/isdn/vmlinux-obj.o arch/i386/math-emu/math.o \
-> 	net/network.o \
-> 	/home/pozsy/DEV/kernel/test2/linux-2.4.19-rc1/arch/i386/lib/lib.a /home/pozsy/DEV/kernel/test2/linux-2.4.19-rc1/lib/lib.a /home/pozsy/DEV/kernel/test2/linux-2.4.19-rc1/arch/i386/lib/lib.a \
-> 	--end-group \
-> 	-o vmlinux
-> init/do_mounts.o: In function `rd_load_image':
-> init/do_mounts.o(.text.init+0x907): undefined reference to `change_floppy'
-> init/do_mounts.o: In function `rd_load_disk':
-> init/do_mounts.o(.text.init+0xa3b): undefined reference to `change_floppy'
-> make: *** [vmlinux] Error 1
->
-> --
-> pozsy
->
+Using the libraries from the tru64 5.0 install CD works fine for
+running programs on that CD. There does seem to be some problems with
+different library versions, though. Matlab 5 would not run with libc
+from the tru64 5.0 CD. I had to get some other ones. With the right
+libraries Matlab runs fine with both 2.4.19-rc1 and earlier.
 
 -- 
-pozsy
-
+Måns Rullgård
+mru@users.sf.net

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbSKUNDB>; Thu, 21 Nov 2002 08:03:01 -0500
+	id <S266637AbSKUNIF>; Thu, 21 Nov 2002 08:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266650AbSKUNDB>; Thu, 21 Nov 2002 08:03:01 -0500
-Received: from ns.suse.de ([213.95.15.193]:60932 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266643AbSKUNC4>;
-	Thu, 21 Nov 2002 08:02:56 -0500
-To: Margit Schubert-While <margit@margit.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: L1_CACHE_SHIFT value for P4 ?
-References: <4.3.2.7.2.20021121130236.00b15370@mail.dns-host.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 Nov 2002 14:10:02 +0100
-In-Reply-To: Margit Schubert-While's message of "21 Nov 2002 13:16:33 +0100"
-Message-ID: <p73y97nt6fp.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S266649AbSKUNIF>; Thu, 21 Nov 2002 08:08:05 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:21262 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S266637AbSKUNIE>; Thu, 21 Nov 2002 08:08:04 -0500
+Date: Thu, 21 Nov 2002 14:15:02 +0100
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Andrew Grover <andrew.grover@intel.com>
+Subject: Re: Fix S3 resume when kernel is big
+Message-ID: <20021121131502.GE707@poup.poupinou.org>
+References: <20021120151136.GA862@elf.ucw.cz> <20021120153833.GA4344@suse.de> <20021121124506.GC1133@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021121124506.GC1133@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Margit Schubert-While <margit@margit.com> writes:
-
-E> What should be the value of L1_CACHE_SHIFT for a P4 ?
-> L1_CACHE_BYTES is set to 1<<L1_CACHE_SHIFT
+On Thu, Nov 21, 2002 at 01:45:06PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> In the .config , I notice that L1_CACHE_SHIFT is being set to 7 for the P4.
-> Surely that can't be right or ?
+> >  > -	acpi_create_identity_pmd();
+> >  > +	if (!cpu_has_pse) {
+> >  > +		printk(KERN_ERR "You have S3 capable machine without pse? Wow!");
+> >  > +		return 1;
+> >  > +	}
+> > 
+> > Mobile K6 family never had PSE iirc, and also VIA Cyrix 3's are being
+> > dropped into various laptops.
+> 
+> So S3 will refuse to suspend on those machines. Right now it will
+> suspend and not wakeup if moon is bad phase.
+> 							Pavel
 
-The P4 has 128byte L2 cache lines (2^7). The L1 apparently has smaller lines.
+FYI, current swsusp for 2.4 require that cpu has pse _or_ pse36.
 
-For practical reasons the L1_CACHE_BYTES defines should not be smaller than
-the L2 line size - otherwise slab's cache colouring would not be very 
-effective. In fact the symbol is a bit misnamed, it refers to all CPU caches.
-So it needs to be 7.
-
-
--Andi
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263463AbTLMDxP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 22:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTLMDxP
+	id S263637AbTLMEJv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 23:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTLMEJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 22:53:15 -0500
-Received: from xavier.comcen.com.au ([203.23.236.73]:35085 "EHLO
-	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S263463AbTLMDxM
+	Fri, 12 Dec 2003 23:09:51 -0500
+Received: from [38.119.218.103] ([38.119.218.103]:5814 "HELO
+	mail.bytehosting.com") by vger.kernel.org with SMTP id S263637AbTLMEJt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 22:53:12 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: george@mvista.com
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-Date: Sat, 13 Dec 2003 13:56:16 +1000
-User-Agent: KMail/1.5.1
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 23:09:49 -0500
+X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
+X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.045737 secs)
+Date: Fri, 12 Dec 2003 22:09:47 -0600
+From: Nathan Poznick <kraken@drunkmonkey.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Handle R_ALPHA_REFLONG relocation on Alpha (2.6.0-test11)
+Message-ID: <20031213040947.GA3447@wang-fu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031213003841.GA5213@wang-fu.org> <yw1xisklwiyt.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
 Content-Disposition: inline
-Message-Id: <200312131356.16016.ross@datscreative.com.au>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+In-Reply-To: <yw1xisklwiyt.fsf@kth.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Having had cause to try and figure out all this, I vote for the following being 
-> included in the source somewhere... 
->-g 
 
-Please consider adding
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-2c. Alternatively the OUT0 output of the 8254 PIT (IOW the timer source) may be 
-directly connected to the INTIN0 input of the first I/O APIC. 
+Thus spake M?ns Rullg?rd:
+> Which gcc and binutils versions do you use?  I've seen some variation
+> in which relocations they produce.
 
-which we have found for nforce2 boards.
-ref:
-
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/2375.html
-
-Ross Dickson
+I'm using gcc 3.3.2 and binutils 2.14.90.0.7.  The patch shouldn't hurt
+when using versions which may produce other relocations, correct?  If
+R_ALPHA_REFLONG isn't generated, then that bit of the switch statement
+just wouldn't be hit.
 
 
->bill davidsen wrote: 
-> > In article <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>, 
-> > Maciej W. Rozycki <macro@ds2.pg.gda.pl> wrote: 
-> > 
-> > | The I/O APIC NMI watchdog utilizes the property of being transparent to a 
-> > | single IRQ source of a specially reconfigured 8259A PIC (the master one in 
-> > | the IA32 PC architecture). There are more prerequisites that have to be 
-> > | met and all indeed are for a 100% compatible PC as specified by the 
-> > | Intel's Multiprocessor Specification. 
-> > | 
-> > | 1. The INT output of the master 8259A PIC has to be connected to the LINT0 
-> > | (or LINTIN0; the name varies by implementations) inputs of all local APICs 
-> > | in the system. 
-> > | 
-> > | 2a. The OUT0 output of the 8254 PIT (IOW the timer source) has to be 
-> > | directly connected to the INTIN2 input of the first I/O APIC. 
-> > | 
-> > | 2b. Alternatively the INT output of the master 8259A PIC has to be 
-> > | connected to the INTIN0 input of the first I/O APIC. 
-> > | 
-> > | 3. There must be no glue logic that would change logical properties of the 
-> > | signal between the INT output of the master 8259A PIC and the respective 
-> > | APIC interrupt inputs. 
-> > | 
-> > | In practice, assuming the MP IRQ routing information provided the BIOS has 
-> > | been correct (which is not always the case), prerequisites #1 and #2 have 
-> > | been met so far, but #3 has proved to be occasionally problematic. 
-> > 
-> > In practice many system seem to take a good bit of guessing and testing. 
-> > I have an old P-II which only works with acpi=force and nmi_watchdog=2, 
-> > for instance. 
-> > 
-> > It would be nice if there were a program which could poke at the 
-> > hardware and suggest options which might work, as in eliminating the 
-> > ones which can be determined not to work. Absent that trial and error 
-> > rule, unfortunately. 
- 
+--=20
+Nathan Poznick <kraken@drunkmonkey.org>
+
+If you write something wrong enough, I'll be glad to make up a new
+witticism just for you. -- Larry Wall
+
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/2pELYOn9JTETs+URAmbEAKCf7ZnkMs4QS9zqcBszcYc/zwyo4gCfeiI4
+oAgu42bjxG5D0D+vWugDtQ0=
+=QTel
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265939AbSLIRpf>; Mon, 9 Dec 2002 12:45:35 -0500
+	id <S265863AbSLIR1E>; Mon, 9 Dec 2002 12:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265960AbSLIRpe>; Mon, 9 Dec 2002 12:45:34 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:31933 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265939AbSLIRpe>; Mon, 9 Dec 2002 12:45:34 -0500
-Subject: Re: /proc/pci deprecation?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
-       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-In-Reply-To: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0212090854510.3397-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Dec 2002 18:29:37 +0000
-Message-Id: <1039458577.10470.49.camel@irongate.swansea.linux.org.uk>
+	id <S265880AbSLIR1E>; Mon, 9 Dec 2002 12:27:04 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61072 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265863AbSLIR1B>;
+	Mon, 9 Dec 2002 12:27:01 -0500
+Date: Mon, 9 Dec 2002 17:31:44 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, ronis@onsager.chem.mcgill.ca,
+       David Ronis <ronis@ronispc.chem.mcgill.ca>
+Subject: Re: build failure in 2.4.20
+Message-ID: <20021209173144.GA3751@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org, ronis@onsager.chem.mcgill.ca,
+	David Ronis <ronis@ronispc.chem.mcgill.ca>
+References: <15860.46389.654483.692231@ronispc.chem.mcgill.ca> <200212091809.57622.m.c.p@wolk-project.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212091809.57622.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-09 at 17:00, Linus Torvalds wrote:
-> On 9 Dec 2002, Alan Cox wrote:
-> > I wonder if this is why we have all these problems with VIA chipset
-> > interrupt handling. According to VIA docs they _do_ use
-> > PCI_INTERRUPT_LINE on integrated devices to select the IRQ routing
-> > between APIC and PCI/ISA etc, as well as 0 meaning "IRQ disabled"
-> 
-> Whee.. That sounds like a load of crock in the first place, since the
-> PCI_INTERRUPT_LINE thing should be just a scratch register as far as I
-> know. However, it doesn't really matter - we definitely should never write
-> to it anyway, so the VIA behaviour while strange should still be
-> acceptable.
+On Mon, Dec 09, 2002 at 06:09:57PM +0100, Marc-Christian Petersen wrote:
+ > > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
+ > > discarded section .text.exit' make: *** [vmlinux] Error 1
+ > > It sounds like this is a problem with ld or as, but I'm not sure.  Any
+ > > suggestions?
+ > $editor arch/i386/vmlinux.lds
+ > 
+ > you'll see starting at line 67 this:
+ > 
+ >   /* Sections to be discarded */
+ >   /DISCARD/ : {
+ >         *(.text.exit)
+ >         *(.data.exit)
+ >         *(.exitcall.exit)
+ >         }
+ > 
+ > remove this:
+ > 
+ >         *(.text.exit)
 
-Tested and verified. If I leave it alone non apic mode works. To use
-APIC mode I have to write the new IRQ value into that register. I've
-shoved that into the driver for now, since its a demented chip specific
-horror.
+This may get rid of the compile error, but this is *not* the correct way
+to fix this problem. The correct fix is to run reference_discarded [1]
+to find out which driver is causing the problem, and add __devexit
+tags where relevant.
 
+		Dave
+
+[1] http://kernelnewbies.org/scripts/reference_discarded.pl
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273836AbRJKIlb>; Thu, 11 Oct 2001 04:41:31 -0400
+	id <S273976AbRJKInV>; Thu, 11 Oct 2001 04:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273912AbRJKIlW>; Thu, 11 Oct 2001 04:41:22 -0400
-Received: from smtp-out.student.liu.se ([130.236.230.80]:26191 "EHLO elysium")
-	by vger.kernel.org with ESMTP id <S273870AbRJKIlK>;
-	Thu, 11 Oct 2001 04:41:10 -0400
-Date: Thu, 11 Oct 2001 10:41:30 +0200 (CEST)
-From: Erik Gustavsson <cyrano@algonet.se>
-Subject: Re: 2.4.10-acX VM troubles
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.21.0110111037280.17605-100000@lillan>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S273870AbRJKInL>; Thu, 11 Oct 2001 04:43:11 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:31371 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S273857AbRJKIm4>;
+	Thu, 11 Oct 2001 04:42:56 -0400
+Message-ID: <63488.212.247.172.29.1002789729.squirrel@webmail.stesmi.com>
+Date: Thu, 11 Oct 2001 10:42:09 +0200 (CEST)
+Subject: =?iso-8859-1?Q?Re:_Uhhuh.._2.4.12?=
+From: "=?iso-8859-1?Q?Stefan_Smietanowski?=" <stesmi@stesmi.com>
+To: <torvalds@transmeta.com>
+In-Reply-To: <9q3lbs$16o$1@penguin.transmeta.com>
+In-Reply-To: <9q3lbs$16o$1@penguin.transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
+Reply-To: stesmi@stesmi.com
+X-Mailer: SquirrelMail (version 1.2.0 [rc1])
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have now been running 2.4.10-ac10 with the "eatcache" patch applied,
-doing near constant md5sums of huge files and kernel recompiles for
-12 hours. Very smooth, and much lower swap usage than before. No sign of
-the problems I had.
+Hi.
 
-Very nice indeed!
+>>So I made a 2.4.12, and renamed away the sorry excuse for a kernel that
+>>2.4.11 was.
+>>
+>> - Tim Waugh: parport update
+>
+> .. which is broken.
+>
+> Not a good week.
+>
+> On the other hand, the good news is that I'll open 2.5.x RSN, just
+> because Alan is so much better at maintaining things ;)
 
-/cyr
+Hmm. Does that mean that 2.4.x-ac will become the standard tree or ?
+// Stefan
 
------------------------------------------------------------------------
-Cat: Is that what I think it is?
-Lister: What d'you think it is?
-Cat: An orange whirly thing in space!
+
 

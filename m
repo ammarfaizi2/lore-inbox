@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291771AbSBHTiE>; Fri, 8 Feb 2002 14:38:04 -0500
+	id <S291774AbSBHTpY>; Fri, 8 Feb 2002 14:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291772AbSBHThz>; Fri, 8 Feb 2002 14:37:55 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:906 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S291771AbSBHThn>; Fri, 8 Feb 2002 14:37:43 -0500
-Message-ID: <3C642ABE.4B808E01@nortelnetworks.com>
-Date: Fri, 08 Feb 2002 14:45:02 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+	id <S291775AbSBHTpP>; Fri, 8 Feb 2002 14:45:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44809 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291774AbSBHTo6>;
+	Fri, 8 Feb 2002 14:44:58 -0500
+Message-ID: <3C642A90.751BB750@zip.com.au>
+Date: Fri, 08 Feb 2002 11:44:16 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: trying to track down kernel stack overflow
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] get_request starvation fix
+In-Reply-To: <200202081932.GAA05943@mangalore.zipworld.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dieter Nützel wrote:
+> 
+> On Fri, Feb 08 2002, Andrew Morton wrote:
+> > Here's a patch which addresses the get_request starvation problem.
+> 
+> [snip]
+> 
+> > Also, you noted the other day that a LILO run *never* terminated when
+> > there was a dbench running.  This is in fact not due to request
+> > starvation.  It's due to livelock in invalidate_bdev(), which is called
+> > via ioctl(BLKFLSBUF) by LILO.  invalidate_bdev() will never terminate
+> > as long as another task is generating locked buffers against the
+> > device.
+> [snip]
+> 
+> Could this below related?
+> I get system looks through lilo (bzlilo) from time to time with all latest
+> kernels + O(1) + -aa + preempt
+> 
 
-I've been doing some messing around and got the following on the serial console:
+Depends what you mean by "system locks".  The invalidate_bdev() problem
+won't lock the machine.  Its symptoms are merely that the ioctl will
+not terminate until the process which is writing to disk stops.
 
-Kernel stack overflow in process ca2da000, r1=ca2da390
-NIP: 90015D6C XER: 00000000 LR: 90015D68 REGS: ca2da2c0 TRAP: 0500
-MSR: 00009032 [EEIRDRME]
-Unable to handle kernel paging request at virtual address 2442244f (error
-40000000)
-NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 901971f8 TRAP: 3000
-MSR: 00001032 [IRDRME]
-Unable to handle kernel paging request at virtual address 2442244f (error
-40000000)
-NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 901970b8 TRAP: 3000
-MSR: 00001032 [IRDRME]
-Unable to handle kernel paging request at virtual address 2442244f (error
-40000000)
-NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 90196f78 TRAP: 3000
-MSR: 00001032 [IRDRME]
-Unable to handle kernel paging request at virtual address 2442244f (error
-40000000)
-NIP: 90007ED0 XER: 20000000 LR: 90007EC8 REGS: 90196e38 TRAP: 3000
-MSR: 00001032 [IRDRME]
+In other words: if you run dbench, then lilo, lilo will not complete
+until after dbench terminates.
 
-<...snip...>
+If you're seeing actual have-to-hit-reset lockups then that'll
+be due to something quite different.
 
-
-How do I go about figuring exactly what code this matches?  I've got the vmlinux
-file available...
-
-Chris
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+-

@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317306AbSGIFXq>; Tue, 9 Jul 2002 01:23:46 -0400
+	id <S317307AbSGIFlq>; Tue, 9 Jul 2002 01:41:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317307AbSGIFXp>; Tue, 9 Jul 2002 01:23:45 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:37108 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317306AbSGIFXp>; Tue, 9 Jul 2002 01:23:45 -0400
-Message-ID: <3D2A73E6.9020907@us.ibm.com>
-Date: Mon, 08 Jul 2002 22:25:58 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Drew P. Vogel" <dvogel@intercarve.net>
-CC: Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Thunder from the hill <thunder@ngforever.de>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-References: <Pine.LNX.4.44.0207090037320.13295-100000@northface.intercarve.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S317308AbSGIFlq>; Tue, 9 Jul 2002 01:41:46 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:12814 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317307AbSGIFlp>; Tue, 9 Jul 2002 01:41:45 -0400
+Subject: freezing afer switching from graphical to console
+From: Michael Gruner <stockraser@yahoo.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1026193021.1076.29.camel@highflyer>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Jul 2002 07:38:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drew P. Vogel wrote:
->>   If nothing else, I hope you will think twice before sending off
->>   your next BKL removel patch in a subsystem that you haven't fully
->>   tested or understood.  That's the point I keep trying to get across
->>   here.
->>
->>So can you define for me under what conditions the BKL is appropriate
->>to use?  Removing it from legitimate uses would be bad, of course, but
->>part of the problem here is that it's currently used for a variety of
->>unrelated purposes.
-> 
-> If the trade-offs weigh in about the same, removing the BKL from
-> legitimate uses in favor of a different (neither better nor worse)
-> approach would be more than acceptable, would it not?
+Hi,
 
-I think Greg's main protests are about the methods, not the means.
+since 2.4.17 I have got a problem: trying to switch from graphical
+screen to console or to stop my X-session my box freezes. The screen
+gets black and nothing more happens. Pressing any keys or trying to
+switch to another console the box does not do anything. Only o cold
+restart brings the box up again.
 
-> Would creating a few new names for lock_kernel() and friends be
-> acceptable? Just a few macros to give slightly more meaningful names to
-> each function call for 2.5. Then take lock_kernel() entirely away (the
-> name, not the function), in 2.7. By 2.9 it should be able to be removed
-> from nearly all "inappropriate" uses. This seems like it would encourage
-> more  explicit usage of the BKL, while giving maintainers ample time to
-> comply.
+Hardware is a MSI6126 with a 440bx chipset. The processor is a 400 MHZ
+Celeron on a MS6905 ppga 370 to slot 1 cpu converter. In former times
+there were 256MB RAM in there but I got a lot of segfaults during
+compiling the kernel. So i removed 128MB and now compiling runs fine.
+So I don't think it might be a hardware failure?!
 
-I would really prefer not to see the name changed.  In some places 
-people do this:
+Problems had be seen very often with kernel 2.4.18, now with 2.4.19-rc1
+not as often as before. That means: it happens maybe 1 or 2 times a
+week. The box is shutted down every day.
 
-#define mydriver_lock() lock_kernel();
-#define mydriver_unlock() unlock_kernel();
+Are there any hints for solving this problem?
 
-All that this really does is obscure the BKL's use -- it makes it 1 
-step harder to track down.  If you need a spinlock, use a spinlock. 
-If you need the BKL, by all means, take the BKL.
-
-A comment is immeasurable better than a different name.  I would say, 
-if you need/want the BKL, justify it with a comment, not a name.
-
-> Note that I have never added or removed a lock from the kernel. I am
-> simply thinking aloud; half hoping to be corrected.
-
-I know the feeling :)
-
+best regards,
+ Michael
 -- 
-Dave Hansen
-haveblue@us.ibm.com
+Windmuehlenweg 22 07907 Schleiz
+mobil: +491628955029
+e-Mail: Michael.Gruner@fh-hof.de
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

@@ -1,74 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270027AbUJTKsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270017AbUJTLlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270027AbUJTKsL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 06:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269945AbUJTKnX
+	id S270017AbUJTLlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 07:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270077AbUJTLFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 06:43:23 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:51841 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267683AbUJTKiq (ORCPT
+	Wed, 20 Oct 2004 07:05:45 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:23718 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S269880AbUJTKx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 06:38:46 -0400
-Date: Wed, 20 Oct 2004 12:40:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041020104005.GA1813@elte.hu>
-References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041020100424.GA32396@elte.hu> <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
+	Wed, 20 Oct 2004 06:53:58 -0400
+Date: Wed, 20 Oct 2004 12:53:53 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH (updated)] Avoid annoying build warning on 32-bit
+ platforms
+Message-ID: <20041020125353.6af0aad6@phoebee>
+In-Reply-To: <20041020102343.GA6901@taniwha.stupidest.org>
+References: <200410200956.i9K9ujOu026178@harpo.it.uu.se>
+	<20041020102343.GA6901@taniwha.stupidest.org>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__20_Oct_2004_12_53_53_+0200_Nn2V7WxyrOJqBYCz"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Wed__20_Oct_2004_12_53_53_+0200_Nn2V7WxyrOJqBYCz
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+On Wed, 20 Oct 2004 03:23:43 -0700
+Chris Wedgwood <cw@f00f.org> bubbled:
 
-> Ingo Molnar wrote:
-> >
-> >> Changes since -U7:
-> >>
-> >
-> > - fix block-loopback assert reported by Mark H Johnson, Matthew L
-> >   Foster and Rui Nuno Capela. (usually triggers during 'make install'
-> >   of a kernel compile.)
-> >
+> On Wed, Oct 20, 2004 at 11:56:45AM +0200, Mikael Pettersson wrote:
 > 
-> Is this fix already on U8 ? I don't seem to get out of mkinitrd (which
-> is triggered by kernel make install).
-
-please re-download -U8, i've updated it a couple of minutes after
-uploading it, but apparently not fast enough :-| Sorry!
-
-> OTOH, still on my laptop (P4/UP) I'm getting this very often:
+> > There's a coding idiom for doing this: just break up
+> > the ">> 32" in two steps, like: ((time >> 31) >> 1).
 > 
-> RTNL: assertion failed at net/ipv4/devinet.c (1049)
+> i assumed gcc would complain there too but it doesn't and it does
+> optimize this away (i checked)
+> 
+> > Definitely preferable over #ifdef:s.
+> 
+> indeed
+> 
+> 
+> 
+> Avoid annoying gcc warning on 32-bit platforms.
+> 
+> Signed-off-by: cw@f00f.org
+> 
+> ===== drivers/char/random.c 1.57 vs edited =====
+> --- 1.57/drivers/char/random.c	2004-10-05 14:21:53 -07:00
+> +++ edited/drivers/char/random.c	2004-10-20 03:19:17 -07:00
+> @@ -818,12 +818,10 @@ static void add_timer_randomness(struct 
+>  	 * jiffies.
+>  	 */
+>  	time = get_cycles();
+> -	if (time != 0) {
+> -		if (sizeof(time) > 4)
+> -			num ^= (u32)(time >> 32);
+> -	} else {
+> +	if (time)
+> +		num ^= (u32)((time >> 32) >> 1);
+                                      ^^ errr ... should be 31 ?!?!
+> +	else
+>  		time = jiffies;
+> -	}
+>  
+>  	/*
+>  	 * Calculate number of bits of randomness we probably added.
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-yeah - this too was an oversight i fixed in the latest upload.
 
-> ------------[ cut here ]------------
-> kernel BUG at lib/rwsem-generic.c:598!
+-- 
+MyExcuse:
+We've run out of licenses
 
->  [<c0104b0d>] error_code+0x2d/0x38 (100)
->  [<e003f9c8>] loop_thread+0x61/0x11b [loop] (32)
->  [<c0102305>] kernel_thread_helper+0x5/0xb (722608148)
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
 
-yes, this is the loopback fix. Please-retry with the latest patch.
+TechnoTrend AG <http://www.technotrend.de>
 
-	Ingo
+--Signature=_Wed__20_Oct_2004_12_53_53_+0200_Nn2V7WxyrOJqBYCz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBdkPBmjLYGS7fcG0RAh9gAJ4gLmIStpSGhy01XbfIj1U9P3CDHACfbAaN
+scp6VKyDmq4YzCAeHHnXQqs=
+=dgyG
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__20_Oct_2004_12_53_53_+0200_Nn2V7WxyrOJqBYCz--

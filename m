@@ -1,39 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbSIPVdZ>; Mon, 16 Sep 2002 17:33:25 -0400
+	id <S262894AbSIPVaq>; Mon, 16 Sep 2002 17:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbSIPVdZ>; Mon, 16 Sep 2002 17:33:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19431 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263089AbSIPVdY>;
-	Mon, 16 Sep 2002 17:33:24 -0400
-Date: Mon, 16 Sep 2002 14:29:31 -0700 (PDT)
-Message-Id: <20020916.142931.126209536.davem@redhat.com>
-To: linux-kernel@vger.kernel.org, todd-lkml@osogrande.com
-Cc: hadi@cyberus.ca, tcw@tempest.prismnet.com, netdev@oss.sgi.com,
-       pfeather@cs.unm.edu
+	id <S263084AbSIPVaq>; Mon, 16 Sep 2002 17:30:46 -0400
+Received: from puerco.nm.org ([129.121.1.22]:27146 "HELO puerco.nm.org")
+	by vger.kernel.org with SMTP id <S262894AbSIPVap>;
+	Mon, 16 Sep 2002 17:30:45 -0400
+Date: Mon, 16 Sep 2002 15:32:56 -0600 (MDT)
+From: todd-lkml@osogrande.com
+X-X-Sender: todd@gp.staff.osogrande.com
+Reply-To: linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@redhat.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "todd-lkml@osogrande.com" <todd-lkml@osogrande.com>,
+       "hadi@cyberus.ca" <hadi@cyberus.ca>,
+       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
+       "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+       "pfeather@cs.unm.edu" <pfeather@cs.unm.edu>
 Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0209161528140.13850-100000@gp.staff.osogrande.com>
-References: <20020916.125211.82482173.davem@redhat.com>
-	<Pine.LNX.4.44.0209161528140.13850-100000@gp.staff.osogrande.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020916.125211.82482173.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0209161528140.13850-100000@gp.staff.osogrande.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: todd-lkml@osogrande.com
-   Date: Mon, 16 Sep 2002 15:32:56 -0600 (MDT)
-   
-   new system calls into the networking code
+folx,
 
-The system calls would go into the VFS, sys_receivefile is not
-networking specific in any way shape or form.
+perhaps i was insufficiently clear.
 
-And to answer your question, if I had the time I'd work on it yes.
+On Mon, 16 Sep 2002, David S. Miller wrote:
 
-Right now the answer to "well do you have the time" is no, I am
-working on something much more important wrt. Linux networking.  I've
-hinted at what this is in previous postings, and if people can't
-figure out what it is I'm not going to mention this explicitly :-)
+>    are there any standards in progress to support this.
+> 
+> Your question makes no sense, it is a hardware optimization
+> of an existing standard.  The chip merely is told what flows
+> exist and it concatenates TCP data from consequetive packets
+> for that flow if they arrive in sequence.
+
+hardware optimizations can be standardized.  in fact, when they are, it is 
+substantially easier to implement to them.
+
+my assumption (perhaps incorrect) is that some core set of functionality 
+is necessary for a card to support zero-copy receives (in particular, the 
+ability to register cookies of expected data flows and the memory location 
+to which they are to be sent).  what 'existing standard' is this 
+kernel<->api a standardization of?
+
+>    who is working on this architecture for receives?
+> 
+> Once cards with the feature exist, probably Alexey and myself
+> will work on it.
+> 
+> Basically, who ever isn't busy with something else once the technology
+> appears.
+
+so if we wrote and distributed firmware for alteon acenics that supported
+this today, you would be willing to incorporate the new system calls into
+the networking code (along with the new firmware for the card, provided we
+could talk jes into accepting the changes, assuming he's still the 
+maintainer of the driver)?  that's great.
+
+>    
+>    is there a beginning implementation yet of zerocopy receives
+> 
+> No.
+
+
+thanks for your feedback.
+
+t.
+
+
+-- 
+todd underwood, vp & cto
+oso grande technologies, inc.
+todd@osogrande.com
+
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin
+

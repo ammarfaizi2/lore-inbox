@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285084AbRLFJvg>; Thu, 6 Dec 2001 04:51:36 -0500
+	id <S285093AbRLFJzP>; Thu, 6 Dec 2001 04:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285086AbRLFJv0>; Thu, 6 Dec 2001 04:51:26 -0500
-Received: from babsi.intermeta.de ([212.34.181.3]:38921 "EHLO
-	mail.intermeta.de") by vger.kernel.org with ESMTP
-	id <S285084AbRLFJvN>; Thu, 6 Dec 2001 04:51:13 -0500
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-From: Henning Schmiedehausen <hps@intermeta.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-        Lars Brinkhoff <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <2535737837.1007558085@mbligh.des.sequent.com>
-In-Reply-To: <2535737837.1007558085@mbligh.des.sequent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 06 Dec 2001 10:50:43 +0100
-Message-Id: <1007632244.24677.1.camel@forge>
+	id <S285092AbRLFJzG>; Thu, 6 Dec 2001 04:55:06 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:28938 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S285089AbRLFJyu>;
+	Thu, 6 Dec 2001 04:54:50 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.16 for pointers to __devexit functions 
+In-Reply-To: Your message of "Thu, 06 Dec 2001 03:09:46 CDT."
+             <3C0F27CA.59C22DEF@mandrakesoft.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 06 Dec 2001 20:54:37 +1100
+Message-ID: <13818.1007632477@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-12-05 at 22:14, Martin J. Bligh wrote:
-> > We don't agree on any of these points.  Scaling to a 16 way SMP pretty much 
-> > ruins the source base, even when it is done by very careful people.
-> 
-> I'd say that the normal current limit on SMP machines is 8 way.
-> But you're right, we don't agree.  Time will tell who was right.
-> When I say I'm interested in 16 way scalability, I'm not talking about
-> SMP, so perhaps we're talking at slightly cross purposes.
+On Thu, 06 Dec 2001 03:09:46 -0500, 
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>> This patch against 2.4.16 defines __devexit_p() for pointers to
+>> functions defined as __devexit, the wrapper inserts the function name
+>> or NULL, based on config options.  It allows people to use the new
+>> binutils on the kernel, there are some real kernel bugs that binutils
+>> will find once this patch is in.
+>> 
+>> I have patched all the obvious references to __devexit functions,
+>> leaving a few which appear to be real bugs.  I notified the maintainers
+>> of the buggy code privately.
+>
+>Why not __attribute__((weak)) ?
 
-Well I do remember those Sequent Symmetry machines from university which
-scaled to 24 processors and more. If I remember correctly they ran 16x
-386 and 8x 486 in a single box (under Dynix?)
+Because there are some real bugs in the kernel where code incorrectly
+calls routines marked __devexit, a global conversion of __devexit
+functions to NULL or weak will hide the bugs as well as the good code.
+Most of the bugs are on error paths, typically an init routine calling
+the exit code on error.  Changing to BUG() does not help either, that
+only shows up the buggy code in the unlikely event of a device error.
 
-Wasn't too much interested in that then. I was to busy toying with my
-Amiga. ;-)
-
-	Regards
-		Henning
- 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Using __devexit_p() will automatically remove the references that
+should not exist, the new binutils can then catch the other buggy code
+at link time.
 

@@ -1,88 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264850AbUFLPVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264852AbUFLPbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264850AbUFLPVH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 11:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUFLPVH
+	id S264852AbUFLPbN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 11:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264853AbUFLPbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 11:21:07 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:38051 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S264850AbUFLPVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 11:21:02 -0400
-From: martin capitanio <spam@capitanio.org>
-To: stian@nixia.no
-Subject: Re: timer + fpu stuff locks up computer
-Date: Sat, 12 Jun 2004 17:20:54 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040612134413.GA3396@sirius.home> <1087050351.707.5.camel@boxen> <1734.83.109.11.80.1087051353.squirrel@nepa.nlc.no>
-In-Reply-To: <1734.83.109.11.80.1087051353.squirrel@nepa.nlc.no>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200406121720.54123.spam@capitanio.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 12 Jun 2004 11:31:13 -0400
+Received: from main.gmane.org ([80.91.224.249]:46016 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264852AbUFLPbH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 11:31:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: touchpad (PS/2) mouse detection problem.
+Date: Sat, 12 Jun 2004 17:30:48 +0200
+Message-ID: <MPG.1b354014717a9e1a9896cc@news.gmane.org>
+References: <40C8EA4B.7070604@enenet.com> <MPG.1b33c0a163d6f2e59896ca@news.gmane.org> <40C9CD38.2090501@enenet.com> <MPG.1b340874c275a9479896cb@news.gmane.org> <20040612121721.GA1127@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-63-129.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 June 2004 16:42, stian@nixia.no wrote:
+Vojtech Pavlik wrote:
+> On Fri, Jun 11, 2004 at 09:39:21PM +0200, Giuseppe Bilotta wrote:
+> > Vadim Garber ENEnet wrote:
+> > > < > PCI PS/2 keyboard and PS/2 mouse controller
+> >   ^^^
+> > 
+> > You need this too.
 > 
-> Does the other dirty nasty patch work for you?
+> Definitely not. This is a driver for a PCI PS/2 controller so far found
+> only in a Mobility Electronic docking station.
 
-ACK for 2.6.7-rc4-mm1 (gcc-Version 3.3.3)
-user$ ./evil 
-completely freeze
+Ok, I'll just go sit in a corner and shut up. :)
 
---- linux-2.6.6-rc3-mm1/kernel/signal.c 2004-06-09 18:36:12.000000000 +0200
-+++ linux-2.6.6-rc3-mm1-fpuhotfix/kernel/signal.c       2004-06-12 18:10:31.573001808 +0200
-@@ -799,7 +799,15 @@
-           can get more detailed information about the cause of
-           the signal. */
-        if (LEGACY_QUEUE(&t->pending, sig))
-+       {
-+           if (sig==8)
-+           {
-+               printk("Attempt to exploit known bug, process=%s pid=%p uid=%d\n",
-+                   t->comm, t->pid, t->uid);
-+               do_exit(0);
-+           }
-            goto out;
-+       }
+Anyway, FWIW, my kernel configuration in those wereabouts is as 
+follows:
 
-        ret = send_signal(sig, info, t, &t->pending);
-        if (!ret && !sigismember(&t->blocked, sig))
+#
+# Input device support
+#
+CONFIG_INPUT=y
 
-2.6.7-rc4-mm1-fpuhotfix:
-user$ ./evil
-........................*...............................................
-......................*
-Attempt to exploit known bug, process=evil pid=00000aa6 uid=1000
-note: evil[2726] exited with preempt_count 2
-bad: scheduling while atomic!
- [<c032a045>] schedule+0x4b5/0x4c0
- [<c01435cb>] zap_pmd_range+0x4b/0x70
- [<c014362d>] unmap_page_range+0x3d/0x70
- [<c014380b>] unmap_vmas+0x1ab/0x1c0
- [<c0147639>] exit_mmap+0x79/0x150
- [<c01184ee>] mmput+0x5e/0xa0
- [<c011c523>] do_exit+0x153/0x3e0
- [<c0122e6f>] specific_send_sig_info+0xff/0x100
- [<c0122eb2>] force_sig_info+0x42/0x90
- [<c0105be0>] do_coprocessor_error+0x0/0x20
- [<c0105b5e>] math_error+0xde/0x160
- [<c010b0f6>] restore_i387_fxsave+0x26/0xa0
- [<c0222c8c>] write_chan+0x18c/0x250
- [<c01170e0>] default_wake_function+0x0/0x10
- [<c01170e0>] default_wake_function+0x0/0x10
- [<c0104a05>] error_code+0x2d/0x38
- [<c010b0f6>] restore_i387_fxsave+0x26/0xa0
- [<c010b1fc>] restore_i387+0x8c/0x90
- [<c0103434>] restore_sigcontext+0x114/0x130
- [<c0103503>] sys_sigreturn+0xb3/0xd0
- [<c0103f6b>] syscall_call+0x7/0xb
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+CONFIG_INPUT_EVDEV=m
+# CONFIG_INPUT_EVBUG is not set
 
-but it keeps the kernel alive :-)
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+# CONFIG_SERIO_CT82C710 is not set
+# CONFIG_SERIO_PARKBD is not set
+CONFIG_SERIO_PCIPS2=m
 
-martin
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_LKKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y 
+
+Hope this helps the OP ...
+
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

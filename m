@@ -1,47 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSDKOzE>; Thu, 11 Apr 2002 10:55:04 -0400
+	id <S314082AbSDKPEc>; Thu, 11 Apr 2002 11:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314081AbSDKOzD>; Thu, 11 Apr 2002 10:55:03 -0400
-Received: from www.m3.polymtl.ca ([132.207.4.60]:40455 "HELO m3.polymtl.ca")
-	by vger.kernel.org with SMTP id <S314080AbSDKOzC>;
-	Thu, 11 Apr 2002 10:55:02 -0400
-To: Brian Beattie <alchemy@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Martin@m3.polymtl.ca,
-        "Martin.Bligh@us.ibm.com" <J.Bligh@m3.polymtl.ca>,
-        Tony.P.Lee@nokia.com, kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-        Dave Jones <davej@suse.de>, karym@opersys.com, lmcmpou@lmc.ericsson.se,
-        lmcleve@lmc.ericsson.se
-Subject: Re: Event logging vs enhancing printk
-In-Reply-To: <m2it71uf4u.fsf@m3.polymtl.ca> <1018385394.7923.26.camel@w-beattie1>
-From: Michel Dagenais <michel.dagenais@polymtl.ca>
-Date: 11 Apr 2002 11:11:00 -0400
-Message-ID: <m2ofgqtgmz.fsf@m3.polymtl.ca>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S314083AbSDKPEb>; Thu, 11 Apr 2002 11:04:31 -0400
+Received: from mail.2d3d.co.za ([196.14.185.200]:48522 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S314082AbSDKPEa>;
+	Thu, 11 Apr 2002 11:04:30 -0400
+Date: Thu, 11 Apr 2002 17:04:58 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: CHECKSUM_HW not behaving as expected
+Message-ID: <20020411170458.A2786@crystal.2d3d.co.za>
+Mail-Followup-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 5:00pm  up 15 days,  7:16,  9 users,  load average: 0.09, 0.07, 0.01
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> It would be easier, to fix the printk's, than to put evlogging into any
-> particular piece of the kernel.
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fine, let's call evlog "an enhanced printk" and discuss the specific technical
-details of the proposition.
+Hi!
 
-> Evlog side-by-side with printk adds significat bloat.
+In Rubini's "Linux Device Drivers 2nd edition" he states in his networking
+chapter that skb->ip_summed =3D CHECKSUM_HW means that the hardware already
+performed a checksum and that the upper layers therefore don't need to do it
+(He also states that CHECKSUM_NONE (default) means that it still needs to be
+verified).
 
-Whenever you change/enhance such things you may need coexistance for a while.
-However this is configurable, and to a certain extent temporary, bloat.
+I'm currently writing a network driver for 2.4.17 and the chip automatically
+performs checksums and you can tell it to exclude the CRC from the packet or
+not before making it available for the host. Now, if I configure it to
+exclude the CRC and use skb->ip_summed =3D CHECKSUM_HW I get:
 
-> > - Structured data events for which it is easier to apply filtering, querying,
-> >   analysis and detection tools.
-> 
-> this is a post processing problem.
-...
-> What I hear you asking for, is to make it more of
-> the kernels responsibilty easing the problem of analysing the out put,
-> as opposed to making that the responsibilty of user space
-> postprocessing.
+root@frodo:/# ./ldm
+Using /cs8900.o
+CS8900A driver for 2d3D, SA-1110 Development Board.
+eth0: CS8900A rev D detected
+configuring network:.
+root@frodo:/# icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+icmp v4 hw csum failure
+NET: 3 messages suppressed.
+icmp v4 hw csum failure
 
-Actually this is pushing the formatting out of the kernel, is more efficient,
-and it leaves more flexibility to the logging daemon!
+root@frodo:/#
+------------< snip <------< snip <------< snip <------------
+
+If I used CHECKSUM_NONE, it works fine which obviously means that the CRC is
+not computed in software.
+
+Is that a bug in the kernel or does Alessandro have it wrong?
+
+--=20
+
+Regards
+ Abraham
+
+There is one difference between a tax collector and a taxidermist --
+the taxidermist leaves the hide.
+		-- Mortimer Caplan
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Aintree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
+
+
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8taYazNXhP0RCUqMRAj+pAJwKAmClwBnDHeKuKSzwt7MfoxpBygCfc+fZ
+0CsVwIcMazJ/rlSTUKM5USg=
+=BA3z
+-----END PGP SIGNATURE-----
+
+--6c2NcOVqGQ03X4Wi--

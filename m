@@ -1,101 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbTCDJC3>; Tue, 4 Mar 2003 04:02:29 -0500
+	id <S269145AbTCDJHk>; Tue, 4 Mar 2003 04:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267992AbTCDJC3>; Tue, 4 Mar 2003 04:02:29 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:25828 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264938AbTCDJC0>;
-	Tue, 4 Mar 2003 04:02:26 -0500
-Date: Tue, 4 Mar 2003 10:12:54 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Roger Luethi <rl@hellgate.ch>, Troels Haugboelle <troels_h@astro.ku.dk>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: S4bios support for 2.5.63
-Message-ID: <20030304091254.GA16556@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Nigel Cunningham <ncunningham@clear.net.nz>,
-	Roger Luethi <rl@hellgate.ch>,
-	Troels Haugboelle <troels_h@astro.ku.dk>,
-	Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030302202118.GA2201@outpost.ds9a.nl> <20030303003940.GA13036@k3.hellgate.ch> <1046657290.8668.33.camel@laptop-linux.cunninghams> <20030303113153.GA18563@outpost.ds9a.nl> <20030303122325.GA20929@atrey.karlin.mff.cuni.cz> <20030303123551.GA19859@outpost.ds9a.nl> <20030303124133.GH20929@atrey.karlin.mff.cuni.cz> <1046700474.3782.197.camel@localhost> <20030303143006.GA1289@k3.hellgate.ch> <1046729210.1850.8.camel@laptop-linux.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046729210.1850.8.camel@laptop-linux.cunninghams>
-User-Agent: Mutt/1.3.28i
+	id <S269161AbTCDJHk>; Tue, 4 Mar 2003 04:07:40 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:12815 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S269145AbTCDJHj>; Tue, 4 Mar 2003 04:07:39 -0500
+Message-ID: <3E646FB0.6040108@aitel.hist.no>
+Date: Tue, 04 Mar 2003 10:19:44 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.63-mm2 slab corruption
+References: <20030302180959.3c9c437a.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 11:06:50AM +1300, Nigel Cunningham wrote:
+2.5.63-mm2 seems to work fine, but I got this in my dmesg:
+Helge Hafting
 
-> You were hitting the BUG_ON before swsusp was even trying to write the
-> image?!! That is interesting! Since count_and_copy is first called post
-> driver suspend in the current version, perhaps they are somehow related.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 320k freed
+Adding 1999864k swap on /dev/hdb2.  Priority:-1 extents:1
+eth0: no IPv6 routers present
+Slab corruption: start=d714cfa4, expend=d714cfe3, problemat=d714cfba
+Data: **********************7B ****************************************A5
+Next: 71 F0 2C .B8 2F 18 08 14 00 00 00 F7 01 55 55 03 00 00 00 21 3D 00 
+03 00 0
+0 00 00 74 69 6D 65
+slab error in check_poison_obj(): cache `vm_area_struct': object was 
+modified af
+ter freeing
+Call Trace:
+  [<c0130711>] __slab_error+0x21/0x28
+  [<c01308db>] check_poison_obj+0x103/0x10c
+  [<c013197c>] kmem_cache_alloc+0x64/0xe8
+  [<c01393a4>] split_vma+0x2c/0xdc
+  [<c01394ea>] do_munmap+0x96/0x134
+  [<c01395bf>] sys_munmap+0x37/0x54
+  [<c0108b17>] syscall_call+0x7/0xb
 
-Sure, I get this too:
+Slab corruption: start=c3eca854, expend=c3eca893, problemat=c3eca86a
+Data: **********************7B ****************************************A5
+Next: 71 F0 2C .A5 C2 0F 17 F0 E7 29 D8 00 A0 D9 41 00 A0 DB 41 C4 A7 EC 
+C3 25 0
+0 00 00 77 00 10 00
+slab error in check_poison_obj(): cache `vm_area_struct': object was 
+modified af
+ter freeing
+Call Trace:
+  [<c0130711>] __slab_error+0x21/0x28
+  [<c01308db>] check_poison_obj+0x103/0x10c
+  [<c013197c>] kmem_cache_alloc+0x64/0xe8
+  [<c01393a4>] split_vma+0x2c/0xdc
+  [<c01394ea>] do_munmap+0x96/0x134
+  [<c01395bf>] sys_munmap+0x37/0x54
+  [<c0108b17>] syscall_call+0x7/0xb
 
- It now says (copied by hand):  
- 
-         freeing memory: .....................|
- (this 'freeing' takes ages, around 30 seconds, while in progress, the disk
-  light blinks every once in a while, perhaps each time while a dot is being
- printed)
-         syncing disks
-         suspending devices
-         suspending device c0418bcc
-         suspending devices
-         suspending device c0418bcc
-         suspending: hda ------------------[ cut here
-         trace back:
-   
-           device_susp()
-           drivers_susp()
-           do_software_susp()
-
-
-This happens, I think, from here in kernel/suspend.c:
-
-/* Called from process context */
-static int drivers_suspend(void)
-{
-        device_suspend(4, SUSPEND_NOTIFY);
-	device_suspend(4, SUSPEND_SAVE_STATE);
-        device_suspend(4, SUSPEND_DISABLE);
-	...
-
-I think the problem occurs on the second call, SUSPEND_SAVE_STATE:
-
-static int idedisk_suspend(struct device *dev, u32 state, u32 level)
-{
-        ide_drive_t *drive = dev->driver_data;
-
-        printk("Suspending device %p\n", dev->driver_data);
-
-        /* I hope that every freeze operation from the upper levels have
-         * already been done...
-         */
-
-        if (level != SUSPEND_SAVE_STATE)
-                return 0;
-
-        /* set the drive to standby */
-        printk(KERN_INFO "suspending: %s ", drive->name);
-        do_idedisk_standby(drive);
-        drive->blocked = 1;
-
-        BUG_ON (HWGROUP(drive)->handler);  // <----- this BUGs
-        return 0;
-}
-
-Regards,
-
-bert
-
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting

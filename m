@@ -1,68 +1,106 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314243AbSEYI4o>; Sat, 25 May 2002 04:56:44 -0400
+	id <S314277AbSEYJFp>; Sat, 25 May 2002 05:05:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSEYI4n>; Sat, 25 May 2002 04:56:43 -0400
-Received: from squeaker.ratbox.org ([63.216.218.7]:19468 "EHLO
-	squeaker.ratbox.org") by vger.kernel.org with ESMTP
-	id <S314277AbSEYI4m>; Sat, 25 May 2002 04:56:42 -0400
-Date: Sat, 25 May 2002 04:56:41 -0400 (EDT)
-From: Aaron Sethman <androsyn@ratbox.org>
+	id <S314280AbSEYJFp>; Sat, 25 May 2002 05:05:45 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:32488 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314277AbSEYJFo>; Sat, 25 May 2002 05:05:44 -0400
+Subject: RTAI/RtLinux
+From: Erwin Rol <erwin@muffin.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: RT Sigio broken on 2.4.19-pre8
-In-Reply-To: <Pine.LNX.4.44.0205250433050.9132-100000@simon.ratbox.org>
-Message-ID: <Pine.LNX.4.44.0205250446200.9132-100000@simon.ratbox.org>
-X-GPG-FINGRPRINT: 1024D/D4DE2553 0E60 59B5 60DA 2FD3 F6F5  27A3 6CD2 21AD D4DE 2553
-X-GPG-PUBLIC_KEY: http://squeaker.ratbox.org/androsyn.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: RTAI users <rtai@rtai.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-AZQ/RHaCt8Lrh1ESRgWI"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 May 2002 11:05:32 +0200
+Message-Id: <1022317532.15111.155.camel@rawpower>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Actually looking at it closer... It seems rtsig-nr keeping rising slowly
-as the system runs.
+--=-AZQ/RHaCt8Lrh1ESRgWI
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
+Normally I am not subscribed to the kernel list, but after a msg from
+Karim that there was a "fight" going on about RTAI I read the archives
+and decided that it was important enough to join the discussion.
 
-Aaron
+Both Linus and Larry seem to be not very interested in hard-realtime
+Linux additions, this is OK. I mean everybody has his interests and with
+so many Linux users and developers you can't all focus on the same
+thing.
 
-On Sat, 25 May 2002, Aaron Sethman wrote:
+But we (RTAI developers, which include Karim and myself) have decided to
+focus on hard-realtime extensions to Linux. And it is than always very
+motivating to hear nobody gives a f*ck about your work or problems,
+because "hey, you don't have a business model that makes sense anyway"
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
->
-> Using the Dan Kegel's Poller_bench utility I noticed that RT SIGIO is not
-> working on 2.4.19-pre8.  Basically sigtimedwait() is always returning
-> SIGIO.  Note that 2.4.18 works fine.
->
-> Regards,
->
-> Aaron
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.0.6 (GNU/Linux)
-> Comment: For info see http://www.gnupg.org
->
-> iD8DBQE8703wbNIhrdTeJVMRAlcgAJ9Bga4Y9Dj+YP1jGq6iQAtWHsTo7gCfYtC0
-> MrGouDbev2gSs2nymlXNVuw=
-> =R0yb
-> -----END PGP SIGNATURE-----
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+For example, first there is said that there is no userspace
+hard-realtime, than Karim corrects that, than there is said that a
+userspace program that uses mlockall is actually a module: with other
+words be quiet and go sit in the corner.
+This seems the same as what happened with  FSMLabs, first they explain
+why userspace hard-realtime is crap, and now they have implemented it
+them self and explain how good it is.=20
+
+We have had several discussions with FSMLabs about userspace
+hard-realtime and asked for comments on for example the following
+situation.
+
+-
+When i write a RTAI module, that changes the sched_setparam in such a
+way that SCHED_FIFO and SCHED_RR are now hardrealtime. Than a binary
+program that runs on a computer with the RTAI kernel-module loaded
+violates the patent, and on a computer that doesn't have it loaded it
+doesn't violate the patent.=20
+-
+needless to say we never even got a reply on questions like these. When
+you have to believe FSMLabbs, you are not allowed to use non-GPL
+software on a system that has a RTAI module loaded, according to Eben Mo
+
+There was also asked about the possibility (and even some person on the
+RTAI list started such a project) to have a *BSD version of RTAI, well
+the answer is simply NO. since *BSD will not accept GPL kernel code, and
+the RTLinux patent doesn't allow no GPL implementations there will be no
+free *BSD with this type of hard-realtime. Of course you can buy the
+FSMLab version, but than you can just as well buy a true RTOS, like
+VxWorks.
+
+Also apparently there is the idea that all RTAI developers want to
+become rich by getting the patent out of the way and sell RTAI. I know
+you all know this is simply not true, like most Linux hacker we spend a
+large part of our free time to give the real-time community a usable
+piece of software where they normally have to pay for.=20
+So please don't stamp us as some money sucking bastards that shouldn't
+be allowed to use Linux in the first place.
+
+I just hope the linux developers are smart enough to not accept the
+RTLinux into the main kernel, cause someday someone might come up with
+the idea to write something that allows to have userspace programs to be
+hard-realtime, and than you have to stop allowing non GPL userspace
+programs, like for example GLIB( which is LGPL).=20
+
+- Erwin Rol , RTAI Developer
+
+
+
+
+
+
+--=-AZQ/RHaCt8Lrh1ESRgWI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE871HLbNIhrdTeJVMRAubwAJ0a+Skpxx/88pdYKaqDkBjhR70ZRQCgqhz8
-DBRtW8/9eCfzN/RkGOul+uU=
-=L1qT
+iD8DBQA871PcILu3T9PlUj8RAsRqAJ0XH2NVLCQQt5kiC2D+KI6K1lDRQACgxpra
+BhKPbehgD71MDQatyGhZQJg=
+=wQtg
 -----END PGP SIGNATURE-----
 
+--=-AZQ/RHaCt8Lrh1ESRgWI--

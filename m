@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUHRSlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267472AbUHRSpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267416AbUHRSlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 14:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267472AbUHRSls
+	id S267472AbUHRSpI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 14:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUHRSpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 14:41:48 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:23168 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267416AbUHRSkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 14:40:31 -0400
-Subject: Re: Oops modprobing i830 with 2.6.8.1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Dave Jones <davej@redhat.com>,
-       David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040818192806.A1511@infradead.org>
-References: <20040817220816.GA14343@hardeman.nu>
-	 <20040817233732.GA8264@redhat.com> <20040818004339.A27701@infradead.org>
-	 <20040817234522.GA4170@redhat.com> <1092801681.27352.194.camel@bach>
-	 <20040818101540.A30983@infradead.org>
-	 <1092849766.26057.14.camel@localhost.localdomain>
-	 <20040818192806.A1511@infradead.org>
-Content-Type: text/plain
+	Wed, 18 Aug 2004 14:45:08 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:24979 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S267472AbUHRSpE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 14:45:04 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] enums to clear suspend-state confusion
+Date: Wed, 18 Aug 2004 11:28:00 -0700
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mochel@digitalimplant.org, benh@kernel.crashing.org
+References: <20040812120220.GA30816@elf.ucw.cz> <20040818002711.GD15046@elf.ucw.cz> <1092850283.26049.20.camel@localhost.localdomain>
+In-Reply-To: <1092850283.26049.20.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092850671.26051.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 18 Aug 2004 18:37:51 +0100
+Message-Id: <200408181128.00217.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-18 at 19:28, Christoph Hellwig wrote:
-> Well, aic7xxx also works without a pci version of the card present, even
-> if you compile your kernel with PCI..  I don't want to say we should change
-> the driver to not work anymore if there's not agp support, but that the
-> driver shouldn't try to overengineeredly do all this runtime probing unlike
-> everyone else.
+On Wednesday 18 August 2004 10:31 am, Alan Cox wrote:
+>    It would also be nice
+> to have a driver flag to indicate which devices can simply be
+> hotunplug/hotreplugged over a suspend and don't need extra duplicate
+> code.
 
-Yes but PCI isnt a module that doesn't load if you have no supported AGP
-device
+In fact, that should be the default:  if there's no suspend(),
+use drivers' unplug/replug logic.  Bugs in that code need to be
+fixed regardless of PM being used (or not).
+
+Right now that won't work because of a self-deadlock
+in the PM core, but that's a fixable problem.
 

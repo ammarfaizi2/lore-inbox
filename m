@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRC0H7Y>; Tue, 27 Mar 2001 02:59:24 -0500
+	id <S130873AbRC0IGO>; Tue, 27 Mar 2001 03:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130770AbRC0H7R>; Tue, 27 Mar 2001 02:59:17 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:43272 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S130768AbRC0H7I>; Tue, 27 Mar 2001 02:59:08 -0500
-Message-ID: <3AC04810.223A829E@idb.hist.no>
-Date: Tue, 27 Mar 2001 09:58:08 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gEkJ-0003aF-00@the-village.bc.nu>
+	id <S130902AbRC0IGE>; Tue, 27 Mar 2001 03:06:04 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:32895 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S130873AbRC0IFy>; Tue, 27 Mar 2001 03:05:54 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Steven Walter <srwalter@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange lockups on 2.4.2 
+In-Reply-To: Your message of "Mon, 26 Mar 2001 23:16:27 CST."
+             <20010326231627.A468@hapablap.dyn.dhs.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 27 Mar 2001 18:05:05 +1000
+Message-ID: <5683.985680305@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > >How do you return an out of memory error to a C program that is out of memory
-> > >due to a stack growth fault. There is actually not a language construct for it
-> > SIGSEGV.
-> > Stack overflow for a language like C using standard implementation techniques
-> > is the same as a page fault while accessing a page for which there is no backing
-> > store. SIGSEGV is the logical choice, and the one I'd expect on other Unices.
-> 
-> Guess again. You are expanding the stack because you have no room left on it.
-> You take a fault. You want to report a SIGSEGV. Now where are you
-> going to put the stack frame ?
-> 
-> SIGSEGV in combination with a preallocated alternate stack maybe, but then you
-> still need to recover. C++ you can maybe do it with exception handling but
-> C doesnt really have the structure and longjmp just doesnt cut it.
+On Mon, 26 Mar 2001 23:16:27 -0600, 
+Steven Walter <srwalter@yahoo.com> wrote:
+>This has happened twice, now, though I don't believe its completely
+>reproduceable.  What happens is an Oops, which drops me into kdb.  I've
+>been in X both times, however, which makes kdb rather useless.
 
-Seems to me a guard page would do the trick.  Make the last page of the
-stack
-non-overcommitable and marked not present.  Maybe non-swappable too in
-case
-nothing else can be swapped out for some reason.
-(Yes, that wastes a page per process)
-Whenever we hit the guard page, try expanding the stack.  
-If it works - fine.  If not - make the guard page present _and_ deliver
-the SIGSEGV using this last page of stack.  No complicated alternate
-stack construct, just report OOM one page in advance.
+Documentation/serial-console.txt
 
-OOM is still possible if the program don't handle SIGSEGV well.
-But a smart program now have the option of doing emergency deallocations
-and/or dump its precious intermediate results to file.
+>The thing I find most interesting about this is that only 4 lines of the
+>oops gets into the log.  4 lines, both times.  This time, those lines
+>were:
+>
+> printing eip:
+>c0112e1f
+>Oops: 0002
+>CPU:    0
 
-Helge Hafting
+That is a symptom of a broken klogd.  Always run klogd with the -x
+switch.  If that does not work, take a look at
+
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4/patch-sysklogd-1-3-31-ksymoops-1.gz
+
+One day the sysklogd maintainers might just fix this bug, that bug fix
+is almost 2 years old.
+

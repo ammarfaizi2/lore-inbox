@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262022AbREPRZp>; Wed, 16 May 2001 13:25:45 -0400
+	id <S262018AbREPRZ4>; Wed, 16 May 2001 13:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262021AbREPRZf>; Wed, 16 May 2001 13:25:35 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:43529 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262017AbREPRZb>; Wed, 16 May 2001 13:25:31 -0400
-Date: Wed, 16 May 2001 19:25:12 +0200 (CEST)
-From: Axel Siebenwirth <axel@rayfun.org>
-To: <linux-kernel@vger.kernel.org>
-cc: <realtek@scyld.com>, <realtek-bug@scyld.com>, <linux-net@vger.kernel.org>
-Subject: Transmit time out on eth1 (rtl8139) / dirty entry in queue [again]
-Message-ID: <Pine.LNX.4.33.0105161910230.10819-100000@neon.rayfun.org>
+	id <S262020AbREPRZp>; Wed, 16 May 2001 13:25:45 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:4368 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S262018AbREPRZe>; Wed, 16 May 2001 13:25:34 -0400
+Date: Wed, 16 May 2001 10:25:32 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.20pre2aa1
+In-Reply-To: <20010516160412.B15796@athlon.random>
+Message-ID: <Pine.LNX.4.33.0105161018440.25320-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, 16 May 2001, Andrea Arcangeli wrote:
 
-this old problem I had been faced with had been solved with 2.4.3-ac13/14,
-but now with kernel 2.4.4-ac9 and all other 2.4.4-acx it came up again.
-It's a Realtek 8139C chip on a AT2500 (allied telesyn or sumpin like that)
+> On Tue, May 15, 2001 at 08:33:05PM -0700, dean gaudet wrote:
+> > apache since 1.3.15 has defined SINGLE_LISTEN_UNSERIALIZED_ACCEPT ...
+>
+> That's definitely a good thing.
 
-Instead the former
+hmm, i'm not so sure -- 1.3.x is our stable release, and it sounds like
+this change has added an instability.
 
-  Apr 24 16:16:57 bello kernel: eth1: Setting half-duplex based on
-    auto-negotiated partner ability 0000.
+> > 'cause that's what you guys asked me to do :)  does this mean there are
+> > known hangs on linux 2.2.x without your fix?
+>
+> I never heard of anybody reproducing that but accpet() in 2.2
+> can _definitely_ miss events without the above 00_wake-one-4 patch
+> because it wrongly considers a progress wakeing up two times the same
+> exclusive task.
 
-I have now an unconnected cable which is not the fact:)
+i'm guessing from your description that the missed event will be noticed
+when the next socket arrives.  i.e. if the server is pretty busy then the
+missed events are not important.  but if it's not a busy server, like a
+hit every hour, then the missed event may be noticeable to browsers (as a
+timeout waiting for server activity).
 
-  May 16 15:20:26 bello kernel: eth1: media is unconnected, link down, or
-    incompatible connection
-  May 16 15:20:44 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
-  May 16 15:20:44 bello kernel: eth1: Tx queue start entry 783  dirty
-    entry 779.
-  May 16 15:20:44 bello kernel: eth1:  Tx descriptor 0 is 00002000.
-  May 16 15:20:44 bello kernel: eth1:  Tx descriptor 1 is 00002000.
-  May 16 15:20:44 bello kernel: eth1:  Tx descriptor 2 is 00002000.
-  May 16 15:20:44 bello kernel: eth1:  Tx descriptor 3 is 00002000. (queue
-  head)
-  May 16 15:20:44 bello kernel: eth1: media is unconnected, link down, or
-    incompatible connection
+does that pretty much sum it up?
 
-Could I adjust some values, like tx buffer to get it to work?
-Please excuse my unscientific nature.
-I can as well supply any more information about the scenario...
+> Furthmore the exclusive wakeup logic with the exclusive information
+> per-task and not per wait_queue_t will screwup if the tasks registers
+> itself like a wakeall after it was just registered as wakeone somewhere
+> else (however this second thing is more a theorical issue that shouldn't
+> trigger in 2.2).
 
-Regards,
-Axel Siebenwirth
+i.e. if the socket was used both in accept() and in select() at the same
+time?  (which apache doesn't do)
+
+thanks
+-dean
 

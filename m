@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131468AbRDBWoU>; Mon, 2 Apr 2001 18:44:20 -0400
+	id <S131429AbRDBWku>; Mon, 2 Apr 2001 18:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131459AbRDBWoL>; Mon, 2 Apr 2001 18:44:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34065 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131424AbRDBWnz>; Mon, 2 Apr 2001 18:43:55 -0400
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-To: jsimmons@linux-fbdev.org (James Simmons)
-Date: Mon, 2 Apr 2001 23:44:37 +0100 (BST)
-Cc: lk@tantalophile.demon.co.uk (Jamie Lokier),
-   linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-   linux-fbdev-devel@lists.sourceforge.net (Linux Fbdev development list)
-In-Reply-To: <Pine.LNX.4.31.0103301959010.743-100000@linux.local> from "James Simmons" at Mar 30, 2001 08:11:39 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131424AbRDBWkk>; Mon, 2 Apr 2001 18:40:40 -0400
+Received: from hyperion.expio.net.nz ([202.27.199.10]:34576 "EHLO expio.co.nz")
+	by vger.kernel.org with ESMTP id <S131459AbRDBWk3>;
+	Mon, 2 Apr 2001 18:40:29 -0400
+Message-ID: <011f01c0bbc5$ffc92e60$1400a8c0@expio.net.nz>
+From: "Simon Garner" <sgarner@expio.co.nz>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14kCnK-0006pa-00@the-village.bc.nu>
+Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
+Date: Tue, 3 Apr 2001 10:40:36 +1200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kD3w-0006qD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes this is problem. See my response to Paul about this. The only reason
-> I'm using MMX for the vesa framebuffer because it has no acceleration. MMX
-> gives a big boost for genuine intel chips. Other types of MMX are fast but
-> they don't seemed to be optimized for memory transfers like MMX on intel
-> chips. I also have regular code that does all kinds of tricks to optimize
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
 
-Then you are doing something badly wrong.
+> > I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
+> > 2.4.2 (debian woody).  In addition, the kernel would sometimes hang
+> > around NMI watchdog enable.  At least, I think it's trying to
+>
+> Known problem. Thats one reason why -ac trees had nmi watchdog turned off.
 
-The MMX memcpy for CyrixIII and Athlon boxes is something like twice the
-speed of rep movs. On most pentium II/III boxes the fast paths for rep movs
-and for MMX are the same speed
 
-Alan
+It still crashes with nmi_watchdog turned off.
+
+Running with noapic fixes it but then the system crashes if you access the
+RTC with hwclock (and probably creates a hundred other problems...).
+
+How can I get this chipset/motherboard supported properly under Linux? I'm
+happy to test patches etc. on the box. *pleading*
+
+
+Cheers
+
+Simon Garner
 

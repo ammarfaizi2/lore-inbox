@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265427AbUBITBc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 14:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbUBITBc
+	id S265333AbUBITUo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 14:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUBITUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 14:01:32 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:13575 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S265427AbUBITB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 14:01:29 -0500
-Date: Mon, 9 Feb 2004 20:01:54 +0100 (CET)
-From: Urban Widmark <Urban.Widmark@enlight.net>
-X-X-Sender: puw@cola.local
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: SET_UID usage in smbfs
-Message-ID: <Pine.LNX.4.44.0402091947010.25886-100000@cola.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Feb 2004 14:20:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52107 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265333AbUBITUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 14:20:44 -0500
+Date: Mon, 9 Feb 2004 11:22:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Karsten Keil <kkeil@suse.de>
+Cc: liste@jordet.nu, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.3-rc1-mm1
+Message-Id: <20040209112207.4e7d97c9.akpm@osdl.org>
+In-Reply-To: <20040209115618.GA7639@pingi3.kke.suse.de>
+References: <20040209014035.251b26d1.akpm@osdl.org>
+	<1076320225.671.7.camel@chevrolet.hybel>
+	<20040209022453.44e7f453.akpm@osdl.org>
+	<20040209115618.GA7639@pingi3.kke.suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karsten Keil <kkeil@suse.de> wrote:
+>
+> I have also BitKeeper running here with a clone of the linux-2.5
+> tree,
 
-Hello
+Is this the master tree, or is this a copy of what is in i4l CVS?
 
-I'm wondering about this change in smbfs:
-
--		mnt->uid = OLD_TO_NEW_UID(oldmnt->uid);
--		mnt->gid = OLD_TO_NEW_GID(oldmnt->gid);
-+		SET_UID(mnt->uid, oldmnt->uid);
-+		SET_GID(mnt->gid, oldmnt->gid);
-
-"OLD_TO_NEW_UID" took an old 16bit uid and returned a uid_t
-(using low2highuid when appropriate).
-
-SET_UID(var, uid) wants uid to be uid_t and may decide to use high2lowuid.
-
-Was low2highuid not needed in the first place or is the change wrong?
-It gives a compile warning about the comparison.
-
-
-Bitkeeper lists the author as "ak@de[torvalds]". But it also says I'm 11
-weeks late and that can't possibly be true ... :)
-
-/Urban
-
+Either way, let's find a way in which I can obtain the latest version and
+also be kept up to date with any fixes.  Thanks.

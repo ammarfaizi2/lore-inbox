@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSHMIgZ>; Tue, 13 Aug 2002 04:36:25 -0400
+	id <S314077AbSHMIj3>; Tue, 13 Aug 2002 04:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSHMIgZ>; Tue, 13 Aug 2002 04:36:25 -0400
-Received: from romulus.cs.ut.ee ([193.40.5.125]:55444 "EHLO romulus.cs.ut.ee")
-	by vger.kernel.org with ESMTP id <S313477AbSHMIgX>;
-	Tue, 13 Aug 2002 04:36:23 -0400
-Date: Tue, 13 Aug 2002 11:40:08 +0300 (EEST)
-From: Meelis Roos <mroos@cs.ut.ee>
-To: kuznet@ms2.inr.ac.ru
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux TCP problem while talking to hostme.bkbits.net ?
-In-Reply-To: <200208121732.VAA18612@sex.inr.ac.ru>
-Message-ID: <Pine.GSO.4.43.0208131137110.14316-100000@romulus.cs.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314138AbSHMIj3>; Tue, 13 Aug 2002 04:39:29 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31186 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314077AbSHMIj2>;
+	Tue, 13 Aug 2002 04:39:28 -0400
+Date: Tue, 13 Aug 2002 10:42:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Erik Andersen <andersen@codepoet.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+Message-ID: <20020813084257.GU5583@suse.de>
+References: <20020811215914.GC27048@codepoet.org> <Pine.LNX.4.44.0208122357590.3620-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208122357590.3620-100000@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is that checksum in tcpdump is OK.
-> This smells really bad.
->
-> I feel you have to hunt where exactly the segment is dropped
-> and TCPInErrs is incremented.
+On Mon, Aug 12 2002, Marcelo Tosatti wrote:
+> 
+> 
+> On Sun, 11 Aug 2002, Erik Andersen wrote:
+> 
+> > --- drivers/cdrom/cdrom.c~	Sun Aug 11 15:37:20 2002
+> > +++ drivers/cdrom/cdrom.c	Sun Aug 11 15:37:24 2002
+> > @@ -1916,6 +1916,7 @@
+> >  {
+> >  	struct cdrom_device_ops *cdo = cdi->ops;
+> >  	struct cdrom_generic_command cgc;
+> > +	struct request_sense sense;
+> >  	kdev_t dev = cdi->dev;
+> >  	char buffer[32];
+> >  	int ret = 0;
+> > @@ -1951,9 +1952,11 @@
+> >  		cgc.buffer = (char *) kmalloc(blocksize, GFP_KERNEL);
+> >  		if (cgc.buffer == NULL)
+> >  			return -ENOMEM;
+> > +		memset(&sense, 0, sizeof(sense));
+> > +		cgc.sense = &sense;
+> >  		cgc.data_direction = CGC_DATA_READ;
+> >  		ret = cdrom_read_block(cdi, &cgc, lba, 1, format, blocksize);
+> > -		if (ret) {
+> > +		if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+> 
+> Do you really need to hardcode this values ?
 
-Things got stranger. The symptoms started to appear on other connections
-too (slashdot web for example). TCP bad packet count increased and no
-success was made. I did a reboot with the same kernel (2.4.19+bk of some
-state, 4. Aug probably) and it just started to work with the same kernel
-image.
-
-Now I will test and see if the symptoms appear again after some days.
+the values above are well known to anyone familiar with atapi and/or
+scsi, so it's not a worry. the patch looks good to me, I can recommend
+it for inclusion.
 
 -- 
-Meelis Roos             e-mail: mroos@ut.ee
-                        www:    http://www.cs.ut.ee/~mroos/
+Jens Axboe
 

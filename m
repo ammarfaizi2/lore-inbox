@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUFCXzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUFCX4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUFCXzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 19:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbUFCXzK
+	id S264922AbUFCX4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 19:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUFCX4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 19:55:10 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:32428 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S264902AbUFCXyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 19:54:54 -0400
-Message-ID: <40BFBA3F.4000304@myrealbox.com>
-Date: Thu, 03 Jun 2004 16:54:39 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: mingo@elte.hu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, arjanv@redhat.com, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <20040603124448.GA28775@elte.hu> <20040603175422.4378d901.ak@suse.de> <40BFADE5.9040506@myrealbox.com> <20040603230834.GF868@wotan.suse.de>
-In-Reply-To: <20040603230834.GF868@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 19:56:13 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32398 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264922AbUFCXzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 19:55:47 -0400
+Date: Thu, 3 Jun 2004 16:38:28 -0700
+From: Greg KH <greg@kroah.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1
+Message-ID: <20040603233828.GA27504@kroah.com>
+References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602132654.GY2093@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602132654.GY2093@holomorphy.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
->>The whole point of NX, though, is that it prevents certain classes of 
->>exploits.  If a setuid binary is vulnerable to one of these, then Ingo's 
->>patch "fixes" it.  Your approach breaks that.
+On Wed, Jun 02, 2004 at 06:26:54AM -0700, William Lee Irwin III wrote:
+> On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
+> > - NFS server udpates
+> > - md updates
+> > - big x86 dmi_scan.c cleanup
+> > - merged perfctr.  No documentation though :(
+> > - cris architecture update
 > 
-> 
-> Good point.
-> 
-> But that only applies to the NX personality bit. For the uname emulation
-> it is not an issue.
-> 
-> So maybe the dropping on exec should only zero a few selected 
-> personality bits, but not all.
+> Fix warnings about various structs declared inside parameter lists and so
+> on seen while compiling compat_ioctl.c.
 
-True.
+Doesn't apply to my, or a clean -rc2 tree :(
 
->>I don't like Ingo's fix either, though.  At least it should check 
->>CAP_PTRACE or some such.  A better fix would be for LSM to pass down a flag 
->>indicating a change of security context.  I'll throw that in to my 
->>caps/apply_creds cleanup, in case that ever gets applied.
-> 
-> 
-> Don't think we should require an LSM module for that. That's 
-> far overkill.
+Probably needs to be sent to Vojtech and put in his tree.
 
-I'm not suggesting a new LSM module.  I'm suggesting modifying the existing 
-LSM code to handle this cleanly.  We already have a function 
-(security_bprm_secureexec) that does something like this, and, in fact, 
-it's probably the right thing to test here.
+thanks,
 
-I'm currently compiling a new patch (modified from my last caps cleanup) 
-that makes a new bitfield for this stuff.  I don't know if it's worth 
-applying, but I'll send it off to Andrew once I convince myself it works.
-
---Andy
-
+greg k-h

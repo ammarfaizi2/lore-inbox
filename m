@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269616AbUIRTSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269617AbUIRT0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269616AbUIRTSM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 15:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUIRTSM
+	id S269617AbUIRT0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 15:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269618AbUIRT0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 15:18:12 -0400
-Received: from DSL212-235-94-60.bb.netvision.net.il ([212.235.94.60]:20352
-	"EHLO localhost") by vger.kernel.org with ESMTP id S269616AbUIRTSJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 15:18:09 -0400
-Date: Sat, 18 Sep 2004 23:20:55 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97    
-     patch)
-Message-ID: <20040918232055.00cb25b0@localhost>
-In-Reply-To: <MPG.1bb665cd5b40a4ed9896f1@news.gmane.org>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
-	<20040912011128.031f804a@localhost>
-	<Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net>
-	<20040914175949.6b59a032@sashak.lan>
-	<MPG.1bb164a85e6c9d459896e9@news.gmane.org>
-	<20040915035820.1cdccaa5@localhost>
-	<MPG.1bb4d933f584efee9896f0@news.gmane.org>
-	<20040918142900.06a9ff96@localhost>
-	<MPG.1bb665cd5b40a4ed9896f1@news.gmane.org>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Sep 2004 15:26:25 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:13532 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S269617AbUIRT0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 15:26:02 -0400
+Message-ID: <414C8BC4.30303@softhome.net>
+Date: Sat, 18 Sep 2004 21:25:56 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: udev is too slow creating devices
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Sep 2004 16:35:32 +0200
-Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
+> The fact that a static /dev keeps these race conditions from showing up
+> as often as they really are there is no reason to keep trying to rely on
+> old, undefined behaviour :)
 
-> Ok, I found the reason of the latter failure: in 2.6.7 I have 
-> ISA-PnP enabled (not in 2.6.5) and this loads the parport 
-> driver before the sound driver. parport steals the IRQ.
-> 
-> Module loading order is important: if I load the i8x0 sound 
-> modules first, the messages are more or less the same as the 
-> ones in 2.6.5 (including the "MC'97 1 converters and GPIO not 
-> ready" message), and then parport accepts IRQ 7 to be taken by 
-> resorting to polled operation:
-> 
-> > parport: PnPBIOS parport detected.
-> > parport0: PC-style at 0x378 (0x778), irq 7, dma 1 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-> > parport0: irq 7 in use, resorting to polled operation
+   [ I'm late to discussion, and do not have much time at all.
+   Just observation from aside by driver writer and OS builder. ]
 
-I don't know really, but suppose that parport does not accept irq sharing.
+   You really do not solve problem - problem as I see it - but just move 
+it around.
 
-> I will. Do you have any idea on the "not ready" issue?
+   When I did first release of device driver for some obscure device, I 
+used to wait in init script for "touch /dev/whatever" to be Ok. My 
+device was ok with dumb open()/close() sequence.
 
-This one is more interesting, probably special patch is necessary for conexant codec, let's see.
+   What I was really missing - is a way to tell user space that not only 
+driver loaded Ok, but that device was found, diagnosed and upped Ok. 
+Diagnostics was taking time - that's why I tryed to do it async. While 
+device does some inernal spinning, I can load up other drivers.
 
-Please report bug to alsa and attach there output of 'lspci -vv' and tar of '/proc/asound' directory (or send to me).
+   I haven't found any reasonable solution. module_init() is locking 
+everything - I cannot load any other module, while one module is 
+loading. But from user space point of view this is the only way to 
+return error from device driver.
 
-Let's detach from linux-kernel list - things become pure-ALSA related.
+   IOW, mapping my experience to this discussion, we need to have a way 
+for user space to wait for discover process to end. After all user space 
+knows better than enyone in kernel what to expect from loaded driver.
 
-Thanks,
-Sasha.
+   We are not talking about hot-plug and preloading of modules. We are 
+talking more about the case where system cannot go on without requested 
+device & its device node. We need a way for modprobe to be able to wait 
+for driver initialization phases (we do not have them - make it sense to 
+have them?): driver initialization, device discovery, device 
+initialization, device node ready. So then user space will be able to 
+wait for driver to reach any of given phases. If init script needs 
+/dev/sda1 and after all phases completed Ok we failed to locate it - it 
+can mean only one thing - /dev/sda1 is not here. Since modprobe will 
+wait - it will mean that we will be able to return error, if any. IMHO 
+that what need to be implemented. Polling is crappy solution: we do not 
+need to poll for something we can reliably find out.
 
+   We have all info in kernel in drivers - we need a way to give it back 
+to user space for both play nice with each other.
+
+   My 0.02 Euro.

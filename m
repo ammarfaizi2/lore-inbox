@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318852AbSG0W45>; Sat, 27 Jul 2002 18:56:57 -0400
+	id <S318853AbSG0W66>; Sat, 27 Jul 2002 18:58:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318853AbSG0W45>; Sat, 27 Jul 2002 18:56:57 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:62922 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S318852AbSG0W44>; Sat, 27 Jul 2002 18:56:56 -0400
-From: "Buddy Lumpkin" <b.lumpkin@attbi.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Austin Gonyou" <austin@digitalroadkill.net>,
-       <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "Ville Herva" <vherva@niksula.hut.fi>, "DervishD" <raul@pleyades.net>,
-       "Linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: About the need of a swap area
-Date: Sat, 27 Jul 2002 16:01:05 -0700
-Message-ID: <FJEIKLCALBJLPMEOOMECCEPJCPAA.b.lumpkin@attbi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1027814596.21511.5.camel@irongate.swansea.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
-Importance: Normal
+	id <S318854AbSG0W66>; Sat, 27 Jul 2002 18:58:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:56484 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318853AbSG0W66>;
+	Sat, 27 Jul 2002 18:58:58 -0400
+Date: Sat, 27 Jul 2002 16:01:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] Re: Serial Oopsen caused by global IRQ chanes
+Message-ID: <20020727230150.GP25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20020727191119.C32766@flint.arm.linux.org.uk> <Pine.LNX.4.44.0207272034210.19384-100000@localhost.localdomain> <20020727223617.GO25038@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020727223617.GO25038@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Why would you want to push *anything* to swap until you have to?
+On Sat, Jul 27, 2002 at 08:43:04PM +0200, Ingo Molnar wrote:
+>> the attached patch fixes a synchronize_irq() bug: if the interrupt is 
+>> freed while an IRQ handler is running (irq state is IRQ_INPROGRESS) then 
 
->To reduce the amount of disk access
+On Sat, Jul 27, 2002 at 03:36:17PM -0700, William Lee Irwin III wrote:
+> I'm having trouble with this one, I seem to get lots of these messages:
+> pu: 12, clocks: 99983, slice: 3029
+> CPU12<T0:99968,T1:60576,D:15,S:3029,C:99983>
+> CPU 12 IS NOW UP!
 
-So in Solaris, the scanner is going to eventually wake up as long as your
-doing filesystem I/O, it's just a question of how long it takes to reach
-lotsfree.
-During that time it caches anything and everything in physical memory.
-Are you implying that it should be looking for pages to swap out this whole
-time to free up more space for filesystem and executable pages purely based
-on lru? Have you done testing to prove that this is a better approach than
-setting a threshold of when to wake up the lru mechanism?
+Sorry, this is the hotplug stuff which surprised me, but is unrelated
+to any deadlock (unless it's printk'ing at a bad time, which I doubt).
+Thought it was an arch complaint about trying to wake already-woken cpus.
 
->> Dirty filesystem pages have to be flushed to disk, it's just a question
-of
+On Sat, Jul 27, 2002 at 03:36:17PM -0700, William Lee Irwin III wrote:
+> ... and then the kernel deadlocks after free_initmem()'s printk().
 
->Clean ones do not. Dirty ones are also copied to disk but remain in
->memory for reread events. They may also be deleted before being written.
+Seems to be timing related, printk's in init/main.c made it go away.
+ISTR hearing something about hotplug merge troubles, I'll investigate
+that thread and report results with the fixes posted there.
 
-Solaris keeps dirty pages after they have been flushed to their backing
-store, it's just when the system has to choose something to flush that it
-preferences filesystem over anonymous and executable, what's wrong with
-that?
-
-
->> and it's pretty relative what "long unaccessed" means ..
-
->In the Linux case the page cache is basically not discriminating too
->much about what page is (and it may be several things at once - cache,
->executing code and file data) just its access history.
-
-Interesting ...
-
-
+Cheers,
+Bill

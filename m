@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUBNV7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 16:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUBNV7n
+	id S263760AbUBNWGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 17:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbUBNWGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 16:59:43 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:61675 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S263448AbUBNV7m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 16:59:42 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Simon Gate <simon@noir.se>
-Subject: Re: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
-Date: Sat, 14 Feb 2004 22:59:26 +0100
-User-Agent: KMail/1.6.50
-References: <20040214224348.67102cfd.simon@noir.se>
-In-Reply-To: <20040214224348.67102cfd.simon@noir.se>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 14 Feb 2004 17:06:55 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:165 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263760AbUBNWGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 17:06:51 -0500
+Date: Sat, 14 Feb 2004 17:06:47 -0500
+From: Willem Riede <wrlk@riede.org>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Selective attach for ide-scsi
+Message-ID: <20040214220647.GE4957@serve.riede.org>
+Reply-To: wrlk@riede.org
+References: <20040208224248.GA28026@serve.riede.org> <16423.17315.777835.128816@alkaid.it.uu.se> <20040210000205.GG28026@serve.riede.org> <20040211121120.A24289@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200402142259.34836.mbuesch@freenet.de>
+In-Reply-To: <20040211121120.A24289@beaverton.ibm.com> (from patmans@us.ibm.com on Wed, Feb 11, 2004 at 15:11:20 -0500)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Saturday 14 February 2004 22:43, you wrote:
-> Changed from kernel 2.6.1 to 2.6.2 an get this error in dmesg
+On 2004.02.11 15:11, Patrick Mansfield wrote:
+> On Mon, Feb 09, 2004 at 07:02:05PM -0500, Willem Riede wrote:
+> > On 2004.02.09 03:24, Mikael Pettersson wrote:
+> > > Willem Riede writes:
 > 
-> psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+> > > The patch I posted, which you apparently didn't like, doesn't
+> > > require the use of boot-only options: it instead adds a module_param
+> > > to ide-scsi which allows for greater flexibility.
+> > > 
+> > > Personally I never liked that butt-ugly hdX=ide-scsi hack.
+> > 
+> > I hear you. There are certainly advantages to use a module parameter rather
+> > than a boot argument.
 > 
-> My mouse goes crazy for a few secs and then returns to normal for a while. Is this a 2.6.2 problem or is this is something old?
+> But module_param allows module arguments when built as a module, and boot
+> arguments when built into the kernel.
+> 
+> > However, there should not be two mechanisms to achieve the same goal. For
+> > better or for worse, the hdX=<driver> construction exists, and people are
+> > using it. Its use is not limited to ide-scsi.
+> 
+> So does module_param not work because the usage is across modules? That
+> seems odd.
 
-here's the fix:
+I wasn't making myself clear, it seems.
 
-- --- linux-2.6.3-rc2/drivers/input/serio/i8042.c.orig	2004-02-10 21:33:21.000000000 +0100
-+++ linux-2.6.3-rc2/drivers/input/serio/i8042.c	2004-02-10 21:37:03.000000000 +0100
-@@ -379,6 +379,8 @@
- 	unsigned int dfl;
- 	int ret;
- 
-+	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-+
- 	spin_lock_irqsave(&i8042_lock, flags);
- 	str = i8042_read_status();
- 	if (str & I8042_STR_OBF)
-@@ -433,7 +435,6 @@
- irq_ret:
- 	ret = 1;
- out:
-- -	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
- 	return IRQ_RETVAL(ret);
- }
- 
+The hdX= construct applies to the entire ide subsystem, which for the vast
+majority of people means it has to be specified at boot time, as ide is
+compiled in.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+If we were to have an ide-scsi module option to tell it which hdX units to
+attach to, that would be more flexible than having to tell ide, since I can
+then rmmod/insmod ide-scsi if I want to change my mind, whereas I must reboot
+if I need to change what I tell ide.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+The advantage of the hdX ide parameter is that it applies to the entire ide 
+subsystem, and therefor influences ide-cd, ide-scsi, ide-tape.
 
-iD8DBQFALppFFGK1OIvVOP4RAtHeAKDWzyU7PgdkwhhYrY3t+Zvqmv4aagCdHbNv
-VUwVin8INy2JiK9+x6VMFr0=
-=qV4u
------END PGP SIGNATURE-----
+The main reason I see for sticking with the hdX= construct is that I think
+that introducing competing mechanisms that achieve much the same objective
+is a bad thing.
+
+Regards, Willem Riede.

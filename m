@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbTEFV2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 17:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTEFV2N
+	id S261965AbTEFVe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 17:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTEFVe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 17:28:13 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:34266 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S261915AbTEFV2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 17:28:12 -0400
-Date: Tue, 6 May 2003 23:38:53 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl cleanups: move SG_IO translation where it belongs
-Message-ID: <20030506213853.GA5615@elf.ucw.cz>
-References: <20030506200311.GA5520@elf.ucw.cz> <1052252472.23104.11.camel@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 May 2003 17:34:27 -0400
+Received: from siaab1ab.compuserve.com ([149.174.40.2]:9619 "EHLO
+	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261965AbTEFVeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 17:34:25 -0400
+Date: Tue, 6 May 2003 17:44:37 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <200305061746_MC3-1-37B4-7931@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052252472.23104.11.camel@averell>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton wrote:
 
-> > This enables sharing of 200 lines of SG_IO support by all 64-bit
-> > architectures. If it looks okay, more such patches will follow.
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >
+> > It seems the heuristic is more complicated
 > 
-> 
-> I currently have some patches for this function pending. When an
-> unchanged data buffer is passed it is ok to just verify_area it, no need
-> to kmalloc and copy. This simplifies this handler vastly.
-> 
-> Here is the part from the 2.4 patch; haven't tried it with 2.5 yet,
-> but should apply there too.
-> 
-> Also adds some boundary checking.
+> Any suggestions?
 
-I'll merge it. Can you mail me whole 2.4 patch [I had it but deleted
-it, sorry]. I'll attempt to port it to 2.5 and return it back to
-you...
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ Does this pseudocode look like it would work?  It should make it
+only complain if two or more interrupts in a row go unhandled.
+
+   
+int last_irq_was_dropped[NR_IRQS];
+
+/* call each handler in turn for this irq */
+
+for (each_driver(irq)) {
+        ret = call_driver();
+        if (ret == irq_handled) {
+                if (unlikely(last_irq_was_dropped[irq])
+                        last_irq_was_dropped[irq] = 0;
+                break;
+        }
+}
+if (ret != irq_handled) {
+        if (unlikely(last_irq_was_dropped[irq]))
+                complain();
+        else
+                last_irq_was_dropped[irq] = 1;
+}

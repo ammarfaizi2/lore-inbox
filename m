@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbRFGOvQ>; Thu, 7 Jun 2001 10:51:16 -0400
+	id <S262662AbRFGO6H>; Thu, 7 Jun 2001 10:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbRFGOu5>; Thu, 7 Jun 2001 10:50:57 -0400
-Received: from alpo.casc.com ([152.148.10.6]:13233 "EHLO alpo.casc.com")
-	by vger.kernel.org with ESMTP id <S262660AbRFGOux>;
-	Thu, 7 Jun 2001 10:50:53 -0400
-From: John Stoffel <stoffel@casc.com>
+	id <S262683AbRFGO55>; Thu, 7 Jun 2001 10:57:57 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:4 "HELO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with SMTP id <S262662AbRFGO5q>;
+	Thu, 7 Jun 2001 10:57:46 -0400
+Date: Thu, 7 Jun 2001 15:20:03 +0300 (EEST)
+From: "L. K." <lk@Aniela.EU.ORG>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <3B1F51DB.54BE78CA@iph.to>
+Message-ID: <Pine.LNX.4.21.0106071519120.3702-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15135.37871.373389.465893@gargle.gargle.HOWL>
-Date: Thu, 7 Jun 2001 10:47:11 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] Reap dead swap cache earlier v2
-In-Reply-To: <Pine.LNX.4.21.0106061705250.3769-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0106061705250.3769-100000@freak.distro.conectiva>
-X-Mailer: VM 6.92 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Marcelo> As suggested by Linus, I've cleaned the reapswap code to be
-Marcelo> contained inside an inline function. (yes, the if statement
-Marcelo> is really ugly)
-
-Shouldn't the "swap_count(page) == 1" check be earlier in the if
-statement, so we can fall through more quickly if there is no work to
-be done?  A small optimization, but putting the common cases first
-will help.
-
-Marcelo> +static inline int clean_dead_swap_page (struct page* page)
-Marcelo> +{
-Marcelo> +	int ret = 0;
-Marcelo> +	if (!TryLockPage (page)) { 
-Marcelo> +		if (PageSwapCache(page) && PageDirty(page) &&
-Marcelo> +				(page_count(page) - !!page->buffers) == 1 &&
-Marcelo> +				swap_count(page) == 1) { 
-Marcelo> +			ClearPageDirty(page);
-Marcelo> +			ClearPageReferenced(page);
-Marcelo> +			page->age = 0;
-Marcelo> +			ret = 1;
-Marcelo> +		}
+Why not make it in Celsius ? Is more easy to read it this way.
 
 
-Thanks,
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+
+On Thu, 7 Jun 2001, Philips wrote:
+
+> Hello All!
+> 
+> 	Kelvins good idea in general - it is always positive ;-)
+> 
+> 	0.01*K fits in 16 bits and gives reasonable range.
+> 
+> 	but may be something like K<<6 could be a option? (to allow use of shifts
+> instead of muls/divs). It would be much more easier to extract int part.
+> 
+> 	just my 2 eurocents.
+

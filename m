@@ -1,86 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262675AbSJGXmI>; Mon, 7 Oct 2002 19:42:08 -0400
+	id <S263271AbSJGXaj>; Mon, 7 Oct 2002 19:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262637AbSJGXmI>; Mon, 7 Oct 2002 19:42:08 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:15117 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262675AbSJGXmF>; Mon, 7 Oct 2002 19:42:05 -0400
-Date: Mon, 7 Oct 2002 16:47:41 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not3.0 - (NUMA))
-Message-ID: <20021007234740.GA6537@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1034021669.26502.19.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.33.0210071331220.10749-100000@penguin.transmeta.com> <3DA1F9AD.1F3BF949@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA1F9AD.1F3BF949@digeo.com>
-User-Agent: Mutt/1.3.27i
+	id <S263445AbSJGXaj>; Mon, 7 Oct 2002 19:30:39 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:34996 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S263271AbSJGXah>; Mon, 7 Oct 2002 19:30:37 -0400
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: partnership
+Date: Mon, 7 Oct 2002 18:36:02 -0500
+Message-ID: <001301c26e5a$52b6f830$1d873841@joe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 1 (Highest)
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <20021007212530Z263412-8740+8941@vger.kernel.org>
+Importance: High
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 02:16:29PM -0700, Andrew Morton wrote:
-> Linus Torvalds wrote:
-> > 
-> > On 7 Oct 2002, Alan Cox wrote:
-> > >
-> > > Factoring the uid/gid/pid in actually may help in other ways. If we are
-> > > doing it by pid or by uid we will reduce the interleave of multiple
-> > > files thing you sometimes get
-> > 
-> > 'pid' would probably work better than what we have now, even though I bet
-> > it would get confused by a large number of installers (ie "make install"
-> > in just about any project will use multiple different processes to copy
-> > over separate subdirectories. In the X11R6 tree it uses individual "cp"
-> > processes for each file!)
-> > 
-> > The session ID would avoid some of that, but they both have a fundamental
-> > problem: neither pid nor session ID is actually saved in any directory
-> > structure, so it's quite hard to use that as a heuristic for whether a new
-> > file should go into the same directory group as the directory it is
-> > created in.
-> > 
-> > That's why "uid" would work better.
-> 
-> Sound good to me.  At leat this puts a veneer of respectability over
-> decapitating find_group_other(), which is really what we all want
-> to do anyway ;)
-> 
-> > The uid has a different issue, though,
-> > namely the fact that when user directories are created, they are basically
-> > always created as uid 0 first, and then a "chown" - which means that the
-> > user heuristic wouldn't actually trigger at the right time. So the
-> > heuristic couldn't be just "newfile->uid == directory->uid", it would have
-> > to be something better.
-> 
-> Last time, Al suggested that we always use the find_group_other() approach
-> if the directory is being made at the top-level of the filesystem.  So
-> if /home is a mountpoint, the user directories get spread out.
-> 
-> I think this, and the UID comparison will be good enough.
+WARNING: This may be a front for money laundering to terrorism or
+terrorist logistics support!
 
-How about UID == 0?  Other than install and restore tree
-creation (top levels) is done by root but tree population
-tends to be done by non-root.  That would cause /home/* or
-/project/* etc to be in seperate groups but the contents of
-each would (mostly) have locality. 
+The U.S. government said that Osama Bin Ladin owned several South
+African diamond mines.  This may be an attempt to traffic money that has
+otherwise been cut off.
 
-Let's see, that would be..
+Consider yourself warned!
 
--       if (S_ISDIR(mode))
-+       if (S_ISDIR(mode) && !current->fsuid)
-                group = find_group_dir(sb, dir->u.ext2_i.i_block_group);
-        else
-                group = find_group_other(sb, dir->u.ext2_i.i_block_group);
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jonathan Khomo
+(Mr)
+Sent: Monday, October 07, 2002 3:36 PM
+To: linux-kernel@vger.kernel.org
+Subject: partnership
+
+>From the Desk of: Mr Jonathan Khomo. B.Sc.(SAU) M.Sc.,MNIM 
+Member, SADMNR 
+_______________________________________________________ 
+DEPARTMENT OF MINERALS AND ENERGY, PRETORIA, SOUTH AFRICA. 
+
+Attn.President/CEO. 
+Sir, 
+It is my great pleasure to write you this letter on behalf of my
+colleagues 
+.Your information was given to me by a member of the South African
+Export 
+Promotion Council (SAEPC)Who was with the Government delegation on a 
+trip to your country for a bilateral 
+conference talk to encourage foreign investors. 
+
+I have decided to seek a confidential co-operation with you in the
+execution 
+of the deal hereunder for the benefit of all parties and hope you
+willkeep 
+it confidential because of the nature of this business. 
+
+Within the Department of Minerals & Energy where I work as a Director 
+of Audit and Project Implementation and with the co-operation of two 
+other top officials, we have in our possession an overdue payment in 
+US funds. 
+
+The said funds represent certain percentage of the total contract value 
+executed on behalf of my department by a foreign contracting firm which 
+we the officials over-invoiced to the amount of
+US$14.500,000.00(Fourteen 
+Million Five Hundred Thousand US Dollars). 
+
+Though the actual contract cost has been paid to the original
+contractor,leaving 
+the excess balance unclaimed.Since the present elected Government 
+is determined to pay foreign contractors all debts owed,so as to
+maintain 
+good relationship with foreign governments and non-government
+agencies,we 
+included our bills for approvals with the Department of Finance and the 
+Reserve Bank of South Africa (RBSA). 
+
+We are seeking your assistance to front as beneficiary of the unclaimed 
+funds, since we are not allowed to operate foreign accounts.Details and 
+change of beneficiary information upon application for claim 
+to reflect payment and approvals will be secured on behalf of you/your 
+company. 
+
+I have the authority of my partners involved to propose that should you 
+be willing to assist us in this transaction your share as compensation 
+will be US$3.625m (25%), while my colleagues and I receive
+US$9.425m(65%)and 
+the balance of US$1.450m (10%)for taxation and miscellaneous expenses 
+incurred. 
+
+The business is completely safe and secure, provided you treat it with 
+utmost confidentiality.It does not matter whether you/your company does 
+contract projects as a transfer of powers will be secured in favour of 
+you/your company. Also, your area of specialization is not a hindrance 
+to the successful execution of this transaction. 
+
+I have reposed my confidence in you and hope that you will not
+disappoint 
+us. 
+
+Kindly notify me by email at (jkhomo1@post.com
+</cgi-bin/compose?curmbox=F000000001&a=ee22b4be97580fd052652a1c093198f6&
+mailto=1&to=jkhomo1@post.com&msg=MSG1033934613.56&start=43526&len=3229&s
+rc=&type=x>) including 
+your 
+current telephone and fax numbers for further details upon your
+acceptance 
+of this proposal. 
+
+Thanks for your Anticipated co-operation. 
+
+Sincerely yours, 
+
+Mr. Jonathan Khomo. 
 
 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
 
-		Remember Cernan and Schmitt
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,126 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283314AbRLOSkx>; Sat, 15 Dec 2001 13:40:53 -0500
+	id <S283481AbRLOSnM>; Sat, 15 Dec 2001 13:43:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283430AbRLOSkm>; Sat, 15 Dec 2001 13:40:42 -0500
-Received: from pop.gmx.de ([213.165.64.20]:1454 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283314AbRLOSkj>;
-	Sat, 15 Dec 2001 13:40:39 -0500
-Date: Sat, 15 Dec 2001 19:40:32 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20265 IDE controller trouble
-Message-Id: <20011215194032.59752d93.rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.33.0112151309350.19022-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <20011215185643.252d5547.rene.rebe@gmx.net>
-	<Pine.LNX.4.33.0112151309350.19022-100000@coffee.psychology.mcmaster.ca>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283467AbRLOSmx>; Sat, 15 Dec 2001 13:42:53 -0500
+Received: from freesurfmta01.sunrise.ch ([194.230.0.16]:17319 "EHLO
+	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
+	id <S283430AbRLOSmm>; Sat, 15 Dec 2001 13:42:42 -0500
+Message-ID: <3C19C7E700017024@freesurfmail.sunrise.ch> (added by
+	    postmaster@freesurf.ch)
+From: Nicolas Vollmar <nv@bluewin.ch>
+To: linux-kernel@vger.kernel.org
+Subject: [Merge] I have add some changes from 2.4.17-pre1 to 2.5.1-pre11
+Date: Sat, 15 Dec 2001 19:42:49 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_DNEE8XYK9S4EE0KLEULK"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. Thanks for the reply!
 
-I'm sorry tht I can not do many other benchmarks - since the server is
-in production ...
+--------------Boundary-00=_DNEE8XYK9S4EE0KLEULK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-On Sat, 15 Dec 2001 13:15:57 -0500 (EST)
-Mark Hahn <hahn@physics.mcmaster.ca> wrote:
+I hope some people can test this.
+(I do not have much experience in this...)
 
-> > Single transfer to one disk:
-> > server1:~ # hdparm -tT /dev/ide/host2/bus0/target0/lun0/disc
-> 
-> is any of this different if you use non-devfs?
+Merge with 2.4.17-pre1
 
-This might make a difference? Maybe the open() call but read/write on
-a open fd ??
+- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
+- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
+  modules
+- Fix i810 sound driver problems		(Andris Pavenis)
+- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
+- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
 
-> >  Timing buffered disk reads:  64 MB in  2.86 seconds = 22.38 MB/sec
-> >  Timing buffered disk reads:  64 MB in  4.66 seconds = 13.73 MB/sec
-> 
-> that's somewhat surprising; I wonder if there's some extra
-> synchronization in the pdc driver.  otoh, I didn't notice
-> this sort of thing at all with a recent raid box I built
-> (6x100G, 2xpdc, 1 via, athlonxp/1600, pc2100).
+Nicolas
 
-Did you tryed ReiserFS on a software raid device?
 
-> can you replicate this with benchmarks more sane than hdparm
-> (like build a raid0, and run bonnie or iozone on an ext2 on it?)
+--------------Boundary-00=_DNEE8XYK9S4EE0KLEULK
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="2.5.1-pre11-merge.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="2.5.1-pre11-merge.diff"
 
-There is a Raid5 on top of 3 discs running ReiserFS (the performance is
-bad ...)
+ZGlmZiAtTnVyIGxpbnV4L0RvY3VtZW50YXRpb24vdmlkZW80bGludXgvWm9yYW4gbGludXgtMi41
+LjEtcHJlMTEvRG9jdW1lbnRhdGlvbi92aWRlbzRsaW51eC9ab3JhbgotLS0gbGludXgvRG9jdW1l
+bnRhdGlvbi92aWRlbzRsaW51eC9ab3JhbglXZWQgSnVsICA0IDIzOjQxOjMzIDIwMDEKKysrIGxp
+bnV4LTIuNS4xLXByZTExL0RvY3VtZW50YXRpb24vdmlkZW80bGludXgvWm9yYW4JU2F0IERlYyAx
+NSAxOToxOToxMSAyMDAxCkBAIC0xNjAsOSArMTYwLDkgQEAKICAgc2V0IGFzaWRlIHRoZSBuZWNl
+c3NhcnkgbWVtb3J5IGR1cmluZyBib290IHRpbWUuIFRoZXJlIHNlZW0gdG8gYmUKICAgc2V2ZXJh
+bCB2ZXJzaW9ucyBvZiB0aGlzIHBhdGNoIGFnYWluc3QgdmFyaW91cyBrZXJuZWwgdmVyc2lvbnMK
+ICAgZmxvYXRpbmcgYXJvdW5kIGluIHRoZSBuZXQsIHlvdSBtYXkgb2J0YWluIG9uZSBlLmcuIGZy
+b206Ci0gIGh0dHA6Ly93d3cucG9seXdhcmUubmwvfm1pZGRlbGluL3BhdGNoL2JpZ3BoeXNhcmVh
+LTIuMi4xLnRhci5neiBZb3UKLSAgYWxzbyBoYXZlIHRvIGNvbXBpbGUgeW91ciBkcml2ZXIgQUZU
+RVIgaW5zdGFsbGluZyB0aGF0IHBhdGNoIGluIG9yZGVyCi0gIHRvIGdldCBpdCB3b3JraW5nCisr
+ICBodHRwOi8vd3d3LnBvbHl3YXJlLm5sL35taWRkZWxpbi9ob2ItdjRsLmh0bWwjYmlncGh5c2Fy
+ZWEKKysgIFlvdSBhbHNvIGhhdmUgdG8gY29tcGlsZSB5b3VyIGRyaXZlciBBRlRFUiBpbnN0YWxs
+aW5nIHRoYXQgcGF0Y2ggaW4KKysgIG9yZGVyIHRvIGdldCBpdCB3b3JraW5nCiAKICAgb3IKIApk
+aWZmIC1OdXIgbGludXgvYXJjaC9pMzg2L2tlcm5lbC9kbWlfc2Nhbi5jIGxpbnV4LTIuNS4xLXBy
+ZTExL2FyY2gvaTM4Ni9rZXJuZWwvZG1pX3NjYW4uYwotLS0gbGludXgvYXJjaC9pMzg2L2tlcm5l
+bC9kbWlfc2Nhbi5jCVNhdCBEZWMgMTUgMTk6MTc6NDkgMjAwMQorKysgbGludXgtMi41LjEtcHJl
+MTEvYXJjaC9pMzg2L2tlcm5lbC9kbWlfc2Nhbi5jCVNhdCBEZWMgMTUgMTk6MjA6NDkgMjAwMQpA
+QCAtNTcyLDYgKzU3MiwxMSBAQAogCQkJTUFUQ0goRE1JX0JJT1NfVkVSU0lPTiwiTDQ0MEdYMC44
+NkIuMDA5NC5QMTAiKSwKIAkJCU5PX01BVENILCBOT19NQVRDSAogICAgICAgICAgICAgICAgICAg
+ICAgICAgfSB9LAorCXsgYnJva2VuX3BpcnEsICJsNDRHWCBCaW9zIiwgeyAgICAgICAgCQkvKiBC
+YWQgJFBJUiAqLworCQkJTUFUQ0goRE1JX0JJT1NfVkVORE9SLCAiSW50ZWwgQ29ycG9yYXRpb24i
+KSwKKwkJCU1BVENIKERNSV9CSU9TX1ZFUlNJT04sIkw0NDBHWDAuODZCLjAxMjAuUDEyIiksCisJ
+CQlOT19NQVRDSCwgTk9fTUFUQ0gKKyAgICAgICAgICAgICAgICAgICAgICAgIH0gfSwKIAl7IGJy
+b2tlbl9waXJxLCAibDQ0R1ggQmlvcyIsIHsJCS8qIEJhZCAkUElSICovCiAJCQlNQVRDSChETUlf
+QklPU19WRU5ET1IsICJJbnRlbCBDb3Jwb3JhdGlvbiIpLAogCQkJTUFUQ0goRE1JX0JJT1NfVkVS
+U0lPTiwiTDQ0MEdYMC44NkIuMDEyNS5QMTMiKSwKZGlmZiAtTnVyIGxpbnV4L2RyaXZlcnMvc291
+bmQvaTgxMF9hdWRpby5jIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvaTgxMF9hdWRp
+by5jCi0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYwlGcmkgTm92ICA5IDIzOjA3
+OjQxIDIwMDEKKysrIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvaTgxMF9hdWRpby5j
+CVNhdCBEZWMgMTUgMTk6MjQ6MjEgMjAwMQpAQCAtMTQwNSwxMCArMTQwNSw5IEBACiAJCWlmIChk
+bWFidWYtPmNvdW50IDwgMCkgewogCQkJZG1hYnVmLT5jb3VudCA9IDA7CiAJCX0KLQkJY250ID0g
+ZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5mcmFnc2l6ZSAtIGRtYWJ1Zi0+Y291bnQ7Ci0JCS8v
+IHRoaXMgaXMgdG8gbWFrZSB0aGUgY29weV9mcm9tX3VzZXIgc2ltcGxlciBiZWxvdwotCQlpZihj
+bnQgPiAoZG1hYnVmLT5kbWFzaXplIC0gc3dwdHIpKQotCQkJY250ID0gZG1hYnVmLT5kbWFzaXpl
+IC0gc3dwdHI7CisJCWNudCA9IGRtYWJ1Zi0+ZG1hc2l6ZSAtIHN3cHRyOworCQlpZihjbnQgPiAo
+ZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5jb3VudCkpCisJCQljbnQgPSBkbWFidWYtPmRtYXNp
+emUgLSBkbWFidWYtPmNvdW50OwogCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZzdGF0ZS0+Y2Fy
+ZC0+bG9jaywgZmxhZ3MpOwogCiAjaWZkZWYgREVCVUcyCkBAIC0xNDE5LDE2ICsxNDE4LDEzIEBA
+CiAJCWlmIChjbnQgPD0gMCkgewogCQkJdW5zaWduZWQgbG9uZyB0bW87CiAJCQkvLyBUaGVyZSBp
+cyBkYXRhIHdhaXRpbmcgdG8gYmUgcGxheWVkCisJCQlpODEwX3VwZGF0ZV9sdmkoc3RhdGUsMCk7
+CiAJCQlpZighZG1hYnVmLT5lbmFibGUgJiYgZG1hYnVmLT5jb3VudCkgewogCQkJCS8qIGZvcmNl
+IHRoZSBzdGFydGluZyBpbmNhc2UgU0VUVFJJR0dFUiBoYXMgYmVlbiB1c2VkICovCiAJCQkJLyog
+dG8gc3RvcCBpdCwgb3RoZXJ3aXNlIHRoaXMgaXMgYSBkZWFkbG9jayBzaXR1YXRpb24gKi8KIAkJ
+CQlkbWFidWYtPnRyaWdnZXIgfD0gUENNX0VOQUJMRV9PVVRQVVQ7CiAJCQkJc3RhcnRfZGFjKHN0
+YXRlKTsKIAkJCX0KLQkJCS8vIFVwZGF0ZSB0aGUgTFZJIHBvaW50ZXIgaW4gY2FzZSB3ZSBoYXZl
+IGFscmVhZHkKLQkJCS8vIHdyaXR0ZW4gZGF0YSBpbiB0aGlzIHN5c2NhbGwgYW5kIGFyZSBqdXN0
+IHdhaXRpbmcKLQkJCS8vIG9uIHRoZSB0YWlsIGJpdCBvZiBkYXRhCi0JCQlpODEwX3VwZGF0ZV9s
+dmkoc3RhdGUsMCk7CiAJCQlpZiAoZmlsZS0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spIHsKIAkJCQlp
+ZiAoIXJldCkgcmV0ID0gLUVBR0FJTjsKIAkJCQlnb3RvIHJldDsKQEAgLTE4NjAsNyArMTg1Niw3
+IEBACiAJCWlmKGRtYWJ1Zi0+bWFwcGVkKQogCQkJYWJpbmZvLmJ5dGVzID0gZG1hYnVmLT5jb3Vu
+dDsKIAkJZWxzZQotCQkJYWJpbmZvLmJ5dGVzID0gZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5j
+b3VudDsKKwkJCWFiaW5mby5ieXRlcyA9IGRtYWJ1Zi0+ZG1hc2l6ZSAtIGRtYWJ1Zi0+ZnJhZ3Np
+emUgLSBkbWFidWYtPmNvdW50OwogCQlhYmluZm8uZnJhZ21lbnRzID0gYWJpbmZvLmJ5dGVzIC8g
+ZG1hYnVmLT51c2VyZnJhZ3NpemU7CiAJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnN0YXRlLT5j
+YXJkLT5sb2NrLCBmbGFncyk7CiAjaWZkZWYgREVCVUcKZGlmZiAtTnVyIGxpbnV4L2RyaXZlcnMv
+c291bmQvc2JfY2FyZC5jIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvc2JfY2FyZC5j
+Ci0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL3NiX2NhcmQuYwlTYXQgRGVjIDE1IDE5OjE3OjUxIDIw
+MDEKKysrIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvc2JfY2FyZC5jCVNhdCBEZWMg
+MTUgMTk6MjY6MjYgMjAwMQpAQCAtMzQ3LDcgKzM0Nyw3IEBACiAJCUlTQVBOUF9WRU5ET1IoJ0Mn
+LCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJT04oMHgwMDQzKSwKIAkJMCwwLDAsMCwKIAkJMCwxLDEs
+LTF9LAotCXsiU291bmQgQmxhc3RlciBBV0UgMzIiLCAKKwl7IlNvdW5kIEJsYXN0ZXIgQVdFIDMy
+IiwKIAkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElTQVBOUF9ERVZJQ0UoMHgwMDM5KSwg
+CiAJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJT04oMHgwMDMxKSwK
+IAkJMCwwLDAsMCwKQEAgLTM2OSw2ICszNjksMTEgQEAKIAkJMCwxLDEsLTF9LAogICAgICAgICB7
+IlNvdW5kIEJsYXN0ZXIgQVdFIDMyIiwKIAkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElT
+QVBOUF9ERVZJQ0UoMHgwMDQ1KSwKKwkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElTQVBO
+UF9GVU5DVElPTigweDAwMzEpLAorCQkwLDAsMCwwLAorCQkwLDEsMSwtMX0sCisJeyJTb3VuZCBC
+bGFzdGVyIEFXRSAzMiIsCisJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfREVW
+SUNFKDB4MDA0NyksCiAJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJ
+T04oMHgwMDMxKSwKIAkJMCwwLDAsMCwKIAkJMCwxLDEsLTF9LApkaWZmIC1OdXIgbGludXgvZnMv
+aW5mbGF0ZV9mcy9pbmZsYXRlX3N5bXMuYyBsaW51eC0yLjUuMS1wcmUxMS9mcy9pbmZsYXRlX2Zz
+L2luZmxhdGVfc3ltcy5jCi0tLSBsaW51eC9mcy9pbmZsYXRlX2ZzL2luZmxhdGVfc3ltcy5jCVRo
+dSBPY3QgMjUgMjI6NTM6NTMgMjAwMQorKysgbGludXgtMi41LjEtcHJlMTEvZnMvaW5mbGF0ZV9m
+cy9pbmZsYXRlX3N5bXMuYwlTYXQgRGVjIDE1IDE5OjI3OjIwIDIwMDEKQEAgLTE5LDMgKzE5LDQg
+QEAKIEVYUE9SVF9TWU1CT0woemxpYl9mc19pbmZsYXRlUmVzZXQpOwogRVhQT1JUX1NZTUJPTCh6
+bGliX2ZzX2FkbGVyMzIpOwogRVhQT1JUX1NZTUJPTCh6bGliX2ZzX2luZmxhdGVTeW5jUG9pbnQp
+OworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZmIC1OdXIgbGludXgvZnMvbXNkb3MvbXNkb3Nm
+c19zeW1zLmMgbGludXgtMi41LjEtcHJlMTEvZnMvbXNkb3MvbXNkb3Nmc19zeW1zLmMKLS0tIGxp
+bnV4L2ZzL21zZG9zL21zZG9zZnNfc3ltcy5jCU1vbiBNYXIgMTMgMjE6MzU6MzkgMjAwMAorKysg
+bGludXgtMi41LjEtcHJlMTEvZnMvbXNkb3MvbXNkb3Nmc19zeW1zLmMJU2F0IERlYyAxNSAxOToy
+Nzo0MSAyMDAxCkBAIC00MCwzICs0MCw0IEBACiAKIG1vZHVsZV9pbml0KGluaXRfbXNkb3NfZnMp
+CiBtb2R1bGVfZXhpdChleGl0X21zZG9zX2ZzKQorTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZm
+IC1OdXIgbGludXgvZnMvdmZhdC92ZmF0ZnNfc3ltcy5jIGxpbnV4LTIuNS4xLXByZTExL2ZzL3Zm
+YXQvdmZhdGZzX3N5bXMuYwotLS0gbGludXgvZnMvdmZhdC92ZmF0ZnNfc3ltcy5jCUZyaSBPY3Qg
+MTIgMjI6NDg6NDIgMjAwMQorKysgbGludXgtMi41LjEtcHJlMTEvZnMvdmZhdC92ZmF0ZnNfc3lt
+cy5jCVNhdCBEZWMgMTUgMTk6Mjg6MDIgMjAwMQpAQCAtMzMsMyArMzMsNCBAQAogCiBtb2R1bGVf
+aW5pdChpbml0X3ZmYXRfZnMpCiBtb2R1bGVfZXhpdChleGl0X3ZmYXRfZnMpCitNT0RVTEVfTElD
+RU5TRSgiR1BMIik7CmRpZmYgLU51ciBsaW51eC9uZXQvcGFja2V0L2FmX3BhY2tldC5jIGxpbnV4
+LTIuNS4xLXByZTExL25ldC9wYWNrZXQvYWZfcGFja2V0LmMKLS0tIGxpbnV4L25ldC9wYWNrZXQv
+YWZfcGFja2V0LmMJV2VkIE9jdCAzMSAwMDowODoxMiAyMDAxCisrKyBsaW51eC0yLjUuMS1wcmUx
+MS9uZXQvcGFja2V0L2FmX3BhY2tldC5jCVNhdCBEZWMgMTUgMTk6Mjg6MjggMjAwMQpAQCAtMTkw
+MiwzICsxOTAyLDQgQEAKIAogbW9kdWxlX2luaXQocGFja2V0X2luaXQpOwogbW9kdWxlX2V4aXQo
+cGFja2V0X2V4aXQpOworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwo=
 
-But here are the results of a dd if=/bla bla/disc
-
-A single disk:
-server1:~ # time dd if=/dev/ide/host2/bus0/target0/lun0/part1 of=/dev/zero bs=1000000 count=200
-200+0 records in
-200+0 records out
-
-real    0m7.106s
-user    0m0.030s
-sys     0m3.640s
-=>28.1 MB/s
-
-And parallel read from two mastess:
-server1:~ # time dd if=/dev/ide/host2/bus0/target0/lun0/part1 of=/dev/zero bs=1000000 count=200
-200+0 records in
-200+0 records out
-
-real    0m12.797s
-user    0m0.010s
-sys     0m4.210s
-=>15.6 MB/s
-
-And parallel read from master/slave:
-server1:~ # time dd if=/dev/ide/host2/bus0/target0/lun0/part1 of=/dev/zero bs=1000000 count=200
-200+0 records in
-200+0 records out
-
-real    0m18.427s
-user    0m0.000s
-sys     0m2.690s
-=>10.85 MB/s
-
-> >  Timing buffered disk reads:  64 MB in  8.36 seconds =  7.66 MB/sec
-> 
-> that's not particularly surprising, since there's no concurrency
-> among disks in an ide chain.
-
-I do not understand? No concurrency? The two reads are fighting for the
-same IDE channel the whole time ... ?
-
-> > Is this an general IDE issue or is some queueing code in the kernel
-> > rather bad/slow for this task???
-> 
-> hdparm is a fairly horrible benchmark; running two at once is nonsense.
-> and hdparm's use of block devices probably interacts with things like 
-> the blocksize (1k unless you build a 4k FS), and the fact that blkdev
-> moved into the pagecache.
-
-OK. Above are some raw-read numbers. Currently the disc are in a RAID5
-setup with ReiserFS on top - running in production ...
-
-The ReiserFS is realy realy realy slow (reported in another thread).
-We might add a 4th disc an reconfigure it leaving some Gigs on each
-disc for tests - but not in this year ...
-
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+--------------Boundary-00=_DNEE8XYK9S4EE0KLEULK--

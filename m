@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbTJEBYq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 21:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTJEBYq
+	id S262854AbTJEBcb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 21:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbTJEBcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 21:24:46 -0400
-Received: from h1ab.lcom.net ([216.51.237.171]:62339 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S262851AbTJEBYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 21:24:45 -0400
-Date: Sat, 4 Oct 2003 20:24:39 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: cs4281 driver missing from 2.6.0-test6-bk6?
-Message-ID: <20031005012438.GG4274@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sat, 4 Oct 2003 21:32:31 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:6084 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262854AbTJEBca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 21:32:30 -0400
+Date: Sun, 5 Oct 2003 02:31:57 +0100
+From: Dave Jones <davej@redhat.com>
+To: William Scott Lockwood III <vlad@lrsehosting.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Onboard LAN Asus A7V8X-X (VT6102 [Rhine-II])
+Message-ID: <20031005013157.GA6474@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	William Scott Lockwood III <vlad@lrsehosting.com>,
+	linux-kernel@vger.kernel.org
+References: <20031004161037.05b9e5ee.davem@redhat.com> <002601c38ad3$650e14a0$0200a8c0@wsl3>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <002601c38ad3$650e14a0$0200a8c0@wsl3>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sat, Oct 04, 2003 at 06:58:22PM -0500, William Scott Lockwood III wrote:
+ > This motherboard has source included (but has an unfortunate advertising
+ > clause) at the website for the onboard nic, but I can't make it work in
+ > 2.4.22 - is this nic supported natively, or will it be?  I didn't find an
+ > option for it in 2.4.22 or 2.6.0-test6. Is there any interest in a driver
+ > for this board? It's a VIA VT6102 [Rhine-II].
 
-I was using menuconfig to check out 2.6.0-test6-bk6, when I found that
-  the cs4281 ALSA driver had disappeared.
-Is this intentional, did I screw something up, or is it accidental?
+CONFIG_VIA_RHINE should do the trick, though with the same chip on a
+different board in 2.4.22, I had to boot with "acpi=off noapic"
+This is now fixed in 2.4.23 iirc.
 
-Thanks!
+		Dave
 
--Joseph
 -- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+ Dave Jones     http://www.codemonkey.org.uk

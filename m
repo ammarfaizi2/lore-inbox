@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267831AbTGHWTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267838AbTGHWTc
+	id S267808AbTGHWP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267783AbTGHWPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:19:32 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:4022 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S267831AbTGHWTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:19:18 -0400
-Date: Wed, 9 Jul 2003 00:33:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       torvalds@transmeta.com
-Subject: Suspend: PRINTK() cleanups
-Message-ID: <20030708223339.GB183@elf.ucw.cz>
+	Tue, 8 Jul 2003 18:15:06 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12718
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S267771AbTGHWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:13:12 -0400
+Subject: Re: Forking shell bombs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Max Valdez <maxvalde@fis.unam.mx>
+Cc: system_lists@nullzone.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057684703.6241.3.camel@garaged.homeip.net>
+References: <20030708202819.GM1030@dbz.icequake.net>
+	 <20030708193401.24226.95499.Mailman@lists.us.dell.com>
+	 <20030708202819.GM1030@dbz.icequake.net>
+	 <5.2.1.1.2.20030708235404.02b9ec80@192.168.2.130>
+	 <1057684703.6241.3.camel@garaged.homeip.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057703101.5652.12.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Jul 2003 23:25:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Maw, 2003-07-08 at 18:18, Max Valdez wrote:
+> I set the ulimit -u 1791
+> and the box keeps running(2.4.20-gentoo-r5) , but we still need the
+> problem corrected, any other user can run ther DOS and crash the box, is
+> there any way to set ulimits for all users fixed ??, not by sourcein a
+> bashrc or something like that ?? because the user can delete the line on
+> .bashrc and thats it
 
-This cleans PRINTK()s a bit, and schedule()s at the end of thaw, so
-processes are unstuck here. Please apply,
-							Pavel
+You can set the limits using the pam limits module and set the hard
+limit so the user cannot revert it. Or with -ac just set no overcommit
+and it seems fine
 
---- /usr/src/tmp/linux/kernel/suspend.c	2003-07-09 00:21:15.000000000 +0200
-+++ /usr/src/linux/kernel/suspend.c	2003-07-08 14:11:28.000000000 +0200
-@@ -149,15 +149,15 @@
- #define TEST_SWSUSP 1		/* Set to 1 to reboot instead of halt machine after suspension */
- 
- #ifdef DEBUG_DEFAULT
--# define PRINTK(f, a...)       printk(f, ## a)
-+# define PRINTK(f, a...)	do { printk(f, ## a); } while (0)
- #else
--# define PRINTK(f, a...)
-+# define PRINTK(f, a...)	do {} while (0)
- #endif
- 
- #ifdef DEBUG_SLOW
- #define MDELAY(a) mdelay(a)
- #else
--#define MDELAY(a)
-+#define MDELAY(a) do {} while (0)
- #endif
- 
- /*
-@@ -247,13 +247,15 @@
- 	do_each_thread(g, p) {
- 		INTERESTING(p);
- 		
--		if (p->flags & PF_FROZEN) p->flags &= ~PF_FROZEN;
-+		if (p->flags & PF_FROZEN)
-+			p->flags &= ~PF_FROZEN;
- 		else
- 			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
- 		wake_up_process(p);
- 	} while_each_thread(g, p);
- 
- 	read_unlock(&tasklist_lock);
-+	schedule();
- 	printk( " done\n" );
- 	MDELAY(500);
- }
-@@ -871,7 +873,6 @@
- 			 * using normal kernel mechanism.
- 			 */
- 			do_magic(0);
--		PRINTK("Restarting processes...\n");
- 		thaw_processes();
- 	}
- 	software_suspend_enabled = 1;
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

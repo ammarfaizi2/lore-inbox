@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUCYDuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 22:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbUCYDuV
+	id S263137AbUCYDsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 22:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbUCYDsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 22:50:21 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:10156 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S263142AbUCYDuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 22:50:15 -0500
-Date: Thu, 25 Mar 2004 09:15:42 +0530
-From: mohanlal jangir <mohanlal@samsung.com>
-Subject: Re: sleeping in request function
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <011f01c4121b$a6f77a30$7f476c6b@sisodomain.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au>
- <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz>
- <200403232352.58066.dtor_core@ameritech.net>
- <00cc01c4115d$bad44240$7f476c6b@sisodomain.com> <20040324083313.GG3377@suse.de>
+	Wed, 24 Mar 2004 22:48:21 -0500
+Received: from mx15.sac.fedex.com ([199.81.195.17]:27146 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S263137AbUCYDsU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 22:48:20 -0500
+Date: Thu, 25 Mar 2004 11:48:35 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
+Subject: Re: swsusp with highmem, testing wanted
+In-Reply-To: <20040324235702.GA497@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0403251147430.999@boston.corp.fedex.com>
+References: <20040324235702.GA497@elf.ucw.cz>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/25/2004
+ 11:48:14 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/25/2004
+ 11:48:17 AM,
+	Serialize complete at 03/25/2004 11:48:17 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Mar 24 2004, mohanlal jangir wrote:
-> > I have a USB card reader. It is capable of read/write CF, Smartmedia
-etc. It
-> > works fine on Linux. While looking into driver, I found that the driver
-> > works between USB host controller and SCSI layer.
-> > Just for learning purpose, I want to write it as block driver. The
-functions
-> > which performs read/write from the device are blocking. Therefore I
-can't
-> > call these functions directly from request function. Can somebody tell
-me
-> > how can I call blocking functions from request function. I tried to set
-BH
-> > but it didn't work.
->
-> First of all, don't start a new thread by replying to some other mail.
-> Your mail header includes references to that thread, thus screwing
-> proper threading.
->
-I am sorry for this. I will take care in future.
 
-> You could push your request handling off to some thread to do the work
-> for you, see how drivers/block/loop.c does this.
-> --
-> Jens Axboe
->
->
-I will look into this code. At this point of time, I have another question.
-Say an application calls read on the device and the data to be read is not
-present in buffer cache. This should cause "request function" to be called
-(read is waiting for completion). If request function hands over this to
-some thread (which will perform actual read later) and returns, then what
-happens to the read called in application (which was blocking). Because by
-the time read in application returns, it should have read data. I am very
-confused about this. Could someone shed some light on this?
 
-Regards
-Mohanlal
+On Thu, 25 Mar 2004, Pavel Machek wrote:
 
+> If you have machine with >=1GB of RAM, do you think you could test
+> this patch? [I'd like to hear about successes, too; perhaps send it
+> privately].
+
+It works! 1GB of RAM. Highmem enabled.
+
+
+Thanks,
+Jeff
 

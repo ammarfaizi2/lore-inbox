@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130129AbRCTNZR>; Tue, 20 Mar 2001 08:25:17 -0500
+	id <S129112AbRCTOMv>; Tue, 20 Mar 2001 09:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130252AbRCTNZH>; Tue, 20 Mar 2001 08:25:07 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:42504 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S130129AbRCTNY5>; Tue, 20 Mar 2001 08:24:57 -0500
-Date: Tue, 20 Mar 2001 14:08:38 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: user space web server accelerator support
-Message-ID: <20010320140838.B1465@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3AB6D0A5.EC4807E3@chromium.com> <15030.54194.780246.320476@pizda.ninka.net> <3AB6D574.8C123AE9@chromium.com> <15030.54685.535763.403057@pizda.ninka.net> <3AB6D795.F06C1B18@chromium.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AB6D795.F06C1B18@chromium.com>; from fabio@chromium.com on Mon, Mar 19, 2001 at 08:07:49PM -0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S129126AbRCTOMl>; Tue, 20 Mar 2001 09:12:41 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:36462 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129112AbRCTOM2>; Tue, 20 Mar 2001 09:12:28 -0500
+Date: Tue, 20 Mar 2001 08:11:12 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>, tytso@mit.edu,
+        guthrie@infonautics.com
+Subject: Re: PCMCIA serial CardBus support vanished in 2.4.3-pre3 and later
+In-Reply-To: <3AB759F4.F9F5F35D@oracle.com>
+Message-ID: <Pine.LNX.3.96.1010320080638.18764C-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 19, 2001 at 08:07:49PM -0800, Fabio Riccardi wrote:
-> Fantastic!
-> 
-> I was not aware of it, sorry... where can I find some doc?
+On Tue, 20 Mar 2001, Alessandro Suardi wrote:
+> Jeff Garzik wrote:
+> > Neither.  serial.c does serial_cb's job now.  It looks like serial.c
+> > needs to scan for modems as well as serial ports, and tytso agrees with
+> > me on that.  We just need to check and see if winmodems reports
+> > themselves as real modems before fixing this.
 
-W. Richard Stevens, "Advanced programming in the UNIX environment",
-chapter 15.3.
+> OK, thanks. I assume you mean "serial.c should do serial_cb's job now",
+>  since it doesn't :) If you want me to test patches etc. just let me know.
+
+Re-CC'd to linux-kernel, hope you don't mind.
+
+Anyone interested in testing patches, this simple change is what needs
+testing on various PCI and CardBus modems:
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg34097.html
+(since it's a web archive, you may have to hack the patch in manually...)
+
+It seems straightforward enough, and both tytso and I think the change
+is ok, but (at tytso's suggestion) I'm going to test some various
+winmodem and other use cases because assuring ourselves that it is good
+enough for a general rule...
+
+Regards,
+
+	Jeff
 
 
-Erik
 
-> "David S. Miller" wrote:
-> 
-> > Unix sockets allow one processes to "give" a file descriptor to
-> > another process via a facility called "file descriptor passing".
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

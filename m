@@ -1,105 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265972AbTGAFRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbTGAFRJ
+	id S265416AbTGAFcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTGAFcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:17:09 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50187
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265972AbTGAFRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:17:05 -0400
-Date: Mon, 30 Jun 2003 22:27:58 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: vlad@lrsehosting.com
-cc: "Lkml (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Dell vs. GPL 
-In-Reply-To: <000b01c33f8e$0d1dab60$0200a8c0@wsl3>
-Message-ID: <Pine.LNX.4.10.10306302224550.9153-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Jul 2003 01:32:16 -0400
+Received: from dp.samba.org ([66.70.73.150]:62341 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265416AbTGAFcN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 01:32:13 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Make ksoftirqd a per-cpu variable
+Date: Tue, 01 Jul 2003 15:46:04 +1000
+Message-Id: <20030701054635.9CCD02C09D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please apply.
 
-Vald,
+Moves the ksoftirqd pointers out of the irq_stat struct, and use a
+normal per-cpu variable.  It's not that time critical, nor referenced
+in assembler.  This moves us closer to making irq_stat a per-cpu variable.
 
-You have a strong grasp of the obvious, but you missed one major point.
-I am an independent consultant and contractor, does that help with a
-cluebat?  Nobody got killed or murdered, you too rank up there in the
-class if silliness.
+Because some archs have hardcoded asm references to offsets in this
+structure, I haven't touched non-x86.  The __ksoftirqd_task field
+is unused in other archs, too.
 
-Regards,
+Name: ksoftirqds in per-cpu variable
+Author: Rusty Russell
+Status: Tested on 2.5.73-bk8
+Depends: Percpu/irq_syscall_count_removal.patch.gz
 
-Andre Hedrick
-LAD Storage Consulting Group
+D: Moves the ksoftirqd pointers out of the irq_stat struct, and use a
+D: normal per-cpu variable.  It's not that time critical, nor referenced
+D: in assembler.  This moves us closer to making irq_stat a per-cpu variable.
+D: 
+D: Because some archs have hardcoded asm references to offsets in this
+D: structure, I haven't touched non-x86.  The __ksoftirqd_task field
+D: is unused in other archs, too.
 
-On Tue, 1 Jul 2003 vlad@lrsehosting.com wrote:
-
-> In the US, you cannot be made complicit by such an instrument.  If you sign
-> an NDA, and your boss murders someone and this murder is, strictly speaking,
-> covered by the NDA, you're still guilty of being an accessory if you don't
-> report it.  It's one of those little annoying differences between civil and
-> criminal law...
-> 
-> --
-> 
->  /"\                         / For information and quotes, email us at
->  \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
->   X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
->  / \  AND POSTINGS        / vlad@lrsehosting.com
-> -------------------------------------------------------------------------
-> 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andre Hedrick
-> Sent: Monday, June 30, 2003 3:44 PM
-> To: Valdis.Kletnieks@vt.edu
-> Cc: Linux Kernel Mailing List
-> Subject: Re: Dell vs. GPL
-> 
-> 
-> 
-> Now you are being silly, and I have to stop because your lack of
-> seriousness.
-> 
-> You can not talk about what you see or hear.
-> 
-> What is not clear?
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> On Mon, 30 Jun 2003 Valdis.Kletnieks@vt.edu wrote:
-> 
-> > On Mon, 30 Jun 2003 11:28:15 PDT, Andre Hedrick said:
-> > > Try leaving the ivory towers of academics for the real world.
-> > > I did and it was a rude slap in the face.  Most academics don't get the
-> > > real world of business, they can teach it but generally can not do it.
-> > > If they could do it, they would not be in academics.  Except for the few
-> > > cases of people who just get off on teaching and that is wonderful.
-> > > Maybe you are different, and do not fit under the brush.  However your
-> > > comments about NDA's leaves me little faith in your knowledge base.
-> >
-> > Well.. I prefer to think of it as working at a large corporate data center
-> with
-> > a 10,000 square foot server room that provides central computing services
-> for a
-> > $400M/year organization that just happens to be in the business sector of
-> > "higher education".
-> >
-> > And does your NDA *REALLY* say "Thou shalt not go to the cops if
-> > you find out about illegal activity"?
-> >
-> >
-> >
-> >
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5097-2.5.73-bk8-ksoftirqd_percpu.pre/include/asm-i386/hardirq.h .5097-2.5.73-bk8-ksoftirqd_percpu/include/asm-i386/hardirq.h
+--- .5097-2.5.73-bk8-ksoftirqd_percpu.pre/include/asm-i386/hardirq.h	2003-07-01 15:26:58.000000000 +1000
++++ .5097-2.5.73-bk8-ksoftirqd_percpu/include/asm-i386/hardirq.h	2003-07-01 15:26:58.000000000 +1000
+@@ -7,7 +7,6 @@
+ 
+ typedef struct {
+ 	unsigned int __softirq_pending;
+-	struct task_struct * __ksoftirqd_task; /* waitqueue is too large */
+ 	unsigned long idle_timestamp;
+ 	unsigned int __nmi_count;	/* arch dependent */
+ 	unsigned int apic_timer_irqs;	/* arch dependent */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5097-2.5.73-bk8-ksoftirqd_percpu.pre/include/linux/irq_cpustat.h .5097-2.5.73-bk8-ksoftirqd_percpu/include/linux/irq_cpustat.h
+--- .5097-2.5.73-bk8-ksoftirqd_percpu.pre/include/linux/irq_cpustat.h	2003-07-01 15:26:58.000000000 +1000
++++ .5097-2.5.73-bk8-ksoftirqd_percpu/include/linux/irq_cpustat.h	2003-07-01 15:26:58.000000000 +1000
+@@ -29,8 +29,6 @@ extern irq_cpustat_t irq_stat[];		/* def
+   /* arch independent irq_stat fields */
+ #define softirq_pending(cpu)	__IRQ_STAT((cpu), __softirq_pending)
+ #define local_softirq_pending()	softirq_pending(smp_processor_id())
+-#define ksoftirqd_task(cpu)	__IRQ_STAT((cpu), __ksoftirqd_task)
+-#define local_ksoftirqd_task()	ksoftirqd_task(smp_processor_id())
+ 
+   /* arch dependent irq_stat fields */
+ #define nmi_count(cpu)		__IRQ_STAT((cpu), __nmi_count)	/* i386 */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5097-2.5.73-bk8-ksoftirqd_percpu.pre/kernel/softirq.c .5097-2.5.73-bk8-ksoftirqd_percpu/kernel/softirq.c
+--- .5097-2.5.73-bk8-ksoftirqd_percpu.pre/kernel/softirq.c	2003-06-15 11:30:11.000000000 +1000
++++ .5097-2.5.73-bk8-ksoftirqd_percpu/kernel/softirq.c	2003-07-01 15:26:58.000000000 +1000
+@@ -14,6 +14,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/notifier.h>
++#include <linux/percpu.h>
+ #include <linux/cpu.h>
+ 
+ /*
+@@ -41,15 +42,18 @@ EXPORT_SYMBOL(irq_stat);
+ 
+ static struct softirq_action softirq_vec[32] __cacheline_aligned_in_smp;
+ 
++static DEFINE_PER_CPU(struct task_struct *, ksoftirqd);
++
+ /*
+  * we cannot loop indefinitely here to avoid userspace starvation,
+  * but we also don't want to introduce a worst case 1/HZ latency
+  * to the pending events, so lets the scheduler to balance
+  * the softirq load for us.
+  */
+-static inline void wakeup_softirqd(unsigned cpu)
++static inline void wakeup_softirqd(void)
+ {
+-	struct task_struct * tsk = ksoftirqd_task(cpu);
++	/* Interrupts are disabled: no need to stop preemption */
++	struct task_struct *tsk = __get_cpu_var(ksoftirqd);
+ 
+ 	if (tsk && tsk->state != TASK_RUNNING)
+ 		wake_up_process(tsk);
+@@ -96,7 +100,7 @@ restart:
+ 			goto restart;
+ 		}
+ 		if (pending)
+-			wakeup_softirqd(smp_processor_id());
++			wakeup_softirqd();
+ 		__local_bh_enable();
+ 	}
+ 
+@@ -131,7 +135,7 @@ inline void cpu_raise_softirq(unsigned i
+ 	 * schedule the softirq soon.
+ 	 */
+ 	if (!in_interrupt())
+-		wakeup_softirqd(cpu);
++		wakeup_softirqd();
+ }
+ 
+ void raise_softirq(unsigned int nr)
+@@ -325,7 +329,7 @@ static int ksoftirqd(void * __bind_cpu)
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	mb();
+ 
+-	local_ksoftirqd_task() = current;
++	__get_cpu_var(ksoftirqd) = current;
+ 
+ 	for (;;) {
+ 		if (!local_softirq_pending())
+@@ -354,7 +358,7 @@ static int __devinit cpu_callback(struct
+ 			return NOTIFY_BAD;
+ 		}
+ 
+-		while (!ksoftirqd_task(hotcpu))
++		while (!per_cpu(ksoftirqd, hotcpu))
+ 			yield();
+  	}
+ 	return NOTIFY_OK;
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

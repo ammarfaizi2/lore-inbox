@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUI0K0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUI0KcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUI0K0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 06:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUI0K0N
+	id S266615AbUI0KcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 06:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUI0KcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 06:26:13 -0400
-Received: from c211-30-229-77.rivrw4.nsw.optusnet.com.au ([211.30.229.77]:18436
-	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
-	id S266611AbUI0K0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 06:26:11 -0400
-Date: Mon, 27 Sep 2004 20:25:52 +1000
-To: akpm@osdl.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: mdz@canonical.com
-Subject: [PATCH] Use msleep_interruptible for therm_adt7467.c kernel thread
-Message-ID: <20040927102552.GA19183@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Mon, 27 Sep 2004 06:32:03 -0400
+Received: from cantor.suse.de ([195.135.220.2]:52132 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266615AbUI0KcA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 06:32:00 -0400
+Message-ID: <4157B04B.2000306@suse.de>
+Date: Mon, 27 Sep 2004 08:16:43 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: mlock(1)
+References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096071873.3591.54.camel@desktop.cunninghams> <20040925011800.GB3309@dualathlon.random>
+In-Reply-To: <20040925011800.GB3309@dualathlon.random>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> random keys are exactly fine, but only for the swap usage on a desktop
+> machine (the one I mentioned above, where the user will not be asked for
+> a password), but it's not ok for suspend/resume, suspend/resume needs
+> a regular password asked to the user both at suspend time and at resume
+> time.
 
-Hi:
+Why not ask on every boot? (and yes, the passphrase could be stored on a
+fixed disk location - hashed with a function of sufficient complexity
+and number of bits, just to warn the user if he does a typo, couldn't
+it?). If suspend is working, you basically never reboot. So why ask on
+suspend _and_ resume? This also solves the "suspend on lid close" issue.
 
-Using msleep() in a kernel thread causes it to show up in the D state
-and contribute towards the system load average.  The following patch
-converts it to msleep_interruptible().
+And a resume is - in the beginning - a boot, so just ask early enough
+(maybe the bootloader could do this?)
 
-The continue is just paranoia in case something relies on the sleep
-to take 2 seconds or more.
+I'm not a crypto expert at all, just thinking loud...
 
-This bug was reported at
+    Stefan
 
-https://bugzilla.no-name-yet.com/show_bug.cgi?id=1804
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-===== drivers/macintosh/therm_adt746x.c 1.5 vs edited =====
---- 1.5/drivers/macintosh/therm_adt746x.c	2004-09-23 06:31:14 +10:00
-+++ edited/drivers/macintosh/therm_adt746x.c	2004-09-27 20:24:58 +10:00
-@@ -246,7 +246,8 @@
- 
- 	while(monitor_running)
- 	{
--		msleep(2000);
-+		if (msleep_interruptible(2000))
-+			continue;
- 
- 		/* Check status */
- 		/* local   : chip */
-
---qMm9M+Fa2AknHoGS--

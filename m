@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbRFOU5e>; Fri, 15 Jun 2001 16:57:34 -0400
+	id <S261639AbRFOU5e>; Fri, 15 Jun 2001 16:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262468AbRFOU5Y>; Fri, 15 Jun 2001 16:57:24 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:45064 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S264035AbRFOU5O>; Fri, 15 Jun 2001 16:57:14 -0400
-Date: Fri, 15 Jun 2001 16:52:04 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kelledin Tane <runesong@earthlink.net>, linux-kernel@vger.kernel.org
-Subject: Re: drivers/usb/ov511.c does not compile
-Message-ID: <20010615165204.C30332@sventech.com>
-In-Reply-To: <20010615160518.A30332@sventech.com> <E15B0IP-00073f-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S262564AbRFOU5Y>; Fri, 15 Jun 2001 16:57:24 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:56753 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S261639AbRFOU5K>;
+	Fri, 15 Jun 2001 16:57:10 -0400
+Message-ID: <3B2A76A8.9F79082F@sun.com>
+Date: Fri, 15 Jun 2001 13:57:12 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: EEPRO100/S support
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E15B0IP-00073f-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 15, 2001 at 09:34:21PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 15, 2001, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > the developer's blessing on this, and also nice to know exactly what
-> > > version number to give this driver in 2.4.5 stock.
-> > 
-> > This has already been fixed in the 2.4.5 pre patches.
-> 
-> .6 I assume.
+Hey all,
+I just had an eepro/100 S delivered to me.  I haven't dug through specs
+yet, but has anyone looke at this?  Supposedly has a 3DES ASIC built in to
+the core.
 
-Yes, you're absolutely correct. Typo on my part.
+Any way we can use it?
 
-> ov511 still has some bad bugs in it - it doesnt work with some uhci drivers
-> and it also does precisely the wrong thing when you set the capture size and
-> breaks stuff like ffserver. The comments are right but the code picks the
-> size which is bigger than the capture, not the nearest smaller size..
-
-Hmm, I'll see if I can produce a patch to fix that.
-
-JE
-
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com

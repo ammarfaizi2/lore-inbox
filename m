@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261750AbSJUWXk>; Mon, 21 Oct 2002 18:23:40 -0400
+	id <S262076AbSJUW1U>; Mon, 21 Oct 2002 18:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261749AbSJUWXk>; Mon, 21 Oct 2002 18:23:40 -0400
-Received: from smtp4.us.dell.com ([143.166.148.135]:45023 "EHLO
-	smtp4.us.dell.com") by vger.kernel.org with ESMTP
-	id <S261750AbSJUWXi>; Mon, 21 Oct 2002 18:23:38 -0400
-Date: Mon, 21 Oct 2002 17:29:34 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@humbolt.us.dell.com
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: Doug Ledford <dledford@redhat.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <andmike@us.ibm.com>,
-       <cliffw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-megaraid-devel@Dell.com>
+	id <S262083AbSJUW1U>; Mon, 21 Oct 2002 18:27:20 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:8253 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262076AbSJUW1S>; Mon, 21 Oct 2002 18:27:18 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200210212233.g9LMXAG14311@devserv.devel.redhat.com>
 Subject: Re: 2.5.44 compile problem: MegaRAID driver
-In-Reply-To: <20021021222500.GK28914@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210211726450.11489-100000@humbolt.us.dell.com>
-X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
-X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+To: dledford@redhat.com (Doug Ledford)
+Date: Mon, 21 Oct 2002 18:33:10 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), Matt_Domsch@dell.com,
+       andmike@us.ibm.com, cliffw@osdl.org,
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+       linux-megaraid-devel@dell.com
+In-Reply-To: <20021021222500.GK28914@redhat.com> from "Doug Ledford" at Oct 21, 2002 06:25:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course, I'm personally of the opinion that people need to quite 
-> thinking in terms of host order anyway and let things like mount by volume 
-> solve this issue anyway.  It's cleaner, it works regardless of the driver, 
-> and it puts the burden of finding the right root partition in user space 
-> where it's easier to fix up should things change, etc.
+> This is, umm, a non-elegant way of handling things once you switch your 
+> driver to the new PCI driver probe model :-(
 
-EDD lets the OS Installer decide on which unkissed disk it should first
-put the OS loader and root partition.  On kissed disks
-mount-by-{fs,partitiontable}-label/uuid/whatever is great I agree. It's
-the unkissed disks that really mess you up.
+Someone has to fix all the problems with the new probe model first. Like
+the fact we don't have any meaningful address space locking or
+sane refcounting for the scsi objects. Until that happens its not a relevant
+discussion IMHO
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
-
+When you can answer "what lock prevents my address space being reissued
+before all memory/I/O has provably completely" and "at what point can I
+free my scsi structures on a hot unplug safely for all situations" then
+its worth discussion

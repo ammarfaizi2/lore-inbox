@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbUK3WvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbUK3WyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbUK3WvA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 17:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUK3WvA
+	id S262392AbUK3WyO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUK3WyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 17:51:00 -0500
-Received: from gate.crashing.org ([63.228.1.57]:65430 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262393AbUK3Wul (ORCPT
+	Tue, 30 Nov 2004 17:54:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12697 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262392AbUK3WwC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 17:50:41 -0500
-Subject: Re: [1/7] Xen VMM #3: add ptep_establish_new to make va available
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E1CYxP0-0005Hy-00@mta1.cl.cam.ac.uk>
-References: <E1CYxP0-0005Hy-00@mta1.cl.cam.ac.uk>
-Content-Type: text/plain
-Date: Wed, 01 Dec 2004 09:49:51 +1100
-Message-Id: <1101854992.5174.14.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Nov 2004 17:52:02 -0500
+Date: Tue, 30 Nov 2004 14:51:20 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Alexandre Oliva <aoliva@redhat.com>, dhowells <dhowells@redhat.com>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <1101854061.4574.4.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0411301447570.22796@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> 
+ <19865.1101395592@redhat.com>  <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+  <1101406661.8191.9390.camel@hades.cambridge.redhat.com> 
+ <20041127032403.GB10536@kroah.com>  <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+  <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> 
+ <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>  <8219.1101828816@redhat.com>
+  <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org> 
+ <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br> 
+ <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org> 
+ <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br> 
+ <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
+ <1101854061.4574.4.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 02:06 +0000, Ian Pratt wrote:
-> This patch adds 'ptep_establish_new', in keeping with the
-> existing 'ptep_establish', but for use where a mapping is being
-> established where there was previously none present. This
-> function is useful (rather than just using set_pte) because
-> having the virtual address available enables a very important
-> optimisation for arch-xen. We introduce
-> HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
-> in asm-generic/pgtable.h, following the pattern of the existing
-> ptep_establish.
-
-I would rather move toward that patch that David Miller proposed a while
-ago that makes sure the necessary infos (mm, address, ...) are always
-passed to all PTE functions.
-
-Is there also a need for ptep_establish and ptep_establish_new to be 2
-different functions ?
-
-Ben.
 
 
+On Tue, 30 Nov 2004, David Woodhouse wrote:
+> 
+> That depends on your definition of 'break'. It should prevent abuse.
+
+Not really. 
+
+It should prevent _future_ abuse.
+
+The notion of "preventing existing xxx" is insane. You can't "prevent" 
+something that already happened unless you've come up with some new 
+interesting theory of causality.
+
+> To pick a specific example, since you like them: where userland programs
+> are including atomic.h, and hence writing programs which don't compile
+> on some architectures, and which compile on others but silently give
+> non-atomic results, it's perfectly acceptable and indeed advisable to
+> prevent compilation across the board.
+> 
+> Some people might call that breakage; I don't.
+
+I do. The thing is, the people who _notice_ the breakage are often the 
+people who don't know what the hell to do about it.
+
+The way to prevent _future_ abuse is by adding something like
+
+	#ifndef __KERNEL__
+	#warning "This really doesn't work"
+	#endif
+
+which does that, and has the advantage of not breaking anything at all.
+
+In other words: if you want to move things around just to break things, 
+THEN THAT IS INCREDIBLY STUPID. We don't do things to screw our users 
+over. 
+
+Feel free to send a patch.
+
+		Linus

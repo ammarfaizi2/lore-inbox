@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263854AbTETRIB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 13:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTETRIB
+	id S263558AbTETROZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 13:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbTETROZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 13:08:01 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:41671 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263854AbTETRIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 13:08:00 -0400
-Date: Tue, 20 May 2003 18:24:28 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Brett <generica@email.com>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: CONFIG_VIDEO_SELECT stole my will to live
-Message-ID: <20030520172428.GA32478@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	James Simmons <jsimmons@infradead.org>, Brett <generica@email.com>,
-	linux-kernel@vger.kernel.org,
-	linux-fbdev-devel@lists.sourceforge.net
-References: <20030520155138.GA29450@suse.de> <Pine.LNX.4.44.0305201752240.28600-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305201752240.28600-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
+	Tue, 20 May 2003 13:14:25 -0400
+Received: from terminus.zytor.com ([63.209.29.3]:20126 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263558AbTETROY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 13:14:24 -0400
+Message-ID: <3ECA60B0.6040402@zytor.com>
+Date: Tue, 20 May 2003 10:06:56 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Riley Williams <Riley@Williams.Name>,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <BKEGKPICNAKILKJKMHCAGECEDBAA.Riley@Williams.Name> <3ECA3535.7090608@nortelnetworks.com>
+In-Reply-To: <3ECA3535.7090608@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 20, 2003 at 05:55:41PM +0100, James Simmons wrote:
+Chris Friesen wrote:
+> Riley Williams wrote:
+> 
+>> First, is there anything in include/asm that is actually needed
+>> outside the kernel itself? There shouldn't be, and if there is,
+>> it needs to be moved to a header under include/linux that is
+>> included in the relevant include/asm file.
+> 
+> It's handy for stuff like getting high res timestamps without having to 
+> ifdef the case of building on different architechtures.  Also, there are 
+> files under include/linux which end up including asm stuff in turn.
+> 
+>> The basic rule would be that external software can make free
+>> use of headers under include/linux but should never make any
+>> use whatsoever of headers under include/kernel or include/asm
+>> for any reason.
+> 
+> 
+> What if the include/linux files themselves make use of the asm files?
+> 
 
+No, not acceptable.
 
- > > Possibly the card's VGA BIOS has 'issues' with that call.
- > This is most likely the case. I just tested out the configuration he has 
- > and it worked for me. I'm running vga=5 right now. For teh majority it 
- > works but as usual there are some broken BIOS that cause issues. 
+The thing is, trying to redefine the old namespaces is hopeless at this 
+point.  Hence the proposed new namespace <linux/abi/*.h> ... 
+<linux/abi/arch/*.h> would be my preference for an arch-specific 
+subnamespace.
 
-Or possibly..
-It looks to me that the store_edid function is unconditionally calling
-the READ EDID function without first having called the installation
-check function. (Int 10h ax=4f15 bx=0)
+Thus the rule is:
 
-Ralf Brown's interrupt list (which is pretty much definitive afaik)
-also notes that for the READ EDID function, dx should be 0, we are
-using 1. Is there a reason for this ?
+a) <linux/abi/*> files MUST NOT include files outside <linux/abi/*>
 
-		Dave
+b) <linux/*.h> and <asm/*.h> are legacy namespaces.  They should be 
+considered to be completely different in kernel and userspace -- in 
+effect, glibc will eventually ship with its own set of these headers.
+
+c) <linux/abi/*> files should be clean for inclusion from either kernel 
+or userspace.
+
+	-hpa
+
 

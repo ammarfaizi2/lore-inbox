@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTJILZu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 07:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTJILZu
+	id S262078AbTJILa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 07:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJILa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 07:25:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5903 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262060AbTJILZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 07:25:49 -0400
-Date: Thu, 9 Oct 2003 12:25:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: maximilian attems <janitor@sternwelten.at>
-Cc: linux-kernel@vger.kernel.org,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: Re: [patch] add CC Trivial Patch Monkey to SubmittingPatches
-Message-ID: <20031009122545.A16265@flint.arm.linux.org.uk>
-Mail-Followup-To: maximilian attems <janitor@sternwelten.at>,
-	linux-kernel@vger.kernel.org,
-	Trivial Patch Monkey <trivial@rustcorp.com.au>
-References: <20031009105228.GB1138@mail.sternwelten.at>
+	Thu, 9 Oct 2003 07:30:56 -0400
+Received: from colin2.muc.de ([193.149.48.15]:56338 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262078AbTJILa4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 07:30:56 -0400
+Date: 9 Oct 2003 13:31:11 +0200
+Date: Thu, 9 Oct 2003 13:31:11 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, bos@serpentine.com
+Subject: Re: [PATCH] Fix mlockall for PROT_NONE mappings
+Message-ID: <20031009113111.GA48461@colin2.muc.de>
+References: <20031009104218.GA1935@averell> <20031009104918.GB4699@actcom.co.il> <20031009112245.GA59762@colin2.muc.de> <20031009112458.GE4699@actcom.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031009105228.GB1138@mail.sternwelten.at>; from janitor@sternwelten.at on Thu, Oct 09, 2003 at 12:52:28PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20031009112458.GE4699@actcom.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 12:52:28PM +0200, maximilian attems wrote:
-> +For small patches you may want to CC Trivial Patch Monkey 
-> +trivial@rustcorp.com.au set up by Rusty Russel which collects "trivial" 
+> I agree that improved readability is not "essential". Do you agree
+> that it's preferable?  
 
-Could you take care when spelling names to ensure that you get them
-correct *PLEASE*.  I for one are sick and tired of trying to get
-people to spell my name correctly.  Personally, I see it as an insult
-that people can't take the time to get it correct.
+I don't think this version is particularly unreadable or that your
+change would improve it very much.
+(to make any sense of a function with 6+ arguments you have to look
+at the function definition, no way around that, and there is a comment
+that explains it there), so I don't think the change is particularly
+important.
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+-Andi

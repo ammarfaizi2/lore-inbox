@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292238AbSB0IPi>; Wed, 27 Feb 2002 03:15:38 -0500
+	id <S292233AbSB0ITI>; Wed, 27 Feb 2002 03:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292233AbSB0IP3>; Wed, 27 Feb 2002 03:15:29 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:12162 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S292027AbSB0IPZ>;
-	Wed, 27 Feb 2002 03:15:25 -0500
-Date: Wed, 27 Feb 2002 00:15:35 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [BETA-0.91] New test release of Tigon3 driver
-Message-ID: <20020227081535.GA2493@netnation.com>
-In-Reply-To: <20020227.000318.02301574.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020227.000318.02301574.davem@redhat.com>
-User-Agent: Mutt/1.3.27i
+	id <S292234AbSB0IS6>; Wed, 27 Feb 2002 03:18:58 -0500
+Received: from gate.perex.cz ([194.212.165.105]:41743 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S292233AbSB0ISx>;
+	Wed, 27 Feb 2002 03:18:53 -0500
+Date: Wed, 27 Feb 2002 09:18:05 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Dave Jones <davej@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sound/oss updates.
+In-Reply-To: <20020227031241.F9189@suse.de>
+Message-ID: <Pine.LNX.4.33.0202270911270.665-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 12:03:18AM -0800, David S. Miller wrote:
+On Wed, 27 Feb 2002, Dave Jones wrote:
 
-> Thanks to everyone who has tested and gotten back to us so
-> far.  A new release is up at:
+> On Tue, Feb 26, 2002 at 04:15:34PM -0800, Linus Torvalds wrote:
+>  > On Tue, 26 Feb 2002, Dave Jones wrote:
+>  > > Is it worth me sending you the pending bits I have for sound/oss/ ?
+>  > > Is this going to be around in 2.6, or is this just a transitional thing?
+>  > > Or do you want them through Jaroslav ?
+>  > 
+>  > I think we'll keep OSS around until people just don't care any more. Which 
+>  > _may_ be before 2.6, but I doubt it.
+>  > 
+>  > Ask Jaroslav if he is interested, but I suspect the answer will be to send 
+>  > them to me.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.91.patch.gz
-> ...
-> eth1: Tigon3 [partno(BCM95700A6) rev 7102 PHY(5401)] (PCI:33MHz:64-bit) 10/100/1000BaseT Ethernet 00:04:76:2f:e2:d0
+>  Hi Jaroslav,
+>   So, theres currently quite a lot of updates in sound/oss in 2.5-dj
+>   that are mostly forward ports of fixes from 2.4. What would you
+>   prefer here ?
+>   - Me splitting them up into per driver patches for you
+>     to include & then forward to Linus
+>   - You grabbing the sound/oss chunk from 2.5.5-dj2 patch en-masse.
+>   - Me forwarding straight to Linus
+>   - Something else ?
 
-Woohoo!  I was just about to order a batch of 3c996BTs, too...
+It would be probably good to maintain the /sound tree from one place, so
+I can maintain the /sound/oss tree as well - allowing Linus to do 
+something more interesting ;-)
 
-Anybody know which is the best copper implementation of this chip at
-the moment?  I wasn't able to obtain the Dell cards in Canada and the
-Broadcom implementations appear to all be only for Broadcom OEM
-evaluations...
+I am ready to maintain all sound related updates for 2.5.
 
-Simon-
+						Jaroslav
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
+

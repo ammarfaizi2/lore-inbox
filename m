@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279116AbRJVX4b>; Mon, 22 Oct 2001 19:56:31 -0400
+	id <S279112AbRJVX5v>; Mon, 22 Oct 2001 19:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279114AbRJVX4V>; Mon, 22 Oct 2001 19:56:21 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:62195 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S279112AbRJVX4K>;
-	Mon, 22 Oct 2001 19:56:10 -0400
-Date: Tue, 23 Oct 2001 01:56:41 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Wayne.Brown@altec.com
+	id <S279113AbRJVX5l>; Mon, 22 Oct 2001 19:57:41 -0400
+Received: from host213-1-125-109.dialup.lineone.co.uk ([213.1.125.109]:260
+	"EHLO hoffman.vilain.net") by vger.kernel.org with ESMTP
+	id <S279112AbRJVX5c>; Mon, 22 Oct 2001 19:57:32 -0400
+Date: Tue, 23 Oct 2001 00:57:42 +0100
+From: Sam Vilain <sam@vilain.net>
+To: brian@worldcontrol.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011023015641.W25701@khan.acc.umu.se>
-In-Reply-To: <86256AED.007BA960.00@smtpnotes.altec.com>
+In-Reply-To: <20011022122722.A369@top.worldcontrol.com>
+In-Reply-To: <20011022140644.A31530@emma1.emma.line.org>
+	<E15veCh-0001nf-00@the-village.bc.nu>
+	<20011022122722.A369@top.worldcontrol.com>
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <86256AED.007BA960.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Mon, Oct 22, 2001 at 05:27:06PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vowx-0000RS-00@hoffman.vilain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 05:27:06PM -0500, Wayne.Brown@altec.com wrote:
-> 
-> 
-> Even if every Linux user in the US speaks out against it (and I'm sure
-> a lot of us already have), I doubt it will make any difference at all.
+On Mon, 22 Oct 2001 12:27:22 -0700
+brian@worldcontrol.com wrote:
 
-I'm sure that a couple of tens of thousands of well-informed
-Open-Source/Free Speech proponents attending Sklyarovs trial would draw
-attention.
+> On Mon, Oct 22, 2001 at 01:29:14PM +0100, Alan Cox wrote:
+> >    "Until they become conscious they will never rebel, and until after
+> >     they have rebelled they cannot become conscious."
+> While I've been generally saddened by Alan Cox's and others
+> anti-America attitude,  I am somewhat surprised to find that
+> Alan believes the US bombing of Afghanistan is justified and so
+> is the collateral damage as they call it.
 
-Similarly a large manifestion on the day of the hearing on SSSCA,
-preferably with known (important!) professors, scientists, authors, etc
-giving lectures on why DMCA/SSSCA is so bad for
-freedom/economy/whatever, would probably give quite some
-column-millimetres.
-
-> There just aren't enough of us.  But hey, you and the rest of the
-> world will still have Linux, so who cares, right?  It's great to see
-> such enthusiastic support for the principles of free software.
-
-I think few, if anyone, has said anything such.
-But I do know, that an Alan at home, co-working with his under-ground
-cluster of gnomes, does a hell-of-a-lot more good for free software
-than an Alan in a US-prison as yet another victim of "justice".
-
-> My personal opinion is that no one in this discussion is really
-> concerned about getting arrested or sued over publishing Linux
-> changelogs.  I think it's all just a publicity stunt to make a point,
-> at the expense of those who have no choice in the matter.  In any
-
-Ahhhh. So you argue, that this is a publicity-stunt pulled by Alan,
-and at the same time complain about the fact that the people fighting
-the DMCA/SSSCA don't get enough attention? That is, you complain about
-an alleged attempt to pull attention to an idiotic law, yet whine about
-the fact that it's hard to get enough attention about this law?
-
-> case, I'm thoroughly disgusted with the whole subject and don't intend
-> to answer any more posts or emails about it.
-
-Ok.
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+*plonk*

@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273697AbRIQVWq>; Mon, 17 Sep 2001 17:22:46 -0400
+	id <S273701AbRIQVhy>; Mon, 17 Sep 2001 17:37:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273698AbRIQVWh>; Mon, 17 Sep 2001 17:22:37 -0400
-Received: from mail.missioncriticallinux.com ([208.51.139.18]:5648 "EHLO
-	missioncriticallinux.com") by vger.kernel.org with ESMTP
-	id <S273697AbRIQVW1>; Mon, 17 Sep 2001 17:22:27 -0400
-Message-ID: <3BA669A8.812D381D@MissionCriticalLinux.com>
-Date: Mon, 17 Sep 2001 14:22:48 -0700
-From: Bruce Blinn <blinn@MissionCriticalLinux.com>
-Organization: Mission Critical Linux
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-bcb i686)
-X-Accept-Language: en
+	id <S273702AbRIQVhf>; Mon, 17 Sep 2001 17:37:35 -0400
+Received: from forge.redmondlinux.org ([209.81.49.42]:47330 "EHLO
+	forge.redmondlinux.org") by vger.kernel.org with ESMTP
+	id <S273701AbRIQVhY>; Mon, 17 Sep 2001 17:37:24 -0400
+Date: Mon, 17 Sep 2001 14:39:32 -0700 (PDT)
+From: Joseph Cheek <joseph@cheek.com>
+To: mrsam@courier-mta.com
+cc: linux-kernel@vger.kernel.org
+Subject: ide zip 100 won't mount
+Message-ID: <Pine.LNX.4.10.10109171434550.9815-100000@forge.redmondlinux.org>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-In-Reply-To: <Pine.LNX.3.95.1010917155338.17362A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Mon, 17 Sep 2001, Bruce Blinn wrote:
-> [SNIPPED...]
-> 
-> Just do `cp /dev/cdrom /tmp/foo`. ^C out when you think you have
-> enough, then use `dd` to copy a small portion of the image file.
-> 
+i've tried 2.4.7-ac10 and 2.4.9-ac10.  same results.  at boot i get:
 
-Here are the results of the methods that were suggested for producing a
-CD image.  They all seem to fail at the same place because the resulting
-file is the same size.
+Sep 17 11:02:48 seattle kernel: ide-floppy driver 0.97.sv
+Sep 17 11:02:48 seattle kernel: hdd: No disk in drive
+Sep 17 11:02:48 seattle kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps, 512
+sector size, 2941 rpm
 
-	# dd if=/dev/cdrom of=/tmp/cd1.iso
-	dd: /dev/cdrom: Input/output error
-	1440+0 records in
-	1440+0 records out
- 
-	# dd if=/dev/cdrom of=/tmp/cd2.iso bs=2k
-	dd: /dev/cdrom: Input/output error
-	360+0 records in
-	360+0 records out
- 
-	# cp /dev/cdrom /tmp/cd3.iso
-	cp: /dev/cdrom: Input/output error
- 
-	# ls -l /tmp/cd*
-	-rw-------    1 root     root       737280 Sep 17 14:09 /tmp/cd1.iso
-	-rw-------    1 root     root       737280 Sep 17 14:10 /tmp/cd2.iso
-	-rw-------    1 root     root       737280 Sep 17 14:11 /tmp/cd3.iso
+looks good, right?  but i put a disk in and i get:
 
-Thanks,
-Bruce
--- 
-Bruce Blinn                               408-615-9100
-Mission Critical Linux, Inc.              blinn@MissionCriticalLinux.com
-www.MissionCriticalLinux.com
+Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc =  0, key =
+2, asc = 30, ascq =  0
+Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc = 1b, key =
+2, asc = 30, ascq =  0
+Sep 17 14:36:23 seattle kernel: hdd: No disk in drive
 
-Asking if computers can think is like asking if submarines can swim.
+not hardware, as it works in windows on the same machine.
+
+any ideas?
+
+thanks!
+
+joe
+

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVCIFEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVCIFNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVCIFEq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 00:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVCIFEp
+	id S261226AbVCIFNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 00:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVCIFNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 00:04:45 -0500
-Received: from waste.org ([216.27.176.166]:39601 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261168AbVCIFEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 00:04:36 -0500
-Date: Tue, 8 Mar 2005 21:04:35 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Alex Aizman <itn780@yahoo.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
-Message-ID: <20050309050434.GT3163@waste.org>
-References: <422BFCB2.6080309@yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422BFCB2.6080309@yahoo.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Mar 2005 00:13:38 -0500
+Received: from web53307.mail.yahoo.com ([206.190.39.236]:17839 "HELO
+	web53307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261226AbVCIFNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 00:13:36 -0500
+Message-ID: <20050309051335.21714.qmail@web53307.mail.yahoo.com>
+Date: Wed, 9 Mar 2005 05:13:35 +0000 (GMT)
+From: sounak chakraborty <sounakrin@yahoo.co.in>
+Subject: Boot sequence of /proc filesystem
+To: linux kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 11:03:14PM -0800, Alex Aizman wrote:
-> As far as user/kernel, the existing iSCSI initiators bloat the kernel with
-> ever-growing control plane code, including but not limited to: iSCSI
-> discovery, Login (Authentication and Operational), session and connection
-> management, connection-level error processing, iSCSI Text, Nop-Out/In, Async
-> Message, iSNS, SLP, Radius... Open-iSCSI puts the entire control plane in
-> the user space. This control plane talks to the data plane via well defined
-> interface over the netlink transport.
+Hi,
+           I am writing some piece of code in  the
+linux kernel 2.6.8 , in the files
+linux-2.6.8/kernel/fork.c ( in function do_fork() )
+and linux-2.6.8/kernel/exit.c ( in the function
+do_exit() ).
 
-How big is the userspace client?
+       My objective is to execute the code immediately
+after the kernel has mounted the /proc filesystem.
+This is because i am creating new subdirectories in
+the /proc fs.
+    
+      What is the checking condition i should place
+inside the kernel so that i can verify that the /proc
+fs has been mounted during booting and now my code can
+be executed by the kernel.
+    
+      Is there any global variable that gets turned on
+when the /proc fs is mounted during booting.
+  
+      Also my code should continue executing until the
+/proc fs has been unmounted during shutdown process.
 
-How does this perform under memory pressure? If the userspace iSCSI
-client is paged out for whatever reason, and flushing _to_ an iSCSI
-device is necessary to page the usersace portion back in, and the
-connection needs restarting or the like to flush... 
- 
-> Performance.
-> This is the major goal and motivation for this project. As it happens, iSCSI
-> has to compete with Fibre Channel, which is a more entrenched technology in
-> the storage space. In addition, the "soft" iSCSI implementation have to show
-> good results in presence of specialized hardware offloads.
-> 
-> Our today's performance numbers are:
-> 
-> - 450MB/sec Read on a single connection (2-way 2.4Ghz Opteron, 64KB block 
-> size);
+      It would really help me if you can suggest a
+wayout.
+     
+Thanks in advance.
+Sounak
 
-With what network hardware and drives, please?
-
--- 
-Mathematics is the supreme nostalgia of our time.
+________________________________________________________________________
+Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

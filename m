@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263042AbVCDUwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263064AbVCDUlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263042AbVCDUwB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:52:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbVCDUtc
+	id S263064AbVCDUlq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 15:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbVCDUdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:49:32 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38551 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263106AbVCDUnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:43:10 -0500
-Subject: Re: [PATCH] clean up FIXME in do_timer_interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: george@mvista.com
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <42283857.9050007@mvista.com>
-References: <1109869828.2908.18.camel@mindpipe>
-	 <20050303164520.0c0900df.akpm@osdl.org> <1109899148.3630.5.camel@mindpipe>
-	 <42283857.9050007@mvista.com>
-Content-Type: text/plain
-Date: Fri, 04 Mar 2005 15:43:05 -0500
-Message-Id: <1109968985.6710.16.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 4 Mar 2005 15:33:36 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:21483 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S263116AbVCDUbq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:31:46 -0500
+Message-ID: <4228C6D9.8010701@tmr.com>
+Date: Fri, 04 Mar 2005 15:36:41 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+CC: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: intel 8x0 went silent in 2.6.11
+References: <4227085C.7060104@drzeus.cx><4227085C.7060104@drzeus.cx> <29495f1d05030309455a990c5b@mail.gmail.com>
+In-Reply-To: <29495f1d05030309455a990c5b@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 02:28 -0800, George Anzinger wrote:
-> Lee Revell wrote:
-> > On Thu, 2005-03-03 at 16:45 -0800, Andrew Morton wrote:
-> > 
-> >>If efi_enabled is true and efi_set_rtc_mmss(xtime.tv_sec) returns zero, the
-> >>new code will run set_rtc_mmss(xtime.tv_sec) whereas the old code won't.
-> > 
-> > 
-> > Argh, I should know better then to send patches before having coffee.
-> > 
-> > Here's a new patch.  Still ugly, but might be a worthwhile cleanup.
+Nish Aravamudan wrote:
+> On Thu, 03 Mar 2005 13:51:40 +0100, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
 > 
-> Lets ask the obvious question: Why isn't this update hung on a timer?  It seems 
-> silly to check this 6000 times per update.  I am sure we can sync a timer to the 
-> same degree we do timer interrupts, so there _must_ be some other reason.  Right?
+>>I just upgraded to Linux 2.6.11 and the soundcard on my machine went
+>>silent. All volume controls are correct and there are no errors
+>>reported. But no sound coming from the speakers. And here's the kicker,
+>>the headphones work fine!
+>>2.6.10 still works so the bug appeared in one of the patches in between.
+>>The sound card is the one integrated into intels mobile ICH4 chipset.
 > 
+> 
+> There was some discussion of this on LKML a while ago. Are you sure
+> you have disabled "Headphone Jack Sense" and "Line Jack Sense" in
+> alsamixer?
 
-Thanks George, I knew there was an obvious question here, I just didn't
-know what it was ;-).
+Is there some option to alsamixer to get those to show up? There's no 
+such entry in the default display (FC3 w/ kernel.org 2.6.1[01]).
 
-The thin that brought this code to my attention is that with PREEMPT_RT
-this happens to be the longest non-preemptible code path in the kernel.
-On my 1.3 Ghz machine set_rtc_mmss takes about 50 usecs, combined with
-the rest of timer irq we end up disabling preemption for about 90 usecs.
-Unfortunately I don't have the trace anymore.
-
-Anyway the upshot is if we hung this off a timer it looks like we would
-improve the worst case latency with PREEMPT_RT by almost 50%.  Unless
-there is some reason it has to be done synchronously of course.
-
-Lee
-
-
-
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265080AbTF2Xql (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 19:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTF2Xql
+	id S265083AbTF2Xuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 19:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265518AbTF2Xuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 19:46:41 -0400
-Received: from ns.mock.com ([209.157.146.194]:42942 "EHLO mail.mock.com")
-	by vger.kernel.org with ESMTP id S265080AbTF2Xqk (ORCPT
+	Sun, 29 Jun 2003 19:50:32 -0400
+Received: from smtp2.pp.htv.fi ([213.243.153.6]:5084 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S265083AbTF2Xu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 19:46:40 -0400
-Message-Id: <5.1.0.14.2.20030629165324.03da7cf0@mail.mock.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 29 Jun 2003 17:00:57 -0700
-To: Kurt Wall <kwall@kurtwerks.com>
-From: Jeff Mock <jeff-ml@mock.com>
-Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030629232244.GB276@kurtwerks.com>
-References: <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
- <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
+	Sun, 29 Jun 2003 19:50:29 -0400
+Date: Mon, 30 Jun 2003 03:05:08 +0300
+From: Richard Braakman <dark@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+Message-ID: <20030630000508.GA3657@cs78143044.pp.htv.fi>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk> <200306291545410600.02136814@smtp.comcast.net> <3EFF4677.4050002@sktc.net> <200306291636150850.0241B66C@smtp.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-DCC-meer-Metrics: wobble.mock.com 1035; Body=2 Fuz1=2 Fuz2=2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306291636150850.0241B66C@smtp.comcast.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:22 PM 6/29/2003 -0400, Kurt Wall wrote:
->Quoth Jeff Mock:
-> >
-> > I'm running a 2.4.21 kernel on a redhat 9.0 system.
-> >
-> > I'm having a problem when using serial ATA drives on an Intel 875P/ICH5
-> > motherboard where the kernel will hang at approximately the same place
-> > in the boot process about 25% of the time.
->
->[tale of woe elided]
->
->[lots of snippage]
->
-> > 1: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4363  Sat
-> > Apr 19 17:46:46 PDT 2003
->
->You won't get a lot of help here until you lose this module.
->
->
-> > Linux agpgart interface v0.99 (c) Jeff Hartmann
-> > agpgart: Maximum main memory to use for agp memory: 1919M
-> > agpgart: Unsupported Intel chipset (device id: 2578), you might want to 
-> try
-> > agp_try_unsupported=1.
-> > agpgart: no supported devices found.
-> > 1: NVRM: AGPGART: unable to retrieve symbol table
->
->Hmm.
+On Sun, Jun 29, 2003 at 04:36:15PM -0400, rmoser wrote:
+> Told you, I can't code it.  I could work on making an initial design for the
+> most important part though, the datasystem that separates the two filesystems
+> and holds the meta-data and data in self-contained atoms.  I KNOW I won't
+> get it right the first time, but I can give you a place to start.
 
-Guilty. The sad thing is that's just the tip of my politically
-incorrect iceberg.
+I don't think that's the most important part.  The most important part
+is figuring out a layout for the filesystem while it's in transition,
+such that it is at the same time a valid ext3 filesystem (so that the
+ext3 export routines can work on it) and a valid reiser4 filesystem
+(so that the reiser4 import routines can work on it).  And you need
+to do it in such a way that the import routines won't stomp on data
+that hasn't been exported yet.
 
-The nvidia driver (and the attempt at agpgart) is loaded when X
-starts, long after the potential SATA related crash.  I changed my
-default init level and rebooted a few times to verify the crash, so
-I'm pretty sure that neither agpgart or the proprietary graphics driver
-are involved in the problem.
+If you don't have that, then there's no point in putting it in the
+kernel because you won't be able to re-use the kernel fs code anyway.
 
-jeff
+Then you need to generalize this to work with any pair of filesystems.
 
+As for the datasystem to hold the metadata: I expect you'll find that
+backup/restore systems already implement this.  It's what they have to
+do, after all.
 
-
+Richard Braakman

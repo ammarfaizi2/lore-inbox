@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264728AbTGBFmY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 01:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTGBFmY
+	id S264762AbTGBGJK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 02:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTGBGJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 01:42:24 -0400
-Received: from mta07bw.bigpond.com ([144.135.24.134]:503 "EHLO
-	mta07bw.bigpond.com") by vger.kernel.org with ESMTP id S264728AbTGBFmX
+	Wed, 2 Jul 2003 02:09:10 -0400
+Received: from angband.namesys.com ([212.16.7.85]:11401 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S264762AbTGBGJC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 01:42:23 -0400
-Date: Wed, 02 Jul 2003 15:56:48 +1000
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-Subject: Re: PROBLEM: USB Serial oops in 2.4.22-pre2
-In-reply-to: <20030702033417.GB3272@kroah.com>
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <200307021556.48174.harisri@bigpond.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5
-References: <200307021222.09764.harisri@bigpond.com>
- <20030702033417.GB3272@kroah.com>
+	Wed, 2 Jul 2003 02:09:02 -0400
+Date: Wed, 2 Jul 2003 10:23:24 +0400
+From: Oleg Drokin <green@namesys.com>
+To: steven.newbury1@ntlworld.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BadRAM for 2.5.73-mm2
+Message-ID: <20030702062324.GA1561@namesys.com>
+References: <20030702033326.HNID28183.mta05-svc.ntlworld.com@[10.137.100.64]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030702033326.HNID28183.mta05-svc.ntlworld.com@[10.137.100.64]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+Hello!
 
-On Wednesday 02 July 2003 13:34, Greg KH wrote:
-> On Wed, Jul 02, 2003 at 12:22:09PM +1000, Srihari Vijayaraghavan wrote:
-> > [1.] One line summary of the problem:
-> > USB Serial oops in 2.4.22-pre2
->
-> Does this happen with 2.4.21?
+On Wed, Jul 02, 2003 at 03:33:26AM +0000, steven.newbury1@ntlworld.com wrote:
 
-I do not know. I'll try to test it under 2.4.21 (ie, 2.4.21 + ACPI as USB 
-won't work without ACPI on ATI-IGP+ALi combo, like my laptop. And that's a 
-primary reason behind using 2.4.22-pre as ACPI is in the official 2.4 tree).
+> It will probably apply cleanly to 2.5.73 as well but I haven't checked it
+> yet...
 
->
-> Anyway, this is a known bug.  See the linux-usb-devel archives for what
-> needs to be done to fix this, or just switch to 2.5, as it's fixed there
->
-> :)
+This
 
-Unfortunately that isn't an option, as this is my production environment 
-(incidentally I've used 2.5 in the past, but as you know 2.4 is the stable 
-tree and is the most appropriate one).
+> It is based it on
+> http://rick.vanrein.org/linux/badram/software/BadRAM-2.4.20.1.patch
 
-I'm now searching the usb-devel archives to understand this issue, but do you 
-think the upcoming 2.4.22-pre3 might fix this issue?
+and this patches both have a bug that effectively disables all highmem (if present)
+when badram patch is activated. I contacted Rick, but never got any answer back.
+(in fact I got an auto reply from some Debian bugtracking system, but that's about it).
+Corrected 2.4.21 version of the patch is available at
+http://linuxhacker.ru/patches/2.4.21-badram.diff
 
-Thanks for your response :).
--- 
-Hari
+The arch/i386/mm/init.c part:
+> +void __init one_highpage_init(struct page *page, int pfn, int bad_ppro,
+> +                               _Bool *bad)
+>   {
+> +       *bad = 0;
+>         if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
+>                 ClearPageReserved(page);
+>                 set_bit(PG_highmem, &page->flags);
+>                 set_page_count(page, 1);
+> -               __free_page(page);
+> +#ifdef CONFIG_BADRAM
+> +               if (PageBad(page))
+> +                       *bad = 1;
+> +               else
+> +#else
+> +                       __free_page(page);
+> +#endif
+>                 totalhigh_pages++;
 
+should obviously get "#else" replaced with "#endif" and original "#endif" should be removed
+because otherwise all of the highmem pages are either bad or used right from the initialisation.
+(Yes, I have highmem (2G RAM) system with 2 bits bad and I am too lazy to to go to the store to
+replace the RAM modules, so I given a patch a try and discovered this problem (which is there
+for a long time it seems). I suspect that I am the only one who runs this patch on highmem system,
+though ;) )
+
+Bye,
+    Oleg

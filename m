@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261822AbSIXVbY>; Tue, 24 Sep 2002 17:31:24 -0400
+	id <S261831AbSIXVhi>; Tue, 24 Sep 2002 17:37:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261823AbSIXVa0>; Tue, 24 Sep 2002 17:30:26 -0400
-Received: from [202.54.24.132] ([202.54.24.132]:47546 "EHLO
-	dns2.ggn.hcltech.com") by vger.kernel.org with ESMTP
-	id <S261820AbSIXVaR>; Tue, 24 Sep 2002 17:30:17 -0400
-Message-ID: <5F0021EEA434D511BE7300D0B7B6AB53050A4C9D@mail2.ggn.hcltech.com>
-From: "Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Interrupt Sharing
-Date: Wed, 25 Sep 2002 03:10:07 +0530
+	id <S261834AbSIXVhi>; Tue, 24 Sep 2002 17:37:38 -0400
+Received: from port-216-3073641-iml104.devices.datareturn.net ([216.46.230.105]:53006
+	"EHLO sportvision.com") by vger.kernel.org with ESMTP
+	id <S261831AbSIXVhh> convert rfc822-to-8bit; Tue, 24 Sep 2002 17:37:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roberto Peon <robertopeon@sportvision.com>
+Reply-To: robertopeon@sportvision.com
+Organization: Sportvision Inc.
+To: Rik van Riel <riel@conectiva.com.br>,
+       Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Date: Tue, 24 Sep 2002 14:35:16 -0700
+User-Agent: KMail/1.4.1
+Cc: David Schwartz <davids@webmaster.com>, <pwaechtler@mac.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209241822080.15154-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0209241822080.15154-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209241435.17009.robertopeon@sportvision.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But what if two PCI Devices are sharing the same interrupt line?
-Then how does the handler handle this?
-Can you please explain this handling by the Kernel?
 
--MG
+On Tuesday 24 September 2002 02:22 pm, Rik van Riel wrote:
+> On Tue, 24 Sep 2002, Chris Friesen wrote:
+> > David Schwartz wrote:
+> > > 	The main reason I write multithreaded apps for single CPU systems is
+> > > to protect against ambush. Consider, for example, a web server. Someone
+> > > sends it an obscure request that triggers some code that's never run
+> > > before and has to fault in. If my application were single-threaded, no
+> > > work could be done until that page faulted in from disk.
 
-> -----Original Message-----
-> From: Robert Love [mailto:rml@tech9.net]
-> Sent: Wednesday, September 25, 2002 2:55 AM
-> To: Mohamed "Ghouse , Gurgaon
-> Cc: Linux-Kernel (E-mail)
-> Subject: Re: Interrupt Sharing
-> 
-> 
-> On Tue, 2002-09-24 at 17:19, Mohamed Ghouse , Gurgaon wrote:
-> 
-> > Let me Re-Phrase the Question
-> > The PCI Interrupts are shareable. How does the Operating 
-> System(Linux)
-> > implement this?
-> 
-> It does not have to do anything special, actually.  If 
-> interrupt n comes
-> in, then each handler registered on interrupt n is run.
-> 
-> The incorrect handlers should check for work to do, see none, and
-> return.  The correct one will actually run.
-> 
-> 	Robert Love
-> 
+This is similar to the problems that we face doing realtime virtual video
+enhancements-
+
+We have to log camera data (to know where things are pointed) by video
+timecode since the data for the camera and the video are asyncronous
+(especially in replay). 
+
+These (mmaped) logs can get relatively large (100+ MB ea) and access into them
+is relatively random (i.e. determined by the director of the show), so the
+process reading the log (and suffering the fault) is in a different thread in
+order to not stall the other important tasks such as video output.
+(Mis-estimating the position for the enhancement is much less of an issue than
+dropping the video frame itself. We don't want 10,000,000 people seeing
+pure-green frames popping up in the middle of the broadcast.)
+
+-Roberto JP
+robertopeon@sportvision.com
+
+

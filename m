@@ -1,294 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbTDUSeA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTDUSeA
+	id S261868AbTDUSib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTDUSiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:34:00 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:64308 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261805AbTDUSdU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:33:20 -0400
-Subject: [PATCH] synclink_cs.c 2.5.68
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-       "torvalds@transmeta.com" <torvalds@transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050950719.1841.36.camel@diemos>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 21 Apr 2003 13:45:20 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Apr 2003 14:38:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45711 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S261868AbTDUSg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:36:58 -0400
+Date: Mon, 21 Apr 2003 15:47:32 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.21-rc1
+Message-ID: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Remove MODULE_USE_COUNT macros
-* Add owner member
-* Add tiocmget/tiocmset tty callbacks
 
-Please Apply
+Here goes the first candidate for 2.4.21.
 
-Paul Fulghum
-paulkf@microgate.com
-
---- linux-2.5.68/drivers/char/pcmcia/synclink_cs.c	2003-04-07 12:31:03.000000000 -0500
-+++ linux-2.5.68-mg/drivers/char/pcmcia/synclink_cs.c	2003-04-21 12:54:06.661578104 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/pcmcia/synclink_cs.c
-  *
-- * $Id: synclink_cs.c,v 4.4 2002/10/10 14:53:37 paulkf Exp $
-+ * $Id: synclink_cs.c,v 4.6 2003/04/21 17:46:55 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink PC Card
-  * multiprotocol serial adapter.
-@@ -442,9 +442,9 @@
- /*
-  * ioctl handlers
-  */
--static int set_modem_info(MGSLPC_INFO *info, unsigned int cmd,
--			  unsigned int *value);
--static int get_modem_info(MGSLPC_INFO *info, unsigned int *value);
-+static int tiocmget(struct tty_struct *tty, struct file *file);
-+static int tiocmset(struct tty_struct *tty, struct file *file,
-+		    unsigned int set, unsigned int clear);
- static int get_stats(MGSLPC_INFO *info, struct mgsl_icount *user_icount);
- static int get_params(MGSLPC_INFO *info, MGSL_PARAMS *user_params);
- static int set_params(MGSLPC_INFO *info, MGSL_PARAMS *new_params);
-@@ -496,7 +496,7 @@
- MODULE_LICENSE("GPL");
- 
- static char *driver_name = "SyncLink PC Card driver";
--static char *driver_version = "$Revision: 4.4 $";
-+static char *driver_version = "$Revision: 4.6 $";
- 
- static struct tty_driver serial_driver, callout_driver;
- static int serial_refcount;
-@@ -2326,94 +2326,56 @@
- 	return rc;
- }
- 
--/* Return state of the serial control/status signals
-- * 	
-- * Arguments:	 	info	pointer to device instance data
-- * 			value	pointer to int to hold returned info
-- * 	
-- * Return Value:	0 if success, otherwise error code
-+/* return the state of the serial control and status signals
-  */
--static int get_modem_info(MGSLPC_INFO * info, unsigned int *value)
-+static int tiocmget(struct tty_struct *tty, struct file *file)
- {
-+	MGSLPC_INFO *info = (MGSLPC_INFO *)tty->driver_data;
- 	unsigned int result;
-  	unsigned long flags;
--	int err;
-- 
-+
- 	spin_lock_irqsave(&info->lock,flags);
-  	get_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
- 
--	result = ((info->serial_signals & SerialSignal_RTS) ? TIOCM_RTS:0) |
--		 ((info->serial_signals & SerialSignal_DTR) ? TIOCM_DTR:0) |
--		 ((info->serial_signals & SerialSignal_DCD) ? TIOCM_CAR:0) |
--		 ((info->serial_signals & SerialSignal_RI)  ? TIOCM_RNG:0) |
--		 ((info->serial_signals & SerialSignal_DSR) ? TIOCM_DSR:0) |
--		 ((info->serial_signals & SerialSignal_CTS) ? TIOCM_CTS:0);
-+	result = ((info->serial_signals & SerialSignal_RTS) ? TIOCM_RTS:0) +
-+		((info->serial_signals & SerialSignal_DTR) ? TIOCM_DTR:0) +
-+		((info->serial_signals & SerialSignal_DCD) ? TIOCM_CAR:0) +
-+		((info->serial_signals & SerialSignal_RI)  ? TIOCM_RNG:0) +
-+		((info->serial_signals & SerialSignal_DSR) ? TIOCM_DSR:0) +
-+		((info->serial_signals & SerialSignal_CTS) ? TIOCM_CTS:0);
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
--		printk("mgslpc_get_modem_info %s value=%08X\n", info->device_name, result);
--			
--	PUT_USER(err,result,value);
--	return err ? -EFAULT : 0;
-+		printk("%s(%d):%s tiocmget() value=%08X\n",
-+			 __FILE__,__LINE__, info->device_name, result );
-+	return result;
- }
- 
--/* Set the state of the modem control signals (DTR/RTS)
-- * 	
-- * Arguments:
-- * 
-- * 	info	pointer to device instance data
-- * 	cmd	signal command: TIOCMBIS = set bit TIOCMBIC = clear bit
-- *		TIOCMSET = set/clear signal values
-- * 	value	bit mask for command
-- * 	
-- * Return Value:	0 if success, otherwise error code
-+/* set modem control signals (DTR/RTS)
-  */
--static int set_modem_info(MGSLPC_INFO * info, unsigned int cmd,
--			  unsigned int *value)
-+static int tiocmset(struct tty_struct *tty, struct file *file,
-+		    unsigned int set, unsigned int clear)
- {
-- 	int error;
-- 	unsigned int arg;
-+	MGSLPC_INFO *info = (MGSLPC_INFO *)tty->driver_data;
-  	unsigned long flags;
-- 
-+
- 	if (debug_level >= DEBUG_LEVEL_INFO)
--		printk("mgslpc_set_modem_info %s\n", info->device_name);
--			
-- 	GET_USER(error,arg,value);
-- 	if (error)
-- 		return error;
--		
-- 	switch (cmd) {
-- 	case TIOCMBIS: 
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals |= SerialSignal_RTS;
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals |= SerialSignal_DTR;
-- 		break;
-- 	case TIOCMBIC:
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals &= ~SerialSignal_RTS;
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals &= ~SerialSignal_DTR;
-- 		break;
-- 	case TIOCMSET:
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals |= SerialSignal_RTS;
--		else
-- 			info->serial_signals &= ~SerialSignal_RTS;
--		
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals |= SerialSignal_DTR;
--		else
-- 			info->serial_signals &= ~SerialSignal_DTR;
-- 		break;
-- 	default:
-- 		return -EINVAL;
-- 	}
--	
-+		printk("%s(%d):%s tiocmset(%x,%x)\n",
-+			__FILE__,__LINE__,info->device_name, set, clear);
-+
-+	if (set & TIOCM_RTS)
-+		info->serial_signals |= SerialSignal_RTS;
-+	if (set & TIOCM_DTR)
-+		info->serial_signals |= SerialSignal_DTR;
-+	if (clear & TIOCM_RTS)
-+		info->serial_signals &= ~SerialSignal_RTS;
-+	if (clear & TIOCM_DTR)
-+		info->serial_signals &= ~SerialSignal_DTR;
-+
- 	spin_lock_irqsave(&info->lock,flags);
-  	set_signals(info);
- 	spin_unlock_irqrestore(&info->lock,flags);
--	
-+
- 	return 0;
- }
- 
-@@ -2482,12 +2444,6 @@
- 	unsigned long flags;
- 	
- 	switch (cmd) {
--	case TIOCMGET:
--		return get_modem_info(info, (unsigned int *) arg);
--	case TIOCMBIS:
--	case TIOCMBIC:
--	case TIOCMSET:
--		return set_modem_info(info, cmd, (unsigned int *) arg);
- 	case MGSL_IOCGPARAMS:
- 		return get_params(info,(MGSL_PARAMS *)arg);
- 	case MGSL_IOCSPARAMS:
-@@ -2687,7 +2643,6 @@
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):mgslpc_close(%s) exit, count=%d\n", __FILE__,__LINE__,
- 			tty->driver.name, info->count);
--	MOD_DEC_USE_COUNT;
- }
- 
- /* Wait until the transmitter is empty.
-@@ -2939,8 +2894,6 @@
- 		printk("%s(%d):mgslpc_open(%s), old ref count = %d\n",
- 			 __FILE__,__LINE__,tty->driver.name, info->count);
- 
--	MOD_INC_USE_COUNT;
--	
- 	/* If port is closing, signal caller to try again */
- 	if (tty_hung_up_p(filp) || info->flags & ASYNC_CLOSING){
- 		if (info->flags & ASYNC_CLOSING)
-@@ -2995,7 +2948,6 @@
- 	
- cleanup:			
- 	if (retval) {
--		MOD_DEC_USE_COUNT;
- 		if(info->count)
- 			info->count--;
- 	}
-@@ -3247,6 +3199,7 @@
- 	
-     memset(&serial_driver, 0, sizeof(struct tty_driver));
-     serial_driver.magic = TTY_DRIVER_MAGIC;
-+    serial_driver.owner = THIS_MODULE;
-     serial_driver.driver_name = "synclink_cs";
-     serial_driver.name = "ttySLP";
-     serial_driver.major = ttymajor;
-@@ -3282,6 +3235,8 @@
-     serial_driver.stop = tx_pause;
-     serial_driver.start = tx_release;
-     serial_driver.hangup = mgslpc_hangup;
-+    serial_driver.tiocmget = tiocmget;
-+    serial_driver.tiocmset = tiocmset;
- 	
-     /*
-      * The callout device is just like normal device except for
-@@ -4386,7 +4341,7 @@
- {
- 	MGSLPC_INFO *info = d->priv;
- 	int err;
--	long flags;
-+	unsigned long flags;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("mgslpc_sppp_open(%s)\n",info->netname);	
-@@ -4398,7 +4353,6 @@
- 		return -EBUSY;
- 	}
- 	info->netcount=1;
--	MOD_INC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 
- 	/* claim resources and init adapter */
-@@ -4421,7 +4375,6 @@
- open_fail:
- 	spin_lock_irqsave(&info->netlock, flags);
- 	info->netcount=0;
--	MOD_DEC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 	return err;
- }
-@@ -4429,7 +4382,7 @@
- void mgslpc_sppp_tx_timeout(struct net_device *dev)
- {
- 	MGSLPC_INFO *info = dev->priv;
--	long flags;
-+	unsigned long flags;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("mgslpc_sppp_tx_timeout(%s)\n",info->netname);	
-@@ -4491,7 +4444,6 @@
- 
- 	spin_lock_irqsave(&info->netlock, flags);
- 	info->netcount=0;
--	MOD_DEC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 	return 0;
- }
+Please test it extensively.
 
 
+Summary of changes from v2.4.21-pre7 to v2.4.21-rc1
+============================================
+
+<alborchers@steinerpoint.com>:
+  o USB: patch for oops in io_edgeport.c
+
+<arndt@lin02384n012.mc.schoenewald.de>:
+  o USB: Patch against unusual_devs.h to enable Pontis SP600
+
+<baldrick@wanadoo.fr>:
+  o USB: uhci bandaid
+
+<bryder@paradise.net.nz>:
+  o USB: ftdi_sio update
+
+<bwa@us.ibm.com>:
+  o [SCTP/IPV6]: Move sockaddr storage and in6addr_{any,loopback} to generic places
+
+<chas@cmf.nrl.navy.mil>:
+  o [ATM]: Make ia64 include ATM driver config
+
+<chas@locutus.cmf.nrl.navy.mil>:
+  o [ATM]: Get lec net_device names correct
+  o [ATM]: Obsolete some atm_vcc members
+  o [ATM]: Fix idt77252/sch_atm/pppoatm compilation
+  o [ATM]: cleanup nicstat, suni and idt77105
+  o [ATM] nicstar doesnt count all dropped pdus and powerpc fixup
+  o [ATM] s/uni driver overwrites 8-/16-bit mode
+  o [ATM]: Fix total_len calculation in IPHASE driver
+  o [ATM]: Fix IPHASE build with debugging enabled
+
+<dlstevens@us.ibm.com>:
+  o [IPV6]: Add anycast support
+
+<gandalf@netfilter.org>:
+  o [NETFILTER]: Fix modify-after-free bug in ip_conntrack
+
+<gandalf@wlug.westbo.se>:
+  o [NETFILTER]: Fix ipfwadm_core.c compile failure
+  o [NETFILTER IPV6]: Fix Makefile typo
+
+<green@linuxhacker.ru>:
+  o [VLAN]: Fix memory leak in procfs handling
+
+<henning@meier-geinitz.de>:
+  o USB: scanner.c endpoint detection fix
+
+<laforge@netfilter.org>:
+  o [NETFILTER]: iptables iptable_mangle LOCAL_IN bugfix
+  o [NETFILTER]: ipt_REJECT bugfix for TCP RST packets + asymm. routing
+
+<legoll@free.fr>:
+  o USB: New USB serial device ID: Asus A600 PDA cradle
+
+<mb@ozaba.mine.nu>:
+  o [NETFILTER]: Add tftp conntrack + NAT support
+
+<mrr@nexthop.com>:
+  o [IPV6]: Allow protocol to percolate up into rt6 routing operations
+
+<netfilter@interlinx.bc.ca>:
+  o [NETFILTER]: Add amanda conntrack + NAT support
+
+<niv@us.ibm.com>:
+  o [TCP]: Missing SNMP stats
+
+<paulm@routefree.com>:
+  o [NETFILTER]: ip_conntrack bugfix for LOCAL_NAT and PPTP
+
+<riel@redhat.com>:
+  o Fix kunmap_atomic debugging problem
+
+<riel@surriel.com>:
+  o [ATM]: Compile fix for net/atm/br2684.c
+
+<soruk@eridani.co.uk>:
+  o USB: enable Motorola cellphone USB modems
+
+<swiergot@intersec.pl>:
+  o Fix ac97 incomplete headers
+
+<yoshfuji@nuts.ninka.net>:
+  o [IPV6]: Use RFC2553 constant variable
+
+Adrian Bunk <bunk@fs.tum.de>:
+  o [NF/IPV6]: Remove all ipv6_ext_hdrs from ip6tables
+  o [ATM]: Fix IPHASE driver build
+  o Fix aic7xxx compilation
+
+Alan Stern <stern@rowland.harvard.edu>:
+  o USB: usb-storage START-STOP under Linux 2.4
+
+Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>:
+  o [IPV4]: Fix deadlock in IGMP locking
+  o [IPV6]: Correct CHECKSUM_HW handling in tcp_v6_send_check
+
+Andi Kleen <ak@muc.de>:
+  o x86-64 update
+
+Andreas Dilger <adilger@clusterfs.com>:
+  o don't allocate/free blocks in system areas
+
+Andries E. Brouwer <andries.brouwer@cwi.nl>:
+  o compilation fix for 2.4.21-pre7
+  o Fix SCSI size reporting
+
+Ben Collins <bcollins@debian.org>:
+  o IEEE-1394/Firewire update
+
+Benjamin Herrenschmidt <benh@kernel.crashing.org>:
+  o PPC32: Do better cache flushes around L2 cache ctrl register changes
+  o PPC32: Factor out common code for saving/restore CPU special-purpose registers, used on SMP and for sleep/wakeup.
+  o PPC32: Make sure IPI handlers run with interrupts disabled
+  o PPC32: Add proper /proc/ide entry for pmac
+  o PPC32: Update ide-pmac driver
+
+Christoph Hellwig <hch@lst.de>:
+  o [NETFILTER]: 2.4 firewalling compat code removal
+  o [NET]: Backport generic fc_type_trans to 2.4
+
+David Brownell <david-b@pacbell.net>:
+  o USB: ehci-hcd, minor hardware tweaks
+  o USB: usbcore deadlock paranoia
+  o USB: CDC Ether fix notifications
+
+David S. Miller <davem@nuts.ninka.net>:
+  o [IPV6]: Undo __constant_{n,h}to{n,h}l from anycast patch
+  o [SPARC64]: Fix trap stack allocations so gcc-3.x builds work
+  o [SCHED]: Some schedulers forget to flush filter list at destroy
+  o [PKTSCHED]: Fix double-define of __inline__ et al
+  o [IP TUNNEL]: inet_ecn_decapsulate modifies bits in wrong header
+  o [PKT_SCHED]: Remove ugly arch ifdefs from generic code
+  o [NETFILTER IPV6]: Fix route leak in ip6_route_me_harder
+
+Geert Uytterhoeven <geert@linux-m68k.org>:
+  o Amiflop mod_timer()
+  o Duplicate PROC_CONSOLE()
+  o 2.4 IDE core code for m68k
+  o 2.4 IDE driver code for m68k
+  o M68k raw I/O updates
+  o Generic RTC driver
+  o M68k ndelay()
+  o M68k needs WANT_PAGE_VIRTUAL
+
+Hideaki Yoshifuji <yoshfuji@linux-ipv6.org>:
+  o [IPV6]: Use "const" qualifier
+  o [IPV6]: Use ipv6_addr_any() for testing unspecified address
+  o [IPV6]: Don't allow multiple instances of the same IPv6 address on an interface
+  o [IPV6]: Set noblock to 1 in NDISC sock_alloc_send_skb calls
+
+James Morris <jmorris@intercode.com.au>:
+  o [NET]: dst_clone --> dst_hold where appropriate
+  o [PKTSCHED]: Kill redefinition of IPPROTO_ESP in sch_sfq.c
+
+Jens Axboe <axboe@suse.de>:
+  o Fix ide request races which resulted in corruption
+
+Marcelo Tosatti <marcelo@freak.distro.conectiva>:
+  o Cset exclude: mikpe@csd.uu.se|ChangeSet|20030417235935|56567
+  o Add missing HPT366 ID
+  o Updated EXTRAVERSION to -rc1
+
+Mark A. Greer <mgreer@mvista.com>:
+  o PPC32: Add support for SERIAL_IO_PORT ports to the gen550 backend
+
+Mikael Pettersson <mikpe@csd.uu.se>:
+  o fix dmi_scan breakage
+  o fix APIC bus errors on SMP K7 boxes in UP mode
+
+Oleg Drokin <green@angband.namesys.com>:
+  o reiserfs: Fix recenly introduced journal sanity check that breaks replay on old filesystems
+  o reiserfs: Fix for journal replay process, to only replay transactions from last mount. By Chris Mason
+
+Oliver Neukum <oliver@neukum.org>:
+  o Honour HFS lock bits
+
+Paul Mackerras <paulus@samba.org>:
+  o PPC32: Fix the interrupt entry path for POWER3 processors
+  o PPC32: Clean up arch/ppc/mm/Makefile a little
+  o PPC32: xmon fixes for CHRP, powerbooks, and SMP systems
+  o PPC32: fix indentation in include/asm-ppc/bootinfo.h
+  o PPC32: Restructure the top-level interrupt handling loop
+  o PPC32: Align boot wrapper data segment on page boundary
+  o PPC32: Make readb/w/l completely synchronous
+
+Petko Manolov <petkan@users.sourceforge.net>:
+  o USB: pegasus link status detection fix
+
+Randy Dunlap <randy.dunlap@verizon.net>:
+  o [NET]: typo and comment fixes
+
+Randy Dunlap <rddunlap@osdl.org>:
+  o update unexpected IO APIC detection
+
+Rusty Russell <rusty@rustcorp.com.au>:
+  o Fix minor NAT parsing issue
+
+Stephen C. Tweedie <sct@redhat.com>:
+  o 2.4: Fix for jbd compiler warnings
+
+Tom Rini <trini@kernel.crashing.org>:
+  o PPC32: Actually fix KGDB like Mark Greer mentioned
+  o PPC32: Remove an option to partically disable the d-cache
 

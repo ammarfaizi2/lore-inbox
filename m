@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264945AbTLWFW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 00:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264947AbTLWFWr
+	id S264943AbTLWFaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 00:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264892AbTLWFaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 00:22:47 -0500
-Received: from h24-108-15-63.no.shawcable.net ([24.108.15.63]:22287 "HELO
-	h24-108-15-63.no.shawcable.net") by vger.kernel.org with SMTP
-	id S264945AbTLWFWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 00:22:45 -0500
-Message-ID: <m8s-yba04-j-nfo@vcss.hxa7s2.zw>
-From: "Edna Meadows" <g20rakif@yahoo.com>
-Reply-To: "Edna Meadows" <g20rakif@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Best - Deals ---- Xanax And Valium!
-Date: Tue, 23 Dec 03 10:23:39 GMT
-X-Mailer: MIME-tools 5.503 (Entity 5.501)
+	Tue, 23 Dec 2003 00:30:07 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:50584 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S264943AbTLWF24 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 00:28:56 -0500
+Date: Tue, 23 Dec 2003 05:28:22 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-mm1
+In-Reply-To: <20031222211131.70a963fb.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0312230526210.112@student.dei.uc.pt>
+References: <20031222211131.70a963fb.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="F10E7F24.1CA3_5EFD0"
-X-Priority: 3
-X-MSMail-Priority: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---F10E7F24.1CA3_5EFD0
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+On Mon, 22 Dec 2003, Andrew Morton wrote:
 
-Linux-kernel 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test11/2.6.0-mm1/
 
-NEW! ONLINE PHARMACY FOR YOUR PAIN RELIEF
+As a matter of fact the link is:
 
-We offer:
-
-- Xanax
-- Valium
-- Somo
- 
-and many more...
-
-Click Here!
-http://www.yourremedy.biz/r117/htm/index.htm
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0/2.6.0-mm1/
 
 
-See you soon!!
+Thanks for the patch,
+Mind Booster Noori
 
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
-bye
-http://www.yourremedy.biz/r/r.htm
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-
-
-
-
-
-
-
-
-i nk v hvq bmfv
-v jyirqx ynboacr lf rj 
-o yurjumag dqkmhvuakqrfybggl
-jydf  bsgkw sexhthwccwqr 
-
---F10E7F24.1CA3_5EFD0--
+iD8DBQE/59J5mNlq8m+oD34RAt7lAKDTyWM2+TvG2nvzjBAe8jTjvZO2WQCg3/4p
+GwaJRAHrIcspRXOkeABSIH4=
+=5K8v
+-----END PGP SIGNATURE-----
 

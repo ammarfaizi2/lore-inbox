@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbTFSMX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 08:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265358AbTFSMX3
+	id S265358AbTFSMbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 08:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265393AbTFSMbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 08:23:29 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:38161 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S265291AbTFSMX2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 08:23:28 -0400
-Date: Thu, 19 Jun 2003 14:24:00 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
-Subject: Re: BUG: Massive performance drop in routing throughput with 2.4.21
- (62KB)
-Message-Id: <20030619142400.5ef72d72.skraw@ithnet.com>
-In-Reply-To: <20030618.102017.39158569.davem@redhat.com>
-References: <Pine.LNX.4.56.0306171518080.6807@filesrv1.baby-dragons.com>
-	<1055880260.19796.7.camel@rth.ninka.net>
-	<20030618151034.0a84b2e2.skraw@ithnet.com>
-	<20030618.102017.39158569.davem@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Jun 2003 08:31:25 -0400
+Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:36040 "EHLO
+	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S265358AbTFSMbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 08:31:25 -0400
+Message-ID: <009801c33660$a4f277e0$1125a8c0@wizardess.wiz>
+From: "jdow" <jdow@earthlink.net>
+To: "Magnus Solvang" <magnus@solvang.net>, <linux-kernel@vger.kernel.org>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <063301c32c47$ddc792d0$3f00a8c0@witbe> <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke> <6119329250.20030618195802@mail.hypertrek.info> <20030618212017.B6248@almesberger.net> <Pine.LNX.4.53.0306190702580.3024@chaos> <20030619120049.GE3991@first.knowledge.no>
+Subject: Re: Sco vs. IBM
+Date: Thu, 19 Jun 2003 05:45:20 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003 10:20:17 -0700 (PDT)
-"David S. Miller" <davem@redhat.com> wrote:
+From: "Magnus Solvang" <magnus@solvang.net>
 
-> You know what, you're a butt head.  You know why?  I ask you to
-> take this report to a place where people can actually HELP you,
-> yet you continue the thread _HERE_ where nobody who works on networking
-> bugs even reads postings.
+> Quoting Richard B. Johnson (root@chaos.analogic.com):
+> [...]
+> | > "[...] in two other Canopy companies, Troll Tech and Lineo, [...]"
+> |                                          ^^^^^^^^^^
+> |                  I thought this was a joke! There __is__ really
+> | such a company???!! Wonder what they do....., maybe troll this
+> | list... hehe....
+> 
+> You could try a search before joking about it. I believe it's this
+> Norwegian company they write about:
+> 
+> http://www.trolltech.com/
+> 
+> - M
 
-Dear Dave,
+If so then say good by to KDE sometime soon....
 
-please calm down and take a look at the facts. I am _not_ paid for this, I am
-_not_ hired by any distributor or big company. I am doing all this in my spare
-time. I try to help as much as I can, but some things I can't. One of the
-things I cannot do is subscribe to yet another mailing-list, I simply do not
-have the time to do so. This is why sometimes (like in this case) I only can
-throw a basic piece of information at people, hoping someone capable and
-interested listens and takes a look.
-You listened, I honour that. Though I would prefer not to be called names only
-because I am no pro in this game but only an amateur. All I can do is give
-hints, I am not the man to complain about others' work.
-I hope you honour the difference.
-
-Regards,
-Stephan
-
-
-
+{O.O}

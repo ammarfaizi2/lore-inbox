@@ -1,94 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVBWVrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVBWVsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVBWVrP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 16:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVBWVrO
+	id S261622AbVBWVsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 16:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVBWVrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 16:47:14 -0500
-Received: from kunet.com ([69.26.169.26]:34059 "EHLO kunet.com")
-	by vger.kernel.org with ESMTP id S261617AbVBWVpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 16:45:54 -0500
-Message-ID: <003001c519f1$031afc00$7101a8c0@shrugy>
-From: "Ammar T. Al-Sayegh" <ammar@kunet.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <009d01c519e8$166768b0$7101a8c0@shrugy> <1109192040.6290.108.camel@laptopd505.fenrus.org>
-Subject: Re: kernel BUG at mm/rmap.c:483!
-Date: Wed, 23 Feb 2005 16:45:29 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="Windows-1252";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 23 Feb 2005 16:47:46 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:17321 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S261616AbVBWVpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 16:45:52 -0500
+Date: Wed, 23 Feb 2005 22:45:50 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [reiserfs] 100% cpu consum - normal?
+Message-ID: <20050223214550.GA1069@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2005-02-23 at 15:41 -0500, Ammar T. Al-Sayegh wrote:
->> Hi All,
->> 
->> I recently installed Fedora RC3 on a new server.
->> The kernel is 2.6.10-1.741_FC3smp. The server
->> crashes every few days. When I examine /var/log/messages,
->> I find the following line just before the crash:
->> 
->> Feb 22 23:50:35 hostname kernel: ------------[ cut here ]------------
->> Feb 22 23:50:35 hostname kernel: kernel BUG at mm/rmap.c:483!
->> 
->> No further debug lines are given to diagnose the
->> source of the 
-> no oops at all?
 
-No. Is there a way to enable the kernel to give more
-diagnostic debug output next time this error happens?
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Is there a way to at least make the server reboot itself
-next time the kernel is alerted to this problem before
-crashing? When the server is rebooted, it works fine for
-few more days before encountering this problem and
-crashing again.
+Hello!
 
- 
-> which modules are you using?
+I once again tried reiserfs, this time on my ibook:
 
-[root ~]# lsmod 
-Module                  Size  Used by
-ip_conntrack_ftp       76145  0 
-md5                     8001  1 
-ipv6                  236769  78 
-autofs4                21829  0 
-i2c_dev                13249  0 
-i2c_core               24513  1 i2c_dev
-sunrpc                135077  1 
-ipt_REJECT             10561  2 
-ipt_state               5825  79 
-ip_conntrack           45317  2 ip_conntrack_ftp,ipt_state
-iptable_filter          7489  1 
-ip_tables              20929  3 ipt_REJECT,ipt_state,iptable_filter
-microcode              11489  0 
-dm_mod                 57925  0 
-video                  19653  0 
-button                 10577  0 
-battery                13253  0 
-ac                      8773  0 
-uhci_hcd               33497  0 
-ehci_hcd               33737  0 
-e1000                  84629  0 
-floppy                 56913  0 
-ext3                  117961  6 
-jbd                    57177  1 ext3
-3w_xxxx                30561  0 
-ata_piix               12485  7 
-libata                 44101  1 ata_piix
-sd_mod                 20545  9 
-scsi_mod              116033  3 3w_xxxx,libata,sd_mod
+ei ~ # mkreiserfs  -V
+mkreiserfs 3.6.19 (2003 www.namesys.com)
 
-Any clue?
+ei ~ # uname -a
+Linux ei 2.6.10 #5 Sun Feb 6 17:26:47 CET 2005 ppc 750CXe PowerBook4,1 GNU/=
+Linux
 
+If I tar xf $big_tar (speaking about the gcc-source), my system hangs:
 
--ammar
+- no console switching
+- all keyboard input is lost
+- no mouse reaction
+- no network response
+- no display refreshing=20
+
+When doing that on my dm-crypt-jfs home partition this does not happen.
+Nor does it on my xfs root partition.
+
+Is that a normal behaviour of reiserfs 3.6?
+
+Greetings,
+
+Nico
+
+P.S.: I never assumed reiserfs will ever be a stable filesystem, but this
+      is the worst result I have with it. Perhaps I am missing
+      some tuning/mount option?
+
+PPS: Please CC and confirm, I am not subscribed.
+
+--=20
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iQIVAwUBQhz5jLOTBMvCUbrlAQLagQ/8DwjC5QDa0Kp6kk93vPcAC/18yVcvJejq
+cvDrUQqRZn9xhDOAY4pGjVM2mBUQypSS0KBxuvgKU8S5bMqx3G+7EwrPqTj4ozpS
+r23W5pmwvrHbixLMaB6aRretj/Osw5Sv72Wj9hN4I/5VolgPPjc3EM20l4tqC6ah
+8sDYWjRguxZk878NdWJ/9L/LBeA1ZcJAfg58xpIY+erAOIniVYEWEQr+pBG5KwOb
+VC5IddZzyQGQvD4aLe+SsMjfoRa68rOxopqYrcxFtHuNbQ17X3oL9io87tJbemXB
+qr3JKuVQ9uR0OQmikOsHx7mHdRO+t5ceeSNedkPn/svmy9ugDXchncVPnl/jnF6V
+zF7x6XQpFEsqmE4Bqi5DBQaSJiCnnSA/0DpeyZp5M/8jpAoumP8h8zS4VbU3kCOW
+TfcOqmCEqo1W+cSZf+vyCyqoDyub5zGE4IAeGFWYRjTyiuWpD8j/0G2dfqu0/6cM
+1U5S97xeCLVALFq9btOhY9h4qJ/QsmVK3Az5eRw6N85feFY3GSOxTvE7qelue1EE
+m1xL8083AF2p/Bkd9JLqEZwxRtBvb72g+52xaAmcQqrz47IMYAagZDZUsuY83Cga
+OeBqrJvNN/9RpTdSmHvJYBsjpJlNN9VGA6deB0avzf/yh0weAd8Oo4UNX7pzhSGW
+AiXeZMFu2Pw=
+=ExL1
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--

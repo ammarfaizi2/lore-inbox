@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262832AbRE0R0m>; Sun, 27 May 2001 13:26:42 -0400
+	id <S262833AbRE0R0l>; Sun, 27 May 2001 13:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262834AbRE0R03>; Sun, 27 May 2001 13:26:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56844 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262832AbRE0R0U>; Sun, 27 May 2001 13:26:20 -0400
-Subject: Re: VIA IDE no go with 2.4.5-ac1
-To: green@linuxhacker.ru (Oleg Drokin)
-Date: Sun, 27 May 2001 18:23:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vojtech@suse.cz,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010527210628.A998@linuxhacker.ru> from "Oleg Drokin" at May 27, 2001 09:06:28 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262832AbRE0R0a>; Sun, 27 May 2001 13:26:30 -0400
+Received: from web13404.mail.yahoo.com ([216.136.175.62]:64785 "HELO
+	web13404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262833AbRE0R0V>; Sun, 27 May 2001 13:26:21 -0400
+Message-ID: <20010527172620.78121.qmail@web13404.mail.yahoo.com>
+Date: Sun, 27 May 2001 19:26:20 +0200 (CEST)
+From: =?iso-8859-1?q?Cesar=20Da=20Silva?= <thunderlight1@yahoo.com>
+Reply-To: cesar.da.silva@cyberdude.com
+Subject: Re: Please help me fill in the blanks.
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Cc: kernellist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010527202119.I11981@niksula.cs.hut.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1544G2-00027w-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It does boot once I build without ACPI. (though vanilla 2.4.5 boots regardless
-> of that). It disabled DMA by default for some strange reason, so I get 2.5Mb/sec
 
-I will go and review the ACPI but I believe -ac and Linus acpi match exactly
+ --- Ville Herva <vherva@mail.niksula.cs.hut.fi>
+skrev: > > > * Dynamic Memory Resilience
+> > 
+> > RAM fault tolerance?  There was a patch a long
+> time ago which detected
+> > bad ram, and would mark those memory clusters as
+> unuseable at boot. 
+> > However that is clearly not dynamic.
+> 
+> If you are referring to Badram patch by Rick van
+> Rein
+> (http://rick.vanrein.org/linux/badram/), it doesn't
+> detect the bad ram,
+> memtest86 does that part (and does it well) -- you
+> enter then enter the
+> badram clusters as boot param. But I have to say
+> badram patch works
+> marvellously (thanks, Rick.) Shame it didn't find
+> its way to standard
+> kernel.
 
-> BTW, 2.4.5-ac1 fails on unmounting reiserfs for me with this diagnostic:
-> journal_begin called without kernel lock held
-> kernel BUG at journal.c:423!
-> I've seen this was reported for 2.4.5, too.
+Hi Ville, and thanks for the great link and the
+information. 
 
-Al Viro posted a fix for that one
+Regards,
+Cesar da Silva
 
+_____________________________________________________
+Do You Yahoo!?
+Ditt_namn@yahoo.se - skaffa en gratis mailadress på http://mail.yahoo.se

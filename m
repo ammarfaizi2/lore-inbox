@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTEKIYe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 04:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTEKIYe
+	id S261179AbTEKIlf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 04:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTEKIle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 04:24:34 -0400
-Received: from zero.aec.at ([193.170.194.10]:26629 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261161AbTEKIYc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 04:24:32 -0400
-Date: Sun, 11 May 2003 10:37:08 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use correct page protection for put_dirty_page
-Message-ID: <20030511083708.GB31932@averell>
-References: <20030511080841.GA31266@averell> <20030511013226.25e690bf.akpm@digeo.com>
+	Sun, 11 May 2003 04:41:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22508 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261179AbTEKIld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 04:41:33 -0400
+Date: Sun, 11 May 2003 10:54:11 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.5.69-dj1: tlan.c doesn't compile
+Message-ID: <20030511085411.GZ1107@fs.tum.de>
+References: <20030510145653.GA26216@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030511013226.25e690bf.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030510145653.GA26216@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 10:32:26AM +0200, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> > put_page_dirty must use the page protection of the stack VMA, not hardcoded
-> >  PAGE_COPY. They can be different e.g. when the stack is set non executable
-> >  via VM_STACK_FLAGS.
-> 
-> OK.  It seems a bit inefficient to go looking up the vma immediately after
-> having created it.
-> 
-> How about we simply pass the desired protection in to put_dirty_page()?
+<--  snip  -->
 
-Fine by me.
+...
+  gcc -Wp,-MD,drivers/net/.tlan.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=tlan -DKBUILD_MODNAME=tlan -c -o drivers/net/tlan.o 
+drivers/net/tlan.c
+drivers/net/tlan.c:1539:21: warning: extra tokens at end of #ifdef directive
+drivers/net/tlan.c:1540:2: #error "Not 64bit clean"
+make[2]: *** [drivers/net/tlan.o] Error 1
 
--Andi
+<--  snip  -->
+
+
+This is a bug only present in -dj, the fix is simple:
+
+
+--- linux-2.5.69-dj1/drivers/net/tlan.c.old	2003-05-11 10:45:40.000000000 +0200
++++ linux-2.5.69-dj1/drivers/net/tlan.c	2003-05-11 10:47:19.000000000 +0200
+@@ -1536,7 +1536,7 @@
+ 				t = (void *) skb_put( new_skb, TLAN_MAX_FRAME_SIZE );
+ 				head_list->buffer[0].address = pci_map_single(priv->pciDev, new_skb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
+ 				head_list->buffer[8].address = (u32) t;
+-#ifdef BITS_PER_LONG==64
++#if BITS_PER_LONG == 64
+ #error "Not 64bit clean"
+ #endif				
+ 				head_list->buffer[9].address = (u32) new_skb;
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

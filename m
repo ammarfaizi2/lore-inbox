@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUHTIG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUHTIJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUHTIG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUHTIG4
+	id S264297AbUHTIJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUHTIJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:06:56 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:53378 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264256AbUHTIF5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:05:57 -0400
-Date: Fri, 20 Aug 2004 10:06:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       John Hawkes <hawkes@sgi.com>
-Subject: Re: [PATCH] add scheduler domains for ia64
-Message-ID: <20040820080621.GA2310@elte.hu>
-References: <200408131108.40502.jbarnes@engr.sgi.com> <200408171657.32357.jbarnes@engr.sgi.com> <41255DBA.3030909@yahoo.com.au> <200408192222.35512.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
+	Fri, 20 Aug 2004 04:09:18 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37024 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264297AbUHTIHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:07:23 -0400
+To: hari@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, akpm@osdl.org,
+       Suparna Bhattacharya <suparna@in.ibm.com>, litke@us.ibm.com,
+       mbligh@aracnet.com
+Subject: Re: [Fastboot] [RFC]Kexec based crash dumping
+References: <20040817120239.GA3916@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 02:05:54 -0600
+In-Reply-To: <20040817120239.GA3916@in.ibm.com>
+Message-ID: <m1n00q8c9p.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408192222.35512.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hariprasad Nellitheertha <hari@in.ibm.com> writes:
 
-* Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> Hi,
+> 
+> The patches that follow contain the initial implementation for kexec based
+> crash dumping that we are working on. I had sent this to the fastboot mailing 
+> list a couple of weeks ago and this set of patches includes the changes made as
+> per feedback from Andrew, Eric and others.
 
-> This patch adds some more NUMA specific logic to the creation of
-> scheduler domains.  Domains spanning all CPUs in a large system are
-> too large to schedule across efficiently, leading to livelocks and
-> inordinate amounts of time being spent in scheduler routines.  With
-> this patch applied, the node scheduling domains for NUMA platforms
-> will only contain a specified number of nearby CPUs, based on the
-> value of SD_NODES_PER_DOMAIN.  It also allows arches to override
-> SD_NODE_INIT, which sets the domain scheduling parameters for each
-> node's domain.  This is necessary especially for large systems.
+One significant change is missing.  You do not separate out the two
+use cases of kexec.  So on a system that is configured to use
+call sys_reboot(LINUX_REBOOT_CMD_KEXEC) on reboot I will get a core
+dump if using your code.
 
-looks good to me too.
+Or alternatively if I call sys_kexec_load and then something in the
+shutdown scripts triggers a kernel panic it is not OK to
+start boot the new kernel instead of taking normal panic behavior.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Until the two uses of kexec are separated they two uses
+of kexec remain mutually exclusive and incompatible, and it I cannot
+merge your patches into the existing kexec patchset.
 
-	Ingo
+.....
+
+In general I still your kexec on panic code is doing way to much,
+and I think a lot of that  is that you don't have a kernel that will
+run when loaded at a different physical address.  
+
+To that end I have written a patch that accomplishes exactly that.
+Please see my just released kexec patchset.
+
+Eric
+
+
+
+
+
+
+

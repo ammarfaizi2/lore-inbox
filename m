@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSJ0O46>; Sun, 27 Oct 2002 09:56:58 -0500
+	id <S262424AbSJ0PDY>; Sun, 27 Oct 2002 10:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262418AbSJ0O46>; Sun, 27 Oct 2002 09:56:58 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:9166 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262415AbSJ0O44> convert rfc822-to-8bit; Sun, 27 Oct 2002 09:56:56 -0500
-Subject: Re: Swap doesn't work
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?Vladim=EDr?= T =?ISO-8859-1?Q?T=FD?= 
-	<guru@cimice.yo.cz>
-Cc: Alex Riesen <fork0@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clock@atrey.karlin.mff.cuni.cz
-In-Reply-To: <000801c27dc8$044f43f0$4500a8c0@cybernet.cz>
-References: <002501c27da9$2524d0f0$4500a8c0@cybernet.cz>
-	<20021027125021.GA1578@riesen-pc.gr05.synopsys.com>
-	<1035724348.30403.15.camel@irongate.swansea.linux.org.uk> 
-	<000801c27dc8$044f43f0$4500a8c0@cybernet.cz>
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Oct 2002 15:21:15 +0000
-Message-Id: <1035732075.30551.22.camel@irongate.swansea.linux.org.uk>
+	id <S262430AbSJ0PDY>; Sun, 27 Oct 2002 10:03:24 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:5138 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262424AbSJ0PDY>; Sun, 27 Oct 2002 10:03:24 -0500
+Date: Sun, 27 Oct 2002 15:09:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andreas Haumer <andreas@xss.co.at>, linux-kernel@vger.kernel.org,
+       willy@w.ods.org
+Subject: Re: rootfs exposure in /proc/mounts
+Message-ID: <20021027150936.A20310@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Andreas Haumer <andreas@xss.co.at>,
+	linux-kernel@vger.kernel.org, willy@w.ods.org
+References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de> <3DBAEC79.5050605@pobox.com> <3DBBBE1B.5050809@xss.co.at> <3DBC0007.8020005@pobox.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DBC0007.8020005@pobox.com>; from jgarzik@pobox.com on Sun, Oct 27, 2002 at 10:02:31AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-27 at 14:48, Vladimír Tøebický wrote:
-> > > That's not a badblock. That's an kernel IDE bug. Andre Hedrick and Alan
-> > > Cox will love to see this.
-> >
-> > Not on a kernel built with an untrusted hand built tool chain
-> >
-> Well, I don't know what could possibly cause this kind of error except
-> kernel.
-> No matter what application I use to read or write /dev/hda6. Which part
-> of my tool chain do you have in mind?
+On Sun, Oct 27, 2002 at 10:02:31AM -0500, Jeff Garzik wrote:
+> symlinks directly to /proc/mounts is fine with me -- just don't expect 
+> any sympathy when userspace tools don't handle things like $subject.  :) 
+>  The answer will be "fix the userspace tools" not "add special case code 
+> to the kernel" :)
 
-gcc and binutils. I get so many weird never duplicated reports from
-linux from scratch people that don't happen to anyone else that I treat
-them with deep suspicion.  Especially because it sometimes goes away if
-they instead build the same kernel with Debian/Red Hat/.. binutils/gcc
+well, better link to /proc/self/mounts directly, that's where /proc/mounts
+links to.  That's another reason why the /etc/mtab-concept is broken:
+you might have very different mounts in different processes.
 

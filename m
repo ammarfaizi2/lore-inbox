@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVAHVM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVAHVdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVAHVM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 16:12:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVAHVM4
+	id S261500AbVAHVdI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 16:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVAHVdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 16:12:56 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:30855 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261492AbVAHVMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 16:12:53 -0500
-Date: Sat, 8 Jan 2005 21:12:10 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Christoph Lameter <clameter@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       <linux-ia64@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       <linux-mm@kvack.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
-In-Reply-To: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 8 Jan 2005 16:33:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23753 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261500AbVAHVdF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 16:33:05 -0500
+Date: Sat, 8 Jan 2005 21:33:04 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Zou Nan hai <Nanhai.zou@intel.com>
+Subject: Re: [PATCH] compat: sigtimedwait
+Message-ID: <20050108213304.GH27371@parcelfarce.linux.theplanet.co.uk>
+References: <200501050730.j057UAPM008164@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501050730.j057UAPM008164@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005, Christoph Lameter wrote:
-> This patch introduces __GFP_ZERO as an additional gfp_mask element to allow
-> to request zeroed pages from the page allocator.
-> ...
-> --- linux-2.6.10.orig/mm/memory.c	2005-01-04 12:16:41.000000000 -0800
-> +++ linux-2.6.10/mm/memory.c	2005-01-04 12:16:49.000000000 -0800
-> @@ -1650,10 +1650,9 @@
+On Wed, Jan 05, 2005 at 05:36:02AM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2117, 2005/01/04 21:36:02-08:00, nanhai.zou@intel.com
 > 
->  		if (unlikely(anon_vma_prepare(vma)))
->  			goto no_mem;
-> -		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
-> +		page = alloc_page_vma(GFP_HIGHZERO, vma, addr);
->  		if (!page)
->  			goto no_mem;
-> -		clear_user_highpage(page, addr);
-> 
->  		spin_lock(&mm->page_table_lock);
->  		page_table = pte_offset_map(pmd, addr);
+> 	[PATCH] compat: sigtimedwait
+> 	
+> 	- Merge sys32_rt_sigtimedwait function in X86_64, IA64, PPC64, MIPS,
+> 	  SPARC64, S390 32 bit layer into 1 compat_rt_sigtimedwait function.  It will
+> 	  also fix a bug of copy wrong information to 32 bit userspace siginfo
+> 	  structure on X86_64, IA64 and SPARC64 when calling sigtimedwait on 32 bit
+> 	  layer.
 
-Christoph, a late comment: doesn't this effectively replace
-do_anonymous_page's clear_user_highpage by clear_highpage, which would
-be a bad idea (inefficient? or corrupting?) on those few architectures
-which actually do something with that user addr?
+Is there a reason you didn't do PA-RISC too?
 
-Hugh
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

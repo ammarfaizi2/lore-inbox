@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVAXNfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVAXNmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVAXNfD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 08:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVAXNfD
+	id S261361AbVAXNmI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 08:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVAXNmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 08:35:03 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:19122 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261451AbVAXNe7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 08:34:59 -0500
-Date: Mon, 24 Jan 2005 14:34:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Alexander Nyberg <alexn@dsv.su.se>
-Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
-Message-ID: <20050124133434.GA4196@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124125814.GA31471@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 24 Jan 2005 08:42:08 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:43942 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261361AbVAXNmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 08:42:04 -0500
+Message-ID: <41F4FB1D.4090302@ens-lyon.fr>
+Date: Mon, 24 Jan 2005 14:41:49 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Benoit Boissinot <bboissin@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr>
+In-Reply-To: <41F4E28A.3090305@ens-lyon.fr>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> ok, here is another approach, against 2.6.10/11-ish kernels:
+Brice Goglin a écrit :
+> Andrew Morton a écrit :
 > 
->   http://redhat.com/~mingo/rt-limit-patches/
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/ 
+>>
+>>
+>>
+>> - Lots of updates and fixes all over the place.
 > 
-> this patch adds the /proc/sys/kernel/rt_cpu_limit tunable: the maximum
-> amount of CPU time all RT tasks combined may use, in percent. Defaults
-> to 80%.
+> 
+> Hi Andrew,
+> 
+> X does not work anymore when using DRI on my Compaq Evo N600c (Radeon 
+> Mobility M6 LY).
+> My XFree 4.3 (from Debian testing) with DRI uses drm and radeon kernel 
+> modules.
+> 
+> Instead of the usual gdm window, I get a black or noisy screen 
+> (remaining image parts of
+> last working session). The mouse pointer works. Sysrq works. But 
+> Caps-lock doesn't work.
+> The machine pings but I can't ssh.
+> 
+> I don't know exactly what's happening. I don't see anything interesting 
+> in dmesg.
 
-i've just updated the -B4 patch - the earlier (-B3) patch had
-a last-minute bug that made the kernel enforce limit/10 - i.e.
-8% instead of 80% ...
+Thanks to Benoit who found this at the end of dmesg:
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Couldn't find an AGP VGA controller.
 
-	Ingo
+while Linus' 2.6.11-rc2 says:
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:01:00.0 into 4x mode
+
+Regards,
+Brice

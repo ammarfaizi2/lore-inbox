@@ -1,56 +1,225 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267175AbTAUSt0>; Tue, 21 Jan 2003 13:49:26 -0500
+	id <S267203AbTAUS5G>; Tue, 21 Jan 2003 13:57:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267176AbTAUSt0>; Tue, 21 Jan 2003 13:49:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:9102 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267175AbTAUStY>; Tue, 21 Jan 2003 13:49:24 -0500
-Date: Tue, 21 Jan 2003 14:01:14 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Electroniks New <elektr_new@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bios interrupts
-In-Reply-To: <20030121184202.44314.qmail@web14705.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1030121135642.22169A-100000@chaos.analogic.com>
+	id <S267204AbTAUS5G>; Tue, 21 Jan 2003 13:57:06 -0500
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:16136 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S267203AbTAUS5C> convert rfc822-to-8bit;
+	Tue, 21 Jan 2003 13:57:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Jaroslav Kysela <perex@suse.cz>, Adam Belay <ambx1@neo.rr.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [alsa, pnp] more on opl3sa2
+Date: Tue, 21 Jan 2003 20:06:01 +0100
+User-Agent: KMail/1.4.3
+References: <200301191907.12450.daniel.ritz@gmx.ch>
+In-Reply-To: <200301191907.12450.daniel.ritz@gmx.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301212006.01107.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Electroniks New wrote:
+ok, found that one...very simple:
+against 2.5.59 + jaroslav's driver patch...
 
-> Hi,
->   1) i don't exactly understand the ports (Bios data).
->    I also understand that linux does override the bios
->    functions so that more functionality is acheived.
-> 
->   2) Can you send the standard ports for use and i may
-> later use inb and 
->      oub on  those ports for data exchange.
+
+--- linux-2.5/sound/isa/opl3sa2.c~	2003-01-21 20:01:10.000000000 +0100
++++ linux-2.5/sound/isa/opl3sa2.c	2003-01-21 19:58:06.000000000 +0100
+@@ -830,7 +830,8 @@
+ 	if ((err = snd_card_register(card)) < 0)
+ 		goto __error;
+ 
+-	pnpc_set_drvdata(pcard, card);
++	if (pcard)
++		pnpc_set_drvdata(pcard, card);
+ 	snd_opl3sa2_cards[dev] = card;
+ 	return 0;
+ 
+
+the card is not detected by pnp, that problem stays. is that a problem of the pnp layer or is
+my toshiba laptop just so damn stupid??
+
+rgds
+-daniel
+
+
+
+On Sunday 19 January 2003 19:07, Daniel Ritz wrote:
+> more tests with snd-opl3sa2. i have to use the paramers to modprobe since
+> pnp doesn't work. the reason:
+> pnpc_register_driver sets driver.bus to its own static struct which doesn't
+> have a device list. driver_attach tries to scan this device list and
+> compare with the drivers device list. since there's no one for the bus it
+> fails, the driver can't see it's devices.
 >
->   3) Also what does jmp short $+2 instruction do ?How
-> can i change it into   AT&T syntax or inline assembly
-> ? Also what does instruction "in al,64h" do .
->    I found these on the net.They are dos code i
-> assume. Is "in" same as mov .
-[SNIPPED...]
-
-Linux is an operating system that does all that stuff for you.
-In fact, it prevents user code from touching hardware ar all.
-If you learn the Unix/Posix stuff, you will never have to play
-with assembly language again.
-
-Linux operates all of the standard PC hardware in a standard
-way that allows programs to use open()/close()/read()/write()/
-and ioctl() to "talk" to hardware in a standard high-efficiency
-way. If you have additional hardware that Linux doesn't "know"
-about, then you can write a device-driver (module) for it.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+> Call stack:
+> driver_attach
+> bus_add_driver
+> driver_register
+> pnpc_register_driver
+> alsa_card_opl3sa_init
+>
+> ok, tried by hand with the config data from bios/lspnp:
+> # modprobe snd-opl3sa2 isapnp=0 port=0x538 wss_port=0x530 sb_port=0x220
+> fm_port=0x388 midi_port=0x330 irq=5 dma1=0 dma2=1 Segmentation fault
+>
+> Unable to handle kernel NULL pointer dereference at virtual address
+> 00000144 printing eip:
+> d08aecfb
+> *pde = 00000000
+> Oops: 0002
+> CPU:    0
+> EIP:    0060:[<d08aecfb>]    Not tainted
+> EFLAGS: 00010246
+> EIP is at snd_opl3sa2_probe+0x3bb/0x3e4 [snd_opl3sa2]
+> eax: 00000000   ebx: cd9ace00   ecx: d089b734   edx: 00000000
+> esi: 00000000   edi: cd9ace6c   ebp: c7e11f84   esp: c7e11f58
+> ds: 007b   es: 007b   ss: 0068
+> Process modprobe (pid: 1816, threadinfo=c7e10000 task=ce0527e0)
+> Stack: 00000000 00000000 00000000 00000000 cd9ace24 00000000 00000001
+> 00000000 00000005 c82fec00 c9d5fcc4 c7e11fa8 d08b33c2 00000000 00000000
+> 00000000 00000000 d08b0fe0 c027e304 c027e304 c7e11fbc c01291a2 0804ea38
+> 0804e008 Call Trace:
+>  [<d08b33c2>] alsa_card_opl3sa2_init+0x2a/0xffffe3cc [snd_opl3sa2]
+>  [<d08b0fe0>] +0x0/0x100 [snd_opl3sa2]
+>  [<c01291a2>] sys_init_module+0x116/0x1ac
+>  [<c010a75b>] syscall_call+0x7/0xb
+>
+> Code: 89 9a 44 01 00 00 8b 45 e8 89 98 60 0c 8b d0 31 c0 eb 0a 89
+>
+> 100% reproducible.
+>
+> machine is a toshiba tecra 8000 laptop (p3-500), kernel is 2.5.59 +
+> vmlinux.lds.h patch + sound-firmware-load-fix + jaroslav's driver patch +
+> adam's pnp.h id len patch.
+>
+> kernel config: no acpi, _all_ pnp options enabled. soundcore compiled in,
+> alsa as module.
+>
+> # lspci
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge
+> (AGP disabled) (rev 03) 00:04.0 VGA compatible controller: Neomagic
+> Corporation [MagicMedia 256AV] (rev 12) 00:05.0 Bridge: Intel Corporation
+> 82371AB PIIX4 ISA (rev 02)
+> 00:05.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+> 00:05.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+> 00:05.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+> 00:09.0 Communication controller: Toshiba America Info Systems FIR Port
+> (rev 23) 00:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev
+> 05) 00:0b.1 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev 05)
+>
+> # lspnp
+> 01 PNP0c01 memory controller: RAM
+> 02 PNP0200 system peripheral: DMA controller
+> 03 PNP0000 system peripheral: programmable interrupt controller
+> 04 PNP0100 system peripheral: system timer
+> 05 PNP0800 system peripheral: other
+> 06 PNP0c04 reserved: other
+> 07 PNP0303 input device: keyboard
+> 08 PNP0f13 input device: mouse
+> 09 PNP0b00 system peripheral: real time clock
+> 0a PNP0c02 system peripheral: other
+> 0b PNP0700 mass storage device: floppy
+> 0e PNP0501 communications device: RS-232
+> 10 PNP0401 communications device: AT parallel port
+> 11 PNP0a03 bridge controller: PCI
+> 14 PNP0e03 bridge controller: PCMCIA
+> 15 YMH0021 multimedia controller: audio
+>
+> # lspnp -vv 15
+> 15 YMH0021 multimedia controller: audio
+>     flags: [dynamic]
+>     allocated resources:
+>         io 0x0220-0x0233 [16-bit decode]
+>         io 0x0530-0x0537 [16-bit decode]
+>         io 0x0388-0x038f [16-bit decode]
+>         io 0x0330-0x0333 [16-bit decode]
+>         io 0x0538-0x0539 [16-bit decode]
+>         irq 5 [high edge]
+>         dma 0 [8 bit] [count byte] [compat]
+>         dma 1 [8 bit] [count byte] [compat]
+>     possible resources:
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0530-0x0537 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0538-0x0539 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0530-0x0537 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0538-0x0539 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma disabled [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0540-0x0547 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0548-0x0549 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0540-0x0547 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0548-0x0549 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma disabled [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0550-0x0557 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0558-0x0559 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0550-0x0557 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0558-0x0559 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma disabled [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0560-0x0567 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0568-0x0569 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         [start dep fn]
+>         io base 0x0220-0x0280 align 0x20 len 0x14 [16-bit decode]
+>         io 0x0560-0x0567 [16-bit decode]
+>         io base 0x0388-0x03b8 align 0x10 len 0x08 [16-bit decode]
+>         io base 0x0300-0x0330 align 0x10 len 0x04 [16-bit decode]
+>         io 0x0568-0x0569 [16-bit decode]
+>         irq mask 0x0ca0 [high edge]
+>         dma mask 0x000b [8 bit] [count byte] [compat]
+>         dma disabled [8 bit] [count byte] [compat]
+>         [end dep fn]
+>     compatible devices:
+>         identifier 'OPL3-SA3 Sound System'
+>
+>
+> if you need more info or if you want me to test patches...just ask
+>
+> rgds,
+> -daniel
 

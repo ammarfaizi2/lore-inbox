@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272314AbRIEWK5>; Wed, 5 Sep 2001 18:10:57 -0400
+	id <S272316AbRIEWJ5>; Wed, 5 Sep 2001 18:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272320AbRIEWKr>; Wed, 5 Sep 2001 18:10:47 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:10635 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S272314AbRIEWKa>;
-	Wed, 5 Sep 2001 18:10:30 -0400
-Date: Wed, 5 Sep 2001 18:08:18 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: <linux-kernel@vger.kernel.org>
-cc: <netdev@oss.sgi.com>, Andi Kleen <ak@muc.de>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <Pine.GSO.4.30.0109051803500.11700-100000@shell.cyberus.ca>
+	id <S272324AbRIEWJt>; Wed, 5 Sep 2001 18:09:49 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:29630 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S272316AbRIEWJf>; Wed, 5 Sep 2001 18:09:35 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.9-ac6 (really about tainting)
+Date: Wed, 5 Sep 2001 15:09:54 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMMEGPDLAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEFEDLAA.davids@webmaster.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andi, Alexey,
+	I fear that out of fear that someone might make a mountain out of a
+molehill, I've made a mountain out of a molehill. I hope at least that some
+of my suggestions prove useful. Sorry about any heat that got mixed in with
+the light.
 
-Whats wrong with this patch (just a thought, not tested or even compiled)?
-
----------------------------------------
---- devinet.c   2001/09/04 19:18:51     1.1
-+++ devinet.c   2001/09/04 19:31:13
-@@ -530,7 +530,7 @@
-
-        if ((in_dev=__in_dev_get(dev)) != NULL) {
-                for (ifap=&in_dev->ifa_list; (ifa=*ifap) != NULL;
-ifap=&ifa->ifa_next)
--                       if (strcmp(ifr.ifr_name, ifa->ifa_label) == 0)
-+                       if ((strcmp(ifr.ifr_name, ifa->ifa_label) == 0) ||
-(sin->sin_addr.s_addr == ifa->ifa_address))
-                                break;
-        }
---------------------------------
-
-cheers,
-jamal
-
+	DS
 

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314598AbSDTJ4I>; Sat, 20 Apr 2002 05:56:08 -0400
+	id <S314600AbSDTKAk>; Sat, 20 Apr 2002 06:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314599AbSDTJ4H>; Sat, 20 Apr 2002 05:56:07 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:10508 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314598AbSDTJ4G>; Sat, 20 Apr 2002 05:56:06 -0400
-Message-ID: <3CC12C99.5030607@evision-ventures.com>
-Date: Sat, 20 Apr 2002 10:53:45 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Francois Barre <francois.barre@enst-bretagne.fr>
-CC: linux-kernel@vger.kernel.org, gadio@netvision.net.il
-Subject: Re: PROBLEM: buggy ide-scsi
-In-Reply-To: <3CC116CE.5090505@enst-bretagne.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S314601AbSDTKAj>; Sat, 20 Apr 2002 06:00:39 -0400
+Received: from pop.gmx.de ([213.165.64.20]:27508 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S314600AbSDTKAi>;
+	Sat, 20 Apr 2002 06:00:38 -0400
+Subject: Re: idea to enhance get_pid()
+From: Dan Aloni <da-x@gmx.net>
+To: lenny lv <lennylv@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, qiang@suda.edu.cn
+In-Reply-To: <F74PKipeUekcMrvgldU00000fc8@hotmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 20 Apr 2002 12:59:27 +0300
+Message-Id: <1019296776.24728.40.camel@callisto.yi.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Barre wrote:
->    ide-scsi not working on kernel 2.5.8
-> 
-> I try to burn cds on a 2.5.8 kernel (debian distrib) using kreatcd (and 
-> gtoaster) on a Ricoh Ide Cd Writer using the ide-scsi and a unexpected 
-> error occurs. Using the same config, when I boot on a 2.4.17 kernel, 
-> there ain't no problem.
-> Did you change anything ? The ide-scsi module hasn't been maintained 
-> since Jul 4, 1999 (kinds of 2.2.x period, no ?).
-> Did configuration change (i tried to turn over, no way...).
-> In fact, something worrying me. I use the ide-scsi as a module, and 
-> while no cd burner is launched, lsmod tells me it's used (only in 2.5.8 
-> kerns, in 2.4.17 it's unused). I wonder if it's not the [scsi_eh_0] 
-> kernel thread which tries to use it (what for ?). Maybe this is what 
-> blocks the use of ide-scsi...
-> I'll try to debug it my way, but it will take ages....
-> 
-> If you have any clues, tell me.
+On Sat, 2002-04-20 at 12:15, lenny lv wrote:
 
+> I've got an idea to speed up linux/kernel/fork.c/get_pid(). Why not use 
+> bitmap to alloc/free the pids? Is it because 4KB(32K/8) memory scanning is 
+> slower than the current get_pid() version? Does anyone benchmark them?
 
-As a matter of fact there where significant changes to
-the way block IO requests get handled in the IDE driver.
-(TCQ stuff).
-Due to this several (all?) of the drivers different from ide-disk
-are now nonfunctional until they get adapted to those
-changes. Please be patient, since this is certainly going to take
-some time.
+This could have been a good idea if Linux was to stay with 15-bit pids
+forever. The code you are suggesting will have to be rewritten sometime
+to support 32 bit pids. 
+
+The last time I checked, the only thing that stops the move back to
+32-bit pids is a bug in the bash shell, and just a few workable IPC
+interfaces and libc breakages.
+
+Are 32 bit pids planned for 2.5?
 

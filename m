@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288758AbSADUwo>; Fri, 4 Jan 2002 15:52:44 -0500
+	id <S288761AbSADUze>; Fri, 4 Jan 2002 15:55:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288759AbSADUwf>; Fri, 4 Jan 2002 15:52:35 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:146
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288758AbSADUwQ>; Fri, 4 Jan 2002 15:52:16 -0500
-Date: Fri, 4 Jan 2002 15:36:46 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: David Weinehall <tao@acc.umu.se>, Vojtech Pavlik <vojtech@suse.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104153646.D20097@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	David Weinehall <tao@acc.umu.se>, Vojtech Pavlik <vojtech@suse.cz>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-	Lionel Bouton <Lionel.Bouton@free.fr>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020104211931.D5235@khan.acc.umu.se> <Pine.GSO.3.96.1020104212646.829L-100000@delta.ds2.pg.gda.pl>
+	id <S288762AbSADUzZ>; Fri, 4 Jan 2002 15:55:25 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:31498 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S288761AbSADUzP>;
+	Fri, 4 Jan 2002 15:55:15 -0500
+Date: Fri, 4 Jan 2002 21:55:03 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: brownfld@irridia.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-Id: <20020104215503.7c43dac2.skraw@ithnet.com>
+In-Reply-To: <3C360D6E.9020207@athlon.maya.org>
+In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com>
+	<3C360D6E.9020207@athlon.maya.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1020104212646.829L-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Jan 04, 2002 at 09:30:47PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki <macro@ds2.pg.gda.pl>:
-> > If you find an MCA-bus, you can suppress most (but not all) ISA-cards
-> > too (some of the cards support MCA without having any extra MCA-related
-> > code in the drivers, such as the eexpress-driver, but I can help with
-> > such a list if necessary.)
+On Fri, 04 Jan 2002 21:15:42 +0100
+Andreas Hartmann <andihartmann@freenet.de> wrote:
+
+[I will answer not all of your questions, as this is a matter of business, too]
+
+> > On all boxes I run currently (all 1GB or below RAM), I cannot find    
+> > _major_ issues.                                                       
 > 
->  Shouldn't the drivers depend on "CONFIG_ISA or CONFIG_MCA" then?  Just
-> like CONFIG_DEFXX depends on "CONFIG_PCI or CONFIG_EISA"? 
+> 
+> Question is: which nature is your application / load of the system?
 
-Yes, that's almost the right solution (CONFIG_ISACARDS or CONFIG_MCA).  
-I'll add
+Generally we do not drive the boxes up to the edge. Our philosophy is to throw
+money at the problem, before it actually arises. Yes, I can see the future ...
+;-)
 
-	require MCA != ISA_CARDS
+> [...] Do you have your tables on raw partitions (without caching; as 
+> you can do it with UDB)?
 
-to the rulebase.  Not that there are a lot of MCA machines out there but
-every little bit helps.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+No.
 
-An armed society is a polite society.  Manners are good when one 
-may have to back up his acts with his life.
-        -- Robert A. Heinlein, "Beyond This Horizon", 1942
+> How big are the partitions you are mounting at once? In my case, all the 
+> partitions together have about 70GB (all reiserfs).
+
+about 130 GB, all reiserfs.
+
+> I want to know it, because I think the problem depends on how much 
+> different HD-memory is accessed.
+
+I guess you should tilt that theory.
+Have you already tried to throw a big SPARC at the problem?
+
+> If you have applications, which doesn't 
+> access to much memory, you can't view the problems.
+> If you access more than 1G (and you do not just copy, but rsync e.g.) 
+> and you have only 512MB of RAM, the machine swaps a lot with most actual 
+> 2.4.-kernels (patches).
+
+Can you provide a simple and reproducible test case (e.g. some demo source),
+where things break? I am very willing to test it here.
+
+Regards,
+Stephan
+
+

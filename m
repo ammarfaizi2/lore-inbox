@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTL2BY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 20:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTL2BY4
+	id S262192AbTL2B0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 20:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTL2B0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 20:24:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48780 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262174AbTL2BYz (ORCPT
+	Sun, 28 Dec 2003 20:26:41 -0500
+Received: from mail.nzol.net ([210.55.200.32]:64685 "EHLO linuxmail1.nzol.net")
+	by vger.kernel.org with ESMTP id S262192AbTL2B0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 20:24:55 -0500
-Date: Sun, 28 Dec 2003 17:24:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 journel aborted in 2.6.0-mm1
-Message-Id: <20031228172450.413cfa5c.akpm@osdl.org>
-In-Reply-To: <3FEF5E53.1080203@wmich.edu>
-References: <3FEF5E53.1080203@wmich.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sun, 28 Dec 2003 20:26:03 -0500
+Message-ID: <1072657930.3fef760a50062@webmail.nzol.net>
+Date: Mon, 29 Dec 2003 13:32:10 +1300
+From: akmiller@nzol.net
+To: linux-kernel@vger.kernel.org
+Subject: ide: "lost interrupt" with 2.6.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 210.55.200.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman <ed.sweetman@wmich.edu> wrote:
->
-> Not sure what the cause of this type of error is but i've only seen it 
-> in the very late test releases of 2.6.0 and now in the mm1 patch (i've 
-> always used the mm branch of the test releases).  It seems to like to 
-> happen to my partition that has /var/ on it during an updatedb and log 
-> rotate that is standard practice in most distributions. I'm using debian 
->   unstable if that helps narrow the problem down, however it seems more 
-> likely to be a kernel problem possibly in one of the patches that's been 
-> in mm's tree for very recent test, and now release, kernels.
-> 
+I am seeing "lost interrupt" during kernel init, immediately after the drive is
+probed.
 
-I'd need to see the kernel logs at the time when the abort happens.
+The system boots under 2.2.x, using the kernel supplied with the current stable
+Debian release. I have not yet tried it with 2.4.x(I had to transfer 2.6.x as
+split on floppies as the network device won't work with 2.2.x).
 
-An internal filesystem inconsistency will certainly cause this.  Force a
-fsck.
+Data is copied by hand from the monitor, so accuracy not guaranteed(but I think
+its correct)...
+
+Relevant lspci line, after booting under 2.2.x...
+00:1f.1 IDE interface: Intel Corp. 82820 820 (Camino 2) Chipset IDE U100 (rev
+05)
+
+We have had problems with these devices(ACS7500, a transparent IDE RAID
+controller from Accusys) on other boards where the BIOS wouldn't boot them, so
+they may be doing something weird with the standards. The BIOS on this board
+can allow the system to boot correctly off this device.
+
+Relevant part of the output on bootup...
+hda: Accusys ACS7500 C5VL, ATA DISK drive
+ide0 at 0x1f0-0x1f7, 0x3f6 on irq 14
+hdc: LG CD-ROM CRD-8522B, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 234441648 sectors(120034 MB) w/2048 KiB Cache, CHS=16383/255/63
+hda:<4>hda: lost interrupt
+lost interrupt
+lost interrupt
+(continues forever)
+
+I have tried (without success) enabling all workarounds in the kernel config,
+disabling APIC(noapic on command line, this is a single P4), disconnecting the
+CDROM from the secondary IDE, swapping the disk onto the secondary IDE,
+disabling DMA-by-default in the kernel config, disabling DMA in the BIOS setup,
+setting the PIO mode in the BIOS setup to 0, and trying the old driver on the
+primary interface(which failed because the device has too many cylinders).
+
+Has anyone else seen this sort of problem? (Sorry if this is a known issue, I
+couldn't find anything that seemed to be the same in the archives). Has anyone
+got an ACS7500 running under 2.6.0, or 2.4.x for any recent kernel?
+
+If you anyone needs any more info I should be able to get it, but remember I
+can't actually boot into 2.6.0 only the 2.2.x kernel.
+-- 
+Yours sincerely,
+Andrew
+
+
+-------------------------------------------------
+This mail sent through NZOL Webmail: http://webmail.nzol.net/
 

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269158AbUIYBCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUIYBGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269158AbUIYBCF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 21:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269160AbUIYBCF
+	id S269162AbUIYBGG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 21:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUIYBGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 21:02:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1246 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269158AbUIYBCD (ORCPT
+	Fri, 24 Sep 2004 21:06:06 -0400
+Received: from mail0.ewetel.de ([212.6.122.10]:1259 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S269162AbUIYBGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 21:02:03 -0400
-Date: Fri, 24 Sep 2004 21:01:41 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andreas Gruenbacher <agruen@suse.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Christoph Hellwig <hch@infradead.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/6] xattr consolidation v3
-In-Reply-To: <200409250059.12129.agruen@suse.de>
-Message-ID: <Xine.LNX.4.44.0409242101160.9887-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Sep 2004 21:06:02 -0400
+To: ncunningham@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+In-Reply-To: <2I7Zd-1TK-11@gated-at.bofh.it>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it> <2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it>
+Date: Sat, 25 Sep 2004 03:05:40 +0200
+Message-Id: <E1CB10O-0000HL-FJ@localhost>
+From: Pascal Schmidt <pascal.schmidt@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Sep 2004, Andreas Gruenbacher wrote:
+On Sat, 25 Sep 2004 01:50:08 +0200, you wrote in linux.kernel:
 
-> Here is a fixed version. Feedback welcome.
+> The problem isn't really that you're out of memory. Rather, the memory
+> is so fragmented that swsusp is unable to get an order 8 allocation in
+> which to store its metadata. There isn't really anything you can do to
+> avoid this issue apart from eating memory (which swsusp is doing
+> anyway).
 
-Looks fine to me.
+That's one megabyte, right? Can't we preallocate that on boot, while
+there's still chance to get that much contiguous memory? If the
+user has swsusp compiled into his kernel, he probably wants it to
+function, so it's not really "wasted".
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+Ciao,
+Pascal

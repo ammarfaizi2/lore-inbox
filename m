@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267213AbSLEEjy>; Wed, 4 Dec 2002 23:39:54 -0500
+	id <S267212AbSLEEih>; Wed, 4 Dec 2002 23:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267214AbSLEEjy>; Wed, 4 Dec 2002 23:39:54 -0500
-Received: from holomorphy.com ([66.224.33.161]:27016 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267213AbSLEEjw>;
-	Wed, 4 Dec 2002 23:39:52 -0500
-Date: Wed, 4 Dec 2002 20:47:17 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: dipankar@in.ibm.com, Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-Message-ID: <20021205044717.GE9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, dipankar@in.ibm.com,
-	Ravikiran G Thirumalai <kiran@in.ibm.com>,
-	linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com>
+	id <S267213AbSLEEih>; Wed, 4 Dec 2002 23:38:37 -0500
+Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:44703 "EHLO
+	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S267212AbSLEEig>;
+	Wed, 4 Dec 2002 23:38:36 -0500
+Subject: [COMPILE ERROR] BK Tree rev 1.910 ide-scsi.c compile fails
+From: Mohamed El Ayouty <melayout@umich.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 04 Dec 2002 23:45:52 -0500
+Message-Id: <1039063552.2113.37.camel@syKr0n.mine.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEED6FA.B179FAFD@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 08:32:58PM -0800, Andrew Morton wrote:
-> Where in the kernel is such a large number of 4-, 8- or 16-byte
-> objects being used?
-> The slab allocator will support caches right down to 1024 x 4-byte
-> objects per page.  Why is that not appropriate?
-> If it is for locality-of-reference between individual objects then
-> where in the kernel is this required, and are performance measurements
-> available?  It is very unusual to have objects which are so small,
-> and a better design would be to obtain the locality of reference
-> by aggregating the data into an array or structure.
+Linux-2.5 Bitkeeper rev 1.910 
 
-I will argue not on the frequency of calls but on the preciousness of
-space; highmem feels very serious pain when internal fragmentation
-of pinned pages occurs (which this is designed to prevent). I don't
-have direct experience with this patch/API, but I can say that
-fragmentation in ZONE_NORMAL is deadly (witness pagetable occupancy
-vs. ZONE_NORMAL consumption, which motivated highpte, despite my
-pagetable reclamation smoke blowing).
+Compile Error on Scsi
 
+gcc -Wp,-MD,drivers/scsi/.ide-scsi.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
+-fomit-frame-pointer -nostdinc -iwithprefix include   
+-DKBUILD_BASENAME=ide_scsi -DKBUILD_MODNAME=ide_scsi   -c -o
+drivers/scsi/ide-scsi.o drivers/scsi/ide-scsi.c
+drivers/scsi/ide-scsi.c: In function `should_transform':
+drivers/scsi/ide-scsi.c:767: structure has no member named `tag'
+make[2]: *** [drivers/scsi/ide-scsi.o] Error 1
+rm drivers/scsi/scsi_sysfs.c
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-Bill
+Mohamed El Ayouty

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289236AbSBSBpL>; Mon, 18 Feb 2002 20:45:11 -0500
+	id <S289239AbSBSBov>; Mon, 18 Feb 2002 20:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289234AbSBSBow>; Mon, 18 Feb 2002 20:44:52 -0500
-Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:12859 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S289236AbSBSBou>; Mon, 18 Feb 2002 20:44:50 -0500
-Message-ID: <092401c1b8e7$1d190660$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Ben Collins" <bcollins@debian.org>
-Subject: readl/writel and memory barriers
-Date: Mon, 18 Feb 2002 20:45:29 -0500
+	id <S289234AbSBSBol>; Mon, 18 Feb 2002 20:44:41 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:21267 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S289210AbSBSBoi>;
+	Mon, 18 Feb 2002 20:44:38 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <15473.44458.756040.513997@argo.ozlabs.ibm.com>
+Date: Tue, 19 Feb 2002 12:43:06 +1100 (EST)
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org,
+        trini@kernel.crashing.org
+Subject: Re: Linux 2.4.18-rc2
+In-Reply-To: <Pine.LNX.4.21.0202181815480.25479-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0202181815480.25479-100000@freak.distro.conectiva>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are the PCI memory access functions like readl() and writel() supposed to
-enforce ordering without explicit memory barriers?
+Marcelo Tosatti writes:
 
-I've heard inconsistent reports - Benjamin Herrenschmidt pointed out that on
-PPC, the definitions of readl() and writel() include memory barriers. But
-the code example on page 229 of Rubini and Corbet's "Linux Device Drivers"
-2nd ed. suggests that an explicit wmb() is needed to preserve ordering of
-writel()s.
+> Well hopefully have a 2.4.18 pretty soon..
 
-In a quick survey of architectures that need explicit memory barriers to
-enforce ordering of PCI accesses, it seems that alpha and PPC include memory
-barriers inside readl() and writel(), whereas MIPS, sparc64, ia64, and s390
-do not include them. (I'm not intimately familiar with these architectures
-so forgive me if I got some wrong...). What is the official story here?
+The fix to drivers/sound/dmasound/tas3001c.c, to export
+tumbler_enter_sleep and tumbler_leave_sleep, is still not included.
+Could we have that one in before 2.4.18 final is released, please?
+Otherwise compiling a kernel for a powermac will fail.
 
 Regards,
-Dan
+Paul.
 
+diff -urN linux-2.4.18-rc2/drivers/sound/dmasound/tas3001c.c pmac/drivers/sound/dmasound/tas3001c.c
+--- linux-2.4.18-rc2/drivers/sound/dmasound/tas3001c.c	Tue Feb 19 12:37:37 2002
++++ pmac/drivers/sound/dmasound/tas3001c.c	Thu Jan 24 15:12:10 2002
+@@ -67,8 +67,8 @@
+ 
+ static struct i2c_client * tumbler_client = NULL;
+ 
+-static int tumbler_enter_sleep(void);
+-static int tumbler_leave_sleep(void);
++int tumbler_enter_sleep(void);
++int tumbler_leave_sleep(void);
+ 
+ static int tas_attach_adapter(struct i2c_adapter *adapter);
+ static int tas_detect_client(struct i2c_adapter *adapter, int address);
+@@ -298,7 +298,7 @@
+ 	return 0;
+ }
+ 
+-static int
++int
+ tumbler_leave_sleep(void)
+ {
+ 	/* Stub for now, but I have the details on low-power mode */
+@@ -308,7 +308,7 @@
+ 	return 0;
+ }
+ 
+-static int
++int
+ tumbler_enter_sleep(void)
+ {
+ 	/* Stub for now, but I have the details on low-power mode */

@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUCRMc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbUCRMc1
+	id S262587AbUCRMhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUCRMhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:32:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:50871 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262585AbUCRMaE (ORCPT
+	Thu, 18 Mar 2004 07:37:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37535 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262597AbUCRMhN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:30:04 -0500
-Date: Thu, 18 Mar 2004 13:31:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: sched_setaffinity usability
-Message-ID: <20040318123103.GA21893@elte.hu>
-References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org>
+	Thu, 18 Mar 2004 07:37:13 -0500
+Date: Thu, 18 Mar 2004 13:37:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: True  fsync() in Linux (on IDE)
+Message-ID: <20040318123711.GQ22234@suse.de>
+References: <1079572101.2748.711.camel@abyss.local> <20040318064757.GA1072@suse.de> <20040318113453.GB6864@merlin.emma.line.org> <20040318115544.GN22234@suse.de> <20040318122145.GA9175@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040318120709.A27841@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040318122145.GA9175@merlin.emma.line.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> > or, maybe it would be better to introduce some sort of 'system
-> > constants' syscall that would be a generic umbrella for such things -
-> > and could easily be converted into a vsyscall. Or we could make it part
-> > of the .data section of the VDSO - thus no copying overhead, only one
-> > symbol lookup.
+On Thu, Mar 18 2004, Matthias Andree wrote:
+> > > All these ATA fsync() vs. write cache issues have been open for much too
+> > > long - no reproaches, but it's a pity we haven't been able to have data
+> > > consistency for data bases and fast bulk writes (that need the write
+> > > cache without TCQ) in the same drive for so long. I have seen Linux
+> > > introduce TCQ for PATA early in 2.5, then drop it again. Similarly,
+> > > FreeBSD ventured into TCQ for ATA but appears to have dropped it again
+> > > as well.
+> > 
+> > That's because PATA TCQ sucks :-)
 > 
-> Like, umm, the long overdue sysconf()?  For the time beeing a sysctl
-> might be the easiest thing..
+> True. Few drives support it, and many of these you would not want to run
+> in production...
 
-i think we want to kill several birds with a single stone, and just make
-it part of the VDSO - along with the parameters visible via uname(). 
-This would cut another extra syscall, and data copying.
+Plus, the spec is broken.
 
-i'm wondering how dangerous of an API idea it is to make these
-parameters part of the VDSO .data section (and make it/them versioned
-DSO symbols).
+> > > May I ask that the information whether a particular driver (file system,
+> > > hardware) supports write barriers be exposed in a standard way, for
+> > > instance in the Kconfig help lines?
+> > 
+> > Since reiser is the first implementation of it, it gets to chose how
+> > this works. Currently that's done by giving -o barrier=flush (=ordered
+> > used to exist as well, it will probably return - right now we just
+> > played with IDE).
+> 
+> This looks as though this was not the default and required the user to
+> know what he's doing. Would it be possible to choose a sane default
+> (like flush for ATA or ordered for SCSI when the underlying driver
+> supports ordered tags) and leave the user just the chance to override
+> this?
 
-The only minor complication wrt. uname() would be sethostname: other
-CPUs could observe a transitional state of (the VDSO-equavalent of)
-system_utsname.nodename. Is this a problem? It's not like systems call
-sethostname all that often ...
+When things have matured, might not be a bad idea to default to using
+barriers.
 
-	Ingo
+> > Only PATA core needs to support it, not the chipset drivers. md and dm
+> 
+> Hum, I know the older Promise chips were blacklisted for PATA TCQ in
+> FreeBSD. Might "ordered" cause situations where similar things happen to
+> Linux?  How about SCSI/libata? Is the situation the same there?
+
+Don't confuse TCQ and barriers, it has nothing to do with each other for
+IDE. I can't imagine any chipsets having problems with a syncronize
+cache command.
+
+> > aren't a difficult to implement now that unplug/congestion already
+> > iterates the device list and I added a blkdev_issue_flush() command.
+> 
+> So this would - for SCSI - be an sd issue rather than a driver issue as
+> well?
+
+No, for scsi it's a low level driver issue. IDE chipset 'drivers' really
+aren't anything but setup stuff, and maybe a few hooks to deal with dma.
+All the action is in the ide core.
+
+-- 
+Jens Axboe
+

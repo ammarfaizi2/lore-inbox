@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318344AbSIOX4Q>; Sun, 15 Sep 2002 19:56:16 -0400
+	id <S318326AbSIOXyN>; Sun, 15 Sep 2002 19:54:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSIOX4P>; Sun, 15 Sep 2002 19:56:15 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60424
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318344AbSIOX4P>; Sun, 15 Sep 2002 19:56:15 -0400
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-From: Robert Love <rml@tech9.net>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020915165235.B17345@work.bitmover.com>
-References: <E17qRfU-0001qz-00@starship>
-	<Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
-	<20020915190435.GA19821@nevyn.them.org>
-	<20020915162412.A17345@work.bitmover.com>
-	<20020915234108.GA1348@nevyn.them.org> 
-	<20020915165235.B17345@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Sep 2002 20:01:16 -0400
-Message-Id: <1032134476.29234.18.camel@phantasy>
-Mime-Version: 1.0
+	id <S318332AbSIOXyN>; Sun, 15 Sep 2002 19:54:13 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3090 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318326AbSIOXyM>; Sun, 15 Sep 2002 19:54:12 -0400
+Date: Sun, 15 Sep 2002 16:59:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Matthew Wilcox <willy@debian.org>
+cc: mingo@redhat.com, <linux-kernel@vger.kernel.org>
+Subject: Re: problem with "Use CLONE_KERNEL for the common kernel thread
+ flags"?
+In-Reply-To: <20020915225419.F10583@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0209151657450.1586-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-15 at 19:52, Larry McVoy wrote:
 
-> We clearly have different definitions of what is acceptable.  If your
-> attitude is that understanding the code is a luxury all that means is
-> that I want you nowhere near any code I maintain.  Non-trivial code
-> requires non-trivial understanding and that understanding is not a
-> "luxury" in my book.
+On Sun, 15 Sep 2002, Matthew Wilcox wrote:
+> 
+> Seems to me like you missed something in your latest changeset:
+> 
+> -#define CLONE_SIGNAL   (CLONE_SIGHAND | CLONE_THREAD)
+> +#define CLONE_KERNEL   (CLONE_FS | CLONE_FILES | CLONE_SIGHAND)
+> -       kernel_thread(init, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
+> +       kernel_thread(init, NULL, CLONE_KERNEL);
+> 
+> init used to be spawned with CLONE_THREAD and no longer is.  Was this
+> intentional?
 
-Well, since the code Daniel was referring to having debugged (ptrace and
-thread debacle earlier) was broken and he successfully fixed it -- he is
-welcome to come near code as far as I am concerned.
+Yup. CLONE_THREAD has some new semantics these days, and is not
+necessarily at all what a kernel thread wants any more. It used to not
+matter at all, but these days it means that it gets put on the same thread
+group list as the parent, which means that it won't show up on the global
+list of processes any more (since it is considered a "subthread" of the
+thread group leader).
 
-In short, he and Ingo fixed some messed up code and that is all that
-matters.  I do not care if he uses a debugger or a magic ball, so long
-as he fixes it.
-
-Personally, I do not use a debugger and it is partly because of the
-reasons you list.  But if Daniel can fix a problem (which he most likely
-ran into firsthand with his work on gcc and gdb) then he is welcome in
-my eyes.
-
-> If your company has such a poor business model that they can't afford to
-> pay you enough to take the time to do a good job then find a different
-> place to work.  No amount of debugger "help" is going to make up for a
-> lack of understanding.
-
-Please, give it up.
-
-	Robert Love
+		Linus
 

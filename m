@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbQLUKXn>; Thu, 21 Dec 2000 05:23:43 -0500
+	id <S130150AbQLUKjV>; Thu, 21 Dec 2000 05:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130150AbQLUKXd>; Thu, 21 Dec 2000 05:23:33 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:40014 "EHLO
-	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129884AbQLUKXS>; Thu, 21 Dec 2000 05:23:18 -0500
-Date: Thu, 21 Dec 2000 12:00:04 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kapm-idled : is this a bug?
-In-Reply-To: <20001220101142.A6234@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.21.0012211158170.12934-100000@server.serve.me.nl>
+	id <S130315AbQLUKjL>; Thu, 21 Dec 2000 05:39:11 -0500
+Received: from fe000.worldonline.dk ([212.54.64.194]:14354 "HELO
+	fe000.worldonline.dk") by vger.kernel.org with SMTP
+	id <S130150AbQLUKix>; Thu, 21 Dec 2000 05:38:53 -0500
+Date: Thu, 21 Dec 2000 11:07:09 +0000 (/etc/localtime)
+From: "Jesper Juhl <juhl@eisenstein.dk>" <jju@eisenstein.dk>
+Reply-To: Jesper Juhl <juhl@eisenstein.dk>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Strange warnings about .modinfo when compiling 2.2.18 on Alpha
+In-Reply-To: <5806.977381800@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.30.0012211104580.6659-100000@juhl.eisenstein.dk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > What's the problem with using PID 0 as the idle task ? That's 'standard'
-> > with OS'ses that display the idle task.
-> 
-> Linux has already another thread with pid 0, called "swapper" which is
-> in fact idle. kidle-apmd is different beast.
 
-Agree that it is different. But it confuses people to have two
-idle-tasks. I suggest that we throw it one big pile, unless having a
-separate apm idle task has a purpose. 
+On Thu, 21 Dec 2000, Keith Owens wrote:
 
-> 								Pavel
+> The way .modinfo is created is a kludge to prevent the .modinfo section
+> being loaded as part of the module.  The initial reference to .modinfo
+> creates it as non-allocated, later references try to allocate data in
+> the section.  Older versions of gcc silently ignored the mismatch,
+> newer ones warn about the mismatch.
+>
+> modutils >= 2.3.19 makes sure that .modinfo is not loaded so the kernel
+> kludge is no longer required.  Alan Cox (quite rightly) will not force
+> 2.2 users to upgrade modutils, but if you jump to modutils 2.3.23 and
+> apply this patch against kernel 2.2.18 then the warnings will disappear.
 
 
-	Igmar
+Thank you very much for your reply. I'll try upgrading modutils and apply
+the patch.
+
+
+Best regards,
+Jesper Juhl
+juhl@eisenstein.dk
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

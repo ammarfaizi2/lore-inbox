@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUBPVAR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 16:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUBPVAR
+	id S265883AbUBPVKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 16:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265896AbUBPVKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 16:00:17 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:33419 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265823AbUBPVAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 16:00:13 -0500
-Date: Mon, 16 Feb 2004 15:58:20 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Michael Buesch <mbuesch@freenet.de>
-cc: Simon Gate <simon@noir.se>, <linux-kernel@vger.kernel.org>
-Subject: Re: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization,
- throwing 2 bytes away.
-In-Reply-To: <200402142259.34836.mbuesch@freenet.de>
-Message-ID: <Pine.GSO.4.33.0402161552520.28488-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 16:10:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21909 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265883AbUBPVKf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 16:10:35 -0500
+Date: Mon, 16 Feb 2004 21:10:33 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+Message-ID: <20040216211033.GN8858@parcelfarce.linux.theplanet.co.uk>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <20040216201610.GC17015@schmorp.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040216201610.GC17015@schmorp.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Feb 2004, Michael Buesch wrote:
->> psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
->>
->> My mouse goes crazy for a few secs and then returns to normal for a while. Is this a 2.6.2 problem or is this is something old?
+On Mon, Feb 16, 2004 at 09:16:10PM +0100, Marc Lehmann wrote:
+> The point is, however, that this is highly undesirable, and it would be
+> nice to have a kernel that would (optionally) fully support a UTF-8
+> environment in where applications can feed UTF-8 and _expect_ UTF-8 in
+> return, which _is_ a security issue.
+> 
+> It's very desirable to have a kernel that actively supports this. IT is
+> clearly not _required_, of course. But then again, process abstraction
+> is also not required...
 
-I've seen this junk for many years.  It's not limited to just 2.6.
-
-In my current environment, it's the KVM screwing with the mouse data...
-somehow it starts passing through 3 byte commands when the mouse is in
-4 byte mode.  I fixed it by a little trickery to force the mouse to
-reset (not a simple task from the ISR :-)  BTW, 250ms is WAY to long to
-wait to detect a lose of sync; mice don't pause at all between bytes.)
-
->here's the fix:
-...
-
-And exactly what is that supposed to be fixing?
-
---Ricky
-
-
+Mind taking the demagogy elsewhere?  Note that the same handwaving applies
+to e.g. file contents.  Care to explain what makes read() and write()
+different in that respect?

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276322AbRI1WZn>; Fri, 28 Sep 2001 18:25:43 -0400
+	id <S276330AbRI1WZx>; Fri, 28 Sep 2001 18:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276324AbRI1WZe>; Fri, 28 Sep 2001 18:25:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60683 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276322AbRI1WZV>; Fri, 28 Sep 2001 18:25:21 -0400
+	id <S276324AbRI1WZo>; Fri, 28 Sep 2001 18:25:44 -0400
+Received: from pc-62-30-107-95-az.blueyonder.co.uk ([62.30.107.95]:28654 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S276330AbRI1WZ1>; Fri, 28 Sep 2001 18:25:27 -0400
+Date: Fri, 28 Sep 2001 23:24:58 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Padraig Brady <padraig@antefacto.com>, linux-kernel@vger.kernel.org
 Subject: Re: CPU frequency shifting "problems"
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Fri, 28 Sep 2001 23:30:22 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), torvalds@transmeta.com,
-        padraig@antefacto.com, linux-kernel@vger.kernel.org
-In-Reply-To: <8FB7D6BCE8A2D511B88C00508B68C2081971D8@orsmsx102.jf.intel.com> from "Grover, Andrew" at Sep 27, 2001 06:24:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20010928232458.A15016@kushida.degree2.com>
+In-Reply-To: <Pine.LNX.4.33.0109280902250.1682-100000@penguin.transmeta.com> <m11ykr5a9y.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15n69G-000089-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m11ykr5a9y.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, Sep 28, 2001 at 02:29:45PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> effective frequency at all. Even if you knew all the details of SpeedStep
-> (and I've seen the same MS doc you have Alan and was surprised at its
-> detail) you'd still be hosed if the CPU throttles...you'd be hosed in a
-> *good* way because at least any delays would be longer (not shorter) than
-> expected but your times would be off nonetheless.
+Eric W. Biederman wrote:
+> > What does exist is the bus clock (well, a multiple of it, but you get the
+> > idea), and that one is stable. I bet PCI devices don't like to be randomly
+> > driven at frequencies "somewhere between 12 and 33MHz" depending on load ;)
+> 
+> I doubt they would like it but it is perfectly legal (PCI spec..) to
+> vary the pci clock, depending upon load.   
 
-Remember you get an interrupt from the transition that you can steal from
-the ROM gunge, or is that another deep intel secret you can't comment on 8)
+Yes it is.  Also, the PCI clock is frequency modulated to reduce
+electrical interference.  (Or on a more cynical note, to pass the
+official emissions tests ;-)
 
-Just why are intel so obsessed by secrets about something every other vendor
-does anyway ? 
+However it's common practice to PLL to the PCI clock, for clock
+distribution on a board, so varying the frequency must be done in a
+strictly constrained fashion.
 
-Alan
+-- Jamie

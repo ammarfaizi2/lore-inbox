@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268717AbUHUA56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268800AbUHUBEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268717AbUHUA56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 20:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268785AbUHUA56
+	id S268800AbUHUBEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 21:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268785AbUHUBEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 20:57:58 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:62857 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268717AbUHUA55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 20:57:57 -0400
-Subject: Re: [RFC] enhanced version of net_random()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       Jean-Luc Cooke <jlcooke@certainkey.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093037055.10063.192.camel@krustophenia.net>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-	 <20040820175952.GI5806@certainkey.com>
-	 <20040820185956.GV8967@schnapps.adilger.int>
-	 <1093037055.10063.192.camel@krustophenia.net>
+	Fri, 20 Aug 2004 21:04:30 -0400
+Received: from gate.crashing.org ([63.228.1.57]:40337 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268800AbUHUBEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 21:04:13 -0400
+Subject: Re: SMP cpu deep sleep
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Wes Felter <wmf@austin.ibm.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <pan.2004.08.20.16.44.39.888193@austin.ibm.com>
+References: <1092989207.18275.14.camel@linux.local>
+	 <pan.2004.08.20.16.44.39.888193@austin.ibm.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093046100.31904.0.camel@localhost.localdomain>
+Message-Id: <1093049624.9932.262.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 21 Aug 2004 00:55:01 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 21 Aug 2004 10:53:45 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-08-20 at 22:24, Lee Revell wrote:
-> One problem is that AIUI, we incur this overhead even if a hardware RNG
-> is present.  This does not seem right.  Hardware RNGs are increasingly
-> common, Linux supports hardware RNGs from AMD, Intel, and VIA.
+On Sat, 2004-08-21 at 02:44, Wes Felter wrote:
 
-Hardware RNG's are actually fairly slow and thus are better as sources
-to perturb a PRNG.
+> The CPU hotplug patch is the way to go, but the hardware is the problem. I
+> talked to an Intel CPU architect at MICRO last year and he confirmed that
+> SMP Intel systems don't support any low-power modes besides HLT. AMD's
+> documentation says that Opterons support voltage/frequency scaling (aka
+> Cool 'n' Quiet), but AFAICT the documentation is wrong. In summary, you
+> are doomed.
+
+Well, with intel CPUs maybe ;) On PPC we can put some CPUs (at least the
+desktop ones and the 970, I don't know about POWER3/4/5) into SLEEP mode
+after flushing all caches & masking all IRQs to them, and get them out
+via an IPI, or we can mask EE as well and get them out via a soft reset
+if we have access to it.
+
+Ben.
+
 

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVCLOBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCLObV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVCLOBm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 09:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVCLOBm
+	id S261925AbVCLObV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 09:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCLObU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 09:01:42 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:57486 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261912AbVCLOBe
+	Sat, 12 Mar 2005 09:31:20 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:37136 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261925AbVCLO2x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 09:01:34 -0500
-Message-ID: <4232F642.2050704@tiscali.de>
-Date: Sat, 12 Mar 2005 15:01:38 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Sat, 12 Mar 2005 09:28:53 -0500
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: Andrew Morton <akpm@osdl.org>, chaffee@bmrc.berkeley.edu,
+       <mc@cs.Stanford.EDU>, <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] crash + fsck cause file systems to contain loops
+ (msdos and vfat, 2.6.11)
+References: <Pine.GSO.4.44.0503120313140.11724-100000@elaine24.Stanford.EDU>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 12 Mar 2005 23:28:34 +0900
+In-Reply-To: <Pine.GSO.4.44.0503120313140.11724-100000@elaine24.Stanford.EDU> (Junfeng
+ Yang's message of "Sat, 12 Mar 2005 03:21:19 -0800 (PST)")
+Message-ID: <87fyz1ey5p.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Strange Linking Problem
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I hope I'm right here. I've the following assembler code:
+Junfeng Yang <yjf@stanford.edu> writes:
 
-SECTION .DATA
-        hello:     db 'Hello world!',10
-        helloLen:  equ $-hello
+>> Linus's current tree includes support for `mount -o sync' on the msdos and
+>> vfat filesystems.
+>
+> Thanks Andrew.  I can just do a bk clone from
+> http://linux.bkbits.net/linux-2.6 to get Linus's current tree, right?
+>
+> The warning reported here doesn't need mount -o sync to trigger though.
+> A simple crash on a default mounted FS can usually cause the FS loop.
+>
+> (Also, I realized I made many typos in my report --- this implies I'm
+> tired and should probably get some sleep :)
 
-SECTION .TEXT
-        GLOBAL main
+Interesting.
 
-main:
+$ /devel/linux/works/fatfs/fatfstools/dosfstools-2.10/dosfsck/dosfsck -a bug10/crash.img
+dosfsck 2.10, 22 Sep 2003, FAT32, LFN
+/0006
+  Directory does not have any cluster  ("." and "..").
+  Dropping it.
+Reclaimed 3 unused clusters (6144 bytes) in 3 chains.
+Performing changes.
+crash.img: 8 files, 3/8167 clusters
 
+My fixed dosfsck found the above corruption in bug10/crash.img (bug7
+has same corruption). And probably you can see root directory via 0006
+directory, I guess your testing tree didn't have my patches yet (seems
+old behavior).
 
+BTW, what mount options did you use?
 
-        ; Write 'Hello world!' to the screen
-        mov eax,4            ; 'write' system call
-        mov ebx,1            ; file descriptor 1 = screen
-        mov ecx,hello        ; string to write
-        mov edx,helloLen     ; length of string to write
-        int 80h              ; call the kernel
-
-        ; Terminate program
-        mov eax,1            ; 'exit' system call
-        mov ebx,0            ; exit with error code 0
-        int 80h              ; call the kernel
-
-
-Then I run:
-
-nasm -f elf hello.asm
-
-
-I link it with ld and run it:
-
-ld -s -o hello hello.o
-./hello
-segmentation fault
-
-
-I link it with the gcc and run it:
-
-gcc hello.o -o hello
-./hello
-Hello world!
-
-
-What's wrong with the ld?
-
-Matthias-Christian Ott
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261520AbSIXBRT>; Mon, 23 Sep 2002 21:17:19 -0400
+	id <S261519AbSIXBYp>; Mon, 23 Sep 2002 21:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbSIXBRS>; Mon, 23 Sep 2002 21:17:18 -0400
-Received: from holomorphy.com ([66.224.33.161]:14744 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261520AbSIXBRS>;
-	Mon, 23 Sep 2002 21:17:18 -0400
-Date: Mon, 23 Sep 2002 18:22:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38 semaphore.c calls sleeping function in illegal context
-Message-ID: <20020924012201.GA3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20020924002052.GS25605@holomorphy.com> <3D8FBC16.6A4BCDE4@digeo.com>
+	id <S261521AbSIXBYp>; Mon, 23 Sep 2002 21:24:45 -0400
+Received: from mnh-1-11.mv.com ([207.22.10.43]:30982 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261519AbSIXBYo>;
+	Mon, 23 Sep 2002 21:24:44 -0400
+Message-Id: <200209240234.VAA06026@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: UML kbuild patch 
+In-Reply-To: Your message of "Mon, 23 Sep 2002 19:24:01 EST."
+             <Pine.LNX.4.44.0209231913060.13892-100000@chaos.physics.uiowa.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D8FBC16.6A4BCDE4@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Mon, 23 Sep 2002 21:34:20 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Trace; c01175f7 <__might_sleep+27/2b>
->> Trace; c011a4a1 <acquire_console_sem+2d/50>
->> Trace; c011a78a <register_console+122/1cc>
->> Trace; c0105000 <_stext+0/0>
+kai@tp1.ruhr-uni-bochum.de said:
+> The actual executable UML generates is called "linux" anyway, so its
+> Makefile can have its own rule (as for other archs the boot images)
+> which  builds "linux" from "vmlinux" using gcc and the link script. -
+> I.e. the  same way as UML used to do it earlier, anyway. 
 
-On Mon, Sep 23, 2002 at 06:12:54PM -0700, Andrew Morton wrote:
-> Don't know.  Who called register_console()?
-> But I suspect in_atomic() is returning incorrect or misleading
-> answers early in boot.
+I'd actually prefer the one-stage link.  That takes better advantage of
+the infrastructure that you've put in place.
 
-I would suspect console_init(). I believe some kind of change was
-done here for preempt bootstrap ordering issues (vm86_info: BAD) as
-it's a bit too early to schedule here. Things have gotten interesting
-down here in other contexts where sleeping and/or waitqueue fiddling
-is illegal so early on. Getting a better stack dump might be helpful.
-I'll see if I can do that soon.
+Instead of making LDFLAGS_vmlinux available to the arch Makefile, can
+you make cmd_link_vmlinux available?  Then I can just rewrite it.
 
+That looks like it has no impact on the global Makefile except for moving
+it above the include of the arch Makefile.
 
-Cheers,
-Bill
+				Jeff
+

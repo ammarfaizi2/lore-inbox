@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUFBQ0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUFBQ1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUFBQ0W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUFBQ0W
+	id S262389AbUFBQ1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUFBQ1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:26:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45788 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262020AbUFBQ0U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:26:20 -0400
-Date: Wed, 2 Jun 2004 09:25:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-In-Reply-To: <20040602161721.GA29296@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0406020921220.3403@ppc970.osdl.org>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
- <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
- <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
- <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
- <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org>
- <20040602152741.GC26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org>
- <20040602161721.GA29296@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Jun 2004 12:27:11 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:8578 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S263324AbUFBQ0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:26:31 -0400
+Subject: Re: [PATCH] 5/5: Device-mapper: dm-zero
+From: Christophe Saout <christophe@saout.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1086193026.4659.3.camel@leto.cs.pocnet.net>
+References: <20040602154605.GR6302@agk.surrey.redhat.com>
+	 <1086192141.4659.1.camel@leto.cs.pocnet.net>
+	 <20040602160905.GX28915@suse.de>
+	 <1086193026.4659.3.camel@leto.cs.pocnet.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bFy3Lftz8gzaYdEHC1/z"
+Date: Wed, 02 Jun 2004 18:26:11 +0200
+Message-Id: <1086193571.4659.7.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-bFy3Lftz8gzaYdEHC1/z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2 Jun 2004, Jörn Engel wrote:
-> 
-> Works for me for trivial recursions (just one function involved.  With
-> a little more pain, it should work for basically everything.  Only
-> exception are multiple recursions around the same function.  So unless
-> you like to keep those suckers, I'm fine with it.
+Am Mi, den 02.06.2004 um 18:17 Uhr +0200 schrieb Christophe Saout:
 
-Well, multiple recursion around the same function seems to be solvable two 
-different ways:
- - "don't do that then". It really seems broken, but maybe there are 
-   really really good reasons _why_ it's not broken and why it happens.
- - make sure that the separate loops are broken in some _other_ place than 
-   in the function they share.
+> What does this & PAGE_MASK do? This looks wrong too.
 
-A combination of the two may work well.
+Sorry, please forget this.
 
-I say "may", because maybe I'm wrong, and the condition is common and hard
-to avoid limiting in the shared function. I don't have your data (and I'm
-lazy, so quite frankly I'd much rather you do the analysis anyway ;).
 
-That said, I just don't see any sane alternatives to my "break in one
-place" thing. I believe that anything more complex that tries to explain
-the whole loop is just going to be a nightmare to maintain, and fragile as
-hell except for totally static legacy code that nobody touches any more.
+--- linux.orig/drivers/md/dm-zero.c  2004-06-02 18:24:38.231186664 +0200
++++ linux/drivers/ms/dm-zero.c	     2004-06-02 18:24:55.645539280 +0200
+@@ -35,7 +35,8 @@
+	bio_for_each_segment(bv, bio, i) {
+		char *data =3D bvec_kmap_irq(bv, &flags);
+		memset(data, 0, bv->bv_len);
+- 		bvec_kunmap_irq(bv, &flags);
++ 		flush_dcache_page(bv->bv_page);
++ 		bvec_kunmap_irq(data, &flags);
+  	}
+  }
+=20
 
-			Linus
+
+--=-bFy3Lftz8gzaYdEHC1/z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAvf+jZCYBcts5dM0RArt+AJ4+t/W+mmHUcSWwfDyGkgtvrA+h9QCeIGHg
+blDOWUh+3iK65p8SyEYxc+I=
+=Ep30
+-----END PGP SIGNATURE-----
+
+--=-bFy3Lftz8gzaYdEHC1/z--
+

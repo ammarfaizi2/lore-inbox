@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268340AbTBSKer>; Wed, 19 Feb 2003 05:34:47 -0500
+	id <S268341AbTBSKkn>; Wed, 19 Feb 2003 05:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268341AbTBSKer>; Wed, 19 Feb 2003 05:34:47 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:9661 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S268340AbTBSKeq>; Wed, 19 Feb 2003 05:34:46 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jamie Lokier <jamie@shareable.org>, Thomas Molina <tmolina@cox.net>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Wed, 19 Feb 2003 02:43:48 -0800 (PST)
-Subject: Re: openbkweb-0.0
-In-Reply-To: <20030219095701.GB14633@x30.suse.de>
-Message-ID: <Pine.LNX.4.44.0302190240120.8609-100000@dlang.diginsite.com>
+	id <S268343AbTBSKkn>; Wed, 19 Feb 2003 05:40:43 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:24083 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S268341AbTBSKkm>;
+	Wed, 19 Feb 2003 05:40:42 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Module problems (WAS: RE: 2.5.62 on Alpha SUCCESS (2.6 release soon!?))
+References: <008001c2d7ff$aa12b420$020b10ac@pitzeier.priv.at>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 19 Feb 2003 11:50:44 +0100
+In-Reply-To: "Oliver Pitzeier"'s message of "Wed, 19 Feb 2003 11:14:13 +0100"
+Message-ID: <yw1xisvgk0hn.fsf@manganonaujakasit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, Andrea Arcangeli wrote:
+"Oliver Pitzeier" <o.pitzeier@uptime.at> writes:
 
-> On Sat, Feb 15, 2003 at 01:31:16PM -0800, David Lang wrote:
-> > Andrea, since the on-disk format for bitkeeper is supposed to be SCCS
-> > would it be good enough for you to be able to get a copy of this? what
-> > mechanism would you prefer to use to get updates (rsync, FTP, HTTP, etc)
->
-> how do you avoid races with rsync/ftp/http? How do you fetch the SCCS
-> format out of bkbits.net w/o using bitkeeper?
->
-> Andrea
+> > > OK... Make modules_install still has problems:
+> [ ... ]
+> > Which versions of binutils and gcc do you have?  I get 
+> > similar problems with binutils 2.13 and 2.4 kernels.
+> 
+> This is my current env.:
+> [root@track /root]# rpm -q modutils binutils gcc
+> modutils-2.4.22-8
+> binutils-2.12.90.0.7-3
+> gcc-3.1-6
+> 
+> Maybe I should upgrade gcc? But I believe 3.1 is working fine... At
+> least for my normally...
 
-I don't know the RIGHT answer about the races (quick and dirty answer,
-deep doing a rsync until there is nothing to get???)
+I got those relocation errors when using gcc 3.1 and too old modutils,
+but you seem to have the latest version.  Try changing to binutils
+2.12.  It works for me, but 2.13 doesn't.
 
-as far as getting the SCCS format the idea is that someone who uses
-bitkeeper pulls a copy from bkbits.net and then makes the SCCS formal
-available via the other methods (after I sent you the question above Rik
-posted that he is doing this with ftp (for patches) and rsync (full SCCS
-format).
-
-David Lang
+-- 
+Måns Rullgård
+mru@users.sf.net

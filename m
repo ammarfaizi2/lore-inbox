@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293113AbSBWItW>; Sat, 23 Feb 2002 03:49:22 -0500
+	id <S293118AbSBWJZt>; Sat, 23 Feb 2002 04:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293115AbSBWItK>; Sat, 23 Feb 2002 03:49:10 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:926 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S293113AbSBWIst>;
-	Sat, 23 Feb 2002 03:48:49 -0500
-Subject: Re: [PATCHSET] Linux 2.4.18-rc3-jam1
-To: jamagallon@able.es (J.A. Magallon)
-Date: Sat, 23 Feb 2002 00:23:01 -0800 (PST)
-Cc: barryn@pobox.com (Barry K. Nathan),
-        linux-kernel@vger.kernel.org (Lista Linux-Kernel),
-        rwhron@earthlink.net
-In-Reply-To: <20020223023332.A1689@werewolf.able.es> from "J.A. Magallon" at Feb 23, 2002 02:33:32 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S293116AbSBWJZb>; Sat, 23 Feb 2002 04:25:31 -0500
+Received: from mtao1.east.cox.net ([68.1.17.244]:23784 "EHLO
+	lakemtao01.cox.net") by vger.kernel.org with ESMTP
+	id <S293117AbSBWJZN>; Sat, 23 Feb 2002 04:25:13 -0500
+Message-ID: <3C775FEF.BDA0253C@randomlogic.com>
+Date: Sat, 23 Feb 2002 01:25:03 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Random Logic
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: gcc-2.95.3 vs gcc-3.0.4
+In-Reply-To: <3C771D29.942A07C2@starband.net>,
+			<3C771D29.942A07C2@starband.net> <20020223134053.4fbe25ed.gang_hu@soul.com.cn> <3C772EF4.DB49876F@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020223082301.34EDF89C87@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> My box also hangs acessing the floppy. Strange thing is that it also
-> hangs without irqrate-A1. Will send an oops.
+Andrew Morton wrote:
+> 
+> hugang wrote:
+> >
+> > On Fri, 22 Feb 2002 23:40:09 -0500
+> > Justin Piszcz <war@starband.net> wrote:
+> >
+> > ...
+> > > GCC 2.95.3
+> > ...
+> > > System is 899 kB
+> > ...
+> > > GCC 3.0.4
+> > ...
+> > > System is 962 kB
+> > ...
+> > >
+> > Why the system size is different. Possble your use differ config.
+> 
 
-It could be one of the patches that comes before irqrate-A1 in the 00-90
-numbering sequence that your patches use; I've definitely reproduced this
-without any of the patches numbered higher than the irqrate-A1 patch.(In
-my case, if I applied all of those patches except the irqrate one, I
-didn't get the freeze. If I applied all the patches up to the irqrate one
-after, then I got the freeze.)
+The important thing is:
 
--Barry K. Nathan <barryn@pobox.com>
+Which compiler, of all of the different versions, generates the most
+stable and fastest code. Compile speed and kernel size is not NEARLY as
+important as performance. So, which compiler fits the bill?
+
+PGA
+-- 
+Paul G. Allen
+Owner, Sr. Engineer, Security Specialist
+Random Logic/Dream Park
+www.randomlogic.com

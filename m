@@ -1,72 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265850AbRFYDNt>; Sun, 24 Jun 2001 23:13:49 -0400
+	id <S265858AbRFYDR3>; Sun, 24 Jun 2001 23:17:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265858AbRFYDNj>; Sun, 24 Jun 2001 23:13:39 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:17412 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S265850AbRFYDNV>; Sun, 24 Jun 2001 23:13:21 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: landley@webofficenow.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <86256A76.0011A620.00@smtpnotes.altec.com>
-Date: Sun, 24 Jun 2001 21:51:03 -0500
-Subject: Re: Microsoft and Xenix.
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S265859AbRFYDRT>; Sun, 24 Jun 2001 23:17:19 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:38420 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S265858AbRFYDRE>; Sun, 24 Jun 2001 23:17:04 -0400
+From: joeja@mindspring.com
+Date: Sun, 24 Jun 2001 23:17:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: AMD thunderbird oops
+Message-ID: <Springmail.105.993439024.0.29949400@www.springmail.com>
+X-Originating-IP: 32.102.91.118
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just upgradede my system to an 1200Mhz AMD Athlon Thundirbird (266Mhz FSB) processor  / 512Meg of RAM, and an Asus kt7a motherboard.  
 
+It is oppsing left and right.  I recompiled the kernel with Athelon as the CPU but keep getting these oopses..
 
-Sorry, but I'm hanging on to my old computer manuals.  The AIX manuals in
-particular have sentimemtal value for me.
+I also get these same problems while trying to install RH 7.1
 
-OTOH, I have quite a few old computer magazines (from the 80's) like Byte,
-Infoworld, etc.  I've been intending to get rid of them for some time now, but
-hated just to throw them away.  They're in storage in a neighboring state right
-now, but my wife probably will be driving there in the next couple of weeks to
-pick up a few things.  If you're interested, she could bring back the magazines
-and I can tell you exactly what I have.  You're welcome to them if you want
-them.
+Anyone know is this a supported processor / MB and has anyone had these problems?
 
-Wayne
-
-
-
-
-Rob Landley <landley@webofficenow.com> on 06/24/2001 09:32:43 AM
-
-Please respond to landley@webofficenow.com
-
-To:   Wayne Brown/Corporate/Altec@Altec, John Adams <johna@onevista.com>
-cc:   linux-kernel@vger.kernel.org
-
-Subject:  Re: Microsoft and Xenix.
-
-
-
-On Saturday 23 June 2001 22:41, Wayne.Brown@altec.com wrote:
-> Ah, yes, the RT/PC.  That brings back some fond memories.  My first
-> exposure to Unix was with AIX on the RT.  I still have some of those
-> weird-sized RT AIX manuals around somewhere...
->
-> Wayne
-
-Ooh!  Old manuals!
-
-Would you be willing to part with them?
-
-I am collecting old manuals, and old computing magazines.  I even pay for
-postage, with a bit of warning that they're coming...
-
-Rob
-
-
-
-
-
-
-
+Joe please cc me as I am not on this list.

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbRGJJ5a>; Tue, 10 Jul 2001 05:57:30 -0400
+	id <S265249AbRGJKQK>; Tue, 10 Jul 2001 06:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265042AbRGJJ5V>; Tue, 10 Jul 2001 05:57:21 -0400
-Received: from core-gateway-1.hyperlink.com ([213.219.35.163]:29964 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S264877AbRGJJ5I>; Tue, 10 Jul 2001 05:57:08 -0400
+	id <S265277AbRGJKQA>; Tue, 10 Jul 2001 06:16:00 -0400
+Received: from mail17.bigmailbox.com ([209.132.220.48]:21773 "EHLO
+	mail17.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S265249AbRGJKPt>; Tue, 10 Jul 2001 06:15:49 -0400
+Date: Tue, 10 Jul 2001 03:15:38 -0700
+Message-Id: <200107101015.DAA29269@mail17.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [64.40.52.111]
+From: "Colin Bayer" <colin_bayer@compnerd.net>
 To: linux-kernel@vger.kernel.org
-Subject: es1370/1371 compilation clash
-Message-ID: <994759043.3b4ad183f0364@extranet.jtrix.com>
-Date: Tue, 10 Jul 2001 10:57:23 +0100 (BST)
-From: "Martin A. Brooks" <martin.brooks@hyperlink.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 10.119.8.1
+Cc: rddunlap@osdlab.org
+Subject: i810 I/O APIC (was Sticky IO-APIC problem)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+D'oh!  Well, I still haven't gotten the APIC to work... after *several* unclean reboots (and repeatedly checking my hex math), I'm back where I started.  After tinkering inside the configuration space of the I/O Controller Hub, no change is evident in /proc/interrupts.  The next time I start up XFree86, it freezes at a blank screen.  No vterm switches, Magic SysRq keys, or three-fingered salutes rescue me from it; the kernel doesn't even sing a verse of "Aiee, Killing My Interrupt Handler Softly".  Nothin' + bupkus.  Nothing.  Well, it's obviously not going to work from user space. 8-(  Any thoughts from the gurus out there?
 
-I know this isn't really a valid combination however using 2.4.6ac2 and
-selecting both es1370 and es1371 gives this...
+     -- Colin
 
-ld -m elf_i386  -r -o sounddrivers.o soundcore.o es1370.o es1371.o ac97_codec.o
-es1371.o: In function `gameport_register_port':
-es1371.o(.text+0x587c): multiple definition of `gameport_register_port'
-es1370.o(.text+0x5670): first defined here
-es1371.o: In function `gameport_unregister_port':
-es1371.o(.text+0x5880): multiple definition of `gameport_unregister_port'
-es1370.o(.text+0x5674): first defined here
-make[3]: *** [sounddrivers.o] Error 1
 
-Arguably someone could have both chipsets in the same box, though.
+On the first day, man created the computer.  On the second day, God proclaimed from the heavens, "F0 0F C7 C8".
 
-Regards
-
-Martin A. Brooks,  Systems Administrator
--------------------------------------------
-Hyperlink Plc		t: +44 207 395 4980
-57-59 Neal Street	f: +44 207 395 4981
-Covent Garden		e: martin@hyperlink.com
-London WC2H 9PJ		w: http://www.hyperlink.com
+------------------------------------------------------------
+The CompNerd Network: http://www.compnerd.com/
+Where a nerd can be a nerd.  Get your free webmail@compnerd.net!

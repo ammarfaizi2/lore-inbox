@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUFNCIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUFNCV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUFNCIg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 22:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUFNCIg
+	id S261704AbUFNCV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 22:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUFNCV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 22:08:36 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:16053 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261682AbUFNCIe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 22:08:34 -0400
-Date: Sun, 13 Jun 2004 19:08:29 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>, arjanv@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4]Diskdump Update
-Message-ID: <3280000.1087178908@[10.10.2.4]>
-In-Reply-To: <ACC451B04FA428indou.takao@soft.fujitsu.com>
-References: <78040000.1086967058@[10.10.2.4]> <ACC451B04FA428indou.takao@soft.fujitsu.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 13 Jun 2004 22:21:56 -0400
+Received: from dsl-201-129-9-156.prod-infinitum.com.mx ([201.129.9.156]:13832
+	"HELO his.de") by vger.kernel.org with SMTP id S261704AbUFNCVz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 22:21:55 -0400
+Message-ID: <b7cd01c451b5$9306a8b8$507f1b69@his.de>
+From: "Doug Novak" <novakln@eb.dk>
+To: linux-kernel@vger.kernel.org
+Subject: New powerful weightloss for you.
+Date: Mon, 14 Jun 2004 00:12:56 -0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Ok, I fix it.
->>> 
->>> -		page = mem_map + nr;
->>> +		page = pfn_to_page(nr);
->> 
->> That's correct now ...
->> 
->>> I also need fix this.
->>> 
->>> -	for (nr = 0; nr < max_mapnr; nr++) {
->>> +	for (nr = 0; nr < max_pfn; nr++) {
->> 
->> ... but that's not (at least AFAICS from this snippet). You need to iterate 
->> over pgdats, and then over the lmem_map inside each pgdat.
-> 
-> How about this?
-> 
-> for_each_pgdat(pgdat) {
-> 	for (i = 0; i < pgdat->node_spanned_pages; ++i) {
-> 		page = pgdat->node_mem_map + i;
-> 		...
->         }
-> }
+Hello, I have a special_offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Up to 300% more Weight Loss while dieting.
+- Loss of 20-35% abdominal Fat.
+- Reduction of 40-70% overall Fat under skin.
+- Increase metabolic rate by 76.9% without Exercise.
+- Boost your Confidence level and Self Esteem.
+- Burns calorized fat.
+- Suppresses appetite for sugar.
+Get the facts about all-natural Adipren720 <http://diet50.com/>
 
-Yes, looks OK. I started writing out what it'd take to use the actual
-pfn_to_page macros, but it just makes a mess ... what you have is fine.
 
-M.
+
+---- system information ----
+native We contains applications examples: However Activity correctly 
+container navigational validate Other An header string read 
+actual Japan all many internationalized consistency include: server 
+existing greater using regime regulatory application under via 
+place might endorsement greater a provide sorting have 
 

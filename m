@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317802AbSGVUkM>; Mon, 22 Jul 2002 16:40:12 -0400
+	id <S317778AbSGVUgl>; Mon, 22 Jul 2002 16:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317806AbSGVUkM>; Mon, 22 Jul 2002 16:40:12 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:51631 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317802AbSGVUkL>; Mon, 22 Jul 2002 16:40:11 -0400
-Date: Mon, 22 Jul 2002 22:43:06 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Block devices in pagecache, fsck, and what's going on...
-In-Reply-To: <BA7A23202E6@vcnet.vc.cvut.cz>
-Message-ID: <Pine.SOL.4.30.0207222239220.13634-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317791AbSGVUgl>; Mon, 22 Jul 2002 16:36:41 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:4493 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S317778AbSGVUgk>;
+	Mon, 22 Jul 2002 16:36:40 -0400
+Date: Mon, 22 Jul 2002 22:39:42 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <martin@dalecki.de>
+Subject: Re: please DON'T run 2.5.27 with IDE!
+Message-ID: <20020722203942.GA2917@win.tue.nl>
+References: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0207222130040.27373-100000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
 
-Hi!
+> IDE 99 which is included in 2.5.27 introduced really nasty bug.
+> Possible lockups and data corruption. Please do not.
 
-On Mon, 22 Jul 2002, Petr Vandrovec wrote:
+On the other hand, thanks to Jens, I have been running 2.5.27 with 2.4 IDE
+now for two days without any IDE-related trouble.
 
-> Hello,
->   I've noticed very bad problem few weeks ago, but I thought that it
-> is just some bad accident. But today it happened again.
->
->   Say that for some reason kernel will crash (such as missing read_unlock...)
-> and you have to hard reboot it.
->
->   Now you reboot, and system runs e2fsck, which removes couple of
-> /var/run/*.pid entries.
->
->   It was not severe, so initscripts (Debian unstable) remount root read-write,
-> and continue booting. And now - oops - first cleanup script complains
-> that it could not remove these *.pid files because of -EIO, and shortly
-> after that filesystem is remounted read-only because of "Freeing blocks not
-> in datazone - block = 271450112, count=56; block = 32768, count = 2564"
-> and it goes downhill very quickly...
->
->   After reboot fsck it says that entries xxx.pid in /var/run has deleted/unused
-> inode yyy, and if I do not reboot, there is very high chance that it
-> will die again.
->
->   If I reboot after running e2fsck, everything is fine. Always.
->
->   My question is very simple: is this intended behavior of non-coherent
-> cache between /dev/hda1 and ext2 layer (which also makes dump to crash),
-> or is it something missing in e2fsck (1.27), or is it Debian bug and
-
-It is not Debian's bug I sometimes get the same problem on
-highly modified RedHat 7.2 with e2fsck (1.23) (Yes, I know I should
-upgrade).
-
-> it is now required to reboot machine after any run of e2fsck on /
-> partition?
->                                     Thanks,
->                                         Petr Vandrovec
->                                         vandrove@vc.cvut.cz
->
-> P.S.: BTW, I find it very strange that in /var/log/* I can have
-> written: "Can't open file /var/cache/samba/browse.dat.. Error was Read-only
-> file system" when /var/log/* lives on same filesystem as /var/cache...
-> and also all remounting-readonly messages are here, written to same
-> partition which was remounted-read only due to these fatal errors.
+Andries
 
 
+[usb still has some problems - hotplug is difficult;
+another funny is that for me netscape 4.79 with flash works
+under 2.4.17 and doesn't work under 2.5.25 or 2.5.27; have
+not yet tried to trace it down; does this sound like
+something well-known?]

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbUCaVt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 16:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUCaVtG
+	id S261932AbUCaWAN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 17:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUCaV76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 16:49:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22988 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262632AbUCaVp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 16:45:27 -0500
-Date: Wed, 31 Mar 2004 13:42:15 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Casey Allen Shobe" <cshobe@osss.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mem=options changed in 2.6.x?
-Message-Id: <20040331134215.21350e55.rddunlap@osdl.org>
-In-Reply-To: <44574.64.25.5.177.1080768515.squirrel@webmail.thebrittinggroup.com>
-References: <44574.64.25.5.177.1080768515.squirrel@webmail.thebrittinggroup.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 Mar 2004 16:59:58 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:49077 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261932AbUCaV7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 16:59:16 -0500
+Subject: Re: [PATCH] ibmvscsi driver - sixth version
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Dave Boutcher <sleddog@us.ibm.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <opr5qwiyw4l6e53g@us.ibm.com>
+References: <opr3u0ffo7l6e53g@us.ibm.com>
+	<20040225134518.A4238@infradead.org>  <opr3xta6gbl6e53g@us.ibm.com>
+	<1079027038.2820.57.camel@mulgrave>  <opr5qwiyw4l6e53g@us.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 31 Mar 2004 16:58:28 -0500
+Message-Id: <1080770310.2071.44.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Mar 2004 16:28:35 -0500 (EST) Casey Allen Shobe wrote:
+On Wed, 2004-03-31 at 16:26, Dave Boutcher wrote:
+> Comments always welcomed.  I would like to get this upstream if I can, 
+> since the linux distributors are complaining slightly that it is not.
 
-| I have a Compaq Proliant 5000 with 320Mb RAM.
-| 
-| If I boot up either linux 2.4.22 or 2.6.4, it only identifies 12Mb of memory.
-| 
-| With 2.4.22, the kernel parameters "mem=exactmap mem=640k@0M mem=319M@1M"
-| worked to make the kernel identify all of the memory.
-| 
-| I have tried the same with linux 2.6.4, but with the above flags the
-| kernel will not boot.  With "mem=320M", the system boots, but it still
-| thinks it has only 12Mb RAM.
-| 
-| Something I'm missing or did this change between releases?
+Actually, this:
 
-See file: Documentation/kernel-parameters.txt
++	    (u64) (unsigned long)dma_map_single(dev, cmd->request_buffer,
++						cmd->request_bufflen,
++						DMA_BIDIRECTIONAL);
++	if (pci_dma_mapping_error(data->virtual_address)) {
++		printk(KERN_ERR
++		       "ibmvscsi: Unable to map request_buffer for command!\n");
++		return 0;
 
-Basically, you need to change "mem=" to "memmap=" in all 3 places
-above.
+Should be
 
---
-~Randy
-"You can't do anything without having to do something else first."
--- Belefant's Law
+if(dma_mapping_error())
+
+I have no idea why there are two identical APIs for the mapping error,
+but since you use the DMA API, you should use its version.  You can also
+drop the #include <linux/pci.h> as well.
+
+
+This:
+
++	sg_mapped = dma_map_sg(dev, sg, cmd->use_sg, DMA_BIDIRECTIONAL);
++
++	if (pci_dma_mapping_error(sg_dma_address(&sg[0])))
++		return 0;
+
+Is wrong.  dma_map_sg returns zero if there's a mapping error, you
+should check for that.
+
+James
+
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271009AbRHODNC>; Tue, 14 Aug 2001 23:13:02 -0400
+	id <S271006AbRHODLC>; Tue, 14 Aug 2001 23:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271008AbRHODMx>; Tue, 14 Aug 2001 23:12:53 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:27144 "EHLO
+	id <S271008AbRHODKx>; Tue, 14 Aug 2001 23:10:53 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:26632 "EHLO
 	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S271011AbRHODMh>; Tue, 14 Aug 2001 23:12:37 -0400
-Date: Tue, 14 Aug 2001 23:12:45 -0400 (EDT)
+	id <S271006AbRHODKf>; Tue, 14 Aug 2001 23:10:35 -0400
+Date: Tue, 14 Aug 2001 23:10:36 -0400 (EDT)
 From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] starfire driver update for 2.2.20pre9
-Message-ID: <Pine.LNX.4.33.0108142310420.26973-100000@age.cs.columbia.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] starfire driver update for 2.4.8+
+Message-ID: <Pine.LNX.4.33.0108142303110.26973-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -19,9 +19,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This is basically the same update as the one I sent moments ago for 
-2.4.8+. It's just rediffed against a 2.2.20pre tree, due to a one-line 
-difference.
+Primarily fixed in this update:
+
+- some initialization timing problems that could lock up a machine under
+  the wrong circumstances
+
+- two interrupt mask definitions that could cause bogus messages to be 
+  logged even when everything was functioning normally
+
+On the side, it moves the includes before the first point that actually 
+needs them, and removes the reference to Donald Becker's site for updates.
 
 Please apply.
 
@@ -31,9 +38,9 @@ Ion
 -- 
   It is better to keep your mouth shut and be thought a fool,
             than to open it and remove all doubt.
-----------------------------------
---- ../linux-2.2.20pre/drivers/net/starfire.c	Tue Aug 14 22:47:13 2001
-+++ linux-2.4/drivers/net/starfire.c	Tue Aug 14 22:58:26 2001
+--------------------------------
+--- ../linux-2.4/drivers/net/starfire.c	Tue Aug 14 22:29:08 2001
++++ linux-2.4/drivers/net/starfire.c	Tue Aug 14 22:55:42 2001
 @@ -89,13 +89,29 @@
  	- Initialize the TxMode register properly
  	- Don't dereference dev->priv after freeing it
@@ -77,7 +84,7 @@ Ion
  /* The user-configurable values.
     These may be modified when a driver module is loaded.*/
  
-@@ -196,21 +216,6 @@
+@@ -196,22 +216,6 @@
  #define skb_first_frag_len(skb)	(skb->len)
  #endif /* not ZEROCOPY */
  
@@ -91,6 +98,7 @@ Ion
 -#include <linux/delay.h>
 -#include <asm/processor.h>		/* Processor type for cache alignment. */
 -#include <asm/uaccess.h>
+-#include <asm/io.h>
 -
 -#ifdef HAS_FIRMWARE
 -#include "starfire_firmware.h"
@@ -99,7 +107,7 @@ Ion
  /* 2.2.x compatibility code */
  #if LINUX_VERSION_CODE < 0x20300
  
-@@ -241,7 +246,6 @@
+@@ -242,7 +246,6 @@
  /* These identify the driver base version and may not be removed. */
  static char version[] __devinitdata =
  KERN_INFO "starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>\n"
@@ -107,7 +115,7 @@ Ion
  KERN_INFO " (unofficial 2.2/2.4 kernel port, version " DRV_VERSION ", " DRV_RELDATE ")\n";
  
  MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
-@@ -416,7 +420,7 @@
+@@ -417,7 +420,7 @@
  	/* not quite bits */
  	IntrRxDone=IntrRxQ2Done | IntrRxQ1Done,
  	IntrRxEmpty=IntrRxDescQ1Low | IntrRxDescQ2Low,
@@ -116,7 +124,7 @@ Ion
  };
  
  /* Bits in the RxFilterMode register. */
-@@ -655,10 +659,7 @@
+@@ -656,10 +659,7 @@
  
  #ifdef ZEROCOPY
  	/* Starfire can do SG and TCP/UDP checksumming */
@@ -128,7 +136,7 @@ Ion
  #endif /* ZEROCOPY */
  
  	/* Serial EEPROM reads are hidden by the hardware. */
-@@ -744,7 +745,7 @@
+@@ -745,7 +745,7 @@
  		int mii_status;
  		for (phy = 0; phy < 32 && phy_idx < PHY_CNT; phy++) {
  			mdio_write(dev, phy, MII_BMCR, BMCR_RESET);
@@ -137,7 +145,7 @@ Ion
  			boguscnt = 1000;
  			while (--boguscnt > 0)
  				if ((mdio_read(dev, phy, MII_BMCR) & BMCR_RESET) == 0)
-@@ -767,6 +768,14 @@
+@@ -768,6 +768,14 @@
  		np->phy_cnt = phy_idx;
  	}
  
@@ -152,7 +160,7 @@ Ion
  	return 0;
  
  err_out_cleardev:
-@@ -930,6 +939,7 @@
+@@ -931,6 +939,7 @@
  	/* Configure the PCI bus bursts and FIFO thresholds. */
  	np->tx_mode = 0x0C04;		/* modified when link is up. */
  	writel(0x8000 | np->tx_mode, ioaddr + TxMode);
@@ -160,7 +168,7 @@ Ion
  	writel(np->tx_mode, ioaddr + TxMode);
  	np->tx_threshold = 4;
  	writel(np->tx_threshold, ioaddr + TxThreshold);
-@@ -1545,6 +1561,7 @@
+@@ -1546,6 +1561,7 @@
  		if (np->tx_mode != new_tx_mode) {
  			np->tx_mode = new_tx_mode;
  			writel(np->tx_mode | 0x8000, ioaddr + TxMode);

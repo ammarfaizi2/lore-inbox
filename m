@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265115AbUEYWvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265140AbUEYWw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265115AbUEYWvp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEYWvp
+	id S265140AbUEYWw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:52:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbUEYWw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:51:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32674 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265115AbUEYWvn
+	Tue, 25 May 2004 18:52:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34978 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265140AbUEYWwZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:51:43 -0400
-Date: Tue, 25 May 2004 19:53:09 -0300
+	Tue, 25 May 2004 18:52:25 -0400
+Date: Tue, 25 May 2004 19:53:53 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Feldman, Scott" <scott.feldman@intel.com>, doug@easyco.com,
-       linux-kernel@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, jgarzik@pobox.com
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: Doug Dumitru <doug@easyco.com>, linux-kernel@vger.kernel.org,
+       cramerj <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>, jgarzik@pobox.com
 Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - Not out of memory
-Message-ID: <20040525225308.GA5344@logos.cnet>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com> <20040525144759.0e51cfd9.davem@redhat.com>
+Message-ID: <20040525225353.GB5344@logos.cnet>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040525144759.0e51cfd9.davem@redhat.com>
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 02:47:59PM -0700, David S. Miller wrote:
-> On Tue, 25 May 2004 14:20:23 -0700
-> "Feldman, Scott" <scott.feldman@intel.com> wrote:
+On Tue, May 25, 2004 at 02:20:23PM -0700, Feldman, Scott wrote:
+> Marcelo Tosatti wrote:
 > 
-> > Marcelo Tosatti wrote:
-> > 
-> > > It seems we are calling alloc_skb(GFP_KERNEL) from inside an 
-> > > interrupt handler. Oops. 
-> > 
-> > We're calling dev_alloc_skb() from hard interrupt context, but it uses
-> > GFP_ATOMIC, not GFP_KERNEL, so this is OK, right?  I don't see the
-> > problem with e1000.
+> > It seems we are calling alloc_skb(GFP_KERNEL) from inside an 
+> > interrupt handler. Oops. 
 > 
-> Neither do I, where is the detailed backtrace of this GFP_KERNEL
-> allocation supposedly from interrupt context?
+> We're calling dev_alloc_skb() from hard interrupt context, but it uses
+> GFP_ATOMIC, not GFP_KERNEL, so this is OK, right?  I don't see the
+> problem with e1000.  
 
-That was just a very wrong guess, I must admit. 
+Scott,
 
-Actually what seems to be happening is an e1000 IRQ while 
-trying to free memory (shrink_caches()) which tries to 
-allocate more memory. 
-
-Locked caused by extremely high load it seems.
-
-You know better than me.
+I'm full of sh*t, just ignore me.

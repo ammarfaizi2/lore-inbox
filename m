@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136380AbRD2Vrd>; Sun, 29 Apr 2001 17:47:33 -0400
+	id <S132054AbRD2VtD>; Sun, 29 Apr 2001 17:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136383AbRD2VrY>; Sun, 29 Apr 2001 17:47:24 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:8713 "HELO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S136380AbRD2VrS> convert rfc822-to-8bit; Sun, 29 Apr 2001 17:47:18 -0400
-From: jg@pa.dec.com (Jim Gettys)
-Date: Sun, 29 Apr 2001 14:47:10 -0700 (PDT)
-Message-Id: <200104292147.f3TLlAO15129@pachyderm.pa.dec.com>
-X-Mailer: Pachyderm (client pachyderm.pa-x.dec.com, user jg)
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Jim Gettys <jg@pa.dec.com>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3AEC8A46.2BA7BF68@transmeta.com>
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+	id <S136384AbRD2Vsx>; Sun, 29 Apr 2001 17:48:53 -0400
+Received: from h24-76-184-93.vs.shawcable.net ([24.76.184.93]:1284 "EHLO
+	candle.perlpimp.com") by vger.kernel.org with ESMTP
+	id <S132054AbRD2Vsb>; Sun, 29 Apr 2001 17:48:31 -0400
+Date: Sun, 29 Apr 2001 14:48:27 -0700
+From: putter <spam@perlpimp.com>
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs autofix?
+Message-ID: <20010429144827.A751@vancouver.yi.org>
+Reply-To: spam@perlpimp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Arbitrary-Number-Of-The-Day: 42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I am kernel newbie, especially with logging filesystems.
+Now I am using Mandrake 7.1 with 2.4.3 kernel and imon patch
+and NVidia drivers compiled into the kernel.
+Now, all my partitions are ReiserFS. I usually play quake once
+or twice a day. Sometimes graphics subsystem freezes up, so it takes
+keyboard input. Caps and Numlock are working fine, unless I try to kill
+X with ctrlalt-backspace. So I reset my machine with hardware switch.
 
-> 
-> Short summary: depending on how much you were talking general idea versus
-> specifics, you can go arbitrarily far back (I wouldn't be surprised if
-> shared memory techniques were used regularly before memory protection.)
-> 
-> Fair?
-
-Very fair.
-
-> 
-> Not to pick on you or anyone else, but it is well-known to everyone
-> except the U.S. patent office that "there are no new ideas in computer
-> science." :)
-> 
-
-
-Exactly why I noted in my mail that I didn't consider it novel even back then; just
-a good engineering idea that we went ahead and used a long time ago...
-		- Jim
---
-Jim Gettys
-Technology and Corporate Development
-Compaq Computer Corporation
-jg@pa.dec.com
-
+here is the interesting part... after I reset my machine like that,
+some files start to appear corrupted. Segmentation faults etc. 
+Isn't reiserfs suppose to be safe? NOW, THE REAL SPOOKY PART:
+I reboot my machine with normal procedure, like shutdonw -r now,
+and on other boot, corrupted files FIX themselves. Any insight?
+I think it is rather unacceptable...
+cheers,
+	pavel

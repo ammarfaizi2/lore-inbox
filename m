@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbTGWKWr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbTGWKWq
+	id S265624AbTGWKVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTGWKVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:22:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26592 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265772AbTGWKWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:22:44 -0400
-Date: Wed, 23 Jul 2003 12:37:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030723103745.GA26422@fs.tum.de>
-References: <200307230512.h6N5CXQ10468@adam.yggdrasil.com> <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org> <20030723090847.GZ26422@fs.tum.de> <20030723101228.GC4172@merlin.emma.line.org>
+	Wed, 23 Jul 2003 06:21:45 -0400
+Received: from rth.ninka.net ([216.101.162.244]:40320 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S265624AbTGWKVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:21:44 -0400
+Date: Wed, 23 Jul 2003 03:35:05 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: a.marsman@aYniK.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre7: are security issues solved?
+Message-Id: <20030723033505.145db6b8.davem@redhat.com>
+In-Reply-To: <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au>
+References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain>
+	<E19fGMZ-0000Zm-00@gondolin.me.apana.org.au>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030723101228.GC4172@merlin.emma.line.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 12:12:28PM +0200, Matthias Andree wrote:
-> On Wed, 23 Jul 2003, Adrian Bunk wrote:
+On Wed, 23 Jul 2003 19:56:47 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
+
+> Aschwin Marsman <a.marsman@aynik.com> wrote:
+> > 
+> >> CAN-2003-0461: /proc/tty/driver/serial reveals the exact character counts
+> >> for serial links. This could be used by a local attacker to infer password
+> >> lengths and inter-keystroke timings during password entry.
 > 
-> > There are _many_ people that have a copyright on parts of the Linux
-> > kernel (the exact number might be different in different countries due
-> > to different copyright laws). To change the copyright to anything other
-> > than GPL v2 is practically impossible (even if a new version of the GPL
-> > might fix the deficits you mentioned).
-> 
-> How about the "or, at your option, any later version" clause in the GPL?
+> What's the problem with exposing those counters?
 
-This clause is not part of the GPL, it's only a suggestion on how to
-copyright your code.
-
-COPYING in the kernel sources includes an explict statement.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+If I know your password is 7 characters I have a smaller
+space of passwords to search to just brute-force it.

@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132794AbRA0S4E>; Sat, 27 Jan 2001 13:56:04 -0500
+	id <S131181AbRA0TQc>; Sat, 27 Jan 2001 14:16:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132951AbRA0Szy>; Sat, 27 Jan 2001 13:55:54 -0500
-Received: from quechua.inka.de ([212.227.14.2]:62576 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132794AbRA0Szl>;
-	Sat, 27 Jan 2001 13:55:41 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-Id: <E14MaVf-0003Cb-00@sites.inka.de>
-Date: Sat, 27 Jan 2001 19:55:39 +0100
+	id <S130969AbRA0TQV>; Sat, 27 Jan 2001 14:16:21 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:4481 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S130032AbRA0TQO>;
+	Sat, 27 Jan 2001 14:16:14 -0500
+Message-ID: <3A731E65.8BE87D73@pobox.com>
+Date: Sat, 27 Jan 2001 11:15:49 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Shawn Starr <Shawn.Starr@Home.com>
+CC: David Ford <david@linux.com>, Aaron Lehmann <aaronl@vitelus.com>,
+        John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com> <3A7295F6.621BBEC4@Home.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A713B3F.24AC9C35@idb.hist.no> you wrote:
->> Think of yourself as a firewall author now.  You come across this, and
->> go, "these bits aren't used now; this means noone should be setting
->> them.  I have no guarantee that anything in the future isn't going to use
->> these bits for something that isn't going to override the security of my
->> system."
+Just for the record, the system where I saw the problem
+has only ext2 -
 
-> So, no reason for a firewall author to check these bits.
+jjs
 
-Read it again.
+Shawn Starr wrote:
 
-Firewalls must drop Data which is violating the protocol and they must in
-Addition to that even drop Data which is not violating the protocol but beeing
-suspicious of triggering errors at the receiver side. And Reserved Bit's are
-clearly a Thing you, as a Firewall Vendor will block as long as you don't be
-sure that the computers you want to secure don't break.
+> Yes, I have ReiserFS as well...hrm...
+>
+> David Ford wrote:
+>
+> > I can quickly and easily duplicate it on my notebook by playing music or
+> > mpegs in xmms.  It may take a few minutes but it's guaranteed.
+> >
+> > xmms stalls flat on it's face and anything accessing /proc stalls.  If I get
+> > the time to do it, I'll take a gander at it with kdb.
+> >
+> > I have no patches applied to p10, I have reiserfs onboard but I highly doubt
+> > it's reiserfs.
 
-A good example are valid (according to the protocol) chars in email addressses
-like '!'. Even if it is perfectly valid you will not consider a firewall do
-pass it, or?
-
-Well, of course the best solution would be to make this configurable, but I
-guess thats a problem ith recent commercial Firewalls, they promise PnP
-security and dont want to confuse the users with too many settings.
-
-After all it is a good idea to leave some decisions to educated professionals
-than to normal Firewall admins.
-
-Greetings
-Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

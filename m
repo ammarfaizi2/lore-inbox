@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbTETATC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTETATC
+	id S263056AbTETAU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTETAU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:19:02 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:56740 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262830AbTETATB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:19:01 -0400
-Message-Id: <200305200031.h4K0VwPc025596@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Rusty Russell <rusty@rustcorp.com.au>
+	Mon, 19 May 2003 20:20:28 -0400
+Received: from dp.samba.org ([66.70.73.150]:30352 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263056AbTETAU1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:20:27 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
-In-Reply-To: Your message of "Tue, 20 May 2003 10:08:46 +1000."
-             <20030520001623.8BE182C0F9@lists.samba.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030520001623.8BE182C0F9@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1290529165P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 19 May 2003 20:31:58 -0400
+Subject: Re: try_then_request_module 
+In-reply-to: Your message of "Mon, 19 May 2003 11:08:32 +0200."
+             <20030519110832.G626@nightmaster.csn.tu-chemnitz.de> 
+Date: Tue, 20 May 2003 10:19:00 +1000
+Message-Id: <20030520003322.D38CA2C09D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1290529165P
-Content-Type: text/plain; charset=us-ascii
+In message <20030519110832.G626@nightmaster.csn.tu-chemnitz.de> you write:
+> So try_then_request_module() will consolidate the the
+> branch or in the worst case just duplicating that code
+> everywhere (depends on wether you implement it as a non-inline
+> function or define).
 
-On Tue, 20 May 2003 10:08:46 +1000, Rusty Russell said:
-> In message <20030519111028.B8663@infradead.org> you write:
-> > Urgg, yet another sys_futex extension.  Could you please split all
-> > these totally different cases into separate syscalls instead?
-> 
-> I don't mind either way, but wouldn't that be pointless incompatible
-> churn?
+I'm not speculating: here it is from kmod.h:
 
-Doesn't matter, the churn hasn't been reflected in glibc-kernheaders yet
-either way.  Once kernheaders gets updated to match, you're stuck with whatever
-it is at that point, so churn now while you have a chance. ;)
+	#define try_then_request_module(x, mod...) ((x) ?: request_module(mod), (x))
 
-(Sorry, I couldn't resist)
+It really should be:
 
---==_Exmh_-1290529165P
-Content-Type: application/pgp-signature
+#ifdef CONFIG_KMOD
+#define try_then_request_module(x, mod...) ((x) ?: request_module(mod), (x))
+#else
+#define try_then_request_module(x, mod...) (x)
+#endif /* CONFIG_KMOD */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Patches welcome.
 
-iD8DBQE+yXd9cC3lWbTT17ARAqpHAKDxfMgPinR1BsVeH1nAAkDhvv0C2wCgrmjB
-PAStBuwat/6OI8xaSe0rvTI=
-=Z9H6
------END PGP SIGNATURE-----
+Getting rid of the CONFIG_KMOD's in general code without leaving
+unused code around is the aim here.
 
---==_Exmh_-1290529165P--
+Hope that clarifies!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

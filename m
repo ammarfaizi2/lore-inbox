@@ -1,62 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVAZOoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVAZOtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVAZOoW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVAZOoV
+	id S262314AbVAZOtI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVAZOtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:44:21 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:31619 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S262317AbVAZOn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:43:57 -0500
-Date: Wed, 26 Jan 2005 15:43:46 +0100
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-Message-ID: <20050126144346.GD23182@speedy.student.utwente.nl>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	"Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-	Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-	fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
-References: <20050125035930.GG13394@redhat.com> <m1sm4phpor.fsf@ebiederm.dsl.xmission.com> <20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net> <m1brbdhl3l.fsf@ebiederm.dsl.xmission.com> <20050125104904.GB5906@ip68-4-98-123.oc.oc.cox.net> <m13bwphflw.fsf@ebiederm.dsl.xmission.com> <20050125220229.GB5726@ip68-4-98-123.oc.oc.cox.net> <m1651lupjj.fsf@ebiederm.dsl.xmission.com> <20050126132741.GA23182@speedy.student.utwente.nl> <m1pszsffnp.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1pszsffnp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 26 Jan 2005 09:49:08 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61920 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262314AbVAZOs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 09:48:56 -0500
+Message-ID: <41F7ADD6.9050608@us.ibm.com>
+Date: Wed, 26 Jan 2005 08:48:54 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Mukker, Atul" <Atulm@lsil.com>
+CC: "'Patrick Mansfield'" <patmans@us.ibm.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>
+Subject: Re: How to add/drop SCSI drives from within the driver?
+References: <0E3FA95632D6D047BA649F95DAB60E5705B837C3@exa-atlanta>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705B837C3@exa-atlanta>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 07:06:50AM -0700, Eric W. Biederman wrote:
-> Sytse Wielinga <s.b.wielinga@student.utwente.nl> writes:
+Newer kernels also have kobject_uevent, which lets any application use 
+netlink to look for hotplug events.
+
+-Brian
+
+Mukker, Atul wrote:
+> Thanks for the suggestion. After more exploration, looks like different
+> distribution have different implementations for /sbin/hotplug. This may
+> aggravate the issue for applications. For now, we will stick with a wait and
+> watch after bus scan :-(
 > 
-> > On my box this patch breaks shutdown instead, while it was working without it
-> > on -rc2-mm1.
-> > 
-> > I have an Asus A7V8X motherboard with a VIA VT8377 (KT400) north bridge and a
-> > VT8235 south bridge (according to lspci). The IO-APIC is used for interrupt
-> > routing.
+> Will probe the linux-hotplug-devel@lists.sourceforge.net list for more
+> pointers
 > 
-> Hmm.  The patch had a couple of hard coded assumptions about the
-> configuration (using ACPI etc), but I don't think it was significant
-> enough to break anything.  You have a UP board and a K7 processor
-> so my removal of set_cpus_allowed that should not affect anything.
->
-> But you are using an SMP kernel or at least the apic support.
-Yes, I have only one processor but I am using the IO-APIC.
+> Thanks
+> 
+> ===========================
+> Atul Mukker
+> Architect, Drivers and BIOS
+> LSI Logic Corporation
+> 
+> 
+> 
+>>-----Original Message-----
+>>From: Patrick Mansfield [mailto:patmans@us.ibm.com] 
+>>Sent: Tuesday, January 25, 2005 11:52 AM
+>>To: Mukker, Atul
+>>Cc: 'James Bottomley'; Linux Kernel; SCSI Mailing List
+>>Subject: Re: How to add/drop SCSI drives from within the driver?
+>>
+>>Atul -
+>>
+>>On Tue, Jan 25, 2005 at 11:27:36AM -0500, Mukker, Atul wrote:
+>>
+>>>After writing the "- - -" to the scan attribute, the management 
+>>>applications assume the udev has created the relevant 
+>>
+>>entries in the 
+>>
+>>>/dev directly and try to use the devices _immediately_ and 
+>>
+>>fail to see 
+>>
+>>>the devices
+>>>
+>>>Is there a hotplug event which would tell the management 
+>>
+>>applications 
+>>
+>>>that the device nodes have actually been created now and 
+>>
+>>ready to be used?
+>>
+>>Read the udev man page section, the part right before 
+>>"FILES". Try putting a script under /etc/dev.d/default/*.dev. 
+>>Then you can get more specific with an /etc/dev.d/scsi/*.dev 
+>>script or something else.
+>>
+>>I just tried something simple but did not get it working.
+>>
+>>Try linux-hotplug-devel@lists.sourceforge.net list for help.
+>>
+>>-- Patrick Mansfield
+>>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-> Are you using ACPI poweroff?
-Yes.
 
-> How does the kernel shutdown fail?
-It halts after saying 'acpi_power_off called'. Strangely, it only breaks when
-using the Alt-SysRq-O poweroff function. Shutting down normally still powers
-off the system (and does print 'acpi_power_off called'). I think it must have
-something to do with the IDE devices not having powered down before
-acpi_power_off is called, but I haven't seen the code so I have no idea what
-really causes it to break.
-
-    Sytse
+-- 
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center

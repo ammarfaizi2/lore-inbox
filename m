@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264994AbUF1PJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265006AbUF1PPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbUF1PJG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 11:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbUF1PIC
+	id S265006AbUF1PPP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 11:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbUF1PPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 11:08:02 -0400
-Received: from styx.suse.cz ([82.119.242.94]:32641 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265008AbUF1PGE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 11:06:04 -0400
-Date: Mon, 28 Jun 2004 17:07:36 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/19] New set of input patches
-Message-ID: <20040628150736.GA1059@ucw.cz>
-References: <20040628145454.9403.qmail@web81305.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628145454.9403.qmail@web81305.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 28 Jun 2004 11:15:14 -0400
+Received: from digitalimplant.org ([64.62.235.95]:22177 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S265006AbUF1PPJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 11:15:09 -0400
+Date: Mon, 28 Jun 2004 08:14:48 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Next step of smp support & fix device suspending
+In-Reply-To: <20040625115529.GA764@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.50.0406280809540.20762-100000@monsoon.he.net>
+References: <20040625115529.GA764@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 07:54:53AM -0700, Dmitry Torokhov wrote:
- 
-> But the flag will not give you atomicity of resetting other fields, like
-> pktcount. I guess we can ensure it by carefully rearranging the states
-> and what is reset at what point but it is too fragile.
-> 
-> Would you accept a pair serio_rx_suspend/serio_rx_resume that would still
-> take the lock internally but not expose this fact to the driver?
 
-Yes, but don't call them suspend/resume. That sounds too much like
-powermanagement, which it isn't. Network uses start/stop. Block layer
-uses plug/unplug - in the sense that you have a pipe, and if you don't
-want any more data, you plug it.
+> This introduces functions for stopping all-but-boot-cpus, which will
+> be needed for smp suspend, and fixes level for calling driver model:
+> there's no D4 power level, only D3 (means device off), and tg3 driver
+> actually cares. Ugh and one useless mdelay killed, and
+> freeze_processes() now BUGS() if its not compiled in. [We can probably
+> just remove it for non-CONFIG_PM case in future]. It is bad idea to
+> pretend success, and nobody should ever call it in !CONFIG_PM case
+> anyway. Please apply,
 
-> > > > > (*) These patches have also been sent to Greg KH.
-> > > >
-> > > > Did he accept them already?
-> > >
-> > > No, not yet. He promised to take a look at
-> > platoform_device_register_simple by
-> > > the end of the week but I guess kernel.bkbits.net troubles might
-> > intervene...
-> > > And other 2 I just send out today.
-> > 
-> > Ok. I'll wait then.
-> 
-> Sysfs changes should be useable even without platform device changes
-> and I would like start syncing with you. Would you take patches 2 
-> through 10 (I will drop the legacy_position stuff)?
- 
-Yes.
+Nice, just a couple of questions...
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> -	device_power_down(4);
+> +	device_power_down(3);
+
+There are defined values in include/linux/device.h. You should be using
+those, instead of the magic constants (even if the magic constants
+actually make sense as the power states :).
+
+>  	PRINTK( "Waiting for DMAs to settle down...\n");
+>  	mdelay(1000);	/* We do not want some readahead with DMA to corrupt our memory, right?
+>  			   Do it with disabled interrupts for best effect. That way, if some
+
+On a related note, can we kill this piece of code? It's not clear that
+it's necessary. If it is, it begs for a more systematic way of achieving
+the goal.
+
+
+	Pat

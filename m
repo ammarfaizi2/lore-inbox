@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265052AbTLMMMO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 07:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTLMMMO
+	id S264563AbTLMNDD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 08:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264564AbTLMNDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 07:12:14 -0500
-Received: from holomorphy.com ([199.26.172.102]:49281 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265052AbTLMMMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 07:12:12 -0500
-Date: Sat, 13 Dec 2003 04:12:07 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Yaroslav Rastrigin <yarick@relex.ru>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: 2.6.0-test11-wli-2
-Message-ID: <20031213121207.GG14258@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Yaroslav Rastrigin <yarick@relex.ru>, linux-kernel@vger.kernel.org,
-	lse-tech@lists.sourceforge.net
-References: <20031211052929.GN19856@holomorphy.com> <20031213012703.GR19856@holomorphy.com> <200312131145.27509.yarick@relex.ru>
+	Sat, 13 Dec 2003 08:03:02 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:43025 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264563AbTLMNDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 08:03:00 -0500
+Date: Sat, 13 Dec 2003 14:14:05 +0100
+To: Boszormenyi Zoltan <zboszor@freemail.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Multiple keyboard/monitor vs linux-2.6?
+Message-ID: <20031213131405.GA11073@hh.idb.hist.no>
+References: <fa.da53dsa.dho216@ifi.uio.no> <20031212214310.GA744@node1.opengeometry.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312131145.27509.yarick@relex.ru>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20031212214310.GA744@node1.opengeometry.net>
 User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 09:29:29PM -0800, William Lee Irwin III wrote:
->>> Successfully tested on a Thinkpad T21 and 32GB NUMA-Q. Any feedback
->>> regarding performance would be very helpful. Desktop users should
->>> notice top(1) is faster, kernel hackers that kernel compiles are faster,
->>> and highmem users should see much less per-process lowmem overhead
+On Fri, Dec 12, 2003 at 04:43:10PM -0500, William Park wrote:
+> On Fri, Dec 12, 2003 at 09:13:28AM +0000, Boszormenyi Zoltan wrote:
+> > 
+> > The functionality can be found at linuxconsole.sourceforge.net.
+> > Will this be included into mainline near term? Say 2.6.[12]?
+> > The ruby-2.6 is against 2.6.0-test9 so it's almost uptodate.
+> 
+> Does it work?
+> 
+It works with 2.6.0-test11.  Prepare a kernel source tree,
+check out ruby from cvs, copy the ruby-2.6 parts into
+the kernel tree.
 
-On Sat, Dec 13, 2003 at 11:45:26AM +0300, Yaroslav Rastrigin wrote:
-> Performance is, indeed, better. My Thinkpad T21 feels slightly on
-> steroids with -wli-2 :-). Some problems, though, were encountered:
-> 1. fs/dcache.c/d_validate() function was removed in your patch, but
-> it is used in at least one place ( fs/smbfs/cache.c/smb_dget_fpos() ).
+I run my home machine this way:
+2 standard keyboards, one connected to the keyboard port and
+another connected to the ps2 mouse port.
+2 mice, both connected to serial ports.
+2 screens, connected to the two outputs of a matrox G550.
 
-Didn't I cover this in the announcement?
+One xserver runs using standard mga driver, another xserver
+uses the unaccelerated framebuffer driver on the framebuffer
+displayed on the second screen.
 
-It appears that making smbfs depend on CONFIG_BROKEN doesn't seem to be
-enough to get it removed from .config's by make oldconfig. d_validate()
-is bad, trust me on this one. Is cifs a good enough replacement for you?
+The screen with the accelerated server also have accelerated opengl.
+The other screen uses software opengl, fast enough for
+frozen-bubble and rocks&diamonds, but not for tuxracer.
+
+xdm manages both screens, so any user can log in at either screen.
+
+The G550 isn't ideal for this, because resetting the accelerated xserver
+causes the framebuffer screen to blink (accelerated xserver 
+disturbs the other display while setting resolution.)
+This is a software problem though.
+
+It seems possible to run accelerated servers at both screens as
+long as only one uses opengl.  I haven't bothered yet because
+unaccelerated 2D performance seems fine for all purposes with
+dual 333MHz processors.  
 
 
-On Sat, Dec 13, 2003 at 11:45:26AM +0300, Yaroslav Rastrigin wrote:
-> 2. With 2.6.0-test11 vanilla, suspend-to-ram/suspend-to-disk was
-> working nicely. With -wli-2 suspend fails on 'stopping tasks' phase,
-> and aborts with 
-> Dec 13 01:08:47 localhost kernel: Stopping tasks: ======================                                                    
-> Dec 13 01:08:47 localhost kernel:  stopping tasks failed (1 tasks remaining)                                                
-> Dec 13 01:08:47 localhost kernel: Restarting tasks...<6> Strange, swapper not 
-> stopped
+Using two video cards AGP+PCI or PCI+PCI solves the interactions between
+the two displays, but then you need a modified xserver. (Std.
+Xserver turns off video cards it donesn't use, without worrying
+about other servers using the other card.)  
 
-That's relatively unusual; for one, I can't imagine why it's bothering to
-stop pid 0 (or why it thinks it should or can). I'll have to try non-APM
--based suspend for this.
+Letting two servers use a single card don't have this problem,
+but it could possibly have other problems.
 
+Helge Hafting
 
--- wli

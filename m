@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130032AbRA0TlG>; Sat, 27 Jan 2001 14:41:06 -0500
+	id <S131958AbRA0UAd>; Sat, 27 Jan 2001 15:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132546AbRA0Tkr>; Sat, 27 Jan 2001 14:40:47 -0500
-Received: from iris.ocn.ne.jp ([211.6.83.106]:47070 "EHLO iris.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id <S130032AbRA0Tkm>;
-	Sat, 27 Jan 2001 14:40:42 -0500
-Date: Sun, 28 Jan 2001 04:40:31 +0900 (JST)
-Message-Id: <200101271940.EAA21082@iris.ocn.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: $B$*CN$i$;$G$9(B
-From: Infomation <randy@iris.ocn.ne.jp>
+	id <S132311AbRA0UAP>; Sat, 27 Jan 2001 15:00:15 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:29701 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S131958AbRA0UAJ>; Sat, 27 Jan 2001 15:00:09 -0500
+Date: Sat, 27 Jan 2001 20:58:51 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Gregory Maxwell <greg@linuxpower.cx>
+Cc: Frank v Waveren <fvw@var.cx>, David Wagner <daw@cs.berkeley.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010127205851.B2501@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> <14960.56461.296642.488513@pizda.ninka.net> <3A70DDC4.6D1DB1EC@transmeta.com> <3A713B3F.24AC9C35@idb.hist.no> <94tho8$627$1@abraham.cs.berkeley.edu> <20010127191809.A3727@var.cx> <20010127142032.E6821@xi.linuxpower.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; Charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010127142032.E6821@xi.linuxpower.cx>; from greg@linuxpower.cx on Sat, Jan 27, 2001 at 02:20:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 28866
+Gregory Maxwell wrote:
+> > Why? Why not just zero them, and get both security and compatibility...
+> 
+> Eeek! NO!!!! NO NO NO NO NO NO NO!
+> For ECN that would have worked, but that doesn't mean that something
+> couldn't have been implimented there that wouldn't have worked that way..
+> 
+> I think that older Checkpoint firewalls (perhaps current?) zeroed out SACK
+> on 'hide nat'ed connections. This causes unreasonable stalls for users on
+> SACK enabled clients. Not cool.
 
--------
-$B-j#J#M#P$N!X#E%a!<%k#D#M!Y$r$*FO$1CW$7$^$9!#(B
--------
+If both SACK and SACK_PERMITTED were zeroed out, the clients would
+negotiate non-SACK connections and everythings ok.  A performance
+disadvantage relative to allowing SACK, but that's true of ECN as well.
 
---------------------------
-http://www2.snowman.ne.jp/~nnet/
- $B%N!<%9%M%C%H(B
- $B!&#C#G#IL5NA%@%&%s%m!<%I%Z!<%8(B
- $B!&7G<(HD!"%A%c%C%H!"%"%/%;%9%m%0!"%+%&%s%?!<!"%U%)!<%`%G%3!<%I(B
-$B!!$=$NB>B??t$"$j(B
- $B!&%*!<%@!<#C#G#I$b<u$1IU$1$F$$$^$9!#(B
- $B!&%I%3%b$,1?1D$9$k%I%3%M%C%H%l%s%?%k%5!<%P!<%5!<%S%9!#(B
-$B!!%G%#%l%/%H%jMFNL(B500$B#M#B!'(B8000$B1_!A(B
-
-http://www2.snowman.ne.jp/~nnet/
---------------------------
-
--------
-$B$3$N%a!<%k$O>pJsDs6!4k6H$+$i$N0MMj$K$h$j(B
-JMP$B$+$iG[?.$7$F$*$j$^$9!#(B
-$B-j%8%'%$%(%`%T!<(B   randy@iris.ocn.ne.jp
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

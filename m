@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVAaLGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVAaLQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVAaLGA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVAaLGA
+	id S261856AbVAaLQW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVAaLQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:06:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25783 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261855AbVAaLF4 (ORCPT
+	Mon, 31 Jan 2005 06:16:22 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:18597 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S261856AbVAaLQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:05:56 -0500
-Date: Mon, 31 Jan 2005 12:05:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>, dougg@torque.net
-Subject: Re: 2.6.11-rc[1,2]-mmX scsi cdrom problem, 2.6.10-mm2 ok
-Message-ID: <20050131110550.GA5058@suse.de>
-References: <200501310034.32005.cova@ferrara.linux.it> <20050131080021.GA9446@suse.de> <200501311108.19593.cova@ferrara.linux.it>
+	Mon, 31 Jan 2005 06:16:17 -0500
+Date: Mon, 31 Jan 2005 12:16:16 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How peek at tcp socket data w/o reading it
+Message-ID: <20050131121616.1d35c69a@phoebee>
+In-Reply-To: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com>
+References: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200501311108.19593.cova@ferrara.linux.it>
+Content-Type: multipart/signed;
+ boundary=Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31 2005, Fabio Coatti wrote:
-> Alle 09:00, lunedì 31 gennaio 2005, Jens Axboe ha scritto:
-> >
-> > > At this point k3b is stuck in D stat, needs reboot.
-> >
-> > The most likely suspect is the REQ_BLOCK_PC scsi changes. Can you try
-> > 2.6.11-rc2-mm1 with bk-scsi backed out? (attached)
-> 
-> just tried, right guess :)
-> backing out that patch the problem disappears.
-> Let me know if you need to narrow further that issue.
+--Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Doug, it looks like your REQ_BLOCK_PC changes are buggy. Let me know if
-you cannot find the full post and I'll forward it to you.
+On Mon, 31 Jan 2005 11:45:32 +0100
+"Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com> bubbled:
 
--- 
-Jens Axboe
+> Hi,
+>=20
+> hack wanted:
+>=20
+> is it possible to peek a few bytes from a tcp socket which is
+> ready to read without actually reading the data? (or some
+> means to push already read data back similar to ungetc)
 
+ret =3D recv(fd, buf, len, MSG_PEEK);
+
+
+--=20
+MyExcuse:
+telnet: Unable to connect to remote host: Connection refused
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFB/hOAmjLYGS7fcG0RAkFbAKCuVqxPQyQ+Nr/a3jrE5p48w6mbSgCgqzE9
+zL1msg1nvAyW7vh2IXlKrSQ=
+=/3zu
+-----END PGP SIGNATURE-----
+
+--Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw--

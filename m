@@ -1,61 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319495AbSIMBxV>; Thu, 12 Sep 2002 21:53:21 -0400
+	id <S319486AbSIMB5z>; Thu, 12 Sep 2002 21:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319511AbSIMBvT>; Thu, 12 Sep 2002 21:51:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43203 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319488AbSIMBuu>;
-	Thu, 12 Sep 2002 21:50:50 -0400
-Date: Thu, 12 Sep 2002 18:47:19 -0700 (PDT)
-Message-Id: <20020912.184719.126771896.davem@redhat.com>
-To: pasky@pasky.ji.cz
-Cc: zdzichu@irc.pl, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and full ipv6 - will it happen?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020912150609.GE21715@pasky.ji.cz>
-References: <20020819043941.GA31158@irc.pl>
-	<20020818.213719.117777405.davem@redhat.com>
-	<20020912150609.GE21715@pasky.ji.cz>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S319484AbSIMB4t>; Thu, 12 Sep 2002 21:56:49 -0400
+Received: from jalon.able.es ([212.97.163.2]:53137 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S319486AbSIMB4P>;
+	Thu, 12 Sep 2002 21:56:15 -0400
+Date: Fri, 13 Sep 2002 04:01:00 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCHSET] Linux 2.4.20-pre6-jam1
+Message-ID: <20020913020100.GC1723@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Petr Baudis <pasky@pasky.ji.cz>
-   Date: Thu, 12 Sep 2002 17:06:09 +0200
+Hi all...
 
-   - IPsec for IPv6
+Just some updates and a ton of bugfixes collected. At least it did not
+blow up on my face.
 
-Without ipv4 part and stackable destination cache, we do
-not see any way in which they could make this cleanly and
-properly and thus make patch acceptable.
+Updates:
+- pre6-aa0: this is not really a -aa, but pre5-aa2 rediffed.
+- task_cpu, sched misc updates
+- bproc 3.2
 
-All of IPSEC is a routing and data representation problem, so unless
-routing code of ipv6 was rewritten by USAGI folks to support
-representation of security database (this means addition of
-protocol/source_port/dest_port route demux selectors and also
-RTA_IPSEC routing attribute for actual ESP/AH rule insertion), the
-patch is not likely to be accepted.
+Enjoy at:
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-pre6-jam1.tar.gz
 
-So if done right, ipv4 would be just as easy to support and thusly
-I make parallel ipv6/ipv4 support a requirement for any ipsec
-implementation that goes into the tree.
+Perhaps some of the fixes (everything named 1X-xxxxx) are worthy and non
+intrusive for next pre. Marcelo, would you mind taking a look at those ?
 
-I also want ipsec to be implemented using rtnetlink which doubly means
-that it must be solved at the routing level.
+Current contents:
 
-This also means that PF_KEY socket implementation is merely translator
-into rtnetlink messages and nothing more and that "ip" tool would be
-used for manual keying.
+10-module-size-checks.bz2
+	Fixes two minor bugs in kernel/module.c related with module size checks.
+	Author: Peter Oberparleiter <oberpapr@softhome.net>
 
-The fact that I have so much to say about the implementation details
-of ipsec might suggest something if you're paying attention :-) And
-that's where I'll leave the topic of ipsec at the moment.
+11-ide-probe-special.bz2
+	ide-probe fix.
+	Author: Erik Andersen <andersen@codepoet.org>
 
-Otherwise I look forward to seeing their other patches, but I find it
-strange that it takes them on the order months to submit things, which
-I have maintained from the start.  They work on this stuff nearly full
-time and it is very important to them, they also have high claims as
-to it's readiness, so what could possibly take so long?
+12-memparam.bz2
+	Fix mem=XXX kernel parameter when user gives a size bigger than what
+	kernel autodetected (kill a previous change)
+	Author: Adrian Bunk <bunk@fs.tum.de>,
+			Leonardo Gomes Figueira <sabbath@planetarium.com.br>
+
+13-self_exec_id.bz2
+	Fix bad signaling between threads when ancestor dies.
+	Author: Zeuner, Axel <Axel.Zeuner@partner.commerzbank.com>
+
+14-clone-detached.bz2
+	Fix a crash that can be caused by a CLONE_DETACHED thread.
+	Author: Ingo Molnar <mingo@elte.hu>
+	
+15-reiser-write.bz2
+	ReiserFS file write bug fix for 2.4
+	Author: Hans Reiser <reiser@namesys.com>
+
+16-xfs-vs-sched.bz2
+	Fix collision between new xfs and new scheduler.
+	Author: Andrea Arcangeli <andrea@suse.de>
+
+17-piix-tb.bz2
+	Back port piix ide fixup to 2.4.19.
+	Author: Hu Gang <hugang@soulinfo.com>
+
+18-handle2dentry.bz2
+	Factor out duplicated code for handle2dentry conversation.
+	Author: Christoph Hellwig <hch@lst.de>
+
+20-x86-split-group.bz2
+	Group common options under just one config option, and make them a bit
+	hierarchic.
+	Split PII from PPro in processor selection.
+
+21-mem-barriers.bz2
+	Use specific machine level instructions for mb() for new
+	processors (P3,P4,Athlon).
+	Author: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+
+22-gcc3-march.bz2
+	Add support for gcc3 code generation flags for specific processors
+
+23-config-nr_cpus.bz2
+	Configure the max number of cpus at compile time (default was 32).
+	Saves memory footprint for kernel (around 240Kb in 32->2).
+	Author: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+
+30-smptimers-A0.bz2
+	Scalable timer implementation. Lock per-CPU instead of global.
+	Author: Ingo Molnar <mingo@elte.hu>
+	URL: http://redhat.com/~mingo/scalable-timers-patches/
+
+40-sched-hints.bz2
+	Hint-based scheduling on top of O1 scheduler.
+	Author: Robert Love <rml@tech9.net>
+
+41-task_cpu.bz2
+42-task_cpu-aa.bz2
+	Implement "task_cpu()" and "set_task_cpu()" as wrappers for reading and
+	writing task->cpu. Optmize to dummy versions in UP.
+	-aa are additional changes for Andrea's tree.
+	Author: Robert Love <rml@tech9.net>
+
+43-sched-misc.bz2
+	O1 scheduler miscellaneous updates.
+	Author: Robert Love <rml@tech9.net>
+
+45-corefile-name.bz2
+	This patch will allow you to configure the way core files are named through
+	the /proc filesystem You can specify patterns, e.g. "core.%p" to get pid
+	appended, "%e.core" to get the name of the executable, or
+	"/var/core/core.%h" to get all yor core files in /var/core and have the
+	hostname appended.
+	Author: Jes Rahbek Klinke <jrk@evalesco.com>
+
+50-ide-10-partial.bz2
+	IDE update, version convert.10. Partial because Promise driver is not
+	merged and is probably not functional.
+	Author: Andre Hedrick <andre@linux-ide.org>
+	URL: http://www.linuxdiskcert.org/
+
+51-severworks-ide.bz2
+	Attempt to fix the ServerWorks problem sit certain disks and DMA.
+	Author: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+
+52-ide-cd-dma-3.bz2
+	Make reading audio from IDE CDROMs use DMA.
+	Author: Andrew Morton <akpm@zip.com.au>
+
+60-bttv-0.7.97.bz2
+61-bttv-doc-0.7.97.bz2
+	BTTV updates.
+	Author: Gerd Knorr <kraxel@bytesex.org>
+	URL: http://bytesex.org/bttv/
+
+70-i2c-2.6.5-cvs.bz2
+71-sensors-2.6.5-cvs.bz2
+	LM-Sensors update to 2.6.5-cvs tree.
+	URL: http://secure.netroedge.com/~lm78/
+
+72-i2c-build.bz2
+	Add dmi_scan.o to export-objs.
+
+80-bproc-3.2.0.bz2
+	Beowulf bproc SSI patches.
+	Author: Erik Arjan Hendriks <erik@hendriks.cx>
+	URL: http://sourceforge.net/projects/bproc
+
+81-export-task_nice.bz2
+	Export task_nice() function for bproc.
+
+90-make.bz2
+	Makes INSTALL_PATH=/boot and default VGA mode = 6.
+
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre6-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

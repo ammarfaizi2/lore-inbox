@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbSKEPtY>; Tue, 5 Nov 2002 10:49:24 -0500
+	id <S264881AbSKEP6S>; Tue, 5 Nov 2002 10:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbSKEPtY>; Tue, 5 Nov 2002 10:49:24 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:62352 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264877AbSKEPtX>;
-	Tue, 5 Nov 2002 10:49:23 -0500
-Date: Tue, 5 Nov 2002 16:55:59 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-Subject: Re: naive but spectacular ext3 HTREE+Orlov benchmark
-Message-ID: <20021105155559.GA6765@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	tytso@mit.edu
-References: <20021105151702.GA5894@outpost.ds9a.nl> <1036512604.4827.93.camel@irongate.swansea.linux.org.uk>
+	id <S264882AbSKEP6S>; Tue, 5 Nov 2002 10:58:18 -0500
+Received: from [202.88.171.30] ([202.88.171.30]:7074 "EHLO dikhow.hathway.com")
+	by vger.kernel.org with ESMTP id <S264881AbSKEP6R>;
+	Tue, 5 Nov 2002 10:58:17 -0500
+Date: Tue, 5 Nov 2002 21:30:46 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@zip.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kmalloc_percpu
+Message-ID: <20021105213046.B10886@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <20021031213640.D2298@in.ibm.com> <20021101193354.54367ba4.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1036512604.4827.93.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021101193354.54367ba4.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Nov 01, 2002 at 07:33:54PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 04:10:04PM +0000, Alan Cox wrote:
-> On Tue, 2002-11-05 at 15:17, bert hubert wrote:
-> > Congratulations everybody, this is a major result! You can in fact *hear*
-> > the difference. With the Orlov allocator, seeks are much more higher pitched
-> > as if they are generally over shorter distances - which they probably are.
+On Fri, Nov 01, 2002 at 07:33:54PM +1100, Rusty Russell wrote:
+> On Thu, 31 Oct 2002 21:36:40 +0530
+> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
 > 
-> How does the Orlov allocator do if you continually randomly use and
-> reuse the file space for a long period of time - the current allocator
-> is pretty stable, does Orlov behave the same or degenerate ?
+> > Here's  kmalloc_percpu interfaces ported (...mostly rediffed) to 
+> > 2.5.45.  (One last try for 2.6).
+> 
+> IMHO this is a "when we need it" patch.  Baby steps...
 
-This fs is in daily use, I'll keep an eye on it and rerun the benchmark
-above every once in a while. Luckily 2.5 is stable enough for me to run on
-my main computer.
+Agreed. It could be useful if we want to use per-CPU statistics
+for things like disk I/O (now in struct gendisk).
 
-Although all my important stuff lives in cvs anyhow.
+> 
+> > +#define this_cpu_ptr(ptr) per_cpu_ptr(ptr, smp_processor_id())
+> 
+> Probably want a get_cpu_ptr() & put_cpu_ptr() using get_cpu() and put_cpu()
+> (and this would become __get_cpu_ptr()).
+> 
+> And probably move them all to linux/percpu.h.
 
-Regards,
+Yes, it needs to sync up with its static twin ;-)
 
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Thanks
+Dipankar

@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131658AbRCXMwE>; Sat, 24 Mar 2001 07:52:04 -0500
+	id <S131661AbRCXNDe>; Sat, 24 Mar 2001 08:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131660AbRCXMvy>; Sat, 24 Mar 2001 07:51:54 -0500
-Received: from front4.grolier.fr ([194.158.96.54]:11648 "EHLO
-	front4.grolier.fr") by vger.kernel.org with ESMTP
-	id <S131658AbRCXMvo> convert rfc822-to-8bit; Sat, 24 Mar 2001 07:51:44 -0500
-Date: Sat, 24 Mar 2001 11:40:00 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: "Stephen E. Clark" <sclark46@gte.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>, nick@snowman.net,
-        Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <3ABBDAFD.A679359D@gte.net>
-Message-ID: <Pine.LNX.4.10.10103241107210.1060-100000@linux.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131662AbRCXNDZ>; Sat, 24 Mar 2001 08:03:25 -0500
+Received: from fenrus.demon.co.uk ([158.152.228.152]:55689 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S131660AbRCXNDI>;
+	Sat, 24 Mar 2001 08:03:08 -0500
+Message-Id: <m14gne7-000OcAC@amadeus.home.nl>
+Date: Sat, 24 Mar 2001 12:59:55 +0000 (GMT)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: shadow@dementia.org (Derrick J Brashear)
+Subject: Re: athlon+2.2+pdc20267=hang?
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <18520000.985334866@skittlebrau.trafford.dementia.org>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <18520000.985334866@skittlebrau.trafford.dementia.org> you wrote:
+> Earlier today I swapped an Athlon (tbird) 850 and an Epox 8KTA3 in for the 
+> dual Celeron I had, moving all the cards into the new system. One of these 
+> was a Promise PDC20267 with 4 40gb disks attached. The machine would not 
+> boot; I assumed it was the i686-smp kernel and installed a Redhat 
+> 7.0-provided i386 kernel. Several hours and a dozen or so boots later, it 
+> looks like when the bios on the PDC20267 is installed, the system hangs 
+> while booting at the point where it would probe C/H/S from the devices 
+> attached to the PDC20267 (they've already been identified by that point)
 
+Your motherboard probably has a VIA chipset. I've been chasing several of
+such problems in the last weeks, and fixed most of them for the 2.4 kernel.
+Unfortionatly, some PCI cards (TV capture and 3C905C) somehow don't like the
+fix.
 
-On Fri, 23 Mar 2001, Stephen E. Clark wrote:
+You can achieve the same effect by setting the PCI tuning in the bios to
+conservative settings instead of "optimal"....
 
-> Alan Cox wrote:
-> > 
-> > > You don't beleve me if I tell you: DOS extender and JVM (Java Virtual
-> > > Machine)
-> > 
-> > The JVM doesnt actually. The JVM will itself spontaenously explode in real
-> > life when out of memory. Maybe the JVM on a DOS extender 8)
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> Back in the early nineties I was working with 18 developers on a Data
-> General Aviion running DGUX. The system had only 16mb of memory and
-> 600mb of disk. We were all continuously going thru the edit, compile,
-> debug steps developing as large Computer Aided Dispatch System. Never
-> did this system with its limited resources crash, or randomly start
-> killing user or system processes.
-
-What about the following (it is an estimate):
-
-early nineties  -->  early eighties
-18 developers   -->  18 developers
-16mb of memory  -->   1 mb of memory
-600 mb of disk  -->  70 mb of disk
-
-Most current applications are so huge BLOATAGE that they should not 
-deserve to be run just once. :-)
-The kernel must try to cope with that and also with its own BLOATAGE.
-
-Human nature is to eat what can be eaten, regardless if it is useful or
-not.
-
-> My $.02.
-
-What about 'My M$.02' in some decades. :)
-
-Btw, 'decade' comes from Latin 'deca'=10 and dies=days (not sure for
-dies). As a result, it should have meant a period of 10 days instead of 10
-years. It means a period of 10 days in French.
-
-May-be, a knowledgeable person at this list has an explanation for this
-misinterpretation. Could it be due to the word 'decadent' that has a 
-very different ethymology.
-
-10 days is too short for getting decadent, but 10 years should be enough,
-no ? :-)
-
-> Steve
-
-  Gérard.
-
+Greetings,
+   Arjan van de Ven

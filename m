@@ -1,143 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286157AbRLJDmy>; Sun, 9 Dec 2001 22:42:54 -0500
+	id <S286160AbRLJEFR>; Sun, 9 Dec 2001 23:05:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286159AbRLJDmn>; Sun, 9 Dec 2001 22:42:43 -0500
-Received: from mail-smtp.uvsc.edu ([161.28.224.157]:17749 "HELO
-	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
-	id <S286157AbRLJDmb> convert rfc822-to-8bit; Sun, 9 Dec 2001 22:42:31 -0500
-Message-Id: <sc13cc97.071@mail-smtp.uvsc.edu>
-X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
-Date: Sun, 09 Dec 2001 20:42:00 -0700
-From: "Tyler BIRD" <birdty@uvsc.edu>
-To: <linux-kernel@vger.kernel.org>
-Cc: <freedman@ccmr.cornell.edu>
-Subject: Re: NFS stale mount after chroot...
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S286161AbRLJEFI>; Sun, 9 Dec 2001 23:05:08 -0500
+Received: from relay04.valueweb.net ([216.219.253.238]:30728 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S286160AbRLJEEu>; Sun, 9 Dec 2001 23:04:50 -0500
+Message-ID: <3C14360A.EC8FD564@opersys.com>
+Date: Sun, 09 Dec 2001 23:11:54 -0500
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LTT-0.9.5pre4: User-space events and run-time trace mask 
+ modification
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if bash, csh etc believe in this case that your NFS partition is actually 
-still the root.  Try to make sure that the NFS partition is not the root possibly be exiting bash
-and loging in again.
 
-I'm probably wrong on this.
-Tyler 
+Hello everyone,
 
->>> Daniel Freedman <freedman@ccmr.cornell.edu> 12/09/01 06:57PM >>>
+Version 0.9.5pre4 of the Linux Trace Toolkit is out. It now provides
+the capability to log user-space events and to modify the trace mask
+at run-time. A new library called libusertrace has been created which
+interacts with the trace device using ioctl() calls. In order to
+accommodate user-space events, a new device is being used, /dev/tracerU,
+which has a minor number of 1. This device can be opened as many
+times and by as many processes as necessary, while the /dev/tracer
+node used by the trace daemon can only be opened once (understandably).
+Running the "createdev.sh" script will create both entries appropriately.
 
-Hi,
+Here is the API provided:
+int trace_attach(void);
+* Has to be called prior to any other user trace function in order
+to attach to the trace device.
 
-It seems like I can generate reproducible stale NFS mounts by mounting
-a partition, chroot'ing into that mount, immediately exiting the
-chroot, and then finding myself unable to unmount the NFS partition.
-I'm pretty sure I've confirmed that nothing is using the partition
-(both with fuser and lsof) and even tried to force umount the
-partition (which seems like it should definitely umount it, rather
-than returning with the same "device is busy" errors), to no avail.
-The only method which I've used that seems to be able to get rid of
-this NFS mount, is to reboot the NFS client, and clearly that's not a
-good one at all.  If I'm missing something obvious here, my apologies
-in advance.  Also, if there's any further information I can provide,
-I'd be happy to help.  The dump of my procedure follows this message.
+int trace_detach(void);
+* Called once the user application is done with tracing.
 
-Thanks again and take care,
-Daniel
+int trace_create_event
+       (char*         /* String describing event type */,
+        char*         /* String to format standard event description */,
+        int           /* Type of formatting used to log event data */,
+        char*         /* Data specific to format */);
+* The function used to create user events. This function works exactly
+as its kernel counterpart.
 
+int trace_destroy_event
+       (int           /* The event ID given by trace_create_event() */);
+* Function used to delete an event. Again, identical to kernel counterpart.
 
---------
-On NFS client:
---------
+int trace_user_event
+       (int           /* The event ID given by trace_create_event() */,
+        int           /* The size of the raw data */,
+        void*         /* Pointer to the raw event data */);
+* The function used to actually trace the user event.
 
-freedman@feynman:/var/space/freedman$ ls -l
-total 4
-drwxr-xr-x    2 freedman arias        4096 Dec  9 14:46 node1
-freedman@feynman:/var/space/freedman$ su
-Password: 
-feynman:/var/space/freedman# mount -t nfs newton:/var/tftpboot-NFS/ ./node1/
-feynman:/var/space/freedman# mount
-/dev/hda6 on / type ext2 (rw,errors=remount-ro,errors=remount-ro)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/hda5 on /boot type ext2 (rw)
-/dev/hda7 on /usr type ext2 (rw)
-/dev/hda8 on /var type ext2 (rw)
-/dev/hda12 on /var/space type ext2 (rw)
-newton:/home on /home type nfs (rw,hard,bg,intr,rsize=8192,wsize=8192,addr=192.168.0.2)
-newton:/var/tftpboot-NFS/ on /var/space/freedman/node1 type nfs (rw,addr=192.168.0.2)
-feynman:/var/space/freedman# cd node1/
-feynman:/var/space/freedman/node1# ls
-bin  boot  cdrom  dev  etc  floppy  home  initrd  lib  mnt  opt  proc  root  sbin  tmp  usr  var  vmlinuz
-feynman:/var/space/freedman/node1# cd ..
-feynman:/var/space/freedman# chroot node1/
-feynman:/# ls -l
-total 84
-drwxr-xr-x    2 45       45           4096 Dec  8 03:06 bin
-drwxr-xr-x    2 45       45           4096 Dec 10 01:05 boot
-drwxr-xr-x    2 45       45           4096 Dec  8 03:06 cdrom
-drwxr-xr-x    5 45       45          20480 Dec  8 03:07 dev
-drwxr-xr-x   38 45       45           4096 Dec 10 01:19 etc
-drwxr-xr-x    2 45       45           4096 Dec  8 03:06 floppy
-drwxrwsr-x    2 45       45           4096 Nov 28 10:25 home
-drwxr-xr-x    2 45       45           4096 Dec  8 03:06 initrd
-drwxr-xr-x    4 45       45           4096 Dec  8 03:06 lib
-drwxr-xr-x    2 45       45           4096 Nov 28 10:25 mnt
-drwxr-xr-x    2 45       45           4096 Dec  8 03:06 opt
-drwxr-xr-x    2 45       45           4096 Nov 28 10:25 proc
-drwxr-xr-x    2 45       45           4096 Dec  8 03:44 root
-drwxr-xr-x    2 45       45           4096 Dec 10 01:05 sbin
-drwxrwxrwt    2 45       45           4096 Dec 10 01:07 tmp
-drwxr-xr-x   11 45       45           4096 Dec  8 18:34 usr
-drwxr-xr-x   14 45       45           4096 Dec  9 22:44 var
-lrwxrwxrwx    1 45       45             19 Dec  8 20:26 vmlinuz -> boot/vmlinuz-2.4.16
-feynman:/# id
-uid=0(root) gid=0(root) groups=0(root)
-feynman:/# exit
-exit
-feynman:/var/space/freedman# mount
-/dev/hda6 on / type ext2 (rw,errors=remount-ro,errors=remount-ro)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/hda5 on /boot type ext2 (rw)
-/dev/hda7 on /usr type ext2 (rw)
-/dev/hda8 on /var type ext2 (rw)
-/dev/hda12 on /var/space type ext2 (rw)
-newton:/home on /home type nfs (rw,hard,bg,intr,rsize=8192,wsize=8192,addr=192.168.0.2)
-newton:/var/tftpboot-NFS/ on /var/space/freedman/node1 type nfs (rw,addr=192.168.0.2)
-feynman:/var/space/freedman# cat /proc/mounts 
-/dev/root.old /initrd cramfs rw 0 0
-/dev/root / ext2 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/hda5 /boot ext2 rw 0 0
-/dev/hda7 /usr ext2 rw 0 0
-/dev/hda8 /var ext2 rw 0 0
-/dev/hda12 /var/space ext2 rw 0 0
-newton:/home /home nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=newton 0 0
-newton:/var/tftpboot-NFS/ /var/space/freedman/node1 nfs rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=newton 0 0
-feynman:/var/space/freedman# umount /var/space/freedman/node1/
-umount: /var/space/freedman/node1: device is busy
-feynman:/var/space/freedman# fuser ./node1/
-feynman:/var/space/freedman# lsof|grep node1         
-feynman:/var/space/freedman# umount /var/space/freedman/node1/
-umount: /var/space/freedman/node1: device is busy
-feynman:/var/space/freedman# umount -f /var/space/freedman/node1/
-umount2: Device or resource busy
-umount: /var/space/freedman/node1: Illegal seek
-feynman:/var/space/freedman# 
+int trace_set_event_mask
+       (trace_event_mask   /* The event mask to be set */);
+* Sets the event trace mask as given by the caller.
 
+int trace_get_event_mask
+       (trace_event_mask*  /* Pointer to variable where to set event mask retrieved */);
+* Provides the trace mask to the caller.
 
+int trace_enable_event_trace
+       (int          /* Event ID who's tracing is to be enabled */);
+* Enables the tracing of a given event type. This function eventually
+calls on trace_set_event_mask() internally.
 
--- 
-Daniel A. Freedman
-Laboratory for Atomic and Solid State Physics
-Department of Physics
-Cornell University
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
+int trace_disable_event_trace
+       (int          /* Event ID who's tracing is to be disabled */);
+* Disables the tracing of a given event type. This function eventually
+calls on trace_set_event_mask() internally.
+
+int trace_is_event_traced
+       (int          /* Event ID to be checked for tracing */);
+* Return 1 if the event is being traced.
+
+A more complete description of each function can be found in
+LibUserTrace/UserTrace.c.
+
+Examples of applications using this API can be found in the "Examples"
+directory within the LTT package. Examples/UserEvents contains an
+example of 2 applications tracing custom events and Examples/UserMaskChange
+contains an application that changes the trace mask during runtime.
+Whenever a mask change occurs, this gets logged in the trace and the
+event library sets the trace mask as the cumulative bitwise AND of the
+consecutive masks. Hence, when the visualization tool starts, it knows
+immediately whether the trace contains sufficient information to draw
+the trace.
+
+In order to have access to the API, the applications use the Include/UserTrace.h
+and, if they need to know the event IDs, Include/LinuxEvents.h. The
+linking of the applications is done with the "-lusertrace" flag in
+order to tell the linker to dynamically link the libusertrace.so file.
+After compilling the content of the "LibUserTrace" directory, and
+the "LibLTT" directory as well, you will need to used "ldconfig" in order
+to update the library database.
+
+I've tested 0.9.5pre4 both on the i386 and the PPC and everything works
+fine.
+
+LTT 0.9.5pre4 can be found here:
+ftp://ftp.opersys.com/pub/LTT/TraceToolkit-0.9.5pre4.tgz
+
+LTT's home page is here:
+http://www.opersys.com/LTT/
+
+RTAI support is still broken in 0.9.5pre4 but will be fixed in 0.9.5 final
+which is due out within a month or two. Meanwhile, check the "ExtraPatches"
+directory of LTT's ftp site for an update to add support for RTAI 24.1.6a
+with linux 2.4.9 to LTT 0.9.4.
+
+Best regards,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

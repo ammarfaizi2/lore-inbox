@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312321AbSDCSPh>; Wed, 3 Apr 2002 13:15:37 -0500
+	id <S312322AbSDCSWh>; Wed, 3 Apr 2002 13:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312322AbSDCSP0>; Wed, 3 Apr 2002 13:15:26 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:36110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312321AbSDCSOl>;
-	Wed, 3 Apr 2002 13:14:41 -0500
-Date: Wed, 3 Apr 2002 10:12:27 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Sridhar N <srin@symonds.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Stepping through entry.S
-In-Reply-To: <Pine.LNX.4.33L2.0204030858010.22448-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33L2.0204031009150.22448-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312323AbSDCSW1>; Wed, 3 Apr 2002 13:22:27 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:3599 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312322AbSDCSWQ>; Wed, 3 Apr 2002 13:22:16 -0500
+Subject: Re: [PATCH] 2.4.19pre2 radeonfb
+From: Tommy Faasen <faasen@xs4all.nl>
+To: Peter Horton <pdh@berserk.demon.co.uk>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020402230043.GA4330@berserk.demon.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 03 Apr 2002 20:29:21 +0200
+Message-Id: <1017858562.413.0.camel@it0>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Randy.Dunlap wrote:
-
-| On Wed, 3 Apr 2002, Sridhar N wrote:
-|
-| | Hello (recycled)
-|
-| | 	I was trying to trace the handling of the system calls, and to step through
-| | the entry.S on i386 machine.  I basically used this:
-| |
-| | 	srin_entryS_debug_mesg: 		#My addition
-| | 		.asciz "some relevant message\n"
-| | 		ALIGN
-| | 	tracesys:			#haven't changed anything here..
-| | 		.
-| | 		.
-| | 		.
-| | 		jae tracesys_exit
-| | 		pushl $srin_entryS_debug_mesg		#just this
-| | 		call SYMBOL_NAME(printk)	# and this
-| | 		call *SYMBOL_NAME(sys_call_table)(,%eax,4)
-| | 		movl %eax,EAX(%esp)		# save the return value
-| | 	tracesys_exit:
-| |
-| | Shouldn't this call printk everytime a system call is made or atleast crash
-| | the kernel if something is dead wrong ? ( It isn't .. everything seems normal
-| | as though the printk isn't there )  Also,  how can  i know the values in the
-| | specific registers in that file ? Specifically, whenever a system call is
-| | made, what registers store what values ? I'm using kernel 2.4.7 on a K6-2.
-|
-| The tracesys: label (code) is only used if ptrace is enabled for
-| the task.  Is it enabled?  If not, you aren't executing this code
-| at all.
-|
-| 	testb $0x02,tsk_ptrace(%ebx)	# PT_TRACESYS
-| 	jne tracesys
-|
-| For the register interface, AFAIK, see the gcc docs, such as
-| Extensions to the C Language Family:
-|   http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html
-| and search for /regparm/ .
-| <quote>
-| regparm (number)
-|  On the Intel 386, the regparm attribute causes the compiler to pass up
-|  to number integer arguments in registers EAX, EDX, and ECX instead of
-|  on the stack. Functions that take a variable number of arguments will
-|  continue to be passed all of their arguments on the stack.
-| </quote>
-| Someone please correct or add to this.  :)
-
-actually for x86, linux/include/asm-i386/unistd.h defines
-_syscall0() ... thru _syscall6(), which load N registers as appropriate
-and then execute int $0x80.
-
--- 
-~Randy
+On Wed, 2002-04-03 at 01:00, Peter Horton wrote:
+> A small patch that fixes some issues with the Radeon frame buffer driver.
+> 
+> 1) Pulled updated soft reset code from XFree86 (stopped my VE hanging the
+> machine when acceleration was enabled).
+> 
+> 2) Added MTRR for frame buffer region.
+> 
+> 3) Fixed a couple of buglets in the acceleration code. The driver now
+> enables acceleration by default (acceleration support for 8bpp mode
+> only).
+> 
+> P.
+Does this only have an effect on the framebuffer stuff or also on
+xfree86?
+I for example don't use the framebuffer but I was wondering if this
+would solve some bugs?
 

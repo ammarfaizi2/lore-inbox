@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289231AbSAGPz0>; Mon, 7 Jan 2002 10:55:26 -0500
+	id <S289240AbSAGP62>; Mon, 7 Jan 2002 10:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289237AbSAGPzQ>; Mon, 7 Jan 2002 10:55:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24839 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289231AbSAGPzN>; Mon, 7 Jan 2002 10:55:13 -0500
-Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Date: Mon, 7 Jan 2002 16:06:19 +0000 (GMT)
-Cc: cej@ti.com (christian e), riel@conectiva.com.br (Rik van Riel),
-        andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org (linux kernel)
-In-Reply-To: <200201071530.g07FU2E07077@Port.imtp.ilyichevsk.odessa.ua> from "vda@port.imtp.ilyichevsk.odessa.ua" at Jan 07, 2002 05:30:04 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289239AbSAGP6S>; Mon, 7 Jan 2002 10:58:18 -0500
+Received: from cx648115-a.blvue1.ne.home.com ([24.17.100.128]:14844 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S289238AbSAGP6E>; Mon, 7 Jan 2002 10:58:04 -0500
+Date: Mon, 7 Jan 2002 09:57:44 -0600 (CST)
+From: Thomas Molina <tmolina@home.com>
+X-X-Sender: <tmolina@localhost.localdomain>
+To: Stevie O <stevie@qrpff.net>
+cc: Ricky Beam <jfbeam@bluetronic.net>, Mark Hahn <hahn@physics.mcmaster.ca>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <5.1.0.14.2.20020107031026.01c72940@whisper.qrpff.net>
+Message-ID: <Pine.LNX.4.33.0201070953340.4343-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16NcHz-0001dv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> knobs. It just won't happen. Fixing VM behavior is the only way. It has to 
-> work satisfactorily _without_ tuning.
 
-Thats something you will never achieve. Virtual memory is about heuristics,
-crystal ball gazing and guesswork. There are always some workloads where you
-want little caching and some where you want lots of caching - such as a 
-fileserver.
+On Mon, 7 Jan 2002, Stevie O wrote:
+> You're all DEAD WRONG.
+> 
+> IDE and SCSI both suck!
+> 
+> The way of the future is punch cards!
 
-You can make it right for most people but the last few percent you
-will always get by tuning knobs - either directly or via GUI tools like
-powertweak
+Please! Next time warn me to put down my drink before doing something like 
+that.  Do you realize how hard it is to clean this stuff off the monitor?
 
-Alan
+I have this vision of Charlie Chaplain feeding cards through a reader at 
+the rate of 385,000 cards per second.  Of course, one gets stuck and 
+causes chaos.
+
+I remember Hollerith Cards.
 

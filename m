@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270523AbRIAMXy>; Sat, 1 Sep 2001 08:23:54 -0400
+	id <S270634AbRIAMZO>; Sat, 1 Sep 2001 08:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270495AbRIAMXo>; Sat, 1 Sep 2001 08:23:44 -0400
-Received: from mustard.heime.net ([194.234.65.222]:63888 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S270523AbRIAMXd>; Sat, 1 Sep 2001 08:23:33 -0400
-Date: Sat, 1 Sep 2001 14:23:49 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Adaptec ASR2100s support?
-Message-ID: <Pine.LNX.4.30.0109011422400.7322-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270495AbRIAMYy>; Sat, 1 Sep 2001 08:24:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1932 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S270619AbRIAMYe>;
+	Sat, 1 Sep 2001 08:24:34 -0400
+Date: Sat, 01 Sep 2001 05:24:46 -0700 (PDT)
+Message-Id: <20010901.052446.09954324.davem@redhat.com>
+To: paulus@samba.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, davidm@hpl.hp.com
+Subject: Re: [PATCH] avoid unnecessary cache flushes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15248.51929.355711.574565@cargo.ozlabs.ibm.com>
+In-Reply-To: <15248.40412.665276.271570@cargo.ozlabs.ibm.com>
+	<20010901.015536.61333988.davem@redhat.com>
+	<15248.51929.355711.574565@cargo.ozlabs.ibm.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
 
-Does any of you know if there's support for the Adaptec ASR2100s
-controller? It seems to be an old DPT chipset, although I don't know the
-exact values of anything.
+Ok, it looks fine to me now.
 
-Please cc: to me as I'm not on the list
-
-roy
-
+Later,
+David S. Miller
+davem@redhat.com

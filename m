@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267126AbUBRCH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 21:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267124AbUBRCH3
+	id S267139AbUBRCLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 21:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267146AbUBRCLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 21:07:29 -0500
-Received: from [218.75.127.20] ([218.75.127.20]:3837 "EHLO
-	it-001.unimassystem.com") by vger.kernel.org with ESMTP
-	id S267126AbUBRCH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 21:07:26 -0500
-From: MRBATESALAN@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: REPLY SOON
+	Tue, 17 Feb 2004 21:11:45 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:26941 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S267139AbUBRCLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 21:11:43 -0500
+Date: Tue, 17 Feb 2004 20:06:35 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Cannot enable APIC with 2.6.2
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <028901c3f5c3$d6827e90$6501a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 X-Priority: 3
-Message-ID: <IT-001JiiFC1c0xJK5O000063d2@it-001.unimassystem.com>
-X-OriginalArrivalTime: 18 Feb 2004 02:11:29.0305 (UTC) FILETIME=[852A6890:01C3F5C4]
-Date: 18 Feb 2004 10:11:29 +0800
+X-MSMail-priority: Normal
+References: <fa.h8j24i4.smi326@ifi.uio.no> <fa.e1ato89.1dl4vi9@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+It is not strictly related to ACPI, but many newer systems that support APIC
+(and, for Pentium 4 machines, HyperThreading as well) don't export any
+"old-style" MP tables that describe the IO APIC (or the HT CPU siblings),
+and these can only be detected through ACPI.
 
-As you read this, I don't want you to feel sorry for 
-me, because, I believe everyone will die someday. 
-My name is BATES ALAN a merchant in Dubai, in the 
-U.A.E.I have been diagnosed with Esophageal cancer.
-It has defiled all forms of medical treatment, and right now 
-I have only about a few months to live, according to medical experts. 
-I have not particularly lived my life so well, as I 
-never really cared for anyone(not even myself)but my 
-business. Though I am very rich, I was never 
-generous, I was always hostile to people and only 
-focused on my business as that was the only thing I 
-cared for. But now I regret all this as I now know 
-that there is more to life than just wanting to have 
-or make all the money in the world. 
-I believe when God gives me a second chance to come 
-to this world I would live my life a different way 
-from how I have lived it. Now that God has called 
-me, I have willed and given most of my property 
-and assets to my immediate and extended family 
-members as well as a few close friends. 
-I want God to be merciful to me and accept my soul 
-so, I have decided to give alms to charity 
-organizations, as I want this to be one of the last 
-good deeds I do on earth. So far, I have distributed 
-money to some charity organizations in the U.A.E, 
-Algeria and Malaysia. Now that my health has 
-deteriorated so badly, I cannot do this myself 
-anymore. I once asked members of my family to close one 
-of my accounts and distribute the money which I have 
-there to charity organization in Bulgaria and 
-Pakistan, they refused and kept the money to 
-themselves. Hence, I do not trust them anymore, as 
-they seem not to be contended with what I have left 
-for them. 
-The last of my money which no one knows of is the 
-huge cash deposit of eighteen million dollars 
-$18,000,000,00 that I have with a finance/Security Company 
-abroad. I will want you to help me collect this deposit 
-and dispatched it to charity organizations.
-I have set aside 10% for you and for your time.
-God be with you. 
-BATES ALAN
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+
+----- Original Message ----- 
+From: "Tetsuji Rai" <tetsuji_rai@yahoo.com>
+Newsgroups: fa.linux.kernel
+To: "Mikael Pettersson" <mikpe@csd.uu.se>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, February 17, 2004 6:55 AM
+Subject: Re: Cannot enable APIC with 2.6.2
+
+
+> Mikael Pettersson wrote:
+> > ...
+> >  > # ACPI (Advanced Configuration and Power Interface) Support
+> >  > #
+> >  > # CONFIG_ACPI is not set
+> >
+> > ACPI is disabled. Enable it and try again.
+>
+> Thank you!  I didn't know APIC is related to ACPI.
+>
+> -- 
+> Tetsuji Rai (in Tokyo) aka AF-One (Athlete's Foot-One)
+> Born to be the luckiest guy in the world!   May the Force be with me!
+> http://www.geocities.com/tetsuji_rai
+> http://setiathome.ssl.berkeley.edu/fcgi-bin/fcgi?cmd=view_feedback&id=1855
+> fax: 1-516-706-0320
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

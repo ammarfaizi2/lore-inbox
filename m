@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277188AbRKHMSS>; Thu, 8 Nov 2001 07:18:18 -0500
+	id <S275224AbRKHMYs>; Thu, 8 Nov 2001 07:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276894AbRKHMSI>; Thu, 8 Nov 2001 07:18:08 -0500
-Received: from uucp.cistron.nl ([195.64.68.38]:61449 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S277246AbRKHMRw>;
-	Thu, 8 Nov 2001 07:17:52 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: IDE byte counting
-Date: Thu, 8 Nov 2001 12:17:51 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9sdt5f$32g$2@ncc1701.cistron.net>
-In-Reply-To: <20011108103659.24f75c30.imolton@clara.net>
-X-Trace: ncc1701.cistron.net 1005221871 3152 195.64.65.67 (8 Nov 2001 12:17:51 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S277317AbRKHMYi>; Thu, 8 Nov 2001 07:24:38 -0500
+Received: from soul.helsinki.fi ([128.214.3.1]:41486 "EHLO soul.helsinki.fi")
+	by vger.kernel.org with ESMTP id <S275224AbRKHMYe>;
+	Thu, 8 Nov 2001 07:24:34 -0500
+Date: Thu, 8 Nov 2001 14:19:58 +0200 (EET)
+From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
+To: Maxwell Spangler <maxwax@mindspring.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Bug Stomper Success Reports for 2.4.14
+In-Reply-To: <20011107112809.06a64a94.aboman@nerdfest.org>
+Message-ID: <Pine.OSF.4.30.0111081412040.5794-100000@soul.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011108103659.24f75c30.imolton@clara.net>,
-Ian Molton  <spyro@armlinux.org> wrote:
->Is it possible to get a count of how much data has been read / written to
->an IDE device?
->I thought it'd be neat to modify one of the multitude of netload applaets
->to do 'diskload', but Im not sure the kernel provides such data.
 
-/proc/stat
+Hello Maxwell and All!
 
-Mike.
--- 
-"Only two things are infinite, the universe and human stupidity,
- and I'm not sure about the former" -- Albert Einstein.
+On Wed, 7 Nov 2001 00:54:06 -0500 (EST) Maxwell Spangler
+<maxwax@mindspring.com> wrote:
+
+> If you are using an Athlon with 2.4.14 and you previously had problems but now
+> have stability with an Athlon optimized, kernel, please respond.  (Just a few
+> people, please.)
+
+Two success stories here, on 2.4.13-ac8 (up to 2.4.10 no success):
+
+1.) Abit KT7A
+2.) MSI K7T Turbo
+
+Both machines otherwise identical:
+3x512 MB SDRAM
+2x40 GB IBM Deskstar, etc.
+
+So thank you very much for the patch!
+
+Have a nice day,
+    Mikael J.
 

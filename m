@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269485AbUIZCbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269488AbUIZDEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269485AbUIZCbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 22:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUIZCbS
+	id S269488AbUIZDEw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 23:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269489AbUIZDEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 22:31:18 -0400
-Received: from science.horizon.com ([192.35.100.1]:15151 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S269485AbUIZCbP
+	Sat, 25 Sep 2004 23:04:52 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:59348 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S269488AbUIZDEu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 22:31:15 -0400
-Date: 26 Sep 2004 02:31:14 -0000
-Message-ID: <20040926023114.19531.qmail@science.horizon.com>
-From: linux@horizon.com
-To: jlcooke@certainkey.com
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Cc: cryptoapi@lists.logix.cz, jmorris@redhat.com, linux-kernel@vger.kernel.org,
-       tytso@mit.edu
-In-Reply-To: <20040925145444.GW28317@certainkey.com>
+	Sat, 25 Sep 2004 23:04:50 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [sched.h 6/8] move aio include to mm.h
+Date: Sun, 26 Sep 2004 05:03:51 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040925024513.GL9106@holomorphy.com> <200409260356.27499.arnd@arndb.de> <20040926020637.GS9106@holomorphy.com>
+In-Reply-To: <20040926020637.GS9106@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_YGjVBpAnT9d2EMK";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409260503.53088.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was trying to point out a flaw in Ted's logic.  He said "we've recently
-> discoverd these hashes are weak because we found collsions.  Current
-> /dev/random doesn't care about this."
 
-And he's exactly right.  The only attack that would be vaguely relevant
-to /dev/random's use would be a (first) preimage attack, and even that's
-probably not helpful.
+--Boundary-02=_YGjVBpAnT9d2EMK
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-There *is* no flaw in his logic.  The attack we need to guard against
-is, given hash(x) and a (currently mostly linear) state mixing function
-mix(), one that would let you compute (partial information about)
-y[i+1] = hash(x[i+1]) from y[1] = hash(x[1]) ... y[i] = hash(x[i])
-where x[i] = mix(x[i-1]).
+On Sonntag, 26. September 2004 04:06, William Lee Irwin III wrote:
+> Grepping by hand turned up 186 files missing potentially missing direct
+> includes of workqueue.h, though I don't have a way to tell if I got
+> false negatives.
+>=20
+I just realized that I was using an old kernel tree (2.6.7 with
+some patches), which might be the reason for getting fewer results
+(38 of my 175 findings were extra #include lines, not missing ones).
 
-Given that y[i] is much smaller than x[i], you'd need to put together
-a lot of them to derive something, and that's distinctly harder than
-a single-output preimage attack.
+Running my script against the linux.bkbits.net tree gives now gives
+me 178 missing and 35 extraneous inclusions of workqueue.h, so your
+list is probably exact if you are grepping against -mm.
 
-> I certainly wasn't saying padding was a requirment.  But I was trying to
-> point out that the SHA-1 implementaion crrently in /dev/random by design is
-> collision vulnerable.  Collision resistance isn't a requirment for its
-> purposes obviously.
+	Arnd <><
 
-No, it is, by design, 100% collision-resistant.  An attacker neither
-sees nor controls the input x, so cannot use a collision attack.
-Thus, it's resistant to collisions in the same way that it's resistant
-to AIDS.
+--Boundary-02=_YGjVBpAnT9d2EMK
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-[There's actually a flaw in my logic.  I know Ted knows about it, because
-he implemented a specific defense in the /dev/random code against it; it's
-just not 100% information-theoretic ironclad.  If anyone else can spot
-it, award yourself a clue point.  But it's still not a plausible attack.]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-FURTHERMORE, even if an attacker *could* control the input, it's still
-exactly as collision resistant as unmodified SHA-1.  Because it only
-accepts fixed-size input blocks, padding is unnecessary and irrelevant
-to security.  Careful padding is ONLY required if you are working with
-VARIABLE-SIZED input.
+iD8DBQBBVjGY5t5GS2LDRf4RAv2FAJ4ruS5NsxToZi8PovwL62F9l9jCcACfavzj
+YQxEjgRtRPZKCZBjHpxrfcU=
+=MPcZ
+-----END PGP SIGNATURE-----
 
-The fact that collision resistance is not a security requirement is a
-third point.
-
-> Guess my pointing this out is a lost cause.
-
-In much the same way that pointing out that the earth is flat is a
-lost cause.  If you want people to believe nonsense, you need to dress
-it up a lot and call it a religion.
-
-As for Ted's words:
-> Whether or not we should trust the design of something as
-> critical to the security of security applications as /dev/random to
-> someone who fails to grasp the difference between these two rather
-> basic issues is something I will leave to the others on LKML.
-
-Fortuna may be a good idea after all (I disagree, but I can imagine
-being persuaded otherwise), but it has a very bad advocate right now.
-Would anyone else like to pick up the torch?
-
-
-By the way, I'd like to repeat my earlier question: you say Fortuna ia
-well-regarded in crypto circles.  Can you cite a single paper to back
-that conclusion?  Name a single well-known cryptographer, other than
-the authors, who has looked at it in some detail?
-
-There might be one, but I don't know of any.  I respect the authors
-enough to know that even they recognize that an algorithm's designers
-sometimes have blind spots.
+--Boundary-02=_YGjVBpAnT9d2EMK--

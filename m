@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269773AbTGOV7K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269776AbTGOV7K
+	id S269776AbTGOWC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269785AbTGOWC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:59:10 -0400
-Received: from login.osdl.org ([65.172.181.5]:5547 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269773AbTGOV7I (ORCPT
+	Tue, 15 Jul 2003 18:02:27 -0400
+Received: from [192.188.53.79] ([192.188.53.79]:19204 "EHLO mailbk.usfq.edu.ec")
+	by vger.kernel.org with ESMTP id S269776AbTGOWC0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:59:08 -0400
-Date: Tue, 15 Jul 2003 15:06:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: george anzinger <george@mvista.com>
-Cc: bernie@develer.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       torvalds@osdl.org
-Subject: Re: do_div64 generic
-Message-Id: <20030715150645.4fa11de7.akpm@osdl.org>
-In-Reply-To: <3F1477B2.6090106@mvista.com>
-References: <3F1360F4.2040602@mvista.com>
-	<200307150717.54981.bernie@develer.com>
-	<20030714223805.4e5bee3f.akpm@osdl.org>
-	<200307150823.01602.bernie@develer.com>
-	<3F1477B2.6090106@mvista.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Jul 2003 18:02:26 -0400
+Message-ID: <3F147B8F.5000103@mail.usfq.edu.ec>
+Date: Tue, 15 Jul 2003 17:09:19 -0500
+From: Fernando Sanchez <fsanchez@mail.usfq.edu.ec>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: modules problems with 2.6.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger <george@mvista.com> wrote:
->
-> > George, do you agree? May I go on and post a patch killing
-> > div_long_long_rem() everywhere?
-> 
-> The issue is that div is a very long instruction and the do_div() 
-> thing uses 2 or three of them, while the div_long_long_rem() is just 
-> 1.  Also, a lot of archs already have the required div by a different 
-> name.  It all boils down to a performance thing.
+Hi,
 
-It is only used in nanosleep(), and then only in the case where the sleep
-terminated early.
+I've been trying to get 2.6.0 to work, I've enabled modules support, but 
+I get this error on my logs:
 
-If someone is calling nanosleep() so frequently for this to matter, the
-time spent in divide is the least of their problems.  Unless you have some
-real-worldish benchmarks to demonstrate otherwise?
+Jul 15 15:38:36 Darakemba kernel: No module symbols loaded - kernel 
+modules not enabled.
 
-You know what they say about premtur optmstns, and having to propagate
-funky new divide primitives across N architectures is indeed evil.
+Is there any thing like a new modutils that should be used with 2.6.x 
+family?
 
-Bernardo, can you do the patch please?
+The kernel does boot, but not having any modules I can't do much, and 
+also, I never get to really see the messages on screen, on logs I have 
+this line:
+
+Jul 15 15:38:36 Darakemba kernel: Video mode to be used for restore is ffff
+
+What does it mean?
+
+I disabled all the framebuffer things so I can just use vga, on lilo, 
+vga mode is set to normal, but still can't see anything.
+
+
+TIA,
+
+
+
+-- 
+
+
+Fernando Sanchez
+Dpto. Sistemas USFQ
+
+
+

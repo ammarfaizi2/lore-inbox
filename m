@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbUASBVv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 20:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUASBVv
+	id S263370AbUASCnd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 21:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbUASCnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 20:21:51 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:64421 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261270AbUASBVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 20:21:50 -0500
-Date: Sun, 18 Jan 2004 19:21:44 -0600 (CST)
-From: Ryan Reich <ryanr@uchicago.edu>
-Reply-To: Ryan Reich <ryanr@uchicago.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Overlapping MTRRs in 2.6.1
-In-Reply-To: <20040118215711.GE1748@srv-lnx2600.matchmail.com>
-Message-ID: <Pine.LNX.4.58.0401181918590.977@ryanr.aptchi.homelinux.org>
-References: <Pine.LNX.4.58.0401181458080.2194@ryanr.aptchi.homelinux.org>
- <20040118215711.GE1748@srv-lnx2600.matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 18 Jan 2004 21:43:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36535 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263370AbUASCna (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 21:43:30 -0500
+Date: Sun, 18 Jan 2004 18:39:28 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Charles Shannon Hendrix <shannon@widomaker.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xscreensaver and kernel 2.6.x
+Message-Id: <20040118183928.00dde600.rddunlap@osdl.org>
+In-Reply-To: <20040118235728.GF9456@widomaker.com>
+References: <20040118235728.GF9456@widomaker.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Jan 2004, Mike Fedyk wrote:
+On Sun, 18 Jan 2004 18:57:28 -0500 Charles Shannon Hendrix <shannon@widomaker.com> wrote:
 
-> On Sun, Jan 18, 2004 at 03:11:27PM -0600, Ryan Reich wrote:
-> > My video card is a Radeon 7000, 64M of memory; processor, Athlon 2600+;
-> > motherboard, Shuttle AN35N with NForce2 chipset.
->
-> Can you try a few -mm kernels and see if there is any improvement?  Also,
-> did you get any problems with 2.6.0?
->
+| 
+| 
+| I'm trying to find the details on why xscreensaver has some troubles
+| with the 2.6 kernels.
+| 
+| On my system, something in pam is failing, causing a several seconds
+| delay when unlocking my screen.
+| 
+| In /var/log/messages, I get this:
+| 
+| Jan 18 17:59:07 daydream xscreensaver(pam_unix)[869]: authentication
+| failure; logname= uid=1000 euid=1000 tty=:0.0 ruser= rhost= user=shannon
+| Jan 18 17:59:09 daydream xscreensaver(pam_unix)[869]: authentication
+| failure; logname= uid=1000 euid=1000 tty=:0.0 ruser= rhost=  user=root
+| 
+| This happens with all 2.6 kernels, and all earlier kernels work fine.
+| 
+| I found a lot of references to problems with pam and the 2.5 and 2.6
+| kernels, but can't seem to find the details I want.
+| 
+| Any help appreciated.
+| 
+| I don't get lockups, but the delay is annoying, and I hate broken
+| things.
 
-Tried all the -mm kernels (-mm1 through -mm4) and 2.6.0, to no avail.  The
-suggestion made by Lenar in response to my original inqiry is effective, in that
-it eliminates the mtrr conflict.  However, it does NOT eliminate the
-radeon_unlock problem, so I guess I was wrong about that.
+There are patches in Red Hat 9 (pam) for this, and someone else
+pointed to the location of pam package fixes for it, but I don't
+have that pointer around... sorry.
 
--- 
-Ryan Reich
-ryanr@uchicago.edu
+--
+~Randy
+Everything is relative.

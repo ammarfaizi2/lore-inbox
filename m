@@ -1,73 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268336AbUIKVhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUIKVjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268336AbUIKVhK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 17:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268337AbUIKVhK
+	id S268344AbUIKVjY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 17:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268342AbUIKVjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 17:37:10 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:49789 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268336AbUIKVhD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 17:37:03 -0400
-Message-ID: <9e47339104091114374b9545f5@mail.gmail.com>
-Date: Sat, 11 Sep 2004 17:37:02 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Airlie <airlied@linux.ie>,
-       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: radeon-pre-2
-In-Reply-To: <20040911220614.A5023@infradead.org>
+	Sat, 11 Sep 2004 17:39:24 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:15659 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268337AbUIKVjP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 17:39:15 -0400
+Date: Sat, 11 Sep 2004 23:39:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: displaying kbuild dependancies ...
+Message-ID: <20040911213931.GA22403@mars.ravnborg.org>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	linux-kernel@vger.kernel.org
+References: <20040911202548.GA31680@MAIL.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104091010221f03ec06@mail.gmail.com>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <20040911132727.A1783@infradead.org>
-	 <9e47339104091109111c46db54@mail.gmail.com>
-	 <Pine.LNX.4.58.0409110939200.2341@ppc970.osdl.org>
-	 <9e473391040911105448c3f089@mail.gmail.com>
-	 <Pine.LNX.4.58.0409111058320.2341@ppc970.osdl.org>
-	 <9e4733910409111402138737aa@mail.gmail.com>
-	 <20040911220614.A5023@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040911202548.GA31680@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Sep 2004 22:06:14 +0100, Christoph Hellwig <hch@infradead.org> wrote:
-> On Sat, Sep 11, 2004 at 05:02:36PM -0400, Jon Smirl wrote:
-> > Alan, if you will commit Redhat to implementing all of the features
-> > referenced in this message:
+On Sat, Sep 11, 2004 at 10:25:48PM +0200, Herbert Poetzl wrote:
 > 
-> You definitly start sounding like Hans ;-)
+> Hi Sam!
+> 
+> first, thanks for the kbuild stuff and all the 
+> time spent on that ... I really love it
+> 
+> 
+> from time to time I encounter some issue which
+> usually keeps me busy for a while, and I think
+> there probably is a simpler solution to that ...
+> 
+> the procedure:
+> 
+> I'm configuring a 2.6.X-rcY-bkZ kernel for testing
+> with QEMU, which in my setup basically requires
+> some QEMU specific settings, I usually turn on/off
+> by just editing the .config file by hand, and then
+> invoking 'make oldconfig' ...
+> 
+> to keep the possibility for error low, I usually
+> just remove the entries in question, and oldconfig
+> will ask me the relevant question, leading to a
+> nice config adapted to my purposes ...
+> 
+> the issue:
+> 
+> sometimes a dependancy doesn't allow me to remove
+> a config option, I absolutely have to remove for
+> my setup, like the VGA_CONSOLE, and then the hunt
+> for the option 'requiring' that one unconditinally
+> beginns ...
+> 
+> usually I start with grep and end with trial and
+> error, until I find the malicious dependancy ...
 
-Getting the Linux display subsystem to a point where it can compete
-with Longhorn/Mac is a very complicated problem. It is going to take
-several years of work and the cooperation of a lot of people. It's a
-pyramid problem with lot's of layers.
+The only option today is to turn on the debug option
+in 'make xconfig'.
 
-Of course Linux can choose not to build a display system based on 3D
-hardware. But I've seen the
-current Longhorn/Mac implementations and they are way, way better than
-X. If Linux ignores 3D mode it is going to be very visible on the
-desktop.
+I have been looking inot something better for menuconfig
+but frankly kconfig is not where I feel most comfortable.
 
-I've tried to follow the Linux model for proposing the changes. The
-plan has been circulated to all relevant lists: fbdev, dri, xorg, lkml
-for over six months. Three sessions at OLS talked about various parts
-of the plan. Nothing has been kept secret, there must be 5,000
-messages in the archive on this subject.
-
-But since I've written most of the code so far I get to pick the
-details of the implementation. If Alan would instead like to pick the
-details I've offered to withdraw if he'll write the code needed to
-implement the major points of the plan. Of course if Redhat wants to
-send me a check for a couple of hundred thousand dollars I'll write
-whatever they want, but they haven't done that.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+	Sam

@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVB0DXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVB0DnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVB0DXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 22:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVB0DXY
+	id S261343AbVB0DnU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 22:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVB0DnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 22:23:24 -0500
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:7324 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261337AbVB0DXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 22:23:22 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Victor Fischer <celestar@t-online.de>
-Subject: Re: ALPS touchpad not seen by 2.6.11 kernels
-Date: Sat, 26 Feb 2005 22:23:17 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200502262355.13559.celestar@t-online.de>
-In-Reply-To: <200502262355.13559.celestar@t-online.de>
+	Sat, 26 Feb 2005 22:43:20 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:14032 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261343AbVB0DnP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 22:43:15 -0500
+Message-ID: <422141C1.5000709@zytor.com>
+Date: Sat, 26 Feb 2005 19:42:57 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bukie Mabayoje <bukiemab@gte.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: EBDA Question
+References: <91888D455306F94EBD4D168954A9457C01297B87@nacos172.co.lsil.com> <cubhu5$3jf$1@terminus.zytor.com> <4220C925.59995262@gte.net>
+In-Reply-To: <4220C925.59995262@gte.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502262223.18107.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 February 2005 17:55, Frank Victor Fischer wrote:
-> I have had the same problem and the solution worked for me as well.
+Bukie Mabayoje wrote:
+>>
+>>In general, dropping the EBDA below 0x9a000 is probably a
+>>bad idea.  Recent Linux kernels and boot loaders should handle it,
+>>though.  Keep in mind that you might find yourself in serious trouble
+>>if you then have, for example, a PXE stack layered on top of your SCSI
+>>BIOS.
 > 
-> Where should I put the DSDT?
+> There are test software used in manufacturing  line that needs this DOS memory.
 > 
 
-Just e-mail it to me - I suspect your PS/2 port has a wierd ID assigned
-to it, one that i8042 driver does not expect.
+For that purpose, you can probably get away with a lot more than that.
 
--- 
-Dmitry
+	-hpa

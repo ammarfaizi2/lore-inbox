@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbTEUTFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbTEUTFf
+	id S262259AbTEUTNV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 15:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTEUTNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:05:35 -0400
-Received: from octopus.com.au ([61.8.3.8]:526 "EHLO octopus.com.au")
-	by vger.kernel.org with ESMTP id S262275AbTEUTFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:05:34 -0400
-Message-ID: <3ECBD0EA.70307@octopus.com.au>
-Date: Thu, 22 May 2003 05:18:02 +1000
-From: Duraid Madina <duraid@octopus.com.au>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030512
-X-Accept-Language: en-us, en
+	Wed, 21 May 2003 15:13:21 -0400
+Received: from quechua.inka.de ([193.197.184.2]:40129 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262259AbTEUTNU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 15:13:20 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SNARE and C2 auditing under 2.5.x
+In-Reply-To: <200305210642_MC3-1-39D2-5928@compuserve.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
 MIME-Version: 1.0
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
-References: <16075.8557.309002.866895@napali.hpl.hp.com>	 <1053507692.1301.1.camel@laptop.fenrus.com>	 <3ECB57A4.1010804@octopus.com.au> <1053522732.1301.4.camel@laptop.fenrus.com>
-In-Reply-To: <1053522732.1301.4.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E19IZE7-0007pz-00@calista.inka.de>
+Date: Wed, 21 May 2003 21:26:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+In article <200305210642_MC3-1-39D2-5928@compuserve.com> you wrote:
+>  Nah, auditing isn't needed to run a secure system.  ;)
 
-> if you had spent the time you spent on this colorful graphic on reading
-> SUS or Posix about what sched_yield() means
+Besides C2 is totally anachronistical, anyway.
 
-Quoth the man page,
+Even Windows 2000 now offers some Protection Profiles from the Common
+Criteria EAL4+FLR für ControledAccessProtectionProfile(CAPP).
 
-"A process can relinquish the processor voluntarily without blocking by 
-calling sched_yield. The process will then be moved to the end of the 
-queue for its static priority and a new process gets to run."
-
-How you get from there to "I'm the least important thing in the system" 
-is, once again, beyond me. And even if that were a reasonable 
-interpretation of the word 'yield', you would still hope that more than 
-one CPU would get something to do if there was enough work to go around. 
-Agreed, "spinning" on sched_yield is a very naive way of doing 
-spinlocks. But that doesn't change the fact that it's a simple and 
-correct way. One would have hoped that calling sched_yield every few 
-million cycles wouldn't break the scheduler.
-
-	Duraid
-
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

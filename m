@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLAOQx>; Fri, 1 Dec 2000 09:16:53 -0500
+	id <S129210AbQLAOhG>; Fri, 1 Dec 2000 09:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLAOQn>; Fri, 1 Dec 2000 09:16:43 -0500
-Received: from salisbury.labs.futuretv.com ([194.216.164.17]:21754 "EHLO
-	mail.futuretv.com") by vger.kernel.org with ESMTP
-	id <S129183AbQLAOQd>; Fri, 1 Dec 2000 09:16:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
-To: Russell King <rmk@arm.linux.org.uk>
-cc: cw@f00f.org (Chris Wedgwood), romieu@ensta.fr,
-        lists@cyclades.com (Ivan Passos), linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux 
-In-Reply-To: Your message of "Fri, 01 Dec 2000 12:07:08 GMT."
-             <200012011207.eB1C78523251@flint.arm.linux.org.uk> 
-From: Philip Blundell <pb@futuretv.com>
-Mime-Version: 1.0
+	id <S129325AbQLAOg4>; Fri, 1 Dec 2000 09:36:56 -0500
+Received: from proxy.ovh.net ([213.244.20.42]:55560 "HELO proxy.ovh.net")
+	by vger.kernel.org with SMTP id <S129210AbQLAOgq>;
+	Fri, 1 Dec 2000 09:36:46 -0500
+Message-ID: <3A27B04B.1A628ADE@ovh.net>
+Date: Fri, 01 Dec 2000 15:06:03 +0100
+From: octave klaba <oles@ovh.net>
+X-Mailer: Mozilla 4.73 [en] (Win98; I)
+X-Accept-Language: fr,en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: watchdog software
+In-Reply-To: <E141pts-0000Dn-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Dec 2000 13:44:21 +0000
-Message-Id: <E141qU9-0005Xr-00@pig.labs.futuretv.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200012011207.eB1C78523251@flint.arm.linux.org.uk>, Russell King wri
-tes:
->We already have a standard interface for this, but many drivers do not
->support it.  Its called "ifconfig eth0 media xxx":
-
-The Ethtool interface is rather better.
-
-p.
 
 
+Alan Cox wrote:
+> 
+> > We have a problem on a 2.2.17: sometimes it crashs
+> > without any reason (no high load), there is no kernel panic,
+> > the screan is black. We setup watchdog software and
+> > we realized watchdog can not reboot this box whe it crashs
+> > (on the others servers it works fine).
+> >
+> > my question is:
+> > what kind of problem can have this serveur:
+> > hardware or software ?
+> 
+> What sort of watchdog are you using ?
+
+software. no hardware solution.
+http://www.ibiblio.org/pub/Linux/system/daemons/watchdog/watchdog-5.1.tar.gz
+
+Octave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

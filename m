@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUHYJyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUHYMGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUHYJyM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 05:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbUHYJxD
+	id S267195AbUHYMGj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 08:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUHYMGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 05:53:03 -0400
-Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:38118 "EHLO
-	tyo206.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S266003AbUHYJwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 05:52:06 -0400
-Message-ID: <024c01c48a89$283dd4f0$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "James Morris" <jmorris@redhat.com>
-Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>,
-       "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-References: <Xine.LNX.4.44.0408240908530.19614-100000@thoron.boston.redhat.com>
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-Date: Wed, 25 Aug 2004 18:51:56 +0900
+	Wed, 25 Aug 2004 08:06:39 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:28049 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S267195AbUHYMGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 08:06:05 -0400
+Message-ID: <412C80A0.6030206@g-house.de>
+Date: Wed, 25 Aug 2004 14:05:52 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Larry McVoy <lm@bitmover.com>
+Subject: Re: new bk version does not pull?
+References: <4127C733.90808@g-house.de> <20040822023025.GA4579@work.bitmover.com>
+In-Reply-To: <20040822023025.GA4579@work.bitmover.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James, thanks for your comment.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > o dbench [ 4 processes run parallely on 4-CPUs / 10 times trials ]
-> >                   ---- mean ----  - STD -
-> > 2.6.8.1(disable)  860.249 [MB/s]   44.683
-> > 2.6.8.1(enable)   714.254 [MB/s]   32.359
-> > 2.6.8.1(+rwlock)  767.904 [MB/s]   27.968
-> > 2.6.8.1(+RCU)     830.678 [MB/s]   16.352
-> 
-> Can you show the figures for 1 and 2 clients?
+Larry McVoy wrote:
+>>a couple of days ago i updated to the latest bk version [1] when i
+>>noticed today, that my repositories are not updated any more:
+>>
+>>evil@sheep:/usr/src/linux-2.6-BK$ bk parent
+>>Parent repository is http://linux.bkbits.net/linux-2.5
+>>evil@sheep:/usr/src/linux-2.6-BK$ bk pull
+>>Pull http://linux.bkbits.net/linux-2.5
+>>  -> file://usr/src/linux-2.6-BK
+>>Nothing to pull.
+>
+>
+> Linus is on vacation.
 
-The results are as follows:
-o dbench [ 1/2/4 processes run parallely on 4-CPUs / 10 times trials ]
-- Average[MB/s] -  -1proc- -2procs- -4procs-
-2.6.8.1(disable)    247.43   473.11   891.51
-2.6.8.1(enable)     218.99   434.97   761.06
-2.6.8.1(+rwlock)    225.18   432.80   802.62
-2.6.8.1(+RCU)       231.84   444.30   820.00
---------------------------------------------
-(*) 2.6.8.1(+RCU) is applied the take3-patch.
+ah, ok. thanks. it's pulling again and nothing wrong with shiny new bk
+version :-)
 
-By the way, the results of dbench are sharply changed at every measurement.
-I don't think it is statistically-significant.
+Christian.
+- --
+BOFH excuse #294:
 
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+PCMCIA slave driver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFBLICg+A7rjkF8z0wRAuoYAKCKzHj3sgVb/tuFh9g0JPAN/k2SGQCdHpTE
+yJywt1H7Hq3sC9iStrVOr1c=
+=Okv4
+-----END PGP SIGNATURE-----

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265135AbUFRNCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUFRNDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265135AbUFRNCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 09:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUFRNCb
+	id S265149AbUFRNDX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUFRNDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 09:02:31 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:58483 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265135AbUFRNCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 09:02:30 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/11] New set of input patches
-Date: Fri, 18 Jun 2004 08:02:28 -0500
-User-Agent: KMail/1.6.2
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-References: <200406180344.46191.dtor_core@ameritech.net> <20040618092121.GX20632@lug-owl.de>
-In-Reply-To: <20040618092121.GX20632@lug-owl.de>
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 09:03:22 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:9171 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265149AbUFRNDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 09:03:18 -0400
+Date: Fri, 18 Jun 2004 15:02:42 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Finn Thain <ft01@webmastery.com.au>, Andreas Schwab <schwab@suse.de>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: make checkstack on m68k
+Message-ID: <20040618130242.GD18258@wohnheim.fh-wedel.de>
+References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be> <je3c4uqum0.fsf@sykes.suse.de> <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au> <20040617182658.GB29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172115050.1495@waterleaf.sonytel.be> <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406180802.28357.dtor_core@ameritech.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 June 2004 04:21 am, Jan-Benedict Glaw wrote:
-> On Fri, 2004-06-18 03:44:46 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
-> wrote in message <200406180344.46191.dtor_core@ameritech.net>:
+On Thu, 17 June 2004 21:36:11 +0200, Geert Uytterhoeven wrote:
 > 
-> > would have parents. But the core integration is done. Unfortunately I do
-> > not have 90% hardware to test my changes so there could be some problems,
-> > although I tried to compile everything I could.
+> *bummer*
 > 
-> Maybe I'll test at least my two babies (vsxxxaa and lkkbd) to work with
-> these patches. They're using normal serial ports (ISA + USB) with
-> inputattach, these should already have parents, right?
-> 
+> why doesn't checkstack.pl complain if I forget to specify `m68k'?!?
 
-Right now nothing has a parent except for passthrough ports. I will do more
-patches later, but when I as looking at the serial port code it seemed that
-ther actual devices (as in struct device) were not available for ttys yet.
+It tries to guess the architecture on it's own.  Guessing is not
+working for m68k, aparently.
 
-Please corect me if I am mistaken.
+What does "uname -m" tell you?
+
+[ Yes, this breaks for cross compilation.  If anyone really cares,
+please send patches. ]
+
+Jörn
 
 -- 
-Dmitry
+The strong give up and move away, while the weak give up and stay.
+-- unknown

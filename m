@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbTHZPeB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTHZPeB
+	id S261208AbTHZP3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTHZP3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:34:01 -0400
-Received: from [203.185.132.124] ([203.185.132.124]:17072 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262749AbTHZPd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:33:59 -0400
-Message-ID: <3F4B7D7B.50401@nectec.or.th>
-Date: Tue, 26 Aug 2003 22:32:11 +0700
-From: Samphan Raruenrom <samphan@nectec.or.th>
-Organization: NECTEC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en, th
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Jens Axboe <axboe@suse.de>, Jens Axboe <axboe@image.dk>,
-       linux-kernel@vger.kernel.org, Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [Rdi1] Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org> <20030826095830.GA20693@suse.de> <3F4B44C2.4030406@nectec.or.th> <20030826145821.A26398@infradead.org>
-In-Reply-To: <20030826145821.A26398@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 11:29:38 -0400
+Received: from madrid10.amenworld.com ([217.174.194.138]:59397 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261208AbTHZP3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:29:37 -0400
+Date: Tue, 26 Aug 2003 17:32:07 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.4.22] Is ACPI experimental or not?
+Message-ID: <20030826153207.GA6574@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
- > On Tue, Aug 26, 2003 at 06:30:10PM +0700, Samphan Raruenrom wrote:
- >>>>This doesn't make sense at all.  Just try the unmount and
- >>>>tell the user if it failed - you can't say whether it will
- >>>>fail before trying.
- >>Yes, you can! Reading the code, if vfsmount.mnt_count > 1 then
- >>umount on that device will fail.
- > if you are doing the unmount currently and nothing changes because
- > you hold the nessecary locks, yes.  But as soon as you drop the locks
- > this is void.  There's no way to find out whether you can unmount
- > a filesystem except trying it.
+    Hi all :))
 
-_^_ I understand it now. Thank you for your patience in explaining this
-to me. I learn quite a lot of things in <4 hours! Thank you everyone.
-I'll try to make a good use of what I learn here, e.g. to write another
-GNOME automounter that use the new "event status notification" and also
-let users eject their CDs -
-"without polling" - possible?
-It must be real cool to write such daemon (polling make any hacker feel guilty).
+    I've noticed that in the make config part of 2.4.22, when looking
+at the help for the ACPI option, it says that is EXPERIMENTAL, but I
+don't have the 'EXPERIMENTAL' flag set in my config file, so I don't
+want to be asked about experimental features:
+
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+
+    Is ACPI no longer experimental or it (wrongly) doesn't depend on
+'CONFIG_EXPERIMENTAL' to be set?
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Samphan Raruenrom,
-The Open Source Project,
-National Electronics and Computer Technology Center,
-National Science and Technology Development Agency,
-Thailand.
-
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

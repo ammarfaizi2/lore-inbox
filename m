@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312304AbSCYFv2>; Mon, 25 Mar 2002 00:51:28 -0500
+	id <S312305AbSCYFx6>; Mon, 25 Mar 2002 00:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312305AbSCYFvS>; Mon, 25 Mar 2002 00:51:18 -0500
-Received: from [211.238.181.68] ([211.238.181.68]:17683 "EHLO
-	mail.digitaldreamstudios.net") by vger.kernel.org with ESMTP
-	id <S312304AbSCYFvA>; Mon, 25 Mar 2002 00:51:00 -0500
-Message-ID: <3C9EBACC.1640A37E@nownuri.net>
-Date: Mon, 25 Mar 2002 14:51:08 +0900
-From: SeongTae Yoo <alloying@nownuri.net>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>, linux-kernel@vger.kernel.org
-Subject: Re: file listing problem in smbfs, kernel 2.4.18
-In-Reply-To: <Pine.LNX.4.44.0203191959310.27806-100000@cola.teststation.com> <3C97E1D2.369C6A10@nownuri.net>
-Content-Type: text/plain; charset=EUC-KR
+	id <S312306AbSCYFxs>; Mon, 25 Mar 2002 00:53:48 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:27142 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S312305AbSCYFxd>; Mon, 25 Mar 2002 00:53:33 -0500
+Date: Mon, 25 Mar 2002 16:56:05 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [patch] smaller kernels
+Message-Id: <20020325165605.7d9c1d6e.rusty@rustcorp.com.au>
+In-Reply-To: <3C982824.60091B4A@zip.com.au>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SeongTae Yoo wrote:
-> 
-> Urban Widmark wrote:
-> >
-> > On Tue, 19 Mar 2002, SeongTae Yoo wrote:
-> >
-> > > Urban Widmark wrote:
-> > > >
-> > > > You could also try the smbfs unicode patch for 2.4.18, and see if that
-> > > > changes anything.
-> > > >     http://www.hojdpunkten.ac.se/054/samba/index.html
-> > > >     (Note the additional samba patch and mount flags needed)
-> > >
-> > > I tried it just before, but same result.
-> >
-> > And you patched samba, enabled unicode with the unicode flag and set the
-> > "codepage" to be unicode?
-> > (I know, it's a bad interface)
-> 
-> My mistake! Although I have read your patch page, the w2k ntfs partition is
-> mounted in the normal options. When they are mounted with enabled unicode
-> option, it seems to be listed very well.
-> 
-> After some other tests (depth change, other directories with the same problem,
-> fat32 partition, etc), I will post the results.
+On Tue, 19 Mar 2002 22:11:48 -0800
+Andrew Morton <akpm@zip.com.au> wrote:
 
-It seems that the problem of file listing is solved in my case.
+> This is the result of a search-and-destroy mission against
+> oft-repeated strings in the kernel text.  These come about
+> due to the toolchain's inability to common up strings between
+> compilation units.
 
-Thanks.
+The name is horrible.  BUG() stands out: perhaps "BUG_LITE()"?
+
+And I'm not sure DaveM'll appreciate this:
+
+>  static inline char *__skb_pull(struct sk_buff *skb, unsigned int len)
+>  {
+>  	skb->len-=len;
+> -	if (skb->len < skb->data_len)
+> -		BUG();
+>  	return 	skb->data+=len;
+>  }
+
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

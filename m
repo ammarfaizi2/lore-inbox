@@ -1,103 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272141AbTHKGYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272281AbTHKGYz
+	id S272310AbTHKGaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 02:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272322AbTHKGaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:24:55 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:44421 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272141AbTHKGYw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:24:52 -0400
-Date: Mon, 11 Aug 2003 07:24:23 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: James Morris <jmorris@intercode.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com, tytso@mit.edu
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030811062423.GB11641@mail.jlokier.co.uk>
-References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <20030811023553.GC31810@waste.org> <20030811045947.GI10446@mail.jlokier.co.uk> <20030811050414.GE31810@waste.org> <20030811052035.GK10446@mail.jlokier.co.uk> <20030811055442.GF31810@waste.org>
+	Mon, 11 Aug 2003 02:30:12 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:6904 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S272310AbTHKGaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 02:30:07 -0400
+Subject: Re: Linux 2.6.0-test3: logo patch
+From: Martin Schlemmer <azarah@gentoo.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Thomas Molina <tmolina@cablespeed.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030809163812.A22875@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
+	 <Pine.LNX.4.44.0308091059490.2587-100000@localhost.localdomain>
+	 <20030809163812.A22875@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1060583076.13256.13.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811055442.GF31810@waste.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 11 Aug 2003 08:24:37 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Mon, Aug 11, 2003 at 06:20:35AM +0100, Jamie Lokier wrote:
-> > Matt Mackall wrote:
-> > > On Mon, Aug 11, 2003 at 05:59:47AM +0100, Jamie Lokier wrote:
-> > > > Matt Mackall wrote:
-> > > > > And we're safe here. The default pool size is 1024 bits, of which we
-> > > > > hash 512. I could hash even fewer, say, 480 (and this would deal with the
-> > > > > cryptoapi padding stuff nicely).
-> > > > 
-> > > > Where is the pool size set to 1024 bits?  I'm reading 2.5.75, and it
-> > > > looks to me like the hash is over the whole pool, of 512 bits for the
-> > > > primary and 128 bits for the secondary pool:
-> > > > 
-> > > > 	for (i = 0, x = 0; i < r->poolinfo.poolwords; i += 16, x+=2) {
-> > >                                                ^^^^
-> > > 
-> > > Unfortunately, there's an ugly mix of words, bytes, and bits here (and it
-> > > was actually broken for years because of it). The input pool is 4kbits
-> > > and the output pools are 1k.
+On Sat, 2003-08-09 at 17:38, Russell King wrote:
+> On Sat, Aug 09, 2003 at 11:00:57AM -0500, Thomas Molina wrote:
+> > The following patch has been floating around forever.  Can we get it in 
+> > mainstream sometime in the near future?
 > > 
-> > You're right about the sizes.  But you said it hashes only half of the
-> > pool.  Where is that?
+> > --- linux-2.5-tm/drivers/video/cfbimgblt.c.orig	2003-08-08 17:42:16.000000000 -0500
+> > +++ linux-2.5-tm/drivers/video/cfbimgblt.c	2003-08-08 17:42:30.000000000 -0500
+> > @@ -325,7 +325,7 @@
+> >  		else 
+> >  			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
+> >  					start_index, pitch_index);
+> > -	} else if (image->depth == bpp) 
+> > +	} else if (image->depth <= bpp) 
+> >  		color_imageblit(image, p, dst1, start_index, pitch_index);
+> >  }
+> >  
 > 
-> Hmmm, you may have something. I've been over this code in great depth
-> and I keep finding bits that didn't work quite the way I (or the
-> original author) thought they did.
+> Is this patch _still_ not in the kernel.
 > 
-> The old version does:
+> Linus - please merge this patch - its required for several ARM framebuffer
+> drivers, and several other drivers.  James has indicated that this is the
+> correct fix back in May:
 > 
->  reset hash state
->  for each 512 bit chunk in pool:
->    hash 512 bit
->    mix cumulative 160 bit result back in
->  
->  fold cumulative result
->  return 80 bit result
-> 
-> ..which is vulnerable to your (entirely theoretical) attack
-> 
-> The cryptoapi version I posted does:
-> 
->  for each 512 bit chunk in pool:
->    reset hash state
->    hash 512 bits
->    mix 160 bits back in
-> 
->  return 160 bit result
 
-Remember that mixing 160 bits into the pool changes only 160 bits in
-the pool, due to the way the mixing function works.  Furthermore, they
-are consecutive words.
+Right, this fixes the 'no logo' issue - anybody have any idea why
+I now have two logo's ? :)
 
-This means that when you hash over the second chunk, there is a good
-chance that the bits you mixed in from the first chunk have no effect
-on the second hash.
+If need be, I can give dmesg/etc/etc, but not at home right now.
 
-That's severely flawed: it means that consecutive reads can return
-identical hash results!
-
-> An ideal version would do:
-> 
->  pick an offset into the pool
->  hash somewhere in the neighborhood of 512 bits
->  mix 160 bits back in
->  update offset
-> 
->  return 160 bit result
-> 
-> ..which is not vulnerable and faster. I'll whip something up.
-
-You must pick the offset carefully so that bits mixed back in affect
-consecutive hash results which you are returning.
-
--- Jamie
+> On Tue, May 13, 2003 at 11:41:34PM +0100, James Simmons wrote:
+> > At the very bottom of cfbimgblt.c change
+> >
+> > } else if (image->depth == bpp)
+> >
+> > to
+> >
+> > } else if (image->depth <= bpp)
+> >
+> > and tell me if this works.
+-- 
+Martin Schlemmer
+Gentoo Linux Developer, Desktop Team
+Cape Town, South Africa
 

@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272741AbTHEMyX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 08:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272743AbTHEMyX
+	id S272780AbTHENEM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 09:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272782AbTHENEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 08:54:23 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:32645 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S272741AbTHEMyH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 08:54:07 -0400
-Date: Tue, 5 Aug 2003 15:54:00 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Rafael Costa dos Santos <rafael@thinkfreak.com.br>
+	Tue, 5 Aug 2003 09:04:05 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:8344 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272780AbTHEND6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 09:03:58 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 15:03:51 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux syscall list
-Message-ID: <20030805125400.GI32093@actcom.co.il>
-References: <200308050933.16351.rafael@thinkfreak.com.br>
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805150351.5b81adfe.skraw@ithnet.com>
+In-Reply-To: <3F2FA862.2070401@aitel.hist.no>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+	<20030805003210.2c7f75f6.skraw@ithnet.com>
+	<3F2FA862.2070401@aitel.hist.no>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1ou9v+QBCNysIXaH"
-Content-Disposition: inline
-In-Reply-To: <200308050933.16351.rafael@thinkfreak.com.br>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 05 Aug 2003 14:51:46 +0200
+Helge Hafting <helgehaf@aitel.hist.no> wrote:
 
---1ou9v+QBCNysIXaH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Even more fun is when you have a directory loop like this:
+> 
+> mkdir A
+> cd A
+> mkdir B
+> cd B
+> make hard link C back to A
+> 
+> cd ../..
+> rmdir A
+> 
+> You now removed A from your home directory, but the
+> directory itself did not disappear because it had
+> another hard link from C in B.
 
-On Tue, Aug 05, 2003 at 09:33:16AM +0000, Rafael Costa dos Santos wrote:
-> Hi all,
->=20
-> Where can I find the last linux syscall list ?
+How about a truly simple idea: 
 
-There is no formal list that I know of. You can look at
-arch/i386/kernel/entry.S for the names and numbers of syscalls, but
-for the parameters you would have to grep around for the system call
-definition.=20
+rmdir A says "directory in use" and is rejected
 
-For the syscalltrack project we have a close to complete of syscalls
-and their parameters for 2.4, i386, at
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/syscalltrack/sysc=
-alltrack/module/syscalls.dat?rev=3D1.18
+Which means you simply cannot remove the first directory entry before not all
+other links to it are removed. This implies only two things: 
+1) you have to know who was first.
+2) you have to be able to find out where the links are.
 
-Note that such a list is of limited useful utility unless it is tied
-to a specific kernel version, since the kernel gains new syscalls
-occasionally. Patches to update the list to 2.5 will be happily
-accepted ;-)
+Both sound solvable.
 
-Cheers,=20
-Muli
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-http://www.livejournal.com/~mulix/
+Regards,
+Stephan
 
-
---1ou9v+QBCNysIXaH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/L6joKRs727/VN8sRAgk9AJ4vKBQ3Hl41m+7u6zWChx85hxWy3gCguTcY
-0AgLVK6u+mXMMvXDF4e/N00=
-=wvI0
------END PGP SIGNATURE-----
-
---1ou9v+QBCNysIXaH--

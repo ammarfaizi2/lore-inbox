@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270164AbTGMICM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 04:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270166AbTGMICM
+	id S270169AbTGMIPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 04:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270170AbTGMIPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 04:02:12 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32443
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270164AbTGMICH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 04:02:07 -0400
-Subject: Re: PATCH: Add Kahlua audio from 2.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307112045350.4337-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0307112045350.4337-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058084055.31918.21.camel@dhcp22.swansea.linux.org.uk>
+	Sun, 13 Jul 2003 04:15:52 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:44698 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S270169AbTGMIPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 04:15:51 -0400
+X-Sender-Authentification: net64
+Date: Sun, 13 Jul 2003 10:30:26 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: bug report 2.4.22-pre5: nfs-clients 2.4.21 stall under heavy load
+ on server 2.4.22-pre5
+Message-Id: <20030713103026.1b0e3e9b.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jul 2003 09:14:16 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-07-12 at 04:45, Linus Torvalds wrote:
-> On Fri, 11 Jul 2003, Alan Cox wrote:
-> > + * For the avoidance of doubt the "preferred form" of this code is one which
-> > + * is in an open non patent encumbered format. Where cryptographic key signing
-> > + * forms part of the process of creating an executable the information
-> > + * including keys needed to generate an equivalently functional executable
-> > + * are deemed to be part of the source code.
-> 
-> Alan, we've had this discussion once.
+Hello,
 
-Oh sorry I just forgot to take that out when merging. I'll fix that and resend
+subject says about all I can tell. If you take around 20 clients and let them
+do heavy nfs action on a 2.4.22-pre5 server some seem to draw bad cards and
+stall forever with:
 
+Jul 13 02:02:35 test-2 kernel: nfs: server nfsserver.in.my.domain not
+responding, still trying
+
+These messages show up with other kernels on server, too. But I cannot remember
+one where they do never recover. Even under 2.4.22-pre5 server they often
+recover, but not always. 
+
+Regards,
+Stephan

@@ -1,26 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbTFQK3I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 06:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTFQK3I
+	id S261568AbTFQK5m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 06:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFQK5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 06:29:08 -0400
-Received: from dsl7-003.express.oricom.ca ([64.18.175.3]:4624 "EHLO
-	apac.cjb.net") by vger.kernel.org with ESMTP id S261688AbTFQK3H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 06:29:07 -0400
-Message-Id: <20030617103910.E7ABB1B59A@apac.cjb.net>
-Date: Tue, 17 Jun 2003 06:39:10 -0400 (EDT)
-From: root@apac.cjb.net (Charlie Root)
-To: undisclosed-recipients:;
+	Tue, 17 Jun 2003 06:57:42 -0400
+Received: from madrid10.amenworld.com ([217.174.194.138]:18447 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261568AbTFQK5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 06:57:41 -0400
+Date: Tue, 17 Jun 2003 13:17:18 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.21 working OK compiled with GCC 3.2.2
+Message-ID: <20030617111718.GD64@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Here is the bug I found: when umount network file system. I enabled nfs4 experimental in both client and server. On that machine it act as a client and the remote server use nfs3 (freebsd 4.8). I had to type the whole "oops" message by hand :S and I didnt had time to copy it completly (the screen goes blank). MAYBE it could help ..... 
-Here is it -> http://perso.apac.cjb.net/bug.txt
-Sorry for this bad bug report.
-Wish it could help
-Bye
-Simon Veilleux,
-phpquebec.org
+    Hi all :))
+
+    I had no problems or ICE's compiling this kernel with GCC 3.2.2
+and, although not thorougly tested yet, all 'major' parts work ok
+for me (compiling, mail, disk, CD writing, USB, networking, etc...).
+
+    I notice a bit more disk performance, but I cannot prove it with
+numbers. Maybe when I have the time...
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

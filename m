@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268472AbUHaNar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268482AbUHaNja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268472AbUHaNar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268483AbUHaNar
+	id S268482AbUHaNja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 09:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUHaNja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:30:47 -0400
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:16551 "EHLO
-	mailrelay02.tugraz.at") by vger.kernel.org with ESMTP
-	id S268472AbUHaNaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:30:24 -0400
-From: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-To: reiserfs-list@namesys.com
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-Date: Tue, 31 Aug 2004 15:36:00 +0200
-User-Agent: KMail/1.7
-Cc: Pavel Machek <pavel@ucw.cz>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <41323AD8.7040103@namesys.com> <20040831131201.GA1609@elf.ucw.cz>
-In-Reply-To: <20040831131201.GA1609@elf.ucw.cz>
+	Tue, 31 Aug 2004 09:39:30 -0400
+Received: from [200.48.36.148] ([200.48.36.148]:31461 "EHLO
+	correo.speedy.com.pe") by vger.kernel.org with ESMTP
+	id S268482AbUHaNj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 09:39:26 -0400
+Message-ID: <1093958868.41347cd4250db@correo.speedy.com.pe>
+Date: Tue, 31 Aug 2004 08:27:48 -0500
+From: Tom Seely <tomseely@speedy.com.pe>
+To: tomseely@speedy.com.pe
+Subject: Client Referral
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408311536.00948.christian.mayrhuber@gmx.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 200.106.40.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 August 2004 15:12, Pavel Machek wrote:
 
-> What about choosing just "..." instead of "metas"? "metas" is string
-> that needs translation etc, while "..." is nicely neutral.
-> 
-> cat /sound_of_silence.mp3/.../author
+Dear Customer,
+ 
+Be the very first listing in the top search engines immediately.
+ 
+Our company will now place any business with a qualified website permanently 
+at the top of the major search engines guaranteed never to move.  This 
+promotion includes unlimited traffic and is not going to last long.  If you 
+are interested in being guaranteed first position in the top search engines at 
+a promotional fee, please reply us promptly to find out if you qualify. This 
+is not pay per click.
+ 
+The following are examples on Yahoo!, MSN and Alta Vista:
+ 
+Company:           Oahu Dive Center
+URL:                   http://oahudivecenter.com
+keyword:             oahu scuba diving
+ 
+Company:           California Moves.com
+URL:                   http://steph.cbsocal.com/
+keyword:             find a home southern california
+ 
+Company:           Dana Hursey Photography
+URL:                   http://www.hursey.com
+keyword:             location photographer 
+ 
+Sincerely,
+ 
+IGN
+The Search Engine Promotional Consultants
 
-Feel free to read these rather lengthy threads:
-http://marc.theaimsgroup.com/?l=reiserfs&m=108039830904541&w=2
-http://marc.theaimsgroup.com/?l=reiserfs&m=108112390327773&w=2
 
--- 
-lg, Chris
+

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTBNQkv>; Fri, 14 Feb 2003 11:40:51 -0500
+	id <S261302AbTBNQqI>; Fri, 14 Feb 2003 11:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbTBNQkv>; Fri, 14 Feb 2003 11:40:51 -0500
-Received: from bitmover.com ([192.132.92.2]:16298 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261368AbTBNQku>;
-	Fri, 14 Feb 2003 11:40:50 -0500
-Date: Fri, 14 Feb 2003 08:50:41 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       David Lang <david.lang@digitalinsight.com>,
-       "Matthew D. Pitts" <mpitts@suite224.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-Message-ID: <20030214165041.GA6564@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	"Matthew D. Pitts" <mpitts@suite224.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com> <1045233701.7958.14.camel@irongate.swansea.linux.org.uk> <20030214153039.GB3188@work.bitmover.com> <1045241763.1353.19.camel@irongate.swansea.linux.org.uk> <20030214164720.GC200@louise.pinerecords.com>
+	id <S261364AbTBNQqI>; Fri, 14 Feb 2003 11:46:08 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28032
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261302AbTBNQqH>; Fri, 14 Feb 2003 11:46:07 -0500
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: Matt Porter <porter@cox.net>, Scott Murray <scottm@somanetworks.com>,
+       Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045236757.12974.14.camel@vmhack>
+References: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
+	 <Pine.LNX.4.44.0302131603500.23407-100000@rancor.yyz.somanetworks.com>
+	 <20030213155817.B1738@home.com>  <1045173941.1009.4.camel@vmhack>
+	 <1045183679.1009.7.camel@vmhack>
+	 <1045234137.7958.17.camel@irongate.swansea.linux.org.uk>
+	 <1045236757.12974.14.camel@vmhack>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045245352.1353.35.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030214164720.GC200@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Feb 2003 17:55:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Larry, would it be a problem to implement something like:
+On Fri, 2003-02-14 at 15:32, Rusty Lynch wrote:
+> Since only one driver can register as the /dev/watchdog (ie
+> major=10/minor=130 char device), would it be better if:
 > 
-> alan@wherever$ echo 'rq unidiff for {1.967,1.968} of typhoon/typhoon-2.4'| \
-> 	mail diffmail@bkbits.net
+> * the first watchdog driver to register with the base also gets
+> registered as the watchdog misc device, and when that driver unregisters
+> then the second watchdog to register now gets registered as the misc
+> device, etc.
+> * each watchdog driver gets an additional sysfs file named 'misc', where
+> writing a '1' to the file causes the driver to become the registered
+> misc watchdog device.
+> * something else
 
-Sure, you can do it.
+I had hoped we'd get some kind of sanity and 32bit dev_t by now at which
+point watchdogs belong on a major with /dev/watchdog0/1/2/3/... I dont
+think you need to care about that for now. Sysfs doesn't help here in
+the general case as it lacks persistant file permissions, but where it
+is used the user can simply make /dev/watchdog a link into sysfs and
+nothing has to be done by the driver
 
-	bk clone bk://typhoon.bkbits.net/typhoon-2.4
-	cd typhoon-2.4
-	bk export -tpatch -r1.967,1.968 | mail alan@lxorguk.ukuu.org.uk
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Alan
+

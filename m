@@ -1,97 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVCIRV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVCIRdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVCIRV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCIRV4
+	id S262098AbVCIRdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVCIRdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:21:56 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:37345 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262088AbVCIRVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:21:36 -0500
-Message-Id: <200503091721.j29HLNg24054@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
-Date: Wed, 9 Mar 2005 09:21:22 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUkcSgaDBjncYCsRmWAZtN826Ko7QABKRbA
-In-Reply-To: <20050308222737.3712611b.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 9 Mar 2005 12:33:24 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:22230 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262103AbVCIRWx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:22:53 -0500
+Subject: Re: Average power consumption in S3?
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Moritz Muehlenhoff <jmm@inutil.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050309142612.GA6049@informatik.uni-bremen.de>
+References: <20050309142612.GA6049@informatik.uni-bremen.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Q4WyGQzXDYBYF2tPT8Du"
+Date: Wed, 09 Mar 2005 18:22:50 +0100
+Message-Id: <1110388970.1076.48.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote on Tuesday, March 08, 2005 10:28 PM
-> But before doing anything else, please bench this on real hardware,
-> see if it is worth pursuing.
 
-Let me answer the questions in reverse order.  We started with running
-industry standard transaction processing database benchmark on 2.6 kernel,
-on real hardware (4P smp, 64 GB memory, 450 disks) running industry
-standard db application.  What we measured is that with best tuning done
-to the system, 2.6 kernel has a huge performance regression relative to
-its predecessor 2.4 kernel (a kernel from RHEL3, 2.4.21 based).
+--=-Q4WyGQzXDYBYF2tPT8Du
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Ever since we had that measurement, people kick my butt everyday and
-asking "after you telling us how great 2.6 kernel is, why is my workload
-running significantly slower on this shinny 2.6 kernel?".  It hurts,
-It hurts like a sledge hammer nailed right in the middle of my head.
+On Wed, 2005-03-09 at 15:26 +0100, Moritz Muehlenhoff wrote:
+> Hi,
+> I'm using an IBM Thinkpad X31. With stock 2.6.11 and the additional
+> radeontool to power-off the backlight in suspend, S3 works very well
+> and reliable. During S3 I've measured a power consumption of 1400
+> to 1500 mWh (using 512 megabytes of RAM). Is there still room for
+> optimization? What's the typical amount of energy required for suspend-
+> to-ram? From friends using iBooks with MacOS X I've heard that they
+> left the notebook in suspend when leaving for a week and could still
+> use it after return.
 
-This is all real: real benchmark running on real hardware, with real
-result showing large performance regression.  Nothing synthetic here.
+I also have an X31 and I noticed that the e1000 has Wake-On-Lan enabled
+by default and the S3 code doesn't disable that (kind of defeats the
+purpose :)
+Disabling that will make the e1000 driver power down the chip during S3.
 
-And yes, it is all worth pursuing, the two patches on raw device recuperate
-1/3 of the total benchmark performance regression.
+ethtool -s ethX wol d
 
-The reason I posted the pseudo disk driver is for people to see the effect
-easier without shelling out a couple of million dollar to buy all that
-equipment.
+I don't know if you have the e1000 or e100 in your machine, but I think
+the e100 driver does the same.
 
+I've had mine suspended for 2-3 days at most, actually havn't left it
+alone for longer than that in S3 so I'm not really sure how much power
+it consumes, but I'd say it's 1-2 percent of the total capacity per
+hour, so somewhere below 1000mW.
 
-> Once you bolt this onto a real device driver the proportional difference
-> will fall, due to addition of the constant factor.
->
-> Once you bolt all this onto a real disk controller all the numbers will get
-> worse (but in a strictly proportional manner) due to the disk transfers
-> depriving the CPU of memory bandwidth.
->
+I also use the standard radeontool to disable the backlight, I'll test
+the version Matthew pointed out some day.
 
-That's not how I would interpret the number.  Kernel utilization went up for
-2.6 kernel running the same db workload.  One reason is I/O stack is taxing a
-little bit on each I/O call (or I should say less efficient), even with minuscule
-amount, given the shear amount of I/O rate, it will be amplified very quickly.
-One cpu cycle spend in the kernel means one less cpu cycle for the application.
-My mean point is with less efficient I/O stack, kernel is actually taking away
-valuable compute resources from application to crunch SQL transaction.  And that
-leads to lower performance.
+--=20
+/Martin
 
-One can extrapolate it the other way: make kernel more efficient in processing
-these I/O requests, kernel utilization goes down, cycle saved will transfer to
-application to crunch more SQL transaction, and performance goes up.  I hope
-everyone is following me here.
+--=-Q4WyGQzXDYBYF2tPT8Du
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-> At 5 usecs per request I figure that's 3% CPU utilisation for 16k requests
-> at 100 MB/sec.
+iD8DBQBCLzDpWm2vlfa207ERAvZsAJ99JQbVX++eSVVaRsa6OcauHgw9GwCgkxHd
+6h5xVJzWjBiXhjjfO7hCg+0=
+=ypuv
+-----END PGP SIGNATURE-----
 
-Our smallest setup has 450 disks, and the workload will generate about 50,000
-I/O per second.  Larger setup will have more I/O rate.
-
-
-> What sort of CPU?
->
-> What speed CPU?
->
-> What size requests?
->
-> Reads or writes?
->
-
-1.6 GHz Itanium2, 9M L3
-I/O requests are mixture of 2KB and 16KB, occasionally some large size in burst.
-Both read/write, about 50/50 split on rw.
-
-- Ken
-
-
+--=-Q4WyGQzXDYBYF2tPT8Du--

@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266620AbUBQVdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266581AbUBQVbO
+	id S266588AbUBQVZf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266608AbUBQVWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:31:14 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:30915 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266579AbUBQV0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:26:31 -0500
-Date: Tue, 17 Feb 2004 16:26:12 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: 2.6.3-rc3-mm1
-In-Reply-To: <20040216132934.65c3d6e0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402161631450.11793@montezuma.fsmlabs.com>
-References: <Pine.LNX.3.96.1040216141554.2146A-100000@gatekeeper.tmr.com>
- <Pine.LNX.4.58.0402161610110.11793@montezuma.fsmlabs.com>
- <20040216132934.65c3d6e0.akpm@osdl.org>
+	Tue, 17 Feb 2004 16:22:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3792 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266654AbUBQVVT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:21:19 -0500
+Date: Tue, 17 Feb 2004 13:21:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: John Bradford <john@grabjohn.com>
+cc: Jamie Lokier <jamie@shareable.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Marc <pcg@goof.com>, Marc Lehmann <pcg@schmorp.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
+ JFS default behavior)
+In-Reply-To: <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.58.0402171318550.2154@home.osdl.org>
+References: <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
+ <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+ <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
+ <20040217163613.GA23499@mail.shareable.org> <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
+ <20040217192917.GA24311@mail.shareable.org> <20040217195348.GQ8858@parcelfarce.linux.theplanet.co.uk>
+ <200402172035.i1HKZM4j000154@81-2-122-30.bradfords.org.uk>
+ <20040217204024.GE24311@mail.shareable.org> <200402172050.i1HKoLPG000210@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.58.0402171259440.2154@home.osdl.org>
+ <200402172116.i1HLGESi000350@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004, Andrew Morton wrote:
 
-> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
-> >
-> > Well the -tiny tree has that and a lot more drastic trimmings, Andrew is
-> > there already an arrangement to feed the not so brutal changes to you?
->
-> nope.
 
-Ok in that case, could you entertain such an arrangement? Perhaps a few
-select patches from Matt's fine collection could be sent to you for
-eyeballing.
+On Tue, 17 Feb 2004, John Bradford wrote:
+> > 
+> > Wrong. UTF-8 can store UCS-4 characters just fine.
+> 
+> Does just fine include unambiguously?
 
-Thanks
+If you don't care about backwards compatibility, then yes. You just have 
+to use "strict" UTF-8.
+
+>				  Sure, standards-conforming
+> UTF-8 is unambiguous, but you've already said time and again that that
+> doesn't happen in the real world.  I just don't agree on the UTF-8 can
+> store UCS-4 characters just fine thing _at all_.
+
+You get to choose between "throw the baby out with the bathwater" or "be 
+compatible". 
+
+Sane people choose compatibility. But it's your choice. You can always 
+normalize thing if you want to - but don't complain to me if it breaks 
+things. It will still break _fewer_ things than UCS-4 would, so even if 
+you always normalize you'd still be _better_ off with UTF-8 than you would 
+be with UCS-4.
+
+		Linus

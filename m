@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265363AbUAEUAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUAEUAf
+	id S261152AbUAETuV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbUAETuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:00:35 -0500
-Received: from cliff.cse.wustl.edu ([128.252.166.5]:65444 "EHLO
-	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S265350AbUAEUAT
+	Mon, 5 Jan 2004 14:50:20 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:43849 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261152AbUAETuM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:00:19 -0500
-From: Berkley Shands <berkley@cs.wustl.edu>
-Date: Mon, 5 Jan 2004 14:00:16 -0600 (CST)
-Message-Id: <200401052000.i05K0Gc0000014396@mudpuddle.cs.wustl.edu>
-To: berkley@cs.wustl.edu, davem@redhat.com
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
-Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
+	Mon, 5 Jan 2004 14:50:12 -0500
+Date: Mon, 5 Jan 2004 21:50:05 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jfbeam@bluetronic.net
+Subject: Re: 2.6.0 under vmware ?
+Message-ID: <20040105195004.GH11115091@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	jfbeam@bluetronic.net
+References: <1073297203.12550.30.camel@bip.parateam.prv> <20040105142032.GE11115091@niksula.cs.hut.fi> <20040105185506.GF11115091@niksula.cs.hut.fi> <20040105113003.1bf558b7.shemminger@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105113003.1bf558b7.shemminger@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	   		BUG_ON(s->length == 0);
+On Mon, Jan 05, 2004 at 11:30:03AM -0800, you [Stephen Hemminger] wrote:
+> > 
+> > Turns out the second floppy drive was disabled from the bios.
+> > 
+> > Oddly, 2.2 and 2.4 don't care.
+> > 
+> > If I turn the second drive on from the bios, 2.6 finds it, too.
+> 
+> Probably because 2.6 uses ACPI and 2.2/2.4 were not.
 
-		size += s->length; 
+Sounds reasonable. 
 
-		/* Handle the previous not yet processed entries */
+However, booting with "acpi=off" doesn't dig up /dev/fd1. Perhaps ACPI
+should be compiled out for good, but this really isn't a large problem for
+me as long as the drive works when enabled in BIOS.
 
-		if (i > start) {
-			struct scatterlist *ps = &sg[i-1];
-			/* Can only merge when the last chunk ends on a page 
-			   boundary. */
-			if (1 || !force_iommu || !need || (i-1 > start && ps->offset) ||
-			    (ps->offset + ps->length) % PAGE_SIZE) { 
-				if (pci_map_cont(sg, start, i, sg+out, pages, 
-						 need) < 0)
-					goto error;
 
-If I totally disable coalescing, in arch/x86_64/pci-gart.c by adding the if (1 || ...
-then the bughalt goes away. So might some performance, but a system that runs is
-MUCH better than one that hard faults on a regular basis.
+-- v --
 
-The shipped scsi driver still needs to be updated to NOT "offline" the drives.
-the 2.0.5 driver does this quite well.
-
-Thank you.
-
-berkley
+v@iki.fi

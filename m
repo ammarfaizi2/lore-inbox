@@ -1,109 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265475AbRF1BAP>; Wed, 27 Jun 2001 21:00:15 -0400
+	id <S265462AbRF1A6z>; Wed, 27 Jun 2001 20:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265467AbRF1A74>; Wed, 27 Jun 2001 20:59:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27284 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265464AbRF1A7x>;
-	Wed, 27 Jun 2001 20:59:53 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15162.33158.683289.641171@pizda.ninka.net>
-Date: Wed, 27 Jun 2001 17:59:50 -0700 (PDT)
-To: tom_gall@vnet.ibm.com
+	id <S265464AbRF1A6p>; Wed, 27 Jun 2001 20:58:45 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44303 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265462AbRF1A6c>; Wed, 27 Jun 2001 20:58:32 -0400
+Date: Wed, 27 Jun 2001 20:25:22 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: tcm@nac.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI 
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: Re: Freezing bug in all kernels greater than 2.4.5-ac13 *AND*
+ 2.4.6-pre2
+In-Reply-To: <Pine.LNX.4.21.0106272010580.1836-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0106272023430.1836-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tom Gall writes:
- >   Part one is the following changes to include/linux/pci.h
 
-You've mixed in here changes which already exist in
-include/linux/pci.h, namely the PCIIOC_* ioctl values.
-Please get your patches straight.
+On Wed, 27 Jun 2001, Marcelo Tosatti wrote:
 
- >   The first part changes number, primary, and secondary to unsigned ints from
- > chars. What we do is encode the PCI "domain" aka PCI Primary Host Bridge, aka
- > pci controller in with the bus number. In our case we do it like this: 
- > 
- > pci_controller=dev->bus->number>>8) &0xFF0000 
- > bus_number= dev->bus->number&0x0000FF),
- > 
- >   Is this reasonable for everyone?
+> 
+> 
+> On Wed, 27 Jun 2001 tcm@nac.net wrote:
+> 
+> > I decided, for the hell of it, to test the pre series as I've been
+> > nudged by many people to try it in favor of the ac kernel series that
+> > I've been having problems with. Well, it turns out I have ran into
+> > exactly the same problem I had with the ac kernel series, which quite
+> > frankly is surprising the hell out of me.
+> > 
+> > To make the kernel freeze/slow down to a crawl with affected kernels on
+> > my machine I do this test:
+> > 
+> > Load X (This fills up my ram and causes me to swap a bit)
+> > run a rxvt and su to root (proboably unnecessary)
+> > du /
+> > 
+> > Now, somewhere in this test I start swapping a little bit, nothing
+> > big... then BAM. hard disk, mouse, keyboard, all completely and utterly
+> > stop. Video continues to work, but my cpu's load goes absolutely INSANE.
+> > (If it recovers, gkrellm generally says I've gotten a loadavg somewhere
+> > between 3-20, depending on how long it was stuck) This can last for
+> > seconds (usually) minutes (once) or it can simply get worse and hang the
+> > machine (many, many many times)
+> > 
+> > When it recovers from this, I generally see a MASSIVE write to swap,
+> > (I'm using gkrellm to monitor it) and the system continues on as if
+> > nothing happened - until, of course, this happens again. A kernel
+> > compile can cause it. a rm -R of a large directory can cause it. Loading
+> > a large application can cause it.
+> > 
+> > On some kernels this is more noticable than others - ac15 does it the
+> > worst, although pre3 rivals it, and the symptoms are different on
+> > ac17/18 - it'll simply freeze randomly and with no recovery instead of
+> > sometimes freezing or sometimes slowing down to a crawl and recovering
+> > or freezing. (Which is worse? You decide.)
+> > 
+> > Now, as before, I tested this with swap and without swap. With swap, I
+> > get the hangs/freezes in all the affected kernels. Without swap, I
+> > don't. Nada.
+> > 
+> > Now, the big question of the day folks: What changed between 2.4.6-pre2
+> > and 2.4.6-pre3 that ALSO changed between 2.4.5-ac13 and 2.4.5-ac14 - and
+> > now, what part of those patches were the VM? Anyone? I don't see in
+> > 2.4.6-pre3 what changed that was part of the VM... So I am trying to
+> > narrow it down a bit :)
+> > 
+> > This bug is driving me slightly nuts, so I want it dead. Anyone got a
+> > exterminator handy? =)
+> 
+> Rik's page_launder() changes. 
 
-This is totally unreasonable.
+Eek. I mean Rik's page_launder() changes are _causing_ the problem. (its
+the only VM change between 2.4.6-pre2->pre3/2.4.5-ac13->ac14)
 
-Bus numbers are dictacted by the PCI standard, they cannot exist
-larger than 8-bits, so they are char.  This is the end of the story.
+Question:
 
-What you want are PCI domains.
-
- >   The following 3 functions are added. Their purpose is a little different than
- > to add support for more than 256 buses but they are important. Skip ahead and
- > I'll explain what they are for....
- > 
- > int (*pci_read_bases)(struct pci_dev *, int cnt,int rom);  /* These optional
- > hooks provide */
- > int (*pci_read_irq)(struct pci_dev *);                     /* the arch dependant
- > code a way*/
- > int (*pci_fixup_registers)(struct pci_dev *);              /* to manage the
- > registers.     */
-
-This seems totally unnecessary to me.  Also your mailreader has
-fux0red the patch with linebreaks making most of this unreadable.
-
- >   The 3 additional functions are hooks so that an architecture has a chance to
- > make sure things are in order beforehand. pci_read_bases is for the management
- > and fixup of the BARs. pci_read_irq is the same but for IRQs.
- > pci_fixup_registers again same idea but for bridge resources.
-
-We have an entire infrastructure for this already.  And if it isn't
-sufficient either fix it or control the whole PCI bus probe from arch
-specific layers, see arch/sparc64/kernel/pci_common.c for an example.
-
- > So as Joel from MST3K used to say, "What do you think sirs?"
-
-It's crap.
-
-If the problem is to be fixed, it should be fixed correctly.
-
-First lets look at your bus number expansion.  How do your patches
-handle the user interface aspects of this?  The bus number nodes
-of /proc/bus/pci/${BUS} are 2 digit hex values.  They are still
-2-digit hex values after your patch, so bus numbers >255 simply won't
-work with your changes.
-
-This is only the beginning of the list of problems your changes do not
-address.
-
-Fact is, we need PCI, actually "system", domains.  Any other attempt
-is an outright kludge.  And such outright kludges can be totally
-hidden in arch specific code _today_.
-
-It is startling to me that the ppc64 folks looked at this problem and
-saw fit to make it some new issue.  It's old as day, and it is solved
-for all reasonable cases already by sparc64, alpha, etc.  As long as
-you have < 256 _PHYSICAL_ busses allocated on the machine, you can
-hide the controller issue by using unique PCI bus numbers throughout
-the system.
-
-Sure, this does not handle >=256 busses, but when you hit that point
-you must fix it correctly.  And this requires a system bus
-abstraction, not some hokey extending of the PCI bus number space.
-
-All of your changes do not provide any new functionality.  Several
-other architectures deal with whatever issues your new hooks solve.
-They do this all by themselves and without changes to generic code.
-Why can't ppc64 do the same?
-
-Later,
-David S. Miller
-davem@redhat.com
+Whats the size of the inactive dirty and clean lists when you're about to
+crash.
 

@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbUKWHaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbUKWHjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUKWHaG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 02:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbUKWHaG
+	id S262282AbUKWHjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 02:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbUKWHjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 02:30:06 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39386 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262244AbUKWH35 (ORCPT
+	Tue, 23 Nov 2004 02:39:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262282AbUKWHjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 02:29:57 -0500
-Date: Mon, 22 Nov 2004 23:29:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
-Message-ID: <20041123072944.GA22786@kroah.com>
-References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com>
+	Tue, 23 Nov 2004 02:39:09 -0500
+Date: Mon, 22 Nov 2004 23:38:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-bk7, back to an irq 12 "nobody cared!"
+Message-Id: <20041122233852.43f93aa9.akpm@osdl.org>
+In-Reply-To: <200411230014.15354.gene.heskett@verizon.net>
+References: <200411230014.15354.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52hdnh83jy.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 10:47:29PM -0800, Roland Dreier wrote:
->     Greg> Yeah, but a name in each file is much nicer.
+Gene Heskett <gene.heskett@verizon.net> wrote:
+>
+> Just built bk7 after running the bk4-kjt1 version for a cpouple of 
+>  days, and noticed this in /var/log/dmesg:
 > 
-> Very little of the kernel seems to follow this rule right now.
-
-I agree, but it's good to add this for new files.
-
->     Greg> One comment, the file drivers/infiniband/core/cache.c has a
->     Greg> license that is illegal due to the contents of the file.
->     Greg> Please change the license of the file to GPL only.
+>  >From grub.conf to dmesg:
+>  Kernel command line: ro root=/dev/hda7 acpi_skip_timer_override
 > 
-> ?? Can you explain this?  What makes that file special?
+>  Then, quite a ways down in that logfile:
 
-You are using a specific data structure that is only licensed to be used
-in GPL code.  By using it in code that has a non-GPL license (like the
-dual license you have) you are violating the license of that code, and
-open yourself up to lawsuits by the holder of that code.
-
-There, can I be vague enough?  :)
-
-To be straightforward, either drop the RCU code completely, or change
-the license of your code.  
-
-Hm, because of the fact that you are linking in GPL only code into this
-code (because of the .h files you are using) how could you ever expect
-to use a BSD-like license for this collected work?
-
-Aren't licenses fun...
-
-thanks,
-
-greg k-h
-
+Please post the full dmesg output.

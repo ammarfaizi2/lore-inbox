@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313032AbSC0PYa>; Wed, 27 Mar 2002 10:24:30 -0500
+	id <S313033AbSC0P3A>; Wed, 27 Mar 2002 10:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313036AbSC0PYU>; Wed, 27 Mar 2002 10:24:20 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53409 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S313033AbSC0PYL>; Wed, 27 Mar 2002 10:24:11 -0500
-Date: Wed, 27 Mar 2002 16:24:02 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-In-Reply-To: <Pine.LNX.4.44.0203271631400.5751-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.GSO.3.96.1020327161054.8602D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S313035AbSC0P2v>; Wed, 27 Mar 2002 10:28:51 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:55680 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S313033AbSC0P2k>; Wed, 27 Mar 2002 10:28:40 -0500
+Message-Id: <200203271528.g2RFSZM10812@fubini.pci.uni-heidelberg.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Bernd Schubert <bernd-schubert@web.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: time jumps
+Date: Wed, 27 Mar 2002 16:28:35 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Zwane Mwaikambo wrote:
+Hi,
 
-> > >  #define FIRST_DEVICE_VECTOR	0x31
-> > > +#define THERMAL_APIC_VECTOR	0x32	/* Thermal monitor local vector */
-> > >  #define FIRST_SYSTEM_VECTOR	0xef
-> > 
-> >  You certainly want to select a different vector.
-> 
-> Whats wrong with that vector? I tried to follow the guidelines as 
-> specified in hw_irq.h and opted to go for the lower priority ones, or 
-> is the vector not serviceable due to its range?
+we have a computer here, that behaves very strange, from one second to 
+another the clock changes to about 1h in the future. In the next "real" 
+second the time is normal again. 
+Well, I first thought that is might be a X problem, but after running a loop 
+over "date", it really seems that the system clock is affected.  Then I 
+thought it might be a conflict with the hardware clock, but after resetting 
+it to the system time, the problem was still there.
 
- You can't use a vector that is in the range assigned to I/O APIC
-interrupts (i.e.  0x31 - 0xee).  Otherwise you'll get an overlap when the
-vector gets assigned to an ordinary IRQ line.  Also you probably want a
-high-priority interrupt as the condition is serious, if not critical --
-system failures, such as bus exceptions, machine check faults, parity
-errors, power failures, etc. demand a high priority service. 
+The only clock that doesn't seem to be affected is the realtime clock (at 
+least not when doing a loop of cat over the proc-file).
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+The problem is, that this time jumps cause the Xserver to enable its 
+screensaver (and several other small problems).
 
+System  is: Athlon 650 on VIA board with linux-2.4.17 (unpatched)
+
+
+So has anyone an idea what to do, I'm thinking about a BIOS update (but don't 
+really believe that it will help). Or is it possible to patch the kernel that 
+it uses the realtime clock (could anyone of you send me this patch, if it is 
+possible, please??).
+
+
+Of course, I can give further information, if needed.
+
+Thanks in advance, Bernd

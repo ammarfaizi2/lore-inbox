@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282945AbSACIZK>; Thu, 3 Jan 2002 03:25:10 -0500
+	id <S283244AbSACI2K>; Thu, 3 Jan 2002 03:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283006AbSACIZA>; Thu, 3 Jan 2002 03:25:00 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:23564 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282945AbSACIYr>;
-	Thu, 3 Jan 2002 03:24:47 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: "H . J . Lu" <hjl@lucon.org>, Momchil Velikov <velco@fadata.bg>,
-        Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org
-Subject: Re: Extern variables in *.c files 
-In-Reply-To: Your message of "Wed, 02 Jan 2002 23:56:25 -0800."
-             <3C340EA9.FE084B4C@zip.com.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Jan 2002 19:24:33 +1100
-Message-ID: <16007.1010046273@ocs3.intra.ocs.com.au>
+	id <S283268AbSACI2B>; Thu, 3 Jan 2002 03:28:01 -0500
+Received: from smtp02.web.de ([217.72.192.151]:26380 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S283244AbSACI1n>;
+	Thu, 3 Jan 2002 03:27:43 -0500
+Message-ID: <3C3423CE.3090405@web.de>
+Date: Thu, 03 Jan 2002 09:26:38 +0000
+From: Todor Todorov <ttodorov@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Want to learn
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Jan 2002 23:56:25 -0800, 
-Andrew Morton <akpm@zip.com.au> wrote:
->Yup.  Problem is, we have about 1500 instances in the kernel :(
+Hi there,
 
-You can ignore the ~250 entries in *syms.c files.  EXPORT_SYMBOL only
-needs to know if a symbol is a function or anything else, it does not
-care about types at all.  You can define variables and functions with
-invalid types in *syms.c without doing any damage.
+probably an often asked question and you are most probably tired of it, 
+but...
+
+I want to learn how the kernel works and how things build on top of one 
+another. And here I am looking at the source tree and not knowing where 
+to start. The 'Documentation' folder would probably be a good bet but 
+after that? I suupose, I could go see what is in the 'drivers' directory 
+but I don't think taht I would understand much of it if I don't know how 
+the things below work. So where should I start reading the source? 
+Somewhere in the 'kernel' dir? Or in 'include'? or in 'asm'???
+
+I would appreciate any useful advice, thanks in advance
+
+Todor
 

@@ -1,46 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSFEHvf>; Wed, 5 Jun 2002 03:51:35 -0400
+	id <S313421AbSFEHxS>; Wed, 5 Jun 2002 03:53:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313421AbSFEHve>; Wed, 5 Jun 2002 03:51:34 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:24327 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313419AbSFEHve>; Wed, 5 Jun 2002 03:51:34 -0400
-Message-ID: <3CFDC3F7.30C42775@zip.com.au>
-Date: Wed, 05 Jun 2002 00:55:35 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kwijibo@zianet.com
-CC: Klaus Dittrich <kladit@t-online.de>, linux-kernel@vger.kernel.org
+	id <S313508AbSFEHxR>; Wed, 5 Jun 2002 03:53:17 -0400
+Received: from pD9E2C621.dip.t-dialin.net ([217.226.198.33]:39175 "EHLO
+	mail3.krieb.de") by vger.kernel.org with ESMTP id <S313421AbSFEHxQ>;
+	Wed, 5 Jun 2002 03:53:16 -0400
+Date: Wed, 5 Jun 2002 09:53:13 +0200
+From: Jochen Krieb <lkml@bender.krieb.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: xosview
-In-Reply-To: <200206050607.g556721s005527@df1tlpc.local.here> <3CFDC063.3090800@zianet.com>
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20020605095313.1929fd43.lkml@bender.krieb.de>
+In-Reply-To: <200206050607.g556721s005527@df1tlpc.local.here>
+X-Mailer: Sylpheed version 0.7.2claws (GTK+ 1.2.10; i686-suse-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kwijibo@zianet.com wrote:
-> 
-> I believe it is xosview that needs to change and not
-> the kernel.  Mine worked with pre8 however, my move
-> to pre10 broke it.
-> 
+Works fine here.
 
-It's the gunk in /proc/stat which broke it.  Some
-accidentally-included debug stuff.
+(2.4.18 & 2.4.19-pre10)
 
---- linux-2.4.19-pre9/fs/proc/proc_misc.c	Tue May 28 17:23:37 2002
-+++ linux-mnm/fs/proc/proc_misc.c	Tue Jun  4 23:25:12 2002
-@@ -322,7 +322,7 @@ static int kstat_read_proc(char *page, c
- #if !defined(CONFIG_ARCH_S390)
- 	for (i = 0 ; i < NR_IRQS ; i++)
- 		proc_sprintf(page, &off, &len,
--			     " %u", kstat_irqs(i) + 1000000000);
-+			     " %u", kstat_irqs(i));
- #endif
- 
- 	proc_sprintf(page, &off, &len, "\ndisk_io: ");
+On Wed, 5 Jun 2002 08:07:02 +0200
+kladit@t-online.de (Klaus Dittrich) wrote:
 
--
+> Since 2.4.18p8 xosview does not work anymore.

@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265713AbSKKJVN>; Mon, 11 Nov 2002 04:21:13 -0500
+	id <S265982AbSKKJZa>; Mon, 11 Nov 2002 04:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265982AbSKKJVM>; Mon, 11 Nov 2002 04:21:12 -0500
-Received: from babsi.intermeta.de ([212.34.181.3]:3596 "EHLO mail.intermeta.de")
-	by vger.kernel.org with ESMTP id <S265713AbSKKJVL>;
-	Mon, 11 Nov 2002 04:21:11 -0500
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-From: Henning Schmiedehausen <hps@intermeta.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Nov 2002 10:27:53 +0100
-Message-Id: <1037006873.2011.12.camel@forge>
-Mime-Version: 1.0
+	id <S265983AbSKKJZ3>; Mon, 11 Nov 2002 04:25:29 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:10650 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S265982AbSKKJZ2>;
+	Mon, 11 Nov 2002 04:25:28 -0500
+Date: Mon, 11 Nov 2002 10:31:23 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
+In-Reply-To: <1036939080.1005.10.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2002-11-11 at 04:05, Randy.Dunlap wrote:
-> On Sun, 10 Nov 2002, Henning P. Schmiedehausen wrote:
+On 10 Nov 2002, Alan Cox wrote:
+> On Sun, 2002-11-10 at 10:27, Geert Uytterhoeven wrote:
+> ut soft reset.
+> >   */
+> > -int esp_reset(Scsi_Cmnd *SCptr, unsigned int how)
+> > +int esp_reset(Scsi_Cmnd *SCptr)
+> >  {
+> >  	struct NCR_ESP *esp = (struct NCR_ESP *) SCptr->host->hostdata;
+> >  
+> >  	(void) esp_do_resetbus(esp, esp->eregs);
+> > -	return SCSI_RESET_PENDING;
+> > +	wait_event(esp->reset_queue, (esp->resetting_bus == 0));
+> > +
+> > +	return SUCCESS;
+> >  }
 > 
-> | "Randy.Dunlap" <rddunlap@osdl.org> writes:
-> |
-> | >+		digit = *str;
-> | >+		if (is_sign && digit == '-')
-> | >+			digit = *(str + 1);
-> |
-> | If signed is not allowed and you get a "-", you're in an error case
-> | again...
-> 
-> Yes, and a 0 value is returned.
-> IOW, asking for an unsigned number (in the format string)
-> and getting "-123" does return 0.
-> 
-> What should it do?
+> Reset is called with the lock held surely. How can the wait_event be
+> right ? 
 
-I would model this after user space. (Which does strange things:
+I don't know. I just ported the Sun/SPARC ESP SCSI driver changes in 2.5.45 to
+the NCR53C9x ESP SCSI drivers. If you're right, the same bug is present in
+esp.c.
 
---- cut ---
-#include <stdio.h>
+Dave?
 
-main()
-{
-  char *scan = "-100";
-  unsigned int foo;
-  int bar;
+BTW, what about merging esp.c and NCR53C9x.c?
 
-  int res = sscanf(scan, "%ud", &foo);
+Gr{oetje,eeting}s,
 
-  printf("%s = %ud = %d\n", scan, foo, res);
+						Geert
 
-  res = sscanf(scan, "%ud", &bar);
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-  printf("%s = %d = %d\n", scan, bar, res);
-
-}
---- cut ---
-
-% gcc -o xxx xxx.c
-./xxx 
--100 = 4294967196d = 1
--100 = -100 = 1
-
-Hm, so I guess, yes, a warning message would be nice IMHO. Returning an
-error code would IMHO moot, because noone is checking these codes
-anyway.
-
-	Regards
-		Henning
-
-
-
-> This function can't return -EINPUTERROR or -EILSEQ.
-> (since it's after feature-freeze :)
-> And the original problem was that a leading '-' sign on a
-> signed number (!) caused a return of 0.  At least that is fixed.
-> 
-> So now the problem (?) is that a '-' sign on an unsigned number
-> returns 0.  We can always add a big printk() there that
-> something is foul.  Other ideas?
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

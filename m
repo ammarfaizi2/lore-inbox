@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVCWSlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVCWSnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVCWSlj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 13:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVCWSli
+	id S261595AbVCWSnF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 13:43:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCWSnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 13:41:38 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:40885 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261824AbVCWSlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 13:41:36 -0500
-Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
-From: Len Brown <len.brown@intel.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Shaohua Li <shaohua.li@intel.com>, Grzegorz Kulewski <kangur@polcom.net>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110.65.74.231.82.1111550240.squirrel@mail.cce.hp.com>
-References: <41062.15.99.19.46.1111525073.squirrel@mail.atl.hp.com>
-	 <1111539249.18927.17.camel@sli10-desk.sh.intel.com>
-	 <1110.65.74.231.82.1111550240.squirrel@mail.cce.hp.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1111603235.17317.883.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Mar 2005 13:40:35 -0500
+	Wed, 23 Mar 2005 13:43:05 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:50191 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261595AbVCWSms (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 13:42:48 -0500
+Message-ID: <4241B8C8.2020805@tuleriit.ee>
+Date: Wed, 23 Mar 2005 20:43:20 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn,
+ > Lee Revell <rlrevell@xxxxxxxxxxx> wrote:
+ > >
+ > > On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:
+ > > > From: bugme-daemon@xxxxxxxx
+ > > > Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel 
+panic when
+ > > > loading the EMU10K1 driver
+ > > >
+ > > >
+ > > This one is a real mystery. No one can reproduce it.
 
-I like how pci_fixup_device() invokes the quirk
-when we want at pci_enable_device() time w/o cluttering
-the code with VIA specific hooks.
+ > Not quite true. This bug was current till today in Mandrake's kernel,
+ > but with 2.6.11-5mdk they managed to get rid of it.
+ > The problem is not with loading the driver but when alsactl tries to 
+store/restore
+ > mixer settings.
 
-I think you've also identified an improvement by
-checking acpi_irq_model -- as the PCI config space
-IRQ register is defined only in PIC-mode -- so one
-must assume that the quirky via HW can't depend on
-us writing reserved bits for IRQs > 15.
+ > I have tried again with 2.6.12-rc1-mm1 and it is still there (for 
+example the
+ > Gnome won't start due to this).
+ > Below the oops part from messages.
 
-But checking skip_ioapic_setup in the non-ACPI case
-isn't quite right.  This is set for "noapic".  But
-it is not set in the PIC-mode case where the kernel
-supports IOAPIC but the hardware does not -- in that
-case the quirk would erroneously exit.
+uhh...sorry about that noise. I misread your e-mail.
 
-Also, the original quirk_via_irqpic()
-had a udelay(15) before the write -- I have no idea
-if that was significant or not -- maybe soembody else
-on the list does -- as none of us have VIA documentation...
 
-thanks,
--Len
+ > >/ From: bugme-daemon@xxxxxxxx/
+ > >/ Subject: [Bugme-new] [Bug 4348] New: snd_emu10k1 oops'es with 
+Audigy 2 and/
+ > >/ /
+ >
+ > This one is fixed in ALSA CVS. Here is the patch.
 
-ps. we need to fix this on 2.4 also.
 
+I had this problem indeed and of course this patch fixed 2.6.12-rc1-mm1 
+for me.
+
+Thank you and sorry again,
+Indrek
 

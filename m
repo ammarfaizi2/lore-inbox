@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264168AbUEDQvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUEDQun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264168AbUEDQvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 12:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbUEDQvl
+	id S264045AbUEDQun (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 12:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264168AbUEDQun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 12:51:41 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:43687 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S264168AbUEDQvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 12:51:03 -0400
-Date: Tue, 4 May 2004 18:50:22 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: john stultz <johnstul@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, george@mvista.com,
-       kaukasoi@elektroni.ee.tut.fi, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-In-Reply-To: <1083682764.4324.33.camel@leatherman>
-Message-ID: <Pine.LNX.4.53.0405041837210.7101@gockel.physik3.uni-rostock.de>
-References: <403D0F63.3050101@mvista.com>  <1077760348.2857.129.camel@cog.beaverton.ibm.com>
-  <403E7BEE.9040203@mvista.com>  <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-  <403E8D5B.9040707@mvista.com>  <1081895880.4705.57.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de> 
- <1081967295.4705.96.camel@cog.beaverton.ibm.com>  <20040415103711.GA320@elektroni.ee.tut.fi>
-  <Pine.LNX.4.53.0404151302140.28278@gockel.physik3.uni-rostock.de> 
- <20040415161436.GA21613@elektroni.ee.tut.fi> 
- <Pine.LNX.4.53.0405011540390.25435@gockel.physik3.uni-rostock.de> 
- <20040501184105.2cd1c784.akpm@osdl.org>  <Pine.LNX.4.53.0405020352480.26994@gockel.physik3.uni-rostock.de>
-  <1083638458.9664.134.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.53.0405040804180.2215@gockel.physik3.uni-rostock.de>
- <1083682764.4324.33.camel@leatherman>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 May 2004 12:50:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45767 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264045AbUEDQuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 12:50:40 -0400
+Date: Tue, 4 May 2004 18:47:15 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: davidm@hpl.hp.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       bunk@fs.tum.de, eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
+Message-ID: <20040504164715.GA1077@devserv.devel.redhat.com>
+References: <20040501161035.67205a1f.akpm@osdl.org> <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org> <20040501175134.243b389c.akpm@osdl.org> <16534.35355.671554.321611@napali.hpl.hp.com> <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org> <16534.45589.62353.878714@napali.hpl.hp.com> <1083618424.3843.12.camel@laptop.fenrus.com> <16534.51724.578183.845357@napali.hpl.hp.com> <20040504075555.GB13287@devserv.devel.redhat.com> <16535.51307.910896.950581@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Content-Disposition: inline
+In-Reply-To: <16535.51307.910896.950581@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, john stultz wrote:
 
-> On Mon, 2004-05-03 at 23:12, Tim Schmielau wrote:
-> > 
-> > I wonder whether it's conceptually correct to use jiffies for accurate 
-> > long-time measurements at all. ntpd is there for a reason. Using both
-> > corrected, accurate and freely running clocks IMHO is calling for trouble. 
-> > This might be something to think about for 2.7.
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, May 04, 2004 at 09:44:27AM -0700, David Mosberger wrote:
 > 
-> Indeed. Moving away from jiffies as a time counter and more of an
-> interrupt counter is important. That allows for implementations of
-> variable HZ and other things the high-res timer folks want without
-> affecting the time keeping code. 
-> 
-> Roughly, I'd like to see the time code for all arches in 2.7 to look
-> like:
+> You may well be right (it's hard to tell what they're using mlock()
+> for since its called from the binary-only portion of the driver).
+> However, as long as x86 supports the _syscallN() macros, they won't
+> change.
 
-[simple, well thought-out proposal snipped]
+I got the impression that just changed ;)
 
-> time_interrupt_hook(): 
->         updates system_time.
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> Of course, with this approach, we actually have to be able to trust the
-> hardware 100%. With the current state of i386 hw having serious problems
-> w/ reliable timesources, this may be difficult. 
+iD8DBQFAl8kSxULwo51rQBIRAnZMAJ453R5byWiXRj5nnshLSV0qFsnG/QCeMx8k
+DmPojXef8y/5JhHldkag+GI=
+=7qDO
+-----END PGP SIGNATURE-----
 
-Well, with some configurable plausibility checks in time_interrupt_hook()
-it shouldn't be worse than what we have now...
-
-> I've got a bigger proposal (with proper credits to Keith Mannthey and
-> George Anzinger for reviews and corrections) that I wrote up awhile
-> back, and I'll likely send it out if this sketch gathers any interest.  
-
-Yes, that sounds interesting. It's just that I won't have any spare time 
-to spend in the next two weeks.
-
-Tim
+--yrj/dFKFPuw6o+aM--

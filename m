@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262627AbTCSWDI>; Wed, 19 Mar 2003 17:03:08 -0500
+	id <S263170AbTCSWEL>; Wed, 19 Mar 2003 17:04:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262628AbTCSWDI>; Wed, 19 Mar 2003 17:03:08 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33802 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262627AbTCSWDH>;
-	Wed, 19 Mar 2003 17:03:07 -0500
-Date: Wed, 19 Mar 2003 14:01:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Andries.Brouwer@cwi.nl, akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dev_t [1/3]
-Message-ID: <20030319220151.GA16947@kroah.com>
-References: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
+	id <S263171AbTCSWEL>; Wed, 19 Mar 2003 17:04:11 -0500
+Received: from [194.30.73.207] ([194.30.73.207]:33002 "EHLO
+	intranet.matz-erreka.es") by vger.kernel.org with ESMTP
+	id <S263170AbTCSWEJ> convert rfc822-to-8bit; Wed, 19 Mar 2003 17:04:09 -0500
+Message-ID: <D178EF726900D411A26200508BA2215B28B46E@intranet.matz-erreka.es>
+From: "[INTRANET] Panda Antivirus for Exchange Server" 
+	<PandaAntivirusforExchangeServer@matz-erreka.es>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Incidencia del filtro
+Date: Wed, 19 Mar 2003 23:22:31 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 10:45:14PM +0100, Andries.Brouwer@cwi.nl wrote:
-> Now that 2.5.65 is out, the next dev_t patch.
-> It was a bit large and unreadable, so I split it into
-> three clean pieces. Afterwards, since many people ask
-> for this, a fourth patch that actually changes the
-> type of dev_t (not to be applied yet, that is just for
-> playing).
 
-I've been beating on these three patches and don't seem to have any
-problems.  And I see Andrew has put them in his -mm tree too.
+Panda Antivirus ha realizado las siguientes acciones en el mensaje filtrado:
+	Server :	INTRANET
 
-Andrew, I don't see any problem with sending them on to Linus if you
-want to (just the 3, not the 4th one :)
+	Enviado por :	
+	Dirección :	linux-kernel@vger.kernel.org
+	Para :	comaut@matz-erreka.es
+	Asunto :	A  excite game
+	Fecha :	20/03/2003  00:22
+Enviado por Usted
 
-thanks,
+¡¡ ALERTA !! VIRUS DETECTADO (REM)
 
-greg k-h
+Fichero :  install.exe - Fichero borrado
+
+http://www.pandasoftware.es
+

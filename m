@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbTIPCnh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 22:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbTIPCng
+	id S261761AbTIPCpE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 22:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTIPCpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 22:43:36 -0400
-Received: from adsl-65-64-125-126.dsl.kscymo.swbell.net ([65.64.125.126]:16256
-	"EHLO hofmann1.gchofmann.org") by vger.kernel.org with ESMTP
-	id S261654AbTIPCng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 22:43:36 -0400
-Subject: hdc: sata_error = 0x00000000, watchdog = 0,
-	siimage_mmio_ide_dma_test_irq
-From: "Glenn C. Hofmann" <hofmanng@swbell.net>
-Reply-To: hofmanng@swbell.net
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1063678727.1631.5.camel@hofmann1.gchofmann.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 15 Sep 2003 21:18:47 -0500
+	Mon, 15 Sep 2003 22:45:04 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:32439 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP id S261761AbTIPCpA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 22:45:00 -0400
+Message-ID: <3F66792B.8090805@genebrew.com>
+Date: Mon, 15 Sep 2003 22:44:59 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030908 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kevin Breit <mrproper@ximian.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need fixing of a rebooting system
+References: <1063496544.3164.2.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>	 <3F6450D7.7020906@ximian.com>	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>	 <1063561687.10874.0.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>	 <3F64FEAF.1070601@ximian.com>	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>	 <1063650478.1516.0.camel@localhost.localdomain> <1063653132.224.32.camel@clubneon.priv.hereintown.net> <3F66249A.3020308@ximian.com>
+In-Reply-To: <3F66249A.3020308@ximian.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at pop018.verizon.net from [141.152.250.151] at Mon, 15 Sep 2003 21:44:59 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On booting 2.6.0-test5 I receive this message repeated continuously:
+Kevin Breit wrote:
 
+> * Machine Check Exception
+> * /dev/cpu/microcode
+> * /dev/cpu/*/msr
+> * /dev/cpu/*/cpuid
+> * BIOS Enhanced Disk Drive calls determine boot disk
+> * Power Management support
+>   *Full ACPI Support (minus the ASUS Laptop Extras and Toshiba Laptop 
+> Extras)
 
-hdc: sata_error = 0x00000000, watchdog = 0,
-siimage_mmio_ide_dma_test_irq
+I would turn off all of these. None of them should be necessary. You cab 
+turn ACPI back on afterwards to see if it works again.
 
-On reading the archives, I would just like to verify that this message
-is no more than an annoyance, as it appears from the one thread (
-http://lists.insecure.org/lists/linux-kernel/2003/Jun/0241.html )  I
-found regarding this error.  Can somebody please advise?  Thanks in
-advance.
-
-Chris
+-Rahul
+--
+Rahul Karnik
+rahul@genebrew.com
+http://www.genebrew.com/
 

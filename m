@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUKCWFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUKCVwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUKCWFX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 17:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbUKCWEu
+	id S261913AbUKCVwd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 16:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUKCVuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 17:04:50 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:20702 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261897AbUKCV5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 16:57:17 -0500
-Message-Id: <200411032157.iA3LvA4i019705@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers 
-In-Reply-To: Your message of "Wed, 03 Nov 2004 22:37:10 +0100."
-             <41894F86.7070405@debian.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <41894779.10706@techsource.com> <20041103211714.GP12275@mea-ext.zmailer.org>
-            <41894F86.7070405@debian.org>
+	Wed, 3 Nov 2004 16:50:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:39042 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261913AbUKCVqU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 16:46:20 -0500
+Date: Wed, 3 Nov 2004 13:41:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] small sysfs cleanups
+Message-ID: <20041103214125.GA30482@kroah.com>
+References: <20041030180939.GU4374@stusta.de> <20041031230619.GA14048@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1303417750P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 03 Nov 2004 16:57:10 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031230619.GA14048@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1303417750P
-Content-Type: text/plain; charset=us-ascii
+On Sun, Oct 31, 2004 at 05:06:20PM -0600, Maneesh Soni wrote:
+> On Sat, Oct 30, 2004 at 08:09:39PM +0200, Adrian Bunk wrote:
+> > The patch below does the following cleanups for the sysfs code:
+> > - remove the unused global function sysfs_mknod
+> 
+> It is not used as of now, but I am not sure if there are potential
+> users been thought earlier.
+> 
+> > - make some structs and functions static
+> 
+> Looks good to me.
 
-On Wed, 03 Nov 2004 22:37:10 +0100, "Giacomo A. Catenazzi" said:
+Applied, thanks.
 
-> But is it Linux the biggest compiler bug finder?
-> So forcing a newer compiler in other architectures should
-> improve also the quality of code generation.
-
-However, the problem is that I probably want to compile a working
-kernel *now*, not when the GCC people finally get around to fixing
-the b0rkedness they added for my architecture in gcc 3.2.3.  So I
-get to keep 3.2.2 around until it's fixed.  (Feel free to replace
-3.2.3 with whatever arch-dependent value you like).
-
-
---==_Exmh_-1303417750P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBiVQ1cC3lWbTT17ARArIUAJsHTfOziwNjRzHE+dj15AF3Q1HCmgCgglQ4
-DcaDq+omq/TGgqaS+U5GcGI=
-=gbtl
------END PGP SIGNATURE-----
-
---==_Exmh_-1303417750P--
+greg k-h

@@ -1,3244 +1,2097 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262291AbSI1Reu>; Sat, 28 Sep 2002 13:34:50 -0400
+	id <S262286AbSI1R2f>; Sat, 28 Sep 2002 13:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262292AbSI1Reu>; Sat, 28 Sep 2002 13:34:50 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53245 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262291AbSI1Rdw>;
-	Sat, 28 Sep 2002 13:33:52 -0400
-Message-ID: <3D95E903.8C07FAA9@mvista.com>
-Date: Sat, 28 Sep 2002 10:38:11 -0700
+	id <S262289AbSI1R2f>; Sat, 28 Sep 2002 13:28:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41981 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262286AbSI1R1Z>;
+	Sat, 28 Sep 2002 13:27:25 -0400
+Message-ID: <3D95E763.530294ED@mvista.com>
+Date: Sat, 28 Sep 2002 10:31:15 -0700
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "george@mvista.com" <george@mvista.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/6] High-res-timers part 5 (support-tests) take 2
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "george@mvista.com" <george@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH 3/6] High-res-timers part 3 (POSIX clocks & timers) take 2
 Content-Type: multipart/mixed;
- boundary="------------84054938436025A17CEA6583"
+ boundary="------------EA32CA97B27D4C52A15BDD83"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This is a multi-part message in MIME format.
---------------84054938436025A17CEA6583
+--------------EA32CA97B27D4C52A15BDD83
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-The test code.
+Due to mailing problems this was missing from take 1.
+
+This, the third part of the high-res-timers code, implements
+the POSIX clocks and timers functions.  This code takes
+advantage of the prior two parts to allow timers with high
+resolution.  Clocks are defined to allow either 1/HZ
+resolution or 1 micro second resolution.  The
+CLOCK_MONOTONIC is also defined with both resolutions.
+
+Most of this code is located in kernel/itime.c with support
+bits in several parts of the kernel.  This implementation
+defines a timer as a system wide resource with system wide
+limits on the number of allocated timers.  This number can
+be set at configure time and is defaulted to 3000.  There
+are NO other limits on how many timers a process can have.
 -- 
 George Anzinger   george@mvista.com
---------------84054938436025A17CEA6583
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------EA32CA97B27D4C52A15BDD83
 Content-Type: text/plain; charset=us-ascii;
- name="hrtimers-tests-2.5.34-1.0.patch"
+ name="hrtimers-posix-2.5.39-1.0.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="hrtimers-tests-2.5.34-1.0.patch"
+ filename="hrtimers-posix-2.5.39-1.0.patch"
 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/2timer_test.c linux/Documentation/high-res-timers/tests/2timer_test.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/2timer_test.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/2timer_test.c	Fri Sep 27 10:58:03 2002
-@@ -0,0 +1,259 @@
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.39-x86/arch/i386/kernel/entry.S	Thu Sep 26 11:23:49 2002
++++ linux/arch/i386/kernel/entry.S	Fri Sep 27 17:55:14 2002
+@@ -736,6 +736,15 @@
+ 	.long sys_alloc_hugepages /* 250 */
+ 	.long sys_free_hugepages
+ 	.long sys_exit_group
++	.long sys_timer_create
++	.long sys_timer_settime
++	.long sys_timer_gettime	  /* 255 */
++	.long sys_timer_getoverrun
++	.long sys_timer_delete
++	.long sys_clock_settime
++	.long sys_clock_gettime
++	.long sys_clock_getres	  /* 260 */
++	.long sys_clock_nanosleep
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
+--- linux-2.5.39-x86/arch/i386/kernel/time.c	Fri Sep 27 17:29:59 2002
++++ linux/arch/i386/kernel/time.c	Fri Sep 27 17:55:14 2002
+@@ -322,6 +322,7 @@
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+ 	write_unlock_irq(&xtime_lock);
++	clock_was_set();
+ }
+ 
+ /*
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/fs/exec.c linux/fs/exec.c
+--- linux-2.5.39-x86/fs/exec.c	Fri Sep 27 17:05:14 2002
++++ linux/fs/exec.c	Fri Sep 27 17:55:14 2002
+@@ -748,6 +748,7 @@
+ 			
+ 	flush_signal_handlers(current);
+ 	flush_old_files(current->files);
++	exit_itimers(current);
+ 
+ 	return 0;
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/asm-generic/siginfo.h linux/include/asm-generic/siginfo.h
+--- linux-2.5.39-x86/include/asm-generic/siginfo.h	Mon Sep  9 10:35:06 2002
++++ linux/include/asm-generic/siginfo.h	Fri Sep 27 17:55:14 2002
+@@ -31,8 +31,9 @@
+ 
+ 		/* POSIX.1b timers */
+ 		struct {
+-			unsigned int _timer1;
+-			unsigned int _timer2;
++			timer_t _tid;		/* timer id */
++			int _overrun;		/* overrun count */
++			sigval_t _sigval;	/* same as below */
+ 		} _timer;
+ 
+ 		/* POSIX.1b signals */
+@@ -71,8 +72,8 @@
+  */
+ #define si_pid		_sifields._kill._pid
+ #define si_uid		_sifields._kill._uid
+-#define si_timer1	_sifields._timer._timer1
+-#define si_timer2	_sifields._timer._timer2
++#define si_tid		_sifields._timer._tid
++#define si_overrun	_sifields._timer._overrun
+ #define si_status	_sifields._sigchld._status
+ #define si_utime	_sifields._sigchld._utime
+ #define si_stime	_sifields._sigchld._stime
+@@ -91,7 +92,7 @@
+ #define __SI_FAULT	(3 << 16)
+ #define __SI_CHLD	(4 << 16)
+ #define __SI_RT		(5 << 16)
+-#define __SI_CODE(T,N)	((T) << 16 | ((N) & 0xffff))
++#define __SI_CODE(T,N)	((T) | ((N) & 0xffff))
+ #else
+ #define __SI_KILL	0
+ #define __SI_TIMER	0
+@@ -203,6 +204,7 @@
+ #define SIGEV_SIGNAL	0	/* notify via signal */
+ #define SIGEV_NONE	1	/* other notification: meaningless */
+ #define SIGEV_THREAD	2	/* deliver via thread creation */
++#define SIGEV_THREAD_ID 4	/* deliver to thread */
+ 
+ #define SIGEV_MAX_SIZE	64
+ #ifndef SIGEV_PAD_SIZE
+@@ -217,6 +219,7 @@
+ 	int sigev_notify;
+ 	union {
+ 		int _pad[SIGEV_PAD_SIZE];
++		 int _tid;
+ 
+ 		struct {
+ 			void (*_function)(sigval_t);
+@@ -229,6 +232,7 @@
+ 
+ #define sigev_notify_function	_sigev_un._sigev_thread._function
+ #define sigev_notify_attributes	_sigev_un._sigev_thread._attribute
++#define sigev_notify_thread_id	 _sigev_un._tid
+ 
+ #ifdef __KERNEL__
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/asm-i386/posix_types.h linux/include/asm-i386/posix_types.h
+--- linux-2.5.39-x86/include/asm-i386/posix_types.h	Mon Sep  9 10:35:18 2002
++++ linux/include/asm-i386/posix_types.h	Fri Sep 27 17:55:14 2002
+@@ -22,6 +22,8 @@
+ typedef long		__kernel_time_t;
+ typedef long		__kernel_suseconds_t;
+ typedef long		__kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int		__kernel_daddr_t;
+ typedef char *		__kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.5.39-x86/include/asm-i386/unistd.h	Wed Sep 18 17:04:06 2002
++++ linux/include/asm-i386/unistd.h	Fri Sep 27 17:55:14 2002
+@@ -257,6 +257,15 @@
+ #define __NR_alloc_hugepages	250
+ #define __NR_free_hugepages	251
+ #define __NR_exit_group		252
++#define __NR_timer_create	253
++#define __NR_timer_settime	(__NR_timer_create+1)
++#define __NR_timer_gettime	(__NR_timer_create+2)
++#define __NR_timer_getoverrun	(__NR_timer_create+3)
++#define __NR_timer_delete	(__NR_timer_create+4)
++#define __NR_clock_settime	 (__NR_timer_create+5)
++#define __NR_clock_gettime	 (__NR_timer_create+6)
++#define __NR_clock_getres	 (__NR_timer_create+7)
++#define __NR_clock_nanosleep	 (__NR_timer_create+8)
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/hrtime.h linux/include/linux/hrtime.h
+--- linux-2.5.39-x86/include/linux/hrtime.h	Fri Sep 27 17:29:13 2002
++++ linux/include/linux/hrtime.h	Fri Sep 27 17:55:14 2002
+@@ -10,6 +10,20 @@
+  * arch defines the CONFIG, it had better have the 
+  * asm/hrtime.h file in place.
+  */
++struct k_clock {
++	 int  res;		    /* in nano seconds */
++	 int ( *clock_set)(struct timespec *tp);
++	 int ( *clock_get)(struct timespec *tp);
++	 int ( *nsleep)(   int flags, 
++			   struct timespec*new_setting,
++			   struct itimerspec *old_setting);
++	 int ( *timer_set)(struct k_itimer *timr, int flags,
++			   struct itimerspec *new_setting,
++			   struct itimerspec *old_setting);
++	 int  ( *timer_del)(struct k_itimer *timr);
++	 void ( *timer_get)(struct k_itimer *timr,
++			   struct itimerspec *cur_setting);
++};
+ 
+ /*
+  * This gets filled in at init time, either static or dynamic.
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-2.5.39-x86/include/linux/init_task.h	Fri Sep 27 17:05:18 2002
++++ linux/include/linux/init_task.h	Fri Sep 27 17:55:14 2002
+@@ -94,6 +94,7 @@
+ 	.sig		= &init_signals,				\
+ 	.pending	= { NULL, &tsk.pending.head, {{0}}},		\
+ 	.blocked	= {{0}},					\
++	 .posix_timers	 = LIST_HEAD_INIT(tsk.posix_timers),		   \
+ 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.journal_info	= NULL,						\
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.39-x86/include/linux/sched.h	Fri Sep 27 17:05:18 2002
++++ linux/include/linux/sched.h	Fri Sep 27 17:55:14 2002
+@@ -282,6 +282,30 @@
+ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+ 
++/* POSIX.1b interval timer structure. */
++struct k_itimer {
++	 struct list_head list;		 /* free/ allocate list */
++	spinlock_t it_lock;
++	clockid_t it_clock;		/* which timer type */
++	timer_t it_id;			/* timer id */
++	int it_overrun;			/* overrun on pending signal  */
++	 int it_overrun_last;		 /* overrun on last delivered signal */
++	 int it_overrun_deferred;	 /* overrun on pending timer interrupt */
++	 int it_sigev_notify;		 /* notify word of sigevent struct */
++	 int it_sigev_signo;		 /* signo word of sigevent struct */
++	 sigval_t it_sigev_value;	 /* value word of sigevent struct */
++	unsigned long it_incr;		/* interval specified in jiffies */
++#ifdef CONFIG_HIGH_RES_TIMERS
++	 int it_sub_incr;		 /* sub jiffie part of interval */
++#endif
++	struct task_struct *it_process;	/* process to send signal to */
++	struct timer_list it_timer;
++};
++
++
++//extern struct itimer_struct *itimer_struct_new(void);
++extern void itimer_delete(struct k_itimer *timers);
++
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
+@@ -347,6 +371,7 @@
+ 	unsigned long it_real_value, it_prof_value, it_virt_value;
+ 	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+ 	struct timer_list real_timer;
++	struct list_head posix_timers; /* POSIX.1b Interval Timers */
+ 	unsigned long utime, stime, cutime, cstime;
+ 	unsigned long start_time;
+ 	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
+@@ -655,6 +680,7 @@
+ 
+ extern void exit_mm(struct task_struct *);
+ extern void exit_files(struct task_struct *);
++extern void exit_itimers(struct task_struct *);
+ extern void exit_sighand(struct task_struct *);
+ extern void __exit_sighand(struct task_struct *);
+ extern void remove_thread_group(struct task_struct *tsk, struct signal_struct *sig);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/sys.h linux/include/linux/sys.h
+--- linux-2.5.39-x86/include/linux/sys.h	Mon Sep  9 10:35:09 2002
++++ linux/include/linux/sys.h	Fri Sep 27 17:55:14 2002
+@@ -4,7 +4,7 @@
+ /*
+  * system call entry points ... but not all are defined
+  */
+-#define NR_syscalls 256
++#define NR_syscalls 275
+ 
+ /*
+  * These are system calls that will be removed at some time
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/time.h linux/include/linux/time.h
+--- linux-2.5.39-x86/include/linux/time.h	Fri Sep 27 17:21:28 2002
++++ linux/include/linux/time.h	Fri Sep 27 17:55:14 2002
+@@ -138,6 +138,7 @@
+ extern void do_gettimeofday(struct timeval *tv);
+ extern void do_settimeofday(struct timeval *tv);
+ extern int do_sys_settimeofday(struct timeval *tv, struct timezone *tz);
++extern void clock_was_set(void); // Function to call when ever the clock is set
+ #endif
+ 
+ #define FD_SETSIZE		__FD_SETSIZE
+@@ -163,5 +164,25 @@
+ 	struct	timeval it_interval;	/* timer interval */
+ 	struct	timeval it_value;	/* current value */
+ };
++
++
 +/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
++ * The IDs of the various system clocks (for POSIX.1b interval timers).
++ */
++#define CLOCK_REALTIME		  0
++#define CLOCK_MONOTONIC	  1
++#define CLOCK_PROCESS_CPUTIME_ID 2
++#define CLOCK_THREAD_CPUTIME_ID	 3
++#define CLOCK_REALTIME_HR	 4
++#define CLOCK_MONOTONIC_HR	  5
++
++#define MAX_CLOCKS 6
++
++/*
++ * The various flags for setting POSIX.1b interval timers.
 + */
 +
-+/* 2timer_test.c
++#define TIMER_ABSTIME 0x01
++
+ 
+ #endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/include/linux/types.h linux/include/linux/types.h
+--- linux-2.5.39-x86/include/linux/types.h	Mon Sep  9 10:35:07 2002
++++ linux/include/linux/types.h	Fri Sep 27 17:55:14 2002
+@@ -23,6 +23,8 @@
+ typedef __kernel_daddr_t	daddr_t;
+ typedef __kernel_key_t		key_t;
+ typedef __kernel_suseconds_t	suseconds_t;
++typedef __kernel_timer_t	timer_t;
++typedef __kernel_clockid_t	clockid_t;
+ 
+ #ifdef __KERNEL__
+ typedef __kernel_uid32_t	uid_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/init/Config.help linux/init/Config.help
+--- linux-2.5.39-x86/init/Config.help	Fri Sep 27 17:23:16 2002
++++ linux/init/Config.help	Fri Sep 27 17:55:14 2002
+@@ -124,4 +124,11 @@
+   timers and are more concerned about list insertion time than the extra
+   memory usage.	 (The list size must be a power of 2.)
+ 
+-
++Maximum number of POSIX timers
++CONFIG_MAX_POSIX_TIMERS
++  This option allows you to configure the system wide maximum number of
++  POSIX timers.  Timers are allocated as needed so the only memory
++  overhead this adds is about 4 bytes for every 50 or so timers to keep
++  track of each block of timers.  The system quietly rounds this number
++  up to fill out a timer allocation block.  It is ok to have several
++  thousand timers as needed by your applications.
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/init/Config.in linux/init/Config.in
+--- linux-2.5.39-x86/init/Config.in	Fri Sep 27 17:23:46 2002
++++ linux/init/Config.in	Fri Sep 27 17:55:14 2002
+@@ -9,6 +9,7 @@
+ bool 'System V IPC' CONFIG_SYSVIPC
+ bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
+ bool 'Sysctl support' CONFIG_SYSCTL
++int 'System wide maximum number of POSIX timers' CONFIG_MAX_POSIX_TIMERS 3000
+ choice 'Size of timer list?' \
+ 	"512		CONFIG_TIMERLIST_512 \
+ 	1024		CONFIG_TIMERLIST_1k  \
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.39-x86/kernel/exit.c	Fri Sep 27 17:05:18 2002
++++ linux/kernel/exit.c	Fri Sep 27 17:55:14 2002
+@@ -408,6 +408,21 @@
+ 	mmdrop(active_mm);
+ }
+ 
++static inline void __exit_itimers(struct task_struct *tsk)
++{
++	struct	k_itimer *tmr;
++
++	while (tsk->posix_timers.next != &tsk->posix_timers){
++		 tmr = list_entry(tsk->posix_timers.next,struct k_itimer,list);
++		itimer_delete(tmr);
++	}
++}
++
++void exit_itimers(struct task_struct *tsk)
++{
++	__exit_itimers(tsk);
++}
++
+ /*
+  * Turn us into a lazy TLB process if we
+  * aren't already..
+@@ -643,6 +658,7 @@
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+ 	exit_namespace(tsk);
++	__exit_itimers(tsk);
+ 	exit_thread();
+ 
+ 	if (current->leader)
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/kernel/fork.c linux/kernel/fork.c
+--- linux-2.5.39-x86/kernel/fork.c	Fri Sep 27 17:05:18 2002
++++ linux/kernel/fork.c	Fri Sep 27 17:55:14 2002
+@@ -778,6 +778,7 @@
+ 		goto bad_fork_cleanup_files;
+ 	if (copy_sighand(clone_flags, p))
+ 		goto bad_fork_cleanup_fs;
++	INIT_LIST_HEAD(&p->posix_timers);
+ 	if (copy_mm(clone_flags, p))
+ 		goto bad_fork_cleanup_sighand;
+ 	if (copy_namespace(clone_flags, p))
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/kernel/itimer.c linux/kernel/itimer.c
+--- linux-2.5.39-x86/kernel/itimer.c	Mon Sep  9 10:35:09 2002
++++ linux/kernel/itimer.c	Sat Sep 28 09:50:53 2002
+@@ -2,6 +2,8 @@
+  * linux/kernel/itimer.c
+  *
+  * Copyright (C) 1992 Darren Senn
++ * 2002-8-13  High res timers by George Anzinger
++ *			     Copyright (C) 2002 by MontaVista Software.
+  */
+ 
+ /* These are all the functions necessary to implement itimers */
+@@ -9,9 +11,331 @@
+ #include <linux/mm.h>
+ #include <linux/smp_lock.h>
+ #include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/time.h>
+ 
+ #include <asm/uaccess.h>
++#include <asm/semaphore.h>
++#include <linux/list.h>
++#include <linux/init.h>
++#include <linux/hrtime.h>
++#include <linux/nmi.h>
++#include <linux/compiler.h>
+ 
++
++/*
++ * Management arrays for POSIX timers.	 Timers are kept in memory that
++ * is allocated a CHUNCK at a time.  Pointers to the CHUNCKS are kept in
++ * an array of pointers.  A bit map is kept of CHUNCKS that have free
++ * timers.  Allocation is always made from the first CHUNCK that has a
++ * free timer.	 Timers in CHUNCKS are kept in a free list, which is
++ * unordered.	A count of free timers in a CHUNCK is kept and when all
++ * timers in a CHUNCK are free, the CHUNCK memory is returned and the
++ * CHUNCK is marked empty in the bit map.  The free slot in the CHUNCK
++ * array is linked into the free list for CHUNCK pointers. 
++ */
++/*
++ * First lets abstract the memory interface.
++ */
++#define get_timer_chunck()(struct posix_timer_chunck *)__get_free_page(GFP_KERNEL)
++#define free_timer_chunck(p) free_page((unsigned long)p)
++#define POSIX_TIMERS_CHUNCK_SIZE (PAGE_SIZE)
++
++#undef NULL
++#define NULL ((void *)0)
++#define CONFIGURE_MIN_INTERVAL 500000
++/*
++ * Love to make this offsetof((struct posix_timer_chunck).timers) or
++ * some such but that is recursive... 
++ */
++#define CHUNCK_OVERHEAD (sizeof(struct list_head) + sizeof(int)	 + sizeof(int)) 
++#define NUM_POSIX_TIMERS_PER_CHUNCK \
++	  ((POSIX_TIMERS_CHUNCK_SIZE - CHUNCK_OVERHEAD)/ sizeof(struct k_itimer))
++
++struct posix_timer_chunck {
++	 struct list_head free_list;
++	 int used_count;
++	 int index;
++	 struct k_itimer  timers[NUM_POSIX_TIMERS_PER_CHUNCK];
++};
++
++#define NUM_CHUNCKS_POSIX_TIMERS \
++	      (1 + (CONFIG_MAX_POSIX_TIMERS /  NUM_POSIX_TIMERS_PER_CHUNCK))
++#define MAX_POSIX_TIMERS NUM_CHUNCKS_POSIX_TIMERS * NUM_POSIX_TIMERS_PER_CHUNCK
++#define CHUNCK_SHIFT 8
++#define CHUNCK_MASK ((1 << CHUNCK_SHIFT) - 1)
++
++
++/*
++ * Just because the timer is not in the timer list does NOT mean it is
++ * inactive.  It could be in the "fire" routine getting a new expire time.
++ */
++#define TIMER_INACTIVE 1
++#define TIMER_RETRY 1
++#ifdef CONFIG_SMP
++#define timer_active(tmr) (tmr->it_timer.list.prev != (void *)TIMER_INACTIVE)
++#define set_timer_inactive(tmr) tmr->it_timer.list.prev = (void *)TIMER_INACTIVE
++#else
++#define timer_active(tmr) BARFY	   // error to use outside of SMP
++#define set_timer_inactive(tmr)
++#endif
++/*
++ * Lets talk.
++ *
++ * The following structure is the root of the posix timers data.  The
++ * <list_lock> is taken when ever we are allocating or releasing a timer
++ * structure.	Since we allocate memory for this, we use a semaphore
++ * (memory allocate can block).
++ *
++ * The <free_list> is an array index into the <chuncks> array.	 If a
++ * <chunck> is populated, the array element will point to a struct
++ * posix_timer_chunck which will be the allocated memory block.	 If the
++ * <chunck> is not populated it will contain an array index to the next
++ * free <chunck>, or if there are no more it will be
++ * NUM_CHUNCKS_POSIX_TIMERS, which is too high to be an array index
++ * (this fact is used to verify that a <chunck> is populated and that we
++ * have reached the end of free <chuncks>.
++ *
++ * NOTE- We are not doing any post "settime" processing for abs timers at
++ *	   this time and so, these next two entries are not defined. 
++ */
++#define IF_ABS_TIME_ADJ(a)
++#if 0	 // We are not doing this at this time (ever?).
++ /*
++ * The <abs_list> is a list of all active (some fudging on this, see the
++ * code) timers that are tagged as absolute.  Active absolute timers
++ * need to have their expire time adjusted when ever the system time of
++ * day clock is set or adjusted.
++  *
++ * The <abs_list_lock> is used to protect entries and exits from the <abs_list>.
++ * Since timer expiration is an interrupt driven event this spinlock must be
++ * an irq type.
++ */
++#endif
++/*
++ * The <chuncks> array is described above.  The timer ID is composed of
++ * the <chuncks> index and the array index of <timers> in that chunck.
++ * Verifying a valid ID consists of:
 + * 
-+ * This program demonstrates the use of POSIX.4 interval timers without 
-+ * queued signals. It simply creates a POSIX.4 interval timer that sends
-+ * a normal signal when it expires. The handler for this signal prints
-+ * a message, and increments a count. When the count reaches MAX_EXPIRATIONS,
-+ * the timer is deleted, and the program exits. 
++ * a) checking that the chunck index is < NUM_CHUNCKS_POSIX_TIMERS and 
++ * b) that that chunck is allocated (i.e. the <chuncks> array entry 
++ *    is > NUM_CHUNCKS_POSIX_TIMERS) and 
++ * c) that the <timers> index is in bounds and
++ * d) that the timer owner is in the callers thread group.
 + */
 +
-+#include <sys/types.h>
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <time.h>
-+#include <errno.h>
-+#include <signal.h>
-+#ifdef __linux__
-+#include <posix_time.h>
++static struct {
++	 struct	 semaphore	      list_lock;
++	 int			      free_list;
++	 IF_ABS_TIME_ADJ(
++			 struct list_head	      abs_list;
++			 spinlock_t		      abs_list_lock;
++			 )
++	 union {
++		 struct	 posix_timer_chunck * chunck[NUM_CHUNCKS_POSIX_TIMERS];
++		 int		       free_ent[NUM_CHUNCKS_POSIX_TIMERS];
++	 }				    chunck_free;
++} posix_timers = { list_lock:	   __MUTEX_INITIALIZER( posix_timers.list_lock)
++
++#define chuncks chunck_free.chunck
++#define free	 chunck_free. \
++		      free_ent
++#ifdef ABS_TIMERS_ADJ
++		    ,abs_list:	    LIST_HEAD_INIT(posix_timers.abs_list)
++		    ,abs_list_lock: SPIN_LOCK_UNLOCKED
 +#endif
-+#include "utils.h"
++};
 +
-+#define TIMER1_SIGNAL SIGRTMAX
-+#define TIMER2_SIGNAL SIGRTMIN
-+#define DATA_VAL 17
-+#define MAX_EXPIRATIONS 10
-+#define MAX_SIGNALS 30
++/*
++ * The tmr_bit_ary is a bit array in which a bit is assigned for each
++ * entry in <posix_timers.chunck[]>.  A set bit indicates that the
++ * chunck has one or more free timers.	 This makes it easy to quickly
++ * find a free timer.
++ */
++static struct {
++	 unsigned long tmr_bit_ary[((NUM_CHUNCKS_POSIX_TIMERS)/32) +1];
++	 unsigned long guard;
++}tmr_bits = {guard: -1};
++#define tmr_bit_map tmr_bits.tmr_bit_ary   
++#define BF 31	/* bit flip constant */
++#define	  set_tmr_bit(bit)    set_bit(((bit)&0x1f),&tmr_bit_map[(bit) >> 5])
++#define clear_tmr_bit(bit)  clear_bit(((bit)&0x1f),&tmr_bit_map[(bit) >> 5])
 +
-+pid_t pid;
-+int expirations;
++DECLARE_MUTEX(posix_timers_mutex);
++#define mutex_enter(x) down(x)
++#define mutex_enter_interruptable(x) down_interruptible(x)
++#define mutex_exit(x) up(x)
 +
-+struct datum {
-+	siginfo_t info;
-+	int	  overrun;
-+}datum[MAX_SIGNALS];
++extern rwlock_t xtime_lock;
 +
-+void print_siginfo(struct datum *ptr)
-+{
-+	//int overrun = ptr->overrun;
-+  siginfo_t *info = &ptr->info;
-+	int overrun = info->si_overrun;
-+  timer_t t;
++/* 
++ * CLOCKs: The POSIX standard calls for a couple of clocks and allows us
++ *	    to implement others.  This structure defines the various
++ *	    clocks and allows the possibility of adding others.	 We
++ *	    provide an interface to add clocks to the table and expect
++ *	    the "arch" code to add at least one clock that is high
++ *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
++ *	    1/HZ resolution clock.
 +
-+  printf("siginfo dump: ");
-+  printf("si_signo: %d, ", info->si_signo);
-+  printf("si_errno: %d, ", info->si_errno);
-+  switch (info->si_code) {
-+  case SI_TIMER:
-+    t = *(timer_t*)info->si_value.sival_ptr;
-+    printf("si_code: SI_TIMER, %d", t);
-+#ifdef __linux__
-+    printf(", timer id: %d", info->si_tid);
++ * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
++ *	    two clocks (and the other process related clocks (Std
++ *	    1003.1d-1999).  The way these should be supported, we think,
++ *	    is to use large negative numbers for the two clocks that are
++ *	    pinned to the executing process and to use -pid for clocks
++ *	    pinned to particular pids.	Calls which supported these clock
++ *	    ids would split early in the function.
++ 
++ * RESOLUTION: Clock resolution is used to round up timer and interval
++ *	    times, NOT to report clock times, which are reported with as
++ *	    much resolution as the system can muster.  In some cases this
++ *	    resolution may depend on the underlaying clock hardware and
++ *	    may not be quantifiable until run time, and only then is the
++ *	    necessary code is written.	The standard says we should say
++ *	    something about this issue in the documentation...
++
++ * FUNCTIONS: The CLOCKs structure defines possible functions to handle
++ *	    various clock functions.  For clocks that use the standard
++ *	    system timer code these entries should be NULL.  This will
++ *	    allow dispatch without the overhead of indirect function
++ *	    calls.  CLOCKS that depend on other sources (e.g. WWV or GPS)
++ *	    must supply functions here, even if the function just returns
++ *	    ENOSYS.  The standard POSIX timer management code assumes the
++ *	    following: 1.) The k_itimer struct (sched.h) is used for the
++ *	    timer.  2.) The list, it_lock, it_clock, it_id and it_process
++ *	    fields are not modified by timer code. 
++ *
++ * Permissions: It is assumed that the clock_settime() function defined
++ *	    for each clock will take care of permission checks.	 Some
++ *	    clocks may be set able by any user (i.e. local process
++ *	    clocks) others not.	 Currently the only set able clock we
++ *	    have is CLOCK_REALTIME and its high res counter part, both of
++ *	    which we beg off on and pass to do_sys_settimeofday().
++ */
++
++struct k_clock posix_clocks[MAX_CLOCKS];
++
++#define if_clock_do(clock_fun, alt_fun,parms)	(! clock_fun)? alt_fun parms :\
++							      clock_fun parms
++
++#define p_timer_get( clock,a,b) if_clock_do((clock)->timer_get, \
++					     do_timer_gettime,	 \
++					     (a,b))
++
++#define p_nsleep( clock,a,b,c) if_clock_do((clock)->nsleep,   \
++					    do_nsleep,	       \
++					    (a,b,c))
++
++#define p_timer_del( clock,a) if_clock_do((clock)->timer_del, \
++					   do_timer_delete,    \
++					   (a))
++
++void register_posix_clock(int clock_id, struct k_clock * new_clock);
++
++static int do_posix_gettime(struct k_clock *clock, struct timespec *tp);
++
++int do_posix_clock_monotonic_gettime(struct timespec *tp);
++
++int do_posix_clock_monotonic_settime(struct timespec *tp);
++
++#if CONFIGURE_MIN_INTERVAL == 0
++IF_HIGH_RES(static  __init void figure_time_rep(void);)
 +#endif
-+    if (overrun) {
-+      printf(", overrun: %d", overrun);
-+    }
-+    if (overrun != ptr->overrun && ptr->overrun > 0){
-+	    printf(SETCOLOR_FAILURE 
-+		   " info overrunn %d, getoverrun %d\n"
-+		   SETCOLOR_NORMAL,overrun,ptr->overrun);
-+	    global_error++;
-+    } else {
-+	    printf("\n");
-+    }
-+    break;
-+  default:
-+    printf("si_code: %d\n", info->si_code);
-+    break;
-+  }
-+}
-+void print_siginfo2(siginfo_t *info) {
-+	struct datum datum;
++IF_HIGH_RES(static int high_res_guard = 0;)
++/* 
++ * Build the free list
++ */
 +
-+	datum.info = *info;
-+	datum.overrun = timer_getoverrun(info->si_tid);
-+	print_siginfo(&datum);
-+}
-+
-+void timer1_handler(int signo)
++static	 __init int init_posix_timers(void)
 +{
-+	printf("handler timer1 expired: signal %d\n", signo);
-+	expirations++;
++	 int i;
++	 struct k_clock clock_realtime = {res: NSEC_PER_SEC/HZ};
++	 struct k_clock clock_monotonic = 
++	 {res: NSEC_PER_SEC/HZ,
++	  clock_get:  do_posix_clock_monotonic_gettime, 
++	  clock_set: do_posix_clock_monotonic_settime};
++
++	 for ( i = 0; i < NUM_CHUNCKS_POSIX_TIMERS;) {
++		 posix_timers.free[i] = ++i; 
++	 }
++	 register_posix_clock(CLOCK_REALTIME,&clock_realtime);
++	 register_posix_clock(CLOCK_MONOTONIC,&clock_monotonic);
++	 IF_HIGH_RES(clock_realtime.res = CONFIG_HIGH_RES_RESOLUTION;
++		     register_posix_clock(CLOCK_REALTIME_HR,&clock_realtime);
++		     clock_monotonic.res = CONFIG_HIGH_RES_RESOLUTION;
++		     register_posix_clock(CLOCK_MONOTONIC_HR,&clock_monotonic);
++		     high_res_guard = nsec_to_arch_cycles(CONFIGURE_MIN_INTERVAL);
++		 );
++#ifdef	 final_clock_init
++	 final_clock_init();	  // defined by arch header file
++#endif
++#if CONFIGURE_MIN_INTERVAL == 0
++	 figure_time_rep();
++#endif
++	 return 0;
 +}
 +
-+void timer1_action(int signo, siginfo_t *info, void *context)
++__initcall(init_posix_timers);
++
++static inline int tstojiffie(struct timespec *tp, 
++			  int res,
++			  unsigned long *jiff)
 +{
-+	printf("action timer1 expired: signal %d\n", signo);
-+	print_siginfo2(info);
-+	expirations++;
++	 unsigned long sec = tp->tv_sec;
++	long nsec = tp->tv_nsec + res - 1;
++
++	 /*
++	  * A note on jiffy overflow: It is possible for the system to
++	  * have been up long enough for the jiffies quanity to overflow.
++	  * In order for correct timer evaluations we require that the
++	  * specified time be somewhere between now and now + (max
++	  * unsigned int/2).  Times beyond this will be truncated back to
++	  * this value.	 This is done in the absolute adjustment code,
++	  * below.  Here it is enough to just discard the high order
++	  * bits.  
++	  */
++	 *jiff = HZ * sec;
++	 /*
++	  * Do the res thing. (Don't forget the add in the declaration of nsec) 
++	  */
++	 nsec -= nsec % res;
++	 /*
++	  * Split to jiffie and sub jiffie
++	  */
++	 *jiff += nsec / (NSEC_PER_SEC / HZ);
++	 /*
++	  * We trust that the optimizer will use the remainder from the 
++	  * above div in the following operation as long as they are close. 
++	  */
++	 return	 (nsec_to_arch_cycles(nsec % (NSEC_PER_SEC / HZ)));
 +}
-+
-+void timer2_handler(int signo)
++#ifdef CONFIG_HIGH_RES_TIMERS
++static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
 +{
-+	printf("handler timer2 expired: signal %d\n", signo);
++	 int res = posix_clocks[timer->it_clock].res;
++
++	 timer->it_timer.sub_expires = tstojiffie(&time->it_value,
++						  res,
++						  &timer->it_timer.expires);
++	 timer->it_sub_incr = tstojiffie(&time->it_interval,
++					 res,
++					 (unsigned long*) &timer->it_incr);
++	 if ((unsigned long)timer->it_incr > MAX_JIFFY_OFFSET)
++		 timer->it_incr = MAX_JIFFY_OFFSET;
 +}
-+
-+void timer2_action(int signo, siginfo_t *info, void *context)
-+{
-+	printf("action timer2 expired: signal %d\n", signo);
-+	print_siginfo2(info);
-+}
-+int do_main(clock_t clock,int of1,int in1,int of2,int in2)
-+{
-+	timer_t t1, t2;
-+	struct sigevent sig1, sig2;
-+	struct itimerspec new_setting1, new_setting2, current;
-+	struct sigaction sa;
-+	sigset_t set;
-+	//siginfo_t info;
-+	struct datum *pptr,*ptr = &datum[0];
-+	
-+	Try(pid = getpid()); 
-+
-+	expirations = 0;
-+	
-+
-+	/* 
-+	 * Set up the signal event that will occur when the timer 
-+	 * expires. 
-+	 */	
-+	sig1.sigev_notify = SIGEV_SIGNAL;
-+	sig1.sigev_signo = TIMER1_SIGNAL;
-+	sig1.sigev_value.sival_ptr = &t1;
-+
-+	sig2.sigev_notify = SIGEV_SIGNAL;
-+	sig2.sigev_signo = TIMER2_SIGNAL;
-+	sig2.sigev_value.sival_ptr = &t2;
-+
-+	/*
-+	 * Initialize the timer setting structure.
-+	 */
-+	new_setting1.it_value.tv_sec = 0L;
-+	new_setting1.it_value.tv_nsec = of1;
-+	new_setting1.it_interval.tv_sec = 0L;
-+	new_setting1.it_interval.tv_nsec = in1;
-+
-+	new_setting2.it_value.tv_sec = 0L;
-+	new_setting2.it_value.tv_nsec = of2;
-+	new_setting2.it_interval.tv_sec = 0L;
-+	new_setting2.it_interval.tv_nsec = in2;
-+
-+	/* 
-+	 * Set up and install a signal handler for the signal that 
-+	 * the timer will send. 
-+	 */
-+#if 0
-+	sa.sa_handler = timer1_handler;
-+	sa.sa_flags = 0;
 +#else
-+	sa.sa_flags = SA_SIGINFO;
-+	sa.sa_sigaction = timer1_action;
-+#endif
-+	sigemptyset(&sa.sa_mask);
++static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
++ {
++	 int res = posix_clocks[timer->it_clock].res;
++	 tstojiffie(&time->it_value,
++		    res,
++		    &timer->it_timer.expires);
++	 tstojiffie(&time->it_interval,
++		    res,
++		    &timer->it_incr);
++ }
++ 
 +
-+	Try(sigaction(TIMER1_SIGNAL, &sa, NULL));
-+#if 0
-+	sa.sa_handler = timer2_handler;
-+	sa.sa_flags = 0;
++#endif
+ int do_getitimer(int which, struct itimerval *value)
+ {
+ 	register unsigned long val, interval;
+@@ -21,7 +345,11 @@
+ 		interval = current->it_real_incr;
+ 		val = 0;
+ 		/* 
+-		 * FIXME! This needs to be atomic, in case the kernel timer happens!
++		 * FIXME! This needs to be atomic, in case the kernel
++		  * timer happens!
++		  * Well, not really, for the one word values, now for
++		  * high-res-timers, that is another thing.  But we don't
++		  * do high-res-timers on this API.
+ 		 */
+ 		if (timer_pending(&current->real_timer)) {
+ 			val = current->real_timer.expires - jiffies;
+@@ -118,7 +446,7 @@
+ }
+ 
+ /* SMP: Again, only we play with our itimers, and signals are SMP safe
+- *      now so that is not an issue at all anymore.
++ *	now so that is not an issue at all anymore.
+  */
+ asmlinkage long sys_setitimer(int which, struct itimerval *value,
+ 			      struct itimerval *ovalue)
+@@ -137,6 +465,1217 @@
+ 		return error;
+ 
+ 	if (copy_to_user(ovalue, &get_buffer, sizeof(get_buffer)))
+-		return -EFAULT; 
++		return -EFAULT;
+ 	return 0;
+ }
++
++/* PRECONDITION:
++ * timr->it_lock must be locked
++ */
++
++static void timer_notify_task(struct k_itimer *timr)
++{
++	struct siginfo info;
++	int ret;
++
++	if (! (timr->it_sigev_notify & SIGEV_NONE)) {
++
++		memset(&info, 0, sizeof(info));
++
++		/* Send signal to the process that owns this timer. */
++		info.si_signo = timr->it_sigev_signo;
++		info.si_errno = 0;
++		info.si_code = SI_TIMER;
++		info.si_tid = timr->it_id;
++		info.si_value = timr->it_sigev_value;
++		 info.si_overrun = timr->it_overrun_deferred;
++		ret = send_sig_info(info.si_signo, &info, timr->it_process);
++		switch (ret) {
++		case 0:		/* all's well new signal queued */
++			 timr->it_overrun_last = timr->it_overrun;
++			 timr->it_overrun = timr->it_overrun_deferred;
++			break;
++		case 1:	/* signal from this timer was already in the queue */
++			timr->it_overrun += timr->it_overrun_deferred + 1;
++			break;
++		default:
++			printk(KERN_WARNING "sending signal failed: %d\n", ret);
++			break;
++		}
++	}
++}
++
++#ifdef CONFIG_HIGH_RES_TIMERS
++/*
++ * This bit of code is to protect the system from being consumed by
++ * repeating timer expirations.	 We detect overrun and adjust the
++ * next time to be at least high_res_guard out. We clock the overrun
++ * but only AFTER the next expire as it has not really happened yet.
++ *
++ * Careful, only do this if the timer repeat time is less than
++ * high_res_guard AND we have fallen behind.
++ */
++
++static inline void  do_overrun_protect(struct k_itimer *timr)
++{
++	 timr->it_overrun_deferred = 0;
++
++	 if (! timr->it_incr &&
++	     (high_res_guard > timr->it_sub_incr)){
++		 int offset = quick_update_jiffies_sub( timr->it_timer.expires);
++
++		 offset -= timr->it_timer.sub_expires;
++		 touch_nmi_watchdog();
++		 offset += high_res_guard;
++		 if (offset <= 0){
++			 return;
++		 }
++		 // expire time is in the past (or within the guard window)
++
++		 timr->it_overrun_deferred = (offset / timr->it_sub_incr) - 1;
++		 timr->it_timer.sub_expires += 
++			 offset - (offset % timr->it_sub_incr);
++				     
++		 while ((timr->it_timer.sub_expires -  cycles_per_jiffies) >= 0){
++			 timr->it_timer.sub_expires -= cycles_per_jiffies;
++			 timr->it_timer.expires++;
++		 }
++	 }
++}
++
++#endif
++/* 
++ * Notify the task and set up the timer for the next expiration (if applicable).
++ * This function requires that the k_itimer structure it_lock is taken.
++ */
++static void posix_timer_fire(struct k_itimer *timr)
++{
++	unsigned long interval;
++
++	timer_notify_task(timr);
++
++	/* Set up the timer for the next interval (if there is one) */
++	if ((interval = timr->it_incr) == 0){
++		 IF_HIGH_RES(if(timr->it_sub_incr == 0)
++			 ){
++			 set_timer_inactive(timr);
++			 return;
++		 }
++	 }
++	if (interval > (unsigned long) LONG_MAX)
++		interval = LONG_MAX;
++	timr->it_timer.expires += interval;
++	 IF_HIGH_RES(timr->it_timer.sub_expires += timr->it_sub_incr;
++		     if ((timr->it_timer.sub_expires - cycles_per_jiffies) >= 0){
++			     timr->it_timer.sub_expires -= cycles_per_jiffies;
++			     timr->it_timer.expires++;
++		     }
++		     do_overrun_protect(timr);
++		 );
++	add_timer(&timr->it_timer);
++}
++
++/*
++ * This function gets called when a POSIX.1b interval timer expires.
++ * It is used as a callback from the kernel internal timer.
++ * The run_timer_list code ALWAYS calls with interrutps on.
++ */
++static void posix_timer_fn(unsigned long __data)
++{
++	struct k_itimer *timr = (struct k_itimer *)__data;
++
++	 spin_lock_irq(&timr->it_lock);
++	posix_timer_fire(timr);
++	 spin_unlock_irq(&timr->it_lock);
++}
++/*
++ * For some reason mips/mips64 define the SIGEV constants plus 128.  
++ * Here we define a mask to get rid of the common bits.	 The 
++ * optimizer should make this costless to all but mips.
++ */
++#if (ARCH == mips) || (ARCH == mips64)
++#define MIPS_SIGEV ~(SIGEV_NONE & \
++		      SIGEV_SIGNAL & \
++		      SIGEV_THREAD &  \
++		      SIGEV_THREAD_ID)
 +#else
-+	sa.sa_flags = SA_SIGINFO;
-+	sa.sa_sigaction = timer2_action;
++#define MIPS_SIGEV (int)-1
 +#endif
-+	sigemptyset(&sa.sa_mask);
 +
-+	Try(sigaction(TIMER2_SIGNAL, &sa, NULL));	
-+	/*
-+	 * Create and set the timer.
-+	 */
++static inline struct task_struct * good_sigevent(sigevent_t *event)
++{
++	 struct task_struct * rtn = current;
 +
-+	Try(timer_create(clock, &sig1, &t1));
++	if (event->sigev_notify & SIGEV_THREAD_ID & MIPS_SIGEV ) {
++		 if ( !(rtn = 
++			find_task_by_pid(event->sigev_notify_thread_id)) ||
++		      rtn->tgid != current->tgid){
++			 return NULL;
++		 }
++	 }
++	if (event->sigev_notify & SIGEV_SIGNAL & MIPS_SIGEV) {
++		if ((unsigned)(event->sigev_signo > SIGRTMAX))
++			return NULL;
++	 }
++	if (event->sigev_notify & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID )) {
++		return NULL;
++	 }
++	return rtn;
++}
 +
-+	Try(timer_create(clock, &sig2, &t2));
 +
-+	sigemptyset(&set);
-+	sigaddset(&set, TIMER1_SIGNAL);
-+	sigaddset(&set, TIMER2_SIGNAL);
++void register_posix_clock(int clock_id,struct k_clock * new_clock)
++{
++	 if ( (unsigned)clock_id >= MAX_CLOCKS){
++		 printk("POSIX clock register failed for clock_id %d\n",clock_id);
++		 return;
++	 }
++	 posix_clocks[clock_id] = *new_clock;
++}
 +
-+	sigprocmask(SIG_BLOCK, &set, NULL);
++static struct k_itimer * alloc_posix_timer(void)
++{
++	 struct k_itimer * tmr;
++	 struct posix_timer_chunck *chunck, **chunck_ptr;
++	 int i, open;
++	 unsigned long *ip;
++	 /*
++	  * kmalloc sleeps so we must use a mutex, not a spinlock
++	  */
++	 mutex_enter(&posix_timers.list_lock);
 +
-+	Try(timer_settime(t1, 0, &new_setting1, NULL)); 
++	 for (ip = &tmr_bit_map[0], open = 0; (*ip == 0); open +=32,ip++);
++	 open += ffz(~*ip);
++	 if (open > NUM_CHUNCKS_POSIX_TIMERS){
++		 /* 
++		  * No free timers, try to allocate some memory
++		  */
++		 if (posix_timers.free_list != NUM_CHUNCKS_POSIX_TIMERS){
++			 chunck = get_timer_chunck();
++			 if ( ! chunck ){
++				 mutex_exit(&posix_timers.list_lock);
++				 return NULL;
++			 } else {
++				 chunck_ptr = &posix_timers.
++					 chuncks[posix_timers.free_list];
++				 posix_timers.free_list = posix_timers.
++					 free[posix_timers.free_list];
++				 *chunck_ptr = chunck;
++				 chunck->index = chunck_ptr - 
++					 &posix_timers.chuncks[0];
++				 chunck->used_count = 1;
++				 INIT_LIST_HEAD(&chunck->free_list);
++				 for ( i = 0,tmr = &chunck->timers[0];
++				       i < NUM_POSIX_TIMERS_PER_CHUNCK;
++				       i++, tmr++){
++					 list_add(&tmr->list, 
++						  &chunck->free_list);
++					 tmr->it_id = 
++						 (timer_t)( 
++							 (chunck->index << 
++							  CHUNCK_SHIFT) + i);
++					 tmr->it_process = NULL;
++				 }
++				 --tmr;
++				 list_del(&tmr->list);
++				 set_tmr_bit( chunck->index);
++				 mutex_exit(&posix_timers.list_lock);
++				 return	 tmr;
++			 }
++		 } else {
++			 /*
++			  * max number of timers is already allocated
++			  */
++			 mutex_exit(&posix_timers.list_lock);
++			 return NULL;
++		 }
++	 } else {
++		 /*
++		  * we have a partically allocated chunck
++		  */
++		 chunck = posix_timers.chuncks[open];
++		 chunck->used_count++;
++		 if (chunck->used_count == NUM_POSIX_TIMERS_PER_CHUNCK){
++			 clear_tmr_bit(open);
++		 }
++		 tmr = list_entry(chunck->free_list.next,struct k_itimer,list);
++		 list_del(&tmr->list);
++		 mutex_exit(&posix_timers.list_lock);
++		 return	 tmr;
++	 }
++}
 +
-+	timer_gettime(t1, &current);
-+	printf("timer id %d: it_value=%ld.%09ld, it_interval=%ld.%09ld\n",
-+	       t1,
-+	       current.it_value.tv_sec,
-+	       current.it_value.tv_nsec,
-+	       current.it_interval.tv_sec,
-+	       current.it_interval.tv_nsec);
-+	Try(timer_settime(t2, 0, &new_setting2, NULL)); 
++static void release_posix_timer(struct k_itimer * tmr)
++{
++	 int index = tmr->it_id >> CHUNCK_SHIFT;
++	 struct posix_timer_chunck *chunck = posix_timers.chuncks[index];
 +
-+	timer_gettime(t2, &current);
-+	printf("timer id %d: it_value=%ld.%09ld, it_interval=%ld.%09ld\n",
-+	       t2,
-+	       current.it_value.tv_sec,
-+	       current.it_value.tv_nsec,
-+	       current.it_interval.tv_sec,
-+	       current.it_interval.tv_nsec);
++	 mutex_enter(&posix_timers.list_lock);
++	 list_add_tail(&tmr->list, &chunck->free_list);
++	 tmr->it_process = NULL;
++	 if ( --chunck->used_count == 0){
++		 int i;
++		 for ( i = 0; i < NUM_POSIX_TIMERS_PER_CHUNCK; i++) {
++			 list_del(&chunck->timers[i].list);
++		 }
++		 free_timer_chunck(chunck);
++		 posix_timers.free[index] = posix_timers.free_list;
++		 posix_timers.free_list = index;
++		 clear_tmr_bit(index);
++	 }
++	 mutex_exit(&posix_timers.list_lock);
++}	  
++			 
++/* Create a POSIX.1b interval timer. */
 +
-+	//sleep(1);
-+	/* 
-+	 * Busy wait until the timer expires MAX_EXPIRATIONS number 
-+	 * of times.
-+	 */
-+	while ((expirations < MAX_EXPIRATIONS) && (ptr != &datum[MAX_SIGNALS])) {
-+	  sigwaitinfo(&set, &ptr->info);
-+	  //ptr->overrun = timer_getoverrun(ptr->info.si_tid);
-+	  if (ptr->info.si_signo == TIMER2_SIGNAL) expirations++;
-+	  ptr++;
++asmlinkage int sys_timer_create(clockid_t which_clock,
++				struct sigevent *timer_event_spec,
++				timer_t *created_timer_id)
++{
++	int error = 0;
++	struct k_itimer *new_timer = NULL;
++	int new_timer_id;
++	 struct task_struct * process = current;
++	 sigevent_t event;
++
++	/* Right now, we only support CLOCK_REALTIME for timers. */
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	     ! posix_clocks[which_clock].res) return -EINVAL;
++
++	new_timer = alloc_posix_timer();
++	if (new_timer == NULL) return -EAGAIN;
++
++	spin_lock_init(&new_timer->it_lock);
++	 IF_ABS_TIME_ADJ(INIT_LIST_HEAD(&new_timer->abs_list));
++	if (timer_event_spec) {
++		if (copy_from_user(&event, timer_event_spec,
++				   sizeof(event))) {
++			error = -EFAULT;
++			goto out;
++		}
++		if ((process = good_sigevent(&event)) == NULL) {
++			 error = -EINVAL;
++			goto out;
++		}
++		new_timer->it_sigev_notify = event.sigev_notify;
++		new_timer->it_sigev_signo = event.sigev_signo;
++		new_timer->it_sigev_value = event.sigev_value;
 +	}
-+	/* 
-+	 * Delete the timer.
-+	 */	
-+	Try(timer_delete(t1)); 
-+	Try(timer_delete(t2));
-+	sigprocmask(SIG_UNBLOCK, &set, NULL);
-+	pptr = &datum[0];
-+	while ( pptr != ptr) {
-+		print_siginfo(pptr);
-+		pptr++;
++	else {
++		new_timer->it_sigev_notify = SIGEV_SIGNAL;
++		new_timer->it_sigev_signo = SIGALRM;
++		new_timer->it_sigev_value.sival_int = new_timer->it_id;
 +	}
 +
++	new_timer->it_clock = which_clock;
++	new_timer->it_incr = 0;
++	new_timer->it_overrun = 0;
++	 init_timer (&new_timer->it_timer);
++	new_timer->it_timer.expires = 0;
++	new_timer->it_timer.data = (unsigned long) new_timer;
++	new_timer->it_timer.function = posix_timer_fn;
++	 set_timer_inactive(new_timer);
 +
++	 new_timer_id = new_timer->it_id;
++
++	if (copy_to_user(created_timer_id, 
++			  &new_timer_id, 
++			  sizeof(new_timer_id))) {
++		error = -EFAULT;
++		goto out;
++	}
++	spin_lock(&process->alloc_lock);
++	 list_add(&new_timer->list, &process->posix_timers);
++
++	spin_unlock(&process->alloc_lock);
++	 /*
++	  * Once we set the process, it can be found so do it last...
++	  */
++	new_timer->it_process = process;
++
++out:
++	if (error) {
++		release_posix_timer(new_timer);
++	}
++	return error;
++}
++
++
++/* good_timespec
++ *
++ * This function checks the elements of a timespec structure.
++ *
++ * Arguments:
++ * ts	     : Pointer to the timespec structure to check
++ *
++ * Return value:
++ * If a NULL pointer was passed in, or the tv_nsec field was less than 0 or
++ * greater than NSEC_PER_SEC, or the tv_sec field was less than 0, this
++ * function returns 0. Otherwise it returns 1.
++ */
++
++static int good_timespec(const struct timespec *ts)
++{
++	if ((ts == NULL) || 
++	     (ts->tv_sec < 0) ||
++	     ((unsigned)ts->tv_nsec >= NSEC_PER_SEC))
++		 return 0;
++	return 1;
++}
++
++static inline void unlock_timer(struct k_itimer *timr)
++{
++	spin_unlock_irq(&timr->it_lock);
++}
++
++static struct k_itimer* lock_timer( timer_t timer_id)
++{
++	struct k_itimer *timr = NULL;
++	 int chunck_index = (int)((unsigned)timer_id >> CHUNCK_SHIFT);
++	 int chunck_offset = timer_id & CHUNCK_MASK;
++	 struct task_struct *owner = NULL;
++
++	 mutex_enter(&posix_timers.list_lock);
++	 if ( chunck_index >= NUM_CHUNCKS_POSIX_TIMERS || 
++	      chunck_offset >=	NUM_POSIX_TIMERS_PER_CHUNCK ||
++	      posix_timers.free[chunck_index] <= NUM_CHUNCKS_POSIX_TIMERS){
++		 timr = NULL;
++		 goto lock_timer_exit;
++	 }
++	 timr = &(posix_timers.chuncks[chunck_index]->timers[chunck_offset]);
++	 /*
++	  * It would be better if we had a thread group structure to keep,
++	  * among other things, the head of the owned timers list
++	  * and which could be pointed to by the owners field in the timer
++	  * structure.	Failing that, check to see if owner is one of
++	  * the thread group. Protect against stale timer ids.
++	  */
++	 if (timr->it_id != timer_id) {
++		 BUG();
++	 }
++	 if ( ! (owner = timr->it_process) || owner->tgid != current->tgid){ 
++		 timr = NULL;
++	 }else{
++
++		 spin_lock_irq(&timr->it_lock);
++		 /*
++		  * Suppose while we were spining, the timer was deleted...
++		  * AND maybe even given to some other process...
++		  * Well, it just can not happen because we hold the mutex!
++		  * AND, now we have the lock.
++		  */
++	 }
++ lock_timer_exit:
++	 mutex_exit(&posix_timers.list_lock);
++	return timr;
++}
++
++/* 
++ * Get the time remaining on a POSIX.1b interval timer.
++ * This function is ALWAYS called with spin_lock_irq on the timer, thus
++ * it must not mess with irq.
++ */
++void inline do_timer_gettime(struct k_itimer *timr,
++			      struct itimerspec *cur_setting)
++{
++	 long sub_expires;
++	unsigned long expires;
++
++	 do {
++		expires = timr->it_timer.expires;  
++		IF_HIGH_RES(sub_expires = timr->it_timer.sub_expires);
++	 } while ((volatile long)(timr->it_timer.expires) != expires);
++
++	 IF_HIGH_RES(write_lock(&xtime_lock);
++		     update_jiffies_sub());
++	if (expires && timer_pending(&timr->it_timer)){
++		 expires -= jiffies;
++		 IF_HIGH_RES(sub_expires -=  sub_jiffie());
++	 }else{
++		 sub_expires = expires = 0;
++	 }
++	 IF_HIGH_RES( write_unlock(&xtime_lock));
++
++	jiffies_to_timespec(expires, &cur_setting->it_value);
++	jiffies_to_timespec(timr->it_incr, &cur_setting->it_interval);
++
++	 IF_HIGH_RES(cur_setting->it_value.tv_nsec += 
++		     arch_cycles_to_nsec( sub_expires);
++		     if (cur_setting->it_value.tv_nsec < 0){
++			     cur_setting->it_value.tv_nsec += NSEC_PER_SEC;
++			     cur_setting->it_value.tv_sec--;
++		     }
++		     if ((cur_setting->it_value.tv_nsec - NSEC_PER_SEC) >= 0){
++			     cur_setting->it_value.tv_nsec -= NSEC_PER_SEC;
++			     cur_setting->it_value.tv_sec++;
++		     }
++		     cur_setting->it_interval.tv_nsec += 
++		     arch_cycles_to_nsec(timr->it_sub_incr);
++		     if ((cur_setting->it_interval.tv_nsec - NSEC_PER_SEC) >= 0){
++			     cur_setting->it_interval.tv_nsec -= NSEC_PER_SEC;
++			     cur_setting->it_interval.tv_sec++;
++		     }
++		     );	     
++	 if (cur_setting->it_value.tv_sec < 0){
++		 cur_setting->it_value.tv_nsec = 1;
++		 cur_setting->it_value.tv_sec = 0;
++		     }				 
++}
++/* Get the time remaining on a POSIX.1b interval timer. */
++asmlinkage int sys_timer_gettime(timer_t timer_id, struct itimerspec *setting)
++{
++	struct k_itimer *timr;
++	struct itimerspec cur_setting;
++
++	timr = lock_timer(timer_id);
++	if (!timr) return -EINVAL;
++
++	p_timer_get(&posix_clocks[timr->it_clock],timr, &cur_setting);
++
++	unlock_timer(timr);
++	
++	if (copy_to_user(setting, &cur_setting, sizeof(cur_setting)))
++		return -EFAULT;
 +
 +	return 0;
 +}
-+
-+int main()
-+{
-+#if 0
-+	printf("Using CLOCK_REALTIME \n");
-+	do_main(CLOCK_REALTIME,12345678L,20000000L,10000000L,10000000L);
-+	printf("Using CLOCK_MONOTONIC \n");
-+	do_main(CLOCK_MONOTONIC,12345678L,20000000L,10000000L,10000000L);
-+	printf("Using CLOCK_REALTIME_HR \n");
-+	do_main(CLOCK_REALTIME_HR,12345678L,2000000L,10000000L,1000000L);
-+	printf("Using CLOCK_MONOTONIC_HR \n");
-+	do_main(CLOCK_MONOTONIC_HR,552345678L,20000L,10000000L,100L);
-+#endif
-+	printf("Using CLOCK_REALTIME_HR \n");
-+	do_main(CLOCK_REALTIME_HR,552345678L,20000L,10000000L,16000L);
-+	by_now();
-+}
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/Makefile linux/Documentation/high-res-timers/tests/Makefile
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/Makefile	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/Makefile	Fri Sep 27 10:58:18 2002
-@@ -0,0 +1,77 @@
-+#
-+# Copyright (C) 1997 by the University of Kansas Center for Research,
-+# Inc.	This software was developed by the Information and
-+# Telecommunication Technology Center (ITTC) at the University of
-+# Kansas.  Partial funding for this project was provided by Sprint. This
-+# software may be used and distributed according to the terms of the GNU
-+# Public License, incorporated herein by reference.  Neither ITTC nor
-+# Sprint accept any liability whatsoever for this product.
-+#
-+# This project was developed under the direction of Dr. Douglas Niehaus.
-+#
-+# Authors: Shyam Pather, Balaji Srinivasan 
-+#
-+# Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+#
-+# Further details about this project can be obtained at
-+#    http://hegel.ittc.ukans.edu/projects/posix/
-+#
-+
-+# Makefile for POSIX.4 test/example programs.
-+# 
-+# Targets: 
-+#	  time_tests   --> POSIX.4 interval timers and time_query tests
-+
-+OS = $(shell uname)
-+
-+CROSS_COMPILE	=
-+
-+AS		= $(CROSS_COMPILE)as
-+LD		= $(CROSS_COMPILE)ld
-+CC		= $(CROSS_COMPILE)gcc
-+POSIX_LIBDIR = ../lib
-+POSIX_INCDIR = ../lib
-+# to pick up the modified files, with out putting them in /usr/include
-+USE_INCDIR = ../usr_incl
-+debug =
-+CFLAGS = -g -Wall $(debug)
-+ifeq ($(OS),Linux)
-+CPPFLAGS = -D_POSIX_TIMERS=1 -D_GNU_SOURCE -I$(POSIX_INCDIR) -I$(USE_INCDIR)
-+LDFLAGS = -L$(POSIX_LIBDIR)
-+LDLIBS = -lposixtime
-+endif
-+SOURCES =	2timer_test.c \
-+		timer_test.c \
-+		jitter_test.c \
-+		clock_getrestest.c \
-+		clock_gettimetest.c \
-+		clock_settimetest.c \
-+		clock_gettimetest2.c \
-+		clock_gettimetest3.c \
-+		clock_gettimetest4.c \
-+		clock_gettimetest5.c \
-+		clock_nanosleeptest.c \
-+		performance.c
-+
-+PROGS = $(SOURCES:.c=) 
-+
-+all: $(PROGS)
-+
-+$(PROGS): $(POSIX_LIBDIR)/libposixtime.so
-+
-+%: %.c
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
-+
-+clean:
-+	$(RM) $(PROGS) *~ *.o core .depend 
-+
-+
-+.depend depend: $(SOURCES)
-+	$(CC) -M $(CPPFLAGS) $(SOURCES) | \
-+		sed -e '/:/s|\(^[^ :]*\)\.o|\1|' > .depend
-+	chmod +x do_test
-+	make
-+
-+# This above make insures that we have the .depend when doing the build.
-+
-+include .depend
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/README linux/Documentation/high-res-timers/tests/README
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/README	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/README	Fri Sep 27 10:58:35 2002
-@@ -0,0 +1,101 @@
-+		 How to use the time test programs
-+		 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-+
-+	       By Shyam Pather (spather@ittc.ukans.edu)
-+		Updated by George Anzinger (george@mvista.com) 
-+		last edit: <20020927.1657.03>
-+
-+
-+See: http://sourceforge.net/projects/high-res-timers/
-+
-+for more information about this project.
-+
-+About this document
-+-------------------
-+
-+This document describes the use of the test programs supplied with the
-+high res timing patch. This document does not explain in detail what
-+each program does. That information is in a comment at the top of each
-+source file. This document instead explains how to run the tests -
-+what to type when, what you should expect to see etc.
-+
-+Building the tests 
-+------------------ 
-+
-+These test programs require the "libposixtime.a" library in order to
-+build. Run "make" from the "lib" directory first, and then run "make"
-+in this directory in order to build the tests.
-+
-+Most of these tests use the utils.h in the tests directory which defines
-+various ways of printing results.  We are slowly changing the tests to
-+keep track of failures and to print error reports in color (red) and
-+summary reports in yellow if all is OK, other wise this too will be in
-+red.  The do_test script will run most of the tests and print a summary
-+of the results.	 Note that this script assumes that there is a "doi"
-+program or script that allows root permissions, which are needed for the
-+clock_settime test.  You can remove "doi" if you run "do_tests" with
-+root permissions, or just understand that the test will fail (with
-+proper red line error reporting).
-+
-+Running the tests
-+-----------------
-+
-+Run "2timer_test". You will see several timer expiration messages. The
-+number of messages you seen varies, depending on whether the program is
-+being run from the console or from X (this has to do with the speed of
-+I/O, but is not a "problem" - this is a very simple program that does
-+not use sophisticated synchronization methods to control the order in
-+which events occur, and thus the timer can sometimes fire more times
-+that necessary). You can easily modify this program to run thru various
-+times and clocks, see the final lines.
-+
-+The output will be one line for each timer expiration plus a couple for
-+details on the particular test.
-+
-+This is sufficient to show that timers can be created, set, and deleted.
-+
-+			    =-*-=-*-=-*-=
-+
-+Run "clock_getrestest". The output should look something like:
-+
-+(Resolution of CLOCK_REALTIME) tv_sec == 0, tv_nsec == 10000000
-+(Resolution of CLOCK_REALTIME_HR) tv_sec == 0, tv_nsec == 1000
-+
-+This simply shows the resolution of the two defined system clocks. 
-+
-+			    =-*-=-*-=-*-=
-+
-+Run "clock_gettimetest". This program simply calls clock_gettime() in
-+a loop, and should show a monotonically increasing series of time
-+values, such as:
-+
-+(1074169249) tv_sec == 869352130, tv_nsec == 416550000
-+(1074169250) tv_sec == 869352130, tv_nsec == 416734000
-+(1074169251) tv_sec == 869352130, tv_nsec == 416917000
-+(1074169252) tv_sec == 869352130, tv_nsec == 417101000
-+(1074169253) tv_sec == 869352130, tv_nsec == 417284000
-+(1074169254) tv_sec == 869352130, tv_nsec == 417469000
-+
-+			    =-*-=-*-=-*-=
-+
-+Run "clock_gettimetest2". This program is similar to the one above,
-+except that it interleaves calls to clock_gettime() with calls to
-+gettimeofday(), the standard Linux time query system call. Again the
-+time values should be montonically increasing, and the clock_gettime()
-+results should have a higher resolution than those of gettimeofday()
-+(gettimeofday() reports only in terms of microseconds (usec), whereas
-+clock_gettime() reports in terms of nanoseconds (nsec)). The output
-+should look something like:
-+
-+(812) tv_sec == 869352285, tv_usec == 263945
-+(812) tv_sec == 869352285, tv_nsec == 264101000
-+(813) tv_sec == 869352285, tv_usec == 264266
-+(813) tv_sec == 869352285, tv_nsec == 264422000
-+(814) tv_sec == 869352285, tv_usec == 264586
-+(814) tv_sec == 869352285, tv_nsec == 264743000
-+
-+This shows that clock_gettime() returns time values consistent with
-+those of the standard Linux time querying system call.
-+
-+
-+
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_getrestest and linux/Documentation/high-res-timers/tests/clock_getrestest differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_getrestest.c linux/Documentation/high-res-timers/tests/clock_getrestest.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_getrestest.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_getrestest.c	Fri Sep 27 10:58:52 2002
-@@ -0,0 +1,73 @@
 +/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
++ * Get the number of overruns of a POSIX.1b interval timer
++ * This is a bit messy as we don't easily know where he is in the delivery
++ * of possible multiple signals.  We are to give him the overrun on the
++ * last delivery.  If we have another pending, we want to make sure we
++ * use the last and not the current.  If there is not another pending
++ * then he is current and gets the current overrun.
 + */
 +
-+/* clock_getrestest.c
-+ *
-+ * This program simply calls clock_getres().
-+ *
-+ * Author: Shyam Pather 
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+int main() {
-+	struct timespec ts;
-+	
-+	Try(clock_getres(CLOCK_REALTIME, &ts));
-+	
-+	printf("(Resolution of CLOCK_REALTIME) tv_sec = %ld, tv_nsec = %ld\n", 
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	
-+	try(EINVAL,clock_getres(33, &ts));
-+
-+	try(0,clock_getres(CLOCK_REALTIME, NULL));
-+
-+	try(EFAULT,clock_getres(CLOCK_REALTIME, (struct timespec*)1));
-+
-+	Try(clock_getres(CLOCK_MONOTONIC, &ts));
-+	
-+	printf("(Resolution of CLOCK_MONOTONIC) tv_sec = %ld, tv_nsec = %ld\n", 
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	
-+	Try(clock_getres(CLOCK_REALTIME_HR, &ts));
-+	
-+	printf("(Resolution of CLOCK_REALTIME_HR) tv_sec = %ld, tv_nsec = %ld\n", 
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	
-+	try(EINVAL,clock_getres(33, &ts));
-+
-+	try(0,clock_getres(CLOCK_REALTIME_HR, NULL));
-+
-+	try(EFAULT,clock_getres(CLOCK_REALTIME_HR, (struct timespec*)1));
-+
-+	Try(clock_getres(CLOCK_MONOTONIC_HR, &ts));
-+	
-+	printf("(Resolution of CLOCK_MONOTONIC_HR) tv_sec = %ld, tv_nsec = %ld\n", 
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	by_now();
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest and linux/Documentation/high-res-timers/tests/clock_gettimetest differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest.c linux/Documentation/high-res-timers/tests/clock_gettimetest.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_gettimetest.c	Fri Sep 27 10:59:20 2002
-@@ -0,0 +1,56 @@
-+/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
-+ */
-+
-+/* clock_gettimetest.c
-+ *
-+ * This program simply calls clock_gettime() in a loop. Time values 
-+ * displayed should be monotonically increasing.
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+int main() {
-+	struct timespec ts;
-+	int bogus_clock = 33;
-+
-+	Try(clock_gettime(CLOCK_REALTIME, &ts));
-+		
-+	printf("clock_gettime(CLOCK_REALTIME) tv_sec == %ld, tv_nsec == %ld\n",
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	try(EINVAL,clock_gettime(bogus_clock, &ts));
-+
-+	try(EFAULT, clock_gettime(CLOCK_REALTIME, NULL));
-+
-+	try(EFAULT,clock_gettime(CLOCK_REALTIME, (struct timespec*)1));
-+	try(0,clock_gettime(CLOCK_MONOTONIC, &ts));
-+
-+	printf("clock_gettime(CLOCK_MONOTONIC) tv_sec == %ld, tv_nsec == %ld\n",
-+	       ts.tv_sec, ts.tv_nsec);		
-+	by_now();
-+}
-+
-+
-+
-+
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest2 and linux/Documentation/high-res-timers/tests/clock_gettimetest2 differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest2.c linux/Documentation/high-res-timers/tests/clock_gettimetest2.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest2.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_gettimetest2.c	Fri Sep 27 10:59:41 2002
-@@ -0,0 +1,70 @@
-+/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
-+ */
-+
-+/* clock_gettimetest2.c
-+ *
-+ * This program simply calls gettimeofday(), followed by clock_gettime() 
-+ * in a loop. The sequence of time values printed should be monotonically
-+ * increasing. The time values returned by clock_gettimeofday() have greater
-+ * accuracy than those returned by gettimeofday().
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#include <sys/time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+#define N 25
-+
-+int main() {
-+	struct timespec ts[N],tvs;
-+	struct timeval tv[N],tvt;
-+	int i = 0, retval;
-+
-+	for (;i < N;i++) {
-+		retval = gettimeofday(&tv[i], NULL);
-+		if (retval) {
-+			myperror("gettimeofday() failed");
-+			exit(1);
-+		}
-+		
-+		retval = clock_gettime(CLOCK_REALTIME, &ts[i]);
-+		if (retval) {
-+			myperror("clock_gettime() failed");
-+			exit(1);
-+		}
-+	}
-+	for (i=0;i < N;i++) {
-+		printf("(%d) tv_sec = %ld, tv_usec*1000 = %ld000\n",i, 
-+		       tv[i].tv_sec, tv[i].tv_usec);
-+		printf("(%d) tv_sec = %ld, tv_nsec	= %ld\n",i, 
-+		       ts[i].tv_sec, ts[i].tv_nsec);	
-+		timeval_to_timespec(&tv[i],&tvs);
-+		assert(	 timer_gt(&ts[i],&tvs));
-+		if ( i < (N -1)){
-+			timespec_to_timeval(&ts[i],&tvt);
-+			assert( timevaldiff(&tv[i+1],&tvt) >= 0);
-+		}
-+			
-+	}
-+	by_now();
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest3 and linux/Documentation/high-res-timers/tests/clock_gettimetest3 differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest3.c linux/Documentation/high-res-timers/tests/clock_gettimetest3.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest3.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_gettimetest3.c	Fri Sep 27 10:59:53 2002
-@@ -0,0 +1,70 @@
-+/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
-+ */
-+
-+/* clock_gettimetest3.c
-+ *
-+ * This program simply calls gettimeofday(), followed by clock_gettime() 
-+ * in a loop. The sequence of time values printed should be monotonically
-+ * increasing. The time values returned by clock_gettimeofday() have greater
-+ * accuracy than those returned by gettimeofday().
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#include <sys/time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+#define MAX_SAMPLES 25
-+
-+int main() {
-+	struct timespec ts, start, end, end2;
-+	struct timeval tv;
-+	int i = 0, retval;
-+	int delta;
-+
-+	printf("#sample\tdelta (usec)\n");
-+	for (i = 0; i < MAX_SAMPLES; i++) {
-+		retval = gettimeofday(&tv, NULL);
-+		if (retval) {
-+			myperror("gettimeofday() failed");
-+		}
-+		
-+		clock_gettime(CLOCK_MONOTONIC, &start);
-+		retval = clock_gettime(CLOCK_REALTIME, &ts);
-+		clock_gettime(CLOCK_MONOTONIC, &end);
-+		clock_gettime(CLOCK_MONOTONIC, &end2);
-+		if (retval) {
-+			myperror("clock_gettime() failed");
-+		}
-+
-+		delta = (ts.tv_sec - tv.tv_sec) * 1000000 +
-+		  (ts.tv_nsec / 1000 - tv.tv_usec);
-+
-+		printf("%d\t%d ", i, delta);
-+		printf("start %ld.%09ld, end %ld.%09ld, end2 %ld.%09ld delta %ld.%09ld delta2 %ld.%09ld\n",
-+		       start.tv_sec, start.tv_nsec, end.tv_sec, end.tv_nsec,
-+		       end2.tv_sec, end2.tv_nsec,
-+		       end.tv_sec - start.tv_sec, end.tv_nsec - start.tv_nsec,
-+		       end2.tv_sec - end.tv_sec, end2.tv_nsec - end.tv_nsec);
-+	}
-+	by_now();
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest4 and linux/Documentation/high-res-timers/tests/clock_gettimetest4 differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest4.c linux/Documentation/high-res-timers/tests/clock_gettimetest4.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest4.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_gettimetest4.c	Fri Sep 27 11:00:05 2002
-@@ -0,0 +1,37 @@
-+#include <stdio.h>
-+#include <time.h>
-+#include <sys/time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+
-+#define MAX_SAMPLES 25
-+
-+int timespec_diff(struct timespec *start, struct timespec *end)
++asmlinkage int sys_timer_getoverrun(timer_t timer_id)
 +{
-+  return (end->tv_sec - start->tv_sec) * 1000000000 +
-+    (end->tv_nsec - start->tv_nsec);
-+}
++	struct k_itimer *timr;
++	int overrun;
++	 struct sigqueue *q;
++	 struct task_struct * t;
 +
++	timr = lock_timer( timer_id);
++	if (!timr) return -EINVAL;
 +
-+int main(void)
-+{
-+  struct timespec start_rt, end_rt;
-+  struct timespec start_tsc, end_tsc;
-+  int i;
-+  int delta_rt, delta_tsc;
++	 t = timr->it_process;
++	 overrun = timr->it_overrun;
++	spin_lock(&t->sigmask_lock);
++	 for (q = t->pending.head; q; q = q->next) {
++		 if ((q->info.si_code == SI_TIMER) &&
++		     (q->info.si_tid == timr->it_id)) {
 +
-+  printf("Measured times to get times (in nano secs):\n");
-+  for (i = 0; i < MAX_SAMPLES; i++) {
-+    clock_gettime(CLOCK_REALTIME, &start_rt);
-+    clock_gettime(CLOCK_REALTIME, &end_rt);
-+    clock_gettime(CLOCK_MONOTONIC, &start_tsc);
-+    clock_gettime(CLOCK_MONOTONIC, &end_tsc);
-+    delta_rt = timespec_diff(&start_rt, &end_rt);
-+    delta_tsc = timespec_diff(&start_tsc, &end_tsc);
-+
-+    printf("CLOCK_REALTIME = %9d\tCLOCK_MONOTONIC = %9d\n",
-+	   delta_rt, delta_tsc);
-+  }
-+  return 0;
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest5 and linux/Documentation/high-res-timers/tests/clock_gettimetest5 differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest5.c linux/Documentation/high-res-timers/tests/clock_gettimetest5.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_gettimetest5.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_gettimetest5.c	Fri Sep 27 11:00:15 2002
-@@ -0,0 +1,65 @@
-+/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
-+ */
-+
-+/* clock_gettimetest3.c
-+ *
-+ * This program simply calls clock_gettime(CLOCK_REALTIME), 
-+ * followed by clock_gettime(CLOCK_MONOTONIC) and figures the difference
-+ * between them.  It then pauses for a few seconds and does it again.
-+ * It then prints the difference. 
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#include <sys/time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+#define MAX_SAMPLES 25
-+#define few_seconds 1
-+
-+double sqew(void)
-+{
-+	struct timespec tr[MAX_SAMPLES], tm[MAX_SAMPLES];
-+	int i;
-+	double result;
-+
-+	for (i = 0; i < MAX_SAMPLES; i++) {
-+		Try(clock_gettime(CLOCK_MONOTONIC,&tm[i]));
-+		Try(clock_gettime(CLOCK_REALTIME,&tr[i]));
-+		result += timerdiff(&tr[i],&tm[i]);
-+	}
-+	return result / MAX_SAMPLES;
-+}
-+		
-+
-+int main() {
-+	double first;
-+	int i;
-+
-+	printf("Clock sqew test\n");
-+	for ( i = 0; i < 30; i++){
-+		first = sqew();
-+		printf("sqew %f \n",first);
-+		sleep(few_seconds);
-+	}
-+	by_now();
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_nanosleeptest and linux/Documentation/high-res-timers/tests/clock_nanosleeptest differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_nanosleeptest.c linux/Documentation/high-res-timers/tests/clock_nanosleeptest.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_nanosleeptest.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_nanosleeptest.c	Fri Sep 27 11:00:29 2002
-@@ -0,0 +1,390 @@
-+/*
-+ * tests/clock_nanosleeptest.c - test program for clock_nanosleep(3)
-+ *
-+ * 30 March 2002
-+ * 
-+ * Robert Love <rml@tech9.net>, MontaVista Software
-+ */
-+#include <sys/types.h>
-+#include <sys/wait.h>
-+
-+#include <string.h>
-+#include <linux/unistd.h>
-+#include "../lib/posix_time.h"
-+#include "utils.h"
-+
-+#define CLOCK_BAD	55		/* an invalid clock id */
-+#define TIMER_BAD	55		/* an invalid flag */
-+#define BAD_POINTER	(NULL+1)	/* NULL is too obvious */
-+#define SIGNAL1 SIGUNUSED
-+#define SIGNAL2 SIGHUP
-+WAIT_VARS();
-+
-+/*
-+ * some funky signal handlers, don't do much, but allow us to notice them
-+ */
-+void handler1(int signo, siginfo_t *info, void *context)
-+{
-+	printf("handler1 entered: signal %d\n", signo);
-+}
-+int waitf;
-+void handler2(int signo, siginfo_t *info, void *context)
-+{
-+	debug(printf("handler2 entered: signal %d\n", signo););
-+	waitf = 1;
-+}
-+
-+int test(clock_t clock,int EPS)
-+{
-+	struct timespec ns, ts, rs, bs;
-+	int i;
-+	double diff;
-+	pid_t child;
-+	sigset_t new_mask;
-+//	  Try(NSEC_PER_SEC == 1000000000?0:-1);
-+
-+	ts.tv_sec = 0;
-+	ts.tv_nsec = 100;
-+
-+	sigemptyset(&new_mask);
-+	sigaddset(&new_mask, SIGNAL1);
-+	//sigaddset(&new_mask, SIGNAL2);
-+	sigaddset(&new_mask, SIGSTOP);
-+	sigaddset(&new_mask, SIGCONT);
-+	sigprocmask(SIG_UNBLOCK, &new_mask, NULL);
-+	wait_setup(SIGNAL2);
-+
-+	/* bad clock id */
-+	try(EINVAL, clock_nanosleep(CLOCK_BAD, 0, &ts, NULL));
-+
-+	/* bad rqtp pointer */
-+	try(EFAULT, clock_nanosleep(clock, 0, BAD_POINTER, NULL));
-+
-+	/* bad rmtp pointer */
-+	try(EFAULT, clock_nanosleep(clock, 0, &ts, BAD_POINTER));
-+
-+	/* invalid sleep value (tv_nsec < 0) */
-+	ts.tv_nsec = -1;
-+	try(EINVAL, clock_nanosleep(clock, 0, &ts, NULL));
-+
-+	/* invalid sleep value (tv_nsec >= 1,000,000,000) */
-+	ts.tv_nsec = 1000000000;
-+	try(EINVAL, clock_nanosleep(clock, 0, &ts, NULL));
-+
-+	/* valid 200ns sleep */
-+	ts.tv_nsec = 200;
-+	try(0, clock_nanosleep(clock, 0, &ts, &rs));
-+
-+	/* is rmtp sane (should be zero) ? */
-+	if (rs.tv_sec || rs.tv_nsec ){
-+		myerror("return rmtp is bad ");
-+		fprintf(stderr, SETCOLOR_FAILURE
-+			"(%lds, %ldns)\n" 
-+			SETCOLOR_NORMAL,rs.tv_sec,rs.tv_nsec);
-+	}
-+
-+	/* if TIMER_ABSTIME is specified, rmtp should not be touched */
-+	rs.tv_sec = rs.tv_nsec = 55;
-+	Try(clock_gettime(clock, &ts));
-+	ts.tv_nsec += 1000;
-+	try(0,clock_nanosleep(clock, TIMER_ABSTIME, &ts, &rs));
-+	if (rs.tv_sec != 55 || rs.tv_nsec != 55){
-+		myerror("TIME_ABSTIME specified and rmtp touched");
-+		fprintf(stderr, SETCOLOR_FAILURE			
-+			"(%lds, %ldns)!\n"
-+			SETCOLOR_NORMAL, rs.tv_sec, rs.tv_nsec);
-+	}
-+
-+	/*
-+	 * make sure we awake reasonably close to the time requested and
-+	 * never awake earlier than requested
-+	 */
-+
-+	for (i = 0; i < 5; i++) {
-+		double diff;
-+		int dot = 0;
-+		Try(clock_gettime(clock, &bs));
-+		ts.tv_sec = 1;
-+		ts.tv_nsec = 150000;
-+		Try(clock_nanosleep(clock, 0, &ts, NULL));
-+		timersum(&bs,&bs,&ts);// expected wake up time
-+		roundtores(&bs,1000);
-+ 
-+		Try(clock_gettime(clock, &ns));
-+
-+		if ((diff = timerdiff(&ns, &bs)) > EPS || diff < 0){
-+			char *ls = long_short(diff);
-+			if( dot) fprintf(stderr, "\n");
-+			myerror("slept too");
-+			fprintf(stderr, SETCOLOR_FAILURE 
-+				"%s!\n requested:\t%lds %ldns\n"
-+				" now:\t\t%lds %ldns\n"	
-+				" ititeration %d, diff is %12.9fsec\n" 
-+				SETCOLOR_NORMAL, ls,
-+				bs.tv_sec, bs.tv_nsec, 
-+				ns.tv_sec, ns.tv_nsec, i, diff);
-+			dot = 0;
-+
-+		}else{
-+			fprintf(stderr, ".");
-+			dot = 1;
-+		}
-+	}
-+	/*
-+	 * Now for abs time...
-+	 * make sure we awake reasonably close to the time requested and
-+	 * never awake earlier than requested
-+	 */
-+	for (i = 0; i < 5; i++) {
-+		double diff;
-+		int dot = 0;
-+		Try(clock_gettime(clock, &ts));
-+		ts.tv_sec++;
-+		ts.tv_nsec += 150000;
-+		roundtores(&ts,1);  // cheap normalization
-+		Try(clock_nanosleep(clock, TIMER_ABSTIME, &ts, NULL));
-+
-+		Try(clock_gettime(clock, &ns));
-+		roundtores(&ts,1000);
-+
-+		if ((diff = timerdiff(&ns, &ts)) > EPS || diff < 0){
-+			char *ls = long_short(diff);
-+			if( dot) fprintf(stderr, "\n");
-+			myerror("slept too ");
-+			
-+			fprintf(stderr, SETCOLOR_FAILURE
-+				"%s!\n requested:\t%lds %ldns\n"
-+				" now:\t\t%lds %ldns\n"	
-+				" diff is %12.9fsec\n" SETCOLOR_NORMAL, ls,
-+				ts.tv_sec, ts.tv_nsec, 
-+				ns.tv_sec, ns.tv_nsec, diff);
-+			dot = 0;
-+
-+		}else{
-+			fprintf(stderr, ".");
-+			dot = 1;
-+		}
-+
-+	}
-+	/*
-+	 * Now for some more interesting tests.	 First, what happens
-+	 * if we interrupt nanosleep.  To do this we fork so we have a
-+	 * child that can cry... uh interrupt us at importune times.
-+	 */
-+	fprintf(stderr, "\nTesting signal behavor...\n");
-+	wait_flush();
-+	if(!fork()){
-+		/* The child... */
-+		
-+		ts.tv_sec = 0;
-+		ts.tv_nsec = 10000000;
-+	       
-+		Try(clock_nanosleep(clock, 0, &ts, NULL));
-+		Try(kill(getppid(),SIGNAL1));
-+		usleep(5000);
-+		wait_send(getppid());
-+		exit(0);
-+	}
-+	/* The parent ... */
-+	Try(clock_gettime(clock, &bs));
-+	ts.tv_sec = 1;
-+	ts.tv_nsec = 0;
-+	try(EINTR,clock_nanosleep(clock, 0, &ts, &rs));
-+	Try(clock_gettime(clock, &ns));
-+	fprintf(stderr,"Time remaining is %lds %ldns\n",rs.tv_sec,rs.tv_nsec);
-+ 
-+	timersum(&bs,&bs,&ts);// expected wake up time
-+	roundtores(&bs,1000);
-+	timersum(&ns,&ns,&rs);// wake up time + remaining time
-+	debug(fprintf(stderr,"Waiting for sig2...\n");fflush(stderr););
-+	wait_sync();	   // wait for sync point
++			 overrun = timr->it_overrun_last;
++			 break;
++		 }
++	 }
++	spin_unlock(&t->sigmask_lock);
 +	
-+	if ((diff = timerdiff(&ns, &bs)) > EPS || diff < 0){
-+		char *ls = long_short(diff);
-+		myerror("slept too");
-+		fprintf(stderr, SETCOLOR_FAILURE 
-+			"%s!\n requested:\t%lds %ldns\n"
-+			" now:\t\t%lds %ldns\n"	
-+			" diff is %12.9fsec\n" SETCOLOR_NORMAL, ls,
-+			bs.tv_sec, bs.tv_nsec, 
-+			ns.tv_sec, ns.tv_nsec, diff);
++	unlock_timer(timr);
 +
++	return overrun;
++}
++/* Adjust for absolute time */
++/*
++ * If absolute time is given and it is not CLOCK_MONOTONIC, we need to
++ * adjust for the offset between the timer clock (CLOCK_MONOTONIC) and
++ * what ever clock he is using.
++ *
++ * If it is relative time, we need to add the current (CLOCK_MONOTONIC)
++ * time to it to get the proper time for the timer.
++ */
++static int  adjust_abs_time(struct k_clock *clock,struct timespec *tp, int abs)
++{
++	 struct timespec now;
++	 struct timespec oc;
++	 do_posix_clock_monotonic_gettime(&now);
++
++	 if ( abs &&
++	     (posix_clocks[CLOCK_MONOTONIC].clock_get == clock->clock_get)){ 
++	 }else{
++
++		 if (abs){
++			 do_posix_gettime(clock,&oc);
++		 }else{
++			 oc.tv_nsec = oc.tv_sec =0;
++		 }
++		 tp->tv_sec += now.tv_sec - oc.tv_sec;
++		 tp->tv_nsec += now.tv_nsec - oc.tv_nsec;
++
++		 /* 
++		  * Normalize...
++		  */
++		 if (( tp->tv_nsec - NSEC_PER_SEC) >= 0){
++			 tp->tv_nsec -= NSEC_PER_SEC;
++			 tp->tv_sec++;
++		 }
++		 if (( tp->tv_nsec ) < 0){
++			 tp->tv_nsec += NSEC_PER_SEC;
++			 tp->tv_sec--;
++		 }
++	 }
++	 /*
++	  * Check if the requested time is prior to now (if so set now) or
++	  * is more than the timer code can handle (if so we error out).
++	  * The (unsigned) catches the case of prior to "now" with the same
++	  * test.  Only on failure do we sort out what happened, and then
++	  * we use the (unsigned) to error out negative seconds.
++	  */
++	 if ((unsigned)(tp->tv_sec - now.tv_sec) > (MAX_JIFFY_OFFSET / HZ)){
++		 if ( (unsigned)tp->tv_sec < now.tv_sec){
++			 tp->tv_sec = now.tv_sec;
++			 tp->tv_nsec = now.tv_nsec;
++		 }else{
++			 // tp->tv_sec = now.tv_sec + (MAX_JIFFY_OFFSET / HZ);
++			 /*
++			  * This is a considered response, not exactly in
++			  * line with the standard (in fact it is silent on
++			  * possible overflows).  We assume such a large 
++			  * value ALMOST always is a programming error and
++			  * try not to compound it by setting a really dumb
++			  * value.
++			  */ 
++			 return -EINVAL;
++		 }
++	 }
++	 return 0;
++}
++
++/* Set a POSIX.1b interval timer. */
++/* timr->it_lock is taken. */
++static inline int do_timer_settime(struct k_itimer *timr, int flags,
++		      struct itimerspec *new_setting,
++		      struct itimerspec *old_setting)
++{
++	 struct k_clock * clock = &posix_clocks[timr->it_clock];
++
++	if (old_setting) {
++		do_timer_gettime(timr, old_setting);
 +	}
-+	waitpid(child, &i, 0);
-+       /*
-+	 * For this one we do a signal that is not delivered to the
-+	 * task, and make sure that nanosleep keep running
-+	 */
-+	fprintf(stderr, "\nTesting undelivered signal behavor...\n");
-+	wait_flush();
-+	if(!(child = fork())){
-+		/* The child... make this abs, just for grins */
-+		Try(clock_gettime(clock, &bs));
-+		ts.tv_sec = 1;
-+		ts.tv_nsec = 0;
-+		timersum(&bs,&ts,&bs);
-+		try(0,clock_nanosleep(clock, TIMER_ABSTIME, &bs, &rs));
-+		Try(clock_gettime(clock, &ns));
-+		fprintf(stderr,"Time remaining is %lds %ldns\n",
-+			rs.tv_sec,rs.tv_nsec);
-+ 
-+		// timersum(&bs,&bs,&ts);// expected wake up time
-+		roundtores(&bs,1000);
-+		timersum(&ns,&ns,&rs);// wake up time + remaining time
 +
-+
-+		if ((diff = timerdiff(&ns, &bs)) > EPS || diff < 0){
-+			char *ls = long_short(diff);
-+			myerror("slept too");
-+			fprintf(stderr, SETCOLOR_FAILURE 
-+				"%s!\n requested:\t%lds %ldns\n"
-+				" now:\t\t%lds %ldns\n"	
-+				" diff is %12.9fsec\n" SETCOLOR_NORMAL, ls,
-+				bs.tv_sec, bs.tv_nsec, 
-+				ns.tv_sec, ns.tv_nsec, diff);
-+
-+		}
-+		wait_send(getppid());
-+		exit(0);
-+		
-+	}else {
-+	/* The parent ... */
-+		ts.tv_sec = 0;
-+		ts.tv_nsec = 10000000;
-+		Try(clock_nanosleep(clock, 0, &ts, NULL));
-+		kill(child,SIGSTOP);
-+		Try(clock_nanosleep(clock, 0, &ts, NULL));
-+		kill(child,SIGCONT);
-+	}
-+	wait_sync();
-+	waitpid(child, &i, 0);
-+	/*
-+	 * Now we get really dirty.  The spec says we should be able to
-+	 * reset the clock while clock_nanosleep(absolute) is at work and
-+	 * still wake up at the correct time.  We need to be su to do 
-+	 * this, but then that will just fall out as an error.
-+	 * We will let the child do the clock setting...
-+	 */
-+	if( clock == CLOCK_MONOTONIC || clock == CLOCK_MONOTONIC_HR){
-+		/* 
-+		 * can not do this test if we can not set the clock...
-+		 */
++	/* disable the timer */
++	 timr->it_incr = 0;
++	 IF_HIGH_RES(timr->it_sub_incr = 0);
++	 /* 
++	  * careful here.  If smp we could be in the "fire" routine which will
++	  * be spinning as we hold the lock.  But this is ONLY an SMP issue.
++	  */
++#ifdef CONFIG_SMP
++	 if ( timer_active(timr) && ! del_timer(&timr->it_timer)){
++		 /*
++		  * It can only be active if on an other cpu.  Since
++		  * we have cleared the interval stuff above, it should
++		  * clear once we release the spin lock.  Of course once
++		  * we do that anything could happen, including the 
++		  * complete melt down of the timer.  So return with 
++		  * a "retry" exit status.
++		  */
++		 return TIMER_RETRY;
++	 }
++	 set_timer_inactive(timr);
++#else
++	 del_timer(&timr->it_timer);
++#endif
++	/* switch off the timer when it_value is zero */
++	if ((new_setting->it_value.tv_sec == 0) &&
++	    (new_setting->it_value.tv_nsec == 0)) {
++		timr->it_timer.expires = 0;
++		 IF_HIGH_RES(timr->it_timer.sub_expires = 0 );
 +		return 0;
 +	}
-+#define CHILD_DELAY 10000000;
 +
-+	fprintf(stderr, "\nTesting behavor with clock seting...\n");
-+	for (i = -4; i < 4; i+=8){
-+		int exv;
-+		char * what = i > 0 ? "Advancing" :"Retarding";
-+		wait_flush();
-+		fprintf(stderr,"%s the clock\n",what); 
-+		if(!(child = fork())){
-+			/* The child... */
-+		
-+			ts.tv_sec = 0;
-+			ts.tv_nsec = CHILD_DELAY;
-+			Try(clock_nanosleep(clock, 0, &ts, NULL));
-+			/* Advance/ retard the clock */
-+			Try(clock_gettime(clock,&bs));
-+			ts = bs;
-+			ts.tv_sec += i;
-+			if(clock_settime(clock,&ts) <0){
-+				if( errno == EPERM){
-+					fprintf(stderr,SETCOLOR_WARNING
-+						"Must be able to set time to do"
-+						" this test, come back then:)\n"
-+						SETCOLOR_NORMAL);
-+					// 
-+					//  Generate EINTR error to log it
-+					//
-+					Try(kill(getppid(),SIGNAL1));
-+					exit(0);
-+				}
-+				Try(("clock_settime error",-1));
-+			}else{
-+				Try(clock_gettime(clock,&ns));
-+				diff = timerdiff(&ns,&ts);
-+				if((diff < 0) || (diff > EPS)){
-+				       fprintf(stderr,SETCOLOR_WARNING
-+					       "Clock did not seem to move"
-+					       "\n was:\t\t%lds %ldns"
-+					       "\n requested:\t%lds %ldns\n"
-+					       " now:\t\t%lds %ldns\n"	
-+					       " diff is %12.9fsec\n" 
-+					       SETCOLOR_NORMAL,
-+					       bs.tv_sec, bs.tv_nsec,
-+					       ts.tv_sec, ts.tv_nsec, 
-+					       ns.tv_sec, ns.tv_nsec, diff);
-+				}
-+
-+			}
-+			wait_sync();
-+			Try(clock_gettime(clock,&ts));
-+			ts.tv_sec -= i;
-+			Try(clock_settime(clock,&ts));			 
-+			exit(0);
-+		}
-+		/* The parent ... */
-+		Try(clock_gettime(clock, &ts));
-+		rs.tv_sec = 0;
-+		rs.tv_nsec = 500000000;
-+		timersum(&ts,&ts,&rs);
-+		try(0,clock_nanosleep(clock, TIMER_ABSTIME, &ts, NULL));
-+		Try(clock_gettime(clock, &ns));
-+		wait_send(child);
-+		/* 
-+		 * Correct expected time.  If clock moved back, we will be
-+		 * late by (back - req.)  if forward, we should be on time.
-+		 */
-+		if ( i > 0){
-+			ts.tv_sec += i;
-+			rs.tv_nsec -= CHILD_DELAY;
-+			timersubtract(&ts,&ts,&rs);
-+		}
-+ 
-+		roundtores(&ts,1000);  // expected wake up time
-+		diff = timerdiff(&ns, &ts);
-+		if ( diff > EPS || diff < 0){
-+			char *ls = long_short(diff);
-+			myerror("slept too");
-+			fprintf(stderr, SETCOLOR_FAILURE 
-+				"%s!\n requested:\t%lds %ldns\n"
-+				" now:\t\t%lds %ldns\n"	
-+				" diff is %12.9fsec\n" SETCOLOR_NORMAL, ls,
-+				ts.tv_sec, ts.tv_nsec, 
-+				ns.tv_sec, ns.tv_nsec, diff);
-+			fprintf(stderr, SETCOLOR_FAILURE 
-+				"Note this may indicate that nano_sleep \n"
-+				"did NOT respond to the clock setting\n"
-+				SETCOLOR_NORMAL);
-+
-+		}
-+		waitpid(child, &exv, 0);
-+	}
-+
-+	return 0;
-+}
-+#define EPS		30000000	/* max error in ns */
-+#define EPS_HR		3500000	/* max error in ns */
-+int main(int argc, char *argv[])
-+{
-+	struct sigaction sa;
-+//	sigset_t set;
-+
-+	sa.sa_flags = SA_SIGINFO;
-+	sa.sa_sigaction = handler1;
-+	Try(sigaction(SIGNAL1, &sa, NULL));
-+	sa.sa_sigaction = handler2;
-+	Try(sigaction(SIGNAL2, &sa, NULL));
-+
-+	fprintf(stderr,"\nTesting clock_nanosleep(CLOCK_REALTIME...\n");
-+	test(CLOCK_REALTIME,EPS);
-+	fprintf(stderr,"\nTesting clock_nanosleep(CLOCK_REALTIME_HR...\n");
-+	test(CLOCK_REALTIME_HR,EPS_HR);
-+	fprintf(stderr,"\nTesting clock_nanosleep(CLOCK_MONOTONIC...\n");
-+	test(CLOCK_MONOTONIC,EPS);
-+	fprintf(stderr,"\nTesting clock_nanosleep(CLOCK_MONOTONIC_HR...\n");
-+	test(CLOCK_MONOTONIC_HR,EPS_HR);
-+	by_now();
-+ }
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_settimetest and linux/Documentation/high-res-timers/tests/clock_settimetest differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_settimetest.c linux/Documentation/high-res-timers/tests/clock_settimetest.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/clock_settimetest.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/clock_settimetest.c	Fri Sep 27 11:00:44 2002
-@@ -0,0 +1,74 @@
-+/*
-+ * Copyright (C) 1997 by the University of Kansas Center for Research,
-+ * Inc.	 This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ *
-+ * Authors: Shyam Pather, Balaji Srinivasan 
-+ *
-+ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
-+ *
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/posix/
-+ */
-+
-+/* clock_gettimetest.c
-+ *
-+ * This program simply calls clock_gettime() in a loop. Time values 
-+ * displayed should be monotonically increasing.
-+ */
-+
-+#include <stdio.h>
-+#include <time.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+
-+int main() {
-+	struct timespec ts;
-+
-+	try(0,clock_gettime(CLOCK_REALTIME, &ts));
-+		
-+	printf("clock_gettime(CLOCK_REALTIME) tv_sec == %ld, tv_nsec == %ld\n",
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	try(0,clock_settime(CLOCK_REALTIME, &ts));
-+
-+	try(0,clock_gettime(CLOCK_REALTIME, &ts));
-+		
-+	printf("clock_gettime(CLOCK_REALTIME) tv_sec == %ld, tv_nsec == %ld\n",
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	try(EINVAL,clock_settime(33, &ts));
-+
-+	try(EFAULT,clock_settime(CLOCK_REALTIME, NULL));
-+
-+	try(EFAULT,clock_settime(CLOCK_REALTIME, (struct timespec*)1));
-+
-+	try(0,clock_gettime(CLOCK_MONOTONIC, &ts));
-+		
-+	printf("clock_gettime(CLOCK_MONOTONIC) tv_sec == %ld, tv_nsec == %ld\n",
-+	       ts.tv_sec, ts.tv_nsec);		
-+
-+	try(EINVAL,clock_settime(CLOCK_MONOTONIC, &ts));
-+
-+	try(EINVAL,clock_settime(33, &ts));
-+
-+	try(EFAULT,clock_settime(CLOCK_MONOTONIC, NULL));
-+
-+	try(EFAULT,clock_settime(CLOCK_MONOTONIC, (struct timespec*)1));
-+
-+
-+	by_now();
-+}
-+
-+
-+
-+
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/do_test linux/Documentation/high-res-timers/tests/do_test
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/do_test	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/do_test	Fri Sep 27 11:01:00 2002
-@@ -0,0 +1,42 @@
-+#!/bin/bash
-+
-+TESTS="2timer_test clock_getrestest  clock_gettimetest clock_gettimetest2 clock_gettimetest3 clock_gettimetest4 timer_test "
-+
-+PRIV_TESTS="clock_settimetest clock_nanosleeptest"
-+FAIL=""
-+    SETCOLOR_SUCCESS="echo -en \\033[1;32m"
-+    SETCOLOR_FAILURE="echo -en \\033[1;31m"
-+    SETCOLOR_WARNING="echo -en \\033[1;33m"
-+    SETCOLOR_NORMAL="echo -en \\033[0;39m"
-+do_it () {
-+    for t in $1 ; do
-+	echo "Running ************************************************************************** $t"
-+	if ! ./$t ; then
-+	    FAIL="$t $FAIL"
-+	fi
-+    done
-+}
-+do_it_priv () {
-+    for t in $1 ; do
-+	echo "Running ************************************************************************** $t"
-+	if !  ./$t ; then
-+	    FAIL="$t $FAIL"
-+	fi
-+    done
-+}
-+
-+do_it "$TESTS"
-+
-+do_it_priv "$PRIV_TESTS"
-+
-+if [ "$FAIL" != "" ] ; then
-+    $SETCOLOR_FAILURE
-+    echo "The following tests failed:"
-+    for f in $FAIL ; do
-+	echo $f
-+    done
-+else
-+    $SETCOLOR_WARNING
-+    echo "All tests passed!"
-+fi
-+$SETCOLOR_NORMAL
-\ No newline at end of file
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/jitter_test and linux/Documentation/high-res-timers/tests/jitter_test differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/jitter_test.c linux/Documentation/high-res-timers/tests/jitter_test.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/jitter_test.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/jitter_test.c	Fri Sep 27 11:01:16 2002
-@@ -0,0 +1,151 @@
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <time.h>
-+#include <sched.h>
-+#include <sys/time.h>
-+#include <sys/mman.h>
-+#include <errno.h>
-+#include <signal.h>
-+#include <assert.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+
-+#define NOF_JITTER (1*60*100) /* 1 minute test */
-+
-+int jitter[NOF_JITTER];
-+int ijit;
-+struct timeval start;
-+
-+void alrm_handler(int signo, siginfo_t *info, void *context)
-+{
-+  struct timeval end;
-+  int delta;
-+  static int first = 1;
-+
-+  gettimeofday(&end, NULL);
-+
-+  delta = (end.tv_sec - start.tv_sec) * 1000000 +
-+    (end.tv_usec - start.tv_usec);
-+  delta -= 10000;
-+  start = end;
-+  if (first) { first = 0; return; }
-+  jitter[ijit++] = delta;
-+}
-+
-+void print_hist(void)
-+{
-+#define HISTSIZE 1000
-+
-+  int hist[1000 + 1];
-+  int i;
-+
-+  printf("jitter[0] = %d\n", jitter[0]);
-+  memset(hist, 0, sizeof(hist));
-+
-+  for (i = 1; i < NOF_JITTER; i++) {
-+    if (jitter[i] >= HISTSIZE/2) {
-+      printf("sample %d over max hist: %d\n", i, jitter[i]);
-+      hist[HISTSIZE]++;
-+    }
-+    else if (jitter[i] <= -HISTSIZE/2) {
-+      printf("sample %d over min hist: %d\n", i, jitter[i]);
-+      hist[0]++;
-+    }
-+    else {
-+      hist[jitter[i] + HISTSIZE/2]++;
-+    }
-+  }
-+  for (i = 1; i < HISTSIZE; i++) {
-+    if (hist[i]) {
-+      printf("%d: %d\n", i-HISTSIZE/2, hist[i]);
-+    }
-+  }
-+  printf("HC-: %d\n", hist[0]);
-+  printf("HC+: %d\n", hist[HISTSIZE]);
-+}
-+
-+void print_avg(void)
-+{
-+  double sum;
-+  int i;
-+
-+  sum = 0;
-+  for (i = 1; i < NOF_JITTER; i++) {
-+    sum += jitter[i];
-+  }
-+
-+  printf("avg. jitter: %f\n", sum/(NOF_JITTER-1));
-+}
-+
-+int main(void)
-+{
-+	int retval;
-+	timer_t t = 0;
-+	struct itimerspec ispec;
-+	struct itimerspec ospec;
-+	struct sigaction sa;
-+	struct sched_param sched;
-+
-+	retval = mlockall(MCL_CURRENT|MCL_FUTURE);
-+	if (retval) {
-+	  perror("mlockall(MCL_CURRENT|MCL_FUTURE) failed");
-+	}
-+	assert(retval == 0);
-+
-+	sched.sched_priority = 2;
-+	retval = sched_setscheduler(0, SCHED_FIFO, &sched); 
-+	if (retval) {
-+	  perror("sched_setscheduler(SCHED_FIFO)");
-+	}
-+	assert(retval == 0);
-+
-+	sa.sa_sigaction = alrm_handler;
-+	sa.sa_flags = SA_SIGINFO;
-+	sigemptyset(&sa.sa_mask);
-+
-+	if (sigaction(SIGALRM, &sa, NULL)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	if (sigaction(SIGRTMIN, &sa, NULL)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	retval = timer_create(CLOCK_REALTIME, NULL, &t);
-+	if (retval) {
-+		perror("timer_create(CLOCK_REALTIME) failed");
-+	}
-+	assert(retval == 0);
-+
-+	retval = clock_gettime(CLOCK_REALTIME, &ispec.it_value);
-+	if (retval) {
-+		perror("clock_gettime(CLOCK_REALTIME) failed");
-+	}
-+	ispec.it_value.tv_sec += 1;
-+	ispec.it_value.tv_nsec = 0;
-+	ispec.it_interval.tv_sec = 0;
-+	ispec.it_interval.tv_nsec = 10*1000*1000; /* 100 Hz */
-+
-+	retval = timer_settime(t, TIMER_ABSTIME, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME) failed");
-+	}
-+
-+	do { pause(); } while (ijit < NOF_JITTER);
-+
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(existing timer) failed");
-+	}
-+	assert(retval == 0);
-+
-+	print_hist();
-+
-+	print_avg();
-+
-+	return 0;
-+}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/performance and linux/Documentation/high-res-timers/tests/performance differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/performance.c linux/Documentation/high-res-timers/tests/performance.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/performance.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/performance.c	Fri Sep 27 11:02:01 2002
-@@ -0,0 +1,792 @@
-+#ifdef comments
-+/*
-+The performance measurements are:
-+
-+1.) time to activate a timer with 0 to N timers active in the system
-+    (plot time expecting it to have some minor slope) where N is 3000
-+    timers.
-+
-+1a) Do same timer measurement with the timer list set to 512, 1024,
-+    2048, and 4192
-+
-+2.) Measure the preemption operations with timers expiring at random
-+    intervals.
-+
-+3.) Measure the preemption operations with small numbers of timers to
-+    large numbers of timers expiring at the same time.
-+
-+Lets see.  There are two ways of doing this. 
-+
-+1.) We measure the time to activate timer N as we do each timer from 1
-+    to N.  We do this several times take the average, min, max for each
-+    N.
-+
-+2.) For each N we loop for M times activating and deactivating a timer,
-+    again measuring the min, max, average.
-+
-+3.) (I lied about the number of ways :) We do a combo of the above.
-+
-+The data we gather here is min, max, average for each of N timers. 
-+
-+So much for test 1.  Test 2 requires some method of measuring the actual
-+    preemption times.  Suppose we create a thread that does the
-+    measurement.  By using a thread, we can keep track of the number of
-+    timers that expire during each period.  The thread could, each time
-+    period, get the preemtion info from /proc and put the two together
-+    in a data structure/file for subsequent display.
-+
-+Test 3 is a version of Test 2 with out the random expire times.
-+
-+An additional test might be to do tests 2 & 3 with both high res and low
-+    res clocks.	 For that matter, test 1 should do this also.  Should we
-+    also consider MONOTONIC as well as REALTIME clocks?
-+
-+Ok, so, then what are the variables we want to work with and what is the
-+    output:
-+
-+  Test 1,1a
-+    Number of timers
-+    Number of times to loop thru the N timers
-+    Number of times to activate each timer each time thru the loop
-+    CLOCK to use
-+
-+    Produces a file of trupples (min, max, average) for each N.
-+
-+  Test 2,3
-+    Bound of the expire time (i.e. how long will the test run)
-+    Number of times to run the above (again keeping min, max, average)
-+    Interval over which to measure (e.g. for each 10ms)
-+    CLOCK to use
-+
-+    Produces a file of trupples (min, max, average) for each N expires 
-+   
-+
-+*/
-+#endif
-+#include <sys/mman.h>
-+#include <string.h>
-+#include "../lib/posix_time.h"
-+
-+#include "utils.h"
-+#define FALSE 0
-+#define TRUE 1
-+static char *VERSION = "1.0.0 <20020927.1657.03>";
-+static char *program_name = NULL;
-+extern void print_usage(FILE*, int);
-+static int verbose = FALSE;
-+struct timeval start, stop;
-+char * ploting;
-+#ifdef debug
-+#undef debug
-+#define debug(a) do {a}while (0)
-+#else
-+#define debug(a) do {} while (0)
-+#endif
-+
-+/*
-+ * A function to caculate the new running average given the old (av),
-+ * the new (new) and the new item count (count).
-+ * av and new should be "double", while count will usually be int.
-+ */
-+#define run_av(av, new, count) (((av *(count - 1)) + new)/count)
-+
-+/*
-+ * Ever notice that you can do #foo to get a string but there is 
-+ * no way to get a character constant (i.e. 'a') in a macro.  You either
-+ * have it or you don't :(
-+ *
-+ * Ok, here is where we define the run time options.  This one definition
-+ * is used three times, the usage print out, the short options init and
-+ * the long options init.  The parameters are:
-+ * the short options character constant, the same char as is, i.e.
-+ * constant, the long version, NIL if no value, PAR if a value should
-+ * follow, a user friendly info string for the usage print out.
-+ */
-+#define OPTIONS \
-+OPTION_H('h',h, help,	     NIL, Display this usage information (try -vh).\n) \
-+OPTION_H('v',v, verbose,     NIL, print verbose data.\n) \
-+OPTION_H('n',n, timers,	     PAR, Number of timers to work with (3000).\n) \
-+OPTION_H('l',l, loop,	     PAR, Number of times to loop over all timers (5).\n) \
-+OPTION_H('i',i, iterate,     PAR, Number of times to do each timer (5).\n) \
-+OPTION_H('r',r, range,	     PAR, Range of timer values in milliseconds (no. tmrs *20ms).\n) \
-+OPTION_H('m',m, tim-min,     PAR, Minimum timer value to use in milliseconds (10,000).\n) \
-+OPTION_H('a',a, abs,	     NIL, Use absolute timers.\n) \
-+OPTION_H('c',c, clear,	     NIL, Timers will be seperately cleared prio to arming.\n) \
-+OPTION_H('P',P, priority,    PAR, Use priority X on the test (50).\n) \
-+OPTION_H('F',F, fifo,	     NIL, Use SCHED_FIFO algorithm.\n) \
-+OPTION_H('R',R, rr,	     NIL, Use SCHED_RR algorithm (default = SCHED_FIFO).\n) \
-+OPTION_H('L',L, low,	     NIL, Use low resolution clock (high res).\n) \
-+OPTION_H('M',M, mono,	     NIL, Use CLOCK_MONOTONIC (CLOCK_REALTIME).\n) \
-+OPTION_H('g',g, gnu_plot,    NIL, Produce gnu_plot file on stdout.\n) \
-+OPTION_H('t',t, test2,	     NIL, Do test 2 (see -vh).\n)  \
-+OPTION_H('V',V, version,     NIL, Print version of this program.\n) \
-+
-+char *verbose_help = 
-+   "\n"
-+   "Test 1 (use -t to get test 2, for which see comments below)\n\n"
-+   "This program collects data on timer arm time against number of active\n"
-+   "timers.  It also keeps track of timer completions while it is\n"
-+   "measuring the arming times.	 It provides its output in a form\n"
-+   "compatible with gnuplot.  Several runs through the timers are made with\n"
-+   "each run doing several timer arms.	The minimum, maximum and average\n"
-+   "times are kept for each timer count.  The data file contains space\n"
-+   "delimited data in the following order: count, average, min, max,\n"
-+   "completions.  The completions column is the number of timer\n"
-+   "completions while measuring the arm times for that timer.  This\n"
-+   "column is absent if the count is zero.  All times are in microseconds.\n"
-+   "A suggest gnuplot directive is:\n"
-+   "'plot <file> w lines, plot <file> using 1:5'.\n"
-+   "This will put the timer completions on the plot as points only when\n" 
-+   "there are some.  You could also use:\n"
-+   "'plot <file> w error, plot <file> using 1:5'.\n"
-+   "to plot each value as an error bar.\n"
-+   "\n"
-+   "Comments on the parameters: Each of the <timers> is armed <iterate>\n"
-+   "times on each of <loop> loops, thus there are <iterate> * <loop>\n"
-+   "times.  \n"
-+   "\n"
-+   "The timer must be disarmed between each of the <loop> passes, but\n"
-+   "may be left armed for the <iterate> loop.  You can control this with\n"
-+   "the <clear> parameter.  \n"
-+   "\n"
-+   "The time to use for each timer is generated using a random number\n"
-+   "generator constrained to give times from <tim-min> to <tim-min> +\n"
-+   "<range>.  The default value of <tim-min> precludes timers from\n"
-+   "completing during the test, however, this need not be the case.  \n"
-+   "\n"
-+   "By constraining <range> you can defeat the timer hash, causing all\n"
-+   "timers to be inserted in the same hash bucket. (Hash buckets are\n"
-+   "1/HZ seconds in size.)  Since the test take well over 1/HZ seconds,\n"
-+   "you will need to use the <abs> option to actually force all timers\n"
-+   "to the same bucket.	 Without the <abs> option you should notice a\n"
-+   "sawtooth graph with each 1/HZ (in test time, which is not kept)\n"
-+   "representing a tooth, due to the relative alarm times.\n"
-+   "\n"
-+   "It is recommended that this test be run as a real time task to avoid\n"
-+   "its being preempted by other system activity.  See <priority>,\n"
-+   "<fifo> and <rr>.  If none of these are given, the task will inherit\n"
-+   "its parents scheduling attributes.\n"
-+   "\n"
-+   "You can also choose the POSIX clock and resolution.	 Default is\n"
-+   "CLOCK_REALTIME_HR.	<low> change removes the '_HR' and <mono>\n"
-+   "changes 'REALTIME' to 'MONOTONIC'.\n\n"
-+   "The -g option will cause gnuplot commands to be emitted in front of \n"
-+   "the data such that the output can be piped to gnuplot.  Without the \n"
-+   "-g these commands will be replaced with comments such that you can \n"
-+   "enter your own commands to gnuplot and \"plot\" the output.\n\n"
-+   "Test 2 is a generates a plot of preemption time against number of timers\n"
-+   "completing on the same tick.  The preemption time is gathered from\n"
-+   "the preemption \"stats\" patch.  This test is slow as it needs to wait\n"
-+   "for the timers to complete.	 For this test N timers are armed in ABSOLUTE\n"
-+   "mode for N running from 0 to <-n> timers.  The run will be done <-l> \n"
-+   "times and the results averaged to give the same format as the test 1\n"
-+   "file except for the completion info.  For this test the \n"
-+   "-i, -r, -a, -c, and -m options are meaningless.\n"
-+
-+;
-+
-+#define OPTION_U USAGE
-+#include "utils.h"
-+void print_usage(FILE* stream, int exit_code)
-+{
-+	fprintf (stream,"%s version %s\n", program_name, VERSION);
-+	if(verbose){
-+		fprintf(stream,"%s",verbose_help);
-+	}
-+	fprintf (stream, "Usage:  %s options\n", program_name);
-+	fprintf (stream, OPTIONS);
-+	exit (exit_code);
-+}
-+
-+
-+int clock_index = 0;
-+#define MONOTONIC 2
-+#define LOW_RES 1
-+/* 
-+ * We know about the following clocks:
-+ */
-+clock_t clocks[] = {CLOCK_REALTIME_HR, 
-+		    CLOCK_REALTIME, 
-+		    CLOCK_MONOTONIC_HR,
-+		    CLOCK_MONOTONIC};
-+/*
-+ * Which have these names:
-+ */
-+char * clock_names[] = {"CLOCK_REALTIME_HR", 
-+			"CLOCK_REALTIME", 
-+			"CLOCK_MONOTONIC_HR",
-+			"CLOCK_MONOTONIC"};
-+int no_timers = 3000;
-+int main_loop = 5;
-+int iterate_loop = 5;
-+int clear_flag = 0;
-+int high_bound = 0;
-+int mypriority = 0;
-+int expirations = 0;
-+int line = 90;	// take down by 5 for each line in the graph
-+#define new_line() line -= 5
-+int test1 = TRUE;
-+int expire = 0;
-+int gnu_plot = 0;
-+int sched_policy = SCHED_OTHER;
-+double timer_range = 0.0;
-+double min_timer = 10000.0;
-+int absf = 0;
-+#define SIGNAL1 SIGRTMIN //SIGUNUSED
-+struct timespec tm, ts, rs, tb ;
-+struct itimerspec tt ;
-+struct itimerspec * rtime(struct itimerspec * t)
-+{
-+	double tim = (((double)random() *  timer_range) /RAND_MAX) + min_timer;
-+
-+	t->it_value.tv_sec =tim;
-+	t->it_value.tv_nsec =  ((tim - t->it_value.tv_sec) * NSEC_PER_SEC);
-+	if( absf ) timersum(&t->it_value,&t->it_value,&tb);
-+	return t;
-+}
-+
-+#define IF_V(a) do {if( verbose ) { a };}while(0)
-+#define start() expirations = 0;Try(clock_gettime(clocke, &ts))
-+#define elapsed() ({Try(clock_gettime(clocke, &rs));\
-+		     expire = expirations; \
-+		     timerdiff(&rs,&ts);\
-+		   })
-+#define for_each(a) for (t = 0; t < no_timers; t++){a;}
-+#define for_main(a) for (o = 0; o < main_loop; o++){ a; }
-+#define for_iter(a) for (i = 0; i < iterate_loop; i++){ a; } 
-+#define for_all(a)  for_main( for_each (for_iter( a) ))
-+
-+#define timerx() timer[t].result[o].in_loop[i]
-+
-+void timer1_handler(int signo, siginfo_t * info, void * ptr)
-+{
-+	IF_V(printf("In handler\n"););
-+	expirations++;
-+}
-+
-+
-+void do_test1(void)
-+{
-+	struct {
-+		struct result {
-+			double in_loop[iterate_loop];
-+		} result[main_loop];
-+	} timer[no_timers];
-+	timer_t	 timer_id[no_timers];
-+	int expires[no_timers];
-+	int i,o,t;
-+	clock_t clockt = clocks[clock_index];
-+	clock_t clocke = CLOCK_MONOTONIC;
-+	struct sigevent	 sigev;
-+	sigset_t new_mask,old_mask;
-+	struct sigaction oldact,sigact;
-+	struct itimerspec tc = {{0,0},{0,0}};
-+	
-+	/* 
-+	 * For this test we don't want any signals, so
-+	 * just ignor them.
-+	 */
-+	sigact.sa_sigaction = timer1_handler;
-+	sigact.sa_flags = SA_SIGINFO;
-+	Try(sigemptyset(&sigact.sa_mask));
-+
-+	sigaddset(&new_mask, SIGNAL1);
-+	Try(sigprocmask(SIG_UNBLOCK, &new_mask, &old_mask));
-+	/*
-+	 * Set up a random number generator
-+	 */
-+	start();
-+	srandom(ts.tv_sec);
-+	Try(clock_gettime(clockt, &tb));
-+ 
-+	Try(sigaction(SIGNAL1,&sigact,&oldact));
-+	sigev.sigev_notify = SIGEV_SIGNAL;
-+	sigev.sigev_signo = SIGNAL1;
-+	start();
-+	for_all( timerx() = 0.0);
-+	IF_V(printf(" Result array (%d bytes) cleared in %12.9f sec \n",
-+		    main_loop*iterate_loop*no_timers*(sizeof(double)),
-+						      elapsed()););
-+
-+	for_each (
-+		Try(timer_create(clockt, &sigev, &timer_id[t]));
-+		expires[t] = 0;
-+		);
-+	for_main( 
-+		for_each( 
-+			for_iter(
-+				if( clear_flag ){ 
-+					Try(timer_settime(timer_id[t], 
-+							  0, &tc, NULL));
-+				}
-+				start();
-+				Try(timer_settime(timer_id[t], 
-+						  absf, rtime(&tt), NULL));
-+				timerx() = elapsed();
-+				expires[t] = expire;
-+				);
-+			);
-+		for_each(
-+			Try(timer_settime(timer_id[t], 0, &tc, NULL));
-+			);
-+		);
-+     
-+	/*
-+	 * Ok, the test is done, clean up the mess and push out the
-+	 * data.
-+	 */
-+	for_each (Try(timer_delete(timer_id[t])););
-+	/*
-+	 * don't forget to restore the signal system
-+	 */
-+	Try(sigaction(SIGNAL1,&oldact,NULL));
-+	/*
-+	 * Here is where we write out the data.	 All
-+	 * the numbers are floating point.
-+	 */
-+	printf("%splot \"-\" w lines \n", gnu_plot ? "" : "#");
-+
-+
-+	for_each(
-+		double high = 0.0;
-+		double low  = 1000;
-+		double sum  = 0.0;
-+		double scale = 1000000;	 // values in micro seconds
-+		int ppt = iterate_loop + main_loop;
-+		for_main(
-+			for_iter(
-+				double v = timerx();
-+				
-+				sum += v;
-+				if( v > high) high = v;
-+				if( v < low)  low  = v;
-+				);
-+			);
-+		if(expires[t]) {
-+			printf( "%d %12.9f %12.9f %12.9f %d\n",
-+				t,
-+				sum * scale/ ppt,
-+				low * scale,
-+				high * scale,
-+				expires[t]);
-+		}else{
-+			printf( "%d %12.9f %12.9f %12.9f\n",
-+				t,
-+				sum * scale/ ppt,
-+				low * scale,
-+				high * scale);
-+		}
-+		);
-+
-+	return;
-+}
-+
-+/*
-+ * Test 2 is to generate data for a graph of preemption time against
-+ * timer completions.  We set up N timers to complete at the same
-+ * time and then wait for that time.  We then read the preemption
-+ * stats in /proc and see how big a hit we took.  For this test we 
-+ * will not allow much in the way of control as a timer competion 
-+ * is a timer completion.  We will try and fine tune the set up time
-+ * to allow us to get all the timers armed prior to the expire time.
-+ * This will take longer as N gets larger.  We will test what this
-+ * is for N=max and assume it is linear in N (if it is not we will be
-+ * erroring on the right side).	 We will do the whole test M times
-+ * and produce a gnu_plot error file (i.e. N ave min max).
-+ */
-+#undef timerx
-+#undef for_all
-+//#define for_each(a) for (t = 0; t < no_timers; t++){a;}
-+//#define for_main(a) for (o = 0; o < main_loop; o++){ a; }
-+#define for_all(a)  for_main( for_each(	 a ))
-+#define for_timers(a) for (l = 0; l <= t; l++){a;}
-+
-+#define timerx() timer[t].result[o]
-+#define wait_t() timer[t].wait_time[o]
-+
-+struct itimerspec * etime(struct itimerspec * t, double tim)
-+{
-+	t->it_value.tv_sec =tim;
-+	t->it_value.tv_nsec =  ((tim - t->it_value.tv_sec) * NSEC_PER_SEC);
-+	roundtores(&t->it_value,10000000);
-+	timersum(&t->it_value,&t->it_value,&ts);
-+	return t;
-+}
-+#define	 wait_for_expire(new_mask) sigwaitinfo(&new_mask, &info);
-+
-+#define FILEN "/proc/latencytimes"
-+#define BUF_SIZE 4048
-+
-+long get_proc_latency(int count)
-+{
-+	char buff[BUF_SIZE];
-+	int rd;
-+	long n, rtn;
-+	char * loc, * end;
-+	int fd = Try(open(FILEN, O_RDONLY));
-+
-+	rd = Try(read(fd, &buff[0], BUF_SIZE));
-+	if (rd >= BUF_SIZE){
-+		printf("%s buffer size too small (%d)\n", FILEN, BUF_SIZE);
-+	}
-+	n = Try(read(fd, &n, sizeof(n)));
-+	if ( n ) {
-+		printf("Failed to find expected EOF on %s\n", FILEN);
-+	}
-+	close(fd);
-+	buff[rd] = 0;
-+	/*
-+	 * This is a dirty little bit of code to get the worst case 
-+	 * latency from the above buffer.  It will be the number just
-+	 * after the string "end line/file".  There will be a new line
-+	 * here AND, if SMP there may be more than one of them.	 Find
-+	 * them all and return the biggest.  Units will be microseconds.
-+	 */
-+
-+	rtn = 0;
-+	end = buff + rd;
-+	loc = buff;
-+	while (loc < end){
-+		char mstring[] = "end line/file";
-+		loc = strstr(loc, mstring);
-+		if( ! loc )
-+			break;
-+		loc += sizeof(mstring);
-+		n = strtol(loc, &loc, 10);
-+		if ( n > rtn) rtn = n;
-+	}
-+	if( count > 100 && count > rtn + rtn) {
-+		printf("Found %d with count %d from:\n%s", (int)rtn, count, buff);
-+	}
-+	return rtn;
-+	
-+}
-+
-+void do_test2(void)
-+{
-+	struct result {
-+		double result[main_loop];
-+		double wait_time[main_loop];
-+	} timer[no_timers];
-+	timer_t	 timer_id[no_timers];
-+//	 int expires[no_timers];
-+	int l,o,t;
-+	clock_t clockt = clocks[clock_index];
-+	clock_t clocke = CLOCK_MONOTONIC;
-+	double max_setup_time, setup_per;
-+	struct sigevent	 sigev;
-+	//sigset_t new_mask,old_mask;
-+	struct sigaction oldact,sigact;
-+	struct itimerspec tc = {{0,0},{0,0}};
-+	struct itimerspec rm;
-+	struct timespec tm = {0,20000000}, tz  = {0,0};
-+	WAIT_VARS();
-+
-+	/* 
-+	 * For this test we will do a sig wait so first block them.
-+	 */
-+	sigact.sa_sigaction = timer1_handler;
-+	sigact.sa_flags = SA_SIGINFO;
-+
-+	Try(clock_gettime(clockt, &tb));
-+ 
-+	Try(sigaction(SIGNAL1,&sigact,&oldact));
-+	wait_setup( SIGNAL1);
-+	sigev.sigev_notify = SIGEV_SIGNAL;
-+	sigev.sigev_signo = SIGNAL1;
-+	start();
-+	for_all( timerx() = 0.0);
-+	IF_V(printf(" Result array (%d bytes) cleared in %12.9f sec \n",
-+		    main_loop*iterate_loop*no_timers*(sizeof(double)),
-+						      elapsed()););
-+
-+	for_each (
-+		Try(timer_create(clocke, &sigev, &timer_id[t]));
-+//		 expires[t] = 0;
-+		);
-+	start();
-+	for_each(
-+		
-+		Try(timer_settime(timer_id[t], TIMER_ABSTIME, etime(&tt,60.0), 
-+				  NULL));
-+		);
-+	max_setup_time = elapsed();
-+	setup_per = max_setup_time / no_timers;
-+	IF_V(
-+		printf("# Set up time for %d timers %12.9f seconds or \n"
-+		       "%12.9f seconds per timer.\n", 
-+		       no_timers, max_setup_time, max_setup_time / no_timers););
-+	//setup_per *= 2.0; // use double to be safe
-+
-+	// clear all the timers
-+	for_each(
-+		Try(timer_settime(timer_id[t], 0, &tc, NULL));
-+		); 
-+	start();
-+	get_proc_latency(0); // Clear the latency counters
-+	IF_V(
-+		printf("Get latency takes %12.9f seconds.\n",elapsed());
-+		);
-+
-+	for_main(
-+		for_each(
-+			start();
-+			get_proc_latency(0); // Clear the latency counters
-+			etime(&tt, (setup_per * t) + 0.01); 
-+			
-+			for_timers(
-+				Try(timer_settime(
-+					    timer_id[l], TIMER_ABSTIME, 
-+					    &tt, 
-+					    NULL));
-+				);
-+			IF_V( {
-+				struct itimerspec tl;
-+				Try(timer_gettime(timer_id[0],&tl));
-+				if(timerdiff(&tl.it_value,&tc.it_value) == 0.0){
-+					printf("Timers already expired!"
-+					       "  Consider runing at "
-+					       "higher priority.\n" );
-+				}
-+				printf(".");fflush(stdout);
-+			});
-+			//get_proc_latency(); // Clear the latency counters
-+			wait_sync();  // wait for first signal
-+			clock_nanosleep(clocke, 0, &tm, NULL);
-+			for_timers(	 // clear the timers
-+				Try(timer_settime(timer_id[l], TIMER_ABSTIME, 
-+						  &tc, 
-+						  &rm));
-+				if (rm.it_value.tv_sec + rm.it_value.tv_nsec){
-+					printf("Oops!  Time remains on "
-+					       "%d %12.9f secs\n", 
-+					       l, timerdiff(&rm.it_value, &tz));
-+				}
-+				);
-+			timerx() = get_proc_latency(t);
-+			wait_flush();  // flush any left over signals
-+			);
-+		);
-+	/*
-+	 * Ok, the test is done, clean up the mess and push out the
-+	 * data.
-+	 */
-+	for_each (Try(timer_delete(timer_id[t])););
-+	/*
-+	 * Here is where we write out the data.	 All
-+	 * the numbers are floating point.
-+	 */
-+	printf("%splot \"-\" w lines \n", gnu_plot ? "" : "#");
-+	for_each(
-+		double high = 0.0;
-+		double low  = 1000;
-+		double sum  = 0.0;
-+		double scale = 1.0;
-+		double ppt =  main_loop;
-+		for_main(
-+			double v = timerx();
-+			sum += v;
-+			if( v > high) high = v;
-+			if( v < low)  low  = v;
-+			/*  wsum += w;
-+			if( w > whigh) whigh = w;
-+			if( w < wlow)  wlow  = w; */
-+			);/*%12.9f %12.9f %12.9f*/
-+		printf( "%d %12.9f %12.9f %12.9f  \n",
-+			t,
-+			sum * scale/ ppt,
-+			low * scale,
-+			high * scale
-+			);
-+		);
-+
-+	return;
-+		
-+ 
-+
-+}
-+
-+
-+#define OPTION_U LONG
-+#include "utils.h"
-+int main(int argc, char *argv[])
-+{	 
-+	int next_option;
-+	pid_t mypid = getpid();
-+	struct sched_param sched_pr;
-+	//const char* const short_options = "m:hfvrnpP:b:V";
-+	const struct option long_options[] = {
-+		OPTIONS
-+		{ NULL,		   0, NULL,  0 }  /* Required at end of array.	*/
-+	};
-+#define OPTION_U SHORT
-+#include "utils.h"
-+	const char* const short_options = OPTIONS;
-+	program_name = argv[0];
-+
-+	do {
-+		next_option = getopt_long(argc, argv, short_options,
-+		     long_options, NULL);
-+		switch (next_option) {
-+		   case 'h':
-+			print_usage (stdout, 0);
-+		   case 'v':
-+			verbose = TRUE;
-+			break;
-+		   case 'n': 
-+			no_timers = atol(optarg);
-+			break;
-+		   case 'l': 
-+			main_loop = atol(optarg);
-+			break;
-+		   case 'i': 
-+			iterate_loop = atol(optarg);
-+			break;
-+		    case 'r': 
-+			high_bound = atol(optarg);
-+			break;
-+		    case 'm': 
-+			min_timer = atol(optarg);
-+			break;
-+		   case 'a':
-+			absf = TIMER_ABSTIME;
-+			break;
-+		   case 'c':
-+			clear_flag = TRUE;
-+			break;
-+		   case 'P': 
-+			mypriority = atoi(optarg);
-+			break;
-+		   case 'F': 
-+			sched_policy = SCHED_FIFO;
-+			break;
-+		   case 'R': 
-+			sched_policy = SCHED_RR;
-+			break;
-+		   case 'L': 
-+			clock_index |= LOW_RES;
-+			break;
-+		   case 'M': 
-+			clock_index |= MONOTONIC;
-+			break;
-+		   case 'g': 
-+			gnu_plot = TRUE;
-+			break;
-+		   case 't': 
-+			test1 = FALSE;
-+			break;
-+		   case 'V': 
-+			printf("%s version %s\n", program_name, VERSION);
-+			exit(0);
-+			
-+		   case -1:  /* Done with options.  */
-+			break;
-+
-+		   default: /* Something else: unexpected.  */
-+			print_usage(stderr, 1);
-+			exit(-1);
-+		}
-+	}
-+	while (next_option != -1);
-+	/*
-+	**  Lock all memory pages associated with this process to prevent
-+	**  delays due to process memory being swapped out to disk and back.
-+	*/
-+	mlockall( (MCL_CURRENT | MCL_FUTURE) );
-+	/*
-+	 * Run as SCHED_FIFO (real time) priority 99, since I don't
-+	 * trust the user to remember.	Decidely unfriendly.  Changed
-+	 * to default to inherit.  Reports what is in all cases.
-+	 */
-+	if( sched_policy != SCHED_OTHER) {
-+		if (!mypriority) mypriority = 50;
++	if ((flags & TIMER_ABSTIME) && 
++	     (clock->clock_get != do_posix_clock_monotonic_gettime)) {
++		 //timr->it_timer.abs = TIMER_ABSTIME;
 +	}else{
-+		if (mypriority)	 sched_policy = SCHED_FIFO;
-+	}
-+	sched_pr.sched_priority = mypriority;
-+	if(mypriority){
-+		Try (sched_setscheduler(mypid, sched_policy, &sched_pr)); 
-+	}
-+	Try (sched_getparam(mypid, &sched_pr));
-+	sched_policy = Try(sched_getscheduler(0));
++		 // timr->it_timer.abs = 0;
++	 }
++	 if( adjust_abs_time(clock,
++			 &new_setting->it_value,
++			 flags & TIMER_ABSTIME)){
++		 return -EINVAL;
++	 }
++	tstotimer(new_setting,timr);
 +
-+	Try (gettimeofday(&start, 0));
-+	ploting = gnu_plot ? "set label " : "#",
-+
-+	printf("%s"
-+	       "\"Calculations done at priority %d "
-+	       "using %s scheduleing policy.\" at graph 0.1,0.%d\n",
-+	       ploting,
-+	       sched_pr.sched_priority,
-+	       sched_policy == SCHED_OTHER ? "SCHED_OTHER" : 
-+	       sched_policy == SCHED_FIFO ? "SCHED_FIFO" : 
-+	       sched_policy == SCHED_RR ? "SCHED_RR" : "UNKNOWN",
-+	       line
-+		);
-+	new_line();
-+	printf("%s\"Using %d timers on clock %s\"at graph 0.1,0.%d\n",
-+	       ploting,
-+	       no_timers,clock_names[clock_index],
-+	       line
-+	       );
-+	new_line();
-+	printf("%sset ylabel \"Microseconds\"\n",
-+	       gnu_plot ? "" :"#");
-+	printf("%sset xlabel \"Number of timers\"\n",
-+	       gnu_plot ? "" :"#");
-+	if( test1 ){
-+		printf("%s\"Time to arm vs. number of armed "
-+		       "timers\" at graph 0.5, .975 center\n", ploting);
-+		printf("%s\"Outer loop is %d and inner loop %d.\"at "
-+		       "graph 0.1,0.%d\n",
-+		       ploting,
-+		       main_loop,iterate_loop,
-+		       line
-+			);
-+		new_line();
-+		if ( high_bound ){
-+			timer_range = (double)high_bound / 1000;
-+		}else{
-+			timer_range = .02 * no_timers;
-+		}
-+		tm.tv_sec = timer_range;
-+		tm.tv_nsec =  (timer_range - tm.tv_sec) * NSEC_PER_SEC;
-+		min_timer /= 1000;
-+		printf("%s\"Maximum timer range is from %12.9f "
-+		       "to %12.9f seconds.\" at graph 0.1,0.%d\n",
-+		       ploting,
-+		       min_timer, 
-+		       min_timer + timer_range,
-+		       line
-+		      );
-+		new_line();
-+       }else{
-+	       printf("%s\"Schedule latency vs. number of "
-+		      "completing timers\" at graph 0.5, .975 center\n", 
-+		      ploting);
-+		printf("%s\"Average of %d completions.\"at "
-+		       "graph 0.1,0.%d\n",
-+		       ploting,
-+		       main_loop,
-+		       line
-+			);
-+		new_line();
-+       }
 +	/*
-+	 * Ok, we have all the info from the user and are now ready to
-+	 * start the tests.  We put the tests in a function so that the 
-+	 * data array can be dynamicaly allocated.  Since we have it
-+	 * locked, it is possible to fail here with a SIGSEGV.
-+
++	 * For some reason the timer does not fire immediately if expires is
++	 * equal to jiffies, so the timer callback function is called directly.
 +	 */
-+	if ( test1 ){
-+		do_test1();
-+	} else{
++#ifndef	 CONFIG_HIGH_RES_TIMERS
++	if (timr->it_timer.expires == jiffies) {
++		posix_timer_fire(timr);
++		 return 0;
++	}
++#endif
++	 timr->it_overrun_deferred = 
++		 timr->it_overrun_last = 
++		 timr->it_overrun = 0;
++	 add_timer(&timr->it_timer);
++	 return 0;
++}
 +
-+		do_test2();
++
++/* Set a POSIX.1b interval timer */
++asmlinkage int sys_timer_settime(timer_t timer_id, int flags,
++				 const struct itimerspec *new_setting,
++				 struct itimerspec *old_setting)
++{
++	struct k_itimer *timr;
++	struct itimerspec new_spec, old_spec;
++	int error = 0;
++	 struct itimerspec *rtn = old_setting ? &old_spec : NULL;
++
++
++	if (new_setting == NULL) {
++		 return -EINVAL;
 +	}
 +
++	if (copy_from_user(&new_spec, new_setting, sizeof(new_spec))) {
++		return -EFAULT;
++	}
 +
-+	exit(0);
++	if ((!good_timespec(&new_spec.it_interval)) ||
++	    (!good_timespec(&new_spec.it_value))) {
++		return -EINVAL;
++	}
++ retry:
++	timr = lock_timer( timer_id);
++	if (!timr) return -EINVAL;
++
++	 if (! posix_clocks[timr->it_clock].timer_set) {
++		 error = do_timer_settime(timr, flags, &new_spec, rtn );
++	 }else{
++		 error = posix_clocks[timr->it_clock].timer_set(timr, 
++							  flags, 
++							  &new_spec, 
++							  rtn );
++	 }
++	 unlock_timer(timr);
++	 if ( error == TIMER_RETRY){
++		 rtn = NULL;	    // We already got the old time...
++		 goto retry;
++	 }
++
++	 if (old_setting && ! error) {
++		if (copy_to_user(old_setting, &old_spec, sizeof(old_spec))) {
++			error = -EFAULT;
++		}
++	}
++
++	return error;
++}
++
++static inline int do_timer_delete(struct k_itimer  *timer)
++{
++	 timer->it_incr = 0;
++	 IF_HIGH_RES(timer->it_sub_incr = 0);
++#ifdef CONFIG_SMP
++	 if ( timer_active(timer) && ! del_timer(&timer->it_timer)){
++		 /*
++		  * It can only be active if on an other cpu.  Since
++		  * we have cleared the interval stuff above, it should
++		  * clear once we release the spin lock.  Of course once
++		  * we do that anything could happen, including the 
++		  * complete melt down of the timer.  So return with 
++		  * a "retry" exit status.
++		  */
++		 return TIMER_RETRY;
++	 }
++#else
++	del_timer(&timer->it_timer);
++#endif
++	 return 0;
++}
++
++/* Delete a POSIX.1b interval timer. */
++asmlinkage int sys_timer_delete(timer_t timer_id)
++{
++	struct k_itimer *timer;
++
++#ifdef CONFIG_SMP
++	 int error;
++ retry_delete:
++#endif
++
++	timer = lock_timer( timer_id);
++	if (!timer) return -EINVAL;
++
++#ifdef CONFIG_SMP
++	error =	 p_timer_del(&posix_clocks[timer->it_clock],timer);
++
++	 if (error == TIMER_RETRY) {
++		 unlock_timer(timer);
++		 goto retry_delete;
++	 }
++#else
++	 p_timer_del(&posix_clocks[timer->it_clock],timer);
++#endif
++
++	spin_lock(&timer->it_process->alloc_lock);
++
++	list_del(&timer->list);
++
++	spin_unlock(&timer->it_process->alloc_lock);
++
++	 IF_ABS_TIME_ADJ(
++		 spin_lock(&abs_list_lock);
++
++		 if (! list_empty(&timer->abs_list)){
++
++			 list_del(&timer->abs_list);
++		 }
++		 spin_unlock( &abs_list_lock); 
++		 );
++	 /*
++	  * This keeps any tasks waiting on the spin lock from thinking
++	  * they got something (see the lock code above).
++	  */
++	 timer->it_process = NULL;
++	 unlock_timer(timer);
++	 release_posix_timer(timer);
 +	return 0;
 +}
-Binary files linux-2.5.36-kb/Documentation/high-res-timers/tests/timer_test and linux/Documentation/high-res-timers/tests/timer_test differ
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/timer_test.c linux/Documentation/high-res-timers/tests/timer_test.c
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/timer_test.c	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/timer_test.c	Fri Sep 27 11:02:17 2002
-@@ -0,0 +1,600 @@
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <time.h>
-+#include <errno.h>
-+#include <signal.h>
-+// #include <assert.h>
-+#include <sys/utsname.h>
-+#ifdef __linux__
-+#include <posix_time.h>
-+#endif
-+#include "utils.h"
-+
-+#if 0
-+#include <linux/unistd.h>
-+#include <sys/time.h>
-+/* This will expand into the timer_create system call stub. */
-+_syscall3(int, timer_create,
-+		 clockid_t, which_clock,
-+		 struct sigevent *, timer_event_spec,
-+		 timer_t *, created_timer_id)
-+
-+/* This will expand into the timer_gettime system call stub. */
-+_syscall2(int, timer_gettime, 
-+		 timer_t, timer_id, 
-+		 struct itimerspec *, setting)
-+
-+/* This will expand into the timer_settime system call stub. */
-+_syscall4(int, timer_settime, 
-+		 timer_t, timer_id, 
-+		 int, flags, 
-+		 const struct itimerspec *, new_setting,
-+		 struct itimerspec *, old_setting)
-+
-+/* This will expand into the timer_gettime system call stub. */
-+_syscall1(int, timer_getoverrun,
-+		 timer_t, timer_id)
-+
-+/* This will expand into the timer_delete system call stub. */
-+_syscall1(int, timer_delete,
-+		 timer_t, timer_id)
-+
-+int clock_gettime(clockid_t which_clock, struct timespec *ts)
++/*
++ * return  timer owned by the process, used by exit and exec
++ */
++void itimer_delete(struct k_itimer *timer)
 +{
-+  struct timeval tv;
++	 if (sys_timer_delete(timer->it_id)){
++		 BUG();
++	 }
++}
++/*
++ * And now for the "clock" calls
 +
-+  if (which_clock != CLOCK_REALTIME) {
-+    errno = EINVAL;
-+    return -1;
-+  }
++ * These functions are called both from timer functions (with the timer
++ * spin_lock_irq() held and from clock calls with no locking.	They must
++ * use the save flags versions of locks.
++ */
++static int do_posix_gettime(struct k_clock *clock, struct timespec *tp)
++{
++
++	 if (clock->clock_get){
++		 return clock->clock_get(tp);
++	 }
++
++#ifdef CONFIG_HIGH_RES_TIMERS
++	 {
++		 unsigned long flags;
++		 write_lock_irqsave(&xtime_lock, flags);
++		 update_jiffies_sub();
++		 update_real_wall_time();  
++		 tp->tv_sec = xtime.tv_sec;
++		 tp->tv_nsec = xtime.tv_nsec;
++		 tp->tv_nsec += arch_cycles_to_nsec(sub_jiffie());
++		 write_unlock_irqrestore(&xtime_lock, flags);
++		 if ( tp->tv_nsec >  NSEC_PER_SEC ){
++			 tp->tv_nsec -= NSEC_PER_SEC ;
++			 tp->tv_sec++;
++		 }
++	 }
++#else
++	 do_gettimeofday((struct timeval*)tp);
++	 tp->tv_nsec *= NSEC_PER_USEC;
++#endif
++	 return 0;
++}
++
++/*
++ * We do ticks here to avoid the irq lock ( they take sooo long)
++ * Note also that the while loop assures that the sub_jiff_offset
++ * will be less than a jiffie, thus no need to normalize the result.
++ * Well, not really, if called with ints off :(
++ */
++
++int do_posix_clock_monotonic_gettime(struct timespec *tp)
++{
++	 long sub_sec;
++	 u64 jiffies_64_f;
++	 IF_HIGH_RES(long sub_jiff_offset;)
++      unsigned long flags;
++
++#if (BITS_PER_LONG > 32) && !defined(CONFIG_HIGH_RES_TIMERS)
++
++	 jiffies_64_f = jiffies_64;
++
++#elif defined(CONFIG_SMP)
++
++	 /* Tricks don't work here, must take the lock.	 Remember, called
++	  * above from both timer and clock system calls => save flags.
++	  */
++	 read_lock_irqsave(&xtime_lock, flags);
++	 jiffies_64_f = jiffies_64;
++
++	 IF_HIGH_RES(sub_jiff_offset =	quick_update_jiffies_sub(jiffies));
++
++	 read_unlock_irqrestore(&xtime_lock, flags);
++
++#elif ! defined(CONFIG_SMP) && (BITS_PER_LONG < 64)
++	 unsigned long jiffies_f;
++	 do {
++		 jiffies_f = jiffies;
++		 barrier();
++		 IF_HIGH_RES(
++			     sub_jiff_offset = 
++			     quick_update_jiffies_sub(jiffies_f));
++		 jiffies_64_f = jiffies_64;
++	 } while (unlikely(jiffies_f != jiffies));
++
++#else /* 64 bit long and high-res but no SMP if I did the Venn right */
++	 do {
++		 jiffies_64_f = jiffies_64;
++		 barrier();
++		 sub_jiff_offset = quick_update_jiffies_sub(jiffies_64_f);
++	 } while (unlikely(jiffies_64_f != jiffies_64));
++
++#endif
++	 /*
++	  * Remember that quick_update_jiffies_sub() can return more
++	  * than a jiffies worth of cycles...
++	  */
++	 IF_HIGH_RES(
++		 while ( unlikely(sub_jiff_offset > cycles_per_jiffies)){
++			 sub_jiff_offset -= cycles_per_jiffies;
++			 jiffies_64_f++;
++		 }
++		 )
++	 tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
++
++	tp->tv_nsec = sub_sec * (NSEC_PER_SEC / HZ);
++	 IF_HIGH_RES(tp->tv_nsec += arch_cycles_to_nsec(sub_jiff_offset));
++	 return 0;
++}
++
++int do_posix_clock_monotonic_settime(struct timespec *tp)
++{
++	 return -EINVAL;
++}
++
++asmlinkage int sys_clock_settime(clockid_t which_clock,const struct timespec *tp)
++{
++	 struct timespec new_tp;
++
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	     ! posix_clocks[which_clock].res) return -EINVAL;
++	 if (copy_from_user(&new_tp, tp, sizeof(*tp)))
++		 return -EFAULT;
++	 if ( posix_clocks[which_clock].clock_set){
++		 return posix_clocks[which_clock].clock_set(&new_tp);
++	 }
++	 new_tp.tv_nsec /= NSEC_PER_USEC;
++	 return do_sys_settimeofday((struct timeval*)&new_tp,NULL);
++}
++asmlinkage int sys_clock_gettime(clockid_t which_clock, struct timespec *tp)
++{
++	 struct timespec rtn_tp;
++	 int error = 0;
++	
++	 if ((unsigned)which_clock >= MAX_CLOCKS || 
++	     ! posix_clocks[which_clock].res) return -EINVAL;
++
++	 error = do_posix_gettime(&posix_clocks[which_clock],&rtn_tp);
++	 
++	 if ( ! error) {
++		 if (copy_to_user(tp, &rtn_tp, sizeof(rtn_tp))) {
++			 error = -EFAULT;
++		 }
++	 }
++	 return error;
++		 
++}
++asmlinkage int	 sys_clock_getres(clockid_t which_clock, struct timespec *tp)
++{
++	 struct timespec rtn_tp;
++
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	     ! posix_clocks[which_clock].res) return -EINVAL;
++
++	 rtn_tp.tv_sec = 0;
++	 rtn_tp.tv_nsec = posix_clocks[which_clock].res;
++	 if ( tp){
++		 if (copy_to_user(tp, &rtn_tp, sizeof(rtn_tp))) {
++			 return -EFAULT;
++		 }
++	 }
++	 return 0;
++	 
++}
++static void nanosleep_wake_up(unsigned long __data)
++{
++	struct task_struct * p = (struct task_struct *) __data;
++
++	wake_up_process(p);
++}
++/*
++ * The standard says that an absolute nanosleep call MUST wake up at
++ * the requested time in spite of clock settings.  Here is what we do:
++ * For each nanosleep call that needs it (only absolute and not on 
++ * CLOCK_MONOTONIC* (as it can not be set)) we thread a little structure
++ * into the "nanosleep_abs_list".  All we need is the task_struct pointer.
++ * When ever the clock is set we just wake up all those tasks.	 The rest
++ * is done by the while loop in clock_nanosleep().
++
++ * On locking, clock_was_set() is called from update_wall_clock which 
++ * holds (or has held for it) a write_lock_irq( xtime_lock) and is 
++ * called from the timer bh code.  Thus we need the irq save locks.
++ */
++spinlock_t nanosleep_abs_list_lock = SPIN_LOCK_UNLOCKED;
++
++struct list_head nanosleep_abs_list =	LIST_HEAD_INIT(nanosleep_abs_list);
++
++struct abs_struct {
++	 struct list_head list;
++	 struct task_struct *t;
++};
++
++void clock_was_set(void)
++{
++	 struct list_head *pos;
++	 unsigned long flags;
++
++	 spin_lock_irqsave(&nanosleep_abs_list_lock, flags);
++	 list_for_each(pos, &nanosleep_abs_list){
++		 wake_up_process(list_entry(pos,struct abs_struct,list)->t);
++	 }
++	 spin_unlock_irqrestore(&nanosleep_abs_list_lock, flags);
++}
++		 
++#if 0	
++// This #if 0 is to keep the pretty printer/ formatter happy so the indents will
++// correct below.
 +  
-+  if (gettimeofday(&tv, NULL) < 0) return -1;
-+  ts->tv_sec = tv.tv_sec;
-+  ts->tv_nsec = tv.tv_usec * 1000;
++// The NANOSLEEP_ENTRY macro is defined in  asm/signal.h and
++// is structured to allow code as well as entry definitions, so that when
++// we get control back here the entry parameters will be available as expected.
++// Some systems may find these paramerts in other ways than as entry parms, 
++// for example, struct pt_regs *regs is defined in i386 as the address of the
++// first parameter, where as other archs pass it as one of the paramerters.
 +
-+  return 0;
-+}
++asmlinkage long sys_clock_nanosleep(void)
++{
 +#endif
++CLOCK_NANOSLEEP_ENTRY(	struct timespec t;
++			 struct timespec tsave;
++			 struct timer_list new_timer;
++			 struct abs_struct abs_struct = {list: {next :0}};
++			 int abs; 
++			 int rtn = 0;
++			 int active;)
 +
-+#define MAX_NOF_TIMERS 6000
++	 //asmlinkage int  sys_clock_nanosleep(clockid_t which_clock, 
++	 //			   int flags,
++	 //			   const struct timespec *rqtp,
++	 //			   struct timespec *rmtp)
++	 //{
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	     ! posix_clocks[which_clock].res) return -EINVAL;
 +
-+int timer_id_in_sival_int = 0;
++	if(copy_from_user(&tsave, rqtp, sizeof(struct timespec)))
++		return -EFAULT;
 +
-+struct timespec ref;
++	if ((unsigned)tsave.tv_nsec >= NSEC_PER_SEC || tsave.tv_sec < 0)
++		return -EINVAL;
++	
++	 init_timer(&new_timer);
++	new_timer.expires = 0;
++	new_timer.data = (unsigned long)current;
++	new_timer.function = nanosleep_wake_up;
++	 abs = flags & TIMER_ABSTIME;
 +
-+static void reset_ref_time(void)
++	 do {
++		 t = tsave;
++		 current->state = TASK_INTERRUPTIBLE;
++		 if ( abs && (posix_clocks[which_clock].clock_get != 
++		      posix_clocks[CLOCK_MONOTONIC].clock_get) &&
++			 ! abs_struct.list.next ){
++			 spin_lock_irq(&nanosleep_abs_list_lock);
++			 list_add(&abs_struct.list, &nanosleep_abs_list);
++			 abs_struct.t = current;
++			 spin_unlock_irq(&nanosleep_abs_list_lock);
++		 }
++		if ( !(rtn = adjust_abs_time(&posix_clocks[which_clock],
++				     &t,
++				     abs))){
++			/*
++			 * On error, we don't arm the timer so
++			 * del_timer_sync() will return 0, thus
++			 * active is zero... and so it goes.
++			 */
++			IF_HIGH_RES(new_timer.sub_expires = )
++
++				tstojiffie(&t,
++					   posix_clocks[which_clock].res,
++					   &new_timer.expires);
++			add_timer(&new_timer);
++
++			schedule();
++		}
++	 }
++	 while((active = del_timer_sync(&new_timer)) && !_do_signal());
++	 
++	 if ( abs_struct.list.next ){
++		 spin_lock_irq(&nanosleep_abs_list_lock);
++		 list_del(&abs_struct.list);
++		 spin_unlock_irq(&nanosleep_abs_list_lock);
++	 }
++	 if (active && rmtp ) {
++		 unsigned long jiffies_f = jiffies;
++		 IF_HIGH_RES(
++			     long sub_jiff = 
++			     quick_update_jiffies_sub(jiffies_f));
++
++		 jiffies_to_timespec(new_timer.expires - jiffies_f, &t);
++
++		 IF_HIGH_RES(t.tv_nsec += 
++			     arch_cycles_to_nsec(new_timer.sub_expires -
++						 sub_jiff));
++		 while (t.tv_nsec < 0){
++			 t.tv_nsec += NSEC_PER_SEC;
++			 t.tv_sec--;
++		 } 
++		 if (t.tv_sec < 0){
++			 t.tv_sec = 0;
++			 t.tv_nsec = 1;
++		 }
++	 }else{
++			 t.tv_sec = 0;
++			 t.tv_nsec = 0;
++	 }
++	 if (!rtn && !abs && rmtp && 
++	     copy_to_user(rmtp, &t, sizeof(struct timespec))){
++		 return -EFAULT;
++	 }
++	 if (active) return -EINTR;
++
++	return rtn;
++}
++#ifdef CONFIG_HIGH_RES_TIMERS
++/*
++ * The following code times the timer delivery to see what the system will do.
++ * Given this time an "unload" value is computed to limit the possible bringing
++ * of the system to its knees by a repeating timer.  We assume the user will
++ * need at least as much time as we do to handle the signal, so we double the
++ * "observed" time.
++*/
++#define SIG (_NSIG - 1)
++#define USEC_TO_RUN 5000
++#define OVERHEAD_MUL 4	  // we use this factor to give us room to breath
++
++#if  CONFIGURE_MIN_INTERVAL == 0
++
++static __init void fig_time_fn( unsigned long __data)
 +{
-+  clock_gettime(CLOCK_REALTIME, &ref);
++	struct k_itimer *timr = (struct k_itimer *)__data;
++	struct timeval tv, *endtime;
++	 long jiffies_f,sub_jiffie_f;
++
++	 if ( ! timr->it_id) return;
++	spin_lock(&timr->it_lock);
++	timer_notify_task(timr);
++	 touch_nmi_watchdog();
++
++	do_gettimeofday(&tv);
++
++	 read_lock(&xtime_lock);
++	 jiffies_f = jiffies;
++	 sub_jiffie_f = sub_jiffie();
++	 read_unlock(&xtime_lock);
++
++	 if ( ++sub_jiffie_f == cycles_per_jiffies){
++		 sub_jiffie_f = 0;
++		 jiffies_f++;
++	 }
++	 timr->it_timer.expires = jiffies_f;
++	 timr->it_timer.sub_expires = sub_jiffie_f;
++	 add_timer(&timr->it_timer);
++	
++	 endtime = (struct timeval *)timr->it_clock;
++	 if (endtime->tv_sec == 0 ){
++		 tv.tv_usec += USEC_TO_RUN;
++		 while ( tv.tv_usec > 1000000){
++			 tv.tv_sec++;
++			 tv.tv_usec -= 1000000;
++		 }
++		 *endtime = tv;
++		 spin_unlock(&timr->it_lock);
++		 return;
++	 }
++	 if ( tv.tv_sec < endtime->tv_sec || 
++	      (tv.tv_sec == endtime->tv_sec &&	tv.tv_usec < endtime->tv_usec )){
++		 spin_unlock(&timr->it_lock);
++		 return;
++	 }
++	spin_unlock(&timr->it_lock);
++	 del_timer(&timr->it_timer);
++	 timr->it_id = 0;	      // signals end of wait to figure_time_rep
++	 return;
 +}
 +
-+static void print_rel_time(void)
++static	 __init void figure_time_rep(void)
 +{
-+  struct timespec now;
-+  clock_gettime(CLOCK_REALTIME, &now);
-+  now.tv_sec -= ref.tv_sec;
-+  now.tv_nsec -= ref.tv_nsec;
-+  if (now.tv_nsec < 0) {
-+    now.tv_sec--;
-+    now.tv_nsec += 1000000000;
-+  }
-+  printf("%ld.%09ld", now.tv_sec, now.tv_nsec);
++	 int old_sig = current->blocked.sig[_NSIG_WORDS-1];
++	struct timeval tv;
++	 struct k_itimer itimer = {it_overrun:	0,
++				   it_lock:	SPIN_LOCK_UNLOCKED,
++				   it_clock:	(unsigned long)&tv,
++				   it_id:	-1,
++				   it_incr:	0,
++				   it_sub_incr: nsec_to_arch_cycles(
++					   CONFIG_HIGH_RES_RESOLUTION),
++				   it_process:	current,
++				   it_sigev_notify: SIGEV_SIGNAL,
++				   it_sigev_signo:  SIG,
++				   it_timer:	{list:
++						 LIST_HEAD_INIT(
++							 itimer.it_timer.list),
++						 expires: jiffies + 1,
++						 sub_expires: 0,
++						 data:(unsigned long) &itimer,
++						 function: fig_time_fn
++				   }
++	 };
++
++	 
++	 /*
++	  * We will be sending these singals to our self.  We don't really
++	  * want them so we block them here.	
++	  */
++	 sigaddset(&current->blocked, SIG);
++	 tv.tv_sec = 0;
++	 init_timer(&itimer.it_timer);
++	 itimer.it_overrun_deferred = 0;
++	 high_res_test();
++	 add_timer(&itimer.it_timer);
++	 while ( ((volatile struct k_itimer *)(&itimer))->it_id){
++		 struct timeval t;
++		 do_gettimeofday(&t);
++		 if ( ! tv.tv_sec ) continue;
++		 if (t.tv_sec > (tv.tv_sec + 1)) {
++			 printk("High-res-timer calibration problem?\n");
++			 break;
++		 }
++	 }
++
++	 /* 
++	  * Ok, the run is over.  Clean up, set the results, and 
++	  * report.
++	  */
++	 high_res_end_test();
++	 flush_signals(current);
++	 current->blocked.sig[_NSIG_WORDS-1] = old_sig;
++	 if (!itimer.it_overrun) {
++		 /*
++		  * Bad, really bad.  
++		  */
++		 printk("High-res-timer calibration failed!!!!!!!!!!!!!!!!\n");
++	 }else{
++		 int tmp = ((USEC_TO_RUN * OVERHEAD_MUL) * 1000) / 
++			 itimer.it_overrun;
++		 high_res_guard = nsec_to_arch_cycles(tmp);
++		 printk("High-res-timer min supported interval time is "
++			"%d nsec\n", tmp);
++	  }
 +}
 +
-+int sival_expected;
-+
-+static void print_siginfo(int signo, siginfo_t *info)
-+{
-+  int overrun;
-+
-+  print_rel_time();
-+  printf(": siginfo dump: ");
-+  printf("si_signo: %d [%d], ", info->si_signo, signo);
-+  printf("si_errno: %d, ", info->si_errno);
-+  printf("si_value: int=%d ptr=%p ",
-+	 info->si_value.sival_int, info->si_value.sival_ptr);
-+  if (sival_expected != -1) {
-+    assert(info->si_value.sival_int == sival_expected);
-+  }
-+  switch (info->si_code) {
-+  case SI_USER:
-+    printf("si_code: SI_USER");
-+    printf(", si_pid: %d", info->si_pid);
-+    printf(", si_uid: %d\n", info->si_uid);
-+    break;
-+  case SI_QUEUE:
-+    printf("si_code: SI_QUEUE");
-+    printf(", si_pid: %d", info->si_pid);
-+    printf(", si_uid: %d\n", info->si_uid);
-+    break;
-+  case SI_ASYNCIO:
-+    printf("si_code: SI_ASYNCIO\n");
-+    break;
-+  case SI_TIMER:
-+#if 0
-+    t = (timer_id_in_sival_int) ? info->si_value.sival_int : *(timer_t*)info->si_value.sival_ptr;
++#endif //CONFIG_MIN_INTERVAL
 +#endif
-+    printf("si_code: SI_TIMER");
-+#ifdef __linux__
-+    printf(", timer id: %d", info->si_tid);
-+#endif
-+    overrun = timer_getoverrun(info->si_tid);
-+    switch (overrun) {
-+    case -1:
-+      printf(", timer_getoverrun() failed: %s\n", strerror(errno));
-+      break;
-+    case 0:
-+      printf("\n");
-+      break;
-+    default:
-+      printf(", overrun: %d\n", overrun);
-+      break;
-+    }
-+    break;
-+  case SI_MESGQ:
-+    printf("si_code: SI_MESGQ\n");
-+    break;
-+  default:
-+    printf("si_code: %d\n", info->si_code);
-+    break;
-+  }
-+}
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/kernel/signal.c linux/kernel/signal.c
+--- linux-2.5.39-x86/kernel/signal.c	Fri Sep 27 17:05:19 2002
++++ linux/kernel/signal.c	Fri Sep 27 17:55:15 2002
+@@ -456,8 +456,6 @@
+ 		if (!collect_signal(sig, pending, info))
+ 			sig = 0;
+ 				
+-		/* XXX: Once POSIX.1b timers are in, if si_code == SI_TIMER,
+-		   we need to xchg out the timer overrun values.  */
+ 	}
+ 	recalc_sigpending();
+ 
+@@ -703,6 +701,7 @@
+ __send_sig_info(int sig, struct siginfo *info, struct task_struct *t, int shared)
+ {
+ 	int ret;
++	 struct sigpending *sig_queue;
+ 
+ 	if (!irqs_disabled())
+ 		BUG();
+@@ -737,20 +736,43 @@
+ 	if (ignored_signal(sig, t))
+ 		goto out;
+ 
++	 sig_queue = shared ? &t->sig->shared_pending : &t->pending;
 +
-+void alrm_handler(int signo, siginfo_t *info, void *context)
-+{
-+	print_siginfo(signo, info);
-+}
+ #define LEGACY_QUEUE(sigptr, sig) \
+ 	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
+-
++	 /*
++	  * Support queueing exactly one non-rt signal, so that we
++	  * can get more detailed information about the cause of
++	  * the signal.
++	  */
++	 if (LEGACY_QUEUE(sig_queue, sig))
++		 goto out;
++	 /*
++	  * In case of a POSIX timer generated signal you must check 
++	 * if a signal from this timer is already in the queue.
++	 * If that is true, the overrun count will be increased in
++	 * itimer.c:posix_timer_fn().
++	  */
 +
-+int main(void)
-+{
-+	int retval;
-+	int signo;
-+	timer_t t = 0;
-+	int i,j;
-+	timer_t tt[MAX_NOF_TIMERS];
-+	struct itimerspec ispec;
-+	struct itimerspec ospec;
-+	struct sigevent timer_event_spec;
-+	struct sigaction sa;
-+	union sigval val;
-+	sigset_t set;
-+	siginfo_t info;
-+	struct utsname utsname;
-+
-+	sigemptyset(&set);
-+	sigprocmask(SIG_SETMASK, &set, NULL);
-+
-+	sa.sa_sigaction = alrm_handler;
-+	sa.sa_flags = SA_SIGINFO;
-+	sigemptyset(&sa.sa_mask);
-+
-+	if (sigaction(SIGALRM, &sa, NULL)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	if (sigaction(SIGRTMIN, &sa, NULL)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	if (sigaction(SIGRTMIN + 1, &sa, NULL)) {
-+		perror("sigaction failed");
-+		exit(1);
-+	}
-+
-+	printf("\ntest 1: delete non existing timer: expect failure\n");
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(bogus timer) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 2: create default timer\n");
-+	retval = timer_create(CLOCK_REALTIME, NULL, &t);
-+	if (retval) {
-+		perror("timer_create(CLOCK_REALTIME) failed");
-+	}
-+	assert(retval == 0);
-+
-+	printf("\ntest 3: delete timer\n");
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(existing timer) failed");
-+	}
-+	assert(retval == 0);
-+
-+	printf("\ntest 4: delete timer again: expect failure\n");
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(deleted timer) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 5: delete non-existing timer: expect failure\n");
-+	retval = timer_delete(-1);
-+	if (retval) {
-+		perror("timer_delete(-1) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 6: delete non-existing timer: expect failure\n");
-+	retval = timer_delete(100);
-+	if (retval) {
-+		perror("timer_delete(100) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 7: attempt to create too many timers: expect failure at timer %d\n", MAX_NOF_TIMERS);
-+	for (i = 0; i < MAX_NOF_TIMERS; i++) {
-+		retval = timer_create(CLOCK_REALTIME, NULL, &tt[i]);
-+		if (retval) {
-+			fprintf(stderr, "timer_create(CLOCK_REALTIME) %d failed: %s\n", i, strerror(errno));
-+			break;
++	if (((unsigned long)info > 1) && (info->si_code == SI_TIMER)) {
++		struct sigqueue *q;
++		for (q = sig_queue->head; q; q = q->next) {
++			if ((q->info.si_code == SI_TIMER) &&
++			    (q->info.si_tid == info->si_tid)) {
++				 q->info.si_overrun += info->si_overrun + 1;
++				/* 
++				  * this special ret value (1) is recognized
++				  * only by posix_timer_fn() in itimer.c
++				  */
++				ret = 1;
++				goto out;
++			}
 +		}
 +	}
-+	if ( i < MAX_NOF_TIMERS) {
-+		assert((i > 30) && (retval == -1));
-+		j = i;
-+	}else {
-+		assert( (i == MAX_NOF_TIMERS) && (retval != -1));
-+		fprintf(stderr, "timer_create(CLOCK_REALTIME) %d timers created\n",i);
-+		j = i ;
-+	}
-+
-+	printf("\ntest 8: delete these timers: expect failure at timer %d\n", j);
-+	for (i = 0; i <= j; i++) {
-+		retval = timer_delete(tt[i]);
-+		if (retval) {
-+			fprintf(stderr, "timer_delete(CLOCK_REALTIME) %d failed: %s\n", i, strerror(errno));
-+			break;
-+		}
-+	}
-+	assert((i == j) && (retval == -1));
-+
-+	printf("\ntest 9: create default timer\n");
-+	retval = timer_create(CLOCK_REALTIME, NULL, &t);
-+	if (retval) {
-+		perror("timer_create(CLOCK_REALTIME) failed");
-+	}
-+	assert(retval == 0);
-+
-+	printf("\ntest 10: set absolute time (no time specification): expect failure\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, NULL, NULL);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 11: set relative time (no time specification): expect failure\n");
-+	retval = timer_settime(t, 0, NULL, NULL);
-+	if (retval) {
-+		perror("timer_settime(0) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 12: set absolute time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, (struct itimerspec*)1, NULL);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME, 1, 0) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 13: set absolute time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, NULL, (struct itimerspec*)1);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME, 0, 1) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 14: set absolute time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, (struct itimerspec*)1, (struct itimerspec*)1);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME, 1, 1) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 15: set relative time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, 0, (struct itimerspec*)1, NULL);
-+	if (retval) {
-+		perror("timer_settime(0, 1, 0) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 16: set relative time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, 0, NULL, (struct itimerspec*)1);
-+	if (retval) {
-+		perror("timer_settime(0, 0, 1) failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 17: set relative time (bogus time specification): expect failure\n");
-+	retval = timer_settime(t, 0, (struct itimerspec*)1, (struct itimerspec*)1);
-+	if (retval) {
-+		perror("timer_settime(0, 1, 1) failed");
-+	}
-+	assert(retval == -1);
-+
-+	retval = clock_gettime(CLOCK_REALTIME, &ispec.it_value);
-+	if (retval) {
-+		perror("clock_gettime(CLOCK_REALTIME) failed");
-+	}
-+	assert(retval == 0);
-+	ispec.it_value.tv_sec += 2;
-+	ispec.it_value.tv_nsec = 0;
-+	ispec.it_interval.tv_sec = 0;
-+	ispec.it_interval.tv_nsec = 0;
-+	reset_ref_time();
-+
-+	printf("\ntest 18: set timer (absolute time) 2 seconds in the future\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME) failed");
-+	}
-+	assert(retval == 0);
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+
-+	reset_ref_time();
-+
-+	printf("\ntest 19: set timer (absolute time) same time\n");
-+	retval = timer_settime(t, TIMER_ABSTIME, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME) failed");
-+	}
-+	assert(retval == 0);
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+
-+	printf("\ntest 20: timer_gettime bogus timer id (-1): expect failure\n");
-+	retval = timer_gettime(-1, NULL);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 21: timer_gettime good timer id, NULL timespec pointer: expect failure\n");
-+	retval = timer_gettime(t, NULL);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 22: timer_gettime good timer id, bogus timespec pointer: expect failure\n");
-+	retval = timer_gettime(t, (struct itimerspec*)1);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == -1);
-+
-+	printf("\ntest 23: timer_gettime good timer id, good timespec pointer\n");
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == 0);
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+
-+	printf("\ntest 24: send ALRM signal to self with kill()\n");
-+	reset_ref_time();
-+	sival_expected = -1;
-+	retval = kill(getpid(), SIGALRM);
-+	if (retval) {
-+		perror("kill(myself with SIGALRM) failed");
-+	}
-+	assert(retval == 0);
-+	
-+	printf("\ntest 25: send ALRM signal to self with sigqueue()\n");
-+	reset_ref_time();
-+	sival_expected = val.sival_int = 4;
-+	retval = sigqueue(getpid(), SIGALRM, val);
-+	if (retval) {
-+		perror("sigqueue(myself with SIGALRM) failed");
-+	}
-+	assert(retval == 0);
-+
-+	sigemptyset(&set);
-+	sigaddset(&set, SIGALRM);
-+	sigprocmask(SIG_BLOCK, &set, NULL);
-+	
-+	printf("\ntest 26: send ALRM signal to self with kill() (signal blocked)\n");
-+	retval = kill(getpid(), SIGALRM);
-+	if (retval) {
-+		perror("kill(myself with SIGALRM) failed");
-+	}
-+	assert(retval == 0);
-+
-+	printf("\ntest 27: wait for ALRM signal with info\n");
-+	reset_ref_time();
-+	info.si_uid = 1;
-+	sival_expected = -1;
-+	signo = sigwaitinfo(&set, &info);
-+	print_siginfo(signo, &info);
-+	
-+	printf("\ntest 28: send ALRM signal to self with sigqueue() (signal blocked)\n");
-+	sival_expected = val.sival_int = 4;
-+	retval = sigqueue(getpid(), SIGALRM, val);
-+	if (retval) {
-+		perror("sigqueue(myself with SIGALRM) failed");
-+	}
-+	assert(retval == 0);
-+	uname(&utsname);
-+	if (strncmp(utsname.release, "2.3", 3) <= 0) {
-+	  printf("\nLinux <= 2.3 does not carry siginfo data for SIGALRM\n");
-+	  sival_expected = -1;
-+	}
-+
-+	printf("\ntest 29: wait for ALRM signal with info\n");
-+	reset_ref_time();
-+	info.si_uid = 1;
-+	signo = sigwaitinfo(&set, &info);
-+	print_siginfo(signo, &info);
-+	sigprocmask(SIG_UNBLOCK, &set, NULL);
-+
-+	printf("\ntest 30: timer_gettime()\n");
-+	sleep(1);
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == 0);
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+
-+	sival_expected = -1;
-+	sleep(1);		/* wait for timer expiration of test 18 */
-+	
-+	printf("\ntest 31: timer_delete()\n");
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(deleted timer) failed");
-+	}
-+	assert(retval == 0);
-+
-+	printf("\ntest 32: timer_gettime: deleted timer and NULL itimer_spec: expect failure\n");
-+	retval = timer_gettime(t, NULL);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	assert(retval == -1);
-+
-+	/*
-+	 * test to check timer cancellation by deletion
-+	 */
-+
-+	printf("\ntest 33: create default timer\n");
-+	retval = timer_create(CLOCK_REALTIME, NULL, &t);
-+	if (retval) {
-+		perror("timer_create(CLOCK_REALTIME) failed");
-+	}
-+
-+	ispec.it_value.tv_sec = 2;
-+	ispec.it_value.tv_nsec = 0;
-+	ispec.it_interval.tv_sec = 0;
-+	ispec.it_interval.tv_nsec = 0;
-+	reset_ref_time();
-+
-+	retval = timer_settime(t, 0, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime() failed");
-+	}
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+
-+	printf("delete the timer\n");
-+	retval = timer_delete(t);
-+	if (retval) {
-+		perror("timer_delete(deleted timer) failed");
-+	}
-+	printf("wait 3 seconds\n");
-+	sleep(3);
-+	printf("no timer expiration expected\n");
-+
-+	/*
-+	 * test to check relative timer expirations
-+	 */
-+
-+	printf("\nTest 34: Expiration in one second with relative timer\n");
-+
-+	retval = timer_create(CLOCK_REALTIME, NULL, &t);
-+	if (retval) {
-+		perror("timer_create(CLOCK_REALTIME) failed");
-+	}
-+
-+	ispec.it_value.tv_sec = 1;
-+	ispec.it_value.tv_nsec = 0;
-+	ispec.it_interval.tv_sec = 0;
-+	ispec.it_interval.tv_nsec = 0;
-+	reset_ref_time();
-+	retval = timer_settime(t, 0, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime() failed");
-+	}
-+
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+	
-+	printf("waiting for signal to arrive...\n");
-+	sleep(2);
-+
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+	
-+	reset_ref_time();
-+	retval = timer_settime(t, 0, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime() failed");
-+	}
-+
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+	timer_delete(t);
-+
-+	/*
-+	 * Test to see if timer goes off immediately if not a future time is
-+	 * provided with TIMER_ABSTIME 
-+	 */
-+	printf("\ntest 35: set up timer to go off immediately, followed by 10 ticks at 10 Hz\n");
-+	timer_event_spec.sigev_notify = SIGEV_SIGNAL;
-+	timer_event_spec.sigev_signo = SIGRTMIN + 0;
-+	sival_expected = timer_event_spec.sigev_value.sival_int = 0x1234;
-+	retval = timer_create(CLOCK_REALTIME, &timer_event_spec, &t);
-+
-+	retval = clock_gettime(CLOCK_REALTIME, &ispec.it_value);
-+	if (retval) {
-+		perror("clock_gettime(CLOCK_REALTIME) failed");
-+	}
-+	ispec.it_value.tv_sec -= 1;
-+	ispec.it_interval.tv_sec = 0;
-+	ispec.it_interval.tv_nsec = 100000000;
-+	reset_ref_time();
-+	retval = timer_settime(t, TIMER_ABSTIME, &ispec, &ospec);
-+	if (retval) {
-+		perror("timer_settime(TIMER_ABSTIME) failed");
-+	}
-+	printf("timer should have expired now\n");
-+	printf("timer_settime: old setting value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ospec.it_value.tv_sec, ospec.it_value.tv_nsec,
-+	       ospec.it_interval.tv_sec, ospec.it_interval.tv_nsec);
-+	retval = timer_gettime(t, &ispec);
-+	if (retval) {
-+		perror("timer_gettime() failed");
-+	}
-+	printf("timer_gettime: value=%ld.%09ld, interval=%ld.%09ld\n",
-+	       ispec.it_value.tv_sec, ispec.it_value.tv_nsec,
-+	       ispec.it_interval.tv_sec, ispec.it_interval.tv_nsec);
-+	printf("catch 10 signals\n");
-+	for (i = 0; i < 10; i++) sleep(1);
-+
-+	by_now();
-+}
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Documentation/high-res-timers/tests/utils.h linux/Documentation/high-res-timers/tests/utils.h
---- linux-2.5.36-kb/Documentation/high-res-timers/tests/utils.h	Wed Dec 31 16:00:00 1969
-+++ linux/Documentation/high-res-timers/tests/utils.h	Fri Sep 27 11:02:29 2002
-@@ -0,0 +1,267 @@
-+#ifdef OPTION_U
-+#if OPTION_U == USAGE
-+#undef OPTION_H
-+#undef PAR
-+#undef NIL
-+#define OPTION_H(shortc,short,long,par,desc) "	-"#short" --"#long par"\t"#desc
-+#define PAR "\tX"
-+#define NIL "\t"
-+#undef OPTION_U 
-+#elif OPTION_U == LONG
-+#undef OPTION_H
-+#undef PAR
-+#undef NIL
-+#undef OPTION_U 
-+#define OPTION_H(shortc,short,long,parm,desc)  { #long,parm,NULL,shortc},
-+#define PAR 1
-+#define NIL 0
-+#elif  OPTION_U == SHORT
-+#undef OPTION_H
-+#undef PAR
-+#undef NIL
-+#define OPTION_H(shortc,short,long,parm,desc)  #short parm
-+#define PAR ":"
-+#define NIL
-+#undef OPTION_U 
-+#else
-+#error "OPTION_U error"
-+#undef OPTION_U 
-+#endif
-+#endif // OPTION_U
-+#ifndef _UTILS_H
-+#define _UTILS_H
-+#include <sys/time.h>
-+#include <unistd.h>
-+#include <signal.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <fcntl.h>
-+#include <sched.h>
-+#include <assert.h>
-+#define _GNU_SOURCE
-+#include <getopt.h>
-+#define SHORT 1
-+#define LONG 2
-+#define USAGE 0
-+
-+/*
-+ * The "wait" set of macros are designed to allow parent and child to wait on
-+ * one another without spin loop or sleep overhead.  We just use a given signal
-+ * to pass the wait or not info.  In order to eliminate races, you will want
-+ * to call "wait_setup(sig)" prior to doing anything that may lead to a signal.
-+ * "wait_sync()" waits for the signal, and "wait_send(who)" sends the signal.
-+ * "wait_flush()" flushes out any left over signals.
-+ */
-+#define WAIT_VARS() int wait_for_this_sig;sigset_t wait_set;
-+#define wait_setup(signal) do{wait_for_this_sig = signal;\
-+			      sigemptyset(&wait_set); \
-+			      sigaddset(&wait_set, signal); \
-+			      Try(sigprocmask(SIG_BLOCK, &wait_set, NULL));\
-+			   } while(0)
-+#define wait_sync() do{int sig = 0;\
-+		       while(sig != wait_for_this_sig) { \
-+			    Try(sigwait(&wait_set,&sig));\
-+			}\
-+		    }while(0)
-+#define wait_send(who) do{ Try(kill(who,wait_for_this_sig));}while(0)
-+/*
-+ * Flush any pending signals, then restore the old action.
-+ */
-+#define wait_flush() do{struct sigaction oldact,sigact; \
-+			sigact.sa_handler = SIG_IGN; \
-+			sigemptyset(&sigact.sa_mask);\
-+			Try(sigaction(wait_for_this_sig,&sigact,&oldact));\
-+			Try(sigaction(wait_for_this_sig,&oldact,NULL)); \
-+		     }while(0)
-+/* 
-+ * Define some nice color stuff
-+ */
-+#define	 MOVE_TO_COL(col) "\033["#col"G"
-+#define	     SETCOLOR_SUCCESS "\033[1;32m"
-+#define	     SETCOLOR_FAILURE "\033[1;31m"
-+#define	     SETCOLOR_WARNING "\033[1;33m"
-+#define	     SETCOLOR_NORMAL "\033[0;39m"
-+
-+#undef __assert_fail
-+# define __assert_fail(exp,file,line,fun)	\
-+({fprintf(stderr,SETCOLOR_FAILURE ": %s:%d: %s:assert(%s) failed\n"SETCOLOR_NORMAL,file,line,fun,exp);\
-+global_error++;})
-+//#define NSEC_PER_SEC 1000000000			   
-+#define roundtores(t,r) (t)->tv_nsec += (r - 1); \
-+			if ((t)->tv_nsec >NSEC_PER_SEC){ \
-+			   (t)->tv_nsec -= NSEC_PER_SEC;(t)->tv_sec++;}\
-+			(t)->tv_nsec -= (t)->tv_nsec % r 
-+#define timerplusnsec(c,d) (c)->tv_nsec +=(d);		   \
-+			   if ((c)->tv_nsec >NSEC_PER_SEC){ \
-+			   (c)->tv_nsec -= NSEC_PER_SEC;(c)->tv_sec++;}
-+
-+#define timerdiff(a,b) ((float)((a)->tv_sec - (b)->tv_sec) + \
-+			 (float)((a)->tv_nsec - (b)->tv_nsec)/NSEC_PER_SEC)
-+
-+#define timersum(c,a,b) (c)->tv_sec = ((a)->tv_sec + (b)->tv_sec); \
-+		       (c)->tv_nsec = ((a)->tv_nsec + (b)->tv_nsec); \
-+		       if ((c)->tv_nsec > NSEC_PER_SEC){ \
-+			   (c)->tv_nsec -= NSEC_PER_SEC;(c)->tv_sec++;}
-+#define timersubtract(c,a,b) (c)->tv_sec = ((a)->tv_sec - (b)->tv_sec); \
-+		       (c)->tv_nsec = ((a)->tv_nsec - (b)->tv_nsec); \
-+		       if ((c)->tv_nsec < 0){ \
-+			   (c)->tv_nsec += NSEC_PER_SEC;(c)->tv_sec--;}
-+#define timer_gt(a,b) (((a)->tv_sec > (b)->tv_sec) ? 1 :  \
-+		      (((a)->tv_sec < (b)->tv_sec) ? 0 :  \
-+		      ((a)->tv_nsec > (b)->tv_nsec)))
-+#define timeval_to_timespec(a,b) (b)->tv_sec = (a)->tv_sec; \
-+				 (b)->tv_nsec = (a)->tv_usec * 1000
-+#define timespec_to_timeval(a,b) (b)->tv_sec = (a)->tv_sec; \
-+				 (b)->tv_usec = (a)->tv_nsec / 1000
-+#define timevaldiff(a,b) (((a)->tv_sec - (b)->tv_sec)*1000000 + \
-+			 (a)->tv_usec - (b)->tv_usec)
-+
-+int global_error;
-+#define by_now() { char * excolor = (global_error) ? SETCOLOR_FAILURE : \
-+			 SETCOLOR_WARNING;		       \
-+			 fprintf(stderr, \
-+			 "%sEnd of test, %d error(s) found.\n"	\
-+			 SETCOLOR_NORMAL,		       \
-+			 excolor,global_error);			      \
-+			 exit(global_error);}
-+#ifdef debug
-+#undef debug
-+#define debug(a) do {a}while (0)
-+#else
-+#define debug(a) do {} while (0)
-+#endif
-+#define MASK(x) (1<<(x))
-+#define long_short(f) (f>0 ? " long" : " short")
-+/*
-+ * This is the generic non-errno error header
-+ */
-+#define myerror(s) MYerror(__BASE_FILE__,__LINE__,s)
-+void MYerror(char * where,int line,char *what)
-+{
-+	fprintf(stderr,SETCOLOR_FAILURE"%s,%d:%s" SETCOLOR_NORMAL,
-+		where,line,what);
-+	fflush(stderr);
-+	fflush(stdout);
-+	++global_error;
-+}
-+/*
-+ * This is an error reporter for errors we don't want to continue after
-+ */
-+#define myperror(s) MYperror(__BASE_FILE__,__LINE__,s)
-+int MYperror(char * where,int line,char *what)
-+{
-+	fprintf(stderr,SETCOLOR_FAILURE"%s,%d:",where,line);
-+	perror(what);
-+	fprintf(stderr,SETCOLOR_NORMAL);
-+	fflush(stderr);
-+	fflush(stdout);
-+	++global_error;
-+	by_now();
-+}
-+/*
-+ * This is a result reporter.  Set e = 0 if the expected value is 0 (no error)
-+ * Set the expected error otherwise. (For now we don't check errno against e)
-+ */
-+#define my_c_perror(e,s) MY_c_perror(e,__BASE_FILE__,__LINE__,s)
-+int MY_c_perror(int e,char * where,int line,char *what)
-+{
-+	char *fmt;
-+	fmt = e ? "expected" :SETCOLOR_FAILURE"UNEXPECTED";
-+	fprintf(stderr,"%s %s,%d:",fmt,where,line);
-+	perror(what);
-+	if ((e > 0) && (e != errno)){
-+		errno = e;
-+		perror(SETCOLOR_FAILURE"Expected");
-+		global_error++;
-+		fprintf(stderr,SETCOLOR_NORMAL);
-+	}
-+	if ( ! e) {
-+		if ((e > 0) && (e != errno)){
-+			perror("Found	");
-+			errno = e;
-+			perror("Expected");
-+		}
-+		global_error++;
-+		fprintf(stderr,SETCOLOR_NORMAL);
-+	}
-+	fflush(stderr);
-+	fflush(stdout);
-+	return e ? 0:-1;
-+}
-+#define no_error(e,s) No_error(e,__BASE_FILE__,__LINE__,s)
-+int No_error(int e,char * where,int line,char *what)
-+{
-+	char *fmt;
-+	fmt = e ? SETCOLOR_FAILURE"ERROR expected but not found" : "Cool";
-+	fprintf(stderr,"%s %s,%d:%s\n"SETCOLOR_NORMAL,fmt,where,line,what);
-+	if ( e) {
-+		if ((e > 0) && (e != errno)){
-+			errno = 0;
-+			perror("Found	");
-+			errno = e;
-+			perror("Expected");
-+		}
-+		global_error++;
-+		fprintf(stderr,SETCOLOR_NORMAL);
-+	}
-+	fflush(stderr);
-+	fflush(stdout);
-+	return e ? -1 : 0;
-+}
-+/*
-+ * Try() is a macro for making system calls where an error return is -1.
-+ * Used as a function, it returns any value other than -1.  Mostly we
-+ * use it as a straight call, but one never knows.  Also can be called
-+ * with some expression which will exit the program with an error message
-+ * if it ever gets to -1.  For example:
-+ * count = 100;
-+ * ---loop stuff ---
-+ * Try (--count);
-+ * ---end of loop ---
-+ * Will stop the loop with an error after 101 times around.  Great for 
-+ * stopping run away while loops.
-+ * Since it exits via myperror, above, it will report where the exit
-+ * came from (source and line number).	Error text will be the expression.
-+ */
-+#define Try(f) ({int foobas = (f); \
-+		if( foobas == -1) \
-+		myperror( #f );	  \
-+		foobas;})
-+#define try(e,f) ({int foobas = (f); if( foobas == -1){	 my_c_perror( e,#f );\
-+				     } else{  no_error(e,#f);} foobas;})
-+/* These two printf() calls take a string with "%d.%03d" somewhere in it
-+ * and an integer.  They print the interger as a decimal with 3 digits
-+ * to the right of the decimal point.  Use to print microsecond values
-+ * as milliseconds.  The second version is used to print two such values.
-+ */
-+#define printf1(s, d) printfx(s,d,1000)
-+void printfx(char *s,int d, int x){printf(s,d/x,d%x);}
-+void printf2(char *s,int d, int e){ printf(s,d/1000,d%1000,e/1000,e%1000);}
-+/* Bit map routines.  These routines work on a bit map of N words.  We assume
-+ * the bit width of a word is 32.
-+ * Here we only need test, set and clear.  There are others to be found in
-+ * the bitops.h headers.
-+ */
-+#ifdef ASM_BITOPS
-+#include <asm/bitops.h>
-+#define BIT_SHIFT 5
-+#define WORD_MASK (int)(-1<<BIT_SHIFT)
-+#define BIT_MASK  (~WORD_MASK)
-+#define clearbit(bit, add) clear_bit((bit)&BIT_MASK,(add)+((bit)>>BIT_SHIFT))
-+#define setbit(bit, add) set_bit((bit)&BIT_MASK,(add)+((bit)>>BIT_SHIFT))
-+#define testbit(bit, add) __test_bit((bit)&BIT_MASK,(add)+((bit)>>BIT_SHIFT))
-+#else
-+#define BIT_SHIFT 5
-+#define WORD_MASK (int)(-1<<BIT_SHIFT)
-+#define BIT_MASK  (~WORD_MASK)
-+#define clearbit(bit, add) *((add)+((bit)>>BIT_SHIFT)) &= ~(1<<((bit)&BIT_MASK))
-+#define setbit(bit, add)   *((add)+((bit)>>BIT_SHIFT)) |= 1<<((bit)&BIT_MASK)
-+#define testbit(bit, add) (*((add)+((bit)>>BIT_SHIFT)) &  1<<((bit)&BIT_MASK))
-+#endif
-+#define NO_BITS 10000
-+#define NO_WDS ((NO_BITS/32)+1)
-+
-+#endif
+ 	if (!shared) {
+-		/* Support queueing exactly one non-rt signal, so that we
+-		   can get more detailed information about the cause of
+-		   the signal. */
+-		if (LEGACY_QUEUE(&t->pending, sig))
+-			goto out;
+ 
+ 		ret = deliver_signal(sig, info, t);
+ 	} else {
+-		if (LEGACY_QUEUE(&t->sig->shared_pending, sig))
+-			goto out;
+ 		ret = send_signal(sig, info, &t->sig->shared_pending);
+ 	}
+ out:
+@@ -1427,8 +1449,9 @@
+ 		err |= __put_user(from->si_uid, &to->si_uid);
+ 		break;
+ 	case __SI_TIMER:
+-		err |= __put_user(from->si_timer1, &to->si_timer1);
+-		err |= __put_user(from->si_timer2, &to->si_timer2);
++		 err |= __put_user(from->si_tid, &to->si_tid);
++		 err |= __put_user(from->si_overrun, &to->si_overrun);
++		 err |= __put_user(from->si_ptr, &to->si_ptr);
+ 		break;
+ 	case __SI_POLL:
+ 		err |= __put_user(from->si_band, &to->si_band);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-x86/kernel/timer.c linux/kernel/timer.c
+--- linux-2.5.39-x86/kernel/timer.c	Fri Sep 27 17:24:32 2002
++++ linux/kernel/timer.c	Fri Sep 27 17:55:15 2002
+@@ -497,6 +497,7 @@
+ 	if (xtime.tv_sec % 86400 == 0) {
+ 	    xtime.tv_sec--;
+ 	    time_state = TIME_OOP;
++	    clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+ 	}
+ 	break;
+@@ -505,6 +506,7 @@
+ 	if ((xtime.tv_sec + 1) % 86400 == 0) {
+ 	    xtime.tv_sec++;
+ 	    time_state = TIME_WAIT;
++	     clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+ 	}
+ 	break;
 
-
-
---------------84054938436025A17CEA6583--
+--------------EA32CA97B27D4C52A15BDD83--
 

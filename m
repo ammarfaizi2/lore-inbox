@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272559AbRIXVch>; Mon, 24 Sep 2001 17:32:37 -0400
+	id <S272865AbRIXVfr>; Mon, 24 Sep 2001 17:35:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272582AbRIXVc2>; Mon, 24 Sep 2001 17:32:28 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:30191 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S272559AbRIXVcT>; Mon, 24 Sep 2001 17:32:19 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Mon, 24 Sep 2001 15:32:16 -0600
-To: Ryan Mack <rmack@mackman.net>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [BUG?] ext3 0.9.10-2410 - root partition never marked dirty
-Message-ID: <20010924153216.H14526@turbolinux.com>
-Mail-Followup-To: Ryan Mack <rmack@mackman.net>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.33.0109241409490.990-100000@mackman.net>
+	id <S272829AbRIXVfh>; Mon, 24 Sep 2001 17:35:37 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:45560 "EHLO
+	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S272758AbRIXVf1>; Mon, 24 Sep 2001 17:35:27 -0400
+Date: Mon, 24 Sep 2001 16:35:46 -0500
+From: J Troy Piper <jtp@dok.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-2.4-0.9.10
+Message-ID: <20010924163546.C244@dok.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: message/rfc822
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109241409490.990-100000@mackman.net>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 24, 2001  14:15 -0700, Ryan Mack wrote:
-> It seems that the aforementioned changes in 2.4.10 has prevented the root
-> filesystem from having its superblock updated as dirty.  It may be my
-> imagination, but since the root fs is already mounted ro when it's
-> remounted rw, the superblock isn't being updated with the needs_recovery
-> flag.
+Date: Mon, 24 Sep 2001 16:18:29 -0500
+From: J Troy Piper <jtp@dok.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	"ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.10
+Message-ID: <20010924161829.A244@dok.org>
+In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BAECC4F.EF25393@zip.com.au>; from akpm@zip.com.au on Sun, Sep 23, 2001 at 11:01:51PM -0700
+Return-Path: <jtp@dok.org>
 
-OK, it's not exactly clear what you are referring to, but:
-1) On ext3 the superblock is NEVER marked dirty, because of the journal.
-   As long as the journal is running normally, the filesystem will always
-   be "clean".
-2) There should _not_ be a problem with the needs_recovery flag being set
-   from within the kernel.  HOWEVER, attempts to read it from user-space
-   may fail because of a disconnect between the buffer cache and the page
-   cache.
+On Sun, Sep 23, 2001 at 11:01:51PM -0700, Andrew Morton wrote:
+> An ext3 patch against linux 2.4.10 is at
+> 
+> 	http://www.uow.edu.au/~andrewm/linux/ext3/
+> 
+> This patch is *lightly tested* - ie, it boots and does stuff.
+> The changes to ext3 are small, but the kernel which it patches
+> has recently changed a lot.  If you're cautious, please wait
+> a couple of days.
+> 
+> The patch retains the buffer-tracing code.  This will soon be
+> broken out into a separate patch to make ext3 suitable for
+> submission for the mainstream kernel.
+> 
 
-Now that these issues are in the open (and already being discussed) they
-will likely be fixed in a relatively short timeframe.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Hey Andrew,
+
+Any more progress on my journal_revoke BUG?  Strangely enough, I've been 
+mounting the drives as ext2 to try and avoid the errors, but I *STILL* hit 
+the BUG when untar'ing a large file, or compiling a large file (ie. kernel 
+source), which is somewhat unnerving.
+
+---
+
+/************************/
+/*    J. Troy Piper     */
+/*    <jtp@dok.org>     */
+/* Ignotum per Ignotius */
+/************************/
 

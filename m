@@ -1,68 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267309AbTABVye>; Thu, 2 Jan 2003 16:54:34 -0500
+	id <S267278AbTABVhj>; Thu, 2 Jan 2003 16:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267313AbTABVx0>; Thu, 2 Jan 2003 16:53:26 -0500
-Received: from smtp-101.nerim.net ([62.4.16.101]:27147 "EHLO kraid.nerim.net")
-	by vger.kernel.org with ESMTP id <S267309AbTABVwb>;
-	Thu, 2 Jan 2003 16:52:31 -0500
-Message-ID: <3E14B698.8030107@inet6.fr>
-Date: Thu, 02 Jan 2003 23:00:56 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
-Cc: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 133 on a 40 pin cable
-References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267266AbTABVgQ>; Thu, 2 Jan 2003 16:36:16 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:49818 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267284AbTABVf0>; Thu, 2 Jan 2003 16:35:26 -0500
+Date: Thu, 2 Jan 2003 22:44:52 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com, andrew.grover@intel.com
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
+       acpi-devel@lists.sourceforge.net
+Subject: [PATCH 2.5.54] cpufreq: remove deprecated usage of CPUFREQ_ALL_CPUS in ACPI
+Message-ID: <20030102214452.GF19479@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Happy new year everybody
+As policy->cpu now only points to an existing CPU, some code can 
+safely be removed from the ACPI P-States cpufreq driver.
 
+	 Dominik
 
-Alan Cox wrote:
-
->It got CRC errors, not suprisingly and will drop back. Nevertheless it
->shouldnt have gotten this wrong, so more info would be good.
->  
->
-
-I'm wondering some things about IDE 40/80 pin cables since some time ago :
-- somehow the circuitry can make the difference between 40 and 80 pin 
-(probably some pins are shorted or not by the cables or some 
-cable-type-dependent impedance between wires is mesured) and set a bit 
-for us to use.
-- most probably the same circuitry can't verify the length of the cables 
-or their overall quality but I'm unsure.
-
-#1 How is the 40/80 pin detection done at the hardware level ?
-#2 Are there any other cable-quality hardware tests done by the chipsets 
-? How ?
-
-I've encountered a barebone design (Mocha P4, uses 2.5" drives) where 
-the IDE cable was 40-pin but :
-- has a single drive connector instead of the common two,
-- its length is only around 10 or 15 cm.
-A buyer contacted me for SiS IDE driver directions on this platform and 
-confirmed this at least for his purchase.
-
-#3 Is the above cable electrically able to sustain 66+ UDMA transfers 
-(could I hack a driver in order to bypass the 80pin cable detection and 
-make it work properly) ?
-#4 Are the electrical specs for 66+ UDMA transfers public (couldn't find 
-by googling) ? Where can we find them ?
-Here I mean some really basic specs (max Resistance/Capacity/Inductance 
-between wires, max signal propagation delays and so on) and not general 
-high level specs (material, connector design, length ranges allowed in 
-the general 80-pin, 2 drives case).
-
-Any hints on these Andre ?
-
-LB.
-
+diff -ruN linux-original/drivers/acpi/processor.c linux/drivers/acpi/processor.c
+--- linux-original/drivers/acpi/processor.c	2003-01-02 20:56:57.000000000 +0100
++++ linux/drivers/acpi/processor.c	2003-01-02 21:17:34.000000000 +0100
+@@ -1669,24 +1669,10 @@
+ 	if (!policy)
+ 		return_VALUE(-EINVAL);
+ 
+-	/* get a present, initialized CPU */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS)
+-	{
+-		for (i=0; i<NR_CPUS; i++) {
+-			if (processors[i] != NULL) {
+-				cpu = i;
+-				pr = processors[cpu];
+-				break;
+-			}
+-		}
+-	}
+-	else
+-	{
+-		cpu = policy->cpu;
+-		pr = processors[cpu];
+-		if (!pr)
+-			return_VALUE(-EINVAL);
+-	}
++	cpu = policy->cpu;
++	pr = processors[cpu];
++	if (!pr)
++		return_VALUE(-EINVAL);
+ 
+ 	/* select appropriate P-State */
+ 	if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
+@@ -1715,19 +1701,9 @@
+ 	}
+ 
+ 	/* set one or all CPUs to the new state */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS) {
+-		for (i=0; i<NR_CPUS; i++)
+-		{
+-			pr = processors[cpu];
+-			if (!pr || !cpu_online(cpu))
+-				continue;
+-			result = acpi_processor_set_performance (pr, next_state);
+-		}
+-	} else {
+-		result = acpi_processor_set_performance (pr, next_state);
+-	}
++	result = acpi_processor_set_performance (pr, next_state);
+ 
+-	return_VALUE(0);
++	return_VALUE(result);
+ }
+ 
+ 
+@@ -1746,24 +1722,10 @@
+ 	if (!policy)
+ 		return_VALUE(-EINVAL);
+ 
+-	/* get a present, initialized CPU */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS)
+-	{
+-		for (i=0; i<NR_CPUS; i++) {
+-			if (processors[i] != NULL) {
+-				cpu = i;
+-				pr = processors[cpu];
+-				break;
+-			}
+-		}
+-	}
+-	else
+-	{
+-		cpu = policy->cpu;
+-		pr = processors[cpu];
+-		if (!pr)
+-			return_VALUE(-EINVAL);
+-	}
++	cpu = policy->cpu;
++	pr = processors[cpu];
++	if (!pr)
++		return_VALUE(-EINVAL);
+ 
+ 	/* first check if min and max are within valid limits */
+ 	cpufreq_verify_within_limits(
+@@ -1787,6 +1749,11 @@
+ 		policy->max = pr->performance.states[next_larger_state].core_frequency * 1000;
+ 	}
+ 
++	cpufreq_verify_within_limits(
++		policy, 
++		pr->performance.states[pr->performance.state_count - 1].core_frequency * 1000,
++		pr->performance.states[pr->limit.state.px].core_frequency * 1000);
++
+ 	return_VALUE(0);
+ }
+ 

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVADBPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVADBXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVADBPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 20:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVADBPO
+	id S261924AbVADBXs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 20:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVADBXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 20:15:14 -0500
-Received: from dp.samba.org ([66.70.73.150]:30949 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261980AbVADBOd (ORCPT
+	Mon, 3 Jan 2005 20:23:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:65516 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261924AbVADBXq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 20:14:33 -0500
+	Mon, 3 Jan 2005 20:23:46 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16857.60781.615644.171434@samba.org>
-Date: Tue, 4 Jan 2005 12:12:13 +1100
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Michael B Allen <mba2000@ioplex.com>, sfrench@samba.org,
+Message-ID: <16857.61339.370059.16758@samba.org>
+Date: Tue, 4 Jan 2005 12:21:31 +1100
+To: "Michael B Allen" <mba2000@ioplex.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, sfrench@samba.org,
        linux-ntfs-dev@lists.sourceforge.net, samba-technical@lists.samba.org,
        aia21@cantab.net, hirofumi@mail.parknet.co.jp,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Subject: Re: FAT, NTFS, CIFS and DOS attributes
-In-Reply-To: <41D9EA09.8010302@zytor.com>
+In-Reply-To: <54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
 References: <41D9C635.1090703@zytor.com>
 	<54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
-	<41D9D65D.7050001@zytor.com>
-	<16857.57572.25294.431752@samba.org>
-	<41D9E23A.4010608@zytor.com>
-	<16857.58819.311223.845400@samba.org>
-	<41D9EA09.8010302@zytor.com>
 X-Mailer: VM 7.19 under Emacs 21.3.1
 Reply-To: tridge@samba.org
 From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > The slightly stronger reason is basically the same reason why we don't 
- > stuff a bunch of things into a struct stat and call a single system call 
- > to change a bunch of attributes
+Mike,
 
-yes, and if we want this to be a good API then we'd use something like
-a bitmask to indicate what fields to update so we can update them in
-groups in a raceless fashion, but that would require that the kernel
-understand the internals of these structures. I didn't have that
-luxury, so I grouped them in the way that best matched the common use
-of the attributes.
+ > If we're just thinking about MS-oriented discretionary access control then
+ > I think the owner of the file is basically king and should be the only
+ > normal user to that can read and write it's xattrs. So whatever namespace
+ > that is (not system).
 
- > you don't want to have to change them all every time, and by
- > putting them all in the same structure that's your only option,
- > since setxattr() doesn't allow you to mask and merge.
+for the DACL the owner is king (the owner gets the WRITE_DAC,
+READ_CONTROL and STD_DELETE access bits forced on), but for the other
+parts of the full security descriptor this is not true. The owner
+doesn't get to arbitrarily write to the owner_sid or SACL. Thats why I
+used security.NTACL not user.NTACL.
 
-can you tell me who you imagining will be using these attributes apart
-from Samba, Wine and backup/restore apps? 
-
- > 
- > Incidentally, the document you pointed me to wasn't clear on the 
- > endianness convention.
-
-It's little-endian NDR. For a full description of NDR in all its gory
-details see http://www.opengroup.org/onlinepubs/9629399/chap14.htm
-
-NDR seems like overkill at first, until you start to look at security
-descriptors. They are very complex beasts, and using IDL/NDR makes it
-much easier (in fact, security descriptors need some minor
-enhancements to NDR to encode them the same way windows does).
+I suppose we could have a separate user.DACL attribute, but given that
+there is just one API that sets all 4 elements of the SD (with a
+bitmask to say which bits to set), it made more sense to me to group
+them all together. The disadvantage is that Samba needs to gain/lose
+root privileges for the "set SD" call even if the client is only
+asking to set the DACL.
 
 Cheers, Tridge

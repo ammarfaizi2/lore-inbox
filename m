@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264101AbRFNWCD>; Thu, 14 Jun 2001 18:02:03 -0400
+	id <S264108AbRFNWEM>; Thu, 14 Jun 2001 18:04:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264112AbRFNWBw>; Thu, 14 Jun 2001 18:01:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59919 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264101AbRFNWBn>; Thu, 14 Jun 2001 18:01:43 -0400
+	id <S264111AbRFNWEC>; Thu, 14 Jun 2001 18:04:02 -0400
+Received: from beppo.feral.com ([192.67.166.79]:24590 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S264108AbRFNWDt>;
+	Thu, 14 Jun 2001 18:03:49 -0400
+Date: Thu, 14 Jun 2001 15:03:00 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Riley Williams <rhw@MemAlpha.CX>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
-Date: Thu, 14 Jun 2001 22:58:21 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rhw@MemAlpha.CX (Riley Williams),
-        ionut@moisil.cs.columbia.edu (Ion Badulescu),
-        spstarr@sh0n.net (Shawn Starr), linux-kernel@vger.kernel.org
-In-Reply-To: <20010614145221.H17427@one-eyed-alien.net> from "Matthew Dharm" at Jun 14, 2001 02:52:21 PM
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <20010614145221.H17427@one-eyed-alien.net>
+Message-ID: <20010614145802.Q22077-100000@wonky.feral.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Af89-0005VK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+On Thu, 14 Jun 2001, Matthew Dharm wrote:
 
 > I know, jumping in at this late-stage is bad form... but if we're talking
 > about the Intel 82543GC Gigabit MAC, why doesn't someone just use the
 > FreeBSD if_wx.c driver as a starting point?
+>
+> It took me a while to find, as they refer to it as the LIVENGOOD instead of
+> the 82543, but the PCI ProductID values seem to match...
+>
+> Matt
 
-Intel have released a BSD like licensed gig-E driver for Linux. It needs a
-serious cleanup but the hardware interface is very very clean so that is a
-doable job. There are some patent related licensing issues but the discussion
-on resolving that and getting them into the kernel does look promising
+Let me stir the pot a bit and report that the Intel driver folks (yes, they
+*do* have them) claim to have a driver that blows the doors off of wx. I told
+them that with their access to docs and to actual chip engineers that if it
+*didn't* do so, they really were in sad shape.
+
+-matt
+
+
+

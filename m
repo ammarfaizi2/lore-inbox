@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUGTLVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUGTLXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265782AbUGTLVO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 07:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUGTLVN
+	id S265800AbUGTLXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 07:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUGTLXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 07:21:13 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:49656 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265782AbUGTLVH (ORCPT
+	Tue, 20 Jul 2004 07:23:12 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:48377 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265805AbUGTLWp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 07:21:07 -0400
-Date: Tue, 20 Jul 2004 13:20:58 +0200 (MEST)
-Message-Id: <200407201120.i6KBKwWG021608@harpo.it.uu.se>
+	Tue, 20 Jul 2004 07:22:45 -0400
+Date: Tue, 20 Jul 2004 13:22:37 +0200 (MEST)
+Message-Id: <200407201122.i6KBMbPR021614@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc1-mm1] perfctr inheritance illegal sleep bug
+Subject: [RFC][2.6.8-rc1-mm1] perfctr inheritance locking issue
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Andrew,
 
-This patch fixes a "might sleep in illegal context" error in
-the per-process performance counter inheritance changes I
-sent a few days ago. The write_lock_irq() in release_task()
-interferes with semaphore operations potentially done as a
-side-effect of freeing the task's perfctr state object.
-The fix is to do the final freeing via schedule_work().
+There is another locking problem with the per-process
+performance counter inheritance changes I sent you.
 
-CONFIG_DEBUG_SPINLOCK_SLEEP detects the error fairly quickly.
+I currently use task_lock(tsk) to synchronise accesses
+to tsk->thread.perfctr, when that pointer could change.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+The write_lock_irq(&tasklist_lock) in release_task() is
+needed to prevent ->parent from changing while releasing the
+child, but the parent's ->thread.perfctr must also be locked.
+However, sched.h explicitly forbids holding task_lock()
+simultaneously with write_lock_irq(&tasklist_lock). Ouch.
 
- drivers/perfctr/virtual.c |   16 +++++++++++++++-
- 1 files changed, 15 insertions(+), 1 deletion(-)
+My options seem to boil down to one of the following:
+1. Forget task_lock(), always take the tasklist_lock.
+   This should work but would lock the task list briefly at
+   operations like set_cpus_allowed(), and creating/deleting
+   a task's perfctr state object. I don't like that.
+2. Add a 'spinlock_t perfctr_lock;' to the thread_struct,
+   next to the perfctr state pointer. This is much cleaner,
+   but increases the size of the thread struct slightly.
 
-diff -ruN linux-2.6.8-rc1-mm1/drivers/perfctr/virtual.c linux-2.6.8-rc1-mm1.mightsleep-fix/drivers/perfctr/virtual.c
---- linux-2.6.8-rc1-mm1/drivers/perfctr/virtual.c	2004-07-19 18:43:59.822750000 +0200
-+++ linux-2.6.8-rc1-mm1.mightsleep-fix/drivers/perfctr/virtual.c	2004-07-19 18:43:38.172750000 +0200
-@@ -45,6 +45,7 @@
- 	/* protected by task_lock(owner) */
- 	unsigned long long inheritance_id;
- 	struct perfctr_sum_ctrs children;
-+	struct work_struct free_work;
- };
- #define IS_RUNNING(perfctr)	perfctr_cstatus_enabled((perfctr)->cpu_state.cstatus)
- 
-@@ -160,6 +161,19 @@
- 		vperfctr_free(perfctr);
- }
- 
-+static void scheduled_vperfctr_free(void *perfctr)
-+{
-+	vperfctr_free((struct vperfctr*)perfctr);
-+}
-+
-+static void schedule_put_vperfctr(struct vperfctr *perfctr)
-+{
-+	if (!atomic_dec_and_test(&perfctr->count))
-+		return;
-+	INIT_WORK(&perfctr->free_work, scheduled_vperfctr_free, perfctr);
-+	schedule_work(&perfctr->free_work);
-+}
-+
- static unsigned long long new_inheritance_id(void)
- {
- 	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
-@@ -383,7 +397,7 @@
- 	}
- 	task_unlock(parent_tsk);
- 	child_tsk->thread.perfctr = NULL;
--	put_vperfctr(child_perfctr);
-+	schedule_put_vperfctr(child_perfctr);
- }
- 
- /* schedule() --> switch_to() --> .. --> __vperfctr_suspend().
+I think I prefer option #2. Any objections to that?
+
+/Mikael

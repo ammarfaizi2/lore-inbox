@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVBYMF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVBYMJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262685AbVBYMF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 07:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVBYMF5
+	id S262684AbVBYMJR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 07:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVBYMJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 07:05:57 -0500
-Received: from bay14-f41.bay14.hotmail.com ([64.4.49.41]:35619 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262685AbVBYMEF
+	Fri, 25 Feb 2005 07:09:17 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:22232 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262684AbVBYMHn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 07:04:05 -0500
-Message-ID: <BAY14-F4195FF14B317E75D3A8EAD95650@phx.gbl>
-X-Originating-IP: [80.15.132.11]
-X-Originating-Email: [tonyosborne_a@hotmail.com]
-From: "tony osborne" <tonyosborne_a@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: tonyosborne_a@hotmail.com
-Subject: why one stack per thread and one heap for all the threads?
-Date: Fri, 25 Feb 2005 12:03:19 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 25 Feb 2005 12:04:01.0535 (UTC) FILETIME=[1806F0F0:01C51B32]
+	Fri, 25 Feb 2005 07:07:43 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: arch/xen is a bad idea
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Fri, 25 Feb 2005 12:07:45 -0000
+Message-ID: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: arch/xen is a bad idea
+Thread-Index: AcUbL1+vuOzkf+06S2uePByX4dLoywAAONTg
+From: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
+To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>
+Cc: <riel@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <Ian.Pratt@cl.cam.ac.uk>, <Steven.Hand@cl.cam.ac.uk>,
+       <Christian.Limpach@cl.cam.ac.uk>, <Keir.Fraser@cl.cam.ac.uk>,
+       <ian.pratt@cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ 
+> The Xen team still believe that it's best to keep arch/xen, 
+> arch/xen/i386,
+> arch/xen/x86_64, etc.  And I believe that Andi (who is the 
+> world expert on
+> maintaining an i386 derivative) thinks that this is will be a 
+> long-term
+> maintenance problem.
 
-I wish to be personally CC'ed the answers/comments posted to the list in 
-response to this post
+I think there's an interim compromise position that everyone might go
+for:
 
+Phase 1 is for us to submit a load of patches that squeeze out the low
+hanging fruit in unifying xen/i386 and i386. Most of these will be
+strict cleanups to i386, and the result will be to almost halve the
+number of files that we need to modify.
 
-why in multithreading, each thread has its own stack, but all share the same 
-heap?
-I understand that one stack is needed for each thread as each could have its 
-own procedure call. but why we don't associate a heap for each thread since 
-each thread can also create dynamically its own data?
+The next phase is that we re-organise the current arch/xen as follows:
 
+We move the remaining (reduced) contents of arch/xen/i386 to
+arch/i386/xen (ditto for x86_64). We then move the xen-specific files
+that are shared between all the different xen architectures to
+drivers/xen/core. I know this last step is a bit odd, but it's the best
+location that Rusty Russel and I could come up with.
 
-Many thanks
+At this point, I'd hope that we could get xen into the main-line tree.
 
-_________________________________________________________________
-It's fast, it's easy and it's free. Get MSN Messenger today! 
-http://www.msn.co.uk/messenger
+The final phase is to see if we can further unify more native and xen
+files. This is going to require some significant i386 code refactoring,
+and I think its going to be much easier to do if all the code is in the
+main-line tree so that people can see the motivation for what's going
+on.
+
+What do you think?
+
+Best,
+Ian
 

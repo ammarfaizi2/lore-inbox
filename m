@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277431AbRKHSnR>; Thu, 8 Nov 2001 13:43:17 -0500
+	id <S277541AbRKHSyI>; Thu, 8 Nov 2001 13:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRKHSnI>; Thu, 8 Nov 2001 13:43:08 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:19433 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S277431AbRKHSm6>;
-	Thu, 8 Nov 2001 13:42:58 -0500
-Date: Thu, 8 Nov 2001 20:40:50 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
-In-Reply-To: <Pine.LNX.4.40.0111080954350.1501-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.33.0111082028430.20248-100000@localhost.localdomain>
+	id <S277552AbRKHSx7>; Thu, 8 Nov 2001 13:53:59 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:28080 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S277541AbRKHSxw>;
+	Thu, 8 Nov 2001 13:53:52 -0500
+Date: Thu, 08 Nov 2001 18:53:43 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@alex.org.uk
+Cc: Alexander Viro <viro@math.psu.edu>, Ricky Beam <jfbeam@bluetopia.net>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Message-ID: <964381385.1005245622@[195.224.237.69]>
+In-Reply-To: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
+In-Reply-To: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 8 Nov 2001, Davide Libenzi wrote:
-
-> It sets the time ( in jiffies ) at which the process won't have any
-> more scheduling advantage.
-
-(sorry, it indeed makes sense, since sched_jtime is on the order of
-jiffies.)
-
-> > and your patch adds a scheduling advantage to processes with more cache
-> > footprint, which is the completely opposite of what we want.
+> Design the kernel to make doing this difficult.
+> Define some offsets as follows:
 >
-> It is exactly what we want indeed :
+># define FOO_PID 0
+># define FOO_PPID 1
+>
+> Now, how is anyone going to create "an extra inserted DWORD"
+> between those? They'd need to renumber FOO_PPID and any other
+> values that come after it.
 
-if this is what is done by your patch, then we do not want to do this.
-My patch does not give an advantage of CPU-intensive processes over that
-of eg. 'vi'. Perhaps i'm misreading your patch, it's full of branches that
-does not make the meaning very clear, cpu_jtime and sched_jtime are not
-explained. Is sched_jtime the timestamp of the last schedule of this
-process? And is cpu_jtime the number of jiffies spent on this CPU? Is
-cpu_jtime cleared if we switch to another CPU?
+For instance, take the /proc/mounts type example, where
+each row is a sequence of binary values. Someone decides
+to add another column, which assuming it is a DWORD^W__u64,
+does exactly this, inserts a DWORD^W__u64 between the
+end of one record and the start of the next as far a
+poorly written parser is concerned.
 
-	Ingo
+The brokenness is not due to the distinction between ASCII
+and binary. The brokenness is due the ill-defined nature
+of the format, and poor change control. (so for instance
+the ASCII version could consistently use (say) quoted strings,
+with spaces between fields, and \n between records, just
+as the binary version could have a record length entry at the
+head of each record, and perhaps field length and identifier
+versions by each field - two very similar solutions to the
+problem above).
 
+> The "DWORD" idea is messed up too BTW. Use __u64 everywhere.
 
+OK OK :-)
+
+--
+Alex Bligh

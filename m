@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284972AbRLKLdk>; Tue, 11 Dec 2001 06:33:40 -0500
+	id <S284979AbRLKLpz>; Tue, 11 Dec 2001 06:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbRLKLdb>; Tue, 11 Dec 2001 06:33:31 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:18672 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S284971AbRLKLdO>; Tue, 11 Dec 2001 06:33:14 -0500
-Date: Tue, 11 Dec 2001 11:33:06 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Timothy Shimmin <tes@boing.melbourne.sgi.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] Revised extended attributes interface
-Message-ID: <20011211113306.E2268@redhat.com>
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <20011210115209.C1919@redhat.com> <20011211122258.V61575@boing.melbourne.sgi.com>
+	id <S284989AbRLKLpq>; Tue, 11 Dec 2001 06:45:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59396 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S284979AbRLKLph>;
+	Tue, 11 Dec 2001 06:45:37 -0500
+Date: Tue, 11 Dec 2001 12:45:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bas Vermeulen <bvermeul@blackstar.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre8 oopses on non existing acorn partition
+Message-ID: <20011211114531.GP13498@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112110910350.1461-100000@laptop.blackstar.nl> <20011211112509.GO13498@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="aVD9QWMuhilNxW9f"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011211122258.V61575@boing.melbourne.sgi.com>; from tes@boing.melbourne.sgi.com on Tue, Dec 11, 2001 at 12:22:58PM +1100
+In-Reply-To: <20011211112509.GO13498@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Dec 11, 2001 at 12:22:58PM +1100, Timothy Shimmin wrote:
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Could this not be catered for independent of the proposed EA interface
-> for getting/setting/removing EAs ?
+On Tue, Dec 11 2001, Jens Axboe wrote:
+> On Tue, Dec 11 2001, Bas Vermeulen wrote:
+> > 2.5.1-pre8 oopses in adfspart_check_ICS (probably the put_dev_sector, 
+> > not entirely sure, since there doesn't seem to be anything wrong).
+> > I've enabled advanced partitions, and all the partition types.
+> > Disabling advanced partitions fixes it.
+> 
+> Please try attached patch.
 
-Definitely.  The whole problem I pointed out with the EA interface was
-that it didn't talk about ACLs at all.  So, sure, it gives us an API
-for arbitrary EAs, but it does absolutely nothing to help us unify ACL
-APIs.  In effect it is far _too_ extensible: we need to have some
-agreement on how it can be used if the different ACL applications are
-to have any hope of working together.
+Updated version, needs pagemap as well. Actually, it's the 2nd time this
+bit us in 2.5 now.
 
-The bright point is that this can be done reasonably well in user
-space, if we're careful (but we still need to worry about exactly how
-the kernel will deal with validating ACE chains --- we need to specify
-whether EAs in the system namespace are expected to be stored verbatim
-or whether the filesystem is permitted to interpret their semantics
-intelligently.)
+-- 
+Jens Axboe
 
-Cheers,
- Stephen
+
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=acorn-part-2
+
+--- /opt/kernel/linux-2.5.1-pre9/fs/partitions/acorn.c	Mon Oct  1 23:03:26 2001
++++ fs/partitions/acorn.c	Tue Dec 11 06:39:47 2001
+@@ -162,12 +162,12 @@
+ 		struct adfs_discrecord *dr;
+ 		unsigned int nr_sects;
+ 
+-		if (!(minor & mask))
+-			break;
+-
+ 		data = read_dev_sector(bdev, start_blk * 2 + 6, &sect);
+ 		if (!data)
+ 			return -1;
++
++		if (!(minor & mask))
++			break;
+ 
+ 		dr = adfs_partition(hd, name, data, first_sector, minor++);
+ 		if (!dr)
+--- /opt/kernel/linux-2.5.1-pre9/fs/partitions/check.h	Tue Dec 11 05:01:51 2001
++++ fs/partitions/check.h	Tue Dec 11 06:43:31 2001
+@@ -1,3 +1,5 @@
++#include <linux/pagemap.h>
++
+ /*
+  * add_gd_partition adds a partitions details to the devices partition
+  * description.
+
+--aVD9QWMuhilNxW9f--

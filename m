@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265255AbSKKOHe>; Mon, 11 Nov 2002 09:07:34 -0500
+	id <S265325AbSKKORt>; Mon, 11 Nov 2002 09:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265293AbSKKOHe>; Mon, 11 Nov 2002 09:07:34 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:51976 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S265255AbSKKOHe>; Mon, 11 Nov 2002 09:07:34 -0500
-Date: Tue, 12 Nov 2002 01:14:15 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Allan Duncan <allan.d@bigpond.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.47 (CONFIG_CRYPTO)
-In-Reply-To: <3DCF9D32.8070006@bigpond.com>
-Message-ID: <Mutt.LNX.4.44.0211120106580.17844-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265322AbSKKORt>; Mon, 11 Nov 2002 09:17:49 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:19723 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S265325AbSKKORs>; Mon, 11 Nov 2002 09:17:48 -0500
+Message-Id: <200211111424.gABEOCvc031091@pincoya.inf.utfsm.cl>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix confusing comment 
+In-Reply-To: Message from Pavel Machek <pavel@ucw.cz> 
+   of "Thu, 07 Nov 2002 18:09:36 BST." <20021107170936.GA432@elf.ucw.cz> 
+Date: Mon, 11 Nov 2002 11:24:12 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Nov 2002, Allan Duncan wrote:
+Pavel Machek <pavel@ucw.cz> said:
+> This little comment confused me a *lot*.
+> 								Pavel
+> 
+> 
+> --- clean/arch/i386/kernel/head.S	2002-10-14 18:18:30.000000000 +0200
+> +++ linux-swsusp/arch/i386/kernel/head.S	2002-11-02 22:36:58.000000000 +
+> 0100
+> @@ -1,5 +1,5 @@
+>  /*
+> - *  linux/arch/i386/head.S -- the 32-bit startup code.
+> + *  linux/arch/i386/kernel/head.S -- the 32-bit startup code.
+>   *
+>   *  Copyright (C) 1991, 1992  Linus Torvalds
+>   *
 
-> New - undefined refs if CONFIG_CRYPTO is not set.
-
-This is due to the ah and esp modules (and af_key soon).  We need to
-either make these modules depend on CONFIG_CRYPTO or force CONFIG_CRYPTO
-(plus the ipsec algorithms) when any of these modules selected.
-
-
-- James
+I'd really prefer not to mention the path to the file, just its name (the
+path is redundant anyway). Shorter, less space for confusion to creep in.
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

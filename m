@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290012AbSAWTrY>; Wed, 23 Jan 2002 14:47:24 -0500
+	id <S290010AbSAWTxo>; Wed, 23 Jan 2002 14:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290015AbSAWTrR>; Wed, 23 Jan 2002 14:47:17 -0500
-Received: from julia.fractalus.com ([209.26.177.217]:62478 "HELO
-	julia.fractalus.com") by vger.kernel.org with SMTP
-	id <S290012AbSAWTrC>; Wed, 23 Jan 2002 14:47:02 -0500
-Date: Wed, 23 Jan 2002 14:40:56 -0500
-From: SteveC <steve@fractalus.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI intel 440 chipset weirdness
-Message-ID: <20020123144055.A2956@fractalus.com>
-Mime-Version: 1.0
+	id <S290014AbSAWTxf>; Wed, 23 Jan 2002 14:53:35 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:31492 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S290010AbSAWTxP>; Wed, 23 Jan 2002 14:53:15 -0500
+Message-ID: <3C4F1325.C65001EE@zip.com.au>
+Date: Wed, 23 Jan 2002 11:46:45 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.org>
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Daemonize() should re-parent its caller
+In-Reply-To: <Pine.LNX.4.33L2.0201231050440.687-100000@ida.rowland.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux/2.2.19-6.2.10 (i686)
-X-Uptime: 2:30pm  up 30 days,  2:42,  3 users,  load average: 0.05, 0.02, 0.02
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan 23 15:14:01 bat kernel: PCI: PCI BIOS revision 2.10 entry at 0xfd091, 
-last bus=1
-Jan 23 15:14:01 bat kernel: PCI: Using configuration type 1
-Jan 23 15:14:01 bat kernel: PCI: Probing PCI hardware
-Jan 23 15:14:01 bat kernel: PCI: i440KX/GX host bridge 00:19.0: secondary 
-bus 00
-Jan 23 15:14:01 bat kernel: PCI: i440KX/GX host bridge 00:1a.0: secondary 
-bus 01
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 0 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 1 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 2 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 3 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 4 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Cannot allocate resource region 5 of 
-device 00:0f.0
-Jan 23 15:14:01 bat kernel: PCI: Error while updating region 00:0f.0/1 
-(20000408 != 20000008)
-Jan 23 15:14:01 bat kernel: PCI: Error while updating region 00:0f.0/2 
-(20000808 != 20000008)
-Jan 23 15:14:01 bat kernel: PCI: Error while updating region 00:0f.0/3 
-(20000c08 != 20000008)
-Jan 23 15:14:01 bat kernel: PCI: Error while updating region 00:0f.0/4 
-(20001008 != 20000008)
-Jan 23 15:14:01 bat kernel: PCI: Error while updating region 00:0f.0/5 
-(20001408 != 20000008)
+Alan Stern wrote:
+> 
+> Consider the question: what happens when a kernel thread dies?  For
+> the most part this doesn't come up, since most kernel threads stay
+> alive as long as the system is up.  But when a kernel thread dies, the
+> same thing happens as with any other thread: it becomes a zombie, and
+> its exit_signal (if any) is posted to its parent.
+> 
+> ...
+> 
+> But a more elegant and economical solution is to have the daemonize()
+> routine automatically re-parent its caller to be a child of init
+> (assuming the caller's parent isn't init already).  At the same time,
+> the caller's exit_signal should be set to SIGCHLD.  This would
+> definitely solve the problem, and it is unlikely to introduce any
+> incompatibilities with existing code.
+> 
 
-kernel 2.4.17
+Yes.   There's a function in the 2.4 series called reparent_to_init()
+whch does this.  Typically a kernel thread will call that immediately
+after calling daemonize().  It _should_ solve any problem which you're
+observing.  Could you please test that, and if it fixes the problem
+which you're seeing, send a patch to the USB maintainers?
 
-I look around and found bits like:
+Perhaps we should unconditionally call reparent_to_init() from within
+daemonize().  I wimped out on doing that because of the possibility
+of strangely breaking something.
 
-http://bizforums.itrc.hp.com/cm/QuestionAnswer/1,,0xd296ee3e323bd5118fef0090279cd0f9,00.html
+Really, an audit of all callers of kernel_thread() is needed, and
+most of them should would end up using reparent_to_init().  Difficult
+to do in the 2.4 context, so we should only do this when and where
+problems are demonstrated.
 
-The machine seems to behave fine but i took it back to 2.2.whatever 
-anyway. Can anyone give me an idea what to do?
+(But you Cc'ed Alan.  Are you using 2.2.x?)
 
-have fun,
-
-SteveC steve@fractalus.com fractalus.com/steve
+-

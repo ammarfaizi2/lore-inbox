@@ -1,78 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbTEMUjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbTEMUjo
+	id S262447AbTEMUtF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTEMUtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:39:44 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:62728 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S261178AbTEMUjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:39:42 -0400
-Message-ID: <3EC15C6D.1040403@kolumbus.fi>
-Date: Tue, 13 May 2003 23:58:21 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Tue, 13 May 2003 16:49:05 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17632 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261275AbTEMUs5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:48:57 -0400
+Date: Tue, 13 May 2003 14:02:04 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [RFC] support for sysfs string based properties for SCSI (1/3)
+In-Reply-To: <1051989565.2036.14.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0305131326050.9816-100000@cherise>
 MIME-Version: 1.0
-To: Dave McCracken <dmccr@us.ibm.com>
-CC: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Race between vmtruncate and mapped areas?
-References: <154080000.1052858685@baldur.austin.ibm.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 13.05.2003 23:53:30,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 13.05.2003 23:53:07,
-	Serialize complete at 13.05.2003 23:53:07
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Isn't that what inode->i_sem is supposed to protect...?
 
---Mika
+On 3 May 2003, James Bottomley wrote:
+
+> On Sat, 2003-05-03 at 14:11, James Bottomley wrote:
+> > 
+> > This first patch is of general interest (the other two are going to the
+> > SCSI list only).
+> > 
+> > The problem this seeks to solve is that we have a bunch of properties in
+> > SCSI that we'd like to expose through the sysfs interface.  The
+> > mid-layer can get their values, but setting them requires co-operation
+> > from the host drivers, thus we'd like to expose a show/store interface
+> > to all the SCSI drivers.
+> > 
+> > The current one call back per sysfs file is a bit unwieldy for
+> > encapsulating in an interface like this.  what this patch does is to
+> > allow a fallback show/store method of the bus type (if the device type
+> > doesn't exist).  However, the bus_type show/store passes in the
+> > attribute so a comparison may be done against the name of the attribute.
+
+I'm not very fond of your implementation. I like the concept, and it 
+works, but there's a much better way, despite requiring some changes to 
+the kobject core. 
+
+Ideally, what you'd like to do, instead of adding more conditionals to
+normal call chain down to the lowest-level sysfs show()/store() methods,
+you'd like to bypass them and define your own methods higher up; e.g. to
+replace dev_attr_{show,store} in this case.
+
+But you can't, because in order to define attributes for a device object, 
+you must use the device_attribute infrastructure, which means using the 
+call chain I've mandated. :)
+
+We could modify the lowest-level methods, but that requires changing every 
+attribute definition, and we'll still end up with the macro hell we 
+already see to export many attributes that all just a little different. 
+
+So, what I propose is killing struct kobj_type. We can move ->release() 
+into struct kset, adding a small amount of overhead to ksets of an 
+identical type (trivial). We can move ->sysfs_ops and ->default_attrs into 
+say struct attribute_group and allow subsystems to register arbitrary 
+groups of attributes of attributes for kobjects. 
+
+This will allow us to keep identical behavior everywhere, with a little 
+glue, but will also solve your problem nicely. You will do something like:
 
 
-Dave McCracken wrote:
+struct attribute my_attrs[] = {
+	foo,
+	bar,
+	baz,
+	NULL,
+};
 
->As part of chasing the BUG() we've been seeing in objrmap I took a good
->look at vmtruncate().  I believe I've identified a race condition that no
->only  triggers that BUG(), but also could cause some strange behavior
->without the objrmap patch.
->
->Basically vmtruncate() does the following steps:  first, it unmaps the
->truncated pages from all page tables using zap_page_range().  Then it
->removes those pages from the page cache using truncate_inode_pages().
->These steps are done without any lock that I can find, so it's possible for
->another task to get in between the unmap and the remove, and remap one or
->more pages back into its page tables.
->
->The result of this is a page that has been disconnected from the file but
->is mapped in a task's address space as if it were still part of that file.
->Any further modifications to this page will be lost.
->
->I can easily detect this condition by adding a bugcheck for page_mapped()
->in truncate_complete_page(), then running Andrew's bash-shared-mapping test
->case.
->
->Please feel free to poke holes in my analysis.  I'm not at all sure I
->haven't missed some subtlety here.
->
->Dave McCracken
->
->======================================================================
->Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
->dmccr@us.ibm.com                                        T/L   678-3059
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+struct attribute_group my_group {
+	.ops	= {
+		my_attr_show,
+		my_attr_store,
+	},
+	.attrs	= my_attrs,
+};
 
+int my_register()
+{
+	...
+	if ((error = device_register(&mydev.dev)))
+		goto Err;
+	if ((error = attr_grp_register(&mydev.dev.kobj,&my_group)))
+		goto Unregister;
+	...
+}
+
+my_show() and my_store() will get pointers to the kobjects, which you'll
+have to convert into the proper type, and pointer to the attributes, so
+you'll be able to tell which attribute is requested from a much higher
+level. 
+
+We can still keep device_attribute arround, but in general I don't think
+it's that useful to route every attribute request through the core. Using
+them is fine, and easy. But attributes travel in herds, and appear when an
+object is registered with a subsystem, or some extension of a subsystem.
+
+It's easier to define one set of callbacks + lookup mechanism for 
+attribute by name, than it is to macro-ize the hell out of your code, 
+provided your dealing with a fair number of attributes per object.
+
+
+	-pat
 

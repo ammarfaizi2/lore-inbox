@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316852AbSGHPKq>; Mon, 8 Jul 2002 11:10:46 -0400
+	id <S316860AbSGHPMU>; Mon, 8 Jul 2002 11:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSGHPKp>; Mon, 8 Jul 2002 11:10:45 -0400
-Received: from smtp.alacritech.com ([12.44.162.34]:48009 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S316852AbSGHPKo>; Mon, 8 Jul 2002 11:10:44 -0400
-Message-ID: <3D29A9BC.266EC55E@alacritech.com>
-Date: Mon, 08 Jul 2002 08:03:24 -0700
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: direct-to-BIO for O_DIRECT
-References: <3D2904C5.53E38ED4@zip.com.au.suse.lists.linux.kernel> <p73adp2wugy.fsf@oldwotan.suse.de>
+	id <S316895AbSGHPMT>; Mon, 8 Jul 2002 11:12:19 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:12418
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316860AbSGHPMP>; Mon, 8 Jul 2002 11:12:15 -0400
+Date: Mon, 8 Jul 2002 08:14:12 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Riley Williams <rhw@InfraDead.Org>
+Cc: Justin Hibbits <jrh29@po.cwru.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Subject: Re: Patch for Menuconfig script
+Message-ID: <20020708151412.GB695@opus.bloom.county>
+References: <3D2793CB.90002@po.cwru.edu> <Pine.LNX.4.21.0207072319440.9595-100000@Consulate.UFP.CX>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0207072319440.9595-100000@Consulate.UFP.CX>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Sun, Jul 07, 2002 at 11:22:10PM +0100, Riley Williams wrote:
+> Hi Justin.
 > 
-> Andrew Morton <akpm@zip.com.au> writes:
+> > This is just a patch to the Menuconfig script (can be easily adapted
+> > to the other ones) that allows you to configure the kernel without
+> > the requirement of bash (I tested it with ksh, in POSIX-only mode).  
+> > Feel free to flame me :P
 > 
-> >       drivers/md/lvm-snap.c
-> >       drivers/media/video/video-buf.c
-> >       drivers/mtd/devices/blkmtd.c
-> >       drivers/scsi/sg.c
-> >
-> > the video and mtd drivers seems to be fairly easy to de-kiobufize.
-> > I'm aware of one proprietary driver which uses kiobufs.  XFS uses
-> > kiobufs a little bit - just to map the pages.
-> 
-> lkcd uses it too for its kernel crash dump. I suspect it wouldn't be that
-> hard to change.
-> 
+> Does it also work in the case where the current shell is csh or tcsh
+> (for example)?
 
-We can remove their use from our 2.5 tree.  Not a problem, as
-there are other ways to accomplish what we want.
+Er.. why wouldn't it?
+$ head -1 scripts/Menuconfig 
+#! /bin/sh
 
-> -Andi
+So this removes the /bin/sh is not bash test, yes?
 
---Matt
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

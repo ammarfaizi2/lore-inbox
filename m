@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264786AbRFSVJa>; Tue, 19 Jun 2001 17:09:30 -0400
+	id <S264790AbRFSVLk>; Tue, 19 Jun 2001 17:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264789AbRFSVJU>; Tue, 19 Jun 2001 17:09:20 -0400
-Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:11019 "HELO
-	mail.thock.com") by vger.kernel.org with SMTP id <S264786AbRFSVJC>;
-	Tue, 19 Jun 2001 17:09:02 -0400
-Message-ID: <3B2FBF76.40993998@bigfoot.com>
-Date: Tue, 19 Jun 2001 15:09:10 -0600
-From: Dylan Griffiths <Dylan_G@bigfoot.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Still some problems with UHCI driver in 2.4.5 on VIA chipsets
-In-Reply-To: <3B2D446A.5C2AEEAC@bigfoot.com> <20010617200855.R9465@sventech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264791AbRFSVLa>; Tue, 19 Jun 2001 17:11:30 -0400
+Received: from AGrenoble-101-1-1-226.abo.wanadoo.fr ([193.251.23.226]:3737
+	"EHLO lyon.ram.loc") by vger.kernel.org with ESMTP
+	id <S264790AbRFSVLM>; Tue, 19 Jun 2001 17:11:12 -0400
+To: linux-kernel@vger.kernel.org
+From: Raphael_Manfredi@pobox.com (Raphael Manfredi)
+Subject: Re: How to compile on one machine and install on another?
+Date: 19 Jun 2001 21:11:06 GMT
+Organization: Home, Grenoble, France
+Message-ID: <9gof5a$52f$1@lyon.ram.loc>
+In-Reply-To: <E15CSDK-0006ee-00@the-village.bc.nu> <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+In-Reply-To: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
+X-Mailer: newsgate 1.0 at lyon.ram.loc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Erdfelt wrote:
-> Could you load uhci with the debug=1 option?
+Quoting Tom Diehl <tdiehl@pil.net> from ml.linux.kernel:
+:What is the best way to install the modules? Is there a directory _all_ of
+:the modules exist in b4 you do "make modules_install". I usually end up
+:setting EXTRAVERSION to something unique and doing a make modules_install.
+:That way it does not hose up the modules for the build machine.
+:Is there a better way?
 
-I did an 'insmod uhci.o debug=1' but the dmesg output did not alter.
+Yes, there is.  I usually add the the following to the main Makefile:
 
-My easy steps to reproduce it is to 'delete selected images' in gphoto such
-that there will be no images in the camera left when the operation is done. 
-At loast it doesn't lock up the camera like it used to :-/
+export INSTALL_PATH=/nfs/lyon/home/ram/root-install/boot
+export INSTALL_MOD_PATH=/nfs/lyon/home/ram/root-install
 
-I think this may be a problem in the dc2xx.o then, since uhci didn't reveal
-any new messages.
+I then proceed as usual, and the modules get copied over NFS to
+the target machine, in root-install/lib/modules, etc...
 
---
-    www.kuro5hin.org -- technology and culture, from the trenches.
+If you don't have NFS mounts to the remote machine, you'll have to
+rcp the tree, that's all.
+
+Raphael

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbULIEwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbULIEzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbULIEwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 23:52:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbULIEwP
+	id S261453AbULIEzl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 23:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbULIEzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 23:52:15 -0500
-Received: from waste.org ([209.173.204.2]:39589 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261452AbULIEwM (ORCPT
+	Wed, 8 Dec 2004 23:55:41 -0500
+Received: from waste.org ([209.173.204.2]:60069 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261453AbULIEzg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 23:52:12 -0500
-Date: Wed, 8 Dec 2004 20:52:07 -0800
+	Wed, 8 Dec 2004 23:55:36 -0500
+Date: Wed, 8 Dec 2004 20:55:32 -0800
 From: Matt Mackall <mpm@selenic.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Bernard Normier <bernard@zeroc.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org
+To: andyliu <liudeyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
 Subject: Re: Concurrent access to /dev/urandom
-Message-ID: <20041209045207.GB12189@waste.org>
-References: <006001c4d4c2$14470880$6400a8c0@centrino> <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <Pine.LNX.4.60.0412081905140.17193@dlang.diginsite.com>
+Message-ID: <20041209045532.GC12189@waste.org>
+References: <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org> <aad1205e0412081846161b4dcd@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0412081905140.17193@dlang.diginsite.com>
+In-Reply-To: <aad1205e0412081846161b4dcd@mail.gmail.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 07:10:16PM -0800, David Lang wrote:
-> On Tue, 7 Dec 2004, Bernard Normier wrote:
+On Thu, Dec 09, 2004 at 10:46:30AM +0800, andyliu wrote:
+> hi Ted
 > 
-> >I am just trying to generate UUIDs (without duplicates, obviously).
-> >
+>    i think this is better than use the spin lock.
+>   but i think maybe there should put an #ifdef SMP :)
+> just like
 > 
-> pulling data from /dev/random or /dev/urandom will not ensure that you 
-> don't have duplicates.
+> #ifdef CONFIG_SMP
+>                tmp[0] = 0x67452301 ^ smp_processor_id();
+>                tmp[1] = 0xefcdab89 ^ (__u32) current;
+>                tmp[2] = 0x98badcfe ^ preempt_count();
+> #endif
+> 
+> is it needed? 
 
-No, but this problem can generate duplicates as large as an SHA hash
-with relative ease when it should be essentially impossible. In other
-words, it works exactly wrong for UUIDs, which needs fixing.
+The race can be hit with get_random_bytes on UP if we get
+interrupted/preempted between hashing and mixing. Which is why
+preempt_count is useful..
 
 -- 
 Mathematics is the supreme nostalgia of our time.

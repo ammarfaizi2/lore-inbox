@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289726AbSAWIHF>; Wed, 23 Jan 2002 03:07:05 -0500
+	id <S289724AbSAWIFf>; Wed, 23 Jan 2002 03:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289727AbSAWIGp>; Wed, 23 Jan 2002 03:06:45 -0500
-Received: from firewall.embl-grenoble.fr ([193.49.43.1]:32422 "HELO
-	out.esrf.fr") by vger.kernel.org with SMTP id <S289726AbSAWIGm>;
-	Wed, 23 Jan 2002 03:06:42 -0500
-Date: Wed, 23 Jan 2002 09:06:14 +0100
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: Oliver.Neukum@lrz.uni-muenchen.de
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: umounting
-Message-ID: <20020123090614.A18262@pcmaftoul.esrf.fr>
-In-Reply-To: <20020122150703.B13509@pcmaftoul.esrf.fr> <m16T2IB-02103HC@ligsg2.epfl.ch> <16T6BH-1ZiPWiC@fwd07.sul.t-online.com>
-Mime-Version: 1.0
+	id <S289726AbSAWIF1>; Wed, 23 Jan 2002 03:05:27 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7720 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S289724AbSAWIFG>; Wed, 23 Jan 2002 03:05:06 -0500
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "Bradley D. LaRonde" <brad@ltc.com>, "Thomas Capricelli" <orzel@kde.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently
+In-Reply-To: <0ddd01c184b3$ce15c470$5601010a@prefect>
+	<066801c183f2$53f90ec0$5601010a@prefect>
+	<20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
+	<25867.1008323156@redhat.com> <13988.1008348675@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Jan 2002 01:01:47 -0700
+In-Reply-To: <13988.1008348675@redhat.com>
+Message-ID: <m1elkhfqc4.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <16T6BH-1ZiPWiC@fwd07.sul.t-online.com>; from 520047054719-0001@t-online.de on Tue, Jan 22, 2002 at 08:01:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 08:01:44PM +0100, Oliver Neukum wrote:
+David Woodhouse <dwmw2@infradead.org> writes:
+
+> brad@ltc.com said:
+> >  That sounds nice, but I cannot imagine how much trouble it would be
+> > to implement.
 > 
-> > When a second user comes and unmounts a disk, then the data are flushed
-> > (the old data) and he gets a fs corruption, because the data were not from
-> > his disk.
-> 
-> No. The sbp2 driver should report a disk change. If such a thing happens,
-According to my log, sbp2 has an event, It does see the new disk as I
-can mount it ( something bizarre: The first disk I plug, the sbp2 driver
-tells me the vendor and model of the disk, but all other disk won't tell
-me anything until I realod sbp2 module ( I think reloading is ok but not
-tested
-> there's a kernel bug. Pulling out a mounted disk may cause a corrupted
-> filesystem on that disk but not on others.
-That's why I'm writing here: If a user broke his filesystem because he
-forget to do umout, that's his fault but when a user do the right thing
-but because the previous one haven't It brokes his fs, that's something
-not normal and It should be avoided.
-        Sam
-> 
-> 	Regards
-> 		Oliver
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Adding the pages to the page cache on read_inode() is fairly simple. Hacking 
+> the kernel so that readpage() can provide its own page less so.
+
+Well the generic solution is to simply skip readpage and provide (for your fs)
+your own versions of generic_file_read and filemap_nopage.  At least
+if you want to do it on demand...
+
+Eric
+

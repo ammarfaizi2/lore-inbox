@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271771AbRHUSIL>; Tue, 21 Aug 2001 14:08:11 -0400
+	id <S271774AbRHUSJk>; Tue, 21 Aug 2001 14:09:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271772AbRHUSIB>; Tue, 21 Aug 2001 14:08:01 -0400
-Received: from fluent1.pyramid.net ([206.100.220.212]:38958 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S271771AbRHUSHn>; Tue, 21 Aug 2001 14:07:43 -0400
-Message-Id: <4.3.2.7.2.20010821084512.00bdf800@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 21 Aug 2001 11:07:54 -0700
+	id <S271772AbRHUSJa>; Tue, 21 Aug 2001 14:09:30 -0400
+Received: from ultra.sonic.net ([208.201.224.22]:62800 "EHLO ultra.sonic.net")
+	by vger.kernel.org with ESMTP id <S271775AbRHUSJM>;
+	Tue, 21 Aug 2001 14:09:12 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Tue, 21 Aug 2001 11:09:25 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: linux-kernel@vger.kernel.org
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: FYI  PS/2 Mouse problems -- userland issue
+Cc: Mike Castle <dalgoda@ix.netcom.com>
+Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
+Message-ID: <20010821110925.A26851@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010821092020.B968@thune.mrc-home.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last week I had asked about mouse problems.  I have discovered the root 
-cause.  This affects you if (1) you are using a KVM switch and (2) you have 
-a "wheel" mouse.
+On Tue, Aug 21, 2001 at 09:20:20AM -0700, Mike Castle wrote:
+> Closer.
+> 
+> Had to add #include <linux/types.h> to the header file too.
 
-The problem is that sometime during system initialization the mouse is 
-being configured as a generic PS/2 mouse (no wheel).  This works 
-fine...until you switch the mouse away from the system.  Depending on the 
-KVM switch you are using, the mouse MAY reset itself into its native 
-mode.  In the case of the Logitech wheel mice, this means that each mouse 
-event sends four codes instead of three.  The X mouse support doesn't like 
-that very much.  :)
 
-This MAY be a kernel issue depending on where I locate the mouse 
-initialization code.  If it is in the kernel, then there will need to be a 
-patch to allow the mouse to be re-initialized into the mode everyone expects.
+Still compiling (only a P5/233).  But looks promising.
 
-Satch
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

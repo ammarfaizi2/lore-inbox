@@ -1,79 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315536AbSEHGc5>; Wed, 8 May 2002 02:32:57 -0400
+	id <S315537AbSEHGeQ>; Wed, 8 May 2002 02:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315537AbSEHGc4>; Wed, 8 May 2002 02:32:56 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:52440 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S315536AbSEHGc4>;
-	Wed, 8 May 2002 02:32:56 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander.Riesen@synopsys.com
+	id <S315539AbSEHGeP>; Wed, 8 May 2002 02:34:15 -0400
+Received: from [212.3.242.3] ([212.3.242.3]:41461 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S315537AbSEHGeO>;
+	Wed, 8 May 2002 02:34:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.4.19pre8-ac1
+Date: Wed, 8 May 2002 08:33:35 +0200
+X-Mailer: KMail [version 1.4]
+In-Reply-To: <200205080045.g480j1404809@devserv.devel.redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
-In-Reply-To: Your message of "Mon, 06 May 2002 12:54:35 +0200."
-             <20020506105435.GA1044@riesen-pc.gr05.synopsys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 May 2002 12:54:39 +1000
-Message-ID: <4647.1020826479@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200205080833.35655.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002 12:54:35 +0200, 
-Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
->On Thu, May 02, 2002 at 12:23:33AM +1000, Keith Owens wrote:
->> Linus, kbuild 2.5 is ready for inclusion in the main 2.5 kernel tree.
->> It is faster, better documented, easier to write build rules in, has
->> better install facilities, allows separate source and object trees, can
->> do concurrent builds from the same source tree and is significantly
->> more accurate than the existing kernel build system.
->
->I do not like the new(core-11) "make *config" behaviour. Now it starts
->build immediately after finishing, make xconfig effectively does
->make xconfig installabled. I usually cook up the .config first, and
->than decide when to compile the kernel. Now i have to interrupt the
->build.
+On Wednesday 08 May 2002 02:45, Alan Cox wrote:
+> 2.4.19pre8 merge - this one is a sanity check for testing
 
-I do not see either of these symptoms, and nobody else has reported
-them.
+<snip>
 
-# make -f $KBUILD_SRCTREE_000/Makefile-2.5 xconfig
-Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
-Generating global Makefile
-  phase 1 (find all inputs)
-  (cd /build/kaos/object-2.5.14/.tmp_config/links/ && /build/kaos/object-2.5.14/scripts/tkparse < config.in-2.5) >> /build/kaos/object-2.5.14/scripts/kconfig.tk
+Is there a reason that http://www.kernel.org still shows 2.4.19-pre7-ac4 on 
+the main page and the .tar.gz for 2.4.19-pre8-ac1 is 0 bytes?
 
-xconfig menu displays, clicking save and exit ends xconfig and drops
-back to the command prompt, it does not do anything else.
+I'd like to try this one.
 
->"make oldconfig" is broken btw, if the .config contains something
->unknown (i.e. NEW). It used to ask for possible choices before.
+Thanks
 
-# make -f $KBUILD_SRCTREE_000/Makefile-2.5 oldconfig
-Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
-Generating global Makefile
-  phase 1 (find all inputs)
-#
-# Using defaults found in .config
-#
-*
-* Code maturity level options
-*
-Prompt for development and/or incomplete code/drivers (CONFIG_EXPERIMENTAL) [N/y/?] 
-*
-* General setup
-*
-Networking support (CONFIG_NET) [N/y/?] 
-System V IPC (CONFIG_SYSVIPC) [N/y/?] 
-BSD Process Accounting (CONFIG_BSD_PROCESS_ACCT) [N/y/?] 
-Sysctl support (CONFIG_SYSCTL) [N/y/?] 
-*
-* Loadable module support
-*
-Enable loadable module support (CONFIG_MODULES) [Y/n/?] 
-  Set version information on all module symbols (CONFIG_MODVERSIONS) [N/y/?] 
-  Kernel module loader (CONFIG_KMOD) [N/y/?] (NEW) 
-
-Works for me.
+DK
 

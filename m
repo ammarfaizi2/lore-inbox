@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132353AbRADBYL>; Wed, 3 Jan 2001 20:24:11 -0500
+	id <S129267AbRADBdZ>; Wed, 3 Jan 2001 20:33:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132348AbRADBYB>; Wed, 3 Jan 2001 20:24:01 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:15631 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132296AbRADBXm>;
-	Wed, 3 Jan 2001 20:23:42 -0500
-Date: Thu, 4 Jan 2001 01:32:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dcache 2nd chance replacement
-Message-ID: <20010104013201.B6256@athlon.random>
-In-Reply-To: <20010103221221.I32185@athlon.random> <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S129413AbRADBdP>; Wed, 3 Jan 2001 20:33:15 -0500
+Received: from ns2.avnet.it ([194.91.85.195]:35080 "EHLO interno.emmenet.it")
+	by vger.kernel.org with ESMTP id <S129267AbRADBdI>;
+	Wed, 3 Jan 2001 20:33:08 -0500
+From: Diego Liziero <pmcq@interno.emmenet.it>
+Message-Id: <200101040134.f041YDk16411@interno.emmenet.it>
+Subject: Re: gcc2.96 + prerelease BUG at inode.c:372
+To: linux-kernel@vger.kernel.org
+Date: Thu, 4 Jan 2001 02:34:13 +0100 (CET)
+Cc: pmcq@emmenet.it
+In-Reply-To: <200101032340.PAA08324@penguin.transmeta.com> from "Linus Torvalds" at gen 03, 2001 03:40:23 
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Jan 03, 2001 at 09:09:01PM -0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 09:09:01PM -0200, Rik van Riel wrote:
-> Ever heard of slocate / updatedb ?
+> Diego Liziero  <pmcq@interno.emmenet.it> wrote:
+> >
+> >->1: The sound module for my mad16 based card plays the bytes swapped
+> >     (the same module recompiled with egcs-2.91.66 works fine).
+> 
+> Could you try to figure this one out a bit more? This sounds like a real
+> compiler issue, whether it is because egcs just happens to get the right
+> result for bogus kernel source, of whether gcc-2.96 has problems..
 
-ever heard of somebody killing all other tasks while updatedb is running?
+I've just recompiled the kernel with the gcc 2.96-69 upgrade from RedHat
+and the sound module works ok.
 
-Andrea
+So it seems a known compiler bug.
+
+			Diego Liziero (pmcq@emmenet.it)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

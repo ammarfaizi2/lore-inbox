@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVAEMmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVAEMxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbVAEMmU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 07:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVAEMmU
+	id S262349AbVAEMxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 07:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVAEMxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 07:42:20 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:12178 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262345AbVAEMmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 07:42:18 -0500
-Date: Wed, 5 Jan 2005 12:42:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: secret cabales, was: Re: [PATCH] FRV: Change PML4 -> PUD
-Message-ID: <20050105124215.GA32298@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	David Howells <dhowells@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <41DB4EC7.9070608@yahoo.com.au> <18003.1104868971@redhat.com> <8551.1104927403@redhat.com> <41DBDE6F.9060700@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DBDE6F.9060700@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 5 Jan 2005 07:53:23 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:134 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262349AbVAEMxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 07:53:19 -0500
+Message-Id: <200501051252.j05Cq7OV007019@laptop11.inf.utfsm.cl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] maintainers: remove moderated arm list 
+In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
+   of "Tue, 04 Jan 2005 18:33:52 BST." <20050104173352.GG3097@stusta.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Wed, 05 Jan 2005 09:52:07 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 11:32:47PM +1100, Nick Piggin wrote:
-> >Sounds like there's a mailing list I should be on, but don't know about.
-> >
+Adrian Bunk <bunk@stusta.de> said:
+> On Mon, Jan 03, 2005 at 06:25:33PM +0000, Russell King wrote:
+> > On Mon, Jan 03, 2005 at 06:54:38PM +0100, Adrian Bunk wrote:
+
+[...]
+
+> > > In my experience, the best solution is a list policy that allows 
+> > > subscribers to post and requires moderator approval for non-members.
+> > > This policy that is already used by several lists listed in MAINTAINERS 
+> > > is IMHO a good compromise between avoiding spam and allowing 
+> > > non-subscribers to post to the list.
+
+> > Well, that's precisely what happens with these lists - your post ends
+> > up in the moderator approval queue.  They do generally find their way
+> > from there into the appropriate peoples mailboxes (iow, mine).
+
+> OK, sorry, my comment was wrong.
 > 
-> It is very exclusive. Not even a great hacker like myself is allowed there 
-> ;)
-> Ask David Miller, I think.
+> I confused moderated with subscribers-only .
 
-Sad enough that's theres some super-l33t cabal, so please everyone Cc
-lkml on such postings.  Thanks.
+Subscribers-only lists hold messages from non-subscribers for owner
+approval. She might just axe them (o have them automatically axed), or
+forward them to the list, or let them sleep for a long time.
 
+In any case, none of this is really relevant: Per the laws, if your message
+is forwarded to the list (automatically or by hand) you must have consented
+to it being published, and that means extra hassle for the list owner. She
+might just throw messages away for this reason.
+
+Perhaps the best solution would be to add a line consenting to the
+publication of the message in any lists? Doesn't hurt much...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

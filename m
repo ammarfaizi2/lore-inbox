@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264605AbTLMNNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 08:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTLMNNo
+	id S264599AbTLMNWO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 08:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbTLMNWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 08:13:44 -0500
-Received: from pop.gmx.net ([213.165.64.20]:23484 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264605AbTLMNNn (ORCPT
+	Sat, 13 Dec 2003 08:22:14 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:35346 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264599AbTLMNWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 08:13:43 -0500
-X-Authenticated: #598989
-From: Timo Maier <tam@gmx.de>
-Organization: Freiburg / Germany
-To: linux-kernel@vger.kernel.org
-Subject: Can't access HPFS with Kernel 2.6
-Date: Sat, 13 Dec 2003 14:13:26 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
+	Sat, 13 Dec 2003 08:22:13 -0500
+Date: Sat, 13 Dec 2003 14:22:08 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 and IDE "geometry"
+Message-ID: <20031213132208.GA11523@win.tue.nl>
+References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312131413.26577.tam@gmx.de>
+In-Reply-To: <20031212163545.A26866@animx.eu.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Dec 12, 2003 at 04:35:45PM -0500, Wakko Warner wrote:
 
-With Kernel 2.4 it was no problem reading my HPFS partition. Since I 
-switched to 2.6 it's no longer possible to access it. A kernel-bug 
-message pops up in fullscreen window. Currently I use test11 kernel, 
-but it was all the same with older 2.6 kernels.
+> > The kernel does not use any geometry.
+> 
+> This I know, however, the kernel in the past has the geometry from the BIOS
 
-Here's some more information:
+The kernel made some attempts. It often worked and often failed.
 
-Machine is a Thinkpad T23
+> > So your real question is:
+> > "Is there a way to get *fdisk to use my favorite geometry?"
+> > The answer is: all common fdisk versions allow you to set the geometry.
+> 
+> I realize this too, however, I need it to happen automatically and be
+> consistent with the bios idea of the disk.
 
-kernel bug at include/linux/smp_lock.h:53!
-invalid operand: 000 [#1]
-CPU: 0
-EIP: 0060:[<c01f0a15>] Not tainted
-EFLAGS: 00010286
-(hier viele Zahlen, die ich nicht abtippen will)
-dann zum Schluss
-Speicherzugriffsfehler
+So you script sfdisk or so in order to setup large numbers of disks
+and cannot use constant geometry settings because this is on many
+different BIOSes that disagree on the desired geometry?
 
-
-Die HPFS Partition wird automatisch beim Booten gemounted.
-
-hier aus /etc/fstab
-/dev/hda3 /mnt/os2 hpfs ro,users,umask=000 0 0
-
-hpfs Treiber ist fest in dern kernel compiliert, wenn ich mit einem 
-2.4er Kernel boote klappt alle einwandfrei.
-
--- 
-Timo
+And this is all on disks smaller than 8 GB so that at least there can be
+some geometry?
 

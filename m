@@ -1,81 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbUCWOcq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 09:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUCWOcq
+	id S262605AbUCWOqD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 09:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUCWOpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 09:32:46 -0500
-Received: from mail.ondacorp.com.br ([200.195.196.14]:17631 "EHLO
-	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
-	id S262580AbUCWOco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 09:32:44 -0500
-Message-ID: <40604A88.3010207@arenanetwork.com.br>
-Date: Tue, 23 Mar 2004 11:32:40 -0300
-From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
-Organization: ArenaNetwork Lan House & Cyber
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: kuznet@ms2.inr.ac.ru, davem@redhat.com
-Subject: Re: EAGAIN and Linux 2.6 IPsec patch
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 23 Mar 2004 09:45:44 -0500
+Received: from goliath.sylaba.poznan.pl ([213.17.226.43]:29198 "EHLO
+	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
+	id S262592AbUCWOpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 09:45:39 -0500
+Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
+From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, td@linuxgang.com
+In-Reply-To: <20040314112208.GH6955@suse.de>
+References: <1078434953.1961.13.camel@venus.local.navi.pl>
+	 <20040305082350.GO31750@suse.de>
+	 <1078487159.3300.23.camel@venus.local.navi.pl>
+	 <20040307105911.GH23525@suse.de>
+	 <1078819165.1525.1.camel@venus.local.navi.pl>
+	 <20040309091221.GV23525@suse.de>
+	 <1079263025.1428.4.camel@venus.local.navi.pl>
+	 <20040314112208.GH6955@suse.de>
+Content-Type: text/plain
+Message-Id: <1080053402.1473.0.camel@venus.local.navi.pl>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Mar 2004 15:50:02 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this fixed already? Please cc me too.
+On Sun, 2004-03-14 at 12:22, Jens Axboe wrote:
+> On Sun, Mar 14 2004, Olaf Fr?czyk wrote:
+> > On Tue, 2004-03-09 at 10:12, Jens Axboe wrote: 
+> > > On Tue, Mar 09 2004, Olaf Fr?czyk wrote:
+> > > > On Sun, 2004-03-07 at 11:59, Jens Axboe wrote:
+> > > > > On Fri, Mar 05 2004, Olaf Fr?czyk wrote:
+> > > > > > On Fri, 2004-03-05 at 09:23, Jens Axboe wrote:
+> > > > > > > On Thu, Mar 04 2004, Olaf Fr?czyk wrote:
+> > > > > > > > Hi,
+> > > > > > > > I switched to 2.6.3 from 2.4.x serie.
+> > > > > > > > When I mount DVD-RAM it is mounted read-only:
+> > > > > > > > 
+> > > > > > > > [root@venus olaf]# mount /dev/dvdram /mnt/dvdram
+> > > > > > > > mount: block device /dev/dvdram is write-protected, mounting read-only
+> > > > > > > > [root@venus olaf]#
+> > > > > > > > 
+> > > > > > > > In 2.4 it is mounted correctly as read-write.
+> > > > > > > > 
+> > > > > > > > Drive: Panasonic LF-201, reported in Linux as:
+> > > > > > > > MATSHITA        DVD-RAM LF-D200         A120
+> > > > > > > > 
+> > > > > > > > SCSI controller: Adaptec 2940U2W
+> > > > > > > 
+> > > > > > > What does cat /proc/sys/dev/cdrom/info say? Do you get any kernel
+> > > > > > > messages in dmesg when the rw mount fails?
+> > > > > > 
+> > > > > > I get nothing in /var/log/dmesg and in /var/log/messages
+> > > > > > In /proc/sys/dev/cdrom/info I get:
+> > > > > > [olaf@venus olaf]$ cat /proc/sys/dev/cdrom/info
+> > > > > > CD-ROM information, Id: cdrom.c 3.20 2003/12/17
+> > > > > >  
+> > > > > > drive name:             sr1     sr0     hdc
+> > > > > > drive speed:            0       16      44
+> > > > > > drive # of slots:       1       1       1
+> > > > > > Can close tray:         1       1       1
+> > > > > > Can open tray:          1       1       1
+> > > > > > Can lock tray:          1       1       1
+> > > > > > Can change speed:       1       1       1
+> > > > > > Can select disk:        0       0       0
+> > > > > > Can read multisession:  1       1       1
+> > > > > > Can read MCN:           1       1       1
+> > > > > > Reports media changed:  1       1       1
+> > > > > > Can play audio:         1       1       1
+> > > > > > Can write CD-R:         0       1       1
+> > > > > > Can write CD-RW:        0       1       1
+> > > > > > Can read DVD:           1       0       0
+> > > > > > Can write DVD-R:        0       0       0
+> > > > > > Can write DVD-RAM:      1       0       0
+> > > > > > Can read MRW:           0       0       1
+> > > > > > Can write MRW:          0       0       1
+> > > > > > 
+> > > > > > The one I'm mounting is /dev/scd1.
+> > > > > > As there is capablity to write-protect DVD-RAM disk (like a 1.44"
+> > > > > > Floppy), I think that the linux kernel interprets some message from
+> > > > > > device in wrong way.
+> > > > > 
+> > > > > Please repeat with this patch applied and send back the results, thanks.
+> > > > > 
+> > > > > ===== drivers/cdrom/cdrom.c 1.48 vs edited =====
+> > > > > -- 1.48/drivers/cdrom/cdrom.c	Mon Feb  9 21:58:21 2004
+> > > > > +++ edited/drivers/cdrom/cdrom.c	Sun Mar  7 11:58:40 2004
+> > > > > @@ -645,9 +645,12 @@
+> > > > >  {
+> > > > >  	disc_information di;
+> > > > >  
+> > > > > -	if (cdrom_get_disc_info(cdi, &di))
+> > > > > +	if (cdrom_get_disc_info(cdi, &di)) {
+> > > > > +		printk("cdrom: read di failed\n");
+> > > > >  		return 0;
+> > > > > +	}
+> > > > >  
+> > > > > +	printk("cdrom: erasable: %d\n", di.erasable);
+> > > > >  	return di.erasable;
+> > > > >  }
+> > > > >  
+> > > > I get:
+> > > > cdrom: read di failed
+> > > 
+> > > Can you try to instrument drivers/cdrom/cdrom.c:cdrom_get_disc_info()
+> > > and find out where it fails? Change the cgc.quiet = 1 to a = 0 in there
+> > > as well (that alone might be enough to pin point the problem).
+> > Sorry for the delay. I couldn't take tha machine down.
+> > After setting cgc.quiet=0 I get no additional messages from kernel.
+> > cdrom_get_disc_info returns after FIRST:
+> > cdo->generic_packet(cdi, &cgc).
+> 
+> Ok, at least that's a little clue... Maybe your drive is buggy (I think
+> we already established that, question is what the bug is) and doesn't
+> like to return just two bytes, please try with attached patch.
+> 
+> > BTW, I suppose return codes are interpreted not well:
+> > In cdrom_get_disc_info we return after first (cdo->generic_packet) if it
+> > returns not 0. (Success?) And we return with not 0 value.
+> > And in cdrom_media_erasable we assume that not 0 is error, not success.
+> > So probably in cdrom_get_disc_info we should have:
+> >         if (!(ret = cdo->generic_packet(cdi, &cgc)))
+> >                 return ret;
+> 
+> No, you are not reading the code correctly. ->generic_packet() returns 0
+> on success, or the error (standard kernel practice).
+> cdrom_media_erasable() returns a bool, and if cdrom_get_disc_info()
+> fails then we return it's not erasable.
+> 
+> > I tried it, but it changed nothing regarding to the problem.
+> > It returns then after second cdo->generic_packet, but I still get: 
+> > read di failed.
+> 
+> You broke it, the first check simply returns the header so .erasable
+> must be 0 because we cleared the buffer first.
+> 
+> ===== drivers/cdrom/cdrom.c 1.49 vs edited =====
+> --- 1.49/drivers/cdrom/cdrom.c	Thu Mar 11 13:31:15 2004
+> +++ edited/drivers/cdrom/cdrom.c	Sun Mar 14 12:21:44 2004
+> @@ -2658,11 +2658,13 @@
+>  	/* set up command and get the disc info */
+>  	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
+>  	cgc.cmd[0] = GPCMD_READ_DISC_INFO;
+> -	cgc.cmd[8] = cgc.buflen = 2;
+> -	cgc.quiet = 1;
+> +	cgc.cmd[8] = cgc.buflen = 8;
+> +	cgc.quiet = 0;
+>  
+> -	if ((ret = cdo->generic_packet(cdi, &cgc)))
+> +	if ((ret = cdo->generic_packet(cdi, &cgc))) {
+> +		printk("cdrom: read_di failed, %d\n", ret);
+>  		return ret;
+> +	}
+>  
+>  	/* not all drives have the same disc_info length, so requeue
+>  	 * packet with the length the drive tells us it can supply
+> @@ -2673,6 +2675,7 @@
+>  	if (cgc.buflen > sizeof(disc_information))
+>  		cgc.buflen = sizeof(disc_information);
+>  
+> +	printk("cdrom: re-reading di, len=%d\n", cgc.buflen);
+>  	cgc.cmd[8] = cgc.buflen;
+>  	return cdo->generic_packet(cdi, &cgc);
+>  }
+On 2.6.4 with your patch I get:
+Mar 23 15:46:03 venus kernel: cdrom: read_di failed, -95
 
-On Tue, 30 Sep 2003 15:41:51 +0400
-Alexey <kuznet@ms2.inr.ac.ru> wrote:
+Regards,
 
-Hello!
+Olaf
 
- > The following (untested) patch tries to do that.
-
-This does not work and has no chances to do. We have already discussed
-this, actually. You can get reasoning from saved mailbox, I think.
-To resume, proto->connect() method must not ever block.
-
-Alexey
-
-PS. I think I am back to life, so this time I am honest telling
-this bug is going to be fixed properly.
--
-FreeS/WAN design list.
-https://mj2.freeswan.org/cgi-bin/mj_wwwusr/domain=mj2.freeswan.org to 
-unsubscribe
-
-
-
-On Tue, 30 Sep 2003 21:34:24 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
- > OK, this looks like a bug that is independent of the packet queueing 
-issue.
- >
- > TCP/UDP connects do a route/IPSEC lookup to determine information
- > about the connection.  The IPSEC lookup can fail with EAGAIN if the
- > policy is in place without any SAs.
- >
- > Since connect already has an O_NONBLOCK bit we should make it try
- > harder if it is clear.
- >
- > The following (untested) patch tries to do that.
-
-Please don't do this, any attempt to fix the EAGAIN behavior
-with hacks like this are riddled with problems.
-
-Several patches nearly identical to your's have been submitted
-in the past.
-
-Alexey is supposed to work on support for unresolved routes, which
-is the proper way to fix this problem.
--
-FreeS/WAN design list.
-https://mj2.freeswan.org/cgi-bin/mj_wwwusr/domain=mj2.freeswan.org to 
-unsubscribe
-
--- 
-dual_bereta_r0x -- Alexandre Hautequest
-ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br

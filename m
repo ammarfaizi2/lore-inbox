@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293187AbSDIPkH>; Tue, 9 Apr 2002 11:40:07 -0400
+	id <S292730AbSDIPq0>; Tue, 9 Apr 2002 11:46:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293196AbSDIPkG>; Tue, 9 Apr 2002 11:40:06 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:11637 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S293187AbSDIPkF>;
-	Tue, 9 Apr 2002 11:40:05 -0400
-Date: Tue, 9 Apr 2002 16:39:44 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>
-cc: Davide Libenzi <davidel@xmailserver.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: system call for finding the number of cpus??
-In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A44520@tayexc13.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.33.0204091639020.1098-100000@einstein.homenet>
+	id <S293203AbSDIPqZ>; Tue, 9 Apr 2002 11:46:25 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:1702 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S292730AbSDIPqZ>; Tue, 9 Apr 2002 11:46:25 -0400
+Date: Tue, 9 Apr 2002 17:31:27 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Rob Radez <rob@osinvestor.com>
+Cc: Corey Minyard <minyard@acm.org>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Further WatchDog Updates
+In-Reply-To: <Pine.LNX.4.33.0204091057540.17511-100000@pita.lan>
+Message-ID: <Pine.LNX.4.44.0204091722250.7771-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002, Kuppuswamy, Priyadarshini wrote:
+On Tue, 9 Apr 2002, Rob Radez wrote:
 
-> I don't think that (sysconf(_SC_NPROCESSORS_CONF)) command works on linux. It works on Unix. I tried that. It returns 1 when there are 4 processors on linux.
+> Oops, yea, I forgot return values.  I'll fix that up.  I got rid of
+> sc1200wdt_status because it returns bit 1, which is defined as WDIOF_OVERHEAT
+> I suppose it would be possible to return WDIOF_KEEPALIVEPING instead.
+> So something like if(ret & 0x01) return WDIOF_KEEPALIVEPING;?
 
-it works:
+Yes, that should be fine. But don't forget its inactive high ;)
 
-# /usr/bin/getconf _NPROCESSORS_ONLN
-2
+so its...
 
-If it didn't work then glibc (and other rpms that take advantage of it)
-would have taken a lot longer to compile :)
+return !(ret & 0x01) ? WDIOF_KEEPALIVEPING : 0;
 
+Thanks,
+	Zwane
+
+-- 
+http://function.linuxpower.ca
+		
 

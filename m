@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267870AbTCBTBL>; Sun, 2 Mar 2003 14:01:11 -0500
+	id <S269277AbTCBTIm>; Sun, 2 Mar 2003 14:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269276AbTCBTBL>; Sun, 2 Mar 2003 14:01:11 -0500
-Received: from imap.gmx.net ([213.165.64.20]:42874 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267870AbTCBTBK>;
-	Sun, 2 Mar 2003 14:01:10 -0500
-Date: Sun, 2 Mar 2003 20:11:32 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Brad Laue <brad@brad-x.com>, linux-kernel@vger.kernel.org
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-Message-Id: <20030302201132.30572fbc.gigerstyle@gmx.ch>
-In-Reply-To: <3E6238EE.7050802@brad-x.com>
-References: <Pine.LNX.4.44.0303022210400.6149-100000@blackbird.intercode.com.au>
-	<3E6238EE.7050802@brad-x.com>
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S269278AbTCBTIm>; Sun, 2 Mar 2003 14:08:42 -0500
+Received: from pipgate.pipsworld.sara.nl ([145.100.9.18]:52608 "EHLO
+	dinkie.pipsworld.sara.nl") by vger.kernel.org with ESMTP
+	id <S269277AbTCBTIl>; Sun, 2 Mar 2003 14:08:41 -0500
+Date: Sun, 2 Mar 2003 20:19:04 +0100
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+       Jeff Garzik <jgarzik@pobox.com>, Tom Rini <trini@kernel.crashing.org>
+Subject: Oops in tulip op ppc on 2.5.62 and 2.5.63
+Message-Id: <20030302201904.5303c48e.r.post@sara.nl>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Mar 2003 12:01:34 -0500
-Brad Laue <brad@brad-x.com> wrote:
+So, this one has been reported by me before on 2.5.62 and 2.5.63. I just
+enabled kksymoops, so I'd get maybe some more complete info.
 
-> James Morris wrote:
-> 
-> >The latter two are still happening with a tainted kernel.  Are you able to 
-> >generate the crash if these modules have never been loaded?
-> >
-> >
-> >- James
-> >  
-> >
-> I'm not sure I follow - the NVdriver module had not been loaded at all 
-> for the other two. How is the kernel tainted?
+It has been very reproducable on my motorola powerstack 2 mobo. I just
+boot, and try to ping my default gateway. Well, there is no reply, and
+the gateway never sees the ping requests. DHCP does sem to work, because
+the my little testbox does get the correct IP, and I do see the DHCP
+reply's on the wire (the requests must be there as well, I just don't
+see them because I had to filter the tcpdump).
 
-What he meant is that you still have some modules loaded which arent't GPL'd licensed like the nvidia module. If you are unsure, please mail the ouptut of lsmod...
-Anyway, I think it's not the problem of these modules. The airo module sucks:-) But I think Javier and Benjamin will help us to solve the problem..
+Well, after a few failed pings, when I unplug the ethernet:
 
-> 
->  Brad
-> 
-> -- 
-> // -- http://www.BRAD-X.com/ -- //
-> 
-> 
+
+flops:~# eth1: 10baseT-HD link ok, status ffffffc8                      
+       
+eth1: link down                                                         
+       
+eth1: timeout expired stopping DMA                                      
+       
+kernel BUG at drivers/net/tulip/de2104x.c:925!                          
+       
+Oops: Exception in kernel mode, sig: 4                                  
+       
+NIP: C013A7F0 LR: C013A7F0 SP: C0295E00 REGS: c0295d50 TRAP: 0700    
+Not taintedMSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11                                
+TASK = c0231530[0] 'swapper' Last syscall: 120                                 
+GPR00: C013A7F0 C0295E00 C0231530 0000002F 00000001 C0295CB8 C0291B80 C02D0000  
+GPR08: 000016F0 00000000 00000000 C0295D30 4000C088 00000000 00000000 00000000  
+GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000  
+GPR24: 00000000 00000000 00000002 00001032 C3F7C000 00009032 FFFFFFCE C3F7C1C0  
+Call trace:                                                                     
+[c013ab30] de21040_media_timer+0x128/0x1c0                                     
+[c0020744] run_timer_softirq+0x10c/0x164                                       
+[c001b864] do_softirq+0x88/0x104                                               
+[c0007e80] timer_interrupt+0x284/0x298                                         
+[c00061c4] ret_from_except+0x0/0x14                                            
+[c0007b84] default_idle+0x20/0x60                                              
+[c0007bf8] cpu_idle+0x34/0x38                                                  
+[c0003ae8] rest_init+0x24/0x34                                                 
+[c0296508] 0xc0296508                                                          
+[00003798] 0x3798                                                       
+     
+Kernel panic: Aiee, killing interrupt handler!                                 
+In interrupt handler - not syncing                                            
+
+Hope any of you know how to fix this... For this box, the ethernet not working 
+is currently the only part that doesn't seem to work in the current 2.5 kernel.
+
+
+-- 
+
+Remco

@@ -1,68 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVBQGds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVBQGfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbVBQGds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 01:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVBQGds
+	id S262245AbVBQGfn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 01:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVBQGfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 01:33:48 -0500
-Received: from mail.tyan.com ([66.122.195.4]:1286 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S262236AbVBQGdp (ORCPT
+	Thu, 17 Feb 2005 01:35:42 -0500
+Received: from colin2.muc.de ([193.149.48.15]:6668 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262241AbVBQGfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 01:33:45 -0500
-Message-ID: <3174569B9743D511922F00A0C94314230808598B@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
+	Thu, 17 Feb 2005 01:35:37 -0500
+Date: 17 Feb 2005 07:35:35 +0100
+Date: Thu, 17 Feb 2005 07:35:35 +0100
+From: Andi Kleen <ak@muc.de>
+To: YhLu <YhLu@tyan.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: interrupt 
-Date: Wed, 16 Feb 2005 22:47:07 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Subject: Re: interrupt
+Message-ID: <20050217063535.GB21305@muc.de>
+References: <3174569B9743D511922F00A0C94314230808598B@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C94314230808598B@TYANWEB>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Interrupts always go to CPU 11.
+On Wed, Feb 16, 2005 at 10:47:07PM -0800, YhLu wrote:
+> Interrupts always go to CPU 11.
 
-If dual core is diabled,  it always go to CPU5. It is OK on 32bit mode.
+Run irqbalanced, but even then multiple CPUs
+will only be used when there are enough active interrupt sources.
 
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5
-CPU6       CPU7       CPU8       CPU9       CPU10       CPU11       CPU12
-CPU13       CPU14       CPU15       
-  0:        409          0          0          0          0          0
-0          0          0          0        229      37399          0
-0          0          0    IO-APIC-edge  timer
-  2:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0          XT-PIC  cascade
-  4:          0          0          0          0          0          0
-0          0          0          0          0       4915          0
-0          0          0    IO-APIC-edge  serial
-  8:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0    IO-APIC-edge  rtc
- 14:          0          0          0          0          0          0
-0          0          0          0          0         10          0
-0          0          0    IO-APIC-edge  ide0
- 19:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  ohci1394
- 20:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  libata
- 21:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  libata
- 22:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  ohci_hcd
- 23:          0          0          0          0          0          0
-0          0          0          0          0          0          0
-0          0          0   IO-APIC-level  ehci_hcd
-NMI:          1          0          0          0          0          0
-0          0          0          0          0          1          0
-0          0          0 
-LOC:      37688      37965      37965      37965      37965      37965
-37965      37965      37965      37965      37965      37446      37965
-37965      37965      37966 
-ERR:        447
-MIS:          0
+-Andi

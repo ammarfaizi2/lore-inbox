@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUCUGRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 01:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbUCUGRM
+	id S263612AbUCUGcW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 01:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUCUGcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 01:17:12 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:62382 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263609AbUCUGRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 01:17:11 -0500
-Date: Sat, 20 Mar 2004 22:17:16 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa3
-Message-ID: <2910700000.1079849836@[10.10.2.4]>
-In-Reply-To: <20040320210306.GA11680@dualathlon.random>
-References: <20040320210306.GA11680@dualathlon.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 21 Mar 2004 01:32:22 -0500
+Received: from 216-199-40-2.orl.fdn.com ([216.199.40.2]:5272 "EHLO
+	masterlinkcorp.com") by vger.kernel.org with ESMTP id S263612AbUCUGcV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 01:32:21 -0500
+Date: Sun, 21 Mar 2004 01:24:35 -0500
+From: linguist@masterlinkcorp.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <20040321062435.GA27226@goblin.masterlinkcorp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fixed the sigbus in nopage and improved the page_t layout per Hugh's
-> suggestion. BUG() with discontigmem disabled if somebody returns non-ram
-> via do_no_page, that cannot work right on numa anyways.
+This is just a random observation, I don't know this piece of code
+or the kernel in general, but instinct tells me that where is says
+"if (!fd) return -EBADF", it should say "if (!file) return -EBADF".
+Just a heads up.
 
-OK, well it doesn't oops any more. But sshd still dies as soon as it starts,
-so accessing the box is tricky ;-) And now I have no obvious diagnostics
-either ...
+Regards,
+Rich
 
-M.
+static int tiocgdev(unsigned fd, unsigned cmd,  unsigned int *ptr) 
+{ 
 
+	struct file *file = fget(fd);
+	struct tty_struct *real_tty;
+
+	if (!fd)
+		return -EBADF;
+	if (file->f_op->ioctl != tty_ioctl)
+		return -EINVAL; 
+	real_tty = (struct tty_struct *)file->private_data;
+	if (!real_tty) 	
+		return -EINVAL; 
+	return put_user(new_encode_dev(tty_devnum(real_tty)), ptr); 
+} 

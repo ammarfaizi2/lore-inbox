@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291102AbSCLX4R>; Tue, 12 Mar 2002 18:56:17 -0500
+	id <S291148AbSCMACH>; Tue, 12 Mar 2002 19:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291148AbSCLXz6>; Tue, 12 Mar 2002 18:55:58 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:40362 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S291102AbSCLXzn>; Tue, 12 Mar 2002 18:55:43 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 12 Mar 2002 15:55:36 -0800
-Message-Id: <200203122355.PAA08344@adam.yggdrasil.com>
-To: rmk@arm.linux.org.uk
-Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
-Cc: linux-kernel@vger.kernel.org
+	id <S291245AbSCMAB6>; Tue, 12 Mar 2002 19:01:58 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39698 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S291148AbSCMABl>; Tue, 12 Mar 2002 19:01:41 -0500
+Date: Wed, 13 Mar 2002 00:01:12 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020313000112.C13558@flint.arm.linux.org.uk>
+In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu> <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz> <3C8E2FB9.2090905@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C8E2FB9.2090905@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Mar 12, 2002 at 05:41:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 		o The NCR53c80-based drivers (according to Alan Cox, there
->> 		  is a new driver in the 2.4.x tree, and I don't want to
->> 		  add a port of that driver to this already huge patch).
+On Tue, Mar 12, 2002 at 05:41:29PM +0100, Martin Dalecki wrote:
+> "Tune" is a silly name as well BTW. It has nothing to do with
+> attaching of carbon fiber to cars. It's host chip initialization, which
+> is going on.
 
->I believe changes to NCR53c80 were recently reverted back because
->these "fixes" lead to massive data corruption.  It is preferable
->that the driver remains unbuildable, and therefore doesn't cause
->data corruption than to be buildable and case data corruption.
+Since when has carbon fiber got anything to do with Pianos and other
+musical instruments that need to be "tuned" ?
 
-	Are you talking about an event that occurred in the 2.4
-tree or the 2.5 tree?  Are you saying that the newer driver in
-2.4 was reverted back to the older driver (i.e., the one that
-is in 2.5), or are you saying that someone made some attempt
-at porting the 2.5 tree's NCR53C80 driver the new DMA mapping
-interface and then backed them out?
+tune vt.:
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+4. to adjust (an electronic circuit, a motor, etc.) to the proper or
+   desired performance.
+
+tune up:
+
+2. to put (an engine) into good working order.
+
+I therefore think "tune" (to tune the interface) is a reasonable name for
+the function that is being performed.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,142 +1,508 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUJTMr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270127AbUJTK0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267558AbUJTMr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270044AbUJTMqc
+	id S270127AbUJTK0k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 06:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269990AbUJTKX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:46:32 -0400
-Received: from smtp2.netcabo.pt ([212.113.174.29]:7039 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S267558AbUJTMmL (ORCPT
+	Wed, 20 Oct 2004 06:23:58 -0400
+Received: from asplinux.ru ([195.133.213.194]:10761 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S270158AbUJTKQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:42:11 -0400
-Message-ID: <5494.195.245.190.94.1098276051.squirrel@195.245.190.94>
-In-Reply-To: <20041020114312.GA5418@elte.hu>
-References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
-    <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
-    <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
-    <20041020100424.GA32396@elte.hu>
-    <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
-    <20041020104005.GA1813@elte.hu>
-    <15773.195.245.190.94.1098271919.squirrel@195.245.190.94>
-    <20041020114312.GA5418@elte.hu>
-Date: Wed, 20 Oct 2004 13:40:51 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Wed, 20 Oct 2004 06:16:01 -0400
+Message-ID: <41763AF6.5000105@sw.ru>
+Date: Wed, 20 Oct 2004 14:16:22 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 20 Oct 2004 12:42:04.0622 (UTC) FILETIME=[33FA5EE0:01C4B6A2]
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] moving some of slab allocator declarations to header files
+Content-Type: multipart/mixed;
+ boundary="------------020806000807010707090500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
->> >> RTNL: assertion failed at net/ipv4/devinet.c (1049)
->> >
->> > yeah - this too was an oversight i fixed in the latest upload.
->>
->> I don't think so. I still see plenty of those here.
->>
->> Is there an even more recent U8? I think you should consider add some
->> dot numbering to each of the uploads... ;)
->
-> indeed this most likely means there's a newer update :-| Please
-> double-check that the one you have is:
->
->  $ md5sum realtime-preempt-2.6.9-rc4-mm1-U8
->  b59ae00ca0f45f545519348113af5c4f  realtime-preempt-2.6.9-rc4-mm1-U8
->
+This is a multi-part message in MIME format.
+--------------020806000807010707090500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-That was it. Thanks.
+[PATCH] moving some of slab allocator declarations to header files
 
-Now's some bad news:
+This patch moves most part of generic slab allocator declarations to new 
+header files kmem_cache.h and kmem_slab.h, which can be usefull for 
+debuging and making code more splitted from decls.
+It doesn't change any functionality.
 
-I getting the dump below, this time while plugging a flash memory stick,
-but right after that the system starts to behave preety bad and
-increasingly unresponsive. An hard-boot is almost the end of the (short)
-story :(
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-(e.g. running jackd also hoses the complete system in no reproducible
-amount of time--sometimes short, other times long, like a random
-time-bomb).
+Kirill
 
+--------------020806000807010707090500
+Content-Type: text/plain;
+ name="diff-kmem_cache-headers-2.6.9"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-kmem_cache-headers-2.6.9"
 
-ohci_hcd 0000:00:0f.0: wakeup
-usb 2-1: new full speed USB device using address 2
-Initializing USB Mass Storage driver...
-scsi0 : SCSI emulation for USB Mass Storage devices
-usbcore: registered new driver usb-storage
-USB Mass Storage support registered.
-usb-storage: device found at 2
-usb-storage: waiting for device to settle before scanning
-------------[ cut here ]------------
-kernel BUG at lib/rwsem-generic.c:598!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in: usb_storage vfat fat udf isofs nls_base realtime
-commoncap snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss
-snd_usb_usx2y snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd_ali5451
-snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd soundcore prism2_cs
-p80211 ds yenta_socket pcmcia_core natsemi crc32 loop subfs evdev ohci_hcd
-usbcore thermal processor fan button battery ac
-CPU:    0
-EIP:    0060:[<c01b7e30>]    Not tainted VLI
-EFLAGS: 00010206   (2.6.9-rc4-mm1-RT-U8.3)
-EIP is at up_write+0x1d4/0x202
-eax: d2b2a000   ebx: 00000292   ecx: d2afe980   edx: d2ad4f40
-esi: d7b83b24   edi: dcb21000   ebp: d2b2bd6c   esp: d2b2bd4c
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process usb-stor (pid: 6699, threadinfo=d2b2a000 task=d2ad48b0)
-Stack: d2ad48b0 d2b2bd78 c02bea7f 00000001 d2ad48b0 00000292 d2afe980
-dcb21000
-       d2b2bd84 e01ca139 d2afe980 d2b2bd84 00000292 dcb21138 d2b2bdac
-c022ed18
-       d2afe980 c022ef1c c0231679 00000000 d2afe9d4 d2afe980 d2aa3800
-dcb21000
-Call Trace:
- [<c0104eb0>] show_stack+0x80/0x96 (28)
- [<c010504b>] show_registers+0x165/0x1de (56)
- [<c010525d>] die+0xf6/0x191 (64)
- [<c0105797>] do_invalid_op+0x10b/0x10d (188)
- [<c0104b0d>] error_code+0x2d/0x38 (100)
- [<e01ca139>] queuecommand+0x70/0x7c [usb_storage] (24)
- [<c022ed18>] scsi_dispatch_cmd+0x168/0x218 (40)
- [<c02342ed>] scsi_request_fn+0x1ee/0x42b (52)
- [<c0205612>] blk_insert_request+0xcd/0xfb (44)
- [<c0232f4f>] scsi_insert_special_req+0x3b/0x3f (28)
- [<c0233181>] scsi_wait_req+0x61/0x94 (60)
- [<c023529c>] scsi_probe_lun+0x8e/0x240 (68)
- [<c023588f>] scsi_probe_and_add_lun+0xb0/0x1be (48)
- [<c0236015>] scsi_scan_target+0xa4/0x123 (60)
- [<c0236121>] scsi_scan_channel+0x8d/0xa4 (48)
- [<c02361b1>] scsi_scan_host_selected+0x79/0xd4 (44)
- [<c023623d>] scsi_scan_host+0x31/0x33 (28)
- [<e01cccbd>] usb_stor_scan_thread+0x144/0x155 [usb_storage] (96)
- [<c0102305>] kernel_thread_helper+0x5/0xb (760037396)
-preempt count: 00000002
-. 2-level deep critical section nesting:
-.. entry 1: die+0x3a/0x191 / (do_invalid_op+0x10b/0x10d)
-.. entry 2: print_traces+0x16/0x4a / (show_stack+0x80/0x96)
+--- ./include/linux/kmem_cache.h.slabh	2004-10-20 13:37:30.000000000 +0400
++++ ./include/linux/kmem_cache.h	2004-10-20 13:40:32.000000000 +0400
+@@ -0,0 +1,146 @@
++#ifndef __KMEM_CACHE_H__
++#define __KMEM_CACHE_H__
++
++#include <linux/threads.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/list.h>
++#include <linux/mm.h>
++#include <asm/atomic.h>
++
++/*
++ * struct array_cache
++ *
++ * Per cpu structures
++ * Purpose:
++ * - LIFO ordering, to hand out cache-warm objects from _alloc
++ * - reduce the number of linked list operations
++ * - reduce spinlock operations
++ *
++ * The limit is stored in the per-cpu structure to reduce the data cache
++ * footprint.
++ *
++ */
++struct array_cache {
++	unsigned int avail;
++	unsigned int limit;
++	unsigned int batchcount;
++	unsigned int touched;
++};
++
++/* bootstrap: The caches do not work without cpuarrays anymore,
++ * but the cpuarrays are allocated from the generic caches...
++ */
++#define BOOT_CPUCACHE_ENTRIES	1
++struct arraycache_init {
++	struct array_cache cache;
++	void * entries[BOOT_CPUCACHE_ENTRIES];
++};
++
++/*
++ * The slab lists of all objects.
++ * Hopefully reduce the internal fragmentation
++ * NUMA: The spinlock could be moved from the kmem_cache_t
++ * into this structure, too. Figure out what causes
++ * fewer cross-node spinlock operations.
++ */
++struct kmem_list3 {
++	struct list_head	slabs_partial;	/* partial list first, better asm code */
++	struct list_head	slabs_full;
++	struct list_head	slabs_free;
++	unsigned long	free_objects;
++	int		free_touched;
++	unsigned long	next_reap;
++	struct array_cache	*shared;
++};
++
++#define LIST3_INIT(parent) \
++	{ \
++		.slabs_full	= LIST_HEAD_INIT(parent.slabs_full), \
++		.slabs_partial	= LIST_HEAD_INIT(parent.slabs_partial), \
++		.slabs_free	= LIST_HEAD_INIT(parent.slabs_free) \
++	}
++#define list3_data(cachep) \
++	(&(cachep)->lists)
++
++/* NUMA: per-node */
++#define list3_data_ptr(cachep, ptr) \
++		list3_data(cachep)
++
++/*
++ * kmem_cache_t
++ *
++ * manages a cache.
++ */
++	
++struct kmem_cache_s {
++/* 1) per-cpu data, touched during every alloc/free */
++	struct array_cache	*array[NR_CPUS];
++	unsigned int		batchcount;
++	unsigned int		limit;
++/* 2) touched by every alloc & free from the backend */
++	struct kmem_list3	lists;
++	/* NUMA: kmem_3list_t	*nodelists[MAX_NUMNODES] */
++	unsigned int		objsize;
++	unsigned int	 	flags;	/* constant flags */
++	unsigned int		num;	/* # of objs per slab */
++	unsigned int		free_limit; /* upper limit of objects in the lists */
++	spinlock_t		spinlock;
++
++/* 3) cache_grow/shrink */
++	/* order of pgs per slab (2^n) */
++	unsigned int		gfporder;
++
++	/* force GFP flags, e.g. GFP_DMA */
++	unsigned int		gfpflags;
++
++	size_t			colour;		/* cache colouring range */
++	unsigned int		colour_off;	/* colour offset */
++	unsigned int		colour_next;	/* cache colouring */
++	kmem_cache_t		*slabp_cache;
++	unsigned int		slab_size;
++	unsigned int		dflags;		/* dynamic flags */
++
++	/* constructor func */
++	void (*ctor)(void *, kmem_cache_t *, unsigned long);
++
++	/* de-constructor func */
++	void (*dtor)(void *, kmem_cache_t *, unsigned long);
++
++/* 4) cache creation/removal */
++	const char		*name;
++	struct list_head	next;
++
++/* 5) statistics */
++#if STATS
++	unsigned long		num_active;
++	unsigned long		num_allocations;
++	unsigned long		high_mark;
++	unsigned long		grown;
++	unsigned long		reaped;
++	unsigned long 		errors;
++	unsigned long		max_freeable;
++	atomic_t		allochit;
++	atomic_t		allocmiss;
++	atomic_t		freehit;
++	atomic_t		freemiss;
++#endif
++#if DEBUG
++	int			dbghead;
++	int			reallen;
++#endif
++};
++
++#define CFLGS_OFF_SLAB		(0x80000000UL)
++#define	OFF_SLAB(x)	((x)->flags & CFLGS_OFF_SLAB)
++
++/* Macros for storing/retrieving the cachep and or slab from the
++ * global 'mem_map'. These are used to find the slab an obj belongs to.
++ * With kfree(), these are used to find the cache which an obj belongs to.
++ */
++#define	SET_PAGE_CACHE(pg,x)  ((pg)->lru.next = (struct list_head *)(x))
++#define	GET_PAGE_CACHE(pg)    ((kmem_cache_t *)(pg)->lru.next)
++#define	SET_PAGE_SLAB(pg,x)   ((pg)->lru.prev = (struct list_head *)(x))
++#define	GET_PAGE_SLAB(pg)     ((struct slab *)(pg)->lru.prev)
++
++#endif /* __KMEM_CACHE_H__ */
+--- ./include/linux/kmem_slab.h.slabh	2004-10-20 13:37:30.000000000 +0400
++++ ./include/linux/kmem_slab.h	2004-10-20 13:37:30.000000000 +0400
+@@ -0,0 +1,69 @@
++#ifndef __KMEM_SLAB_H__
++#define __KMEM_SLAB_H__
++
++/*
++ * kmem_bufctl_t:
++ *
++ * Bufctl's are used for linking objs within a slab
++ * linked offsets.
++ *
++ * This implementation relies on "struct page" for locating the cache &
++ * slab an object belongs to.
++ * This allows the bufctl structure to be small (one int), but limits
++ * the number of objects a slab (not a cache) can contain when off-slab
++ * bufctls are used. The limit is the size of the largest general cache
++ * that does not use off-slab slabs.
++ * For 32bit archs with 4 kB pages, is this 56.
++ * This is not serious, as it is only for large objects, when it is unwise
++ * to have too many per slab.
++ * Note: This limit can be raised by introducing a general cache whose size
++ * is less than 512 (PAGE_SIZE<<3), but greater than 256.
++ */
++
++#define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
++#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
++#define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
++
++/*
++ * struct slab
++ *
++ * Manages the objs in a slab. Placed either at the beginning of mem allocated
++ * for a slab, or allocated from an general cache.
++ * Slabs are chained into three list: fully used, partial, fully free slabs.
++ */
++struct slab {
++	struct list_head	list;
++	unsigned long		colouroff;
++	void			*s_mem;		/* including colour offset */
++	unsigned int		inuse;		/* num of objs active in slab */
++	kmem_bufctl_t		free;
++};
++
++/*
++ * struct slab_rcu
++ *
++ * slab_destroy on a SLAB_DESTROY_BY_RCU cache uses this structure to
++ * arrange for kmem_freepages to be called via RCU.  This is useful if
++ * we need to approach a kernel structure obliquely, from its address
++ * obtained without the usual locking.  We can lock the structure to
++ * stabilize it and check it's still at the given address, only if we
++ * can be sure that the memory has not been meanwhile reused for some
++ * other kind of object (which our subsystem's lock might corrupt).
++ *
++ * rcu_read_lock before reading the address, then rcu_read_unlock after
++ * taking the spinlock within the structure expected at that address.
++ *
++ * We assume struct slab_rcu can overlay struct slab when destroying.
++ */
++struct slab_rcu {
++	struct rcu_head		head;
++	kmem_cache_t		*cachep;
++	void			*addr;
++};
++
++static inline kmem_bufctl_t *slab_bufctl(struct slab *slabp)
++{
++	return (kmem_bufctl_t *)(slabp+1);
++}
++
++#endif /* __KMEM_SLAB_H__ */
+--- ./mm/slab.c.slabh	2004-10-20 13:25:24.000000000 +0400
++++ ./mm/slab.c	2004-10-20 13:43:45.000000000 +0400
+@@ -119,6 +119,8 @@
+ #define	FORCED_DEBUG	0
+ #endif
+ 
++#include <linux/kmem_slab.h>
++#include <linux/kmem_cache.h>
+ 
+ /* Shouldn't this be in a header file somewhere? */
+ #define	BYTES_PER_WORD		sizeof(void *)
+@@ -150,197 +152,11 @@
+ 			 SLAB_DESTROY_BY_RCU)
+ #endif
+ 
+-/*
+- * kmem_bufctl_t:
+- *
+- * Bufctl's are used for linking objs within a slab
+- * linked offsets.
+- *
+- * This implementation relies on "struct page" for locating the cache &
+- * slab an object belongs to.
+- * This allows the bufctl structure to be small (one int), but limits
+- * the number of objects a slab (not a cache) can contain when off-slab
+- * bufctls are used. The limit is the size of the largest general cache
+- * that does not use off-slab slabs.
+- * For 32bit archs with 4 kB pages, is this 56.
+- * This is not serious, as it is only for large objects, when it is unwise
+- * to have too many per slab.
+- * Note: This limit can be raised by introducing a general cache whose size
+- * is less than 512 (PAGE_SIZE<<3), but greater than 256.
+- */
+-
+-#define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
+-#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
+-#define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
+-
+ /* Max number of objs-per-slab for caches which use off-slab slabs.
+  * Needed to avoid a possible looping condition in cache_grow().
+  */
+ static unsigned long offslab_limit;
+ 
+-/*
+- * struct slab
+- *
+- * Manages the objs in a slab. Placed either at the beginning of mem allocated
+- * for a slab, or allocated from an general cache.
+- * Slabs are chained into three list: fully used, partial, fully free slabs.
+- */
+-struct slab {
+-	struct list_head	list;
+-	unsigned long		colouroff;
+-	void			*s_mem;		/* including colour offset */
+-	unsigned int		inuse;		/* num of objs active in slab */
+-	kmem_bufctl_t		free;
+-};
+-
+-/*
+- * struct slab_rcu
+- *
+- * slab_destroy on a SLAB_DESTROY_BY_RCU cache uses this structure to
+- * arrange for kmem_freepages to be called via RCU.  This is useful if
+- * we need to approach a kernel structure obliquely, from its address
+- * obtained without the usual locking.  We can lock the structure to
+- * stabilize it and check it's still at the given address, only if we
+- * can be sure that the memory has not been meanwhile reused for some
+- * other kind of object (which our subsystem's lock might corrupt).
+- *
+- * rcu_read_lock before reading the address, then rcu_read_unlock after
+- * taking the spinlock within the structure expected at that address.
+- *
+- * We assume struct slab_rcu can overlay struct slab when destroying.
+- */
+-struct slab_rcu {
+-	struct rcu_head		head;
+-	kmem_cache_t		*cachep;
+-	void			*addr;
+-};
+-
+-/*
+- * struct array_cache
+- *
+- * Per cpu structures
+- * Purpose:
+- * - LIFO ordering, to hand out cache-warm objects from _alloc
+- * - reduce the number of linked list operations
+- * - reduce spinlock operations
+- *
+- * The limit is stored in the per-cpu structure to reduce the data cache
+- * footprint.
+- *
+- */
+-struct array_cache {
+-	unsigned int avail;
+-	unsigned int limit;
+-	unsigned int batchcount;
+-	unsigned int touched;
+-};
+-
+-/* bootstrap: The caches do not work without cpuarrays anymore,
+- * but the cpuarrays are allocated from the generic caches...
+- */
+-#define BOOT_CPUCACHE_ENTRIES	1
+-struct arraycache_init {
+-	struct array_cache cache;
+-	void * entries[BOOT_CPUCACHE_ENTRIES];
+-};
+-
+-/*
+- * The slab lists of all objects.
+- * Hopefully reduce the internal fragmentation
+- * NUMA: The spinlock could be moved from the kmem_cache_t
+- * into this structure, too. Figure out what causes
+- * fewer cross-node spinlock operations.
+- */
+-struct kmem_list3 {
+-	struct list_head	slabs_partial;	/* partial list first, better asm code */
+-	struct list_head	slabs_full;
+-	struct list_head	slabs_free;
+-	unsigned long	free_objects;
+-	int		free_touched;
+-	unsigned long	next_reap;
+-	struct array_cache	*shared;
+-};
+-
+-#define LIST3_INIT(parent) \
+-	{ \
+-		.slabs_full	= LIST_HEAD_INIT(parent.slabs_full), \
+-		.slabs_partial	= LIST_HEAD_INIT(parent.slabs_partial), \
+-		.slabs_free	= LIST_HEAD_INIT(parent.slabs_free) \
+-	}
+-#define list3_data(cachep) \
+-	(&(cachep)->lists)
+-
+-/* NUMA: per-node */
+-#define list3_data_ptr(cachep, ptr) \
+-		list3_data(cachep)
+-
+-/*
+- * kmem_cache_t
+- *
+- * manages a cache.
+- */
+-	
+-struct kmem_cache_s {
+-/* 1) per-cpu data, touched during every alloc/free */
+-	struct array_cache	*array[NR_CPUS];
+-	unsigned int		batchcount;
+-	unsigned int		limit;
+-/* 2) touched by every alloc & free from the backend */
+-	struct kmem_list3	lists;
+-	/* NUMA: kmem_3list_t	*nodelists[MAX_NUMNODES] */
+-	unsigned int		objsize;
+-	unsigned int	 	flags;	/* constant flags */
+-	unsigned int		num;	/* # of objs per slab */
+-	unsigned int		free_limit; /* upper limit of objects in the lists */
+-	spinlock_t		spinlock;
+-
+-/* 3) cache_grow/shrink */
+-	/* order of pgs per slab (2^n) */
+-	unsigned int		gfporder;
+-
+-	/* force GFP flags, e.g. GFP_DMA */
+-	unsigned int		gfpflags;
+-
+-	size_t			colour;		/* cache colouring range */
+-	unsigned int		colour_off;	/* colour offset */
+-	unsigned int		colour_next;	/* cache colouring */
+-	kmem_cache_t		*slabp_cache;
+-	unsigned int		slab_size;
+-	unsigned int		dflags;		/* dynamic flags */
+-
+-	/* constructor func */
+-	void (*ctor)(void *, kmem_cache_t *, unsigned long);
+-
+-	/* de-constructor func */
+-	void (*dtor)(void *, kmem_cache_t *, unsigned long);
+-
+-/* 4) cache creation/removal */
+-	const char		*name;
+-	struct list_head	next;
+-
+-/* 5) statistics */
+-#if STATS
+-	unsigned long		num_active;
+-	unsigned long		num_allocations;
+-	unsigned long		high_mark;
+-	unsigned long		grown;
+-	unsigned long		reaped;
+-	unsigned long 		errors;
+-	unsigned long		max_freeable;
+-	atomic_t		allochit;
+-	atomic_t		allocmiss;
+-	atomic_t		freehit;
+-	atomic_t		freemiss;
+-#endif
+-#if DEBUG
+-	int			dbghead;
+-	int			reallen;
+-#endif
+-};
+-
+-#define CFLGS_OFF_SLAB		(0x80000000UL)
+-#define	OFF_SLAB(x)	((x)->flags & CFLGS_OFF_SLAB)
+-
+ #define BATCHREFILL_LIMIT	16
+ /* Optimization question: fewer reaps means less 
+  * probability for unnessary cpucache drain/refill cycles.
+@@ -472,15 +288,6 @@ static void **dbg_userword(kmem_cache_t 
+ #define	BREAK_GFP_ORDER_LO	0
+ static int slab_break_gfp_order = BREAK_GFP_ORDER_LO;
+ 
+-/* Macros for storing/retrieving the cachep and or slab from the
+- * global 'mem_map'. These are used to find the slab an obj belongs to.
+- * With kfree(), these are used to find the cache which an obj belongs to.
+- */
+-#define	SET_PAGE_CACHE(pg,x)  ((pg)->lru.next = (struct list_head *)(x))
+-#define	GET_PAGE_CACHE(pg)    ((kmem_cache_t *)(pg)->lru.next)
+-#define	SET_PAGE_SLAB(pg,x)   ((pg)->lru.prev = (struct list_head *)(x))
+-#define	GET_PAGE_SLAB(pg)     ((struct slab *)(pg)->lru.prev)
+-
+ /* These are the default caches for kmalloc. Custom caches can have other sizes. */
+ struct cache_sizes malloc_sizes[] = {
+ #define CACHE(x) { .cs_size = (x) },
+@@ -1666,11 +1473,6 @@ static struct slab* alloc_slabmgmt (kmem
+ 	return slabp;
+ }
+ 
+-static inline kmem_bufctl_t *slab_bufctl(struct slab *slabp)
+-{
+-	return (kmem_bufctl_t *)(slabp+1);
+-}
+-
+ static void cache_init_objs (kmem_cache_t * cachep,
+ 			struct slab * slabp, unsigned long ctor_flags)
+ {
 
-Code: e8 af f9 ff ff 89 f8 e8 f1 af f5 ff e9 35 ff ff ff 0f 0b a5 00 e3 e8
-2c c0 e9 da fe ff ff 0f 0b a4 00 e3 e8 2c c0 e9 c4 fe ff ff <0f> 0b 56 02
-6f 75 2d c0 e9 3c fe ff ff e8 7f 5b 10 00 e9 22 ff
-
-Bye.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+--------------020806000807010707090500--
 

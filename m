@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271149AbTG1VPK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271150AbTG1VPK
+	id S271150AbTG1VQY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271153AbTG1VQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:15:10 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:49346 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S271149AbTG1VOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:14:25 -0400
-Message-ID: <3F25761D.5030602@cornell.edu>
-Date: Mon, 28 Jul 2003 15:14:37 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030721 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Mon, 28 Jul 2003 17:16:24 -0400
+Received: from lidskialf.net ([62.3.233.115]:8667 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S271150AbTG1VQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:16:03 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Alexander Rau <al.rau@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ACPI patch which fixes all my IRQ problems on nforce2 -- linux-2.5.75-acpi-irqparams-final4.patch
+Date: Mon, 28 Jul 2003 22:16:01 +0100
+User-Agent: KMail/1.5.2
+References: <200307272305.12412.adq_dvb@lidskialf.net> <3F254E5F.8040700@gmx.de> <3F258E53.3070204@gmx.de>
+In-Reply-To: <3F258E53.3070204@gmx.de>
 MIME-Version: 1.0
-To: Jonas Bofjall <j-lnxk@gazonk.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: FYI: TCQ ReiserFS Corruption on 2.6.0-test1-mm2
-References: <Pine.LNX.4.51.0307281231590.29434@gazonk.org>
-In-Reply-To: <Pine.LNX.4.51.0307281231590.29434@gazonk.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307282216.01742.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonas Bofjall wrote:
-> I use an IBM Deskstar 180GB IDE disk and tried out TCQ on 2.6.0-test1-mm2.
-> I have a VIA IDE interface on my A7V8X motherboard. This corrupted my
-> ReiserFS file system, just by running the same reiserfsck utility that
-> works well without TCQ. So at least on this disk/controller, IDE-TCQ
-> probably doesn't work well.
 
-What TCQ queue depth?
-I'm curious, since I had *exactly* the same happen to me, but only
-with depth 8 queue. Wondering if there is a connection....
+> > Sorry, there's still a kernel oops during bootup. I'll provide a kernel
+> > trace when I'm back at home.
+> >
+> > Regards, Al
+>
+> I tried to dump the kernel messages onto my printer. Unfortunatly it
+> doesn't print anything, only with acpi=off.
+>
+> This is somehow unconventional, but here's a link for a screenshot of
+> the trace. Sorry, one screen is missing but the messages were too fast
+> for my camera :) I can still recognize a lots of ......... on the
+> missing screen.
+>
+> http://w3studi.informatik.uni-stuttgart.de/~rauar/IMG_1120.JPG
 
+Thats obviously either a bug in the ACPI parser, or a bug in the AML code of 
+your BIOS. Can you send a copy of your /proc/acpi/dsdt. 
+
+Oh er, as you can't boot it with ACPI, use 
+http://people.freebsd.org/~takawata/pacpidump.tar.gz to dump it in non-ACPI 
+mode..
 

@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262270AbRERHzg>; Fri, 18 May 2001 03:55:36 -0400
+	id <S262274AbRERIRY>; Fri, 18 May 2001 04:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262271AbRERHz0>; Fri, 18 May 2001 03:55:26 -0400
-Received: from 21dyn73.com21.casema.net ([213.17.91.73]:20490 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S262270AbRERHzR>; Fri, 18 May 2001 03:55:17 -0400
-Message-Id: <200105180755.JAA23039@cave.bitwizard.nl>
-Subject: Re: Getting FS access events
-In-Reply-To: <Pine.LNX.4.21.0105142130480.23663-100000@penguin.transmeta.com>
- from Linus Torvalds at "May 14, 2001 09:43:18 pm"
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Fri, 18 May 2001 09:55:14 +0200 (MEST)
-CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262273AbRERIRN>; Fri, 18 May 2001 04:17:13 -0400
+Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:64159 "EHLO
+	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262271AbRERIRG>; Fri, 18 May 2001 04:17:06 -0400
+Subject: Re: Linux scalability?
+From: "reiser.angus" <reiser.angus@wanadoo.fr>
+To: Sasi Peter <sape@iq.rulez.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org>
+In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 18 May 2001 10:12:34 +0200
+Message-Id: <990173560.6346.0.camel@adslgw>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> I'm really serious about doing "resume from disk". If you want a fast
-> boot, I will bet you a dollar that you cannot do it faster than by loading
-> a contiguous image of several megabytes contiguously into memory. There is
-> NO overhead, you're pretty much guaranteed platter speeds, and there are
-> no issues about trying to order accesses etc. There are also no issues
-> about messing up any run-time data structures.
+> However, taking a closer look, it turns out, that the above statement
+> holds true only for 1 and 2 processor machines. Scalability already
+> suffers at 4 processors, and at 8 processors, TUX 2.0 (7500) gets beaten
+> by IIS 5.0 (8001), and these were measured on the same kind of box!
+not really the same box
+look at the disk subsystem
+7 x 9GB 10KRPM Drives and 1 x 18GB 15KRPM (html+log & os) for Win2000
+5 x 9GB 10KRPM Drives (html+log+os) for TUX 2.0
 
-Linus, 
+this is sufficient for a such difference
 
-The "boot quickly" was an example. "Load netscape quickly" on some
-systems is done by dd-ing the binary to /dev/null. 
+-David
 
-Now, you're going to say again that this won't work because of
-buffer-cache/page-cache incoherency.  That is NOT the point. The point
-is that the fun about a cache is that it's just a cache. It speeds
-things up transparently. 
-
-If I need a new "prime-the-cache" program to mmap the files, and
-trigger a page-in in the right order, then that's fine with me.
-
-The fun about doing these tricks is that it works, and keeps on
-working (functionally) even if it stops working (fast).
-
-Yes, there is a way to boot even faster: preloading memory. Fine. But
-this doesn't allow me to load netscape quicker.
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

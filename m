@@ -1,104 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUHFBgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268041AbUHFBqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267930AbUHFBgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 21:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUHFBgM
+	id S268041AbUHFBqy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 21:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUHFBqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 21:36:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21974 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267930AbUHFBgG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 21:36:06 -0400
-Date: Thu, 5 Aug 2004 18:34:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nathan Scott <nathans@sgi.com>
-Cc: lkml@tlinx.org, helge.hafting@hist.no, linux-kernel@vger.kernel.org
-Subject: Re: XFS: how to NOT null files on fsck?
-Message-Id: <20040805183415.56230dce.akpm@osdl.org>
-In-Reply-To: <20040806011059.GA774@frodo>
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>
-	<40EEC9DC.8080501@tlinx.org>
-	<20040729013049.GE800@frodo>
-	<410FDA19.9020805@tlinx.org>
-	<4111ECC2.4040301@hist.no>
-	<20040806011059.GA774@frodo>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Aug 2004 21:46:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18618 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268041AbUHFBqv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 21:46:51 -0400
+Message-ID: <4112E2D7.9020606@pobox.com>
+Date: Thu, 05 Aug 2004 21:45:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Brett Russ <russb@emc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] (IDE) restore access to low order LBA following error
+References: <41126458.1050203@emc.com>	 <1091724300.8043.58.camel@localhost.localdomain>	 <4112BF1E.9070404@pobox.com> <1091750465.8366.54.camel@localhost.localdomain>
+In-Reply-To: <1091750465.8366.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott <nathans@sgi.com> wrote:
->
->  On Thu, Aug 05, 2004 at 10:16:02AM +0200, Helge Hafting wrote:
->  > L A Walsh wrote:
->  > >Now I know it takes a while before data may end up on disk and that it
->  > >may not go out to disk in an ordered fashion, but 2-3 days?  
->  > 
->  > Seems strange to me, but the amount of delay is entirely up to the 
->  > filesystem.
+Alan Cox wrote:
+> On Gwe, 2004-08-06 at 00:13, Jeff Garzik wrote:
 > 
->  The flushing of dirty file data is actually performed by
->  kernel threads outside of the individual filesystems.
+>>Alan Cox wrote:
+>>
+>>>Once Jeff has MWDMA and ATAPI in the new SATA/ATA driver he wrote then
+>>>migration might be an even better option. It'll certainly be easier to
+>>>do a lot of things right with the newest SATA code than with the current
+>>>IDE layer.
+>>
+>>BTW MWDMA is already done and checked in :)
 > 
->  I cannot explain a 2/3 day wait for data to get flushed,
->  something really strange going on for you there.
-
-Well there was a writeback bug which could cause files to not get written
-back ever.  Perhaps an unmount would cause writeback but nothing else would.
-
-It was fixed by the below patch.  The situation will only arise with a
-combination of a race and a data-synchronising writeback (O_SYNC, fsync,
-etc).
-
-It's unlikely that this is the cause of this report though.
+> 
+> Do ATAPI and I'll be glad to help move the other drivers over. I need
+> hotplug for my PIIX controller and SI680!
 
 
+ATAPI works too.....  assuming your CD/DVD drive never encounters a 
+CHECK CONDITION requiring REQUEST SENSE to be issued...  ;-)
 
+	Jeff
 
-From: Miklos Szeredi <miklos@szeredi.hu>
-
-This patch fixes a hard-to-trigger condition, where the inode is on the
-inode_in_use list while it's state is dirty.  In this state dirty pages are
-not written back in sync() or from kupdate, only from direct page reclaim. 
-And this causes a livelock in balance_dirty_pages after a while.
-
-The actual sequence of events required to get into this state is:
-
-thread   function                             inode state         inode list
-----------------------------------------------------------------------------
-1 __sync_single_inode (background)            I_DIRTY             sb->s_io
-1 do_writepages ...                           I_LOCKED
-2 __writeback_single_inode (sync) sleeps      I_LOCKED
-1 __sync_single_inode (background) finish     0                   inode_in_use
-2 __writeback_single_inode (sync) wakeup      0
-2 __sync_single_inode (sync)                  0  
-2 do_writepages ...                           I_LOCKED
-3 __mark_inode_dirty                          I_LOCKED | I_DIRTY
-2 __sync_single_inode (sync) finish           I_DIRTY             left on
-                                                                  inode_in_use
-
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/fs/fs-writeback.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN fs/fs-writeback.c~fix-inode-state-corruption-268-rc1-bk1 fs/fs-writeback.c
---- 25/fs/fs-writeback.c~fix-inode-state-corruption-268-rc1-bk1	Fri Jul 16 15:06:57 2004
-+++ 25-akpm/fs/fs-writeback.c	Fri Jul 16 15:06:57 2004
-@@ -213,8 +213,9 @@ __sync_single_inode(struct inode *inode,
- 		} else if (inode->i_state & I_DIRTY) {
- 			/*
- 			 * Someone redirtied the inode while were writing back
--			 * the pages: nothing to do.
-+			 * the pages.
- 			 */
-+			list_move(&inode->i_list, &sb->s_dirty);
- 		} else if (atomic_read(&inode->i_count)) {
- 			/*
- 			 * The inode is clean, inuse
-_
 

@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUHFOEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUHFOFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUHFOEk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHFOEk
+	id S265973AbUHFOFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268017AbUHFOFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:04:40 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:32917 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265971AbUHFOEg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:04:36 -0400
-Date: Fri, 6 Aug 2004 15:04:26 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Mark Lord <lkml@rtr.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata: dma, io error messages
-In-Reply-To: <41138C67.7040306@rtr.ca>
-Message-ID: <Pine.LNX.4.60.0408061453410.2622@fogarty.jakma.org>
-References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org>
- <1091795565.16307.14.camel@localhost.localdomain> <41138C67.7040306@rtr.ca>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 6 Aug 2004 10:05:43 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:9409 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265973AbUHFOFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 10:05:36 -0400
+Subject: Re: [PATCH] pirq_enable_irq cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: agrover <agrover@groveronline.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <20040804181457.GA30739@groveronline.com>
+References: <20040804181457.GA30739@groveronline.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1091797385.16288.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 06 Aug 2004 14:03:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004, Mark Lord wrote:
+On Mer, 2004-08-04 at 19:14, agrover wrote:
+> Hi, this should apply cleanly against mm2 or rc3.
+> 
+> This is a cleanup of pirq_enable_irq. I couldn't understand this function easily 
+> so I cleaned it up.
+> 
+> - Hoisted Via quirk to top -- shouldn't break anything but who knows - can someone 
+> with this chipset test?
+> 
+> - Hoisted legacy IDE check too.
 
->>> Also, the drive is extremely slow now, about 1MB/s drive transfer rate 
->>> as reported by hdparm -T.
+This looks odd (its hard to read it in diff format in this case). The
+IDE check is only meant to be done if we look for an IRQ and find none.
+This tells us the device is only connected for legacy mode.
 
-> That should read "hdparm -t", not "-T", right?
+The VIA one is fairly simple. After the IRQ has been identified or
+selected the VIA needs the "true" PCI IRQ number in the IRQ_LINE
+register because internal V-Bus devices are routed via IRQ line not via
+IRQ pin as the PCI spec says.
 
-erk, sorry, yes.
-
-> And the slowness is most likely due to the error recovery (retries) 
-> in the drive and/or driver, which cause the overall throughput to 
-> plummet for the measurement interval.
-
-ah. There are no reported errors though. So presumably drive retries 
-that end up being successful.
-
-If that is so then this suggests the drive has a far more serious 
-problem than just a single bad block, right?
-
-> Cheers
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Nothing is ever a total loss; it can always serve as a bad example.

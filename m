@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264866AbUEKQfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264875AbUEKQil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264866AbUEKQfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEKQfK
+	id S264875AbUEKQil (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUEKQh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:35:10 -0400
-Received: from tench.street-vision.com ([212.18.235.100]:19174 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S264866AbUEKQeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:34:22 -0400
-Subject: Re: sata_sil bug
-From: Justin Cormack <justin@street-vision.com>
-To: T.Maguin@web.de
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <200405110953.36293.T.Maguin@web.de>
-References: <200405110953.36293.T.Maguin@web.de>
-Content-Type: text/plain
-Message-Id: <1084293259.15715.12.camel@lotte.street-vision.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 11 May 2004 17:34:19 +0100
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 12:37:57 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5504 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264830AbUEKQdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 12:33:04 -0400
+Date: Tue, 11 May 2004 17:39:05 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200405111639.i4BGd5jN000129@81-2-122-30.bradfords.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200405111554.i4BFs4hU015073@turing-police.cc.vt.edu>
+References: <fa.n6pggn5.84en31@ifi.uio.no>
+ <40A0EFC0.1040609@sgi.com>
+ <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
+ <200405111554.i4BFs4hU015073@turing-police.cc.vt.edu>
+Subject: Re: dynamic allocation of swap disk space 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-11 at 08:53, Thomas Maguin wrote:
-> Justin Cormack wrote:
+Quote from Valdis.Kletnieks@vt.edu:
 > 
-> > ata1: DMA timeout, stat 0x0
-> > ATA: abnormal status 0xD8 on port 0xF8807087
-> > scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 17 9b d9 80 00 00
-> > 20 00
-> > Current sda: sense = 70  3
-> > ASC= c ASCQ= 2
-> > Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00
-> > 0x00 0x0c
-> > end_request: I/O error, dev sda, sector 396089728
-> > ATA: abnormal status 0xD8 on port 0xF8807087
-> > ATA: abnormal status 0xD8 on port 0xF8807087
-> > ATA: abnormal status 0xD8 on port 0xF8807087
-> > 
+> On Tue, 11 May 2004 16:52:15 BST, John Bradford said:
 > 
-> I was able to produce this error on my system too. It occured for me, when I 
-> compiled the ide interface of sil_3112 as a modul in to my kernel, although I 
-> was using the libata driver for my harddisks. I lost more then five times my 
-> sdb drive. After removing the ide modul, the system was rock stable again.
+> > Imagine a system with limited physical RAM, and limited swap space, running a
+> > process which causes a lot of filesystem activity on the same physical disk
+> > as is being used for swap.  If the total RAM, both physical and swap is almost
+> > completely full, increasing the swap space may allow some data from physical
+> > RAM to be swapped out, in favour of caching filesystem data from the disk.
+> 
+> Possible, but wouldn't that imply that the value of /proc/sys/vm/swappiness
+> is very mis-set and causing a too-high estimate of the working set size?
 
-I definitely didnt have sii3112 as a module. I get this happening very
-very rarely. Still wonder if it might be the SiI3112 bug for which there
-is a watchdog workaround - any idea if this is the case Jeff? It is
-quite hard to repeat as it happened on a faulty disk and they tend to
-remap sectors eventually...
+Yes - to be honest, I was thinking of very low spec systems, where swap may
+well be less than or equal to physical RAM size.
 
-Justin
-
-
+John.

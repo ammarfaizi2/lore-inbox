@@ -1,88 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130035AbRBUAJA>; Tue, 20 Feb 2001 19:09:00 -0500
+	id <S130874AbRBUAMl>; Tue, 20 Feb 2001 19:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130337AbRBUAIk>; Tue, 20 Feb 2001 19:08:40 -0500
-Received: from eschelon.gamesquad.net ([216.115.239.45]:36622 "HELO
-	eschelon.gamesquad.net") by vger.kernel.org with SMTP
-	id <S130035AbRBUAIc>; Tue, 20 Feb 2001 19:08:32 -0500
-From: "Vibol Hou" <vibol@khmer.cc>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: netdev issues (3c905B)
-Date: Tue, 20 Feb 2001 16:06:28 -0800
-Message-ID: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S130894AbRBUAMb>; Tue, 20 Feb 2001 19:12:31 -0500
+Received: from laurin.munich.netsurf.de ([194.64.166.1]:11909 "EHLO
+	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
+	id <S130874AbRBUAM0>; Tue, 20 Feb 2001 19:12:26 -0500
+Date: Wed, 21 Feb 2001 01:13:03 +0100
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+Message-ID: <20010221011303.A3045@storm.local>
+Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> <m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca> <m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com> <m1k86s6imn.fsf@frodo.biederman.org> <20010217084330.A17398@cadcamlab.org> <m1y9v4382r.fsf@frodo.biederman.org> <20010220021012.A1481@storm.local> <200102200909.KAA12190@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200102200909.KAA12190@microsoft.com>; from xavier.bestel@free.fr on Tue, Feb 20, 2001 at 10:09:55AM +0100
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Feb 20, 2001 at 10:09:55AM +0100, Xavier Bestel wrote:
+> Le 20 Feb 2001 02:10:12 +0100, Andreas Bombe a écrit :
+> > On Sat, Feb 17, 2001 at 09:53:48PM -0700, Eric W. Biederman wrote:
+> > > Peter Samuelson <peter@cadcamlab.org> writes:
+> > > > It also sounds like you will be
+> > > > breaking the extremely useful C postulate that, at the ABI level at
+> > > > least, arrays and pointers are equivalent.  I can't see *how* you plan
+> > > > to work around that one.
+> > > 
+> > > Huh?  Pointers and arrays are clearly different at the ABI level.
+> > > 
+> > > A pointer is a word that contains an address of something.
+> > > An array is an array.
+> > 
+> > An array is a word that contains the address of the first element.
+> 
+> 
+> No. Exercise 3: compile and run this:
+> file a.c:
+> char array[] = "I'm really an array";
+> 
+> file b.c:
+> extern char* array;
+>
+> main() { printf("array = %s\n", array); }
+> 
+> ... and watch it biting the dust !
 
-I have some problems on a heavily loaded web server.  The first is that the
-kernel is spitting out a bunch of "NETDEV WATCHDOG: eth0: transmit timed
-out" errors.  I do not recall this happening in 2.4.0 under the same
-conditions.
+Deliberately linking to the wrong symbol is not a point.  Might as well
+replace file a.c with "int array = 0;".  That'll also bite the dust.  So?
 
-Another problem that I seem to have, of which I have had reports from
-clients, is that the server has problems talking to clients using modems
-This didn't occur before with the 2.2 series kernel (all other things held
-constant).  It seems each time a client tries to load up any site on the
-server, the connection will just die (or stall).  This does not apply to
-high-bandwidth connections (DSL and up) since everything seems fine on DSL
-and faster, but I tried connecting using my dial-up account with Earthlink,
-and the reports seem to be true.  Can those of you on a 56k modem try
-connecting to http://khmerconnection.com and see if the page loads?  Apache
-isn't the only service affected.  It seems *any* TCP communication runs like
-a turtle (even SSH.  takes minutes to login, then minutes to echo each
-letter.  doesn't do this on a DSL connection from the same computer).
+> in short: an array is NOT a pointer.
 
-The card that is exhibiting this problem is a 3c905B (lspci below):
+In this context we were talking *function calls*, not confusing the
+linker.  And whether you say "char array[];" or "char *const array;",
+array is a pointer.  Even more so at the ABI = function call interface.
 
-00:08.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-(rev 30)
-        Subsystem: 3Com Corporation: Unknown device 9055
-        Flags: bus master, medium devsel, latency 80, IRQ 17
-        I/O ports at e400 [size=128]
-        Memory at e8001000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at e4000000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 1
+Another try:  Assume that
+	#include "secret.h"
+	int main() { printf("array = %s\n", array); return 0; }
+is correct code.
 
-dmesg shows hordes of these at high peak usage (300KBps+):
+Is the variable array a pointer to a char or an array of chars?
 
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e601.
-  diagnostics: net 0cd8 media 8880 dma 0000003a.
-eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-  Flags; bus-master 1, full 0; dirty 9256291(3) current 9256291(3).
-  Transmit list 00000000 vs. f7de5230.
-  0: @f7de5200  length 80000042 status 00010042
-  1: @f7de5210  length 8000004a status 8001004a
-  2: @f7de5220  length 80000036 status 80010036
-  3: @f7de5230  length 80000036 status 00010036
-  4: @f7de5240  length 80000042 status 00010042
-  5: @f7de5250  length 80000036 status 00010036
-  6: @f7de5260  length 800005ea status 000105ea
-  7: @f7de5270  length 800005ea status 000105ea
-  8: @f7de5280  length 8000003a status 0001003a
-  9: @f7de5290  length 8000003e status 0001003e
-  10: @f7de52a0  length 8000003a status 0001003a
-  11: @f7de52b0  length 8000003e status 0001003e
-  12: @f7de52c0  length 8000003e status 0001003e
-  13: @f7de52d0  length 8000004a status 0001004a
-  14: @f7de52e0  length 8000004a status 0001004a
-  15: @f7de52f0  length 8000003e status 0001003e
-eth0: Resetting the Tx ring pointer.
+Oh well, who cares.
 
-Any ideas?
-
-Thanks,
---
-Vibol Hou
-
+-- 
+ Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/

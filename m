@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbTIFNpz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 09:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTIFNpz
+	id S261458AbTIFNzf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 09:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTIFNzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 09:45:55 -0400
-Received: from ns.suse.de ([195.135.220.2]:11471 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261273AbTIFNpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 09:45:54 -0400
-Date: Sat, 6 Sep 2003 15:45:50 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-Cc: jgarzik@pobox.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net, linux-acpi@intel.com, mikpe@csd.uu.se
-Subject: Re: [ACPI] Re: [PATCH] 2.6.0-test4 ACPI fixes series (4/4)
-Message-Id: <20030906154550.0334a2d5.ak@suse.de>
-In-Reply-To: <200309061327.16347.adq_dvb@lidskialf.net>
-References: <200309051958.02818.adq_dvb@lidskialf.net>
-	<200309060157.47121.adq_dvb@lidskialf.net>
-	<3F5936D2.3060502@pobox.com>
-	<200309061327.16347.adq_dvb@lidskialf.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 6 Sep 2003 09:55:35 -0400
+Received: from www.piratehaven.org ([204.253.162.40]:47595 "EHLO
+	skull.piratehaven.org") by vger.kernel.org with ESMTP
+	id S261458AbTIFNze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 09:55:34 -0400
+Date: Sat, 6 Sep 2003 06:55:33 -0700
+From: Dale Harris <rodmur@maybe.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: compile problems on PPC for 2.6.0-test4
+Message-ID: <20030906135533.GN29466@maybe.org>
+Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20030906040904.GM29466@maybe.org> <1062835714.824.17.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062835714.824.17.camel@gaston>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Sep 2003 13:27:16 +0100
-Andrew de Quincey <adq_dvb@lidskialf.net> wrote:
-
-> On Saturday 06 September 2003 02:22, Jeff Garzik wrote:
-> > Andrew de Quincey wrote:
-> > > This patch removes some erroneous code from mpparse which breaks IO-APIC
-> > > programming
-> > >
-> > >
-> > > --- linux-2.6.0-test4.null_crs/arch/i386/kernel/mpparse.c	2003-09-06
-> > > 00:23:10.000000000 +0100 +++
-> > > linux-2.6.0-test4.duffmpparse/arch/i386/kernel/mpparse.c	2003-09-06
-> > > 00:28:23.788124872 +0100 @@ -1129,9 +1129,6 @@
-> > >  			continue;
-> > >  		ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
-> > >
-> > > -		if (!ioapic && (irq < 16))
-> > > -			irq += 16;
-> > > -
-> >
-> > Even though I've been digging through stuff off and on, I consider
-> > myself pretty darn IOAPIC-clueless.  Mikael, does this look sane to you?
+On Sat, Sep 06, 2003 at 10:08:34AM +0200, Benjamin Herrenschmidt elucidated:
 > 
-> Really breaks on TX150 servers... All IRQs < 16 get +16 added onto them, which 
-> breaks all IRQ routing. It's also already been removed from 2.4.23-pre3
+> It shoud not be failing on this though:
 
-It is needed at least for the Unisys ES7000. But that box needs further changes
-anyways which are not in tree yet and is even an own subarchitecture that can be 
-tested for.
+No, it didn't fail, it was just a warning from the compiler.
 
--Andi
+> 
+> #define mdelay(n) (\
+> 	(__builtin_constant_p(n) && (n)<=MAX_UDELAY_MS) ? udelay((n)*1000) : \
+> 	({unsigned long __ms=(n); while (__ms--) udelay(1000);}))
+> 
+> The __builtin_constant_p(5000) && (5000)<=5 test should fail thus
+> turning into a loop of udelay(1000). Your gcc seems to be screwing
+> it up. What version are you using ?
+
+2.95.4, but this is from Debian unstable, package version: 2.95.4-17. 
+
+> 
+> The current bk snapshot I have here doesn't have a problem at this line.
+
+BTW, I guess I wasn't compiling a straight vanilla kernel, it was off
+your rsync server, source.mvista.com::linuxppc-2.5.  The vanilla kernel
+bombs drivers/ide/ppc/pmac.c on my laptop.
+
+
+-- 
+Dale Harris   
+rodmur@maybe.org
+/.-)

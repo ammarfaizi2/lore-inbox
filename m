@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270279AbTGNPIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270268AbTGNPIK
+	id S270644AbTGNPTW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270665AbTGNPTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:08:10 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:27035 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270293AbTGNPCZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:02:25 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jul 2003 08:09:48 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy   ...
-In-Reply-To: <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
-Message-ID: <Pine.LNX.4.55.0307140805220.4371@bigblue.dev.mcafeelabs.com>
-References: <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
- <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net> <5.2.1.1.2.20030714100438.01be5008@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jul 2003 11:19:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54546 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270644AbTGNPTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 11:19:19 -0400
+Date: Mon, 14 Jul 2003 16:34:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, John Belmonte <jvb@prairienet.org>
+Subject: Re: 2.5.75-mm1 yenta-socket lsPCI IRQ reads incorrect
+Message-ID: <20030714163404.A1076@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Frank <mflt1@micrologica.com.hk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@suse.cz>, John Belmonte <jvb@prairienet.org>
+References: <200307141333.03911.mflt1@micrologica.com.hk> <20030714150435.GB5118@gtf.org> <20030714162138.B31395@flint.arm.linux.org.uk> <200307142318.07232.mflt1@micrologica.com.hk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200307142318.07232.mflt1@micrologica.com.hk>; from mflt1@micrologica.com.hk on Mon, Jul 14, 2003 at 11:18:07PM +0800
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003, Mike Galbraith wrote:
+On Mon, Jul 14, 2003 at 11:18:07PM +0800, Michael Frank wrote:
+> Right, using the dword write function for 16 words or so is OK, but
+> rather clumsy for much more than that.
 
-> At 12:12 AM 7/14/2003 -0700, Davide Libenzi wrote:
-> >On Mon, 14 Jul 2003, Mike Galbraith wrote:
-> > > While testing, I spotted something pretty strange.  It's not specific to
-> > > SCHED_SOFTRR, SCHED_RR causes it too.  If I fire up xmms's gl visualization
-> > > with either policy, X stops getting enough sleep credit to stay at a usable
-> > > priority even when cpu usage is low.  Fully repeatable weirdness.  See
-> > > attached top snapshots.
-> >
-> >RT tasks are pretty powerfull and should not be used to run everything ;)
-> >What I was seeking with this patch was 1) deterministic latency 2) stave
-> >protection.
->
-> Yes, I know.  I only fired up the cpu hog as a test to see that the
-> protection would kick in.  I did do that too though, ran _everything_...
-> the whole X/KDE beast SCHED_SOFTRR for grins :)
->
-> I should have reported the strangeness in a different thread, it has
-> nothing to do with your patch.
+It's config space, that's as good as it gets.
 
-Did you try the skip resistance test by running XMMS alone with audio ?
-Also, trying the whole player running with SOFTRR does not match the
-effective use MM apps will do of it. Usually inside MM apps the data
-decoder (that might suck CPU) lives in another thread and the thread that
-is actually responsible for timings simply fetch the prepared data.
+(The last PCI spec I read didn't allow burst accesses to config space,
+and it isn't supposed to be a "memory like" space.)
 
-
-
-- Davide
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

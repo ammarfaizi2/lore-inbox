@@ -1,231 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTGCMXl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 08:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTGCMXl
+	id S262095AbTGCMf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 08:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTGCMf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 08:23:41 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:49672 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261249AbTGCMXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 08:23:21 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: linux-kernel@vger.kernel.org
-Subject: high system usage with kmail in 2.5.7X
-Date: Thu, 3 Jul 2003 16:37:46 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 08:35:28 -0400
+Received: from angband.namesys.com ([212.16.7.85]:2432 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262095AbTGCMfW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 08:35:22 -0400
+Date: Thu, 3 Jul 2003 16:49:47 +0400
+From: Oleg Drokin <green@namesys.com>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: high system usage with kmail in 2.5.7X
+Message-ID: <20030703124947.GA819@namesys.com>
+References: <200307031637.46227.rathamahata@php4.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307031637.46227.rathamahata@php4.ru>
+In-Reply-To: <200307031637.46227.rathamahata@php4.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hello!
 
-I experienced an abnormally high system usage whith kmail
-(KDE mail client). This is usually happened when I click on a
-huge mail folder. Then kmail just stops responding for a dozens of seconds.
+On Thu, Jul 03, 2003 at 04:37:46PM +0400, Sergey S. Kostyliov wrote:
 
-Seems like problem started around 2.5.70 (2.5.69 doesn't compile on my box,
-2.5.68 works fine for me).
+> I experienced an abnormally high system usage whith kmail
+> (KDE mail client). This is usually happened when I click on a
+> huge mail folder. Then kmail just stops responding for a dozens of seconds.
+> Seems like problem started around 2.5.70 (2.5.69 doesn't compile on my box,
+> 2.5.68 works fine for me).
 
-I understood that this problem can be related to kmail itself, but a high 
-system usage during this seems strange for me. Any hints are welcome.
+This is a kmail 3.0x problem (with large recommended i/o sizes), it is reported that upgrading to kmail 3.1+ will help.
+Alternatively you can mount your reiserfs volumes with "-o nolargeio=1"
 
-Kernel version is 2.5.74. Filesystem is reiserfs.
-
-rathamahata@arise rathamahata $ vmstat 1
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0     40   3232   3516  52832    0    0   294    29 1111  1091 38 27 22 13
- 1  0     40   3192   3516  52832    0    0     0     0 1009   185 18 82  0  0
- 1  0     40   3192   3516  52832    0    0     0     0 1013   171 18 82  0  0
- 1  0     40   4112   3308  52132    0    0     0   560 1017   171 15 85  0  0
- 1  0     40   4152   3308  52132    0    0     0     0 1008   128 16 84  0  0
- 1  0     40   4152   3308  52132    0    0     0     0 1014   175 16 84  0  0
- 1  0     40   4152   3308  52132    0    0     0     0 1018   168 15 85  0  0
- 1  0     40   4144   3308  52132    0    0     0     0 1019   162 17 83  0  0
- 5  0     40   4176   3308  52132    0    0     0     0 1450  1023 26 74  0  0
- 2  0     40   4104   3316  52264    0    0     0     0 1115   617 21 79  0  0
- 1  0     40   4088   3324  52264    0    0     0     0 1013   620 29 71  0  0
- 1  0     40   4088   3324  52264    0    0     0     0 1012   189 17 83  0  0
- 1  0     40   4088   3324  52264    0    0     0     0 1020   148 14 86  0  0
- 1  0     40   4008   3392  52264    0    0     0   260 1042   158 15 85  0  0
- 1  0     40   4008   3392  52264    0    0     0     0 1011   158 16 84  0  0
- 1  0     40   4008   3392  52264    0    0     0     0 1036   155 14 86  0  0
- 1  0     40   3904   3392  52392    0    0     0     0 1007   132 15 85  0  0
- 1  0     40   3904   3392  52392    0    0     0     0 1004   131 15 85  0  0
- 1  0     40   3904   3420  52392    0    0     0    48 1017   161 17 83  0  0
- 0  1     40   3984   3440  52516    0    0    92     0 1019   660 71 22  0  7
- 0  0     40   3744   3468  52792    0    0   300     0 1033   236 30  2 55 13
- 0  0     40   3744   3468  52792    0    0     0     0 1003   168  5  0 95  0
-
-The part of kmail strace at that time:
-
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-_llseek(22, 2228224, [2228224], SEEK_SET) = 0
-read(22, "\0\t\0\0\0\4\0]\23\0\0\7\0\0\0\4\0>\314F\1\n\0\0\0\4\0"..., 131072) 
-= 99711
-_llseek(22, 1703936, [1703936], SEEK_SET) = 0
-read(22, "\0\0\0\4\0\216\f\0\0\7\0\0\0\4\0\r\211\350\0\n\0\0\0\4"..., 131072) 
-= 131072
-
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+Bye,
+    Oleg

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTLON1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLON1k
+	id S263607AbTLONXW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLONXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:27:40 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:34244 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263568AbTLON1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:27:40 -0500
-Date: Mon, 15 Dec 2003 14:26:21 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Rob Landley <rob@landley.net>
-Cc: Vladimir Saveliev <vs@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Message-ID: <20031215132621.GB1286@wohnheim.fh-wedel.de>
-References: <20031211125806.B2422@hexapodia.org> <200312121535.22375.rob@landley.net> <1071482402.11042.36.camel@tribesman.namesys.com> <200312150552.22805.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200312150552.22805.rob@landley.net>
-User-Agent: Mutt/1.3.28i
+	Mon, 15 Dec 2003 08:23:22 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:485 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263607AbTLONXV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 08:23:21 -0500
+Date: Mon, 15 Dec 2003 14:23:17 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <Pine.LNX.3.96.1031213001311.13795A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.55.0312151417350.26565@jurand.ds.pg.gda.pl>
+References: <Pine.LNX.3.96.1031213001311.13795A-100000@gatekeeper.tmr.com>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 December 2003 05:52:22 -0600, Rob Landley wrote:
+On Sat, 13 Dec 2003, Bill Davidsen wrote:
+
+> >  Well, the NMI watchdog is a side-effect feature that works by chance
+> > rather than by design.  So you can't really complain it doesn't work
+> > somewhere, although I wouldn't mind if new hardware was designed such that
+> > it works.  You shouldn't have to use "acpi=force" for the watchdog to work
+> > though and for a PII system if "nmi_watchdog=1" doesn't work, then I
+> > suspect a BIOS bug (set APIC_DEBUG to 1 in asm-i386/apic.h and send me the
+> > bootstrap log and a dump from `mptable' for a diagnosis, if interested).
 > 
-> The earlier suggestion I was disagreeing with would automatically create holes 
-> in any file that wrote a sufficiently large range of zero bytes.  Hence the 
-> cache poisoning and general defeating the purpose of DMA and such.  Neither 
-> truncate, nor a punch syscall, would mess with the normal "write" path 
-> (beyond locking so write and truncate/punch didn't stomp each other).
+> Has the check to see if the BIOS is old than very recent been removed? I
+> used to get a message that the BIOS was too old, I believe that's what
+> prompted the acpi to enable the local apic. Sorrt, I've been running that
+> feature since 2.5.3x or so and I just carried it forward.
 
-And the suggestor remains convinced that this is a good idea.  It
-would be perfectly ok to defer actually looking at the data to later,
-move that functionality to a journald or gcd or so, but the principle
-mains unchanged.
+ I don't know what check you refer to, sorry.  I don't think we do any
+version checks in the APIC code.  Perhaps ACPI does some, but having no
+use for it anywhere I'm not familiar with that area.
 
-Jörn
+ If the "nmi_watchdog=1" option doesn't work for a PII system, then its
+most likely a bug in BIOS IRQ routing tables -- either missing or broken
+entries for the 8254 timer and/or the 8259A ExtINTA source.
 
 -- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

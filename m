@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263950AbUCZHQg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 02:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263658AbUCZHQg
+	id S263856AbUCZHwv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 02:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbUCZHwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 02:16:36 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:40458 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263950AbUCZHQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 02:16:05 -0500
-Date: Fri, 26 Mar 2004 07:15:56 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: mike.miller@hp.com
-Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: cciss update for 2.6
-Message-ID: <20040326071556.A2637@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mike.miller@hp.com,
-	akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org
-References: <20040325224641.GE4456@beardog.cca.cpqcorp.net>
+	Fri, 26 Mar 2004 02:52:51 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:161
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263856AbUCZHwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 02:52:50 -0500
+Date: Fri, 26 Mar 2004 08:53:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040326075343.GB12484@dualathlon.random>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu> <20040325225919.GL20019@dualathlon.random> <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040325224641.GE4456@beardog.cca.cpqcorp.net>; from mike.miller@hp.com on Thu, Mar 25, 2004 at 04:46:41PM -0600
+In-Reply-To: <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 04:46:41PM -0600, mike.miller@hp.com wrote:
-> Please consider this patch for inclusion in the 2.6 kernel.
+On Thu, Mar 25, 2004 at 11:06:50PM -0500, Rajesh Venkatasubramanian wrote:
 > 
-> If no device is attached we now return -ENXIO instead of some bogus numbers.
-> Prevents applications from trying to access non-existent disks.
-> Also adds HDIO_GETGEO_BIG IOCTL that fdisk uses.
+> Hi Andrea,
+> 
+> I am yet to look at the new -aa you released. A small change is
+> required below. Currently, I cannot generate a patch. Sorry. Please
+> fix it by hand. Thanks.
+> 
+> >
+> > -	list_for_each_entry(vma, list, shared) {
+> > +	vma = __vma_prio_tree_first(root, &iter, h_pgoff, h_pgoff);
+> 
+> This should be:
+> 	vma = __vma_prio_tree_first(root, &iter, h_pgoff, ULONG_MAX);
+> 
+> > +	while (vma) {
+> >  		unsigned long h_vm_pgoff;
+> [snip]
+> > +		vma = __vma_prio_tree_next(vma, root, &iter, h_pgoff, h_pgoff);
+> >  	}
+> 
+> and here it should be:
+> 		vma = __vma_prio_tree_next(vma, root, &iter,
+> 						h_pgoff, ULONG_MAX);
 
-HDIO_GETGEO_BIG was only used by some horribly patched vendor fdisks.
-It's not declared in the kernel, and thus no driver should implement it.
-
+I was missing all vmas with vm_start starting after h_pgoff.  Thanks.

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262959AbSKJCMz>; Sat, 9 Nov 2002 21:12:55 -0500
+	id <S262981AbSKJCT5>; Sat, 9 Nov 2002 21:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262977AbSKJCMz>; Sat, 9 Nov 2002 21:12:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11336 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262959AbSKJCMy>; Sat, 9 Nov 2002 21:12:54 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [lkcd-devel] Re: What's left over.
-References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com>
-	<m1of8ycihs.fsf@frodo.biederman.org>
-	<1036894347.22173.6.camel@irongate.swansea.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Nov 2002 19:16:58 -0700
-In-Reply-To: <1036894347.22173.6.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m1k7jmcgo5.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S263039AbSKJCT5>; Sat, 9 Nov 2002 21:19:57 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:20869 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S262981AbSKJCT4>;
+	Sat, 9 Nov 2002 21:19:56 -0500
+Date: Sun, 10 Nov 2002 03:26:08 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Arador <diegocg@teleline.es>
+Cc: Jens Axboe <axboe@suse.de>, conman@kolivas.net, akpm@digeo.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Message-ID: <20021110022608.GD2544@x30.random>
+References: <200211091300.32127.conman@kolivas.net> <200211091612.08718.conman@kolivas.net> <20021109112135.GB31134@suse.de> <200211100009.55844.conman@kolivas.net> <20021109135446.GA2551@suse.de> <20021109221206.72d46e49.diegocg@teleline.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021109221206.72d46e49.diegocg@teleline.es>
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> On Sun, 2002-11-10 at 01:37, Eric W. Biederman wrote:
-> > The reasons I don't jump on board:
-> > - It does not handle multiple segments.
-> >   Without multiple segments I think I simply out essential complexity
-> >   of the problem.  A bzImage has at least 2.
+On Sat, Nov 09, 2002 at 10:12:06PM +0100, Arador wrote:
+> On Sat, 9 Nov 2002 14:54:46 +0100
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> Thats a matter for user space and the unpacker
+> > The default is 2048. How long does the io_load test take, or rather how
 > 
-> > - vmalloc is artificially limited to 128MB.
-> 
-> Just grabbing a load of pages and using kmap/scatter gather by hand is
-> not
+> then, shouldn't the default be changed?. There's a big performance drop (/2)
+> (in that case of course)
 
-To use kmapped memory I need to setup a page table to do the final copy.
-And to setup a page table I need to know where the memory is going to be copied
-to.
+depends what side you are benchmarking, not always more throughput means
+less interactivity, but at some point (when the more throughput can't
+payoff for the reordering anymore) it does.
 
-So my gut impression at least says an interface that ignores where
-the image wants to live just adds complexity in other places, and
-makes for an interface that is hard to maintain long term, because
-you depend on a lot of kernel implementation details, which are likely
-to change in arbitrary ways.
+You should definitely benchmark 2.4.19-ck9 and 2.4.20rc1aa2 with dbench
+too. Those numbers as is doesn't show the whole picture.
 
-Eric
-
+Andrea

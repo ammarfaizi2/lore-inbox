@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266528AbRGLTSc>; Thu, 12 Jul 2001 15:18:32 -0400
+	id <S266536AbRGLTVW>; Thu, 12 Jul 2001 15:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266536AbRGLTSW>; Thu, 12 Jul 2001 15:18:22 -0400
-Received: from www.wen-online.de ([212.223.88.39]:1799 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S266528AbRGLTSL>;
-	Thu, 12 Jul 2001 15:18:11 -0400
-Date: Thu, 12 Jul 2001 21:17:23 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Dirk Wetter <dirkw@rentec.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: dead *man* pages ;-)
-In-Reply-To: <Pine.LNX.4.33.0107121057100.30412-100000@monster000.rentec.com>
-Message-ID: <Pine.LNX.4.33.0107122109350.504-100000@mikeg.weiden.de>
+	id <S266539AbRGLTVM>; Thu, 12 Jul 2001 15:21:12 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:48458 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S266536AbRGLTU5>; Thu, 12 Jul 2001 15:20:57 -0400
+Message-ID: <3B4DF785.F0273621@sgi.com>
+Date: Thu, 12 Jul 2001 12:16:21 -0700
+From: LA Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en, en-US, en-GB, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, Hans Reiser <reiser@namesys.com>,
+        reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+Subject: Re: Security hooks, "standard linux security" & embedded use
+In-Reply-To: <3B49F602.DB39B3A@sgi.com> <3B4DDFD8.27C1C3D9@namesys.com> <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk> <20010712114729.B735@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jul 2001, Dirk Wetter wrote:
+Greg KH wrote:
+> The current model lets you do whatever you want in your kernel module.
+> It imposes no policy, that's up to you.
+---
+	That's not exactly true.  It imposes the standard Linux security
+policy which someone wanting to remove it or change it might not want.
+It only allows you to further restrict based on the current security 
+system.  
+> 
+> All the better to keep userspace callbacks for security out of my
+> kernels, for that way is ripe for problems (for specific examples why,
+> see the linux-security-module mailing list archives.)
+---
+	I agree.  Though an individual module writer could theoretically
+implement callbacks in their own module, no?
 
-> Hi Mike,
->
-> On Thu, 12 Jul 2001, Mike Galbraith wrote:
->
-> > > don't wanna be offensive, but: in my case it IS swapping heavily. if
-> > > somebody dares to reply again to me, that it's not, i am cordially invite
-> > > him/her to read my emails more thouroughly before i get a reply
-> > > like "it is not swapping, it is only appear to be swapping".
-> >
-> > Your heads aren't _really_ rattling, they only _sound_ like..  ;-)
->
-> well, we are living in a world of fake and fraud. ;-)
+-l
 
-'Twas a joke 'course.
-
-> > Have you had a chance to try 2.4.7-pre-latest yet?  I'd be interested
-> > in a small sample of vmstat 1 leading into heavy swap with >=pre5 if
-> > it is still a problem.
->
-> i will definetely check it out and give a report, since the test i did
-> yesterday the *command* "vmstat 1" in typed in appeared to be :)) more
-> like "vmstat 180", no kidding.
-
-Ok, you have some 'io bound' issues that need to be looked at.  Present
-the data in that light please.
-
-	-Mike
-
+--  -    _    -    _    -    _    -    _    -    _    -    _    -    _    -     
+The above thoughts and            | I know I don't know the opinions
+writings are my own.              | of every part of my company. :-)

@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVCGNCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVCGNGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVCGNCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 08:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCGNCe
+	id S261151AbVCGNGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 08:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCGNGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 08:02:34 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56863
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261157AbVCGNC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 08:02:28 -0500
-Date: Mon, 7 Mar 2005 14:02:27 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, greg@kroah.com,
+	Mon, 7 Mar 2005 08:06:15 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:22356 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261151AbVCGNGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 08:06:08 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Subject: Re: [patch] fix NULL pointer deference in ALPS
+Date: Mon, 7 Mar 2005 16:06:33 +0200
+User-Agent: KMail/1.6.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/5] setup_per_zone_lowmem_reserve() oops fix
-Message-ID: <20050307130227.GQ8880@opteron.random>
-References: <200503042117.j24LHGrx017967@shell0.pdx.osdl.net> <422C0C5D.3060404@yahoo.com.au> <20050307002048.51aac96b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20050307122432.GG8138@ens-lyon.fr>
+In-Reply-To: <20050307122432.GG8138@ens-lyon.fr>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050307002048.51aac96b.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503071606.33984.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 12:20:48AM -0800, Andrew Morton wrote:
-> I haven't thought about it yet, but there must be some way to avoid leaving
-> huge amounts of lowmem free.  It should be OK to allow lowmem to be fully
-> used, as long as there's sufficent reclaimable stuff in there - slab,
-> blockdev pagecache, etc.  (Assuming nothing sane mmaps blockdevs.  INND
-> does).  Dunno....
+On Monday 07 March 2005 14:24, Benoit Boissinot wrote:
 
-Then mlock will have to unmap and migrate the cache, it's just much more
-complicated, but it's certainly doable.
+> alps_get_model returns a pointer or NULL in case of errors, so we need to
+> check for the results being NULL, not negative.
+
+2.6.11-bk2:	int alps_get_model(struct psmouse *psmouse)
+	takes 1 argument, returns -1 on error
+
+2.6.11-mm1:	static struct alps_model_info *alps_get_model(struct psmouse *psmouse, int *version)
+	takes 2 arguments, returns NULL on error
+
+> --- linux-clean/drivers/input/mouse/alps.c
+> +++ linux-vanilla/drivers/input/mouse/alps.c
+
+> -	if ((model = alps_get_model(psmouse)) < 0)
+> +	if (!(model = alps_get_model(psmouse)))
+
+> -	if ((model = alps_get_model(psmouse)) < 0)
+> +	if (!(model = alps_get_model(psmouse)))
+
+> -	if (alps_get_model(psmouse) < 0)
+> +	if (!alps_get_model(psmouse))
+
+To what version of kernel this patch should be applied?
+
+	Alexey

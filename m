@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVAGOfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVAGOgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVAGOfy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 09:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVAGOfx
+	id S261432AbVAGOgX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVAGOgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 09:35:53 -0500
-Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:741 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261430AbVAGOfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 09:35:45 -0500
-Message-ID: <41DEA2E8.8030701@nit.ca>
-Date: Fri, 07 Jan 2005 09:55:36 -0500
-From: Lukasz Kosewski <lkosewsk@nit.ca>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041203)
-X-Accept-Language: en-us, en
+	Fri, 7 Jan 2005 09:36:23 -0500
+Received: from tag.witbe.net ([81.88.96.48]:59566 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261432AbVAGOgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 09:36:18 -0500
+Message-Id: <200501071434.j07EYt102563@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Bill Davidsen'" <davidsen@tmr.com>
+Cc: "'Willy Tarreau'" <willy@w.ods.org>, "'Theodore Ts'o'" <tytso@mit.edu>,
+       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Thomas Graf'" <tgraf@suug.ch>, "'Adrian Bunk'" <bunk@stusta.de>,
+       "'Diego Calleja'" <diegocg@teleline.es>, <wli@holomorphy.com>,
+       <aebr@win.tue.nl>, <solt2@dns.toxicfilms.tv>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: starting with 2.7
+Date: Fri, 7 Jan 2005 15:34:55 +0100
+Organization: AS2917
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Arjan van de Ven <arjan@infradead.org>, vgoyal@in.ibm.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
-References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>	<1105013524.4468.3.camel@laptopd505.fenrus.org> <20050106195043.4b77c63e.akpm@osdl.org> <41DE15C7.6030102@nit.ca>
-In-Reply-To: <41DE15C7.6030102@nit.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <41DDA8E1.8080406@tmr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcT0Ncd1GS/u1g75QRavzzLJC29utQAkBdcw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Kosewski wrote:
-> Andrew Morton wrote:
-> 
->>> looks like the following is happening:
->>> the controller wants to send an irq (probably from previous life)
->>> then suddenly the driver gets loaded
->>> * which registers an irq handler
->>> * which does pci_enable_device()
->>> and .. the irq goes through. the irq handler just is not yet 
->>> expecting this irq, so
->>> returns "uh dunno not mine"
->>> the kernel then decides to disable the irq on the apic level
->>> and then the driver DOES need an irq during init
->>> ... which never happens.
->>>
->>
->>
->> yes, that's exactly what e100 was doing on my laptop last month.  Fixed
->> that by arranging for the NIC to be reset before the call to
->> pci_set_master().
+Hello,
 
-After reading this again when I /wasn't/ semi-comatose, I retract my 
-statement insofar as it wouldn't help you (but I think it's still rather 
-necessary) :)
+> I think you are quoting MB/release where MB/month would be 
+> much closer. 
+Yes, I do.
 
-The system did exactly what I'm talking about (which it didn't do for 
-me, possibly because the board/processor didn't support APIC).  I guess 
-my question to you is:  do you have other devices sharing this 
-interrupt?  In other words, are you /sure/ that it's the adaptec 
-controller which is setting the interrupt line high?
+> Part of the "new development model" is that Linus only releases a new 
+> version the Thursday after the racoons tip over his garbage can.
 
-Luke Kosewski
-Human Cannonball
-Net Integration Technologies
+:-) Let free the racoons !!!
+
+Paul
+

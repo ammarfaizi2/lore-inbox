@@ -1,83 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318852AbSHWOnO>; Fri, 23 Aug 2002 10:43:14 -0400
+	id <S318850AbSHWOk5>; Fri, 23 Aug 2002 10:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318853AbSHWOnO>; Fri, 23 Aug 2002 10:43:14 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:14509 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id <S318852AbSHWOnN>;
-	Fri, 23 Aug 2002 10:43:13 -0400
-Message-ID: <3D664AE5.7050608@stesmi.com>
-Date: Fri, 23 Aug 2002 16:47:01 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en
+	id <S318848AbSHWOk4>; Fri, 23 Aug 2002 10:40:56 -0400
+Received: from windsormachine.com ([206.48.122.28]:19208 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S318846AbSHWOky>; Fri, 23 Aug 2002 10:40:54 -0400
+Date: Fri, 23 Aug 2002 10:45:02 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-ppp@vger.kernel.org>
+cc: <linux-kernel@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33.0208231029040.8320-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems with routing, solutions and more problems.
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.3.3(snapshot 20020312) (K-7.stesmi.com)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people.
+I'm having problems with pppd under 2.4.19, with pppd 2.4.1
 
-I have the following scenario:
+I can establish a new connection, and no problems.  But once the ISP on
+the other end hangs up, this is what i get in my syslog.
+Repeats over and over.  I saw a few google postings about this, but those
+were back in _1999_, so I would think they were fixed by now.
 
-I have a linux box with 2 serial ports and an ethernet.
+Doesn't matter if PPP is compiled in with the kernel, or modules.
 
-Those serial ports are connected to 2 modems.
+I'm running Debian 3.0(woody)
 
-I have 500 other machines out in the field. Let's call them toasters. 
-These toasters have a modem and a phoneline each. They all have the
-same IP number, 192.168.0.1. They can't have anything BUT static ip.
+This worked under Debian 2.2 and kernel 2.2.21
 
-I can call any of these 500 machines using any of my 2 modems,
-but it for natural reasons does not work when I call 2 machines
-at the same time since they have the same IP.
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (BUSY)
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (NO CARRIER)
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (VOICE)
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (NO DIALTONE)
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (NO DIAL TONE)
+Aug 23 10:25:55 tilburybackup chat[9825]: abort on (NO ANSWER)
+Aug 23 10:25:55 tilburybackup chat[9825]: send (ATZ^M)
+Aug 23 10:25:55 tilburybackup chat[9825]: expect (OK)
+Aug 23 10:25:55 tilburybackup chat[9825]: ATZ^M^M
+Aug 23 10:25:55 tilburybackup chat[9825]: OK
+Aug 23 10:25:55 tilburybackup chat[9825]:  -- got it
+Aug 23 10:25:55 tilburybackup chat[9825]: send (ATDT3806600^M)
+Aug 23 10:25:55 tilburybackup chat[9825]: expect (CONNECT)
+Aug 23 10:25:55 tilburybackup chat[9825]: ^M
+Aug 23 10:26:11 tilburybackup pppd[9804]: rcvd [LCP EchoReq id=0x4 magic=0x96835d5b]
+Aug 23 10:26:11 tilburybackup pppd[9804]: sent [LCP EchoRep id=0x4 magic=0x72c56787]
+Aug 23 10:26:11 tilburybackup pppd[9804]: sent [LCP EchoReq id=0x4 magic=0x72c56787]
+Aug 23 10:26:11 tilburybackup pppd[9804]: rcvd [LCP EchoRep id=0x4 magic=0x96835d5b]
+Aug 23 10:26:16 tilburybackup chat[9825]: ATDT3806600^M^M
+Aug 23 10:26:16 tilburybackup chat[9825]: CONNECT
+Aug 23 10:26:16 tilburybackup chat[9825]:  -- got it
+Aug 23 10:26:16 tilburybackup chat[9825]: send (\d)
+Aug 23 10:26:17 tilburybackup pppd[329]: Serial connection established.
+Aug 23 10:26:17 tilburybackup pppd[329]: using channel 1179
+Aug 23 10:26:17 tilburybackup pppd[329]: Couldn't create new ppp unit: Inappropriate ioctl for device
+Aug 23 10:26:18 tilburybackup pppd[329]: Hangup (SIGHUP)
 
-So I devised this idea:
+tilburybackup:/etc/ppp# egrep -v '#|^ *$' /etc/ppp/options
+asyncmap 0
+auth
+crtscts
+lock
+hide-password
+modem
+proxyarp
+lcp-echo-interval 30
+lcp-echo-failure 4
+noipx
+persist
+maxfail 0
 
-I invent a fake ip number for the interfaces.
+ttyS04 at port 0xcc00 (irq = 5) is a 16550A
 
-I don't change the actual ip on the interface, just virtually.
+00:0b.0 Serial controller: US Robotics/3Com 56K FaxModem Model 5610 (rev 01) (prog-if 02 [16550])
+        Subsystem: US Robotics/3Com USR 56k Internal FAX Modem (Model 2977)
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at cc00 [size=8]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
 
-My idea is that: any packet going to 192.168.10.1 should go out over
-modem0 and go to 192.168.1.1 and any packet going to 192.168.11.1
-should go out over modem1 and go to 192.168.1.1.
+Any ideas?
 
-So, I use netfilter, MANGLE, OUTPUT to tag each packet going to 
-192.168.10.1 with fwmark 10 and each packet going to 192.168.11.1 with 
-fwmark 11.
-
-Kernel is 2.4.19, otherwise this step wouldn't work:
-
-I NAT each packet using NAT, OUTPUT so that each packet going to 
-192.168.10.1 gets nat'ed to 192.168.1.1 and each packet going to
-192.168.11.1 gets net'ed to 192.168.1.1.
-
-A packet that should go on modem0 now has the destination IP of
-192.168.1.1 and is tagged 10 and a packet that should go on modem1
-now has a destination IP of 192.168.1.1 and is tagged 11.
-
-I then add 2 routing tables, one for modem0 and one for modem1. They
-just say that everything to 192.168.1.1 go out on ppp0 and ppp1 
-respectively.
-
-Then I add an ip RULE that says that everything with fwmark 10
-gets to routing table for modem0 and everything with fwmark 11
-gets to routing table for modem1.
-
-This sounds great and it actually works.
-
-My problem now is that I believe the route cache is bypassing all my 
-junk in the routing and just sends it to the last place sent, as 
-everything works but it's being sent to ppp0 all the time.
-
-If anyone thinks I'm wrong, please say so.
-
-Now, is there a way to disable the route cache totally or for a specific 
-ip range?
-
-// Stefan
+Mike
 

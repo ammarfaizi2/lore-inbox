@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287516AbSAPT6q>; Wed, 16 Jan 2002 14:58:46 -0500
+	id <S287381AbSAPT5g>; Wed, 16 Jan 2002 14:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287432AbSAPT6g>; Wed, 16 Jan 2002 14:58:36 -0500
-Received: from ns.censoft.com ([208.219.23.2]:63896 "EHLO ns.censoft.com")
-	by vger.kernel.org with ESMTP id <S287450AbSAPT6c>;
-	Wed, 16 Jan 2002 14:58:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jordan Crouse <jordanc@censoft.com>
-Reply-To: jordanc@censoft.com
-Organization: The Microwindows Project
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+	id <S287334AbSAPT5R>; Wed, 16 Jan 2002 14:57:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35851 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287368AbSAPT5M>; Wed, 16 Jan 2002 14:57:12 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Query about initramfs and modules
-Date: Wed, 16 Jan 2002 12:53:49 -0700
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <20020116202958.E18039@devcon.net> <20020116194026.GD1964@kroah.com>
-In-Reply-To: <20020116194026.GD1964@kroah.com>
+Date: 16 Jan 2002 11:56:59 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a24lub$4o9$1@cesium.transmeta.com>
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu> <20020116194121.GC32184@codepoet.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QwCa-0007Od-00@ns.censoft.com>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I agree.  It's a lot of drivers (and it's growing.)  It will help out
-> people booting from a hard disk the most (which happen to be the
-> majority of people :)
+Followup to:  <20020116194121.GC32184@codepoet.org>
+By author:    Erik Andersen <andersen@codepoet.org>
+In newsgroup: linux.dev.kernel
+> 
+> Keep in mind that insmod current needs to incorporate a full ELF
+> interpreter in userspace (and the source code needs to know about
+> all the types of relocations and jump for each arch and for 32
+> and 64 bit ELF.  Horrible stuff really.  If we could cleanup the
+> kernel's insmod implementation to require merely a syscall
+> passing a filename to the kernel, it would sure make the
+> initramfs smaller and simpler.  I believe Rusty made a patch to
+> do this sort of thing....
+> 
 
-And yet, I see the greatest potential for initramfs coming from devices  that 
-*don't* boot from a hard drive.  I know tons of embedded devices that have 
-very evil looking init scripts just to boot something other than a hard 
-drive.  Man, if the initramfs could handle all those cases uniformly, it 
-would be a huge advantage for the embedded world.
+Yeah!  Let's put all this crap in KERNEL SPACE!  *NOT!*
 
-Jordan
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

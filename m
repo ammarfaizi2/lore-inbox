@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbTJOPwc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 11:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTJOPwb
+	id S263459AbTJOPp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 11:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTJOPp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 11:52:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:54913 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263466AbTJOPwa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 11:52:30 -0400
-Date: Wed, 15 Oct 2003 11:54:17 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Nikita Danilov <Nikita@Namesys.COM>
-cc: Erik Mouw <erik@harddisk-recovery.com>, Josh Litherland <josh@temp123.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <16269.23199.833564.163986@laputa.namesys.com>
-Message-ID: <Pine.LNX.4.53.0310151150370.7350@chaos>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
- <16269.20654.201680.390284@laputa.namesys.com> <20031015142738.GG24799@bitwizard.nl>
- <16269.23199.833564.163986@laputa.namesys.com>
+	Wed, 15 Oct 2003 11:45:57 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:37026 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263459AbTJOPp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 11:45:56 -0400
+Message-ID: <3F8D6BB0.7060809@nortelnetworks.com>
+Date: Wed, 15 Oct 2003 11:45:52 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: incoming packet latency in 2.4.[18-20]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003, Nikita Danilov wrote:
 
-> Erik Mouw writes:
->  > On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
->  > > Erik Mouw writes:
->  > >  > Nowadays disks are so incredibly cheap, that transparent compression
->  > >  > support is not realy worth it anymore (IMHO).
->  > >
-[SNIPPED...]
+There is an issue with incoming packet latency in the kernels mentioned.
 
->  >
->  > PS: let me guess: among other things, reiser4 comes with transparent
->  >     compression? ;-)
->
-> Yes, it will.
->
+It seems that if you send in a burst of messages, the amount of time it 
+takes to wake the listening process is dependent on the size of the 
+message burst.  2.4.18-2.4.20 all show this behaviour, 2.6 doesn't.
 
-EeeeeeK!  A single bad sector could prevent an entire database from
-being uncompressed! You may want to re-think that idea before you
-commit a lot of time to it.
+Some numbers for a udp message size of 2 bytes:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+1 packet, average latency 12 usecs
+10 packets, average latency 66 usecs
+100 packets, average latency 477 usecs
 
+Is this a known issue?  Is there an easy way to fix this, or is it 
+something inherent in the 2.4 architecture?
+
+Thanks,
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290827AbSBLIMi>; Tue, 12 Feb 2002 03:12:38 -0500
+	id <S290823AbSBLILs>; Tue, 12 Feb 2002 03:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290824AbSBLIMT>; Tue, 12 Feb 2002 03:12:19 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:43393 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S290827AbSBLIMK>;
-	Tue, 12 Feb 2002 03:12:10 -0500
-To: Jakub Travnik <J.Travnik@sh.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: emu10k1 - interrupt storm?
-In-Reply-To: <3C684A88.5070307@sh.cvut.cz>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Tue, 12 Feb 2002 09:12:04 +0100
-In-Reply-To: <3C684A88.5070307@sh.cvut.cz> (Jakub Travnik's message of "Mon,
- 11 Feb 2002 23:49:44 +0100")
-Message-ID: <dny9hzunjf.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
+	id <S290824AbSBLILi>; Tue, 12 Feb 2002 03:11:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14860 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290823AbSBLIL1>;
+	Tue, 12 Feb 2002 03:11:27 -0500
+Message-ID: <3C68CE00.993721C2@zip.com.au>
+Date: Tue, 12 Feb 2002 00:10:40 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-pre7 - known issue with ext3?
+In-Reply-To: <3057.1013498512@nice.ram.loc>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Travnik <J.Travnik@sh.cvut.cz> writes:
+Raphael Manfredi wrote:
+> 
+> I've got the following panic trace on the console this morning:
+> 
+>  invalid operand: 0000
+>  CPU:    0
+>  EIP:    0010:[__insert_into_lru_list+28/92]    Not tainted
+>  EFLAGS: 00010286
+>  eax: 00000000   ebx: 00000002   ecx: cce5ce40   edx: c02b5e94
+>  esi: cce5ce40   edi: cce5ce40   ebp: cfa11640   esp: cefb7ea0
+>  ds: 0018   es: 0018   ss: 0018
+>  Process perl (pid: 14685, stackpage=cefb7000)
+>  Stack: 00000002 c012b4c5 cce5ce40 00000002 cce5ce40 00000400 c012b4d5 cce5ce40
+>         c012be08 cce5ce40 00001000 00027000 00000000 cfa11640 00000400 00000000
+>         c012c357 cfa11640 c1225a80 00000000 00001000 c1225a80 40018000 cfa11640
+>  Call Trace: [__refile_buffer+73/80] [refile_buffer+9/16]
+>         [__block_commit_write+124/192] [generic_commit_write+51/92]
+>         [ext3_commit_write+290/436] [generic_file_write+1184/1720]
+>         [ext3_file_write+67/76] [sys_write+142/196] [system_call+51/64]
+> 
+> Are there known problems with the implementation of ext3 on this kernel, or
+> is the root cause elsewhere, and it's only an accident that it was in ext3
+> code at the time?
+> 
 
-> Hello and sorry for replying late,
->
-> I did experienced same problems with emu10k1 on 2.4.8 (as is in Mandrake 8.1).
->
-> After modprobing emu10k1, interrupts per second (as reported by vmstat)
-> start to increase and in few minutes they were as high as 70000 per second.
-> rmmod-ing emu10k1 caused number of interrupts per second to slowly decrease.
->
-> Following setting affected this:
->
-> In BIOS setup, PCI options:
-> Interrupts triggered by
-> 1, edge
-> 2, level
+Something corrupted a buffer-head from your freelist.
 
-Unfortunately I don't have that setting in my BIOS.
+Please send me your .config and a description of the hardware.
+Also a description of what sorts of things the machine is
+being used for.  Also please run memtest86 for 12 hours or
+more and let me know the results.
 
->
-> value 'edge' causes problems,
-> value 'level' makes thing work without problems.
->
+Thanks.
 
-But anyway, emu10k1 on irq 5 already uses level type:
-
-  5:       5193       5183   IO-APIC-level  EMU10K1
-
-
-> If you are experiencing problems with this, set to 'level'.
->
-
-Eventually, I forced esd to exit after few seconds of inactivity. That
-way I at least don't have interrupt storms when I don't have any sound
-output through esd.
-
-Regards,
--- 
-Zlatko
+-

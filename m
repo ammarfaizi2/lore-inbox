@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbTEIIlP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTEIIlP
+	id S262383AbTEIIqj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTEIIqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:41:15 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32226 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262368AbTEIIlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:41:14 -0400
-Date: Fri, 9 May 2003 01:54:12 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bump module ref during init.
-Message-Id: <20030509015412.29237b08.akpm@digeo.com>
-In-Reply-To: <20030509084045.792762C0F8@lists.samba.org>
-References: <20030509084045.792762C0F8@lists.samba.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 May 2003 04:46:39 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:56071 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262383AbTEIIqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:46:37 -0400
+Message-ID: <3EBB6E98.4090305@aitel.hist.no>
+Date: Fri, 09 May 2003 11:02:16 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.69-mm3 uncompilable config oddities
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 May 2003 08:53:47.0635 (UTC) FILETIME=[81008430:01C31608]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> +static void wait_for_zero_refcount(struct module *mod)
-> +{
-> +	/* Since we might sleep for some time, drop the semaphore first */
-> +	up(&module_mutex);
-> +	for (;;) {
-> +		DEBUGP("Looking at refcount...\n");
-> +		set_current_state(TASK_UNINTERRUPTIBLE);
-> +		if (module_refcount(mod) == 0)
-> +			break;
-> +		schedule();
+Summary: 2.5.69-mm3 don't compile if:
+* crypto HMAC support is off
+* PCI IDE chipset is selected but Generic PCI bus-master DMA is off
 
-What wakes the task up again?
+I tried to compile a kernel for a rescue disk - which
+is supposed to be small.  So I disabled lots of stuff.
+But crypto and HMAC is necessary, or I get missing symbols.
+Other crypto algorithms can be turned off.
+
+Why IDE without DMA?  Because that particular machine
+happens to have the broken VIA chipset that IDE maintainers
+don't want to hear any complaints about.  Why compile
+in DMA support that can't be used anyway?  But my PIO only kernel
+had missing symbols.  This is easily worked around by selecting
+DMA and leaving "PCI DMA by default" off.
+
+Helge Hafting
 

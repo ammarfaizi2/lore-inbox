@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbUAQBGX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 20:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUAQBGX
+	id S265950AbUAQBMV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 20:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUAQBMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 20:06:23 -0500
-Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:34031 "EHLO
-	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S265922AbUAQBGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 20:06:21 -0500
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: linux-kernel@vger.kernel.org
-Subject: scheduler coolness
-Date: Fri, 16 Jan 2004 20:06:18 -0500
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 20:12:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:6632 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265950AbUAQBMT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 20:12:19 -0500
+Date: Fri, 16 Jan 2004 16:57:59 -0800
+From: Greg KH <greg@kroah.com>
+To: zydas@tiscali.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0 making modules problems
+Message-ID: <20040117005759.GN3897@kroah.com>
+References: <3FB8EA9C000A0983@mk-cpfrontend-2.mail.uk.tiscali.com> <20040102172847.GA3032@penguin.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401162006.18040.rpc@cafe4111.org>
+In-Reply-To: <20040102172847.GA3032@penguin.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just comparing notes:
+On Fri, Jan 02, 2004 at 06:28:47PM +0100, Marcel Sebek wrote:
+> >   CC [M]  drivers/usb/serial/whiteheat.o
+> > drivers/usb/serial/whiteheat.c: In function `firm_setup_port':
+> > drivers/usb/serial/whiteheat.c:1209: `CMSPAR' undeclared (first use in this
+> > function)
+> > drivers/usb/serial/whiteheat.c:1209: (Each undeclared identifier is reported
+> > only once
+> > drivers/usb/serial/whiteheat.c:1209: for each function it appears in.)
+> 
+> diff -urN linux-2.6/drivers/usb/serial/whiteheat.c linux-2.6-new/drivers/usb/serial/whiteheat.c
+> --- linux-2.6/drivers/usb/serial/whiteheat.c	2003-09-10 16:09:42.000000000 +0200
+> +++ linux-2.6-new/drivers/usb/serial/whiteheat.c	2004-01-01 18:29:38.000000000 +0100
+> @@ -76,6 +76,7 @@
+>  #include <linux/module.h>
+>  #include <linux/spinlock.h>
+>  #include <asm/uaccess.h>
+> +#include <asm/termbits.h>
+>  #include <linux/usb.h>
+>  #include <linux/serial_reg.h>
+>  #include <linux/serial.h>
 
-i run 2.4.22 with OpenMOSIX and Win4Lin patches, as well as the 2 latest 
-security patches. For graphics, I use only gdm on the headless server (a P3 
-667 w/512MB) and a diskless NFS root X terminal thru XDMCP on the clients 
-(anything from celery 433 to P133). After worrying that my apps would knock 
-down the activity of the other users, I thought to nice all my processes and 
-let the masses have whatever Mozilla wants (since that's all they'll be 
-running ;) . The other terminals aren't even setup yet, but I was getting 
-severe sluggishness that made me thirst for GHz.
+I've applied this patch, thanks.
 
-So after I hung up my terminal many times and watched it lock during heavy 
-user load, being the only user(!), I decided to go ahead and nice everything 
-under gdm. I edited /etc/X11/gdm/Xsession and put a 'nice' in every 'exec 
-somewindowmanager' and now everything is faster. I mean, the local X is far 
-more responsive, windows draw sooner, and apps don't momentarily hang the 
-display... I'm assuming this is due to gdm now having the highest priority in 
-userspace aside from the various daemons, thus less network latency and so 
-on. so all is grand.
-
-any thoughts/comments? 
-(_besides_ that i'm mad for mixing OpenMOSIX and Win4Lin 8^)
-
--- 
-Rob Couto
-rpc@cafe4111.org
-Rules for computing success:
-1) Attitude is no substitute for competence.
-2) Ease of use is no substitute for power.
-3) Safety matters; use a static-free hammer.
---
+greg k-h

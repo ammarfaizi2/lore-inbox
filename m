@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261393AbSKBUSD>; Sat, 2 Nov 2002 15:18:03 -0500
+	id <S261349AbSKBUBO>; Sat, 2 Nov 2002 15:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbSKBUSD>; Sat, 2 Nov 2002 15:18:03 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29858 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261393AbSKBUSB>;
-	Sat, 2 Nov 2002 15:18:01 -0500
-Date: Sat, 2 Nov 2002 15:24:09 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@pobox.com>,
-       LKML <linux-kernel@vger.kernel.org>, hpa@zytor.com
-Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
-In-Reply-To: <Pine.LNX.4.44.0211021049480.2413-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0211021436200.25010-100000@steklov.math.psu.edu>
+	id <S261356AbSKBUBN>; Sat, 2 Nov 2002 15:01:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37383 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261349AbSKBUBK>; Sat, 2 Nov 2002 15:01:10 -0500
+Message-ID: <3DC3BFE4.8080904@zytor.com>
+Date: Sat, 02 Nov 2002 04:07:00 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
+References: <Pine.LNX.4.44.0211021049480.2413-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 2 Nov 2002, Linus Torvalds wrote:
-
-> Note that the reason I personally really want initramfs is not to make the
-> kernel boot image smaller, or the kernel sources smaller. That won't
-> happen for a long time, since I suspect that we'll be carrying the
-> initramfs user space with us for quite a while (eventually it will
-> probably split up into a project of its own, but certainly for the
-> forseeable future it would be very closely tied to the kernel).
+Linus Torvalds wrote:
 > 
 > The real advantage to me is two-fold:
-[snip]
+> 
+>  - make it easier for people to customize their initial system without 
+>    having to muck with kernel code or even use a different boot sequence.  
+>    One example of this is the difference between vendor install kernels 
+>    (using initrd) and a normal install kernel (which doesn't).
+> 
+>    So I'd much rather see us _always_ using initrd, and the difference 
+>    between an install kernel and a regular kernel is really just the size 
+>    of the initrd thing.
+> 
+>  - Many things are much more easily done in user space, because user space 
+>    has protections, "infinite stack", and in general a lot better 
+>    infrastructure (ie easier to debug etc). At the same time, many things 
+>    need to be done _before_ the kernel is fully ready to hand over control 
+>    to a normal user space: do ACPI parsing so that we can initialize the
+>    devices so that we can use the "real" user space that is installed on
+>    disk etc.
+> 
+>    Sometimes there is overlap between these two things (ie the "easier to 
+>    do in user space" and "needs to be done before normal user space can be
+>    loaded"). ACPI is one potential example. Mounting the root filesystem 
+>    over NFS after having done DHCP or other auto-discovery is another.  
+> 
 
-Let me add the third one: userland is more limited.  And no, that's not
-a typo - and it's a good thing.  Userland has to use normal, regular
-syscalls instead of poking its fingers into hell knows what parts of
-kernel data structures.
+I agree 100% with this.  I don't think <kernel>+<early userspace> will 
+ever be smaller than the current kernel, but I have invested quite a bit 
+of effort into it for exactly the reasons done above.
 
-Which means that it's more robust and that it doesn't stand in the way
-of work on kernel.  90% of PITA with super.c used to be of that kind -
-mounting root filesystem had been done with very ugly kludges and what's
-more, these kludges got filtered down in the normal codepath.  Getting
-rid of that took a _lot_ of very careful manipulations with the guts
-of the thing.  And guess what?  There was no reason why all that black
-magic would be necessary - current code uses normal, garden-variety
-system calls.
+klibc binaries might not be what one usually tends to run, but during 
+klibc development I could still use standard gdb, strace, and just plain 
+"run it off the command line" debugging techniques from a full-blown 
+environment.  When that doesn't work (like testing dynamic klibc), 
+chroot will usually do the trick.  The compile-test-debug cycle is so 
+much faster than for a kernel boot that it's just plain amazing.
 
-In effect, we used to have special cases of mount(2), etc., with very
-kludgy semantics.  They were not exposed to userland, but that didn't
-make them less nasty or less painful to work with.  They still cluttered
-the code, they still stood in the way of work on the thing and they still
-were butt-ugly.
+	-hpa
 
-And that's what moving code to userland should prevent - it's much easier
-to catch somebody bringing a patch with magical extension of system call
-than to catch an attempt to sneak special-case code used only by kernel.
-
-BTW, that's a thing we need to watch for - there obviously will be a lot
-of patches moving stuff to userland and there will be a strong temptation
-to add magic interfaces just for that.  _That_ should be prevented - it's
-better to leave ugly crap as is than export the same crap to userland.
-The point is to get the things cleaned up and make sure that they stay
-clean, not to cement them in place by adding a magic ioctl/syscall/flag/whatnot.
-We may very well end up extending existing interfaces, but we'd damn better
-make sure that such additions make sense for generic use.
-
-We have a lot of ugly crap that would be unnecessary if we had early
-access to writable fs.  Basically, we got magic methods, magic codepaths,
-etc. simply because the normal access to the functionality in question
-required opened file descriptors.  Now we _do_ have a writable filesystem
-mounted very early, so that cruft can be killed off.  And moving code
-to userland acts as a filter - there we don't have access to magic, so
-all such magic immediately shows up.  It could be done in the kernel
-(and quite a few things had been done already), but move to userland
-acts as a safeguard against reintroduction of magic crap.
 

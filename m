@@ -1,76 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVBIDkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVBIDuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVBIDkm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 22:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVBIDkl
+	id S261772AbVBIDuL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 22:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVBIDuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 22:40:41 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:35201 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261770AbVBIDkd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 22:40:33 -0500
-Date: Tue, 8 Feb 2005 19:40:30 -0800
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050209034030.GC4828@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-	Theodore Ts'o <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050208155845.GB14505@bitmover.com> <Pine.LNX.4.61.0502081812090.6118@scrub.home> <20050208181634.GA20261@bitmover.com> <Pine.LNX.4.61.0502081942200.6118@scrub.home> <20050209000733.GA6308@thunk.org> <Pine.LNX.4.61.0502090208580.6118@scrub.home> <9e47339105020818242fd9f6fa@mail.gmail.com> <Pine.LNX.4.61.0502090328490.30794@scrub.home> <20050209023928.GB4828@bitmover.com> <Pine.LNX.4.61.0502090346470.30794@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502090346470.30794@scrub.home>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+	Tue, 8 Feb 2005 22:50:11 -0500
+Received: from 207-105-1-25.zarak.com ([207.105.1.25]:17725 "HELO
+	iceberg.Adtech-Inc.COM") by vger.kernel.org with SMTP
+	id S261772AbVBIDuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 22:50:02 -0500
+Message-ID: <42098812.9010409@spirentcom.com>
+Date: Tue, 08 Feb 2005 19:48:34 -0800
+From: "Mark F. Haigh" <Mark.Haigh@spirentcom.com>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: chrisw@osdl.org
+CC: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/fork.c: VM accounting bugfix (2.6.11-rc3-bk5)
+Content-Type: multipart/mixed;
+ boundary="------------010608090003060303070201"
+X-OriginalArrivalTime: 09 Feb 2005 03:50:00.0294 (UTC) FILETIME=[6DDC8060:01C50E5A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 03:47:49AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 8 Feb 2005, Larry McVoy wrote:
-> 
-> > Nice, Roman.  All I need is a cooperating third party who is willing to
-> > give me your code under a different (albeit invalid) license.
-> 
-> Short version: Bullshit.
-> Long version: See previous mails.
+This is a multi-part message in MIME format.
+--------------010608090003060303070201
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Let's try that again:
 
-Short version: let's violate a license.
-Long version: let's violate a license and see if we get in trouble.
+Unless I'm missing something, in kernel/fork.c, dup_mmap():
 
-Roman, we can do this forever.  Every time you cause a fuss more people
-become aware of how unreasonable you are being.  That's fine with me,
-come on back and flame some more.  
+			if (security_vm_enough_memory(len))
+				goto fail_nomem;
+/* ... */
+fail_nomem:
+	retval = -ENOMEM;
+	vm_unacct_memory(charge);
+/* ... */
 
-Our position is clear: we are trying to do the right thing for Linux,
-we've developed a business model which works, we're committed to helping
-Linux.  Yup, you're right, we aren't helping *you* in a way you like.
-On the other hand, we are helping you, we've been doing it for years,
-and we've been doing it in spite of you being a complete jerk about it.
-And we'll keep doing it no matter how much of a jerk you want to
-be because, surprise!, it isn't really about you.  It's about Linux.
-And in so far as Linux is concerned, you are even less relevant than we
-are and we aren't that big of a deal.  So Linux wins, you get to complain,
-life goes on.
+If security_vm_enough_memory() fails there, then we vm_unacct_memory() 
+that we never accounted (if security_vm_enough_memory() fails, no memory 
+is accounted).
 
-You know, you could change all this.  Instead of complaining that we
-are somehow hurting you, which virtually 100% of the readers know is
-nonsense, you could be producing an alternative answer which is better.
-Instead of doing that you keep whining that we aren't helping you do that
-and that isn't fair.  Hey, come on, get a grip.  I'm not out hear whining
-that the GPL isn't fair to my agenda even though it frequently isn't.
-I work around it if it is important.  If not using BK is important to you
-then don't use it.  If having a free software SCM system is important to
-you then create one.  But whining that we aren't helping you is beyond
-pathetic and I am 100% positive I'm not alone in that opinion.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+If it is in fact a bug, a simple but largely untested patch (against 
+2.6.11-rc3-bk5) is included.
+
+
+Mark F. Haigh
+Mark.Haigh@spirentcom.com
+
+
+--------------010608090003060303070201
+Content-Type: text/plain;
+ name="fork-patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fork-patch"
+
+--- linux-2.6.11-rc3-bk5/kernel/fork.c.orig	2005-02-08 19:12:26.254589504 -0800
++++ linux-2.6.11-rc3-bk5/kernel/fork.c	2005-02-08 19:16:30.756419576 -0800
+@@ -193,8 +193,10 @@
+ 		charge = 0;
+ 		if (mpnt->vm_flags & VM_ACCOUNT) {
+ 			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
+-			if (security_vm_enough_memory(len))
+-				goto fail_nomem;
++			if (security_vm_enough_memory(len)) {
++				retval = -ENOMEM;
++				goto out;
++			}
+ 			charge = len;
+ 		}
+ 		tmp = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+
+--------------010608090003060303070201--

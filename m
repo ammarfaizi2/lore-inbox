@@ -1,98 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288778AbSAIEI1>; Tue, 8 Jan 2002 23:08:27 -0500
+	id <S288780AbSAIEXk>; Tue, 8 Jan 2002 23:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288773AbSAIEIR>; Tue, 8 Jan 2002 23:08:17 -0500
-Received: from panther.fit.edu ([163.118.5.1]:18083 "EHLO fit.edu")
-	by vger.kernel.org with ESMTP id <S288778AbSAIEIA>;
-	Tue, 8 Jan 2002 23:08:00 -0500
-Message-ID: <3C3BC38C.7010808@fit.edu>
-Date: Tue, 08 Jan 2002 23:14:04 -0500
-From: Kervin Pierre <kpierre@fit.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020104
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: fs corruption recovery?
-In-Reply-To: <3C3BB082.8020204@fit.edu>	<20020108200705.S769@lynx.adilger.int> <200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288781AbSAIEXa>; Tue, 8 Jan 2002 23:23:30 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:51470 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id <S288780AbSAIEXR>;
+	Tue, 8 Jan 2002 23:23:17 -0500
+Date: Wed, 9 Jan 2002 05:23:31 +0100
+From: Felix von Leitner <felix-dietlibc@fefe.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements
+Message-ID: <20020109042331.GB31644@codeblau.de>
+Mail-Followup-To: felix-dietlibc@fefe.de, linux-kernel@vger.rutgers.edu
+In-Reply-To: <20020108192450.GA14734@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020108192450.GA14734@kroah.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Thus spake Greg KH (greg@kroah.com):
+> First off, I do not want to fork off yet another tiny libc
+> implementation,
 
-Thanks for the input.  
+It's good to hear that.
 
-Do you still have any of those scripts around? Or can you give me a 
-general idea of how you used debugfs to retrieve your files?
+> Now that people are riled up, and want to talk about it, let's try to
+> describe the problem and see if any of the existing libc implementations
+> help solve them.  Here's what I see as a list of requirements for a
+> klibc like library that can be used by initramfs programs (please,
+> everyone else jump in here with their requirements too):
 
-I was actually expecting to spend a few hundred instead of a few thousand.
+My understanding of what "initramfs programs" actually means is vague at
+best.  Are these just programs that are intended to work in an initial
+ram disk?  Or is it a special collection that is included in the kernel
+distribution?
 
-Thanks,
--Kervin
+I don't see why we would need to include those programs with the kernel.
+The kernel tries hard to provide backwards compatibility to old versions
+of syscalls that have changed over the years.  That's why we _have_ a
+standard.  Also, we don't ship glibc with the kernel sources, and we
+didn't when our libc was Linux specific.
 
-Richard Gooch wrote:
+If we follow that argumentation and are talking here about programs that
+aren't included in the kernel, why demand a specific libc for them at
+all?  Of course glibc is out of the question, but both the kernel API
+_and_ the libc API are standardized.  It does not make sense to write
+code that demands a specific libc if it can be avoided.  If you need
+any special syscall supported that is not yet part of the diet libc or
+uClibc, Eric and I will probably be glad to add support for it.
 
->Andreas Dilger writes:
->
->>On Jan 08, 2002  21:52 -0500, Kervin Pierre wrote:
->>
->>>I install and used 2.4.17 for about a week before my filesystem 
->>>corrupted.  I've tried 'fsck -a' but it complains that there was no 
->>>valid superblock found.
->>>
->>Try "e2fsck -B 4096 -b 32768 <device>" instead.
->>
->>>Are there any tools or techniques that will recover data from the 
->>>corrupted filesystem even if there isn't a valid superblock?  Or is 
->>>there a way to write a temporary superblock so I can access the 
->>>information on the disk?
->>>
->>The ext2 format (includes ext3) has backup superblocks for just this reason.
->>
->>>Lastly, if all else fails I'm going to try sending the drive one of 
->>>those 'file recovery companies'.  Does anyone have a recommendation for 
->>>a particular company?  I'm guessing that there'll be a few that wouldn't 
->>>know what to do with a ext3 partition.
->>>
->>Is the data really that valuable, and you don't have a backup?  It may
->>cost you several thousand dollars to do a recovery from such a company.
->>Yet, it isn't worth doing backups, it appears.
->>
->
->And these companies don't really do much that you can't do yourself. I
->had a failing drive some years ago, where some sectors couldn't be
->read. So I tried to dd the raw device to a file elsewhere. Of course,
->dd will quit when it has an I/O error. So I wrote a recovery utility
->that writes a zero sector if reading the input sector gives an I/O
->error. Unfortunately, I couldn't mount the file (too much corruption),
->but I was able to use debugfs on it. I got the most important data
->back.
->
->While I was waiting for 48 hours for the data to be pulled off (each
->time a bad sector was encountered, the drive would retry several
->times, with lots of clicking and rattling), I contacted one of these
->recovery companies. I wanted to know if they could recover the bad
->sectors. I was told no. After some probing, it turns out that all they
->do is basically what I was doing. They just charge $2000 for it.
->
->No doubt if you took your drive to your local CIA/KGB/MI6 offices,
->they could recover some of those bad sectors. But I hear they charge
->their customers quite a lot...
->
->				Regards,
->
->					Richard....
->Permanent: rgooch@atnf.csiro.au
->Current:   rgooch@ras.ucalgary.ca
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+> 	- portable, runs on all platforms that the kernel currently
+> 	  works on, but doesn't have to run on any non-Linux based OS.
+> 	- tiny.  If we link statically it should be _small_.  Both
+> 	  dietLibc and uClibc are good examples of the size goal.  We do
+> 	  not need to support all of POSIX here, only what we really
+> 	  need.
 
+When you link statically, it does not matter whether the libc also
+supports the rest of POSIX.  The size of libc.a does not matter.  It
+only matters which parts are referenced.  Since we are talking about new
+software specifically written for Linux and with the goal to be small,
+there are no legacy requirements to cater to.  We can write code without
+printf and stdio, for example.  Also, we probably don't need regular
+expressions or DNS.  Those are the big space hogs when linking
+statically against a libc.  In the diet libc, all of the above are very
+small, but avoiding them in the first place is better then optimizing
+them for small size.
 
+And if we don't use all that bloaty code, it does not matter if we use
+diet libc, uClibc or tomorrow's next great small libc.
 
+> 	- If we end up having a lot of different programs in initramfs,
+> 	  a dynamic version of the library should be available.  This
+> 	  shared library should be _small_ and only contain the symbols
+> 	  that are needed by the programs to run.  This should be able
+> 	  to be determined at build time.
+
+This may look like a good idea, but dynamic linking should be avoided.
+Trust me on this.  While it is possible to squeeze the dynamic loader
+down to below 10k, 10k really is a lot of code.  And empty program with
+the diet libc is way below 1k on x86.  So to reap the benefit of dynamic
+linking, you would need a lot of programs.  Also please note that -fPIC
+makes code larger.  And we need to keep symbols around, which makes up a
+substantial part of the shared diet libc.
+
+How many programs are we talking about here?  And what should they do?
+
+You can make a libc.so that only contains the superset of the symbols
+used by your initramdisk programs.  But then you have to remake the
+libc.so if you add another program, so that's not very flexible.
+
+What I want to say here is: don't make rash decisions.  Profile, don't
+speculate.  Also, don't underestimate the amount of time dynamic linking
+takes.  It may seem insignificant on today's monster CPUs, but it isn't.
+I optimized my boot sequence to below 3 seconds from the start of init
+to the shell prompt on tty1 (the other ttys are spawned immediately).
+All the dynamic linking and shell script overhead adds up quickly.
+
+Please read http://www.fefe.de/dietlibc/talk.pdf for some more info
+(slightly less than 100k).
+
+> 	- It has to "not suck" :)  This is a lovely relative feeling
+> 	  about the quality of the code base, ease at building the
+> 	  library, ease at understanding the code, and responsiveness of
+> 	  the developers of the library.
+
+While I am of course sure to be the libc developer that sucks least ;),
+I again would advise not to rush to any hasty decisions.  Don't bind
+yourself to a libc unless you have to or there are any benefits to be
+gained.  I fail to see the benefits.  Currently, the diet libc produces
+the smallest binaries by a healthy margin, but binding yourself to the
+diet libc does not gain you anything over using APIs that are portable
+across all libcs.  In fact, I avoided offering any diet libc specific
+APIs at all (with the exception of write12.h).
+
+> I had asked the dietLibc authors about the ability of tweaking their
+> library into something that resembles the above, but didn't get a
+> response.
+
+Huh?
+What email are you talking about here?
+
+Your initial email asked whether you could use parts of the diet libc
+for diethotplug and for tweaking, and I said OK.
+
+> Hence my post.  I would love to work with the authors of an
+> existing libc to build such a library, as I have other things I would
+> rather work on than a libc :)
+
+Before doing any real work, we need to get the specification straight.
+What exactly do we need?  The initrd stuff is too vague for my taste.
+How many programs do we want to have?  What should those programs do?
+
+> Comments from the various libc authors?  Comments from other kernel
+> developers about requirements and goals they would like to see from such
+> a libc?
+
+I think you need to ask initrd users.
+My understanding was that people want to use the IP autoconfiguration
+stuff from the kernel to initrd.  Is that still so?  What other programs
+are needed?
+
+Felix

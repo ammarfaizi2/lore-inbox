@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbTB0Pvt>; Thu, 27 Feb 2003 10:51:49 -0500
+	id <S265396AbTB0PwI>; Thu, 27 Feb 2003 10:52:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbTB0Pvt>; Thu, 27 Feb 2003 10:51:49 -0500
-Received: from inmail.compaq.com ([161.114.1.205]:22029 "EHLO
-	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S265373AbTB0Pvr>; Thu, 27 Feb 2003 10:51:47 -0500
-Date: Thu, 27 Feb 2003 10:04:31 +0600
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: charles.white@hp.com, amy.vanzant-hodge@hp.com
-Subject: [PATCH] 2.5.21-pre5, MAINTAINTERS, cciss/cpqarray/cpqfc
-Message-ID: <20030227040431.GA2813@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
+	id <S265414AbTB0PwI>; Thu, 27 Feb 2003 10:52:08 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50743 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265396AbTB0PwG>; Thu, 27 Feb 2003 10:52:06 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: fastboot@osdl.org,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andy Pfiffer <andyp@osdl.org>
+Subject: Re: [KEXEC][2.5.63] Partially tested patches available
+References: <1046220814.27557.7.camel@andyp.pdx.osdl.net>
+	<m11y1ulz79.fsf@frodo.biederman.org> <7350000.1046361606@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Feb 2003 09:01:56 -0700
+In-Reply-To: <7350000.1046361606@[10.10.2.4]>
+Message-ID: <m1wujllnkb.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Charles White and Amy Vanzant-Hodge have moved on
-to do other things. 
+> >> There were additional syscall hijinks in the merge to 2.5.63, so anyone
+> >> that uses this patch set will need to recompile their kexec tools.
+> > 
+> > Along with all of the usual craziness of life my brother has been
+> > staying with me the last month or so, and my amount of free
+> > time to actual work on kexec has been less then I like.
+> > 
+> > We need to get up some steam and see what it will take for Linus
+> > to notice and actually get this patch included.
+> 
+> Could you confirm that the patches are released under the GPL, and have no
+> patent encumberances that you know of? That will enable me to integrate
+> them and get more people to work on it ...
 
--- steve
+I though I had.  But yes all of the code is released under GPL version 2
+as specified by the kernel copying file.
 
---- lx2421p5/MAINTAINERS~maint	2003-02-27 09:57:04.000000000 +0600
-+++ lx2421p5-scameron/MAINTAINERS	2003-02-27 09:59:38.000000000 +0600
-@@ -335,25 +335,25 @@ L:	codalist@coda.cs.cmu.edu
- W:	http://www.coda.cs.cmu.edu/
- S:	Maintained
- 
--COMPAQ FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
--P:      Amy Vanzant-Hodge 
--M:      Amy Vanzant-Hodge (fibrechannel@compaq.com)
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux
--S:      Supported
-+HP (was COMPAQ) FIBRE CHANNEL 64-bit/66MHz PCI non-intelligent HBA
-+P:      Stephen Cameron
-+M:      arrays@hp.com 
-+M:      steve.cameron@hp.com
-+L:	cpqfc-discuss@lists.sourceforge.net
-+S:      Odd Fixes
-+
-+HP (was COMPAQ) SMART2 RAID DRIVER
-+P:	Stephen Cameron
-+M:	arrays@hp.com
-+M:	steve.cameron@hp.com
-+L:	cpqarray-discuss@lists.sourceforge.net
-+S:	Odd Fixes
- 
--COMPAQ SMART2 RAID DRIVER
--P:	Charles White	
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux
--S:	Supported	
--
--COMPAQ SMART CISS RAID DRIVER 
--P:	Charles White
--M:	Charles White <arrays@compaq.com>
--L:	compaqandlinux@cpqlin.van-dijk.net
--W:	ftp.compaq.com/pub/products/drivers/linux	
-+HP (was COMPAQ) SMART CISS RAID DRIVER 
-+P:	Stephen Cameron
-+M:	arrays@hp.com
-+M:	steve.cameron@hp.com
-+L:	cciss-discuss@lists.sourceforge.net
- S:	Supported 
- 
- COMPUTONE INTELLIPORT MULTIPORT CARD
-
-_
+Eric

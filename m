@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbRAPTz5>; Tue, 16 Jan 2001 14:55:57 -0500
+	id <S129729AbRAPT5r>; Tue, 16 Jan 2001 14:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAPTzr>; Tue, 16 Jan 2001 14:55:47 -0500
-Received: from h56s242a129n47.user.nortelnetworks.com ([47.129.242.56]:45197
-	"EHLO zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S129631AbRAPTz2>; Tue, 16 Jan 2001 14:55:28 -0500
-Message-ID: <28560036253BD41191A10000F8BCBD116BDCAA@zcard00g.ca.nortel.com>
-From: "Jonathan Earle" <jearle@nortelnetworks.com>
-To: "'beowulf@beowulf.org'" <beowulf@beowulf.org>
-Subject: Ethernet Bonding Performance under kernel 2.4.0
-Date: Tue, 16 Jan 2001 14:48:31 -0500
-X-Mailer: Internet Mail Service (5.5.2652.35)
-X-Orig: <jearle@americasm01.nt.com>
+	id <S129704AbRAPT5h>; Tue, 16 Jan 2001 14:57:37 -0500
+Received: from musse.tninet.se ([195.100.94.12]:57084 "HELO musse.tninet.se")
+	by vger.kernel.org with SMTP id <S130870AbRAPT5R>;
+	Tue, 16 Jan 2001 14:57:17 -0500
+Date: Tue, 16 Jan 2001 20:55:58 +0100
+From: André Dahlqvist <anedah-9@sm.luth.se>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Does reiserfs really meet the "Linux-2.4.x patch submission policy"?
+Message-ID: <20010116205558.A1171@sm.luth.se>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <937neu$p95$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <937neu$p95$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Jan 06, 2001 at 10:17:02AM -0800
+X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi Linus
 
-I've a system comprosed of two PIII machines, equipped with Znyx 346Q 4port
-ethernet cards (tulip driver) which I'd like to connect together in a bonded
-configuration.  For various reasons, we require 2.4.0 kernels on our
-machines - currently we are using 2.4.0-test9.  
+I was very surprised when I checked my local kernel.org mirror this
+morning, and noticed that the latest 2.4.1 pre-patch had grown to
+~180 kb in size. I was even more surprised when I realized that the
+inclusion of reiserfs was the reason for this. While I am certainly
+happy for the reiserfs guys, I can't help but wondering if this really
+had to happen for 2.4.1.
 
-The setup is simple:  each port on a 346Q in one machine is connected to the
-corresponding port on the 346Q in the other machine via a crossover cable.
+In my understanding of your "2.4.x patch sumission guidelines" these
+large patches was exactly what you wanted to avoid at this point in
+time. For example, isn't reiserfs to be considered a "more involved
+patch" the way you described it in this e-mail:
 
-	+-------+      +-------+
-	|       |------|       |
- -----| Box A |------| Box B |-----
-	|       |------|       |
-      |       |------|       |
-	+-------+      +-------+
+On Sat, Jan 06, 2001 at 10:17:02AM -0800, Linus Torvalds wrote:
 
-Problem #1
-----------
-Initally, after bootup, the performance of each of the four networks between
-the two PCs is subpar.  Transfer rates will vary from a few hundred KB/s to
-perhaps a few MB/s, and the transfer time is appreciably long.  This, on a
-forced 100TX-FD link.  After a few minutes however, things appear to settle
-down, and I can achieve 11.2MB/s when transferring a large binary file via
-ftp (rate as reported by ncftp).  The de4x5 driver shows the same behaviour.
+> In short, releasing 2.4.0 does not open up the floor to just about
+> anything.  In fact, to some degree it will probably make patches _less_
+> likely to be accepted than before, at least for a while.  I want to be
+> absolutely convicned that the basic 2.4.x infrastructure is solid as a
+> rock before starting to accept more involved patches. 
 
-Problem #2
-----------
-I built the bonding driver, and using a copy of ifenslave.c which I found
-for kernel 2.3.50, I was able to make a bonded channel.  The trouble I found
-is that the performance was not at all what I expected.  Using the first eth
-port, I achieved a throughput (FTP transfer of a large binary file) of 10.4
-MB/s (11.2MB/s if set to full duplex).  Using 2 ports, the performance
-dropped to about 3.5MB/s.  Adding a third port brings the throughput to
-about 5.2MB/s and adding the fourth port only takes it up to 5.75MB/s.
+Don't get me wrong, I am personally really excited that reiserfs was
+included. I just thought that you basically wanted 2.4.1 to be "boring".
 
-The de4x5 driver shows the same drop in performance as the tulip driver.
+I guess it's the "pushover and wimp" showing his face again:-)
+-- 
 
-Using the TEQL (trivial link equalizer) (instructions from the Adv-routing
-howto) provides the same measurements exactly.
-
-Thoughts?
-
-Cheers!
-Jon
+André Dahlqvist <anedah-9@sm.luth.se>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131347AbRCWTVn>; Fri, 23 Mar 2001 14:21:43 -0500
+	id <S131365AbRCWTaL>; Fri, 23 Mar 2001 14:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131353AbRCWTVd>; Fri, 23 Mar 2001 14:21:33 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:4577 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S131345AbRCWTUq>;
-	Fri, 23 Mar 2001 14:20:46 -0500
-Message-Id: <l0313030db6e14fc39405@[192.168.239.101]>
-In-Reply-To: <3ABB992F.D898885C@evision-ventures.com>
-In-Reply-To: <Pine.LNX.4.30.0103231053020.27155-100000@xirr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 23 Mar 2001 19:19:25 +0000
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: linux-kernel@vger.kernel.org
+	id <S131368AbRCWTaC>; Fri, 23 Mar 2001 14:30:02 -0500
+Received: from relay03.cablecom.net ([62.2.33.103]:44806 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S131365AbRCWT3x>; Fri, 23 Mar 2001 14:29:53 -0500
+Message-ID: <3ABBA400.2AEC97E8@bluewin.ch>
+Date: Fri, 23 Mar 2001 20:29:03 +0100
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: David Balazic <david.balazic@uni-mb.si>, linux-kernel@vger.kernel.org
+Subject: Re: Linux should better cope with power failure
+In-Reply-To: <3ABB6B82.62293CAD@uni-mb.si>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Rik, is there any way we could get a /proc entry for this, so that one
->> could do something like:
->
->I will respond; NO there is no way for security reasons this is not a
->good idea.
+> I had a similar experience:
+> X crashed , hosing the console , so I could not initiate
+> a proper shutdown.
+> 
+> Here I must note that the response you got on linux-kernel is
+> shameful.
+> 
+Thanks, but I expected it a little bit. All around Linux is centered
+around getting the highest performance out of it and very low (to low
+IMHO) is done to have a save system. The attitude "It doesn't matter
+making mistakes, they get fix anyhow" annoys me most, especially if it
+were easy to prevent them. 
 
-Just out of interest, what information does the OOM score expose that isn't
-already available to Joe Random Unprivileged User?  Looking at my 2.4.1
-source, nothing.  The badness() function uses the following:
+> What I did was to write a kernel/apmd patch , that performed a
+> proper shutdown when I press the power button ( which luckily
+> works as long as the kernel works ).
+> 
+Not with a AT power supply but certainly nice to have. See that it gets
+included into the kernel. I didn't lost anything important since it was
+just a testing machine. I was just shocked what fsck complained on a
+machine which hadn't done almost anything at all. If I'd run into this
+on a productive system I'd get immediately a serial keyboard or have at
+least a usable network connection. Besides USB-only is not ready yet.
 
-- memory size
-- run time
-- cpu time
-- nice value
-- if it's a root process
-- (rare) if process has direct hardware access
+> > Don't we tell children never go close to any abyss or doesn't have
+> > alpinist a saying "never go to the limits"? So why is this simple rule
+> > always broken with computers?
+> >
+Is there a similar expression which could be hammered into any
+developers mind, i.e. "Don't make errors, others already do them for you".
 
-Apart from the last item, which is rarely encountered, all the above info
-is available using 'top' or 'ps' or via the /proc filesystem already, by
-any unprivileged user (unless you've make /proc su-access only, in which
-case your point is moot anyway).
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+O. Wyss

@@ -1,102 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbTLVCts (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 21:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLVCts
+	id S264289AbTLVCzX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 21:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLVCzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 21:49:48 -0500
-Received: from eastgate.starhub.net.sg ([203.116.1.189]:14598 "EHLO
-	eastgate.starhub.net.sg") by vger.kernel.org with ESMTP
-	id S264286AbTLVCtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 21:49:45 -0500
-Date: Mon, 22 Dec 2003 10:52:17 +0800
-From: Richard Chan <rspchan@starhub.net.sg>
-Subject: [KBUILD] External modules,
- SUBDIRS=<absolute path> => really odd include directories
-To: linux-kernel@vger.kernel.org
-Cc: sam@ravnborg.org
-Message-id: <3FE65C61.5010507@starhub.net.sg>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+	Sun, 21 Dec 2003 21:55:23 -0500
+Received: from opersys.com ([64.40.108.71]:45580 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S264289AbTLVCzN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 21:55:13 -0500
+Message-ID: <3FE65DB9.9080605@opersys.com>
+Date: Sun, 21 Dec 2003 21:58:01 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: yodaiken@fsmlabs.com, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Updating real-time and nanokernel maintainersy
+References: <3FE234E4.8020500@opersys.com> <Pine.LNX.4.58.0312181821270.19491@montezuma.fsmlabs.com> <3FE23966.7060001@opersys.com> <Pine.LNX.4.58.0312181836360.19491@montezuma.fsmlabs.com> <3FE23CD1.4080802@opersys.com> <3FE23E3F.2000801@cyberone.com.au> <3FE2424B.70901@opersys.com> <20031219094122.GA23469@wohnheim.fh-wedel.de> <20031221082736.GA11795@hq.fsmlabs.com> <3FE5F2E6.8030002@opersys.com> <Pine.LNX.4.58.0312211145490.13039@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312211145490.13039@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When building external modules with SUBDIRS on the command line set to 
-an absolute path, there
-are really odd includes in the gcc command line.
+Linus Torvalds wrote:
+>>If there is, then it should definitely be taken out. First, as Linus
+>>has stated recently (and as has been the policy for a while), the
+>>kernel should avoid having any patented code
+> 
+> That's not true.
+> 
+> The kernel should have no patented code THAT DOESN'T HAVE A LICENSE.
 
-Example:
+You're right, I didn't use the _exact_ same wording, but you seem to be
+seeing an intent to deceive where there was none.
 
-I am building alsa-cvs against a current kernel tree.  I have built the 
-kernel+modules once using
+> The email you quote expressly says "unless you can get the patent holder 
+> to grant a license". And the RTLinux patents were licensed to GPL'd 
+> projects. See the RTLinux "open patent license".
 
-make -C /usr/src/linux-2.6.0-1.R  O=/usr/obj/2.6.0-1.R  EXTRAVERSION=-1.R
+As in May 2002, you're still reading the license but ignoring the FUD
+spread by the patent holder.
 
-Now I want to build the latest alsa-kernel modules from CVS:
+But all that RTLinux patent business is really beside the point (and has
+been for quite some time.) The point is that the RTLinux patent is a
+non-issue at this stage because I basically applied the other thing you
+were suggesting in that above-mentioned email: "find an unencumbered
+algorithm." The Adeos nanokernel is such an algorithm and, if I read you
+correctly, should therefore be preferable to one which is patented and
+somehow licensed for use by GPL software.
 
-EXTMODDIR=/usr/src/alsa/alsa-kernel-20031220
-make -C /usr/src/linux-2.6.0-1.R O=/usr/obj/2.6.0-1.R 
-SUBDIRS=$EXTMODDIR  V=1 modules
+> I don't understand why people continually complain about the RTLinux
+> patents. I bet it's because Victor has all the easy charm of Larry McVoy,
+> but I don't see why people still continue to spread obvious
+> mis-information about the situation.
 
-Here is an excerpt
+Well, I have to dare ask: Do you really understand the situation?
 
-gcc -Wp,-MD,/usr/src/alsa/alsa-kernel-20031220/core/.hwdep.o.d -nostdinc 
--iwithprefix include -D__KERNEL__
-   -Iinclude -Iinclude2 -I/usr/src/linux-2.6.0-1.R/include 
--I/usr/src/alsa/alsa-kernel-20031220/core
-   -I/usr/src/linux-2.6.0-1.R//usr/src/alsa/alsa-kernel-20031220/core  
--D__KERNEL__
-  -I/usr/src/linux-2.6.0-1.R/include  -I/usr/src/linux-2.6.0-1.R/include2
-  -I/usr/src/linux-2.6.0-1.R//usr/src/linux-2.6.0-1.R/include  -Wall  
--Wstrict-prototypes
- -Wno-trigraphs  -O2  -fno-strict-aliasing  -fno-common  -pipe  
--mpreferred-stack-boundary=2  -march=athlon
- -I/usr/src/linux-2.6.0-1.R/include/asm-i386/mach-default  
--fomit-frame-pointer
- -Wdeclaration-after-statement -DMODULE -DKBUILD_BASENAME=hwdep
- -DKBUILD_MODNAME=snd_hwdep -c
-  -o /usr/src/alsa/alsa-kernel-20031220/core/hwdep.o 
-/usr/src/alsa/alsa-kernel-20031220/core/hwdep.c
+Fact is, I don't personally care about the RTLinux patent anymore, and
+neither do any of the folks who had taken part in the May 2002 debate
+on the topic. Why? Because we've implemented a nanokernel that can
+provide deterministic response times based entirely on scientific
+publications that pre-date the preliminary patent filling by more than
+one year, and which is therefore not subject to the patent.
 
-Note two weird paths where an absolute path is concatenated with $(srctree)
+I've personally written a book on the topic of building embedded Linux
+systems, and have been in constant contact with people building such
+systems for quite a few years. I may not know everything, but my knowledge,
+limited as it may be, tells me that Linux has a serious problem in regards to
+its use in real-time applications because of continued FUD coming from
+statements such as those made by Victor in the interview I'm referring to
+in my earlier email.
 
-   -I/usr/src/linux-2.6.0-1.R//usr/src/alsa/alsa-kernel-20031220/core
-  -I/usr/src/linux-2.6.0-1.R//usr/src/linux-2.6.0-1.R/include
+Technically, though, (and this is really the most important point I have
+to make in this email):
+THE RTLINUX PATENT IS __NOT__ AN ISSUE ANYMORE BECAUSE OF THE ADEOS NANOKERNEL.
 
-The first one looks like $(srctree)/<current build directory>, the 
-second one looks like
-$(srctree)/$(srctree)/include which is  odd.
+So my question to you is this: Do you prefer continue supporting those who
+are holding a patent against Linux or those who have found a way to obtain
+the same results using a method which is unencumbered by patents?
 
-Is it a feature of the system that SUBDIRS is best specified as a 
-relative path to $(srctree)?
-How to account for the fact that $(srctree)/include is concatenated to 
-$(srctree)?
+My patch for replacing the RTLinux entry wasn't a complaint about the
+RTLinux patent, it's just a reflection of the de-facto situation regarding
+Linux's use in real-time applications.
 
-2nd question: How do you get an include directory to precede 
-$(obj)/{include, include2}, $(srctree)/include?
-You see in this case I need to use the sound/*.h files from Alsa CVS so 
-I need my directory to win in the
-include path race. Currently, I copy the include files to 
-$(obj)/include/sound. Is there a more elegant way
-to specify an include directory that will precede both $(obj)/include 
-and $(srctree)/include?
+> It's doubly discgusting with some of the people who were trying to spread 
+> all the FUD and mis-information were doing so because they were themselves 
+> doing a non-GPL microkernel, and they complained about how the patents 
+> were somehow against the GPL and wanted to get community support by trying 
+> to make out the situation to be somehow different from what it was.
 
-Cheers
-Richard
+Non-GPL microkernel? Sorry, I don't know anything about that.
 
+What I, and everyone involved in this, did ask for (and you can read the
+original in my initial response to you in the May 2002 thread here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102228176631331&w=2) is for
+non-GPL _applications_. And I continue to maintain that the FUD spread by
+statements such as those made by Victor in his latest interview about the
+fact that hard-real-time applications are somehow encumbered by a patent is
+hurting Linux.
 
+As for the alleged FUD you seem to think the likes of me are spreading, then
+care to read Victor's latest interview? Here's Victor quoting "a guy from
+one of the huge telecommunications equipment companies": "We are very aware
+of the RTLinux technology, but your patent makes things awkward for us."
 
+Does this or does this not hurt Linux?
 
+> I'm not a supporter of software patents, but while I dislike them, I don't 
+> dislike them _nearly_ as much as I dislike dishonest people.
 
+It's not unheard of for people in a position of influence to blunder. I
+think you are mistaken here, and will not entertain a tit-for-tat response
+to your ad-hominem attacks. You seem to be unaware of the issues and/or
+refuse to seek further understanding. That is your choice, and if nothing
+else, you are consistent in not wanting to revisit your stance on RTLinux.
+The bottom line is that it's your own OS that is suffering. I'm certainly
+in no position to impose it upon you to help your own self, and I certainly
+can't help you if you don't want to be helped, but I will continue my
+efforts to further Linux's use in the real-time field because I believe
+this is a worthy goal.
 
+Best regards,
 
-
-
-
-
-
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 514-812-4145
 

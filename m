@@ -1,86 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261964AbSJDPHP>; Fri, 4 Oct 2002 11:07:15 -0400
+	id <S261821AbSJDOce>; Fri, 4 Oct 2002 10:32:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261967AbSJDPGg>; Fri, 4 Oct 2002 11:06:36 -0400
-Received: from aneto.able.es ([212.97.163.22]:42930 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id <S261964AbSJDPFh>;
-	Fri, 4 Oct 2002 11:05:37 -0400
-Date: Fri, 4 Oct 2002 17:10:54 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] nptl 0.2
-Message-ID: <20021004151054.GA1752@werewolf.able.es>
-References: <3D9D51A3.3050906@redhat.com>
+	id <S261818AbSJDOcd>; Fri, 4 Oct 2002 10:32:33 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:9726 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261826AbSJDObh>; Fri, 4 Oct 2002 10:31:37 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 4 Oct 2002 08:34:02 -0600
+To: Christoph Hellwig <hch@infradead.org>, Mark Peloquin <peloquin@us.ibm.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
+Message-ID: <20021004143402.GR3000@clusterfs.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <OF25D731E3.0E245DDC-ON85256C47.00645AA7@pok.ibm.com> <20021004151442.B30635@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3D9D51A3.3050906@redhat.com>; from drepper@redhat.com on Fri, Oct 04, 2002 at 10:30:27 +0200
-X-Mailer: Balsa 1.4.1
+In-Reply-To: <20021004151442.B30635@infradead.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 04, 2002  15:14 +0100, Christoph Hellwig wrote:
+> > the IOCTL entry point is used to send to volumes.
+> > the DIRECT_IOCTL entry point is used for point-
+> > to-point ioctls between corresponding user space
+> > and kernel space plugins.
+> 
+> Do the ioctl directly to the device node of the lower layer plugin instead.
 
-On 2002.10.04 Ulrich Drepper wrote:
->
->Now that the Linux kernel is once again able to run all the tests we
->have and since glibc 2.3 was released it was time for a new code drop.
->I've uploaded the second code drop for the Native POSIX Thread
->Library:
->
->  ftp://people.redhat.com/drepper/nptl/nptl-0.2.tar.bz2
->
+Not possible - EVMS doesn't export the lower-level device nodes at all.
+That is one of the benefits - you can take 1000 drives and stack them
+and raid and LVM them all you want, and you don't consume 1000*layers
+device nodes.
 
-Fine !!
+> > >> +/**
+> > >> + * convenience macros to use plugin's fops entry points
+> > >> + **/
+> > >> +#define DISCOVER(node, list) ((plugin)->fops->discover(list))
+> > >> +#define END_DISCOVER(node, list) ((plugin)->fops->end_discover(list))
+> > >> +#define DELETE(node) ((node)->plugin->fops->delete(node))
+> > >> +#define SUBMIT_IO(node, bio) ((node)->plugin->fops->submit_io(node,
+> > bio))
+> > >> +#define INIT_IO(node, rw_flag, start_sec, num_secs, buf_addr) >((node)
+> > ->plugin->fops->init_io(node, rw_flag, start_sec, num_secs, buf_addr))
+> > >> +#define IOCTL(node, inode, file, cmd, arg)    ((node)
+> > ->plugin->fops->ioctl(node, >inode, file, cmd, arg))
+> > >> +#define DIRECT_IOCTL(plugin, inode, file, cmd, arg)   >((plugin)
+> > ->fops->direct_ioctl(inode, file, cmd, arg))
+> > 
+> > > Do you really need those wrapper?
+> > 
+> > No the wrappers aren't really needed. However they do make the
+> > code a great deal more readable.
+> > 
+> > > They just obsfucate the code
+> > 
+> > The same argument could be made about *all* macros then.
+> > Its simply a tradeoff between readability and potential
+> > hiding.
+> 
+> CodingStyle is one big flamewar.  As no other operations vector
+> in the linux kernel uses such wrappers the syle police seems to
+> be on my side in this case :)
 
->You need
+Um, how about EXT3_I() and EXT3_SB(), or almost any filesystem in
+2.5 which hides inode->u.generic_ip->foo_inode_info->blah?  Given
+that you want to keep lines < 80 chars where possible having short
+names to access common methods is a big win, IMHO.
 
-This is the hard part...
+Are you telling me XFS doesn't have some awful abstractions in it too?
+VOP_GETATTR(), ugh.  So, yes it's nice to have useful criticism, but
+no need to pick every space and tab to death.
 
->
->- - the latest of Linus' kernel from BitKeeper (or 2.5.41 when it
->  is released);
->
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-Mmmm...
-
->- - glibc 2.3
->
-
-Easy. I suppose it is binary compatible with 2.2.5.
-
->- - the very latest in tools such as
->
->  + gcc either from the current development branch or the gcc 3.2
->    from Red Hat Linux 8;
->
-
-OK in my cooker.
-
->  + binutils preferrably from CVS, from H.J. Lu's latest release for
->    Linux, or from RHL 8.
->
-
-Done.
-
-Well, so you need:
-- new binutils, easy to do.
-- new gcc, already in Mandrake and RedHat (?? about SuSE and others)
-- new glibc, probably the first update when Cooker and RawHide are
-  unfrozen again. And it is a final release.
-
-Problem is kernel 2.5. Too 'risky'.
-I would like to ask again: could you state what new kernel features are
-needed (futexes, cpu-affinity syscalls, signalling changes...).
-Perhaps people can use 2.4 -ac or -aa trees (if for example nptl only
-needs futexes).
-
-TIA
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre8-jam2 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

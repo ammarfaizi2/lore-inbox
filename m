@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbTFPCbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 22:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTFPCbQ
+	id S263264AbTFPCcr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 22:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTFPCcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 22:31:16 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33809 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263245AbTFPCbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 22:31:15 -0400
-Date: Sun, 15 Jun 2003 19:44:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, <rth@twiddle.net>, <ak@muc.de>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] Fix undefined/miscompiled construct in kernel parameters
-In-Reply-To: <20030616002453.8A9B72C078@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0306151939140.10415-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Jun 2003 22:32:47 -0400
+Received: from netmagic.net ([206.14.125.10]:22507 "EHLO mail.netmagic.net")
+	by vger.kernel.org with ESMTP id S263264AbTFPCco (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 22:32:44 -0400
+Subject: Re: PROBLEM: 2.4.21 crashes hard running cdrecord in X.
+From: Per Nystrom <centaur@netmagic.net>
+Reply-To: pnystrom@netmagic.net
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1055728825.1482.8.camel@spike.sunnydale>
+References: <1055722972.1502.39.camel@spike.sunnydale>
+	 <200306161055.13996.kernel@kolivas.org>
+	 <1055728825.1482.8.camel@spike.sunnydale>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-W4VJZBDo+PxW+OjoMt1L"
+Organization: 
+Message-Id: <1055731591.2028.4.camel@spike.sunnydale>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 Jun 2003 19:46:31 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 16 Jun 2003, Rusty Russell wrote:
-> 
-> AFAICT, Roman's fix is correct; Richard admonished me in the past for
-> such code, IIRC, but this one slipped through.
+--=-W4VJZBDo+PxW+OjoMt1L
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Roman's fix is fine, but the fact is, the original code was also fine. 
-Yes, the C standard has all these rules about "within objects" for pointer 
-differences, but the "objects" themselves can come from outside the 
-compiler. As they did in this case.
+Alright, I've really gotten it narrowed down now.
 
-(Yeah, I could see the compiler warning about cases it suspects might be 
-separate objects, but the end result should still be the right one).
+The hard crash occurs only when magicdev is running.  I tried turning
+off all my preferences for auto- mounting, running, and playing
+data/audio cds in my preferences, and voila!  cdrecord works without a
+hiccup in X too.
 
-In general, I accept _local_ uglifications to work around compiler
-problems. But I do not accept non-local stuff like making for ugly calling
-conventions etc, which is why Andi's original patch was not acceptable to
-me.
+I will not revert to my nvidia driver for a few days anyway, in case I
+can help debug this further -- just let me know what to do.  This looks
+like a pretty serious problem, since the upshot is that userspace
+programs are able to bring the kernel down.  I'd be happy to help if I
+can.
 
-It turns out that the real bug was somewhere in the tool chain, and the 
-linker should either honor alignment requirements or warn about them when 
-it cannot. I suspect in this case the alignment requirement wasn't 
-properly passed down the chain somewhere, I dunno. The problem is fixed, 
-but for future reference please keep this in mind when working around 
-compiler problems.
+Per
 
-If worst comes to worst, we'll have notes about certain compiler versions 
-just not working. It's certainly happened before.
 
-		Linus
+--=-W4VJZBDo+PxW+OjoMt1L
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+7S+HuQMWIGtm8TQRApR+AJ9ADVBbWjV1SpxTpkLA7Mhdfe88VQCfR+/N
+WcBVGcRDokWcPk3urHU7shM=
+=4AfA
+-----END PGP SIGNATURE-----
+
+--=-W4VJZBDo+PxW+OjoMt1L--
 

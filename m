@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270796AbTGVL2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 07:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270797AbTGVL2k
+	id S270797AbTGVL37 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 07:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270800AbTGVL37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 07:28:40 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:11280 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S270796AbTGVL2k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 07:28:40 -0400
-Message-ID: <3F1D232B.2050200@netscape.net>
-Date: Tue, 22 Jul 2003 13:42:35 +0200
-From: David Zaffiro <davzaffiro@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021220 Debian/1.2.1-3
-X-Accept-Language: nl, en-us
-MIME-Version: 1.0
-To: system_lists@nullzone.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problems with IDE - Ultra-ATA devices on a SiI chipset IDE controler
-References: <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
-In-Reply-To: <5.2.1.1.2.20030721173557.00d56450@192.168.2.130>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jul 2003 07:29:59 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:63435 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S270797AbTGVL35
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 07:29:57 -0400
+Date: Tue, 22 Jul 2003 04:45:00 -0700
+From: Mark McClelland <mark@alpha.dyndns.org>
+Subject: Re: APIC support prevents power off
+In-reply-to: <200307220835.h6M8Zaqd024427@harpo.it.uu.se>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org, mingo@redhat.com
+Message-id: <3F1D23BC.6070902@alpha.dyndns.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030707
+References: <200307220835.h6M8Zaqd024427@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    I have a production server with a SiI680 pci device being used as a 
-> IDE controller.
->    Connected to the external IDE controller I have 4 120GB IDE disks just 
-> in raid5 Linux-software mode.
-> 
-> Well, I have detected some problems that i cannot understand (I am not a 
-> expert so ... :-( ) ...
-> ( I was using a HighPoint some time ago which gave me the same problems. 
+Mikael Pettersson wrote:
 
-Some time ago, I've had the same problem booting gentoo-1.4-rc2 with my Promise PDC20276, I had to append "acpi=off", otherwise the kernel-image of the cdrom suffered from the same problems... Maybe that'll help to get your production-server back online? 
+> Enabling SMP disables APM's power off code, unless one boots with
+> apm=power-off.
 
-However, I couldn't determine whether you are using ACPI, perhaps not. Personally, I wouldn't choose to use power-management (neither apm nor acpi) on a server in the first place, but that's just me...
+apm=smp might also be needed on some machines. My Supermicro P6DGU 
+running 2.4.21 only powers off when I boot with both of those 
+parameters. apm=power-off alone only worked with 2.4.9 (or maybe older; 
+can't remember) kernels.
+
+-- 
+Mark McClelland
+mark@alpha.dyndns.org
 

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbUBUA0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUBUA0X
+	id S261450AbUBUA1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbUBUA1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:26:23 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61611 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261449AbUBUAYu (ORCPT
+	Fri, 20 Feb 2004 19:27:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2453 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261453AbUBUA1Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:24:50 -0500
-Subject: Re: Fix silly thinko in sungem network driver.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1077322322.9623.34.camel@gaston>
-References: <200402202307.i1KN7GBR003938@hera.kernel.org>
-	 <1077321849.9719.32.camel@gaston>  <1077322322.9623.34.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1077322751.10864.3.camel@gaston>
+	Fri, 20 Feb 2004 19:27:25 -0500
+Date: Fri, 20 Feb 2004 16:19:50 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Elliot Mackenzie" <macka@adixein.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
+Message-Id: <20040220161950.40bc8fbd.rddunlap@osdl.org>
+In-Reply-To: <001401c3f811$29a57e70$4301a8c0@waverunner>
+References: <20040220161139.3bd95852.rddunlap@osdl.org>
+	<001401c3f811$29a57e70$4301a8c0@waverunner>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 21 Feb 2004 11:19:13 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 21 Feb 2004 10:25:09 +1000 "Elliot Mackenzie" <macka@adixein.com> wrote:
 
-> Here it is:
->
-> .../...
+| c03e46c9 t do_initcalls, if I got the one you are looking for...
+| 
+Nope, this list:
 
-And here's the version without the typo 
+| Calling initcall 0xc03f7e19
+| Calling initcall 0xc03f819c
+| Calling initcall 0xc03f1e7c
+| Calling initcall 0xc03e7084
+| Calling initcall 0xc03e7101
+| Calling initcall 0xc03e90e2
 
-(I shall not code before having breakfast...)
+Thanks.
 
---- linux-2.5/drivers/net/sungem.c	2004-02-21 11:10:33.390479384 +1100
-+++ linuxppc-2.5-benh/drivers/net/sungem.c	2004-02-21 11:18:23.396027680 +1100
-@@ -1837,7 +1837,8 @@
- 	 * thresholds (and Apple bug fixes don't exist)
- 	 */
- 	if (!(readl(gp->regs + GREG_CFG) & GREG_CFG_IBURST)) {
--		cfg = ((2 << 1) & GREG_CFG_TXDMALIM);
-+		cfg &= ~(GREG_CFG_TXDMALIM | GREG_CFG_RXDMALIM);
-+		cfg |= ((2 << 1) & GREG_CFG_TXDMALIM);
- 		cfg |= ((8 << 6) & GREG_CFG_RXDMALIM);
- 		writel(cfg, gp->regs + GREG_CFG);
- 	}	
+| 
+| 
+| | Duh, I forgot.  Please look up these initcall addresses in your
+| | System.map file (or post it on the web or mail it).
+| |
+| | But that size=0xedeb0000 is a problem... just to figure out where
+| | it's coming from, using the initcall symbols.
+| <snip>
 
 
+--
+~Randy

@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbUAJF6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 00:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUAJF5p
+	id S264889AbUAJF5h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 00:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUAJF5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 00:57:45 -0500
-Received: from h80ad25a9.async.vt.edu ([128.173.37.169]:62080 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264887AbUAJF5m (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 00:57:42 -0500
-Message-Id: <200401100555.i0A5tXmx003024@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: 2.6.1-mm1 - OOPs and hangs during modprobe 
-In-Reply-To: Your message of "Sat, 10 Jan 2004 14:11:17 +1100."
-             <20040110031521.309282C050@lists.samba.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040110031521.309282C050@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1513812110P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 10 Jan 2004 00:55:26 -0500
+	Sat, 10 Jan 2004 00:57:37 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:28164 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264889AbUAJF5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 00:57:36 -0500
+Date: Sat, 10 Jan 2004 13:56:47 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: Jim Carter <jimc@math.ucla.edu>
+cc: Mike Waychison <Michael.Waychison@sun.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-Reply-To: <Pine.LNX.4.53.0401091249250.9335@simba.math.ucla.edu>
+Message-ID: <Pine.LNX.4.33.0401101347210.2403-100000@wombat.indigo.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
+	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1513812110P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 9 Jan 2004, Jim Carter wrote:
 
-On Sat, 10 Jan 2004 14:11:17 +1100, Rusty Russell said:
+> On Sat, 10 Jan 2004, Ian Kent wrote:
+> > On Thu, 8 Jan 2004, Mike Waychison wrote:
+> > > This module will have its own new autofs module (hopefully named
+> > > something other than autofs to avoid confusion/mishaps).  The VFS will
+>
+> autofs v3 -> autofs.o
+> autofs v4 -> autofs4.o
+> May I suggest autofs5.o?  It should still be named "autofs-something",
+> after all.
+>
 
-> Vladis, relative patch, actually sets error code.  What happens now?
+Nop. I will continue to develop under the v4 banner. As far as I'm
+concerned Peter Anvin has claimed v5 and I don't want to challenge that.
+Mike Waychisons' initiative may possibly be called v6???
 
-I still get this in the dmesg (2 modules won't load - most of rest are fine)
+In any case the module works fine with v3 and v4 (I haven't tested
+4.0.0pre10 for a while though). The 4.1 daemon detects the enhanced module
+if present. It is currently dubed 4.04. The 'plays well with others' is a
+self imposed design requirement.
 
-Module len 6897 truncated
-Module len 19014 truncated
+Ian
 
-However, at least now modprobe manages not to hose up the entire modules stuff, but
-simply exits with this error:
 
-FATAL: Error inserting aes (/lib/modules/2.6.1-mm1/kernel/crypto/aes.ko): Invali
-d module format
-
-and lsmod and 'cat /proc/modules' don't get borked up afterwards.
-
-> Please send module which fails if it still fails...
-
-Sent under separate cover, the list probably doesn't want the 2 .ko files.. ;)
-
---==_Exmh_-1513812110P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE//5POcC3lWbTT17ARAtTyAJ4j5zW8e9vwpt2059uBf/ZChgQaVgCeNjUO
-f36nzI5g3lTUKrMLDik5U8s=
-=OxQv
------END PGP SIGNATURE-----
-
---==_Exmh_-1513812110P--

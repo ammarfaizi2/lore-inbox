@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279884AbRKBBgP>; Thu, 1 Nov 2001 20:36:15 -0500
+	id <S279917AbRKBBjp>; Thu, 1 Nov 2001 20:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279914AbRKBBgF>; Thu, 1 Nov 2001 20:36:05 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:12745 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S279884AbRKBBf5>; Thu, 1 Nov 2001 20:35:57 -0500
-Message-ID: <A9B0C3C90A46D411951400A0C9F4F67103BA56DE@pdsmsx33.pd.intel.com>
-From: "Yan, Noah" <noah.yan@intel.com>
-To: "'vda'" <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S279918AbRKBBjf>; Thu, 1 Nov 2001 20:39:35 -0500
+Received: from [202.135.142.195] ([202.135.142.195]:18451 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S279917AbRKBBjZ>; Thu, 1 Nov 2001 20:39:25 -0500
+Date: Fri, 2 Nov 2001 12:42:52 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Get hands on starting in this world.
-Date: Fri, 2 Nov 2001 09:34:33 +0800 
-X-Mailer: Internet Mail Service (5.5.2653.19)
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Message-Id: <20011102124252.1032e9b2.rusty@rustcorp.com.au>
+In-Reply-To: <3BE1271C.6CDF2738@mandrakesoft.com>
+In-Reply-To: <E15zF9H-0000NL-00@wagner>
+	<3BE1271C.6CDF2738@mandrakesoft.com>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vda,
+On Thu, 01 Nov 2001 05:42:36 -0500
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
 
-I want to start digging into how OS is architected and built, from initail booting till final resource management, I got more theroy than practice in this world.  I may more focus on computation management in distributed OS, cluster, Grid, P2P later. 
+> Is this designed to replace sysctl?
 
-Somebody has such focus?
+Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
+ 
+> In general we want to support using sysctl and similar features WITHOUT
+> procfs support at all (of any type).  Nice for embedded systems
+> especially.
 
-Thanks
-Noah 
+1) My example was implemented as a filesystem.  You could just as easily have
+   a CONFIG_PROC_SYSCALL which implemented access as a syscall, ie. sysctl2().
 
------Original Message-----
-From: vda [mailto:vda@port.imtp.ilyichevsk.odessa.ua]
-Sent: 2001?11?2? 1:22
-To: Yan, Noah
-Subject: Re: Get hands on starting in this world.
+2) It's not worth the hassle to save 7k of code (well, the final implementation
+   will be larger than this, but OTOH, your replacement will be non-zero size).
 
+> AFAICS your proposal, while nice and clean :), doesn't offer all the
+> features that sysctl presently does.
 
-On Thursday 01 November 2001 00:24, Yan, Noah wrote:
+You're right!  My code:
 
-> I am a new comer to the Linux world. It is really a hard start for me when
-> I dig into those OS code although I have a strong theoretic background in
-> OS and computer architecture. I am now being blocking at the start_kernel
-> and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got
-> hundreds of mail from Linux-kernel list but I cannot enjoy it.
+1) Doesn't have the feature of requiring #ifdef CONFIG_SYSCTL in every file
+   that uses it properly (ie. checks error returns).
+2) Doesn't have the feature that compiling without CONFIG_PROC/CONFIG_SYSCTL 
+   wastes kernel memory unless surrounded by above #ifdefs.
+3) Doesn't have the feature that it takes over 90 lines to implement a working
+   read & write.
+4) Doesn't have the feature that it's hard to create dynamic directories.
+5) Doesn't have the feature that it's inherently racy against module unload.
 
-?
-
-> So could some experienced guys give some advice on how to start, which
-> document/material can be recommended on this.
-
-How to start _what_? What do you want to do?
-
-> My keen interest in this filed make me free to any suggestions on that.
-> Please lend your hands
---
-vda
+What was I thinking????
+Rusty.

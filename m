@@ -1,73 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbUCPAla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUCPAS1
+	id S262924AbUCPApc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUCPAnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:18:27 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2820 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262998AbUCPALs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:11:48 -0500
-Date: Tue, 16 Mar 2004 00:11:41 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Do not include linux/irq.h from linux/netpoll.h
-Message-ID: <20040316001141.C29594@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Ian Campbell <icampbell@arcom.com>, netdev@oss.sgi.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1079369568.19012.100.camel@icampbell-debian>
+	Mon, 15 Mar 2004 19:43:03 -0500
+Received: from farley.sventech.com ([69.36.241.87]:15564 "EHLO
+	farley.sventech.com") by vger.kernel.org with ESMTP id S262981AbUCPASC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:18:02 -0500
+Date: Mon, 15 Mar 2004 16:18:00 -0800
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+Message-ID: <20040316001800.GF30801@sventech.com>
+References: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com> <20040315231705.A23888@infradead.org> <20040315234425.GD30801@sventech.com> <20040315234826.A24238@infradead.org> <20040315235414.GE30801@sventech.com> <20040316000906.A24435@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1079369568.19012.100.camel@icampbell-debian>; from icampbell@arcom.com on Mon, Mar 15, 2004 at 04:52:50PM +0000
+In-Reply-To: <20040316000906.A24435@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 04:52:50PM +0000, Ian Campbell wrote:
-> The culprit would appear to be the addition of a 
-> 	#include <linux/netpoll.h>
-> to net/core/dev.c which in turn pulls in <linux/irq.h> which (as Russell
-> King notes in a comment therein) should not be included from generic
-> code.
+On Tue, Mar 16, 2004, Christoph Hellwig <hch@infradead.org> wrote:
+> On Mon, Mar 15, 2004 at 03:54:14PM -0800, Johannes Erdfelt wrote:
+> > > Did you actually read it?
+> > 
+> > The code on openib.org? Yes, I wrote some of it.
+> > 
+> > I would be the first to say that there are portions that need to be
+> > rewritten, but I definately do not think all or even most of it does.
+> > 
+> > That's why I was asking what specifically you found fatally wrong with
+> > it. I haven't seen many critiques, so I can only assume it's the same
+> > things I see wrong with it.
+> 
+> Start with the thing Robert already mentioned.  Ad ontop of that:
+> 
+>  - the horrible Winodes/Linux compat code.  We all know this kind
+>    of compat code is messy.  But the way it's don in this code is just
+>    incredibly idiotic.
+>  - totally braindead use of macro abstraction
+>  - those split into far too many files
+>  - wrong use of dma mapping abstraction
+>  - braindead malloc code
+>  - wrong modversions handling duplicated in every file
+> 
+> I'm really surprised you're admitting to having touched that code.
+> I'd have guessed everyone who did would hide in his house ashamed.
 
-Linus - I haven't tested this patch myself yet, but I do think something
-needs to happen with linux/irq.h.  It seems a comment in the file isn't
-sufficient.
+You do realize that the code on openib.org is from multiple vendors,
+right? I only touched one part of that code. That's why I said 'some'.
 
-The file itself is misplaced and misleading sitting in the include/linux
-subdirectory, which causes problems when people decide to include it into
-architecture independent files, in the belief that it's a generic include
-file.
+Only some of the code has the problems you listed, and some of those are
+far from fatal.
 
-I believe that linux/irq.h should at least become asm-generic/irq.h to
-stop this happening.
+How about I ask you what parts of the code do you feel don't need a
+complete rewrite?
 
-What are your thoughts on this?
+> > > p.s.  if you reply to my mails please keep me in the To line.  Really,
+> > > please don't do any fany reply to group tricks unless people explicitly
+> > > request it in the Mail-Fup header.
+> > 
+> > If you really want duplicates of all the replies, sure, I'll make an
+> > exception for you.
+> > 
+> > I don't see why a smarter client, or mail filter, couldn't do the same
+> > thing without depending on the behaviour of the sender.
+> 
+> Replying to people personally is good taste.  You might know I'm on
+> lkml but on many other lists I'm not.  As are other people on lkml.
+> A filter can easily filter out duplicates but it can't magically
+> create copies of mails not addressed to you. 
 
-(Unfortunately, bkbits browsing using lynx or links seems to be rather
-broken at the moment, otherwise I'd have checked whether you've already
-integrated this patch.)
+Sure it can. I replied to your email. Check the mail headers,
+specifically the ones labeled References and In-Reply-To.
 
-Index: linux-2.6-bkpxa/include/linux/netpoll.h
-===================================================================
---- linux-2.6-bkpxa.orig/include/linux/netpoll.h        2004-03-15 15:03:30.000000000 +0000
-+++ linux-2.6-bkpxa/include/linux/netpoll.h     2004-03-15 16:24:25.000000000 +0000
-@@ -9,7 +9,6 @@
-  
- #include <linux/netdevice.h>
- #include <linux/interrupt.h>
--#include <linux/irq.h>
- #include <linux/list.h>
-  
- struct netpoll;
+> In addition I tend to read my inbox fairly quick all the time and
+> the lkml mailbox only when I'm at least a little idle.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I didn't need an immediate answer.
+
+JE
+

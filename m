@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbULNW2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbULOAQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbULNW2l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbULNW1s
+	id S261772AbULOAQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 19:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbULOAQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:27:48 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:6086 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261668AbULNWXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:23:40 -0500
-Date: Tue, 14 Dec 2004 23:23:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-Message-ID: <20041214222307.GB22043@elte.hu>
-References: <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net>
-Mime-Version: 1.0
+	Tue, 14 Dec 2004 19:16:59 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43422 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261784AbULNX3r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:29:47 -0500
+Date: Tue, 14 Dec 2004 14:00:28 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Brent Casavant <bcasavan@sgi.com>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <50260000.1103061628@flay>
+In-Reply-To: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
+References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com><9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de><19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1103060437.14699.27.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Sun, 2004-12-12 at 13:15 +0100, Andrea Arcangeli wrote:
-> > Overall this is a very minor issue (unless HZ is 0), it would only
-> > introduce a 1/HZ latency to the irq that get posted while the nmi
-> > handler is running, and the nmi handlers never runs in production.
+>> > I originally was a bit worried about the TLB usage, but it doesn't
+>> > seem to be a too big issue (hopefully the benchmarks weren't too
+>> > micro though)
+>> 
+>> Well, as long as we stripe on large page boundaries, it should be fine,
+>> I'd think. On PPC64, it'll screw the SLB, but ... tough ;-) We can either
+>> turn it off, or only do it on things larger than the segment size, and
+>> just round-robin the rest, or allocate from node with most free.
 > 
-> Ingo, couldn't this account for some of the inexplicable outliers some
-> people were seeing in latency tests?
+> Is there a reasonably easy-to-use existing infrastructure to do this?
+> I didn't find anything in my examination of vmalloc itself, so I gave
+> up on the idea.
 
-indeed, there could be a connection, and it's certainly a fun race. The
-proper fix is Manfred's suggestion: check whether the EIP is a kernel
-text address, and if yes, whether it's a HLT instruction - and if yes
-then increase EIP by 1. I've included the fix in the -33-02 -RT patch.
-Andrew, Linus: upstream fix is below - i think it's post-2.6.10 stuff.
-Tested it on SMP and UP x86, using both the IO-APIC and the local-APIC
-based NMI watchdog.
+Not that I know of. But (without looking at it), it wouldn't seem 
+desperately hard to implement (some argument or flag to vmalloc, or vmalloc_largepage) or something.
 
-i think x64 needs a similar fix as well.
+> And just to clarify, are you saying you want to see this before inclusion
+> in mainline kernels, or that it would be nice to have but not necessary?
 
-	Ingo
+I'd say it's a nice to have, rather than necessary, as long as it's not
+forced upon people. Maybe a config option that's on by default on ia64
+or something. Causing yourself TLB problems is much more acceptable than
+causing it for others ;-)
 
---- linux/arch/i386/kernel/traps.c.orig
-+++ linux/arch/i386/kernel/traps.c
-@@ -670,6 +670,17 @@ fastcall void do_nmi(struct pt_regs * re
- 
- 	cpu = smp_processor_id();
- 
-+	/*
-+	 * Fix up obscure CPU behavior: if we interrupt safe_hlt() via
-+	 * the NMI then we might miss a reschedule if an interrupt is
-+	 * posted to the CPU and executes before the HLT instruction.
-+	 *
-+	 * We check whether the EIP is kernelspace, and if yes, whether
-+	 * the instruction is HLT:
-+	 */
-+	if (__kernel_text_address(regs->eip) && *(char *)regs->eip == 0xf4)
-+		regs->eip++;
-+
- #ifdef CONFIG_HOTPLUG_CPU
- 	if (!cpu_online(cpu)) {
- 		nmi_exit();
+M.
+

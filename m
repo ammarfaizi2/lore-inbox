@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275053AbTHLFkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 01:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275050AbTHLFkn
+	id S275044AbTHLFim (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 01:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275045AbTHLFim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 01:40:43 -0400
-Received: from mail.kroah.org ([65.200.24.183]:9925 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S275053AbTHLFkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 01:40:33 -0400
-Date: Mon, 11 Aug 2003 22:38:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Robert Love <rml@tech9.net>, CaT <cat@zip.com.au>,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030812053826.GA1488@kroah.com>
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
+	Tue, 12 Aug 2003 01:38:42 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:22759 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S275044AbTHLFil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 01:38:41 -0400
+Subject: Re: NAT + IPsec in 2.6.0-test2
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Jim Carter <jimc@math.ucla.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0308112150430.4824@xena.cft.ca.us>
+References: <1060662905.1840.103.camel@iso-8590-lx.zeusinc.com>
+	 <Pine.LNX.4.53.0308112150430.4824@xena.cft.ca.us>
+Content-Type: text/plain
+Message-Id: <1060666691.1840.117.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 12 Aug 2003 01:38:11 -0400
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.7, required 10,
+	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 03:39:36AM +0100, Matthew Wilcox wrote:
-> On Mon, Aug 11, 2003 at 07:18:53PM -0700, Robert Love wrote:
-> > Convert GNU-style to C99-style.  I think converting unnamed initializers
-> > to named initializers is a Good Thing, too.
-> 
-> By and large ... here's a counterexample:
-> 
-> static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
->         { PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5700,
->           PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
->         { PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5701,
->           PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
-> ...
-> 
-> I don't think anyone would appreciate you converting that to:
-> 
-> static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
-> 	{
-> 		.vendor		= PCI_VENDOR_ID_BROADCOM,
-> 		.device		= PCI_DEVICE_ID_TIGON3_5700,
-> 		.subvendor	= PCI_ANY_ID,
-> 		.subdevice	= PCI_ANY_ID,
-> 		.class		= 0,
-> 		.class_mask	= 0,
-> 		.driver_data	= 0,
-> 	},
+On Tue, 2003-08-12 at 00:56, Jim Carter wrote:
+> Could it be that the *name* of the ipsec device has changed?  Messing with
+> vtun, I did that to myself recently and suffered a similar loss of
+> connectivity through the tunnel.  My solution was an iptables rule saying
+> that packets going to any interface except the house network get NATted.
 
-I sure would.  Oh, you can drop the .class, .class_mask, and
-.driver_data lines, and then it even looks cleaner.
+Because the new IPsec code is built in there is no "ipsec" device to
+speak of.  My initial analysis is that FreeS/WAN basically fed a packet
+through the system twice, once via the real interface and once via the
+tunnel.  This allowed for easy separation of rules.
 
-I would love to see that kind of change made for pci drivers.
+This simply doesn't seem to be the case anymore, packets leaving an
+interface are either encrypted or not based on kernel policies set via
+setkey.  It looks like it's been encrypted before it reaches the
+POSTROUTING rule thus precluding it from being NAT'd.
 
-thanks,
+My rule doesn't use an interface anyway, it's this:
 
-greg k-h
+iptables -t nat -A POSTROUTING -s ! 10.250.1.129/32 -d 10.0.0.0/8 -j
+SNAT --to-source 10.250.1.129
+
+Which basically says if a packet is going to 10.0.0.0/8 and it's source
+is not 10.250.1.129 to SNAT it to that address.
+
+Later,
+Tom
+
+

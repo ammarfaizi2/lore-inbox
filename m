@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbRLZIxn>; Wed, 26 Dec 2001 03:53:43 -0500
+	id <S286188AbRLZJAe>; Wed, 26 Dec 2001 04:00:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286188AbRLZIxd>; Wed, 26 Dec 2001 03:53:33 -0500
-Received: from [216.52.49.35] ([216.52.49.35]:40721 "HELO bosvwl01")
-	by vger.kernel.org with SMTP id <S286178AbRLZIxX> convert rfc822-to-8bit;
-	Wed, 26 Dec 2001 03:53:23 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Porting of routing protocols (RIP, BGP,OSPF) from 2.2.X to 2.4.X
-Date: Wed, 26 Dec 2001 14:22:22 +0530
-Message-ID: <B10DD1F99B22C844BC146F2C66BF17F83F2E9F@punmsg01.ad.infosys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Porting of routing protocols (RIP, BGP,OSPF) from 2.2.X to 2.4.X
-Thread-Index: AcGN6udk0+4bsPm2EdWmhwCw0C+N7w==
-X-Priority: 1
-Importance: high
-From: "Naresh Kothari" <Naresh_K@infy.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Dec 2001 08:52:22.0201 (UTC) FILETIME=[A1F31290:01C18DEA]
+	id <S286189AbRLZJAY>; Wed, 26 Dec 2001 04:00:24 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:14090 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286188AbRLZJAT>;
+	Wed, 26 Dec 2001 04:00:19 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Luca Amigoni <al.net@libero.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Davicom DM910x (dfme) doesn't link 
+In-Reply-To: Your message of "Wed, 26 Dec 2001 09:26:33 BST."
+             <20011226092633.A9287@mater.home> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Dec 2001 20:00:05 +1100
+Message-ID: <6384.1009357205@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I need to port routing protocols ( RIP , BGP, OSPF) from linux kernel
-version 2.2.X to 2.4.X
-For this, I need a list of system calls which have been added/modified
-in the 2.4.X version.
-Any pointers to this ?
+On Wed, 26 Dec 2001 09:26:33 +0100, 
+Luca Amigoni <al.net@libero.it> wrote:
+>I've tried to compile kernel version 2.4.17 with static dfme support,
+>but ld fails to link. Here is the error I get:
+>
+>drivers/net/net.o(.data+0x434): undefined reference to `local symbols \
+>      in discarded section .text.exit'
 
-Thanx
-Naresh Kothari
+Known problem, the fix will be in 2.4.18-pre<something>.  Use the
+previous version of binutils until the kernel is fixed.
+

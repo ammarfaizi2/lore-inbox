@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbUJ1PrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUJ1PMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbUJ1PrC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbUJ1Pod
+	id S261703AbUJ1PMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbUJ1PIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:44:33 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:58784 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261740AbUJ1PkS
+	Thu, 28 Oct 2004 11:08:40 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:44707 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261700AbUJ1PBV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:40:18 -0400
-Date: Thu, 28 Oct 2004 08:40:04 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: NUMA node swapping V3
-Message-ID: <1275120000.1098978003@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0410280820500.25586@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0410280820500.25586@schroedinger.engr.sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 28 Oct 2004 11:01:21 -0400
+From: james4765@verizon.net
+To: kernel-janitors@lists.osdl.org
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, james4765@verizon.net
+Message-Id: <20041028150118.2776.11985.87844@localhost.localdomain>
+In-Reply-To: <20041028150029.2776.69333.50087@localhost.localdomain>
+References: <20041028150029.2776.69333.50087@localhost.localdomain>
+Subject: [PATCH 8/9] to arch/sparc/Kconfig
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 10:01:18 -0500
+Date: Thu, 28 Oct 2004 10:01:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Changes from V2: better documentation, fix missing #ifdef
-> 
-> In a NUMA systems single nodes may run out of memory. This may occur even
-> by only reading from files which will clutter node memory with cached
-> pages from the file.
-> 
-> However, as long as the system as a whole does have enough memory
-> available, kswapd is not run at all. This means that a process allocating
-> memory and running on a node that has no memory left, will get memory
-> allocated from other nodes which is inefficient to handle. It would be
-> better if kswapd would throw out some pages (maybe some of the cached
-> pages from files that have only once been read) to reclaim memory in the
-> node.
-> 
-> The following patch checks the memory usage after each allocation in a
-> zone. If the allocation in a zone falls below a certain minimum, kswapd is
-> started for that zone alone.
-> 
-> The minimum may be controlled through /proc/sys/vm/node_swap which is set
-> to zero by default and thus is off.
-> 
-> If it is set for example to 100 then kswapd will be run on
-> a zone/node if less than 10% of pages are available after an allocation.
+Description: Make config choice for OpenPROM more obvious in arch/sparc/Kconfig.
+Apply against 2.6.9.
 
-I thought even the SGI people were saying this wouldn't actually help you,
-due to some workload issues?
+Signed-off by: James Nelson <james4765@gmail.com>
 
-M.
-
+diff -u ./arch/sparc/Kconfig.orig ./arch/sparc/Kconfig
+--- arch/sparc/Kconfig.orig	2004-10-16 09:53:49.626021592 -0400
++++ arch/sparc/Kconfig	2004-10-18 18:38:05.125374024 -0400
+@@ -248,7 +248,10 @@
+ 	  -t openpromfs none /proc/openprom".
+ 
+ 	  To compile the /proc/openprom support as a module, choose M here: the
+-	  module will be called openpromfs.  If unsure, choose M.
++	  module will be called openpromfs.
++
++	  Only choose N if you know in advance that you will not need to modify
++	  OpenPROM settings on the running system.
+ 
+ source "fs/Kconfig.binfmt"
+ 

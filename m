@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262228AbSIZHg7>; Thu, 26 Sep 2002 03:36:59 -0400
+	id <S262212AbSIZHvs>; Thu, 26 Sep 2002 03:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262229AbSIZHg7>; Thu, 26 Sep 2002 03:36:59 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:19072 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S262228AbSIZHgp>;
-	Thu, 26 Sep 2002 03:36:45 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Thu, 26 Sep 2002 00:41:54 -0700
-User-Agent: KMail/1.4.7-cool
-Cc: linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org>
-In-Reply-To: <20020926055755.GA5612@think.thunk.org>
+	id <S262231AbSIZHvs>; Thu, 26 Sep 2002 03:51:48 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:50123 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262212AbSIZHvr>; Thu, 26 Sep 2002 03:51:47 -0400
+Message-ID: <3D92BDC8.8080603@metaparadigm.com>
+Date: Thu, 26 Sep 2002 15:56:56 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209260041.59855.ryan@completely.kicks-ass.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.19pre10aa4 OOPS in ext3 (get_hash_table,  unmap_underlying_metadata)
+References: <3D92A1D0.5000203@metaparadigm.com> <3D92B6F3.1428A76A@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 09/26/02 15:27, Andrew Morton wrote:
+> Michael Clark wrote:
+> 
+>>Hiya,
+>>
+>>Been having frequent (every 4-8 days) oopses with 2.4.19pre10aa4 on
+>>a moderately loaded server (100 users - 0.4 load avg).
+>>
+>>The server is a Intel STL2 with dual P3, 1GB RAM, Intel Pro1000T
+>>and Qlogic 2300 Fibre channel HBA.
+>>
+>>We are running qla2300, e1000 and lvm modules unmodified as present in
+>>2.4.19pre10aa4. We also have quotas enabled on 1 of the ext3 fs.
+>>
+> 
+> 
+> It's not familiar, sorry.
 
-On September 25, 2002 22:57, Theodore Ts'o wrote:
-> On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
-> > It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
->
-> Just to humor me, can you try it with gcc 2.95.4?  I just want to
-> eliminate one variable....
+Maybe I should try XFS? I've heard of people running this for
+80+ days and no downtime. I really would like to get past 8 days.
 
-Using GCC 2.95.4 seems to stabilize dir_index nicely, both before and after 
-the hdparm -fD run. Only the kernel was recompiled with 2.95.4, I reused the 
-original GCC 3.2 compiled e2fsprogs.
+> People are saying unkind things about the qlogic driver, and
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Yes i know. My experience seems to be bad fault recovery after
+a LIP reset although the driver in 2.4.19pre10aa4 seems okay
+(have tested loop interruption under IO heavy load).
 
-iD8DBQE9krpHLGMzRzbJfbQRArCGAJ0V8NuAtrUQt/HcOVgbVRtXJzhDwQCeOwtS
-Lkkp52o/ku9W4pXoFl8nARc=
-=axyt
------END PGP SIGNATURE-----
+> the new version in Andrea's latest patchset is definitely
+> faster than before.   Might be worth a shot.
+
+So, is possible for qlogic driver to be doing naughty things
+with bufferheads? or is it more likely in the fs?
+
+Anyone out there running a reasonably busy fileserver with
+qlogic FC HBA and using ext3 or XFS with quotas? What
+kernel/qlogic driver combo?
+
+~mc
+

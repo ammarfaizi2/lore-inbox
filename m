@@ -1,105 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbUKEBuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbUKEBzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbUKEBuI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUKEBsb
+	id S261419AbUKEBzs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbUKEBzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 20:48:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:47592 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262525AbUKEBrU (ORCPT
+	Thu, 4 Nov 2004 20:55:48 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:59308 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261419AbUKEBzn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 20:47:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PXcl+0YjMWvL9ZHMa9CFmo3sjRuLRGpiHNmMKsUBaYYlvbtdOLp2gV6xHc3cwnRaA+SJFQM5xIQrC5xQ294o2zGgOxujEQzB/ljR6zTWoDsFLLIc791QHBMIB6bQ0rs1tr9W0EPZVE+b+Fhp75TzTB+wrqF34Cl1zOzrIdZ+mgs=
-Message-ID: <5786143704110417471fdea461@mail.gmail.com>
-Date: Thu, 4 Nov 2004 19:47:13 -0600
-From: Jesus Delgado <jdelgado@gmail.com>
-Reply-To: Jesus Delgado <jdelgado@gmail.com>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working
-Cc: linux-kernel@vger.kernel.org, matthieu castet <castet.matthieu@free.fr>
-In-Reply-To: <5786143704110107302e1722d8@mail.gmail.com>
+	Thu, 4 Nov 2004 20:55:43 -0500
+Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041105005344.GG8229@dualathlon.random>
+References: <20041102220720.GV3571@dualathlon.random>
+	 <41880E0A.3000805@us.ibm.com> <4188118A.5050300@us.ibm.com>
+	 <20041103013511.GC3571@dualathlon.random> <418837D1.402@us.ibm.com>
+	 <20041103022606.GI3571@dualathlon.random> <418846E9.1060906@us.ibm.com>
+	 <20041103030558.GK3571@dualathlon.random>
+	 <1099612923.1022.10.camel@localhost> <1099615248.5819.0.camel@localhost>
+	 <20041105005344.GG8229@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1099619740.5819.65.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 04 Nov 2004 17:55:40 -0800
 Content-Transfer-Encoding: 7bit
-References: <200410311903.06927@zodiac.zodiac.dnsalias.org>
-	 <5786143704110107302e1722d8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all:
-Iam apply the patchs : pnpacpi and i8042_pnp and my emachines working
-againg the mouse and keyboard good.
-
-Thanks
-
-On Mon, 1 Nov 2004 09:30:13 -0600, Jesus Delgado <jdelgado@gmail.com> wrote:
-> Hi all:
-> 
->     Iam have is the same problems, kernel 2.6.10-rc1 keryboard and
-> mouse OK ( emachines M6709), both running kernel 2.6.10-rc1-mm2 the
-> keyboard and mouse NOT WORKING.
-> 
->   anex my file dsdt.hex.gz
-> 
-> Helpme please.
-> 
-> 
-> 
-> On Sun, 31 Oct 2004 19:03:06 +0100, Alexander Gran
-> <alex@zodiac.dnsalias.org> wrote:
-> > Hi,
-> >
-> > using 2.6.10-rc1-mm2 my keyboard and synaptics do not work. 2.6.9-rc4-mm1 is
-> > fine. Both bootlogs are attached.
-> > lspci (using 2.6.8-rc3-mm1)  gives
-> > 0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev
-> > 03)
-> > 0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev
-> > 03)
-> > 0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-> > USB UHCI Controller #1 (rev 01)
-> > 0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-> > USB UHCI Controller #2 (rev 01)
-> > 0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
-> > USB UHCI Controller #3 (rev 01)
-> > 0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0
-> > EHCI Controller (rev 01)
-> > 0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81)
-> > 0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev
-> > 01)
-> > 0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage
-> > Controller (rev 01)
-> > 0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus
-> > Controller (rev 01)
-> > 0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM
-> > (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
-> > 0000:00:1f.6 Modem: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97
-> > Modem Controller (rev 01)
-> > 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf
-> > [Radeon Mobility 9000 M9] (rev 02)
-> > 0000:02:00.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus
-> > Controller (rev 01)
-> > 0000:02:00.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus
-> > Controller (rev 01)
-> > 0000:02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet
-> > Controller (Mobile) (rev 03)
-> > 0000:02:02.0 Ethernet controller: Atheros Communications, Inc. AR5211 802.11ab
-> > NIC (rev 01)
-> >
-> > The 2.6.10-rc1-mm2 config is attached,too.
-> >
-> > regards
-> > Alex
-> >
-> > --
-> > Encrypted Mails welcome.
-> > PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-> >
-> >
-> >
-> 
-> 
+On Thu, 2004-11-04 at 16:53, Andrea Arcangeli wrote:
+> The only chance for kpte_page to be freed, is to be == 1 in that place.
+> If kpte_page is == 1, it will be freed via list_add and the master page
+> will be regenerated giving it a chance to get performance back. If it's
+> 0, it means we leaked memory as far as I can tell.
 >
+> It's impossible a pte had a 0 page_count() and not to be in the freelist
+> already. There is no put_page at all in that whole path, there's only a
+> __put_page, so it's a memleak to get == 0 in there on any pte or pmd or
+> whatever else we cannot have put in the freelist already.
+
+Ahhh.  I forgot about the allocator's reference on the page.  However,
+there still seems to be something fishy here.
+
+The page that's causing trouble's pfn is 0x0000000f.  It's also set as
+PageReserved().  We may have some imbalance with page counts when the
+page is PageReserved() that this is catching.  I can't find any
+asymmetric use of kernel_map_pages().  Both the slab and the allocator
+appear to be behaving themselves.  
+
+I don't even see a case where that particular page has a get_page() done
+on it before the first __change_page_attr() call on it.  So, it probably
+still has its page_count()==0 from the original set in
+memmap_init_zone().
+
+What happens when a pte page is bootmem-allocated?  I *think* that's the
+situation that I'm hitting.  In that case, we can either try to hunt
+down the real 'struct pages' after everything is brought up, or we can
+just skip the BUG_ON() if the page is reserved.  Any thoughts?
+
+-- Dave
+

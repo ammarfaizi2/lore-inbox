@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265595AbUAMTPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 14:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUAMTPr
+	id S265516AbUAMTlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 14:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbUAMTlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 14:15:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28098 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265595AbUAMTPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 14:15:34 -0500
-Date: Tue, 13 Jan 2004 11:16:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm2
-Message-Id: <20040113111639.60b681d2.akpm@osdl.org>
-In-Reply-To: <400441BD.9020609@gmx.de>
-References: <20040110014542.2acdb968.akpm@osdl.org>
-	<4003F34E.5080508@gmx.de>
-	<20040113095428.440762f7.akpm@osdl.org>
-	<400441BD.9020609@gmx.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 13 Jan 2004 14:41:24 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:36271 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S265516AbUAMTlV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 14:41:21 -0500
+Date: Tue, 13 Jan 2004 13:41:07 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Scott Long <scott_long@adaptec.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-raid <linux-raid@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Proposed enhancements to MD
+Message-ID: <20040113134107.A7646@lists.us.dell.com>
+References: <40033D02.8000207@adaptec.com> <40043C75.6040100@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40043C75.6040100@pobox.com>; from jgarzik@pobox.com on Tue, Jan 13, 2004 at 01:44:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prakash K. Cheemplavam" <PrakashKC@gmx.de> wrote:
->
-> >>kernel: Badness in pci_find_subsys at drivers/pci/search.c:132
-> >>
-> >>Any ideas? Or do you need detailed kernel config and dmesg? I thought 
-> >>you might have an idea which atch caused this... My and his system are 
-> >>quite differnt. Major Common element seems only use of Athlon XP. He has 
-> >>VIA KT based system and I have nforce2. I thought it might be APIC, but 
-> >>I also got a lock up without APIC. (Though it seems more stable without 
-> >>APIC.)
-> > 
-> > 
-> > If you could send us the stack backtrace that would help.  Make sure that
-> > you have CONFIG_KALLSYMS enabled.  If you have to type it by hand, just the
-> > symbol names will suffice - leave out the hex numbers.
+On Tue, Jan 13, 2004 at 01:44:05PM -0500, Jeff Garzik wrote:
+> You sorta hit a bad time for 2.4 development.  Even though my employer 
+> (Red Hat), Adaptec, and many others must continue to support new 
+> products on 2.4.x kernels,
+
+Indeed, enterprise class products based on 2.4.x kernels will need
+some form of solution here too.
+
+> kernel development has shifted to 2.6.x (and soon 2.7.x).
 > 
-> Sorry, I am a noob about such things. Above option is enabled in my 
-> config, but I dunno how get the stack backtrace. Could you point to me 
-> to something helpful?
+> In general, you want a strategy of "develop on latest, then backport if 
+> needed."
 
-When the kernel prints that `badness' message it then prints a stack
-backtrace.  That's what we want.
+Ideally in 2.6 one can use device mapper, but DM hasn't been
+incorporated into 2.4 stock, I know it's not in RHEL 3, and I don't
+believe it's included in SLES8.  Can anyone share thoughts on if a DDF
+solution were built on top of DM, that DM could be included in 2.4
+stock, RHEL3, or SLES8?  Otherwise, Adaptec will be stuck with two
+different solutions anyhow, one for 2.4 (they're proposing enhancing
+MD), and DM for 2.6.
 
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

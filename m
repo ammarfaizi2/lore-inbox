@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265618AbTIDWTi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 18:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265615AbTIDWTi
+	id S265619AbTIDWUe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbTIDWUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 18:19:38 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:9613 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S265618AbTIDWTd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 18:19:33 -0400
-Date: Thu, 4 Sep 2003 23:19:24 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: James Clark <jimwclark@ntlworld.com>
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030904221924.GK31590@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0309041628380.14715-100000@chimarrao.boston.redhat.com> <200309042212.25052.jimwclark@ntlworld.com>
-Mime-Version: 1.0
+	Thu, 4 Sep 2003 18:20:34 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:32903 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S265619AbTIDWU1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 18:20:27 -0400
+Date: Thu, 04 Sep 2003 16:22:16 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: John Cherry <cherry@osdl.org>, trivial@rustcorp.com.au
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL][PATCH] fix parallel builds for aic7xxx]
+Message-ID: <59600000.1062714135@aslan.btc.adaptec.com>
+In-Reply-To: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net>
+References: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net>
+X-Mailer: Mulberry/3.1.0b6 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200309042212.25052.jimwclark@ntlworld.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Clark wrote:
-> Why would binary drivers be any harder to debug than the existing binary 
-> kernel. If you want to debug something use the source code. My proposal 
-> doesn't remove the need for quality public source code but it does isolate 
-> the kernel components and allow for 'plugin' use on different kernels both 
-> old and new.
+> 
+> My compile regression scripts were getting random build failures for
+> aic7xxx.  The two makefiles could not handle parallel build. 
+> Occasionally they would succeed...timing dependent.  The following two
+> patches fix this.
+> 
+> Part 1 - drivers/scsi/aic7xxx/Makefile
 
-Your first statement doesn't make sense.
+I don't understand this patch.  It places the .seq file as a target
+that is rebuilt by invoking the assembler.  The .seq file is not
+a generated file.
 
-We don't debug binary kernels by themselves - we debug them with source.
+Can you explain the nature of the failure and why you believe this
+fixes the problem (other than - "it seems to work with my testing").
+The previous Makefile appears to be perfectly valid.
 
-Binary drivers that come without source are almost impossible to debug.
+> Part 2 - drivers/scsi/aic7xxx/aicasm/Makefile
 
-If we can't debug the drivers, we'll soon have a Linux community
-that's full of broken drivers.
+This also doesn't make a lot of sense to me.  Is gmake so
+dumb as to not be able to understand that the invocation of
+a single target may satisfy multiple dependencies?
 
-If broken binary-only drivers becomes significant for many users,
-Linux will become much less fun - and it may harm its adoption and
-improvment.
+--
+Justin
 
-Some would say the problem of binary-only drivers is already
-significantly harming the development process: think of the people
-running 2.4-only drivers who cannot be involved in 2.6 testing or
-development.
-
-Also the rate at which new open source drivers are produced will
-decrease, because there will be less useful source for authors to
-learn from.
-
--- Jamie

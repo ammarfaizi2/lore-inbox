@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265678AbUGGXR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUGGXYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUGGXR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 19:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUGGXR5
+	id S265681AbUGGXYV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 19:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUGGXYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 19:17:57 -0400
-Received: from mail48.e.nsc.no ([193.213.115.48]:60652 "EHLO mail48.e.nsc.no")
-	by vger.kernel.org with ESMTP id S265678AbUGGXRz (ORCPT
+	Wed, 7 Jul 2004 19:24:21 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:23960 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S265681AbUGGXYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 19:17:55 -0400
-To: tom st denis <tomstdenis@yahoo.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Gabriel Paubert <paubert@iram.es>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL
-References: <20040707185340.42091.qmail@web41112.mail.yahoo.com>
-From: Harald Arnesen <harald@skogtun.org>
-Date: Thu, 08 Jul 2004 01:17:36 +0200
-In-Reply-To: <20040707185340.42091.qmail@web41112.mail.yahoo.com> (tom st
- denis's message of "Wed, 7 Jul 2004 11:53:40 -0700 (PDT)")
-Message-ID: <87iscz9zlb.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 7 Jul 2004 19:24:18 -0400
+Date: Thu, 8 Jul 2004 01:24:10 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Frediano Ziglio <freddyz77@tin.it>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Subject: Re: EDD enhanchement patch
+Message-ID: <20040707232409.GC11556@apps.cwi.nl>
+References: <1089132808.4435.8.camel@freddy> <20040707174015.GB11556@apps.cwi.nl> <1089233331.6856.20.camel@freddy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089233331.6856.20.camel@freddy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tom st denis <tomstdenis@yahoo.com> writes:
+On Wed, Jul 07, 2004 at 10:48:51PM +0200, Frediano Ziglio wrote:
 
-> Point is 0xDEADBEEFUL is just as simple to type and avoids any sort of
-> ambiguitity.  It means unsigned long.  No question about it.  No having
-> to refer to subsection 12 of paragraph 15 of section 23 of chapter 9 to
-> figure that out.
+> Did anyone forget about first fields? base-port and control-port ? If
+> you have an IDE disk they correspond with IDE port and with slave bit
+> you can know exactly which disk is. EDD 3.0 it's not required cause it's
+> EDD 2.0 (supported by most recent BIOSes).
 
-If people write either 0XdeadbeefUL or 0xDEADBEEFul, fine. But this is a
-place where character case really makes a difference in readibility-
+True. Below a simple example for hda and hdb.
+Yes, having EDD 2.0 helps.
 
-> Why people are fighting over this is beyond me.  Fine, write it as
-> 0xDEADBEEF see what the hell I care.  Honestly.  Open debate or what?  
->
-> And I don't need mr. Viro coming down off his mountain saying "oh you
-> fail it" because I don't know some obscure typing rule that I wouldn't
-> come accross because *** I AM NOT LAZY ***.  Hey mr. Viro what have you
-> contributed to the public domain lately?  Anything I can harp on in
-> public and abuse?  
+> lba 0 ?? cursize 0 ?? sector > 63 ??
+> IMHO this disk doesn't exist...
 
-I think you will find that mr. Viro has contributed quite a lot :-)
--- 
-Hilsen Harald.
+It was hdh: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive, with geometry
+(probably 96/64/32, don't know why C and S are interchanged)
+obtained from HDIO_GET_IDENTITY.
+
+> For 0x84 it must be hda cause it's the first IDE.
+
+hda or hdb. Since that system boots from SCSI there is no reason to
+prefer seeing the first or second IDE disk in the BIOS setup.
+(Don't know anymore what the truth was.)
+
+> I know that some boot loader can however change disk order.
+
+Also Linux can change disk order with boot option "ide=reverse".
+
+Andries
+
+----------------------------------------------------------------------------------------
+disk 0: len=30 api=0x1
+  flags 2, phys CHS 2100/255/63, totsecs 33736500, seclen 512
+iobase 0x1f0  controlport 0x3f6 irq 14 sector_count 16 dma 32 pio 4
+flags: 0xe0: LBA, Master; revision 1.1
+
+disk 1: len=30 api=0x1
+  flags 2, phys CHS 2100/255/63, totsecs 33736500, seclen 512
+iobase 0x1f0  controlport 0x3f6 irq 14 sector_count 16 dma 32 pio 4
+flags: 0xf0: LBA, Slave; revision 1.1
+
+Found 2 Linux disks
+
+hda: Size  33750864 LinuxCHS=2100/255/63 FdiskCHS=*/0/63
+  LBASize  33750864 CurSize  33750864  RawCHS=33483/16/63 CurCHS=2100/255/63
+hdb: Size  33750864 LinuxCHS=2100/255/63 FdiskCHS=*/255/63
+  LBASize  33750864 CurSize  33750864  RawCHS=33483/16/63 CurCHS=2100/255/63
+
+Found 2 BIOS disks
+
+0 of 2:   33720435 sectors, C/H/S 1024 / 255 / 63 C*H*S=16450560
+1 of 2:   33720435 sectors, C/H/S 1024 / 255 / 63 C*H*S=16450560
+
+
+hda: 0x80
+hdb: 0x81
+----------------------------------------------------------------------------------------
+

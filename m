@@ -1,104 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318213AbSG3F54>; Tue, 30 Jul 2002 01:57:56 -0400
+	id <S318214AbSG3GBj>; Tue, 30 Jul 2002 02:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318214AbSG3F54>; Tue, 30 Jul 2002 01:57:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:39506 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318213AbSG3F5z>; Tue, 30 Jul 2002 01:57:55 -0400
-Date: Tue, 30 Jul 2002 08:02:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S318215AbSG3GBj>; Tue, 30 Jul 2002 02:01:39 -0400
+Received: from mx9.mail.ru ([194.67.57.19]:27657 "EHLO mx9.mail.ru")
+	by vger.kernel.org with ESMTP id <S318214AbSG3GBi>;
+	Tue, 30 Jul 2002 02:01:38 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19rc3aa4
-Message-ID: <20020730060218.GB1181@dualathlon.random>
+Cc: ebiederm@xmission.com
+Subject: Re: Funding GPL projects or funding the GPL?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
+Date: Tue, 30 Jul 2002 10:05:01 +0400
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ZQ7x-000PK2-00@f17.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Async-io is completely untested, if somebody adapts the user libs and
-test it I'd love to hear if it really works :). thanks.
+>>      Most of you, people, didn`t ever thought about the fact that the money
+>> scheme
+>>   doesn`t simply work at all. That`s it.
+>> 
+>>   It`s being a _very_ fundamental issue. Look at the history:
+>>   Money were invented as a human work equivalent. What it
+>>   became now - this exercise is for the reader.
+>
+> Money is not a human work equivalent.  Money is a commodity that
+>everyone will barter with.  Making bartering more efficient.
+>
+> With pure barter you have to do something like:
+>work -> stuff1 -> stuff2 ->stuff3 -> stuff you want.
+>With money this usually becomes
+work -> money -> stuff you want.
 
-URL:
+>>   So the life shows that we cannot rely on the
+>> money as a human work equivalent.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa4.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc3aa4/
+>This makes the assumption that all work is equally valuable.  But you
+>already made the assertion that a manager sitting around is not as
+>a miner.
+  I`m sorry but you should forget that crap.
+Humans are born for cooperation, otherwise
+they seem not to survive.
+And the said "work valuability" doesn`t seem to be a mental excuse
+for the extreme success of selected individuals in society, does it?
 
-Only in 2.4.19rc3aa4: 00_coherent-oops-locking-1
+We don`t want to reinvent the broken wheel, because all known
+problems will arise then. Again.
 
-	Lock around the printk in mm/fault.c too (from Benjamin LaHaise).
+>Eric
 
-Only in 2.4.19rc3aa3: 00_extraversion-2
-Only in 2.4.19rc3aa4: 00_extraversion-3
+---
+cheers,
+   Samium Gromoff
 
-	Bump extraversion (popular request).
-
-Only in 2.4.19rc3aa4: 00_stack-overflow-detection-1
-
-	Detect stack overflows dynamically during irqs (from Benjamin LaHaise)
-
-Only in 2.4.19rc3aa4: 05_vm_20_cleanups-1
-
-	Avoid a few minor compile warnings.
-
-Only in 2.4.19rc3aa3: 10_rawio-vary-io-10
-Only in 2.4.19rc3aa4: 10_rawio-vary-io-11
-
-	Fix typo.
-
-Only in 2.4.19rc3aa3: 10_sched-o1-hyperthreading-1
-Only in 2.4.19rc3aa4: 10_sched-o1-hyperthreading-2
-
-	Fix another typo, and reorganized algorithm
-	from J.A. Magallon.
-
-Only in 2.4.19rc3aa4: 50_uml-patch-2.4.18-47.gz
-Only in 2.4.19rc3aa3: 52_uml-sys-read-write-3
-Only in 2.4.19rc3aa4: 52_uml-sys-read-write-4
-
-	Latest uml updates from Jeff.
-
-Only in 2.4.19rc3aa3: 70_xfs-1.1-4.gz
-Only in 2.4.19rc3aa4: 70_xfs-1.1-5.gz
-
-	Rediffed.
-
-Only in 2.4.19rc3aa3: 90_module-oops-tracking-2
-Only in 2.4.19rc3aa4: 90_module-oops-tracking-3
-
-	Fix a typo (noticed with an impressive low latency by Keith Owens ;)
-
-Only in 2.4.19rc3aa4: 9900_aio-1.gz
-
-	Merged async-io from Benjamin LaHaise after purifying it from the
-	/proc/libredhat.so mess that made it not binary compatible with 2.5.
-
-	While merging I did a number of cleanups and fixes, to mention a few of
-	them I fixed a shell root exploit in map_user_kvect by using
-	get_user_pages (that honours VM_MAYWRITE), it avoids corruption of
-	KM_IRQ0 by doing spin_lock_irq in aio_read_evt, and a number of other
-	minor not security and not stability related changes.  Left out the
-	networking async-io, it can be merged trivially at a later stage (if
-	needed :).
-
-	This breaks all archs except x86 again. I just took care of the most
-	obvious bits like highmem and kmap-types in the kiovec api, but still
-	the wtd semaphores are missing and they go down to asm. So to compile
-	on alpha s390 and s390x for now you can simply backout this patch
-	called 9900__aio-1.gz and it should work fine then.
-
-Only in 2.4.19rc3aa4: 9900_aio-API-x86-1
-
-	Implement a real API to use async-io with true registered syscalls
-	(to avoid the not 2.5 forward compatible dynamic syscalls and
-	/proc/libredhat.so hack).
-
-	Patch for 2.5 to register the true syscalls in mainline is here:
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.5/2.5.29/aio-api-1
-
-Andrea

@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVBIPes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVBIPpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVBIPes (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 10:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVBIPes
+	id S261835AbVBIPpj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 10:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVBIPpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 10:34:48 -0500
-Received: from nevyn.them.org ([66.93.172.17]:4225 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261833AbVBIPeq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 10:34:46 -0500
-Date: Wed, 9 Feb 2005 10:34:41 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.11-rc3: Kylix application no longer works?
-Message-ID: <20050209153441.GA8809@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20050207221107.GA1369@elf.ucw.cz> <20050207145100.6208b8b9.akpm@osdl.org> <20050208175106.GA1091@elf.ucw.cz> <20050208111625.0bb1896d@dxpl.pdx.osdl.net> <20050208181018.5592beab.akpm@osdl.org>
+	Wed, 9 Feb 2005 10:45:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30341 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261835AbVBIPpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 10:45:34 -0500
+Date: Wed, 9 Feb 2005 10:10:11 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Todd Shetter <tshetter-lkml@earthlink.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernel BUG at filemap.c:81
+Message-ID: <20050209121011.GA13614@logos.cnet>
+References: <42099C57.9030306@earthlink.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050208181018.5592beab.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <42099C57.9030306@earthlink.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 06:10:18PM -0800, Andrew Morton wrote:
-> We could just remove the printk and stick a comment over it.  If the
-> application later tries to access the not-there pages then it'll just
-> fault.
+On Wed, Feb 09, 2005 at 12:15:03AM -0500, Todd Shetter wrote:
+> Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
+> 2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a system 
+> lockup. This happens in both X and console. Happens with and without my 
+> Nvidia drivers loaded. I cannot determine what makes this bug present it 
+> self besides highmem and high i/o support enabled. Im guessing the 
+> system is fine until highmem is actually used to some point and then it 
+> borks, but I really have no idea and so im just making a random guess. I 
+> ran memtest86 for a few hours a while ago thinking that it may be bad 
+> memory, but that did not seem to be the problem.
 > 
-> However I worry if there is some way in which we can leave unzeroed memory
-> accessible to the application, although it's hard to see how that could
-> happen.
+> If you need anymore information, or have questions, or wish me to test 
+> anything, PLEASE feel free to contact me, I would really like to see 
+> this bug resolved. =)
 > 
-> Daniel, Pavel cruelly chopped you off the Cc when replying.  What's your
-> diagnosis on the below?
+> --
+> Todd Shetter
+> 
+> 
+> Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
+> Feb  8 19:49:31 quark kernel: invalid operand: 0000
+> Feb  8 19:49:31 quark kernel: CPU:    0
+> Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
 
-It's asking for a lot of unwritable zeroed space.  See this:
+Hi Todd, 
 
->   LOAD           0x000000 0x08048000 0x08048000 0xb7354 0x1b7354 R E 0x1000
->   LOAD           0x0b7354 0x08200354 0x08200354 0x1e3e4 0x1f648 RW  0x1000
-
-The 0xb7354 is size to map from the file, the 0x1b7354 is size to map
-in memory.  We're supposed to zero-fill the rest.  Now that I think
-about it I can see why this is a problem - the kernel probably assumes
-that any segment with MemSiz > FileSiz will be writable.  Certainly
-it's a bit weird for the app to request unwritable zeroed pages.
-
-clear_user's probably not the right way to provide the extra zeroing.
-
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Why is your kernel tainted ?

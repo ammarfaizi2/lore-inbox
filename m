@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262775AbSJGUd7>; Mon, 7 Oct 2002 16:33:59 -0400
+	id <S262785AbSJGUq7>; Mon, 7 Oct 2002 16:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263129AbSJGUdJ>; Mon, 7 Oct 2002 16:33:09 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:38153 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262775AbSJGUbg>; Mon, 7 Oct 2002 16:31:36 -0400
-Date: Mon, 7 Oct 2002 22:37:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@redhat.com>,
-       Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-Message-ID: <20021007203714.GC7428@atrey.karlin.mff.cuni.cz>
-References: <1034021987.26503.24.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0210071616120.913-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210071616120.913-100000@xanadu.home>
-User-Agent: Mutt/1.3.28i
+	id <S263190AbSJGUq6>; Mon, 7 Oct 2002 16:46:58 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29196 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262785AbSJGUqs>; Mon, 7 Oct 2002 16:46:48 -0400
+Date: Mon, 7 Oct 2002 13:51:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: <linux-kernel@vger.kernel.org>, <maxk@qualcomm.com>
+Subject: Re: [PATCH] Make it possible to compile in the Bluetooth subsystem
+In-Reply-To: <Pine.LNX.4.33.0210071347470.10749-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0210071350420.10749-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-
-> > > If BK migrates to proprietary format everybody will notice and you'll still
-> > > have the opportunity to rescue a not too old repository and carry on with
-> > > life using whatever alternate SCM you wish.  If such a thing happened Lary
-> > > would be publicly and universally discredited and he's not looking for that
-> > > I'm sure.
-> > 
-> > If BK migrates to a proprietary format the code won't be in the
-> > preferred form of the work for making modifications.
+On Mon, 7 Oct 2002, Linus Torvalds wrote:
 > 
-> Because you think BK will still have the backing of all kernel developers
-> using it today if that happens?  Some might find BK's nice to use despite its
-> license, but locking the main kernel repository into a proprietary format is
-> totally unacceptable for most if not all of them I'm sure.  
+> Looks good, but you should _not_ remove the "static". Please keep the init
+> functions static, they will be explicitly exported to the stuff that cares
+> (and nobody else) by the "module_init()" thing anyway.
 
-Of course Larry would have to do the changes "slowly" so people would
-not notice. And every time someone complains he can repeat his "I'm
-running business".
+In other words, I think the patch should be just this instead..
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+		Linus
+
+diff -Nru a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+--- a/net/bluetooth/af_bluetooth.c	Mon Oct  7 22:16:14 2002
++++ b/net/bluetooth/af_bluetooth.c	Mon Oct  7 22:16:14 2002
+@@ -356,11 +356,9 @@
+ 	remove_proc_entry("bluetooth", NULL);
+ }
+ 
+-#ifdef MODULE
+ module_init(bluez_init);
+ module_exit(bluez_cleanup);
+ 
+ MODULE_AUTHOR("Maxim Krasnyansky <maxk@qualcomm.com>");
+ MODULE_DESCRIPTION("BlueZ Core ver " VERSION);
+ MODULE_LICENSE("GPL");
+-#endif
+diff -Nru a/net/bluetooth/rfcomm/tty.c b/net/bluetooth/rfcomm/tty.c
+--- a/net/bluetooth/rfcomm/tty.c	Mon Oct  7 22:16:14 2002
++++ b/net/bluetooth/rfcomm/tty.c	Mon Oct  7 22:16:14 2002
+@@ -501,12 +501,6 @@
+ #endif
+ }
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+-#define __minor MINOR
+-#else
+-#define __minor minor
+-#endif
+-
+ static int rfcomm_tty_open(struct tty_struct *tty, struct file *filp)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -514,7 +508,7 @@
+ 	struct rfcomm_dlc *dlc;
+ 	int err, id;
+ 
+-        id = __minor(tty->device) - tty->driver.minor_start;
++        id = minor(tty->device) - tty->driver.minor_start;
+ 
+ 	BT_DBG("tty %p id %d", tty, id);
+ 
+
+

@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264516AbTK0NHz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 08:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbTK0NHz
+	id S264511AbTK0NDB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 08:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTK0NDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 08:07:55 -0500
-Received: from cpc3-hitc2-5-0-cust116.lutn.cable.ntl.com ([81.99.82.116]:26090
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S264516AbTK0NHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 08:07:52 -0500
-Message-ID: <3FC5F8A7.1000709@reactivated.net>
-Date: Thu, 27 Nov 2003 13:14:15 +0000
-From: Daniel Drake <dan@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031018 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: exiting X and rebooting
-References: <200311270617.03654.gene.heskett@verizon.net>
-In-Reply-To: <200311270617.03654.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Nov 2003 08:03:01 -0500
+Received: from stan.ping.de ([62.72.95.4]:63911 "EHLO stan.ping.de")
+	by vger.kernel.org with ESMTP id S264511AbTK0NBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 08:01:31 -0500
+X-IMAP-Sender: rene
+Date: Thu, 27 Nov 2003 13:53:44 +0100
+X-OfflineIMAP-x1320464056-52656d6f7465-494e424f582e4f7574626f78: 1069937677-0804292084135
+From: Rene Engelhard <rene@rene-engelhard.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11: Mouse breaks after Suspend-to-RAM
+Message-ID: <20031127125344.GA2606@rene-engelhard.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux
+X-GnuPG-Key: $ finger rene@db.debian.org
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which display driver are you using for X? Using Xinerama/multi-displays or similar?
-I noticed this behaviour once on a dual-monitor setup. After starting X then 
-exiting it, I noticed the problems that you describe on the primary monitor. 
-However the secondary monitor was showing the output as normal (including 
-cursor) if I remember correctly.
-Both displays were running from a single GeForce4 Ti card, using the nvidia 
-binary driver under X. No framebuffer.
 
-Never found the problem, but never really investigated either.
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Gene Heskett wrote:
-> Greetings;
-> 
-> I'm not sure what category this minor complaint falls under, but since 
-> its evidenced by a 2.6 kernel and not a 2.4, this seems like the 
-> place.
-> 
-> One of the things I've been meaning to mention is that if I'm running 
-> a 2.6 kernel, and exit X to reboot, the shell that had a cursor when 
-> I started X from it, no longer has a cursor when x has been stopped.  
-> This occurs only for 2.6 kernels, but works as usual for 2.4 kernels 
-> giving a big full character block for a cursor.
-> 
-> One can still type, and the keystrokes are echo'd properly.  But it is 
-> a bit un-nerving at first.  Logging clear out and back in again to 
-> re-init the shell doesn't help.  The cursor is gone.
-> 
+[ please Cc: me as I am not on linux-kernel ]
 
+Hi,
+
+Suspend-to-Dsk via Software Suspend seems to work fine -- however,
+Suspend-to-RAM doesn't.
+
+When I echo 3 > /proc/acpi/sleep it goes into sleep mode as it should
+and it awakes as it should. However, my mouse in X then is really
+confused and does not do what I want it to do.
+
+On the tthy then there is written:
+
+psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization,
+throwing 2 bytes away.
+
+I need to reboot :/
+
+This "mouse" is a trackpad if that helps..
+
+If you need some more infos, mail me..
+
+Gr=FC=DFe/Regards,
+
+Ren=E9
+
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/xfPX+FmQsCSK63MRAqKEAJ991YLmoJtPMLejFvQArfu5OR2NQQCfX7ax
+Uex6ez9k5uhvQVEuJr1eT70=
+=IelA
+-----END PGP SIGNATURE-----
+
+--OgqxwSJOaUobr8KG--

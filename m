@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290771AbSBFT7S>; Wed, 6 Feb 2002 14:59:18 -0500
+	id <S290772AbSBFUJb>; Wed, 6 Feb 2002 15:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290772AbSBFT66>; Wed, 6 Feb 2002 14:58:58 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:9479 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290771AbSBFT64>; Wed, 6 Feb 2002 14:58:56 -0500
-Message-ID: <3C618AFD.7148EEAA@linux-m68k.org>
-Date: Wed, 06 Feb 2002 20:58:53 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <Pine.LNX.4.33.0202060931220.19836-100000@athlon.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290782AbSBFUJU>; Wed, 6 Feb 2002 15:09:20 -0500
+Received: from unthought.net ([212.97.129.24]:56473 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S290772AbSBFUJO>;
+	Wed, 6 Feb 2002 15:09:14 -0500
+Date: Wed, 6 Feb 2002 21:09:12 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Dave Francheski <davef@seven-systems.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gprof / profiling support ?
+Message-ID: <20020206210912.L14729@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Dave Francheski <davef@seven-systems.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C5C1E8A.9D0FFAD3@torque.net> <LBEMJABKBLOPOMBFFMDEKECOCBAA.davef@seven-systems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <LBEMJABKBLOPOMBFFMDEKECOCBAA.davef@seven-systems.com>; from davef@seven-systems.com on Tue, Feb 05, 2002 at 03:20:47PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Linus Torvalds wrote:
-
-> > > However, some of it pays off already. Basically, I'm aiming to be able to
-> > > accept patches directly from email, with the comments in the email going
-> > > into the revision control history.
-> >
-> > Um, what's so special about it, what a shell script couldn't do as well?
+On Tue, Feb 05, 2002 at 03:20:47PM -0800, Dave Francheski wrote:
+> I'm trying to profile an application
+> using the 'gprof' utility, and in particular
+> get timing information from the profile.
 > 
-> About this particular change-set? Nothing. In fact, most of it is
-> generated from a shell script before it goes into the BK archive.
+> For some reason, the output from gprof
+> displays 
+> 
+> "no time accumulated"
+> 
+> and I see no cumulative/self seconds
+> at all.  However, all of the call counts
+> appear to be correct.
+> 
+> I suspect that the sampling rate using
+> by gprof/linux is simply two slow, given
+> the particular application I'm running.
+> 
+> Can anybody help me obtain timing information
+> from gprof and/or point me to a better
+> source for application profiling in general?
 
-Sorry, I meant the part about accepting patches directly from email.
-Pine supports piping a mail to a script, this script could try to apply
-the patch and extract the text in front of the patch, but it could of
-course also recognize a bk patch and feed it to bk.
-The important thing is to avoid two classes of patches, bk patches and
-patches, which would create extra work for you. It would be no problem
-to use tags, which can be easily extracted by above script, just tell
-us, how they should look like.
+This is way OT for linux-kernel, but here goes:
 
-bye, Roman
+If you application runs for a very short amount of time (say, less than a
+second) the profile will probably be dominated by glibc startup, application
+initializations and exit routines.   It's useless.   That you don't have
+time accumulated is the least of your problems - even with the times, your
+profile would be random numbers and random function names.
+
+In order to profile *anything* - you should make sure that it runs for a while
+(I would say minutes at least, but it depends very much on the complexity of
+your application, eg. number of functions involved, and how their run-time is
+affected by data input and the environment (timing-sensitive threaded
+applications etc.)).  You simply need a good data sample, otherwise any data
+you have will be dominated by noise, and your profile will be random.
+
+If it's a very small computational routine, simply put it in a
+   for (int i = 0; i != 100000; i++) { ... }
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

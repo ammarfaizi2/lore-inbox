@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbRABXW5>; Tue, 2 Jan 2001 18:22:57 -0500
+	id <S130188AbRABXYr>; Tue, 2 Jan 2001 18:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130188AbRABXWs>; Tue, 2 Jan 2001 18:22:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56082 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130075AbRABXWc>;
-	Tue, 2 Jan 2001 18:22:32 -0500
-Date: Tue, 2 Jan 2001 23:51:51 +0100
+	id <S131216AbRABXYh>; Tue, 2 Jan 2001 18:24:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57362 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130188AbRABXYU>;
+	Tue, 2 Jan 2001 18:24:20 -0500
+Date: Tue, 2 Jan 2001 23:50:37 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Kernel Related Emails <kernel@penguin.linuxhardware.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD not functioning
-Message-ID: <20010102235151.C17330@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0101021404050.7900-100000@penguin.linuxhardware.org>
+To: Dan Hollis <goemon@anime.net>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Hakan Lennestal <hakanl@cdt.luth.se>,
+        Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+Message-ID: <20010102235037.B17330@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0101022222320.612-100000@imladris.demon.co.uk> <Pine.LNX.4.30.0101021441290.15631-100000@anime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0101021404050.7900-100000@penguin.linuxhardware.org>; from kernel@penguin.linuxhardware.org on Tue, Jan 02, 2001 at 02:04:44PM -0500
+In-Reply-To: <Pine.LNX.4.30.0101021441290.15631-100000@anime.net>; from goemon@anime.net on Tue, Jan 02, 2001 at 02:42:39PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02 2001, Kernel Related Emails wrote:
-> It appears that DVD calls have been broken in the new prerelease
-> kernel.  I have been trying to use a DVD application under prerelease that
-> worked under test9 with no luck.
-> 
-> Any ideas?
+On Tue, Jan 02 2001, Dan Hollis wrote:
+> Also, using CDROM on hpt366 is recipe for disaster...
 
-Eh very hard to say, can you say a bit more about what happens? What dvd
-calls? What breaks and how?
+ATAPI in general actually, and as I understand it only with DMA.
 
 -- 
 * Jens Axboe <axboe@suse.de>

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317892AbSIERFe>; Thu, 5 Sep 2002 13:05:34 -0400
+	id <S315870AbSIERVO>; Thu, 5 Sep 2002 13:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317947AbSIERFd>; Thu, 5 Sep 2002 13:05:33 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:39686 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317892AbSIEREb>; Thu, 5 Sep 2002 13:04:31 -0400
-Date: Thu, 5 Sep 2002 18:09:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20pre5aa1
-Message-ID: <20020905180904.A8406@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random>
+	id <S317359AbSIERVO>; Thu, 5 Sep 2002 13:21:14 -0400
+Received: from angband.namesys.com ([212.16.7.85]:39852 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S315870AbSIERVO>; Thu, 5 Sep 2002 13:21:14 -0400
+Date: Thu, 5 Sep 2002 21:25:45 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Chris Mason <mason@suse.com>
+Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+Message-ID: <20020905212545.A5349@namesys.com>
+References: <3D76A6FF.509@namesys.com> <1031186951.1684.205.camel@tiny> <20020905054008.GH24323@louise.pinerecords.com> <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com> <20020905174902.A32687@namesys.com> <1031234624.1726.224.camel@tiny> <20020905181721.D32687@namesys.com> <1031244334.1684.264.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020905165307.GC1254@dualathlon.random>; from andrea@suse.de on Thu, Sep 05, 2002 at 06:53:07PM +0200
+In-Reply-To: <1031244334.1684.264.camel@tiny>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 06:53:07PM +0200, Andrea Arcangeli wrote:
-> btw, even if xfs is applied before the inode_read_write-atomic,  please
-> make sure xfs will learn using the i_size_read when out of the semaphore
-> and i_size_write too. I know the locking is different there but I doubt
-> you're just managing the i_size without races.
+Hello!
 
-XFS always has the XFS i_lock around accessing it.  Either in read mode
-or in write mode for updates (the lock is a so-called mrlock which
-basically as a rwsem with a few subtile differences).
+On Thu, Sep 05, 2002 at 12:45:34PM -0400, Chris Mason wrote:
+> > > read the -noleaf description on the find man page to see why we need to
+> > > set the directory link count to 1 when we are lying to userspace about
+> > > the actual link count on directories. 
+> > 
+> > There is nothing about nlink == 1 means assume -noleaf, so it should not work
+> > with old way too, right? Have anybody verified? ;)
+> I remember that happening during the initial discussions for the link
+> patch.  1 was chosen as the best way to do it, since it was a flag to
+> various programs that the unix directory link convention was not being
+> followed.
+> > Actually patch might be easily modified to represent i_nlink == 1 for
+> > large directories, but still maintain correct on-disk nlink count.
+> Right.
 
-Anyway most acceses i_size in the new code are done by the generic
-code now as XFS calls it internally.  Take a look at the update I sent
-you a few seconds ago :)
+Ok, I will come up with revised patch tomorrow and do 2.5 port (and
+advise Vitaly about reiserfsck part)
+
+Bye,
+    Oleg

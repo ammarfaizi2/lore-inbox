@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262203AbSJISXb>; Wed, 9 Oct 2002 14:23:31 -0400
+	id <S262421AbSJISgH>; Wed, 9 Oct 2002 14:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262204AbSJISXb>; Wed, 9 Oct 2002 14:23:31 -0400
-Received: from relay.muni.cz ([147.251.4.35]:8886 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S262203AbSJISX3>;
-	Wed, 9 Oct 2002 14:23:29 -0400
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Petr Konecny <pekon@fi.muni.cz>
-Subject: Re: 2.5.41-ac1: Debug: sleeping function called from illegal context at include/asm/semaphore.h:145
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-Message-ID: <qwwzntnxy8b.fsf@decibel.fi.muni.cz>
-Cc: akpm@digeo.com, rml@tech9.net
-Date: Wed, 9 Oct 2002 18:29:08 GMT
-X-Nntp-Posting-Host: decibel.fi.muni.cz
-X-Url: http://www.fi.muni.cz/~pekon/
-Content-Type: text/plain; charset=us-ascii
-References: <20021008031136.GA1887@izno.net>
-Mime-Version: 1.0
-Organization: unknown
-X-Muni-Virus-Test: Clean
-To: unlisted-recipients:; (no To-header on input)
+	id <S262423AbSJISgC>; Wed, 9 Oct 2002 14:36:02 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:5040 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S262421AbSJISfL>;
+	Wed, 9 Oct 2002 14:35:11 -0400
+Date: Wed, 9 Oct 2002 11:43:18 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [bk/patch] IDE driver model update
+Message-ID: <Pine.LNX.4.44.0210091131360.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Martin Dahl (Martin) said:
 
- Martin> On my thinkpad a20m i get the following debug messages during boot:
- Martin> At IDE initialization:
+Ok, this basically a resend of the IDE driver model update from two days, 
+with two changes:
 
- Martin> Debug: sleeping function called from illegal context at mm/slab.c:1374
- Martin> Call Trace:
- Martin> [__kmem_cache_alloc+202/208] __kmem_cache_alloc+0xca/0xd0
- Martin> [blk_init_free_list+101/224] blk_init_free_list+0x65/0xe0
- Martin> [blk_init_queue+23/256] blk_init_queue+0x17/0x100
- Martin> [ide_init_queue+57/160] ide_init_queue+0x39/0xa0
- Martin> [do_ide_request+0/48] do_ide_request+0x0/0x30
- Martin> [init_irq+462/912] init_irq+0x1ce/0x390
- Martin> [ide_intr+0/384] ide_intr+0x0/0x180
- Martin> [hwif_init+216/608] hwif_init+0xd8/0x260
- Martin> [probe_hwif_init+36/112] probe_hwif_init+0x24/0x70
- Martin> [ide_setup_pci_device+80/128] ide_setup_pci_device+0x50/0x80
- Martin> [piix_init_one+54/64] piix_init_one+0x36/0x40
- Martin> [init+53/352] init+0x35/0x160
- Martin> [init+0/352] init+0x0/0x160
- Martin> [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
-Same here on Dell Inspiron 5000.
+- Add and use a struct device in ide_drive_t.
+- Remove ->release() method() and move call to driver's cleanup() into
+  ->remove() (mimicking previous behavior of reboot notifier).
 
-Happens with CONFIG_PREEMPT=y. Disappears with CONFIG_PREEMPT=n.
+Please apply.
 
-                                                Petr
+Thanks,
+
+	-pat
+
+Please pull from 
+
+	bk://ldm.bkbits.net/linux-2.5-ide
+
+This will update the following files:
+
+ drivers/ide/ide-disk.c  |   18 -----------
+ drivers/ide/ide-probe.c |   23 +++++++++------
+ drivers/ide/ide.c       |   73 ++++++++++++++----------------------------------
+ include/linux/ide.h     |    2 +
+ 4 files changed, 39 insertions(+), 77 deletions(-)
+
+through these ChangeSets:
+
+<mochel@osdl.org> (02/10/09 1.730)
+   IDE: make ide_drive_remove() call driver's ->cleanup().
+   
+   This was accidentally dropped before, but re-added now to completely mimic
+   behavior of the reboot notifier IDE used to have. 
+
+<mochel@osdl.org> (02/10/09 1.729)
+   IDE: Add generic remove() method for drives; remove reboot notifier.
+     
+   The remove() method is generic for all drives, and set in ide_driver_t::gen_driver.
+   The call simply forwards the call to ide_driver_t::standby(). 
+   
+   This obviates the need for IDE reboot notifier. The core iterates over all present
+   devices in device_shutdown() and unregisters each one. 
+
+<mochel@osdl.org> (02/10/09 1.728)
+   IDE: register ide driver for all ide drives; not just for disk drives. 
+     
+   This adds
+         struct device_driver    gen_driver;
+     
+   to ide_driver_t, which is filled in with necessary fields when an ide
+   driver calls ide_register_driver(). That then registers the driver with
+   the driver model core. 
+     
+   As a result, this gives us the following output in driverfs:
+     
+   # tree -d /sys/bus/ide/drivers/
+   /sys/bus/ide/drivers/
+   |-- ide-cdrom
+   `-- ide-disk
+     
+   The suspend/resume callbacks in ide-disk.c have been temporarily
+   disabled until the ide core implements generic methods which forward
+   the calls to the drive drivers. 
+
+<mochel@osdl.org> (02/10/09 1.727)
+   IDE: add struct device to ide_drive_t and use that for IDE drives
+   
+   ... instead of the one in struct gendisk.
+
 

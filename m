@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284730AbRLPRbB>; Sun, 16 Dec 2001 12:31:01 -0500
+	id <S284732AbRLPRcV>; Sun, 16 Dec 2001 12:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbRLPRaw>; Sun, 16 Dec 2001 12:30:52 -0500
-Received: from mustard.heime.net ([194.234.65.222]:24209 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284730AbRLPRao>; Sun, 16 Dec 2001 12:30:44 -0500
-Date: Sun, 16 Dec 2001 18:30:25 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Repost: Bug in RAID subsys and/or cache handeling
-Message-ID: <Pine.LNX.4.30.0112161820120.5493-100000@mustard.heime.net>
+	id <S284737AbRLPRcL>; Sun, 16 Dec 2001 12:32:11 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:32726 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S284732AbRLPRb6>; Sun, 16 Dec 2001 12:31:58 -0500
+Date: Sun, 16 Dec 2001 19:33:35 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][OOPS] loop block device induced on 2.5.1-pre11+HIGHMEM
+In-Reply-To: <Pine.LNX.4.33.0112162022530.12588-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0112161932440.23025-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+On Sun, 16 Dec 2001, Ingo Molnar wrote:
 
-I'm sorry to repost this - I just need some sort of fix, or perhaps try
-another OS, like a BSD or something
+> yes, it's a valid configuration. Eg. distribution makers are frequently
+> using highmem-enabled kernels - and it's a natural thing that they boot &
+> work just fine on non-highmem boxes as well. Also, even a highmem box
+> could have a RAM failure anytime that forces a temporary removal of RAM,
+> causing the box to have no highmem RAM anymore, in which situation it
+> would be pretty awkward if the highmem-enabled kernel failed.
 
-On my computer, I've set up a 2-disk stripe set (RAID-0). Each disk has
-some 120GB disk space, and is pretty fast. Each disk can do some 40 megs
-per second disk-to-memory.
+Thanks, i'll try the patch this evening when i get home and give you the
+lowdown.
 
-However, when reading multiple, large files (3 gigs each) simultanously,
-vmstat first shows quite high throughput (~ 40-50 megs per sec). But as I
-reach the point where I've filled the cache, speed is reduced to 1-2 megs
-per sec.
+Cheers,
+	Zwane Mwaikambo
 
-I'm running 2.4.16 with the latest tux patches plus Andrea's IDE patch.
-I'm positive that this is not a tux problem. I've also tried 2.4.17-rc1,
-but all I got out of that was some 20-30% slower I/O.
-
-Hardware:
-
-Athlon 1133MHz
-1GB RAM (highmem disabled in kernel)
-1x20 gig disk for root partition
-2x120 gig disks in RAID-0 (chunk size = 4096) for data partition
-
-
-Please help me out here...
-
-Regards
-
-roy
-
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
 

@@ -1,73 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263026AbTHaWpf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbTHaWpf
+	id S262992AbTHaWmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTHaWmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:45:35 -0400
-Received: from [64.114.249.16] ([64.114.249.16]:22215 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263026AbTHaWpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:45:33 -0400
-Date: Sun, 31 Aug 2003 16:44:48 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
-Message-ID: <20030831164448.O15623@schatzie.adilger.int>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030829172451.GA27023@matchmail.com> <20030829180957.GC27023@matchmail.com> <20030830131421.M15623@schatzie.adilger.int> <20030830235819.GD898@matchmail.com>
+	Sun, 31 Aug 2003 18:42:40 -0400
+Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:15554
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S262992AbTHaWmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:42:38 -0400
+Subject: Re: [SHED] Questions.
+From: Ian Kumlien <pomac@vapor.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1062359478.1313.9.camel@boobies.awol.org>
+References: <1062324435.9959.56.camel@big.pomac.com>
+	 <1062355996.1313.4.camel@boobies.awol.org>
+	 <1062358285.5171.101.camel@big.pomac.com>
+	 <1062359478.1313.9.camel@boobies.awol.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Dmrrqda+frqP4AAxPKrB"
+Message-Id: <1062369684.9959.166.camel@big.pomac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030830235819.GD898@matchmail.com>; from mfedyk@matchmail.com on Sat, Aug 30, 2003 at 04:58:19PM -0700
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 01 Sep 2003 00:41:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 30, 2003  16:58 -0700, Mike Fedyk wrote:
-> On Sat, Aug 30, 2003 at 01:14:21PM -0600, Andreas Dilger wrote:
-> > On Aug 29, 2003  11:09 -0700, Mike Fedyk wrote:
-> > > On Fri, Aug 29, 2003 at 10:24:51AM -0700, Mike Fedyk wrote:
-> > >  o Find out that a directory is using htree?
-> > 
-> > "lsattr <dir>" will show it.  Note that it will only ever be set on
-> > directories that are larger than a single disk block.
-> > 
-> > # lsattr -d d1
-> > ----------I-- d1
-> > 
-> 
-> Ok, now I only have htree enabled on one of my maildir folders.
-> 
-> > >  o Disable htree on my /?  (tune2fs -O ^dir_index), but then how do I get
-> > >    my directories back to non-htree without running fsck from a rescue CD?
-> > 
-> > That's the great thing about htree - you don't need to do anything to turn
-> > it off.  The on-disk format is exactly the same as without htree, and the
-> > first time you modify the directory it will clear the per-directory htree
-> > flag.
-> 
-> I'll do more testing to see if it fails only on that folder now.
-> 
-> But how do I re-enable htree on the directories (besides an fsck -D) in a
-> live system?
 
-You need to re-enable the dir_index feature, and then for directories which
-are larger than a block in size you need something like:
+--=-Dmrrqda+frqP4AAxPKrB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	mkdir new_dir
-	mv old_dir/* new_dir
-	rmdir old_dir
-	mv new_dir old_dir
+On Sun, 2003-08-31 at 21:51, Robert Love wrote:
+> On Sun, 2003-08-31 at 15:31, Ian Kumlien wrote:
+>=20
+> > Since they would have a high pri still, and preempt is there... it
+> > should be back on the cpu pretty quick.
+>=20
+> Ah, but no!  You assume we do not have an expired list and round robin
+> scheduling.
 
-The new directory will have htree enabled because it started out at 1 block
-in size.
+hummm, I assume that a high pri process can preempt a low pri process...
+The rest sounds sane to me =3D), Please tell me what i'm missing.. =3D)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> Once a task exhausts its timeslice, it cannot run until all other tasks
+> exhaust their timeslice.  If this were not the case, high priority tasks
+> could monopolize the system.
+
+All other? including sleeping?... How many tasks can be assumed to run
+on the cpu at a time?....
+
+Should preempt send the new quantum value to all "low pri, high quantum"
+processes?
+
+Damn thats a tough cookie, i still think that the priority inversion is
+bad. Don't know enough about this to actually provide a solution...=20
+Any one else that has a view point?
+
+> > But, it also creates problems for when a interactive process becomes a
+> > cpu hog. Like this the detection should be faster, but should be slowed
+> > down somewhat.
+>=20
+> I agree, although I do think it responds fairly quick.  But, regardless,
+> this is why I am interested in Nick's work.  The interactivity estimator
+> can never be perfect.
+
+Hummm, the skips in xmms tells me that something is bad..=20
+(esp since it works perfectly on the previus scheduler)
+
+> > But, hogs would instead cause a context switch hell and lessen the
+> > throughput on server loads...
+>=20
+> Hm, why?
+
+Since it's rescheduled after a short runtime or, might be.
+=46rom someones mail i saw (afair), there was much more context switches
+in 2.6 than in 2.4. And each schedule consumes time and cycles.
+
+> > I don't see how priorities would be questioned... Since, all i say is
+> > that a task that gets preempted should have a guaranteed time on the cp=
+u
+> > so that we don't waste cycles doing context switches all the time.=20
+>=20
+> But latency is important.
+
+Oh yes, but otoh, if you are really keen on the latency then you'll do
+realtime =3D)
+
+--=20
+Ian Kumlien <pomac@vapor.com>
+
+--=-Dmrrqda+frqP4AAxPKrB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/UnmU7F3Euyc51N8RAryOAKCaObXywUHlz9flXu6BGDlXYBXgIwCgl4zo
+p4D+kNsiQrVtY8voFkbNs4U=
+=FgQo
+-----END PGP SIGNATURE-----
+
+--=-Dmrrqda+frqP4AAxPKrB--
 

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262483AbREZB3Z>; Fri, 25 May 2001 21:29:25 -0400
+	id <S262432AbREZBgi>; Fri, 25 May 2001 21:36:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbREZB3P>; Fri, 25 May 2001 21:29:15 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22281 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262483AbREZB27>; Fri, 25 May 2001 21:28:59 -0400
-Date: Fri, 25 May 2001 18:28:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-        Ben LaHaise <bcrl@redhat.com>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.31.0105251731090.1105-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.31.0105251826290.1126-100000@penguin.transmeta.com>
+	id <S262504AbREZBg1>; Fri, 25 May 2001 21:36:27 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59398 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262432AbREZBgZ>;
+	Fri, 25 May 2001 21:36:25 -0400
+Date: Fri, 25 May 2001 22:35:58 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.5
+In-Reply-To: <Pine.LNX.4.31.0105251826290.1126-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105252235260.30264-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 25 May 2001, Linus Torvalds wrote:
 
-Ok, I applied Andrea's (nee Ingo's) version, as that one most clearly
-attacked the real deadlock cause. It's there as 2.4.5 now.
+> Ok, I applied Andrea's (nee Ingo's) version, as that one most clearly
+> attacked the real deadlock cause. It's there as 2.4.5 now.
 
-I'm going to be gone in Japan for the next week (leaving tomorrow
-morning), so please don't send me patches - I won't be able to react to
-them anyway. Consider the -ac series and the kernel mailing list the
-regular communications channels..
+But only for highmem bounce buffers. Normal GFP_BUFFER
+allocations can still headlock.
 
-Thanks,
+> I'm going to be gone in Japan for the next week
 
-		Linus
+Oh well, I guess people can always run the -ac kernel ;)
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUDOStI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUDOSqV
+	id S263775AbUDOStH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUDOSq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:46:21 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:19731 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S261638AbUDOSnH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:43:07 -0400
-Content-class: urn:content-classes:message
+	Thu, 15 Apr 2004 14:46:27 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:36022 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S263089AbUDOSmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 14:42:45 -0400
+Date: Thu, 15 Apr 2004 13:42:09 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <184380000.1082054529@[10.1.1.4]>
+In-Reply-To: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: IO-APIC on nforce2 [PATCH]
-Date: Thu, 15 Apr 2004 11:33:44 -0700
-Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FB9D@mail-sc-6-bk.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IO-APIC on nforce2 [PATCH]
-Thread-Index: AcQii1sMayI33UYYRC+gZ5wxybOFpQAi+3yA
-From: "Allen Martin" <AMartin@nvidia.com>
-To: <ross@datscreative.com.au>, "Len Brown" <len.brown@intel.com>,
-       =?iso-8859-1?Q?Christian_Kr=F6ner?= 
-	<christian.kroener@tu-harburg.de>,
-       "Linux-Nforce-Bugs" <Linux-Nforce-Bugs@exchange.nvidia.com>
-Cc: <linux-kernel@vger.kernel.org>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> True it is a bios thing but I have yet to see an nforce2 MOBO 
-> that is not 
-> routed in this way. I am thinking it is internal to the 
-> chipset. I have seen
-> none route it into io-apic pin2.
 
-It was a bug in our original nForce reference BIOS that we gave out to vendors.  Since then we fixed the reference BIOS, but since it was after products shipped, most of the motherboard vendors won't pick up the change unless they get complaints from customers.
+--On Thursday, April 15, 2004 18:50:42 +0100 Hugh Dickins
+<hugh@veritas.com> wrote:
 
-We've fixed it for our reference BIOS for future products though.
+> Though I have to admit I'm sceptical: prio_tree appears to be well
+> designed for the issue in question, list-of-lists sounds, well,
+> no offence, but a bit of a hack.
 
+It is a bit of a hack, but the theory behind it is fairly simple.  It came
+out of my early efforts to sort the list. Martin and I produced a theory
+that many vmas have identical start and end addresses due to fork and/or
+fixed address mappings.  If this theory is true list-of-lists will create a
+much shorter top-level list of unique start-end pairs for searching.  We'd
+only need to walk the second level list when we get a match to the search.
 
--Allen
+It never got any serious exposure or testing.  It came out just as
+everyone's attention shifted away from objrmap so no one really looked at
+it.
+
+Dave McCracken
+

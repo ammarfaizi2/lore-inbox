@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265532AbSKOBS0>; Thu, 14 Nov 2002 20:18:26 -0500
+	id <S265543AbSKOBXr>; Thu, 14 Nov 2002 20:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265537AbSKOBSZ>; Thu, 14 Nov 2002 20:18:25 -0500
-Received: from packet.digeo.com ([12.110.80.53]:45802 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265532AbSKOBSY>;
-	Thu, 14 Nov 2002 20:18:24 -0500
-Message-ID: <3DD44CF4.6C28CF86@digeo.com>
-Date: Thu, 14 Nov 2002 17:25:08 -0800
+	id <S265564AbSKOBXr>; Thu, 14 Nov 2002 20:23:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:55530 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265543AbSKOBXq>;
+	Thu, 14 Nov 2002 20:23:46 -0500
+Message-ID: <3DD44E39.4703C2DA@digeo.com>
+Date: Thu, 14 Nov 2002 17:30:33 -0800
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       rl@hellgate.ch, linux-kernel@vger.kernel.org,
-       Mikael Pettersson <mikpe@csd.uu.se>, mingo@redhat.com
-Subject: Re: Yet another IO-APIC problem (was Re: via-rhine weirdness 
- withviakt8235 Southbridge)
-References: <20021115002822.G6981@pc9391.uni-regensburg.de> <20021115011738.D17058@pc9391.uni-regensburg.de> <3DD445EF.9080002@pobox.com> <3DD4481F.72627800@digeo.com> <3DD44B4E.3030102@pobox.com>
+To: Tim Hockin <thockin@sun.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
+References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com> <20021114193156.A2801@devserv.devel.redhat.com> <3DD443EC.2080504@sun.com> <3DD44742.2DFE4407@digeo.com> <3DD44CC0.40805@sun.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 01:25:11.0685 (UTC) FILETIME=[D78E3B50:01C28C45]
+X-OriginalArrivalTime: 15 Nov 2002 01:30:33.0915 (UTC) FILETIME=[979EA0B0:01C28C46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Tim Hockin wrote:
 > 
 > Andrew Morton wrote:
 > 
-> > Jeff Garzik wrote:
+> > What are you actually using the search for?
 > >
-> > >...
-> > >IMO we should just take out UP IOAPIC support in the kernel, or put a
-> > >big fat warning in the kernel config _and_ at boot...
-> > >
+> >>From a quick look, it seems that it's purely to answer
+> > the question "is this process a member of group X?".  Is
+> > that correct?
 > >
-> >
-> > It would be nice to get it working, because oprofile needs it.
-> >
-> > (Well, oprofile can use the rtc, but then it doesn't profile
-> > ints-off code)
+> > If so, test_bit() would work nicely.
 > 
-> I don't see it happening, when uniprocessor mobo vendors (a) don't wire
-> it up, or (b) put buggy data in their MP tables...   :(
+> This could work if we find the max gid, allocate an array of
+> max_gid/CHAR_BITS + 1 bytes then test_bit, but given the non-contiguity
+> (is that a word) of group memberships, we'll waste a lot of space on
+> holes. Now, it could be argued that 10,000 groups are PROBABLY local
+> enough.  Getting the groups back out will be nasty nastiness, though.
+> 
+> perhaps:
+> 
+> if (gidsetsize < (2 * EXEC_PAGESIZE)/sizeof(gid_t)) { /* or something */
+>         /* use kmalloc() */
+> else
+>         /* use vmalloc() */
+> 
+> thoughts?
 > 
 
-OK.  Actually, rtc-based profiling gives perfectly grand results for
-profiling userspace, and those people who want to profile their
-interrupt handlers presumably know where to buy a decent motherboard.
+10,000 bits isn't much.  Maybe:
+
+- add `char groups[16]' to task_struct
+
+- add `struct page *groups_page' to task_struct
+
+- then
+	if (getsetsize <= 256)
+		use current->groups[]		/* 256 groups max */
+	else
+		use current->groups_page;	/* 32768 groups max */

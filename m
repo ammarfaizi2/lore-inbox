@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281918AbRLKRF3>; Tue, 11 Dec 2001 12:05:29 -0500
+	id <S281921AbRLKRHT>; Tue, 11 Dec 2001 12:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281921AbRLKRFT>; Tue, 11 Dec 2001 12:05:19 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:34439 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S281918AbRLKRFK>;
-	Tue, 11 Dec 2001 12:05:10 -0500
-Date: Tue, 11 Dec 2001 12:05:06 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "H . J . Lu" <hjl@lucon.org>
-Cc: Linux 1394 <linux1394-devel@lists.sourceforge.net>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Slow Disk I/O with QPS M3 80GB HD
-Message-ID: <20011211120506.J22537@visi.net>
-In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org> <20011211110507.H22537@visi.net> <20011211084552.A25750@lucon.org>
+	id <S282242AbRLKRHJ>; Tue, 11 Dec 2001 12:07:09 -0500
+Received: from ps.ksky.ne.jp ([210.233.160.3]:56195 "EHLO ps.ksky.ne.jp")
+	by vger.kernel.org with ESMTP id <S282064AbRLKRG6>;
+	Tue, 11 Dec 2001 12:06:58 -0500
+To: Alan.Cox@linux.org, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, hng@ps.ksky.ne.jp
+Subject: SubmittingDrivers of Linux kernel Documentation
+X-Mailer: Mew version 1.94.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011211084552.A25750@lucon.org>
-User-Agent: Mutt/1.3.23i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011212020318D.hng@ps.ksky.ne.jp>
+Date: Wed, 12 Dec 2001 02:03:18 +0900
+From: Hirokazu Nomoto <hng@ps.ksky.ne.jp>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 08:45:52AM -0800, H . J . Lu wrote:
-> On Tue, Dec 11, 2001 at 11:05:07AM -0500, Ben Collins wrote:
-> > On Mon, Dec 10, 2001 at 11:57:08PM -0800, H . J . Lu wrote:
-> > > On Mon, Dec 10, 2001 at 08:34:52PM -0800, H . J . Lu wrote:
-> > > > I have a very strange problem. The disk I/O of my QPS M3 80GB HD is
-> > > > very slow under 2.4.10 and above. I got like 1.77 MB/s from hdparm.
-> > > > But under 2.4.9, I got 14 MB/s on the same hardware. A 30GB HD has
-> > > > consistent I/O performance under 2.4.9 and above on the same bus. Has
-> > > > anyone else seen this? Does anyone have a large (>= 80GB) 1394 HD?
-> > > > 
-> > > 
-> > > I did a binary search. 2.4.10-pre10 is the last good kernel. I got
-> > > 
-> > > # hdparm -t /dev/sda
-> > > 
-> > > /dev/sda:
-> > >  Timing buffered disk reads:  64 MB in  4.40 seconds = 14.55 MB/sec
-> > 
-> > Have you checked the way that your ohci and sbp2 devices are detected
-> > under each case? Most notably the max packet size.
-> > 
-> 
-> They all say
-> 
-> ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[19]  MMIO=[f8ffd000-f8ffe000]  Max Packet=[1024]
-> ieee1394: sbp2: SBP-2 device max speed S200 and payload 1KB
+Hello.
+I think there is some typo about SubmittingDrivers of Linux kernel
+Documentation.
+So, I made a patch for 2.2.20 and 2.4.16.
+Please apply them.
+I don't know this maintainer or autor, so I send you.
 
-Have you tried linux1394 CVS with a 2.4.10pre10 kernel to narrow down
-where the slowdown has occured?
+regards,
+Hiro
 
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+For 2.2.20:
+======================================================================
+--- SubmittingDrivers	Sat Nov  3 01:39:05 2001
++++ SubmittingDrivers.new	Wed Dec 12 01:50:00 2001
+@@ -14,7 +14,7 @@
+ site is http://www.lanana.org/. This also deals with allocating numbers for
+ devices that are not going to be submitted to the mainstream kernel.
+ 
+-If you don't use assigned numbers then when you device is submitted it will
++If you don't use assigned numbers then when your device is submitted it will
+ get given an assigned number even if that is different from values you may
+ have shipped to customers before.
+ 
+@@ -57,7 +57,7 @@
+ 		in Documentation/CodingStyle. If you have sections of code
+ 		that need to be in other formats, for example because they
+ 		are shared with a windows driver kit and you want to
+-		maintain them just once seperate them out nicely and note
++		maintain them just once separate them out nicely and note
+ 		this fact.
+ 
+ Portability:	Pointers are not always 32bits, people do not all have
+======================================================================
+For 2.4.16:
+======================================================================
+--- SubmittingDrivers	Tue Aug 28 00:59:16 2001
++++ SubmittingDrivers.new	Wed Dec 12 01:52:47 2001
+@@ -18,7 +18,7 @@
+ also deals with allocating numbers for devices that are not going to
+ be submitted to the mainstream kernel.
+ 
+-If you don't use assigned numbers then when you device is submitted it will
++If you don't use assigned numbers then when your device is submitted it will
+ get given an assigned number even if that is different from values you may
+ have shipped to customers before.
+ 
+@@ -61,7 +61,7 @@
+ 		in Documentation/CodingStyle. If you have sections of code
+ 		that need to be in other formats, for example because they
+ 		are shared with a windows driver kit and you want to
+-		maintain them just once seperate them out nicely and note
++		maintain them just once separate them out nicely and note
+ 		this fact.
+ 
+ Portability:	Pointers are not always 32bits, people do not all have
+======================================================================

@@ -1,119 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266443AbTCEMxh>; Wed, 5 Mar 2003 07:53:37 -0500
+	id <S266224AbTCENBE>; Wed, 5 Mar 2003 08:01:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTCEMxD>; Wed, 5 Mar 2003 07:53:03 -0500
-Received: from main.gmane.org ([80.91.224.249]:35206 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S266379AbTCEMwx>;
-	Wed, 5 Mar 2003 07:52:53 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Metzler <lkml-2003-03@downhill.at.eu.org>
-Subject: [2.4.21-pre5] compile error in ip_conntrack_ftp.c:440:
-Date: Wed, 5 Mar 2003 12:56:37 +0000 (UTC)
-Message-ID: <b44s65$pdl$1@main.gmane.org>
-X-Complaints-To: usenet@main.gmane.org
-X-Archive: encrypt
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.21-pre4 (i686))
+	id <S266233AbTCENBD>; Wed, 5 Mar 2003 08:01:03 -0500
+Received: from holomorphy.com ([66.224.33.161]:35741 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266224AbTCENA7>;
+	Wed, 5 Mar 2003 08:00:59 -0500
+Date: Wed, 5 Mar 2003 05:10:56 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Michael Vergoz <mvergoz@sysdoor.com>
+Cc: alan@lxorguk.ukuu.org.uk, timothy.a.reed@lmco.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: High Mem Options
+Message-ID: <20030305131056.GT1195@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Michael Vergoz <mvergoz@sysdoor.com>, alan@lxorguk.ukuu.org.uk,
+	timothy.a.reed@lmco.com, linux-kernel@vger.kernel.org
+References: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com> <20030305131116.0556f3a5.mvergoz@sysdoor.com> <1046871362.14169.0.camel@irongate.swansea.linux.org.uk> <20030305134937.5414b913.mvergoz@sysdoor.com> <20030305125747.GS1195@holomorphy.com> <20030305140257.2ab08ab8.mvergoz@sysdoor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305140257.2ab08ab8.mvergoz@sysdoor.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since iirc 2.4.20 I get this error when compiling a kernel:
-|-------------------
-| make[2]: Entering directory `/tmp/KERNEL/linux-2.4.20-pre5/net/ipv4/netfilter'
-| make[2]: Circular /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
-| ld -m elf_i386 -r -o ip_conntrack.o ip_conntrack_standalone.o ip_conntrack_core.o ip_conntrack_proto_generic.o ip_conntrack_proto_tcp.o ip_conntrack_proto_udp.o ip_conntrack_proto_icmp.o
-| gcc -D__KERNEL__ -I/tmp/KERNEL/linux-2.4.20-pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=ip_conntrack_ftp  -c -o ip_conntrack_ftp.o ip_conntrack_ftp.c
-| ip_conntrack_ftp.c:440: parse error before `this_object_must_be_defined_as_export_objs_in_the_Makefile'
-| ip_conntrack_ftp.c:440: warning: type defaults to `int' in declaration of `this_object_must_be_defined_as_export_objs_in_the_Makefile'
-| ip_conntrack_ftp.c:440: warning: data definition has no type or storage class
-| make[2]: *** [ip_conntrack_ftp.o] Error 1
-| make[2]: Leaving directory `/tmp/KERNEL/linux-2.4.20-pre5/net/ipv4/netfilter'
-| make[1]: *** [_modsubdir_ipv4/netfilter] Error 2
-| make[1]: Leaving directory `/tmp/KERNEL/linux-2.4.20-pre5/net'
-| make: *** [_mod_net] Error 2
-|-------------------
+On Wed, 5 Mar 2003 04:57:47 -0800, William Lee Irwin III wrote:
+>> The cpu can't look at more than 4GB at a time.
+>> Protected mode doesn't help this, turning paging on and PAE on does.
+>> What it can do is point pagetables at different 4GB subsets of memory.
+>> c.f. kmap_atomic() for how to window around using what's actually a
+>> very small set of PTE's.
 
-IIRC the error is in ip_conntrack_itc, too.
+On Wed, Mar 05, 2003 at 02:02:57PM +0100, Michael Vergoz wrote:
+> Right, but if the pagetable pointing to a different 4GB subsets of
+> memory. The performance of the system can be disastrous, not?
 
-How to reproduce:
-make mrproper
-copy config below to .config
-make menuconfig --> Exit&Save
-make dep
-# optional: make bzImage - Logfile above was generated this way
-make modules
+Well, the TLB gets blown away at the drop of a hat. Things just have
+lower scaling factors with respect to memory than say, 64-bit, though
+Linux doesn't do anything about TLB coverage on 64-bit yet anyway.
 
-This looks exactly like
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0209.2/0923.html
-but hasn't this been fixed since?
+It might be better to take this one to kernelnewbies@nl.linux.org
 
-Please Cc me on replies.
-            thanks, cu andreas
 
-----------stripped down example config---------
-CONFIG_X86=y
-CONFIG_UID16=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_M686=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_HAS_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_F00F_WORKS_OK=y
-CONFIG_NOHIGHMEM=y
-CONFIG_X86_TSC=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=m
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_INET_ECN=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_DRM=y
-CONFIG_DRM_NEW=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_ZLIB_INFLATE=y
-----------------------------------------
-
+-- wli

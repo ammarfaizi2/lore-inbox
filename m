@@ -1,128 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267366AbTAMOtV>; Mon, 13 Jan 2003 09:49:21 -0500
+	id <S267515AbTAMO6Y>; Mon, 13 Jan 2003 09:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267606AbTAMOtV>; Mon, 13 Jan 2003 09:49:21 -0500
-Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:39611 "EHLO
-	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267366AbTAMOtP>; Mon, 13 Jan 2003 09:49:15 -0500
-Date: Mon, 13 Jan 2003 09:56:11 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: How to avoid the woord 'goto' (was Re: any chance of	2.6.0-test*?)
-In-reply-to: <2825.1042456135@frodo.gams.co.at>
-To: Bernd Petrovitsch <bernd@gams.at>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042469771.846.5.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
- <2825.1042456135@frodo.gams.co.at>
+	id <S267679AbTAMO6X>; Mon, 13 Jan 2003 09:58:23 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52721 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267515AbTAMO6W>; Mon, 13 Jan 2003 09:58:22 -0500
+Date: Mon, 13 Jan 2003 16:07:08 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Richard B. Tilley  \(Brad\)" <rtilley@vt.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs and Releases Numbers
+Message-ID: <20030113150708.GI21826@fs.tum.de>
+References: <1042469616.28005.36.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042469616.28005.36.camel@oubop4.bursar.vt.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, but..
+On Mon, Jan 13, 2003 at 09:53:36AM -0500, Richard B. Tilley  (Brad) wrote:
 
-My changes won't actually be incorporated (i hope) into the kernel. 
-I've since learned that a goto will optimize to be just as quick as what
-I wrote (by studying the optimized assembler output at other
-suggestion).  Therefore, it was silly and pointless for me to spend the
-10-12 minutes I did changing the code and testing it and e-mailing back
-the changes.
+> Hello,
 
-So, there's nothing to worry about.  Goto's are here forever.
+Hi Richard,
 
--Rob
+> How are bug patches worked into the current stable release? For example,
+> the ext3 file corruption bug in 2.4.20, was that patch worked into the
+> kernel or will it be included in 2.4.21? I'm confused about the exact
+> details of this type of thing. If the patch was worked in to 2.4.20, how
+> can one tell as the release number doesn't/hasn't changed?
+>...
 
-On Mon, 2003-01-13 at 06:08, Bernd Petrovitsch wrote:
-> Rob Wilkens <robw@optonline.net> wrote:
-> [...]
-> >Here's the patch if you want to apply it (i have only compile tested it,
-> >I haven't booted with it).. This patch applied to the 2.5.56 kernel.
-> >
-> >--- open.c.orig	2003-01-12 16:17:01.000000000 -0500
-> >+++ open.c	2003-01-12 16:22:32.000000000 -0500
-> >@@ -100,44 +100,58 @@
-> > 
-> > 	error = -EINVAL;
-> > 	if (length < 0)	/* sorry, but loff_t says... */
-> >-		goto out;
-> >+		return error;
-> > 
-> > 	error = user_path_walk(path, &nd);
-> > 	if (error)
-> >-		goto out;
-> >+		return error;
-> > 	inode = nd.dentry->d_inode;
-> [ snipped the rest ]
+the kernel that was released as 2.4.20 will never be changed.
+
+The ext3 problems are fixed in the 2.4.21-pre kernels and the fixed ext3 
+code will be in 2.4.21.
+
+> Thank you,
 > 
-> You just copied the logic to "cleanup and leave" the function several 
-> times. The (current, next and subsequent) maintainers at the next 
-> change in that function simply _have_ to check all cases as if they 
-> are different.
-> Yes, _now_ you (and all others) know that they are identical. But in 6 
-> month after tons of patches?
-> 
-> Perhaps you want to avoid goto's with:
-> ----  snip (yes, it is purposely not a `diff -urN`)  ----
-> switch(0==0) {
-> default:
->     error = -EINVAL;
->     if (length < 0) /* sorry, but loff_t says... */
->         break;
->     error = user_path_walk(path, &nd);
->     if (error)
->         break;
->     inode = nd.dentry->d_inode;
-> 
->     switch(0==0) {
->     default:
->         /* For directories it's -EISDIR, for other non-regulars - -EINVAL */
->         error = -EISDIR;
->         if (S_ISDIR(inode->i_mode))
-> 	    break;
->         error = -EINVAL;
->         if (!S_ISREG(inode->i_mode))
->             break;
-> 
->         error = permission(inode,MAY_WRITE);
->         if (error)
->             break;
-> 
->         error = -EROFS;
->         if(IS_RDONLY(inode))
->             break;
-> 
->         /* the rest omitted - the pattern should be clear */
-> 
->         put_write_access(inode);
->         break;
->     }
->     path_release(&nd);
->     break;
-> }
-> return error;
-> ----  snip  ----
-> 
-> FYI, backward goto's can be rewritten with:
-> ----  snip  ----
-> 
->     for(;;) {
->         <do something>
->         if(i_want_to_go_back)
->             continue;
->         <do something_else>
->         break;
->     }
-> ----  snip  ----
-> 
-> Are these two more understandable because the avoid the 'goto'?
-> And try to see it not from the viewpoint of a first time reader, but
-> from the viewpoint of a/the maintainer/developer (who reads this code
-> probably quite often)?
-> 
-> 	Bernd
+> Brad
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

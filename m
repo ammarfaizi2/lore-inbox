@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265088AbUELAPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265068AbUELAX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265088AbUELAPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 20:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUELANO
+	id S265068AbUELAX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbUELAMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 20:13:14 -0400
-Received: from nevyn.them.org ([66.93.172.17]:47768 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S265076AbUELAHS (ORCPT
+	Tue, 11 May 2004 20:12:43 -0400
+Received: from hera.kernel.org ([63.209.29.2]:27830 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265088AbUELAIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 20:07:18 -0400
-Date: Tue, 11 May 2004 20:07:09 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Valdis.Kletnieks@vt.edu, Dave Airlie <airlied@linux.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net
-Subject: Re: From Eric Anholt:
-Message-ID: <20040512000709.GA10233@nevyn.them.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Valdis.Kletnieks@vt.edu,
-	Dave Airlie <airlied@linux.ie>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	dri-devel@lists.sourceforge.net
-References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com> <Pine.LNX.4.58.0405120018360.3826@skynet> <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu> <20040511234329.GA27242@kroah.com>
+	Tue, 11 May 2004 20:08:16 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
+Date: Wed, 12 May 2004 00:07:44 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c7rpsg$ghd$1@terminus.zytor.com>
+References: <20040503230911.GE7068@logos.cnet> <200405042253.11133@WOLK> <40982AC6.5050208@eyal.emu.id.au> <20040506121302.GI9636@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040511234329.GA27242@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1084320464 16942 127.0.0.1 (12 May 2004 00:07:44 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 12 May 2004 00:07:44 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 04:43:29PM -0700, Greg KH wrote:
-> On Tue, May 11, 2004 at 07:34:39PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> > On Wed, 12 May 2004 00:20:51 BST, Dave Airlie said:
+Followup to:  <20040506121302.GI9636@fs.tum.de>
+By author:    Adrian Bunk <bunk@fs.tum.de>
+In newsgroup: linux.dev.kernel
+> > >
+> > >yep. Either we backport WARN_ON ;) or simply do the attached.
+> > >
+> > >--- old/drivers/net/tg3.c	2004-05-04 14:30:22.000000000 +0200
+> > >+++ new/drivers/net/tg3.c	2004-05-04 14:49:58.000000000 +0200
+> > >@@ -51,6 +51,10 @@
+> > > #define TG3_TSO_SUPPORT	0
+> > > #endif
+> > > 
+> > >+#ifndef WARN_ON
+> > >+#define	WARN_ON(x)	do { } while (0)
+> > >+#endif
 > > 
-> > > I just looked at drm.h and nearly all the ioctls use int, this file is
-> > > included in user-space applications also at the moment, I'm worried
-> > > changing all ints to __u32 will break some of these, anyone on DRI list
-> > > care to comment?
-> > 
-> > Is this a case where somebody is *really* including kernel headers in userspace
-> > and we need to smack them, or are they using a copy that's been sanitized
-> > (and possibly fixed)?
+> > Related but off topic. Do people find the ab#define	WARN_ON(x)
+> > a macro acceptable? The fact is that not mentioning 'x' means any
+> > side-effects are not executed, meaning the author must take special
+> > care when using this macro.
+> >...
 > 
-> Don't know, but how are you dealing with the issue that an "int" is
-> different for different kernel sizes (64 vs 32) and userspace too.
-> That's why you can't use it in an ioctl and expect things to work
-> properly.
+> Do not use code with side effects in BUG_ON and WARN_ON.
+> 
 
-I'm not disagreeing that it ought to use __u32, but are there any Linux
-supported targets that don't have a 32-bit int?  It's long that tends
-to change size.
+Why not use the much simpler:
 
--- 
-Daniel Jacobowitz
+#ifndef WARN_ON
+# define WARN_ON(x) ((void)(x))
+#endif
+
+Preserves side effects and everything.
+
+	-hpa

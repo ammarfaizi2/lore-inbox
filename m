@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267499AbTBXSXa>; Mon, 24 Feb 2003 13:23:30 -0500
+	id <S266907AbTBXS1m>; Mon, 24 Feb 2003 13:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267310AbTBXSWO>; Mon, 24 Feb 2003 13:22:14 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:3998 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267467AbTBXSTg>; Mon, 24 Feb 2003 13:19:36 -0500
-Date: Mon, 24 Feb 2003 10:29:41 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 403] New: USB controller locks up on boot.
-Message-ID: <18060000.1046111381@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267372AbTBXS1E>; Mon, 24 Feb 2003 13:27:04 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:45013 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267546AbTBXS0P>; Mon, 24 Feb 2003 13:26:15 -0500
+Date: Mon, 24 Feb 2003 19:36:24 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] extern in i2o_pci.c
+In-Reply-To: <Pine.LNX.4.51.0302241919050.27815@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.51.0302241934360.7789@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0302241919050.27815@dns.toxicfilms.tv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=403
+Hi,
 
-           Summary: USB controller locks up on boot.
-    Kernel Version: 2.5.62
-            Status: NEW
-          Severity: normal
-             Owner: greg@kroah.com
-         Submitter: davej@codemonkey.org.uk
+there's a following warning in 2.5.62-bk7:
 
+drivers/message/i2o/i2o_pci.c: In function `i2o_pci_core_attach':
+drivers/message/i2o/i2o_pci.c:373: warning: implicit declaration of
+function `i2o_sys_init'
 
-drivers/usb/host/uhci-hcd.c: ef80: host controller halted. very bad
+The following patch covers the extern.
 
-This appears immediately after booting. There are no USB devices plugged in.
+--- linux-2.5.60/drivers/message/i2o/i2o_pci.c~	2003-02-24 19:31:41.000000000 +0100
++++ linux-2.5.60/drivers/message/i2o/i2o_pci.c	2003-02-24 19:30:04.000000000 +0100
+@@ -37,6 +37,7 @@
+ #endif // CONFIG_MTRR
 
-00:1f.2 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #1) (rev 04)
-02:01.0 USB Controller: NEC Corporation USB (rev 41)
-02:01.1 USB Controller: NEC Corporation USB (rev 41)
-02:01.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
+ static int dpt;
++extern void i2o_sys_init(void);
 
-
+ /**
+  *	i2o_pci_dispose		-	Free bus specific resources

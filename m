@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbTJXPVF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTJXPVF
+	id S262298AbTJXPdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTJXPdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:21:05 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:4101 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262306AbTJXPVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:21:02 -0400
-Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "Moore, Eric Dean" <emoore@lsil.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
+	Fri, 24 Oct 2003 11:33:53 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:40628 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262298AbTJXPdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 11:33:52 -0400
+Subject: Re: Linux 2.4.23-pre8
+From: Len Brown <len.brown@intel.com>
+To: Tony Gale <gale@syntax.dstl.gov.uk>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1067008275.6437.6.camel@syntax.dstl.gov.uk>
+References: <Pine.LNX.4.44.0310222116270.1364-100000@dstl.gov.uk>
+	 <1067008275.6437.6.camel@syntax.dstl.gov.uk>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Oct 2003 11:20:59 -0400
-Message-Id: <1067008859.2109.18.camel@mulgrave>
+Organization: 
+Message-Id: <1067009626.2592.31.camel@dhcppc4>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Oct 2003 11:33:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-24 at 10:53, Moore, Eric Dean wrote:
-> Here's a patch for 2.4.23-pre8 kernel for MPT Fusion driver, coming from LSI
-> Logic.
+Thanks for the note Tony.
+Can you direct me to the bug report?
+If there isn't one yet, please file one and assign it to me.
+
+thanks,
+-Len
+
+http://bugzilla.kernel.org/
+Category: Power Management
+Component: ACPI
+
+
+On Fri, 2003-10-24 at 11:11, Tony Gale wrote:
+> On Thu, 2003-10-23 at 00:24, Marcelo Tosatti wrote:
+> > Hi, 
+> > 
+> > Here goes -pre8... It contains a quite big amount of ACPI fixes,
+> > networking changes, network driver changes, few IDE fixes, SPARC merge, SH
+> > merge, tmpfs fixes, NFS fixes, important VM typo fix, amongst others.
+> > 
 > 
-> This patch is large, so I have placed it on the LSI ftp site at:
-> ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.05.10/mptlinux-2.05
-> .10.patch
+> As reported earlier, this still fails to boot on my P-II (to recap,
+> pre6, pre7 and pre8 fail to boot - no messages after Uncompressing
+> kernel).
 > 
-> A new email address is setup for directing any MPT Fusion questions:
-> mpt_linux_developer@lsil.com
-
-The policy for driver updates into 2.4 is that they should be backports
-from 2.6 (for things like mpt fusion that have similar drivers) so that
-the newer driver gets into 2.6 first.  If you want to send the 2.6
-patches, I can queue them up for when the "bugfix only" freeze is
-relaxed.
-
-James
-
+> Reverting the ACPI changes in pre6 fixes it - note that I have ACPI
+> turned off in the config, so the CONFIG_ACPI_BOOT thing is causing the
+> problem, and it seems to be impossible to compile a kernel without it.
+> 
+> Cheers,
+> -tony
+> 
 

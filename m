@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVAERGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVAERJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVAERGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVAERGc
+	id S261840AbVAERJm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVAERJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:06:32 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:61332 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S261834AbVAERGM
+	Wed, 5 Jan 2005 12:09:41 -0500
+Received: from dialin-145-254-057-142.arcor-ip.net ([145.254.57.142]:53509
+	"EHLO spit.home") by vger.kernel.org with ESMTP id S261848AbVAERJa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:06:12 -0500
-Date: Wed, 5 Jan 2005 18:06:09 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: APIC/LAPIC hanging problems on nForce2 system.
-In-Reply-To: <41DC1AD7.7000705@gmx.de>
-Message-ID: <Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
- <41DC1AD7.7000705@gmx.de>
+	Wed, 5 Jan 2005 12:09:30 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [patch] pedantic correctness cleanup for conf.c in scripts/kconfig/ .
+Date: Wed, 5 Jan 2005 13:26:55 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501051326.56959.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tuesday 04 January 2005 00:35, Jesper Juhl wrote:
 
-On Wed, 5 Jan 2005, Prakash K. Cheemplavam wrote:
+> @@ -305,8 +305,8 @@ static int conf_choice(struct menu *menu
+>    printf("%*s%s\n", indent - 1, "", menu_get_prompt(menu));
+>    def_sym = sym_get_choice_value(sym);
+>    cnt = def = 0;
+> -  line[0] = '0';
+> -  line[1] = 0;
+> +  line[0] = '\0';
+> +  line[1] = '\0';
+>    for (child = menu->list; child; child = child->next) {
+>     if (!menu_is_visible(child))
+>      continue;
 
-> Martin Drab schrieb:
-> > Hi,
-> > 
-> > I'm witnessing a total freeze on my system when the APIC and LAPIC are
-> > enabled in kernel 2.6.10-bk7.
-> 
-> Do you know whether your bios already contains the C1 halt disconnect
-> fix? I couldn't find this line in your dmesg:
+This would make a difference and even the other change is not an improvement, 
+0 is special string marker and not a character.
 
-Aha! That might be the problem. Because there is still the factory BIOS, 
-which is F11. I'll try the current F20 when I get home and I'll let you 
-know.
+bye, Roman
 
-> PCI: nForce2 C1 Halt Disconnect fixup
-
-OK, I'll check it out.
-
-> Did it occur with earlier kernels? If yes, this is a regression.
-
-Well as I said, with the native Mandrake kernel 2.6.8.1-12mdk everything 
-was OK. First vanilla kernel I tried on this MB was somthing about 
-2.6.9-rc2 if I remember correctly and it allready had the problem, and all 
-subsequent ones had it as well.
-
-> Try as workaround if
-> 
-> athcool off
-
-OK, I'll try that.
-
-> makes your system stable. If yes, you need above fix activated.
-
-OK, I'll take a look at it and let you know of the results (hopefully in
-few hours).
-
-Thanks,
-Martin

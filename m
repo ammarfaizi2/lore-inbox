@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289506AbSAJPi6>; Thu, 10 Jan 2002 10:38:58 -0500
+	id <S289510AbSAJPqS>; Thu, 10 Jan 2002 10:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289507AbSAJPij>; Thu, 10 Jan 2002 10:38:39 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:42017 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289506AbSAJPia>; Thu, 10 Jan 2002 10:38:30 -0500
-Date: Thu, 10 Jan 2002 16:37:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Error reading multiple large files
-Message-ID: <20020110163742.N3357@inspiron.school.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0201071941100.13561-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.30.0201071941100.13561-100000@mustard.heime.net>; from roy@karlsbakk.net on Mon, Jan 07, 2002 at 07:45:57PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289511AbSAJPp6>; Thu, 10 Jan 2002 10:45:58 -0500
+Received: from oker.escape.de ([194.120.234.254]:21782 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S289510AbSAJPpy>;
+	Thu, 10 Jan 2002 10:45:54 -0500
+Date: Thu, 10 Jan 2002 16:24:56 +0100 (CET)
+From: Matthias Kilian <kili@outback.escape.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <a1grbm$n6o$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0201101619230.29097-100000@outback.escape.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 07:45:57PM +0100, Roy Sigurd Karlsbakk wrote:
-> Hi all
-> 
-> I've sent this before, but as far as I can see, nothing's changed.
-> 
-> I'm having problems reading multiple large files at once. Reading 100 1GB
-> files at once.
-> 
-> What happens is, when the buffer cache gets filled up, it all stalls, and
-> transfer speed drops from 40-50 MB/s to a mere 2MB/s.
-> 
-> This has been tested on all versions from 2.4.16-2.4.18-pre1.
+On 8 Jan 2002, H. Peter Anvin wrote:
 
-please try to reproduce on 2.4.18pre2aa2:
+> 		       initramfs buffer format
+[...]
+> compressed using gzip(1).  The simplest form of the initramfs buffer
+> is thus a single .cpio.gz file.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa2.bz2
+FYI: I've already implemented this *simplest* form for .tar.gz files. A
+patch can be found here:
 
-> 
-> I've been testing Tux, Khttpd, apache 1.3.22, Apache 2, thttpd, cp and
-> dd to verify the bug.
+http://www.escape.de/users/outback/linux/patch-2.4.17-inittar.gz
 
-tux latest version is just included in -aa. please don't apply any
-incremental patch before testing 18pre2aa2 to be sure the problem is not
-introduced by some other patch.
+(I could also prepare a patch against 2.5.x)
 
-> 
-> Please help!
-> 
-> roy
-> 
-> --
-> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> 
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So, before starting to implement the initramfs stuff, may be you should
+have a look on my version.
 
+Changing it from .tar to .cpio (if required) shouldn't be too difficult.
 
-Andrea
+Bye,
+	Kili
+

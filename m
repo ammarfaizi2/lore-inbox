@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261225AbRELLYI>; Sat, 12 May 2001 07:24:08 -0400
+	id <S261222AbRELLW6>; Sat, 12 May 2001 07:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbRELLX6>; Sat, 12 May 2001 07:23:58 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:17668 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S261225AbRELLXr>; Sat, 12 May 2001 07:23:47 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A4A.003E8B45.00@d73mta05.au.ibm.com>
-Date: Sat, 12 May 2001 16:52:27 +0530
-Subject: dma error
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261223AbRELLWi>; Sat, 12 May 2001 07:22:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58128 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261222AbRELLWa>; Sat, 12 May 2001 07:22:30 -0400
+Subject: Re: 2.4.4 kernel freeze for unknown reason
+To: mikeg@wen-online.de (Mike Galbraith)
+Date: Sat, 12 May 2001 12:18:33 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linuxkernel@AdvancedResearch.org (Vincent Stemen),
+        jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105120709570.479-100000@mikeg.weiden.de> from "Mike Galbraith" at May 12, 2001 08:05:42 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14yXPt-00044K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > > If I turn swap off all together or turn it off and back on
+> > > periodically to clear the swap before it gets full, I do not seem to
+> > > experience the lockups.
+> 
+> Why do I not see this behavior with a heavy swap throughput test load?
+> It seems decidedly odd to me that swapspace should remain allocated on
+> other folks lightly loaded boxen given that my heavily loaded box does
+> release swapspace quite regularly.  What am I missing?
 
-Was there any change in the PCI initialization code between versions
-2.4.0-test8 and 2.4.2.?
+If you swap really hard it seems much happier. If you vaguely swap stuff out 
+over time then I too see the description above only I have Rik's dont deadlock
+on oom tweak so I see apps die.
 
-I am working on a card and for the same register settings of the card, DMA
-from host memory to card memory is successfull for the 2.4.0-test8 but on
-2.4.2 kernel, the data transfer is successfull but data gets corrupted.
-
-However the DMA from card memory to system memory is succesull on both the
-versions of kernel.
-
-I am not on mailing list. So reply to my id as listed in CC.
-
-Thanks,
-Daljeet Maini
-
+Alan
 

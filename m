@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbTK0OVb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 09:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbTK0OVb
+	id S264531AbTK0Ogp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 09:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTK0Ogo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 09:21:31 -0500
-Received: from pool-151-203-223-5.bos.east.verizon.net ([151.203.223.5]:5208
-	"EHLO droundy.dyndns.org") by vger.kernel.org with ESMTP
-	id S264526AbTK0OVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 09:21:30 -0500
-Date: Thu, 27 Nov 2003 09:21:26 -0500
-From: David Roundy <droundy@abridgegame.org>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6]: IPv4: strcpy -> strlcpy
-Message-ID: <20031127142125.GG8276@jdj5.mit.edu>
-Mail-Followup-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <1069941882.1680.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1069941882.1680.2.camel@teapot.felipe-alfaro.com>
-X-Uptime: 06:05:38 up 9 days, 10:46, 12 users,  load average: 2.14, 0.90, 0.56
-User-Agent: Mutt/1.5.4i
+	Thu, 27 Nov 2003 09:36:44 -0500
+Received: from tranchant.plus.com ([81.174.183.177]:16068 "EHLO
+	tranchant.plus.com") by vger.kernel.org with ESMTP id S264531AbTK0Ogn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 09:36:43 -0500
+Message-ID: <3FC60BF2.4020008@tranchant.plus.com>
+Date: Thu, 27 Nov 2003 14:36:34 +0000
+From: Mark Tranchant <mark@tranchant.plus.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] README, kernel 2.6.0-test11
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.122 () AWL
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 27, 2003 at 03:04:42PM +0100, Felipe Alfaro Solana wrote:
-> diff -uNr linux-2.6.0-test11.orig/net/core/dev.c linux-2.6.0-test11/net/core/dev.c
-> +++ linux-2.6.0-test11/net/core/dev.c	2003-11-27 13:21:12.791315993 +0100
-> @@ -335,7 +335,7 @@
->  	for (i = 0; i < NETDEV_BOOT_SETUP_MAX; i++) {
->  		if (s[i].name[0] == '\0' || s[i].name[0] == ' ') {
->  			memset(s[i].name, 0, sizeof(s[i].name));
-> -			strcpy(s[i].name, name);
-> +			strlcpy(s[i].name, name, sizeof(s[i].map));
-                                                             ^^^
-I believe this should be name.
+A trivial but long-standing fix which I submitted a couple of days ago. 
+Here it is in proper lkml-approved form:
+
+-----------------------------
+
+--- README.orig 2003-11-27 14:30:29.000000000 +0000
++++ README      2003-11-27 14:30:48.000000000 +0000
+@@ -119,7 +119,7 @@
+     cd /usr/src/linux-2.6.N
+     make O=/home/name/build/kernel menuconfig
+     make O=/home/name/build/kernel
+-   sudo make O=/home/name/build/kernel install_modules install
++   sudo make O=/home/name/build/kernel modules_install install
+
+     Please note: If the 'O=output/dir' option is used then it must be
+     used for all invocations of make.
+
+
+-----------------------------
+
 -- 
-David Roundy
-http://www.abridgegame.org
+Mark Tranchant.
+mark@tranchant.plus.com
+
+

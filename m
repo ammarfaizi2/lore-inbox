@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271312AbTHMWkq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271327AbTHMWkq
+	id S271938AbTHMWtY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 18:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTHMWtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:40:46 -0400
-Received: from mail.gondor.com ([212.117.64.182]:14349 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S271312AbTHMWkp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:40:45 -0400
-Date: Thu, 14 Aug 2003 00:36:41 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
-Message-ID: <20030813223641.GA1921@gondor.com>
-References: <20030806150335.GA5430@gondor.com> <1060702567.21160.30.camel@dhcp22.swansea.linux.org.uk> <20030813005057.A1863@pclin040.win.tue.nl> <200308130221.26305.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Aug 2003 18:49:24 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:49566 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S271938AbTHMWtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 18:49:23 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.0-test3-mm1
+Date: Thu, 14 Aug 2003 00:49:19 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org
+References: <20030809203943.3b925a0e.akpm@osdl.org> <3F37DFDC.6080308@mvista.com> <20030813201829.GA15012@mars.ravnborg.org>
+In-Reply-To: <20030813201829.GA15012@mars.ravnborg.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200308130221.26305.bzolnier@elka.pw.edu.pl>
-X-Request-PGP: http://gondor.com/key.asc
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200308140049.20465.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 02:21:26AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> Jan, did removing offending lines from pdc202xx_old.c help?
+On Wednesday 13 August 2003 22:18, Sam Ravnborg wrote:
+> On Mon, Aug 11, 2003 at 11:26:36AM -0700, George Anzinger wrote:
+> > >that patch sets DEBUG_INFO to y by default, even if whether DEBUG_KERNEL
+> > >nor KGDB is enabled. The attached patch changes this to enable
+> > > DEBUG_INFO by default only if KGDB is enabled.
+> >
+> > Looks good to me, but.... just what does this turn on?  Its been a
+> > long time and me thinks a wee comment here would help me remember next
+> > time.
+>
+> DEBUG_INFO add "-g" to CFLAGS.
+> Main reason to introduce this was that many architectures always use
+> "-g", so a config option seemed more appropriate.
+> I do not agree that this should be dependent on KGDB.
+> To my knowledge -g is useful also without using kgdb.
 
-Ok, now I tried a kernel without the 
-"hwif->addressing = (hwif->channel) ? 0 : 1"  line in pdc202xx_old.c,
-and yes, now the 160GB drive works without aliasing parts above 137GB
-back to the beginning of the drive.
+Yes, one can enable or disable DEBUG_INFO as soon as DEBUG_KERNEL is selected, 
+this does not depend on KGDB.
 
-Some simple tests (reading and writing a few 100MB of data) didn't show
-any nasty side effects. If you want me to do additional tests, please
-tell me. At the moment the drive doesn't contain any data, so I can even
-try dangerous things.
+With the patch DEBUG_INFO is enabled by default only if KGDB is selected, but 
+even if KGDB is not selected you still may enable it by hand.
 
-Jan
+The problem was that DEBUG_INFO was enabled even if it was not reachable 
+because DEBUG_KERNEL was not selected....
 
+  Thomas

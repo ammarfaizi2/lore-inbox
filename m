@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129424AbRAaXbm>; Wed, 31 Jan 2001 18:31:42 -0500
+	id <S129373AbRAaXeC>; Wed, 31 Jan 2001 18:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129353AbRAaXbc>; Wed, 31 Jan 2001 18:31:32 -0500
-Received: from quechua.inka.de ([212.227.14.2]:16242 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129347AbRAaXbO>;
-	Wed, 31 Jan 2001 18:31:14 -0500
-Date: Thu, 1 Feb 2001 00:31:13 +0100
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs min size (was: [2.4.1] mkreiserfs on loopdevice freezes kernel)
-Message-ID: <20010201003113.A29077@lina.inka.de>
-In-Reply-To: <20010131232757.A23675@lina.inka.de> <Pine.SOL.4.21.0101312315040.24868-100000@orange.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.SOL.4.21.0101312315040.24868-100000@orange.csi.cam.ac.uk>; from jas88@cam.ac.uk on Wed, Jan 31, 2001 at 11:15:56PM +0000
-From: Bernd Eckenfels <ecki@lina.inka.de>
+	id <S129361AbRAaXdw>; Wed, 31 Jan 2001 18:33:52 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46343 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129353AbRAaXdi>; Wed, 31 Jan 2001 18:33:38 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Why isn't init PID 1?
+Date: 31 Jan 2001 15:33:09 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <95a7bl$jfu$1@cesium.transmeta.com>
+In-Reply-To: <20010131144038.26689.qmail@web118.yahoomail.com> <Pine.LNX.4.21.0102010057470.11152-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 11:15:56PM +0000, James Sutherland wrote:
-> > dd if=/dev/zero of=/var/loop.img count=32768 size=4096
+Followup to:  <Pine.LNX.4.21.0102010057470.11152-100000@server.serve.me.nl>
+By author:    Igmar Palsenberg <maillist@chello.nl>
+In newsgroup: linux.dev.kernel
 > 
-> That just creates a 128Mb file of zeros... This sounds a bit small. Why
-> "size=4096"??
-
-because i am too tired to calculate. mkreiserfs wants 32768 (32*1024) blocks
-with a size of 4k. I created the smallest possible image to test reiserfs.
-
-> > Yes, I wonder if it is a Error in mkreiserfs to require 128MB.
+> Yes. First program to run get PID 1. 
 > 
-> Have you tried using a smaller blocksize to mkreiserfs?
+> Solution : fork() in init and load the modules in the child.
+> 
 
-Sure I have.
+Or finish your script with "exec init".
 
-Greetings
-Bernd
+	-hpa
 -- 
-  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
- ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
-  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

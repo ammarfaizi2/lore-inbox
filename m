@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268904AbTBSOCp>; Wed, 19 Feb 2003 09:02:45 -0500
+	id <S268914AbTBSOQR>; Wed, 19 Feb 2003 09:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268905AbTBSOCp>; Wed, 19 Feb 2003 09:02:45 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:12172 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268904AbTBSOCo>; Wed, 19 Feb 2003 09:02:44 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200302191412.h1JECmG25452@devserv.devel.redhat.com>
-Subject: Linux 2.2.24-rc4
+	id <S268915AbTBSOQR>; Wed, 19 Feb 2003 09:16:17 -0500
+Received: from pushme.nist.gov ([129.6.16.92]:34755 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id <S268914AbTBSOQQ>;
+	Wed, 19 Feb 2003 09:16:16 -0500
 To: linux-kernel@vger.kernel.org
-Date: Wed, 19 Feb 2003 09:12:47 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
+Subject: Re: [PATCH]: M5451 (OSS trident.c) did not come out of reset
+References: <20030218151138.GU2492@actcom.co.il>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Wed, 19 Feb 2003 09:25:54 -0500
+In-Reply-To: <20030218151138.GU2492@actcom.co.il> (Muli Ben-Yehuda's message
+ of "Tue, 18 Feb 2003 17:11:38 +0200")
+Message-ID: <9cfd6lowdn1.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.2.24-rc4
-o	Fix ethernet as modules problems		(me)
-o	Fix 8139too and rtl8139 padding			(me)
+Muli Ben-Yehuda <mulix@mulix.org> writes:
 
-Linux 2.2.24-rc3
-o	Backport the ethernet padding fixes		(me)
-	| All done except 8139too, rtl8139]
+> Last time I booted 2.5, I noticed that my sound card no longer
+> works. The card is:
+>
+> 00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi]
+> M5451 PCI AC-Link Controller Audio Device (rev 01)
+>
+> And the computer is a thinkpad R30. It turns out that this patch, from
+> Alan Cox on 01/11/2002, broke it for me, by failing ali_reset_5451 if
+> the card doesn't come out of reset:
 
-Linux 2.2.24-rc2
+A similar change came in a 2.4.21pre-ac that broke sound on my Fujitsu
+P-2110.  I patched it to return success even if it never appeared to
+come out of reset, and sound worked again.  So that's another example.
 
-o	Apply AMD fix correctly				(Bruce Robson)
-o	Fix possible memory scribble in starfire	(Ion Badulescu)
+Ian
 
-Linux 2.2.24-rc1
-
-o	Fix a typo in the maintainers			(James Morris)
-o	Dave Niemi has moved				(Dave Niemi)
-o	Fix incorrect blocking on nonblock pipe		(Pete Benie)
-o	Fix misidentification of some AMD processors	(Bruce Robson)
-o	Fix a very obscure skb_realloc_headroom bug	(James Morris)
-o	Fix warning in lance driver			(Thomas Cort)
-o	Fix sign handling bug in pms driver		(Silvio Cesare)
-o	Drop mmap on /proc/<pid>/mem as 2.4/2.5 did	(Michal Zalewski)
-	(also fixes some bugs)

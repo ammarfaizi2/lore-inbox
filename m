@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbUKSRwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbUKSRzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbUKSRwn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 12:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUKSRwn
+	id S261512AbUKSRzE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 12:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUKSRzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 12:52:43 -0500
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:43106 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261517AbUKSRud convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 12:50:33 -0500
-X-Ironport-AV: i="3.87,100,1099288800"; 
-   d="scan'208"; a="117413909:sNHT24091892"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
+	Fri, 19 Nov 2004 12:55:03 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:22783 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261512AbUKSRxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 12:53:20 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Hariprasad Nellitheertha <hari@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+Date: Sat, 20 Nov 2004 02:56:36 +0900
+User-Agent: KMail/1.5.4
+Cc: pbadari@us.ibm.com, Vara Prasad <varap@us.ibm.com>
+References: <419CACE2.7060408@in.ibm.com>
+In-Reply-To: <419CACE2.7060408@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [PATCH][SERIAL][2.6.10-rc2] Add support for Dell Remote Access Card 4.
-Date: Fri, 19 Nov 2004 11:50:29 -0600
-Message-ID: <4B0A1C17AA88F94289B0704CFABEF1ABC34680@ausx2kmps304.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][SERIAL][2.6.10-rc2] Add support for Dell Remote Access Card 4.
-Thread-Index: AcTOYDtZNckHU9JpRUaRR9IT/WmjQg==
-From: <Tim_T_Murphy@Dell.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Nov 2004 17:50:30.0917 (UTC) FILETIME=[42FB6350:01C4CE60]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411200256.36218.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, sent the last one as html.
-Here's a patch to include Dell's 4th generation Remote Access Controller ids.
+On Thursday 18 November 2004 23:08, Hariprasad Nellitheertha wrote:
 
---- linux-2.6.10-rc2.orig/drivers/serial/8250_pci.c	2004-11-19 10:18:46.961572456 -0600
-+++ linux-2.6.10-rc2.patched/drivers/serial/8250_pci.c	2004-11-19 09:21:58.000000000 -0600
-@@ -2116,6 +2116,13 @@
- 		pbn_b0_bt_1_460800 },
+> There was a buggy (and unnecessary) reserve_bootmem call in the kdump
+> call which was causing hangs during early on some SMP machines. The
+> attached patch removes that.
+
+Thanks! I also had the same problem.
+
+BTW, If the first kernel enabled CONFIG_DISCONTIGMEM, the second kernel could
+not boot. since crash_reserve_bootmem() never called anywhere. 
+
+
+--- 2.6-mm/arch/i386/mm/discontig.c.orig	2004-11-20 00:14:42.000000000 +0900
++++ 2.6-mm/arch/i386/mm/discontig.c	2004-11-20 00:39:38.000000000 +0900
+@@ -32,6 +32,7 @@
+ #include <asm/e820.h>
+ #include <asm/setup.h>
+ #include <asm/mmzone.h>
++#include <asm/crash_dump.h>
+ #include <bios_ebda.h>
  
- 	/*
-+	 * Dell Remote Access Card 4 - Tim_T_Murphy@Dell.com
-+	 */
-+	{	PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_RAC4,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_b1_1_1382400 },
+ struct pglist_data *node_data[MAX_NUMNODES];
+@@ -363,6 +364,9 @@ unsigned long __init setup_memory(void)
+ 		}
+ 	}
+ #endif
 +
-+	/*
- 	 * Dell Remote Access Card III - Tim_T_Murphy@Dell.com
- 	 */
- 	{	PCI_VENDOR_ID_DELL, PCI_DEVICE_ID_DELL_RACIII,
---- linux-2.6.10-rc2.orig/include/linux/pci_ids.h	2004-11-19 10:18:22.876233984 -0600
-+++ linux-2.6.10-rc2.patched/include/linux/pci_ids.h	2004-11-19 09:24:40.000000000 -0600
-@@ -523,6 +523,7 @@
++	crash_reserve_bootmem();
++
+ 	return system_max_low_pfn;
+ }
  
- #define PCI_VENDOR_ID_DELL		0x1028
- #define PCI_DEVICE_ID_DELL_RACIII	0x0008
-+#define PCI_DEVICE_ID_DELL_RAC4		0x0012
- 
- #define PCI_VENDOR_ID_MATROX		0x102B
- #define PCI_DEVICE_ID_MATROX_MGA_2	0x0518
+
+
+

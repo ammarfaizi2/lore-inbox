@@ -1,52 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVCGVjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCGVn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVCGVjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVCGV2U
+	id S261232AbVCGVn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVCGV1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:28:20 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:10415 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261341AbVCGVHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:07:42 -0500
-Subject: Re: [patch] add scsi changer driver
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050307082107.GC17704@bytesex>
-References: <20050215164245.GA13352@bytesex>
-	 <20050215175431.GA2896@infradead.org> <20050216143936.GA23892@bytesex>
-	 <1110131725.9206.25.camel@mulgrave>  <20050307082107.GC17704@bytesex>
+	Mon, 7 Mar 2005 16:27:53 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:13735 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261232AbVCGVKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 16:10:08 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC0D@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new module 
+	for LSI Logic's SAS based MegaRAID controllers
+Date: Mon, 7 Mar 2005 16:09:40 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain
-Date: Mon, 07 Mar 2005 10:42:35 +0200
-Message-Id: <1110184955.5410.1.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-07 at 09:21 +0100, Gerd Knorr wrote:
-> Probably historical reasons, I havn't tracked the scsi layer changes for
-> quite some time, so this might simply be a 2.6 cleanup I've missed
-> because of that.  Will check ...
+Hello All,
 
-OK, Thanks.
+We are announcing a driver for LSI Logic's new SAS based MegaRAID 
+controllers. I am submitting the inlined patch in three parts. Please
+review the patches.
 
-> > ch_ioctl() (and the compat): since this is a new driver, can't this all
-> > be done via sysfs?  That way, the user would be able to manipulate it
-> > from the command line, and we'd no longer need any of the 32->64 compat
-> > glue.
-> 
-> Well, it isn't new, it already exists for many years, just not living in
-> mainline (which I finally want to change now ...).
 
-OK, so could you look at doing the sysfs conversions?  These are
-required before the driver goes in.  I can help you when I get back from
-holiday (in about a week's time).
+Thank you,
+Sreenivas Bagalkote
+LSI Logic Corporation
 
-James
+Patch 1 of 3:
+
+Signed-off-by: Sreenivas Bagalkote <sreenivas.bagalkote@lsil.com>
+
+diff -Naur linux-2.6.11-orig/Documentation/scsi/ChangeLog.megaraid_sas
+linux-2.6.11/Documentation/scsi/ChangeLog.megaraid_sas
+--- linux-2.6.11-orig/Documentation/scsi/ChangeLog.megaraid_sas	1969-12-31
+19:00:00.000000000 -0500
++++ linux-2.6.11/Documentation/scsi/ChangeLog.megaraid_sas	2005-03-05
+21:18:08.745716776 -0500
+@@ -0,0 +1,9 @@
++Release Date	: Fri Mar  4 21:06:57 EST 2005
++Released by	: Sreenivas Bagalkote (sreenivas.bagalkote@lsil.com)
++Current Version	: 00.00.01.00
++Older Version	: NA
++
++1.	Initial announcement to community - Module for LSI Logic's SAS based
++	RAID controllers.
++
++
+diff -Naur linux-2.6.11-orig/drivers/scsi/Kconfig
+linux-2.6.11/drivers/scsi/Kconfig
+--- linux-2.6.11-orig/drivers/scsi/Kconfig	2005-03-02
+02:38:25.000000000 -0500
++++ linux-2.6.11/drivers/scsi/Kconfig	2005-03-05 21:18:56.538451176 -0500
+@@ -404,6 +404,7 @@
+ 	  module will be called in2000.
+ 
+ source "drivers/scsi/megaraid/Kconfig.megaraid"
++source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
+ 
+ config SCSI_SATA
+ 	bool "Serial ATA (SATA) support"
+diff -Naur linux-2.6.11-orig/drivers/scsi/Makefile
+linux-2.6.11/drivers/scsi/Makefile
+--- linux-2.6.11-orig/drivers/scsi/Makefile	2005-03-02
+02:38:19.000000000 -0500
++++ linux-2.6.11/drivers/scsi/Makefile	2005-03-05 21:19:14.806673984 -0500
+@@ -97,6 +97,7 @@
+ obj-$(CONFIG_SCSI_DC390T)	+= tmscsim.o
+ obj-$(CONFIG_MEGARAID_LEGACY)	+= megaraid.o
+ obj-$(CONFIG_MEGARAID_NEWGEN)	+= megaraid/
++obj-$(CONFIG_MEGARAID_SAS)	+= megaraid/
+ obj-$(CONFIG_SCSI_ACARD)	+= atp870u.o
+ obj-$(CONFIG_SCSI_SUNESP)	+= esp.o
+ obj-$(CONFIG_SCSI_GDTH)		+= gdth.o
+diff -Naur linux-2.6.11-orig/drivers/scsi/megaraid/Kconfig.megaraid_sas
+linux-2.6.11/drivers/scsi/megaraid/Kconfig.megaraid_sas
+--- linux-2.6.11-orig/drivers/scsi/megaraid/Kconfig.megaraid_sas
+1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.11/drivers/scsi/megaraid/Kconfig.megaraid_sas	2005-03-05
+21:27:37.628233488 -0500
+@@ -0,0 +1,9 @@
++config MEGARAID_SAS
++	tristate "LSI Logic MegaRAID SAS RAID module (New Driver)"
++	depends on PCI && SCSI
++	help
++	Module for LSI Logic's SAS based RAID controllers.
++	To compile this driver as a module, choose 'm' here.
++	Module will be called megaraid_sas
++
++
+diff -Naur linux-2.6.11-orig/drivers/scsi/megaraid/Makefile
+linux-2.6.11/drivers/scsi/megaraid/Makefile
+--- linux-2.6.11-orig/drivers/scsi/megaraid/Makefile	2005-03-02
+02:38:26.000000000 -0500
++++ linux-2.6.11/drivers/scsi/megaraid/Makefile	2005-03-05
+21:27:40.000000000 -0500
+@@ -1,2 +1,3 @@
+ obj-$(CONFIG_MEGARAID_MM)	+= megaraid_mm.o
+ obj-$(CONFIG_MEGARAID_MAILBOX)	+= megaraid_mbox.o
++obj-$(CONFIG_MEGARAID_SAS)	+= megaraid_sas.o
+
+
 
 

@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263096AbRFWOQt>; Sat, 23 Jun 2001 10:16:49 -0400
+	id <S263970AbRFWOy1>; Sat, 23 Jun 2001 10:54:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263942AbRFWOQ3>; Sat, 23 Jun 2001 10:16:29 -0400
-Received: from pa147.bialystok.sdi.tpnet.pl ([213.25.59.147]:896 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263096AbRFWOQZ>; Sat, 23 Jun 2001 10:16:25 -0400
-Date: Sat, 23 Jun 2001 16:13:18 +0200
-From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@ulgo.koti.com.pl>
+	id <S263979AbRFWOyQ>; Sat, 23 Jun 2001 10:54:16 -0400
+Received: from [62.47.35.223] ([62.47.35.223]:52466 "EHLO kanga.hofr.at")
+	by vger.kernel.org with ESMTP id <S263970AbRFWOyH>;
+	Sat, 23 Jun 2001 10:54:07 -0400
+From: Der Herr Hofrat <der.herr@hofr.at>
+Message-Id: <200106231454.f5NEsKu14812@kanga.hofr.at>
+Subject: sizeof problem in kernel modules
 To: linux-kernel@vger.kernel.org
-Subject: pci_fixup_via691_2 Holy Crusade
-Message-ID: <20010623161318.A714@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+Date: Sat, 23 Jun 2001 16:54:20 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-- I am 2.4.2-ac21 and I will destroy all your divx!!! - said little egg
-- How can you destroy my divx, if you are just a minor kernel version...? - I
-  asked, it was first time in my life I talked to egg
-- You will see!!! - said egg and disappear
+Hi !
 
->From this time - every day was sad. Whenever I run aviplay or mplayer - it
-works slowly, and all movies were just a slideshow. I also asked x11perf what
-it thinking about it - and it said: "your video is slow".
+ can someone explain to me whats happening here ?
 
-So I took my diff, gcc and sword and started to fight. After few hours I found
-little monster, called pci_fixup_via691_2. I cut it with my sword, called Holy
-Vim  - and my kernel runs fast again! 
+--simple.c--
+#include <linux/module.h>
+#include <linux/kernel.h>
 
-So I wrote here about it. It was a good move, becouse next day I found in my
-mailbox a Letter From God. It was short, but shine, so my dark room become
-bright. The God, also known as Alan Cox said: "I will remove this bogus code,
-and your life will be happy again". I heard singing of angels when I was
-reading it. Then it was 2.4.4-ac2, I looked at it and I knew, that it was good. 
+struct { short x; long y; short z; }bad_struct;
+struct { long y; short x; short z; }good_struct;
 
-But, the Evil can't be defeated so easly. I was just sleeping when 2.4.5
-appeared. Then today I decided to check 2.4.6-pre5 and I scared when I heard
-the same laught: 
-- I am here! I am still here!!! you can't kill me, couse I am internal part of
-  that kernel! hahahahaaha...!!!
+int init_module(void){
+	printk("good_struct %d, bad_struct %d\n",sizeof(good_struct),sizeof(bad_struct));
+	return 0;
+}
 
-So, it is The Holy Crusade. If you see:
+void cleanup_module(void){
+	}
 
-{ PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,      PCI_DEVICE_ID_VIA_82C598_1,
-pci_fixup_via691_2 },
+--Makefile--
 
-remember - it's an Evil Line From Hell. If you have VIA MVP3 (like me) you must
-taste its blood every time you compile new _stable_ kernel. Remember about it.
-Good Night!
+all: simple.o
+
+CC= gcc 
+CFLAGS= -pipe -fno-strength-reduce -DCPU=686 -march=i686 \
+	-Wall -Wstrict-prototypes -g -D__KERNEL__ -DMODULE \
+	-D_LOOSE_KERNEL_NAMES -O2   -c 
+INCLUDE= -I/usr/include/linux 
+
+clean:
+	rm -f simple.o
+
+---------------------------------------------------------------
+
+I would expect both structs to be 8byte in size , or atleast the same size !
+but good_struct turns out to be 8bytes and bad_struct 12 .
+
+what am I doing wrong here ?
+
+thx !
+hofrat

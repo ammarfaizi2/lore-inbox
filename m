@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbUCCTql (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 14:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUCCTqk
+	id S262562AbUCCTr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 14:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbUCCTqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 14:46:40 -0500
-Received: from ns.suse.de ([195.135.220.2]:36042 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262568AbUCCTq1 (ORCPT
+	Wed, 3 Mar 2004 14:46:50 -0500
+Received: from fmr10.intel.com ([192.55.52.30]:16610 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262562AbUCCTpJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 14:46:27 -0500
-Date: Wed, 3 Mar 2004 16:57:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: Peter Williams <peterw@aurema.com>
-Cc: linux-kernel@vger.kernel.org, johnl@aurema.com
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-Message-Id: <20040303165718.379f9151.ak@suse.de>
-In-Reply-To: <404554D8.5040800@aurema.com>
-References: <fa.fi4j08o.17nchps@ifi.uio.no.suse.lists.linux.kernel>
-	<fa.ctat17m.8mqa3c@ifi.uio.no.suse.lists.linux.kernel>
-	<yydjishqw10p.fsf@galizur.uio.no.suse.lists.linux.kernel>
-	<40426E1C.8010806@aurema.com.suse.lists.linux.kernel>
-	<p73k7224pdn.fsf@brahms.suse.de>
-	<404554D8.5040800@aurema.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Mar 2004 14:45:09 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
+Date: Wed, 3 Mar 2004 11:45:04 -0800
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE9B4@fmsmsx406.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
+Thread-Index: AcQBTVpSqVutMaCFRbC3JErUp9XzdAABWGXg
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Mar 2004 19:45:04.0860 (UTC) FILETIME=[065B19C0:01C40158]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Mar 2004 14:45:28 +1100
-Peter Williams <peterw@aurema.com> wrote:
-
-> Andi Kleen wrote:
-> > Peter Williams <peterw@aurema.com> writes:
-> > 
-> > One comment on the patches: could you remove the zillions of numerical Kconfig
-> > options and just make them sysctls? I don't think it makes any sense 
-> > to require a reboot to change any of that. And the user is unlikely
-> > to have much idea yet on what he wants on them while configuring.
 > 
-> The default initial values should be fine and the default configuration 
-> allows the scheduling tuning parameters (i.e. half life and time slice 
->        ) to be changed on a running system via the /proc file system. 
+> Stupid question.  What is efi doing in arch/i386 anyway?
 
-I'm running the 2.6.3-full patch on my workstation now. No tuning applied
-at all. I reniced the X server to -10. When I have two kernel compiles (without any -j*) 
-running there is  a visible (=not really slow, but long enough to notice something) 
-delay in responses while typing something in a xterm. In sylpheed there
-is the same issue.
+Not a stupid question at all. Despite the recent announcement, 
+efi is still working its way into x86 systems.  I think that 
+decision lies with OEMs.  I believe some are already out there...  
 
-The standard scheduler didn't show this that extreme with only two compiles.
+> All of the to be production efi x86 systems I have heard of support
+> x86-64.  So shouldn't it be 64bit calls that we need to worry about?
 
--Andi
+Not necessarily, although some systems (such as servers) will 
+indeed have support for x86-64.  I've just started looking at what 
+support needs to added for x86-64, in terms of efi, since I 
+learned about the announcement via cnet as well...  ;-(
+
+matt 
+

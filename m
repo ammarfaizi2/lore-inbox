@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262607AbRFMOyo>; Wed, 13 Jun 2001 10:54:44 -0400
+	id <S263948AbRFMO4Y>; Wed, 13 Jun 2001 10:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263967AbRFMOye>; Wed, 13 Jun 2001 10:54:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46860 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263948AbRFMOyZ>;
-	Wed, 13 Jun 2001 10:54:25 -0400
-Date: Wed, 13 Jun 2001 15:53:52 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andreas Schwab <schwab@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, Keith Owens <kaos@ocs.com.au>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq
-Message-ID: <20010613155352.B21143@flint.arm.linux.org.uk>
-In-Reply-To: <15143.29246.712747.936864@pizda.ninka.net> <10322.992441398@ocs4.ocs-net> <15143.30453.762432.702411@pizda.ninka.net> <jek82gjv6v.fsf@sykes.suse.de>
-Mime-Version: 1.0
+	id <S263967AbRFMO4O>; Wed, 13 Jun 2001 10:56:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30374 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263948AbRFMOzx>;
+	Wed, 13 Jun 2001 10:55:53 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <jek82gjv6v.fsf@sykes.suse.de>; from schwab@suse.de on Wed, Jun 13, 2001 at 04:44:40PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15143.32501.395951.374796@pizda.ninka.net>
+Date: Wed, 13 Jun 2001 07:55:49 -0700 (PDT)
+To: Andreas Schwab <schwab@suse.de>
+Cc: Keith Owens <kaos@ocs.com.au>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq
+In-Reply-To: <jek82gjv6v.fsf@sykes.suse.de>
+In-Reply-To: <15143.29246.712747.936864@pizda.ninka.net>
+	<10322.992441398@ocs4.ocs-net>
+	<15143.30453.762432.702411@pizda.ninka.net>
+	<jek82gjv6v.fsf@sykes.suse.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 13, 2001 at 04:44:40PM +0200, Andreas Schwab wrote:
-> Use %c0.  *Note Output Templates and Operand Substitution: (gcc)Output
-> Template.
 
-Oh great!  I can get rid of some more crap from the ARM tree!
+Andreas Schwab writes:
+ > "David S. Miller" <davem@redhat.com> writes:
+ > 
+ > |> I can't believe there is no reliable way to get rid of that
+ > |> pesky "$" gcc is adding to the symbol.  Oh well...
+ > 
+ > Use %c0.  *Note Output Templates and Operand Substitution: (gcc)Output
+ > Template.
 
-Thanks.
+Nice, see Keith?  There are no excuses :-)
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Later,
+David S. Miller
+davem@redhat.com

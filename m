@@ -1,126 +1,682 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbULTKiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbULTLNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbULTKiM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 05:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULTKiM
+	id S261320AbULTLNy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 06:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbULTLNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 05:38:12 -0500
-Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:46288
-	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S261298AbULTKh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 05:37:58 -0500
-Subject: [patch] scsi/ahci: Add support for ULi M5287 
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andrebalsa@mailingaddress.org, Clear.Zhang@uli.com.tw,
-       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
-X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
-Message-ID: <OFFB59EB4E.1CCBBD25-ON48256F70.003999B0@uli.com.tw>
-From: Peer.Chen@uli.com.tw
-Date: Mon, 20 Dec 2004 18:37:25 +0800
+	Mon, 20 Dec 2004 06:13:54 -0500
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:60035 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261320AbULTLNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 06:13:23 -0500
+Message-ID: <41C6B3D4.6060207@einar-lueck.de>
+Date: Mon, 20 Dec 2004 12:13:24 +0100
+From: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2004-12-20
- 18:37:27,
-	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
- 2004/12/20 06:37:27 PM,
-	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2004/12/20
- 06:37:30 PM,
-	Serialize complete at 2004/12/20 06:37:30 PM
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow,
+ 2.6.10-rc3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,Jeff
+[PATCH 1/2] ipv4 routing: splitting of ip_route_[in|out]put_slow, 2.6.10-rc3
 
-We add the support for ULi's AHCI controller M5287 in drivers/scsi/ahci.c,
-This patch is applied to kernel 2.6.10-rc3. Please apply to new kernels.
+From: Einar Lueck <lkml@einar-lueck.de>
 
-Signed-off-by: Peer Chen <peer.chen@uli.com.tw>
+This patch splits up ip_route_[in|out]put_slow in inlined functions.
+Basic idea:
+* improve overall comprehensibility
+* allow for an easier application of patch for improved multipath 
+  support (refer to the subsequent patch)
 
-Thanks
+Please consider for application.
 
-Best Regards
-Peer
+Regards
+Einar.
 
---- linux-2.6.10-rc3/drivers/scsi/ahci.c.orig   2004-12-11
-03:14:17.170955840 +0800
-+++ linux-2.6.10-rc3/drivers/scsi/ahci.c  2004-12-11 03:31:40.979272856
-+0800
-@@ -241,6 +241,8 @@ static struct pci_device_id ahci_pci_tbl
-        board_ahci },
-      { PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-        board_ahci },
-+     { PCI_VENDOR_ID_AL, 0x5287, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+       board_ahci },
-      { }   /* terminate list */
- };
+Signed-off-by: Einar Lueck <lkml@einar-lueck.de>
 
-@@ -555,7 +557,6 @@ static void ahci_intr_error(struct ata_p
-            writel(0x300, port_mmio + PORT_SCR_CTL);
-            readl(port_mmio + PORT_SCR_CTL); /* flush */
-      }
--
-      /* re-start DMA */
-      tmp = readl(port_mmio + PORT_CMD);
-      tmp |= PORT_CMD_START | PORT_CMD_FIS_RX;
-@@ -711,12 +712,29 @@ static int ahci_host_init(struct ata_pro
-      unsigned int i, j, using_dac;
-      int rc;
-      void __iomem *port_mmio;
-+     u8 rev_id;        //peer add for m5287 rev 02h
-
-+     pci_read_config_byte(pdev, PCI_REVISION_ID, &rev_id);
-      cap_save = readl(mmio + HOST_CAP);
-      cap_save &= ( (1<<28) | (1<<17) );
-      cap_save |= (1 << 27);
-
-      /* global controller reset */
-+//peer add for m5287 rev 02h
-+     if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 && rev_id
-==0x02)
-+     {
-+           tmp = readl(mmio + HOST_CTL);
-+           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
-+           readl(mmio + HOST_CTL); /* flush */
-+           writel(tmp | HOST_RESET, mmio + HOST_CTL);
-+           readl(mmio + HOST_CTL); /* flush */
-+           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
-+           readl(mmio + HOST_CTL); /* flush */
+diff -ruN linux-2.6.9/net/ipv4/route.c linux-2.6.9.split/net/ipv4/route.c
+--- linux-2.6.9/net/ipv4/route.c	2004-12-15 12:03:59.000000000 +0100
++++ linux-2.6.9.split/net/ipv4/route.c	2004-12-15 12:05:32.000000000 +0100
+@@ -104,6 +104,9 @@
+ #include <linux/sysctl.h>
+ #endif
+ 
++#define RT_FL_TOS(oldflp) \
++    ((u32)(oldflp->fl4_tos & (IPTOS_RT_MASK | RTO_ONLINK)))
 +
-+     }
-+//peer add end
-+     else
-+     {
-      tmp = readl(mmio + HOST_CTL);
-      if ((tmp & HOST_RESET) == 0) {
-            writel(tmp | HOST_RESET, mmio + HOST_CTL);
-@@ -735,6 +753,7 @@ static int ahci_host_init(struct ata_pro
-            return -EIO;
-      }
-
-+     }
-      writel(HOST_AHCI_EN, mmio + HOST_CTL);
-      (void) readl(mmio + HOST_CTL);      /* flush */
-      writel(cap_save, mmio + HOST_CAP);
-@@ -796,6 +815,18 @@ static int ahci_host_init(struct ata_pro
-            /* make sure port is not active */
-            tmp = readl(port_mmio + PORT_CMD);
-            VPRINTK("PORT_CMD 0x%x\n", tmp);
-+//peer add for m5287 rev 02h
-+           if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 &&
-rev_id==0x02)
-+           {
-+                 //set start bit then issue comreset when initialize
-+                 writel((tmp|PORT_CMD_START), port_mmio + PORT_CMD);
-+                 writel(0x01, port_mmio + PORT_SCR_CTL);
-+                 readl(port_mmio + PORT_SCR_CTL); /* flush */
-+                 msleep(1);
-+                 writel(0x0, port_mmio + PORT_SCR_CTL);
-+                 readl(port_mmio + PORT_SCR_CTL); /* flush */
-+           }
-+//peer add end
-            if (tmp & (PORT_CMD_LIST_ON | PORT_CMD_FIS_ON |
-                     PORT_CMD_FIS_RX | PORT_CMD_START)) {
-                  tmp &= ~(PORT_CMD_LIST_ON | PORT_CMD_FIS_ON |
+ #define IP_MAX_MTU	0xFFF0
+ 
+ #define RT_GC_TIMEOUT (300*HZ)
+@@ -143,6 +146,7 @@
+ static void		 ipv4_link_failure(struct sk_buff *skb);
+ static void		 ip_rt_update_pmtu(struct dst_entry *dst, u32 mtu);
+ static int rt_garbage_collect(void);
++static inline int compare_keys(struct flowi *fl1, struct flowi *fl2);
+ 
+ 
+ static struct dst_ops ipv4_dst_ops = {
+@@ -1533,6 +1537,169 @@
+ 	return -EINVAL;
+ }
+ 
++
++static void ip_handle_martian_source(struct net_device *dev,
++				     struct in_device *in_dev,
++				     struct sk_buff *skb,
++				     u32 daddr,
++				     u32 saddr) 
++{
++	RT_CACHE_STAT_INC(in_martian_src);
++#ifdef CONFIG_IP_ROUTE_VERBOSE
++	if (IN_DEV_LOG_MARTIANS(in_dev) && net_ratelimit()) {
++		/*
++		 *	RFC1812 recommendation, if source is martian,
++		 *	the only hint is MAC header.
++		 */
++		printk(KERN_WARNING "martian source %u.%u.%u.%u from "
++			"%u.%u.%u.%u, on dev %s\n",
++			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
++		if (dev->hard_header_len) {
++			int i;
++			unsigned char *p = skb->mac.raw;
++			printk(KERN_WARNING "ll header: ");
++			for (i = 0; i < dev->hard_header_len; i++, p++) {
++				printk("%02x", *p);
++				if (i < (dev->hard_header_len - 1))
++					printk(":");
++			}
++			printk("\n");
++		}
++	}
++#endif
++}
++
++static inline int __mkroute_input(struct sk_buff *skb, 
++				  struct fib_result* res, 
++				  struct in_device *in_dev, 
++				  u32 daddr, u32 saddr, u32 tos, 
++				  struct rtable **result) 
++{
++
++	struct rtable *rth;
++	int err;
++	struct in_device *out_dev;
++	unsigned flags = 0;
++	u32 spec_dst, itag;
++
++	/* get a working reference to the output device */
++	out_dev = in_dev_get(FIB_RES_DEV(*res));
++	if (out_dev == NULL) {
++		if (net_ratelimit())
++			printk(KERN_CRIT "Bug in ip_route_input" \
++			       "_slow(). Please, report\n");
++		return -EINVAL;
++	}
++
++
++	err = fib_validate_source(saddr, daddr, tos, FIB_RES_OIF(*res), 
++				  in_dev->dev, &spec_dst, &itag);
++	if (err < 0) {
++		ip_handle_martian_source(in_dev->dev, in_dev, skb, daddr, 
++					 saddr);
++		
++		err = -EINVAL;
++		goto cleanup;
++	}
++
++	if (err)
++		flags |= RTCF_DIRECTSRC;
++
++	if (out_dev == in_dev && err && !(flags & (RTCF_NAT | RTCF_MASQ)) &&
++	    (IN_DEV_SHARED_MEDIA(out_dev) ||
++	     inet_addr_onlink(out_dev, saddr, FIB_RES_GW(*res))))
++		flags |= RTCF_DOREDIRECT;
++
++	if (skb->protocol != htons(ETH_P_IP)) {
++		/* Not IP (i.e. ARP). Do not create route, if it is
++		 * invalid for proxy arp. DNAT routes are always valid.
++		 */
++		if (out_dev == in_dev && !(flags & RTCF_DNAT)) {
++			err = -EINVAL;
++			goto cleanup;
++		}
++	}
++
++
++	rth = dst_alloc(&ipv4_dst_ops);
++	if (!rth) {
++		err = -ENOBUFS;
++		goto cleanup;
++	}
++
++	rth->u.dst.flags= DST_HOST;
++	if (in_dev->cnf.no_policy)
++		rth->u.dst.flags |= DST_NOPOLICY;
++	if (in_dev->cnf.no_xfrm)
++		rth->u.dst.flags |= DST_NOXFRM;
++	rth->fl.fl4_dst	= daddr;
++	rth->rt_dst	= daddr;
++	rth->fl.fl4_tos	= tos;
++#ifdef CONFIG_IP_ROUTE_FWMARK
++	rth->fl.fl4_fwmark= skb->nfmark;
++#endif
++	rth->fl.fl4_src	= saddr;
++	rth->rt_src	= saddr;
++	rth->rt_gateway	= daddr;
++	rth->rt_iif 	=
++		rth->fl.iif	= in_dev->dev->ifindex;
++	rth->u.dst.dev	= (out_dev)->dev;
++	dev_hold(rth->u.dst.dev);
++	rth->idev	= in_dev_get(rth->u.dst.dev);
++	rth->fl.oif 	= 0;
++	rth->rt_spec_dst= spec_dst;
++
++	rth->u.dst.input = ip_forward;
++	rth->u.dst.output = ip_output;
++
++	rt_set_nexthop(rth, res, itag);
++
++	rth->rt_flags = flags;
++
++	*result = rth;
++	err = 0;
++ cleanup:
++	/* release the working reference to the output device */
++	in_dev_put(out_dev);
++	return err;
++}						
++
++static inline int ip_mkroute_input_def(struct sk_buff *skb, 
++				       struct fib_result* res, 
++				       const struct flowi *fl,
++				       struct in_device *in_dev,
++				       u32 daddr, u32 saddr, u32 tos)
++{
++	struct rtable* rth;
++	int err;
++	unsigned hash;
++
++#ifdef CONFIG_IP_ROUTE_MULTIPATH
++	if (res->fi->fib_nhs > 1 && fl->oif == 0)
++		fib_select_multipath(fl, res);
++#endif
++
++	/* create a routing cache entry */
++	err = __mkroute_input( skb, res, in_dev, daddr, saddr, tos, &rth );
++	if ( err )
++		return err;
++	atomic_set(&rth->u.dst.__refcnt, 1);
++
++	/* put it into the cache */
++	hash = rt_hash_code(daddr, saddr ^ (fl->iif << 5), tos);
++	return rt_intern_hash(hash, rth, (struct rtable**)&skb->dst);	
++}
++
++static inline int ip_mkroute_input(struct sk_buff *skb, 
++				   struct fib_result* res, 
++				   const struct flowi *fl,
++				   struct in_device *in_dev,
++				   u32 daddr, u32 saddr, u32 tos)
++{
++	return ip_mkroute_input_def(skb, res, fl, in_dev, daddr, saddr, tos);
++}
++
++
+ /*
+  *	NOTE. We drop all the packets that has local source
+  *	addresses, because every properly looped back packet
+@@ -1544,11 +1711,10 @@
+  */
+ 
+ static int ip_route_input_slow(struct sk_buff *skb, u32 daddr, u32 saddr,
+-			u8 tos, struct net_device *dev)
++			       u8 tos, struct net_device *dev)
+ {
+ 	struct fib_result res;
+ 	struct in_device *in_dev = in_dev_get(dev);
+-	struct in_device *out_dev = NULL;
+ 	struct flowi fl = { .nl_u = { .ip4_u =
+ 				      { .daddr = daddr,
+ 					.saddr = saddr,
+@@ -1572,8 +1738,6 @@
+ 	if (!in_dev)
+ 		goto out;
+ 
+-	hash = rt_hash_code(daddr, saddr ^ (fl.iif << 5), tos);
+-
+ 	/* Check for the most weird martians, which can be not detected
+ 	   by fib_lookup.
+ 	 */
+@@ -1626,79 +1790,14 @@
+ 	if (res.type != RTN_UNICAST)
+ 		goto martian_destination;
+ 
+-#ifdef CONFIG_IP_ROUTE_MULTIPATH
+-	if (res.fi->fib_nhs > 1 && fl.oif == 0)
+-		fib_select_multipath(&fl, &res);
+-#endif
+-	out_dev = in_dev_get(FIB_RES_DEV(res));
+-	if (out_dev == NULL) {
+-		if (net_ratelimit())
+-			printk(KERN_CRIT "Bug in ip_route_input_slow(). "
+-					 "Please, report\n");
+-		goto e_inval;
+-	}
+-
+-	err = fib_validate_source(saddr, daddr, tos, FIB_RES_OIF(res), dev,
+-				  &spec_dst, &itag);
+-	if (err < 0)
+-		goto martian_source;
+-
+-	if (err)
+-		flags |= RTCF_DIRECTSRC;
+-
+-	if (out_dev == in_dev && err && !(flags & (RTCF_NAT | RTCF_MASQ)) &&
+-	    (IN_DEV_SHARED_MEDIA(out_dev) ||
+-	     inet_addr_onlink(out_dev, saddr, FIB_RES_GW(res))))
+-		flags |= RTCF_DOREDIRECT;
+-
+-	if (skb->protocol != htons(ETH_P_IP)) {
+-		/* Not IP (i.e. ARP). Do not create route, if it is
+-		 * invalid for proxy arp. DNAT routes are always valid.
+-		 */
+-		if (out_dev == in_dev && !(flags & RTCF_DNAT))
+-			goto e_inval;
+-	}
+-
+-	rth = dst_alloc(&ipv4_dst_ops);
+-	if (!rth)
++	err = ip_mkroute_input(skb, &res, &fl, in_dev, daddr, saddr, tos);
++	if ( err == -ENOBUFS )
+ 		goto e_nobufs;
+-
+-	atomic_set(&rth->u.dst.__refcnt, 1);
+-	rth->u.dst.flags= DST_HOST;
+-	if (in_dev->cnf.no_policy)
+-		rth->u.dst.flags |= DST_NOPOLICY;
+-	if (in_dev->cnf.no_xfrm)
+-		rth->u.dst.flags |= DST_NOXFRM;
+-	rth->fl.fl4_dst	= daddr;
+-	rth->rt_dst	= daddr;
+-	rth->fl.fl4_tos	= tos;
+-#ifdef CONFIG_IP_ROUTE_FWMARK
+-	rth->fl.fl4_fwmark= skb->nfmark;
+-#endif
+-	rth->fl.fl4_src	= saddr;
+-	rth->rt_src	= saddr;
+-	rth->rt_gateway	= daddr;
+-	rth->rt_iif 	=
+-	rth->fl.iif	= dev->ifindex;
+-	rth->u.dst.dev	= out_dev->dev;
+-	dev_hold(rth->u.dst.dev);
+-	rth->idev	= in_dev_get(rth->u.dst.dev);
+-	rth->fl.oif 	= 0;
+-	rth->rt_spec_dst= spec_dst;
+-
+-	rth->u.dst.input = ip_forward;
+-	rth->u.dst.output = ip_output;
+-
+-	rt_set_nexthop(rth, &res, itag);
+-
+-	rth->rt_flags = flags;
+-
+-intern:
+-	err = rt_intern_hash(hash, rth, (struct rtable**)&skb->dst);
++	if ( err == -EINVAL )
++		goto e_inval;
++	
+ done:
+ 	in_dev_put(in_dev);
+-	if (out_dev)
+-		in_dev_put(out_dev);
+ 	if (free_res)
+ 		fib_res_put(&res);
+ out:	return err;
+@@ -1758,7 +1857,9 @@
+ 		rth->rt_flags 	&= ~RTCF_LOCAL;
+ 	}
+ 	rth->rt_type	= res.type;
+-	goto intern;
++	hash = rt_hash_code(daddr, saddr ^ (fl.iif << 5), tos);
++	err = rt_intern_hash(hash, rth, (struct rtable**)&skb->dst);
++	goto done;
+ 
+ no_route:
+ 	RT_CACHE_STAT_INC(in_no_route);
+@@ -1786,30 +1887,7 @@
+ 	goto done;
+ 
+ martian_source:
+-
+-	RT_CACHE_STAT_INC(in_martian_src);
+-#ifdef CONFIG_IP_ROUTE_VERBOSE
+-	if (IN_DEV_LOG_MARTIANS(in_dev) && net_ratelimit()) {
+-		/*
+-		 *	RFC1812 recommendation, if source is martian,
+-		 *	the only hint is MAC header.
+-		 */
+-		printk(KERN_WARNING "martian source %u.%u.%u.%u from "
+-			"%u.%u.%u.%u, on dev %s\n",
+-			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
+-		if (dev->hard_header_len) {
+-			int i;
+-			unsigned char *p = skb->mac.raw;
+-			printk(KERN_WARNING "ll header: ");
+-			for (i = 0; i < dev->hard_header_len; i++, p++) {
+-				printk("%02x", *p);
+-				if (i < (dev->hard_header_len - 1))
+-					printk(":");
+-			}
+-			printk("\n");
+-		}
+-	}
+-#endif
++	ip_handle_martian_source(dev, in_dev, skb, daddr, saddr);
+ 	goto e_inval;
+ }
+ 
+@@ -1880,13 +1958,166 @@
+ 	return ip_route_input_slow(skb, daddr, saddr, tos, dev);
+ }
+ 
++static inline int __mkroute_output(struct rtable **result,
++				   struct fib_result* res, 
++				   const struct flowi *fl,
++				   const struct flowi *oldflp, 
++				   struct net_device *dev_out, 
++				   unsigned flags) 
++{
++	struct rtable *rth;
++	struct in_device *in_dev;
++	u32 tos = RT_FL_TOS(oldflp);
++	int err = 0;
++
++	if (LOOPBACK(fl->fl4_src) && !(dev_out->flags&IFF_LOOPBACK))
++		return -EINVAL;
++
++	if (fl->fl4_dst == 0xFFFFFFFF)
++		res->type = RTN_BROADCAST;
++	else if (MULTICAST(fl->fl4_dst))
++		res->type = RTN_MULTICAST;
++	else if (BADCLASS(fl->fl4_dst) || ZERONET(fl->fl4_dst))
++		return -EINVAL;
++
++	if (dev_out->flags & IFF_LOOPBACK)
++		flags |= RTCF_LOCAL;
++
++	/* get work reference to inet device */
++	in_dev = in_dev_get(dev_out);
++	if (!in_dev)
++		return -EINVAL;
++
++	if (res->type == RTN_BROADCAST) {
++		flags |= RTCF_BROADCAST | RTCF_LOCAL;
++		if (res->fi) {
++			fib_info_put(res->fi);
++			res->fi = NULL;
++		}
++	} else if (res->type == RTN_MULTICAST) {
++		flags |= RTCF_MULTICAST|RTCF_LOCAL;
++		if (!ip_check_mc(in_dev, oldflp->fl4_dst, oldflp->fl4_src, 
++				 oldflp->proto))
++			flags &= ~RTCF_LOCAL;
++		/* If multicast route do not exist use
++		   default one, but do not gateway in this case.
++		   Yes, it is hack.
++		 */
++		if (res->fi && res->prefixlen < 4) {
++			fib_info_put(res->fi);
++			res->fi = NULL;
++		}
++	}
++
++
++	rth = dst_alloc(&ipv4_dst_ops);
++	if (!rth) {
++		err = -ENOBUFS;
++		goto cleanup;
++	}		
++
++	rth->u.dst.flags= DST_HOST;
++	if (in_dev->cnf.no_xfrm)
++		rth->u.dst.flags |= DST_NOXFRM;
++	if (in_dev->cnf.no_policy)
++		rth->u.dst.flags |= DST_NOPOLICY;
++
++	rth->fl.fl4_dst	= oldflp->fl4_dst;
++	rth->fl.fl4_tos	= tos;
++	rth->fl.fl4_src	= oldflp->fl4_src;
++	rth->fl.oif	= oldflp->oif;
++#ifdef CONFIG_IP_ROUTE_FWMARK
++	rth->fl.fl4_fwmark= oldflp->fl4_fwmark;
++#endif
++	rth->rt_dst	= fl->fl4_dst;
++	rth->rt_src	= fl->fl4_src;
++	rth->rt_iif	= oldflp->oif ? : dev_out->ifindex;
++	/* get references to the devices that are to be hold by the routing 
++	   cache entry */
++	rth->u.dst.dev	= dev_out;
++	dev_hold(dev_out);
++	rth->idev	= in_dev_get(dev_out);
++	rth->rt_gateway = fl->fl4_dst;
++	rth->rt_spec_dst= fl->fl4_src;
++
++	rth->u.dst.output=ip_output;
++
++	RT_CACHE_STAT_INC(out_slow_tot);
++
++	if (flags & RTCF_LOCAL) {
++		rth->u.dst.input = ip_local_deliver;
++		rth->rt_spec_dst = fl->fl4_dst;
++	}
++	if (flags & (RTCF_BROADCAST | RTCF_MULTICAST)) {
++		rth->rt_spec_dst = fl->fl4_src;
++		if (flags & RTCF_LOCAL && 
++		    !(dev_out->flags & IFF_LOOPBACK)) {
++			rth->u.dst.output = ip_mc_output;
++			RT_CACHE_STAT_INC(out_slow_mc);
++		}
++#ifdef CONFIG_IP_MROUTE
++		if (res->type == RTN_MULTICAST) {
++			if (IN_DEV_MFORWARD(in_dev) &&
++			    !LOCAL_MCAST(oldflp->fl4_dst)) {
++				rth->u.dst.input = ip_mr_input;
++				rth->u.dst.output = ip_mc_output;
++			}
++		}
++#endif
++	}
++
++	rt_set_nexthop(rth, res, 0);
++
++	rth->rt_flags = flags;
++
++	*result = rth;
++ cleanup:
++	/* release work reference to inet device */
++	in_dev_put(in_dev);
++
++	return err;
++}
++
++static inline int ip_mkroute_output_def(struct rtable **rp,
++					struct fib_result* res,
++					const struct flowi *fl,
++					const struct flowi *oldflp,
++					struct net_device *dev_out,
++					unsigned flags)
++{
++	struct rtable *rth;
++	int err = __mkroute_output(&rth, res, fl, oldflp, dev_out, flags);
++	unsigned hash;
++	if ( err == 0 ) {
++		u32 tos = RT_FL_TOS(oldflp);
++
++		atomic_set(&rth->u.dst.__refcnt, 1);
++		
++		hash = rt_hash_code(oldflp->fl4_dst, 
++				    oldflp->fl4_src ^ (oldflp->oif << 5), tos);
++		err = rt_intern_hash(hash, rth, rp);
++	}
++	
++	return err;
++}
++
++static inline int ip_mkroute_output(struct rtable** rp,
++				    struct fib_result* res,
++				    const struct flowi *fl,
++				    const struct flowi *oldflp,
++				    struct net_device *dev_out,
++				    unsigned flags)
++{
++	return ip_mkroute_output_def(rp, res, fl, oldflp, dev_out, flags);
++}
++
+ /*
+  * Major route resolver routine.
+  */
+ 
+ static int ip_route_output_slow(struct rtable **rp, const struct flowi *oldflp)
+ {
+-	u32 tos	= oldflp->fl4_tos & (IPTOS_RT_MASK | RTO_ONLINK);
++	u32 tos	= RT_FL_TOS(oldflp);
+ 	struct flowi fl = { .nl_u = { .ip4_u =
+ 				      { .daddr = oldflp->fl4_dst,
+ 					.saddr = oldflp->fl4_src,
+@@ -1902,10 +2133,7 @@
+ 			    .oif = oldflp->oif };
+ 	struct fib_result res;
+ 	unsigned flags = 0;
+-	struct rtable *rth;
+ 	struct net_device *dev_out = NULL;
+-	struct in_device *in_dev = NULL;
+-	unsigned hash;
+ 	int free_res = 0;
+ 	int err;
+ 
+@@ -2065,116 +2293,13 @@
+ 	fl.oif = dev_out->ifindex;
+ 
+ make_route:
+-	if (LOOPBACK(fl.fl4_src) && !(dev_out->flags&IFF_LOOPBACK))
+-		goto e_inval;
++	err = ip_mkroute_output(rp, &res, &fl, oldflp, dev_out, flags);
+ 
+-	if (fl.fl4_dst == 0xFFFFFFFF)
+-		res.type = RTN_BROADCAST;
+-	else if (MULTICAST(fl.fl4_dst))
+-		res.type = RTN_MULTICAST;
+-	else if (BADCLASS(fl.fl4_dst) || ZERONET(fl.fl4_dst))
+-		goto e_inval;
+-
+-	if (dev_out->flags & IFF_LOOPBACK)
+-		flags |= RTCF_LOCAL;
+-
+-	in_dev = in_dev_get(dev_out);
+-	if (!in_dev)
+-		goto e_inval;
+-
+-	if (res.type == RTN_BROADCAST) {
+-		flags |= RTCF_BROADCAST | RTCF_LOCAL;
+-		if (res.fi) {
+-			fib_info_put(res.fi);
+-			res.fi = NULL;
+-		}
+-	} else if (res.type == RTN_MULTICAST) {
+-		flags |= RTCF_MULTICAST|RTCF_LOCAL;
+-		if (!ip_check_mc(in_dev, oldflp->fl4_dst, oldflp->fl4_src, oldflp->proto))
+-			flags &= ~RTCF_LOCAL;
+-		/* If multicast route do not exist use
+-		   default one, but do not gateway in this case.
+-		   Yes, it is hack.
+-		 */
+-		if (res.fi && res.prefixlen < 4) {
+-			fib_info_put(res.fi);
+-			res.fi = NULL;
+-		}
+-	}
+-
+-	rth = dst_alloc(&ipv4_dst_ops);
+-	if (!rth)
+-		goto e_nobufs;
+-
+-	atomic_set(&rth->u.dst.__refcnt, 1);
+-	rth->u.dst.flags= DST_HOST;
+-	if (in_dev->cnf.no_xfrm)
+-		rth->u.dst.flags |= DST_NOXFRM;
+-	if (in_dev->cnf.no_policy)
+-		rth->u.dst.flags |= DST_NOPOLICY;
+-	rth->fl.fl4_dst	= oldflp->fl4_dst;
+-	rth->fl.fl4_tos	= tos;
+-	rth->fl.fl4_src	= oldflp->fl4_src;
+-	rth->fl.oif	= oldflp->oif;
+-#ifdef CONFIG_IP_ROUTE_FWMARK
+-	rth->fl.fl4_fwmark= oldflp->fl4_fwmark;
+-#endif
+-	rth->rt_dst	= fl.fl4_dst;
+-	rth->rt_src	= fl.fl4_src;
+-	rth->rt_iif	= oldflp->oif ? : dev_out->ifindex;
+-	rth->u.dst.dev	= dev_out;
+-	dev_hold(dev_out);
+-	rth->idev	= in_dev_get(dev_out);
+-	rth->rt_gateway = fl.fl4_dst;
+-	rth->rt_spec_dst= fl.fl4_src;
+-
+-	rth->u.dst.output=ip_output;
+-
+-	RT_CACHE_STAT_INC(out_slow_tot);
+-
+-	if (flags & RTCF_LOCAL) {
+-		rth->u.dst.input = ip_local_deliver;
+-		rth->rt_spec_dst = fl.fl4_dst;
+-	}
+-	if (flags & (RTCF_BROADCAST | RTCF_MULTICAST)) {
+-		rth->rt_spec_dst = fl.fl4_src;
+-		if (flags & RTCF_LOCAL && !(dev_out->flags & IFF_LOOPBACK)) {
+-			rth->u.dst.output = ip_mc_output;
+-			RT_CACHE_STAT_INC(out_slow_mc);
+-		}
+-#ifdef CONFIG_IP_MROUTE
+-		if (res.type == RTN_MULTICAST) {
+-			if (IN_DEV_MFORWARD(in_dev) &&
+-			    !LOCAL_MCAST(oldflp->fl4_dst)) {
+-				rth->u.dst.input = ip_mr_input;
+-				rth->u.dst.output = ip_mc_output;
+-			}
+-		}
+-#endif
+-	}
+-
+-	rt_set_nexthop(rth, &res, 0);
+-	
+-
+-	rth->rt_flags = flags;
+-
+-	hash = rt_hash_code(oldflp->fl4_dst, oldflp->fl4_src ^ (oldflp->oif << 5), tos);
+-	err = rt_intern_hash(hash, rth, rp);
+-done:
+ 	if (free_res)
+ 		fib_res_put(&res);
+ 	if (dev_out)
+ 		dev_put(dev_out);
+-	if (in_dev)
+-		in_dev_put(in_dev);
+ out:	return err;
+-
+-e_inval:
+-	err = -EINVAL;
+-	goto done;
+-e_nobufs:
+-	err = -ENOBUFS;
+-	goto done;
+ }
+ 
+ int __ip_route_output_key(struct rtable **rp, const struct flowi *flp)
 
 

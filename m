@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315634AbSEVPKt>; Wed, 22 May 2002 11:10:49 -0400
+	id <S315884AbSEVPRA>; Wed, 22 May 2002 11:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315734AbSEVPKs>; Wed, 22 May 2002 11:10:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:32168 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315634AbSEVPKq>;
-	Wed, 22 May 2002 11:10:46 -0400
-Date: Wed, 22 May 2002 11:10:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        "David S. Miller" <davem@redhat.com>, paulus@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <E17AXyr-00020p-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0205221109240.2737-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315852AbSEVPQ7>; Wed, 22 May 2002 11:16:59 -0400
+Received: from dc-mx09.cluster1.charter.net ([209.225.8.19]:57791 "EHLO
+	mx09.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S315884AbSEVPQ6>; Wed, 22 May 2002 11:16:58 -0400
+Date: Wed, 22 May 2002 11:16:44 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-rc4 linux/Documentation/sysctl/vm.txt out of date/sync with kernel
+Message-ID: <20020522151644.GA18815@charter.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: misty-@charter.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	I have recently noticed on kernel 2.4.18-rc4 that the
+documentation included in linux/Documentation/sysctl/vm.txt is obsolete
+- things that exist (some of which I would find very useful!) in the
+documentation do not exist in the current /proc/sys/vm/ directory.  Of
+all of the features, the one I want the most to fiddle with is
+'pagecache' which would let me mess around with the disk caching on my
+ancient and some would say obsolete 486 with 16MB of ram. The reason is
+because there are times when it's badly overloaded due to an obese
+program (dpkg/apt-get usually. I use debian as my distribution) and I've
+noticed it's got a little more than a third of ram devoted to disk
+*cache* - which I would think would be better suited to trying to run
+the program at that point! At the worst, fiddling with it would allow me
+to learn if it improved or worsened the 486's speed at completing the
+program and responsiveness during the experience.
 
+Other things that do not exist in there that I would find useful to
+tweak: buffermem, and freepages.
 
-On Wed, 22 May 2002, Alan Cox wrote:
+There are two procs in there which I didn't see any documentation in the
+tree for: min-readahead max-readahead - I assume these are for file read
+operations?
 
-> > ... and while we are at flamewar-mongering, none of these files have any
-> > business being in procfs.
-> 
-> That depends on how you define procfs. Linux is not Plan 9. A lot of it 
-> certainly is going to cleaner with a devicefs and sysctlfs
+I enjoy using linux and hope my question doesn't bug anyone too much.
 
-OK, let me put it that way:
-
-none of these files has any business bringing the rest of procfs along
-for a ride and none of them has any reason to use any code from fs/proc/*.c
-
+Tim McGrath

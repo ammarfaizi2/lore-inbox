@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVCUGyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVCUG75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVCUGyy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 01:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVCUGyy
+	id S261598AbVCUG75 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 01:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVCUG75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 01:54:54 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:26021 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261584AbVCUGyw (ORCPT
+	Mon, 21 Mar 2005 01:59:57 -0500
+Received: from wasp.net.au ([203.190.192.17]:20641 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S261598AbVCUG7q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 01:54:52 -0500
-Date: Mon, 21 Mar 2005 07:52:21 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-Subject: Re: fuse is cool and robust
-Message-ID: <20050321065220.GA13043@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-References: <E1DCLLi-0001Lx-00@dorka.pomaz.szeredi.hu> <20050320161529.GA26365@outpost.ds9a.nl> <Pine.LNX.4.61.0503202254240.19507@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503202254240.19507@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.3.28i
+	Mon, 21 Mar 2005 01:59:46 -0500
+Message-ID: <423E70D7.8060707@wasp.net.au>
+Date: Mon, 21 Mar 2005 10:59:35 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Whelchel <koyama@firstlight.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA Promise TX4 Crash
+References: <Pine.LNX.4.44.0503201555580.12407-100000@kishna.firstlight.net>
+In-Reply-To: <Pine.LNX.4.44.0503201555580.12407-100000@kishna.firstlight.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 20, 2005 at 10:55:15PM +0100, Jan Engelhardt wrote:
+Neil Whelchel wrote:
+> Hello,
+> I have two Promise SATA TX4 cards connected to a total of 6 Maxtor 250 GB
+> drives (7Y250M0) configured into a RAID 5. All works well with small
+> disk load, but when a large number of requests are issued, it causes crash
+> similar to the attached, except that the errors before the crash are on a
 
-> encfs being hard from kernel space? I've seen a whole cryptoloop in the 
-> kernel. Can't be "hard". At least unpracticable.
+> EFLAGS: 00010046   (2.6.11.2)
+> EIP is at scsi_put_command+0xbb/0x100
 
-encfs is not cryptoloop - please follow the URL.
+Oooh Oooh Oooh, pick me Mr Kotter!
+I have seen this repeatedly, fought it and "apparently" beat it by upgrading my PSU.
+I could reliably reproduce it by running a raid resync and issuing SMART queries
+to the drives, but after a PSU upgrade it has gone away.
+I have tried hard to reproduce it recently but I just can't get it to crash anymore.
 
+I have a similar setup 4x SATA-TX4 cards and 15x 7Y250M0 drives. I'm thought it was actually
+a bug, but as I can't reproduce it anymore it's making it a bit hard to track down.
+
+Not much help, sorry.
+
+Brad
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

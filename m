@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316355AbSEOGuj>; Wed, 15 May 2002 02:50:39 -0400
+	id <S316358AbSEOGxX>; Wed, 15 May 2002 02:53:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316356AbSEOGui>; Wed, 15 May 2002 02:50:38 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:6917 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316355AbSEOGuh>; Wed, 15 May 2002 02:50:37 -0400
-Message-Id: <200205150647.g4F6ljY12346@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Diego SANTA CRUZ <Diego.SantaCruz@epfl.ch>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: `modprobe agpgart` locks machine badly
-Date: Wed, 15 May 2002 09:50:20 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alex Brotman <atbrotman@earthlink.net>
-In-Reply-To: <1021363885.2781.10.camel@ltspc67>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S316359AbSEOGxW>; Wed, 15 May 2002 02:53:22 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:38572 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316358AbSEOGxV>;
+	Wed, 15 May 2002 02:53:21 -0400
+Date: Wed, 15 May 2002 16:52:40 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for sigio delivery
+Message-Id: <20020515165240.7bf90b58.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 May 2002 06:11, Diego SANTA CRUZ wrote:
-> I did a bit of debugging some time ago with the datasheets from intel.
-> If i remember well, the problem was that the base of the aperture is not
-> initialized by the BIOS (i.e. the APBASE register of the AGP bridge).
->
-> This is visible in the lspci listing above, in that the Region 0 memory
-> is "<unassigned>". On the machines that I have seen with agpgart
-> working, the address of Region 0 is the address that appears in the
-> APBASE register.
+Hi Linus,
 
-Can it be set manually with setpci?
---
-vda
+This patch means that we keep the upper 16 bits of the si_code
+field of the siginfo structure that is delivered with and SIGIOs.
+We need this so that the code that actually copies the siginfo_t
+out to user mode knows which part of the union to copy.  We currently
+get away with out this information because we always copy at least
+two ints worth of the union, but this s an ugly hack and I would
+like to tidy it up.
+
+Comments?
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.5.15/fs/fcntl.c 2.5.15-si.3/fs/fcntl.c
+--- 2.5.15/fs/fcntl.c	Tue Apr 23 10:42:27 2002
++++ 2.5.15-si.3/fs/fcntl.c	Wed May 15 16:46:48 2002
+@@ -435,7 +435,7 @@
+ 			   back to SIGIO in that case. --sct */
+ 			si.si_signo = fown->signum;
+ 			si.si_errno = 0;
+-		        si.si_code  = reason & ~__SI_MASK;
++		        si.si_code  = reason;
+ 			/* Make sure we are called with one of the POLL_*
+ 			   reasons, otherwise we could leak kernel stack into
+ 			   userspace.  */

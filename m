@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUIQHlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268535AbUIQHrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268544AbUIQHlq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 03:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUIQHkK
+	id S268535AbUIQHrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 03:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268534AbUIQHry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 03:40:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26769 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268539AbUIQHiX (ORCPT
+	Fri, 17 Sep 2004 03:47:54 -0400
+Received: from main.gmane.org ([80.91.229.2]:50839 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268535AbUIQHrv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 03:38:23 -0400
-Date: Fri, 17 Sep 2004 00:38:00 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, devices@lanana.org
-Subject: Re: ub vs. ubd
-Message-Id: <20040917003800.199cc524@lembas.zaitcev.lan>
-In-Reply-To: <200409170523.i8H5NZ2J005424@ccure.user-mode-linux.org>
-References: <1340.1095332981@www10.gmx.net>
-	<20040916084118.2441c38a@lembas.zaitcev.lan>
-	<200409161753.i8GHrM2J003175@ccure.user-mode-linux.org>
-	<20040916103454.46936a28@lembas.zaitcev.lan>
-	<200409170523.i8H5NZ2J005424@ccure.user-mode-linux.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 17 Sep 2004 03:47:51 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: udev is too slow creating devices
+Date: Fri, 17 Sep 2004 13:48:02 +0600
+Message-ID: <cie4r1$c57$1@sea.gmane.org>
+References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 80.78.110.194
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us, en
+In-Reply-To: <20040914215122.GA22782@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Sep 2004 01:23:35 -0400
-Jeff Dike <jdike@addtoit.com> wrote:
-
-> zaitcev@redhat.com said:
-> > Can you send me your /proc/partitions from a guest with a few UBDs
-> > configured? 
+Greg KH wrote:
+> On Tue, Sep 14, 2004 at 11:45:52PM +0200, Marco d'Itri wrote:
 > 
-> usermode:~# more /proc/partitions 
-> major minor  #blocks  name
+>>On Sep 14, Greg KH <greg@kroah.com> wrote:
+>>
+>>
+>>>What's wrong with the /etc/dev.d/ location for any type of script that
+>>>you want to run after a device node has appeared?  This is an
+>>>application specific issue, not a kernel issue.
+>>
+>>The problem is that since most distributions cannot make udev usage
+>>mandatory, this would require duplicating in the init script and in the
+>>dev.d script whatever needs to be done with the device.
 > 
->   98     0    1049600 ubda
->   98    16    1049600 ubdb
->   98    32     204801 ubdc
+> 
+> Well, that sounds like a distro problem then, not a kernel or udev one :)
+> 
+> 
+>>Then there are the issues of scripts needing programs in /usr, which may
+>>not be mounted when the module is loaded, or which are interactive and
+>>need console access (think fsck).
+> 
+> 
+> True, so sit and spin and sleep until you see the device node.  That's
+> how a number of distros have fixed the fsck startup issue.
 
-I see. So, the appended patch should be appropriate.
+Hm, why should _I_ sleep and spin after modprobe, without even knowing 
+if the node will appear at all, when you can include the "modprobe" 
+wrapper script with udev source package.
 
--- Pete
+This wrapper should call modprobe.orig with original arguments, and then 
+call udev for /sys entries that appeared (or just run udevstart), and 
+only then return. Yes, this will result in duplicate hotplug events 
+(synthetic + real) being delivered to udev, but it solves the problem 
+with modprobe once, for all programs, and in compatible way.
 
---- linux-2.6.9-rc1/Documentation/devices.txt	2004-08-19 17:15:31.000000000 -0700
-+++ linux-2.6.9-rc1-ub/Documentation/devices.txt	2004-09-17 00:35:36.996215488 -0700
-@@ -1741,10 +1741,14 @@
- 		See http://stm.lbl.gov/comedi or http://www.llp.fu-berlin.de/.
- 
-  98 block	User-mode virtual block device
--		  0 = /dev/ubd0		First user-mode block device
--		  1 = /dev/ubd1		Second user-mode block device
-+		  0 = /dev/ubda		First user-mode block device
-+		 16 = /dev/ubdb		Second user-mode block device
- 		    ...
- 
-+		Partitions are handled in the same way as for IDE
-+		disks (see major number 3) except that the limit on
-+		partitions is 15.
-+
- 		This device is used by the user-mode virtual kernel port.
- 
-  99 char	Raw parallel ports
+-- 
+Alexander E. Patrakov
+

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUJLW1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUJLWdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUJLW1e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUJLW0o
+	id S268008AbUJLWdi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUJLWdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:26:44 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:46258 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S268039AbUJLWZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:25:25 -0400
-Message-ID: <416C59CF.1020700@nortelnetworks.com>
-Date: Tue, 12 Oct 2004 16:25:19 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG]  oom killer not triggering in 2.6.9-rc3
-References: <41672D4A.4090200@nortelnetworks.com>	 <1097503078.31290.23.camel@localhost.localdomain>	 <416B6594.5080002@nortelnetworks.com> <1097614971.2639.1.camel@localhost.localdomain>
-In-Reply-To: <1097614971.2639.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Oct 2004 18:33:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14272 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268008AbUJLWdc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 18:33:32 -0400
+Date: Tue, 12 Oct 2004 15:33:21 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, danmechanic@yahoo.com, zaitcev@redhat.com,
+       greg@kroah.com
+Subject: Crash with cat /proc/bus/usb/devices and disconnect
+Message-ID: <20041012153321.525d753f@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs119.1 (GTK+ 2.4.7; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2004-10-12 at 06:03, Chris Friesen wrote:
+Hi, Marcelo:
 
->>I must be able to run an app that uses over 90% of system memory, and calls 
->>fork().  I was under the impression this made strict accounting unfeasable?
+Here's a patch, I'd like to be in -pre.
 
-> Its rather smarter than that, you'll want swap probably. The strict
-> accountant is a virtual address accountant not a memory accountant. It
-> knows shared r/o segments don't need charging all the time etc
+It is not the best fix. The 2.6 took a more fundamental approach, but I do
+not wish to rock the boat too much. Also, I'm not sure if 2.6 even gets it
+right at all, considering Fedora Core 3 bug 135171. At least this patch fixes
+the problem for me! :-)  so I suppose better this than nothing, because
+getting oops otherwise is just too easy.
 
-As I said in the first message, I've got no swap.
+I would like this to be in -pre.
 
-In any case, moving to -rc4 seems to have cleared up the issue, the patch Chris 
-Wright suggested seems to have worked.  Oom killer now wakes up immediately and 
-kills one of the memory hogs, and the system continues on.
+Here's the 2.6 bug (unfixed yet):
+ https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=135171
 
-Chris
+The 2.4 bug (fixed by this patch - admittedly a contrived scenario):
+ https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=129265
+
+Thanks,
+-- Pete
+
+diff -urp -X dontdiff linux-2.4.28-pre3/drivers/usb/devices.c linux-2.4.28-pre3-usb/drivers/usb/devices.c
+--- linux-2.4.28-pre3/drivers/usb/devices.c	2004-09-12 14:24:09.000000000 -0700
++++ linux-2.4.28-pre3-usb/drivers/usb/devices.c	2004-10-05 13:54:14.000000000 -0700
+@@ -552,9 +552,13 @@ static ssize_t usb_device_dump(char **bu
+ 	
+ 	/* Now look at all of this device's children. */
+ 	for (chix = 0; chix < usbdev->maxchild; chix++) {
+-		if (usbdev->children[chix]) {
+-			ret = usb_device_dump(buffer, nbytes, skip_bytes, file_offset, usbdev->children[chix],
++		struct usb_device *childdev = usbdev->children[chix];
++		if (childdev) {
++			usb_inc_dev_use(childdev);
++			ret = usb_device_dump(buffer, nbytes, skip_bytes,
++					file_offset, childdev,
+ 					bus, level + 1, chix, ++cnt);
++			usb_dec_dev_use(childdev);
+ 			if (ret == -EFAULT)
+ 				return total_written;
+ 			total_written += ret;

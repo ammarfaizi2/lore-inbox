@@ -1,82 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288238AbSAMWi2>; Sun, 13 Jan 2002 17:38:28 -0500
+	id <S288245AbSAMWi2>; Sun, 13 Jan 2002 17:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288245AbSAMWiS>; Sun, 13 Jan 2002 17:38:18 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27150 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S288234AbSAMWiG>; Sun, 13 Jan 2002 17:38:06 -0500
-Date: Sun, 13 Jan 2002 23:38:03 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: feedback@suse.de, reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Cc: ewald.peiszer@gmx.at
-Subject: Boot failure: msdos pushes in front of reiserfs
-Message-ID: <20020113223803.GA28085@emma1.emma.line.org>
-Mail-Followup-To: feedback@suse.de, reiserfs-list@namesys.com,
-	linux-kernel@vger.kernel.org, ewald.peiszer@gmx.at
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S288234AbSAMWiT>; Sun, 13 Jan 2002 17:38:19 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3906 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S288238AbSAMWiI>; Sun, 13 Jan 2002 17:38:08 -0500
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: initramfs buffer spec -- second draft
+In-Reply-To: <Pine.GSO.4.21.0201131656190.27390-100000@weyl.math.psu.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Jan 2002 15:35:27 -0700
+In-Reply-To: <Pine.GSO.4.21.0201131656190.27390-100000@weyl.math.psu.edu>
+Message-ID: <m17kqlria8.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alexander Viro <viro@math.psu.edu> writes:
 
-I have been helping Ewald Peiszer (CC'd) to get his machine to boot.
+> On 13 Jan 2002, Eric W. Biederman wrote:
+>  
+> > Which we are reusing for a different purpose.  And because of that we
+> > become trustees of our version of the format.  To make it clear that
+> > someone else defines how this format works a reference to the
+> > appropriate specification is called for.  
+> 
+> We are using it for precisely the same purpose - to put a bunch of
+> files on a filesystem.
 
-My current analysis of his situation is this:
+Anytime you are specifying semantics beyond what was in the original
+specification it isn't precisely the same case.  Close enough not to
+matter yes but not precisely the same.  The original cpio format does
+not specify compression or concatenation of images.  It is not
+mandated that the cpio format handle the needs of everyones root
+filesystem.
 
-1. he junked some of his FAT16 partitions, joined two of them as hda13
-   and uses hda11 ... hda13 for linux, formatted as ext2, swap,
-   reiserfs, in that order
+Additionally we now have the potential of generating cpio files from
+the bootloaders.  And bootloaders should be the kinds of programs that
+don't need constant maintenance or upgrading, (that is very
+destabilizing).  So totally reworking the format is not a solution
+when we need to change something.  Even if is ok for cpio in general.
 
-2. his boot fails after the initrd provided by SuSE's install process
-   has loaded the reiserfs.o module, his boot logs reveal that the
-   kernel mounts his hda13 (which is /) as msdos rather than msdos.
+This changing the format in incompatible ways when there is a new
+requirement does seem to be the traditional cpio method.
+ 
+> > The cases where initramfs will be used are some of the most operating
+> > specific cases I can imagine.  To handle those cases it is necessary
+> > to support the full breadth of the capability of the operating system.
+> 
+> Huh?  It's a bloody archive - collection of files and nothing else.
+> What "capability of the operating system"?
 
-3. I presume that msdos is linked into the kernel, and is thus tried
-   first as root file system, the kernel then panicks as it cannot find
-   /sbin/init (of course, it's in ReiserFS format, not msdos).
+Exactly.  But the standard unix stream of bytes does not cover everyones
+concept of files.  Things like:
+Symbolic Links
+Device Nodes,
+Resource Forks,
+Device links,
+Persistent mount points,
+ACL's,
+Persistent capabilities,
 
-4. I asked Ewald to boot with rootfstype=reiserfs, but he reported that
-   this did not help, news:<a1sb7b$t2d2e$1@ID-47183.news.dfncis.de>
-   (German-language).
+Are all partial exceptions to everything is the same kind of file.
+The cpio format as is doesn't handle all of these which is fine, but
+we may need some of these later, so we need someplace to expand to
+when if/when these kinds of things become important.
 
-5. It seems as though some traces of FAT16 shining through reiserfs
-   still make msdos think it can actually mount the file system.
+The startup process is likely to need everything the operating system
+can do, to handle some special case or the other.  So if at some
+future date we support odd types of special files we will probably
+need to use them in the system startup code.  We already require device
+nodes, and find symbolic links very helpful.
 
-I see various points where this can be attacked:
+Further Linux is dynamic and always changing, so not having some elbow
+room for growth is just asking for trouble.  All I noted is that
+the c_magic field exists so if/when the need arises we can handle
+really strange cases.  With everyone in linux being able to use an
+initramfs as their root filesystem actually makes the odds of a change
+that requires special root filesystem support much more likely.
+Because you only have to change one filesystem.
 
-1. SuSE and other distributors' installation tools, when formatting a
-   partition with mkfs, should zero out the first couple of MBytes with
-   dd if=/dev/zero of=/dev/hda13 bs=4096 count=1024 or something. I'm
-   not exactly sure how much is needed to get rid of the msdos traces.
+All I am asking is two things.  If we are not assuming guardianship
+for our variant of the cpio format we should reference those who do
+have guardianship, in the specification.  We should be aware that the
+cpio format as it now exists may not handle all future needs so
+having a mechanism to extend the format when those needs arise without
+breaking all existing users is important.
 
-2. mkreiserfs could also zero out so much of old data on the FS so that
-   the kernel reliably recognizes the FS as reiserfs and fails to mount
-   that stuff as msdos
-
-3. Distributors, when making their initrd stuff, should make sure that
-   all Linux-native file systems are tried first.
-
-4. rootfstype=reiserfs should be made work for the actual root fs, it
-   may be broken through initrd mounts, can anyone verify this? (note: I
-   did not verify it's not working, and I cannot currently tell the kernel
-   version, Ewald can follow up).
-
-Ewald has only recently migrated from Windows to Linux and direly wants
-his installation to boot. For now, I asked him to recompile his kernel
-to let msdos, umsdos and vfat be only modules rather than linked into
-the kernel, rebuild his initrd with SuSE's mk_initrd and rerun lilo,
-that should work around his problem, but it's certainly not good and may
-turn away people from Linux who are less enduring and patient than
-Ewald.
-
-Thanks a lot in advance,
-
--- 
-Matthias Andree
-
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+Eric

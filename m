@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRADV0g>; Thu, 4 Jan 2001 16:26:36 -0500
+	id <S129763AbRADVa5>; Thu, 4 Jan 2001 16:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbRADV0P>; Thu, 4 Jan 2001 16:26:15 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:55058 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129183AbRADV0J>; Thu, 4 Jan 2001 16:26:09 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200101042125.NAA27723@cx518206-b.irvn1.occa.home.com>
-Subject: Re: patch does not apply
-To: mkloppstech@freenet.de
-Date: Thu, 4 Jan 2001 13:25:56 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-Reply-To: barryn@pobox.com
-In-Reply-To: <200101042103.WAA01175@john.epistle> from "mkloppstech@freenet.de" at Jan 04, 2001 10:03:28 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130299AbRADVar>; Thu, 4 Jan 2001 16:30:47 -0500
+Received: from nrg.org ([216.101.165.106]:19236 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S129413AbRADVai>;
+	Thu, 4 Jan 2001 16:30:38 -0500
+Date: Thu, 4 Jan 2001 13:28:58 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Daniel Phillips <phillips@innominate.de>
+cc: ludovic fernandez <ludovic.fernandez@sun.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <3A5427A6.26F25A8A@innominate.de>
+Message-ID: <Pine.LNX.4.05.10101041323480.4778-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There are two patches for the prerelease:
-> pub/linux/kernel/testing/prerelease-diff and
-> pub/linux/kernel/v2.4/patch-2.4.0-prerelease.tar.bz2.
+On Thu, 4 Jan 2001, Daniel Phillips wrote:
+> A more ambitious way to proceed is to change spinlocks so they can sleep
+> (not in interrupts of course).  There would not be any extra overhead
+> for this on spin_lock (because the sleep test is handled off the fast
+> path) but spin_unlock gets a little slower - it has to test and jump on
+> a flag if there are sleepers.
 
-I didn't bother downloading the latter, but my guess is that it applies to
--test12. (I downloaded the full tarball instead.)
+I already have a preemption patch that also changes the longest
+held spinlocks into sleep locks, i.e. the locks that are routinely
+held for > 1ms.  This gives a kernel with very good interactive
+response, good enough for most audio apps.
 
-The former should be applied to 2.4.0-prerelease (i.e. after you've used
-the latter) to get a snapshot of Linus' current tree (or something like
-that, anyway).
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
--Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTEFES7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 00:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTEFES6
+	id S262348AbTEFESD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 00:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTEFESD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 00:18:58 -0400
-Received: from staple.laurelnetworks.com ([63.94.127.68]:55686 "EHLO
-	staple.laurelnetworks.com") by vger.kernel.org with ESMTP
-	id S262351AbTEFESw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 00:18:52 -0400
-To: linux-kernel@vger.kernel.org
-Subject: obscure read-only file system remount bug with 2.4 kernel
-Date: Tue, 06 May 2003 00:31:22 -0400 (EDT)
-Message-Id: <10242.1052195482@mja-pc-linux.dhcp.pit.laurelnetworks.com>
-From: "Michael J. Accetta" <mja@laurelnetworks.com>
+	Tue, 6 May 2003 00:18:03 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59408
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262348AbTEFESC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 00:18:02 -0400
+Date: Mon, 5 May 2003 21:30:26 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Athanasius <link@miggy.org>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc1
+Message-ID: <20030506043026.GF8350@matchmail.com>
+Mail-Followup-To: Athanasius <link@miggy.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030423164015.GJ25981@miggy.org> <Pine.LNX.3.96.1030424174457.11734G-101000@gatekeeper.tmr.com> <20030425203017.GA16910@miggy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030425203017.GA16910@miggy.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 25, 2003 at 09:30:17PM +0100, Athanasius wrote:
+> On Fri, Apr 25, 2003 at 12:17:43PM -0400, Bill Davidsen wrote:
+> > I dont think this is a fix, it's a work-around. It shouldn't be
+> > documnented, it should be made to work. That might mean having the kbuild
+> > prevent inappropriate use, of course.
+> 
+>   Agreed, I more meant it needs documenting so that those people that
+> hit it can apply the workaround and otherwise test the kernels.  I guess
+> for now those of us that know about it will just have to keep an eye out
+> for others reporting the problem then clue them in.
 
-With a 2.4.17 (MontaVista 2.1) kernel using ext3, we began seeing errors
-of
+It's probably better this way.  If people don't know the work around, then
+it will probably be reported again.  And the more it's reported with
+successive versions the more corner cases will be found and fixed.
 
-EXT3-fs error (device ide1(22,1)) in start_transaction: Readonly filesystem
-EXT3-fs error (device ide1(22,1)) in ext3_delete_inode: Readonly filesystem
-
-after a change to a custom system install/reinstall procedure we've
-written in house.
-
-I believe I have traced the cause to a kernel bug with the
-fs_may_remount_ro() call in fs/file_table.c which is used to verify
-that a file system may be remounted RO.  It checks the open file list
-of the super block for any deleted files and any regular files open
-for writing.  However, tty_open() in drivers/char/ttyio.c moves tty
-files from this list onto a tty_files list maintained per tty_struct
-immediately on open.  So any open terminal devices files on the device
-which get deleted (/dev/console in our case which is being replaced
-by the reinstall process) are not considered in the remount RO test
-and the remount is permitted when our reinstall completes.  This then
-eventually gives at least ext3 indigestion when it goes to release the
-deleted file on a now RO file system which should not yet have been allowed
-to be remounted RO.
-
-I've put together a fix which seems to work.  It calls into tty_io.c
-from fs_may_remount_ro() and has it iterate over the open tty files in
-all processes, following the pattern of __do_SAK() there, and looking
-for deleted files with the same device number as the remounting device,
-but this approach seems rather heavyweight to me.  However, it does do
-minimal violence to existing file and tty data structures.
-
-Caveats about this approach or alternative fix suggestions would be
-quite welcome if anyone has them.  The problem appears to still exist
-in 2.4.20 and I'd also be happy to package this as a patch against an
-official 2.4.20 kernel release if there is interest.
-
-Mike
+Documentation for work-arounds are meant for a proprietary world, and are
+counter productive for open source.

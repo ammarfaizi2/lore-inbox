@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265885AbTAJVKd>; Fri, 10 Jan 2003 16:10:33 -0500
+	id <S266100AbTAJVPp>; Fri, 10 Jan 2003 16:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbTAJVKd>; Fri, 10 Jan 2003 16:10:33 -0500
-Received: from dialin-145-254-144-100.arcor-ip.net ([145.254.144.100]:1664
-	"HELO schottelius.net") by vger.kernel.org with SMTP
-	id <S265885AbTAJVKc>; Fri, 10 Jan 2003 16:10:32 -0500
-Date: Thu, 9 Jan 2003 22:02:26 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.5.55] unresolved symbols
-Message-ID: <20030109210226.GA11535@schottelius.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.55
+	id <S266114AbTAJVPp>; Fri, 10 Jan 2003 16:15:45 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:1515 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266100AbTAJVPo>;
+	Fri, 10 Jan 2003 16:15:44 -0500
+Date: Fri, 10 Jan 2003 13:20:46 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Manish Lachwani <m_lachwani@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Using lilo to boot off any drive ...
+In-Reply-To: <20030110210035.76482.qmail@web20502.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33L2.0301101318220.19536-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Jan 2003, Manish Lachwani wrote:
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+| In my current setup, I am having 12 ide drives
+| connected to a 3ware controller labelled sda to sdl.
+| Suppose sde is the drive we want the system to boot
+| off. What I do is modify the lilo.conf on sda, sdb,
+| sdc etc. to have the "boot" entry point to /dev/sde.
+|
+| This way when the controller is transferred to lilo on
+| sda, it will load the kernel from sde.
+|
+| consider this. If sda is bad and is not exported to
+| the OS or is not detected in the BIOS due to a bad
+| cable etc. In this scenario, the OS mappings would
+| change. Now, sdb will become sda. The lilo.conf on sdb
+| (now sda) would have "boot" parameter still point to
+| sde, which is now sdd.
+|
+| When the control is transferred to lilo on sda (sdb
+| actually), is there a way for me to boot off sdd now
+| (which was previously sde)? I mean, is there any way
+| that lilo can load the appropriate kernel image?
+|
+| One of the ways I was thinking of was to modify the
+| lilo sources to scan for drive serial# and we boot off
+| that drive for which the serial# matches. But, does
+| anyone have a better alternative?
 
-Hello!
+I'm missing some info about how a BIOS addresses a large
+number of IDE drives.  I know about the basic 0x80 = hda
+(or C:) and 0x81 = hdb.  Is this still used?
+Is it extended for even many more drives?
 
-I am wondering how soundcore.ko can contain errno. Is it possible that=20
-sound_core.c includes it with linux/errno.h ?
-But why does only soundcore.ko has the unknown symbol ?
+-- 
+~Randy
 
-Greetings,
-
-Nico
-
-p.s.: output of depmod from modules_install:
-
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.55; fi
-WARNING: /lib/modules/2.5.55/kernel/sound/soundcore.ko needs unknown symbol=
- errno
-WARNING: /lib/modules/2.5.55/kernel/drivers/message/i2o/i2o_pci.ko needs un=
-known symbol i2o_sys_init
-WARNING: /lib/modules/2.5.55/kernel/security/root_plug.ko needs unknown sym=
-bol usb_bus_list_lock
-WARNING: /lib/modules/2.5.55/kernel/security/root_plug.ko needs unknown sym=
-bol usb_bus_list
-WARNING: /lib/modules/2.5.55/kernel/fs/nfsd/nfsd.ko needs unknown symbol ha=
-sh_mem
-WARNING: /lib/modules/2.5.55/kernel/arch/i386/kernel/microcode.ko needs unk=
-nown
-symbol devfs_set_file_size
-
-
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+HeNitnlUggLJsX0RAsy7AJ9ejT2qG0dC0kFOM+GJQmD4SUCnpQCaAyGB
-FsZZ9I/TN4nV1wj71AhaEJ8=
-=FgLI
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--

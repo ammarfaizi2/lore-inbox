@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129210AbQKWU16>; Thu, 23 Nov 2000 15:27:58 -0500
+        id <S129219AbQKWUhc>; Thu, 23 Nov 2000 15:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129219AbQKWU1s>; Thu, 23 Nov 2000 15:27:48 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:23571 "HELO Cantor.suse.de")
-        by vger.kernel.org with SMTP id <S129210AbQKWU1f>;
-        Thu, 23 Nov 2000 15:27:35 -0500
-Date: Thu, 23 Nov 2000 20:57:31 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@suse.de>, Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: {PATCH} isofs stuff
-Message-ID: <20001123205731.A26914@gruyere.muc.suse.de>
-In-Reply-To: <20001123164436.A17631@gruyere.muc.suse.de> <Pine.LNX.4.10.10011230825380.7992-100000@penguin.transmeta.com>
+        id <S129295AbQKWUhM>; Thu, 23 Nov 2000 15:37:12 -0500
+Received: from babylon5.babcom.com ([208.176.30.226]:26752 "EHLO
+        babylon5.babcom.com") by vger.kernel.org with ESMTP
+        id <S129219AbQKWUhI>; Thu, 23 Nov 2000 15:37:08 -0500
+Date: Thu, 23 Nov 2000 12:07:01 -0800
+From: Phil Stracchino <alaric@babcom.com>
+To: Linux-KERNEL <linux-kernel@vger.kernel.org>, support@vmware.com
+Subject: VMWare will not run on kernel 2.4.0-test11
+Message-ID: <20001123120701.A1338@babylon5.babcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10011230825380.7992-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Nov 23, 2000 at 08:59:46AM -0800
+X-No-Archive: Yes
+X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
+X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
+X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
+X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for BUGTRAQ is implicit.
+X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 08:59:46AM -0800, Linus Torvalds wrote:
-> [ Btw, I noticed that one of my machines _does_ have gcc-2.95.2, so I can
->   look at the isofs code generation myself.  I don't see anything obvious,
->   and the code is hairy. The differences between 2.91.66 and 2.95.2 are
->   big enough that a plain "diff" doesn't show anything clear. Andi, what
->   does your test-case look like? ]
+I just compiled and installed kernel 2.4.0-test11.  Upon rebooting,
+vmware-2.0.3-786 refused to run.  Running vmware-config.pl resulted in a
+the following message:
 
-Just a variable width shift of long long with both arguments fetched
-from deep indirection via pointers, and that all in a function with
-register pressure (extracted from the XFS source, which does all kinds
-of nasty things with long long) 
+	"Your processor does not have a Time Stamp Counter. VMware will
+	 not run on this system."
 
-I am actually not sure if the normal kernel contains even a variable
-width long long shift.
+Since (1) my hardware has not changed, (2) this VMware release ran
+perfectly on 2.4.0-test10, and (3) I changed nothing but the kernel in
+between 2.4.0-test10 and 2.4.0-test11, I feel quite confident in believing
+that I do indeed possess a Time Stamp Counter (whatever such a fabulous
+beast may be), but for some reason VMware is unable to detect its presence
+when running on kernel 2.4.0-test11.  Evidently there has been some change
+in the kernel which renders VMware unable to detect this mysterious - but
+apparently crucial - feature.
 
--Andi (who also sees some strange hangs in 2.4.0test11-pre, but more
-suspects his own hacks. no fs corruption, but I do not run dbench normally) 
 
+I would appreciate any insights from either kernel folks or VMware folks
+as to where this problem may lie, with an eventual aim of patching either
+VMware or the kernel to allow VMware to run on this kernel.
+
+
+
+-- 
+ Linux Now!   ..........Because friends don't let friends use Microsoft.
+ phil stracchino   --   the renaissance man   --   mystic zen biker geek
+    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
+ Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

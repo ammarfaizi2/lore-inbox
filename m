@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266716AbUGLEoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUGLEt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266716AbUGLEoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 00:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266717AbUGLEoN
+	id S266717AbUGLEt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 00:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUGLEt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 00:44:13 -0400
-Received: from 234.69-93-232.reverse.theplanet.com ([69.93.232.234]:54247 "EHLO
-	urbanisp01.urban-isp.net") by vger.kernel.org with ESMTP
-	id S266716AbUGLEoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 00:44:11 -0400
-From: "Shai Fultheim" <shai@scalex86.org>
-To: "'Anton Blanchard'" <anton@samba.org>
-Cc: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
-       "'Jes Sorensen'" <jes@trained-monkey.org>, <mort@wildopensource.com>
-Subject: RE: [PATCH] PER_CPU [4/4] - PER_CPU-irq_stat
-Date: Sun, 11 Jul 2004 21:44:00 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040712000218.GC30109@krispykreme>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2142
-Thread-Index: AcRnxr8RqepZ7bHSQqaQXGUKyTxYeAAAuqEg
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - urbanisp01.urban-isp.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-Message-Id: <S266716AbUGLEoL/20040712044411Z+1440@vger.kernel.org>
+	Mon, 12 Jul 2004 00:49:56 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:51843 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S266717AbUGLEty
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 00:49:54 -0400
+Date: Sun, 11 Jul 2004 23:49:46 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       akpm <akpm@osdl.org>
+Subject: Re: [PATCH] edd (Re: Linux 2.6.8-rc1)
+Message-ID: <20040712044946.GA21325@lists.us.dell.com>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org> <20040711160019.00c2d658.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <20040711160019.00c2d658.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > diff -Nru a/kernel/softirq.c b/kernel/softirq.c
-> > --- a/kernel/softirq.c	2004-07-09 01:34:13 -07:00
-> > +++ b/kernel/softirq.c	2004-07-09 01:34:13 -07:00
-> > @@ -36,8 +36,8 @@
-> >   */
-> >
-> >  #ifndef __ARCH_IRQ_STAT
-> > -irq_cpustat_t irq_stat[NR_CPUS] ____cacheline_aligned;
-> > -EXPORT_SYMBOL(irq_stat);
-> > +DEFINE_PER_CPU(irq_cpustat_t, irq_stat)
-> ____cacheline_maxaligned_in_smp;
-> > +EXPORT_PER_CPU_SYMBOL(irq_stat);
-> >  #endif
-> 
-> Is there a need for the cacheline alignment? We want to keep that per
-> cpu data area as packed as possible, we only want to explicitly pad if
-> we need to (eg other cpus are accessing that variable a lot).
-> 
-> Also it looks like we will have to push the above change into the other
-> architectures.
-> 
-> Anton
-> 
 
-IMHO, we want to keep irq_stat aligned from performance perspectives. You
-can never know if the info before and after it in the per-cpu area are going
-to be cached (and thefore crossing cache-line boundary will cost us more).  
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyhow, since that also accesses by other CPUs (not a lot...), I think it's
-better to keep it aligned (the utilization of per-cpu areas is so low now
-that it doesn't really matter).
+On Sun, Jul 11, 2004 at 04:00:19PM -0700, Randy.Dunlap wrote:
+> drivers/built-in.o: In function `edd_has_mbr_signature':
+> drivers/built-in.o(.text+0x13b84f): undefined reference to `edd'
+> drivers/built-in.o(.init.text+0xd39c): more undefined references to `edd'=
+ follow
+>=20
+> CONFIG_EDD=3Dy on X86o
+>=20
+> 'edd' needs to be exported for drivers/firmware/edd.c
 
---shai
+I don't think so.  It only needs be exported if a module is going to
+use it.  Since you're building it in, not as a module, it should be
+fine.
 
+My own 'make defconfig' on a clean BK tree, enabling CONFIG_EDD=3Dy,
+links correctly.  Perhaps a make mrproper; make would be in order, as the
+deps stage should have caught it for you...
+
+Thanks,
+Matt
+
+--=20
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA8hhqIavu95Lw/AkRAm0+AJ9gPH7dzCOAKWXqropmaU20KHGyEQCbB+M9
+E2eUa6PSl22kvVYL0utWXqE=
+=d+nU
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

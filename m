@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTABMp1>; Thu, 2 Jan 2003 07:45:27 -0500
+	id <S261701AbTABMpX>; Thu, 2 Jan 2003 07:45:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTABMp0>; Thu, 2 Jan 2003 07:45:26 -0500
-Received: from pop.gmx.de ([213.165.65.60]:37329 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261733AbTABMpZ>;
-	Thu, 2 Jan 2003 07:45:25 -0500
-Date: Thu, 2 Jan 2003 13:53:50 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Power off a SMP Box
-Message-Id: <20030102135350.24315441.gigerstyle@gmx.ch>
-X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
+	id <S261733AbTABMpX>; Thu, 2 Jan 2003 07:45:23 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:41167 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261701AbTABMpW>;
+	Thu, 2 Jan 2003 07:45:22 -0500
+Date: Thu, 2 Jan 2003 12:51:48 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au, hch@infradead.org
+Subject: Re: RFC/Patch - Implode devfs
+Message-ID: <20030102125148.GD26479@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Adam J. Richter" <adam@yggdrasil.com>,
+	linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au,
+	hch@infradead.org
+References: <20030101165121.A3091@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030101165121.A3091@baldur.yggdrasil.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Wed, Jan 01, 2003 at 04:51:21PM -0800, Adam J. Richter wrote:
+ > 	This code now tries to implement almost all of the devfs
+ > functionality that anything outside of arch/ia64/sn uses.  The most
+ > significant except that I'm aware of is the ability to create a plain
+ > file with custom file operations, which is done the Memory Type Range
+ > Register code, but that code also provides a proc interface for the
+ > same thing, and I think the proc interface is what everyone uses right
+ > now anyhow.
 
-I know this question was already asked 1000 times.
+Ignore other mail. -ENOTAWAKEYET
+testgart uses /proc/mtrr too, and thinking about it I guess X does
+too, or it would break in the non-devfs case.
 
-My "problem" is that my Dual-Box won't power off itself after a shutdown.
+		Dave
 
-I tried with 
-
-apm=smp-power-off	//no effect
-apm=power-off		//this one oopses on boot
-
-I google'd around many hours with no solution.
-
-Has someone a hint for me?
-
-The Box is a Asus P3C-D with two PIII @ 933 Mhz
-
-Thank you
-
-Marc
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

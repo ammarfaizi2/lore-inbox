@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284638AbRLUPsy>; Fri, 21 Dec 2001 10:48:54 -0500
+	id <S284662AbRLUP6P>; Fri, 21 Dec 2001 10:58:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284657AbRLUPsg>; Fri, 21 Dec 2001 10:48:36 -0500
-Received: from euston.inpharmatica.co.uk ([195.102.24.12]:17605 "EHLO
-	sunsvr03.inpharmatica.co.uk") by vger.kernel.org with ESMTP
-	id <S284638AbRLUPsY>; Fri, 21 Dec 2001 10:48:24 -0500
-Message-ID: <3C2359C6.6010506@purplet.demon.co.uk>
-Date: Fri, 21 Dec 2001 15:48:22 +0000
-From: Mike Jagdis <jaggy@purplet.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en, fr, de
-MIME-Version: 1.0
-To: Rene Engelhard <mail@rene-engelhard.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in	Configure.help.
-In-Reply-To: <B848EEB6.406C%mail@rene-engelhard.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284674AbRLUP5z>; Fri, 21 Dec 2001 10:57:55 -0500
+Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:64018 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284669AbRLUP5w>;
+	Fri, 21 Dec 2001 10:57:52 -0500
+Date: Fri, 21 Dec 2001 07:54:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Wolfgang Weisselberg <eskdyswngvi1s001@sneakemail.com>,
+        Karsten Keil <keil@isdn4linux.de>, kkeil@suse.de,
+        Kai Germaschewski <kai.germaschewski@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops in [free_page_and_swap_cache+50/52]
+Message-ID: <20011221075409.A20896@kroah.com>
+In-Reply-To: <20011221134634.A14357@tiger.bigcats.invalid>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011221134634.A14357@tiger.bigcats.invalid>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 23 Nov 2001 13:50:14 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Engelhard wrote:
-
->  Christian Groessler wrote:
->>So, is it 1/1024 or 1/1000 bytes ?  :-)
->>
+On Fri, Dec 21, 2001 at 01:46:34PM +0100, Wolfgang Weisselberg wrote:
 > 
-> 1/1024. Because we are talking about byte.
+> jpilot is a 'palm pilot' connection program (and more), a
+> Handspring Visor (a palm-clone) was syncing via it's USB
+> connection as the oops happened.  The logfiles say that ISDN
+> had disconnected almost exactly a minute before the oops, so
+> it was offline.
 
-Bollocks. How can I put this politely? Don't anyone ever send me
-a CV unless you know the technical basics!
+There is a known bug in the visor driver that can happen when the visor
+is done syncing and then disconnects, while the pilot-link connection
+(which is what jpilot uses) is still open.  Can you load the visor
+driver with "debug=1" and see if this oops still happens (and if so, can
+you send me the kernel debug log?)
 
-Go look up "SI binary prefix" and "SI prefix" on Google. You might
-not _like_ the binary prefixes (I don't either) but they're what's
-been standardized and they're unambiguous. It does no good to claim
-that it's enough that *you* know what you mean. This isn't Alice in
-Wonderland (you can look that reference up in your spare time :-) ).
+thanks,
 
-				Mike
-
-P.S. After you've understood the SI system you should be able to
-tell us what the binary prefix equivalent for m is and why K as
-a prefix is a mark of stupidity...
-
+greg k-h

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270805AbTGPM5D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270776AbTGPM5B
+	id S270763AbTGPM5o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270776AbTGPM5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:57:01 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42385
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S270763AbTGPM47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:56:59 -0400
-Date: Wed, 16 Jul 2003 15:11:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: RFC on io-stalls patch
-Message-ID: <20030716131128.GG4978@dualathlon.random>
-References: <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <20030714201637.GQ16313@dualathlon.random> <20030715052640.GY833@suse.de> <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk> <20030715112737.GQ833@suse.de> <20030716124355.GE4978@dualathlon.random> <20030716124656.GY833@suse.de> <20030716125933.GF4978@dualathlon.random> <20030716130442.GZ833@suse.de>
+	Wed, 16 Jul 2003 08:57:44 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18121
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270763AbTGPM5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 08:57:42 -0400
+Subject: Re: Trying to get DMA working with IDE alim15x3 controller
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Art Haas <ahaas@airmail.net>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030715233202.GB17444@artsapartment.org>
+References: <Pine.SOL.4.30.0307160050340.27735-100000@mion.elka.pw.edu.pl>
+	 <Pine.SOL.4.30.0307160109140.27735-100000@mion.elka.pw.edu.pl>
+	 <20030715233202.GB17444@artsapartment.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058360981.6633.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716130442.GZ833@suse.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Jul 2003 14:09:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:04:42PM +0200, Jens Axboe wrote:
-> On Wed, Jul 16 2003, Andrea Arcangeli wrote:
-> > On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
-> > > Well it's a combined problem. Threshold too high on dirty memory,
-> > > someone doing a read well get stuck flushing out as well.
-> > 
-> > a pure read not. the write throttling should be per-process, then there
-> > will be little risk.
-> 
-> A read from user space, dirtying data along the way.
+On Mer, 2003-07-16 at 00:32, Art Haas wrote:
+> I'd received mail from another person stating that the ALi DMA is broken
+> from many old chips, but that it is only the UDMA stuff that is broken,
 
-it doesn't necessairly block on dirty memory. We even _free_ ram clean
-if needed, exactly because of that. You can raise the amount of _free_
-ram up to 99% of the whole ram in your box to be almost guaranteed to
-never wait on dirty memory freeing. Of course the default tries to
-optimize for writeback cache and there's a reasonable margin to avoid
-writing dirty stuff. the sysctl is there for special usages where you
-want to never block in a read from userspace regardless whatever the
-state of the system.
+The older chips dont do UDMA. Then a lot of the next range of chips do
+UDMA but not 48bit command so you can end up in PIO mode. Possibly our
+logic for this needs tightening now we use lba28 commands whenever 
+possible, so an LBA48 capable disk under LBA48 limit size is drivable
+entirely in LBA28 safely.
 
-Andrea
+> and the MW_DMA stuff works. Also the notes about the 2.6 transition
+> indicate ali15x3 and DMA don't always play nicely together. Still,
+> if the MW_DMA stuff works, some hdparm trickery like ...
+
+Simplex DMA needs some fixing for one. That should only bite you if you
+have a set up something like
+
+hda -> unused
+hdb -> unused
+hdc -> DISK
+hdd -> unused
+
+in which case we assign the DMA engine to hda/hdb!
+

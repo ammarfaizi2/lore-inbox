@@ -1,150 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbTEMSCB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 14:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTEMSBo
+	id S261807AbTEMSGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTEMSEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 14:01:44 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:15911 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263376AbTEMSBF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 14:01:05 -0400
-Subject: [PATCH] 2.5.69 synclink_cs.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052849546.1992.6.camel@diemos>
+	Tue, 13 May 2003 14:04:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34214 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263396AbTEMSC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 14:02:58 -0400
+Date: Tue, 13 May 2003 20:11:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: bharata@in.ibm.com, Adrian Bunk <bunk@fs.tum.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+Subject: Re: 2.5.69-mjb1: undefined reference to `blk_queue_empty'
+Message-ID: <20030513181155.GL17033@suse.de>
+References: <9380000.1052624649@[10.10.2.4]> <20030512205139.GT1107@fs.tum.de> <20570000.1052797864@[10.10.2.4]> <20030513124807.A31823@in.ibm.com> <25840000.1052834304@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 May 2003 13:12:27 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <25840000.1052834304@[10.10.2.4]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Remove PCMCIA release from timer context
-* Add irqreturn_t to ISR
-* Add dosyncppp module parameter
+On Tue, May 13 2003, Martin J. Bligh wrote:
+> > I have already sent you a fix for this. Anyway here it is again.
+> 
+> Oops, I must have dropped it - thanks, I'll stick it in the next release.
+>  
+> > --- linux-2.5.69/drivers/dump/dump_blockdev.c.orig	Tue May 13 12:30:49 2003
+> > +++ linux-2.5.69/drivers/dump/dump_blockdev.c	Tue May 13 12:34:09 2003
+> > @@ -261,7 +261,7 @@
+> >  
+> >  	/* For now we assume we have the device to ourselves */
+> >  	/* Just a quick sanity check */
+> > -	if (!blk_queue_empty(bdev_get_queue(dump_bdev->bdev))) {
+> > +	if (elv_next_request(bdev_get_queue(dump_bdev->bdev))) {
+> >  		/* i/o in flight - safer to quit */
+> >  		return -EBUSY;
+> >  	}
 
-Please apply.
-
-
-
---- linux-2.5.69/drivers/char/pcmcia/synclink_cs.c	2003-05-06 14:16:19.000000000 -0500
-+++ linux-2.5.69-mg/drivers/char/pcmcia/synclink_cs.c	2003-05-13 13:08:55.000000000 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/pcmcia/synclink_cs.c
-  *
-- * $Id: synclink_cs.c,v 4.6 2003/04/21 17:46:55 paulkf Exp $
-+ * $Id: synclink_cs.c,v 4.10 2003/05/13 16:06:03 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink PC Card
-  * multiprotocol serial adapter.
-@@ -430,7 +430,7 @@
- static int  rx_alloc_buffers(MGSLPC_INFO *info);
- static void rx_free_buffers(MGSLPC_INFO *info);
- 
--static void mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs);
-+static irqreturn_t mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs);
- 
- /*
-  * Bottom half interrupt handlers
-@@ -476,6 +476,7 @@
- 
- static int debug_level = 0;
- static int maxframe[MAX_DEVICE_COUNT] = {0,};
-+static int dosyncppp[MAX_DEVICE_COUNT] = {1,1,1,1};
- 
- /* The old way: bit map of interrupts to choose from */
- /* This means pick from 15, 14, 12, 11, 10, 9, 7, 5, 4, and 3 */
-@@ -492,11 +493,12 @@
- MODULE_PARM(cuamajor,"i");
- MODULE_PARM(debug_level,"i");
- MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
-+MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
- 
- MODULE_LICENSE("GPL");
- 
- static char *driver_name = "SyncLink PC Card driver";
--static char *driver_version = "$Revision: 4.6 $";
-+static char *driver_version = "$Revision: 4.10 $";
- 
- static struct tty_driver serial_driver, callout_driver;
- static int serial_refcount;
-@@ -574,9 +576,6 @@
-     link->priv = info;
-     
-     /* Initialize the dev_link_t structure */
--    init_timer(&link->release);
--    link->release.function = &mgslpc_release;
--    link->release.data = (u_long)link;
- 
-     /* Interrupt setup */
-     link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
-@@ -813,7 +812,7 @@
- 	    link->state &= ~DEV_PRESENT;
- 	    if (link->state & DEV_CONFIG) {
- 		    ((MGSLPC_INFO *)link->priv)->stop = 1;
--		    mod_timer(&link->release, jiffies + HZ/20);
-+		    mgslpc_release((u_long)link);
- 	    }
- 	    break;
-     case CS_EVENT_CARD_INSERTION:
-@@ -1356,7 +1355,7 @@
-  * dev_id  device ID supplied during interrupt registration
-  * regs    interrupted processor context
-  */
--static void mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs)
-+static irqreturn_t mgslpc_isr(int irq, void *dev_id, struct pt_regs * regs)
- {
- 	MGSLPC_INFO * info = (MGSLPC_INFO *)dev_id;
- 	unsigned short isr;
-@@ -1366,10 +1365,10 @@
- 	if (debug_level >= DEBUG_LEVEL_ISR)	
- 		printk("mgslpc_isr(%d) entry.\n", irq);
- 	if (!info)
--		return;
-+		return IRQ_NONE;
- 		
- 	if (!(info->link.state & DEV_CONFIG))
--		return;
-+		return IRQ_HANDLED;
- 
- 	spin_lock(&info->lock);
- 
-@@ -1459,6 +1458,8 @@
- 	if (debug_level >= DEBUG_LEVEL_ISR)	
- 		printk("%s(%d):mgslpc_isr(%d)exit.\n",
- 		       __FILE__,__LINE__,irq);
-+
-+	return IRQ_HANDLED;
- }
- 
- /* Initialize and start device.
-@@ -3113,8 +3114,7 @@
- 	if (info->line < MAX_DEVICE_COUNT) {
- 		if (maxframe[info->line])
- 			info->max_frame_size = maxframe[info->line];
--//		info->dosyncppp = dosyncppp[info->line];
--		info->dosyncppp = 1;
-+		info->dosyncppp = dosyncppp[info->line];
- 	}
- 
- 	mgslpc_device_count++;
-@@ -3276,7 +3276,6 @@
- 
- 	unregister_pccard_driver(&dev_info);
- 	while (dev_list != NULL) {
--		del_timer(&dev_list->release);
- 		if (dev_list->state & DEV_CONFIG)
- 			mgslpc_release((u_long)dev_list);
- 		mgslpc_detach(dev_list);
-
+this looks horribly racy (of the io scheduler internals corrupting
+kind), I don't see you holding the queue lock here. some io schedulers
+do non-significant amount of work inside they next_request functions,
+moving from back-end lists to dispatch queue.
 
 -- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
+Jens Axboe
 

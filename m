@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSILPBW>; Thu, 12 Sep 2002 11:01:22 -0400
+	id <S316289AbSILPDg>; Thu, 12 Sep 2002 11:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSILPBV>; Thu, 12 Sep 2002 11:01:21 -0400
-Received: from pasky.ji.cz ([62.44.12.54]:60920 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S315946AbSILPBV>;
-	Thu, 12 Sep 2002 11:01:21 -0400
-Date: Thu, 12 Sep 2002 17:06:09 +0200
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: zdzichu@irc.pl, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020912150609.GE21715@pasky.ji.cz>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, zdzichu@irc.pl,
-	linux-kernel@vger.kernel.org
-References: <20020819043941.GA31158@irc.pl> <20020818.213719.117777405.davem@redhat.com>
-Mime-Version: 1.0
+	id <S316430AbSILPDg>; Thu, 12 Sep 2002 11:03:36 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:21665 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S316289AbSILPDf>; Thu, 12 Sep 2002 11:03:35 -0400
+From: kernel@street-vision.com
+Message-Id: <200209121507.g8CF7cY07728@tench.street-vision.com>
+Subject: Re: AMD 760MPX DMA lockup
+To: kas@informatics.muni.cz (Jan Kasprzak)
+Date: Thu, 12 Sep 2002 15:07:38 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020912161258.A9056@fi.muni.cz> from "Jan Kasprzak" at Sep 12, 2002 04:12:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020818.213719.117777405.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Aug 19, 2002 at 06:37:19AM CEST, I got a letter,
-where "David S. Miller" <davem@redhat.com> told me, that...
->    Full IPv6 stack is beeing mantained by USAGI project.
 > 
-> Yes, and based upon previous attempts to get them to merge their work
-> into the mainline, we believe at this point that they actually enjoy
-> being a totally seperate project and not merging completely is a
-> feature for them.
+> 	Hello, kernel hackers,
 > 
-> USAGI may only accept that comment, and the only way they may
-> disprove it is to merge their code to us as we have continually
-> requested them to do so.
-...
+> my dual athlon box is unstable in some situations. I can consistently
+> lock it up by running the following code:
+> 
+> fd = open("/dev/hda3", O_RDWR);
+> for (i=0; i<1024*1024; i++) {
+> 	read(fd, buffer, 8192);
+> 	lseek(fd, -8192, SEEK_CUR);
+> 	write(fd, buffer, 8192);
+> }
+> 
+> It locks up in a minute or so (solid lock up, it does not react even
+> to a NumLock key or console switching). It can surely be a HW problem
+> (this is a new box), but how to tell whether this is the case?
+> 
+> The mainboard is MSI K7D Master, AMD 760MPX chipset, 460W power supply,
+> 1GB RAM.
+> 
+> The box survived whole night of memtest86 and the whole night of three kernel
+> compiles running in parallel in an infinite loop.
+> 
+> This problem is on many recent kernels (tried 2.4.18-11 from RedHat "null",
+> 2.4.20-pre5-ac1, 2.4.20-pre5-ac5, 2.4.20-pre6). It does not matter whether
+> I compile the kernel SMP or UP, with or without CONFIG_HIGHMEM.
 
-FYI, early at this morning (UTC), Yuji Sekiya <sekiya@sfc.wide.ad.jp> wrote on
-the USAGI list:
+Well I have run this several times on my MPX, and it is fine.
 
-======
+This is 2.4.20-pre1, dual AMD 2000MP, only difference is it is the Tyan
+version of the MPX, not the MSI. 
 
-> Is there any chance the work of the USAGI project will
-> be included in the vanilla kernel(2.4?/2.5?) in the near
-> future? Will we see better ipv6 support in 2.6 ?
-
-Yes, we will send patches to mainline kernel.
-At least we will send the below patches by end of Setpember.
-We are now working.
-
-- IPv6 default route fix
-- Source address seletcion
-- Privacy extension
-- IPv4/IPv6 double bind
-- NDP timer improvement
-- IPsec for IPv6
-
-======
-
-So, let's watch them and hope that they will fulfill this and send some usable
-patches to you..
-
-PS: Sorry for replying to such an old thread, I only thought that people not
-subscribed on the USAGI mailing list may be still interested in this.
-
--- 
- 
-				Petr "Pasky" Baudis
- 
-* ELinks maintainer                * IPv6 guy (XS26 co-coordinator)
-* IRCnet operator                  * FreeCiv AI occassional hacker
-.
-<Beeth> Girls are like internet domain names, the ones I like are already taken.
-<honx> Well, you can still get one from a strange country :-P
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+Justin

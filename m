@@ -1,207 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVCWVj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVCWVoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVCWVj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVCWVjZ
+	id S262929AbVCWVoP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVCWVoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:39:25 -0500
-Received: from mail.dif.dk ([193.138.115.101]:25001 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261368AbVCWVjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:39:05 -0500
-Date: Wed, 23 Mar 2005 22:40:54 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: security/keys/key.c broken with defconfig 
-In-Reply-To: <26892.1111574333@redhat.com>
-Message-ID: <Pine.LNX.4.62.0503232238070.2501@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost>
-  <26892.1111574333@redhat.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-852199653-1111614054=:2501"
+	Wed, 23 Mar 2005 16:44:15 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:49938 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262929AbVCWVoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 16:44:12 -0500
+Date: Wed, 23 Mar 2005 22:44:30 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] I2C Part 1 - Remove some redundancy from the i2c-core.c
+ file
+Message-Id: <20050323224430.634e0a75.khali@linux-fr.org>
+In-Reply-To: <42418B36.5030407@mvista.com>
+References: <42418B36.5030407@mvista.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Corey,
 
---8323328-852199653-1111614054=:2501
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> Call i2c_transfer() from i2c_master_send() and i2c_master_recv()
+> to avoid the redundant code that was in all three functions.
 
-On Wed, 23 Mar 2005, David Howells wrote:
+I like this. You're right, there is code duplication here, which we can
+get rid of, so let's do so. I'd only have one comments about your patch:
 
-> Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> 
-> > If I just do a 'make defconfig' and then try to build security/keys/ the 
-> > build breaks.  Doing 'make allyesconfig' fixes it by defining CONFIG_KEYS 
-> > which makes include/linux/key-ui.h include the full struct key definition.
-> 
-> What arch? Please can you provide a copy of your .config file.
-> 
-i386 - the config generating this problem is the one created by "make 
-defconfig" with 2.6.12-rc1-mm1, but a copy is attached (bzip2 compressed) 
-to this mail.
+You can get rid of the dev_dbg calls in i2c_master_send() and
+i2c_master_recv() altogether IMHO. I recently updated i2c_transfer() to
+make it more verbose in debug mode [1], so the debug messages in
+i2c_master_send() and i2c_master_recv() are mostly redundant now as far
+as I can see.
 
+[1] http://archives.andrew.net.au/lm-sensors/msg29859.html
+
+Thanks,
 -- 
-Jesper Juhl
-
---8323328-852199653-1111614054=:2501
-Content-Type: APPLICATION/octet-stream; name=config.bz2
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.62.0503232240540.2501@dragon.hyggekrogen.localhost>
-Content-Description: 
-Content-Disposition: attachment; filename=config.bz2
-
-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
-
---8323328-852199653-1111614054=:2501--
+Jean Delvare

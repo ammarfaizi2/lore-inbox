@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292382AbSBUOxb>; Thu, 21 Feb 2002 09:53:31 -0500
+	id <S292402AbSBUOzM>; Thu, 21 Feb 2002 09:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292396AbSBUOxV>; Thu, 21 Feb 2002 09:53:21 -0500
-Received: from starbug.ugh.net.au ([203.31.238.37]:29964 "EHLO
-	starbug.ugh.net.au") by vger.kernel.org with ESMTP
-	id <S292382AbSBUOxQ>; Thu, 21 Feb 2002 09:53:16 -0500
-Date: Fri, 22 Feb 2002 01:53:10 +1100 (EST)
-From: David Burrows <snadge@ugh.net.au>
-To: linux-kernel@vger.kernel.org
-Subject: baffling linux bug / hardware problem
-Message-ID: <20020222013558.X11925-100000@starbug.ugh.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292404AbSBUOzE>; Thu, 21 Feb 2002 09:55:04 -0500
+Received: from ns.suse.de ([213.95.15.193]:43536 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292402AbSBUOy4>;
+	Thu, 21 Feb 2002 09:54:56 -0500
+Date: Thu, 21 Feb 2002 15:54:47 +0100
+From: Dave Jones <davej@suse.de>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christer Weinigel <wingel@acolyte.hack.org>, wingel@nano-system.com,
+        jgarzik@mandrakesoft.com, roy@karlsbakk.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
+Message-ID: <20020221155447.C5583@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Christer Weinigel <wingel@acolyte.hack.org>, wingel@nano-system.com,
+	jgarzik@mandrakesoft.com, roy@karlsbakk.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16dtPo-0006vd-00@the-village.bc.nu> <Pine.LNX.4.44.0202211619320.11932-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0202211619320.11932-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Thu, Feb 21, 2002 at 04:27:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Feb 21, 2002 at 04:27:34PM +0200, Zwane Mwaikambo wrote:
+ > Thanks Alan and Jeff for the input, i'll cleanup this stuff. Out of 
+ > interest, do we normally take in patches for specialised embedded boxes? I 
+ > see the AMD Elan stuff got in but that only touched one area and was easy 
+ > to integrate. I presume they'd get accepted if the code was broken up into 
+ > seperate modules instead of being overly specialised. For example, the 
+ > CRIS stuff in the Etrax tree (developer.axis.com).
 
-I have a problem where my computer locks up during "Calibrating Delay
-Loop..".  I have been using Linux on this same hardware for many years,
-and it only started doing this 2 days ago.  It does not seem to matter
-what kernel version (2.0, 2.2, 2.4.17) I use or what medium I boot from.
+ It seems lately there has been a surge of interest in getting
+ niche x86 clones included in mainline (Voyager, numaq, Elan, etc).
+ I forget who it was who suggested it, but the idea came up of
+ using a similar approach to arm's subarchitecture support for x86.
 
-I'd write this off as a hardware problem but both Windows 98 and FreeBSD
-4.5 seem to be able to boot and function properly.  I've tried to debug
-init/main.c myself and put printks in the loop calibration function.  It
-seems to go through the first while loop twice, then hang before getting
-to the __delay part.
+ The downsides would probably be a lot of code duplication,
+ The upside would be hiding away specialised code from the 99% of
+ people who don't need to see it.  The Voyager patch for example
+ was ~150kb iirc, and was imo still quite intrusive even after
+ a first round of suggestions. Putting it into arch/x86-32/voyager/
+ would allow those that do care about it to do whatever they deem
+ necessary without inflicting dozens of #ifdefs and the likes
+ on the majority.
 
-Could this be a timer interrupt problem?  How do I diagnose this?  Why do
-other oses work and Linux (which previously worked fine) no longer does
-no matter what version or where I boot it from.
-
-My hardware is p166mmx, intel HX chipset.  I have also tried a memory
-tester which says that the memory is fine.  I'm totally stumped.
-
-Any feedback on this problem would be much appreciated.  (CC me direct as
-I'm not subscribed to this list).
-
-Thanks in advance,
-
-Dave.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

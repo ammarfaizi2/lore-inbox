@@ -1,98 +1,200 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129399AbRBCQag>; Sat, 3 Feb 2001 11:30:36 -0500
+	id <S129443AbRBCQvo>; Sat, 3 Feb 2001 11:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129442AbRBCQa1>; Sat, 3 Feb 2001 11:30:27 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:3835 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S129399AbRBCQaP>; Sat, 3 Feb 2001 11:30:15 -0500
-Message-ID: <3A7C30EA.930F14DA@videotron.ca>
-Date: Sat, 03 Feb 2001 11:25:14 -0500
-From: Martin Laberge <mlsoft@videotron.ca>
-Organization: MLSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kenneth Yeung <kkyeung@expert.cc.purdue.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: digiboard support in linux
-In-Reply-To: <Pine.GSO.3.96.1010202141601.2155A-100000@expert.cc.purdue.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129974AbRBCQvY>; Sat, 3 Feb 2001 11:51:24 -0500
+Received: from smtp7.xs4all.nl ([194.109.127.133]:15358 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129443AbRBCQvO>;
+	Sat, 3 Feb 2001 11:51:14 -0500
+From: thunder7@xs4all.nl
+Date: Sat, 3 Feb 2001 17:36:06 +0100
+To: linux-kernel@vger.kernel.org
+Subject: one of the most useless patches you'll ever see
+Message-ID: <20010203173606.A7821@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenneth Yeung wrote:
 
-> Hello Martin
->
->         Thanks for the info, I'm having a little trouble getting the ports
-> configured.  On my system, it looks like half the ports are on irq 2 and
-> the other half are on irq 5.  and looks like they have been configured the
-> right way?  But i can't seem to get them to run getty so that I can test
-> the connection.
->
-> Thanks!
-> -Ken
->
-> On Tue, 30 Jan 2001, Martin Laberge wrote:
->
-> > Kenneth Yeung wrote:
-> >
-> > > Hello all
-> > >
-> > > Can anyone tell me where I can find infomation on digiboard support in
-> > > linux specifically the PC/X model?
-> > >
-> > > THanks
-> > > -Ken
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > Please read the FAQ at http://www.tux.org/lkml/
-> >
-> > yes i used it often in my installations and no problem with that
-> > since 2.0.x
-> >
-> > 2.2.x works good too
-> >
-> > never tried with linux 2.4.x
-> >
-> >
-> > driver is supported by digiboard itself   and by linux
-> >
-> > you have the choice of 2 drivers for these boards....
-> >
-> > i used for my part the PC/8e  PC/16e and PC/32e   In ISA versions
-> > and never had any problems... (except figuring out how to install for the
-> > first time)
-> > but it is very simple if you know how to read install instructions
-> >
-> >
-> > Martin Laberge
-> > mlsoft@videotron.ca
-> >
-> >
-> >
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-could you send me the configuration logs and system boot messages about the
-digiboard...
+This copies the sun 12x22 font to a 12x20 font.
+Readability on a 21" monitor remains very high @ 1600x1200, but you get
+60 lines instead of 55.
 
-for my part i used agetty on these ports and the board use only one interrupt
-(exept if you have many boards...
-in that case one interrupt by board ... )
+On request, a 2.2.x version is also available.
 
-did you executed the DigiLoad command in your boot scripts like instructed in
-documentations...
-did you put the board drivers (?????.bin) in the right places...
+Jurriaan
+-- 
+For who are we to question her
+Who stands among the stones
+	Big Country - The Seer
+GNU/Linux 2.2.19pre8 SMP 2x1402 bogomips load av: 0.02 0.10 0.16
 
-they have to be loaded for the board to work...
+--cWoXeonUoKmBZSoM
+Content-Type: application/x-gunzip
+Content-Disposition: attachment; filename="font_sun12x20-2.4.x.diff.gz"
+Content-Transfer-Encoding: base64
 
-Martin Laberge
-mlsoft@videotron.ca
+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
+AA==
 
-
+--cWoXeonUoKmBZSoM--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbQKPAhj>; Wed, 15 Nov 2000 19:37:39 -0500
+	id <S129563AbQKPAmJ>; Wed, 15 Nov 2000 19:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQKPAha>; Wed, 15 Nov 2000 19:37:30 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:64009 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S129279AbQKPAhW>; Wed, 15 Nov 2000 19:37:22 -0500
-Message-Id: <200011160026.eAG0Q5W30573@mercury.nildram.co.uk>
-From: "Per Jessen" <per@computer.org>
-To: "Fabrice Peix" <Fabrice.Peix@sophia.inria.fr>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 16 Nov 2000 00:05:07 
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Microcode ....
+	id <S129524AbQKPAl7>; Wed, 15 Nov 2000 19:41:59 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:64704 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129563AbQKPAln>;
+	Wed, 15 Nov 2000 19:41:43 -0500
+Date: Thu, 16 Nov 2000 01:11:38 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>
+Cc: emoenke@gwdg.de, eric@andante.org, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+Message-ID: <20001116011138.A27272@veritas.com>
+In-Reply-To: <20001115202344.A29136@turtle.tat.physik.uni-tuebingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001115202344.A29136@turtle.tat.physik.uni-tuebingen.de>; from koenig@tat.physik.uni-tuebingen.de on Wed, Nov 15, 2000 at 08:23:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000 16:10:08 +0100, Fabrice Peix wrote:
+On Wed, Nov 15, 2000 at 08:23:44PM +0100, Harald Koenig wrote:
 
->
->
->	Yop,
->	Just a newbie question :
->	What do exactly Intel P6 Microcode.
->
+> both 2.2.x and 2.4.x kernels can't read `real sky' CDs from the
+> Space Telescope Science Institute containing lotsof directories (~100) 
+> which each contain lots of small files (~700 files/dir).
+> only ~10 directories with ~10 files each are displayed,
+> all the other files/diretories can't be accessed.
+> the kernel gives the following message:
+> 
+> 	next_offset (212) > bufsize (200)
 
-It executes Intel P6 instructions. That's what microcode
-does. 
+Has there been a kernel version that could read these?
+It looks like it proclaims blocksize 512 and uses blocksize 2048 or so.
 
-regards,
-Per Jessen
-
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

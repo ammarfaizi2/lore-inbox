@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbUAYWnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265340AbUAYWnZ
+	id S265325AbUAYWl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUAYWl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:43:25 -0500
-Received: from mail.medianet-world.de ([213.157.0.167]:33218 "HELO
-	mail.medianet-world.de") by vger.kernel.org with SMTP
-	id S265329AbUAYWnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:43:22 -0500
-Mime-Version: 1.0 (Apple Message framework v609)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <DF6611C8-4F87-11D8-B999-000393DC9DA0@freakmail.de>
+	Sun, 25 Jan 2004 17:41:58 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:27554 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S265325AbUAYWl5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 17:41:57 -0500
+Message-ID: <40144617.7040901@verizon.net>
+Date: Sun, 25 Jan 2004 22:41:27 +0000
+From: Mark K Hannah <mk.hannah@verizon.net>
+Reply-To: mk.hannah@verizon.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: Menuconfig Error
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: =?ISO-8859-1?Q?Marius_M=FCller?= <m.mueller@freakmail.de>
-Subject: 2.4.24 from kernel.org
-Date: Sun, 25 Jan 2004 23:43:19 +0100
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.609)
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [138.88.227.206] at Sun, 25 Jan 2004 16:41:56 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Following error received while trying to get into "Advanced Linux Sound 
+Arch."  Crashes as soon as you select.
 
-I just tried to compile linux-2.4.24.tar.bz2 from 
-http://www.kernel.org/pub/linux/kernel/v2.4/
-The date of the archive I downloaded was 05-Jan-2004 5:54. After 
-configuring the options for compiling I started the process by "make 
-dep" and then "make bzImage". After a few minutes I got the following 
-error message:
+Also getting module compile errors...I assume it is because I can't get 
+into ALSA parameters to shut off usbaudio under ALSA.
 
-ipt_ECN.c:16: linux/netfilter_ipv4/ipt_ECN.h: No such file or directory
-ipt_ECN.c:26: warning: `struct ipt_ECN_info' declared inside parameter 
-list
-ipt_ECN.c:26: warning: its scope is only this definition or 
-declaration, which is probably not what you want.
-(...)
-ipt_ECN.c:156: dereferencing pointer to incomplete type
-ipt_ECN.c:156: `IPT_ECN_OP_SET_ECE' undeclared (first use in this 
-function)
-ipt_ECN.c:156: `IPT_ECN_OP_SET_CWR' undeclared (first use in this 
-function)
-make[3]: *** [ipt_ECN.o] Error 1
-make[3]: Leaving directory `/WorX/linux-2.4.24/net/ipv4/netfilter'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/WorX/linux-2.4.24/net/ipv4/netfilter'
-make[1]: *** [_subdir_ipv4/netfilter] Error 2
-make[1]: Leaving directory `/WorX/linux-2.4.24/net'
-make: *** [_dir_net] Error 2
+Using Mandrake 9.2 and kernel-source-2.4.22-10mdk
+Mark Hannah
 
-I then discovered that the file linux/netfilter_ipv4/ipt_ECN.h that 
-could not be found and caused the following errors really doesn't exist 
-but there is a file ipt_ECN.1.h in linux/netfilter_ipv4/. I searched 
-for more of the .1.h files and found the following:
 
-.//include/linux/netfilter_ipv4/ipt_DSCP.1.h
-.//include/linux/netfilter_ipv4/ipt_ECN.1.h
-.//include/linux/netfilter_ipv4/ipt_mark.1.h
-.//include/linux/netfilter_ipv4/ipt_tcpmss.1.h
-.//include/linux/netfilter_ipv4/ipt_tos.1.h
-.//include/linux/netfilter_ipv6/ip6t_mark.1.h
-.//net/ipv4/netfilter/ipt_DSCP.1.c
-.//net/ipv4/netfilter/ipt_ecn.1.c
-.//net/ipv4/netfilter/ipt_mark.1.c
-.//net/ipv4/netfilter/ipt_tcpmss.1.c
-.//net/ipv4/netfilter/ipt_tos.1.c
-.//net/ipv6/netfilter/ip6t_mark.1.c
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-I searched contents of the sources with grep for any occurrences of the 
-above header-files but the only occurrences found were for the exact 
-same files but without the .1.h but with .h only. I renamed all the 
-above files from .1.h to .h and finally succeeded in compiling without 
-any problems.
-I don't know if get something very wrong here but it looked like some 
-sort wrong file names for me.
-Hopefully I haven't wasted your time with "fake" problems.
+ Q> scripts/Menuconfig: line 832: MCmenu78: command not found
 
-Marius
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
--- 
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
 
-- powered by Mac OS X - sends other UNIX boxes to /dev/null -
-
+make: *** [menuconfig] Error 1

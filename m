@@ -1,82 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130322AbQK1OfL>; Tue, 28 Nov 2000 09:35:11 -0500
+        id <S130130AbQK1PGe>; Tue, 28 Nov 2000 10:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130510AbQK1Oev>; Tue, 28 Nov 2000 09:34:51 -0500
-Received: from 13dyn172.delft.casema.net ([212.64.76.172]:22033 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S130322AbQK1Oeq>; Tue, 28 Nov 2000 09:34:46 -0500
-Message-Id: <200011281404.PAA24567@cave.bitwizard.nl>
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-In-Reply-To: <20001128010942.A9133@veritas.com> from Andries Brouwer at "Nov
- 28, 2000 01:09:42 am"
-To: Andries Brouwer <aeb@veritas.com>
-Date: Tue, 28 Nov 2000 15:04:31 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Peter Cordes <peter@llama.nslug.ns.ca>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+        id <S130327AbQK1PGY>; Tue, 28 Nov 2000 10:06:24 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:16935 "EHLO
+        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+        id <S130130AbQK1PGK>; Tue, 28 Nov 2000 10:06:10 -0500
+Message-ID: <3A23C15E.8A95D729@linux.com>
+Date: Tue, 28 Nov 2000 06:29:50 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Blizbor <tb670725@ima.pl>
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org, alan@redhat.org
+Subject: Re: VFS: brelse message in syslog, its due to ReiserFS or kernelfailure 
+ ?
+In-Reply-To: <5.0.0.25.0.20001128142121.01da9e20@195.117.13.2>
+Content-Type: multipart/mixed;
+ boundary="------------7D2A25A72E312CB8CAD6A9DF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> On Mon, Nov 27, 2000 at 10:47:06PM +0100, Rogier Wolff wrote:
-> > Andries Brouwer wrote:
-> > > > access("/dev/tty2", R_OK|W_OK)          = -1 EROFS (Read-only file system)
-> > 
-> > > You misunderstand the function of access(). The standard says
-> > > 
-> > > [EROFS] write access shall fail if write access is requested
-> > >         for a file on a read-only file system
-> > 
-> > The intent of the "access" call is to tell you if you will be able to
-> > open the given pathname for the requested permissions. That this is
-> > inherently racey is not the fault of the access system call.
-> > 
-> > The INTENT of this paragraph from the standard is to specify when to
-> > return the error value EROFS. The "for a -=file=-" part to me
-> > indicates that a valid interpretation is that this does not apply to
-> > device nodes.
-> 
-> You optimist!
-> A standard is not a text that should be read with the attitude
-> "they write this but I know that they really meant that".
-> A standard is precise.
-> 
-> In particular it defines the concepts used. For file it says:
-> 
-> File
-> An object that can be written to, or read from, or both.
-> A file has certain attributes, including access permissions and type.
-> File types include regular file, character special file, block special
-> file, FIFO special file, symbolic link, socket, and directory.
-> Other types of files may be supported by the implementation.
+This is a multi-part message in MIME format.
+--------------7D2A25A72E312CB8CAD6A9DF
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Ok, so if you read the standard carefully you get a bogus result. 
+I can't say who's fault it is, but I suggest this test12-pre2 patch for clarity
 
-Question: Was it meant this way, or did someone just make a mistake
-(which happened to slip through and get approved into the standard)? 
+--- fs/buffer.c~        Tue Nov 28 05:11:56 2000
++++ fs/buffer.c Tue Nov 28 06:27:05 2000
+@@ -1133,7 +1133,7 @@
+                atomic_dec(&buf->b_count);
+                return;
+        }
+-       printk("VFS: brelse: Trying to free free buffer\n");
++       printk("VFS: brelse: Trying to free already free buffer\n");
+ }
 
-I happen to think the second. 
+ /*
 
-- Is it desirable to have a write-open of a device on a read-only 
-fail? I don't think so. You can't open the initial console etc etc. 
 
-- Is it desirable to have access (W_OK) and "open-for-write" return
-different results? I don't think so. 
+Blizbor wrote:
 
-- Are there other systems that adhere to the standard as written?
+> Machine: P3 500 on ASUS P2B, WD 15GB IDE drive.
+> System RH7 with upgraded glibc.
+>
+> When I'm using 2.2.17 with ReiserFS:
+> Nov 26 00:05:05 localhost kernel: Linux version 2.2.17 (root@localhost.localdomain) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 relea
+> se)) #9 Sat Nov 25 17:09:40 CET 2000
+>
+> I have such messages in syslog and console:
+> Nov 26 06:00:49 localhost kernel: VFS: brelse: Trying to free free buffer
+> Nov 26 06:07:41 localhost kernel: VFS: brelse: Trying to free free buffer
+> Nov 26 06:32:28 localhost kernel: VFS: brelse: Trying to free free buffer
 
-			Roger.
+--------------7D2A25A72E312CB8CAD6A9DF
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------7D2A25A72E312CB8CAD6A9DF--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

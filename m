@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129787AbQK0VZg>; Mon, 27 Nov 2000 16:25:36 -0500
+        id <S130142AbQK0Vc1>; Mon, 27 Nov 2000 16:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129927AbQK0VZ0>; Mon, 27 Nov 2000 16:25:26 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65034 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129787AbQK0VZM>; Mon, 27 Nov 2000 16:25:12 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: About IP address
-Date: 27 Nov 2000 12:55:06 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vuhna$sb3$1@cesium.transmeta.com>
-In-Reply-To: <07bf01c05664$15462210$0a25a8c0@wizardess.wiz> <Pine.LNX.4.30.0011241729270.5879-100000@asdf.capslock.lan> <20001127163217.B20394@alcove.wittsend.com>
+        id <S129639AbQK0VcR>; Mon, 27 Nov 2000 16:32:17 -0500
+Received: from mail1.rdc3.on.home.com ([24.2.9.40]:8680 "EHLO
+        mail1.rdc3.on.home.com") by vger.kernel.org with ESMTP
+        id <S129927AbQK0Vb6>; Mon, 27 Nov 2000 16:31:58 -0500
+Message-ID: <001001c058b5$405f82e0$6400a8c0@wlfdle1.on.wave.home.com>
+From: "John Zielinski" <grimr@home.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0011271530120.7352-100000@weyl.math.psu.edu>
+Subject: Re: Anyone else kernel mounting a filesystem that has a block device?
+Date: Mon, 27 Nov 2000 16:01:44 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001127163217.B20394@alcove.wittsend.com>
-By author:    "Michael H. Warfield" <mhw@wittsend.com>
-In newsgroup: linux.dev.kernel
-> 
-> 	Glad you can't understand it, because it's incorrect.  They can
-> be used but they are both assigned to IANA (Internet Assigned Numbers
-> Authority) as reserved address blocks.  You can't use them because IANA
-> controls them and dictates how they might be used if they are ever
-> used.  Since there may be broken software out there that mishandles
-> those addresses, it's entirely possible that IANA will never use them
-> for any routable purpose.  Neither currently have reverse name servers
-> assigned, so it's presumable that they are simply not in operation
-> and IANA is keeping them reserved to keep them out of trouble.
-> 
+> On Mon, 27 Nov 2000, John Zielinski wrote:
+>
+> > I'm going to be mounting a filesystem that uses a block device from
+inside
+> > the kernel.  This mount will not be visible from userland nor can it be
+> > unmounted from userland.  Is anyone else doing something like this so we
+can
+> > coordinate on the changes needed to fs/super.c?
+>
+> No changes needed. Check kern_mount().
 
-Most likely, they have put them in a bin saying "potentially
-troublesome with old software, assign them last."  As long as there
-are other addresses available, they won't be used.
+Oops.  Should have said 'physical' block device.  The kern_mount() function
+calls get_unnamed_dev().  I want to modify it so that it also takes an 'char
+* dev_name' and does the same thing as the code in do_mount() which picks
+which get_sb_???() functions to call.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+I'll just make a kern_mount2() until all the other code that calls
+kern_mount is changed so that it passes a "none" or something as the second
+parameter.
+
+John
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268623AbUHLROH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268624AbUHLRXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268623AbUHLROH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 13:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268624AbUHLROH
+	id S268624AbUHLRXi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 13:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268625AbUHLRXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 13:14:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52947 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268623AbUHLROE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 13:14:04 -0400
-Message-ID: <411BA54E.1080105@pobox.com>
-Date: Thu, 12 Aug 2004 13:13:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Thu, 12 Aug 2004 13:23:38 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:61604 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S268624AbUHLRXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 13:23:35 -0400
+Message-ID: <411BA797.2030705@eidetix.com>
+Date: Thu, 12 Aug 2004 19:23:35 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SG_IO and security
-References: <1092313030.21978.34.camel@localhost.localdomain> <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org> <411BA0F4.9060201@pobox.com> <Pine.LNX.4.58.0408120958000.1839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408120958000.1839@ppc970.osdl.org>
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Sascha Wilde <wilde@sha-bang.de>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+References: <20040811141408.17933.qmail@web81304.mail.yahoo.com> <20040811175613.GA829@kenny.sha-bang.local> <411BA214.2060306@eidetix.com>
+In-Reply-To: <411BA214.2060306@eidetix.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Let's see now:
+David N. Welton wrote:
+
+> Sascha, if you want to test it out, try this in i8042_controller_init,
+> at about line 724 (near this: i8042_initial_ctr = i8042_ctr;)
 > 
-> 	brw-rw----    1 root     disk       3,   0 Jan 30  2003 /dev/hda
-> 
-> would you put people you don't trust with your disk in the "disk" group?
-> 
-> Right. If you trust somebody enough that you give him write access to the 
-> disk, then you might as well trust him enough to do commands on it. 
+>     {
+>         unsigned char pram;
+>         pram = (~i8042_ctr) & 0xff ;
+>         i8042_command(&pram, I8042_CMD_CTL_WCTR);
+>     }
 
+In fact, it's enough to fix the problem on my machine!  I can even plug 
+the keyboard back in and it works.
 
-Yeah, I agree.  I was thinking write access to files on a hard drive, 
-not write access to the blkdev itself.
+--- /home/davidw/linux-2.6.7/drivers/input/serio/i8042.c 
+2004-06-16 07:18
+:57.000000000 +0200
++++ drivers/input/serio/i8042.c 2004-08-12 19:05:17.000000000 +0200
+@@ -710,6 +710,9 @@
+                 return -1;
+         }
 
-	Jeff
++
++       i8042_ctr = (~i8042_ctr) & 0xff;
++
+         i8042_initial_ctr = i8042_ctr;
 
+Try that and see how it works for you (sorry 'bout the formatting... at 
+work I have Mozilla Thunderbird).
 
+Now... I guess the problem is: 1) why the heck does that work? 2) How to 
+integrate it into the kernel?   I don't suppose everyone else wants 
+their register values inverted.
+
+-- 
+David N. Welton
+davidw@eidetix.com

@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSILIWe>; Thu, 12 Sep 2002 04:22:34 -0400
+	id <S313898AbSILIbM>; Thu, 12 Sep 2002 04:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSILIWd>; Thu, 12 Sep 2002 04:22:33 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:12294 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S313571AbSILIWd>; Thu, 12 Sep 2002 04:22:33 -0400
-Message-ID: <3D804FB6.F310E0FB@aitel.hist.no>
-Date: Thu, 12 Sep 2002 10:26:30 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: thunder7@xs4all.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Killing/balancing processes when overcommited
-References: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com> <20020911182741.GA17945@middle.of.nowhere>
-Content-Type: text/plain; charset=us-ascii
+	id <S314138AbSILIbM>; Thu, 12 Sep 2002 04:31:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:38638
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313898AbSILIbL>; Thu, 12 Sep 2002 04:31:11 -0400
+Subject: Re: spinlocks and polling
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Soos Peter <sp@osb.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209120926230.3311-100000@sppc.intranet.osb.hu>
+References: <Pine.LNX.4.44.0209120926230.3311-100000@sppc.intranet.osb.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 12 Sep 2002 09:36:38 +0100
+Message-Id: <1031819798.2902.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurriaan wrote:
+On Thu, 2002-09-12 at 08:54, Soos Peter wrote:
+> It is working but through spinlocks the interrupt sensible drives doesn't 
+> works (e.g. ppp interface have 5-80% of packet loss) when the OMNIBOOK_POLL
+> value is in the usable range. This is too high price for the volume 
+> control buttons.
 > 
-> From: Jim Sibley <jlsibley@us.ibm.com>
-> Date: Wed, Sep 11, 2002 at 11:08:43AM -0700
-> > 1 - cpu usage may not be a good measure
-> > 2 - Large memory tasks may not be a good measure
-> > 3 - Measuring memory by task is misleading
-> > 4 - Niceness is not really useful in a multi-user environment.
-> > 5 - Other numerical limits tend to be arbitrary.
-> 
-> I was just think (feel free to point out the errors of my way):
-> 
-> what if we used the time a program was started as a guide? The last
-> programs started are killed of first.
-> 
-> That would mean that init survives to the last, as would the daemons
-> that are started when booting.
+> Does anybody idea to solve this problem?
 
-And if one of your daemons has a slow memory leak then this happens:
-You go OOM after a while (hours, days) - a user program is killed.  
-Buth the leaky dameon is running, so after a shorter time you go OOM
-again.
-Another user program is killed.  This goes on for a while, it becomes
-hard
-to log in to fix things because the freshly logged in administrator
-has a very new process and is the first to go!
+If its very slow hardware then that might explain your problem. You
+would be sitting with interrupts off for a very long time. What really
+makes the difference to how you handle it is - if the irq is shared, and
+how easy it is to block.
 
-After a while, all user programs are gone and daemons die one by one
-until the offending one goes.  Or perhaps the offending damon
-don't leak anymore - it might be sshd but there is not enough memory
-to log in so it don't get to leak any more.  
-> 
-> Alternatively, suppose we get a very large pid-space, and at the end of
-> booting there's something like
-> 
-> echo "5000" > /proc/sys/minimum-pid-from-here-on
-> 
-> Then, you could do:
-> 
-> echo "5000" > proc/sys/oom_lowest_pid_to_try_killing_first
+If it is not shared, or can be blocked fast then you end up with code
+that basically says
 
-Again, a bad daemon (pid < 5000) will slowly take out everything else,
-with login impossible in the meantime.
+	irq_handler
+		block irq
+		set work_to_do
+		kick off a tasklet
+	return
 
-> in other words, protect a part of pid-space against oom-killing.
+and take care in the tasklet to avoid blocking IRQ's during the actual
+reads from the chip. You might do something like
 
-Any way you protect a bunch of processes might fail if the bad one
-is among them.  Also, the OOM killer will have to fall back
-to the standard heuristic whenever there is only protected
-processes left.  
 
-Helge Hafting
+	if(!test_and_set_bit(0, &chip_do_read))
+	{
+		add_read_to_queue();
+		reenable_int
+	}
+	else
+		set_bit(1, &chip_do_read);
+
+and elsewhere where you touch that data or might lock against it do
+
+	set_bit(0, &chip_do_read);
+	/* Above maybe code that waits politely for that.. */
+	blah
+	blah
+	/* Now clean up */
+	if(test_bit(1, &chip_do_read))  /* Poll deferred */
+	{
+		clear_bit(1, &chip_do_read);
+		add_read_to_queue();
+		clear_bit(0, &chip_do_read);
+		reeanable_int
+	}
+	else
+		clear_bit(0, &chip_do_read);
+
+or use xchg, or atomic_t counters
+
+
+

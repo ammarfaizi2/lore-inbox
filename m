@@ -1,90 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUCLO2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbUCLO2p
+	id S262121AbUCLO1U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbUCLO1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:28:45 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:158 "HELO mail.iinet.net.au")
-	by vger.kernel.org with SMTP id S262138AbUCLO2l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:28:41 -0500
-Message-ID: <4051C8BF.1050001@cyberone.com.au>
-Date: Sat, 13 Mar 2004 01:27:11 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 12 Mar 2004 09:27:20 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61662 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262121AbUCLO1P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:27:15 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] hdparm_X.patch (was: Re: 2.6.4-rc-bk3: hdparm -X locks up IDE)
+Date: Fri, 12 Mar 2004 15:34:39 +0100
+User-Agent: KMail/1.5.3
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <200403111614.08778.vda@port.imtp.ilyichevsk.odessa.ua> <200403120924.03431.vda@port.imtp.ilyichevsk.odessa.ua> <200403121139.41402.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200403121139.41402.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-To: Mark_H_Johnson@Raytheon.com
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mfedyk@matchmail.com, m.c.p@wolk-project.de,
-       owner-linux-mm@kvack.org, plate@gmx.tm
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-References: <OF9DC8F5B1.0044A21E-ON86256E55.004DF368@raytheon.com>
-In-Reply-To: <OF9DC8F5B1.0044A21E-ON86256E55.004DF368@raytheon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403121534.39465.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 12 of March 2004 10:39, Denis Vlasenko wrote:
+> > I forgot to remove now-extraneous if() from ide.c:
+> >
+> > static int set_xfer_rate (ide_drive_t *drive, int arg)
+> > {
+> >         int err = ide_wait_cmd(drive,
+> >                         WIN_SETFEATURES, (u8) arg,
+> >                         SETFEATURES_XFER, 0, NULL);
+> >
+> >         if (!err && arg) {
+> >                 ide_set_xfer_rate(drive, (u8) arg);
+> >                 ide_driveid_update(drive);
+> >         }
+> >         return err;
+> > }
+> >
+> > And second, in ide_do_drive_cmd(), mdelay(2000)
+> > after WIN_SETFEATURES is a bit rude.
+>
+> ...and wrongly placed. I just realized that ide_driveid_update(drive)
+> actually talks with the drive!
+>
+> New patch is attached.
 
+diff -urN linux-2.6.4.orig/drivers/ide/ide-io.c linux-2.6.4/drivers/ide/ide-io.c
+--- linux-2.6.4.orig/drivers/ide/ide-io.c	Fri Mar 12 11:15:00 2004
++++ linux-2.6.4/drivers/ide/ide-io.c	Fri Mar 12 11:33:30 2004
+@@ -1387,10 +1387,25 @@
 
-Mark_H_Johnson@Raytheon.com wrote:
+ 	err = 0;
+ 	if (must_wait) {
++		int xfer_rate = -1;
++		/* Are we going to do hdparm -X n ? */
 
->
->
->
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>Andrew Morton wrote:
->>
->
->>>That effect is to cause the whole world to be swapped out when people
->>>return to their machines in the morning.  Once they're swapped back in
->>>
->the
->
->>>first thing they do it send bitchy emails to you know who.
->>>
->>>>From a performance perspective it's the right thing to do, but nobody
->>>
->likes
->
->>>it.
->>>
->>>
->>>
->>Yeah. I wonder if there is a way to be smarter about dropping these
->>used once pages without putting pressure on more permanent pages...
->>I guess all heuristics will fall down somewhere or other.
->>
->
->Just a question, but I remember from VMS a long time ago that
->as part of the working set limits, the "free list" was used to keep
->pages that could be freely used but could be put back into the working
->set quite easily (a "fast" page fault). Could you keep track of the
->swapped pages in a similar manner so you don't have to go to disk to
->get these pages [or is this already being done]? You would pull them
->back from the free list and avoid the disk I/O in the morning.
->
->
+HDIO_DRIVE_CMD is an ordinary ioctl, not some hdparm specific thing.
 
-Not too sure what you mean. If we've swapped out the pages, it is
-because we need the memory for something else. So no.
++		if(rq->buffer
++		&& rq->buffer[0] == (char)WIN_SETFEATURES
++		&& rq->buffer[2] == (char)SETFEATURES_XFER
++		) {
++			xfer_rate = rq->buffer[1]; /* -X n */
++		}
++
+ 		wait_for_completion(&wait);
+ 		if (rq->errors)
+ 			err = -EIO;
 
-One thing you could do is re read swapped pages when you have
-plenty of free memory and the disks are idle.
++		if(!err && xfer_rate != -1) {
++			ide_delay_50ms(); /* be gentle */
 
->By the way - with 2.4.24 I see a similar behavior anyway [slow to get
->going in the morning]. I believe it is due to our nightly backup walking
->through the disks. If you could FIX the retention of sequentially read
->disk blocks from the various caches - that would help a lot more in
->my mind.
->
->
+Why?
 
-updatedb really wants to be able to provide better hints to the VM
-that it is never going to use these pages again. I hate to cater for
-the worst possible case that only happens because everyone has it as
-a 2am cron job.
++			/* ask chipset to change DMA/PIO timings */
++			ide_set_xfer_rate(drive, xfer_rate);
++			ide_driveid_update(drive);
++		}
+ 		blk_put_request(rq);
+ 	}
+
+diff -urN linux-2.6.4.orig/drivers/ide/ide-iops.c linux-2.6.4/drivers/ide/ide-iops.c
+--- linux-2.6.4.orig/drivers/ide/ide-iops.c	Fri Mar 12 11:07:07 2004
++++ linux-2.6.4/drivers/ide/ide-iops.c	Fri Mar 12 11:26:55 2004
+@@ -660,52 +660,34 @@
+
+ EXPORT_SYMBOL(eighty_ninty_three);
+
+-int ide_ata66_check (ide_drive_t *drive, ide_task_t *args)
++/*
++ * Is drive/channel capable of handling this?
++ * Currently checks only for ioctl(HDIO_DRIVE_CMD, SETFEATURES_XFER)
++ * (hdparm -X n)
++ */
++int unsupported_by_drive (ide_drive_t *drive, ide_task_t *args)
+ {
+-	if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+-	    (args->tfRegister[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
+-	    (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
++	if (args->tfRegister[IDE_COMMAND_OFFSET] != WIN_SETFEATURES) return 0;
++	if (args->tfRegister[IDE_FEATURE_OFFSET] != SETFEATURES_XFER) return 0;
++	if (args->tfRegister[IDE_SECTOR_OFFSET] <= XFER_UDMA_2) return 0;
++
+ #ifndef CONFIG_IDEDMA_IVB
+-		if ((drive->id->hw_config & 0x6000) == 0) {
++	if ( (drive->id->hw_config & 0x6000) == 0) {
+ #else /* !CONFIG_IDEDMA_IVB */
+-		if (((drive->id->hw_config & 0x2000) == 0) ||
+-		    ((drive->id->hw_config & 0x4000) == 0)) {
++	if ( ((drive->id->hw_config & 0x2000) == 0) ||
++	     ((drive->id->hw_config & 0x4000) == 0) ) {
+ #endif /* CONFIG_IDEDMA_IVB */
+-			printk("%s: Speed warnings UDMA 3/4/5 is not "
+-				"functional.\n", drive->name);
+-			return 1;
+-		}
+-		if (!HWIF(drive)->udma_four) {
+-			printk("%s: Speed warnings UDMA 3/4/5 is not "
+-				"functional.\n",
+-				HWIF(drive)->name);
+-			return 1;
+-		}
++		printk("%s is not capable of UDMA 3/4/5\n", drive->name);
++		return 1;
+ 	}
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(ide_ata66_check);
+
+-/*
+- * Backside of HDIO_DRIVE_CMD call of SETFEATURES_XFER.
+- * 1 : Safe to update drive->id DMA registers.
+- * 0 : OOPs not allowed.
+- */
+-int set_transfer (ide_drive_t *drive, ide_task_t *args)
+-{
+-	if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+-	    (args->tfRegister[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
+-	    (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
+-	    (drive->id->dma_ultra ||
+-	     drive->id->dma_mword ||
+-	     drive->id->dma_1word))
++	if (!HWIF(drive)->udma_four) {
++		printk("%s is not capable of UDMA 3/4/5\n", HWIF(drive)->name);
+ 		return 1;
+-
++	}
+ 	return 0;
+ }
+
+-EXPORT_SYMBOL(set_transfer);
++EXPORT_SYMBOL(unsupported_by_drive);
+
+This ide_ata66_check() -> unsupported_by_driver()
+change is totally unnecessary.
+
+Please also leave set_transfer() in place,
+"no PIO" issue can be addressed later.
+
+Regards,
+Bartlomiej
 

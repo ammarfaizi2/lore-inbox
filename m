@@ -1,122 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135215AbRDVFMf>; Sun, 22 Apr 2001 01:12:35 -0400
+	id <S135216AbRDVFsK>; Sun, 22 Apr 2001 01:48:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135214AbRDVFM0>; Sun, 22 Apr 2001 01:12:26 -0400
-Received: from 222.dsl7833.rcsis.com ([63.78.33.222]:14860 "HELO hacklab.net")
-	by vger.kernel.org with SMTP id <S135215AbRDVFMO>;
-	Sun, 22 Apr 2001 01:12:14 -0400
-Message-ID: <3AE2680F.BED4CCFF@hacklab.net>
-Date: Sat, 21 Apr 2001 22:11:43 -0700
-From: PhiloVivero <pvspam-dntrepl@hacklab.net>
-Reply-To: phiviv@hacklab.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-3mdk i686)
-X-Accept-Language: en, zh-TW
+	id <S135221AbRDVFsA>; Sun, 22 Apr 2001 01:48:00 -0400
+Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:24816 "EHLO
+	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
+	id <S135216AbRDVFrx>; Sun, 22 Apr 2001 01:47:53 -0400
+From: junio@siamese.dhis.twinsun.com
+To: Manuel McLure <manuel@mclure.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
+	<20010421211722.C976@ulthar.internal.mclure.org>
+Date: 21 Apr 2001 22:47:01 -0700
+In-Reply-To: <20010421211722.C976@ulthar.internal.mclure.org>
+Message-ID: <7vpue5cwq2.fsf@siamese.dhis.twinsun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: sebastien.godard@wanadoo.fr, timb@claire.org, axboe@suse.de,
-        phiviv@hacklab.net
-Subject: Device Major max and Disk Max in 2.4.x kernel
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem. Trying to write an iostat for Linux (or use an existing
-one):
+Only <include/asm-alpha/compiler.h> defines the following, but I
+think we need this for other architectures, too.
 
->From the kernel source:
+/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
+   a mechanism by which the user can annotate likely branch directions and
+   expect the blocks to be reordered appropriately.  Define __builtin_expect
+   to nothing for earlier compilers.  */
 
-[/usr/src/linux-2.4.2/include/linux] :) grep DK_MAX *.h
-kernel_stat.h:#define DK_MAX_MAJOR 16
-kernel_stat.h:#define DK_MAX_DISK 16
-
-What to notice: MAJOR and DISK max are 16.
-
-Again, from the kernel source:
-
-[/usr/src/linux-2.4.2/fs/proc] :) grep -15 DK_MAX proc_misc.c
-<snip>
-    for (major = 0; major < DK_MAX_MAJOR; major++) {
-            for (disk = 0; disk < DK_MAX_DISK; disk++) {
-                    int active = kstat.dk_drive[major][disk] +
-                            kstat.dk_drive_rblk[major][disk] +
-                            kstat.dk_drive_wblk[major][disk];
-                    if (active)
-                            len += sprintf(page + len,
-                                    "(%u,%u):(%u,%u,%u,%u,%u) ",
-                                    major, disk,
-                                    kstat.dk_drive[major][disk],
-                                    kstat.dk_drive_rio[major][disk],
-                                    kstat.dk_drive_rblk[major][disk],
-                                    kstat.dk_drive_wio[major][disk],
-                                    kstat.dk_drive_wblk[major][disk]
-                    );
-            }
-    }
-
-What to notice: We are looping up to the DK_MAX_MAJOR and DK_MAX_DISK. What
-this means is, any major >16 or disk >16 won't be listed in /proc/stat under
-the "disk_io" section.
-
-Problem. On my system, which I figure is not too uncommon, I have several
-partitions on two hard drives and a CDROM. They are configured thusly:
-
-# cat /proc/partitions
-major minor  #blocks  name
-   3     0   20094480 hda
-   3     1    6313513 hda1
-   3     2     401625 hda2
-   3     3   13374112 hda3
-   3    64    4497152 hdb
-  56     0   45034920 hdi
-  56     1   22490968 hdi1
-  56     2   22539195 hdi2
-
-What to notice: I have a drive on /dev/hdi (never mind why, it actually works)
-that is block major 56. Not only that, my cdrom device on /dev/hdb is block
-major 3, but minor number 64. I am assuming for disks, minor == disk. Sorry if
-this is an incorrect assumption.
-
-No stats for /dev/hdi nor /dev/hdb ever show up in /proc/stat. Only for
-/dev/hda. On my other 2.4.2 system, with multiple hard drives under 16/16,
-I get multiple devices under /proc/stat.
-
-The patch seems relatively easy. Change linux/include/linux/kernel_stat.h to
-allow block major up to 56 (in my case... 64 in general???) and disks up to 64
-(in my case).
-
-But we might need more than 64 disks on a block major (there are MANY snips in
-this so-called cut 'n' paste, because I figure you don't want to see them
-all):
-
-# l /dev/hd* | sort -n
-brw-rw----    1 root     disk       3,  79 Feb 22 08:57 /dev/hdb15
-brw-rw----    1 root     disk       3,  80 Feb 22 08:57 /dev/hdb16
-brw-rw----    1 root     disk      22,  79 Feb 22 08:57 /dev/hdd15
-brw-rw----    1 root     disk      22,  80 Feb 22 08:57 /dev/hdd16
-brw-rw----    1 root     disk      33,  79 Feb 22 08:57 /dev/hdf15
-brw-rw----    1 root     disk      33,  80 Feb 22 08:57 /dev/hdf16
-brw-rw----    1 root     disk      34,  79 Feb 22 08:57 /dev/hdh15
-brw-rw----    1 root     disk      34,  80 Feb 22 08:57 /dev/hdh16
-brw-rw----    1 root     disk      56, 126 Mar 25 17:14 /dev/hdj62
-brw-rw----    1 root     disk      56, 127 Mar 25 17:14 /dev/hdj63
-
-What to notice: We have disks up to 127. I never see any block major over 64
-on my system. The /dev/hdj device isn't used on my system. /dev/hdi and
-/dev/hdj belong to a Promise RAID controller on a new-ish
-ASUS AMD motherboard.
-
-Let me know if I can be of further service. I must bashfully admit that I'm
-not enough of a guru to recompile my kernel anymore, or I'd tweak the
-kernel_stat.h file and recompile myself to test this.
-
-This is just hazy recollection, but I think the 2.2.x kernels have the same
-problem.
-
---
-PhiloVivero
-ps -- I'm not subscribed to this list, so if you want me to see replies...
-please send to email!
-
-
+#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
+#define __builtin_expect(x, expected_value) (x)
+#endif

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbRDCPOb>; Tue, 3 Apr 2001 11:14:31 -0400
+	id <S132152AbRDCPVX>; Tue, 3 Apr 2001 11:21:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132147AbRDCPOW>; Tue, 3 Apr 2001 11:14:22 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:57353 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132130AbRDCPOL>;
-	Tue, 3 Apr 2001 11:14:11 -0400
-Date: Tue, 3 Apr 2001 17:12:35 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Negative module use count for usb/acm
-Message-ID: <20010403171235.A21205@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132167AbRDCPVN>; Tue, 3 Apr 2001 11:21:13 -0400
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:10756 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S132152AbRDCPU5>; Tue, 3 Apr 2001 11:20:57 -0400
+Message-Id: <m14kSbM-0005khC@gherkin.sa.wlk.com>
+From: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Subject: Cyrix/mtrr fix missing from 2.4.3
+To: linux-kernel@vger.kernel.org
+Date: Tue, 3 Apr 2001 10:20:12 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is kernel 2.4.2, as kernel 2.4.3 doesn't seem to work with pppd's
-chat program.
+The following fix was omitted from 2.4.3.  It corrects a problem
+where the mtrr code attempts to set up a region twice as large as
+the user requested.
 
-Spot the incongruity below!  (It will go to -4 when I disconnect).
+The original message appeared in linux-kernel on 14 Mar 2001.
 
-This is on a laptop, which is suspended from time to time.  Maybe this
-gives a clue as to what's causing the fault.
+--Bob Tracy
 
-enjoy,
--- Jamie
+----- Forwarded message from David Wragg -----
+>From: David Wragg <dpw@doc.ic.ac.uk>
+>Date: 14 Mar 2001 22:57:21 +0000
 
-[jamie@thefinal jamie]$ /sbin/lsmod                                            
-Module                  Size  Used by
-ppp_deflate            41440   0 (autoclean)
-bsd_comp                4208   0 (autoclean)
-ppp_async               6416   1 (autoclean)
-acm                     5184  -3 (autoclean)
-ppp_generic            12928   2 (autoclean) [ppp_deflate bsd_comp ppp_async]
-slhc                    4816   0 (autoclean) [ppp_generic]
-uhci                   18832   0 (autoclean) (unused)
-usbcore                32208   0 (autoclean) [acm uhci]
-autofs                 11008   1 (autoclean)
-maestro                26976   0 (unused)
-soundcore               3888   2 [maestro]
+Oops, it got broken by the MTRR >32-bit support in 2.4.0-testX.  The
+patch below should fix it.
+
+Joerg, I think this might well fix your Cyrix mtrr problem also.
+
+Let me know how it goes,
+Dave Wragg
+
+diff -uar linux-2.4.2/arch/i386/kernel/mtrr.c linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c
+--- linux-2.4.2/arch/i386/kernel/mtrr.c	Thu Feb 22 15:24:53 2001
++++ linux-2.4.2.cyrix/arch/i386/kernel/mtrr.c	Wed Mar 14 22:28:02 2001
+@@ -538,7 +538,7 @@
+      * Note: shift==0xf means 4G, this is unsupported.
+      */
+     if (shift)
+-      *size = (reg < 7 ? 0x1UL : 0x40UL) << shift;
++      *size = (reg < 7 ? 0x1UL : 0x40UL) << (shift - 1);
+     else
+       *size = 0;
+ 
+
+----- End of forwarded message from David Wragg -----

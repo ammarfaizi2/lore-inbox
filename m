@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbTA1Ntk>; Tue, 28 Jan 2003 08:49:40 -0500
+	id <S265423AbTA1Nvr>; Tue, 28 Jan 2003 08:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbTA1Ntk>; Tue, 28 Jan 2003 08:49:40 -0500
-Received: from webmail7.rediffmail.com ([202.54.124.152]:2692 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id <S265470AbTA1Ntj>;
-	Tue, 28 Jan 2003 08:49:39 -0500
-Date: 28 Jan 2003 14:06:11 -0000
-Message-ID: <20030128140611.31677.qmail@webmail7.rediffmail.com>
-MIME-Version: 1.0
-From: "nitin  kumbhar" <nkumbhar@rediffmail.com>
-Reply-To: "nitin  kumbhar" <nkumbhar@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: driver address space
-Content-type: text/plain;
-	format=flowed
+	id <S265424AbTA1Nvr>; Tue, 28 Jan 2003 08:51:47 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:1431 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S265423AbTA1Nvq>;
+	Tue, 28 Jan 2003 08:51:46 -0500
+Date: Tue, 28 Jan 2003 09:01:03 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 3ware error?  WTF is this?
+Message-ID: <20030128140103.GE13105@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C1iGAkRnbeBonpVg"
 Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- 	I have a small query about kernel image organization. i am 
-using
-2.4.7 kernel version.Is there any data structure in kernel which 
-will give
-information about _all_ kernel symbols? i could get the data 
-structure
-which gives _exported_ symbols only. But not all symbols. Using 
-this
-structure i want to access information about functions present in 
-a driver,
-which can be used to find out address range(_start_address_ &
-_end_address_) of the driver in kernel address space.
- 	It is possible to get this information about functions in a 
-driver
-using System.map. to get this information into kernel can we push 
-the
-content of this file into kernel image? i think this can be done 
-either by
-putting it at specific address or appending the image. Will it be 
-OK to
-access System.map(all kernel symbols) in this way from kernel? 
-Could
-this cause any security or some other problems?
- 	Or apart from this is there any other way to find out driver's
-address range in the kernel?
 
- 	I hope this not something totally out of context. Thank You.
-
-Regards,
-Nitin
+--C1iGAkRnbeBonpVg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
 
+Guys, I've got a machine generating all kinds of wierd errors.  It
+failed 4 out of 8 drives on a 3ware card.  A reboot cleared all but 1
+up, I've had alot of lag while the card is spitting errors etc.  I'm
+about to launch this thing into the nearest highway I can find.
+
+This morning I got this:
+
+3w-xxxx: scsi1: PCI Parity Error: clearing.
+EXT3-fs error (device md(9,2)): ext3_add_entry: bad entry in directory
+#65: rec_len % 4 !=3D 0 - offset=3D552, inode=3D93, rec_len=3D21, name_len=
+=3D11
+3w-xxxx: scsi2: PCI Parity Error: clearing.
+
+
+Can I get an educated "oh, your card is bad" or "hmm, bad driver maybe?"
+or something I can poke with a stick?  It's a brand new box with brand
+new drives and controllers.  It was running great until last week.
+Kernel 2.4.19 with 3ware driver 7.5.2 from their web page.
+
+Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: FC96D405
+                              =20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=3Dpack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10)=
+;'
+
+
+--C1iGAkRnbeBonpVg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+No0fPvY/pfyW1AURAqn6AJ4vvGBYKRzwJMKmyN7TUHnXeyT44QCglYJI
+sG9dnw9uROlBoaxWMFS3YgI=
+=pJnT
+-----END PGP SIGNATURE-----
+
+--C1iGAkRnbeBonpVg--

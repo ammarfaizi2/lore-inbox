@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266118AbUAUV6k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 16:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUAUV6k
+	id S266168AbUAUWDw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 17:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUAUWDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 16:58:40 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:16330 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S266118AbUAUV6W convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 16:58:22 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: PROBLEM: ACPI freezes 2.6.1 on boot
-Date: Wed, 21 Jan 2004 16:57:51 -0500
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC8A1E@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PROBLEM: ACPI freezes 2.6.1 on boot
-Thread-Index: AcPgZKFzKiBNFGiTSpGc+URG+3n03QABOFIg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Georg C. F. Greve" <greve@gnu.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: "Martin Loschwitz" <madkiss@madkiss.org>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 21 Jan 2004 21:57:52.0675 (UTC) FILETIME=[9E31AF30:01C3E069]
+	Wed, 21 Jan 2004 17:03:52 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:55233 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S266168AbUAUWDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 17:03:47 -0500
+Date: Wed, 21 Jan 2004 15:03:41 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       George Anzinger <george@mvista.com>
+Subject: Re: PPC KGDB changes and some help?
+Message-ID: <20040121220341.GA15271@stop.crashing.org>
+References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040121192128.GV13454@stop.crashing.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Didn't see that report b/c it was filed against "Alternate Trees".  I've
-updated it to be against "ACPI" and assigned it to myself -- lets work
-it there.
+On Wed, Jan 21, 2004 at 12:21:28PM -0700, Tom Rini wrote:
+> On Wed, Jan 21, 2004 at 11:42:17AM -0700, Tom Rini wrote:
+> > On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
+> > 
+> > > Hi,
+> > > 
+> > > Here it is: ppc kgdb from timesys kernel is available at
+> > > http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
+> > > 
+> > > This is my attempt at extracting kgdb from TimeSys kernel. It works well in 
+> > > TimeSys kernel, so blame me if above patch doesn't work.
+> > 
+> > Okay, here's my first patch against this.
+> 
+> And dependant upon this is a patch to fixup the rest of the common PPC
+> code, as follows:
 
-Thanks,
--Len
+And this should have also been in this patch:
 
-> -----Original Message-----
-> From: Georg C. F. Greve [mailto:greve@gnuhh.org] On Behalf Of 
-> Georg C. F. Greve
-> Sent: Wednesday, January 21, 2004 4:22 PM
-> To: Nakajima, Jun
-> Cc: Martin Loschwitz; linux-kernel@vger.kernel.org; Brown, 
-> Len; acpi-devel@lists.sourceforge.net
-> Subject: Re: PROBLEM: ACPI freezes 2.6.1 on boot
-> 
-> 
->  || On Wed, 21 Jan 2004 08:32:50 -0800
->  || "Nakajima, Jun" <jun.nakajima@intel.com> wrote: 
-> 
->  nj> Right now I forwarded this to linux-acpi@intel.com, but copying
->  nj> the ACPI mailing list acpi-devel@lists.sourceforge.net would be
->  nj> helpful in general. Len can provide more specific directions for
->  nj> reporting ACPI bugs.
-> 
-> Thanks.
-> 
-> FYI, there is a bug on the Linux kernel bugzilla corresponding to this
-> problem: 
-> 
-         http://bugzilla.kernel.org/show_bug.cgi?id=1774
-
-Regards,
-Georg
+--- 1.49/arch/ppc/Kconfig	Wed Jan 21 12:21:23 2004
++++ edited/arch/ppc/Kconfig	Wed Jan 21 12:47:52 2004
+@@ -1374,12 +1374,11 @@
+ 	  this option if you do not want to compromise on speed.
+ 
+ config KGDB_CONSOLE
+-	bool "Enable serial console thru kgdb port"
+-	depends on KGDB && 8xx || 8260
++	bool "KGDB: Console messages through gdb"
++	depends on KGDB
+ 	help
+-	  If you enable this, all serial console messages will be sent
+-	  over the gdb stub.
+-	  If unsure, say N.
++	  If you say Y here, console messages will appear through gdb.
++	  Other consoles such as tty or ttyS will continue to work as usual.
+ 
+ config XMON
+ 	bool "Include xmon kernel debugger"
 
 -- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
+Tom Rini
+http://gate.crashing.org/~trini/

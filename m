@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbULDHAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbULDHgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbULDHAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 02:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbULDHAL
+	id S261219AbULDHgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 02:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbULDHgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 02:00:11 -0500
-Received: from av6-2-sn2.hy.skanova.net ([81.228.8.107]:62676 "EHLO
-	av6-2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262533AbULDHAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 02:00:06 -0500
-Date: Sat, 4 Dec 2004 08:00:04 +0100 (CET)
-Message-Id: <200412040700.iB4704311162@d1o405.telia.com>
-From: "Voluspa" <lista4@comhem.se>
-Reply-To: "Voluspa" <lista4@comhem.se>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom killer (Core)
-X-Mailer: SF Webmail
-X-SF-webmail-clientstamp: [213.64.150.229] 2004-12-04 08:00:04
+	Sat, 4 Dec 2004 02:36:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261219AbULDHgG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 02:36:06 -0500
+Date: Fri, 3 Dec 2004 23:35:52 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: greg@kroah.com, akpm@osdl.org, chrisw@osdl.org,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH 2.6.10-rc2-bk15] sysfs_dir_close memory leak
+Message-ID: <20041203233552.K2357@build.pdx.osdl.net>
+References: <200412040239.iB42dPi12085@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200412040239.iB42dPi12085@adam.yggdrasil.com>; from adam@yggdrasil.com on Fri, Dec 03, 2004 at 06:39:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Adam J. Richter (adam@yggdrasil.com) wrote:
+> 	When we first started using Signed-off-by: lines, I did,
+> and then somebody commented on it to me in some way that gave me
+> the impression that the practice was only for people who "approve"
+> patches, but I'm happy to resume adding Signed-off-by: lines to all
+> of my patches that are proposed for integration in the future.
 
-On 2004-12-03 23:08:55 Andrea Arcangeli wrote:
+It's to document the chain.  So you, as patch author, should sign off
+as well as those who "approve" it and send it upstream.
 
->You mean my patch is preventing your machine to boot? Then you're doing
->something else wrong because it's impossible my patch is preventing 
->your machine to boot.
-
-Same experience as Thomas here. Full stop like his first log (no errors)
-. PIII (Celeron) 900@1 gig, 256 meg mem, 1 gig swap, preempt enabled.
-
-Tried your patch since the oom killer slaughtered a very important app 
-here when another one ran amok. Not fork spawnings, just ram-eating. Was 
-blender (3d renderer) in "Sequence Editor" mode when i hit alt-a (for 
-animate) on a pretty large set of stills. Eventually blender got killed 
-also, twice...
-
-Kernel 2.6.9 with nick p-s? patch for the buggy kswapd (100 percent cpu, 
-without using any swap).
-
-Mvh
-Mats Johannesson
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

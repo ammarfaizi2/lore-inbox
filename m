@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbULPP51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbULPP6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbULPP51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 10:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULPP50
+	id S261668AbULPP6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 10:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbULPP5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 10:57:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261450AbULPPzH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 10:55:07 -0500
-Date: Thu, 16 Dec 2004 07:54:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-In-Reply-To: <20041216145159.GA3204@elte.hu>
-Message-ID: <Pine.LNX.4.58.0412160742080.22750@ppc970.osdl.org>
-References: <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random>
- <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random>
- <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu>
- <20041214224706.GA26853@elte.hu> <Pine.LNX.4.58.0412141501250.3279@ppc970.osdl.org>
- <1103157476.3585.33.camel@localhost.localdomain> <Pine.LNX.4.58.0412151756550.3279@ppc970.osdl.org>
- <20041216145159.GA3204@elte.hu>
+	Thu, 16 Dec 2004 10:57:39 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11678 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261541AbULPPzP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 10:55:15 -0500
+Message-ID: <41C1B018.2090903@tmr.com>
+Date: Thu, 16 Dec 2004 10:56:08 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: ide-cd problem revisited - more brainpower needed
+References: <200412121334.55460.alan@chandlerfamily.org.uk><200412121334.55460.alan@chandlerfamily.org.uk> <200412140020.18114.alan@chandlerfamily.org.uk>
+In-Reply-To: <200412140020.18114.alan@chandlerfamily.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 16 Dec 2004, Ingo Molnar wrote:
+Alan Chandler wrote:
+> On Sunday 12 December 2004 13:34, Alan Chandler wrote:
 > 
-> i also played a bit with the %ss instructions, and combined them with
-> the cli/sti instructions and other instructions in various ways, and
-> with a bit of experimenting found the following, somewhat surprising
-> results:
->
-> [ snip ]
+>>On Sunday 12 December 2004 11:39, Alan Cox wrote:
+>>
+>>>Thanks ok so it moves with the drive. I'm beginning to wonder if it is
+>>>just a dud drive.
+>>
+>>I do too and am almost ready to throw in the towel (and I seem to be almost
+>>unique in experiencing these problems) - except
 > 
-> it shows a number of interesting effects:
 > 
-> - "mov %eax,%ss" followed by the _same_ instruction cancels the 
->   black-hole. This i suspect is done to prevent the lockup in vm86
->   mode.
+> Towel now thrown.
+> 
+> ...
+> 
+> 
+>>and
+>>linux 2.4 (using the ide-scsi module) the drive works perfectly.
+> 
+> 
+> Drive is obviously degrading, I tried it "one more time" today with 2.4, and 
+> it only just managed to work.  It managed to finish the task, but there were 
+> several resets and error messages very similar to the ones in 2.6.
 
-I don't think it's the "same instruction". Looking at the pattern, I think
-that a "mov->ss" always checks interrupts _before_ it executes, and never 
-checks interrupts _after_ it executes.
+Is it? Or did the firmware "upgrade" make it worse? Can you reflash back 
+to the original firmware and see if 2.4 works correctly?
 
-So I think the pattern is (for your athlon64):
+> My apologies to others time that I might have wasted, although it personally 
+> was a good learning experience on how the kernel works.
 
- - regular instructions check interrupts before they execute, _except_ if 
-   the "dontcheck" flag was set. They clear "dontcheck" after execution.
- - "mov->ss" always checks interrupts before it executes, regardless of
-   "dontcheck". It always sets "dontcheck".
- - "sti" sets "dontcheck" if interrupts were disabled before.
 
-So you can get two-instruction holes by doing the sequence
-
-	/* interrupts disabled */
-	mov->ss
-	sti
-	/* any instruction except cli/mov->ss */
-
-but no other combination (series of "mov->ss" will always check _before_
-each "mov->ss", and series of "sti" will obviously only have interrupts 
-disabled for the _first_ sti).
-
-And I suspect this is very much micro-architecture-dependent, although the 
-Athlon64 rules seem very simple and straightforward.
-
-		Linus
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

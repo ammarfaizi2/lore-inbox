@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318040AbSHLORk>; Mon, 12 Aug 2002 10:17:40 -0400
+	id <S318027AbSHLOD3>; Mon, 12 Aug 2002 10:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318045AbSHLORk>; Mon, 12 Aug 2002 10:17:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10761 "HELO
+	id <S318028AbSHLOD3>; Mon, 12 Aug 2002 10:03:29 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59654 "HELO
 	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318040AbSHLORj>; Mon, 12 Aug 2002 10:17:39 -0400
-Date: Mon, 12 Aug 2002 11:21:16 -0300 (BRT)
+	id <S318027AbSHLOD1>; Mon, 12 Aug 2002 10:03:27 -0400
+Date: Mon, 12 Aug 2002 11:06:58 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pte_chain leak in rmap code (2.5.31)
-In-Reply-To: <20020812134527.18720.qmail@thales.mathematik.uni-ulm.de>
-Message-ID: <Pine.LNX.4.44L.0208121119270.23404-100000@imladris.surriel.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
+In-Reply-To: <E17eBTd-0001nR-00@starship>
+Message-ID: <Pine.LNX.4.44L.0208121101090.23404-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,32 +22,56 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
+On Mon, 12 Aug 2002, Daniel Phillips wrote:
 
-> Note the strange use of continue and break which both achieve the same!
-> What was meant to happen (judging from rmap-13c) is that we break
-> out of the for-Loop once SWAP_FAIL or SWAP_ERROR is returned from
-> try_to_unmap_one. However, this doesn't happen and a subsequent call
-> to pte_chain_free will use the wrong value for prev_pc.
+> If you want to help with 'interactive performance', i.e., user
+> experience, then *quantify what contributes to that* and write a
+> micro-measurement tool that measures such things.  E.g, latency of
+> response to keyboard events under load.  It's not rocket science, it
+> just takes time and effort to set this kind of thing up so it's accurate
+> and predictive.
 
-Excellent hunting!   Thank you!
+http://people.redhat.com/bmatthews/irman/
 
-Your fix should work too, although in my opinion it's a
-little bit too subtle, so I've changed it into:
+I've already asked Randy Hwron(sp?) to include this in
+his regular benchmarking.
 
-	                                case SWAP_FAIL:
-                                        ret = SWAP_FAIL;
-                                        goto give_up;
-                                case SWAP_ERROR:
-                                        ret = SWAP_ERROR;
-                                        goto give_up;
-                        }
-                }
-give_up:
+> It's an incredible waste of developer's time to be running 'reality
+> tests' all the time, and never using more precise measurement methods.
+> Anyone who wants to run reality tests and post the results is more than
+> welcome to, and this is valuable.  It's not valuable to throw mud at a
+> testing/measurement tool because you think it's not 'realistic'.
 
-This is going into 2.4-rmap and 2.5 right now.
+The thing is that developers need some benchmarking thing
+they can script to run overnight.  Watching vmstat for
+hours on end is not a useful way of spending development
+time.
 
-thanks,
+On the other hand, if somebody could code up some scriptable
+benchmarks that approximate real workloads better than the
+current benchmarks do, I'd certainly appreciate it.
+
+For web serving, for example, I wouldn't mind a benchmark that:
+
+1) simulates a number of users, that:
+    1a) load a page with 10 to 20 associated images
+    1b) sleep for a random time between 3 and 60 seconds,
+        "reading the page"
+    1c) follow a link and grab another page with N images
+2) varies the number of users from 1 to N
+3) measures
+    3a) the server's response time until it starts
+        answering the request
+    3b) the time it takes to download each full page
+
+Then we can plot both kinds of response time against the number
+of users and we have an idea of the web serving performance of
+a particular system ... without focussing on, or even measuring,
+the unrealistic "servers N pages per minute" number.
+
+Volunteers ? ;)
+
+kind regards,
 
 Rik
 -- 

@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264713AbTIDGGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 02:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbTIDGGJ
+	id S264700AbTIDGNE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 02:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbTIDGNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 02:06:09 -0400
-Received: from magic-mail.adaptec.com ([216.52.22.10]:13256 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264713AbTIDGGG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 02:06:06 -0400
-Date: Wed, 3 Sep 2003 23:33:46 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: nagendra_tomar@adaptec.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <Pine.LNX.4.56.0309032200010.2146@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.44.0309032332040.29966-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 02:13:04 -0400
+Received: from f22.mail.ru ([194.67.57.55]:51721 "EHLO f22.mail.ru")
+	by vger.kernel.org with ESMTP id S264700AbTIDGND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 02:13:03 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=Rusty Russell=?koi8-r?Q?=22=20?= 
+	<rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MODULE_ALIAS for IRDA dongles
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Thu, 04 Sep 2003 10:12:50 +0400
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19unMQ-0001RE-00.arvidjaar-mail-ru@f22.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 4 Sep 2003, Davide Libenzi wrote:
+> Rather than hardcoded names in modprobe, modules can offer their own
+> aliases (which are overridden by config files).
 
-> On Wed, 3 Sep 2003, Nagendra Singh Tomar wrote:
-> 
-> > Jamie,
-> > 	Just wondered if the store buffer is snooped in some
-> > architectures. In that case I believe the OS need not do anything for
-> > serialization (except for aliases, if they do not hit the same cache
-> line).
-> > In x86 store buffer is not snooped which leads to all these
-> serialization
-> > issues (other CPUs looking at stale value of data which is in the
-> store
-> > buffer of some other CPU).
-> > Pl correct me if I have got anything wrong/
-> 
-> To avoid the so called 'load hazard' (that, BTW, triggers read over
-> writes, that are not allowed in x86) you have two options. Snoop the
-> write
-> buffer or flush it upon L1 miss. Otherwise you might end up getting
-> stale
-> data from L2.
-> 
+that's cool :)
 
-I meant to ask if the store buffer is snooped by *other CPUs*. To maintain 
-self coherence the local store buffer has to be anyway consulted by local 
-loads to give the latest stored value. 
+what config files do you mean - Kconfig or modprobe.conf (or equiv.)?
 
-Thanx,
-
-tomar
-> 
-> 
-> - Davide
-> 
+-andrey
 

@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129034AbQKCTQJ>; Fri, 3 Nov 2000 14:16:09 -0500
+	id <S129042AbQKCTXu>; Fri, 3 Nov 2000 14:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129042AbQKCTP7>; Fri, 3 Nov 2000 14:15:59 -0500
-Received: from inet-smtp3.oracle.com ([205.227.43.23]:13502 "EHLO
-	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
-	id <S129034AbQKCTPu>; Fri, 3 Nov 2000 14:15:50 -0500
-Message-ID: <3A030EE2.92DC3F2@oracle.com>
-Date: Fri, 03 Nov 2000 11:15:46 -0800
-From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
-Organization: Linux Strategic Business Unit, Oracle Corporation
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Value of TASK_UNMAPPED_SIZE on 2.4
-Content-Type: multipart/mixed;
- boundary="------------E7646E6CF7A8BFC1D1841EEE"
+	id <S130826AbQKCTXl>; Fri, 3 Nov 2000 14:23:41 -0500
+Received: from mirrors.planetinternet.be ([194.119.238.163]:28164 "EHLO
+	mirrors.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S129042AbQKCTXf>; Fri, 3 Nov 2000 14:23:35 -0500
+Date: Fri, 3 Nov 2000 20:23:27 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: linux-kernel@vger.kernel.org
+Subject: conflicting types for `mktime' is userspave programs using libc5
+Message-ID: <20001103202327.A961@ping.be>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="zYM0uCDKw75PZbzx"
+X-Mailer: Mutt 1.0pre2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E7646E6CF7A8BFC1D1841EEE
+
+--zYM0uCDKw75PZbzx
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-All,
+When trying to compile something using libc5, with the
+2.4.0-test10 kernel, I get this:
 
-TASK_UNMAPPED_SIZE is defined in include/asm-i386/processor.h as:
+/usr/include/time.h:85: conflicting types for `mktime'
+/usr/include/linux/time.h:69: previous declaration of `mktime'
 
-#define TASK_UNMAPPED_SIZE    (TASK_SIZE / 3)
-
-The value of TASK_SIZE is defined as PAGE_OFFSET which is set to 0xC0000000
-(page.h).  This works out to be a value of 0x4000000.
-
-The question is:
-Are there any negative side effects in defining TASK_UNMAPPED_SIZE to 0x1000000?
-
-By doing this we allow a process to access more memory.  On Oracle it allows us
-to grow our buffer size from 1.7 GB to 2.4 GB improving overall performance by
-reducing I/O.
-
-Thanks in advance,
-
---
-=======================================================================
-  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
-  Linux Products Manager                       Phone:   650.506.1239
-  Intel and Linux Technologies Group           Fax:     650.413.0167
-=======================================================================
+A simple diff is attached
 
 
---------------E7646E6CF7A8BFC1D1841EEE
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Josue.Amaro.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Josue Emmanuel Amaro
-Content-Disposition: attachment;
- filename="Josue.Amaro.vcf"
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="mktime.diff"
 
-begin:vcard 
-n:Amaro;Josue Emmanuel
-tel;cell:650-245-5131
-tel;fax:650-413-0167
-tel;work:650-506-1239
-x-mozilla-html:FALSE
-url:http://www.oracle.com
-org:Intel and Linux Technologies
-version:2.1
-email;internet:Josue.Amaro@oracle.com
-title:Sr.Product Manager - Linux
-adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
-fn:Josue Emmanuel Amaro
-end:vcard
+--- include/linux/time.h~	Fri Nov  3 20:22:14 2000
++++ include/linux/time.h	Fri Nov  3 20:21:22 2000
+@@ -46,6 +46,7 @@
+ 	value->tv_sec = jiffies / HZ;
+ }
+ 
++#ifdef	__KERNEL__
+ /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
+  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
+  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
+@@ -78,6 +79,7 @@
+ 	  )*60 + min /* now have minutes */
+ 	)*60 + sec; /* finally seconds */
+ }
++#endif
+ 
+ 
+ struct timeval {
 
---------------E7646E6CF7A8BFC1D1841EEE--
-
+--zYM0uCDKw75PZbzx--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

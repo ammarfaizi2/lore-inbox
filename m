@@ -1,94 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266854AbSLDD2g>; Tue, 3 Dec 2002 22:28:36 -0500
+	id <S266868AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266859AbSLDD2g>; Tue, 3 Dec 2002 22:28:36 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:1483 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266854AbSLDD2f>;
-	Tue, 3 Dec 2002 22:28:35 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Linux-pm-devel] Re: IBM/MontaVista Dynamic Power Management Project
-To: Dominik Brodowski <linux@brodo.de>
-Cc: Hollis Blanchard <hollis@austin.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk, linux-pm-devel@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF0347E1B2.57E4ABBA-ON86256C85.000AA9B8@pok.ibm.com>
-From: "Bishop Brock" <bcbrock@us.ibm.com>
-Date: Tue, 3 Dec 2002 21:34:58 -0600
-X-MIMETrack: Serialize by Router on D01ML068/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 12/03/2002 10:35:09 PM
+	id <S266876AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
+Received: from windlord.Stanford.EDU ([171.64.13.23]:39335 "HELO
+	windlord.stanford.edu") by vger.kernel.org with SMTP
+	id <S266868AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
+To: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bincancels in linux.kernel
+References: <fa.d6sj37v.97gj3h@ifi.uio.no> <fa.frmc8vv.pkcm2i@ifi.uio.no>
+In-Reply-To: <fa.frmc8vv.pkcm2i@ifi.uio.no> ("Miquel van Smoorenburg"'s
+ message of "Tue, 3 Dec 2002 10:19:48 GMT")
+From: Russ Allbery <rra@stanford.edu>
+Organization: The Eyrie
+Date: Tue, 03 Dec 2002 19:50:42 -0800
+Message-ID: <ylr8cyzbl9.fsf@windlord.stanford.edu>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
+ sparc-sun-solaris2.6)
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miquel van Smoorenburg <miquels@cistron.nl> writes:
 
+> The big problem is when multiple gateways to news exist in multiple
+> hierarchies. News servers accept a certain message only once - and the
+> only thing that is looked at is the message-id.
 
+> So if your news server gets fa.linux.kernel and linux.kernel, half of
+> the articles will end up in the first group and half of the articles in
+> the second.
 
-Dominik Brodowski <linux@brodo.de> on 12/03/2002 02:00:19 PM
-> > > A paper describing the proposal can be obtained from
-> > >
-> > > http://www.research.ibm.com/arl/projects/dpm.html
-> > >
+fa.linux.kernel rewrites the message IDs.  I believe that linux.kernel
+does as well.
 
->So, will it basically be a "policy governor" as described in my "[RFC]"
-mail?
->Or does it need other enhancements in the cpufreq core?
-
->BTW, have you noticed the premilinary patch I which implements most of the
->DVS infrastructure mentioned in my mail to the cpufreq list yesterday?
-
-Dominik,
-
-I've read the RFC and am familiar with the DVFS implementation for ARM,
-but I have not been following CPUFREQ development closely. Given that
-background, I'll try to be brief on describing the two proposals as I
-understand them.
-
-Our proposal (DPM) begins from the idea of an abstract, platform-specific
-"operating point", and a platform-specific driver(s) that knows how to
-move the system to that operating point.  I see CPUFREQ as that driver
-for the platforms it supports.  For our embedded systems the sets of
-operating points will be fixed by the system designer, but DPM
-would allow operating points that were partially interpreted (e.g., the
-lowest frequency greater than X), which seems to be used in CPUFREQ.
-The enhancement I think for CPUFREQ would be to deal with operating
-points, and not explicit voltages and frequencies.  In next-generation
-platforms there will be multiple voltages and frequencies in a single
-CPU, so we need to abstract this away now.
-
-Many of the things your RFC described as "events", we describe as
-"operating states", e.g., idle, running tasks, handling interrupts.
-A DPM "policy" maps system operating states to operating points.  Every
-time the kernel changes state, the current active policy defines the
-operating point the system should run in.  These aspects of the two
-proposals are very similar. As you point out, locking (and blocking)
-are problems when operating points are changing rapidly, and we've
-discussed this problem in our paper (see "Abstract Implementation").
-
-My understanding of your RFC is that what you call "models" we would
-call "policies", and that CPUFREQ models are executable. In contrast,
-DPM policies are data structures that are maintained in the kernel.
-Policies are managed by user- or kernel-level tasks using a "set_policy()"
-interface. There's no restriction on what computation is used to decide
-which policy to activate, but once activated its action is automatic.
-
-DPM also includes provisions for task-specific operating points, but
-we could discuss this further once the legal questions are resolved.
-
-Finally, DPM includes an idea that may not exist in CPUFREQ, and
-that is the idea that peripheral devices advertise constraints,
-e.g., bus bandwidth requirements (through the Linux Device Model),
-and these constraints are used to select the best operating point
-that satisfies all of the constraints.  We believe this will be
-important for aggressively power-managed embedded CPUs with many
-on-board peripherals.  This feature falls out easily where it
-is not required, however.
-
-Bishop
-
-
-
-
+-- 
+Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

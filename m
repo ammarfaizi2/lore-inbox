@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264209AbTIIPAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 11:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264214AbTIIPAh
+	id S264179AbTIIOxS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 10:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTIIOxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 11:00:37 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49813 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264209AbTIIPA3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 11:00:29 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Phil Dibowitz <phil@ipom.com>
-Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
-Date: Tue, 9 Sep 2003 17:01:48 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20030908225107.GE17108@earthlink.net> <200309091448.36231.bzolnier@elka.pw.edu.pl> <3F5DE49E.50500@ipom.com>
-In-Reply-To: <3F5DE49E.50500@ipom.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 10:53:18 -0400
+Received: from M1008P012.adsl.highway.telekom.at ([62.47.157.236]:44673 "EHLO
+	stallburg.dyndns.org") by vger.kernel.org with ESMTP
+	id S264170AbTIIOxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 10:53:12 -0400
+Date: Tue, 9 Sep 2003 16:53:09 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: linux-kernel@vger.kernel.org
+Cc: kj@mail.sternwelten.at, emoenke@gwdg.de
+Subject: [2.6 patch] fix aztcd.c compile warning
+Message-ID: <20030909145309.GA24405@mail.sternwelten.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309091701.48993.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 of September 2003 16:33, Phil Dibowitz wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Tuesday 09 of September 2003 00:51, Phil Dibowitz wrote:
-> >>Hey folks,
-> >>
-> >>I think I may have found a bug in the Linux IDE subsystem
-> >>introduced in 2.4.21 and still present in 2.4.22.
-> >
-> > Nope, user error :-).
->
-> I thought there was a reasonable chance of that! =)
->
-> > Nope, your CMD649 was handled by generic PCI IDE driver.
->
-> Ah, OK. Makes sense.
->
-> >>As of 2.4.21, this configuration no longer works -- which is not
-> >>necessarily a bug. I'm almost there, stay with me. =)
-> >
-> > Assumption that current .config will work with future kernel versions is
-> > *false*.
->
-> Agreed. I said that wasn't a bug. =)
->
-> > Just add these two lines to your .config:
-> > CONFIG_BLK_DEV_VIA82CXXX=y
-> > CONFIG_BLK_DEV_CMD64X=y
->
-> Doh!! Didn't see the VIA driver down there at the bottom. Double doh! My
-> appologies, I should have been able to figure that out.
->
-> That works quite well, thank you! Still have a question though...
+this patch tries to fix the following compile warning:
+-- snipp
+drivers/cdrom/aztcd.c:379: warning: `pa_ok' defined but not used
+--
 
-No problem, thanks for report.
+with belows patch drivers/cdrom/aztcd.c compiles without warning
+the patch also removes a comment section where pa_ok _was_ used
+the warning shows off on each single compile statistics by cherry.
+i hope this helps :)
 
-> > Your VIA IDE controller was handled by generic IDE chipset driver which
-> > did probe devices *after* PCI controllers are probed, so CMD649 took
-> > ide0 and ide1 first.
->
-> But, what about the case when I built in the generic driver, but made
-> the CMD649 driver a module, and loaded it after boot. That shouldn't
-> have *changed* what ide0 and ide1 are, right? I had ide0 and ide1
-> assigned, did a modprobe, and CMD649 changed what ide0 adn ide1 where,
-> and then forgot about the previous ones.. like all of a sudden it told
-> the generic driver "no, no, you were wrong, there's no VIA chipset here,
-> go back to sleep."
 
-Hmm. please send me dmesg.
+a++ maks
 
---bartlomiej
 
-> I may well be misunderstanding something precedence in the kernel here,
-> but I figured while I'm bugging you, I might as well get the full picture.
->
-> Thanks for your time!
 
+--- linux-2.6.0-test5/drivers/cdrom/aztcd.c	Mon Sep  8 21:50:28 2003
++++ linux/drivers/cdrom/aztcd.c	Tue Sep  9 15:53:09 2003
+@@ -373,21 +373,6 @@
+ 	} while (aztIndatum != AFL_OP_OK);
+ }
+ 
+-/* Wait for PA_OK = drive answers with AFL_PA_OK after receiving parameters*/
+-# define PA_OK pa_ok()
+-static void pa_ok(void)
+-{
+-	aztTimeOutCount = 0;
+-	do {
+-		aztIndatum = inb(DATA_PORT);
+-		aztTimeOutCount++;
+-		if (aztTimeOutCount >= AZT_TIMEOUT) {
+-			printk("aztcd: Error Wait PA_OK\n");
+-			break;
+-		}
+-	} while (aztIndatum != AFL_PA_OK);
+-}
+-
+ /* Wait for STEN=Low = handshake signal 'AFL_.._OK available or command executed*/
+ # define STEN_LOW  sten_low()
+ static void sten_low(void)
+@@ -2077,11 +2062,6 @@
+ 				return;
+ 			}
+ 
+-/*	  if (aztSendCmd(ACMD_SET_MODE)) RETURN("azt_poll 3");
+-	  outb(0x01, DATA_PORT);
+-	  PA_OK;
+-	  STEN_LOW;
+-*/
+ 			if (aztSendCmd(ACMD_GET_STATUS))
+ 				RETURN("azt_poll 4");
+ 			STEN_LOW;

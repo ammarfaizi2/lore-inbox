@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312842AbSDFVgi>; Sat, 6 Apr 2002 16:36:38 -0500
+	id <S312843AbSDFVpT>; Sat, 6 Apr 2002 16:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312843AbSDFVgh>; Sat, 6 Apr 2002 16:36:37 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:38320 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S312842AbSDFVgg>; Sat, 6 Apr 2002 16:36:36 -0500
-Date: Sat, 06 Apr 2002 13:37:17 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Byron Stanoszek <gandalf@winds.org>, Jeremy Jackson <jerj@coplanar.net>
-cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com
-Subject: Re: Faster reboots - calling _start?
-Message-ID: <1745393533.1018100235@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.44.0204061201281.7190-100000@winds.org>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312846AbSDFVpS>; Sat, 6 Apr 2002 16:45:18 -0500
+Received: from zero.tech9.net ([209.61.188.187]:43270 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312843AbSDFVpS>;
+	Sat, 6 Apr 2002 16:45:18 -0500
+Subject: Re: [PATCH] Clean up x86 interrupt entry code
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0204061216570.26740-100000@penguin.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 06 Apr 2002 16:45:20 -0500
+Message-Id: <1018129520.899.113.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wouldn't it be easier to just ljmp to the start address of the kernel in
-> memory (the address after the bootloader has done its thing), effectively
-> restarting the kernel from line 1? Or is tehre an issue with some
-> hardware being in an invalid state when doing this?
+On Sat, 2002-04-06 at 15:18, Linus Torvalds wrote:
 
-Two issues with that:
+> It seems to be always loaded by the common interrupt code (and %ebx is a 
+> call-saved register, so calling the interrupt handlers and returning 
+> doesn't clobber it).
 
-1. I want to be able to boot a different kernel on reboot - this
-is a development machine.
+True enough.  I guess I should of done this from the beginning ...
 
-2. I believe we free all the __init stuff around the end of
-start_kernel, so the initial functions and data just aren't 
-there any more ... of course that could be changed, but it's
-both a more major change than I really want to do, and it still
-doesn't solve (1) ;-)
+> But testing it may be a good idea ;^p
 
-M.
+Of course I will, but it is hard (and subject to Heisenberg principals)
+to test that we preempt whenever necessary.  Only with the patch I sent
+you earlier am I seeing no missed preemptions ... now to work on the
+egregiously long-held locks.
+
+	Robert Love
 

@@ -1,88 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265801AbUFIMeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266148AbUFIMiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUFIMeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbUFIMc7
+	id S266148AbUFIMiw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUFIMit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:32:59 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:8849 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265756AbUFIM3R (ORCPT
+	Wed, 9 Jun 2004 08:38:49 -0400
+Received: from cantor.suse.de ([195.135.220.2]:675 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266134AbUFIMiO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:29:17 -0400
-Date: Wed, 9 Jun 2004 14:29:21 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [STACK] >3k call path in ide
-Message-ID: <20040609122921.GG21168@wohnheim.fh-wedel.de>
+	Wed, 9 Jun 2004 08:38:14 -0400
+Date: Wed, 9 Jun 2004 14:37:04 +0200
+From: Olaf Hering <olh@suse.de>
+To: Nico Schottelius <nico-kernel@schottelius.org>, GCS <gcs@lsc.hu>,
+       Chris Wright <chrisw@osdl.org>, Amon Ott <ao@rsbac.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dev@grsecurity.net
+Subject: Re: security patches / lsm
+Message-ID: <20040609123704.GA5684@suse.de>
+References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609112235.GA1088@pooh> <20040609114615.GK601@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040609114615.GK601@schottelius.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej, can you put ide_config on a diet?
+ On Wed, Jun 09, Nico Schottelius wrote:
 
-stackframes for call path too long (3052):
-    size  function
-       0  client_reg_t->event_handler
-    1168  ide_config
-      12  ide_register_hw
-      44  ide_unregister
-      12  ide_unregister_subdriver
-       0  pnpide_init
-       0  pnp_register_driver
-       0  driver_register
-      20  bus_add_driver
-      16  driver_attach
-      72  tty_register_device
-       0  class_simple_device_add
-       0  class_device_register
-      16  class_device_add
-       0  kobject_add
-       0  kobject_hotplug
-     132  call_usermodehelper
-      80  wait_for_completion
-      84  schedule
-      16  __put_task_struct
-      20  audit_free
-      36  audit_log_start
-      16  __kmalloc
-       0  __get_free_pages
-      28  __alloc_pages
-     284  try_to_free_pages
-       0  out_of_memory
-       0  mmput
-      16  exit_aio
-       0  __put_ioctx
-      16  do_munmap
-       0  split_vma
-      36  vma_adjust
-       0  fput
-       0  __fput
-       0  locks_remove_flock
-      12  panic
-       0  sys_sync
-       0  sync_inodes
-     308  sync_inodes_sb
-       0  do_writepages
-     128  mpage_writepages
-       4  write_boundary_block
-       0  ll_rw_block
-      28  submit_bh
-       0  bio_alloc
-      88  mempool_alloc
-     256  wakeup_bdflush
-      20  pdflush_operation
-       0  printk
-       0  preempt_schedule
-      84  schedule
+> And if the performance is really getting worse, why not add grsecurity
+> patches with #ifdef GRSECURITY_ENABLED? 
 
-Jörn
+This is the kernel, not XFree86.
 
 -- 
-When you close your hand, you own nothing. When you open it up, you
-own the whole world.
--- Li Mu Bai in Tiger & Dragon
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÃœRNBERG

@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVBDVEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVBDVTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVBDVEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 16:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbVBDVBR
+	id S261618AbVBDVTo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 16:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbVBDVMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 16:01:17 -0500
-Received: from ida.rowland.org ([192.131.102.52]:2308 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S263764AbVBDUzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:55:17 -0500
-Date: Fri, 4 Feb 2005 15:55:06 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data corruption
-In-Reply-To: <1107519382.1703.7.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0502041539350.674-100000@ida.rowland.org>
+	Fri, 4 Feb 2005 16:12:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48105 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S266177AbVBDVHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:07:34 -0500
+Message-ID: <4203E3FE.2090806@pobox.com>
+Date: Fri, 04 Feb 2005 16:07:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: maxer <maxer@xmission.com>
+CC: linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
+Subject: Re: SysKonnect sk98lin Gigabit lan missing in action from 2.6.10
+ on
+References: <42038994.20401@xmission.com>
+In-Reply-To: <42038994.20401@xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Rusty Russell wrote:
-
-> OK, I recently made the mistake of buying a USB case with a drive in it
-> and putting my home directory on it.  I have since then had multiple
-> ext3 and ext2 errors: 2.6.8, 2.6.9, 2.6.10 and 2.6.11-rc3 all exhibit
-> the problem within an hour of stress (untarring a fresh kernel tree, cp
-> -al'ing to apply patches repeatedly, my normal workload).  I haven't had
-> any similar problems on my internal IDE drive.  2.4 succeeded once, and
-> once had data corruption (although nowhere near as as bad as the 2.6
-> corruption, and it got much further).
+maxer wrote:
+> What is the status of sk98lin? Do we have to wait until Syskonnect gets 
+> their act together
+> and write a new driver for 2.6.10?
 > 
-> I realize "ub" exists, but it doesn't seem to want to deal with a disk
-> device.
-> 
-> Is USB/SCSI just terminally broken under 2.6?  I'll be getting a power
-> supply to test the drive using firewire, which it also supports, to
-> ensure this isn't a disk issue (although the 2.4 goodness undermines
-> this theory).
+> Their latest is Oct 2004 and not at all compatible with 2.6.10 and beyond.
 
-Right now we have no reason to believe there's anything wrong with the USB 
-stack or the usb-storage/SCSI drivers.  A few other people have also 
-reported data corruption at about the same level as you; we've only been
-able to trace a couple of them to software errors.  And those generally 
-involved a higher error rate than you're seeing.
+I've been telling SysKonnect for _years_ that they need to split up 
+their patches, but they still keep sending ever-larger jumbo driver 
+update patches.
 
-The most likely explanation seems to be hardware problems.  Particularly
-for high-speed USB devices, 2.6 drives the hardware much closer to the
-limit than 2.4 or Windows (to judge by the problem reports we've seen).  
-One case came up just a couple of days ago, in which this sort of data
-corruption was definitively traced to a known erratum in the peripheral's
-USB interface.  (The controller chip was an old revision which has been
-supplanted, but who knows what sort of hardware lurks in the hearts of
-commercial drives?)
+Stephen Hemminger split up their patch into a bunch of patches, and I 
+applied several of those.
 
-Alan Stern
+Apparently, Stephen also got sick of trying to patch and clean sk98lin, 
+so he went and wrote his own "skge" driver.  It's available in my 
+netdev-2.6 queue, and should be in the latest -mm.
+
+	Jeff
+
+
 

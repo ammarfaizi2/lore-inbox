@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262382AbRENTJu>; Mon, 14 May 2001 15:09:50 -0400
+	id <S262396AbRENTQK>; Mon, 14 May 2001 15:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbRENTJm>; Mon, 14 May 2001 15:09:42 -0400
-Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:28933 "EHLO
-	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S262382AbRENTJX>; Mon, 14 May 2001 15:09:23 -0400
-Date: Mon, 14 May 2001 21:05:56 +0200
-From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
-Message-ID: <20010514210556.A3371@pua.nirvana>
-In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com> <20010514172104.A2160@pua.nirvana> <3B0004F7.4C54E2E4@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B0004F7.4C54E2E4@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, May 14, 2001 at 12:16:55PM -0400
+	id <S262394AbRENTQA>; Mon, 14 May 2001 15:16:00 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:57616 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262392AbRENTPu>;
+	Mon, 14 May 2001 15:15:50 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+Date: Mon, 14 May 2001 21:14:26 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: uid_t and gid_t vs.  __kernel_uid_t and __kernel_gid_t
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <2E927786773@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc: list trimmed]
+On 14 May 01 at 15:00, Khachaturov, Vassilii wrote:
 
-On Mon, May 14, 2001 at 12:16:55PM -0400, Jeff Garzik wrote:
-> Axel Thimm wrote:
-> > On Sun, May 13, 2001 at 01:28:06PM -0400, Jeff Garzik wrote:
-> > > For those of you with Via interrupting routing issues (or
-> > > interrupt-not-being-delivered issues, etc), please try out this patch
-> > > and let me know if it fixes things.  It originates from a tip from
-> > > Adrian Cox... thanks Adrian!
-> > 
-> > Unfortunately the patch does not trigger here. nr_ioapics is zero on my UP
-> > KT133A board. Was this patch for MP only?
-> 
-> Not for MP only, but mostly such:  UP systems with IO-APIC, or MP
-> systems.
+> I had to communicate uid/gid from an application down 
+> to a driver, and discovered that uid and gid in user
+> space are different from those in kernel space.
 
-What about the following dmesg logs:
+ncpfs uses 'unsigned long' in its ncp_mount_data_v4, as MIPS uses
+'long' type for uid/gid. Unfortunately it still needs conversions
+on some archs, so maybe using u_int64_t is just best solution
+(AFAIK as MIPS unsigned long is 64bit, you have to use u_int64_t
+if you want same type accross architectures).
 
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-> [...]
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-
-Don't they imply an APIC?
-
-Anyway, I am sending the dmesg with "#define DEBUG 1" in pci-i386.h. It is a
-2.4.4-ac5 defconfig kernel, but 2.4.4 has the same errors. System is an
-MS-6330 v3.0 (MSI K7T Turbo), KT133A, Duron 700. I you have any idea, how I
-could fix the pirq table I'd be glad to test further.
-
-Regards, Axel.
--- 
-Axel.Thimm@physik.fu-berlin.de
+Kernel part then just checks wheter uid == (__kernel_uid_t)uid and 
+gives up if they differ.
+                                    Best regards,
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz

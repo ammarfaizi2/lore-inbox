@@ -1,96 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUJHStC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUJHSru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUJHStC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 14:49:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUJHSsU
+	id S264098AbUJHSru (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 14:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJHSpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:48:20 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:767 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265910AbUJHSrV (ORCPT
+	Fri, 8 Oct 2004 14:45:24 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:20494 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261426AbUJHSgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:47:21 -0400
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, Nick Piggin <nickpiggin@yahoo.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-In-Reply-To: <200410081214.20907.efocht@hpce.nec.com>
-References: <1097110266.4907.187.camel@arrakis>
-	 <200410081214.20907.efocht@hpce.nec.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097261158.5650.13.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 08 Oct 2004 11:45:58 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 14:36:36 -0400
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Subject: Re: Megaraid random loss of luns
+Date: Fri, 8 Oct 2004 22:36:30 +0400
+User-Agent: KMail/1.7
+Cc: comsatcat@earthlink.net, linux-kernel@vger.kernel.org
+References: <0E3FA95632D6D047BA649F95DAB60E57033BCADD@exa-atlanta>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BCADD@exa-atlanta>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_u4tZBeIZCbjgDv8"
+Message-Id: <200410082236.30485.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 03:14, Erich Focht wrote:
-> Hi Matthew,
+--Boundary-00=_u4tZBeIZCbjgDv8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hi Erich!
+On Friday 08 October 2004 20:30, Mukker, Atul wrote:
+> You can try to add the PCI ids for your controllers in megaraid_mbox.c
+> pci_device_id table. That _should_ work
 
-
-> On Thursday 07 October 2004 02:51, Matthew Dobson wrote:
-> > 1) Rip out sched_groups and move them into the sched_domains.
-> > 2) Add some reference counting, and eventually locking, to
-> > sched_domains.
-> > 3) Rewrite & simplify the way sched_domains are built and linked into a
-> > cohesive tree.
-> > 
-> > This should allow us to support hotplug more easily, simply removing the
-> > domain belonging to the going-away CPU, rather than throwing away the
-> > whole domain tree and rebuilding from scratch.  This should also allow
-> > us to support multiple, independent (ie: no shared root) domain trees
-> > which will facilitate isolated CPU groups and exclusive domains.  I also
-> > hope this will allow us to leverage the existing topology infrastructure
-> > to build domains that closely resemble the physical structure of the
-> > machine automagically, thus making supporting interesting NUMA machines
-> > and SMT machines easier.
-> 
-> more flexibility in building the sched_domains is badly needed, so
-> your effort towards providing this is the right step. I'm not sure
-> yet whether your big change is really (and already) a simplification,
-> but what you described sounded for me like getting the chance to
-> configure the sched_domains at runtime, dynamically, from user
-> space. I didn't notice any user interface in your patch, or overlooked
-> it. Could you please describe the API you had in mind for that?
-
-You are correct in your assumption that you didn't notice any user API
-in the patch because it wasn't there.  The idea I had for the API would
-be along the lines of the current cpusets/CKRM interface.  A
-hierarchical filesystem where you can do operations to
-create/modify/remove sched_domains.  Along the lines of:
-
-cd /dev/sched_domains/sys_domain
-mkdir node0
-mkdir node1
-mkdir node2
-mkdir node3
-cd node0
-echo 0-3 > cpus
-cd ../node1
-echo 4-7 > cpus
-cd ../node2
-echo 8-11 > cpus
-cd ../node3
-echo 12-15 > cpus
-
-To create a simple 4 node each w/ 4 cpus setup.  This is a trivial
-example, because this is the kind of thing that would be setup by
-default at boot time.  I really like the interface that Paul came up
-with for cpusets, and I think that the interface we eventually settle on
-should be along those lines.  Hopefully it can be shared with the
-interface CKRM uses to avoid too much interface bloat.  I think that we
-can probably get the two mechanisms to share a common interface.
-
--Matt
+That solve unrecognized controller issue. Thank you!
+And here is a patch, please consider applying.
 
 
+-- 
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org
 
+--Boundary-00=_u4tZBeIZCbjgDv8
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ami_megaraid_series_475_pci_id.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="ami_megaraid_series_475_pci_id.patch"
+
+===== drivers/scsi/megaraid/megaraid_mbox.c 1.4 vs edited =====
+--- 1.4/drivers/scsi/megaraid/megaraid_mbox.c	2004-08-31 22:52:04 +04:00
++++ edited/drivers/scsi/megaraid/megaraid_mbox.c	2004-10-08 21:54:44 +04:00
+@@ -295,6 +295,12 @@
+ 		PCI_SUBSYS_ID_PERC3_SC,
+ 	},
+ 	{
++		PCI_VENDOR_ID_AMI,
++		PCI_DEVICE_ID_AMI_MEGARAID3,
++		PCI_VENDOR_ID_AMI,
++		PCI_SUBSYS_ID_PERC3_SC,
++	},
++	{
+ 		PCI_VENDOR_ID_LSI_LOGIC,
+ 		PCI_DEVICE_ID_MEGARAID_SCSI_320_0,
+ 		PCI_VENDOR_ID_LSI_LOGIC,
+
+--Boundary-00=_u4tZBeIZCbjgDv8--

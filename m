@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUIFBjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267387AbUIFBl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUIFBjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUIFBjM
+	id S267387AbUIFBl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIFBl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:39:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:12808 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267383AbUIFBi3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:38:29 -0400
-Message-ID: <9e47339104090518387bdf2d0a@mail.gmail.com>
-Date: Sun, 5 Sep 2004 21:38:28 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
+	Sun, 5 Sep 2004 21:41:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51690 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267387AbUIFBk7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:40:59 -0400
+Date: Mon, 6 Sep 2004 02:40:58 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: multi-domain PCI and sysfs
-Cc: Matthew Wilcox <willy@debian.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409051706.50455.jbarnes@engr.sgi.com>
+Message-ID: <20040906014058.GV642@parcelfarce.linux.theplanet.co.uk>
+References: <9e4733910409041300139dabe0@mail.gmail.com> <200409041527.50136.jbarnes@engr.sgi.com> <9e47339104090415451c1f454f@mail.gmail.com> <200409041603.56324.jbarnes@engr.sgi.com> <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk> <9e473391040905165048798741@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-	 <200409041603.56324.jbarnes@engr.sgi.com>
-	 <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
-	 <200409051706.50455.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e473391040905165048798741@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another way to look at this would be to create one vga device per
-domain. I could then hook the vga=0/1 attribute off from this device
-and avoid the problem of creating domain nodes under /sys/devices
+On Sun, Sep 05, 2004 at 07:50:04PM -0400, Jon Smirl wrote:
+> So how do multiple root buses work? Since they are all in the same
+> domain it seems like a single IO operation would go to all of the root
+> bridges simultaneously. Then each root bridge matches to the address
+> and decides to send the IO operation on if there is a match.
 
+Not exactly -- each rope (the line that connects the memory & I/O
+controller to the I/O adapter) has a limited bandwidth, so the memory
+& I/O controller makes the decision which rope each transaction is
+destined for.
 
-On Sun, 5 Sep 2004 17:06:50 -0700, Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> On Sunday, September 5, 2004 4:04 pm, Matthew Wilcox wrote:
-> > On Sat, Sep 04, 2004 at 04:03:56PM -0700, Jesse Barnes wrote:
-> > > On Saturday, September 4, 2004 3:45 pm, Jon Smirl wrote:
-> > > > Is this a multipath configuration where pci0000:01 and pci0000:02 can
-> > > > both get to the same target bus? So both busses are top level busses?
-> > > >
-> > > > I'm trying to figure out where to stick the vga=0/1 attribute for
-> > > > disabling all the VGA devices in a domain. It's starting to look like
-> > > > there isn't a single node in sysfs that corresponds to a domain, in
-> > > > this case there are two for the same domain.
-> > >
-> > > Yes, I think that's the case.  Matthew would probably know for sure
-> > > though.
-> >
-> > Huh, eh, what?  There's no such thing as multipath PCI configurations.
-> > The important concepts in PCI are:
-> 
-> Right, but I was answering his question about whether or not there was a place
-> to stick his 'vga' control file on a per-domain basis.  There would be if the
-> layout was something like this:
-> 
-> /sys/devices/pciDDDD/BB/SS.F/foo
-> rather than the current
-> /sys/devices/pciDDDD:BB/DDDD:BB:SS.F/foo
-> 
-> > I haven't really looked at the VGA attribute.  I think Ivan or Grant
-> > would be better equipped to help you on this front.  I remember them
-> > rehashing it 2-3 years ago.
-> 
-> I'm actually ok with a system wide vga arbitration driver, assuming that we'll
-> never have to worry about the scalability of stuff that wants to do legacy
-> vga I/O.
-> 
-> Thanks,
-> Jesse
-> 
-> 
+> When implementing the VGA control I'm running into the problem that
+> there is no root node in sysfs for the top of a domain. I need a
+> domain node to attach an attribute disabling all VGA devices in the
+> domain. In the zx1 diagram I could have vga devices on any of the
+> PCI-X or AGP buses.
 
+Why would it be a problem if the attribute is per-bus, as it is right now?
+see bus->bridge_ctl (PCI_BRIDGE_CTL_VGA)
 
+> With the xz1 sysfs would look like this:
+> /sys/devices/pci0000:00
+> /sys/devices/pci0000:01
+> /sys/devices/pci0000:02
+> /sys/devices/pci0000:03
+> /sys/devices/pci0000:04
+> /sys/devices/pci0000:05
+
+Actually, they're sparsely numbered to allow for people plugging in pci-pci
+bridges on cards, so:
+
+$ ls -1 /sys/devices/
+pci0000:00
+pci0000:80
+pci0000:a0
+pci0000:c0
+platform
+system
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

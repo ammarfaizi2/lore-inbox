@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVBBWcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVBBWcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVBBWcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVBBVbe
+	id S262671AbVBBWcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVBBVUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 16:31:34 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:60633 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262595AbVBBVaU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:30:20 -0500
-Date: Wed, 2 Feb 2005 22:30:11 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Kevin Hilman <kevin@hilman.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and GFP_ATOMIC    
-In-Reply-To: <83r7jyiyqx.fsf@www2.muking.org>
-Message-Id: <Pine.OSF.4.05.10502022149300.30098-100000@da410.phys.au.dk>
-Mime-Version: 1.0
+	Wed, 2 Feb 2005 16:20:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28555 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262912AbVBBVIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:08:41 -0500
+Date: Wed, 2 Feb 2005 13:08:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Lennert Van Alboom <lennert.vanalboom@ugent.be>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       alexn@dsv.su.se, kas@fi.muni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Memory leak in 2.6.11-rc1?
+In-Reply-To: <1107371221.5540.81.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0502021138120.2362@ppc970.osdl.org>
+References: <20050121161959.GO3922@fi.muni.cz>  <20050124125649.35f3dafd.akpm@osdl.org>
+  <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org> 
+ <200502021030.06488.lennert.vanalboom@ugent.be>  <Pine.LNX.4.58.0502020758400.2362@ppc970.osdl.org>
+  <1107366560.5540.39.camel@localhost>  <Pine.LNX.4.58.0502021008350.2362@ppc970.osdl.org>
+ <1107371221.5540.81.camel@localhost>
+MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Feb 2005, Kevin Hilman wrote:
 
-> While testing an older driver on an -RT kernel (currently using
-> -V0.7.37-03), I noticed something strange.
+
+On Wed, 2 Feb 2005, Dave Hansen wrote:
 > 
-> The driver was triggering a "sleeping function called from invalid
-> context" BUG().  It was coming from a case where the driver was doing
-> a __get_free_page(GFP_ATOMIC) while interrupts were disabled (example
-> trace below).  I know this is probably real bug and it shouldn't be
-> allocating memory with interrupts disabled, but shouldn't this be
-> possible?  Isn't the role of GFP_ATOMIC to say that "this caller
-> cannot sleep". 
-> 
-The problem is that almost all locks are replaced by mutexex which
-can make yuo sleep. That includes locks around the various allocation
-structures.
+> Strangely enough, it seems to be one single, persistent page.  
 
-This is one of those places where I think Ingo have gone too far, but I
-see that the code in mm/ is not fitted for for doing anything else
-but what Ingo have done right now. It would require some rewriting to fix
-it.
+Ok. Almost certainly not a leak. 
 
-The basic allocations should be of the free-list form
-  res = first_free;
-  if(res) {
-         first_free = res->next;
-  }
-  return res;
+It's most likely the FIFO that "init" opens (/dev/initctl). FIFO's use the 
+pipe code too.
 
-I se no problem in protecting this kind of operation by a raw spinlock.
-Using a mutex to protect such a list would be a waste: You would have to
-lock and unlock the mutex's spinlock twice! If it was made that way, i.e.
-the very basic free-list operation was taken out in front of the more
-complicated stuff in mm/slap.c GFP_ATOMIC could be made to work as usual.
+If you don't want unreclaimable highmem pages, then I suspect you just 
+need to change the GFP_HIGHUSER to a GFP_USER in fs/pipe.c
 
-The hard job is that the refill operation has to be done under a mutex
-under PREEMPT_RT. I.e. suddenly there are two locks to take care off.
-
-Esben
-
-
+		Linus

@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbUKEBmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbUKEBhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbUKEBmC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:42:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUKEAvL
+	id S262523AbUKEBhY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUKEBgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:51:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38622 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262523AbUKEAsv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:48:51 -0500
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
-In-Reply-To: <109961570456@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 4 Nov 2004 16:48:25 -0800
-Message-Id: <1099615705170@kroah.com>
+	Thu, 4 Nov 2004 20:36:39 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:39046 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262523AbUKEBer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 20:34:47 -0500
+Subject: Re: power/suspend error
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Dovid Kopel <munky@munkys.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <418AB8DD.6070205@munkys.com>
+References: <418AB8DD.6070205@munkys.com>
+Content-Type: text/plain
+Message-Id: <1099618508.6910.40.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 05 Nov 2004 12:35:08 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2449.2.4, 2004/11/04 10:28:20-08:00, tj@home-tj.org
+Hi.
 
-[PATCH] driver-model: comment fix in bus.c
+On Fri, 2004-11-05 at 10:18, Dovid Kopel wrote:
+> This is on an AMD 64 running Gentoo 2004.2. This kernel source is
+> gentoo-dev-sources 2.6.9-r2.
 
- df_01_driver_attach_comment_fix.patch
+Sorry to say this, but Suspend 2 doesn't support AMD64 yet. I'm in the
+process of organising access to a machine to get it going. You'll need
+to use Pavel's version for now.
 
-bus_match() was renamed to driver_probe_device() but the comment for
-device_attach() wasn't updated.  This patch updates it.
+Regards,
 
+Nigel
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+> lappy linux # make && make modules_install
+> ~  CHK     include/linux/version.h
+> make[1]: `arch/x86_64/kernel/asm-offsets.s' is up to date.
+> ~  CHK     include/linux/compile.h
+> dnsdomainname: Unknown host
+> ~  UPD     include/linux/compile.h
+> ~  CC      init/version.o
+> ~  LD      init/built-in.o
+> ~  CC      kernel/power/suspend_builtin.o
+> kernel/power/suspend_builtin.c:15:25: asm/highmem.h: No such file or
+> directory
+> kernel/power/suspend_builtin.c: In function `get_highstart_pfn':
+> kernel/power/suspend_builtin.c:434: error: `highstart_pfn' undeclared
+> (first use in this function)
+> kernel/power/suspend_builtin.c:434: error: (Each undeclared identifier
+> is reported only once
+> kernel/power/suspend_builtin.c:434: error: for each function it
+> appears in.)
+> make[2]: *** [kernel/power/suspend_builtin.o] Error 1
+> make[1]: *** [kernel/power] Error 2
+> make: *** [kernel] Error 2
+> 
+> - -=mUnky=-
+> - -Dovid Kopel
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.6 (GNU/Linux)
+> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> 
+> iD8DBQFBirjcCecRKprSbsERAugEAJ48bZfhw1Sal6+3/FfTAmlJ4oIYrQCggXsL
+> s95zkMxQKY9g4vmOidDMZ40=
+> =w1to
+> -----END PGP SIGNATURE-----
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-
- drivers/base/bus.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2004-11-04 16:30:54 -08:00
-+++ b/drivers/base/bus.c	2004-11-04 16:30:54 -08:00
-@@ -325,10 +325,10 @@
-  *	driver_attach - try to bind driver to devices.
-  *	@drv:	driver.
-  *
-- *	Walk the list of devices that the bus has on it and try to match
-- *	the driver with each one.
-- *	If bus_match() returns 0 and the @dev->driver is set, we've found
-- *	a compatible pair.
-+ *	Walk the list of devices that the bus has on it and try to
-+ *	match the driver with each one.  If driver_probe_device()
-+ *	returns 0 and the @dev->driver is set, we've found a
-+ *	compatible pair.
-  *
-  *	Note that we ignore the -ENODEV error from driver_probe_device(),
-  *	since it's perfectly valid for a driver not to bind to any devices.
+Everyone lives by faith. Some people just don't believe it.
+Want proof? Try to prove that the theory of evolution is true.
 

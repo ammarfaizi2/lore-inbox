@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317606AbSGJUcx>; Wed, 10 Jul 2002 16:32:53 -0400
+	id <S317620AbSGJUmK>; Wed, 10 Jul 2002 16:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317610AbSGJUcw>; Wed, 10 Jul 2002 16:32:52 -0400
-Received: from cpe.atm2-0-1071115.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:35025
-	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
-	id <S317606AbSGJUcw>; Wed, 10 Jul 2002 16:32:52 -0400
-Message-ID: <3D2C9A98.70509@fugmann.dhs.org>
-Date: Wed, 10 Jul 2002 22:35:36 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+	id <S317619AbSGJUmJ>; Wed, 10 Jul 2002 16:42:09 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62224 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317616AbSGJUmI>; Wed, 10 Jul 2002 16:42:08 -0400
+Subject: Re: [STATUS 2.5]  July 10, 2002
+To: cort@fsmlabs.com (Cort Dougan)
+Date: Wed, 10 Jul 2002 22:07:12 +0100 (BST)
+Cc: rml@tech9.net (Robert Love), vherva@niksula.hut.fi (Ville Herva),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020710142005.U762@host110.fsmlabs.com> from "Cort Dougan" at Jul 10, 2002 02:20:05 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: jamesclv@us.ibm.com
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Chatserver workload simulator by Bill Hartner?
-References: <629E717C12A8694A88FAA6BEF9FFCD440540AA@brigadoon.spirentcom.com> <200207101317.39447.jamesclv@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E17SOg4-0007oM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks - You just saved me a couple of hours there.
+> Why was the rate incremented to maintain interactive performance?  Wasn't
+> that the whole idea of the pre-empt work?  Does the burden of pre-empt
+> actually require this?
 
-I've also located a showstopper bug in the chat server code.
-If anyone steps forward as the maintainer, I will gladly send a patch.
+Bizarrely in many cases it increases throughput
 
-The bug is when using accept, the last argument should be the size of the 2. argument but
-it is zero in the chat server.
+> It seems that the added inefficiency of these extra interrupts is going to
+> drag performance down.
 
-Regards
-Anders Fugmann
-
-James Cleverdon wrote:
-> On Tuesday 09 July 2002 09:35 am, Perches, Joe wrote:
-> 
-> The chat-1.0.1.tar.gz on that page still has a memory free/use bug with the ti 
-> array.  I sent the patch to bhartner, but maybe he's not maintaining it 
-> anymore.  It only seems to cause trouble when running heavy loads.  (Maybe 
-> large blocks of memory get coalesced, or something.)  Anyway, here it is:
-<patch cut out>
+Sometimes - Beowulf folks already sometimes hack the clock down to 20Hz or
+less. This is best approached on sane hardware by extending the S/390 stuff
+for no regular ticks.
 

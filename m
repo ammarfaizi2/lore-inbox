@@ -1,137 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136578AbREDX7r>; Fri, 4 May 2001 19:59:47 -0400
+	id <S136554AbREEA0Q>; Fri, 4 May 2001 20:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136579AbREDX7i>; Fri, 4 May 2001 19:59:38 -0400
-Received: from colorfullife.com ([216.156.138.34]:55054 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S136578AbREDX7W>;
-	Fri, 4 May 2001 19:59:22 -0400
-Message-ID: <3AF3423B.33A3C3AE@colorfullife.com>
-Date: Sat, 05 May 2001 01:58:51 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 3 one-liner bugfixes
-In-Reply-To: <Pine.LNX.4.31.0105041518080.1059-100000@penguin.transmeta.com> <3AF33A76.32C22DA1@colorfullife.com>
-Content-Type: multipart/mixed;
- boundary="------------75CFEED68E173192975C0043"
+	id <S136579AbREEA0G>; Fri, 4 May 2001 20:26:06 -0400
+Received: from ndslppp45.ptld.uswest.net ([63.224.227.45]:50471 "HELO
+	galen.magenet.net") by vger.kernel.org with SMTP id <S136554AbREEAZx>;
+	Fri, 4 May 2001 20:25:53 -0400
+Date: Fri, 4 May 2001 17:26:57 -0700
+From: Joseph Carter <knghtbrd@debian.org>
+To: Aaron Tiensivu <mojomofo@mojomofo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+Message-ID: <20010504172657.B14969@debian.org>
+In-Reply-To: <E14vmpN-000822-00@the-village.bc.nu> <006e01c0d4e9$3c0bd210$0300a8c0@methusela>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <006e01c0d4e9$3c0bd210$0300a8c0@methusela>; from mojomofo@mojomofo.com on Fri, May 04, 2001 at 06:26:14PM -0400
+X-Operating-System: Linux galen 2.4.3-ac12
+X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------75CFEED68E173192975C0043
+
+--GID0FwUMdk1T2AWN
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Manfred Spraul wrote:
-> 
-> +       else
-> +               fl->fl_type & ~F_INPROGRESS;
-               ^^^^^^
-> +       unlock_kernel();
-> +       return ret;
->  }
+On Fri, May 04, 2001 at 06:26:14PM -0400, Aaron Tiensivu wrote:
+> This might be grasping at straws I remember VIA problem in the "good old
+> days" of Socket 7 with CPU/PCI Prefetches and especially Read-around-Write
+> settings that would cause issues like we're seeing with the Athlon
+> pre-fetches. This could be (total conjecture) related somehow to the
+> corruption bugs they are admitting to in the 686B although they are blami=
+ng
+> the SB Live now.
 
-The last patch was incorrect. Corrected version attached.
+I don't see how they figure, but in case there was any doubt I have a VIA
+KT133A/686B board (Abit KT7A) and don't experience anything resembling
+disk corruption unless the box crashes for some other reason.  I do seem
+to be experiencing AGP problems in spades, but my disks at least are fine.
 
---
-	Manfred
---------------75CFEED68E173192975C0043
-Content-Type: text/plain; charset=us-ascii;
- name="patch-fcntl"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fcntl"
+--=20
+Joseph Carter <knghtbrd@debian.org>                Free software developer
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 4
-//  SUBLEVEL = 4
-//  EXTRAVERSION =
---- 2.4/fs/fcntl.c	Thu Nov 16 07:50:25 2000
-+++ build-2.4/fs/fcntl.c	Sat May  5 00:32:17 2001
-@@ -338,7 +338,6 @@
- 	if (!filp)
- 		goto out;
- 
--	lock_kernel();
- 	switch (cmd) {
- 		case F_GETLK64:
- 			err = fcntl_getlk64(fd, (struct flock64 *) arg);
-@@ -353,7 +352,6 @@
- 			err = do_fcntl(fd, cmd, arg, filp);
- 			break;
- 	}
--	unlock_kernel();
- 	fput(filp);
- out:
- 	return err;
---- 2.4/fs/locks.c	Sun Apr 22 13:21:33 2001
-+++ build-2.4/fs/locks.c	Sat May  5 01:54:59 2001
-@@ -1157,11 +1157,16 @@
- int fcntl_getlease(struct file *filp)
- {
- 	struct file_lock *fl;
--	
-+	int ret;
-+
-+	lock_kernel();
- 	fl = filp->f_dentry->d_inode->i_flock;
- 	if ((fl == NULL) || ((fl->fl_flags & FL_LEASE) == 0))
--		return F_UNLCK;
--	return fl->fl_type & ~F_INPROGRESS;
-+		ret = F_UNLCK;
-+	else
-+		ret = fl->fl_type & ~F_INPROGRESS;
-+	unlock_kernel();
-+	return ret;
- }
- 
- /* We already had a lease on this file; just change its type */
-@@ -1357,7 +1362,9 @@
- 		goto out_putf;
- 
- 	if (filp->f_op && filp->f_op->lock) {
-+		lock_kernel();
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
-+		unlock_kernel();
- 		if (error < 0)
- 			goto out_putf;
- 		else if (error == LOCK_USE_CLNT)
-@@ -1481,7 +1488,9 @@
- 	}
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
-+		lock_kernel();
- 		error = filp->f_op->lock(filp, cmd, file_lock);
-+		unlock_kernel();
- 		if (error < 0)
- 			goto out_putf;
- 	}
-@@ -1522,7 +1531,9 @@
- 		goto out_putf;
- 
- 	if (filp->f_op && filp->f_op->lock) {
-+		lock_kernel();
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
-+		unlock_kernel();
- 		if (error < 0)
- 			goto out_putf;
- 		else if (error == LOCK_USE_CLNT)
-@@ -1619,7 +1630,9 @@
- 	}
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
-+		lock_kernel();
- 		error = filp->f_op->lock(filp, cmd, file_lock);
-+		unlock_kernel();
- 		if (error < 0)
- 			goto out_putf;
- 	}
-
---------------75CFEED68E173192975C0043--
+<_Anarchy_> Argh.. who's handing out the paper bags  8)
 
 
+--GID0FwUMdk1T2AWN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+
+iEYEARECAAYFAjrzSNEACgkQj/fXo9z52rOUcwCeNW3tJU4/nCmrh4KQlH6X9jWv
+paMAoKPE2JTH0RlVp1cfHRfi1oh0C1cx
+=AjYi
+-----END PGP SIGNATURE-----
+
+--GID0FwUMdk1T2AWN--

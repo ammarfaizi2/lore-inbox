@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbUBUBUi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 20:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUBUBUi
+	id S261468AbUBUBYK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 20:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbUBUBYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 20:20:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37046 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261466AbUBUBUh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 20:20:37 -0500
-Date: Fri, 20 Feb 2004 17:22:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "John Chatelle" <johnch@medent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High read Latency test (Anticipatory I/O scheduler)
-Message-Id: <20040220172229.736cb249.akpm@osdl.org>
-In-Reply-To: <20040220202023.M9162@medent.com>
-References: <20040220202023.M9162@medent.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Feb 2004 20:24:10 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:21429 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261468AbUBUBYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 20:24:08 -0500
+Message-ID: <4036B33B.2000405@metaparadigm.com>
+Date: Sat, 21 Feb 2004 09:24:11 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nischal Saxena <nischal_saxena@da-iict.org>, linux-kernel@vger.kernel.org
+Subject: Re: transferring data through the sound card
+References: <200402161800.i1GI0ul15334@mail.da-iict.org> <20040220234601.GC32153@elf.ucw.cz>
+In-Reply-To: <20040220234601.GC32153@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John Chatelle" <johnch@medent.com> wrote:
->
-> #StreamingRead.sh       --simple 4 line shell script:
->    while true
->    do
->      cat ../data/oneGBfile >/dev/null
->    done
+On 02/21/04 07:46, Pavel Machek wrote:
+> Hi!
 > 
-> #WHR.sh                -- simple 2 (or 3) line shell script.
->    StreamingRead.sh &
->    time find /usr/src/linux-2.4.20-18.7  -type f -exec cat \
->      '{}' ';' > /dev/null
+> 
+>> how is it possible to transfer data across two PC using the sound card.
+> 
+> 
+> It would be actually pretty nice project ;-). Its not at all easy.
+> 
+> I was able to transfer data using dtmf and dtmf decoder (PC beeper to
+> internal microphone of notebook), but with advanced software much
+> better speed should be possible.
 
-Note that the latter test runs `cat' once per file: over ten thousand
-times.  You should also test:
+I believe it's already being worked on (as a subset of what the
+GNU radio project is doing - software modulation/demodulation -
+just removing the requirement for down conversion):
 
-	time  (find /usr/src/linux-2.4.20-18.7 -type f | xargs cat > /dev/null )
+   http://www.gnu.org/software/gnuradio/gnuradio.html
 
-which will run `cat' only some tens of times.
-
-For the anticipatory scheduler, this makes a significant difference - the
-run-cat-once-per-file problem has specific fixes and perhaps they're not
-working right at present.
-
-And yes, please describe your disk system, tell us the tag depth (if it is
-scsi) and try Nick's patch, thanks.
-
+~mc

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289061AbSAGApm>; Sun, 6 Jan 2002 19:45:42 -0500
+	id <S289064AbSAGArM>; Sun, 6 Jan 2002 19:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289062AbSAGApc>; Sun, 6 Jan 2002 19:45:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37137 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289061AbSAGApW>; Sun, 6 Jan 2002 19:45:22 -0500
-Message-ID: <3C38EF83.5000003@zytor.com>
-Date: Sun, 06 Jan 2002 16:44:51 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S289063AbSAGArC>; Sun, 6 Jan 2002 19:47:02 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:64523 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S289062AbSAGAqt>; Sun, 6 Jan 2002 19:46:49 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Sun, 6 Jan 2002 16:47:05 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBGEHLEFAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matt Dainty <matt@bodgit-n-scarper.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com> <200201061934.g06JYnZ15633@vindaloo.ras.ucalgary.ca> <3C38BC6B.7090301@zytor.com> <200201062108.g06L8lM17189@vindaloo.ras.ucalgary.ca> <3C38BD32.6000900@zytor.com> <20020106213619.C7654@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E16NJ7R-0006Iq-00@the-village.bc.nu>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+You're right ... no one does an *out-of-core* 2D FFT using VM. What I am
+saying is that a large page cache can turn an *in-core* 2D FFT -- a 4 GB
+case on an 8 GB machine, for example -- into an out-of-core one!
 
-> On Sun, Jan 06, 2002 at 01:10:10PM -0800, H. Peter Anvin wrote:
-> 
->>The existence of a CPU creates /dev/cpu/# and registering a node 
->>replicates across the /dev/cpu directories.
->>
-> 
-> And, thus, we decend into more /proc crappyness.
-> 
-> After *lots* of discussion and months of waiting, it was decided between
-> Alan, David Jones, Jeff Garzik, and other affected parties that
-> /proc/sys/cpu/#/whatever would be a reasonable.  It has even appeared on
-> lkml a couple of times in the past.
-> 
+One other data point: on my stock Red Hat 7.2 box with 512 MB of RAM, I ran
+a Perl script that builds a 512 MByte hash, a second Perl script which
+creates a 512 MByte disk file, and the check pass of FFTW concurrently. As I
+expected, the two Perl scripts competed for RAM and slowed down FFTW. What
+was even more interesting, though, was that the VM apparently functions
+correctly in this instance. All three of the processes were getting CPU
+cycles. And I never saw "kswapd" or "kupdated" take over the system.
 
-
-Ummm... this isn't about /proc.
-
-	-hpa
-
+Although the page cache did get large at one point, once the hash builder
+got to about 400 MBytes in size, the "cached" piece shrunk to about 10
+MBytes and most of the RAM got allocated to the hash builder, as did
+appropriate amounts of swap. In short, the kernel in Red Hat 7.2 with under
+1 GByte of memory is behaving well under memory pressure. It looks like it's
+kernels beyond that one that have the problems, and also systems with more
+than 1 GByte. If I had the money, I'd stuff some more RAM in the machine and
+see if I could isolate this a little further. If anyone wants my Perl
+scripts, which are trivial, let me know.
+--
+M. Edward Borasky
+znmeb@borasky-research.net
+http://www.borasky-research.net
 

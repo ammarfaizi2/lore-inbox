@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTJYUoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 16:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTJYUoL
+	id S262805AbTJYU4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 16:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbTJYU4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 16:44:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21199 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262792AbTJYUoJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 16:44:09 -0400
-Date: Sat, 25 Oct 2003 21:44:05 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: "Moore, Eric Dean" <emoore@lsil.com>, Matthew Wilcox <willy@debian.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
-Message-ID: <20031025204405.GB5172@parcelfarce.linux.theplanet.co.uk>
-References: <0E3FA95632D6D047BA649F95DAB60E57035A9458@exa-atlanta.se.lsil.com> <20031025191828.GA17144@kroah.com>
+	Sat, 25 Oct 2003 16:56:22 -0400
+Received: from ns.suse.de ([195.135.220.2]:39335 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262805AbTJYU4V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 16:56:21 -0400
+Date: Sat, 25 Oct 2003 22:56:17 +0200
+From: Andi Kleen <ak@suse.de>
+To: John Levon <levon@movementarian.org>
+Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [AMD64 1/3] fix C99-style declarations
+Message-ID: <20031025205617.GD27754@wotan.suse.de>
+References: <20031025182824.GA12117@gtf.org> <20031025202750.GC27754@wotan.suse.de> <20031025204717.GA78345@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031025191828.GA17144@kroah.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031025204717.GA78345@compsoc.man.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 12:18:28PM -0700, Greg KH wrote:
-> On Fri, Oct 24, 2003 at 11:12:25AM -0400, Moore, Eric Dean wrote:
-> > I'm going to be working on that.
-> > Can't say when its going to be ready.
+On Sat, Oct 25, 2003 at 09:47:17PM +0100, John Levon wrote:
+> On Sat, Oct 25, 2003 at 10:27:50PM +0200, Andi Kleen wrote:
 > 
-> How about support for all of the pci hotplug systems on 2.4 that are
-> shipping today? 
+> > x86-64 always used C99 and there is no x86-64 compiler 
+> > around that doesn't support it. I must say I was somewhat pissed off
+> > that someone added that nasty warning to the toplevel Makefile
+> > just to comfort some gcc 2.95 users on i386 ("all world is a i386")
+> 
+> Sorry, that is bullshit. The change was entirely designed to prevent
+> people on such architectures hacking general files where there *do*
+> exist older compilers, to avoid breakage being introduced without it
+> being flagged.
 
-The SCSI system isn't really capable of supporting hotplug PCI in 2.4.
+I don't think it makes much difference. People hacking on one architecture
+break other architectures all the time for various reasons, e.g.
+the implicit includes in different architectures vary widely.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+The few people left who use 2.95 will just have to live with
+occasional breakage when they insist on using a non standards
+compliant compiler.
+
+> 
+> This has happened more than once in the tree.
+> 
+> When all the architectures have a minimum gcc requirement that accepts
+> mixed code and declarations by default, it can be removed ...
+
+Would be my prefered solution. Discourage 2.95.
+
+Sooner or later we have to do that anyways when a bug in 2.95 
+is found that breaks code (has happened with all gccs so far). 
+Sooner would be better, as supporting 2.95 seems to be already
+a significant mainteance burden.
+
+-Andi
+

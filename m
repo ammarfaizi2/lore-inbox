@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131290AbRCNECZ>; Tue, 13 Mar 2001 23:02:25 -0500
+	id <S131289AbRCNDzd>; Tue, 13 Mar 2001 22:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131300AbRCNECF>; Tue, 13 Mar 2001 23:02:05 -0500
-Received: from odin.sinectis.com.ar ([216.244.192.158]:4103 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S131290AbRCNEB4>; Tue, 13 Mar 2001 23:01:56 -0500
-Date: Wed, 14 Mar 2001 01:03:35 -0300
-From: John R Lenton <john@grulic.org.ar>
+	id <S131290AbRCNDzW>; Tue, 13 Mar 2001 22:55:22 -0500
+Received: from fepout2.telus.net ([199.185.220.237]:23768 "EHLO
+	priv-edtnes04-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id <S131289AbRCNDzR>; Tue, 13 Mar 2001 22:55:17 -0500
+From: jens <psh1@telus.net>
 To: linux-kernel@vger.kernel.org
-Cc: Pete Toscano <pete.lkml@toscano.org>, Greg KH <greg@wirex.com>
-Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
-Message-ID: <20010314010335.C18554@grulic.org.ar>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Pete Toscano <pete.lkml@toscano.org>, Greg KH <greg@wirex.com>
-In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org> <20010313002513.A1664@bubba.toscano.org> <20010313092837.A805@wirex.com> <20010313124954.B5626@bubba.toscano.org>
-Mime-Version: 1.0
+Subject: Sound problems with Asus K7V board using the via82cxxx drivers (2.4.3-pre 3/4)
+Date: Tue, 13 Mar 2001 20:02:49 -0800
+Message-ID: <2lqtatgk6dtbok94na6a4ss86aenevkkoh@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010313124954.B5626@bubba.toscano.org>; from pete.lkml@toscano.org on Tue, Mar 13, 2001 at 12:49:54PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 13, 2001 at 12:49:54PM -0500, Pete Toscano wrote:
-> Very interesting.  I had not heard about this.  Are there any SMP boards
-> with a VIA chipset that does work well with Linux and USB?  I have an
-> old P2B-DS that I had replace with this board as I needed more PCI
-> slots.  Heck, for that matter are there any SMP boards that work well
-> with Linux and USB that have six or more PCI slots?
+Hi there, I am not sure if this is a kernel problem or an operator
+problem but for some reason or other my sound is no longer working.
+More specifically when I run gmix it reports no mixers being found. I
+verified that the via82cxxx driver is compiled in (it worked before)
+and everything seems cosher. If anyone has a clue what would cause my
+lack of sound, I would be grateful.
 
-My 694D Pro (MS-6321) has been working fine once I got the heat
-problem off my hands. USB works, as long as the MPS is set at
-1.1. It's a SMP board with VIA's "Apollo Pro133A" chipset, and
-the vt82c686a.
+Jens
 
--- 
-John Lenton (john@grulic.org.ar) -- Random fortune:
-I matematici lo fanno in teoria, oppure lo portano al limite.
+
+I noted two items of interest: 
+During compile I get the following messages:
+***************
+/usr/bin/make -C sound
+make[3]: Entering directory `/root/kernel2.4.2/linux/drivers/sound'
+/usr/bin/make all_targets
+make[4]: Entering directory `/root/kernel2.4.2/linux/drivers/sound'
+gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-DEXPORT_SYMTAB -c sound_core.c
+gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-c -o sound_firmware.o sound_firmware.c
+ld -m elf_i386 -r -o soundcore.o sound_core.o sound_firmware.o
+gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-c -o via82cxxx_audio.o via82cxxx_audio.c
+via82cxxx_audio.c: In function `via_ac97_reset':
+via82cxxx_audio.c:1374: warning: unused variable `tmp8'
+gcc -D__KERNEL__ -I/root/kernel2.4.2/linux/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-DEXPORT_SYMTAB -c ac97_codec.c
+rm -f sounddrivers.o
+ld -m elf_i386  -r -o sounddrivers.o soundcore.o via82cxxx_audio.o
+ac97_codec.o
+make[4]: Leaving directory `/root/kernel2.4.2/linux/drivers/sound'
+make[3]: Leaving directory `/root/kernel2.4.2/linux/drivers/sound'
+
+*****************
+
+Note the 'unused variable 'tmp8' ' error
+
+
+Also dmesg reports the following:
+*************
+Via 686a audio driver 1.1.14b
+PCI: Found IRQ 10 for device 00:04.5
+PCI: The same IRQ used for device 00:0a.0
+ac97_codec: AC97 Audio codec, id: 0x4352:0x5934 (Cirrus Logic CS4299)
+via82cxxx: board #1 at 0xA800, IRQ 10
+*************
+
+

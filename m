@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbUKHOls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUKHOv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUKHOls (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 09:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUKHOj3
+	id S261857AbUKHOv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 09:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbUKHOeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 09:39:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6593 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261847AbUKHOdE (ORCPT
+	Mon, 8 Nov 2004 09:34:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59072 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261846AbUKHOcy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 09:33:04 -0500
-Date: Mon, 8 Nov 2004 14:32:40 GMT
-Message-Id: <200411081432.iA8EWeuu023386@warthog.cambridge.redhat.com>
+	Mon, 8 Nov 2004 09:32:54 -0500
+Date: Mon, 8 Nov 2004 14:32:41 GMT
+Message-Id: <200411081432.iA8EWf0c023426@warthog.cambridge.redhat.com>
 From: dhowells@redhat.com
-To: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com, alan@redhat.com,
-       bzolnier@gmail.com
+To: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com
 cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH] IDE fix
+Subject: [PATCH] Additional kgdb hooks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch fixes the IDE driver to initialise correctly in the case
-that IDE_ARCH_OBSOLETE_INIT is not defined. Not defining this macro would seem
-to be the correct thing to do since it includes the word "obsolete" in its
-name.
+The attached patch adds a couple of extra hooks by which kgdb or an equivalent
+gdbstub can catch bad_page() and panic() invocations.
 
 Signed-Off-By: dhowells@redhat.com
 ---
-diffstat ide-2610rc1mm3.diff
- setup-pci.c |    5 +++++
- 1 files changed, 5 insertions(+)
+diffstat kgdb-hooks-2610rc1mm3.diff
+ include/asm-generic/bug.h |    8 ++++++++
+ kernel/panic.c            |    1 +
+ mm/page_alloc.c           |    1 +
+ 3 files changed, 10 insertions(+)
 
-diff -uNrp /warthog/kernels/linux-2.6.10-rc1-mm3/drivers/ide/setup-pci.c linux-2.6.10-rc1-mm3-frv/drivers/ide/setup-pci.c
---- /warthog/kernels/linux-2.6.10-rc1-mm3/drivers/ide/setup-pci.c	2004-11-05 13:15:28.000000000 +0000
-+++ linux-2.6.10-rc1-mm3-frv/drivers/ide/setup-pci.c	2004-11-05 14:13:03.714511735 +0000
-@@ -425,7 +425,12 @@ static ide_hwif_t *ide_hwif_configure(st
- 	if (hwif->io_ports[IDE_DATA_OFFSET] != base ||
- 	    hwif->io_ports[IDE_CONTROL_OFFSET] != (ctl | 2)) {
- 		memset(&hwif->hw, 0, sizeof(hwif->hw));
-+#ifndef IDE_ARCH_OBSOLETE_INIT
-+		ide_std_init_ports(&hwif->hw, base, (ctl | 2));
-+		hwif->hw.io_ports[IDE_IRQ_OFFSET] = 0;
-+#else
- 		ide_init_hwif_ports(&hwif->hw, base, (ctl | 2), NULL);
+diff -uNrp /warthog/kernels/linux-2.6.10-rc1-mm3/include/asm-generic/bug.h linux-2.6.10-rc1-mm3-frv/include/asm-generic/bug.h
+--- /warthog/kernels/linux-2.6.10-rc1-mm3/include/asm-generic/bug.h	2004-10-19 10:42:12.000000000 +0100
++++ linux-2.6.10-rc1-mm3-frv/include/asm-generic/bug.h	2004-11-05 14:13:04.327459964 +0000
+@@ -18,6 +18,10 @@
+ } while (0)
+ #endif
+ 
++#ifndef HAVE_ARCH_KGDB_BAD_PAGE
++#define kgdb_bad_page(page) do {} while(0)
 +#endif
- 		memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->io_ports));
- 		hwif->noprobe = !hwif->io_ports[IDE_DATA_OFFSET];
- 	}
++
+ #ifndef HAVE_ARCH_BUG_ON
+ #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
+ #endif
+@@ -31,4 +35,8 @@
+ } while (0)
+ #endif
+ 
++#ifndef HAVE_ARCH_KGDB_RAISE
++#define kgdb_raise(signr) do {} while(0)
++#endif
++
+ #endif
+diff -uNrp /warthog/kernels/linux-2.6.10-rc1-mm3/kernel/panic.c linux-2.6.10-rc1-mm3-frv/kernel/panic.c
+--- /warthog/kernels/linux-2.6.10-rc1-mm3/kernel/panic.c	2004-11-05 13:15:51.000000000 +0000
++++ linux-2.6.10-rc1-mm3-frv/kernel/panic.c	2004-11-05 14:13:04.528442988 +0000
+@@ -73,6 +73,7 @@ NORET_TYPE void panic(const char * fmt, 
+ 	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	va_end(args);
+ 	printk(KERN_EMERG "Kernel panic - not syncing: %s\n",buf);
++	kgdb_raise(SIGABRT);
+ 	bust_spinlocks(0);
+ 
+ 	/* If we have crashed, perform a kexec reboot, for dump write-out */
+diff -uNrp /warthog/kernels/linux-2.6.10-rc1-mm3/mm/page_alloc.c linux-2.6.10-rc1-mm3-frv/mm/page_alloc.c
+--- /warthog/kernels/linux-2.6.10-rc1-mm3/mm/page_alloc.c	2004-11-05 13:15:52.000000000 +0000
++++ linux-2.6.10-rc1-mm3-frv/mm/page_alloc.c	2004-11-05 14:13:04.654432347 +0000
+@@ -88,6 +89,7 @@ static void bad_page(const char *functio
+ 		page->mapping, page_mapcount(page), page_count(page));
+ 	printk(KERN_EMERG "Backtrace:\n");
+ 	dump_stack();
++	kgdb_bad_page(page);
+ 	printk(KERN_EMERG "Trying to fix it up, but a reboot is needed\n");
+ 	page->flags &= ~(1 << PG_private	|
+ 			1 << PG_locked	|

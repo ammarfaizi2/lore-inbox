@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRDPMC1>; Mon, 16 Apr 2001 08:02:27 -0400
+	id <S131219AbRDPMBp>; Mon, 16 Apr 2001 08:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131269AbRDPMCQ>; Mon, 16 Apr 2001 08:02:16 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:40709 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131248AbRDPMCB>;
-	Mon, 16 Apr 2001 08:02:01 -0400
-Date: Fri, 13 Apr 2001 00:29:21 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010413002920.C43@(none)>
-In-Reply-To: <20010405000215.A599@bug.ucw.cz> <9b04food@ncc1701.cistron.net> <20010410164109.A1766@thune.mrc-home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010410164109.A1766@thune.mrc-home.com>; from dalgoda@ix.netcom.com on Tue, Apr 10, 2001 at 04:41:09PM -0700
+	id <S131248AbRDPMBf>; Mon, 16 Apr 2001 08:01:35 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:55812 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S131219AbRDPMBR>; Mon, 16 Apr 2001 08:01:17 -0400
+Date: Mon, 16 Apr 2001 04:59:46 -0700
+Message-Id: <200104161159.f3GBxkc06110@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: umam@delhi.tcs.co.in
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VRRP related
+In-Reply-To: <3ADAFC74.3905C4D3@delhi.tcs.co.in>
+User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 16 Apr 2001 15:06:44 +0100, umam@delhi.tcs.co.in wrote:
+> 
+> Hi,
+> I am trying to put virtual mac address at the place of physical mac
+> address , for that I have overwrite source hardware address with virtual
+> address.Now when I try to ping to this machine with some other
+> machine.It says request time out.While checking arp -a , gives me
+> virtual mac address in ARP-Table instead of physical mac address.I want
+> it should give response to ping  also.what I can do????
 
-> > >Init should get to know that user pressed power button (so it can do
-> > >shutdown and poweroff). Plus, it is nice to let user know that we can
-> > 
-> > Not so hasty ;)
-> > 
-> > >+		printk ("acpi: Power button pressed!\n");
-> > >+		kill_proc (1, SIGTERM, 1);
-> 
-> [reasons deleted]
-> 
-> Is using a signal the appropriate thing to do anyway?
-> 
-> Wouldn't there be better solutions?
-> 
-> Perhaps a mechanism a user space program can use to communicate to the kernel
-> (ala arpd/kerneld message queues, or something like klogd).  Then a more
-> general user space tool could be used that would do policy appropriate
-> stuff, ending with init 0.
+1. Get a card that accepts non-multicast MAC addresses in its hardware
+filter. eepro100, tulip, starfire will do. 3c59x won't (well newer cards
+have the capability, but the driver doesn't support it).
 
-init _is_ the tool which is right for defining policy on such issues.
+2. Apply the attached patch and enable "Ethernet Virtual MAC support".
 
-Take a look how UPS managment is handled.
+3. Tell the card about your VMAC using ipmaddr.
+
+The patch slows down the fast receive patch, I know, but I don't see
+a way around it. It's against 2.4.recent, I haven't looked at 2.2.
+
+Ion
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+-----------------------
+--- linux-2.4/net/ethernet/eth.c.old	Tue Nov 14 20:18:52 2000
++++ linux-2.4/net/ethernet/eth.c	Tue Nov 14 20:30:45 2000
+@@ -203,8 +203,21 @@
+ 	 
+ 	else if(1 /*dev->flags&IFF_PROMISC*/)
+ 	{
+-		if(memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN))
++#ifdef CONFIG_NET_VMAC
++		if (memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN)) {
++			struct dev_mc_list *mc_addr = dev->mc_list;
++			while (mc_addr) {
++				if (memcmp(mc_addr->dmi_addr, dev->dev_addr, ETH_ALEN))
++					goto loose_local;
++				mc_addr = mc_addr->next;
++			}
+ 			skb->pkt_type=PACKET_OTHERHOST;
++		loose_local:
++		}
++#else  /* not CONFIG_NET_VMAC */
++		if (memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN))
++			skb->pkt_type=PACKET_OTHERHOST;
++#endif /* not CONFIG_NET_VMAC */
+ 	}
+ 	
+ 	if (ntohs(eth->h_proto) >= 1536)
+--- linux-2.4/net/Config.in.old	Tue Nov 14 20:29:37 2000
++++ linux-2.4/net/Config.in	Tue Nov 14 20:30:31 2000
+@@ -64,6 +64,7 @@
+    tristate 'LAPB Data Link Driver (EXPERIMENTAL)' CONFIG_LAPB
+    bool '802.2 LLC (EXPERIMENTAL)' CONFIG_LLC
+    bool 'Frame Diverter (EXPERIMENTAL)' CONFIG_NET_DIVERT
++   bool 'Ethernet Virtual MAC support (EXPERIMENTAL)' CONFIG_NET_VMAC
+ #   if [ "$CONFIG_LLC" = "y" ]; then
+ #      bool '  Netbeui (EXPERIMENTAL)' CONFIG_NETBEUI
+ #   fi

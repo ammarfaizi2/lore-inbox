@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263403AbTCNSLl>; Fri, 14 Mar 2003 13:11:41 -0500
+	id <S263423AbTCNSMv>; Fri, 14 Mar 2003 13:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263407AbTCNSLl>; Fri, 14 Mar 2003 13:11:41 -0500
-Received: from moraine.clusterfs.com ([216.138.243.178]:43224 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id <S263403AbTCNSLk>; Fri, 14 Mar 2003 13:11:40 -0500
-Date: Fri, 14 Mar 2003 11:21:13 -0700
-From: Peter Braam <braam@clusterfs.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, chyang@clusterfs.com
-Cc: Joern Engel <joern@wohnheim.fh-wedel.de>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix stack usage in fs/intermezzo/journal.c
-Message-ID: <20030314182113.GD11501@peter.cfs>
-References: <20030314155352.GD27154@wohnheim.fh-wedel.de> <20030314080930.5ff3cc80.rddunlap@osdl.org> <20030314164445.GC23161@wohnheim.fh-wedel.de> <20030314084536.522ad81c.rddunlap@osdl.org> <20030314165521.GE23161@wohnheim.fh-wedel.de> <20030314085453.0eb57b9b.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030314085453.0eb57b9b.rddunlap@osdl.org>
-User-Agent: Mutt/1.4i
+	id <S263424AbTCNSMv>; Fri, 14 Mar 2003 13:12:51 -0500
+Received: from [80.190.48.67] ([80.190.48.67]:263 "EHLO mx00.linux-systeme.com")
+	by vger.kernel.org with ESMTP id <S263423AbTCNSMu> convert rfc822-to-8bit;
+	Fri, 14 Mar 2003 13:12:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.21pre5aa1
+Date: Fri, 14 Mar 2003 19:04:57 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20030314090825.GB1375@dualathlon.random> <200303141810.54234.m.c.p@wolk-project.de> <20030314173848.GH1375@dualathlon.random>
+In-Reply-To: <20030314173848.GH1375@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303141904.57954.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Go for it.  Chen Yang, put it in our tree too and fix it for 2.5 as
-well. 
+On Friday 14 March 2003 18:38, Andrea Arcangeli wrote:
 
-- peter -
+Hi Andrea,
+
+> the fix for this was supposed to be included in the o1 scheduler patch,
+> there is been clearly a merging error, just drop the #ifdef CONFIG_SMP
+> around schedule_tail in arch/i386/kernel/entry.S and it'll work fine.
+hmm, I wonder where I did the error. You are right. TYVM! Sorry for the noise.
+
+ciao, Marc
 
 
-On Fri, Mar 14, 2003 at 08:54:53AM -0800, Randy.Dunlap wrote:
-> On Fri, 14 Mar 2003 17:55:21 +0100 Joern Engel <joern@wohnheim.fh-wedel.de> wrote:
-> 
-> | On Fri, 14 March 2003 08:45:36 -0800, Randy.Dunlap wrote:
-> | > 
-> | > If you are concerned about namespace & collisions, you can
-> | > #undef BUF_SIZE
-> | > after each function.
-> | 
-> | Not, if BUF_SIZE was #defined before and should maintain that value.
-> | I could go and check for this specific case, but this is better left
-> | to the maintainer, imho.
-> 
-> Yes, that's right.
-> 
-> Actually I meant for however someone chose to spell BUF_SIZE,
-> but that's enough said.
-> 
-> Bye.
-> 
-> --
-> ~Randy
-- Peter -

@@ -1,72 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbSL3XGT>; Mon, 30 Dec 2002 18:06:19 -0500
+	id <S267085AbSL3XJ3>; Mon, 30 Dec 2002 18:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267101AbSL3XGS>; Mon, 30 Dec 2002 18:06:18 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:16869 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267102AbSL3XGR>;
-	Mon, 30 Dec 2002 18:06:17 -0500
-Date: Mon, 30 Dec 2002 18:14:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>,
-       Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pnp & pci structure cleanups
-Message-ID: <20021230231436.GA20810@gtf.org>
-References: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz> <20021230221212.GE32324@kroah.com> <1041289960.13684.180.camel@irongate.swansea.linux.org.uk> <20021230225012.GA19633@gtf.org> <20021230225134.GD814@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230225134.GD814@kroah.com>
-User-Agent: Mutt/1.3.28i
+	id <S267104AbSL3XJ3>; Mon, 30 Dec 2002 18:09:29 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:62970 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S267085AbSL3XJ1>; Mon, 30 Dec 2002 18:09:27 -0500
+Date: Mon, 30 Dec 2002 15:23:59 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: James.bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com
+Message-id: <3E10D58F.6010105@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212282219.OAA02384@adam.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 02:51:34PM -0800, Greg KH wrote:
-> On Mon, Dec 30, 2002 at 05:50:12PM -0500, Jeff Garzik wrote:
-> > On Mon, Dec 30, 2002 at 11:12:40PM +0000, Alan Cox wrote:
-> > > On Mon, 2002-12-30 at 22:12, Greg KH wrote:
-> > > > Yeah!  Thanks for taking these fields out of pci.h, I really appreciate
-> > > > it.  I'll send this on to Linus in a bit.
-> > > 
-> > > Argh I was using those to implement a test "pci_compatible" driver so
-> > > that you could feed new pci idents to old drivers. Oh well 
-> > 
-> > Note that we need a way to do field replacement of PCI id tables.
-> > 
-> > I've been harping on that to various ears for years :)
-> 
-> And USB id tables.  A number of usb drivers are slowly adding module
-> paramater hacks to get around this, but it would be really nice to do
-> this "correctly" for all drivers.  Somehow...
+Adam J. Richter wrote:
+ > Odd number of ">" = David Brownell
+ > Even number of ">>" = Adam Richter
 
-Surely there is a sysfs path we can devise to do
+Toggle that one more time ... ;)
 
-	echo "add <pci_device_id line>" > /sys/pci/driver/tulip
+ >
+ > 	On the other hand, it might be a convenient shorthand be able to
+ > say dma_malloc(usb_device,....) instead of
+ > dma_malloc(usb_device->controller, ...).   It's just that the number of
+ > callers is small enough so that I don't think that the resulting code
+ > shrink would make up for the size of the extra wrapper routines.  So,
 
-(or replace that with a file-oriented interface that inputs an entire
-table)
+Since about 2.5.32 that API has been
 
-and internally just refer to, and update, a kmalloc'd copy of the
-original driver's pci (or usb) table.
+     void *usb_buffer_alloc(usb_device *, size, mem_flags, dma_addr_t *)
+
+Sure -- when dma_alloc() is available, we should be able to make it
+inline completely.  Done correctly it should be an object code shrink.
 
 
-> > <tangent>
-> > I also want to add PCI revision id and mask to struct pci_device_id.
-> > </tangent>
-> 
-> Do any drivers need that today?  It shouldn't be that hard to do it, and
-> now is the time :)
+ > struct device {
+ > 	....
+ > 	struct dma_device *dma_dev;
+ > }
+ >
+ > 	device.dma_dev would point back to the device in the case of PCI,
+ > ISA and other memory mapped devices, and it would point to the host
+ > controller for USB devices, the SCSI host adapter for SCSI devices, etc.
 
-Yes.  tulip driver could find this useful, but that's currently a small
-case worked around in the driver.
+With 'dma_device' being pretty much the 'whatsit' I mentioned:  some state
+(from platforms that need it, like u64 dma_mask and maybe a list of pci
+pools to use with dma_malloc), plus methods basically like James' signatures
+from 'struct bus_dma_ops'.
 
-The big and annoying case is 8139C+ (8139cp.c), which has the same
-PCI id as old 8139 boards, but additionally includes dramatically new
-and better functionality.  The distinguishing characteristic at the
-probe phase is the PCI revision id, as the PCI id is the same as another
-driver.
+Yes, that'd be something that might be the platform implementation (often
+pci, if it doesn't vanish like on x86), something customized (choose dma
+paths on the fly) or just BUG() out.
 
-	Jeff
+
+ > 	BUG() is generally the optimal way to fail due to programmer
+ > error, as opposed to program error.  You want to catch the bug as
+ > early as possible.
+
+I can agree to that in scenarios like relying on DMA ops with hardware
+known not to support them.  If it ever happens, there's deep confusion.
+
+But not in the case of generic dma "map this buffer" operations failing
+because of issues like temporary resource starvation; or almost any
+other temporary allocation failure that appears after the system booted.
+
+
+ >>Please look at the 2.5.53 tree with my "usbcore dma updates (and doc)"
+ >>patch, which Greg has now merged and submitted to Linus.
+ >
+ > 	This looks great.  Notice that you're only doing DMA
+ > operations on usb_device->controller, which is a memory-mapped device
+ > (typically PCI).
+
+Actually it isn't necessarily ... some host controllers talk I/O space
+using FIFOs for commands and data, rather than memory mapping registers,
+shared memory request schedules, and DMAing to/from the kernel buffers.
+Linux would want a small tweak to support those controllers; maybe it'd
+be as simple as testing whethere there's a dma_whatsit object pointer.
+
+The usb_buffer_*map*() calls could now be inlined, but I thought I'd rather
+only leave one copy of all the "don't go through null pointer" checking.
+If we ever reduce such checking in USB, those routines would all be
+good candidates for turning into inlined calls to dma_*() calls.
+
+- Dave
+
+
+
+
+
 
 

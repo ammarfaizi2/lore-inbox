@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUALP5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 10:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUALP5N
+	id S266214AbUALPyU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 10:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUALPyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 10:57:13 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:38256 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266223AbUALP45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 10:56:57 -0500
-Date: Mon, 12 Jan 2004 10:56:39 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IBM/Linux Info
-In-Reply-To: <Pine.LNX.4.53.0401121018180.10221@chaos>
-Message-ID: <Pine.LNX.4.44.0401121055170.25939-100000@chimarrao.boston.redhat.com>
+	Mon, 12 Jan 2004 10:54:19 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10162 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266214AbUALPyO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 10:54:14 -0500
+Message-ID: <4002C317.7000100@tequila.co.jp>
+Date: Tue, 13 Jan 2004 00:53:59 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IBM/Linux Info
+References: <Pine.LNX.4.53.0401121018180.10221@chaos>
+In-Reply-To: <Pine.LNX.4.53.0401121018180.10221@chaos>
+X-Enigmail-Version: 0.82.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jan 2004, Richard B. Johnson wrote:
+Richard B. Johnson wrote:
 
-> FYI,
+> Note that this is not an "America only" problem. The bean-counters
+> world-wide are moving technology and jobs from the civilized countries
+> to those that aren't required to provide toilet paper for employees.
+> This improves profits by eliminating the cost of toilet paper.
 
-OK, that's enough.  Time to introduce a Richard B.
-Johnson award.  Once we manage to construct a nice
-escher cube out of hardwood, that is ...
+Thought in my opinion all these moves away won't pay off at the end 
+anyway, because if in the "first" world countries are only un-employeed 
+people because all their jobs have been moved into "third" world 
+countries because there they can pay the people only a bean a day, then 
+_nobody_ will be able to buy their products in the end.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+lg, clemens

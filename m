@@ -1,57 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287513AbRLaN5a>; Mon, 31 Dec 2001 08:57:30 -0500
+	id <S287521AbRLaOId>; Mon, 31 Dec 2001 09:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287519AbRLaN5V>; Mon, 31 Dec 2001 08:57:21 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37369 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S287513AbRLaN5M> convert rfc822-to-8bit; Mon, 31 Dec 2001 08:57:12 -0500
-Message-ID: <3C306E9F.24BED14F@mvista.com>
-Date: Mon, 31 Dec 2001 05:56:47 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S287519AbRLaOIY>; Mon, 31 Dec 2001 09:08:24 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47368
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S287521AbRLaOID>; Mon, 31 Dec 2001 09:08:03 -0500
+Date: Mon, 31 Dec 2001 06:05:57 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: ATA RAID-0 FYI-Did the Impossible.
+Message-ID: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: Andrew Morton <akpm@zip.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <200112291907.LAA25639@messenger.mvista.com> <3C2EE5DC.6EB60E17@mvista.com> <20011230195500Z284765-18284+9610@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
-> 
-> On Sunday, 29. December 2001 21:00, you wrote:
-> >Dieter Nützel wrote:
-> > >
-> > > I ask because my MP3/Ogg-Vorbis hiccup during dbench isn't solved anyway.
-> > > Running 2.4.17 + preempt + lock-break + 10_vm-21 (AA).
-> > > Some wisdom?
-> >
-> > Please test this elevator patch.  I'll be putting it out more formally
-> > in a day or two.  Much more testing is needed yet, but for me, the
-> > time to read a 16 megabyte file whilst running dbench 160 falls from
-> > three minutes thirty seconds to seven seconds.  (This is a VM thing,
-> > not an elevator thing).
-> 
-> Andrew or anybody else,
-> 
-> can you please send me a copy directly?
-> The version I've extracted from the list is some what broken.
-> I am not on LKML 'cause it is to much traffic for such a poor little boy like
-> me...;-)
-> 
-Andrew, 
 
-I think the problem is that the mailer(s) insert new lines.  Is this
-right Dieter?  It is certainly a problem for me.
+TIOBENCH
 
-Best to mail as an attachment.
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+No size specified, using 1792 MB
+Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
+
+         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     1792   4096    1  153.6 98.1% 0.897 0.91% 85.59 51.2% 3.399 1.95%
+   .     1792   4096    2  104.7 67.8% 1.080 1.00% 79.63 58.4% 3.437 3.29%
+   .     1792   4096    4  91.57 61.2% 1.292 1.24% 76.45 59.3% 3.471 3.40%
+   .     1792   4096    8  83.55 57.3% 1.480 1.39% 73.80 59.2% 3.455 3.26%
+
+
+File './Bonnie.1089', size: 1073741824, volumes: 1
+Writing with putc()...  done:   9854 kB/s 100.0 %CPU
+Rewriting...            done:  65537 kB/s  52.2 %CPU
+Writing intelligently...done: 109124 kB/s  51.0 %CPU
+Reading with getc()...  done:   9821 kB/s  99.9 %CPU
+Reading intelligently...done: 167240 kB/s  97.6 %CPU
+Seeker 1...Seeker 2...Seeker 3...start 'em...done...done...done...
+              ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
+       1*1024  9854 100.0 109124 51.0 65537 52.2  9821 99.9 167240 97.6 1504.4
+6.4
+
+hdparm -t /dev/md0
+
+/dev/md0:
+ Timing buffered disk reads:  64 MB in  0.47 seconds =136.17 MB/sec
+
+
+hde: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+hdg: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+hdi: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+hdk: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+
+/etc/raidtab
+
+raiddev /dev/md0
+        raid-level              0
+        nr-raid-disks           4
+        persistent-superblock   0
+        chunk-size              <snipped>
+
+        device                  /dev/hd<snipped>1
+        raid-disk               0
+        device                  /dev/hd<snipped>1
+        raid-disk               1
+        device                  /dev/hd<snipped>1
+        raid-disk               2
+        device                  /dev/hd<snipped>1
+        raid-disk               3
+
+
+If you want your system to have this kind of performance, that raise hell
+to get the patches adopted into the main kernel.
+
+Regards,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+

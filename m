@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUJGVG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUJGVD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267792AbUJGVG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267668AbUJGS1Y
+	id S267988AbUJGVD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUJGVDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:27:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5833 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267433AbUJGSUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:20:12 -0400
-Date: Thu, 7 Oct 2004 11:18:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3
-Message-Id: <20041007111816.73ed22c9.akpm@osdl.org>
-In-Reply-To: <41652415.A1E987F1@tv-sign.ru>
-References: <41652415.A1E987F1@tv-sign.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 17:03:43 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:11698 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268127AbUJGUjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:39:41 -0400
+Subject: Re: [RFC][PATCH] TTY flip buffer SMP changes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097179099.1519.17.camel@deimos.microgate.com>
+References: <1097179099.1519.17.camel@deimos.microgate.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097177830.31768.129.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 07 Oct 2004 20:37:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
->
-> Andrew, i think fix-of-stack-dump-in-soft-hardirqs* have problems.
->  see http://marc.theaimsgroup.com/?l=linux-kernel&m=109681898321430
-> 
->  Do you seeing any flaws in more simple alternative patch?
->  http://marc.theaimsgroup.com/?l=linux-kernel&m=109687808210397
-> 
->  I sent this description, but haven't got any responce
->  http://marc.theaimsgroup.com/?l=linux-kernel&m=109688178912849
+(Sorry not quoting but if you will use attachments 8))
 
-I wasn't aware that there was any problem with Kirill's patch.  And I
-couldn't work out how to get your patches to apply so I left things as they
-are.
+Problem 1:
+Agree. Using a common function is definitely needed, lets at least have
+all the bugs in one place.
 
-Please send a fresh patch against Linus's current tree.  Please include
-with that a concise description of the problem and the solution.
+Problem 2:
+Known. See the comment in the Documentation/tty.txt
 
-Thanks.
+Add:
+Problem 3:
+The buffering model is useless for virtualised devices or high speeds.
+
+
+I've been pondering taking a very small performance hit to fix the
+entire flipping mess (pardon the pun) and also to speed up the actual
+common critical path (ppp) in the process.
+
+Now that networking is not a kernel option it seems slightly dumb that
+the tty layer doesn't just use the sk_buff model (probably not code).
+kmalloc is very fast and it kills TTY_DONT_FLIP because every buffer is
+owned by _one_ person at a time. (sk_buff's dont direclty fit too well
+because we push both error and bits per byte and don't last time I
+checked support recycling).
+
+Another nice effect is simplifying the ldisc and driver level locking.
+Drivers queue buffers, ldiscs eat buffers. If the driver queues a buffer
+and there is temporarily no ldisc it does not get lost. 
+
+This also saves us memory - most tty's spend most of their time idle.
+
+Alan
 

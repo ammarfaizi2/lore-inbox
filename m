@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbTDTOfl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 10:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTDTOfl
+	id S263586AbTDTOqf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 10:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTDTOqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 10:35:41 -0400
-Received: from home.wiggy.net ([213.84.101.140]:1739 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S263591AbTDTOfk (ORCPT
+	Sun, 20 Apr 2003 10:46:35 -0400
+Received: from mail1.ewetel.de ([212.6.122.14]:51095 "EHLO mail1.ewetel.de")
+	by vger.kernel.org with ESMTP id S263586AbTDTOqe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 10:35:40 -0400
-Date: Sun, 20 Apr 2003 16:47:41 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420144741.GF22848@wiggy.net>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz> <20030420134712.GM2528@phunnypharm.org> <3EA2B1BB.2060600@shemesh.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA2B1BB.2060600@shemesh.biz>
-User-Agent: Mutt/1.3.28i
+	Sun, 20 Apr 2003 10:46:34 -0400
+Date: Sun, 20 Apr 2003 16:58:23 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] report unknown NMI reasons only once
+In-Reply-To: <200304201432.h3KEWboQ000337@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.44.0304201655530.1188-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Shachar Shemesh wrote:
-> The site offers binary images for download for FreeBSD and Digital Unix 
-> (Alpha), and Solaris Sparc. It is therefor unlikely that this is a 
-> problem with lack of development tools. More probably - the maintainers 
-> did not have these platforms available to them.
+On Sun, 20 Apr 2003, John Bradford wrote:
 
-Are you offering to bootstrap Modula-3 on other Linux architectures?
+> > It's definitely CPU-related since it never happened with the Duron
+> > processor that I used before.
+> 
+> Are you sure that the CPU voltage is correct?
 
-Wichert.
+The motherboard is in autodetect mode...
+
+According to AMD's docs, my CPU wants 1.50V.
+According to the BIOS, what it gets is 1.48V.
+
+AMD does not specify a tolerance for Vcore, but I can try to manually
+set the motherboard for 1.50V and see if the NMIs disappear.
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+Ciao,
+Pascal
+

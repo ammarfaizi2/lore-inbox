@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSGXAyY>; Tue, 23 Jul 2002 20:54:24 -0400
+	id <S315762AbSGXBBy>; Tue, 23 Jul 2002 21:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSGXAyY>; Tue, 23 Jul 2002 20:54:24 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:33806 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S315709AbSGXAyX>;
-	Tue, 23 Jul 2002 20:54:23 -0400
-Message-ID: <3D3DFC3B.677AFDD7@tv-sign.ru>
-Date: Wed, 24 Jul 2002 05:00:43 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] big IRQ lock removal, 2.5.27-G0
-References: <Pine.LNX.4.44.0207240137190.3812-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315784AbSGXBBy>; Tue, 23 Jul 2002 21:01:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5646 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315762AbSGXBBy>; Tue, 23 Jul 2002 21:01:54 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
+Date: Wed, 24 Jul 2002 01:04:53 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ahkufl$25v$1@penguin.transmeta.com>
+References: <200207240051.CAA16434@harpo.it.uu.se>
+X-Trace: palladium.transmeta.com 1027472686 16755 127.0.0.1 (24 Jul 2002 01:04:46 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Jul 2002 01:04:46 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-
-> > Then local_bh_enable() has a small preemptible window between
+In article <200207240051.CAA16434@harpo.it.uu.se>,
+Mikael Pettersson  <mikpe@csd.uu.se> wrote:
+>On Tue, 23 Jul 2002 18:58:52 -0400, Kevin O'Connor wrote:
+>>#define BackPtr(ptr, type, member) ({                                         \
+>>        typeof( ((type *)0)->member ) *__mptr = (ptr);                        \
+>>        ((type *)( (char *)__mptr - (unsigned long)(&((type *)0)->member) ));})
 >
-> i dont think getting a preemption before softirqs are processed is a big
-> problem. Such type of preemption comes in form of an interrupt, which
+>I've seen this sort of code several times now in the Linux kernel,
+>and I've never liked it. Is there some reason why you guys avoid
+>offsetof() like the plague?
 
-Ah, yes...
+Trivial answer: offsetof() does not exist when you don't have system
+header files. 
 
-> > But in irq_exit() case interrupt context may be preempted
->
-> okay - i've fixed irq_exit() once more in -G4
+So it's not that it's getting avoided, it _has_ to be re-implemented
+anyway.  And once you do that, you might as well do it right (ie what
+the kernel wants is not offsetof, but a new pointer.
 
-found G5, your forgot to add preempt_disable() in irq_exit()
-
- #define irq_exit()
- do {
-+               preempt_disable();
-                preempt_count() -= IRQ_EXIT_OFFSET;
-                if (!in_interrupt() && softirq_pending(smp_processor_id()))
-
-Oleg.
+		Linus

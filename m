@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285709AbRLHAbd>; Fri, 7 Dec 2001 19:31:33 -0500
+	id <S285720AbRLHBLg>; Fri, 7 Dec 2001 20:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285708AbRLHAbX>; Fri, 7 Dec 2001 19:31:23 -0500
-Received: from 200-171-175-119.dsl.telesp.net.br ([200.171.175.119]:52234 "EHLO
-	caern.wolves.com.br") by vger.kernel.org with ESMTP
-	id <S285710AbRLHAbK> convert rfc822-to-8bit; Fri, 7 Dec 2001 19:31:10 -0500
-Date: Fri, 7 Dec 2001 22:31:05 -0200 (BRST)
-From: wolvie_cobain <wolvie@punkass.com>
-X-X-Sender: <wolvie@caern.wolves.com.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: bug??
-Message-ID: <Pine.LNX.4.33.0112072224200.8331-100000@caern.wolves.com.br>
+	id <S285721AbRLHBLR>; Fri, 7 Dec 2001 20:11:17 -0500
+Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:16380 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S285720AbRLHBLP>; Fri, 7 Dec 2001 20:11:15 -0500
+Subject: Re: Linux 2.4.17-pre6 drm-4.0
+To: kaos@ocs.com.au (Keith Owens)
+Date: Fri, 7 Dec 2001 16:12:40 -0800 (PST)
+Cc: rml@tech9.net (Robert Love), linux-ia64@linuxia64.org,
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <4719.1007767953@ocs3.intra.ocs.com.au> from "Keith Owens" at Dec 08, 2001 10:32:33 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011208001240.A9C5089EF4@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helo ppl,
+> Linus ditched drm 4.0 months ago.  It only survives in arch add on
+> patches like ia64 and in -ac trees.
 
-I havin trobles compiling the 2.5.1-pre5 and pre6 kernels
-more especificaly with the intermezzo filesystem. I dosen't use it for
-nothing but i like to test some filesystem in a while and found this error
-when compiling the kernel
+No, it also survives as an add-on tarball for the standard kernel:
+http://www.kernel.org/pub/linux/kernel/v2.4/drm-4.0.x.tar.bz2
 
-gcc -D__KERNEL__ -I/thingz/kernelz/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=k6    -c -o psdev.o psdev.c
-psdev.c: In function `presto_psdev_ioctl':
-psdev.c:269: `TCGETS' undeclared (first use in this function)
-psdev.c:269: (Each undeclared identifier is reported only once
-psdev.c:269: for each function it appears in.)
-psdev.c:270: warning: unreachable code at beginning of switch statement
-make[3]: *** [psdev.o] Error 1
-make[3]: Leaving directory `/thingz/kernelz/linux/fs/intermezzo'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/thingz/kernelz/linux/fs/intermezzo'
-make[1]: *** [_subdir_intermezzo] Error 2
-make[1]: Leaving directory `/thingz/kernelz/linux/fs'
-make: *** [_dir_fs] Error 2
+Let me dig through my old mail so I can quote Linus on this... Here's
+what he said in his Linux 2.4.8 announcement message (Subject
+"Linux-2.4.8", sent on August 10th of this year):
 
-i could proceed for this point disablin the intermezzo fylesystem
-by the by i just want to tell somebody
-if o knew how to fix it i would be happy to help but..
-cya
-Thomas "Wolvie" Andrade
+> Ok, this one has various VM niceness tweaks that have made some people
+> much happier. It also does a upgrade to the XFree86-4.1.x style DRM code,
+> which means that people with XFree86-4.0.x can no longer use the built-in
+> kernel DRM by default.
+> 
+> However, never fear. It's actually very easy to get the old DRM code too:
+> if you used to use the standard kernel DRM and do not want to upgrade to a
+> new XFree86 setup, just get the "drm-4.0.x" package from the same place
+> you get the kernel from, and do
+> 
+>  - unpack the kernel
+>  - cd linux/drivers/char
+>  - unpack the "drm-4.0.x" package here
+>  - mv drm new-drm
+>  - mv drm-4.0.x drm
+> 
+> and you should be all set.
 
-ps: and sorry bout the english.. it's not my first language, i'm brasilian
-=)
+The impression I get (for 2.4) is that DRM 4.1 comes standard but you
+should still be able to use 4.0 if you want, via that tarball.
 
-"Nós também podemos trazer as coisas de volta.Dizem q somos o sonho de uma
-raça
-carniceira e talvez seja verdade, mas se nós acreditarmos e sonharmos podemos
-mudar o mundo. Nós podemos sonha-lo de novo"
-"Sonho de mil gatos"
--------------------------------------------------------------------------------
-                /"\
-                \ /  CAMPANHA DA FITA ASCII - CONTRA MAIL HTML
-                 X   ASCII RIBBON CAMPAIGN - AGAINST HTML MAIL
-                / \
--------------------------------------------------------------------------------
-				linux user #106516
-				ICQ 	   #46105730
-
+-Barry K. Nathan <barryn@pobox.com>

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293317AbSCOVex>; Fri, 15 Mar 2002 16:34:53 -0500
+	id <S293285AbSCOVgD>; Fri, 15 Mar 2002 16:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293326AbSCOVep>; Fri, 15 Mar 2002 16:34:45 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40614 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293317AbSCOVei>; Fri, 15 Mar 2002 16:34:38 -0500
-Subject: shmdt fix
-From: Paul Larson <plars@austin.ibm.com>
-To: Marcelo Tosati <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 15 Mar 2002 15:31:44 -0600
-Message-Id: <1016227905.28607.36.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S293326AbSCOVfp>; Fri, 15 Mar 2002 16:35:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63751 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293337AbSCOVfc>; Fri, 15 Mar 2002 16:35:32 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...)
+Date: Fri, 15 Mar 2002 21:33:45 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a6tpbp$snd$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0203151736460.1477-100000@biker.pdb.fsc.net> <E16lw5V-0004ES-00@the-village.bc.nu> <a6tm95$c55$1@cesium.transmeta.com>
+X-Trace: palladium.transmeta.com 1016228107 17646 127.0.0.1 (15 Mar 2002 21:35:07 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Mar 2002 21:35:07 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <a6tm95$c55$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>
+>The ISA bus doesn't time out; a cycle on the ISA bus just happens, and
+>the fact that noone is there to listen doesn't seem to matter.
 
-Marcelo, in 2.4.19-pre1 the changelog said that the shmdt fix was
-included, but it is still failing the LTP testcase that found this
-problem.  There is a small, but important set of {}'s that got missed,
-so it is still always returning 0 even if there is nothing to detach. 
-The attached diff will clean this up on 2.4.19-pre3.
+The ISA bus doesn't time out, but the PCI access before it gets
+forwarded to the ISA bus _does_, if the ISA bus is decoded using
+nagative decoding.
 
-Thanks,
-Paul Larson
+This is why it's important that there not be a motherboard PCI device
+that can decode the port - because if there is, the access is
+potentially a much faster PCI-only decode.
 
+Note that this really only matters on low-end machines anyway, as the
+whole "inb_p()" thing tends to be used only for old ISA devices.  If you
+have a new machine that is all PCI, I doubt that port 80h access matters
+not at all. 
 
-diff -Naur linux/ipc/shm.c linux-shmdt/ipc/shm.c
---- linux/ipc/shm.c	Fri Mar 15 15:13:07 2002
-+++ linux-shmdt/ipc/shm.c	Fri Mar 15 15:16:21 2002
-@@ -678,9 +678,10 @@
- 	for (shmd = mm->mmap; shmd; shmd = shmdnext) {
- 		shmdnext = shmd->vm_next;
- 		if (shmd->vm_ops == &shm_vm_ops
--		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr)
-+		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
- 			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
- 			retval = 0;
-+		}
- 	}
- 	up_write(&mm->mmap_sem);
- 	return retval;
+(Another way of saying it: if you have a machine with a PCI POST card,
+none of this will matter)
 
+			Linus

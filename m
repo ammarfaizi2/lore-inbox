@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUEZUz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUEZVQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265798AbUEZUz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 16:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUEZUz1
+	id S265808AbUEZVQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 17:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUEZVQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 16:55:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63691 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265798AbUEZUzX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 16:55:23 -0400
-Date: Wed, 26 May 2004 13:54:36 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: net_device->queue_lock contention on 32-way box
-Message-Id: <20040526135436.657df321.davem@redhat.com>
-In-Reply-To: <200405262047.i4QKlBF22744@unix-os.sc.intel.com>
-References: <200405262047.i4QKlBF22744@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 17:16:31 -0400
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:15511 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S265808AbUEZVQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 17:16:29 -0400
+Date: Wed, 26 May 2004 22:16:28 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.6.7-rc1-bk] NTFS: 2.1.12 release - Fix the second fix to the
+ decompression engine and some cleanups.
+Message-ID: <Pine.SOL.4.58.0405262214280.15648@orange.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew, Hi Linus, please do a
 
-The net_tx_action() --> qdisc_run() --> qdisc_restart() code path
-can hold the lock for a long time especially if lots of packets
-have been enqueued before net_tx_action() had a chance to run.
+	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
 
-For each enqueued packet, we go all the way into the device driver
-to give the packet to the device.  Given that PCI PIO accesses are
-likely in these paths, along with some memory accesses (to setup
-packet descriptors and the like) this could take quite a bit of
-time.
+This will update the following files:
 
-We do temporarily release the dev->queue_lock in between each
-packet while we go into the driver.  It could be what you're
-seeing is the latency to get the device's dev->xmit_lock because
-we have to acquire that before we can release the dev->queue_lock
+ Documentation/filesystems/ntfs.txt |    3
+ fs/ntfs/ChangeLog                  |   18 ++++
+ fs/ntfs/Makefile                   |    4 -
+ fs/ntfs/aops.c                     |    9 ++
+ fs/ntfs/compress.c                 |   20 +----
+ fs/ntfs/dir.c                      |    2
+ fs/ntfs/inode.c                    |  134 ++++++++++++++++++++++++-------------
+ fs/ntfs/inode.h                    |    9 ++
+ fs/ntfs/ntfs.h                     |    1
+ fs/ntfs/super.c                    |    4 -
+ 10 files changed, 140 insertions(+), 64 deletions(-)
 
-If you bind the device interrupts to one cpu, do things change?
+through these ChangeSets:
 
+<aia21@cantab.net> (04/05/17 1.1717.9.1)
+   NTFS: Add a new address space operations struct, ntfs_mst_aops, for mst
+         protected attributes.  This is because the default ntfs_aops do not
+         make sense with mst protected data and were they to write anything to
+         such an attribute they would cause data corruption so we provide
+         ntfs_mst_aops which does not have any write related operations set.
+
+<aia21@cantab.net> (04/05/25 1.1731)
+   NTFS: Cleanup dirty ntfs inode handling (fs/ntfs/inode.[hc]) which also
+         includes an adapted ntfs_commit_inode() and an implementation of
+         ntfs_write_inode() which for now just cleans dirty inodes without
+         writing them (it does emit a warning that this is happening).
+
+<aia21@cantab.net> (04/05/26 1.1733)
+   NTFS: 2.1.12 release - Fix the second fix to the decompression engine.
+
+For the benefit of non-BK users and to make code review easier, I am
+sending each ChangeSet in a separate email as a diff -u style patch.
+
+Thanks!
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136230AbRDVR2R>; Sun, 22 Apr 2001 13:28:17 -0400
+	id <S136232AbRDVRjh>; Sun, 22 Apr 2001 13:39:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136231AbRDVR2H>; Sun, 22 Apr 2001 13:28:07 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:8978 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S136230AbRDVR2B>;
-	Sun, 22 Apr 2001 13:28:01 -0400
-Message-ID: <3AE31470.A6F82F52@linux-m68k.org>
-Date: Sun, 22 Apr 2001 19:27:12 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@linuxcare.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-        Philip Blundell <philb@gnu.org>, junio@siamese.dhis.twinsun.com,
-        Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac12
-In-Reply-To: <E14rJw2-0005r5-00@the-village.bc.nu> <d366fw29sv.fsf@lxplus015.cern.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136236AbRDVRj2>; Sun, 22 Apr 2001 13:39:28 -0400
+Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:58617 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S136233AbRDVRjW>; Sun, 22 Apr 2001 13:39:22 -0400
+Date: Sun, 22 Apr 2001 13:39:43 -0400
+From: Alexander Valys <avalys@optonline.net>
+Subject: ATA66 on a Via Chipset
+To: linux-kernel@vger.kernel.org
+Message-id: <01042213394300.23387@athena>
+Organization: Valys Technology Solutions
+MIME-version: 1.0
+X-Mailer: KMail [version 1.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Jes Sorensen wrote:
-
-> In principle you just need 2.7.2.3 for m68k, but someone decided to
-> raise the bar for all architectures by putting a check in a common
-> header file.
-
-IIRC 2.7.2.3 has problems with labeled initializers for structures,
-which makes 2.7.2.3 unusable for all archs under 2.4.
-
-bye, Roman
+Recently, I decided to try out Debian 2.2.  I downloaded the iso, installed 
+it, and went to compile kernel 2.4.3.  I used the same .config file I've used 
+before, containing all the appropriate support (ATA66, notably) for my Via 
+Apollo Pro133A-based motherboard, installed it, and rebooted.  To make sure 
+everything worked correctly, I ran hdparm -t /dev/hda, and was amazed to see 
+transfer rates of 22 megs/second.  In redhat, the most I can get is 15.  So, 
+I immediately reinstalled redhat, and (using the same .config file), compiled 
+the kernel again.  After rebooting, my transfer rates were still 15 
+megs/second.  So, my question is - why were they so much faster in debian, 
+and how can I replicate that in redhat?
+					--A. Valys

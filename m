@@ -1,34 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTIXWhD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 18:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbTIXWhD
+	id S261640AbTIXWeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 18:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbTIXWeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 18:37:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12524 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261500AbTIXWhA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 18:37:00 -0400
-Date: Wed, 24 Sep 2003 23:36:57 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
+	Wed, 24 Sep 2003 18:34:08 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:59399 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S261640AbTIXWeB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 18:34:01 -0400
+Subject: [PATCH] 2.6.0-test5-bk11 PKT_CAN_SHARE_SKB [2/3] drivers/net/*
+From: Joe Perches <joe@perches.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, olof@austin.ibm.com
-Subject: Re: [PATCH] [2.4] Re: /proc/ioports overrun patch
-Message-ID: <20030924223657.GB7665@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.55L.0308291025340.21063@freak.distro.conectiva> <Pine.A41.4.44.0309241437330.22232-100000@forte.austin.ibm.com> <20030924195133.GY7665@parcelfarce.linux.theplanet.co.uk> <20030924195926.GZ7665@parcelfarce.linux.theplanet.co.uk> <20030924214713.GA7665@parcelfarce.linux.theplanet.co.uk>
+Cc: David S Miller <davem@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.44.0309241012110.3178-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0309241012110.3178-100000@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1064442811.15437.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030924214713.GA7665@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Sep 2003 15:33:31 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Umm...  Linus, output truncation is 2.4 problem; any seq_file-based
-variant (including one already in 2.6 and being backported to 2.4) solves
-that.  The thing being, variant we had in 2.6 was ugly - it had walk through
-the tree shoved into ->show() instead of having the iterator do that for
-us.  And that's what this patch fixed - it's not that old 2.6 variant would
-break, it's that it was done in wrong way.  IOW, changeset comment is
-misleading...
+diff -urN linux-2.6.0-test5/drivers/net/bonding/bond_alb.c shared_skb/drivers/net/bonding/bond_alb.c
+-- linux-2.6.0-test5/drivers/net/bonding/bond_alb.c	2003-09-22 08:03:41.000000000 -0700
++++ shared_skb/drivers/net/bonding/bond_alb.c	2003-09-22 13:10:57.000000000 -0700
+@@ -888,7 +888,7 @@
+ 	pk_type->type = __constant_htons(ETH_P_ARP);
+ 	pk_type->dev = bond->device;
+ 	pk_type->func = rlb_arp_recv;
+-	pk_type->data = (void*)1;  /* understand shared skbs */
++	pk_type->data = PKT_CAN_SHARE_SKB;
+ 
+ 	dev_add_pack(pk_type);
+ 
+diff -urN linux-2.6.0-test5/drivers/net/bonding/bond_main.c shared_skb/drivers/net/bonding/bond_main.c
+-- linux-2.6.0-test5/drivers/net/bonding/bond_main.c	2003-09-22 08:03:41.000000000 -0700
++++ shared_skb/drivers/net/bonding/bond_main.c	2003-09-22 13:10:55.000000000 -0700
+@@ -955,7 +955,7 @@
+ 	pk_type->type = PKT_TYPE_LACPDU;
+ 	pk_type->dev = bond->device;
+ 	pk_type->func = bond_3ad_lacpdu_recv;
+-	pk_type->data = (void*)1;  /* understand shared skbs */
++	pk_type->data = PKT_CAN_SHARE_SKB;
+ 
+ 	dev_add_pack(pk_type);
+ }
+diff -urN linux-2.6.0-test5/drivers/net/pppoe.c shared_skb/drivers/net/pppoe.c
+-- linux-2.6.0-test5/drivers/net/pppoe.c	2003-09-22 08:03:43.000000000 -0700
++++ shared_skb/drivers/net/pppoe.c	2003-09-22 13:10:52.000000000 -0700
+@@ -468,13 +468,13 @@
+ static struct packet_type pppoes_ptype = {
+ 	.type	= __constant_htons(ETH_P_PPP_SES),
+ 	.func	= pppoe_rcv,
+-	.data   = (void *)1,
++	.data   = PKT_CAN_SHARE_SKB,
+ };
+ 
+ static struct packet_type pppoed_ptype = {
+ 	.type	= __constant_htons(ETH_P_PPP_DISC),
+ 	.func	= pppoe_disc_rcv,
+-	.data   = (void *)1,
++	.data   = PKT_CAN_SHARE_SKB,
+ };
+ 
+ /***********************************************************************
+diff -urN linux-2.6.0-test5/drivers/net/wan/hdlc_generic.c shared_skb/drivers/net/wan/hdlc_generic.c
+-- linux-2.6.0-test5/drivers/net/wan/hdlc_generic.c	2003-09-08 12:49:53.000000000 -0700
++++ shared_skb/drivers/net/wan/hdlc_generic.c	2003-09-22 13:11:02.000000000 -0700
+@@ -283,7 +283,7 @@
+ {
+ 	.type = __constant_htons(ETH_P_HDLC),
+ 	.func = hdlc_rcv,
+-	.data = (void *)1,
++	.data = PKT_CAN_SHARE_SKB,
+ };
+ 
+
+diff -urN linux-2.6.0-test5/drivers/net/wan/syncppp.c shared_skb/drivers/net/wan/syncppp.c
+-- linux-2.6.0-test5/drivers/net/wan/syncppp.c	2003-09-08 12:49:58.000000000 -0700
++++ shared_skb/drivers/net/wan/syncppp.c	2003-09-22 13:11:00.000000000 -0700
+@@ -1454,7 +1454,7 @@
+ struct packet_type sppp_packet_type = {
+ 	.type	= __constant_htons(ETH_P_WAN_PPP),
+ 	.func	= sppp_rcv,
+-	.data   = (void*)1, /* must be non-NULL to indicate 'new' protocol */
++	.data   = PKT_CAN_SHARE_SKB,
+ };
+ 
+ static char banner[] __initdata = 
+

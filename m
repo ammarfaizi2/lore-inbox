@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267308AbUG1Q1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267318AbUG1Q1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267308AbUG1Q1V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 12:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267315AbUG1QZa
+	id S267318AbUG1Q1U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 12:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267308AbUG1QZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 12:25:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:11759 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267308AbUG1QUe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 12:20:34 -0400
-Message-ID: <4107D236.9090601@austin.ibm.com>
-Date: Wed, 28 Jul 2004 11:20:06 -0500
-From: Joel Schopp <jschopp@austin.ibm.com>
-Reply-To: jschopp@austin.ibm.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Wed, 28 Jul 2004 12:25:39 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:44253 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S267316AbUG1QWb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 12:22:31 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Dexter Filmore <Dexter.Filmore@gmx.de>
+Date: Wed, 28 Jul 2004 18:19:16 +0200
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Use of __pa() with CONFIG_NONLINEAR
-References: <1090965630.15847.575.camel@nighthawk>
-In-Reply-To: <1090965630.15847.575.camel@nighthawk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: whining noise - possible bug in nForce2 support?
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <D6B29052995@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is the largest and hardest to maintain part of the CONFIG_NONLINEAR
-> patch at this point, and I'd love to start merging bits of it back in. 
-> Would anybody object to a patch that just does this for a bunch of
-> architectures?
-
-I like the idea but would suggest a comment with the #defines to better 
-explain why there are two names for the same thing, how they might in 
-fact be different things in the future, and which one to use where.
-
+On 26 Jul 04 at 23:36, Dexter Filmore wrote:
 > 
-> --- include/asm-i386/page.h.orig	2004-07-27 14:31:09.000000000 -0700
-> +++ include/asm-i386/page.h	2004-07-27 14:31:36.000000000 -0700
-> @@ -128,8 +128,10 @@ static __inline__ int get_order(unsigned
->  #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
->  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
->  #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> -#define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
-> -#define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
-> +#define __boot_pa(x)		((unsigned long)(x)-PAGE_OFFSET)
-> +#define __boot_va(x)		((void *)((unsigned long)(x)+PAGE_OFFSET))
-> +#define __pa(x)			__boot_pa(x)
-> +#define __va(x)			__boot_va(x)
->  #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
->  #ifndef CONFIG_DISCONTIGMEM
->  #define pfn_to_page(pfn)	(mem_map + (pfn))
+> Just upgraded my mobo to a ECS N2U400-A nForce2 board, standard MCP
+> southbridge, latest BIOS.
+> CPU is AMD Athlon XP 1800+, 2x256MB PC266 RAM.
+> Kernel version is 2.6.7, tested distros are Slackware 10 and Knoppix 3.4.
+> 
+> Board work alright so far, but as soon as I start a 2.6 kernel, the board will
+> produce a high pitched whining sound.
+> 
+> Interesting thing: as long as the hard disk has something to do, the noise
+> vanishes but returns as soon as the disk idles again.
+
+Are you sure that it has something to do with disk and not with processor?
+What if you run 'while true; do :; done', is not it sufficient to get
+rid of noise?
+
+If it is sufficient, then rebuild your kernel with HZ=100 instead of 
+using default 1000Hz. At least it silenced my Compaq notebook.
+                                                   Best regards,
+                                                      Petr Vandrovec
+                                                      
 

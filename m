@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbTBXWku>; Mon, 24 Feb 2003 17:40:50 -0500
+	id <S262038AbTBXWrF>; Mon, 24 Feb 2003 17:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbTBXWkt>; Mon, 24 Feb 2003 17:40:49 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12548 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261908AbTBXWks>;
-	Mon, 24 Feb 2003 17:40:48 -0500
-Date: Mon, 24 Feb 2003 23:50:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>, andy@Elf.ucw.cz
-Subject: seq_file damage still not fixed in 2.5.63
-Message-ID: <20030224225028.GA16141@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S262040AbTBXWrF>; Mon, 24 Feb 2003 17:47:05 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34578 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261996AbTBXWrD>; Mon, 24 Feb 2003 17:47:03 -0500
+Date: Mon, 24 Feb 2003 14:52:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       <ncunningham@clear.net.nz>
+Subject: Re: swsusp and S3 fixes
+In-Reply-To: <20030221094850.GA18896@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0302241450060.18519-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-...this patch was dropped on the floor somewhere. Please apply,
+Pavel,
+ your patch causes
 
-							Pavel
+	arch/i386/kernel/dmi_scan.c:482: warning: `reset_videobios_after_s3' defined but not used
+	make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
+	arch/i386/kernel/built-in.o: In function `reset_videomode_after_s3':
+	arch/i386/kernel/built-in.o(.init.text+0x1e07): undefined reference to `acpi_video_flags'
+	arch/i386/kernel/built-in.o: In function `reset_videobios_after_s3':
+	arch/i386/kernel/built-in.o(.init.text+0x1e17): undefined reference to `acpi_video_flags'
+	make: *** [.tmp_vmlinux1] Error 1
 
---- clean/drivers/acpi/processor.c	2003-02-15 18:51:17.000000000 +0100
-+++ linux/drivers/acpi/processor.c	2003-02-15 18:52:17.000000000 +0100
-@@ -1356,7 +1356,8 @@
-         loff_t			*data)
- {
- 	int			result = 0;
--	struct acpi_processor	*pr = (struct acpi_processor *) data;
-+        struct seq_file 	*m = (struct seq_file *)file->private_data;
-+	struct acpi_processor	*pr = (struct acpi_processor *)m->private;
- 	char			state_string[12] = {'\0'};
- 
- 	ACPI_FUNCTION_TRACE("acpi_processor_write_throttling");
-@@ -1418,7 +1419,8 @@
- 	loff_t			*data)
- {
- 	int			result = 0;
--	struct acpi_processor	*pr = (struct acpi_processor *) data;
-+        struct seq_file 	*m = (struct seq_file *)file->private_data;
-+	struct acpi_processor	*pr = (struct acpi_processor *)m->private;
- 	char			limit_string[25] = {'\0'};
- 	int			px = 0;
- 	int			tx = 0;
+for me, with neither ACPI not SW_SUSPEND configured.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Don't call patches like this "trivial" if they haven't even been 
+properly tested. 
+
+			Linus
+

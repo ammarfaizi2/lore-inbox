@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315335AbSEQC0F>; Thu, 16 May 2002 22:26:05 -0400
+	id <S315337AbSEQCcj>; Thu, 16 May 2002 22:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315358AbSEQC0E>; Thu, 16 May 2002 22:26:04 -0400
-Received: from ns.suse.de ([213.95.15.193]:24587 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315335AbSEQC0D>;
-	Thu, 16 May 2002 22:26:03 -0400
-Date: Fri, 17 May 2002 04:26:02 +0200
-From: Dave Jones <davej@suse.de>
-To: jeff millar <wa1hco@adelphia.net>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020517042602.C2009@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	jeff millar <wa1hco@adelphia.net>, Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <001901c1fd45$43be4bc0$6501a8c0@mrrmnh.adelphia.net>
-Mime-Version: 1.0
+	id <S315285AbSEQCcj>; Thu, 16 May 2002 22:32:39 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:8077 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S315337AbSEQCci>; Thu, 16 May 2002 22:32:38 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
+Date: Fri, 17 May 2002 12:32:13 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15588.27565.57663.59147@notabene.cse.unsw.edu.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: knfsd misses occasional writes
+In-Reply-To: message from Sverker Wiberg on Thursday May 16
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 16, 2002 at 09:50:46PM -0400, jeff millar wrote:
- > will any of the other kernels (dj, ml, ???) incorporate your system?
- > I'm about ready to try something else.
+On Thursday May 16, Sverker.Wiberg@uab.ericsson.se wrote:
+> Neil Brown wrote:
+> > 
+> > On Thursday May 16, Sverker.Wiberg@uab.ericsson.se wrote:
+> 
+> [on soft mount timeouts]
+> > > But shouldn't those timeouts become errors over at the clients?
+> > 
+> > Yes... but "write" won't see an error.  Only 'fsync' or maybe 'close',
+> > and many applications ignore errors from these operations.
+> 
+> How come? Isn't the client side innately synchronous (as RPC clients in
+> general)?
 
-I've thought it over a few times over the last few weeks, and tbh
-inclusion in any tree other than Linus' doesn't really make much sense
-other than perhaps to get some more 'early adopter' testers.
+Now way!  That would kill performance.
 
-The current kbuild2.5 patches will apply cleanly against my tree, but
-due to things like the new input layer still not being completely merged
-in Linus' tree, some files are in different places, so the Makefile.in's
-in kbuild2.5 point to the wrong places.
+The application writes into the pagecache.  The nfs client, possibly
+using  the helper thread like rpciod write asynchronously to the
+server.  Data is only flushed on close or fsync or memory presure
+or...
+I have only a passing knowledge of this stuff though.  I trust Trond
+will correct me is I say anything really silly.
 
-Sure, I could merge it, but tbh it's not worth the effort right now
-of fixing up those files until Linus actually says yay or nay.
+> Or is this one of thost thing that are now done differently?
 
-    Dave.
+I think it was always this way.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+NeilBrown

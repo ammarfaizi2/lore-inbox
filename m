@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUI1CO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUI1CV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUI1CO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 22:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUI1CO6
+	id S267478AbUI1CV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 22:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267483AbUI1CV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 22:14:58 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:32425 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267474AbUI1COy
+	Mon, 27 Sep 2004 22:21:57 -0400
+Received: from [211.155.249.251] ([211.155.249.251]:41762 "EHLO
+	nnt.neonetech.com") by vger.kernel.org with ESMTP id S267478AbUI1CVz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 22:14:54 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: Robert Love <rml@novell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
-In-Reply-To: <20040927214141.688b2b2c.akpm@osdl.org>
-References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <20040927214141.688b2b2c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 27 Sep 2004 22:14:58 -0400
-Message-Id: <1096337698.5103.145.camel@localhost>
+	Mon, 27 Sep 2004 22:21:55 -0400
+Date: Tue, 28 Sep 2004 10:21:57 +0800
+From: "xuhaoz" <xuhaoz@neonetech.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: printk can't display %d number , but can display %u, %s, ....
+X-mailer: Foxmail 5.0 [cn]
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
+Message-ID: <NNTD5euwdUTaGmvSVMu000001e7@nnt.neonetech.com>
+X-OriginalArrivalTime: 28 Sep 2004 02:25:51.0406 (UTC) FILETIME=[7922D4E0:01C4A502]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-27 at 21:41 -0700, Andrew Morton wrote:
 
-> Can you expand on that?  Why do we need such a bitmap?
+Hi:
 
-It is a unique cookie that identifies the exact object being watched
-(e.g. /home/rml or /etc/fstab).  I suspect John introduced it in lieu of
-the (device,inode) tuple when Al bitched, which makes sense.  Because we
-have only a single fd (this is one of the problems with dnotify, the 1:1
-relation between objects and file descriptors consumed) we need some
-other object to identify each watched object.
+	Yesterday, I found a strangeous problem that printk in my OS can't print %d format number, but can print %u, %x ...
 
-So John introduced watcher descriptors.  This bitmask keeps track of
-which descriptors are used versus unused.
+	why?
 
-> Would an idr tree be more appropriate?
+    let's see an example:
 
-Quite possibly.  I was originally thinking that idr's were too heavy,
-but if we can make the wd <-> inotify_watcher relation then they make
-perfect sense.
+			unsigned int memsize;
+		
+			memsize=64;
+		
+			printk("memsize unknown: setting to %dMB\n",memsize);
 
-I'll look at making the conversion.
+			if I use %d to display, the result of memsize is -18446744073709551552MB
 
-> In that case it looks rather 64-bit-unfriendly.  A 32-bit compiler will lay
-> that structure out differently from a 64-bit compiler.  Or not.  Hard to
-> say.  Perhaps something more defensive is needed here.
+            printk("memsize unknown: setting to %uMB\n",memsize);
 
-Well, no, since all known architectures are everything-is-32bit or LP64,
-as far as I know.  And padding would be the same.
+			if I use %u to display ,the result of memsize is 64MB
 
-And even if not, the only problem would be with 64-bit architectures and
-a 32-bit user-space.
+	Would you please tell me what leads to this problem?
 
-Nonetheless, we should probably make the three int types be s32 or
-u32's, eh?  I will submit a patch.
 
-> One other thing: the patch adds 16 bytes to struct inode, for a feature
-> which many users and most inodes will not use.  Unfortunate.
-> 
-> Is it possible to redesign things so that those four new fields are in a
-> standalone struct which points at the managed inode?  Joined at the hip
-> like journal_head and buffer_head?
 
-We could probably get away with a single word-sized variable in the
-inode structure.
-
-> Bonus marks for not having a backpointer from the inode to the new struct ;)
-
-Don't push your luck. ;-)
-
-In school, I always felt the bonus was just showing off, what with the
-perfect score on the normal assignment.  But I will investigate.
-
-> (Still wondering what those timers are doing in there, btw)
-
-John?  I see what the timer does, but I am wondering why a timer _has_
-to do it?
-
-Thanks for the review, Andrew.
-
-	Robert Love
-
+			xuhaoz@neonetech.com
 

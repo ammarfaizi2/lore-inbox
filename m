@@ -1,112 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131676AbRCSX27>; Mon, 19 Mar 2001 18:28:59 -0500
+	id <S131658AbRCSXhK>; Mon, 19 Mar 2001 18:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131681AbRCSX2t>; Mon, 19 Mar 2001 18:28:49 -0500
-Received: from cold.fortyoz.org ([64.40.111.214]:59405 "HELO cold.fortyoz.org")
-	by vger.kernel.org with SMTP id <S131676AbRCSX2k>;
-	Mon, 19 Mar 2001 18:28:40 -0500
-Date: Mon, 19 Mar 2001 15:28:42 -0800
-From: David Raufeisen <david@fortyoz.org>
-To: linux-kernel@vger.kernel.org
-Cc: reiserfs-list@namesys.com
-Subject: 2.4.3-pre1 oops w/ rsync & ReiserFS
-Message-ID: <20010319152842.A11014@fortyoz.org>
-Reply-To: David Raufeisen <david@fortyoz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.2.17 i686
+	id <S131665AbRCSXhB>; Mon, 19 Mar 2001 18:37:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47372 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131658AbRCSXgy>; Mon, 19 Mar 2001 18:36:54 -0500
+Date: Mon, 19 Mar 2001 15:35:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: 3rd version of R/W mmap_sem patch available
+In-Reply-To: <Pine.LNX.4.31.0103191525480.937-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.31.0103191529530.967-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Getting oops every time I run rsync today.. happens after it receives file list and is starting to stat all the files.. filesystem is reiser.
-
-Linux prototype 2.4.3-pre1 #2 Thu Mar 15 00:24:43 PST 2001 i686 unknown
-
-15:25:28 up 1 day, 20:05,  4 users,  load average: 0.00, 0.03, 0.00
-
-Linux prototype 2.4.3-pre1 #2 Thu Mar 15 00:24:43 PST 2001 i686 unknown
- 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.11.90.0.1
-util-linux             2.11a
-modutils               2.4.2
-e2fsprogs              1.19
-reiserfsprogs          3.x.0b
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.59
-Kbd                    command
-Sh-utils               2.0.11
-Modules Loaded         NVdriver
-
-prototype:~# ksymoops oops.txt    
-ksymoops 2.3.7 on i686 2.4.3-pre1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.3-pre1/ (default)
-     -m /System.map (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Unable to handle kernel paging request at virtual address 4280d8c4
-c01410c0
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01410c0>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210207
-eax: c7fdc5e0   ebx: 4280d8ac   ecx: 0000000e   edx: 21cd5a87
-esi: 00000000   edi: c71424c0   ebp: 4280d8c4   esp: c37b1f04
-ds: 0018   es: 0018   ss: 0018
-Process rsync (pid: 16269, stackpage=c37b1000)
-Stack: c37b1f68 00000000 c71424c0 c37b1fa4 c7fdc5e0 c5919022 21cd5a87 0000000a 
-       c01392d0 c71424c0 c37b1f68 c37b1f68 c0139a92 c71424c0 c37b1f68 00000000 
-       c5919000 00000000 c37b1fa4 00000000 c5919000 00000000 c01390da 00000008 
-Call Trace: [<c01392d0>] [<c0139a92>] [<c01390da>] [<c013a0dc>] [<c0137116>] [<c012f453>] [<c0108e8b>] 
-Code: 8b 6d 00 8b 54 24 18 39 53 48 75 7c 8b 44 24 24 39 43 0c 75 
-
->>EIP; c01410c0 <d_lookup+60/100>   <=====
-Trace; c01392d0 <cached_lookup+10/60>
-Trace; c0139a92 <path_walk+562/7d0>
-Trace; c01390da <getname+5a/a0>
-Trace; c013a0dc <__user_walk+3c/60>
-Trace; c0137116 <sys_lstat64+16/70>
-Trace; c012f453 <sys_close+43/60>
-Trace; c0108e8b <system_call+33/38>
-Code;  c01410c0 <d_lookup+60/100>
-00000000 <_EIP>:
-Code;  c01410c0 <d_lookup+60/100>   <=====
-   0:   8b 6d 00                  mov    0x0(%ebp),%ebp   <=====
-Code;  c01410c3 <d_lookup+63/100>
-   3:   8b 54 24 18               mov    0x18(%esp,1),%edx
-Code;  c01410c7 <d_lookup+67/100>
-   7:   39 53 48                  cmp    %edx,0x48(%ebx)
-Code;  c01410ca <d_lookup+6a/100>
-   a:   75 7c                     jne    88 <_EIP+0x88> c0141148 <d_lookup+e8/100>
-Code;  c01410cc <d_lookup+6c/100>
-   c:   8b 44 24 24               mov    0x24(%esp,1),%eax
-Code;  c01410d0 <d_lookup+70/100>
-  10:   39 43 0c                  cmp    %eax,0xc(%ebx)
-Code;  c01410d3 <d_lookup+73/100>
-  13:   75 00                     jne    15 <_EIP+0x15> c01410d5 <d_lookup+75/100>
 
 
-1 warning issued.  Results may not be reliable.
+On Mon, 19 Mar 2001, Linus Torvalds wrote:
+>
+> Excellent point. We used to do all the looping and re-trying, but it got
+> ripped out a long time ago (and in any case, it historically didn't do
+> SMP, so the old code doesn't really work).
 
+Actually, funnily enough, I see that the old thread-safe stuff is still
+there in get_pte_kernel_slow(). The only thing that breaks it is that we
+don't hold any locks, so it's only UP-safe, not SMP-safe.
 
+However, it definitely looks like we should just un-inline that thing
+completely, and make a lot of it architecture-independent anyway.
 
--- 
-David Raufeisen <david@fortyoz.org>
-Cell: (604) 818-3596
+		Linus
+

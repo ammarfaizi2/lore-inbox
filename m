@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRCLBAO>; Sun, 11 Mar 2001 20:00:14 -0500
+	id <S129249AbRCLAwd>; Sun, 11 Mar 2001 19:52:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129318AbRCLBAE>; Sun, 11 Mar 2001 20:00:04 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:56269 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S129270AbRCLA7o>; Sun, 11 Mar 2001 19:59:44 -0500
-Date: Mon, 12 Mar 2001 01:48:11 +0100
+	id <S129270AbRCLAwO>; Sun, 11 Mar 2001 19:52:14 -0500
+Received: from quechua.inka.de ([212.227.14.2]:33628 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129249AbRCLAwK>;
+	Sun, 11 Mar 2001 19:52:10 -0500
+From: Bernd Eckenfels <W1012@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: hotplug and interrupt context
-Message-ID: <20010312014811.B472@storm.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+Subject: Re: Status of posix-ACL's
+In-Reply-To: <F1457AD86AB6D311A6F200105AD9FB0219E251@EPCNETIN>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.36 (i686))
+Message-Id: <E14cGYa-0007oa-00@sites.inka.de>
+Date: Mon, 12 Mar 2001 01:51:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I couldn't trace that down to be 100% sure and it's better to conform to
-design than implementation, so I'll ask:
+In article <F1457AD86AB6D311A6F200105AD9FB0219E251@EPCNETIN> you wrote:
+> What are the biggest problems? (i know that many userland-tools must be
+> changed for this).
 
-Do the probe and remove functions of a pci_driver have to be able to
-work in interrupt context?  (i.e. GFP_ATOMIC and stuff)
+AFAIK there is no Support in User Land Programs required. You just have
+additional tools for managing the ACLs . The main problem with ACLs are the
+storage of the additional info in the file system. This is a hard job if you
+want to have it for all/most file systems. Remy had a working Version for
+ext2, but it never got very public.. dunno why.
 
+NTs ACLs are somewhat messy cause they require too much scanning.
 
-I expect so, since CardBus handling doesn't start a thread and would
-call these functions from the context it got the insertion message
-(interrupt context).
-
--- 
- Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
-http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
+Greetings
+Bernd

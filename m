@@ -1,121 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132312AbRADBYO>; Wed, 3 Jan 2001 20:24:14 -0500
+	id <S132296AbRADBYN>; Wed, 3 Jan 2001 20:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132349AbRADBYC>; Wed, 3 Jan 2001 20:24:02 -0500
+	id <S132312AbRADBYB>; Wed, 3 Jan 2001 20:24:01 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:15631 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132353AbRADBXp>;
+	by vger.kernel.org with ESMTP id <S132349AbRADBXp>;
 	Wed, 3 Jan 2001 20:23:45 -0500
-Date: Wed, 03 Jan 2001 16:12:46 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: usb dc2xx quirk
-To: Randy Dunlap <randy.dunlap@intel.com>, josh <skulcap@mammoth.org>
-Cc: linux-kernel@vger.kernel.org,
-        l-u-d <linux-usb-devel@lists.sourceforge.net>
-Message-id: <043101c075e3$118db720$6600000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-In-Reply-To: <Pine.LNX.4.20.0101031155240.2682-100000@www>
- <3A537C2A.A17DCB94@intel.com>
-X-Priority: 3
+Date: Thu, 4 Jan 2001 01:41:15 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
+Cc: linux-kernel@vger.kernel.org, linux-parport@torque.net,
+        tim@cyberelk.demon.co.uk
+Subject: Re: Printing to off-line printer in 2.4.0-prerelease
+Message-ID: <20010104014115.C6256@athlon.random>
+In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010103201344.A3203@athlon.random> <m2hf3gz6yc.fsf@ppro.localdomain> <20010103223504.L32185@athlon.random> <m266jww55q.fsf@ppro.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m266jww55q.fsf@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Thu, Jan 04, 2001 at 01:08:01AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If this makes it go away, then by all means apply this patch;
-though I don't quite see what the failure mode would be.
+On Thu, Jan 04, 2001 at 01:08:01AM +0100, Peter Osterlund wrote:
+> What do you think about the following patch? It also works for all the
+> tests mentioned in my previous message.
 
-The proximate cause of that Oops looked to be in one of the
-UHCI drivers, but of course it's also possible that it was
-triggered by driver misbehavior.
+I'm worried somebody needed to disable LP_CAREFUL to print, probably it's not a
+big deal to keep it. About the lp_wait_ready that's what I had in mind with the
+"rework" thing and it looks fine. However parport_write can still could silenty
+discard data, but maybe it can't notice errors with some handshake. I didn't
+checked the details of the DMA based handshake so Tim needs to comment if
+this can be considered a final/right fix (I hope it's not ;).
 
-Have we identified anything that actually does anything with
-code labeled __dev{in,ex}it (or data), beyond putting it into
-a different section?  If so, what's it doing?
-
-I just tried plug/unplug of a dc-240, albeit on a kernel
-with HOTPLUG defined (and using OHCI) and it worked without
-any Oops.
-
-- Dave
-
-
------ Original Message -----
-From: Randy Dunlap <randy.dunlap@intel.com>
-To: josh <skulcap@mammoth.org>
-Cc: <linux-kernel@vger.kernel.org>; <david-b@pacbell.net>; l-u-d
-<linux-usb-devel@lists.sourceforge.net>
-Sent: Wednesday, January 03, 2001 11:23 AM
-Subject: Re: usb dc2xx quirk
-
-
-> Hi,
->
-> Looks like dc2xx.c shouldn't use __devinit/__devexit
-> [patch attached]
-> or you should enable CONFIG_HOTPLUG under General Setup.
->
-> David?
->
-> The ov511 (usb) driver is the only other USB device driver
-> that uses __devinit/__devexit.
->
-> ~Randy
->
-> josh wrote:
-> >
-> > Kernel Version: 2.4.0-test11 - 2.4.0-prerelease
-> > Platform: ix86 (PIII)
-> > Problem Hardware: Kodac DC280, firmware 1.01
-> >
-> > Ever since test10 or after, removing my dc280 from the usb
-> > bus causes khubd to crash.  I have tried both UHCI drivers
-> > and they produce the same effect.
-> >
-> > dmesg, syslog, messages, and .config can be found at:
-> > http://mammoth.org/~skulcap/usb-problem
-> >
-> > I have looked throug the archives and havent found anything
-> > like this, so I'm sorry if it has been covered already.
-> >
-> > Thanks in advance!
-> --
-> _______________________________________________
-> |randy.dunlap_at_intel.com        503-677-5408|
-> |NOTE: Any views presented here are mine alone|
-> |& may not represent the views of my employer.|
-> -----------------------------------------------
-
-
---------------------------------------------------------------------------------
-
-
-> --- linux/drivers/usb/dc2xx.c.org Sun Nov 12 20:40:42 2000
-> +++ linux/drivers/usb/dc2xx.c Wed Jan  3 11:15:11 2001
-> @@ -353,7 +353,7 @@
->
->
->
-> -static void * __devinit
-> +static void *
->  camera_probe (struct usb_device *dev, unsigned int ifnum, const struct usb_device_id
-*camera_info)
->  {
->   int i;
-> @@ -451,7 +451,7 @@
->   return camera;
->  }
->
-> -static void __devexit camera_disconnect(struct usb_device *dev, void *ptr)
-> +static void camera_disconnect(struct usb_device *dev, void *ptr)
->  {
->   struct camera_state *camera = (struct camera_state *) ptr;
->   int subminor = camera->subminor;
->
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

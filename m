@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUFBSEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUFBSEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUFBSEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUFBSBj
+	id S263788AbUFBSEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263756AbUFBSBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:01:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:55005 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263795AbUFBR7D (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 13:59:03 -0400
-Message-Id: <200406021759.i52Hx00N022255@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: FabF <fabian.frederick@skynet.be>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: why swap at all? 
-In-Reply-To: Your message of "Wed, 02 Jun 2004 07:38:41 +0200."
-             <1086154721.2275.2.camel@localhost.localdomain> 
-From: Valdis.Kletnieks@vt.edu
-References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
-            <1086154721.2275.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1356624104P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 2 Jun 2004 14:01:31 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:28830 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S263763AbUFBR7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 13:59:12 -0400
+From: Manu Abraham <manu@kromtek.com>
+Reply-To: manu@kromtek.com
+Organization: Kromtek Systems
+To: linux-kernel@vger.kernel.org
+Subject: Re: Minor numbers under 2.6
+Date: Wed, 2 Jun 2004 21:49:30 +0400
+User-Agent: KMail/1.5.4
+References: <200406021519.32128.manu@kromtek.com> <20040602144931.GA25424@kroah.com>
+In-Reply-To: <20040602144931.GA25424@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Jun 2004 13:59:00 -0400
+Content-Disposition: inline
+Message-Id: <200406022149.30180.manu@kromtek.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1356624104P
-Content-Type: text/plain; charset=us-ascii
+On Wednesday 02 Jun 2004 6:49 pm, Greg KH wrote:
+> On Wed, Jun 02, 2004 at 03:19:32PM +0400, Manu Abraham wrote:
+> > Hi,
+> > 	Can somebody clarify a question that i have ?
+> >
+> > 	Say under 2.4 kernel, char device drivers had a minor number of int. In
+> > the 2.6 kernels, this number was increased to 20 bits from 8 bits. Under
+> > 2.6 i could use "mknod -c major, minor".
+> >
+> > 	How can i achieve something similar with 2.6 taking into consideration
+> > that i have to create more than 255 minors ?
+>
+> The same way:
+> 	# mknod foo c 100 10000
+> 	# ls -l foo
+> 	crw-r--r--  1 root root 100, 10000 Jun  2 07:48 foo
+>
+> Just make sure you have a up to date glibc.
+>
+> Hope this helps,
+>
+> greg k-h
 
-On Wed, 02 Jun 2004 07:38:41 +0200, FabF said:
 
-> > Yes but: your wm is so  often used/activated it will not get swaped  out. 
-> > But if your mouse passes over mozilla and tries to focus it, then you will
-> > feel the pain of a swapped-out x program.
-> > 
-> Exactly !
-> Does autoregulated VM swap. patch could help here ?
+	Thanks a lot, I was breaking my head to understand what the hell was going 
+on.
 
-Con's auto-adjusting swappiness patch did in fact help that quite a bit,
-especially for the case of heavy file I/O causing process images to be swapped
-out.  I need to do some comparisons of that to Nick's MM work...
+Thanks again,
 
---==_Exmh_1356624104P
-Content-Type: application/pgp-signature
+Regards,
+Manu
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAvhVkcC3lWbTT17ARAqWZAJ0Sgzjs5eI+DL2G+1ElpUDteEaSSACfdKqY
-vC9QfWNp7tb0COBUva4b8E8=
-=xbt4
------END PGP SIGNATURE-----
-
---==_Exmh_1356624104P--

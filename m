@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268255AbTCFSRp>; Thu, 6 Mar 2003 13:17:45 -0500
+	id <S268304AbTCFSN3>; Thu, 6 Mar 2003 13:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268256AbTCFSRo>; Thu, 6 Mar 2003 13:17:44 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:47880 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268255AbTCFSRo>;
-	Thu, 6 Mar 2003 13:17:44 -0500
-Date: Thu, 6 Mar 2003 10:18:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Ian Soboroff <ian.soboroff@nist.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TransMeta longrun control utility maintainer?
-Message-ID: <20030306181829.GA3431@kroah.com>
-References: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
-Mime-Version: 1.0
+	id <S268308AbTCFSN3>; Thu, 6 Mar 2003 13:13:29 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10637 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268304AbTCFSNZ>; Thu, 6 Mar 2003 13:13:25 -0500
+Date: Thu, 06 Mar 2003 10:13:47 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, rml@tech9.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-ID: <9420000.1046974427@flay>
+In-Reply-To: <Pine.LNX.4.44.0303061900230.16118-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303061900230.16118-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 09:11:18AM -0500, Ian Soboroff wrote:
+>> But the proof is in the pudding. Does this actually make things appear
+>> "nicer" to people? Or is it just another wanking session?
 > 
-> I know this isn't the best place to ask, but maybe someone here knows.
+> yes, it would be interesting to see Andrew's experiments redone for the 
+> following combinations:
 > 
-> Who is maintaining the longrun(1) (should probably be longrun(8))
-> utility?  The author is listed as Daniel Quinlan
-> <quinlan@transmeta.com>, but mail to that address bounces.
+>    - your patch
+>    - my patch
+>    - both patches
 > 
-> The longrun utility frobs the MSR on TransMeta processors to switch
-> between performance and economy modes.
-> 
-> On my laptop, currently running 2.4.21-pre5-ac1, I get the following
-> error:
+> in fact my patch was tested and it mostly solved the problem for Andrew,
+> but i'm now convinced that the combination of patches will be the real
+> solution for this class of problems - as that will attack _both_ ends,
+> both CPU hogs are recognized better, and interactivity detection
+> interactivity-distribution is improved.
 
-It works for me just fine on 2.4.21-pre5, have you tried that kernel
-version?
+It would be nice if we had a "batch-job-able" simulation of this situation,
+to do more accurate testing with ... can anyone think of an easy way to
+do such a thing? "waggle a few windows around on X and see if it feels 
+better to you or not" is kind of hard to do accurate testing with.
+Of course, the simulation has to be accurate too, or it gets stupid ;-)
 
-thanks,
+M.
 
-greg k-h

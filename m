@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUH0IQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268162AbUH0ITn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267934AbUH0IQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUH0IOF
+	id S268162AbUH0ITn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268892AbUH0ISD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:14:05 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:5850 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267934AbUH0INl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:13:41 -0400
-Message-ID: <412EED36.3080802@namesys.com>
-Date: Fri, 27 Aug 2004 01:13:42 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeremy Allison <jra@samba.org>
-CC: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, wichert@wiggy.net,
-       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <20040826173227.GB1570@legion.cup.hp.com>
-In-Reply-To: <20040826173227.GB1570@legion.cup.hp.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 04:18:03 -0400
+Received: from ozlabs.org ([203.10.76.45]:19072 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268162AbUH0IRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:17:42 -0400
+Date: Fri, 27 Aug 2004 18:13:17 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove function prototype inside function
+Message-ID: <20040827081317.GD11731@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think Jeremy is accurate in saying the below.
 
-Jeremy Allison wrote:
+Hi,
 
->>What compelling reason is there for doing this in the kernel?
->>    
->>
->
->
->Because without kernel support there is no way someone can
->publish a new metadata type and have it automatically supported
->by all application data files (ie. most apps ignore it, and only
->apps that are aware of it can see it). Without kernel support
->you have to have all apps agree on a data format. And
->that's harder to do than getting linux kernel VFS engineers
->to agree on things :-).
->
->Jeremy.
->
->
->  
->
+I had a problem when compiling a 2.6 kernel with gcc 3.5 CVS. The
+prototype for prio_tree_remove in mm/prio_tree.c is inside another
+function. gcc 3.5 gets upset and removes the function completely.
+Apparently this isnt valid C, so lets fix it up.
 
+Details can be found here:
+
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=17205
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+===== mm/prio_tree.c 1.7 vs edited =====
+--- 1.7/mm/prio_tree.c	Mon Aug 23 18:15:12 2004
++++ edited/mm/prio_tree.c	Fri Aug 27 16:28:34 2004
+@@ -81,6 +81,8 @@
+ 	return index_bits_to_maxindex[bits - 1];
+ }
+ 
++static void prio_tree_remove(struct prio_tree_root *, struct prio_tree_node *);
++
+ /*
+  * Extend a priority search tree so that it can store a node with heap_index
+  * max_heap_index. In the worst case, this algorithm takes O((log n)^2).
+@@ -90,8 +92,6 @@
+ static struct prio_tree_node *prio_tree_expand(struct prio_tree_root *root,
+ 		struct prio_tree_node *node, unsigned long max_heap_index)
+ {
+-	static void prio_tree_remove(struct prio_tree_root *,
+-					struct prio_tree_node *);
+ 	struct prio_tree_node *first = NULL, *prev, *last = NULL;
+ 
+ 	if (max_heap_index > prio_tree_maxindex(root->index_bits))

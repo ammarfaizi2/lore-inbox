@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135201AbRDZWjt>; Thu, 26 Apr 2001 18:39:49 -0400
+	id <S133076AbRDZWq3>; Thu, 26 Apr 2001 18:46:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135247AbRDZWjk>; Thu, 26 Apr 2001 18:39:40 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:13317 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135201AbRDZWjc>; Thu, 26 Apr 2001 18:39:32 -0400
-Date: Fri, 27 Apr 2001 00:39:54 +0200
-From: Waldemar Brodkorb <waldemar.brodkorb@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Pcmcia-Updates for Xircomcards?
-Message-ID: <20010427003953.A11787@web.de>
-Reply-To: Waldemar Brodkorb <waldemar.brodkorb@web.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010422230930.A11882@web.de>
+	id <S135174AbRDZWqT>; Thu, 26 Apr 2001 18:46:19 -0400
+Received: from stassen.k-net.dtu.dk ([130.225.71.227]:40893 "EHLO
+	stassen.k-net.dk") by vger.kernel.org with ESMTP id <S133076AbRDZWqK>;
+	Thu, 26 Apr 2001 18:46:10 -0400
+Date: Fri, 27 Apr 2001 00:48:01 +0200
+From: Martin Clausen <martin@ostenfeld.dk>
+To: James Morris <jmorris@intercode.com.au>
+Cc: netfilter-devel@lists.samba.org, linux-kernel@vger.kernel.org,
+        Paul Rusty Russell <Paul.Russell@rustcorp.com.au>
+Subject: Re: Kernel Oops when using the Netfilter QUEUE target
+Message-ID: <20010427004801.A3464@ostenfeld.dk>
+Reply-To: Martin Clausen <martin@ostenfeld.dk>
+In-Reply-To: <20010425004937.A3904@ostenfeld.dk> <Pine.LNX.4.31.0104251621260.329-100000@blackbird.intercode.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010422230930.A11882@web.de>; from waldemar.brodkorb@web.de on Sun, Apr 22, 2001 at 11:09:30PM +0200
-X-Operating-System: Linux 2.4.3 i686
-X-Editor: VIM - Vi IMproved 5.7
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0104251621260.329-100000@blackbird.intercode.com.au>; from jmorris@intercode.com.au on Wed, Apr 25, 2001 at 04:24:46PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wed, Apr 25, 2001 at 04:24:46PM +1000, James Morris wrote:
+> > I have encountered a problem (perhaps a bug)! The attached code makes my kernel oops
+> > in some cases when injecting new packets through Netfilter's QUEUE target. The problem
+> > only appears when the original packet is a TCP packet; i have tried with ICMP and UDP packets
+> > also but this does not trigger any oops. I have tried to code on several computers and they
+> > all oops. The following description regards the case when submitting new packets instead
+> > of TCP packets.
+> 
+> Please try the patch below.
 
-* I wrote:
+So i did and it seems to work just fine (= no more oops') under 2.4.3/2.4.2-ac21! The packets 
+being sent also seems to be correct; James you're the man :-)
 
-> My Hardware: 
-> Toshiba Satellite Pro 4280 
-> PCMCIA: Xircom RBEM56G-100 
->
-> Linus said serial_cs is for both, old serial_cb & serial_cs.
+BTW could you describe the problem? And why it caused an oops?
 
-Sorry, that was wrong. He said serial.o is the correct driver.
-
-Thanks for all help, especially from Arjan van de Ven. 
-Another script/program is necessary. 
-Hotplug --> http://linux-hotplug.sourceforge.net
-
-thanks a lot.
-Waldemar
+Best regards,
+Martin
 
 -- 
-* Ein gutes Kryptographieprogramm:     |      (o_      *
-*       http://www.gnupg.org           |      //\      *        
-*           Linux rulez!    ;-)        |      V_/_     *
-* GnuPG-Key: 0xBE21BD90 | Tux: #155220 | ICQ: 64035650 *
+                       There's no place like ~

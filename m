@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267389AbRGLAur>; Wed, 11 Jul 2001 20:50:47 -0400
+	id <S267388AbRGLAqH>; Wed, 11 Jul 2001 20:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbRGLAuh>; Wed, 11 Jul 2001 20:50:37 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23812 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267389AbRGLAuX>; Wed, 11 Jul 2001 20:50:23 -0400
-Message-ID: <3B4CF429.D0B3B473@transmeta.com>
-Date: Wed, 11 Jul 2001 17:49:45 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S267389AbRGLAp6>; Wed, 11 Jul 2001 20:45:58 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:15350
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S267388AbRGLApn>; Wed, 11 Jul 2001 20:45:43 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Kip Macy <kmacy@netapp.com>, Paul Jakma <paul@clubi.ie>
+Subject: Re: Switching Kernels without Rebooting?
+Date: Wed, 11 Jul 2001 19:31:22 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.10.10107111545130.14769-100000@clifton-fe.eng.netapp.com>
+In-Reply-To: <Pine.GSO.4.10.10107111545130.14769-100000@clifton-fe.eng.netapp.com>
 MIME-Version: 1.0
-To: Rajeev Bector <rajeev_bector@yahoo.com>
-CC: linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: new IPC mechanism ideas
-In-Reply-To: <20010712001058.9730.qmail@web14402.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01071119453600.23085@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajeev Bector wrote:
-> 
-> Thanks for your comment, Peter.
-> The problem with using a "driver"
-> process is that now you need
-> another mechanism to communicate
-> with that driver - either
-> message queues or shared
-> memory or something.
-> 
+On Wed, 11 Jul 2001, Kip Macy wrote:
+>In the future when Linux is more heavily used at the enterprise level
+>there will likely be upgrade/revert modules to allow such a transition to
+>take place.
 
-You need that anyway.
+I use some of the largest UNIX supercomputers ever built (IBM SP, Cray T3E,
+SV1, YMP, XMP, J90, SGI Origin). None of them can start of a new kernel from an
+earlier version. There are too many things that will fail:
 
-	-hpa
+	Any network activity
+	Active disk I/O
+	Locked memory
+	File modification
+	File structures
+	Disk structures (yes they change...)
+	Clock Synchronization (SMP and cluster)
+	Shared memory (SMP and cluster)
+	semaphores (SMP and cluster)
+	login sessions
+	device status
+	shared disks and distributed file systems (cluster)
+	pipes
+
+Before you even try switching kernels, first implement a process
+checkpoint/restart. The process must be resumed after a boot using the same
+kernel, with all I/O resumed. Now get it accepted into the kernel.
+
+Anything else is just another name for "reboot using new kernel".
+	
+
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

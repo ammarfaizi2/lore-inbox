@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUD0XKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUD0XNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUD0XKv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUD0XKu
+	id S264305AbUD0XNo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 19:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUD0XNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:10:50 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:9405 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S264297AbUD0XKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:10:49 -0400
-Date: Wed, 28 Apr 2004 08:58:11 +1000
-From: "Nigel Cunningham" <ncunningham@linuxmail.org>
-To: "Pavel Machek" <pavel@suse.cz>, "Herbert Xu" <herbert@gondor.apana.org.au>,
-       "Andrew Morton" <akpm@zip.com.au>
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Cc: seife@suse.de, "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Nigel Cunningham" <ncunningham@linuxmail.com>,
-       "Roland Stigge" <stigge@antcom.de>, 234976@bugs.debian.org,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Reply-To: ncunningham@linuxmail.org
-References: <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426131152.GN2595@openzaurus.ucw.cz> <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz> <20040427102344.GA24313@gondor.apana.org.au> <20040427124837.GK10593@elf.ucw.cz> <20040427125402.GA16740@gondor.apana.org.au> <20040427215236.GA469@elf.ucw.cz>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr640q9abshwjtr@laptop-linux.wpcb.org.au>
-In-Reply-To: <20040427215236.GA469@elf.ucw.cz>
-User-Agent: Opera M2/7.50 (Linux, build 663)
-X-TPG-Antivirus: Passed
+	Tue, 27 Apr 2004 19:13:44 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:62671 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264305AbUD0XNm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 19:13:42 -0400
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Marc Boucher <marc@linuxant.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, pmarques@grupopie.com,
+       c-d.hailfinger.kernel.2004@gmx.net, jon787@tesla.resnet.mtu.edu,
+       malda@slashdot.org
+In-Reply-To: <20040427165819.GA23961@valve.mbsi.ca>
+References: <20040427165819.GA23961@valve.mbsi.ca>
+Content-Type: text/plain
+Message-Id: <1083107550.30985.122.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Apr 2004 09:12:33 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel et al.
+On Wed, 2004-04-28 at 02:58, Marc Boucher wrote:
+> Actually, we also have no desire nor purpose to prevent tainting. The purpose
+> of the workaround is to avoid repetitive warning messages generated when
+> multiple modules belonging to a single logical "driver"  are loaded (even when
+> a module is only probed but not used due to the hardware not being present).
 
-On Tue, 27 Apr 2004 23:52:36 +0200, Pavel Machek <pavel@suse.cz> wrote:
+You lied about the license, rather than submit a one-line change to
+kernel/module.c.
 
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +	{
-> +		extern char swsusp_pg_dir[PAGE_SIZE];
-> +		memcpy(swsusp_pg_dir, swapper_pg_dir, PAGE_SIZE);
-> +	}
-> +#endif
+This shows a lack of integrity that I find personally repulsive.
 
-Would you consider making that #ifdef CONFIG_PM, so that I could use it  
-too without needing to patch it further? (I'm using  
-CONFIG_SOFTWARE_SUSPEND2 if you prefer something more specific).
+Name: Only Print Taint Message Once
+Status: Trivial
 
-Regards,
+Only print the tainted message the first time.  Its purpose is to warn
+users that we can't support them, not to fill their logs.
 
-Nigel
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22310-linux-2.6.6-rc2-bk5/kernel/module.c .22310-linux-2.6.6-rc2-bk5.updated/kernel/module.c
+--- .22310-linux-2.6.6-rc2-bk5/kernel/module.c	2004-04-22 08:04:00.000000000 +1000
++++ .22310-linux-2.6.6-rc2-bk5.updated/kernel/module.c	2004-04-28 09:03:31.000000000 +1000
+@@ -1131,7 +1131,7 @@ static void set_license(struct module *m
+ 		license = "unspecified";
+ 
+ 	mod->license_gplok = license_is_gpl_compatible(license);
+-	if (!mod->license_gplok) {
++	if (!mod->license_gplok && !(tainted & TAINT_PROPRIETARY_MODULE)) {
+ 		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
+ 		       mod->name, license);
+ 		tainted |= TAINT_PROPRIETARY_MODULE;
+
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614, Australia.
-+61 (2) 6251 7727 (wk)
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

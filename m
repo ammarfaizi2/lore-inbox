@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbTDYKrS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 06:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbTDYKrR
+	id S263746AbTDYKwL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbTDYKwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 06:47:17 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25074 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263866AbTDYKrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 06:47:16 -0400
-Date: Fri, 25 Apr 2003 06:59:26 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: devnetfs <devnetfs@yahoo.com>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: compiling modules with gcc 3.2
-Message-ID: <20030425065926.E13397@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1051261584.1391.4.camel@laptop.fenrus.com> <20030425104615.7429.qmail@web20415.mail.yahoo.com>
+	Fri, 25 Apr 2003 06:52:11 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29575
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263746AbTDYKwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:52:10 -0400
+Subject: Re: [Bug 623] New: Volume not remembered.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Pat Suwalski <pat@suwalski.net>, Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030425074116.V3557@almesberger.net>
+References: <20030423214332.H3557@almesberger.net>
+	 <20030424011137.GA27195@mail.jlokier.co.uk>
+	 <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]>
+	 <20030424003742.J3557@almesberger.net>
+	 <20030424071439.GB28253@mail.jlokier.co.uk>
+	 <20030424103858.M3557@almesberger.net>
+	 <20030424213632.GK30082@mail.jlokier.co.uk>
+	 <20030424205515.T3557@almesberger.net> <3EA87BE1.1070107@suwalski.net>
+	 <20030425074116.V3557@almesberger.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051265094.5573.8.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030425104615.7429.qmail@web20415.mail.yahoo.com>; from devnetfs@yahoo.com on Fri, Apr 25, 2003 at 03:46:15AM -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 25 Apr 2003 11:04:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2003 at 03:46:15AM -0700, devnetfs wrote:
-> --- Arjan van de Ven <arjanv@redhat.com> wrote:
-> 
-> Thanks for the quick reply :)
-> 
-> > > Either way why is this so? AFAIK gcc 3.2 has abi incompatiblities
-> > > w.r.t. C++ and not C (which the kernel+modules are written in).
-> > 
-> > there are some cornercase C ABI changes but nobody except DAC960 will
-> > ever hit those. 
-> 
-> what are these? i am just curious about the change as i dont
-> see them (probably did not search hard) documented/listed on
-> gcc site. C++ ABI changes have some mention on some sites, but 
-> NOT on C ABI. 
+On Gwe, 2003-04-25 at 11:41, Werner Almesberger wrote:
+> Okay, so there is a case for OSS. Not sure who is maintaining it,
+> and if they care about making it act like ALSA. It would certainly
+> be nice to be consistent, and I'm sure that OSS users won't mind
+> getting rid of the occasional rude wakeup call.
 
-If I remember well, long long bitfields, oversided bitfields, etc.
+The OSS audio drivers ac97 code now starts up with record muted. 
 
-> so does this mean that: these workarounds now fixed in gcc 3.X?
-> and its just that the workaround employed in kernel source (for 
-> gcc 2.X) is different than the way gcc 3.X fixes them and hence 
-> objects generated from gcc 3.X and 2.X (w.r.t kernel sources+modules)
-> dont mix well?
-
-There are couple of places in kernel which do things like:
-
-#if (__GNUC__ > 2)
-  typedef struct { } spinlock_t;
-  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-#else
-  typedef struct { int gcc_is_buggy; } spinlock_t;
-  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
-#endif
-
-Obviously you cannot mix modules/kernels using any structure like that.
-
-	Jakub

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbTKROEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 09:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTKROEd
+	id S263681AbTKRORw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 09:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263688AbTKRORw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 09:04:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5094 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262787AbTKROE3
+	Tue, 18 Nov 2003 09:17:52 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:12419 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263681AbTKRORu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 09:04:29 -0500
-Message-ID: <3FBA26D1.8050901@pobox.com>
-Date: Tue, 18 Nov 2003 09:04:01 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 18 Nov 2003 09:17:50 -0500
+Date: Tue, 18 Nov 2003 09:19:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Pontus Fuchs <pof@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: Announce: ndiswrapper
+In-Reply-To: <3FBA25CD.5020708@pobox.com>
+Message-ID: <Pine.LNX.4.53.0311180915580.30324@chaos>
+References: <1069153340.2200.28.camel@dhcp-225.mlm.tactel.se>
+ <3FBA25CD.5020708@pobox.com>
 MIME-Version: 1.0
-To: "Catani, Antonio" <Antonio.Catani@seceti.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm3 and enanched IDE mode on p4c800 deluxe
-References: <9E8BE1B970A998468D92381A112AA3EA0140E9@srvrm001.roma.seceti.it>
-In-Reply-To: <9E8BE1B970A998468D92381A112AA3EA0140E9@srvrm001.roma.seceti.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catani, Antonio wrote:
-> Hi list, i can non know if my request is in topic or not.
-> I have p4c800 deluxe from asus, and works fine with mm3 patch, but I'v
-> notice a little beat strange thing in bios of this mobo there is a
-> option for setting ide interface in enanched mode, so if I set on the
-> kernel start and in dmesg I see ICH-5 100% native mode but after mount
-> root I get many of disabled irq 169 and the system hangs so to reset
-> hardware.
-> 
-> In compatible mode the system works fine, but I see in dmesg ICH-5 not
-> 100% native mode, will probe irq later, someone can explain me the
-> difference about two behavior?
+On Tue, 18 Nov 2003, Jeff Garzik wrote:
 
+> Pontus Fuchs wrote:
+> > Please! I don't want to start a flamewar if this is a good thing to do.
+> > I'm just trying to scratch my own itch and I doubt that this project
+> > changes the way Broadcom treats Linux users.
+>
+>
+> Then help us reverse engineer the driver :)
+>
+> 	Jeff
 
-Are you using Serial ATA?
+Yes! Entirely! The BIG advantage of the NDIS-6 driver is
+the established interface makes it possible to readily
+reverse-engineer it, i.e., find out how it works. Many
+of the network drivers use the same hardware core (ne).
+It's the extra stuff like the transciever interface that
+the NDIS drivers will expose.
 
-	Jeff
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

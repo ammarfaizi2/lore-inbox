@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132119AbRARVxA>; Thu, 18 Jan 2001 16:53:00 -0500
+	id <S132838AbRARV6K>; Thu, 18 Jan 2001 16:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136030AbRARVwm>; Thu, 18 Jan 2001 16:52:42 -0500
-Received: from sanrafael.dti2.net ([195.57.112.5]:29450 "EHLO dti2.net")
-	by vger.kernel.org with ESMTP id <S132754AbRARVwj>;
-	Thu, 18 Jan 2001 16:52:39 -0500
-Message-ID: <001c01c08199$387205f0$067039c3@cintasverdes>
-From: "Jorge Boncompte \(DTI2\)" <jorge@dti2.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: ERR in /proc/interrupts
-Date: Thu, 18 Jan 2001 22:54:24 +0100
-Organization: DTI2 - Desarrollo de la Tecnología de las Comunicaciones
+	id <S132754AbRARV5v>; Thu, 18 Jan 2001 16:57:51 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:4868 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132838AbRARV5s>;
+	Thu, 18 Jan 2001 16:57:48 -0500
+Date: Thu, 18 Jan 2001 22:57:20 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <20010118225432.K28276@athlon.random>
+Message-ID: <Pine.LNX.4.30.0101182254170.2880-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    What does ERR mean in /proc/interrupts? I have a computer running
-2.4.0test12 that has a lot of this ERR's?
 
-           CPU0
-  0:  116445752          XT-PIC  timer
-  1:     389614          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:   34298837          XT-PIC  eth1
-  8:          1          XT-PIC  rtc
- 10:  400182075          XT-PIC  eth0
- 11:   23181909          XT-PIC  ide0, ide1
- 14:          4          XT-PIC  ide2
- 15:     692215          XT-PIC  ide3
- 64:          0            none  acpi
-NMI:          0
-ERR:    1586756
+On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
 
-This is an AMD 800 + Tyan K7 mobo.
+> > {
+> >         int val = 1;
+> >         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
+> > 			(char *)&val,sizeof(val));
+> >         val = 0;
+> >         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
+> > 			(char *)&val,sizeof(val));
+> > }
+> >
+> > differ from what you posted. It does the same in my opinion. Maybe we are
+> > not talking about the same thing?
+>
+> The above is equivalent to SIOCPUSH _only_ if the caller wasn't using either
+> TCP_NODELAY or TCP_CORK.
 
-    -Jorge
+why? I can restore whatever state i want, the above is just a mechanizm to
+force the push.
 
-==============================================================
-Jorge Boncompte - Técnico de sistemas
-DTI2 - Desarrollo de la Tecnología de las Comunicaciones
---------------------------------------------------------------
-C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
-Tlf: +34 957 761395 / FAX: +34 957 450380
---------------------------------------------------------------
-jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
-==============================================================
-Without wicker a basket cannot be done.
-==============================================================
-
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

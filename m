@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265327AbSKFOAR>; Wed, 6 Nov 2002 09:00:17 -0500
+	id <S265255AbSKFN4b>; Wed, 6 Nov 2002 08:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265332AbSKFOAR>; Wed, 6 Nov 2002 09:00:17 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:35589 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265327AbSKFOAP>; Wed, 6 Nov 2002 09:00:15 -0500
-Date: Wed, 6 Nov 2002 15:06:41 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Jens Axboe <axboe@suse.de>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 vi .config ; make oldconfig not working
-In-Reply-To: <20021105172110.GB1830@suse.de>
-Message-ID: <Pine.LNX.4.44.0211061457370.13258-100000@serv>
-References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com>
- <20021105171409.GA1137@suse.de> <3DC7FD95.5000903@pobox.com>
- <20021105172110.GB1830@suse.de>
+	id <S265279AbSKFN4b>; Wed, 6 Nov 2002 08:56:31 -0500
+Received: from mta06bw.bigpond.com ([139.134.6.96]:38639 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265255AbSKFN4a>; Wed, 6 Nov 2002 08:56:30 -0500
+Message-ID: <3DC92170.4030400@snapgear.com>
+Date: Thu, 07 Nov 2002 00:04:32 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.46-uc1 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi All,
 
-On Tue, 5 Nov 2002, Jens Axboe wrote:
+A few more minor fixups applied to this patch set.
 
-> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-> > >641:CONFIG_NFSD_V4=y
-> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
-> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-> > >641:CONFIG_NFSD_V4=n
-> > >
-> > 
-> > '=n' is wrong, that should be "# CONFIG_NFSD_V4 is not set" still...
-> 
-> Why is that wrong? It worked before.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1.patch.gz
 
-It was not documented and I only implemented that was documented. :)
-It's of course no problem to change that.
+Changelog:
 
-bye, Roman
+1. 2.5.46 v850 fixups            (Miles Bader)
+2. m68knommu entry.S clean up    (me)
+3. flat.h intro comment          (David McCullough)
+
+
+Smaller specific patches:
+
+. FEC ColdFire 5272 feature add patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-fec.patch.gz
+
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-serial.patch.gz
+
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-fb.patch.gz
+
+. binfmt_flat patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-binflat.patch.gz
+
+. m68knommu architecture fixups for 2.5.46
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-m68knommu.patch.gz
+
+. v850 architecture fixups for 2.5.46
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-v850.patch.gz
+
+. add missing MMU-less support patches
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.46-uc1-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
 

@@ -1,73 +1,380 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbTLUBZR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 20:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTLUBZR
+	id S262052AbTLUBWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 20:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTLUBWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 20:25:17 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:21515 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262104AbTLUBZK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 20:25:10 -0500
-Date: Sat, 20 Dec 2003 17:25:04 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-Message-ID: <20031221012504.GB21001@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20031218231137.GA13652@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031218231137.GA13652@gnu.org>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause drowsiness.  Do not operate heavy machinery.
+	Sat, 20 Dec 2003 20:22:05 -0500
+Received: from 200-161-148-171.speedyterra.com.br ([200.161.148.171]:7070 "HELO
+	hotmail.com") by vger.kernel.org with SMTP id S261974AbTLUBVH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 20:21:07 -0500
+Message-ID: <26e701c3c749$e16ea250$bf7e8cd5@er>
+Reply-To: "webmaster" <ltoner1088xeig@hotmail.com>
+From: "webmaster" <ltoner1088xeig@hotmail.com>
+To: toner@vger.kernel.org
+Subject: Toner Catridges
+Date: Sun, 21 Dec 2003 04:37:42 +0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 06:11:37PM -0500, Lennert Buytenhek wrote:
-> Hi,
-> 
-> Apologies for posting this OT question here, I didn't find this question
-> answered in the FAQ.
-> 
-> There's a fast algorithm for longest-prefix match (as used in IPv4 routing
-> table lookups) which I have implemented, and would like to submit for
-> inclusion into the kernel (when 2.7 opens.)
-> 
-> However, I am aware that there is a patent on this algorithm, exclusively
-> licensed to a major manufacturer of networking equipment.
-> 
-> What am I to do?  Ignore the patent?  Or should I refrain from submitting
-> the patch I wrote, and look for an unencumbered algorithm instead?
+GT TONER SUPPLIES
+Laser printer and computer supplies
+1-888-662-2256
+1-866-237-7397
 
-This whole thing seems strange to me.
+Order by e-mail:gt1000@cable.net.co
+E-mail removal:gt1000@cable.net.co
+ 
+Our prices are as follows: 
 
-Why do you even know the algorithm is patented?  And if you
-knew it was, why implement it?  If you implemented it and
-then did a search you poisoned yourself.
 
-I've not poked around in the routing code but it seems to me
-that the kernel would need a longest-prefix match algorithm
-already so you shouldn't have to look far for one.
+HP
 
-As for asking the patent holder for a license.  If the
-patent were owned by a network hardware company i cannot see
-them licensing it because the speed of their equipment is
-their competitive advantage.  But you indicated the the
-patent is not owned by the HW company but exclusively
-licensed.  An existing exclusive license would preclude
-FLOSS being granted a license and a gratis sublicense would 
-likely violate the existing license.
+item 1  	92274A	Toner Cartridge for LaserJet 4L, 4ML, 
+		4P, 4MP  
+$47.50
+---------------------------------------------------------------------------
+--------  
+item 2  	C4092A	Black Toner Cartridge for LaserJet 1100A, ASE, 
+		3200SE  
+$45.50
+---------------------------------------------------------------------------
+--------  
+item 2A		C7115A	Toner Cartridge For HP LaserJet 1000, 1200, 3330
+$55.50  
+---------------------------------------------------------------------------
+--------
+item 2B  	C7115X 	High Capacity Toner Cartridge for HP LaserJet 1000, 	
+		1200, 3330  
+$65.50  
+---------------------------------------------------------------------------
+--------
+item 4 		92275A 	Toner Cartridge for LaserJet IIP, IIP+, IIIP  		
+$55.50  
+---------------------------------------------------------------------------
+--------
+item 5 		C3903A 	Toner Cartridge for LaserJet 5P, 5MP, 6P, 6Pse, 6MP, 6Pxi 
 
-It would be completely OT to wonder at what point source
-code crossed the line of expressing information of public
-record into being a patent violation. <niggle>
+$46.50  
+---------------------------------------------------------------------------
+--------
+item 6		C3909A 	Toner Cartridge for LaserJet 5Si, 5SiMX, 5Si Copier, 8000  
+$92.50  
+---------------------------------------------------------------------------
+--------
+item 6A		C3909X 	High Capacity Toner Cartridge for LaserJet 5Si, 5SiMX, 
+		5Si Copier, 8000 
+$110.50
+---------------------------------------------------------------------------
+-------- 
+item 7  	C4096A Toner Cartridge for LaserJet 2100, 2200DSE, 2200DTN  
+$72.50  
+---------------------------------------------------------------------------
+--------
+item 8  	C4182X UltraPrecise High Capacity Toner Cartridge for LaserJet 
+		8100 Series  
+$125.50
+---------------------------------------------------------------------------
+--------  
+item 9  	C3906A Toner Cartridge for LaserJet 5L, 5L Xtra, 6Lse, 6L, 		
+		6Lxi, 3100se  
+$42.50 
+---------------------------------------------------------------------------
+-------- 
+item 9A		C3906A Toner Cartridge for LaserJet 3100, 3150  
+$42.50  
+---------------------------------------------------------------------------
+--------
+item 10  	C3900A Black Toner Cartridge for HP LaserJet 4MV, 4V  
+$89.50  
+---------------------------------------------------------------------------
+--------
+item 11  	C4127A Black Toner Cartridge for LaserJet 4000SE, 4000N, 4000T, 
+		4000TN  
+$76.50 
+---------------------------------------------------------------------------
+-------- 
+item 11A	C8061A Black Laser Toner for HP LaserJet 4100, 4100N  	
+$76.50  
+---------------------------------------------------------------------------
+--------
+item 11B 	C8061X High Capacity Toner Cartridge for LJ4100, 4100N  
+$85.50  
+---------------------------------------------------------------------------
+--------
+item 11C 	C4127X High Capacity Black  Cartridge for LaserJet 4000SE,
+		4000N,4000T,4000TN  
+$84.50 
+---------------------------------------------------------------------------
+-------- 
+item 12  	92291A Toner Cartridge for LaserJet IIISi, 4Si, 4SiMX  
+$57.50  
+---------------------------------------------------------------------------
+--------
+item 13  	92298A Toner Cartridge for LaserJet 4, 4 Plus, 4M, 4M Plus, 5, 
+		5se, 5M, 5N  
+$46.50 
+---------------------------------------------------------------------------
+-------- 
+item 13A 	92298X High Capacity Toner Cartridge for LaserJet 4, 4 Plus,4M,
+		4M Plus,5,5se, 5M, 5N 
+$56.50
+---------------------------------------------------------------------------
+--------  
+item 14  	C4129X High Capacity Black Toner Cartridge for LaserJet 5000N  
+$97.50  
+---------------------------------------------------------------------------
+--------
+item 15  	LASERFAX 500, 700 (FX1)  
+$49.00  
+---------------------------------------------------------------------------
+--------
+item 16  	LASERFAX 5000, 7000 (FX2)  
+$54.00 
+---------------------------------------------------------------------------
+-------- 
+item 17  	LASERFAX (FX3)  
+$49.00  
+---------------------------------------------------------------------------
+--------
+item 18  	LASERFAX (FX4)  
+$49.00  
+---------------------------------------------------------------------------
+--------
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+			
+HP COLOR
 
-		Remember Cernan and Schmitt
+  
+item C1  	C4194A Toner Cartridge, Yellow 
+		(color lj 4500/4550 series)  
+$89.50 
+---------------------------------------------------------------------------
+--------  
+item C2  	C4193A Toner Cartridge, Magenta 
+		(color lj 4500/4550 series)  
+$89.50 
+---------------------------------------------------------------------------
+--------  
+item C3  	C4192A Toner Cartridge, Cyan 
+		(color lj 4500/4550 series)  
+$89.50 
+---------------------------------------------------------------------------
+--------  
+item C4  	C4191A Toner Cartridge, Black 
+		(color lj 4500/4550 series)  
+$74.50 
+---------------------------------------------------------------------------
+--------  
+item C5 	C4149A Toner Cartridge, Black 
+		(color lj 8500/8550 series)  
+$76.50 
+---------------------------------------------------------------------------
+-------- 
+ 
+			
+LEXMARK		
+  
+item 19		1380520 High Yield Black Laser Toner for 4019, 
+		4019E, 4028, 4029, 6, 10, 10L  
+$109.50 
+---------------------------------------------------------------------------
+--------  
+item 20  	1382150 High Yield Toner for 3112, 3116, 
+		4039-10+, 4049- Model 12L,16R, Optra  
+$109.50 
+---------------------------------------------------------------------------
+--------  
+item 21  	69G8256 Laser Cartridge for Optra E, E+, EP, ES, 
+		4026, 4026 (6A,6B,6D,6E)  
+$49.00 
+---------------------------------------------------------------------------
+--------  
+item 22  	13T0101 High Yield Toner Cartridge for Lexmark Optra E310, 
+		E312, E312L  
+$89.00 
+---------------------------------------------------------------------------
+--------  
+item 23  	1382625 High-Yield Laser Toner Cartridge for Lexmark Optra S
+(4059)  
+$129.50 
+---------------------------------------------------------------------------
+--------  
+item 24  	12A5745 High Yield Laser Toner for Lexmark Optra T610, 
+		612, 614 (4069)  
+$165.00 
+---------------------------------------------------------------------------
+-------- 
+ 
+Epson 
+
+item 25  	S051009 Toner Cartridge for Epson EPL7000, 7500, 8000+  
+$115.50  
+---------------------------------------------------------------------------
+-------- 
+item 25A  	S051009 LP-3000 PS 7000  
+$115.50   
+---------------------------------------------------------------------------
+--------
+item 26  	AS051011 Imaging Cartridge for ActionLaser-1000, 1500  
+$99.50   
+---------------------------------------------------------------------------
+--------
+item 26A  	AS051011 EPL-5000, EPL-5100, EPL-5200  
+$99.50   
+---------------------------------------------------------------------------
+--------
+
+PANASONIC 
+  
+item 27  	Nec series 2 models 90 and 95
+$109.50  
+---------------------------------------------------------------------------
+--------  
+
+APPLE 
+  
+item 28  	2473G/A Laser Toner for LaserWriter Pro 600, 
+		630, LaserWriter 16/600 PS 
+$57.50  
+---------------------------------------------------------------------------
+--------  
+item 29  	1960G/A Laser Toner for Apple LaserWriter Select, 
+		300, 310, 360  
+$71.50  
+---------------------------------------------------------------------------
+--------  
+item 30  	M2045G/A Toner Cartridge for Laserwriter 300, 320 (74A) 
+$52.50  
+---------------------------------------------------------------------------
+--------  
+item 32  	M4683G/A Laser Toner for LaserWriter 12, 640PS  
+$85.50  
+---------------------------------------------------------------------------
+--------  
+
+CANON 
+  
+item 33  	Fax CFX-L3500, CFX-4000 CFX-L4500, CFX-L4500IE & IF FX3  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 33A  	L-250, L-260i, L-300 FX3  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 33B  	LASER CLASS 2060, 2060P, 4000 FX3   
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 34  	LASER CLASS 5000, 5500, 7000, 7100, 7500, 6000 FX2  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 34A  	LBP-200V, LBP-8 II, IIR, IIIT, IIIR EP-S  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 35  	FAX 5000 FX2   
+$49.50    
+---------------------------------------------------------------------------
+--------
+item 36  	LASER CLASS 8500, 9000, 9000L, 9000MS, 9500, 9500 MS, 9500 S FX4 
+ 
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 36A  	Fax L700,720,760,770,775,777,780,785,790, & L3300 FX1  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 36B  	L-800, L-900 FX4  
+$49.50  
+---------------------------------------------------------------------------
+--------  
+item 37  A30R Toner Cartridge for PC-6, 6RE, 7, 11, 12  $59.50  
+---------------------------------------------------------------------------
+--------  
+item38  E-40 Toner Cartridge for PC-720, 740, 770, 790,795, 920, 950, 980 
+$85.50  
+---------------------------------------------------------------------------
+--------  
+item38A  E-20 Toner Cartridge for PC-310, 325, 330, 330L, 400, 420, 430 
+$85.50   
+---------------------------------------------------------------------------
+-------- 
+
+XEROX 
+
+item 39  6R900 75A  
+$55.50  
+---------------------------------------------------------------------------
+--------  
+item 40  6R903 98A  
+$46.50  
+---------------------------------------------------------------------------
+--------  
+item 41  6R902 95A  
+$49.50    
+---------------------------------------------------------------------------
+--------
+item 42  6R901 91A  
+$65.50    
+---------------------------------------------------------------------------
+--------
+item 43  6R908 06A  
+$42.50    
+---------------------------------------------------------------------------
+--------
+item 44  6R899 74A  
+$47.50    
+---------------------------------------------------------------------------
+--------
+item 45  6R928 96A  
+$72.50    
+---------------------------------------------------------------------------
+--------
+item 46  6R926 27X  
+$84.50   
+---------------------------------------------------------------------------
+-------- 
+item 47  6R906 09A  
+$92.50    
+---------------------------------------------------------------------------
+--------
+item 48  6R907 4MV  
+$89.50    
+---------------------------------------------------------------------------
+--------
+item 49  6R905 03A  
+$46.50    
+---------------------------------------------------------------------------
+--------
+
+
+
+
+30 Day unlimited warranty included on all products
+GT Toner Supplies guarantees these cartridges to be 
+free from defects in workmanship and material. 
+
+
+
+
+Order by e-mail:gt1000@cable.net.co
+E-mail removal:gt1000@cable.net.co
+
+ 
+
+All trade marks and brand names listed above are property of the respective
+holders and used for descriptive purposes only.
+

@@ -1,131 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276646AbRJPT2u>; Tue, 16 Oct 2001 15:28:50 -0400
+	id <S276653AbRJPTju>; Tue, 16 Oct 2001 15:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276650AbRJPT2b>; Tue, 16 Oct 2001 15:28:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57100 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S276646AbRJPT23>; Tue, 16 Oct 2001 15:28:29 -0400
-Date: Tue, 16 Oct 2001 16:07:29 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrea Arcangeli <andrea@suse.de>
-Subject: [UNTESTED PATCH] Throttle VM allocators
-Message-ID: <Pine.LNX.4.21.0110161600110.10214-100000@freak.distro.conectiva>
+	id <S276538AbRJPTjk>; Tue, 16 Oct 2001 15:39:40 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:20265 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S276653AbRJPTjU>; Tue, 16 Oct 2001 15:39:20 -0400
+Message-ID: <3BCC8D0D.7020906@blue-labs.org>
+Date: Tue, 16 Oct 2001 15:39:57 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011013
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Stevenson <mail-lists@stev.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tcpdump filters, problem with UDP and 2.4.x
+In-Reply-To: <3BC8A04A.5090108@blue-labs.org> <048a01c1555a$09d4e790$07fea8c0@stu2>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+No, it is for DNS traffic.
 
-Hi,
+James Stevenson wrote:
 
-The following patch will throttle VM allocators in case we are below a
-given threshold of free memory. 
-
-This will make hunger allocators throttle more page reclamation, giving us
-a (hopefully) fair system wrt memory.
-
-Please test this. I'm specially interested in interactivity during heavy
-VM pressure.
-
-Its against 2.4.12.
-
-Thanks
-
-diff -Nur linux.orig/mm/page_alloc.c linux/mm/page_alloc.c
---- linux.orig/mm/page_alloc.c	Thu Oct 11 16:04:56 2001
-+++ linux/mm/page_alloc.c	Thu Oct 11 16:03:36 2001
-@@ -228,6 +228,22 @@
- }
- #endif
- 
-+static inline int vm_throttle(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
-+{
-+	int progress;
-+	if (in_interrupt())
-+		BUG();
-+
-+	current->allocation_order = order;
-+	current->flags |= PF_MEMALLOC | PF_FREE_PAGES;
-+
-+	progress = try_to_free_pages(classzone, gfp_mask, order);
-+
-+	current->flags &= ~(PF_MEMALLOC | PF_FREE_PAGES);
-+
-+	return progress;
-+}
-+
- static struct page * FASTCALL(balance_classzone(zone_t *, unsigned int, unsigned int, int *));
- static struct page * balance_classzone(zone_t * classzone, unsigned int gfp_mask, unsigned int order, int * freed)
- {
-@@ -338,6 +354,16 @@
- 	if (waitqueue_active(&kswapd_wait))
- 		wake_up_interruptible(&kswapd_wait);
- 
-+	/* 
-+	 * We're possibly going to eat memory from the min<->low
-+	 * "reversed" area. Throttling page reclamation using
-+	 * the allocators which reach this point will give us a 
-+	 * fair system.
-+	 */
-+
-+	if ((gfp_mask & __GFP_WAIT))
-+		vm_throttle(classzone, gfp_mask, order);
-+
- 	zone = zonelist->zones;
- 	for (;;) {
- 		unsigned long min;
-@@ -386,7 +412,7 @@
- 		if (!z)
- 			break;
- 
--		if (zone_free_pages(z, order) > z->pages_min) {
-+		if (zone_free_pages(z, order) > z->pages_low) {
- 			page = rmqueue(z, order);
- 			if (page)
- 				return page;
-@@ -394,7 +420,13 @@
- 	}
- 
- 	/* Don't let big-order allocations loop */
--	if (order)
-+	/* We have one special 1-order alloc user: fork().
-+	 * It obviously cannot fail easily like other 
-+	 * high order allocations. This could also be fixed
-+	 * by having a __GFP_LOOP flag to indicate that the 
-+	 * high order allocation is "critical". 
-+	 */
-+	if (order > 1)
- 		return NULL;
- 
- 	/* Yield for kswapd, and try again */
-diff -Nur linux.orig/mm/vmscan.c linux/mm/vmscan.c
---- linux.orig/mm/vmscan.c	Thu Oct 11 16:04:56 2001
-+++ linux/mm/vmscan.c	Thu Oct 11 15:52:36 2001
-@@ -558,13 +558,14 @@
- 	int priority = DEF_PRIORITY;
- 	int nr_pages = SWAP_CLUSTER_MAX;
- 
--	do {
--		nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
--		if (nr_pages <= 0)
--			return 1;
-+	nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
-+	if (nr_pages <= 0)
-+		return 1;
-+
-+	ret = (nr_pages < SWAP_CLUSTER_MAX);
-+
-+	ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
- 
--		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
--	} while (--priority);
- 
- 	return ret;
- }
-
-
-
+>>I see a lot of "UDP: bad checksum. ..." between two of my servers.  I
+>>haven't attached a tcpdump output of the packets because a) the packets
+>>between machine A and B travel through a GRE tunnel and b) does anyone
+>>have tcpdump filters or know how to finagle tcpdump into dumping the
+>>embedded packet instead of the GRE header'd packet?
+>>
+>id this for NFS udp traffic ?
+>if it is then you will see it i have seen this on both 2.2.x and 2.4.x
+>kernels
+>it only shows up on the nfs server side for me though.
+>
 
 

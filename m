@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264514AbTEPRmu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTEPRmu
+	id S264516AbTEPR5j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 13:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264517AbTEPR5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:42:50 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37287
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264514AbTEPRmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:42:49 -0400
-Subject: Re: [RFC][ide] simplification of probing for default interfaces
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0305152134420.21794-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0305152134420.21794-100000@mion.elka.pw.edu.pl>
+	Fri, 16 May 2003 13:57:39 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:16958 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264516AbTEPR5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 13:57:38 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305161045270.738-100000@ida.rowland.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1053104232.5590.17.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1053108615.2606.35.camel@toshiba>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 May 2003 17:57:13 +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 May 2003 13:10:15 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-05-15 at 20:37, Bartlomiej Zolnierkiewicz wrote:
-> ide_init_default_hwifs() does exactly what init_hwif_data() already does
-> (both for compiled-in and module case) with exception that it also sets
-> hwif->irq, but this is really not a problem since if irq autodection fails,
-> driver will fallback to using arch specific default irq.
+On Fri, 2003-05-16 at 10:33, Alan Stern wrote:
+> Paul:
+> 
+> On 15 May 2003, Paul Fulghum wrote:
+> > Con: you would be generating a lot of spurious interrupts
+> > as the global USBSTS_RD is set (incorrectly) by the OC ports.
+> > Even though you would not actually do the wake, you still
+> > burn cycles servicing the false interrupts.
+> 
+> I'm not sure about that.  For ports in a permanent OC state, the RD bit 
+> would get set just once, so a single interrupt would be generated.  When 
+> the host clears the Resume Detect bit in the USBSTS register, it shouldn't 
+> get set again (not until a different port signals a resume).  Otherwise a 
+> properly working system would generate continuous interrupts during the 
+> global resume sequence.
 
-That sounds sensible, and the iops and other junk
+Your interpretation checks out. The global RD interrupt does not
+reoccur once the individual RD bit is set. So we get a max of
+once extra interrupt per OC port.
 
-> What I propose is to kill ide_init_default_hwifs() and rely on irq
-> autodection + fallback code in ide-probe.c. This requires splitting
-
-Remember the IRQ depends on the mode of the device (legacy v PCI native)
-plus some chip specific constraints on pairing.
-
-> ide_init_default_hwifs() to ide_default_io_base() and ide_default_irq()
-> for some arm subarchs and breaking (or making it special case)
-
-PA RISC also requires it can override default irq, and wants to know if
-the device is the primary or secondary. 
-
+-- 
+Paul Fulghum
+paulkf@microgate.com
 

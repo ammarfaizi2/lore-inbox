@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbRF0DqN>; Tue, 26 Jun 2001 23:46:13 -0400
+	id <S265232AbRF0D4F>; Tue, 26 Jun 2001 23:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265232AbRF0DqD>; Tue, 26 Jun 2001 23:46:03 -0400
-Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:44932 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S265230AbRF0Dpt>; Tue, 26 Jun 2001 23:45:49 -0400
-Followup-To: syoungs@dingoblue.net.au
-To: linux-kernel@vger.kernel.org
-Subject: Compiling with gcc-3.0
-From: Steve Youngs <syoungs@dingoblue.net.au>
-Organization: Linux Users - Fanatics Dept.
-X-Attribution: SY
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Date: 27 Jun 2001 13:45:20 +1000
-Message-ID: <microsoft-free.x4y9qeziun.fsf@slackware.mynet.pc>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.5 (anise)
+	id <S265233AbRF0Dzz>; Tue, 26 Jun 2001 23:55:55 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:28677 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265232AbRF0Dzv>; Tue, 26 Jun 2001 23:55:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: John Stoffel <stoffel@casc.com>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: VM Requirement Document - v0.0
+Date: Wed, 27 Jun 2001 05:55:48 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Jason McMullan <jmcmullan@linuxcare.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com> <Pine.LNX.4.33L.0106261819400.23373-100000@duckman.distro.conectiva> <15160.65442.682067.38776@gargle.gargle.HOWL>
+In-Reply-To: <15160.65442.682067.38776@gargle.gargle.HOWL>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01062705554800.06823@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not on this list, followups set to my email address.
+> I personally don't feel that the cache should be allowed to grow over
+> 50% of the system's memory at all, we've got so much in the cache at
+> that point, that we're probably not hitting it all that much.
 
-Trying to compile 2.4.5 with gcc-3.0 gives me this:
+That depends very much on what you're using the system for.  Suppose you're 
+running a trivial database application on a gigantic disk array - the name of 
+the game is to cache as much metadata as possible, and that goes directly to 
+the bottom line as performance.  Might as well use 90%+ of your memory for 
+that.
 
-,----
-| gcc -D__KERNEL__ -I/usr/src/linux-2.4.5/include -Wall \
-|   -Wstrict-prototypes -O2 -fomit-frame-pointer \
-|   -fno-strict-aliasing -pipe \
-|   -mpreferred-stack-boundary=2 -march=athlon \
-|   -c -o timer.o timer.c
-| 
-| timer.c:35: conflicting types for `xtime'
-| 
-| /usr/src/linux-2.4.5/include/linux/sched.h:540: \
-|   previous declaration of `xtime'
-| 
-| make[2]: *** [timer.o] Error 1
-| make[2]: Leaving directory `/usr/src/linux-2.4.5/kernel'
-| make[1]: *** [first_rule] Error 2
-| make[1]: Leaving directory `/usr/src/linux-2.4.5/kernel'
-| make: *** [_dir_kernel] Error 2
-`----
+The conclusion to draw here is, the balance between file cache and process 
+memory should be able to slide all the way from one extreme to the other.  
+It's not a requirement that that be fully automatic but it's highly 
+desireable.
 
-Has anyone else seen this?  Is it a problem with the kernel or gcc?
-Have I just stuffed up the gcc installation?
-
-I don't see this with gcc-2.95.2
-
-Thanks very much for any light you can shed of this for me.
-
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: 787C1157>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|-----------------------------<syoungs@dingoblue.net.au>---|
+--
+Daniel

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVAMXZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVAMXVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVAMXZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVAMXWS
+	id S261775AbVAMXVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVAMXTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:22:18 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:65186 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261774AbVAMXUf (ORCPT
+	Thu, 13 Jan 2005 18:19:47 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:28078 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261823AbVAMXNi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:20:35 -0500
-Date: Thu, 13 Jan 2005 13:32:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
-Message-ID: <20050113213251.GB31723@kroah.com>
-References: <200501132014.34558.arekm@pld-linux.org> <200501132030.33996.arekm@pld-linux.org> <20050113193403.GA29645@kroah.com> <200501132049.29969.arekm@pld-linux.org>
-Mime-Version: 1.0
+	Thu, 13 Jan 2005 18:13:38 -0500
+To: Andi Kleen <ak@muc.de>
+Cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: [BUG] ATA over Ethernet __init calling __exit
+References: <20050113000949.A7449@flint.arm.linux.org.uk>
+	<20050113085035.GC2815@suse.de> <m1wtuh2kah.fsf@muc.de>
+	<87is616oi2.fsf@coraid.com> <20050113215346.GB1504@muc.de>
+	<87ekgp567u.fsf@coraid.com> <20050113224832.GA19673@muc.de>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Thu, 13 Jan 2005 17:59:09 -0500
+Message-ID: <87is613phe.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501132049.29969.arekm@pld-linux.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 08:49:29PM +0100, Arkadiusz Miskiewicz wrote:
-> On Thursday 13 of January 2005 20:34, Greg KH wrote:
-> 
-> > But you lost the description of the patch and the Signed-off-by: line :(
-> > Third time's a charm.
-> Copy from first mail?
-> 
-> Ok, here it goes once again with description everywhere.
-> 
-> This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
-> Patch was tested on pre-2.6.10 kernel.
-> 
-> Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Andi Kleen <ak@muc.de> writes:
 
-Next time can you create the patch so I can apply it with -p1 on the
-patch command line.  I fixed up this one already.
+> On Thu, Jan 13, 2005 at 05:12:21PM -0500, Ed L Cashin wrote:
+>
+>> It seems rash to make the change now, because there is no need for it.
+>
+> It would be better to future proof the driver at least a bit.
+>
+>> 
+>> For the skbuffs, we could use a mempool with GFP_NOIO allocation and
+>> then skb_get them before the network layer ever sees them.  We already
+>> keep track of the packets that we've sent out, so we'll just keep a
+>> pointer to the skbuffs.
+>
+> That won't work because you don't know when the driver is done with it.
+>
+> There is a callback, but it's already used by socket buffer management
 
-Applied, thanks.
+The destructor member of struct sk_buff, right?
 
-greg k-h
+> (if you don't use a socket it may be usable) 
+
+You mean a struct sock?  No, we don't use that because we're not IP.
+Thanks for the lead.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+

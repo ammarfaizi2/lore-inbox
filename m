@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129985AbQKRSFQ>; Sat, 18 Nov 2000 13:05:16 -0500
+	id <S130110AbQKRSKg>; Sat, 18 Nov 2000 13:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbQKRSFH>; Sat, 18 Nov 2000 13:05:07 -0500
-Received: from 13dyn189.delft.casema.net ([212.64.76.189]:64265 "EHLO
+	id <S130145AbQKRSKQ>; Sat, 18 Nov 2000 13:10:16 -0500
+Received: from 13dyn189.delft.casema.net ([212.64.76.189]:10 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129985AbQKRSEt>; Sat, 18 Nov 2000 13:04:49 -0500
-Message-Id: <200011181734.SAA14485@cave.bitwizard.nl>
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <200011181732.UAA16238@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru"
- at "Nov 18, 2000 08:32:26 pm"
-To: kuznet@ms2.inr.ac.ru
-Date: Sat, 18 Nov 2000 18:34:34 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.NL>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.NL (Rogier Wolff)
+	id <S130110AbQKRSKQ>; Sat, 18 Nov 2000 13:10:16 -0500
+Message-Id: <200011181740.SAA14504@cave.bitwizard.nl>
+Subject: Re: EXPORT_NO_SYMBOLS vs. (null) ?
+In-Reply-To: <E13xBXm-0001s7-00@the-village.bc.nu> from Alan Cox at "Nov 18,
+ 2000 05:12:49 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sat, 18 Nov 2000 18:40:07 +0100 (MET)
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -21,18 +22,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> Hello!
+Alan Cox wrote:
+> > What is the difference between a module that exports no symbols and
+> > includes EXPORT_NO_SYMBOLS reference, and such a module that lacks
+> > EXPORT_NO_SYMBOLS?
+> > 
+> > Alan once upbraided me for assuming they were the same :)
 > 
-> > This IS the magical security device. 
+> EXPORT_NO_SYMBOLS		-	nothing exported
+> MODULE_foo			-	export specific symbol
 > 
-> Jail maybe is. Chroot is not. It is even not clear, why you remembered
-> about jail here. Chroot does not imprison anyone.
+> none of the above, export all globals but without modvers
+                                ^^^^^^^ and statics!!!!
 
-Well, because lots of people seem to THINK that chroot imprisons
-someone. And "jail" actually does....
+I consider that a bug, but... 
 
-			Roger.
+				Roger. 
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

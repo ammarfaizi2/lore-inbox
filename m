@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbUDEHDe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 03:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUDEHDe
+	id S263160AbUDEHHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 03:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUDEHHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 03:03:34 -0400
-Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:63093 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262136AbUDEHDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 03:03:32 -0400
-Date: Mon, 05 Apr 2004 03:03:18 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: 2.6.5-aa1
-In-reply-to: <4070F11B.6020602@web.de>
-To: Marcus Hartig <m.f.h@web.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Message-id: <200404050303.30657.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.1
-References: <40707888.80006@web.de> <20040405002028.GB21069@dualathlon.random>
- <4070F11B.6020602@web.de>
+	Mon, 5 Apr 2004 03:07:00 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:54247 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263160AbUDEHG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 03:06:58 -0400
+Date: Mon, 5 Apr 2004 18:05:36 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Carsten Gaebler <ezinye-zinto@snakefarm.org>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.25 XFS can't create files
+Message-ID: <20040405080536.GB9193@frodo>
+References: <406D20FE.8040701@snakefarm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <406D20FE.8040701@snakefarm.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Apr 02, 2004 at 10:14:54AM +0200, Carsten Gaebler wrote:
+> Hi there,
+> 
+> I have somewhat of an esoteric problem. I can create an XFS on an 
+> external fibre channel RAID attached to an LSI fibre channel card 
+> (Fusion MPT driver) but I can't create files or directories on that 
+> filesystem (Permission denied). ext2/ext3 work fine on the same 
+> partition, so I suspect this is an XFS+MPT issue.
 
-On Monday 05 April 2004 01:39, Marcus Hartig wrote:
-<snip>
-> echo "et.x86 0 0 direct" > /proc/asound/card0/pcm0p/oss
-> echo "et.x86 0 0 disable" > /proc/asound/card0/pcm0c/oss
+Thats very odd - the SGI CVS 2.4 kernel (that you reported
+working) is also at 2.4.25, and there's nothing in the XFS
+fixes/updates there that might be the cause of this, AFAICT.
+ACLs are not in Marcelo's tree, but that is unlikely to be
+the cause here (both cases are well tested).  The only other
+thing I can suggest is a liberal sprinkling of printks on
+the sys_open path, till you find the spot thats returning
+this error..
 
-I used only the first one of the two commands, and had to use artsdsp to get 
-sound. With both of those commands, I just got et running without arts and it 
-didn't sigsegv. 
+cheers.
 
-> The related part (i hope) of strace:
-<snip>
->
-> Thanks, i will test it later with prempt off and an other driver.
-
-Jeff.
-
-- -- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAcQS8wFP0+seVj/4RAhL6AJ90rSQMKtx9pSAvmDtmkgBtJgwXVwCglLbz
-SepNHo5CLDfhFZV3Ic3YF3A=
-=1NYt
------END PGP SIGNATURE-----
+-- 
+Nathan

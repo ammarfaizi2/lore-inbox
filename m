@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130794AbRCJBBm>; Fri, 9 Mar 2001 20:01:42 -0500
+	id <S130791AbRCJBBM>; Fri, 9 Mar 2001 20:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130796AbRCJBBc>; Fri, 9 Mar 2001 20:01:32 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:30476 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130794AbRCJBBX>; Fri, 9 Mar 2001 20:01:23 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Sat, 10 Mar 2001 11:58:29 +1100
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH]: allow notsc option for buggy cpus
-Message-ID: <20010310115828.A7514@linuxcare.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S130794AbRCJBBC>; Fri, 9 Mar 2001 20:01:02 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54417 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130791AbRCJBA5>;
+	Fri, 9 Mar 2001 20:00:57 -0500
+Date: Fri, 9 Mar 2001 20:00:15 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: (struct dentry *)->vfsmnt;
+In-Reply-To: <3AA9653B.B691C8F2@sgi.com>
+Message-ID: <Pine.GSO.4.21.0103091958030.17677-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-My IBM Thinkpad 600E changes between 100MHz and 400MHz depending if the
-power is on. This means gettimeofday goes backwards if you boot with the
-power out (tsc calibrated at 100MHz) and then plug the power in. (tsc is now
-spinning at 4x speed, so offsets within the HZ timer period are 4x out!).
+On Fri, 9 Mar 2001, LA Walsh wrote:
 
-The answer is to boot with the notsc option, however since the
-CONFIG_X86_TSC option is enabled for CONFIG_M686, we cannot do this. Saving
-one indirect function call for do_gettimeofset is not enough of a reason for
-CONFIG_X86_TSC. Should we trash this option?
+> Could someone enlighten me as to the purpose of this field in the
+> dentry struct?  There is no elucidating comment in the header for this
+> particular field and the name/type only indicate it is pointing to
+> a list of vfsmounts.  Can a dentry belong to more than one vfsmount?
 
-Even so, we should really catch these cpus at run time. 
+Yes.
 
-Anton
+> If I have a 'dentry' and simply want to determine what the absolute
+> path from root is, in the 'd_path' macro, would I use 'rootmnt' of my
+> current->fs as the 'vfsmount' as well?
 
+No such thing. The same fs may be present in many places. Please,
+describe the situation - where do you get that dentry from?
+							Cheers,
+								Al
 
---- linux/arch/i386/config.in	Wed Jan 10 12:19:57 2001
-+++ linux_intel/arch/i386/config.in	Fri Mar  9 07:59:39 2001
-@@ -80,7 +80,6 @@
- fi
- if [ "$CONFIG_M686" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
--   define_bool CONFIG_X86_TSC y
-    define_bool CONFIG_X86_GOOD_APIC y
-    define_bool CONFIG_X86_PGE y
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-
-
-# cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 6
-model name	: Mobile Pentium II
-stepping	: 10
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 104.44

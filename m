@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUGXIXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268378AbUGXJIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268368AbUGXIXu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 04:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268369AbUGXIXt
+	id S268378AbUGXJIC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 05:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUGXJIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 04:23:49 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:16018 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268368AbUGXIXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 04:23:48 -0400
-Date: Sat, 24 Jul 2004 01:23:46 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Robert Love <rml@ximian.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       zaitcev@redhat.com
-Subject: Re: [patch] kernel events layer, updated
-Message-ID: <20040724082346.GA22103@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <1090604517.13415.0.camel@lucy> <20040723200335.521fe42a.akpm@osdl.org> <1090638679.2296.9.camel@localhost> <20040724075852.GA21299@plexity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040724075852.GA21299@plexity.net>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 24 Jul 2004 05:08:02 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:457 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268378AbUGXJIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 05:08:00 -0400
+Date: Sat, 24 Jul 2004 10:08:06 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: Rob Landley <rob@landley.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Interesting race condition...
+In-Reply-To: <200407240317.57032.rob@landley.net>
+Message-ID: <Pine.HPX.4.58L.0407241007460.10340@punch.eng.cam.ac.uk>
+References: <200407222204.46799.rob@landley.net>
+ <Pine.HPX.4.58L.0407231058420.12978@punch.eng.cam.ac.uk>
+ <200407240317.57032.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 24 2004, at 00:58, Deepak Saxena was caught saying:
-> The kernel should use an object name that is unique in the context 
-> of the kernel (hence my suggestion to use sysfs path, but perhaps there
-> is something else?) and D-BUS should generate the appropriate object 
-> name that it expects.  The kernel is never going to send messages for 
+On Sat, 24 Jul 2004, Rob Landley wrote:
+> It's expected behavior for PS to show a process's environment variables as
+> part of its command line?
 
-Ermm..need sleep. What I meant is that D-BUS (kdbusd really) should
-take care of generating the object name expected by D-BUS clients
-from the kernel object name.  Looking at the kbdusd source, it expects
-the kernel to provide a D-BUS object name it can stuff directly into
-the dbus_message_new_signal() call.  This means forcing a specific 
-kevent-handling mechanism's implementation on the kernel.  I don't think 
-that's what we want to do as the sending of events and how those events 
-happen to be parsed and handled in userspace should be kept separate. 
+Duh! Need more coffee...
 
-~Deepak
+Peter
 
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131161AbRCGSzs>; Wed, 7 Mar 2001 13:55:48 -0500
+	id <S131169AbRCGS56>; Wed, 7 Mar 2001 13:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131163AbRCGSzi>; Wed, 7 Mar 2001 13:55:38 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:27144 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131161AbRCGSzV>; Wed, 7 Mar 2001 13:55:21 -0500
-Message-Id: <200103071854.f27IsvO28745@aslan.scsiguy.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: yacc dependency of aic7xxx driver 
-In-Reply-To: Your message of "Wed, 07 Mar 2001 18:12:27 +0200."
-             <20010307181227.H23336@mea-ext.zmailer.org> 
-Date: Wed, 07 Mar 2001 11:54:57 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131170AbRCGS5s>; Wed, 7 Mar 2001 13:57:48 -0500
+Received: from www.wen-online.de ([212.223.88.39]:1799 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131169AbRCGS5m>;
+	Wed, 7 Mar 2001 13:57:42 -0500
+Date: Wed, 7 Mar 2001 19:56:51 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk (and other) problems with 2.4.2
+In-Reply-To: <Pine.LNX.3.95.1010307125355.2243A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0103071903530.3166-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->	I presume the aicasm (or whatever) can do its meager DB needs
->	by simpler ubiquitous things like  GDBM.   SleepyCat DBx is good,
->	but in this case as serious overkill as e.g. using Oracle ;)
->	(No, I didn't read the source of the aicasm.)
+On Wed, 7 Mar 2001, Richard B. Johnson wrote:
 
-People keep saying stuff like this.  I think one of the best things
-a developer can realize is that being lazy is often a good thing.  I
-already was experience with using db, it took me about 5 minutes to
-utilize it for this project when rolling my own would have taken
-much longer, and it happens to be available on almost any platform
-of interest (including windows which is used to host some of the RTOS
-environments that also use this driver).  More importantly, it works...
-so why fix it?
+> Would you please check your /dev/ram0 and verify that it is:
+>
+> 	block special (1/0)
 
-People who really want to assemble the firmware will install the required
-packages.  We'll just ship precompiled firmware and make sure the dependencies
-don't fire even if only a few of the files in the dependency chain are
-updated.
+Why zzzt zzt are we now zzt troubleshooting _my_ zzzzt system :-)
 
---
-Justin
+	tilt
+
+	-Mike
+

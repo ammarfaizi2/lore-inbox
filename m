@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281609AbRLBRZv>; Sun, 2 Dec 2001 12:25:51 -0500
+	id <S284254AbRLBRbB>; Sun, 2 Dec 2001 12:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281599AbRLBRZl>; Sun, 2 Dec 2001 12:25:41 -0500
-Received: from cs6669235-16.austin.rr.com ([66.69.235.16]:26497 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S281609AbRLBRZc>; Sun, 2 Dec 2001 12:25:32 -0500
-Date: Sun, 2 Dec 2001 11:25:30 -0600 (CST)
-From: Erik Elmore <lk@bigsexymo.com>
-X-X-Sender: <lk@localhost.localdomain>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: EXT3 - freeze ups during disk writes
-In-Reply-To: <E16AX5E-0006pH-00@calista.inka.de>
-Message-ID: <Pine.LNX.4.33.0112021121420.13663-100000@localhost.localdomain>
+	id <S283520AbRLBRav>; Sun, 2 Dec 2001 12:30:51 -0500
+Received: from mail008.mail.bellsouth.net ([205.152.58.28]:6575 "EHLO
+	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281599AbRLBRai>; Sun, 2 Dec 2001 12:30:38 -0500
+Message-ID: <3C0A6539.B650C789@mandrakesoft.com>
+Date: Sun, 02 Dec 2001 12:30:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <Pine.LNX.4.40.0112021108280.26270-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You should elaborate more on the type of disks writes. Is this a write to a
-> single large file, a rename/delte of a large tree, ot generating of a lot of
-> files. Cause there is a difference in the meta data and data handling. both
-> where known to take too much time in different versions.
+Oliver Xymoron wrote:
+> 
+> On Sun, 2 Dec 2001, Alan Cox wrote:
+> 
+> > > Please consider the following wipe out candidates as well:
+> > >
+> > > 2. proprietary CD-ROM
+> > > 3. xd.c (ridiculous isn't it?)
+> > > 4. old ide driver...
+> >
+> > I know people using all 3 of those, while bugs in some of the old scsi 8bit
+> > drivers went unnoticed for a year.
+> 
+> We need a 'prompt for unmaintained drivers' trailing-edge option in the
+> build process so people will know when something's been orphaned and pick
+> it up.
 
-It appears when writing a single large file such as downloading or copying 
-a file, and also when I copy a large number of smaller files at once.  I 
-have noticed no performance hits when renaming or deleting a large number 
-of files at once.
+There's already CONFIG_OBSOLETE...
 
-Erik
-
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

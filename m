@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268063AbRGZPmP>; Thu, 26 Jul 2001 11:42:15 -0400
+	id <S268086AbRGZPqp>; Thu, 26 Jul 2001 11:46:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268107AbRGZPlz>; Thu, 26 Jul 2001 11:41:55 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:14605 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S268063AbRGZPlw>;
-	Thu, 26 Jul 2001 11:41:52 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Gerald Walden" <thepond@charter.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: debug of a kernel panic leading nowhere... 
-In-Reply-To: Your message of "Wed, 25 Jul 2001 21:57:18 -0400."
-             <20010726015721Z267509-720+6404@vger.kernel.org> 
+	id <S268119AbRGZPqf>; Thu, 26 Jul 2001 11:46:35 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18949 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268086AbRGZPqU>; Thu, 26 Jul 2001 11:46:20 -0400
+Date: Thu, 26 Jul 2001 12:45:30 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Validating Pointers
+Message-ID: <20010726124529.B2548@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Cress, Andrew R" <andrew.r.cress@intel.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <9678C2B4D848D41187450090276D1FAE1008EAA8@FMSMSX32>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 27 Jul 2001 01:41:38 +1000
-Message-ID: <22993.996162098@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <9678C2B4D848D41187450090276D1FAE1008EAA8@FMSMSX32>; from andrew.r.cress@intel.com on Thu, Jul 26, 2001 at 08:36:49AM -0700
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, 25 Jul 2001 21:57:18 -0400, 
-"Gerald Walden" <thepond@charter.net> wrote:
->During the rmmod of a fairly simple driver, I get a kernel
->panic which crashes the system.  I believe I have taken all
->the proper steps to attempt to debug the problem to no
->avail.
->perhaps there is a more appropriate list that I should be
->sending this to) would greatly be appreciated.
->before <1>Unable to handle kernel paging request at virtual
->address 5a5a5a5e
+Em Thu, Jul 26, 2001 at 08:36:49AM -0700, Cress, Andrew R escreveu:
+> 
+> Is there a general (correct) kernel subroutine to validate a pointer
+> received in a routine as input from the outside world?  Is access_ok() a
+> good one to use?
 
-That bit pattern indicates an attempt to access storage that has been
-freed and poisoned by the slab cache.
-
->>>EIP; c482424a <__module_parm_watchdog+4fd2/????>   <=====
->Trace; c482777b <END_OF_CODE+8503/????>
->Trace; c482779d <END_OF_CODE+8525/????>
->Trace; c482190f <__module_parm_watchdog+2697/????>
->Trace; c4854c20 <END_OF_CODE+359a8/????>
-
-At the time the oops occurred, the module symbols had already been
-removed.  You need to run ksymoops against ksyms and lsmod data from
-*before* the rmmod.  man insmod, see ksymoops assistance, in particular
-directory /var/log/ksymoops.  Run ksymoops against the symbols saved
-after the module was loaded.
-
+normally one uses get_user & friends and copy_from_user and friends
+checking its return and returning -EFAULT if they fail

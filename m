@@ -1,82 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbTIOUSG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbTIOUSG
+	id S261539AbTIOUUV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbTIOUUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:18:06 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:389 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261419AbTIOUSD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:18:03 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-Date: Mon, 15 Sep 2003 13:17:58 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEPLGIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F6603D8.1070009@techsource.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 15 Sep 2003 16:20:21 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:27915 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S261539AbTIOUUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:20:17 -0400
+Date: Mon, 15 Sep 2003 22:20:16 +0200
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
+Message-ID: <20030915202016.GB30683@gamma.logic.tuwien.ac.at>
+References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at> <shs3cezap0u.fsf@charged.uio.no> <20030915093110.GD2268@gamma.logic.tuwien.ac.at> <16229.54852.834931.495479@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16229.54852.834931.495479@charged.uio.no>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 15 Sep 2003, Trond Myklebust wrote:
+>      > Hmmm, that sounds very strange, since I used the same gcc for
+>      > the previous kernels (pre3 and before), too!?
+> 
+> If it's gcc-3.3.2-0pre3 (the current most recent gcc in sid) then I
 
-> David Schwartz wrote:
+I have here 
+[~] gcc --version
+gcc (GCC) 3.3.2 20030908 (Debian prerelease)
 
-> > 	This is a publication restriction, not a usage restriction.
-> > Your phrasing
-> > above is like saying, "you can't put bullets into a gun that you use to
-> > shoot a police officer". The restriction is on the shooting, not the
-> > loading.
+and my currently running kernel has been compiled with:
+Linux version 2.4.23-pre3 (root@gandalf) (gcc-Version 3.3.2 20030908 (Debian prerelease)) #3 Mit Sep 10 08:55:40 CEST 2003
 
-> Are you saying that publishing a program does not constitute a "usage"
-> of the program and/or its source code?
+so this *cannot* be the problem! It is the SAME compiler I am running at
+the moment.
 
-	No, I'm saying that publishing a program is not *just* a usage of the
-program. You can have full usage rights to a program and not be able to
-publish it because publication requires granting rights to other people,
-which is not use.
+I am definitely not the opinion that this is the problem, sorry.
 
-	Similarly, I can give you full rights to use my house but you still can't
-sell my house. That's not because "selling" isn't a way of "using", it's
-because selling is "using and then some". The additional thing that
-distribution has that usage doesn't is the ability to grant rights to
-others.
+Best wishes
 
-	The GPL is quite clear on this point:
+Norbert
 
-"Activities other than copying, distribution and modification are not
-covered by this License; they are outside its scope.  The act of
-running the Program is not restricted, and the output from the Program
-is covered only if its contents constitute a work based on the
-Program (independent of having been made by running the Program).
-Whether that is true depends on what the Program does."
-
-	When you distribute a copyrighted work, you are not just distributing the
-physical work but you are also conveying at last some rights of usage to
-other people. Conveying rights of usage is legally distinct from having
-rights of usage.
-
-	Unrestricted use does not mean you can do whatever you please so long as it
-somehow involves usage, it just means that the restrictions aren't upon the
-usage itself. So anything that is *just* usage is okay. Anything that is
-usage and something else is okay so long as the something else is okay. You
-can have full unrestricted use of my bat and you still can't use it to beat
-a stranger, but that's because you couldn't use anything to beat a stranger,
-not because you don't have full use of the bat.
-
-	Distribution is usage and something else. The something else being the
-conveying of usage rights to others. If you have unrestricted use, you can
-still only distribute if you have the rights to the something else.
-
-	DS
-
-
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+SPROSTON GREEN (n.)
+The violent colour of one of Nigel Rees's jackets, worn when he thinks
+he's being elegant.
+			--- Douglas Adams, The Meaning of Liff

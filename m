@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262382AbTCIDIi>; Sat, 8 Mar 2003 22:08:38 -0500
+	id <S262383AbTCIDRu>; Sat, 8 Mar 2003 22:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262383AbTCIDIi>; Sat, 8 Mar 2003 22:08:38 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:19461 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262382AbTCIDIh>; Sat, 8 Mar 2003 22:08:37 -0500
-Date: Sun, 9 Mar 2003 04:19:05 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Zack Brown <zbrown@tumblerings.org>
-cc: Larry McVoy <lm@work.bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-In-Reply-To: <20030309024522.GA25121@renegade>
-Message-ID: <Pine.LNX.4.44.0303090401160.32518-100000@serv>
-References: <200303020011.QAA13450@adam.yggdrasil.com>
- <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org>
- <20030307190848.GB21023@atrey.karlin.mff.cuni.cz> <b4b98v$14m$1@penguin.transmeta.com>
- <20030308225252.GA23972@renegade> <20030309000514.GB1807@work.bitmover.com>
- <20030309024522.GA25121@renegade>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262385AbTCIDRu>; Sat, 8 Mar 2003 22:17:50 -0500
+Received: from h80ad267b.async.vt.edu ([128.173.38.123]:14467 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S262383AbTCIDRt>; Sat, 8 Mar 2003 22:17:49 -0500
+Message-Id: <200303090328.h293SH7U007070@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] updated scheduler-tunables for 2.5.64-mm2 
+In-Reply-To: Your message of "Sat, 08 Mar 2003 18:18:51 PST."
+             <477140000.1047176330@[10.10.2.4]> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030307185116.0c53e442.akpm@digeo.com> <1047095088.727.5.camel@phantasy.awol.org> <400810000.1047147915@[10.10.2.4]> <1047174868.719.7.camel@phantasy.awol.org>
+            <477140000.1047176330@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1474792192P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 08 Mar 2003 22:28:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_1474792192P
+Content-Type: text/plain; charset=us-ascii
 
-On Sat, 8 Mar 2003, Zack Brown wrote:
+On Sat, 08 Mar 2003 18:18:51 PST, "Martin J. Bligh" said:
 
->   * Distributed rename handling. Centralized systems like Subversion don't
->   have as many problems with this because you can only create one file in
->   one directory entry because there is only one directory entry available.
->   In distributed rename handling, there can be an infinite number of different
->   files which all want to be src/foo.c. There are also many rename corner-cases.
+> > But at least in 2.5.64 and 2.5.64-mm3, I do not see those parameters. 
+> > There is no {IDLE|BUSY}_NODE_REBALANCE_TICK define.
+> 
+> Ooops. Sorry ... we have to merge Ingo's NUMA sched updates first ;-)
+> /me goes back to swinging about in his own tree ...
 
-This actually a very bk specific problem, because the real problem under 
-bk there can be only one src/SCCS/s.foo.c. A separate repository doesn't 
-have this problem, because it has control over the naming in the 
-repository and the original naming is restored with an explicit checkout.
-In this context it will be really interesting to see how Larry wants to 
-implement "lines of development" (aka branches which don't suck) and 
-also maintain SCCS compatibility.
+Hey Larry - looks like some people you can sell a Bitkeeper license to. ;)
 
-bye, Roman
+--==_Exmh_1474792192P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+arTQcC3lWbTT17ARAk3vAKDY1vCDZGZT0mqVL/OoVSS5RxYlggCdHRIq
+zjTx8ssk9h6S48I9uTszBHA=
+=jsH4
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1474792192P--

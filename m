@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267311AbTAGGYI>; Tue, 7 Jan 2003 01:24:08 -0500
+	id <S267312AbTAGGZK>; Tue, 7 Jan 2003 01:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267312AbTAGGYI>; Tue, 7 Jan 2003 01:24:08 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:8897 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267311AbTAGGYH>; Tue, 7 Jan 2003 01:24:07 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH]  Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty
+	id <S267313AbTAGGZK>; Tue, 7 Jan 2003 01:25:10 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:61388 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S267312AbTAGGY1>; Tue, 7 Jan 2003 01:24:27 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Date: Tue, 7 Jan 2003 17:07:06 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15898.28298.486412.214548@notabene.cse.unsw.edu.au>
 Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030107063239.F1ED73745@mcspd15.ucom.lsi.nec.co.jp>
-Date: Tue,  7 Jan 2003 15:32:39 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+Subject: Re: [PATCH] Define hash_mem in lib/hash.c to apply hash_long to an arbitraty piece of memory.
+In-Reply-To: message from Aaron Lehmann on Monday January 6
+References: <15898.24480.346258.361959@notabene.cse.unsw.edu.au>
+	<20030107053152.GF26827@vitelus.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since these are just symbols in the module object, they need symbol name
-munging to find the symbol from the parameter name.
+On Monday January 6, aaronl@vitelus.com wrote:
+> On Tue, Jan 07, 2003 at 04:03:28PM +1100, Neil Brown wrote:
+> > I did a little testing and found that on a list of 2 million 
+> > basenames from a recent backup index (800,000 unique):
+> > 
+> >  hash_mem (as included here) is noticably faster than HASH_HALF_MD4 or
+> >  HASH_TEA: 
+> > 
+> >   hash_mem:		10 seconds
+> >   DX_HASH_HALF_MD4:	14 seconds
+> >   DX_HASH_TEA:		15.2 seconds
+> 
+> I'm curious how the hash at
+> http://www.burtleburtle.net/bob/hash/doobs.html would fare. He has a
+> 64-bit version at
+> http://www.burtleburtle.net/bob/c/lookup8.c.
 
-[I guess using the stack is bad in general, but parameter names should be
-very short, and hey if they're obsolete, it seems pointless to spend
-much effort.]
+Performing the same tests: producing 8 bit hashes from 800,000
+filenames.
 
-diff -ruN -X../cludes linux-2.5.54-moo.orig/kernel/module.c linux-2.5.54-moo/kernel/module.c
---- linux-2.5.54-moo.orig/kernel/module.c	2003-01-06 10:51:20.000000000 +0900
-+++ linux-2.5.54-moo/kernel/module.c	2003-01-07 14:31:53.000000000 +0900
-@@ -666,13 +666,18 @@
- 		       num, obsparm[i].name, obsparm[i].type);
- 
- 	for (i = 0; i < num; i++) {
-+		char sym_name[strlen (obsparm[i].name) + 2];
-+
-+		strcpy (sym_name, MODULE_SYMBOL_PREFIX);
-+		strcat (sym_name, obsparm[i].name);
-+
- 		kp[i].name = obsparm[i].name;
- 		kp[i].perm = 000;
- 		kp[i].set = set_obsolete;
- 		kp[i].get = NULL;
- 		obsparm[i].addr
- 			= (void *)find_local_symbol(sechdrs, symindex, strtab,
--						    obsparm[i].name);
-+						    sym_name);
- 		if (!obsparm[i].addr) {
- 			printk("%s: falsely claims to have parameter %s\n",
- 			       name, obsparm[i].name);
+Speed is 10 seconds, comarable to hash_mem
+
+normalised standard deviation of frequencies is 0.0171039
+which is is the same ball park as the hashes ext3 uses
+(they gave 0.0169 and 0.0182.  hash_mem gave 0.02255).
+
+So (on this set of values at least) it does seem to be a better hash
+function. 
+
+I might look more closely at it.
+
+Thanks,
+NeilBrown

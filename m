@@ -1,117 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270658AbTGUSFt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 14:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270692AbTGUSFt
+	id S270655AbTGUR6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270652AbTGUR5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 14:05:49 -0400
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:7145 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S270658AbTGUSFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 14:05:12 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55219@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: linux-kernel@vger.kernel.org
-Cc: sartre@linuxbr.com
-Subject: 2.5.72 insmod question again
-Date: Mon, 21 Jul 2003 12:19:59 -0600
+	Mon, 21 Jul 2003 13:57:38 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:38897 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S270653AbTGUR41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:56:27 -0400
+Message-ID: <3F1C1079.7060103@cornell.edu>
+Date: Mon, 21 Jul 2003 12:10:33 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Ford <david+powerix@blue-labs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TCQ problems in 2.6.0-test1: the summary
+References: <3F19C838.8040301@cornell.edu> <20030721123334.GF10781@suse.de> <3F1C1326.5080804@blue-labs.org>
+In-Reply-To: <3F1C1326.5080804@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ,
 
-I have patched the module update 0.9.13-pre and rebuilt kernel.  However, the insmod is still complainthe same thing because the utility is still from 2.4.20-8.  This driver module is not going to be loaded during the kernel boot.  I want to use insmod to load the module.  I tried load qla1280.o built with kernel and got the same result.
+> Note, reiserfsck never indicates any problems were found or fixed but 
+> the problems are none-the-less fixed.  (reiser guys: reiserfsck 
+> --fix-fixable always results in "--fix-fixable ignored")
 
-I think I may either need a new insmod utility to load the module,  missed something or need to follow different procedure.  Any idea from this point?
+I think it does that when the root fs is mounted - not sure.
+You should fsck from a different root.
 
-By the way, I am using RH 9.0 release as base system fo r2.5.72 upgrade.
 
-Thanks!
+> Jul 19 10:55:31 james hdc: invalidating tag queue (0 commands)
+> Jul 19 10:55:41 james ide_tcq_intr_timeout: timeout waiting for 
+> completion interrupt
 
-Eddie
+Yes - that's in my original email.
 
-> -----Original Message-----
-> From: Cesar Suga [mailto:sartre@linuxbr.com]
-> Sent: Friday, July 18, 2003 5:27 AM
-> To: yiding_wang@agilent.com
-> Subject: RE: 2.5.72 insmod question
-> 
-> 
-> On Fri, 2003-07-18 at 14:50, yiding_wang@agilent.com wrote:
-> 
-> 	You're welcome;
-> 
-> 	I've come with some shortcomings upgrading, too...
-> 
-> 	[]s,
-> 	Cesar Suga <sartre@linuxbr.com>
-> 
-> > Thanks for the help!
-> > 
-> > > -----Original Message-----
-> > > From: Cesar Suga [mailto:sartre@linuxbr.com]
-> > > Sent: Friday, July 18, 2003 3:00 AM
-> > > To: yiding_wang@agilent.com
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Subject: Re: 2.5.72 insmod question
-> > > 
-> > > 
-> > > On Thu, 2003-07-17 at 21:35, yiding_wang@agilent.com wrote:
-> > > 
-> > > 	Hello,
-> > > 
-> > > 	Install the 'module-init-tools' package, from:
-> > > 
-> > > 	ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/
-> > > 
-> > > 	This is required for the new series of kernels, 
-> > > starting with 2.5.50 (I
-> > > think), 2.5.72 certainly requires it.
-> > > 
-> > > 	Cheers,
-> > > 	Cesar Suga <sartre@linuxbr.com>
-> > > 
-> > > > I completed a fibre channel driver change to support for 
-> > > 2.5.72 (suppose to be 2.6 compatible) and compiled it OK.  
-> > > When trying load the driver with "insmod", it complains with 
-> > > the message "insmod: QM_MODULES: Function not implemented".
-> > > > 
-> > > > I tried kernel built module qla1280.o and got the same 
-> > > result.  It seems the insmod utility in my system is not 
-> > > compatible with new 2.5.72 built module.
-> > > > 
-> > > > I have 2.4.20-8 kernel installed first and driver loads and 
-> > > runs fine.  Later added 2.5.72 kernel and booted with its 
-> > > bzImage works fine too.  However, the insmod utility I am 
-> > > using to load new driver was from 2.4.20-8 which has 
-> > > system_query_module() being called.  I checked Doc. and 
-> > > source code for 2.5.72 and could not find same function call 
-> > > in module.c
-> > > > 
-> > > > Some web documents mentioned that the module installation 
-> > > is changed from 2.4.x to 2.5.x.  So far I am still looking 
-> > > for the solution and hope someone can help me on the issue.
-> > > > 
-> > > > I am compiling the driver out side of kernel source tree 
-> > > but using kernel environmental variables for compatibility.
-> > > > 
-> > > > Regards,
-> > > > 
-> > > > Eddie
-> > > > 
-> > > >  
-> > > > 
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> 
+> and further disk access causes D state.  I upgraded this machine to 
+> 2.6.0-test1 and now it's having fits with apic or acpi but that's 
+> another email.  And a side note, if I have TCQ compiled in w/ 
+> 2.6.0-test1, the kernel barfs a long 40+ function OOPS on bootup.
+
+Jens's patch in my email should fix that.
+However, TCQ seems rather broken to me right now (or maybe it's just my
+machine) - so I'd be careful with it.
+
+
+
+

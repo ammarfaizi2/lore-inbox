@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314444AbSEKEcx>; Sat, 11 May 2002 00:32:53 -0400
+	id <S314496AbSEKEhw>; Sat, 11 May 2002 00:37:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314544AbSEKEcw>; Sat, 11 May 2002 00:32:52 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:11276 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S314444AbSEKEcv>;
-	Sat, 11 May 2002 00:32:51 -0400
-Date: Sat, 11 May 2002 00:24:02 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: <fdavis@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <fdavis@si.rr.com>
-Subject: [PATCH] 2.5.15 : drivers/block/paride/pd.c minor unused var
-Message-ID: <Pine.LNX.4.33.0205110022030.4085-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314512AbSEKEhv>; Sat, 11 May 2002 00:37:51 -0400
+Received: from holomorphy.com ([66.224.33.161]:56462 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314496AbSEKEhv>;
+	Sat, 11 May 2002 00:37:51 -0400
+Date: Fri, 10 May 2002 21:36:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 : drivers/block/paride/pcd.c minor unused var patch
+Message-ID: <20020511043630.GB32767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0205110017490.4085-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  This patch removes an unused function variable..
+On Sat, May 11, 2002 at 12:22:01AM -0400, Frank Davis wrote:
+> Hello all,
+>   The following just removes an unused varible (Didn't see this posted 
+> yet). 
+> 
+> Regards,
+> Frank 
+> 
+> --- drivers/block/paride/pcd.c.old	Sat May  4 12:23:09 2002
+> +++ drivers/block/paride/pcd.c	Sat May 11 00:15:10 2002
+> @@ -330,7 +330,7 @@
+>  
+>  int pcd_init (void)	/* preliminary initialisation */
+>  
+> -{       int 	i, unit;
+> +{       int unit;
+>  
+>  	if (disable) return -1;
 
-Regards,
-Frank
+Any chance you could do something like 
 
---- drivers/block/paride/pd.c.old	Sat May  4 12:23:09 2002
-+++ drivers/block/paride/pd.c	Sat May 11 00:14:07 2002
-@@ -382,7 +382,7 @@
- 
- int pd_init (void)
- 
--{       int i;
-+{       
- 	request_queue_t * q; 
- 
- 	if (disable) return -1;
+int pcd_init(void) /* preliminary initialization */
+{
+	int unit;
 
+	if (disable)
+		return -1;
+...
+
+both unit and i are unused and there's a bit of style breakage to fix.
+
+
+Cheers,
+Bill

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTFDW2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 18:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTFDW2J
+	id S264231AbTFDWeH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 18:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTFDWeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 18:28:09 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12166
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264248AbTFDW0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 18:26:35 -0400
-Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Krzysiek Taraszka <dzimi@pld.org.pl>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306042341.27160.dzimi@pld.org.pl>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
-	 <200305292218.38127.dzimi@pld.org.pl>
-	 <Pine.LNX.4.55L.0306041515050.11972@freak.distro.conectiva>
-	 <200306042341.27160.dzimi@pld.org.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054766238.14284.79.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 4 Jun 2003 18:34:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44303 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264231AbTFDWeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 18:34:06 -0400
+Date: Wed, 4 Jun 2003 23:47:32 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: John Appleby <john@dnsworld.co.uk>
+Cc: John Appleby <johna@unickz.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serio keyboard issues 2.5.70
+Message-ID: <20030604234732.E22460@flint.arm.linux.org.uk>
+Mail-Followup-To: John Appleby <john@dnsworld.co.uk>,
+	John Appleby <johna@unickz.com>, linux-kernel@vger.kernel.org
+References: <434747C01D5AC443809D5FC5405011310970EA@bobcat.unickz.com> <434747C01D5AC443809D5FC540501131569A@bobcat.unickz.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Jun 2003 23:37:19 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <434747C01D5AC443809D5FC540501131569A@bobcat.unickz.com>; from john@dnsworld.co.uk on Wed, Jun 04, 2003 at 11:44:17PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-04 at 22:41, Krzysiek Taraszka wrote: 
-> -rc3 in subject :)) with another fixes but without cmd640 fixes.
-> Alan made almoust the same changes but him ac tree still have got broken 
-> cmd640 modular driver (cmd640_vlb still is unresolved).
-> I tried hack it .. but I droped it ... maybe tomorrow i back to that code ... 
-> or someone goes to fix it (maybe Alan ?)
+On Wed, Jun 04, 2003 at 11:44:17PM +0100, John Appleby wrote:
+> 
+> > > and I get nothing past "add_tail". I'd expect it to recognize my dev
+> and
+> > > attempt to connect to it.
+> > 
+> > Do you drop out the bottom of the function?  If you have no hardware
+> ports
+> > registered, I'd expect this to be the case.
+> 
+> Yeah; I thought though what I was doing was registering the port.
+> 
+> I'm clearly missing something really obvious here. Are you saying that I
+> should have registered the port somewhere else?
+> 
+> Sorry for the dumb questions but there's no serio documentation yet hit
+> the tree, I presume as it's pretty new for non-USB devices.
 
-cmd640_vlb is gone from the core code in the -ac tree so that suprises
-me. Adrian Bunk sent me some more patches to look at. I'm not 100% 
-convinced by them but there are a few cases left and some of his stuff
-certainly fixes real problems
+You need to register:
+
+- serio device drivers (the things which drive the hardware) using
+  serio_register_port()
+- serio protocol drivers (the things which interpret the bytes,
+  like atkbd.c) using serio_register_device()
+
+So, for a PS/2 keyboard connected to a some special hardware interface,
+you'd use atkbd.c which registers itself with serio using
+serio_register_device().  Your device driver for the "special hardware"
+registers itself with serio_register_port().
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

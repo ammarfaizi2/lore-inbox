@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262967AbTC1NG6>; Fri, 28 Mar 2003 08:06:58 -0500
+	id <S262976AbTC1NRM>; Fri, 28 Mar 2003 08:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262968AbTC1NG6>; Fri, 28 Mar 2003 08:06:58 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:18114 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S262967AbTC1NG5>;
-	Fri, 28 Mar 2003 08:06:57 -0500
-Subject: Why moving driver includes ?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0303280443170.11648-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0303280443170.11648-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048857524.12125.2.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Mar 2003 14:18:44 +0100
+	id <S262977AbTC1NRL>; Fri, 28 Mar 2003 08:17:11 -0500
+Received: from p5082010B.dip0.t-ipconnect.de ([80.130.1.11]:16829 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S262976AbTC1NRL>;
+	Fri, 28 Mar 2003 08:17:11 -0500
+To: Warren Turkal <wturkal@cbu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] laptop keyboard, even more info
+From: Arne Koewing <ark@gmx.net>
+Date: Fri, 28 Mar 2003 10:05:16 +0100
+In-Reply-To: <200303232056.06284.wturkal@cbu.edu> (Warren Turkal's message
+ of "Fri, 28 Mar 2003 01:04:54 -0600")
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+References: <200303220605.54478.wturkal@cbu.edu>
+	<200303232056.06284.wturkal@cbu.edu>
+Message-ID: <87y92zr57o.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James !
+Warren Turkal <wturkal@cbu.edu> writes:
 
-Why did you move the driver includes to include/video ? What is 
-the reasoning here ?
+> On Sunday 23 March 2003 08:36 pm, Warren Turkal wrote:
+>> I am not subscribed. Please cc on replies.
+>>
+>> I have a Gateway 600 series notebook. I have been using and testing the
+>> developmental kernel for some time now. I have just noticed that my
+>> keyboard''s "fn" key combinations stop working upon booting 2.5.65. They
+>> worked as recently as 2.5.63 and I could not get 2.5.64 to compile cleanly.
+>> These key combinations are supposed to make various things happen on my
+>> laptop. I believe that they are controlled by the bios, as I can see
+>> results of some while on the bios load screen.
+>>
+...
+>>
+>> I have tested that the Fn-F2 combination works in bios and grub and
+>> continues to work until the 2.5.65 kernel is loaded.
+>>
+>> I think this is a regression in the keyboard handling for the 2.5.65
+>> kernel.
+...
 
-For example, drivers/video/radeon.h moved to include/video/radeon.h
-
-Is this to be able to share register definitions with the DRM drivers ?
-(I doubt this will ever happen as the DRM is rather self contained)
-
-I would have preferred those includes to stay next to their respective
-drivers (though renaming radeon.h to radeonfb.h might have made some
-sense).
-
-Regards,
-Ben.
-
+I don't think this is caused by the input-layer. Linux is not passing
+Fn-X keypresses to your BIOS. If you've enabled ACPI that ought to be
+the reason for this.
+ 
+Arne
+ 

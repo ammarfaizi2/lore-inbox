@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTJQMdt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 08:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTJQMdt
+	id S263431AbTJQMdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 08:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTJQMdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 08:33:49 -0400
-Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:36224 "EHLO
-	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S263434AbTJQMdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 08:33:47 -0400
-From: jlnance@unity.ncsu.edu
-Date: Fri, 17 Oct 2003 08:33:44 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031017123344.GA2794@ncsu.edu>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017094443.GA7738@elf.ucw.cz>
+	Fri, 17 Oct 2003 08:33:05 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:47111 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263431AbTJQMdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 08:33:03 -0400
+Date: Fri, 17 Oct 2003 13:33:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Denis Zaitsev <zzz@anda.ru>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH TRIVIAL] Compile error in 2.4.22 without PCI
+Message-ID: <20031017133301.B27349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Denis Zaitsev <zzz@anda.ru>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20031015003036.A10226@natasha.ward.six>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031017094443.GA7738@elf.ucw.cz>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031015003036.A10226@natasha.ward.six>; from zzz@anda.ru on Wed, Oct 15, 2003 at 12:30:36AM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 11:44:44AM +0200, Pavel Machek wrote:
-> Hi!
+On Wed, Oct 15, 2003 at 12:30:36AM +0600, Denis Zaitsev wrote:
+> I have these warnings when I'm compiling 2.4.22 for a 486 EISA system:
 > 
-> > Several months ago we encountered the hash collision problem
-> > with rsync.  This brought about a fair amount of discussion
+> aic7xxx_osm.c: In function `ahc_softc_comp':
+> aic7xxx_osm.c:1560: warning: implicit declaration of function `ahc_get_pci_bus'
+> aic7xxx_osm.c:1568: warning: implicit declaration of function `ahc_get_pci_slot'
 > 
-> So you found collision in something like md5 or sha1?
+> And then the make finishes with an error, because these functions
+> really exist only if the PCI support is turned on.
+> 
+> The patch below fixes this.  And the same patch fits for the 2.6
+> kernels.  Please, apply it.
 
-No, rsync uses a much weaker hash.  The paper on the rsync alg is
-interesting and has all the details, so you should read if if you
-want to be sure.  But from my memory rsync uses a combination of
-a weak 16 bit hash which it rolls through the data, and a strong
-32 bit hash which it uses to check the 16 bit hash.
+You probably want to send this to Justin, the driver Maintainer.  If he
+doesn't reply in say a week I´d suggest submitting it to Marcelo as it's
+obviously correct.
+

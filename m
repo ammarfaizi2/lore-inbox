@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265438AbRF0Wlq>; Wed, 27 Jun 2001 18:41:46 -0400
+	id <S265440AbRF0W6W>; Wed, 27 Jun 2001 18:58:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265440AbRF0Wlg>; Wed, 27 Jun 2001 18:41:36 -0400
-Received: from colorfullife.com ([216.156.138.34]:33802 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S265438AbRF0WlZ>;
-	Wed, 27 Jun 2001 18:41:25 -0400
-Message-ID: <3B3A6119.A951648@colorfullife.com>
-Date: Thu, 28 Jun 2001 00:41:29 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en, de
+	id <S265441AbRF0W6M>; Wed, 27 Jun 2001 18:58:12 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:33702 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265440AbRF0W5x>; Wed, 27 Jun 2001 18:57:53 -0400
+Message-ID: <3B3A64CD.28B72A2A@vnet.ibm.com>
+Date: Wed, 27 Jun 2001 22:57:17 +0000
+From: Tom Gall <tom_gall@vnet.ibm.com>
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike Kravetz <mkravetz@sequent.com>
-CC: Scott Long <scott@swiftview.com>, linux-kernel@vger.kernel.org
-Subject: Re: wake_up vs. wake_up_sync
-In-Reply-To: <3B3A4E8B.E4301909@colorfullife.com> <20010627143845.D1135@w-mikek2.des.beaverton.ibm.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <3B3A5B00.9FF387C9@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz wrote:
+Jeff Garzik wrote:
 > 
-> On Wed, Jun 27, 2001 at 11:22:19PM +0200, Manfred Spraul wrote:
-> > > Why would you want to prevent
-> > > reschedule_idle()?
-> > >
-> > If one process runs, wakes up another process and _knows_ that it's
-> > going to sleep immediately after the wake_up it doesn't need the
-> > reschedule_idle: the current cpu will be idle soon, the scheduler
-> > doesn't need to find another cpu for the woken up thread.
+> Tom Gall wrote:
+> >   The first part changes number, primary, and secondary to unsigned ints from
+> > chars. What we do is encode the PCI "domain" aka PCI Primary Host Bridge, aka
+> > pci controller in with the bus number. In our case we do it like this:
+> >
+> > pci_controller=dev->bus->number>>8) &0xFF0000
+> > bus_number= dev->bus->number&0x0000FF),
+> >
+> >   Is this reasonable for everyone?
 > 
-> I'm curious.  How does the caller of wake_up_sync know that the
-> current cpu will soon be idle.  Does it assume that there are no
-> other tasks on the runqueue waiting for a CPU?  If there are other
-> tasks on the runqueue, isn't it possible that another task has a
-> higher goodness value than the task being awakened.  In such a case,
-> isn't is possible that the awakened task could sit on the runqueue
-> (waiting for a CPU) while tasks with a lower goodness value are
-> allowed to run?
->
+> Why not use sysdata like the other arches?
 
-I found one combination where that could happen:
+Hi Jeff,
 
-process.thread
-A.1: highest priority, runs on cpu0
-B.1: lowest priority, runs on cpu1
-A.2: another thread of process A, priority
-PROC_CHANGE_PENALTY+PRIORITY(B.1)+1, sleeping.
-B.2: same priority as A.2, sleeping, same process as B.1
+Well you have device drivers like the symbios scsi driver for instance that
+tries to determine if it's seen a card before. It does this by looking at the
+bus,dev etc numbers...  It's quite reasonable for two different scsi cards to be
+on the same bus number, same dev number etc yet they are in different PCI
+domains.
 
-A.1:
-{
-	wake_up("A.2");
-/* nothing happens: preemption_goodness is 0 since B.1 has both
-PROC_CHANGE_PENALTY and the += 1 from 'same mm'
-*/
-	wake_up_sync("B.2");
-	schedule();
-/* schedule selects A.2 instead of B.2 due to the += 1 from 'same mm'.
-BUG: B.2 should replace B.1 on cpu1. The preemption_goodness is 1.
-*/
+Is this a device driver bug or feature?
 
-IMHO obscure and very rare. 
+> Changing the meaning of dev->bus->number globally seems pointless.  If
+> you are going to do that, just do it the right way and introduce another
+> struct member, pci_domain or somesuch.
 
-But I just found a bigger problem:
-If wake_up_sync wakes up more than 1 process then cpus could remain in
-cpu_idle() although processes are on the runqueue without cpus.
+Right, one could do that and then all the large machine architectures would have
+their own implementation for the same problem. That's not necessarily a bad
+thing, but some commonality I think would be a good thing.
+ 
+>         Jeff
 
---
-	Manfred
+Regards,
+
+Tom
+
+-- 
+Tom Gall - PPC64 Maintainer      "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc

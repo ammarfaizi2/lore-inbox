@@ -1,74 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbUC2XQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUC2XQv
+	id S263172AbUC2XRd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUC2XRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:16:51 -0500
-Received: from gprs214-171.eurotel.cz ([160.218.214.171]:29568 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263161AbUC2XQp (ORCPT
+	Mon, 29 Mar 2004 18:17:33 -0500
+Received: from mail.kroah.org ([65.200.24.183]:35985 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263172AbUC2XQw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:16:45 -0500
-Date: Tue, 30 Mar 2004 01:16:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Mon, 29 Mar 2004 18:16:52 -0500
+Date: Mon, 29 Mar 2004 15:16:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: stern@rowland.harvard.edu, david-b@pacbell.net, viro@math.psu.edu,
+       maneesh@in.ibm.com, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040329231635.GA374@elf.ucw.cz>
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net>
+Subject: Re: Unregistering interfaces
+Message-ID: <20040329231604.GA29494@kroah.com>
+References: <20040328063711.GA6387@kroah.com> <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org> <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com> <20040329132551.23e12144.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5g7jx31int.fsf@patl=users.sf.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040329132551.23e12144.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > What happens if the disk fills while you are making the copy?  Will
-> > > > open(2) on an *existing file* then return ENOSPC?
+On Mon, Mar 29, 2004 at 01:25:51PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
 > >
-> > Applications can not be sure that it is existing file. If you
-> > do stat followed by open, someone may have removed the file in
-> > between. So it is not so new case.
+> > On Sun, Mar 28, 2004 at 12:38:57PM -0800, Andrew Morton wrote:
+> > > Alan Stern <stern@rowland.harvard.edu> wrote:
+> > > >
+> > > >  However, a very noticeable and IMO unacceptable delay occurs when there's
+> > > >  a reference to a kobject caused by a negative dentry that won't get
+> > > >  recycled until the system decides it's good and ready.  That's the real
+> > > >  problem I wanted to call to people's attention.
+> > > 
+> > > Have you verified that this actually happens?
+> > 
+> > Yes, I've verified this, and it looks like Maneesh also agrees with
+> > this.
+> > 
+> > > If so, what are its effects?  rmmod hangs for half an hour?  Cannot reload
+> > > the module?
+> > 
+> > Well, before the patch that I submitted for the USB core, we would hang
+> > waiting for the release function to return as there was still a
+> > reference to the kobject pending.
+> > 
+> > For other subsystems (and USB), this might cause nasty oopses when the
+> > kobject is finally released and yet the module has been unloaded already
+> > (as the owner of the reference did not cause the module reference count
+> > to increment.)  This is bad.
+> > 
 > 
-> I should have said, "Will open(2) without O_CREAT then return ENOSPC?"
+> The module should remain in memory, "unhashed", until the final kobject
+> reference falls to zero.  Destruction of that kobject causes the refcount
+> on the module to fall to zero which causes the entire module to be
+> released.
 > 
-> This is definitely a new case.
-> 
-> For what it's worth, I agree with whoever (Jamie?) said that COW
-> should be primarily a space optimization, and that semantically the
-> two files should mostly behave like separate copies.
-> 
-> In fact, I think it is unfortunate, in some ways, that things like
-> permissions and timestamps are kept in the inode.  This means that two
-> files may only be COW-linked if they also share ownership,
-> permissions, and timestamps, which makes COW links less useful for
-> some applications (e.g., sharing source trees among multiple
-> developers).
+> (hmm, the existence of a kobject doesn't appear to contribute to its
+> module's refcount.  Why not?)
 
-I think they *should* have separate permissions.
+It does, if a file for that kobject is opened.  In this case, there was
+no file opened, so the module refcount isn't incremented.
 
-Also it should be possible to have file with 2 hardlinks cowlinked
-somewhere, and possibly make more hardlinks of that one... Having
-pointer to another inode in place where direct block pointers normally
-are should be enough (thinking ext2 here).
+> But the module system is that smart, so what we do instead is to block
+> rmmod until the module refcount falls to zero, and rmmod then does the
+> final destruction.  We could have punted the module destruction up to some
+> reaper thread but for some reason did not do so.
 
-> But sharing data blocks without sharing inodes is too horrible even to
-> contemplate, I suppose.
+Well, as the module refcount was never incremented, it does not do this.
+I just verified this (accidentally) by removing my lp modules and then
+doing a bk pull.  kswapd forced the stale dentry out, which decremented
+the kobject reference count, which then tried to call the release
+function in the (now gone) lp module.  My machine then spit up a lovely
+oops, and was reduced to a unusable sludge as there was no more kswapd
+running :(
 
-Why, btw?
+> So as far as I can tell, the only problem we have is that rmmod will hang
+> around until memory pressure, yes?
 
-Lets say we allocate 4 bits instead of one for block bitmap. Count
-"15" is special, now it means "15 or higher". That means we have to
-"garbage-collect" to free space that used to have more than 15 links,
-but that should not happen too often...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Nope, oopses will happen.  You can verify this yourself by doing much of
+what I just did.
 
+This needs to get fixed, as it's not just a USB issue (so I've added
+lkml on the cc list.)
 
+> Maybe a shrink_dcache_parent(dentry) on entry to simple_rmdir() would
+> suffice?
+
+Will that get rid of the references properly nwhen we remove the
+kobject?
+
+thanks,
+
+greg k-h

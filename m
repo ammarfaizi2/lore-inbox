@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbTAPHW2>; Thu, 16 Jan 2003 02:22:28 -0500
+	id <S261799AbTAPHS4>; Thu, 16 Jan 2003 02:18:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTAPHW2>; Thu, 16 Jan 2003 02:22:28 -0500
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:62454 "EHLO
-	deimos.one.pl") by vger.kernel.org with ESMTP id <S261908AbTAPHW1>;
-	Thu, 16 Jan 2003 02:22:27 -0500
-Date: Thu, 16 Jan 2003 08:31:22 +0100
-From: Damian Kolkowski <deimos@deimos.one.pl>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] QM_MODULES: Function not implemented... [ No bug! ]
-Message-ID: <20030116073122.GB633@deimos.one.pl>
-References: <20030115213356.GA176@deimos.one.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20030115213356.GA176@deimos.one.pl>
-User-Agent: Mutt/1.4i
-X-GPG: http://deimos.one.pl/deimos.asc
-X-Age: 23 (1980.09.27 - lilbra)
-X-JID: deimos@jabber.gda.pl
-X-ICQ: 59367544
-X-GG: 88988
-X-Girl: 1 will be enough!
-X-OS: GNU/Linux-2.4.20-ac2 (i686)
-X-Uptime: 08:26:34  up 1 min,  2 users,  load average: 0.25, 0.08, 0.03
+	id <S261872AbTAPHS4>; Thu, 16 Jan 2003 02:18:56 -0500
+Received: from smtp05.wxs.nl ([195.121.6.57]:4796 "EHLO smtp05.wxs.nl")
+	by vger.kernel.org with ESMTP id <S261799AbTAPHSz>;
+	Thu, 16 Jan 2003 02:18:55 -0500
+Date: Thu, 16 Jan 2003 08:29:31 +0100 (CET)
+From: Ferry van Steen <freaky@www.bananateam.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Partially closed source module, more of gcc/ld question.
+Message-ID: <Pine.LNX.4.33.0301160825140.6306-100000@www.bananateam.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Damian Kolkowski (deimos@deimos.one.pl) wrote:
-> P.S. The modules are instaled but they could not be loaded.
+Hey there,
 
-Because I don't have _module-init-tools_. My stupid bug :-)
+some of you might have read my message on the promise fasttrak last time.
+I'm sorry to say that I started yelling to them through e-mail and the
+replied now! This is the so manied company that suddenly replies if you
+yell... Oh well, they released some new module, which I want to try later
+on.
 
--- 
-# Damian *dEiMoS* Kolkowski # http://deimos.one.pl/ #
+Sortta like nvidia, you get a Makefile, some others an object and 3 C
+files. Now for the question. Loading a gcc v2 compiled module into a v3
+compiled kernel causes problems. Is it correct to assume then that if the
+object were compiled with v2, and the C files with v3 and those get linked
+together into a module, that you might experience the same problems?
+
+Is there any way I can see with which version the object was compiled
+(the kernel seems to be able to, or atleast, partially it doesn't give
+specific version just v2 or v3)?
+
+Kind regards
+
+

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267591AbRGZIR4>; Thu, 26 Jul 2001 04:17:56 -0400
+	id <S267681AbRGZImu>; Thu, 26 Jul 2001 04:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267678AbRGZIRp>; Thu, 26 Jul 2001 04:17:45 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:47624 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S267591AbRGZIR2>;
-	Thu, 26 Jul 2001 04:17:28 -0400
-Date: Thu, 26 Jul 2001 10:17:20 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: CDROM access failure
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B5FD210.A98461B5@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S267684AbRGZIml>; Thu, 26 Jul 2001 04:42:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47408 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S267681AbRGZIma>; Thu, 26 Jul 2001 04:42:30 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 26 Jul 2001 02:36:18 -0600
+In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva>
+Message-ID: <m1ae1sf5od.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Rik van Riel <riel@conectiva.com.br> writes:
 
-kernel 2.4.3-12.i686 from redhat ( similar behavior on 2.4.6-ac5 too )
+> On Wed, 25 Jul 2001, Daniel Phillips wrote:
+> > On Wednesday 25 July 2001 08:33, Marcelo Tosatti wrote:
+> > > Now I'm not sure why directly adding swapcache pages to the inactive
+> > > dirty lits with 0 zero age improves things.
+> >
+> > Because it moves the page rapidly down the inactive queue towards the
+> > ->writepage instead of leaving it floating around on the active ring
+> > waiting to be noticed.  We already know we want to evict that page,
+> 
+> We don't.
 
-/dev/cdrom1 is hdd
+Agreed.  The kinds of ``aging'' don't match up so we can't tell if
+it meets our usual criteria for aging.
+ 
+> The page gets unmapped and added to the swap cache the first
+> time it wasn't referenced by the process.
+> 
+> This is before any page aging is done.
 
-[root@localhost /root]# cp /dev/cdrom1 cd.iso & sleep 10
-[root@localhost /root]# mount /dev/cdrom1 /mnt/cdrom1
-mount: block device /dev/cdrom1 is write-protected, mounting read-only
-set_blocksize: b_count 2, dev ide1(22,64), block 16742, from c0159f1a
-set_blocksize: b_count 1, dev ide1(22,64), block 16743, from c0159f1a
-cp: reading `/dev/cdrom1': Input/output error
-[1]+  Exit 1                  cp -i /dev/cdrom1 cd.iso
+Actually there has been aging done.  Unless you completely disable
+testing for pte_young.  It is a different kind of aging but it is
+aging.
 
-Is this normal ?
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Eric

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275746AbRI0Crx>; Wed, 26 Sep 2001 22:47:53 -0400
+	id <S275750AbRI0DCt>; Wed, 26 Sep 2001 23:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275747AbRI0Crm>; Wed, 26 Sep 2001 22:47:42 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:45300 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S275746AbRI0Cr3>; Wed, 26 Sep 2001 22:47:29 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 26 Sep 2001 20:46:55 -0600
-To: Maintaniner on duty <hugh@norma.kjist.ac.kr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10aa1 not umounting the root file system during shut-down
-Message-ID: <20010926204655.G1140@turbolinux.com>
-Mail-Followup-To: Maintaniner on duty <hugh@norma.kjist.ac.kr>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BB27912.7090303@norma.kjist.ac.kr>
-Mime-Version: 1.0
+	id <S275751AbRI0DCj>; Wed, 26 Sep 2001 23:02:39 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:18447 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S275750AbRI0DCZ>;
+	Wed, 26 Sep 2001 23:02:25 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200109270302.f8R32pl12537@saturn.cs.uml.edu>
+Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
+To: pavel@ucw.cz (Pavel Machek)
+Date: Wed, 26 Sep 2001 23:02:51 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20010926101914.A28339@atrey.karlin.mff.cuni.cz> from "Pavel Machek" at Sep 26, 2001 10:19:14 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BB27912.7090303@norma.kjist.ac.kr>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 27, 2001  09:55 +0900, Maintaniner on duty wrote:
-> I don't know whether this bug is a problem of 2.4.10 or its aa1 or
-> the "umount" program under SuSE-7.2 for Intel.
-> But things changed between 2.4.10pre5 and 2.4.10aa1.
-> 
-> During the boot, the root file system is always picked up
-> by "fsck" as unmounted cleanly.
+Pavel Machek writes:
+> [Albert Cahalan]
 
-This may be related to the blkdev-in-pagecache issue.  If the
-root filesystem is not unmounted cleanly, it may be that e2fsck
-will NEVER be able to mark the filesystem clean.
+>> Solution for the filesystem problems:
+>>
+>> 1. at suspend, basically unmount the filesystem (keep the mount tree)
+>> 2. at resume, re-validate open files
+>
+> Wrong solution. ;-).
+>
+> Solution to filesystem problems: at suspend, sync but don't do
+> anything more. At resume, don't try to mount anything (so that you
+> don't replay transactions or damage disk in any other way).
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+That is totally broken, because I may mount the disk in between
+the suspend and resume. I might even:
 
+1. boot kernel X
+2. suspend kernel X
+3. boot kernel Y
+4. suspend kernel Y
+5. resume kernel X
+6. suspend kernel X
+7. resume kernel Y
+8. suspend kernel Y
+9. goto #5
+
+You really have to close the logs and mark the disks clean
+when you suspend. The problems here are similar the the ones
+NFS faces. Between the suspend and resume, filesystems may be
+modified in arbitrary ways.

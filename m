@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSGNX0r>; Sun, 14 Jul 2002 19:26:47 -0400
+	id <S317214AbSGNXZi>; Sun, 14 Jul 2002 19:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSGNX0q>; Sun, 14 Jul 2002 19:26:46 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35830 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317215AbSGNX0p>; Sun, 14 Jul 2002 19:26:45 -0400
-Subject: Re: apm power_off on smp
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.30.0207150101150.27346-100000@balu>
-References: <Pine.GSO.4.30.0207150101150.27346-100000@balu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 15 Jul 2002 01:39:02 +0100
-Message-Id: <1026693542.13885.94.camel@irongate.swansea.linux.org.uk>
+	id <S317215AbSGNXZi>; Sun, 14 Jul 2002 19:25:38 -0400
+Received: from ns.suse.de ([213.95.15.193]:64527 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317214AbSGNXZh>;
+	Sun, 14 Jul 2002 19:25:37 -0400
+Date: Mon, 15 Jul 2002 01:28:23 +0200
+From: Dave Jones <davej@suse.de>
+To: Ben Clifford <benc@hawaga.org.uk>
+Cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.25-dj2
+Message-ID: <20020715012823.I20781@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Ben Clifford <benc@hawaga.org.uk>, Heinz Diehl <hd@cavy.de>,
+	linux-kernel@vger.kernel.org
+References: <20020714115525.C28859@suse.de> <Pine.LNX.4.44.0207141445390.2823-100000@barbarella.hawaga.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207141445390.2823-100000@barbarella.hawaga.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-15 at 00:03, Pozsar Balazs wrote:
-> 
-> Yes, all I want is poweroff.
-> I understand that apm is not smp safe, and pretty much all of it is
-> disabled in smp mode.
-> 
-> What i do not understand is why the poweroff functionality is disabled by
-> default.
+On Sun, Jul 14, 2002 at 02:49:31PM -0700, Ben Clifford wrote:
+ > My ide-cd module was loaded automatically at boot.
+ > I loaded the ide-scsi24 module (which didn't detect anything because the 
+ > ide-cd module already had both the CD-ROM and CD-RW drives).
+ > So I rmmoded ide-cd and ide-scsi24.
+ > Then I modprobed ide-scsi and got two oopses in quick succession which 
+ > locked up the machine :-(
+ > 
+ > Anyone else have any luck with ide-scsi24?
 
-Because it too is unsafe on some machines
+decode oops, post, cc: axboe@suse.de and andre@linux-ide.org
 
+    Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

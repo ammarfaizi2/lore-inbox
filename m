@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268865AbSIRTcD>; Wed, 18 Sep 2002 15:32:03 -0400
+	id <S267611AbSIRTn6>; Wed, 18 Sep 2002 15:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268361AbSIRTcC>; Wed, 18 Sep 2002 15:32:02 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:43532 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S268865AbSIRTcC>;
-	Wed, 18 Sep 2002 15:32:02 -0400
-To: Olaf =?iso-8859-1?q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which processor/board for embedded NTP
-References: <1032354632.23252.14.camel@venus>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 18 Sep 2002 21:37:02 +0200
-In-Reply-To: <1032354632.23252.14.camel@venus>
-Message-ID: <87r8frqech.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S267613AbSIRTn5>; Wed, 18 Sep 2002 15:43:57 -0400
+Received: from smtp2.sooninternet.net ([212.246.17.84]:34267 "EHLO
+	smtp2.sooninternet.net") by vger.kernel.org with ESMTP
+	id <S267611AbSIRTn4>; Wed, 18 Sep 2002 15:43:56 -0400
+Date: Wed, 18 Sep 2002 22:48:41 +0300
+From: Kari Hameenaho <khaho@koti.soon.fi>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.36 X freezes and input problems
+Message-Id: <20020918224841.74cc56aa.khaho@koti.soon.fi>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Fr±czyk <olaf@cbk.poznan.pl> writes:
 
-> I have to build NTP server on an embedded pc.
-> Which processors/boards are suitable for this.
-> Such processor/board cannot have ANY problems with time handling.
-> I thought about Geode (NS), but I found some info that it doesn't have
-> TSC, or it works not properly (the PPS needs TSC). 
-> And of course has to work excellent with linux.
+Without preempt kernel does boot, but freeze after some use (less than minute) in X.
 
-The Geode's TSC will work quite well for you if you disable the
-suspend on HLT option in the processor.
+The last messages before hang are:
+Sep 18 19:57:17 khaho kernel: MTRR: setting reg 1
+Sep 18 19:57:20 khaho last message repeated 13 times
 
-On the newer "IA on a chip" geodes (SC1200, SC2200 and SC3200) there
-is also a high speed timer in the chipset that seems to be quite
-stable.
+Previously  MTRR messages:
+Sep 18 19:57:07 khaho kernel: mtrr: your CPUs had inconsistent fixed MTRR settings
+Sep 18 19:57:07 khaho kernel: mtrr: probably your BIOS does not setup all CPUs
 
-  /Christer
+Disabling MTRR makes the system work, I am writing this mail on 2.5.36.  
 
--- 
-"Just how much can I get away with and still go to heaven?"
+MTRR (and everything else too) did work in this machine in 2.4.18*, 2.4.19*, 2.4.20-pre*, 2.4.20-pre*-ac* and in 2.5.x series at least upto 2.5.31.
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+-------------------------
+
+New input drivers do also have some problems in this machine, mouse pointer 
+jumping sometimes and focus then too. Keyboard and mouse with PS/2 connection, 
+but wireless (Logitech Desktop Pro). 
+
+Some messsages from those drivers too at boot time:
+Sep 18 19:57:07 khaho kernel: mice: PS/2 mouse device common for all mice
+Sep 18 19:57:07 khaho kernel: input: PS2++ Logitech Mouse on isa0060/serio1
+Sep 18 19:57:07 khaho kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+Sep 18 19:57:07 khaho kernel: input: AT Set 2 keyboard on isa0060/serio0
+Sep 18 19:57:07 khaho kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+...
+Sep 18 19:57:07 khaho kernel: psmouse.c: Received PS2++ packet #0, but don't know how to handle.
+Sep 18 19:57:07 khaho kernel: psmouse.c: Received PS2++ packet #0, but don't know how to handle.
+
+------------------------
+
+System is MSI K7D Master-L Dual Athlon MPX with 2 MP 1900+ CPUs, 512 MB ECC RAM, 
+3ware RAID controller and Matrox G550 display controller. 
+
+Distribution is debian woody, so gcc is  "gcc version 2.95.4 20011002 (Debian prerelease)".  
+XFree version is 4.1, but driver is from Matrox site. The original driver from debian did 
+not work with G550.
+
+-------------------------
+
+Feel free to ask for more configuration details if you're interested.
+
+---
+Kari Hämeenaho

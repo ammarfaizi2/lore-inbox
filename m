@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbUCHKjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 05:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCHKj3
+	id S262450AbUCHKit (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 05:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUCHKit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 05:39:29 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:47240 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262454AbUCHKjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 05:39:25 -0500
-Date: Mon, 08 Mar 2004 19:42:53 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-In-reply-to: <3ACA40606221794F80A5670F0AF15F8401B1A019@PDSMSX403.ccr.corp.intel.com>
-To: "Liu, Benjamin" <benjamin.liu@intel.com>,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Message-id: <MDEEKOKJPMPMKGHIFAMAAEDEDGAA.kaneshige.kenji@jp.fujitsu.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Content-type: text/plain;	charset="gb2312"
-Content-transfer-encoding: 7bit
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Mon, 8 Mar 2004 05:38:49 -0500
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:12160 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S262450AbUCHKis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 05:38:48 -0500
+Message-ID: <404C4D32.1080609@uni-paderborn.de>
+Date: Mon, 08 Mar 2004 11:38:42 +0100
+From: Bjoern Schmidt <lucky21@uni-paderborn.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: fsb of older cpu
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=1.594,
+	required 4, FROM_ENDS_IN_NUMS 0.87, RCVD_IN_NJABL 0.10,
+	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
+X-UNI-PB_FAK-EIM-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
+is there a way to measure/change the fsb of a PII/233/Tonga/440BX while running
+linux? Google has no answer...
 
-As a matter of fact, I don't have special reason to leave RTEs unmasked in
-iosapic_register_intr(), iosapic_register_platform_intr(),
-iosapic_override_isa_irq().
-I think it is better that interrupts are unmasked by individual device
-drivers, but
-there are some exceptions. For example, PMI and INIT don't need device
-drivers.
-So I think more investigation is needed about them.
+-- 
+Greetings
+Bjoern Schmidt
 
-Regards,
-Kenji Kaneshige
-
-> -----Original Message-----
-> From: Liu, Benjamin [mailto:benjamin.liu@intel.com]
-> Sent: Monday, March 08, 2004 6:15 PM
-> To: Kenji Kaneshige; linux-ia64@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Subject: RE: [PATCH] fix PCI interrupt setting for ia64
->
->
-> Thank you for the information, Kenji. But is there any reason to
-> leave it unmasked in iosapic_register_intr(),
-> iosapic_register_platform_intr(), iosapic_override_isa_irq(),
-> given the fact that they would be unmasked finally in individual
-> device drivers?
 

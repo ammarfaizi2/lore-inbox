@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVDAR3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVDARas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbVDAR3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 12:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVDAR3N
+	id S262820AbVDARas (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 12:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVDARaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 12:29:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:64566 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262823AbVDAR2q (ORCPT
+	Fri, 1 Apr 2005 12:30:07 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:33193 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262820AbVDAR2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 12:28:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Vp5vIkt2+Cm4Zqev7wSfCO/6sMRm9YG0/gkjLidgH69bJpan8DtJdjeLzaRSFoteWv5/bvSz6YTE425cP8ZxHF8NEFdgTn54kjY4iHXtx7aHm9veKmZ1BBGQvCDT8saiyoI9opI7zL0B2BG5/dfr2iMRN+Cp2ln0xFBmoWD/ZEI=
-Message-ID: <9e473391050401092846b0d185@mail.gmail.com>
-Date: Fri, 1 Apr 2005 12:28:40 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-Subject: Re: Linux virtual memory manager
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <424C09B0.2080502@euroweb.net.mt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <424C09B0.2080502@euroweb.net.mt>
+	Fri, 1 Apr 2005 12:28:05 -0500
+Message-Id: <200504011727.j31HRv2c011300@laptop11.inf.utfsm.cl>
+To: Wiktor <victorjan@poczta.onet.pl>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: [RFD] 'nice' attribute for executable files 
+In-Reply-To: Message from Wiktor <victorjan@poczta.onet.pl> 
+   of "Fri, 01 Apr 2005 17:40:04 +0200." <424D6B54.2090200@poczta.onet.pl> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 01 Apr 2005 13:27:57 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 31, 2005 9:31 AM, Josef E. Galea <josefeg@euroweb.net.mt> wrote:
-> Hi,
-> 
-> Can someone point me to a document explaining the differences between
-> the 2.4 and the 2.6 virtual memory manager. Particularly I am looking
-> for the function/s that replaces the try_to_swap_out() in the 2.6.x
-> series of kernels.
+Wiktor <victorjan@poczta.onet.pl> said:
+> Horst von Brand wrote:
+> > Even better: Write a C wrapper for each affected program that just renices
+> > it as needed.
 
-There is a large amount of info on the VM here:
-http://www.skynet.ie/~mel/projects/vm/
+> I suggest to implement scalable solution, so the final user wont't have 
+> to write separate wrapper for *each* program.
 
+Final user doesn't. It is a job for whoever writes the program, or packages
+it for a distro. If even required.
+
+>                                               universal wrapper is 
+> better solution, but (now i know, that implementing something that can 
+> be dangerous if used incorrectly is so evil, that only the devil could 
+> have proposed it) it forces use of database (that normally would be kept 
+> in filesystem's file metadata) and if some-malicious-person would have 
+> accessed it in write mode (as result of wrong file permissions), the 
+> system performerance would be in danger. in my solution, there is 
+> per-file attribute, accessible only for root, and if hacker has root 
+> permissions, existence of nice attribute is meaningless.
+
+Anything like this that can be accessed by plain users (not root) is
+inherently dangerous. It is for a reason that only root can increase the
+priority of a process. If you allow reniceing and place some kind of limit
+on it, even Aunt Tillie will run her programs with priority maxed out, and
+we are back were we are today.
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

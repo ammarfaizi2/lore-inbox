@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285084AbRLQJ7u>; Mon, 17 Dec 2001 04:59:50 -0500
+	id <S285087AbRLQKPT>; Mon, 17 Dec 2001 05:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285077AbRLQJ71>; Mon, 17 Dec 2001 04:59:27 -0500
-Received: from mons.uio.no ([129.240.130.14]:35990 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S285073AbRLQJ7U>;
-	Mon, 17 Dec 2001 04:59:20 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285088AbRLQKPJ>; Mon, 17 Dec 2001 05:15:09 -0500
+Received: from [210.176.202.14] ([210.176.202.14]:21412 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S285087AbRLQKOw>; Mon, 17 Dec 2001 05:14:52 -0500
+Subject: compling kernel module against different kernel settings.
+From: Joe Wong <joewong@rcn.com.hk>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15389.49646.612985.293315@charged.uio.no>
-Date: Mon, 17 Dec 2001 10:59:10 +0100
-To: Dave Jones <davej@suse.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <Pine.LNX.4.33.0112170350070.29678-100000@Appserv.suse.de>
-In-Reply-To: <15389.19300.179304.433697@charged.uio.no>
-	<Pine.LNX.4.33.0112170350070.29678-100000@Appserv.suse.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 17 Dec 2001 18:14:48 +0800
+Message-Id: <1008584088.9648.0.camel@star4.planet.rcn.com.hk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@suse.de> writes:
+Hi,
 
-     > And it fixes the problem, good work!  But.. (Here comes the
-     > sting..)
+  I am quite new to linux kernel build procedure and please forgive me
+if my question is too _easy_.
 
-     > The test progresses just a little further and hits another
-     > bug..  http://www.codemonkey.org.uk/cruft/nfs-fsx2.txt
+  From what I know I can change different parameters to build kernel by
+make xconfig/make menuconfig/make config.
 
-     > want tcpdump again?
+  The above proesses will generate different settings in .config and
+autoconf.h. Now I want to build my loadable kernel module against
+different kernel settings ( like CPU type, SMP support or not and so..
+). Is this possible to automate all of the steps involed?
 
-Nah. I hit this one myself just half an hour after 1 fired off my last
-mail.
+  I found out that 'make dep' does not update *.ver in
+./include/linux/modules/ and I have to use make mrproper but it will
+delete everthing..
 
-'fattr' patch updated yet again...
+  Or, I should build a generic module that can run on different kernel
+settings? I am quite confuse and hope someone can give me a hand on
+this.
 
-The problem here was that the writer was creating a hole in the file
-using the combination (llseek + write). Of course, the write was
-cached, and so the server didn't know about the hole, and since the
-subsequent read was to the hole, we didn't flush out any further
-writes that might give the server a clue.
-Result: server replies to our read request with a read of length
-zero. Client then fails to zero out and mark those pages as uptodate
-(bug!!!), and so 'generic_file_read' decides to return EIO.
+TIA.
 
-Fixing the above has allowed me to progress a bit more. I've had fsx
-running overnight (what little there has been). The good and bad news
-is that it's still running.
-However, 2 races + 4 bugs observed is already pretty much a record for
-a single program. Kudos to the NeXT developers...
+- Joe
 
-Cheers,
-  Trond
+
+
+
+
+

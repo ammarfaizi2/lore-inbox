@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbSKPXpb>; Sat, 16 Nov 2002 18:45:31 -0500
+	id <S267411AbSKPXvX>; Sat, 16 Nov 2002 18:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267408AbSKPXpb>; Sat, 16 Nov 2002 18:45:31 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:22982 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S267403AbSKPXpb>;
-	Sat, 16 Nov 2002 18:45:31 -0500
-Date: Sat, 16 Nov 2002 15:52:29 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [lart] /bin/ps output
-Message-ID: <20021116235229.GA32765@tapu.f00f.org>
-References: <3DA798B6.9070400@us.ibm.com> <20021116092424.GY22031@holomorphy.com> <1037491895.24777.26.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267412AbSKPXvX>; Sat, 16 Nov 2002 18:51:23 -0500
+Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:16403 "HELO
+	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S267411AbSKPXvW>; Sat, 16 Nov 2002 18:51:22 -0500
+Message-ID: <20021116235725.10323.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <1037491895.24777.26.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: linux-kernel@vger.kernel.org
+Cc: mnalis-umsdos@voyager.hr, smatch-kbugs@lists.sf.net
+Date: Sat, 16 Nov 2002 18:57:25 -0500
+Subject: declaring large variables
+X-Originating-Ip: 67.112.121.27
+X-Originating-Server: ws3-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 17, 2002 at 12:11:35AM +0000, Alan Cox wrote:
+I have a program (smatch.sf.net) that checks for certain types of kernel coding errors.  I'm working on one that checks for functions that possibly put too much data on the 8kB local variable stack.  The function UMSDOS_ioctl_dir puts less than 2kB of data so it's probably not a problem.  Especially since it doesn't do that for all code paths.  
 
-> Bill - so what happens if you trim down the aio, event and ksoftirqd
-> threads to a sane size (you might also want to do something about
-> the fact 2.5 still runs ksoftirq too easily). Intuitively I'd go for
-> a square root of the number of processors + 1 sort of function but
-> what do the benchmarks say ?
+What should be the upper limit for how much data a function can put on the stack.
 
-IMO having various threads per-CPU is getting silly for (say) 4+
-CPUs.  Even for two CPUs it means quite a good number of kernel
-threads.
+linux-2.5.44/fs/umsdos/ioctl.c 439 UMSDOS_ioctl_dir (14432 bits)
 
-Does anyone really know for certain that this is necessary versus
-having few per-CPU threads calling into state-machine functions?
+Line            Variable                                 Size
+79         struct umsdos_ioctl data;                    (4736 bits) 
+177                         struct umsdos_dirent entry; (2048 bits)
+178                         struct umsdos_info info;    (2304 bits)
+250                 struct umsdos_info info;            (2304 bits)
+305                 struct umsdos_info info;            (2304 bits)
 
+Regards,
+dan carpenter
 
+-- 
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-  --cw
+Single & ready to mingle? lavalife.com:  Where singles click. Free to Search!
+http://www.lavalife.com/wp.epl?a=2716
+

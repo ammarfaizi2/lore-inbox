@@ -1,32 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319821AbSIMW47>; Fri, 13 Sep 2002 18:56:59 -0400
+	id <S319822AbSIMXM1>; Fri, 13 Sep 2002 19:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319822AbSIMW47>; Fri, 13 Sep 2002 18:56:59 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:54252 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S319821AbSIMW46>; Fri, 13 Sep 2002 18:56:58 -0400
-Date: Sat, 14 Sep 2002 00:29:13 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: syam <syam@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.19 Oops error
-Message-ID: <20020914002913.A8260@linux-m68k.org>
-References: <20020913115952.A1796@linux-m68k.org> <BOEAKBEECIJEDIMOJJJOOEGKCEAA.syam@cisco.com>
+	id <S319823AbSIMXM1>; Fri, 13 Sep 2002 19:12:27 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:13954 "EHLO
+	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S319822AbSIMXM0>; Fri, 13 Sep 2002 19:12:26 -0400
+Subject: RE: Killing/balancing processes when overcommited
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: jimsibley@earthlink.net, linux-kernel@vger.kernel.org,
+       thunder@lightweight.ods.org
+In-Reply-To: <Pine.LNX.4.44L.0209131943390.1857-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0209131943390.1857-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 13 Sep 2002 16:12:14 -0700
+Message-Id: <1031958734.1403.249.camel@wookie-t23.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <BOEAKBEECIJEDIMOJJJOOEGKCEAA.syam@cisco.com>; from syam@cisco.com on Fri, Sep 13, 2002 at 08:01:16AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 13, 2002 at 08:01:16AM -0700, syam wrote:
-> Hi Richard,
-> Will running memtest fix the corruption? How to avoid such corruptions for
-> kernel 2.4.19?
 
-the kind of error you have seen is very often caused by hardware 
-problems, you need to find out what is at fault.
+On Fri, 2002-09-13 at 15:44, Rik van Riel wrote:
+> On 13 Sep 2002, Timothy D. Witham wrote:
+> 
+> >   In this case the offense is asking for more memory.  So it is the
+> > process that asks for more memory that goes away.  Again sometimes it
+> > will be an innocent bystander but hopefully it will eventually be the
+> > process that is causing the problem.
+> 
+> If you kill the process that requests memory, the sequence often
+> goes as follows:
+> 
+> 1) memory is exhausted
+> 
+> 2) the network driver can't allocate memory and
+>    spits out a message
+> 
+> 3) syslogd and/or klogd get killed
+> 
+> Clearly you want to be a bit smarter about which process to kill.
+>   
 
-Richard
+
+Right, you need to have a hold back for the kernel/root items to 
+ensure that this sort of thing doesn't happen.
+
+
+> regards,
+> 
+> Rik
+> -- 
+> Bravely reimplemented by the knights who say "NIH".
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> Spamtraps of the month:  september@surriel.com trac@trac.org
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+

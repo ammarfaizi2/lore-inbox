@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284283AbRLBTnx>; Sun, 2 Dec 2001 14:43:53 -0500
+	id <S284311AbRLBTtl>; Sun, 2 Dec 2001 14:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284303AbRLBTnm>; Sun, 2 Dec 2001 14:43:42 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:23571 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S284283AbRLBTnY>;
-	Sun, 2 Dec 2001 14:43:24 -0500
-Date: Sun, 2 Dec 2001 20:42:52 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: mingo@elte.hu, riel@conectiva.com.br, torvalds@transmeta.com,
-        yodaiken@fsmlabs.com, akpm@zip.com.au, lm@bitmover.com,
-        hps@intermeta.de, jgarzik@mandrakesoft.com, alan@lxorguk.ukuu.org.uk,
+	id <S284303AbRLBTtb>; Sun, 2 Dec 2001 14:49:31 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7187 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284306AbRLBTtT>; Sun, 2 Dec 2001 14:49:19 -0500
+Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Sun, 2 Dec 2001 19:57:22 +0000 (GMT)
+Cc: linux-kernel@borntraeger.net (Christian =?iso-8859-1?q?Borntr=E4ger?=),
+        acmay@acmay.homeip.net (andrew may),
+        ajschrotenboer@lycosmail.com (Adam Schrotenboer),
         linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-Message-Id: <20011202204252.1be2bc71.skraw@ithnet.com>
-In-Reply-To: <E16Ac7L-00009u-00@starship.berlin>
-In-Reply-To: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
-	<E16AbYM-00009p-00@starship.berlin>
-	<20011202200427.12ec0c33.skraw@ithnet.com>
-	<E16Ac7L-00009u-00@starship.berlin>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <200112021941.fB2Jfmg12171@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Dec 02, 2001 12:41:48 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16Acjq-0004M3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001 20:17:33 +0100
-Daniel Phillips <phillips@bonn-fries.net> wrote:
+> I consider this issue closed. I'd suggest you contact Mandrake and get
+> them to upgrade to devfsd-v1.3.20, remove the boot script code and use
+> the RESTORE directive instead. This requires v1.2 of the devfs core
+> (found in 2.4.17-pre1).
 
-> > You mean "controlled" up to the point where your small environment got
-randomly
-> > hit by a smaller sized stone coming right from the nowhere corner of the
-> > universe, or not?
-> 
-> See "principal" above.  There's a random element in the game of bridge, too,
-> but it's not the principal element.
-
-Please name another planet where your controlling principle is proven to even
-exist.
-
-For a being that is located on a "very small stage in a vast cosmic arena"
-(Carl Sagan) you have a very strong opinion about the big picture. How come you
-think you are able to _see_ it at all? 
-Wouldn't it be more accurate to simply admit, we _can't_ see it (at least
-currently) and therefore it must be referred to as _random_? Obviously nobody
-is hindered to try to find more pixels of the big picture. But shouldn't one
-keep in mind that the picture is possibly _very_ big, compared to oneself and
-the levels of complexity we are adjusted to.
-
-A dropped stone is possibly only falling _down_ relative to _your_ personal
-point of view.
-
-Regards,
-Stephan
-
+So the devfs in 2.4.17pre isnt back compatible - definitely 2.5 material
+then. This is the same sort of reason the 32bit uid quota code can't go into
+2.4 proper. Its a pain but its not reasonable to expect every random devfs
+user to handle this in a stable tree update
 

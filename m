@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUHGN06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUHGOCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUHGN06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 09:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUHGN06
+	id S262329AbUHGOCA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 10:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUHGOB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 09:26:58 -0400
-Received: from main.gmane.org ([80.91.224.249]:18383 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262138AbUHGN04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 09:26:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 7 Aug 2004 10:01:59 -0400
+Received: from [193.90.147.36] ([193.90.147.36]:41741 "EHLO mail.luxo.no")
+	by vger.kernel.org with ESMTP id S262329AbUHGOB7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 10:01:59 -0400
+Subject: Ketil =?ISO-8859-1?Q?Tj=F8gersen_er_p=E5_ferie?=
+From: Ketil =?ISO-8859-1?Q?Tj=F8gersen?= <ketil@luxoprosjekt.no>
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: Linux Kernel bug report (includes fix)
-Date: Sat, 07 Aug 2004 15:26:52 +0200
-Message-ID: <yw1xhdrf2i5f.fsf@kth.se>
-References: <200408071251.i77CpZqE007029@burner.fokus.fraunhofer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:C0U5Dk2I4qlk8fEpGdC2pXGIsXc=
+Message-ID: <OFD86C1D82.E56F2ED9-ONC1256EE9.004D1451-C1256EE9.004D1451@luxo.no>
+Date: Sat, 7 Aug 2004 16:01:54 +0200
+X-MIMETrack: Serialize by Router on OSLO/LUXO(Release 6.5.1|January 21, 2004) at
+ 07.08.2004 16:01:59
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
 
-> You now again have the bug report _and_ the fix in a single short mail.
 
-I could see no patch contained in your mail.
 
--- 
-Måns Rullgård
-mru@kth.se
+
+I will be out of the office starting  31.07.2004 and will not return until
+08.08.2004.
+
+Hei! Er på ferie fom mandag den 2 august tom fredag den 6 august. Er det
+noe viktig så ring vårt sentralbord på 22578060 eller mail Morten Grønstad
+på morten@luxoprosjekt.no så får du svar.
+
+Ha en fin ferie
 

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262001AbSJIRsZ>; Wed, 9 Oct 2002 13:48:25 -0400
+	id <S261905AbSJIRyn>; Wed, 9 Oct 2002 13:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262005AbSJIRsZ>; Wed, 9 Oct 2002 13:48:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6675 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262001AbSJIRsY>; Wed, 9 Oct 2002 13:48:24 -0400
-Date: Wed, 9 Oct 2002 18:54:05 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.41] trap in __release_resource
-Message-ID: <20021009185405.B23671@flint.arm.linux.org.uk>
-References: <200210091719.g99HJBVM001363@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210091719.g99HJBVM001363@kleikamp.austin.ibm.com>; from shaggy@austin.ibm.com on Wed, Oct 09, 2002 at 12:19:11PM -0500
+	id <S261914AbSJIRym>; Wed, 9 Oct 2002 13:54:42 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:8889 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261905AbSJIRyZ>;
+	Wed, 9 Oct 2002 13:54:25 -0400
+Date: Wed, 9 Oct 2002 14:00:05 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210091050330.7355-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0210091358100.8980-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 12:19:11PM -0500, David Kleikamp wrote:
-> I was getting a NULL pointer dereference in __release_resource when I tried
-> to boot 2.5.41.  I traced it down to your recent patch to 8250.c.  Since
-> the call to serial8250_request_std_resource() is now conditional, the call
-> to release_resource() needs to be conditional as well.  This patch fixes
-> the problem.  It looks obviously correct to me, but I don't know this code
-> at all.
 
-Oddly, I've also sent this patch out in the last couple of days. 8)
-Its correct.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Wed, 9 Oct 2002, Linus Torvalds wrote:
+
+> 
+> On Wed, 9 Oct 2002, Alexander Viro wrote:
+> > 
+> > Sorry, no.  Which partition is the backing store for this filesystem is
+> > question to some filesystem drivers.  Not even every fs driver that
+> > happens to use block devices - some of them use more than one (e.g
+> > for journal).
+> > 
+> > IOW, it's not a partition property.
+> 
+> I didn't say it was a partition. I said it was a _filesystem_ property.  
+> And yes, it can be a list of multiple partitions - the same way LVM is a
+> list of _multiple_ partitions.
+> 
+> The point being that a partition is a real entity, and should have a node 
+> of its own - so that you can point to it (and "node" may of course be 
+> "subdirectory" if you want to have multiple things associated with it). 
+
+OK, call me dense, but what things are associated with partition aside of the
+fact that it exists?
 

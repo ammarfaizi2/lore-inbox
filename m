@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbTEDVwT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 17:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTEDVwT
+	id S261790AbTEDWKL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 18:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTEDWKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 17:52:19 -0400
-Received: from iole.cs.brandeis.edu ([129.64.3.240]:2958 "EHLO
-	iole.cs.brandeis.edu") by vger.kernel.org with ESMTP
-	id S261210AbTEDVwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 17:52:17 -0400
-Date: Sun, 4 May 2003 18:04:48 -0400 (EDT)
-From: Mikhail Kruk <meshko@cs.brandeis.edu>
-To: Ville Voutilainen <vjv@ee.oulu.fi>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: fcntl file locking and pthreads
-In-Reply-To: <200305042156.h44LuJYe012089@stekt2.oulu.fi>
-Message-ID: <Pine.LNX.4.33.0305041759370.1595-100000@iole.cs.brandeis.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 4 May 2003 18:10:11 -0400
+Received: from are.twiddle.net ([64.81.246.98]:30867 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261790AbTEDWKK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 18:10:10 -0400
+Date: Sun, 4 May 2003 15:22:27 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+Message-ID: <20030504222227.GB6808@twiddle.net>
+Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
+	Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
+References: <200305041027_MC3-1-3758-4298@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305041027_MC3-1-3758-4298@compuserve.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> open()
-> pthread_create()
-> fcntl()
-> 			(other thread)
-> 			fcntl()
-> will probably result in both threads acquiring the lock
-> successfully. It would be reasonable IMHO to assume that
-> a sequence like
+On Sun, May 04, 2003 at 10:25:26AM -0400, Chuck Ebbert wrote:
+> asmlinkage int sys_iopl(unsigned long unused)
+> {
+>         struct pt_regs * regs = (struct pt_regs *) &unused;       <== yuck!
+[...]
+>   Shouldnt it be like this?
 > 
-> open()
-> pthread_create()
-> fcntl()
-> 
-> 			(other thread)
-> 			open()
-> 			fnctl() /* lock the newly opened fd */
+> asmlinkage int sys_iopl (struct pt_regs regs)
 
-actually what I have is:
-thread 0:
-pthread_create() (1)
-pthread_create() (2)
+No, it should be like 
 
-thread 1:
-open()
-fcntl()
+  int sys_iopl (struct pt_regs *regs)
 
-thread 2:
-open()
-fcntl()
+and assembly language should push the proper address.
 
-etc
+The struct-as-argument form allows the compiler to
+smash the entire structure as it sees fit.
 
-and they all succeed. Even though the file descriptors are different. 
+> fork, clone, vfork and execve all declare it that way...
 
-> would give you what you're after. The only problem being that
-> even user space manuals suggest that fcntl can only detect
-> that other *processes* hold a file lock. Given the muddy
+They're all wrong too.
 
-Unfortunately man pages I have don't even mention thread vs process.
 
-> nature of what is a thread/process in Linux, this requires
-> someone more familiar with the clone stuff to clarify.
-> 
-> Another issue altogether is why you are trying to sync two
-> threads with file locks, but I digress.
-
-You digress, but I feel like I have to justify myself now :)
-Those threads used to be processes and now want be threads with minimal 
-modifications. The files that are locked are still used by other processes 
-too.
-
+r~

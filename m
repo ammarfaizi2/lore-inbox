@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbTEIHu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 03:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbTEIHu5
+	id S262351AbTEIHyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 03:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTEIHyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 03:50:57 -0400
-Received: from mail.hometree.net ([212.34.181.120]:4507 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S262341AbTEIHu5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 03:50:57 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: 2.5.69: VIA IDE still broken
-Date: Fri, 9 May 2003 08:03:34 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b9fncm$6ae$1@tangens.hometree.net>
-References: <20030508220910.GA1070@codeblau.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1052467414 6478 212.34.181.4 (9 May 2003 08:03:34 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 9 May 2003 08:03:34 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Fri, 9 May 2003 03:54:04 -0400
+Received: from 237.oncolt.com ([213.86.99.237]:65265 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S262351AbTEIHyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 03:54:03 -0400
+Subject: Re: PATCH - Don't remove inode from hash until filesystem has
+	deleted it.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <16057.46720.778667.845306@notabene.cse.unsw.edu.au>
+References: <16057.46720.778667.845306@notabene.cse.unsw.edu.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052467585.23135.97.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Fri, 09 May 2003 09:06:33 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix von Leitner <felix-kernel@fefe.de> writes:
+On Thu, 2003-05-08 at 02:44, Neil Brown wrote:
+> Don't remove inode from hash until filesystem has deleted it.
+> 
+> There is a small race with knfsd using iget to get an inode
+> that is currently being deleted.  This is because it is removed
+> from the hash table *before* the filesystem gets to delete it.
+> If nfsd does an iget in this window it will cause a read_inode which
+> will return an apparently valid inode.  However that inode will
+> shortly be deleted from disc without knfsd noticing... until
+> it is too late.
 
->reliability and market penetration over price.  I envy people who can
->still evangelize Linux under circumstances like this.  I sure as hell
->can not.
+JFFS2 suffers similarly from the VFS simultaneously calling read_inode()
+and clear_inode() for the same inode, since it uses iget() internally
+for garbage collection. Since deletion is a slow operation which
+involves marking nodes obsolete on the medium, it's nice and easy to hit
+the race and have jffs2_read_inode() start walking the list of nodes
+belonging to a certain inode at the same time as jffs2_clear_inode() is
+walking the same list freeing them all :)
 
-Solution A: Don't use _development_ kernels.
+I've added locking to prevent this from happening in that particular
+case, by suspending garbage collection during jffs2_clear_inode(), but
+that's undesirable and anyway, the problem still exists when a JFFS2
+file system is exported by nfsd, if nfsd attempts to open the inode
+while it's being deleted.
 
-Solution B: Use another OS where development snapshots have production quality.
-
-	Regards
-		Henning
+Your patch should solve that too -- looks sane to me.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+dwmw2
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

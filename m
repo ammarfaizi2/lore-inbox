@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264867AbTIJF6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbTIJF6n
+	id S264672AbTIJFwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbTIJFws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:58:43 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:58598 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264867AbTIJF6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:58:42 -0400
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: Russell King <rmk@arm.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       David Jones <davej@suse.de>
-Subject: Re: [2.6.0-test5]oops inserting PCMCIA card
-Date: Tue, 9 Sep 2003 23:01:13 -0700
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200309081630.19263.fedor@karpelevitch.net> <200309091202.03759.fedor@karpelevitch.net> <20030909201455.K4216@flint.arm.linux.org.uk>
-In-Reply-To: <20030909201455.K4216@flint.arm.linux.org.uk>
+	Wed, 10 Sep 2003 01:52:48 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:10625
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264672AbTIJFwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:52:46 -0400
+Date: Wed, 10 Sep 2003 01:52:17 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Muthukumar <kmuthukumar@mail15.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem on linux-kernel-2.6.0-test3
+In-Reply-To: <200309100509.h8A591O4087507@www.mail15.com>
+Message-ID: <Pine.LNX.4.53.0309100151020.14426@montezuma.fsmlabs.com>
+References: <200309100509.h8A591O4087507@www.mail15.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309092301.14112.fedor@karpelevitch.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Tue, Sep 09, 2003 at 12:02:03PM -0700, Fedor Karpelevitch wrote:
-> > see attachments. I included couple other items in case they may
-> > be relevant.
->
-> Well, first driver I looked at - ati-agp.  This should fix all the
-> AGP drivers.
->
-> Linus please apply.  pci_device_id tables can not and must not be
-> marked discardable.
->
-> diff -ur orig/drivers/char/agp/ati-agp.c
-....
+On Wed, 10 Sep 2003, Muthukumar wrote:
 
-thanks. this seems to fix this issue for me. Is there any more direct 
-way trigger this bug?
+> Hello all ,
+> 
+> I am muthukumar working in squid development ,for the developmet in 
+> epoll,i have tried to compile the kernel-2.6 with IA64 support on 
+> IA64 platform.
+> 
+> But in the compilation i am getting the error as 
+> 
+> HOSTCC  scripts/lxdialog/checklist.o
+> In file included from scripts/lxdialog/checklist.c:24:
+> scripts/lxdialog/dialog.h:29:20: curses.h: No such file or 
+> directory
+> In file included from scripts/lxdialog/checklist.c:24:
+> scripts/lxdialog/dialog.h:127: error: parse error before 
+> "use_colors"
 
-Fedor.
+You will need to install ncurses/ncurses-devel.
+

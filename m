@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbTLBRH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 12:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTLBRH7
+	id S262598AbTLBRGq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 12:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbTLBRGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 12:07:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62172 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262591AbTLBRH4 (ORCPT
+	Tue, 2 Dec 2003 12:06:46 -0500
+Received: from cruftix.physics.uiowa.edu ([128.255.70.79]:57998 "EHLO cruftix")
+	by vger.kernel.org with ESMTP id S262598AbTLBRGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 12:07:56 -0500
-Date: Tue, 2 Dec 2003 09:00:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-bk1 && RTC
-Message-Id: <20031202090058.6e38dfb0.rddunlap@osdl.org>
-In-Reply-To: <20031202155313.GD18468@rdlg.net>
-References: <20031202155313.GD18468@rdlg.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 2 Dec 2003 12:06:45 -0500
+Date: Tue, 2 Dec 2003 11:06:39 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Cc: perex@suse.cz
+Subject: vanilla 2.6.0-test11 and CS4236 card
+Message-ID: <20031202170637.GD5475@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org, perex@suse.cz
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003 10:53:13 -0500 "Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
+Howdy.
 
-| 
-| 
-| Looks like RTC is broken in 2.4.23-bk1.
-| 
-| gcc -D__KERNEL__ -I/exp/src1/kernels/2.4.23/Server/General/linux-2.4.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586 -nostdinc -iwithprefix include -DKBUILD_BASENAME=rtc  -c -o rtc.o rtc.c
-| rtc.c: In function `rtc_init':
-| rtc.c:772: `RTC_IOMAPPED' undeclared (first use in this function)
-| rtc.c:772: (Each undeclared identifier is reported only once
-| rtc.c:772: for each function it appears in.)
-| rtc.c:773: `RTC_IO_EXTENT' undeclared (first use in this function)
-| rtc.c: In function `rtc_exit':
-| rtc.c:873: `RTC_IOMAPPED' undeclared (first use in this function)
-| rtc.c:874: `RTC_IO_EXTENT' undeclared (first use in this function)
-| 
-| If I disable the Enhanced Real Time Clock in menuconfig it compiles just
-| fine.
+I'm having problems getting the CS4236+ driver to recognize my 
+  CS4236B card.  pnp finds it on boot:
+isapnp: Scanning for PnP cards...
+isapnp: Card 'CS4236B'
+isapnp: 1 Plug & Play card detected total
 
+but the ALSA driver doesn't pick it up.
+isapnp detection failed and probing for CS4236+ is not supported
+CS4236+ soundcard not found or device busy
 
-Marcelo just applied the patch here:
-  http://lkml.org/lkml/2003/12/1/150
+Furthermore, after fudging with manually setting it up via modprobe
+  options, it's still not loading:
+CS4236+ soundcard not found or device busy
 
+This used to work in the 2.4 series kernel without any modprobe.conf
+  settings; the OSS driver would pick it up.
 
---
-~Randy
-MOTD:  Always include version info.
+Any assistance would be greatly appreciated; this is the only thing holding
+  me back from 2.6 goodness.  ;)
+
+[config, pnpdump, and other information available on request]
+-Joseph
+-- 
+trelane@digitasaru.net--------------------------------------------------
+"We continue to live in a world where all our know-how is locked into
+ binary files in an unknown format. If our documents are our corporate
+ memory, Microsoft still has us all condemned to Alzheimer's."
+    --Simon Phipps, http://theregister.com/content/4/30410.html

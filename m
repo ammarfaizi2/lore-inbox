@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267153AbTBQQiT>; Mon, 17 Feb 2003 11:38:19 -0500
+	id <S267138AbTBQQiB>; Mon, 17 Feb 2003 11:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbTBQQiT>; Mon, 17 Feb 2003 11:38:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61706 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267153AbTBQQiT>;
-	Mon, 17 Feb 2003 11:38:19 -0500
-Message-ID: <3E511238.7080001@pobox.com>
-Date: Mon, 17 Feb 2003 11:47:52 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ghugh Song <ghugh@mit.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Trouble w/ e1000 v4.4.19 for Intel gigabit 82545EM on-board chip.
-References: <20030217142025.A5BB51AFB4@bellini.mit.edu>
-In-Reply-To: <20030217142025.A5BB51AFB4@bellini.mit.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267153AbTBQQiA>; Mon, 17 Feb 2003 11:38:00 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:6044 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S267138AbTBQQiA>;
+	Mon, 17 Feb 2003 11:38:00 -0500
+Date: Mon, 17 Feb 2003 18:47:40 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: John Bradford <john@grabjohn.com>
+Cc: Robert Love <rml@tech9.net>, sneakums@zork.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Performance of ext3 on large systems
+Message-ID: <20030217164740.GS1073@mea-ext.zmailer.org>
+References: <1045497374.12615.1.camel@phantasy> <200302171622.h1HGMMA8010529@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302171622.h1HGMMA8010529@darkstar.example.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ghugh Song wrote:
-> Under SuSE-8.1-CDROM supplied 2.4.19-UP with e1000 v4.3.15 module, this 
-> ethernet worked on a E7505 based Supermicro X5DA8 Dual Xeon motherboard
-> with the Intel 82545EM chip on board with no special kernel option
-> inserted.  The RJ45 is hooked to 100Mb/s speed CISCO switching hub.
-> 
-> Now, e1000 v4.4.19 custom-built 2.4.21-pre4ac4 with SMP enabled does not work.
-> e1000 is detected.  It appeared properly in ifconfig with its own 
-> HWaddr.  But it does not work.
+On Mon, Feb 17, 2003 at 04:22:22PM +0000, John Bradford wrote:
+...
+> Well, yes, but that's not what I was saying - what was saying is that
+> if you are primarily reading anyway, there isn't much to be gained
+> from using EXT-3, over EXT-2.
 
+  Besides of data robustness.
 
-Does stock 2.4.20 work?
-Does 2.4.20 + 2.4.21-pre4 pre-patch work?
+> If you are primarily writing, EXT-3 atime should be faster than EXT-2
+> noatime.  EXT-3 notime will obviously be even faster.
 
+  No.  For primarily writing the 'noatime' effect disappears in background
+  noice. Every time you write into file, mtime will be updated, and also
+  ctime.  Only one of i-node timestamps _not_ updated is atime...
+
+> John.
+
+/Matti Aarnio

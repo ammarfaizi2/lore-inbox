@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261547AbRERU1f>; Fri, 18 May 2001 16:27:35 -0400
+	id <S261546AbRERUZZ>; Fri, 18 May 2001 16:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261549AbRERU1Z>; Fri, 18 May 2001 16:27:25 -0400
-Received: from relay03.cablecom.net ([62.2.33.103]:65029 "EHLO
-	relay03.cablecom.net") by vger.kernel.org with ESMTP
-	id <S261547AbRERU1F>; Fri, 18 May 2001 16:27:05 -0400
-Message-ID: <3B058597.A0143D9E@bluewin.ch>
-Date: Fri, 18 May 2001 22:27:05 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S261547AbRERUZF>; Fri, 18 May 2001 16:25:05 -0400
+Received: from www.wen-online.de ([212.223.88.39]:35333 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261546AbRERUY4>;
+	Fri, 18 May 2001 16:24:56 -0400
+Date: Fri, 18 May 2001 22:24:05 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <20010518205843.T806@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.33.0105182218070.387-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Framebuffer drivers and start options
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've used an ATI RageII card with frame buffer driver atyfb compiled
-into the kernel and specified 'append = "video=atyfb:800x600@72"' in
-lilo.conf. I've just gotten a second computer with a ATI RagePro128 card
-(frame buffer driver aty128fb) and compiled both driver as modules. Now
-the 'append...' doesn't work any more with any driver. It seems as if
-the kernel parameters don't get propagated to the driver modules. Okay I
-specified the options for the modules in modules.conf (i.e. options
-atyfb 800x600@72) but it didn't help. Both modules use an resolution of
-80x30 (characters), regardless what I specify. Afterwards I can switch
-the resolution with fbset 800x660-72. When I use modinfo at both drivers
-no options where shown. But when I look into the source it seems both
-drivers have these options.
+On Fri, 18 May 2001, Ingo Oeser wrote:
 
-Now how can the kernel switch the resolution (append...) if the drivers
-doesn't have these options? I's it true that these options won't get
-propagated to the drivers if compiled as modules?
+> On Fri, May 18, 2001 at 03:23:03PM -0300, Rik van Riel wrote:
+> > On Fri, 18 May 2001, Ingo Oeser wrote:
+> >
+> > > Rik: Would you take patches for such a tradeoff sysctl?
+> >
+> > "such a tradeoff" ?
+> >
+> > While this sounds reasonable, I have to point out that
+> > up to now nobody has described exactly WHAT tradeoff
+> > they'd like to make tunable and why...
+>
+> Amount of pages reclaimed from swapout_mm() versus amount of
+> pages reclaimed from caches.
 
-How can I figure out which options where allowed? How does/doesn't
-modinfo get this information (i.e. matrox frame buffer)?
+I don't know if this'll make sense, but I think this has to
+be a ~fuzzy suggestion to the kernel.  There are so many
+variables that you can't predict what the kernel will run
+into.  For example, with my favorite test, sometimes tasks
+do something nasty, like all deciding to do the same things
+at once and thereby jerking a _knot_ in the vm's tail.
 
-Is there another solution to get the modularized drivers working besides
-compiling into the kernel?
+	-Mike
 
-I'm using kernel 2.4.3 with kernel module loader, etc. on i386.
-
-O. Wyss
-
-Please CC, I'm not on the list.

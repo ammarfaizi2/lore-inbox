@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUFOQD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265727AbUFOQHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265724AbUFOQD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 12:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFOQD6
+	id S265727AbUFOQHU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUFOQHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 12:03:58 -0400
-Received: from styx.suse.cz ([82.119.242.94]:14732 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265724AbUFOQDu (ORCPT
+	Tue, 15 Jun 2004 12:07:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:39335 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265727AbUFOQHS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 12:03:50 -0400
-Date: Tue, 15 Jun 2004 18:05:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org, Lubomir Prech <Lubomir.Prech@mff.cuni.cz>
-Subject: Re: CONFIG_USB_HID vs. CONFIG_USB_HIDINPUT
-Message-ID: <20040615160502.GA11059@ucw.cz>
-References: <20040615140705.B6153@beton.cybernet.src>
+	Tue, 15 Jun 2004 12:07:18 -0400
+Date: Tue, 15 Jun 2004 09:07:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Patrick Finnegan <pat@computer-refuge.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compile problems on alpha: 2.6.6, 2.6.7-rc2
+Message-ID: <20040615160709.GY1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Patrick Finnegan <pat@computer-refuge.org>,
+	linux-kernel@vger.kernel.org
+References: <200406151100.25284.pat@computer-refuge.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040615140705.B6153@beton.cybernet.src>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200406151100.25284.pat@computer-refuge.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 02:07:05PM +0000, Karel Kulhavý wrote:
-> Hello
-> 
-> When I enable CONFIG_USB_HID and not enable CONFIG_USB_HIDINPUT in 2.4.25, will
-> I get something different from when I don't enable neither of them?
-> 
-> The <Help> says basically the same about both: that they control
-> "keyboards, mice, joysticks, graphics tablets, or any other HID based devices"
-> (CONFIG_USB_HID)
-> "keyboard, mouse or joystick or any other HID input device"
-> (CONFIG_USB_HIDINPUT)
-> 
-> I assume
-> 1) it doesn't matter if "keyboard" or "keyboards" is in the <Help>
-> 2) graphics tablets are assumed to be "any other HID input devices".
+On Tue, Jun 15, 2004 at 11:00:25AM -0500, Patrick Finnegan wrote:
+> I'm not quite sure what's causing this, but I get the following error
+> message (make V=1):
+>         ld  -static -N  -T arch/alpha/kernel/vmlinux.lds.s 
+> arch/alpha/kernel/head.o   init/built-in.o --start-group  usr/built-in.o  
+> arch/alpha/kernel/built-in.o  arch/alpha/mm/built-in.o  
+> arch/alpha/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o  
+> fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  
+> lib/lib.a  arch/alpha/lib/lib.a  lib/built-in.o  
+> arch/alpha/lib/built-in.o  drivers/built-in.o  sound/built-in.o  
+> net/built-in.o --end-group  -o .tmp_vmlinux1
+> local symbol 0: discarded in section `.exit.text' from drivers/built-in.o
+> make then aborts at this step.  At other times, I've gotten errors that
+> read the same as the above line, for symbols "1" through "4", in order.
+> I'm going to guess there's a problem with one of the drivers I've got 
+> built-in to the kernel, but I haven't been able to figure much else out..
 
-In that case you get the HID driver, but you won't get the Input
-binding, so the devices will be detected, but won't be accessible by the
-common means (keyboard through console, mouse via /dev/input/mice,
-etc.). They still will be accessible via HIDDEV, if you enable that.
+Could you try to locate it with scripts/reference_discard.pl, and if that
+fail, post your .config (preferably compressed) so I can try to debug this
+on my alphas?
 
-Enabling HID without either HIDINPUT or HIDDEV is pointless.
+Thanks.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+-- wli

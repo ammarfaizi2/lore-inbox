@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267705AbUINXIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUINXHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267705AbUINXIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUINXH7
+	id S266175AbUINXHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUINXDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:07:59 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56773 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266705AbUINXE7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:04:59 -0400
-Date: Tue, 14 Sep 2004 16:04:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: "Marco d'Itri" <md@Linux.IT>, "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+	Tue, 14 Sep 2004 19:03:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:59850 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268051AbUINW74
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 18:59:56 -0400
+Date: Tue, 14 Sep 2004 17:58:45 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: "David S. Miller" <davem@davemloft.net>, Anton Blanchard <anton@samba.org>,
+       roland@topspin.com, plars@linuxtestproject.org, Brian.Somers@Sun.COM,
        linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040914230409.GA23474@kroah.com>
-References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random>
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
+Message-Id: <20040914175845.2e1d90ca@localhost>
+In-Reply-To: <41476E92.6020609@sun.com>
+References: <412DC055.4070401@sun.com>
+	<20040830161126.585a6b62.davem@davemloft.net>
+	<1094238777.9913.278.camel@plars.austin.ibm.com>
+	<4138C3DD.1060005@sun.com>
+	<52acw7rtrw.fsf@topspin.com>
+	<20040903133059.483e98a0.davem@davemloft.net>
+	<52ekljq6l2.fsf@topspin.com>
+	<20040907133332.4ceb3b5a@localhost>
+	<52isapkg9z.fsf@topspin.com>
+	<20040908073412.3b7c9388@localhost>
+	<20040908130728.GA2282@krispykreme>
+	<20040913154828.35d60ac1.davem@davemloft.net>
+	<41476E92.6020609@sun.com>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914224731.GF3365@dualathlon.random>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 12:47:31AM +0200, Andrea Arcangeli wrote:
-> On Tue, Sep 14, 2004 at 02:51:22PM -0700, Greg KH wrote:
-> > True, so sit and spin and sleep until you see the device node.  That's
-> > how a number of distros have fixed the fsck startup issue.
+
+> I've gone through the changes you've made lately and I found a thinko,
+> patch attached.
 > 
-> that's more a band-aid than a fix (I can imagine a userspace hang if the
-> device isn't created for whatever reason), if there's no way to do
-> better than this if you've to run fsck (or if it's not the best to run
-> the fsck inside the dev.d scripts), then probably this needs better
-> fixing. is such a big problem to execute a sys_wait4 to wait the udev
-> userspace to return before returning from the insmod syscall?
+> With this patch, I can turn off autoneg on our b1600's switch and the
+> b200x falls back to 1000FD as required.
+> 
+> Signed-Off: Mike Waychison <michael.waychison@sun.com>
+> 
 
-But how do you know what to wait for?
+This is working on my JS20.   Nice work Mike.
 
-If you modprobe a usb-storage driver, and the usb bus is not done
-discovering devices, the insmod will instantly return, and only some
-time later will the device node be created after the device is
-discovered by the bus and then passed to the module you already loaded.
-
-Sitting and waiting is a band-aid, I agree.  That's why we created the
-/etc/dev.d/ notifier system to fix this issue (that is there for systems
-that don't even use udev.)
-
-thanks,
-
-greg k-h
+Jake

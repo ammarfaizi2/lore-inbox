@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292859AbSBVNLp>; Fri, 22 Feb 2002 08:11:45 -0500
+	id <S292858AbSBVNMp>; Fri, 22 Feb 2002 08:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292860AbSBVNLg>; Fri, 22 Feb 2002 08:11:36 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:50181 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S292859AbSBVNLR>;
-	Fri, 22 Feb 2002 08:11:17 -0500
-Date: Fri, 22 Feb 2002 14:11:01 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
-Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
-Message-Id: <20020222141101.0cc342e1.skraw@ithnet.com>
-In-Reply-To: <20020222130246.GD13774@os.inf.tu-dresden.de>
-In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de>
-	<051a01c1bb01$70634580$c50016ac@spps.com.br>
-	<20020221211142.0cf0efa4.skraw@ithnet.com>
-	<20020222130246.GD13774@os.inf.tu-dresden.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S292860AbSBVNMg>; Fri, 22 Feb 2002 08:12:36 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:31898 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S292858AbSBVNMb>; Fri, 22 Feb 2002 08:12:31 -0500
+Date: Fri, 22 Feb 2002 14:12:30 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, john.eskes@npol.politie.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: BCM5700 Gbit driver in 2.2.xx kernel
+Message-ID: <20020222141230.A11661@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Reid Hekman <reid.hekman@ndsu.nodak.edu>,
+	"Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+	john.eskes@npol.politie.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <F5D980430D3ED511A26A08000674A94619B669@npolldap.npol.politie.nl> <3C763886.28101.59805C@localhost> <1014379759.19835.41.camel@zeus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1014379759.19835.41.camel@zeus>; from reid.hekman@ndsu.nodak.edu on Fri, Feb 22, 2002 at 12:11:46PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002 14:02:46 +0100
-Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
-
-> On Thu Feb 21, 2002 at 21:11:42 +0100, Stephan von Krawczynski wrote:
-> > Hm, interestingly there seem to be more people with via+SMP+somewhat
-> > problems. Interestingly, because I cannot confirm these troubles,
-> > using such a setup myself. Just have a look:
+On Fri, Feb 22, 2002 at 12:11:46PM +0000, Reid Hekman wrote:
+> On Fri, 2002-02-22 at 05:24, Pedro M. Rodrigues wrote:
+> >    Probably John Eskes is the just messenger. These silly and huge signatures are 
+> > crawling all over the place. 
 > 
-> > (This is Asus CUV4X-D, dual PIII, and a damn lot of stuff inside :-)
-> 
-> Same MB here, the lspci output is also the same (for the onboard stuff ;).
+> Still, the party sending the message is responsible for initiating the
+> transmission of this legal mumbo jumbo. By using a service
+> provider(employers included) that attach these sorts of messages the
+> sender is implicitly assenting to abide by such disclaimers of rights
+> and responsibilities. Whether the disclaimer is valid or not is
 
-Ok, this is fine and makes the comparison at least possible to some extent.
-
-> > I compile my kernel (2.4.18-rc2) with the attached config. Please try
-> > it and tell your results. I can assure you that this machine runs rock
-> > solid over here for months.
-> 
-> No luck here. Hangs during boot (tried with 2.4.18-rc2-ac2).
-
-Please start from a setup as close to mine as possible. That is 2.4.18-rc2.
-In setup switch MPS 1.4 support to disable and Power Management to disable.
-
-> I even updated the BIOS from 1010 to 1014 as well (just in case). What
-> BIOS version are you running? And at how many MHz are the CPUs?
-
-I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB. Currently installed are 2GB being 2 x 1GB registered DIMM.
+In this case the employer is the Dutch Police. I'm not sure how flexible
+they can be. I'm happy they are even allowed to post to public forums with
+their questions and don't have to resort to sneakily using private accounts
+to do so.
 
 Regards,
-Stephan
 
+bert
 
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

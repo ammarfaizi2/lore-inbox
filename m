@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292539AbSBZA1T>; Mon, 25 Feb 2002 19:27:19 -0500
+	id <S292553AbSBZA2j>; Mon, 25 Feb 2002 19:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292546AbSBZA1J>; Mon, 25 Feb 2002 19:27:09 -0500
-Received: from quechua.inka.de ([212.227.14.2]:44405 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S292539AbSBZA1C>;
-	Mon, 25 Feb 2002 19:27:02 -0500
-From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
+	id <S292549AbSBZA23>; Mon, 25 Feb 2002 19:28:29 -0500
+Received: from marge.bucknell.edu ([134.82.9.1]:44554 "EHLO mail.bucknell.edu")
+	by vger.kernel.org with ESMTP id <S292553AbSBZA2S>;
+	Mon, 25 Feb 2002 19:28:18 -0500
+Subject: Re: Linux 2.4.18
+From: Eric Krout <ekrout@bucknell.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-In-Reply-To: <02022518330103.01161@grumpersII>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16fVSQ-0002mO-00@sites.inka.de>
-Date: Tue, 26 Feb 2002 01:27:02 +0100
+In-Reply-To: <87it8lum5i.fsf@basilikum.skogtun.org>
+In-Reply-To: <E16fU2W-0002CO-00@sites.inka.de> 
+	<87it8lum5i.fsf@basilikum.skogtun.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 25 Feb 2002 19:28:28 -0500
+Message-Id: <1014683308.2238.36.camel@ekrout.resnet.bucknell.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <02022518330103.01161@grumpersII> you wrote:
-> But it only works if everything get linked with the new library.
+> Bernd Eckenfels <ecki-news2002-02@lina.inka.de> writes:
+> > I dont understand why it is a problem to release 2.4.19 instead.
+> 
+> Neither do I.
+> -- 
+> Hilsen Harald.
 
-Nope, just put the new Lib into /etc/ld.so.preload
+If, hypothetically speaking of course, one were to start downloading a
+file that was a couple dozen megabytes in size and leave it going
+overnight on their dial-up connection only to awake and find that they
+had an outdated file, I could imagine them being quite pissed  ;-)
 
-Actually there is a unlink package out there, which does exactly this.
 
-Greetings
-Bernd
+

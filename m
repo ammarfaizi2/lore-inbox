@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132876AbRDEMbS>; Thu, 5 Apr 2001 08:31:18 -0400
+	id <S132877AbRDEMb6>; Thu, 5 Apr 2001 08:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132877AbRDEMbI>; Thu, 5 Apr 2001 08:31:08 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:33988 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S132876AbRDEMa5>; Thu, 5 Apr 2001 08:30:57 -0400
-Message-ID: <3ACC6425.CBF6BCC4@oracle.com>
-Date: Thu, 05 Apr 2001 14:25:09 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3-ac3 XIRCOM_CB only working as module
+	id <S132878AbRDEMbs>; Thu, 5 Apr 2001 08:31:48 -0400
+Received: from adsl-213-254-163-44.mistral-uk.net ([213.254.163.44]:11019 "EHLO
+	crucigera.fysh.org") by vger.kernel.org with ESMTP
+	id <S132877AbRDEMbe>; Thu, 5 Apr 2001 08:31:34 -0400
+Date: Thu, 5 Apr 2001 13:30:51 +0100
+From: Athanasius <Athanasius@miggy.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Another report of mozilla in D state, related to the 'uninterruptible sleep' thread
+Message-ID: <20010405133051.A16246@miggy.org>
+Mail-Followup-To: Athanasius <Athanasius@miggy.org>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3ACB727E.D8B7C824@blue-labs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ACB727E.D8B7C824@blue-labs.org>; from david@blue-labs.org on Wed, Apr 04, 2001 at 12:14:06PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like the new xircom_cb driver only works as module - if built
- in kernel there is no sign of eth0 setup.
+On Wed, Apr 04, 2001 at 12:14:06PM -0700, David Ford wrote:
+> I reported it back on Mar/27.  It is still an almost daily problem
+> requiring a reboot.  Mozilla gets stuck in down_write_failed.  This time
+> I'm sure it's not reiser's fault.
 
---alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
+   Definitely nothing to do with ReiserFS as I've had this happen and
+don't even have that FS compiled in.  2.4.3 (vanilla) was the kernel.
+No trace or anything (quick grep of /var/log/kern.log* for past week or
+so confirms), strace -p on it got nowhere at all.
 
-Linux:  kernel 2.2.19/2.4.3-ac3 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.4
-Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
-motto:  Tell the truth, there's less to remember.
+-Ath
+-- 
+- Athanasius = Athanasius(at)miggy.org / http://www.miggy.org/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUHSIsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHSIwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263980AbUHSIsn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUHSIsm
+	id S264098AbUHSIwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUHSItA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:48:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64273 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263980AbUHSIrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:47:06 -0400
-Date: Thu, 19 Aug 2004 09:47:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Karel Gardas <kgardas@objectsecurity.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM T22/APM suspend does not work with yenta_socket module loaded on 2.6.8.1
-Message-ID: <20040819094702.A546@flint.arm.linux.org.uk>
-Mail-Followup-To: Karel Gardas <kgardas@objectsecurity.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.43.0408191011030.1006-100000@thinkpad.gardas.net>
+	Thu, 19 Aug 2004 04:49:00 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:30875 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264085AbUHSIrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:47:39 -0400
+Date: Thu, 19 Aug 2004 10:48:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040819084834.GA4536@elte.hu>
+References: <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092902417.8432.108.camel@krustophenia.net> <20040819084001.GA4098@elte.hu> <1092905104.8432.116.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.43.0408191011030.1006-100000@thinkpad.gardas.net>; from kgardas@objectsecurity.com on Thu, Aug 19, 2004 at 10:16:04AM +0200
+In-Reply-To: <1092905104.8432.116.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 10:16:04AM +0200, Karel Gardas wrote:
-> I've found that APM suspend is not working on my IBM T22 properly, when
-> cardbus services are loaded. I've identified the problematic piece of code
-> as a yenta_socket module -- when I stop cardmgr and unload this module,
-> suspend starts to work.
 
-So it doesn't even work with cardmgr stopped and yenta loaded?
-Have you tried removing any cards plugged in to the sockets?
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-You could try grabbing the cbdump program from pcmcia.arm.linux.org.uk
-and trying to identify whether there's any differences in the register
-settings of the Cardbus bridges - between having no yenta module loaded
-and having yenta loaded with the sockets suspended using:
+> > wli indicated he's working on the pagetable zapping critical section
+> > issue - wli?
+> 
+> In the meantime, can we easily do a touch_preempt_timing() here, to
+> disable reporting of this issue, so we can continue to identify
+> others?  This one is frequent enough that I have not been able to
+> identify any more.
 
-echo 3 > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
-echo 3 > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
+yeah, you can add touch_preempt_timing() there. (i'd rather not do it in
+the patch, to get real results.) It is safe to add it anywhere in the
+source, it only has side-effects on tracing.
 
-(echo 0 to these files to resume the sockets.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Ingo

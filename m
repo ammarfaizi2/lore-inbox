@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129658AbQKOMhO>; Wed, 15 Nov 2000 07:37:14 -0500
+	id <S129455AbQKONKB>; Wed, 15 Nov 2000 08:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129801AbQKOMhF>; Wed, 15 Nov 2000 07:37:05 -0500
-Received: from capitanata.ca.astro.it ([192.167.8.254]:56335 "EHLO
-	capitanata.ca.astro.it") by vger.kernel.org with ESMTP
-	id <S129658AbQKOMg7>; Wed, 15 Nov 2000 07:36:59 -0500
-Date: Wed, 15 Nov 2000 13:06:51 +0100 (CET)
-From: Giacomo Mulas <gmulas@ca.astro.it>
+	id <S129729AbQKONJw>; Wed, 15 Nov 2000 08:09:52 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:8176 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129455AbQKONJl> convert rfc822-to-8bit; Wed, 15 Nov 2000 08:09:41 -0500
+From: schwidefsky@de.ibm.com
+X-Lotus-FromDomain: IBMDE
 To: linux-kernel@vger.kernel.org
-cc: gmulas@ca.astro.it
-Subject: Processor-dependent bug in kernel 2.4.0-testX (floating point
- exception)
-Message-ID: <Pine.LNX.4.21.0011151233240.6114-100000@capitanata.ca.astro.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <C1256998.004585F4.00@d12mta07.de.ibm.com>
+Date: Wed, 15 Nov 2000 13:39:13 +0100
+Subject: Memory management bug
+Mime-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I stumbled upon a strange bug in the 2.4.0-test[9-10] kernels,
-which only happens on PII (Deschutes) processors: right after boot, it
-starts spitting "floating point exception"s all over the place, every time
-aborting the program it was executing. This begins to happen very early,
-before any modules have been loaded. I do not know whether this bug was
-present in previous 2.4.0-test versions.
-	Notably, the kernels are recompiled with the same source and
-options of the one that is currently running without problems on my laptop
-and on all other PIIIs I tried it on, except for the processor option,
-which is set to "Pentium III" for PIIIs and to
-"Pentium-Pro/Celeron/Pentium II" for PIIs. I just did:
 
-cp .config .config.myconfig
-make mrproper
-mv .config.myconfig .config
-make menuconfig
-<change only processor family and save>
-make dep
-make bzImage
-make modules
-<install, adjust lilo and reboot>
-floating point exceptions when fscking partitions, when doing depmod...
-No oopses.
 
-This happens exactly in the same way on two different computers with the
-same hardware configuration, so I don't think it is a hardware bug, and
-both work fine with a 2.2.17 kernel. The floating point exceptions are not
-deterministic, they do not always happen at the same point in the boot
-process, but are random and frequent. Any program that runs for a long
-enough time (e.g. a tripwire run) invariably triggers it.
+I think I spotted a problem in the memory management of some (all?)
+architectures in 2.4.0-test10.  At the moment I am fighting with the 64bit
+backend for the new S/390 machines. I experienced infinite loops in
+do_check_pgt_cache because pgtable_cache_size indicated that a lot of pages
+are in the quicklists but the pgd/pmd/pte quicklists have been empty (NULL
+pointers). After some trickery with some special hardware feature (storage
+keys) I found out that empty_bad_pmd_table and empty_bad_pte_table have
+been put to the page table quicklists multiple(!) times. It is already a
+bug that these two arrays are inserted into the quicklist at all but the
+second insertation destroys the quicklists. I solved this problem by
+inserting checks for the special entries in  the free_xxx_fast routines,
+here is a sample for the i386 free_pte_fast:
 
-Please ask any more needed information and I will gladly provide it.
+diff -u -r1.5 pgalloc.h
+--- include/asm-i386/pgalloc.h  2000/11/02 10:14:51     1.5
++++ include/asm-i386/pgalloc.h  2000/11/15 12:27:58
+@@ -80,8 +80,11 @@
+        return (pte_t *)ret;
+ }
 
-Bye
-Giacomo Mulas
++extern pte_t empty_bad_pte_table[];
+ extern __inline__ void free_pte_fast(pte_t *pte)
+ {
++       if (pte == empty_bad_pte_table)
++               return;
+        *(unsigned long *)pte = (unsigned long) pte_quicklist;
+        pte_quicklist = (unsigned long *) pte;
+        pgtable_cache_size++;
 
-________________________________________________________________________
+I still get the "__alloc_pages: 2-order allocation failed." error messages
+but at least the machine doesn't go into infinite loops anymore. Could
+someone with more experience with the other architectures verify that my
+observation is true?
 
-Giacomo Mulas <gmulas@ca.astro.it, gmulas@tiscalinet.it, gmulas@eso.org>
-________________________________________________________________________
+blue skies,
+   Martin
 
-OSSERVATORIO  ASTRONOMICO                                                
-Str. 54, Loc. Poggio dei Pini * 09012 Capoterra (CA)
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
-Tel.: +39 070 71180 216     Fax : +39 070 71180 222
-________________________________________________________________________
-
-"When the storms are raging around you, stay right where you are"
-                         (Freddy Mercury)
-________________________________________________________________________
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

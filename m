@@ -1,150 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUJaXrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbUJaXxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbUJaXrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUJaXrJ
+	id S261699AbUJaXxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUJaXxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:47:09 -0500
-Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:20676 "EHLO
-	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S261700AbUJaXqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:46:20 -0500
-Date: Sun, 31 Oct 2004 18:46:05 -0500 (EST)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@lazuli.engin.umich.edu
-To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
-cc: Stefan Hornburg <kernel@linuxia.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] prio_tree: add Documentation/prio_tree.txt
-In-Reply-To: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.58.0410311844450.14047@lazuli.engin.umich.edu>
-References: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Oct 2004 18:53:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4786 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261699AbUJaXxO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:53:14 -0500
+Date: Sun, 31 Oct 2004 19:00:51 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: async@cyclades.com, linux-kernel@vger.kernel.org,
+       germano.barreiro@cyclades.com
+Subject: Re: [2.6 patch] char/cyclades.c: remove unused code
+Message-ID: <20041031210051.GA24801@logos.cnet>
+References: <20041031213428.GF2495@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031213428.GF2495@stusta.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Add prio_tree.c documentation.
+ACK.
 
-Signed-off-by: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-
-
-
- Documentation/prio_tree.txt |  107 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 107 insertions(+)
-
-diff -puN /dev/null Documentation/prio_tree.txt
---- /dev/null	2003-01-30 05:24:37.000000000 -0500
-+++ linux-2.6.9-jaya/Documentation/prio_tree.txt	2004-10-31 18:27:12.000000000 -0500
-@@ -0,0 +1,107 @@
-+The prio_tree.c code indexes vmas using 3 different indexes:
-+	* heap_index  = vm_pgoff + vm_size_in_pages : end_vm_pgoff
-+	* radix_index = vm_pgoff : start_vm_pgoff
-+	* size_index = vm_size_in_pages
-+
-+A regular radix-priority-search-tree indexes vmas using only heap_index and
-+radix_index. The conditions for indexing are:
-+	* ->heap_index >= ->left->heap_index &&
-+		->heap_index >= ->right->heap_index
-+	* if (->heap_index == ->left->heap_index)
-+		then ->radix_index < ->left->radix_index;
-+	* if (->heap_index == ->right->heap_index)
-+		then ->radix_index < ->right->radix_index;
-+	* nodes are hashed to left or right subtree using radix_index
-+	  similar to a pure binary radix tree.
-+
-+A regular radix-priority-search-tree helps to store and query
-+intervals (vmas). However, a regular radix-priority-search-tree is only
-+suitable for storing vmas with different radix indices (vm_pgoff).
-+
-+Therefore, the prio_tree.c extends the regular radix-priority-search-tree
-+to handle many vmas with the same vm_pgoff. Such vmas are handled in
-+2 different ways: 1) All vmas with the same radix _and_ heap indices are
-+linked using vm_set.list, 2) if there are many vmas with the same radix
-+index, but different heap indices and if the regular radix-priority-search
-+tree cannot index them all, we build an overflow-sub-tree that indexes such
-+vmas using heap and size indices instead of heap and radix indices. For
-+example, in the figure below some vmas with vm_pgoff = 0 (zero) are
-+indexed by regular radix-priority-search-tree whereas others are pushed
-+into an overflow-subtree. Note that all vmas in an overflow-sub-tree have
-+the same vm_pgoff (radix_index) and if necessary we build different
-+overflow-sub-trees to handle each possible radix_index. For example,
-+in figure we have 3 overflow-sub-trees corresponding to radix indices
-+0, 2, and 4.
-+
-+In the final tree the first few (prio_tree_root->index_bits) levels
-+are indexed using heap and radix indices whereas the overflow-sub-trees below
-+those levels (i.e. levels prio_tree_root->index_bits + 1 and higher) are
-+indexed using heap and size indices. In overflow-sub-trees the size_index
-+is used for hashing the nodes to appropriate places.
-+
-+Now, an example prio_tree:
-+
-+  vmas are represented [radix_index, size_index, heap_index]
-+                 i.e., [start_vm_pgoff, vm_size_in_pages, end_vm_pgoff]
-+
-+level  prio_tree_root->index_bits = 3
-+-----
-+												_
-+  0			 				[0,7,7]					 |
-+  							/     \					 |
-+				      ------------------       ------------			 |     Regular
-+  				     /					   \			 |  radix priority
-+  1		 		[1,6,7]					  [4,3,7]		 |   search tree
-+  				/     \					  /     \		 |
-+			 -------       -----			    ------       -----		 |  heap-and-radix
-+			/		    \			   /		      \		 |      indexed
-+  2		    [0,6,6]	 	   [2,5,7]		[5,2,7]		    [6,1,7]	 |
-+		    /     \		   /     \		/     \		    /     \	 |
-+  3		[0,5,5]	[1,5,6]		[2,4,6]	[3,4,7]	    [4,2,6] [5,1,6]	[6,0,6]	[7,0,7]	 |
-+		   /			   /		       /		   		_
-+                  /		          /		      /					_
-+  4	      [0,4,4]		      [2,3,5]		   [4,1,5]				 |
-+  		 /			 /		      /					 |
-+  5	     [0,3,3]		     [2,2,4]		  [4,0,4]				 |  Overflow-sub-trees
-+  		/			/							 |
-+  6	    [0,2,2]		    [2,1,3]							 |    heap-and-size
-+  	       /		       /							 |       indexed
-+  7	   [0,1,1]		   [2,0,2]							 |
-+  	      /											 |
-+  8	  [0,0,0]										 |
-+  												_
-+
-+Note that we use prio_tree_root->index_bits to optimize the height
-+of the heap-and-radix indexed tree. Since prio_tree_root->index_bits is
-+set according to the maximum end_vm_pgoff mapped, we are sure that all
-+bits (in vm_pgoff) above prio_tree_root->index_bits are 0 (zero). Therefore,
-+we only use the first prio_tree_root->index_bits as radix_index.
-+Whenever index_bits is increased in prio_tree_expand, we shuffle the tree
-+to make sure that the first prio_tree_root->index_bits levels of the tree
-+is indexed properly using heap and radix indices.
-+
-+We do not optimize the height of overflow-sub-trees using index_bits.
-+The reason is: there can be many such overflow-sub-trees and all of
-+them have to be suffled whenever the index_bits increases. This may involve
-+walking the whole prio_tree in prio_tree_insert->prio_tree_expand code
-+path which is not desirable. Hence, we do not optimize the height of the
-+heap-and-size indexed overflow-sub-trees using prio_tree->index_bits.
-+Instead the overflow sub-trees are indexed using full BITS_PER_LONG bits
-+of size_index. This may lead to skewed sub-trees because most of the
-+higher significant bits of the size_index are likely to be be 0 (zero). In
-+the example above, all 3 overflow-sub-trees are skewed. This may marginally
-+affect the performance. However, processes rarely map many vmas with the
-+same start_vm_pgoff but different end_vm_pgoffs. Therefore, we normally
-+do not require overflow-sub-trees to index all vmas.
-+
-+From the above discussion it is clear that the maximum height of
-+a prio_tree can be prio_tree_root->index_bits + BITS_PER_LONG.
-+However, in most of the common cases we do not need overflow-sub-trees,
-+so the tree height in the common cases will be prio_tree_root->index_bits.
-+
-+It is fair to mention here that the prio_tree_root->index_bits
-+is increased on demand, however, the index_bits is not decreased when
-+vmas are removed from the prio_tree. That's tricky to do. Hence, it's
-+left as a home work problem.
-+
-+
-
-_
-
+On Sun, Oct 31, 2004 at 10:34:28PM +0100, Adrian Bunk wrote:
+> The patch below removes unused code from drivers/char/cyclades.c
+> 
+> 
+> diffstat output:
+>  drivers/char/cyclades.c |   21 ---------------------
+>  1 files changed, 21 deletions(-)
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.10-rc1-mm2-full/drivers/char/cyclades.c.old	2004-10-31 19:49:35.000000000 +0100
+> +++ linux-2.6.10-rc1-mm2-full/drivers/char/cyclades.c	2004-10-31 19:52:36.000000000 +0100
+> @@ -758,7 +758,6 @@
+>   * allocated when the first cy_open occurs.
+>   */
+>  static unsigned char *tmp_buf;
+> -DECLARE_MUTEX(tmp_buf_sem);
+>  
+>  /*
+>   * This is used to look up the divisor speeds and the timeouts
+> @@ -5538,24 +5537,4 @@
+>  module_init(cy_init);
+>  module_exit(cy_cleanup_module);
+>  
+> -#ifndef MODULE
+> -/* called by linux/init/main.c to parse command line options */
+> -void
+> -cy_setup(char *str, int *ints)
+> -{
+> -#ifdef CONFIG_ISA
+> -  int i, j;
+> -
+> -    for (i = 0 ; i < NR_ISA_ADDRS ; i++) {
+> -        if (cy_isa_addresses[i] == 0) break;
+> -    }
+> -    for (j = 1; j <= ints[0]; j++){
+> -        if ( i < NR_ISA_ADDRS ){
+> -            cy_isa_addresses[i++] = ints[j];
+> -        }
+> -    }
+> -#endif /* CONFIG_ISA */
+> -} /* cy_setup */
+> -#endif /* MODULE */
+> -
+>  MODULE_LICENSE("GPL");
+> -

@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280722AbRKBQ1N>; Fri, 2 Nov 2001 11:27:13 -0500
+	id <S280728AbRKBQp1>; Fri, 2 Nov 2001 11:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280726AbRKBQ1E>; Fri, 2 Nov 2001 11:27:04 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:45830 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S280722AbRKBQ05>;
-	Fri, 2 Nov 2001 11:26:57 -0500
-Message-ID: <3BE2C7A5.51F06394@osdl.org>
-Date: Fri, 02 Nov 2001 08:19:49 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S280729AbRKBQpR>; Fri, 2 Nov 2001 11:45:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59142 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280728AbRKBQpH>; Fri, 2 Nov 2001 11:45:07 -0500
+Subject: Re: Linux 2.4.13-ac6
+To: whitney@math.berkeley.edu
+Date: Fri, 2 Nov 2001 16:51:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (LKML), laughing@shared-source.org (Alan Cox)
+In-Reply-To: <200111021638.fA2GcLs03275@adsl-209-76-109-63.dsl.snfc21.pacbell.net> from "Wayne Whitney" at Nov 02, 2001 08:38:21 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "Yan, Noah" <noah.yan@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Get hands on starting in this world.
-In-Reply-To: <A9B0C3C90A46D411951400A0C9F4F67103BA56E1@pdsmsx33.pd.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15zhXY-0002sv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, I don't have that info for Linux 2.2.x kernels.
-They are vaguely similar, but many details won't be the same. :)
+> CONFIG_IDE_TASK_IOCTL
 
-Why are you focusing on 2.2?
+Adds extra ioctls for doing specific tasks within the ide layer - think of
+taskfile as an ide scheduler
 
-~Randy
+> CONFIG_IDEDMA_ONLYDISK
 
-"Yan, Noah" wrote:
-> 
-> It is a good stuff. Is there much difference between 2.2.x and 2.4.x in the kernel initialization. You know, I am now starting on 2.2.x. Or do you have it for 2.2.x.
-> 
-> Thanks
-> Noah
-> 
-> -----Original Message-----
-> From: Randy.Dunlap [mailto:rddunlap@osdl.org]
-> Sent: 2001?11?2? 0:48
-> To: Yan, Noah
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Get hands on starting in this world.
-> 
-> "Yan, Noah" wrote:
-> >
-> > I am a new comer to the Linux world. It is really a hard start for me when I dig into those OS code although I have a strong theoretic background in OS and computer architecture. I am now being blocking at the start_kernel and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got hundreds of mail from Linux-kernel list but I cannot enjoy it.
-> >
-> > So could some experienced guys give some advice on how to start, which document/material can be recommended on this.
-> >
-> > My keen interest in this filed make me free to any suggestions on that. Please lend your hands
-> 
-> Hi-
-> 
-> As long as you don't mind an x86-leaning view of Linux boot/init,
-> you could begin by looking over this:  http://home.att.net/~rddunlap/
-> (or at:  http://www.linuxdoc.org/HOWTO/Linux-Init-HOWTO.html).
-> 
-> And there's lots of intro material at:  http://kernelnewbies.org/
-> 
-> ~Randy
-> -
+Do windowslike UDMA on disks PIO on cdrom
+
+
+The other two Andre had best explain
+

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUEFSy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbUEFS6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUEFSy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 14:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUEFSxr
+	id S262100AbUEFS6q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 14:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUEFS6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 14:53:47 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:30797 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262009AbUEFStU (ORCPT
+	Thu, 6 May 2004 14:58:08 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:49486 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262100AbUEFStr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 14:49:20 -0400
-Date: Thu, 6 May 2004 11:48:40 -0700
+	Thu, 6 May 2004 14:49:47 -0400
+Date: Thu, 6 May 2004 11:49:05 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Matthew Dobson <colpatch@us.ibm.com>,
        William Lee Irwin III <wli@holomorphy.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Joe Korty <joe.korty@ccur.com>,
        Jesse Barnes <jbarnes@sgi.com>
-Subject: [PATCH mask 7/15] mask1-bitmap-cleanup-prep
-Message-Id: <20040506114840.533b783a.pj@sgi.com>
+Subject: [PATCH mask 12/15] mask6-cpumask-i386-fixup
+Message-Id: <20040506114905.6d583942.pj@sgi.com>
 In-Reply-To: <20040506111814.62d1f537.pj@sgi.com>
 References: <20040506111814.62d1f537.pj@sgi.com>
 Organization: SGI
@@ -28,258 +28,323 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask1-bitmap-cleanup-prep
-	Document the bitmap bit model and handling of unused bits.
+mask6-cpumask-i386-fixup
+	Remove by recoding i386 uses of the obsolete cpumask const,
+	coerce and promote macros.
 
-        Tighten up bitmap so it does not generate nonzero bits
-        in the unused tail if it is not given any on input.
-
-        Add intersects, subset, xor and andnot operators.
-        Change bitmap_complement to take two operands.
-
-        Add a couple of missing 'const' qualifiers on
-        bitops test_bit and bitmap_equal args.
-
-Index: 2.6.6-rc3-mm2-bitmapv5/arch/x86_64/kernel/smpboot.c
+Index: 2.6.6-rc3-mm2-bitmapv5/arch/i386/kernel/io_apic.c
 ===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/arch/x86_64/kernel/smpboot.c	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/arch/x86_64/kernel/smpboot.c	2004-05-05 08:08:57.000000000 -0700
-@@ -827,7 +827,7 @@
- 		if (apicid == boot_cpu_id || (apicid == BAD_APICID))
- 			continue;
+--- 2.6.6-rc3-mm2-bitmapv5.orig/arch/i386/kernel/io_apic.c	2004-05-05 06:11:14.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/arch/i386/kernel/io_apic.c	2004-05-05 06:36:07.000000000 -0700
+@@ -264,7 +264,7 @@
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+ 	unsigned int apicid_value;
+ 	
+-	apicid_value = cpu_mask_to_apicid(mk_cpumask_const(cpumask));
++	apicid_value = cpu_mask_to_apicid(cpumask);
+ 	/* Prepare to do the io_apic_write */
+ 	apicid_value = apicid_value << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+Index: 2.6.6-rc3-mm2-bitmapv5/arch/i386/kernel/smp.c
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/arch/i386/kernel/smp.c	2004-05-05 06:11:35.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/arch/i386/kernel/smp.c	2004-05-05 06:36:07.000000000 -0700
+@@ -159,7 +159,7 @@
+  */
+ inline void send_IPI_mask_bitmask(cpumask_t cpumask, int vector)
+ {
+-	unsigned long mask = cpus_coerce(cpumask);
++	unsigned long mask = cpus_addr(cpumask)[0];
+ 	unsigned long cfg;
+ 	unsigned long flags;
  
--		if (!cpu_isset(apicid, phys_cpu_present_map))
-+		if (!physid_isset(apicid, phys_cpu_present_map))
- 			continue;
- 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
- 			continue;
-Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-generic/bitops.h
+Index: 2.6.6-rc3-mm2-bitmapv5/arch/i386/mach-voyager/voyager_smp.c
 ===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-generic/bitops.h	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/include/asm-generic/bitops.h	2004-05-05 08:08:57.000000000 -0700
-@@ -42,7 +42,7 @@
- 	return retval;
+--- 2.6.6-rc3-mm2-bitmapv5.orig/arch/i386/mach-voyager/voyager_smp.c	2004-05-05 06:11:35.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/arch/i386/mach-voyager/voyager_smp.c	2004-05-05 06:36:07.000000000 -0700
+@@ -153,7 +153,7 @@
+ send_CPI_allbutself(__u8 cpi)
+ {
+ 	__u8 cpu = smp_processor_id();
+-	__u32 mask = cpus_coerce(cpu_online_map) & ~(1 << cpu);
++	__u32 mask = cpus_addr(cpu_online_map)[0] & ~(1 << cpu);
+ 	send_CPI(mask, cpi);
  }
  
--extern __inline__ int test_bit(int nr, long * addr)
-+extern __inline__ int test_bit(int nr, const unsigned long * addr)
- {
- 	int	mask;
+@@ -402,11 +402,11 @@
+ 	/* set up everything for just this CPU, we can alter
+ 	 * this as we start the other CPUs later */
+ 	/* now get the CPU disposition from the extended CMOS */
+-	phys_cpu_present_map = cpus_promote(voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK));
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
+-	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_coerce(phys_cpu_present_map));
++	cpus_addr(phys_cpu_present_map)[0] = voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK);
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
++	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
+ 	/* Here we set up the VIC to enable SMP */
+ 	/* enable the CPIs by writing the base vector to their register */
+ 	outb(VIC_DEFAULT_CPI_BASE, VIC_CPI_BASE_REGISTER);
+@@ -706,12 +706,12 @@
+ 		/* now that the cat has probed the Voyager System Bus, sanity
+ 		 * check the cpu map */
+ 		if( ((voyager_quad_processors | voyager_extended_vic_processors)
+-		     & cpus_coerce(phys_cpu_present_map)) != cpus_coerce(phys_cpu_present_map)) {
++		     & cpus_addr(phys_cpu_present_map)[0]) != cpus_addr(phys_cpu_present_map)[0]) {
+ 			/* should panic */
+ 			printk("\n\n***WARNING*** Sanity check of CPU present map FAILED\n");
+ 		}
+ 	} else if(voyager_level == 4)
+-		voyager_extended_vic_processors = cpus_coerce(phys_cpu_present_map);
++		voyager_extended_vic_processors = cpus_addr(phys_cpu_present_map)[0];
  
-Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-generic/cpumask_array.h
-===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-generic/cpumask_array.h	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/include/asm-generic/cpumask_array.h	2004-05-05 08:08:57.000000000 -0700
-@@ -17,7 +17,7 @@
- #define cpus_and(dst,src1,src2)	bitmap_and((dst).mask,(src1).mask, (src2).mask, NR_CPUS)
- #define cpus_or(dst,src1,src2)	bitmap_or((dst).mask, (src1).mask, (src2).mask, NR_CPUS)
- #define cpus_clear(map)		bitmap_zero((map).mask, NR_CPUS)
--#define cpus_complement(map)	bitmap_complement((map).mask, NR_CPUS)
-+#define cpus_complement(map)	bitmap_complement((map).mask, (map).mask, NR_CPUS)
- #define cpus_equal(map1, map2)	bitmap_equal((map1).mask, (map2).mask, NR_CPUS)
- #define cpus_empty(map)		bitmap_empty(map.mask, NR_CPUS)
- #define cpus_addr(map)		((map).mask)
-Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mpspec.h
-===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mpspec.h	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mpspec.h	2004-05-05 08:08:57.000000000 -0700
-@@ -53,7 +53,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_zero((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, MAX_APICS)
-+#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-x86_64/mpspec.h
-===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-x86_64/mpspec.h	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/include/asm-x86_64/mpspec.h	2004-05-05 08:08:57.000000000 -0700
-@@ -212,7 +212,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_zero((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, MAX_APICS)
-+#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.6-rc3-mm2-bitmapv5/include/linux/bitmap.h
-===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/include/linux/bitmap.h	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/include/linux/bitmap.h	2004-05-05 08:08:57.000000000 -0700
-@@ -13,8 +13,8 @@
- int bitmap_empty(const unsigned long *bitmap, int bits);
- int bitmap_full(const unsigned long *bitmap, int bits);
- int bitmap_equal(const unsigned long *bitmap1,
--			unsigned long *bitmap2, int bits);
--void bitmap_complement(unsigned long *bitmap, int bits);
-+			const unsigned long *bitmap2, int bits);
-+void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits);
+ 	/* this sets up the idle task to run on the current cpu */
+ 	voyager_extended_cpus = 1;
+@@ -909,7 +909,7 @@
  
- static inline void bitmap_zero(unsigned long *bitmap, int bits)
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpus_coerce(cpu_online_map)) != cpumask)
++	if ((cpumask & cpus_addr(cpu_online_map)[0]) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+@@ -952,7 +952,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	local_flush_tlb();
+ 	if (cpu_mask)
+ 		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
+@@ -968,7 +968,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 
+ 	if (current->active_mm == mm) {
+ 		if (current->mm)
+@@ -989,7 +989,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	if (current->active_mm == mm) {
+ 		if(current->mm)
+ 			__flush_tlb_one(va);
+@@ -1098,7 +1098,7 @@
+ 		   int wait)
  {
-@@ -41,6 +41,14 @@
- 			const unsigned long *bitmap2, int bits);
- void bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
- 			const unsigned long *bitmap2, int bits);
-+void bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+void bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+int bitmap_intersects(const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+int bitmap_subset(const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
- int bitmap_weight(const unsigned long *bitmap, int bits);
- int bitmap_scnprintf(char *buf, unsigned int buflen,
- 			const unsigned long *maskp, int bits);
-Index: 2.6.6-rc3-mm2-bitmapv5/lib/bitmap.c
+ 	struct call_data_struct data;
+-	__u32 mask = cpus_coerce(cpu_online_map);
++	__u32 mask = cpus_addr(cpu_online_map)[0];
+ 
+ 	mask &= ~(1<<smp_processor_id());
+ 
+@@ -1789,9 +1789,9 @@
+ 	unsigned long irq_mask = 1 << irq;
+ 	int cpu;
+ 
+-	real_mask = cpus_coerce(mask) & voyager_extended_vic_processors;
++	real_mask = cpus_addr(mask)[0] & voyager_extended_vic_processors;
+ 	
+-	if(cpus_coerce(mask) == 0)
++	if(cpus_addr(mask)[0] == 0)
+ 		/* can't have no cpu's to accept the interrupt -- extremely
+ 		 * bad things will happen */
+ 		return;
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/genapic.h
 ===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/lib/bitmap.c	2004-05-05 08:07:06.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/lib/bitmap.c	2004-05-05 08:08:57.000000000 -0700
-@@ -12,6 +12,26 @@
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/genapic.h	2004-05-05 06:35:41.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/genapic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -63,7 +63,7 @@
  
-+/*
-+ * bitmaps provide an array of bits, implemented using an an
-+ * array of unsigned longs.  The number of valid bits in a
-+ * given bitmap need not be an exact multiple of BITS_PER_LONG.
-+ *
-+ * The possible unused bits in the last, partially used word
-+ * of a bitmap are 'don't care'.  The implementation makes
-+ * no particular effort to keep them zero.  It ensures that
-+ * their value will not affect the results of any operation.
-+ * The bitmap operations that return Boolean (bitmap_empty,
-+ * for example) or scalar (bitmap_weight, for example) results
-+ * carefully filter out these unused bits from impacting their
-+ * results.
-+ *
-+ * These operations actually hold to a slightly stronger rule:
-+ * if you don't input any bitmaps to these ops that have some
-+ * unused bits set, then they won't output any set unused bits
-+ * in output bitmaps.
-+ */
-+
- int bitmap_empty(const unsigned long *bitmap, int bits)
- {
- 	int k, lim = bits/BITS_PER_LONG;
-@@ -43,7 +63,7 @@
- EXPORT_SYMBOL(bitmap_full);
- 
- int bitmap_equal(const unsigned long *bitmap1,
--		unsigned long *bitmap2, int bits)
-+		const unsigned long *bitmap2, int bits)
- {
- 	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
-@@ -59,13 +79,14 @@
+ 	unsigned (*get_apic_id)(unsigned long x);
+ 	unsigned long apic_id_mask;
+-	unsigned int (*cpu_mask_to_apicid)(cpumask_const_t cpumask);
++	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
+ 	
+ 	/* ipi */
+ 	void (*send_IPI_mask)(cpumask_t mask, int vector);
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-bigsmp/mach_apic.h
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-bigsmp/mach_apic.h	2004-05-05 06:08:47.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-bigsmp/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -140,14 +140,14 @@
+ 	return (1);
  }
- EXPORT_SYMBOL(bitmap_equal);
  
--void bitmap_complement(unsigned long *bitmap, int bits)
-+void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
  {
--	int k;
--	int nr = BITS_TO_LONGS(bits);
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		dst[k] = ~src[k];
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
  
--	for (k = 0; k < nr; ++k)
--		bitmap[k] = ~bitmap[k];
-+	if (bits % BITS_PER_LONG)
-+		dst[k] = ~src[k] & ((1UL << (bits % BITS_PER_LONG)) - 1);
- }
- EXPORT_SYMBOL(bitmap_complement);
- 
-@@ -173,6 +194,60 @@
- }
- EXPORT_SYMBOL(bitmap_or);
- 
-+void bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] ^ bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_xor);
-+
-+void bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] & ~bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_andnot);
-+
-+int bitmap_intersects(const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] & bitmap2[k])
-+			return 1;
-+
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] & bitmap2[k]) &
-+				((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 1;
-+	return 0;
-+}
-+EXPORT_SYMBOL(bitmap_intersects);
-+
-+int bitmap_subset(const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] & ~bitmap2[k])
-+			return 0;
-+
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] & ~bitmap2[k]) &
-+				((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 0;
-+	return 1;
-+}
-+EXPORT_SYMBOL(bitmap_subset);
-+
- #if BITS_PER_LONG == 32
- int bitmap_weight(const unsigned long *bitmap, int bits)
- {
-Index: 2.6.6-rc3-mm2-bitmapv5/mm/mempolicy.c
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-default/mach_apic.h
 ===================================================================
---- 2.6.6-rc3-mm2-bitmapv5.orig/mm/mempolicy.c	2004-05-05 08:08:43.000000000 -0700
-+++ 2.6.6-rc3-mm2-bitmapv5/mm/mempolicy.c	2004-05-05 08:09:40.000000000 -0700
-@@ -92,14 +92,12 @@
- /* Check if all specified nodes are online */
- static int nodes_online(unsigned long *nodes)
- {
--	DECLARE_BITMAP(offline, MAX_NUMNODES);
-+	DECLARE_BITMAP(online2, MAX_NUMNODES);
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-default/mach_apic.h	2004-05-05 06:08:47.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-default/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -5,12 +5,12 @@
  
--	bitmap_copy(offline, node_online_map, MAX_NUMNODES);
--	if (bitmap_empty(offline, MAX_NUMNODES))
--		set_bit(0, offline);
--	bitmap_complement(offline, MAX_NUMNODES);
--	bitmap_and(offline, offline, nodes, MAX_NUMNODES);
--	if (!bitmap_empty(offline, MAX_NUMNODES))
-+	bitmap_copy(online2, node_online_map, MAX_NUMNODES);
-+	if (bitmap_empty(online2, MAX_NUMNODES))
-+		set_bit(0, online2);
-+	if (!bitmap_subset(nodes, online2, MAX_NUMNODES))
- 		return -EINVAL;
- 	return 0;
+ #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
+ 
+-static inline cpumask_const_t target_cpus(void)
++static inline cpumask_t target_cpus(void)
+ { 
+ #ifdef CONFIG_SMP
+-	return mk_cpumask_const(cpu_online_map);
++	return cpu_online_map;
+ #else
+-	return mk_cpumask_const(cpumask_of_cpu(0));
++	return cpumask_of_cpu(0);
+ #endif
+ } 
+ #define TARGET_CPUS (target_cpus())
+@@ -118,9 +118,9 @@
+ 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
  }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline void enable_apic_mode(void)
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-es7000/mach_apic.h
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-es7000/mach_apic.h	2004-05-05 06:11:24.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-es7000/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -89,7 +89,7 @@
+ 	int apic = bios_cpu_apicid[smp_processor_id()];
+ 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
+ 		(apic_version[apic] == 0x14) ? 
+-		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_coerce(TARGET_CPUS));
++		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+@@ -159,14 +159,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ #if defined CONFIG_ES7000_CLUSTERED_APIC
+@@ -178,10 +178,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-numaq/mach_apic.h
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-numaq/mach_apic.h	2004-05-05 06:08:47.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-numaq/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -136,7 +136,7 @@
+  * We use physical apicids here, not logical, so just return the default
+  * physical broadcast to stop people from breaking us
+  */
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	return (int) 0xF;
+ }
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-summit/mach_apic.h
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-summit/mach_apic.h	2004-05-05 06:08:47.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-summit/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -140,14 +140,14 @@
+ {
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-visws/mach_apic.h
+===================================================================
+--- 2.6.6-rc3-mm2-bitmapv5.orig/include/asm-i386/mach-visws/mach_apic.h	2004-05-05 06:08:47.000000000 -0700
++++ 2.6.6-rc3-mm2-bitmapv5/include/asm-i386/mach-visws/mach_apic.h	2004-05-05 06:36:07.000000000 -0700
+@@ -84,9 +84,9 @@
+ 	return physid_isset(boot_cpu_physical_apicid, phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline u32 phys_pkg_id(u32 cpuid_apic, int index_msb)
 
 
 -- 

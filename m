@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbSL3D7b>; Sun, 29 Dec 2002 22:59:31 -0500
+	id <S266649AbSL3Dz6>; Sun, 29 Dec 2002 22:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266678AbSL3D7b>; Sun, 29 Dec 2002 22:59:31 -0500
-Received: from [209.195.52.121] ([209.195.52.121]:22244 "HELO
-	warden2b.diginsite.com") by vger.kernel.org with SMTP
-	id <S266682AbSL3D73>; Sun, 29 Dec 2002 22:59:29 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Werner Almesberger <wa@almesberger.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Anomalous Force <anomalous_force@yahoo.com>, ebiederm@xmission.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Sun, 29 Dec 2002 19:55:24 -0800 (PST)
-Subject: Re: holy grail 
-In-Reply-To: <200212300245.VAA04199@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.44.0212291948060.14400-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266650AbSL3Dz5>; Sun, 29 Dec 2002 22:55:57 -0500
+Received: from [65.198.37.67] ([65.198.37.67]:52451 "EHLO funky.gghcwest.com")
+	by vger.kernel.org with ESMTP id <S266649AbSL3Dz5>;
+	Sun, 29 Dec 2002 22:55:57 -0500
+Date: Sun, 29 Dec 2002 20:04:02 -0800
+From: Jeffrey Baker <jwbaker@acm.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 oops mounting iso9660 fs as hfs
+Message-ID: <20021230040402.GA680@heat>
+References: <20021230005457.GA15680@noodles> <E18SqVf-0005xV-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18SqVf-0005xV-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Dec 2002, Jeff Dike wrote:
+On Mon, Dec 30, 2002 at 02:22:35PM +1100, Herbert Xu wrote:
+> Jeffrey Baker <jwbaker@acm.org> wrote:
+> > Using kernel 2.4.20 on ix86 and an HP IEEE1394 DVD+RW drive, I
+> > encountered this BUG/oops when attempting to mount a CD-ROM.  I at
+> > first could not mount the disc, so I attempted to mount it as HFS:
+> 
+> HFS wants 512 blocks while sr sets hardsect size to 2048.  You can
+> work around it by reading it via loopback (losetup or mount -o loop).
 
-> Step 3 is obviously where the meat of the problem is.  The process needs
-> to have available on it all the resources it had in UML -
-> 	the same files
-> 	network connections (puntable on a first pass)
-> 	process relationships (I have no idea what to do about a parent
-> process on the host, nor what to do with children whose parent has been
-> migrated, or ipc mechanisms, except to do the Mosix thing and have little
-> proxies sitting around passing information between UML and the host).
+Do you mean make an image of the CD with dd and mount it
+with loopback?  That sounds like it would work fine.
 
-I think people are at the point of working on this becouse it sounds like
-a worthwhile feature, not becouse it's actually anything that would be
-used.
-
-what possible application needs to be able to do a seamless kernel upgrade
-that wouldn't be useing a network?
-
-if it's a batch processing task, it can checkpoint itself and restart
-after a reboot.
-
-if it's a controller of specialized equipment then you either can have the
-process checkpoint itself, or you can't afford to pause long enough to do
-the kernel swap (i.e. the device keeps operating regardless and so may
-generate ssignals to the program during the time when you are swapping
-kernels)
-
-As Alan Cox said, anyone really needing this will have redundant systems
-anyway (to cover the case of hardware failure) so they will already be
-dealing with things on a cluster leveel and rebooting a machine to
-complete the upgrade will not be that bad (they upgrade the backup, reboot
-it, sync things up, failover to the backup, upgrade and reboot the primary
-and keep running on the backup until the next upgrade cycle)
-
-David Lang

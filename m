@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADXZJ>; Thu, 4 Jan 2001 18:25:09 -0500
+	id <S129455AbRADX3k>; Thu, 4 Jan 2001 18:29:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129518AbRADXY7>; Thu, 4 Jan 2001 18:24:59 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:12558 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129324AbRADXYr>;
-	Thu, 4 Jan 2001 18:24:47 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Michael Elizabeth Chastain <mec@shout.net>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Make errors in 2.4 drivers/acpi, recursive CFLAGS 
-In-Reply-To: Your message of "Thu, 04 Jan 2001 17:19:51 MDT."
-             <200101042319.RAA19907@duracef.shout.net> 
+	id <S129518AbRADX3b>; Thu, 4 Jan 2001 18:29:31 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:8458 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129455AbRADX30>;
+	Thu, 4 Jan 2001 18:29:26 -0500
+Date: Thu, 4 Jan 2001 23:25:41 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Andreas Dilger <adilger@enel.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
+Message-ID: <20010104232541.J1290@redhat.com>
+In-Reply-To: <20010104220433.T1290@redhat.com> <Pine.GSO.4.21.0101041721531.20875-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Jan 2001 10:24:40 +1100
-Message-ID: <11427.978650680@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0101041721531.20875-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Jan 04, 2001 at 05:31:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001 17:19:51 -0600, 
-Michael Elizabeth Chastain <mec@shout.net> wrote:
->I wonder if Gnu Make 3.78.1 has the same problem?
->I know of one bug in 3.78.1 where ...
+Hi,
 
-It did.
+On Thu, Jan 04, 2001 at 05:31:12PM -0500, Alexander Viro wrote:
+> 
+> BTW, what inumber do you want for whiteouts? IIRC, we decided to use
+> the same entry type as UFS does (14), but I don't remember what was
+> the decision on inumber. UFS uses 1 for them, is it OK with you?
 
-  GNU Make version 3.78.1, by Richard Stallman and Roland McGrath.
-  Built for alpha-redhat-linux-gnu
+0 is used for padding, so 1 makes sense, yes.
 
-Definitely deprecate make 3.78.1.
-
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

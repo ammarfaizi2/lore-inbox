@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVBRPnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVBRQCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVBRPnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 10:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBRPn1
+	id S261396AbVBRQCY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 11:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVBRQCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 10:43:27 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:40114 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261392AbVBRPnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 10:43:18 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Dan Dennedy <dan@dennedy.org>
-Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
-Date: Fri, 18 Feb 2005 10:42:46 -0500
-User-Agent: KMail/1.7.92
-Cc: Jody McIntyre <scjody@modernduck.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
-References: <41FD498C.9000708@comcast.net> <1108180477.30605.7.camel@localhost.localdomain> <1108740772.4588.3.camel@kino.dennedy.org>
-In-Reply-To: <1108740772.4588.3.camel@kino.dennedy.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 11:02:24 -0500
+Received: from gprs215-230.eurotel.cz ([160.218.215.230]:4773 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261393AbVBRQCV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 11:02:21 -0500
+Date: Fri, 18 Feb 2005 17:01:53 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Richard Purdie <rpurdie@rpsys.net>, Vojtech Pavlik <vojtech@suse.cz>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dmitry.torokhov@gmail.com
+Subject: Re: 2.6: drivers/input/power.c is never built
+Message-ID: <20050218160153.GC12434@elf.ucw.cz>
+References: <20050213004729.GA3256@stusta.de> <047401c515bb$437b5130$0f01a8c0@max> <20050218132651.GA1813@elf.ucw.cz> <200502181436.01943.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502181042.47404.kernel-stuff@comcast.net>
+In-Reply-To: <200502181436.01943.oliver@neukum.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 February 2005 10:32 am, Dan Dennedy wrote:
-> I have tested the patches (including for allocation), and it is working
-> great, but should I only commit for now the deallocation patch? Hmm..
-> which is worse the debug or the 200K waste?
-Thanks for following it up.
+Hi!
 
-IMHO, we should commit both patches for now since we don't have an alternative 
-solution yet. 
+> > It has quite a lot of #ifdefs for CONFIG_APM/CONFIG_ARM/CONFIG_ACPI,
+> > and it will not work on i386/APM, anyway. I still believe right
+> > solution is to add input interface to ACPI. /proc/acpi/events needs to
+> > die, being replaced by input subsystem.
+> 
+> But aren't there power events (battery low, etc) which are not
+> input events?
 
-Jody - Is the 200K waste for sure or do you want me to verify it by some 
-means? ( Reason I am asking is firstly, Dave Brownell was quite sure it 
-wasn't that costly and secondly, I am hoping it isn't.. ;)
-
-Parag
+Yes, there are. They can probably stay... Or we can get "battery low"
+key.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSKTP4T>; Wed, 20 Nov 2002 10:56:19 -0500
+	id <S261492AbSKTQAX>; Wed, 20 Nov 2002 11:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261524AbSKTP4T>; Wed, 20 Nov 2002 10:56:19 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:62086 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S261460AbSKTP4R>; Wed, 20 Nov 2002 10:56:17 -0500
-Date: Wed, 20 Nov 2002 08:03:00 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: RFC - new raid superblock layout for md driver
-Message-ID: <20021120160259.GW806@nic1-pc.us.oracle.com>
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
+	id <S261550AbSKTQAW>; Wed, 20 Nov 2002 11:00:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:36521 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261492AbSKTQAV>;
+	Wed, 20 Nov 2002 11:00:21 -0500
+Subject: Call trace at mm/page-writeback.c in 2.5.47
+From: Mark Haverkamp <markh@osdl.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037808468.6367.41.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 20 Nov 2002 08:07:48 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 03:09:18PM +1100, Neil Brown wrote:
-> The interpretation of the 'name' field would be up to the user-space
-> tools and the system administrator.
-> I imagine having something like:
-> 	host:name
-> where if "host" isn't the current host name, auto-assembly is not
-> tried, and if "host" is the current host name then:
->   if "name" looks like "md[0-9]*" then the array is assembled as that
->     device
->   else the array is assembled as /dev/mdN for some large, unused N,
->     and a symlink is created from /dev/md/name to /dev/mdN
-> If the "host" part is empty or non-existant, then the array would be
-> assembled no-matter what the hostname is.  This would be important
-> e.g. for assembling the device that stores the root filesystem, as we
-> may not know the host name until after the root filesystem were loaded.
+While running a memory stress workload test on a 16 processor numa
+system, I received a number of call traces like the following:
 
-	Hmm, what is the intended future interaction of DM and MD?  Two
-ways at the same problem?  Just curious.
-	Assuming MD as a continually used feature, the "name" bits above
-seem to be preparing to support multiple shared users of the array.  If
-that is the case, shouldn't the superblock contain everything needed for
-"clustered" operation?
+buffer layer error at mm/page-writeback.c:559
+Pass this trace through ksymoops for reporting
+Call Trace:
+ [<c013f1fb>] __set_page_dirty_buffers+0x3b/0x150
+ [<c012d746>] zap_pte_range+0x1d6/0x2c0
+ [<c0183401>] do_get_write_access+0x4a1/0x4d0
+ [<c012d89c>] zap_pmd_range+0x6c/0x80
+ [<c012d8f0>] unmap_page_range+0x40/0x60
+ [<c012da0f>] zap_page_range+0xff/0x180
+ [<c012e76a>] vmtruncate_list+0x5a/0x80
+ [<c012e835>] vmtruncate+0xa5/0x150
+ [<c015b456>] inode_setattr+0x56/0x120
+ [<c0179087>] ext3_setattr+0x167/0x1d0
+ [<c015b696>] notify_change+0x106/0x1d9
+ [<c01433a8>] do_truncate+0x58/0x80
+ [<c01213d0>] tasklet_hi_action+0x80/0xd0
+ [<c01210cb>] do_softirq+0x5b/0xc0
+ [<c0143916>] sys_ftruncate64+0x106/0x120
+ [<c0108d73>] syscall_call+0x7/0xb
 
-Joel
+The system did not crash and continues to run.  If someone wants to look
+into this and needs more information, let me know.
+
+Thanks,
+Mark. 
 
 -- 
+Mark Haverkamp <markh@osdl.org>
 
-"When I am working on a problem I never think about beauty. I
- only think about how to solve the problem. But when I have finished, if
- the solution is not beautiful, I know it is wrong."
-         - Buckminster Fuller
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

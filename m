@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265239AbTFEWqw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 18:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbTFEWqw
+	id S265253AbTFEXBn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 19:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbTFEXBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 18:46:52 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:3365 "EHLO
+	Thu, 5 Jun 2003 19:01:42 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:31015 "EHLO
 	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265239AbTFEWqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 18:46:51 -0400
-Date: Thu, 5 Jun 2003 15:56:42 -0700
+	id S265253AbTFEXBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 19:01:41 -0400
+Date: Thu, 5 Jun 2003 16:11:32 -0700
 From: Andrew Morton <akpm@digeo.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: mochel@osdl.org, greg@kroah.com, hannal@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
-Message-Id: <20030605155642.68179245.akpm@digeo.com>
-In-Reply-To: <20030605224535.GH608@elf.ucw.cz>
-References: <20030605220716.GF608@elf.ucw.cz>
-	<Pine.LNX.4.44.0306051511350.13077-100000@cherise>
-	<20030605224535.GH608@elf.ucw.cz>
+To: Edward Tandi <ed@efix.biz>
+Cc: linux-kernel@vger.kernel.org, xosview-devel@lists.sourceforge.net
+Subject: Re: 2.5.70 latest: breaks gnome
+Message-Id: <20030605161132.46f793e2.akpm@digeo.com>
+In-Reply-To: <1054852458.1886.18.camel@wires.home.biz>
+References: <20030604142241.0dc6f34e.shemminger@osdl.org>
+	<3EDE7398.70005@tmsusa.com>
+	<20030605111212.33e63d46.shemminger@osdl.org>
+	<3EDFB3E2.2090308@tmsusa.com>
+	<20030605143346.197a8923.akpm@digeo.com>
+	<3EDFBD08.5060902@tmsusa.com>
+	<1054852458.1886.18.camel@wires.home.biz>
 X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jun 2003 23:00:23.0694 (UTC) FILETIME=[3EF742E0:01C32BB6]
+X-OriginalArrivalTime: 05 Jun 2003 23:15:13.0667 (UTC) FILETIME=[516E5D30:01C32BB8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
+Edward Tandi <ed@efix.biz> wrote:
 >
-> Hi!
-> 
-> > > Okay, that means that another patch is needed to create hierarchy for
-> > > power managment... This sysfs stuff is getting hairy.
-> > 
-> > No it's not. The hierarchy is the device tree, which is the original 
-> > purpose of it, remember? 
-> 
-> device tree is okay with me, but... it took quite a long patch to add
-> it to classes. I thought that classes are only going to be symlinks
-> into device tree, but this patch added classes without adding to the
-> device tree...
+> 2) xosview still freezes (reading /proc/*)
 
-Al Viro has asked that sysfs conversions such as this be placed on hold
-until we sort through the newly-added bugs arising from the sysfsification
-of netdevs and request queues.  
+OK, here's a quick hack to get xosview-1.8.0 working on 2.5.x kernels.
 
-So yeah, do the work, but please make sure that you understand what went
-wrong with netdevs and queues, and make sure that the input sysfsification
-addresses those problems.  Preferably in the same way...
+ xosview-1.8.0-akpm/linux/cpumeter.cc  |    5 ++++-
+ xosview-1.8.0-akpm/linux/diskmeter.cc |    2 ++
+ xosview-1.8.0-akpm/linux/pagemeter.cc |    2 +-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff -puN linux/diskmeter.cc~proc-stats-hang-fix linux/diskmeter.cc
+--- xosview-1.8.0/linux/diskmeter.cc~proc-stats-hang-fix	Thu Jun  5 16:02:34 2003
++++ xosview-1.8.0-akpm/linux/diskmeter.cc	Thu Jun  5 16:02:53 2003
+@@ -64,6 +64,8 @@ void DiskMeter::getdiskinfo( void )
+         {
+         stats.ignore(1024, '\n');
+         stats >> buf;
++	if (stats.eof())
++		break;
+         }
+ 
+ 	// read values
+diff -puN linux/cpumeter.cc~proc-stats-hang-fix linux/cpumeter.cc
+--- xosview-1.8.0/linux/cpumeter.cc~proc-stats-hang-fix	Thu Jun  5 16:07:14 2003
++++ xosview-1.8.0-akpm/linux/cpumeter.cc	Thu Jun  5 16:07:42 2003
+@@ -58,8 +58,11 @@ void CPUMeter::getcputime( void ){
+   }
+ 
+   // read until we are at the right line.
+-  for (int i = 0 ; i < _lineNum ; i++)
++  for (int i = 0 ; i < _lineNum ; i++) {
++    if (stats.eof())
++	break;
+     stats.getline(tmp, 1024);
++  }
+ 
+   stats >>tmp >>cputime_[cpuindex_][0]  
+ 	      >>cputime_[cpuindex_][1]  
+diff -puN linux/pagemeter.cc~proc-stats-hang-fix linux/pagemeter.cc
+--- xosview-1.8.0/linux/pagemeter.cc~proc-stats-hang-fix	Thu Jun  5 16:07:55 2003
++++ xosview-1.8.0-akpm/linux/pagemeter.cc	Thu Jun  5 16:08:36 2003
+@@ -58,7 +58,7 @@ void PageMeter::getpageinfo( void ){
+ 
+   do {
+     stats >>buf;
+-  } while (strncasecmp(buf, "swap", 5));
++  } while (!stats.eof() && strncasecmp(buf, "swap", 5));
+ 	  
+   stats >>pageinfo_[pageindex_][0] >>pageinfo_[pageindex_][1];
+ 
+
+_
 

@@ -1,102 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265552AbTFMWBA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 18:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265557AbTFMWBA
+	id S265551AbTFMWAE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 18:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbTFMWAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 18:01:00 -0400
-Received: from cox.ee.ed.ac.uk ([129.215.80.253]:23792 "EHLO
-	postbox.ee.ed.ac.uk") by vger.kernel.org with ESMTP id S265552AbTFMWAl convert rfc822-to-8bit
+	Fri, 13 Jun 2003 18:00:03 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:60670 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S265551AbTFMV77 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 18:00:41 -0400
-From: Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk>
-Organization: The University of Edinburgh
-To: Andrew Morton <akpm@digeo.com>, Andy Pfiffer <andyp@osdl.org>
-Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
-Date: Fri, 13 Jun 2003 23:12:45 +0100
-User-Agent: KMail/1.5.9
-Cc: christophe@saout.de, adam@yggdrasil.com, linux-kernel@vger.kernel.org,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Max Valdez <maxvalde@fis.unam.mx>,
-       Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-References: <1052507057.15923.31.camel@andyp.pdx.osdl.net> <1055442331.1225.11.camel@andyp.pdx.osdl.net> <20030613010149.359cb4dd.akpm@digeo.com>
-In-Reply-To: <20030613010149.359cb4dd.akpm@digeo.com>
+	Fri, 13 Jun 2003 17:59:59 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200306132312.54493.Unai.Garro@ee.ed.ac.uk>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: e1000 performance hack for ppc64 (Power4)
+Date: Fri, 13 Jun 2003 15:13:44 -0700
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D934@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: e1000 performance hack for ppc64 (Power4)
+Thread-Index: AcMxvbsUnQpOXBzUQb6tJV3GmxYJgwANPRPQ
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Herman Dierks" <hdierks@us.ibm.com>
+Cc: "David Gibson" <dwg@au1.ibm.com>, <linux-kernel@vger.kernel.org>,
+       "Anton Blanchard" <anton@samba.org>,
+       "Nancy J Milliner" <milliner@us.ibm.com>,
+       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
+       "Brian Twichell" <twichell@us.ibm.com>
+X-OriginalArrivalTime: 13 Jun 2003 22:13:45.0229 (UTC) FILETIME=[0E4163D0:01C331F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> So in summary I think this is mainly an alignment issue and 
+> it is likely to help other platforms as well so should be 
+> considered for the driver.
 
-I just got the time to checked. It works great, thanks! Where can I send this 
-box of chocolates as gratitude? ;-)
+But we're applying the alignment constraint in the wrong direction.  The
+e1000 h/w doesn't have an alignment constraint, it's your arch.  Dave
+Hansen's suggestion is in the right direction; let's see what Anton's
+response is.
 
-On Friday 13 June 2003 09:01, Andrew Morton wrote:
-> This should fix it.
->
->
->
-> Once the blockdev inode for /dev/ram0 is dirtied we have a memory-backed
-> inode on the blockdev superblock's s_dirty list.
->
-> sync_sb_inodes() sees the memory-backed inode on the superblock and assumes
-> that all the other inodes on the superblock are also memory-backed.  This
-> is not true for the blockdev superblock!  We forget to write out dirty
-> pages against the following blockdevs.
->
-> Fix this by just leaving the inode dirty and moving on to inspect the other
-> blockdev inodes on sb->s_io.
->
-> (This is a little inefficient: an alternative is to leave dirtied
-> memory-backed inodes on inode_in_use, so nobody ever even considers them
-> for writeout.  But that introduces an inconsistency and is a bit kludgey).
->
->
->
->  fs/fs-writeback.c |   15 ++++++++++++++-
->  1 files changed, 14 insertions(+), 1 deletion(-)
->
-> diff -puN fs/fs-writeback.c~writeback-memory-backed-fix fs/fs-writeback.c
-> --- 25/fs/fs-writeback.c~writeback-memory-backed-fix	2003-06-12
-> 23:12:28.000000000 -0700 +++ 25-akpm/fs/fs-writeback.c	2003-06-12
-> 23:14:07.000000000 -0700
-> @@ -260,8 +260,21 @@ sync_sb_inodes(struct super_block *sb, s
->  		struct address_space *mapping = inode->i_mapping;
->  		struct backing_dev_info *bdi = mapping->backing_dev_info;
->
-> -		if (bdi->memory_backed)
-> +		if (bdi->memory_backed) {
-> +			if (sb == blockdev_superblock) {
-> +				/*
-> +				 * Dirty memory-backed blockdev: the ramdisk
-> +				 * driver does this.
-> +				 */
-> +				list_move(&inode->i_list, &sb->s_dirty);
-> +				continue;
-> +			}
-> +			/*
-> +			 * Assume that all inodes on this superblock are memory
-> +			 * backed.  Skip the superblock.
-> +			 */
->  			break;
-> +		}
->
->  		if (wbc->nonblocking && bdi_write_congested(bdi)) {
->  			wbc->encountered_congestion = 1;
->
-> _
-
-- -- 
-Coincidences are spiritual puns.
-		-- G.K. Chesterton
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+6kxjhxDfDIoZlaURAsHrAKCRFnHCpzdBbtJ8C9vrY6P7T9+dYACgg+fL
-XYizhhJD8KZ3bO4O/YzXr2c=
-=Rwik
------END PGP SIGNATURE-----
+-scott

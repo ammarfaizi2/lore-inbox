@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267112AbSLKKz1>; Wed, 11 Dec 2002 05:55:27 -0500
+	id <S267115AbSLKK7A>; Wed, 11 Dec 2002 05:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267114AbSLKKz1>; Wed, 11 Dec 2002 05:55:27 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:5768 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267112AbSLKKz0>; Wed, 11 Dec 2002 05:55:26 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD Writing in 2.5.51
-References: <1039598049.480.7.camel@nirvana> <87fzt43nm4.fsf@web.de>
-	<1039599708.711.9.camel@nirvana> <87adjc3n30.fsf@web.de>
-	<1039603261.531.6.camel@nirvana>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Wed, 11 Dec 2002 12:02:40 +0100
-In-Reply-To: <1039603261.531.6.camel@nirvana> (mdew's message of "11 Dec
- 2002 23:40:58 +1300")
-Message-ID: <8765u03jjj.fsf@web.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
+	id <S267116AbSLKK7A>; Wed, 11 Dec 2002 05:59:00 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:12944 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267115AbSLKK66>;
+	Wed, 11 Dec 2002 05:58:58 -0500
+Date: Wed, 11 Dec 2002 16:51:53 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+       lkcd-devel@lists.sourceforge.net, ak@suse.de, cminyard@mvista.com,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] Notifier for significant events on i386
+Message-ID: <20021211165153.A17546@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Mon, Dec 09, 2002 at 10:08:11PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* mdew  writes:
->awesome, i got it to work, thanks.. tho I'm now trying to enable the
->DMA on the drives... (unsuccessfully)
- 
->/dev/hda == CDRW (24/12/40)
->/dev/hdb == DVDROM (8/40)
+On Mon, Dec 09, 2002 at 10:08:11PM +0000, Stephen Hemminger wrote:
+> This is a successor to the previous patch for notifier callback when NMI
+> watchdog occurs.  It is a port of x86_64 code (thanks for the suggestion
+> Andi Kleen <ak@suse.de>) with extensions for watchdog, and integration
+> of panic handling.  
+> 
+> To get notified for panic, oops, NMI and other events the caller needs
+> to insert itself in the notify_die chain.  The callback can then filter
+> out which events are of interest. 
+> 
+> This started out as a way to hook in LKCD, but it is general enough that
+> kprobe, kdb, and other utilities can use it as well. 
+> 
+I support this, it makes all kernel-space debug tools less intrusive. 
+It may be out of scope for this work but there are a couple of
+other issues to consider here:
 
->/dev/hda:
-> setting using_dma to 1 (on)
-> HDIO_SET_DMA failed: Operation not permitted
-> using_dma    =  0 (off)
->nirvana:~# hdparm -d1 /dev/hdb
+- turn trap1/trap3 to interrupt gates: kprobes does this, kgdb turns
+  off interrupts in its own handler, I suppose other tools too need
+  this.
+- notifier lists are racy on SMP, IFAICT, read_lock(&notifier_lock)
+  needs to be taken in notifier_call_chain(), but that too is 
+  deadlock prone.
 
->/dev/hdb:
-> setting using_dma to 1 (on)
-> HDIO_SET_DMA failed: Operation not permitted
-> using_dma    =  0 (off)
+Andi,
 
-Perhaps CONFIG_IDEDMA_ONLYDISK is set? Or you don't have compiled in
-the specific driver for your chipset?
+Isn't this a problem on x86_64 too? What is there to prevent a
+handler from being removed from the notifier list while it
+is being used to call the handler on another CPU?
 
-regards
-Markus
+I am considering using a RCU-based list for notifier chains.
+Corey has done some work on these lines to add NMI notifier
+chain, I think it should be generalised on for all notifiers.
 
+Thoughts? Comments?
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

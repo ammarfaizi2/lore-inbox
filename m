@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbTATMoV>; Mon, 20 Jan 2003 07:44:21 -0500
+	id <S265667AbTATMps>; Mon, 20 Jan 2003 07:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbTATMoU>; Mon, 20 Jan 2003 07:44:20 -0500
-Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:13704
-	"EHLO eumucln01.mscsoftware.com") by vger.kernel.org with ESMTP
-	id <S265700AbTATMoT>; Mon, 20 Jan 2003 07:44:19 -0500
-Message-ID: <3E2BF107.AB48694E@mscsoftware.com>
-Date: Mon, 20 Jan 2003 13:52:24 +0100
-From: Martin Knoblauch <"martin.knoblauch "@mscsoftware.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-ac1-mkn i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: riel@conectiva.com.br
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Disabling file system caching
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.17.0.2; VDF: 6.17.0.17
-	 at mailmuc has not found any known virus in this email.
-X-MIMETrack: Itemize by SMTP Server on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
- 01/20/2003 01:48:28 PM,
-	Serialize by Router on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
- 01/20/2003 01:48:36 PM,
-	Serialize complete at 01/20/2003 01:48:36 PM
-Content-Transfer-Encoding: 7bit
+	id <S265736AbTATMpT>; Mon, 20 Jan 2003 07:45:19 -0500
+Received: from inet-mail3.oracle.com ([148.87.2.203]:23483 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S265667AbTATMpA>; Mon, 20 Jan 2003 07:45:00 -0500
+Message-ID: <7848733.1043066943393.JavaMail.nobody@web55.us.oracle.com>
+Date: Mon, 20 Jan 2003 04:49:03 -0800 (PST)
+From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
+To: irda-users@lists.sourceforce.net
+Subject: irport_net_open issue in 2.5.59
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: Disabling file system caching
-> 
-> From: Rik van Riel (riel@conectiva.com.br)
-> Date: Sun Jan 19 2003 - 20:05:00 EST
-> 
-> On Sun, 19 Jan 2003, Jean-Eric Cuendet wrote:
-> 
-> > Is it possible to disable file caching for a given partition or mount?
-> 
-> No, if you do that mmap(), read(), write() etc. would be impossible.
-> 
-> > Or at least to limit it at a certain quantity of memory?
-> 
-> Not yet. I'm thinking of implementing something like this
-> for the next version of -rmap (reclaim only from the cache
-> if the cache occupies more than a certain fraction of ram).
-> 
+[crossposted to IrDA-users and l-k]
 
- Yes please !!!
-   Yes please !!!
-     Yes please !!!
+The quest to set up properly (or give up where not possible) my new Dell Latitude
+ C640 is moving forward... next target, IrDA. This laptop has a chip that is not
+ detected by the 'findchip' tool but is detected by kernel code (SMC LPC47N252).
 
- :-)
+My base distro is a RH8.0, with the modified rc.sysinit to allow modules to properly
+ work even with newer kernels.
 
- Having a maximum [and maybe minimum] knob for controlling the cache
-would be an extremely useful feature in some situations.
 
-Martin
+When irport is loaded (or perhaps when irattach is run), the module complains saying
+
+irport_net_open(), unable to allocate irq=0
+
+It does load, but as expected it doesn't seem to work - irdadump doesn't come up
+ with any line at all.
+
+
+Any hints ? Thanks in advance, ciao,
+
+--alessandro

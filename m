@@ -1,75 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272220AbRHWE5m>; Thu, 23 Aug 2001 00:57:42 -0400
+	id <S272221AbRHWFFx>; Thu, 23 Aug 2001 01:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272221AbRHWE5d>; Thu, 23 Aug 2001 00:57:33 -0400
-Received: from www.wen-online.de ([212.223.88.39]:20241 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S272220AbRHWE51>;
-	Thu, 23 Aug 2001 00:57:27 -0400
-Date: Thu, 23 Aug 2001 06:57:10 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <phillips@bonn-fries.net>
-Subject: Re: Memory Problem in 2.4.9 ?
-In-Reply-To: <20010822211849.14a4481a.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0108230609270.666-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272222AbRHWFFn>; Thu, 23 Aug 2001 01:05:43 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:419 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S272221AbRHWFFb>; Thu, 23 Aug 2001 01:05:31 -0400
+Date: Wed, 22 Aug 2001 23:05:54 -0600
+Message-Id: <200108230505.f7N55sr05856@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Taylor Carpenter <taylorcc@codecafe.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops when accessing /dev/fd0 (kernel 2.4.7 and devfsd 1.3.11)
+In-Reply-To: <20010822191227.A11226@pioneer.oftheInter.net>
+In-Reply-To: <20010816222811.A1672@pioneer.oftheInter.net>
+	<200108170419.f7H4J7c20693@vindaloo.ras.ucalgary.ca>
+	<20010821223042.A30478@pioneer.oftheInter.net>
+	<200108220507.f7M576q25412@vindaloo.ras.ucalgary.ca>
+	<20010822191227.A11226@pioneer.oftheInter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Stephan von Krawczynski wrote:
+Taylor Carpenter writes:
+> On Tue, Aug 21, 2001 at 11:07:06PM -0600, Richard Gooch wrote:
+> > Taylor Carpenter writes:
+> > Trace; c015469b <devfs_unregister_blkdev+12eb/1960>
+> > Are you unloading the floppy driver at some point? Or using module
+> > autoloading?
+> 
+> I am using module autoloading.  It seems that right after the
+> mountall script is called this happens.
 
-> On Wed, 22 Aug 2001 19:22:35 +0200 (CEST)
-> Mike Galbraith <mikeg@wen-online.de> wrote:
->
-> > When page is added to to the pagecache, it begins life with age=0 and
-> > is placed on the inactive_dirty list with use_once.  With the original
-> > aging, it started with PAGE_AGE_START and was placed on the active
-> > list.  The intent of used once (correct me Daniel if I fsck up.. haven't
-> > been able to track vm changes very thoroughly lately [as you can see:])
-> > is to place a new page in the line of fire of page reclamation and only
-> > pull it into the active aging scheme if it is referenced again prior to
-> > consumption.  This is intended to preserve other cached pages in the event
-> > of streaming IO.  Your cache won't be demolished as quickly, the pages
-> > which are only used one time will self destruct instead.  Cool idea.
->
+You mean the floppy module gets loaded as a result of the mountall
+script being run?
 
-(your mailer doesn't wrap lines.. formatting)
+> > Interesting. What happens if you use /dev/floppy/0 instead of /dev/fd0
+> > in the /etc/fstab? Still an Oops?
+> 
+> I will try that...  
+> 
+> I did not get the oops, but I could not access the device until I manually
+> loaded the floppy module (the /dev/fd0 was created as usual).
 
-> Well, maybe I am completely off the road, but the primary problem seems
-> to be that a whole lot of the pages _look_ like being of the same age,
-> and the algorithm cannot cope with that very well. There is obviously
-> no way out of this problem for the code, and thats basically why it
->  fails to alloc pages with this warning message. So the primary goal
+Is the /etc/modules.devfs the one that ships with devfsd?
+Specifically, you need the following line:
+alias     /dev/floppy		floppy
 
-Sure, having a poor distribution of age isn't good (makes vm 'rough'),
-but I don't think that's what is causing most of the allocation
-failures.  IMHO, the largest problem with these is not keeping our
-inactive_clean ammo belt full enough in general.  I bet that changing
-page_launder to have a cleaned_pages target instead of limiting the
-scan to 1/64 would cure a lot of that.  A 1/64 scan is nice as long
-as the list is very long.  As it shrinks though, you do less and less
-work.  It needs min and max limits.  IMHO, kswapd should never launder
-less than at _least_ freepages.min even if that's the entire list.
+and of course the MODLOAD action in /etc/devfsd.conf.
 
->  should be to refine the algorithm and give it a way to _know_ a way
->  out, and not to _guess_ ("maybe we got some free pages later") or
->  _give up_ on the problem. How about the following (ridiculously
->  simple) approach:
-> every alloc'ed page gets a "timestamp". If an alloc-request reaches
->  the current "dead point" it simply throws out the oldest x pages of
->  the lowest aging level reachable. This is sort of a garbage-collection
->  idea. It sounds not very fast indeed, but it sounds working, does it?
-> Best of all, very few changes have to be made to make it work.
+> After booting w/the floppy module not loaded I can start and stop
+> devfsd and load and unload the floppy module in any order w/o an
+> oops. I only get the oops if the module is loaded during boot.
+> 
+> Also when I get the oops during boot, the floppy module is not
+> loaded once the system is through booting and I login, but /dev/fd*
+> are all there!  With out the oops /dev/fd* is only there when I load
+> the floppy module (and disappears as usual when I rmmod the module).
 
-Many changes are required to make it work.  First of all, it requires
-enforced deallocation.
+Do you mean to say that the Oops happens during the boot sequence,
+before you can log in?
 
-> Shoot me for this :-)
+> > Strange. I tried the following sequence, without problems:
+> > # devfsd /dev
+> > # mount /floppy
+> > # ls -lF /dev/floppy
+> 
+> I could not mount the floppy until I manually loaded the floppy
+> module!  This is after editing /etc/fstab as you said below.
 
-<click click click.. dang, no bullets> :)
+You must have a bogus /etc/devfsd.conf or /etc/modules.devfs file for
+module autoloading not to work.
 
-	-Mike
+> > where /etc/fstab has:
+> > /dev/floppy/0  /floppy  ext2  defaults,noauto,user  0 0
+> > 
+> > I have nothing in my /etc/devfsd.conf which refers to the floppy.
+> 
+> I only reference floppy in my perms file.
 
+I don't know what a "perms" file is. I know Debian uses some
+convoluted directory tree for devfsd configuration, but frankly, I
+don't want to know about that. If you have one of these monstrosities,
+please collapse them all into a single /etc/devfsd.conf file a report
+based on that.
+
+> > In addition, I don't have any LOOKUP entries. I did this with 2.4.9 with
+> > devfs-patch-v188.
+> 
+> I have many LOOKUP entries.  I did not have any specific to
+> /dev/fd*, but that was caught by the .* LOOKUP entry.  I commented
+> that out, which is probably why mdir and other commands do not work
+> w/o manually loading floppy.o.
+
+Oh! Well, duh!
+
+> > Could you please try reproducing the problem with the setup and sequence I
+> > used?
+> 
+> I believe I followed your steps, and had no oops during boot w/the
+> /etc/fstab change.  I do not think that made the difference though.
+> I think telling devfsd to not autoload floppy is what let me boot
+> w/o oops.  So I think there still is a problem w/loading the floppy
+> module during boot.
+
+Hm. Please try a virgin 2.4.9 kernel with CONFIG_DEVFS_FS=n and try
+again. I have this feeling that I'm chasing someone else's bug...
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

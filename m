@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264211AbUDHIuA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 04:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264216AbUDHIuA
+	id S264214AbUDHIzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 04:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbUDHIzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 04:50:00 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:42165 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264211AbUDHIt5 (ORCPT
+	Thu, 8 Apr 2004 04:55:21 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:29320 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S264214AbUDHIzT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 04:49:57 -0400
-Date: Thu, 8 Apr 2004 10:49:55 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] obsolete asm/hdreg.h [3/5]
-In-Reply-To: <200404080023.04460.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.GSO.4.58.0404081048270.9729@waterleaf.sonytel.be>
-References: <200404080023.04460.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Apr 2004 04:55:19 -0400
+Date: Thu, 8 Apr 2004 08:55:18 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: cat /dev/hdb > /dev/null DoS
+Message-ID: <20040408085518.B4607@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-> [IDE] asm/ide.h: ide_ioreg_t cleanup
->
-> ide_ioreg_t is deprecated and hasn't been used by IDE driver for some time.
-> Use unsigned long directly on alpha, arm26, arm, mips, parisc, ppc64 and sh.
->
-> asm-ia64/ide.h (ide_ioreg_t is unsigned short) and asm-m68knommu/ide.h
-> (broken - ide_ioreg_t is not defined) are the only users of ide_ioreg_t left.
+Hello
 
-Why do you consider asm-m68knommu/ide.h broken?
+I have 2.8 GHz Pentium IV with 1GB RAM and 250GB ATA-133 IDE disk
+on /dev/hdb.
 
-It just includes <asm-m68k/hdreg.h>, which is definitely not broken since it's
-happily (albeit very slowly) running apt-get upgrade right now ;-)
+I did cat /dev/hdb > /dev/null and after a while (5 minutes),
+the system went totally unresponsive:
 
-Gr{oetje,eeting}s,
+1) man top takes 3 minutes to display man page
+2) Switching between console and X takes also a couple of minutes
+3) top shows this:
 
-						Geert
+Cpu(s):  1.4% us,  1.4% sy,  0.0% ni,  0.0% id,  0.0% wa, 97.3% hi,  0.0% si
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+/dev/hdb is auxilliary disk that is not used, is not mounted and the
+root filesystem doesn't reside on it (of course). Kernel version is 2.6.3.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Is this behaviour normal?
+
+Cl<

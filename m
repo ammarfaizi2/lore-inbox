@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265174AbUAJHwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 02:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbUAJHwk
+	id S265196AbUAJIAw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 03:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUAJIAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 02:52:40 -0500
-Received: from ns.clanhk.org ([69.93.101.154]:28294 "EHLO mail.clanhk.org")
-	by vger.kernel.org with ESMTP id S265174AbUAJHwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 02:52:39 -0500
-Message-ID: <3FFF59A0.2080503@clanhk.org>
-Date: Sat, 10 Jan 2004 01:47:12 +0000
-From: "J. Ryan Earl" <heretic@clanhk.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031202
-X-Accept-Language: en-us, en
+	Sat, 10 Jan 2004 03:00:52 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:30943 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265196AbUAJIAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 03:00:50 -0500
+Message-ID: <3FFFB1AD.5050307@boergens.de>
+Date: Sat, 10 Jan 2004 09:02:53 +0100
+From: Kevin Boergens <kevin@boergens.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031007
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Q re /proc/bus/i2c
-References: <200401100117.42252.gene.heskett@verizon.net>
-In-Reply-To: <200401100117.42252.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: cs5530_set_xfer_mode
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e39b2c33c20867b2edbd9f79b3c25ad5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
+Hello!
 
->Greetings;
->
->I'm still trying to make sensors (and gkrellm) work when booted to a  
->2.6.x kernel.
->
->The lm_sensors people say it should "just work", but so far no one has 
->acknowledged that it doesn't work here because I don't have an "i2c" 
->in my /proc/bus directory.  Browsing all the sensors-detection stuff, 
->in particular the bus detection script, this thing is hard coded to 
->look for /proc/bus/i2c by default, or you can pass it an argument.
->
->I don't have a "/proc/bus/i2c".  Passing this script the /sys/bus/i2c 
->argument only gets an error return complaining that its a directory.
->  
->
+Maybe this is a question to stupid for this list,
+but I asked for it in de.comp.os.unix.linux.hardware
+<bt8tln$4htn0$1@ID-213387.news.uni-berlin.de> and on the Debian user
+mailing list, and although many people tried, nobody could help me.
 
-You've run the "sensors-detect" script and have all the proper modules 
-loaded for your hardware?  You should be able to just run "sensors" to 
-see if everything is working.
+I have a server with a National Semiconductor CS5530 southbridge
+(http://www.national.com/pf/CS/CS5530.html) and after booting it only
+worked in MDMA2. I tried to force it with hdparm -d1X66 but that caused
+only nasty messages on syslog, like:
 
--ryan
+***********************************************************************
+Jan  5 16:46:14 server kernel: hda: timeout waiting for DMA
+Jan  5 16:46:14 server kernel: ide_dmaproc: chipset supported
+ide_dma_timeout fu
+nc only: 14
+Jan  5 16:46:14 server kernel: hda: status error: status=0x58 {
+DriveReady SeekC
+omplete DataRequest }
+Jan  5 16:46:14 server kernel: hda: drive not ready for command
+**********************************************************************
+
+I tried this with the Debian kernel images 2.4.18-bf2.4 and
+2.2.20-idepci and with several disks, all the same.
+
+
+
+I would have given up hope already, if I had not found out that the
+S.u.S.E. 7.3 kernel 2.4.10-4GB has no problem with this chipset at all.
+While booting, the kernel says:
+
+hda WDC[...]
+ide0 at 0x[...] on irq14
+hda: cs5530_set_xfer_mode(UDMA2)
+
+And everything works as fast as I want.
+My questions:
+
+1) What's the differences in the kernels to cause this behavior?
+2) How do I get my Debian kernel to behave alike?
+
+
+
+Any help GREATLY appreciated,
+	Kevin
+
+-- 
+http://www.boergens.de
+
 

@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268676AbTBZLel>; Wed, 26 Feb 2003 06:34:41 -0500
+	id <S268717AbTBZLj7>; Wed, 26 Feb 2003 06:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268716AbTBZLel>; Wed, 26 Feb 2003 06:34:41 -0500
-Received: from daimi.au.dk ([130.225.16.1]:60118 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S268676AbTBZLek>;
-	Wed, 26 Feb 2003 06:34:40 -0500
-Message-ID: <3E5CA89C.10A8D3DA@daimi.au.dk>
-Date: Wed, 26 Feb 2003 12:44:28 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
-X-Accept-Language: en
+	id <S268718AbTBZLj7>; Wed, 26 Feb 2003 06:39:59 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:14571 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id <S268717AbTBZLjz>;
+	Wed, 26 Feb 2003 06:39:55 -0500
+Message-ID: <3E5CA785.8010801@india.hp.com>
+Date: Wed, 26 Feb 2003 17:09:49 +0530
+From: vishwas@india.hp.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020815
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?M=E5ns=20Rullg=E5rd?= <mru@users.sourceforge.net>
-CC: Olaf Dietsche <olaf.dietsche@t-online.de>,
-       Miquel van Smoorenburg <miquels@cistron-office.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: About /etc/mtab and /proc/mounts
-References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
-		<b3i4nv$sud$1@news.cistron.nl> <87u1er71d0.fsf@goat.bogus.local> <yw1xwujn2t0v.fsf@manganonaujakasit.e.kth.se>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: jpiszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about DMA and cd burning.
+References: <3E5C4ECD.7020806@lucidpixels.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> 
-> Olaf Dietsche <olaf.dietsche@t-online.de> writes:
-> 
-> > >>A simpler solution, that does not require changes to the kernel
-> > >>would be to just move mtab to a more apropriate location. My
-> > >>suggestion would be to change it from /etc/mtab to /mtab.d/mtab.
-> > >>Then you could mount a tmpfs filesystem on /mtab.d. Or by making
-> > >>/mtab.d a symlink, you can get the mtab file whereever you want,
-> > >>including /etc.
-> > >
-> > > /dev/shm ? Supposed to be there on many systems anyway. Fix
-> > > 'mount' and 'umount' so that if they see /etc/mtab is a symlink,
-> > > they follow it and create the temp files etc in the destination
-> > > directory of the link instead of in /etc. Then
-> > > ln -sf /dev/shm/mtab /etc/mtab et voila
-> >
-> > I thought, this is what /var is for. So, /var/run, /var/lib/misc or
-> > /var/etc might be more appropriate?
-> 
-> What if /var is mounted separately?
+use: hdparam -d1 /dev/<hdX>
 
-I agree with all of you.
+to enable DMA, if it still says it cannot enable DMA.
+try enabling the xfermode,which gives me the same
+performace as DMA enabled.
 
-/dev/shm is widely available, and is a filesystem of the desired type.
-/var is intended for this kind of data, and /var/run seems intuitively
-the right location. But /dev as well as /var are often mountpoints. So
-to use those locations would introduce more mountpoints that will need
-special care early in the startup scripts. And mounting them before
-running fsck is a problem.
+hdparam -X<num> /dev/<hdX>
+     put num greater than 32..like 33,34 etc  (for multiword DMA)
+     OR  greater that 64....like 65 66 etc.   (for UltraDMA)
 
-All of those thoughts is what lead me to the suggestion of a new
-directory or symlink in the root. You can point it anywhere you want
-mtab. And you don't need to mount any filesystems before the symlink
-can be used. A symlink in the other direction would not work that well.
+-vvp
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);
+
+
+
+
+
+
+
+

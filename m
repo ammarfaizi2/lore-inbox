@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQLWOPQ>; Sat, 23 Dec 2000 09:15:16 -0500
+	id <S129267AbQLWOfG>; Sat, 23 Dec 2000 09:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129786AbQLWOPG>; Sat, 23 Dec 2000 09:15:06 -0500
-Received: from jalon.able.es ([212.97.163.2]:18680 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129761AbQLWOO5>;
-	Sat, 23 Dec 2000 09:14:57 -0500
-Date: Sat, 23 Dec 2000 14:44:11 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: kees <kees@schoen.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.19pre3
-Message-ID: <20001223144411.A835@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.21.0012231358230.26427-100000@schoen3.schoen.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0012231358230.26427-100000@schoen3.schoen.nl>; from kees@schoen.nl on Sat, Dec 23, 2000 at 14:00:59 +0100
-X-Mailer: Balsa 1.0.1
+	id <S129507AbQLWOeq>; Sat, 23 Dec 2000 09:34:46 -0500
+Received: from 213-120-138-46.btconnect.com ([213.120.138.46]:3332 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129267AbQLWOeh>;
+	Sat, 23 Dec 2000 09:34:37 -0500
+Date: Sat, 23 Dec 2000 14:05:37 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Sourav Sen <sourav@csa.iisc.ernet.in>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: why both kernel lock as well as semaphore
+In-Reply-To: <Pine.SOL.3.96.1001223181204.13045B-100000@kohinoor.csa.iisc.ernet.in>
+Message-ID: <Pine.LNX.4.21.0012231402520.829-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 Dec 2000, Sourav Sen wrote:
 
-On 2000.12.23 kees wrote:
-> Hi,
 > 
-> Trying to build 2.2.18+pe-patch-2.2.19-3 gives:
+> In many parts of the kernel, I have seen both semaphore is taken
+> (eg. down(&current->mm->mmap_sem)) as well as kernel lock (lock_kernel())
+> is also taken, why both are required? Whats the purpose of each?
 > 
->  
-> /usr/bin/cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-> -O2
-> -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce
-> -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o
-> ne2k-pci.o ne2k-pci.c
-> ne2k-pci.c: In function `ne2k_pci_probe':
-> ne2k-pci.c:246: `version' undeclared (first use in this function)
-> ne2k-pci.c:246: (Each undeclared identifier is reported only once
 
-Sorry, I checked the driver as module but not built into the kernel.
-Try this patch:
+because the semaphore is really needed (by design of the subsystem) but
+the big kernel lock (BKL) is taken "just in case", i.e. just in case the
+design is broken. Occasionally, the lock is removed to "see what
+happens" -- if nobody complains then the design is probably correct
+i.e. things are declared to "just work" and the attention is shifted to
+some other subsystem.... :)
 
---- linux-2.2.19-pre3/drivers/net/ne2k-pci.c.org        Sat Dec 23 14:40:28 2000
-+++ linux-2.2.19-pre3/drivers/net/ne2k-pci.c    Sat Dec 23 14:41:09 2000
-@@ -243,7 +243,7 @@
-                {
-                        static unsigned version_printed = 0;
-                        if (version_printed++ == 0)
--                               printk(KERN_INFO "%s", version);
-+                               printk(KERN_INFO "%s %s", version1,version2);
-                }
- #endif
+Does it make things clearer?
 
-
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre3 #1 SMP Fri Dec 22 02:38:17 CET 2000 i686
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278401AbRJSNYm>; Fri, 19 Oct 2001 09:24:42 -0400
+	id <S278400AbRJSN1W>; Fri, 19 Oct 2001 09:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278402AbRJSNYc>; Fri, 19 Oct 2001 09:24:32 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:61965 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S278401AbRJSNYQ>;
-	Fri, 19 Oct 2001 09:24:16 -0400
-Message-ID: <20011019173233.A12919@castle.nmd.msu.ru>
-Date: Fri, 19 Oct 2001 17:32:33 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org,
-        Christopher Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <3BCF2A44.60B295FD@nortelnetworks.com> <200110181925.XAA04814@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <200110181925.XAA04814@ms2.inr.ac.ru>; from "A.N.Kuznetsov" on Thu, Oct 18, 2001 at 11:25:42PM
+	id <S278404AbRJSN1M>; Fri, 19 Oct 2001 09:27:12 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:30475 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S278400AbRJSN1D>; Fri, 19 Oct 2001 09:27:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Andrei Lahun <Uman@editec-lotteries.com>, linux-kernel@vger.kernel.org
+Subject: Re: problems with I/O performance with 2.4.12-ac3
+Date: Fri, 19 Oct 2001 09:27:35 -0400
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011019163058.1bb7c6f7.uman@chert>
+In-Reply-To: <20011019163058.1bb7c6f7.uman@chert>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011019132707Z278400-17408+2377@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey,
+On Friday 19 October 2001 10:30, Andrei Lahun wrote:
+> hello.
+>
+> I did a bonnie++ tests with 2.4.13-pre3(+aa vm)
+>  and 2.4.12-ac3(+Rick patch).
+> And i found that ac kernel have a big problems here.
+> With linux kernel i got 22 Mb/c for read 19 for write and
+> with ac  12 for read and 11 for write (both with ext2)
+> If i used ext3 with ac kernel results little bit better.
+> What is the reason for such regression in ac kernel ?
+> And yes of course i had udma for both test.
+>
+> Andrei.
 
-On Thu, Oct 18, 2001 at 11:25:42PM +0400, A.N.Kuznetsov wrote:
-> 
-> > I (and others) have asked this a couple times here and on the netdev list, and
-> > so far nobody has answered it (not even negatively).
-> 
-> :-) And me answered to this hundred of times: "no way". :-)
-> 
-> Ability to add/delete them with "ip neigh" will be removed in the next
-> snapshot as well. The feature is obsolete.
-
-Well, in solutions I ship to customers I need to use some proxy-arp features.
-I don't want to turn on proxy arp on an interface basis, because subtle
-mistakes in network configuration with proxy arp turned on may have serious
-consequences, including arp storm (sic!), and people, especially those called
-customers, do make mistakes.
-So far, the solution has been to manually create proxy arp entries, that are
-known to be safe.
-
-Are you opposing the idea of proxy arp entries being created not by an
-automatic discovery (arp on other interface)?
-Or you just want to cripple `ip'? :-)
-
-	Andrey
+You should give ide and drive chipset info.  This is not a problem seen by 
+everyone using the ac3 kernel.  Mine for instance run just fine.  What 
+settings did you use with bonnie++?  all of this is required info if someone 
+wanted to look and see why you are getting those numbers.

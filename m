@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132789AbRDUSDl>; Sat, 21 Apr 2001 14:03:41 -0400
+	id <S132799AbRDUSJM>; Sat, 21 Apr 2001 14:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132796AbRDUSDb>; Sat, 21 Apr 2001 14:03:31 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:26383 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132789AbRDUSDO>; Sat, 21 Apr 2001 14:03:14 -0400
-Date: Sat, 21 Apr 2001 11:03:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: try_to_swap_out() deactivating pages w. count > 2
-In-Reply-To: <Pine.LNX.4.21.0104211450560.1685-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.21.0104211058130.17963-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132802AbRDUSJB>; Sat, 21 Apr 2001 14:09:01 -0400
+Received: from babel.spoiled.org ([212.84.234.227]:38477 "HELO
+	babel.spoiled.org") by vger.kernel.org with SMTP id <S132799AbRDUSIr>;
+	Sat, 21 Apr 2001 14:08:47 -0400
+Date: 21 Apr 2001 18:08:45 -0000
+Message-ID: <20010421180845.18802.qmail@babel.spoiled.org>
+From: Juri Haberland <juri@koschikode.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Crash: XFree86 4.0.3 and Kernel 4.0.3
+X-Newsgroups: spoiled.linux.kernel
+In-Reply-To: <3AE1B7F7.4000505@bigfoot.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (OpenBSD/2.9 (i386))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 21 Apr 2001, Rik van Riel wrote:
-> > 
-> > We should _absolutely_ do the swap space reclaiming without looking at
-> > the page count.
+Trever L. Adams wrote:
+> I hate to report this again, I saw some reports that it was fixed with 
+> 4.0.3 of XFree86, so I tried XF86 4.0.3 with RedHat 7.1.
 > 
-> page->age != page->count
+> Any time it tries to turn the monitor off, it crashes.  I get no oopses.
+> Nothing.
+> 
+> Has anyone figured out why it crashes?  How can I fix it besides remove 
+> the power savings option of automatically shutting the monitor off? 
+> BTW, I am running this box with ACPI.  It crashes even more if I use 
+> APM.  I never could figure that out, but anyway.
 
-It's all the same thing.
+Hi Trevor,
 
-The page age and count are used to decice when the page actually gets
-thrown _out_ of memory. That's a decision that is based on the _physical_
-page attributes.
+I have the same problem with almost the same combination (RH 7.0 instead of
+RH 7.1). Did you compile the XFree server yourself and if so, did you
+optimize it for i686? The reason why I'm asking is that I did that and
+suspected the optimazions to cause the crashes.
 
-But try_to_swap_out() is based on the attribute on this particular virtual
-mapping of the page. If this particular virtual mapping does not have the
-"accessed" bit set, then try_to_swap_out() should get rid of that virtual
-mapping. It should absolutely not use the global page characteristics
-(either global usage count or global age) in making that decision. Because
-those do not matter - they have absoilutely no meaning for this virtual
-mapping of the page.
+Juri
 
-Put another way: if process A is a heavy user of a page, and process B
-just touched it once and will never touch it again, what do you think
-should happen?
-
-Answer: the page should be dropped from process B. It's a cheap thing to
-do (we can get it back if necessary without any IO), and it means that if
-we end up having toi actually swap out the page eventually, we will not be
-confused by "noise" in the page count from a mappign that hasn't been
-active for a long time.
-
-		Linus
+-- 
+Juri Haberland  <juri@koschikode.com> 
 

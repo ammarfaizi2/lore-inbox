@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHQTHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUHQTKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUHQTHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266610AbUHQTHX
+	id S266616AbUHQTKM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUHQTKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:07:23 -0400
-Received: from gprs214-122.eurotel.cz ([160.218.214.122]:27265 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268359AbUHQTDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:03:49 -0400
-Date: Tue, 17 Aug 2004 21:03:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: swsusp: fix default and merge upstream?
-Message-ID: <20040817190330.GG19009@elf.ucw.cz>
-References: <20040817111128.GA4164@elf.ucw.cz> <20040817104745.683581dd.akpm@osdl.org> <20040817180313.GD19009@elf.ucw.cz> <20040817112843.1e3dae58.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 15:10:11 -0400
+Received: from defout.telus.net ([199.185.220.240]:24524 "EHLO
+	priv-edtnes46.telusplanet.net") by vger.kernel.org with ESMTP
+	id S266616AbUHQTIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:08:40 -0400
+From: Shaun Jackman <sjackman@telus.net>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: Hang after "BIOS data check successful" with DVI
+Date: Tue, 17 Aug 2004 12:08:54 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <E82D6B0981@vcnet.vc.cvut.cz>
+In-Reply-To: <E82D6B0981@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040817112843.1e3dae58.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408171208.54986.sjackman@telus.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue August 17, 2004 03h57, Petr Vandrovec wrote:
+> On 16 Aug 04 at 16:55, Shaun Jackman wrote:
+> > When I have a DVI display plugged into my Matrox G550 video card the
+> > boot process hangs at "BIOS data check successful". I am running Linux
+> > kernel 2.6.6. This problem does not affect Linux kernel 2.4.26. If I
+> > boot without the DVI display plugged in, I can plug it in after the
+> > boot process and the display works.
+> 
+> Try disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
+> in arch/i386/boot/video.S. Also which bootloader you use? From
+> quick glance at bootloaders, grub1 seems to set %sp to 0x9000, while 
+> LILO to 0x0800. And I think that 2048 byte stack (plus something already 
+> allocated by loader) might be too small for DDC call, as MGA BIOS first
+> creates EDID copy on stack...
+>                                            Best regards,
+>                                                 Petr Vandrovec
 
-> > Are they
-> > swsusp-related things in your tree that are not in patrick's bk?
-> 
-> Just a couple of patches:
-> 
-> mm-swsusp-make-sure-we-do-not-return-to-userspace-where-image-is-on-disk.patch
-> mm-swsusp-copy_page-is-harmfull.patch
-> 
-> > driver-tree changes (enums etc) are pretty much orthogonal and can go
-> > in anytime later.
-> > 
-> > > What's the testing status of the new code in bk-power.patch?
-> > 
-> > Works for me, some users reported success (after being advised to use
-> > "shutdown" method), and suse pulled it into internal tree and it got
-> > basic testing there by Stefan. I guess that counts like "pretty well
-> > tested".
-> 
-> OK.  I'll integrate your most recent patches and will squirt everything at
-> Patrick.
+I'm using Lilo 22.5.9-2 from Debian.
 
-Thanks.
-									Pavel	
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Cheers,
+Shaun
+

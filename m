@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVATBQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVATBT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVATBQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 20:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVATBQ7
+	id S262020AbVATBT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 20:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVATBT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 20:16:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47318 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262017AbVATBQ5 (ORCPT
+	Wed, 19 Jan 2005 20:19:56 -0500
+Received: from mail.joq.us ([67.65.12.105]:14526 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262020AbVATBTu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 20:16:57 -0500
-Date: Wed, 19 Jan 2005 17:16:55 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Chris Wright <chrisw@osdl.org>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH 1/5] compat_ioctl call seems to miss a security hook
-Message-ID: <20050119171655.C24171@build.pdx.osdl.net>
-References: <20050118072133.GB76018@muc.de> <20050118103418.GA23099@mellanox.co.il> <20050118072133.GB76018@muc.de> <20050118104515.GA23127@mellanox.co.il> <20050118112220.X24171@build.pdx.osdl.net> <20050120002806.GA16674@mellanox.co.il> <20050119164353.W24171@build.pdx.osdl.net> <20050120010620.GB32105@mellanox.co.il>
-Mime-Version: 1.0
+	Wed, 19 Jan 2005 20:19:50 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
+       CK Kernel <ck@vds.kolivas.org>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
+ scheduling
+References: <41ED08AB.5060308@kolivas.org> <87is5tx61a.fsf@sulphur.joq.us>
+	<41EE2987.1040005@kolivas.org> <873bwxpckv.fsf@sulphur.joq.us>
+	<41EEF649.4070705@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 19 Jan 2005 19:21:23 -0600
+In-Reply-To: <41EEF649.4070705@kolivas.org> (Con Kolivas's message of "Thu,
+ 20 Jan 2005 11:07:37 +1100")
+Message-ID: <87pt00gajw.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050120010620.GB32105@mellanox.co.il>; from mst@mellanox.co.il on Thu, Jan 20, 2005 at 03:06:20AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael S. Tsirkin (mst@mellanox.co.il) wrote:
-> Quoting r. Chris Wright (chrisw@osdl.org) "Re: [PATCH 1/5] compat_ioctl call seems to miss a security hook":
-> > * Michael S. Tsirkin (mst@mellanox.co.il) wrote:
-> > > I'm all for it, but the way the patch below works, we could end up
-> > > calling ->ioctl or ->unlocked_ioctl from the compat 
-> > > syscall, and we dont want that.
-> > 
-> > Hmm, I didn't actually change how those are called.  So if it's an issue,
-> > then I don't think this patch introduces it.
-> 
-> Sorry, you are right, we go to do_ioctl only if there are no
-> callbacks.
+Con Kolivas <kernel@kolivas.org> writes:
 
-I suppose there is one case (not introduced by the patch).  Not sure if
-it's even a problem though:
+> Jack O'Quin wrote:
+>> Try again with JACK 0.99.48.  It's in CVS now, but you probably need
+>> this tarball to get around the dreaded SourceForge anon CVS lag...
+>>
+>> http://www.joq.us/jack/tarballs/jack-audio-connection-kit-0.99.48.tar.gz
+>
+> Thanks it finally ran to completion. By the way the patch you sent
+> with the test suite did not apply so I had to do it manually
+> (booraroom..)
 
-t->cmd matches, yet NULL t->handler.  This will fall-thru to
-the do_ioctl: case.  I assume NULL handler is for case where no
-conversion is needed, so it's not a problem?  At least some callers of
-register_ioctl32_conversion() pass NULL handler.
+Oops!  Sorry.  I generated those by hand using some rather crude 
+`diff -u .... >> xxx.diff' commands.  
 
-thanks,
--chris
+We should just add Rui's latest version to JACK CVS.
+
+> Since I (finally) have it running at this end at last I'll do some
+> benchmarking of my own to see how (lack of) priorities affects
+> SCHED_ISO. If it is inadequate, it wont be too difficult to add them
+> to the design. The problem with priorities is that once you go over
+> the cpu limit everyone suffers equally; but that's a failsafe that you
+> shouldn't actually hit in normal usage so it probably doesn't
+> matter... 
+
+I'd be surprised if we're hitting it in this test.  AFAICT, our
+"Average DSP Load" should approximate your CPU limit.  That's running
+in the 30% to 40% range.  Is there any way to verify this?  Is your
+running average readable in /proc/sys/kernel somewhere?
+
+We do need to test that the system degrades gracefully when the CPU is
+overloaded.  That *will* happen (the dreaded P4 float denormal
+problems quickly come to mind).  At some point, the user should be
+allowed to choose how much CPU to consume, possibly shutting down
+plugins as needed.
+
+> Hmm come to think of it, it probably _is_ a good idea to implement
+> priority support afterall.
+
+Hard to say for sure without trying it.  These threads are dealing
+with a realtime cycle that is smaller than normal scheduler time
+slices.  Getting all the work done is important.  But, getting it done
+in the right order might make a difference for important statistics
+like Max Delay.
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+  joq

@@ -1,132 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293306AbSBYD3M>; Sun, 24 Feb 2002 22:29:12 -0500
+	id <S293308AbSBYDlg>; Sun, 24 Feb 2002 22:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293307AbSBYD3C>; Sun, 24 Feb 2002 22:29:02 -0500
-Received: from smtp1.arnet.com.ar ([200.45.191.6]:39697 "HELO
-	smtp1.arnet.com.ar") by vger.kernel.org with SMTP
-	id <S293306AbSBYD2x>; Sun, 24 Feb 2002 22:28:53 -0500
-Message-ID: <3C79AF21.20606@arnet.com.ar>
-Date: Mon, 25 Feb 2002 00:27:30 -0300
-From: Juan Erbes <jerbes@arnet.com.ar>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us, es-ar
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.5.5 compiltation bugs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293310AbSBYDl0>; Sun, 24 Feb 2002 22:41:26 -0500
+Received: from quattro-eth.sventech.com ([205.252.89.20]:12306 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S293309AbSBYDlH>; Sun, 24 Feb 2002 22:41:07 -0500
+Date: Sun, 24 Feb 2002 22:41:07 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Dan Hopper <dbhopper@austin.rr.com>, lkml <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.5.5-pre1 rmmod usb-uhci hangs
+Message-ID: <20020224224107.D17788@sventech.com>
+In-Reply-To: <fa.n7cofbv.1him3j@ifi.uio.no> <fa.dsb79pv.on84ii@ifi.uio.no> <20020224025411.GA2418@yoda.dummynet> <20020224062124.GB15060@kroah.com> <20020224063915.GA2799@yoda.dummynet> <20020224064931.GD15060@kroah.com> <20020224173711.GA2355@yoda.dummynet> <20020224125055.A5232@sventech.com> <20020224184943.GA2492@yoda.dummynet>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020224184943.GA2492@yoda.dummynet>; from dbhopper@austin.rr.com on Sun, Feb 24, 2002 at 12:49:43PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Building the kernel 2.5.5, with gcc 3.02, under SuSE 7.1, with kernel 
-2.4.16, I got:
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=floppy  
--c -o floppy.o floppy.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6   -DKBUILD_BASENAME=rd  -c 
--o rd.o rd.c
-rd.c: In function `rd_make_request':
-rd.c:271: too many arguments to function
-make[3]: *** [rd.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/block'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/block'
-make[1]: *** [_subdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-without ramdisk
+On Sun, Feb 24, 2002, Dan Hopper <dbhopper@austin.rr.com> wrote:
+> Johannes Erdfelt <johannes@erdfelt.com> remarked:
+> > Hmm, that is interesting. I wonder what is going on with it. Are you
+> > using the scanner kernel driver?
+> 
+> Yes.  And sane 1.0.5.  FWIW, the command I'm using that stutters
+> with uhci and not usb-uhci is:
+> 
+> scanimage --mode lineart --resolution 600 -x 203.2 -y 271.0 \
+> 	--contrast 0 --brightness 0  > /tmp/copy.pbm
+> 
+> That results in a 3848837 byte file in about 37 seconds with
+> usb-uhci.  Not exactly pushing the USB 1.1 bandwidth.  (unless
+> there's a significant discrepancy between the bits coming from the
+> scanner and those scanimage dumps to the file, I suppose)
 
-make[2]: Leaving directory `/usr/src/linux/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a 
-/usr/src/linux/arch/i386/lib/lib.a \
-         drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-drivers/media/media.o drivers/char/drm/drm.o drivers/net/fc/fc.o 
-drivers/net/tokenring/tr.o drivers/atm/atm.o drivers/ide/idedriver.o 
-drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o 
-drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o 
-drivers/video/video.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-drivers/video/video.o: In function `vesafb_init':
-drivers/video/video.o(.text.init+0x151a): undefined reference to 
-`bus_to_virt_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+Can you give this patch a whirl? It's relative to 2.4.18-rc2-gregkh-1
+
+JE
 
 
-I have applied the patch, and then the kernel builds ok, but the problem 
-is yet building the modules:
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="uhci-2.4.18-rc2-gregkh-1-fsbr.patch"
 
+diff -ur linux-2.4.18-rc2-gregkh-1.orig/drivers/usb/uhci.c linux-2.4.18-rc2-gregkh-1/drivers/usb/uhci.c
+--- linux-2.4.18-rc2-gregkh-1.orig/drivers/usb/uhci.c	Sun Feb 24 15:13:59 2002
++++ linux-2.4.18-rc2-gregkh-1/drivers/usb/uhci.c	Sun Feb 24 15:14:43 2002
+@@ -57,7 +57,6 @@
+ 
+ #include <linux/pm.h>
+ 
+-
+ /*
+  * Version Information
+  */
+@@ -65,7 +64,6 @@
+ #define DRIVER_AUTHOR "Linus 'Frodo Rabbit' Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti Fliegl, Thomas Sailer, Roman Weissgaerber"
+ #define DRIVER_DESC "USB Universal Host Controller Interface driver"
+ 
+-
+ /*
+  * debug = 0, no debugging messages
+  * debug = 1, dump failed URB's except for stalls
+@@ -100,6 +98,7 @@
+ 
+ /* If a transfer is still active after this much time, turn off FSBR */
+ #define IDLE_TIMEOUT	(HZ / 20)	/* 50 ms */
++#define FSBR_DELAY	(HZ / 20)	/* 50 ms */
+ 
+ #define MAX_URB_LOOP	2048		/* Maximum number of linked URB's */
+ 
+@@ -766,7 +765,7 @@
+ 	if ((!(urb->transfer_flags & USB_NO_FSBR)) && urbp->fsbr) {
+ 		urbp->fsbr = 0;
+ 		if (!--uhci->fsbr)
+-			uhci->skel_term_qh->link = UHCI_PTR_TERM;
++			uhci->fsbrtimeout = jiffies + FSBR_DELAY;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&uhci->frame_list_lock, flags);
+@@ -2021,6 +2020,12 @@
+ 
+ 		u->transfer_flags |= USB_ASYNC_UNLINK | USB_TIMEOUT_KILLED;
+ 		uhci_unlink_urb(u);
++	}
++
++	/* Really disable FSBR */
++	if (!uhci->fsbr && uhci->fsbrtimeout && time_after_eq(jiffies, uhci->fsbrtimeout)) {
++		uhci->fsbrtimeout = 0;
++		uhci->skel_term_qh->link = UHCI_PTR_TERM;
+ 	}
+ 
+ 	/* enter global suspend if nothing connected */
+diff -ur linux-2.4.18-rc2-gregkh-1.orig/drivers/usb/uhci.h linux-2.4.18-rc2-gregkh-1/drivers/usb/uhci.h
+--- linux-2.4.18-rc2-gregkh-1.orig/drivers/usb/uhci.h	Sun Feb 24 15:13:59 2002
++++ linux-2.4.18-rc2-gregkh-1/drivers/usb/uhci.h	Sun Feb 24 14:46:38 2002
+@@ -309,6 +309,7 @@
+ 	spinlock_t frame_list_lock;
+ 	struct uhci_frame_list *fl;		/* P: uhci->frame_list_lock */
+ 	int fsbr;				/* Full speed bandwidth reclamation */
++	unsigned long fsbrtimeout;		/* FSBR delay */
+ 	int is_suspended;
+ 
+ 	/* Main list of URB's currently controlled by this HC */
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=k6 -DMODULE  -DKBUILD_BASENAME=sbpcd  -c -o sbpcd.o sbpcd.c
-sbpcd.c: In function `__SBPCD_INIT':
-sbpcd.c:5867: `DO_SBPCD_REQUEST' undeclared (first use in this function)
-sbpcd.c:5867: (Each undeclared identifier is reported only once
-sbpcd.c:5867: for each function it appears in.)
-sbpcd.c:5873: `read_ahead' undeclared (first use in this function)
-sbpcd.c: At top level:
-sbpcd.c:4899: warning: `do_sbpcd_request' defined but not used
-make[2]: *** [sbpcd.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.5/drivers/cdrom'
-make[1]: *** [_modsubdir_cdrom] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.5/drivers'
-make: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [_mod_drivers] Error 2
-
-
-
-patched and with gcc 3.04, and without NO_IDE_SCSI_CDROM
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE  
--DKBUILD_BASENAME=i2o_block  -DEXPORT_SYMTAB -c i2o_block.c
-i2o_block.c:43:2: #error Please convert me to Documentation/DMA-mapping.txt
-
-configured without i2o_block
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE -I../../scsi/ 
--DKBUILD_BASENAME=datafab
--c -o datafab.o datafab.c
-datafab.c: In function `datafab_read_data':
-datafab.c:259: structure has no member named `address'
-datafab.c:259: structure has no member named `address'
-datafab.c:268: structure has no member named `address'
-datafab.c:268: structure has no member named `address'
-datafab.c: In function `datafab_write_data':
-datafab.c:349: structure has no member named `address'
-datafab.c:349: structure has no member named `address'
-datafab.c:358: structure has no member named `address'
-datafab.c:358: structure has no member named `address'
-make[3]: *** [datafab.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5/drivers/usb/storage'
-make[2]: *** [_modsubdir_storage] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [_mod_drivers] Error 2
-
-
-Thanks,
-              Juan
-
+--vtzGhvizbBRQ85DL--

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289191AbSCLXNa>; Tue, 12 Mar 2002 18:13:30 -0500
+	id <S289817AbSCLXOw>; Tue, 12 Mar 2002 18:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290289AbSCLXNU>; Tue, 12 Mar 2002 18:13:20 -0500
-Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:46478 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S289272AbSCLXM2>; Tue, 12 Mar 2002 18:12:28 -0500
-Date: Tue, 12 Mar 2002 18:11:41 -0500
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [RFC] write_super is for syncing
-Message-ID: <223400000.1015974701@tiny>
-In-Reply-To: <212850000.1015973327@tiny>
-In-Reply-To: <205630000.1015970453@tiny> <3C8E7E0C.816A3527@zip.com.au> <212850000.1015973327@tiny>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S289272AbSCLXNd>; Tue, 12 Mar 2002 18:13:33 -0500
+Received: from p508879CE.dip.t-dialin.net ([80.136.121.206]:2691 "EHLO
+	darkside.22.kls.lan") by vger.kernel.org with ESMTP
+	id <S289817AbSCLXNS>; Tue, 12 Mar 2002 18:13:18 -0500
+Date: Wed, 13 Mar 2002 00:13:08 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] ACPI: kbd-pw-on/WOL don't work anymore since 2.4.14
+Message-ID: <20020312231308.GD1108@darkside.ddts.net>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7CDE@orsmsx111.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7CDE@orsmsx111.jf.intel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 12, 2002 at 03:05:04PM -0800, Grover, Andrew wrote:
+> Well sure, you can work around this bug on your particular machine, but I
+> can't do the same because then, unlike your machine where not enough devices
+> are enabled for wake, *too many* devices will be enabled for wake on some
+> machines. This results in them not turning off properly -- they come right
+> back on. ;-)
+
+Okay, I understand this part :)
+
+But what's with the more important one? Isn't that simply readable
+from the BIOS somehow?
+Doesn't store the BIOS the devices used for ACPI wakeup somewhere
+in the ACPI tables?
+Can't one read them out there?
+
+And if not - is there actually a syscall interface where i can reach
+acpi_hw_enable_gpe_for_wakeup()?
+And if so - how can I translate devices to GPE numbers?
 
 
-On Tuesday, March 12, 2002 05:48:47 PM -0500 Chris Mason <mason@suse.com> wrote:
-
->>> if (s_dirt & S_SUPER_DIRTY) call me from kupdate and on sync
->>> if (s_dirt & S_SUPER_DIRTY_COMMIT) call me on sync only.
->>> 
->> 
->> I'm not quite sure why these flags exist?  Would it not be
->> sufficient to just call ->write_super() inside kupdate,
->> and ->commit_super in fsync_dev()?  (With a ->write_super
->> fallback, of course).
-> 
-> fsync_dev(dev != 0) is easy, you can ignore the dirty flag
-> and call commit_super on the proper device.
-> 
-> But, the loop in sync_supers(dev == 0) is harder, it expects
-> some flag it can check, and it expects the callback to the FS
-> will clear that flag.  Adding a new flag seemed like more fun
-> than redoing the locking and super walk.  I'm curious to hear what 
-> Al thinks of it though.
-
-Of course, that's slightly more likely if I actually cc the right
-address.
-
--chris
-
+thanks & regards,
+   Mario
+-- 
+[mod_nessus for iauth]
+<delta> "scanning your system...found depreciated OS...found
+        hole...installing new OS...please reboot and reconnect now"

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136735AbREAVvY>; Tue, 1 May 2001 17:51:24 -0400
+	id <S136741AbREAWE0>; Tue, 1 May 2001 18:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136736AbREAVvN>; Tue, 1 May 2001 17:51:13 -0400
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:54029 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S136735AbREAVu6>;
-	Tue, 1 May 2001 17:50:58 -0400
-Date: Tue, 1 May 2001 23:50:46 +0200
-From: Frank de Lange <frank@unternet.org>
+	id <S136740AbREAWEQ>; Tue, 1 May 2001 18:04:16 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11526 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136739AbREAWED>; Tue, 1 May 2001 18:04:03 -0400
 To: linux-kernel@vger.kernel.org
-Subject: * Re: Severe trashing in 2.4.4
-Message-ID: <20010501235046.A23616@unternet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Maximum files per Directory
+Date: 1 May 2001 15:03:44 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9cnbs0$uk3$1@cesium.transmeta.com>
+In-Reply-To: <272800000.988750082@hades> <E14uhI2-0002NH-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well,
+Followup to:  <E14uhI2-0002NH-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> > cyrus-imapd i ran into problems.
+> > At about 2^15 files the filesystem gave up, telling me that there cannot be
+> > more files in a directory.
+> > 
+> > Is this a vfs-Issue or an ext2-issue?
+> 
+> Bit of both. You exceeded the max link count, and your performance would have
+> been abominable too. cyrus should be using heirarchies of directories for
+> very large amounts of stuff.
+> 
 
-When a puzzled Alexey wondered whether the problems I was seeing with 2.4.4
-might be related to a failure to execute 'make clean' before compiling the
-kernel, I replied in the negative as I *always* clean up before compiling
-anything. Yet, for the sake of science and such I moved the kernel tree and
-started from scratch.
+But also showing, once again, that this particular scalability problem
+really is a headache for some people.
 
-The problems I was seeing are no more, 2.4.4 behaves like a good kernel should.
-
-Was it me? Was it reiserfs? Was is divine intervention? I will probably never
-find out, but for now this thread, and the accompanying scare, can Resquiam In
-Paces.
-
-Cheers//Frank
+	-hpa
 -- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

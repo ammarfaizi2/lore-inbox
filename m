@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271507AbRH1PqB>; Tue, 28 Aug 2001 11:46:01 -0400
+	id <S268145AbRH1PpB>; Tue, 28 Aug 2001 11:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271572AbRH1Ppx>; Tue, 28 Aug 2001 11:45:53 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58884 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271507AbRH1Ppj>;
-	Tue, 28 Aug 2001 11:45:39 -0400
-Date: Tue, 28 Aug 2001 12:45:41 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: find_get_swapcache_page() question
-In-Reply-To: <Pine.LNX.4.21.0108281154030.1015-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L.0108281244550.26170-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271507AbRH1Pow>; Tue, 28 Aug 2001 11:44:52 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:15518 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S268145AbRH1Pom>; Tue, 28 Aug 2001 11:44:42 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Date: Tue, 28 Aug 2001 15:44:53 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9mge9l$sb9$1@forge.intermeta.de>
+In-Reply-To: <3B8BA883.3B5AAE2E@linux-m68k.org> <Pine.LNX.4.33.0108280732560.8585-100000@penguin.transmeta.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 999013493 29130 212.34.181.4 (28 Aug 2001 15:44:53 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 28 Aug 2001 15:44:53 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, Hugh Dickins wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> 		if (!PageSwapCache(found))
-> 			BUG();
-> 		if (found->mapping != &swapper_space)
-> 			BUG();
-> are not safe, since there may a concurrent remove_from_swap_cache(),
-> either from try_to_unuse() or from Rik's new vm_swap_full() deletion.
-> Those tests would be safe if the page were locked, but it's not.
+>I'll show you a real example from drivers/acorn/scsi/acornscsi.c:
 
-vm_swap_full() is called with the page locked,
-remove_from_swap_cache() also seems to want the
-page locked...
+>	min(host->scsi.SCp.this_residual, DMAC_BUFFER_SIZE / 2);
 
-Rik
+>this_residual is "int", and "DMAC_BUFFER_SIZE" is just a #define for
+>an integer constant. So the above is actually a signed comparison, and
+>I'll bet you that was not what the author intended.
+
+And the mistake of the author was not to write "unsigned int this_residual".
+That's the bug. Not the min() function.
+
+	Regards
+		Henning
+
 -- 
-IA64: a worthy successor to i860.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbUJ0UMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUJ0VWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbUJ0UMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUJ0TzM
+	id S262906AbUJ0VWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUJ0VTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:55:12 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:44781 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262628AbUJ0Txc (ORCPT
+	Wed, 27 Oct 2004 17:19:16 -0400
+Received: from mproxy.gmail.com ([216.239.56.251]:34034 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262755AbUJ0VNN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:53:32 -0400
-Date: Wed, 27 Oct 2004 20:27:50 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: hzhong@cisco.com, "'John Richard Moser'" <nigelenki@comcast.net>,
-       =?gb2312?B?J0VzcGVuIEZqZWxsduZyIE9sc2VuJw==?= <espenfjo@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: My thoughts on the "new development model"
-In-Reply-To: <1098896367.6990.24.camel@laptop.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0410272026450.11962@student.dei.uc.pt>
-References: <014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com>
- <1098896367.6990.24.camel@laptop.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Wed, 27 Oct 2004 17:13:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TDdTdOhipccVFDTVZX30jxSf1Hm5GtUFA5fHUt1QMW91QEKeR0U7vf7Q+AWkOksJOy59mxzdSDLcAra2hbGDMRCjo+Ns4jx9He6tVXsMt9Prhoaxt6egufE6GWI16UYgl/pqeLmyVX3xv5PEP8lXmuUFoAeN3NMNoejzR4F3PI4=
+Message-ID: <21d7e997041027141358b05c41@mail.gmail.com>
+Date: Thu, 28 Oct 2004 07:13:06 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: The naming wars continue...
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com>
+	 <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
+	 <20041027200805.GA17759@4t2.com>
+	 <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> 
+> The subject line of my announcement was
+> 
+>         Subject: Linux 2.6.9-rc4 - pls test (and no more patches)
+> 
+> and the body was
+> 
+>         Ok,
+>          trying to make ready for the real 2.6.9 in a week or so, so please give
+>         this a beating, and if you have pending patches, please hold on to them
+>         for a bit longer, until after the 2.6.9 release. It would be good to have
+>         a 2.6.9 that doesn't need a dot-release immediately ;)
+> 
+>         The appended shortlog gives a pretty good idea of what has been going on.
+>         Mostly small stuff, with some architecture updates and an ACPI update
+>         thrown in for good measure.
+> 
+> (plus the shortlog).
+> 
+> Not exactly "hidden", was it?
 
-On Wed, 27 Oct 2004, Arjan van de Ven wrote:
+To sum up, why don't you call everything before you reach this point
+-pre and then when you decide to write the mail and realise you want
+to say no more patches just check in  patch calling it -rc ? you claim
+you don't know when to diffrentiate between -pre and -rc, (or maybe
+you don't care) well how do you decide to write the above e-mail? I
+think that would satisfy nearly everyone and I don't see what would be
+so different from your POV, but it is in the end up to you...
 
-> I wouldn't mind doing some sort of bugfix kernel series it if people
-> think it'd be useful... but that's a big if.... the hard part of any
-> such tree is finding people who help testing, and yet the customers of
-> such a tree are those who only want proven stable stuff ;)
+> So far, nobody has had a good reason. People are just complaining, because
+> this is an area where you can complain without actually having any real
+> hard technical input. It's "easy" to have an opinion.
+> So guys, look at the big picture. Is this really worth worrying over?
 
-You're going to have testers/users for sure, specially if you're relases appear
-in kernel.org... That won't be your problem.
+There has been a fair bit of bike shedding going on... so I think we
+should use some sort of timber and paint it red...
 
-Mind Booster Noori
-
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFBf/a4mNlq8m+oD34RAlSDAKDP5gtubpS6lH+ziMEzsCfjr+X4pwCeO37A
-F4Uw354WqtakT9fPJSIX0D4=
-=Gsrs
------END PGP SIGNATURE-----
-
+Dave.

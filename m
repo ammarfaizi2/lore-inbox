@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbULQCvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbULQCuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbULQCvn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 21:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbULQCvn
+	id S262724AbULQCuo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 21:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbULQCuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 21:51:43 -0500
-Received: from holomorphy.com ([207.189.100.168]:16592 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262726AbULQCvd (ORCPT
+	Thu, 16 Dec 2004 21:50:44 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:43698 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262724AbULQCui (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 21:51:33 -0500
-Date: Thu, 16 Dec 2004 18:51:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3-mm1
-Message-ID: <20041217025127.GP771@holomorphy.com>
-References: <20041213020319.661b1ad9.akpm@osdl.org> <20041215113515.GJ771@holomorphy.com> <20041215034239.2d2f9d9d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041215034239.2d2f9d9d.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 16 Dec 2004 21:50:38 -0500
+Date: Fri, 17 Dec 2004 03:50:28 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       geert@linux-m68k.org, ralf@linux-mips.org,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: [patch] [RFC] make WANT_PAGE_VIRTUAL a config option
+In-Reply-To: <1103246050.13614.2571.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0412170256500.793@scrub.home>
+References: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0412170133560.793@scrub.home>  <1103244171.13614.2525.camel@localhost>
+  <Pine.LNX.4.61.0412170150080.793@scrub.home> <1103246050.13614.2571.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->>  This appears to have trouble on em64t; not only does the following happen,
->>  but some odd userspace programs (e.g. ssh) appear to be failing.
->> 
->>  Shutting down powersaved                                                       cut here ] --------- [please bite here ] ---------
->>  KDdoneernel BUG at pageattr:156
+Hi,
 
-On Wed, Dec 15, 2004 at 03:42:39AM -0800, Andrew Morton wrote:
-> I can't say I'm surprised, really, although it booted and did stuff OK on my
-> box.
-> There's a mangled-up mess of ioremap/pageattr patches from Andrea and Andi
-> in there.  I'll drop a few things.  We need to go through those changes a
-> little more carefully.
+On Thu, 16 Dec 2004, Dave Hansen wrote:
 
-The odd userspace programs failing are far more disturbing. They
-suggest COW or something of similar gravity is broken on x86-64
-by some new patch. The ioremap/pageattr issues are merely some
-shutdown-time oops, which is rather minor in comparison, although
-reported far more verbosely.
+> > Could you explain a bit more, what exactly the problem is?
+> 
+> The symptom is that you'll add some new function to a header, say
+> mmzone.h.  You get some kind of compile error that a structure that you
+> need is not fully defined (usually because it is predeclared "struct
+> foo;").  This happens when you do either a structure dereference on a
+> pointer, or do some other kind of pointer arithmetic on it outside of a
+> macro.
 
+I know this problem and I hoped you would provide a complete header 
+dependency example. Anyway, I'm not against fixing this, I think that 
+you're starting somewhere in the middle.
+We have the same problem with core data types, like atomic_t, spinlocks, 
+semaphores... Preempt made this problem worse and was "fixed" by 
+separating some stuff into thread_info.
+I'd prefer to fix this problem at the core first, some time ago I posted a 
+few patches to separate out core data structures from the functions. This 
+allows further cleanups, I just did a quick check with linux/mm.h and 
+easily reduced the dependencies by half. I need to update the patches 
+soon, so there are ready once 2.6.10 is out.
+If you change the header dependencies, there is a big risk you break some 
+architecture, the current system is rather fragile. Moving a random 
+structure into a new header file doesn't always fix the problem, this 
+structure might still need some other definitions and so can pull in 
+different headers on every arch. Splitting a header is easy, getting the 
+whole thing working again in the end is the hard part.
 
--- wli
+bye, Roman

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263832AbTKFUFi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 15:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTKFUFi
+	id S263792AbTKFUMB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 15:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263816AbTKFUL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 15:05:38 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:25340 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S263832AbTKFUFb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 15:05:31 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: load 2.4.x binary only module on 2.6
-Date: Thu, 6 Nov 2003 15:05:28 -0500
-User-Agent: KMail/1.5.1
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Marcel Lanz <marcel.lanz@ds9.ch>,
-       linux-kernel@vger.kernel.org
-References: <20031106153004.GA30008@ds9.ch> <200311061433.12555.gene.heskett@verizon.net> <200311061952.hA6Jq9HG004043@turing-police.cc.vt.edu>
-In-Reply-To: <200311061952.hA6Jq9HG004043@turing-police.cc.vt.edu>
+	Thu, 6 Nov 2003 15:11:57 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:31654 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S263792AbTKFULw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 15:11:52 -0500
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [DMESG] cpumask_t in action
+References: <20031105222202.GA24119@sgi.com>
+	<20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 06 Nov 2003 15:11:48 -0500
+In-Reply-To: <20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <yq0y8utp88r.fsf@trained-monkey.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311061505.28953.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.62.77] at Thu, 6 Nov 2003 14:05:29 -0600
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 November 2003 14:52, Valdis.Kletnieks@vt.edu wrote:
->On Thu, 06 Nov 2003 14:33:12 EST, Gene Heskett said:
->> I've got minions 4496 here, so how did you make it work?  I had to
->> revert to the kernel driver nv which doesn't do as much, but is
->> easily 100000% more stable.
->
->Got NVidia's tarball, did the --extract-only thing, applied
->the Minion patch, 'cp Makefile.kbuild Makefile', reboot to the
->-mm2 kernel, 'cd src/NVdia<mumble>/usr/src/nv && make'.
->
->Actually, I've just had to do the 'make' for the last umpteen kernel
->revs - the Makefile dates back to Aug 4, and Sep 5 I had to apply a
->2-line fix to nv-linux.h.
->
->Not sure if the nv driver could be more stable - the last time I was
->able to tickle the NVidia code into crashing either XFree86 or the
-> kernel was back in the 2.5.6* time frame.
+>>>>> "Matthew" == Matthew Wilcox <willy@debian.org> writes:
 
-Very very easily done.  ctrl-alt-f2 to a shell.  It may, or may not 
-work.  crtl-alt-f7 back to X=locked up "tighter than Ft Knox" 
-computer, reset button or power button is all that works.
+Matthew> On Wed, Nov 05, 2003 at 02:22:02PM -0800, Jesse Barnes wrote:
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Matthew> There's a number of things here that annoy me.  One is the
+Matthew> stupid "Processor 8192/1 is spinning up".  I would expect
+Matthew> "Processor 2/96 is spinning up", but why have this line at
+Matthew> all?  I'd also like to see "Bringing up 3", "Processor 1 has
+Matthew> spun up..." and "CPU 1 IS NOW UP!" go away.  That'd cut us
+Matthew> down to:
 
+>> CPU 3: 61 virtual and 50 physical address bits CPU 3: nasid 2,
+>> slice 2, cnode 1 CPU 3: base freq=200.000MHz, ITC ratio=15/2, ITC
+>> freq=1500.000MHz+/--1ppm Calibrating delay loop... 2241.08 BogoMIPS
+>> CPU3: CPU has booted.  Starting migration thread for cpu 3
+
+Matthew> A 40% reduction in per-cpu verbosity ;-)
+
+Why not turn it the other way and just report the success of booted
+CPUs and more detailed results for the CPUs that failed? I know there
+are cases where you want the debug info in case of tracking kernel
+bugs, but one could stick a compile time debug flag into the code for
+that case, 960 - 40% = 576 lines of guff is still way too much IMHO,
+especially over a serial console.
+
+Cheers,
+Jes

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262653AbTIAHK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 03:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbTIAHK1
+	id S262732AbTIAHOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 03:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTIAHOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 03:10:27 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:25576 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262653AbTIAHK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 03:10:26 -0400
-Subject: Re: [PATCH] s390 (5/8): common i/o layer.
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF1FB5D4CF.BD211436-ONC1256D94.0026F8D1-C1256D94.00275806@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 1 Sep 2003 09:09:44 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 01/09/2003 09:10:15
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Mon, 1 Sep 2003 03:14:33 -0400
+Received: from mail.kroah.org ([65.200.24.183]:52888 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262732AbTIAHOc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 03:14:32 -0400
+Date: Sun, 31 Aug 2003 23:59:28 -0700
+From: Greg KH <greg@kroah.com>
+To: John Stoffel <stoffel@lucent.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
+Message-ID: <20030901065928.GB22647@kroah.com>
+References: <16210.44543.579049.520185@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16210.44543.579049.520185@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 31, 2003 at 10:25:03PM -0400, John Stoffel wrote:
+> 
+> This is 2.6.0-test4-mm4 with some hacks to the hotplug script to not
+> modprobe the ehci-hcd or uhci-hcd modules, since they hang things even
+> worse.  Sigh...
 
-> > @@ -537,8 +537,7 @@
-< >          init_timer(&cdev->private->timer);
-> >
-> >          /* Set an initial name for the device. */
-> > -        snprintf (cdev->dev.name, DEVICE_NAME_SIZE,"ccw device");
-> > -        snprintf (cdev->dev.bus_id, DEVICE_ID_SIZE, "0:%04x",
-> > +        snprintf (cdev->dev.bus_id, DEVICE_ID_SIZE, "0.0.%04x",
-> >                        sch->schib.pmcw.dev);
-> >
-> >          /* Increase counter of devices currently in recognition. */
->
-> Shouldn't the above use BUS_ID_SIZE instead of DEVICE_ID_SIZE?
+Where does the kernel hang?
 
-Yes, indeed. DEVICE_NAME_SIZE is 32 and BUS_ID_SIZE is 20. Luckily the
-printed string is always shorter than 20 byte but nevertheless its wrong
-to use DEVICE_ID_SIZE. Thanks for the hint.
+> Here's the backtrace, my .config is at the end.  It's a PIII Xeon 2 x
+> 550mhz, Dell Precision 610 motherboard/system, 768mb of RAM.  The only
+> USB devices are the controllers and the CompactFlash reader, which
+> works great under 2.4.  
 
-blue skies,
-   Martin
+Does this happen on 2.6.0-test4?  (no -mm).
 
+thanks,
 
+greg k-h

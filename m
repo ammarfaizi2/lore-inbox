@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUFSApq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265649AbUFSAu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbUFSApq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUFSAnW
+	id S265649AbUFSAu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUFSAuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 20:43:22 -0400
-Received: from web10904.mail.yahoo.com ([216.136.131.40]:13595 "HELO
-	web10904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265537AbUFSAhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 20:37:19 -0400
-Message-ID: <20040619003712.35865.qmail@web10904.mail.yahoo.com>
-Date: Fri, 18 Jun 2004 17:37:12 -0700 (PDT)
-From: Ashwin Rao <ashwin_s_rao@yahoo.com>
-Subject: Atomic operation for physically moving a page
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+	Fri, 18 Jun 2004 20:50:21 -0400
+Received: from nacho.alt.net ([207.14.113.18]:24741 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S261375AbUFSArK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 20:47:10 -0400
+Date: Fri, 18 Jun 2004 17:47:05 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+Subject: inode_unused list corruption in 2.4.26 - spin_lock problem?
+Message-ID: <Pine.LNX.4.44.0406181730370.1847-100000@nacho.alt.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Chris Caputo <ccaputo@alt.net>
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to copy a page from one physical location to
-another (taking the appr. locks). To keep the
-operation of copying and updation of all ptes and
-caches atomic one way proposed by my team members was
-to sleep the processes accessing the page.
-ptep_to_mm gives us the mm_struct but container_of
-cannot help to get to task_struct as it contains a
-mm_struct pointer. Is there any way of identifying the
-proccess's from the pte_entry.
-Is there any way out to solve my original problem  of
-keeping the whole operation of copying and updation
-atomic as this is a bad solution for real time
-processes but is there any other way out.
+In 2.4.26 on two different dual-proc x86 machines (one dual-P4 Xeon based,
+the other dual-PIII) I am seeing crashes which are the result of the
+inode_unused doubly linked list in fs/inode.c becoming corrupted.
 
-Ashwin
+A particular instance of the corruption I have isolated is in a call from
+iput() to __refile_inode().  To try to diagnose this further I placed list
+verification code before and after the list_del() and list_add() calls in
+__refile_inode() and observed a healthy list become corrupted after the
+del/add was completed.
 
+It would seem to me that list corruption on otherwise healthy machines
+would only be the result of the inode_lock spinlock not being properly
+locked prior to the call to __refile_inode(), but as far as I can tell,
+the call to atomic_dec_and_lock() in iput() is doing that properly.
 
+So I am at a loss.  Has anyone else seen this or does anyone have any idea
+what routes I should be exploring to fix this problem?
 
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - Send 10MB messages!
-http://promotions.yahoo.com/new_mail 
+Thank you,
+Chris
+

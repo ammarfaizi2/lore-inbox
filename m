@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267433AbTBITkR>; Sun, 9 Feb 2003 14:40:17 -0500
+	id <S267435AbTBIT4w>; Sun, 9 Feb 2003 14:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTBITkR>; Sun, 9 Feb 2003 14:40:17 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:47054 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S267433AbTBITkQ>; Sun, 9 Feb 2003 14:40:16 -0500
-Date: Mon, 10 Feb 2003 08:42:13 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [ACPI] Re: [PATCH] s4bios for 2.5.59 + apci-20030123
-In-reply-to: <20030207160055.GA485@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Ducrot Bruno <ducrot@poupinou.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Swsusp <swsusp@lister.fornax.hu>
-Message-id: <1044819732.1815.25.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <F760B14C9561B941B89469F59BA3A847137FFE@orsmsx401.jf.intel.com>
- <20030204221003.GA250@elf.ucw.cz>
- <1044477704.1648.19.camel@laptop-linux.cunninghams>
- <20030206101645.GO1205@poup.poupinou.org>
- <1044560486.1700.13.camel@laptop-linux.cunninghams>
- <20030206210542.GW1205@poup.poupinou.org>
- <1044590241.1649.41.camel@laptop-linux.cunninghams>
- <20030207160055.GA485@elf.ucw.cz>
+	id <S267436AbTBIT4w>; Sun, 9 Feb 2003 14:56:52 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:63506 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267435AbTBIT4w>; Sun, 9 Feb 2003 14:56:52 -0500
+Date: Sun, 9 Feb 2003 20:06:26 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: jmjones@jmjones.com
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+       torvalds@transmeta.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030209200626.A7704@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	jmjones@jmjones.com, "Stephen D. Smalley" <sds@epoch.ncsc.mil>,
+	greg@kroah.com, torvalds@transmeta.com,
+	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+References: <20030206151820.A11019@infradead.org> <Pine.LNX.3.96.1030207205056.31221A-100000@dixie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1030207205056.31221A-100000@dixie>; from jmjones@jmjones.com on Fri, Feb 07, 2003 at 09:20:08PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, Feb 07, 2003 at 09:20:08PM -0500, jmjones@jmjones.com wrote:
+> I disagree.  The code submitted BOTH addresses the current needs and
+> "vaguely anticipated future needs" (which I shall define as VAFN).
 
-On Sat, 2003-02-08 at 05:00, Pavel Machek wrote: 
-> > 1  2  3           4     5
-> > --
-> > 1  1  25655/30592  1562 0:07
-> > 1  2  26246/30592  4302 0:05
-> 
-> You can suspend and resume your notebook within 5 seconds? Wow!
+What is the "current needs" given that selinux is the only module actually
+using it and it's neither in a mergeable shape nor is it legally clear
+whether it can be merged?
 
-As requested, these were just the times for suspending.
+> Open your mind.  LSM supports both all current solutions for object-level
+> security AND provides a valid basis for moving Linux toward providing, AS
+> AN OPTION, true security.  Personally, I don't think LSM is the "be all
+> and end all" of a security interface, at this point, but I *do* think it's
+> the best first-draft of a system that can lead to that end.
 
-> Well, if all the memory is in disk-backed clean pages, it should be
-> faster to discard then write out...
+you don't get tru security by adding hooks.  security needs a careful
+design and more strict access control policy can but don't have to be part
+of that design.
 
-Yes, I would think so too. Perhaps the differences would probably
-disappear if I made the algorithm more like your original (ie simplifed
-eat_memory back to the original), but I do remember lots of disk
-activity when using the original code as well - perhaps the cause might
-be worth further investigation? (Not that I'm volunteering)
+> What's your REAL problem?  Somebody stepping on your territory?
 
-> Anyway... So your method is faster. Good. Now, how much more
-> complicated is it?
-
-As I've said above, I'm not sure it is right to say it is faster - I
-didn't compare your current method with the new one, but rather mine
-with parameters making the algorithm as close to yours as possible. My
-point was more that if the new method is slower, its not significantly
-slower.
-
-Nevertheless, you do have a good point - it is more complicated. But I
-think it's worth it and its not a lot more complicated. People who are
-using the new method at the moment appreciate the changes. Don't think
-for a moment that I don't value your work, Pavel. I couldn't have done
-any of my additions without it and consider mine tweaking. This has
-simply been a quest to get a more responsive system on resume.
-
-Regards,
-
-Nigel
+The real problem is adding mess to the kernel.
 

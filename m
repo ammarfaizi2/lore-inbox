@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbULMAut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbULMBCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbULMAut (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 19:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbULMAut
+	id S262186AbULMBCo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 20:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbULMBCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 19:50:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:20148 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261940AbULMAun (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 19:50:43 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 12 Dec 2004 20:02:34 -0500
+Received: from bay21-f31.bay21.hotmail.com ([65.54.233.120]:60784 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262181AbULMBCd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 20:02:33 -0500
+Message-ID: <BAY21-F31C2845A332866774C3A2CF3AB0@phx.gbl>
+X-Originating-IP: [206.167.164.155]
+X-Originating-Email: [beaudoin_danny@hotmail.com]
+From: "Danny Beaudoin" <beaudoin_danny@hotmail.com>
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: Typo in kernel configuration (xconfig)
-Date: Mon, 13 Dec 2004 01:50:30 +0100
-Message-ID: <yw1xacsjm36x.fsf@ford.inprovide.com>
-References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl> <Pine.LNX.4.61.0412130114510.3369@dragon.hygekrogen.localhost>
+Subject: Description should be updated
+Date: Sun, 12 Dec 2004 20:01:15 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:SI1zk9dYxKIaAN+Qxe7Xm5pKC64=
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 13 Dec 2004 01:02:00.0664 (UTC) FILETIME=[59F98580:01C4E0AF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> writes:
+Hi again!
+In Device Drivers/Graphics Support/Console display driver support/VGA test 
+console (NEW)
+The description is the following:
+"
+Saying Y here will allow you to use Linux in text mode through a
+display that complies with the generic VGA standard. Virtually
+everyone wants that.
 
-> On Sun, 12 Dec 2004, Danny Beaudoin wrote:
->
->> Hi!
->> If I'm not at the right place, please forward this to the right person.
->> 
->> In Device Drivers/Graphics Support/Support for frame buffer devices:
->> "On several non-X86 architectures, the frame buffer device is the
->> only way to use the graphics hardware."
->> 
->> This should be 'x86' instead, as in the rest of the description.
->> 
-> I don't think you are right. On x86 the framebuffer is not your only 
-> option, and on some non-x86 archs (like alpha for instance - at least 
-> this used to be the case when last I had an alpha box), fb is the 
-> only option.
+The program SVGATextMode can be used to utilize SVGA video cards to
+their full potential in text mode. Download it from
+<ftp://ibiblio.org/pub/Linux/utils/console/>.
 
-My Alphas all have VGA graphics, with the standard text modes
-available.  Some of the older models may have had other types of
-graphics.
+Say Y.
+"
+This is not an option anymore and there is no choice to be made, therefore 
+the user doesn't have to/can't say Y. This should be only a description.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+Thanks for last time, I hadn't realized that there was a misunderstanding on 
+what I meant
+and "Are you sure?  It makes sense to me the way it currently is..." made me 
+think that you didn't see the use of having all 'x86' written all the same, 
+with a lowercase x. :-)
+
+Well, good job guys, keep it up!
+
 

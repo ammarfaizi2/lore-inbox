@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbSJPSRW>; Wed, 16 Oct 2002 14:17:22 -0400
+	id <S262636AbSJPSWk>; Wed, 16 Oct 2002 14:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262386AbSJPSRW>; Wed, 16 Oct 2002 14:17:22 -0400
-Received: from tom.rz.uni-passau.de ([132.231.51.4]:55425 "EHLO
-	tom.rz.uni-passau.de") by vger.kernel.org with ESMTP
-	id <S262208AbSJPSRV>; Wed, 16 Oct 2002 14:17:21 -0400
-Message-Id: <200210161823.g9GINEjm005973@tom.rz.uni-passau.de>
-Date: Wed, 16 Oct 2002 20:17:31 +0100
-From: "Marcus Lell" <lell@fmi.uni-passau.de>
-To: "Alex Deucher <agd5f@yahoo.com> <Alex Deucher" <agd5f@yahoo.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: v4l2 in 2.5.x?
-X-mailer: Foxmail 4.1 [eg]
-Mime-Version: 1.0
-Content-Type: text/plain;
-      charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S262645AbSJPSWj>; Wed, 16 Oct 2002 14:22:39 -0400
+Received: from maila.telia.com ([194.22.194.231]:25852 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S262636AbSJPSWj>;
+	Wed, 16 Oct 2002 14:22:39 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] 2.5.40 panic in uhci-hcd
+References: <Pine.LNX.4.44.0210082025570.16233-100000@p4.localdomain>
+	<3DA34204.1030708@pacbell.net> <m2n0peuw5e.fsf@p4.localdomain>
+	<20021016133443.U32760@sventech.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 16 Oct 2002 20:28:22 +0200
+In-Reply-To: <20021016133443.U32760@sventech.com>
+Message-ID: <m2ptuatf09.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What's the status on v4l2?  I thought it was supposed to go in during
->the 2.5 series.  I seem to recall some stuff going in around 2.5.5ish,
->but as I recall that was just some revamping of v41.  Just curious...
+Johannes Erdfelt <johannes@erdfelt.com> writes:
 
-same question from me, too. recalling, that there were ready 
-patches, and feature freeze is comming. i think also, that this is
-one of the substantional features to go in 2.5, 'cause it's needed
-for the new bttv 0.8.x driver, the one and only (of bttv), that has 
-further developement. or isn't enough request?
+> On Wed, Oct 16, 2002, Peter Osterlund <petero2@telia.com> wrote:
+> > 
+> > The problem is back in 2.5.43, although it doesn't happen on every
+> > boot. I think I first saw this problem in 2.5.35.
+> > 
+> > The oops looks the same as usual. The oops happens because urb->hcpriv
+> > is NULL in uhci_result_control() so the list_empty() check oopses.
+> > 
+> > At the end of uhci_urb_enqueue() this code
+> > 
+> > 	if (ret != -EINPROGRESS) {
+> > 		uhci_destroy_urb_priv (uhci, urb);
+> > 		return ret;
+> > 	}
+> > 
+> > appears to be calling uhci_destroy_urb_priv() without having acquired
+> > the urb_list_lock. Can this be the cause of my problem?
+> 
+> Have you tried this patch? It's in Greg's BK tree, but hasn't been
+> picked up by Linus yet.
 
+I applied it to 2.5.39 (which always died at boot before this patch)
+and now it boots without problems, so this looks like the correct fix
+for my problem. Thanks.
 
-Marcus
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262986AbRE1GPm>; Mon, 28 May 2001 02:15:42 -0400
+	id <S262991AbRE1Go2>; Mon, 28 May 2001 02:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262988AbRE1GPc>; Mon, 28 May 2001 02:15:32 -0400
-Received: from hal.astr.lu.lv ([195.13.134.67]:30212 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S262986AbRE1GPX>;
-	Mon, 28 May 2001 02:15:23 -0400
-Message-Id: <200105280614.f4S6EE100410@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, pavenis@latnet.lv (Andris Pavenis)
-Subject: Re: 2.4.4-ac[356]: network (8139too) related crashes
-Date: Mon, 28 May 2001 09:14:13 +0300
-X-Mailer: KMail [version 1.2.1]
-Cc: dth@trinity.hoho.nl (Danny ter Haar), linux-kernel@vger.kernel.org
-In-Reply-To: <E153nZj-0008La-00@the-village.bc.nu>
-In-Reply-To: <E153nZj-0008La-00@the-village.bc.nu>
+	id <S262997AbRE1GoS>; Mon, 28 May 2001 02:44:18 -0400
+Received: from [62.225.179.11] ([62.225.179.11]:14608 "EHLO mail.pol.degrp.de")
+	by vger.kernel.org with ESMTP id <S262991AbRE1GoF> convert rfc822-to-8bit;
+	Mon, 28 May 2001 02:44:05 -0400
+Message-ID: <9DD550E9A9B0D411A16700D0B7E38BA438385A@mail.degrp.org>
+From: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
+To: linux-kernel@vger.kernel.org
+Subject: Dual Athlon Performance
+Date: Mon, 28 May 2001 08:44:22 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 May 2001 02:34, Alan Cox wrote:
-> > Tried 2.4.5 and got the same problem again. Parhaps I'll sty with
-> > 2.4.3-ac3 for now. At least it doesn't freeze ...
->
-> Can you try 2.4.5 with the 8139too.c file from the 2.4.3-ac3 that works for
-> you and report on that
+Moin,
 
-Done. 
+I have a DualAthlon System here (2xAthlon 1.2GHz, 256MB RAM, icp-vortex
+6513RS/128MB, 3*9.1GB/10k HD, Dual 3com980 NIC) which runs really fine with
+kernel 2.4.4 and as far as I can see now with 2.4.5.
+Now I am interested in comparing this system's performance to others. Can
+someone here give me a hand on how to do this best?
 
-Seems that taking 8139too.o from 2.4.3-ac3 fixes the problem. 
+And, if there are any special things (compilers, tools, ?) that I should
+use, please point me to...
 
-Tortured it much more as it was required to get 2.4.4-ac[356] and 2.4.5. to 
-freeze (FTP uploads and downloads totally more than 100Mb with speed about
-600Kb/s, for bad version of 8138too.c about 10Mb was usually more than enough
-for freezing)
+Olli
 
-Andris
+-- 
+Die Wahrheit liegt irgendwo da drauﬂen...

@@ -1,74 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316611AbSFUPHd>; Fri, 21 Jun 2002 11:07:33 -0400
+	id <S316637AbSFUPKh>; Fri, 21 Jun 2002 11:10:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316636AbSFUPHc>; Fri, 21 Jun 2002 11:07:32 -0400
-Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:31619 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S316611AbSFUPHc>; Fri, 21 Jun 2002 11:07:32 -0400
-Date: Fri, 21 Jun 2002 16:06:59 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-       Christopher Li <chrisl@gnuchina.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020621160659.C2805@redhat.com>
-References: <20020619113734.D2658@redhat.com> <20020619234340.A24016@redhat.com> <20020620005452.M5119@redhat.com> <E17LF65-0001K4-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17LF65-0001K4-00@starship>; from phillips@bonn-fries.net on Fri, Jun 21, 2002 at 05:28:28AM +0200
+	id <S316644AbSFUPKg>; Fri, 21 Jun 2002 11:10:36 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:65337 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316637AbSFUPKd>; Fri, 21 Jun 2002 11:10:33 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: Optimisation for smp_num_cpus loop in hotplug 
+In-reply-to: Your message of "Thu, 20 Jun 2002 19:41:52 -0400."
+             <200206202341.g5KNfqU07377@localhost.localdomain> 
+Date: Sat, 22 Jun 2002 01:14:46 +1000
+Message-Id: <E17LQ7b-0000Iz-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, Jun 21, 2002 at 05:28:28AM +0200, Daniel Phillips wrote:
-
-> I ran a bakeoff between your new half-md4 and dx_hack_hash on Ext2.  As 
-> predicted, half-md4 does produce very even bucket distributions.  For 200,000 
-> creates:
+In message <200206202341.g5KNfqU07377@localhost.localdomain> you write:
+> The hotplug CPU patch introduces this to replace the loop over all active CPUs 
+> abstraction:
 > 
->    half-md4:        2872 avg bytes filled per 4k block (70%)
->    dx_hack_hash:    2853 avg bytes filled per 4k block (69%)
-> 
-> but guess which was faster overall?
-> 
->    half-md4:        user 0.43 system 6.88 real 0:07.33 CPU 99%
->    dx_hack_hash:    user 0.43 system 6.40 real 0:06.82 CPU 100%
-> 
-> This is quite reproducible: dx_hack_hash is always faster by about 6%.  This 
-> must be due entirely to the difference in hashing cost, since half-md4 
-> produces measurably better distributions.  Now what do we do?
+> 	for (i = 0; i < NR_CPUS; i++) {
+> 		if (!cpu_online(i))
+> 			continue;
 
-I want to get this thing tested!  
+Yeah, it's simple, and none of the current ones are really critical.
+But I think we're better off with:
+	for (i = first_cpu(); i < NR_CPUS; i = next_cpu(i)) {
 
-There are far too many factors for this to be resolved very quickly.
-In reality, there will be a lot of disk cost under load which you
-don't see in benchmarks, too.  We also know for a fact that the early
-hashes used in Reiserfs were quick but were vulnerable to terribly bad
-behaviour under certain application workloads.  With the half-md4, at
-least we can expect decent worst-case behaviour unless we're under
-active attack (ie. only maliscious apps get hurt).
+Which is simple enough not to need an iterator macro, and also has the
+bonus of giving irq-balancing et al. an efficient, portable way of
+looking for the "next" cpu.
 
-I think the md4 is a safer bet until we know more, so I'd vote that we
-stick with the ext3 cvs code which uses hash version #1 for that, and
-defer anything else until we've seen more --- the hash versioning lets
-us do that safely.
+Cheers!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-> By the way, I'm running about 37 usec per create here, on a 1GHz/1GB PIII, 
-> with Ext2.  I think most of the difference vs your timings is that your test 
-> code is eating a lot of cpu.
+Name: CPU iterator patch
+Author: Rusty Russell
+Status: Trivial
 
-I was getting nearer to 50usec system time, but on an athlon k7-700,
-so those timings are pretty comparable.  Mine was ext3, too, which
-accounts for a bit.  The difference between that and wall-clock time
-was all just idle time, which I think was due to using "touch"/"rm"
---- ie. there was a lot of inode table write activity due to the files
-being created/deleted, and that was forcing a journal wrap before the
-end of the test.  That effect is not visible on ext2, of course.
+D: This patch adds first_cpu() & next_cpu(cpu) for more efficient cpu
+D: iteration.
 
---Stephen
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24/include/asm-i386/smp.h working-2.5.24-cpu-iter/include/asm-i386/smp.h
+--- linux-2.5.24/include/asm-i386/smp.h	Thu Jun 20 01:28:51 2002
++++ working-2.5.24-cpu-iter/include/asm-i386/smp.h	Sat Jun 22 00:55:46 2002
+@@ -107,6 +107,18 @@
+ 	return -1;
+ }
+ 
++/* x86 is always linear, ie. cpu_online(0) always true at the moment. */
++static inline unsigned int first_cpu(void)
++{
++	return 0;
++}
++
++/* Return "next" online cpu.  Returns NR_CPUS on end. */
++static inline unsigned int next_cpu(unsigned int cpu)
++{
++	return find_next_bit(&cpu_online_map, NR_CPUS, cpu+1);
++}
++
+ static __inline int hard_smp_processor_id(void)
+ {
+ 	/* we don't want to mark this access volatile - bad code generation */
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24/include/asm-ia64/smp.h working-2.5.24-cpu-iter/include/asm-ia64/smp.h
+--- linux-2.5.24/include/asm-ia64/smp.h	Thu Jun 20 01:28:51 2002
++++ working-2.5.24-cpu-iter/include/asm-ia64/smp.h	Sat Jun 22 00:59:34 2002
+@@ -45,6 +45,17 @@
+ 
+ extern unsigned long ap_wakeup_vector;
+ 
++static inline unsigned int first_cpu(void)
++{
++	return __ffs(cpu_online_map);
++}
++
++/* Return "next" online cpu.  Returns NR_CPUS on end. */
++static inline unsigned int next_cpu(unsigned int cpu)
++{
++	return find_next_bit(&cpu_online_map, NR_CPUS, cpu+1);
++}
++
+ #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
+ extern inline unsigned int num_online_cpus(void)
+ {
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24/include/asm-ppc/smp.h working-2.5.24-cpu-iter/include/asm-ppc/smp.h
+--- linux-2.5.24/include/asm-ppc/smp.h	Thu Jun 20 01:28:51 2002
++++ working-2.5.24-cpu-iter/include/asm-ppc/smp.h	Sat Jun 22 00:58:37 2002
+@@ -47,6 +47,17 @@
+ 
+ #define smp_processor_id() (current_thread_info()->cpu)
+ 
++static inline unsigned int first_cpu(void)
++{
++	return __ffs(cpu_online_map);
++}
++
++/* Return "next" online cpu.  Returns NR_CPUS on end. */
++static inline unsigned int next_cpu(unsigned int cpu)
++{
++	return find_next_bit(&cpu_online_map, NR_CPUS, cpu+1);
++}
++
+ #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
+ 
+ extern inline unsigned int num_online_cpus(void)
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24/include/asm-sparc64/smp.h working-2.5.24-cpu-iter/include/asm-sparc64/smp.h
+--- linux-2.5.24/include/asm-sparc64/smp.h	Fri Jun 21 09:41:55 2002
++++ working-2.5.24-cpu-iter/include/asm-sparc64/smp.h	Sat Jun 22 01:06:58 2002
+@@ -77,6 +77,17 @@
+ 	return -1;
+ }
+ 
++static inline unsigned int first_cpu(void)
++{
++	return __ffs(cpu_online_map);
++}
++
++/* Return "next" online cpu.  Returns NR_CPUS on end. */
++static inline unsigned int next_cpu(unsigned int cpu)
++{
++	return find_next_bit(&cpu_online_map, NR_CPUS, cpu+1);
++}
++
+ /*
+  *	General functions that each host system must provide.
+  */

@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278660AbRLALTS>; Sat, 1 Dec 2001 06:19:18 -0500
+	id <S278829AbRLALWi>; Sat, 1 Dec 2001 06:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278829AbRLALTI>; Sat, 1 Dec 2001 06:19:08 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:19207 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278660AbRLALTC>;
-	Sat, 1 Dec 2001 06:19:02 -0500
-Date: Sat, 1 Dec 2001 09:18:54 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.LNX.4.33.0111301643170.1224-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0112010914430.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280203AbRLALW2>; Sat, 1 Dec 2001 06:22:28 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:62454 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S278829AbRLALWQ>;
+	Sat, 1 Dec 2001 06:22:16 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 1 Dec 2001 11:22:01 GMT
+Message-Id: <UTC200112011122.LAA118894.aeb@cwi.nl>
+To: aia21@cus.cam.ac.uk, torvalds@transmeta.com
+Subject: Re: [PATCH] Enhancement of /proc/partitions output (2.5.1-pre5)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Linus Torvalds wrote:
+    From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 
-> And don't EVER make the mistake that you can design something better than
-> what you get from ruthless massively parallel trial-and-error with a
-> feedback cycle. That's giving your intelligence _much_ too much credit.
+    Linus,
 
-So, are we going to take out the appendix in 2.5 or will
-we continue hoping our kernel doesn't catch an illness
-without actually doing anything preventive ?
+    Please consider below patch which adds the starting sector and number of
+    sectors to /proc/partitions.
 
-Biological selection does nothing except removing the weak
-ones, it cannot automatically create systems which work well.
+    It works fine here and I find having this information output can be very
+    useful (especially when the values in the kernel don't match the values
+    output by fdisk for example).
 
-In short, I believe the biological selection is just that,
-selection. The creation of stuff will need some direction.
+Of course this breaks all programs that use /proc/partitions,
+like fdisk and mount. Every system that uses mount-by-label will be broken.
 
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Andries

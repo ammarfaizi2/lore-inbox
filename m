@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262663AbREOHvD>; Tue, 15 May 2001 03:51:03 -0400
+	id <S262670AbREOIJe>; Tue, 15 May 2001 04:09:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262666AbREOHux>; Tue, 15 May 2001 03:50:53 -0400
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:63205 "HELO
-	scotch.homeip.net") by vger.kernel.org with SMTP id <S262663AbREOHuo>;
-	Tue, 15 May 2001 03:50:44 -0400
-Date: Tue, 15 May 2001 03:50:31 -0400 (EDT)
-From: God <atm@sdk.ca>
-To: Ralf Baechle <ralf@uni-koblenz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP capture effect :: estimate queue length ? :: pathchar
-In-Reply-To: <20010515030645.A15896@bacchus.dhis.org>
-Message-ID: <Pine.LNX.4.21.0105150348000.23642-100000@scotch.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262671AbREOIJY>; Tue, 15 May 2001 04:09:24 -0400
+Received: from popeye.ipv6.univ-nantes.fr ([193.52.101.20]:1284 "HELO
+	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
+	id <S262670AbREOIJN>; Tue, 15 May 2001 04:09:13 -0400
+Subject: Re: PATCH 2.4.4.ac9: Tulip net driver fixes
+From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B002595.76399CE4@mandrakesoft.com>
+In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com>
+	<20010514112216.A25436@lucon.org> <20010514112407.E781@suse.com> 
+	<3B002595.76399CE4@mandrakesoft.com>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10+cvs.2001.04.18.22.02 (Preview Release)
+Date: 15 May 2001 10:09:12 +0200
+Message-Id: <989914152.27256.2.camel@olive>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001, Ralf Baechle wrote:
+Le 14 May 2001 14:36:05 -0400, Jeff Garzik a écrit :
+> Mads Martin Jørgensen wrote:
 
-> On Mon, May 14, 2001 at 11:49:16PM -0400, God wrote:
+> Attached is a patch against 2.4.4-ac9 which includes the changes found
+> in tulip-devel 1.1.6...   (tulip-devel is sort of a misnomer; right now
+> it's really just a staging and testing point for fixes which go straight
+> into the tulip-stable series)
 > 
-> > Speaking of queues on routers/servers, does such a util exist that would
-> > measure (even a rough estimate), what level of congestion (queueing) is
-> > happening between point A and B ?  I'd be curious how badly congested some
-> > things upstream from me are......   I know I can use ping or
-> > traceroute ... but they don't report queueing or bursting.  Both measure
-> > latency and packetloss ... short of stareing at a running ping that is
-> > ... <G>
-> 
-> Pathchar, yet another Van Jacobsen toy does this.  Unfortunately the old
-> and rotten pre-version you can find in ftp.ee.lbl.gov:/pathchar/ is afaik
-> the last one.  In the past it served me well you find about how ISPs are
-> lying ...  100mbit backbone = fast ethernet in their computer room ...
-> 
+> I just checked against ac9 and it applies cleanly here.
 
 
-pathchar (last I used it), doesn't report queueing or bursting levels.  It
-is purely a bandwidth estimator (and a dam fine one too!) ...  Could be
-wrong though, I just don't recall seeing that as feature.
+Still the same issue here : On a quad port card, if only 1 port is up,
+all is fine. This can be eth0, eth1, eth2 or eth3, it doesn't matter.
 
+As soon as more than 1 port is up, the machine freeze. no oops, 
+not event CTRL-Scrollback, nothing.
 
+As the use I made of the 4 port eth is bridging, you can imagine
+the freeze appears very shortly after boot ;-) 
+
+Anyway. using the de4x5 driver for now.
+
+Yann.
+
+-- 
+\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
+"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
+/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
+   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
 

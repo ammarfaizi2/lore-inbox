@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312080AbSCQROL>; Sun, 17 Mar 2002 12:14:11 -0500
+	id <S312076AbSCQRVe>; Sun, 17 Mar 2002 12:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312078AbSCQROC>; Sun, 17 Mar 2002 12:14:02 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:10121 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S312077AbSCQRNr>;
-	Sun, 17 Mar 2002 12:13:47 -0500
-Message-Id: <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 17 Mar 2002 17:14:20 +0000
-To: "Ken Hirsch" <kenhirsch@myself.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: fadvise syscall?
-Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <005301c1cdc6$5a26de80$0100a8c0@DELLXP1>
-In-Reply-To: <3C945635.4050101@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312082AbSCQRVZ>; Sun, 17 Mar 2002 12:21:25 -0500
+Received: from waste.org ([209.173.204.2]:2196 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S312077AbSCQRVO>;
+	Sun, 17 Mar 2002 12:21:14 -0500
+Date: Sun, 17 Mar 2002 11:21:08 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Theodore Y. Ts'o" <tytso@mit.edu>
+cc: Paul Allen <allenp@nwlink.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ext2 zeros inode in directory entry when deleting files.
+In-Reply-To: <20020317072505.GA768@snap.thunk.org>
+Message-ID: <Pine.LNX.4.44.0203171049400.31834-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 15:13 17/03/02, Ken Hirsch wrote:
->There is a posix_fadvise() syscall in the POSIX Advanced Realtime
->specification
->http://www.opengroup.org/onlinepubs/007904975/functions/posix_fadvise.html
+On Sun, 17 Mar 2002 tytso@mit.edu wrote:
 
-Posix or not I still don't see why one would want that. You know what you 
-are going to be using a file for at open time and you are not going to be 
-changing your mind later. If you can show me a single _real_world_ example 
-where one would genuinely want to change from one access pattern to another 
-without closing/reopening a particular file I would agree that fadvise is a 
-good idea but otherwise I think open(2) is the superior approach.
+> On Sat, Mar 16, 2002 at 12:24:15AM -0800, Paul Allen wrote:
+> > While helping a friend recover from a catastrophic "rm -rf" accident,
+> > I discovered that deleted files have the inode number in their old
+> > directory entries zeroed.  This makes it impossible to match file
+> > names with recovered files.  I've verified this behavior on Mandrake
+> > 8.1 with Mandrake's stock 2.4.8 kernel.  In my kernel sources and
+> > in the stock 2.4.8 sources, the function ext2_delete_entry() in
+> > fs/ext2/dir.c has this line:
+> >
+> > 	dir->inode = 0;
+> >
+> > Now, I'm tempted to comment the line out in my kernel and see
+> > what happens.  But it does occur to me that hackers with more
+> > experience than I may zeroing the inode number for a reason and
+> > may be depending on it elsewhere in the kernel.  Or perhaps the
+> > ext2 flavor of fsck will malfunction if deleted directory entries
+> > have a non-zero inode?
+>
+> Um....  the way directory entries are marked as deleted is by zeroing
+> out the inode number.
+>
+> So if you take out that line, deleted files will appear not to be
+> deleted, the kernel will get confused, and you can be sure that fsck
+> will complain.
 
-In addition, open(2) allows you to do cool things like O_TEMP which could 
-create a file that would never get written to disk at all and on close 
-would just disappear again (just an idea, I can see good uses for such 
-things, although in a way we already have simillar semantics when one 
-creates such files on a tmpfs mount).
+Yes and no.
 
-Best regards,
-Anton
+Procedurally, rm -rf must delete all children before deleting the parent,
+but in the end result, it is sufficient to have marked the parent deleted,
+without flushing the modified child directories back to disk.
 
->I don't know if this has been mentioned on linux-kernel before, but in
->January, the Open Group, in cooperation with IEEE, added the POSIX
->functionality to their specification and made it available online for free.
->It's at
->http://www.opengroup.org/onlinepubs/007904975/toc.htm
->
->There are some useful tables at
->http://www.unix-systems.org/version3/online.html and they ask that you
->register there so that they know how many people are using the
->specification.
->
->They don't have a downloadable version of this specification, but they do
->for the previous versions:
->http://www.opengroup.org/onlinepubs/007908799/download/
->
->Ken Hirsch
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Also, (for the benefit of our readers) in the case of ext2 directories,
+dirents are in the form
+
+[inode][reclen][namelen]["name"][inode][reclen][namelen]["name"]
+
+where reclen is effectively a pointer to the next record. It should be
+sufficient for the purposes of e2fsck and the kernel that records be
+unlinked from the list by extending the previous record and the inode in
+the entry be marked unused in the inode bitmap. So I see no reason to be
+zeroing the contents of unreferenced disk space, as it needlessly hinders
+future rescue attempts.
+
+Paul, if you feel like hacking, I once wrote a Perl module that
+understands (pre-sparse-superblock) Ext2 disk layouts:
+
+ http://waste.org/~oxymoron/E2fs.pm
+
+In combination with other scripts, I've used it to recover gigabytes of
+files, even in the presence of mangled directories and zeroed indirect
+blocks (which hopefully are no longer senselessly zeroed by current
+kernels).
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

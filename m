@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbTJQBcq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 21:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTJQBcq
+	id S263282AbTJQBuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 21:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTJQBuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 21:32:46 -0400
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:62089 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S263270AbTJQBcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 21:32:45 -0400
-From: jlnance@unity.ncsu.edu
-Date: Thu, 16 Oct 2003 21:32:45 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031017013245.GA6053@ncsu.edu>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws>
+	Thu, 16 Oct 2003 21:50:22 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:24060 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263282AbTJQBuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 21:50:16 -0400
+Subject: unsafe printk
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066354577.15921.111.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031016230448.GA29279@pegasys.ws>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Oct 2003 21:36:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 04:04:48PM -0700, jw schultz wrote:
-> 
-> The idea of this sort of block level hashing to allow
-> sharing of identical blocks seems attractive but i wouldn't
-> trust any design that did not accept as given that there
-> would be false positives.
+Suppose I name an executable this:
+"\n<0>Oops: EIP=0"
 
-But at the same time we rely on TCP/IP which uses a hash (checksum)
-to detect back packets.  It seems to work well in practice even
-though the hash is weak and the network corrupts a lot of packets.
+That comes out as a KERN_EMERG log message,
+hitting the console and maybe a pager even.
 
-Lots of machines dont have ECC ram and seem to work reasonably well.
+There seem to be a number of places in the
+kernel that printk current->comm without
+concern for what it may contain.
 
-It seems like these two are a lot more likely to bit you than hash
-collisions in MD5.  But Ill have to go read the paper to see what
-Im missing.
+Escape codes and non-ASCII can make for some
+interesting log messages as well. Terminals
+may have some programmable keys or answerback
+messages. So one day root is using grep on
+the log files, and they program the answerback
+string to contain a "\r\nrm -r /\r\n"...
 
-Thanks,
+BTW, the 0x9b character is often an escape.
 
-Jim
+

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUJVXvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUJVXxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269310AbUJVXvK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269298AbUJVXtE
+	id S269312AbUJVXxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUJVXvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:49:04 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51631 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269310AbUJVXsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:48:40 -0400
-Date: Fri, 22 Oct 2004 16:45:08 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-Message-ID: <20041022234508.GA28380@kroah.com>
-References: <10982257353682@kroah.com> <10982257352301@kroah.com> <20041020091045.D1047@flint.arm.linux.org.uk>
+	Fri, 22 Oct 2004 19:51:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:64554 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269303AbUJVXur convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:50:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=R33hg6GTAhAHGQ6OvhZttAVXoOkbZTa5gC3f7FbE75mK/YnBOSEdLbH9mKOnq+Arpg0ZOPLz8TZwS3xAbkx+hRvAz6Fp9Bd4LNnW4IK2D9s0EzPVpOQnhaUcfZ4BWquE4n1o1PFEE8FgMeELvLV+YkyCOttfFkTICAYgVXh5mwI=
+Message-ID: <7aaed091041022155058d6135c@mail.gmail.com>
+Date: Sat, 23 Oct 2004 00:50:44 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: My thoughts on the "new development model"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041022224540.GE17038@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020091045.D1047@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <7aaed09104102213032c0d7415@mail.gmail.com>
+	 <7aaed09104102214521e90c27c@mail.gmail.com>
+	 <20041022224540.GE17038@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 09:10:45AM +0100, Russell King wrote:
-> On Tue, Oct 19, 2004 at 03:42:15PM -0700, Greg KH wrote:
-> > ChangeSet 1.1997.37.29, 2004/10/06 12:50:32-07:00, kaneshige.kenji@jp.fujitsu.com
-> > 
-> > [PATCH] PCI: warn of missing pci_disable_device()
-> > 
-> > As mentioned in Documentaion/pci.txt, pci device driver should call
-> > pci_disable_device() when it decides to stop using the device. But
-> > there are some drivers that don't use pci_disable_device() so far.
+On Fri, 22 Oct 2004 15:45:40 -0700, William Lee Irwin III
+<wli@holomorphy.com> wrote:
 > 
-> No.  This is wrong.  There are some classes of devices, notably
-> PCMCIA Cardbus drivers where buggy BIOS means this should _NOT_
-> be done.
-
-But what happens if you reload that driver and try to enable the device?
-Does that "just work" somehow on this kind of hardware?
-
-> There are BIOSen out there which refuse to suspend/resume if the
-> Cardbus bridge is disabled.
+> We should write code, not blow release nomenclature smoke.
 > 
-> It's not that the driver is buggy.  It's that the driver has far
-> more information than the PCI layer could ever have.
+> 
+> -- wli
+> 
 
-Ugh, I hate broken hardware.  I'll revert this in my next round of pci
-changes (sometime next week.)
+I'm sorry i cant contribute with any code, i'm not skilled enough to
+do such a job, yet.
+The only way i can contribute is to do testing, a release need
+testing, testing and testing :)
 
-thanks,
-
-greg k-h
+-- 
+Mvh / Best regards
+Espen Fjellvær Olsen
+espenfjo@gmail.com
+Norway

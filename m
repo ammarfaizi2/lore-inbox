@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTKRAMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 19:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTKRAMz
+	id S262228AbTKRA2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 19:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKRA2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 19:12:55 -0500
-Received: from 64-52-142-65.client.cypresscom.net ([64.52.142.65]:54159 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id S262291AbTKRAMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 19:12:53 -0500
-Date: Mon, 17 Nov 2003 16:12:02 -0800 (PST)
-From: John Heil <kerndev@sc-software.com>
-To: Greg KH <greg@kroah.com>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
-       John Heil <johnhscs@scsoftware.sc-software.com>
-Subject: Re: [PATCH] [USB2] 2.6.0-test9-mm2 HiSpd Isoc 1024KB submits:
- -EMSGSIZE
-In-Reply-To: <20031118000214.GA11709@kroah.com>
-Message-ID: <Pine.LNX.4.33.0311171605430.5878-100000@scsoftware.sc-software.com>
+	Mon, 17 Nov 2003 19:28:10 -0500
+Received: from ns.media-solutions.ie ([212.67.195.98]:47887 "EHLO
+	mx.media-solutions.ie") by vger.kernel.org with ESMTP
+	id S262196AbTKRA2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 19:28:02 -0500
+Message-ID: <3FB96718.20103@media-solutions.ie>
+Date: Mon, 17 Nov 2003 18:26:00 -0600
+From: Keith Whyte <keith@media-solutions.ie>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: es-mx, es-es, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Edgar Toernig <froese@gmx.de>, linux-kernel@vger.kernel.org,
+       linux-gcc@vger.kernel.org, linux-admin@vger.kernel.org
+Subject: Re: 2.4.18 fork & defunct child.
+References: <1069053524.3fb87654286b5@ssl.buz.org> <3FB8E40F.EF61CA7@gmx.de>
+In-Reply-To: <3FB8E40F.EF61CA7@gmx.de>
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RelayImmunity: 212.67.195.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003, Greg KH wrote:
+Edgar Toernig wrote:
 
-> Date: Mon, 17 Nov 2003 16:02:14 -0800
-> From: Greg KH <greg@kroah.com>
-> To: John Heil <kerndev@sc-software.com>
-> Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
->      John Heil <johnhscs@scsoftware.sc-software.com>
-> Subject: Re: [PATCH] [USB2] 2.6.0-test9-mm2 HiSpd Isoc 1024KB submits:
->     -EMSGSIZE
->
-> On Mon, Nov 17, 2003 at 03:53:19PM -0800, John Heil wrote:
-> >
-> > High speed isochronous URB submits fail w -EMSGSIZE when packet
-> > size is 1024KB (which is permitted by the USB 2.0 Std).
->
-> Nice, what kind of usb 2.0 iso device do you have that needs this?  The
-> linux usb developers would really like some of these so they could test
-> :)
+{ strace listing deleted, see 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106905386725308&w=2 }
 
-Custom video for US Army Land Warrior system
-
-> Anyway, try sending this patch to the EHCI maintainer, and the
-> linux-usb-devel mailing list, they can better address this patch.
+>That is not normal /bin/true behaviour.  Sure your system
+>isn't hacked?  Give the -f option to ptrace to see what the
+>forked process is trying to do...  Compare the size of
+>/bin/true with a known-good one.
 >
-> thanks,
->
-> greg k-h
+>Ciao, ET.
 >
 
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
+I'm not sure. I should be running tripwire or something, this is the 
+only one of my systems that doesn't run such a thing, as i have the  
+firewall locked down and have been busy.
+But it is true i accidently did iptables -F and it was left that way for 
+a few days.
+
+But this happens with any program, not just /bin/true, also the 
+/bin/true on the root and chroot systems are identical. and with much 
+interest i discovered, that if i unmount /proc, the problem goes away. aggh.
+
+that is why it is not exhibiting itself in the chroot system, - no /proc.
+
+I also remember that when this first happen nearly a year ago, some 
+"unix engineer" at the ISP said, oh yeah that's because something in the 
+ext2 filesystem header is corrupted.. i don't quite remember what he 
+said exactly, something  that sounded so far fetched that i ignored it. 
+does that ring any bells with anyone?
+
+please help, ug, i hate having a linux system that's not reliable. feels 
+like having a pet that's in pain or something.
+
+btw,
+/lib/libc.so.6 -> libc-2.2.5.so
+
+Keith
+
+(i'm cross-posting here to gcc and admin in the hopes of finding someone 
+who has seen this, thanks!)
+
+
 

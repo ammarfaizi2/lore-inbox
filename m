@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbULQCFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbULQCHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbULQCFh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 21:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbULQCFh
+	id S262720AbULQCHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 21:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbULQCHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 21:05:37 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:43472 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262717AbULQCFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 21:05:32 -0500
-Message-ID: <41C23EE5.30109@kolivas.org>
-Date: Fri, 17 Dec 2004 13:05:25 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 flavours
-References: <003901c4e3ab$d86c8580$0e25fe0a@pysiak> <20041216203740.GA23365@middle.of.nowhere>
-In-Reply-To: <20041216203740.GA23365@middle.of.nowhere>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE05B6D46BB1852A5E2B195DE"
+	Thu, 16 Dec 2004 21:07:55 -0500
+Received: from roadrunner-base.egenera.com ([63.160.166.46]:55252 "EHLO
+	coyote.egenera.com") by vger.kernel.org with ESMTP id S262720AbULQCHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 21:07:46 -0500
+Date: Thu, 16 Dec 2004 21:07:29 -0500
+From: Philip R Auld <pauld@egenera.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041217020729.GA17779@vienna.egenera.com>
+References: <20041216102652.6a5104d2.akpm@osdl.org> <E1Cf2k0-00069l-00@mta1.cl.cam.ac.uk> <20041216220434.GC16621@vienna.egenera.com> <Pine.LNX.4.61.0412161807400.26850@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412161807400.26850@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE05B6D46BB1852A5E2B195DE
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jurriaan wrote:
-> From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
->>-ck is experimental
+Rumor has it that on Thu, Dec 16, 2004 at 06:08:24PM -0500 Rik van Riel said:
+> On Thu, 16 Dec 2004, Philip R Auld wrote:
 > 
+> >The boot-time switch seems to be the ideal. This would allow
+> >enterprise Linux vendors to support using Xen w/o having to
+> >deal with a whole archicture release (including install kernel
 > 
-> There are 'release moments' here too.
+> I have no idea how such a boot-time switch would work
+> for 3rd party device drivers, though, so don't count
+> yourself lucky just yet ;)
 
-I keep releasing versions till it is stable. eg 2.6.9-ck3 is more stable 
-than 2.6.9-ck1. 2.6.8.1-ck9 is more stable than 2.6.8.1 (for my users at 
-least).
-
+I actually meant _OS_ vendors like you ;)
+ 
 Cheers,
-Con
 
---------------enigE05B6D46BB1852A5E2B195DE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Phil
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBwj7oZUg7+tp6mRURAnAlAJ0TICpaGa1GX5EsjC/EHPwCb5cGFwCeO88c
-fQsYirqnFtsUmCasQ6VcCI4=
-=UcKU
------END PGP SIGNATURE-----
-
---------------enigE05B6D46BB1852A5E2B195DE--
+> 
+> -- 
+> "Debugging is twice as hard as writing the code in the first place.
+> Therefore, if you write the code as cleverly as possible, you are,
+> by definition, not smart enough to debug it." - Brian W. Kernighan

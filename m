@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTENRUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTENRUQ
+	id S262485AbTENRQW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTENRQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:20:16 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:65376 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263273AbTENRUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:20:15 -0400
-Date: Wed, 14 May 2003 10:34:21 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-Id: <20030514103421.197f177a.akpm@digeo.com>
-In-Reply-To: <18240000.1052924530@baldur.austin.ibm.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
-	<3EC15C6D.1040403@kolumbus.fi>
-	<199610000.1052864784@baldur.austin.ibm.com>
-	<20030513181018.4cbff906.akpm@digeo.com>
-	<18240000.1052924530@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 17:32:58.0621 (UTC) FILETIME=[DC8082D0:01C31A3E]
+	Wed, 14 May 2003 13:16:22 -0400
+Received: from mcomail02.maxtor.com ([134.6.76.16]:63503 "EHLO
+	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
+	id S262485AbTENRQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:16:21 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D35F@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'Rafal Bujnowski'" <bujnor@go2.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Subject: RE: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
+Date: Wed, 14 May 2003 11:29:25 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
->
-> Which the application thinks is still part of the file, and will expect its
->  changes to be written back.
+0x5104 is a different can of worms from the other stuff you guys were
+reporting.
 
-How so?  Truncate will chop the page off the mapping - it doesn't
-miss any pages.
+5104 (status register = 0x51, error register 0x04) is the all-encompassing
+"command abort" which is what the drive does any time you issue a command
+with bad parameters, an invalid (immoral?) command, or some of the security
+stuff out of sequence.  Most commonly it is seen attempting to enable
+features on a drive that doesn't support them.
 
-Truncate has to wait for the page lock, so the page may be removed from the
-mapping shortly after the major fault's IO has completed.  Maybe that's
-what you are seeing.
+--eric
 
+-----Original Message-----
+From: Rafal Bujnowski [mailto:bujnor@go2.pl]
+Sent: Wednesday, May 14, 2003 10:06 AM
+To: linux-kernel
+Cc: Maciej Soltysiak
+Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
+
+
+A Maciej Soltysiak <solt@dns.toxicfilms.tv> na to:
+
+> Exactly like me.
+> Someone suggested Bartlomiej Zolnierkiewicz's patch.
+> Try this on for size. I haven't tested it yet, but please give it a
+> shot.
+
+Hello!
+
+It doesn't work. I still get:
+
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+
+I'll try Dany's hint.
+
+rafal
+
+
+-- 
+
+[              Rafal Bujnowski ][ e-mail: bujnor<at>go2.pl            ]
+[     http://www.bujnor.iq.pl/ ][ e-mail: bujnor<at>poczta.onet.pl    ]
+[   ICQ: 85602025  GG: 4174829 ][ Jabber: bujnor@jabber.org           ]
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

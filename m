@@ -1,69 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbTJJPvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbTJJPvu
+	id S262953AbTJJPoj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbTJJPoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:51:50 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:62983 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S262971AbTJJPvs (ORCPT
+	Fri, 10 Oct 2003 11:44:38 -0400
+Received: from wiggis.ethz.ch ([129.132.86.197]:15839 "EHLO wiggis.ethz.ch")
+	by vger.kernel.org with ESMTP id S262953AbTJJPog (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:51:48 -0400
-Date: Fri, 10 Oct 2003 11:50:07 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: William Lee Irwin III <wli@holomorphy.com>, G?bor L?n?rt <lgb@lgb.hu>,
-       Stuart Longland <stuartl@longlandclan.hopto.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010155007.GA13825@mark.mielke.cc>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org> <20031010143529.GT5112@vega.digitel2002.hu> <20031010144723.GC727@holomorphy.com> <20031010144837.GB12134@mark.mielke.cc> <20031010150122.GD727@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031010150122.GD727@holomorphy.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 10 Oct 2003 11:44:36 -0400
+From: Thom Borton <borton@phys.ethz.ch>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: PCMCIA CD-ROM does not work
+Date: Fri, 10 Oct 2003 17:44:30 +0200
+User-Agent: KMail/1.5.4
+References: <200310101652.53796.borton@phys.ethz.ch> <20031010150916.GA32600@redhat.com>
+In-Reply-To: <20031010150916.GA32600@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ePth/4vGHZFzwHN"
+Message-Id: <200310101744.30827.borton@phys.ethz.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 08:01:22AM -0700, William Lee Irwin III wrote:
-> On Fri, Oct 10, 2003 at 10:48:37AM -0400, Mark Mielke wrote:
-> > Perhaps I've naive here, but - with hot-pluggable CPU machines, do you not
-> > de-activate the CPU through software first, before pulling the CPU out, at
-> > which point it is not in use?
-> Well, you deleted my reply, but never mind that.
 
-I wasn't responding to you. You're article just happened to be the one
-that I pushed 'g' to... :-)
+--Boundary-00=_ePth/4vGHZFzwHN
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> This obviously can't work unless the kernel gets some kind of warning.
-> Userspace and kernel register state, once lost that way, can't be
-> recovered, and if tasks are automatically suspended (e.g. cpu dumps to
-> somewhere and a miracle occurs), you'll deadlock if the kernel was in
-> a non-preemptible critical section at the time.
 
-Again, I'm perhaps naive here - I've never been able to afford such a
-machine with hot-pluggable CPU's, however, I have heard from people who
-have used them at work, that you use software (i.e. system calls to the
-kernel) to instruct the kernel to no longer schedule tasks for the CPU.
-Once the CPU is no longer scheduled for use, you can feel free to unplug
-the CPU from the motherboard. Note that I didn't say that the software
-approach could *guarantee* immediate success. You wouldn't unplug the
-CPU until your had successfully deregistered the CPU from having anything
-scheduled for it.
+Thanks a lot, I tried the parameters 
+	ide1=0x386,0x180 pci=off
+and it did not work. pci=off seems to have broken quite a lot (fb, 
+jogdial, ...). Just leaving it away and just having ide1=0x386,0x180 
+didn't help the CD-ROM drive either.
 
-Is this not the way things (should) work?
+I am now compiling the 2.4.19/20/21 kernels to try to figure out, 
+where it broke. I have some suspicion that it happened when ide-cs.c 
+was moved to legacy from drivers/ide.
 
-mark
+BTW, if it's legacy, what replaces it?
+
+Thom
+
+
+On Friday 10 October 2003 17:09, Dave Jones wrote:
+> On Fri, Oct 10, 2003 at 04:52:50PM +0200, Thom Borton wrote:
+>  > Hello everybody
+>  >
+>  > I have a Sony Vaio PCG-Z600NE with an external PCMCIA 4x CD-ROM
+>  > drive, which used to work perfectly until around 2.4.18. With
+>  > later kernels I did not succeed to get it running. I tried
+>  > extensively with 2.4.22. As far as I remember, 2.4.19-21 did not
+>  > work either.
+>  >
+>  > I have attached the syslogs for 2.4.18, 2.4.22 and 2.6.0-test7.
+>  >
+>  > Any idea what's wrong? Thanks for the help.
+>
+> I'm not sure what broke it, but if you boot with "ide1=0x386,0x180
+> pci=off" it works again.  Not a perfect solution, but until someone
+> does some digging to find out exactly when it broke, we're stuck.
+>
+> 		Dave
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Thom Borton
+Switzerland
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+--Boundary-00=_ePth/4vGHZFzwHN
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="syslog-2.4.22-fail2.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="syslog-2.4.22-fail2.txt"
 
-                           http://mark.mielke.cc/
+Oct 10 17:30:43 grisu kernel: Yenta IRQ list 00b8, PCI irq9
+Oct 10 17:30:43 grisu kernel: Socket status: 30000416
+Oct 10 17:30:43 grisu cardmgr[378]: watching 1 socket
+Oct 10 17:30:43 grisu cardmgr[379]: starting, version is 3.2.5
+Oct 10 17:30:59 grisu cardmgr[379]: socket 0: Ninja ATA
+Oct 10 17:30:59 grisu kernel: cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcbfff 0xdc000-0xdffff 0xe8000-0xfffff
+Oct 10 17:30:59 grisu cardmgr[379]: executing: 'modprobe ide-cs'
+Oct 10 17:31:18 grisu kernel: hdc: TOSHIBA CD-ROM XM-7002Bc, ATAPI CD/DVD-ROM drive
+Oct 10 17:31:18 grisu kernel: hdc: IRQ probe failed (0xb4f8)
+Oct 10 17:31:18 grisu kernel: hdd: IRQ probe failed (0xb4f8)
+Oct 10 17:31:18 grisu kernel: hdd: IRQ probe failed (0xb4f8)
+Oct 10 17:31:18 grisu kernel: hdd: no response (status = 0x0a), resetting drive
+Oct 10 17:31:18 grisu kernel: hdd: IRQ probe failed (0xb4f8)
+Oct 10 17:31:18 grisu kernel: hdd: no response (status = 0x0a)
+Oct 10 17:31:18 grisu kernel: ide1: DISABLED, NO IRQ
+Oct 10 17:31:20 grisu kernel: ide1: ports already in use, skipping probe
+Oct 10 17:31:36 grisu last message repeated 8 times
+Oct 10 17:31:37 grisu kernel: ide_cs: ide_register() at 0x180 & 0x386, irq 0 failed
+Oct 10 17:31:38 grisu cardmgr[379]: get dev info on socket 0 failed: Resource temporarily unavailable
+Oct 10 17:31:41 grisu cardmgr[379]: executing: 'modprobe -r ide-cs'
+
+--Boundary-00=_ePth/4vGHZFzwHN--
 

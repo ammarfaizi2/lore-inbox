@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264974AbUD3Aer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265034AbUD3Akt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUD3Aer (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 20:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbUD3Aer
+	id S265034AbUD3Akt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 20:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUD3Akt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 20:34:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14475 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264974AbUD3Aeq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 20:34:46 -0400
-Date: Thu, 29 Apr 2004 17:32:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: pj@sgi.com, vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au,
-       jgarzik@pobox.com, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040429173223.3ea4d0c5.akpm@osdl.org>
-In-Reply-To: <20040430000408.GA29096@hexapodia.org>
-References: <40904A84.2030307@yahoo.com.au>
-	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	<20040429133613.791f9f9b.pj@sgi.com>
-	<20040429141947.1ff81104.akpm@osdl.org>
-	<20040429143403.35a7a550.pj@sgi.com>
-	<20040429145725.267ea7b8.akpm@osdl.org>
-	<20040430000408.GA29096@hexapodia.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Apr 2004 20:40:49 -0400
+Received: from sol.linkinnovations.com ([203.94.173.142]:26497 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S265034AbUD3Aks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 20:40:48 -0400
+Date: Fri, 30 Apr 2004 10:39:52 +1000
+From: CaT <cat@zip.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: libata + siI3112 + 2.6.5-rc3 hang
+Message-ID: <20040430003951.GB6145@zip.com.au>
+References: <20040429234258.GA6145@zip.com.au> <200404300208.32830.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404300208.32830.bzolnier@elka.pw.edu.pl>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson <adi@hexapodia.org> wrote:
->
->  But in a related case, I have a background daemon that does a lot of IO
->  (mostly sequential, one page at a time read/modify/write of a multi-GB
->  file) to a filesystem on a separate spindle from my main filesystems.
->  I'd like to use a similar mechanism to say "don't let this program eat
->  my pagecache" that will let the daemon crunch away without severely
->  impacting my desktop work.
+On Fri, Apr 30, 2004 at 02:08:32AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> Probably your drive needs mod15write quirk. please try this.
 
-fadvise(POSIX_FADV_DONTNEED) is ideal for this.  Run it once per megabyte
-or so.
+The system hung linking the kernel. :) I'll try compiling again
+either in 2-3hrs time or 6-7 depending on when I can get home.
+
+Figures. :/
+> On Friday 30 of April 2004 01:42, CaT wrote:
+> > 2.4.25 aswell and has occured when I did a mke2fs -c on a partition
+> > and (twice) with hdparm -tT. The first time hdparm works fine and
+> > infact clocks the HD at 62MB/s (wowsers!), but the second time the
+> > system hangs.
+> 
+> It will go down with a quirk :( blame SiI for not providing chipset errata.
+
+Actively doing so as I glare at my dead ssh connection. :)
+
+> > scsi0? I thought it detected it at scsi1? This reminds me. The MB has
+> > the connector labeled as SATA1 but on bootup it's detected as the primary
+> > SATA drive.
+> 
+> libata has zero knowledge about legacy ordering and it's GOOD thing.
+
+Not complaining. This is all new to me and I'm trying to get it all
+straight in my head (one of the reasons why I went with a SATA drive
+rather then PATA).
+
+-- 
+    Red herrings strewn hither and yon.

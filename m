@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSKHUXl>; Fri, 8 Nov 2002 15:23:41 -0500
+	id <S261449AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262344AbSKHUXk>; Fri, 8 Nov 2002 15:23:40 -0500
-Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:38411
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261894AbSKHUXh>; Fri, 8 Nov 2002 15:23:37 -0500
-Date: Fri, 8 Nov 2002 15:30:02 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-cc: "'Corey Minyard'" <cminyard@mvista.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: NMI handling rework
-In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC1544@vacho6misge.cho.ge.com>
-Message-ID: <Pine.LNX.4.44.0211081524430.10231-100000@montezuma.mastecende.com>
+	id <S262335AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:10637 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S261449AbSKHUXE>; Fri, 8 Nov 2002 15:23:04 -0500
+Message-ID: <3DCC1EB5.4020303@google.com>
+Date: Fri, 08 Nov 2002 12:29:41 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Failed writes marked clean?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Nov 2002, Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
 
-> Am I reading this correctly? As long as no one passes back NOTIFY_STOP_MASK,
-> all handlers are run. Assuming that all external NMI sources have a means of
-> checking whether they were the source, this would work like shared PCI
-> interrupts.
+Perhaps I'm reading the code incorrectly, but in kernel versions 2.4.18 
+and 2.5.46 it looks to me like in the case of a write, ll_rw_block 
+always clears the dirty bit.  In the event of an error, nothing resets 
+the dirty bit and the uptodate flag is cleared.  This means that if the 
+same block needs to be read again, the buffer cache will see that the 
+buffer is not uptodate and attempt to read the old contents of the 
+buffer off of the device.  If the read suceeds the kernel ends up 
+corrupting data.
 
-On Linux we run through all handlers for shared interrupts, it is up to 
-the handler to figure out wether it really was supposed to receive that 
-interrupt (normally quick status checks for hardware).
+It seems to me that a better solution would be to mark the buffer as 
+dirty and uptodate and then attempt to propogate the error as far back 
+as possible.  Ideally something can be done to correct the problem at a 
+higher level.  Before I dive in and attempt to do something about this, 
+I wanted to make sure I was not missing anything important.  So am I 
+full of it, or could this really be a problem?
 
-> affected handlers have not run yet and will get run on the current pass, or
-> they will run on the next pass. You may have two handlers run on a single
-> pass but you should not drop any. True??
+    Ross
 
-For sanity's sake stick to running through all of them, there should be no 
-partial handling, every registered handler should get serviced once per 
-NMI interrupt.
-
-	Zwane
--- 
-function.linuxpower.ca
 

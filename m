@@ -1,83 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbUKDVUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbUKDVXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbUKDVUc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 16:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUKDVUc
+	id S262413AbUKDVXK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 16:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUKDVXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 16:20:32 -0500
-Received: from mirador.placard.fr.eu.org ([81.56.186.204]:55557 "EHLO
-	mail.placard.fr.eu.org") by vger.kernel.org with ESMTP
-	id S262407AbUKDVUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:20:05 -0500
-To: Stelian Pop <stelian@popies.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: meye bug? (was: meye driver update)
-Mail-Copies-To: never
-X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
-References: <20041104111231.GF3472@crusoe.alcove-fr>
-From: Roland Mas <roland.mas@free.fr>
-Date: Thu, 04 Nov 2004 22:19:59 +0100
-In-Reply-To: <20041104111231.GF3472@crusoe.alcove-fr> (Stelian Pop's message
- of "Thu, 4 Nov 2004 12:12:31 +0100")
-Message-ID: <87zn1xjoqo.fsf@mirexpress.internal.placard.fr.eu.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 16:23:09 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:57101
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S262413AbUKDVWl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 16:22:41 -0500
+Date: Thu, 4 Nov 2004 13:22:38 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Cc: rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH] Serial updates
+Message-ID: <20041104212237.GL5075@atomide.com>
+References: <20041031175114.B17342@flint.arm.linux.org.uk> <1099368552.29693.434.camel@gaston> <1099369226.29689.441.camel@gaston> <20041102224329.B10969@flint.arm.linux.org.uk> <20041102150112.2ce4831f.akpm@osdl.org> <20041102231703.D10969@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
+Content-Disposition: inline
+In-Reply-To: <20041102231703.D10969@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop, 2004-11-04 12:12:31 +0100 :
 
-> Hi,
->
-> Please find attached a collection of patches updating the meye driver
-> to the latest version.
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  I'd like to take the opportunity to report a bug with meye.  I've
-ran various 2.6.* kernels on this recently acquired laptop, including
-2.6.10-rc1 with your patches, all that with a Debian system on it
-(Sarge/testing).  I figured the simplest way to test the meye driver,
-and to grab a shot from it, would be to use "motioneye -j foo.jpeg".
-Everytime I run that, though, the motioneye process gets stuck into an
-apparently endless loop.  top shows it alternatively at states R and
-D, I can't kill it (even -9), and the kernel repeatedly complains
-"meye: need to reset HIC!".  Repeatedly, as in about twice a second
-until reboot.  Oh, and no picture ever comes out, either :-)
+* Russell King <rmk+lkml@arm.linux.org.uk> [041102 15:27]:
+> 
+> Ok, I'll send a pull request imminently.  For those who don't want to
+> wait, latest patch against Linus' tree is at:
+> 
+>   http://www.arm.linux.org.uk/~rmk/misc/linus-serial.diff
 
-  Bits of info you may want:
+I tried the current BK tree on omap, and the serial ports work with
+the following patch.
 
-- lspci says:
-0000:00:0b.0 Multimedia controller: Kawasaki Steel Corporation KL5A72002 Motion JPEG (rev 01)
+However, on omap 1510, the change of interrupt return value in
+serial8250_interrupt from IRQ_HANDLED to IRQ_RETVAL(handled) causes
+a problem on the first RX interrupt. It looks like the IIR register is
+not ready for reading right away, and at first shows that no interrupt
+happened (UART_IIR_NO_INT stays high).
 
-- Sony Vaio model PCG 141C,  a member of the C1VE series;
+This is probably a hardware issue, but might trigger something
+similar on other hardware as well.
 
-- motioneye 1.2-3 from Sarge;
+Regards,
 
-- dmesg says:
-[...]
-PCI: Enabling device 0000:00:09.0 (0006 -> 0007)
-ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 9 (level, low) -> IRQ 9
-sonypi: Sony Programmable I/O Controller Driver v1.23.
-sonypi: detected type1 model, verbose = 0, fnkeyinit = off, camera = off, compat = off, mask = 0xffffffff, useinput = on, acpi = on
-sonypi: enabled at irq=11, port1=0x10c0, port2=0x10c4
-sonypi: device allocated minor is 63
-Sony VAIO Jog Dial installed.
-Linux video capture interface: v1.00
-meye: using 2 buffers with 600k (1200k total) for capture
-PCI: Enabling device 0000:00:0b.0 (0010 -> 0012)
-ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 9 (level, low) -> IRQ 9
-meye: Motion Eye Camera Driver v1.10.
-meye: mchip KL5A72002 rev. 1, base fc104800, irq 9
-Linux Kernel Card Services
-[...]
+Tony
 
-  Is there anything else I can provide?
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch-2.6.10-rc1-current-omap-serial"
 
-  Thanks,
+--- linus/drivers/serial/8250.c	2004-11-03 09:50:58.000000000 -0800
++++ linux-omap-dev/drivers/serial/8250.c	2004-11-04 13:14:22.000000000 -0800
+@@ -1692,6 +1693,17 @@
+ 		serial_outp(up, UART_EFR, efr);
+ 	}
+ 
++#ifdef CONFIG_ARCH_OMAP1510
++	/* Workaround to enable 115200 baud on OMAP1510 internal ports */
++	if (cpu_is_omap1510() && is_omap_port(up->port.membase)) {
++		if (baud == 115200) {
++			quot = 1;
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 1);
++		} else
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 0);
++        }
++#endif
++
+ 	if (up->capabilities & UART_NATSEMI) {
+ 		/* Switch to bank 2 not bank 1, to avoid resetting EXCR2 */
+ 		serial_outp(up, UART_LCR, 0xe0);
+@@ -1742,6 +1754,11 @@
+ 	unsigned int size = 8 << up->port.regshift;
+ 	int ret = 0;
+ 
++#ifdef CONFIG_ARCH_OMAP
++	if (is_omap_port(up->port.membase))
++		size = 0x16 << up->port.regshift;
++#endif
++
+ 	switch (up->port.iotype) {
+ 	case UPIO_MEM:
+ 		if (!up->port.mapbase)
+--- linus/include/linux/serial_reg.h	2004-10-25 10:33:36.000000000 -0700
++++ linux-omap-dev/include/linux/serial_reg.h	2004-11-01 14:52:36.000000000 -0800
+@@ -307,5 +307,19 @@
+ #define SERIAL_RSA_BAUD_BASE (921600)
+ #define SERIAL_RSA_BAUD_BASE_LO (SERIAL_RSA_BAUD_BASE / 8)
+ 
++/*
++ * Extra serial register definitions for the internal UARTs 
++ * in TI OMAP processors.
++ */
++#define UART_OMAP_MDR1		0x08	/* Mode definition register */
++#define UART_OMAP_MDR2		0x09	/* Mode definition register 2 */
++#define UART_OMAP_SCR		0x10	/* Supplementary control register */
++#define UART_OMAP_SSR		0x11	/* Supplementary status register */
++#define UART_OMAP_EBLR		0x12	/* BOF length register */
++#define UART_OMAP_OSC_12M_SEL	0x13	/* OMAP1510 12MHz osc select */
++#define UART_OMAP_MVER		0x14	/* Module version register */
++#define UART_OMAP_SYSC		0x15	/* System configuration register */
++#define UART_OMAP_SYSS		0x16	/* System status register */
++
+ #endif /* _LINUX_SERIAL_REG_H */
+ 
 
-Roland.
--- 
-Roland Mas
-
-How does an octopus go into battle?
-Fully-armed.
+--k1lZvvs/B4yU6o8G--

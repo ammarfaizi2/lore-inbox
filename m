@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311094AbSCHUbd>; Fri, 8 Mar 2002 15:31:33 -0500
+	id <S311095AbSCHUaf>; Fri, 8 Mar 2002 15:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311082AbSCHUak>; Fri, 8 Mar 2002 15:30:40 -0500
-Received: from miranda.axis.se ([193.13.178.2]:21710 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S311094AbSCHUa2>;
-	Fri, 8 Mar 2002 15:30:28 -0500
-From: johan.adolfsson@axis.com
-Message-ID: <034601c1c6e0$064bf620$aab270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: <root@chaos.analogic.com>, <johan.adolfsson@axis.com>
-Cc: "Jamie Lokier" <lk@tantalophile.demon.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        "Terje Eggestad" <terje.eggestad@scali.com>,
-        "Ben Greear" <greearb@candelatech.com>,
-        "Davide Libenzi" <davidel@xmailserver.org>,
-        "george anzinger" <george@mvista.com>
-In-Reply-To: <Pine.LNX.3.95.1020308143013.6910A-100000@chaos.analogic.com>
-Subject: Re: gettimeofday() system call timing curiosity
-Date: Fri, 8 Mar 2002 21:29:59 +0100
+	id <S311068AbSCHU3Q>; Fri, 8 Mar 2002 15:29:16 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:1799 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S311084AbSCHU3D>;
+	Fri, 8 Mar 2002 15:29:03 -0500
+Date: Fri, 8 Mar 2002 21:28:57 +0100 (CET)
+From: Pau Aliagas <linuxnow@wanadoo.es>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <Pine.LNX.4.44L.0203081721050.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0203082125190.2580-100000@pau.intranet.ct>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> > What happens if you remove the printf/puts and simply counts the number
-> > of times the different cases happen?
+On Fri, 8 Mar 2002, Rik van Riel wrote:
+
+> > We need a reference archive to keep in sync with; then everybody
+> > branches from there and syncs back and forth.
+> 
+> Exactly!  Now, is there some arch fan willing to setup this
+> initial repository ?
+
+I'll do it.
+
+> > > That would give us some real way to compare the two tools.
 > >
->
-> Try it. It doesn't matter. Alan was correct, my computer sucks. However,
-> they won't give me a 10 GHz one (yet). Note that although gettimeofday()
-> has 1 microsecond resolution, not all the codes are exercised. We get
-> something with the granularity of 50 to 190 microseconds.
+> > It seems obvious that bitkeeper is in very good shape; I'm not at all
+> > against people using, but I'm sure that if a few people tried arch,
+> > they'd be gratefully surprised.
+> 
+> Having an initial repository would get a lot of people
+> (including me, once I have a bit of time) to try out
+> arch.
 
-I admit that I don't know the details of the x86 implementation,
-but that sounds a little to large doesn't it?
+We continue to discuss it in private and once it's ready and documented 
+let the list know.
 
-I recently fixed the cris port to get 1 us resolution (by reading a
-25MHz timer value within a jiffie).
-My tests show that the time between calls to gettimeofday() typically
-is 4-5 us on the 100MIPS ETRAX100LX - not that bad.
-On my Linux PC i got 1us most of the time but never the same value,
-but that is an old machine - PII 266 (reminds me I need to change machine:).
-
-..
->
-> Cheers,
-> Dick Johnson
-
-/Johan
-
+Pau
 

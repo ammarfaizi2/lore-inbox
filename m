@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274587AbRIYKF1>; Tue, 25 Sep 2001 06:05:27 -0400
+	id <S274597AbRIYKVj>; Tue, 25 Sep 2001 06:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274589AbRIYKFI>; Tue, 25 Sep 2001 06:05:08 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:25302 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S274587AbRIYKE5>;
-	Tue, 25 Sep 2001 06:04:57 -0400
-Subject: Re: Burning a CD image slow down my connection
-From: "[A]ndy80" <andy80@ptlug.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274598AbRIYKV3>; Tue, 25 Sep 2001 06:21:29 -0400
+Received: from ms.exp-math.uni-essen.de ([132.252.150.18]:63247 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S274597AbRIYKV0>; Tue, 25 Sep 2001 06:21:26 -0400
+Date: Tue, 25 Sep 2001 12:21:47 +0200 (MESZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: "[A]ndy80" <andy80@ptlug.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15loh3-0005PD-00@the-village.bc.nu>
-In-Reply-To: <E15loh3-0005PD-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.24.08.08 (Preview Release)
-Date: 25 Sep 2001 12:13:16 +0200
-Message-Id: <1001412802.1316.4.camel@piccoli>
+Subject: Re: Burning a CD image slow down my connection
+In-Reply-To: <1001412802.1316.4.camel@piccoli>
+Message-Id: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de>
 Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On 25 Sep 2001, [A]ndy80 wrote:
 
-> Make sure you have DMA enabled for your IDE cd-rom or ide unmasking
-enabled
-> for it (see man hdparm)
+> I've my Plextor Writer as secondary master seen as a scsi device and if
+> I try do use hdparm it says:
+> 
+> [root@piccoli shady]# hdparm -t /dev/cdrom
+> /dev/cdrom not supported by hdparm
 
-these are my settings for my 2 HD:
+Hmm, /dev/cdrom would typically be a link. You might try to apply hdparm
+to where the link points to, but I cannot really believe hdparm doesn't
+follow links.
 
-hdparm -c 1 -d 1 -k 1 /dev/hda
-hdparm -c 1 -d 1 -k 1 /dev/hdb
+Normally /dev/cdrom should point to /dev/hdc in your case. I somewhat
+suspect that it points to /dev/scd0. If so, can you actually
+mount the cdrom? The ide2scsi device emulation basically just passes
+scsi commands as atapi commands over the ide bus (since atapi just
+use the scsi commands but tunnel them over ide). I'm surprised this also
+works for cdroms. I wasn't aware of the fact they are ATAPI and thus
+support the scsi command set. Maybe the cdwriters are special in that
+context.
 
-I've my Plextor Writer as secondary master seen as a scsi device and if
-I try do use hdparm it says:
+Anyway, you'll have to point hdparm to the ide device for your
+writer/cdrom.
 
-[root@piccoli shady]# hdparm -t /dev/cdrom
-/dev/cdrom not supported by hdparm
-
-What else ahve I to enable?
-
+Michael.
 
 --
-[A]ndy80 - andy80@ptlug.org
 
+Michael Weller: eowmob@exp-math..uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
 

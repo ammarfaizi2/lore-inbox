@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130614AbQKOUDi>; Wed, 15 Nov 2000 15:03:38 -0500
+	id <S129094AbQKOUYZ>; Wed, 15 Nov 2000 15:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130653AbQKOUD2>; Wed, 15 Nov 2000 15:03:28 -0500
-Received: from vena.lwn.net ([206.168.112.25]:64785 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S130614AbQKOUDS>;
-	Wed, 15 Nov 2000 15:03:18 -0500
-Message-ID: <20001115193318.21091.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
+	id <S129097AbQKOUYQ>; Wed, 15 Nov 2000 15:24:16 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:3337 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S129094AbQKOUYE>;
+	Wed, 15 Nov 2000 15:24:04 -0500
+Date: Wed, 15 Nov 2000 21:53:59 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: <linux-kernel@vger.kernel.org>
 Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
-From: Jonathan Corbet <corbet-lk@lwn.net>
-Date: Wed, 15 Nov 2000 12:33:18 -0700
+In-Reply-To: <20001115193318.21091.qmail@eklektix.com>
+Message-ID: <Pine.LNX.4.30.0011152139540.2987-100000@prime.sun.ac.za>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as another data point, I, too, had trouble with lockups with the
-emu10k1 (with the 2.4.0-test driver and ALSA both).  I noticed that it was
-sharing an interrupt with ACPI.  As soon as I rebuilt the kernel with the
-ACPI Interpreter option turned off, the problem went away.
+On Wed, 15 Nov 2000, Jonathan Corbet wrote:
+> Just as another data point, I, too, had trouble with lockups with the
+> emu10k1 (with the 2.4.0-test driver and ALSA both).  I noticed that it was
+> sharing an interrupt with ACPI.  As soon as I rebuilt the kernel with the
+> ACPI Interpreter option turned off, the problem went away.
 
-It's not the first time I've gotten burned with the "turn on some option
-because I might want to mess with it someday" approach to kernel
-configuration...
+In my case, the emu10k1 has an IRQ all to itself... (and I don't have
+ACPI enabled).
 
-jon
+Been running the kernel emu10k1 on test11-pre5 since this morning.
+I've only had one lockup (older testX emu10k1's locked up more
+frequently). So there still appears to be a problem with (or triggered by)
+test11-pre5 emu10k1. As I was under X at that stage (XMMS & two xterms), I
+did not see any panic()'s or BUG()'s.
+
+Next I'm going to compile with serial console & see if I can see any
+panic() or BUG()s.
+
+-- Hans.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273111AbTHKTN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273019AbTHKTLy
+	id S274809AbTHKT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273909AbTHKT0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:11:54 -0400
-Received: from b.smtp-out.sonic.net ([208.201.224.39]:8347 "HELO
-	b.smtp-out.sonic.net") by vger.kernel.org with SMTP id S273015AbTHKTLq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:11:46 -0400
-X-envelope-info: <dhinds@sonic.net>
-Date: Mon, 11 Aug 2003 12:00:48 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       dahinds@users.sourceforge.net
-Subject: Re: PCI1410 Interrupt Problems
-Message-ID: <20030811120048.A13992@sonic.net>
-References: <20030807000914.J16116@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de>
-Mime-Version: 1.0
+	Mon, 11 Aug 2003 15:26:11 -0400
+Received: from web41811.mail.yahoo.com ([66.218.93.145]:56434 "HELO
+	web41811.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S273611AbTHKTYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:24:55 -0400
+Message-ID: <20030811192453.51395.qmail@web41811.mail.yahoo.com>
+Date: Mon, 11 Aug 2003 12:24:53 -0700 (PDT)
+From: M M <mokomull@yahoo.com>
+Subject: Kernel 2.6.0-test3: make modules; make modules_install problems
+To: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 08:33:23PM +0200, Jochen Friedrich wrote:
-> Hi Russell,
-> 
-> > Unfortunately, there are some hacks in the kernel at the moment which
-> > mess up the Cardbus IRQ routing by touching this register - the kernel
-> > should not be the one to play with hardware design specific register
-> > settings, especially when they are applied without thought across
-> > many hardware variants.
-> 
-> after thinking a bit, i believe, you're right here. Initially, i just
-> wanted to have an option to mess with this register, but there is already
-> the setpci tool which can do exactly this. So for now, i just added the
-> setpci command to my modules.conf and i'm set.
-> 
-> It's just a shame that PCI/Cardbus bridge manufacturers try to save a few
-> cents by not soldering the configuration EEPROM to their board and supply
-> some specialized drivers for Win just to make their crap work. So if you
-> place 2 different cards in the same PC with the same PCI1410 but different
-> pin mapping, you're doomed...
+I have downloaded kernel 2.6.0-test3 sources twice (in
+case of error) and the problem still persists.  'make
+modules' compiles the modules to *.o, but 'make
+modules_install' expects them to be *.ko.  Am I the
+only one with this problem or does everyone have this
+problem?
 
-I do think there is room for having some sane default settings to be
-used when an unconfigured bridge is detected.  For most of the TI
-bridges, there is only one reasonable default for how to enable PCI
-interrupt delivery.  The important part here is "unconfigured bridge":
-never fool with interrupt delivery on a bridge that has been set up
-by the BIOS, which covers essentially all laptops.
+-MrM
 
--- Dave
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

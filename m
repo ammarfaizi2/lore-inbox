@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270317AbSISIBe>; Thu, 19 Sep 2002 04:01:34 -0400
+	id <S270318AbSISIB5>; Thu, 19 Sep 2002 04:01:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270348AbSISIBe>; Thu, 19 Sep 2002 04:01:34 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:29880 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S270317AbSISIBc>;
-	Thu, 19 Sep 2002 04:01:32 -0400
-Message-Id: <200209190806.g8J86NPl056072@northrelay04.pok.ibm.com>
-User-Agent: Pan/0.11.2 (Unix)
-From: "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>
-To: "Yumiko Sugita" <sugita@sdl.hitachi.co.jp>, vamsi@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Release of LKST 1.3
-Date: Thu, 19 Sep 2002 13:48:53 +0530
-References: <5.0.2.6.2.20020918210036.05287a40@sdl99c>
-Reply-To: vamsi_krishna@in.ibm.com
+	id <S270348AbSISIBi>; Thu, 19 Sep 2002 04:01:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59638 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S270318AbSISIBe>; Thu, 19 Sep 2002 04:01:34 -0400
+Date: Thu, 19 Sep 2002 10:06:34 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>, Dominik Brodowski <devel@brodo.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre7-ac2
+In-Reply-To: <200209182133.g8ILXhk08396@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0209191003250.15721-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 18 Sep 2002, Alan Cox wrote:
 
->From the howto-1.3.txt
+>...
+> Linux 2.4.20-pre7-ac1
+>...
+> o	CPUfreq update					(Dominik Brodowski)
+>...
 
-> Known Problems:
->
-> - GCC 2.96, which is a kernel compiler in RedHat, with -O2 option generates
-> wrong code around Kernel Hooks that caused the kernel panic. To avoid this
-> problem, you use the GCC 2.95, which is a standard kernel compiler.
+<--  snip  -->
 
-I use 2.96 here all the time and haven't seen it miscompile hooks. Can you 
-please elaborate what the problems are and give a me small sample code
-to demonstrate the problem.
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=cpufreq  -c -o cpufreq.o cpufreq.c
+In file included from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/irq.h:69,
+                 from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hardirq.h:6,
+                 from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/interrupt.h:45,
+                 from cpufreq.c:21:
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h: In
+function `x86_do_profile':
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h:201:
+`current' undeclared (first use in this function)
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h:201:
+(Each undeclared identifier is reported only once
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h:201:
+for each function it appears in.)
+make[2]: *** [cpufreq.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/kernel'
 
-Thanks,
-Vamsi.
+<--  snip  -->
 
---
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

@@ -1,71 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTFYKel (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 06:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTFYKeY
+	id S264460AbTFYK0y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 06:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTFYK0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 06:34:24 -0400
-Received: from b107155.adsl.hansenet.de ([62.109.107.155]:37822 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S264432AbTFYKZH
+	Wed, 25 Jun 2003 06:26:13 -0400
+Received: from mail.convergence.de ([212.84.236.4]:17056 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S264454AbTFYKX3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 06:25:07 -0400
-Message-ID: <3EF97B98.7020407@portrix.net>
-Date: Wed, 25 Jun 2003 12:38:16 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: davej@suse.de
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net, psavo@iki.fi
-Subject: [PATCH] export flush_tlb_all for drm modules
-Content-Type: multipart/mixed;
- boundary="------------000600010202090302040102"
+	Wed, 25 Jun 2003 06:23:29 -0400
+Subject: [PATCH 6/7] Update dvb budget driver
+In-Reply-To: <10565374581787@convergence.de>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Wed, 25 Jun 2003 12:37:39 +0200
+Message-Id: <10565374593380@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Michael Hunold (LinuxTV.org CVS maintainer) 
+	<hunold@convergence.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000600010202090302040102
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-This adds an export for flush_tlb_all to i386_ksyms.c. The drm modules
-miss this, when compiling for SMP.
-Original fix from Pasi Savolainen, but for some reason this was not
-included until now (2.5.73-mm1).
-His comment:
-  > drivers/char/drm/drm_memory.h needs this to compile as module (at
-  > least)on SMP, where flush_tlb_all() isn't a inline macro.
-
-Rediffed against 2.5.73-mm1. Tested loading of the module on UP/k7 with 
-SMP config. I only have a R300 board, so I can't really test the driver.
-I think the other drm modules should also be loadable again with this patch.
-
-Thanks,
-
-Jan
-
-
-
---------------000600010202090302040102
-Content-Type: text/plain;
- name="export_flush_tlb_all"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="export_flush_tlb_all"
-
---- linux-mm/arch/i386/kernel/i386_ksyms.c	2003-05-31 14:14:59.000000000 +0200
-+++ 2.5.73-mm1/arch/i386/kernel/i386_ksyms.c	2003-06-25 09:34:57.000000000 +0200
-@@ -159,6 +159,7 @@
+- follow changes in dvb_net, use new eeprom parse code to properly detect the mac
+- add new subvendor/subystem id pair
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-core.c linux-2.5.73.work/drivers/media/dvb/ttpci/budget-core.c
+--- linux-2.5.73.bk/drivers/media/dvb/ttpci/budget-core.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/ttpci/budget-core.c	2003-06-23 12:40:50.000000000 +0200
+@@ -1,4 +1,5 @@
+ #include "budget.h"
++#include "ttpci-eeprom.h"
  
- /* TLB flushing */
- EXPORT_SYMBOL(flush_tlb_page);
-+EXPORT_SYMBOL(flush_tlb_all);
- #endif
+ int budget_debug = 0;
  
- #ifdef CONFIG_X86_IO_APIC
-
-
---------------000600010202090302040102--
+@@ -165,7 +166,6 @@
+         if (ret < 0)
+                 return ret;
+ 
+-        budget->dvb_net.card_num = budget->dvb_adapter->num;
+         dvb_net_init(budget->dvb_adapter, &budget->dvb_net, &dvbdemux->dmx);
+ 
+ 	return 0;
+@@ -222,7 +222,7 @@
+            get recognized before the main driver is loaded */
+         saa7146_write(dev, GPIO_CTRL, 0x500000);
+ 	
+-	saa7146_i2c_adapter_prepare(dev, NULL, SAA7146_I2C_BUS_BIT_RATE_3200);
++	saa7146_i2c_adapter_prepare(dev, NULL, SAA7146_I2C_BUS_BIT_RATE_120);
+ 
+ 	budget->i2c_bus = dvb_register_i2c_bus (master_xfer, dev,
+ 						budget->dvb_adapter, 0);
+@@ -232,6 +232,8 @@
+ 		return -ENOMEM;
+ 	}
+ 
++	ttpci_eeprom_parse_mac(budget->i2c_bus);
++
+ 	if( NULL == (budget->grabbing = saa7146_vmalloc_build_pgtable(dev->pci,length,&budget->pt))) {
+ 		ret = -ENOMEM;
+ 		goto err;
+diff -uNrwB --new-file linux-2.5.73.bk/drivers/media/dvb/ttpci/budget.c linux-2.5.73.work/drivers/media/dvb/ttpci/budget.c
+--- linux-2.5.73.bk/drivers/media/dvb/ttpci/budget.c	2003-06-25 09:46:54.000000000 +0200
++++ linux-2.5.73.work/drivers/media/dvb/ttpci/budget.c	2003-06-18 13:51:03.000000000 +0200
+@@ -192,6 +192,7 @@
+ MAKE_BUDGET_INFO(ttbs,	"TT-Budget/WinTV-NOVA-S  PCI",	BUDGET_TT);
+ MAKE_BUDGET_INFO(ttbc,	"TT-Budget/WinTV-NOVA-C  PCI",	BUDGET_TT);
+ MAKE_BUDGET_INFO(ttbt,	"TT-Budget/WinTV-NOVA-T  PCI",	BUDGET_TT);
++MAKE_BUDGET_INFO(ttbt2,	"TT-Budget/WinTV-NOVA-T  PCI",	BUDGET_TT);
+ MAKE_BUDGET_INFO(satel,	"SATELCO Multimedia PCI",	BUDGET_TT_HW_DISEQC);
+ /* Uncomment for Budget Patch */
+ /*MAKE_BUDGET_INFO(fs_1_3,"Siemens/Technotrend/Hauppauge PCI rev1.3+Budget_Patch", BUDGET_PATCH);*/
+@@ -202,6 +203,7 @@
+ 	MAKE_EXTENSION_PCI(ttbs,  0x13c2, 0x1003),
+ 	MAKE_EXTENSION_PCI(ttbc,  0x13c2, 0x1004),
+ 	MAKE_EXTENSION_PCI(ttbt,  0x13c2, 0x1005),
++	MAKE_EXTENSION_PCI(ttbt2,  0x13c2, 0x1011),	
+ 	MAKE_EXTENSION_PCI(satel, 0x13c2, 0x1013),
+ 	{
+ 		.vendor    = 0,
 

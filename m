@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbTEDXpS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 19:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbTEDXpS
+	id S261861AbTEEAbz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 20:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTEEAbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 19:45:18 -0400
-Received: from cpt-dial-196-30-179-171.mweb.co.za ([196.30.179.171]:14208 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S261847AbTEDXpN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 19:45:13 -0400
-Subject: Re: Re:[2.5] Update sk98lin driver
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EB5867D.1000404@wanadoo.es>
-References: <3EB5867D.1000404@wanadoo.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Gejk86/Fg6QJkD6apIIJ"
-Organization: 
-Message-Id: <1052092571.4459.27.camel@nosferatu.lan>
+	Sun, 4 May 2003 20:31:55 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5594 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261861AbTEEAbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 20:31:52 -0400
+Date: Mon, 5 May 2003 02:44:18 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Sam Ravnborg <sam@ravnborg.org>, kai.germaschewski@gmx.de
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] document modules_install in "make help"
+Message-ID: <20030505004418.GF9794@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 05 May 2003 01:56:12 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below adds information about modules_install to "make help".
 
---=-Gejk86/Fg6QJkD6apIIJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+cu
+Adrian
 
-On Sun, 2003-05-04 at 23:30, Xose Vazquez Perez wrote:
-> Martin Schlemmer wrote:
->=20
-> >I have a 3Com 3c940 gigabit LOM, that is basically a
-> >SysKonnect chipset card. Here are later drivers that
-> >do support it:
-> >
-> > ftp://ftp.asus.com.tw/pub/ASUS/lan/3com/3c940/041_Linux.zip
->=20
-> latest drivers for SK-98xx and clones are 6.05 version.
-> patch for 2.4.20: http://www.syskonnect.de/syskonnect/support/driver/zip/=
-sk98lin_2.4.20_patch.gz
->=20
-
-Ok, I updated it to 6.05, and can be found here:
-
-  ftp://ftp.puk.ac.za/incoming/sk98lin-update-2.5.68.patch.bz2
-
-A few issues though:
-
-1)  Should MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT just be removed?
-    I commented them for now.
-
-2)  What other changes should be done for 2.5 ?
-
-
-Thanks,
-
---=20
-
-Martin Schlemmer
-Gentoo Linux Developer, Desktop/System Team Developer
-Cape Town, South Africa
-
-
-
---=-Gejk86/Fg6QJkD6apIIJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+taibqburzKaJYLYRApVWAKCcCcfCcpnsMq7+YJHwW5fe7SvMLwCgjLuj
-+sJCYcZ4hPamefA2gtkfsfg=
-=+Gn/
------END PGP SIGNATURE-----
-
---=-Gejk86/Fg6QJkD6apIIJ--
-
+--- linux-2.5.68-bk12/Makefile.old	2003-05-04 09:37:20.000000000 +0200
++++ linux-2.5.68-bk12/Makefile	2003-05-04 09:39:44.000000000 +0200
+@@ -772,25 +772,26 @@
+ 
+ help:
+ 	@echo  'Cleaning targets:'
+-	@echo  '  clean		- remove most generated files but keep the config'
+-	@echo  '  mrproper	- remove all generated files + config + various backup files'
++	@echo  '  clean		  - remove most generated files but keep the config'
++	@echo  '  mrproper	  - remove all generated files + config + various backup files'
+ 	@echo  ''
+ 	@echo  'Configuration targets:'
+-	@echo  '  oldconfig	- Update current config utilising a line-oriented program'
+-	@echo  '  menuconfig	- Update current config utilising a menu based program'
+-	@echo  '  xconfig	- Update current config utilising a X-based program'
+-	@echo  '  defconfig	- New config with default answer to all options'
+-	@echo  '  allmodconfig	- New config selecting modules when possible'
+-	@echo  '  allyesconfig	- New config where all options are accepted with yes'
+-	@echo  '  allnoconfig	- New minimal config'
++	@echo  '  oldconfig	  - Update current config utilising a line-oriented program'
++	@echo  '  menuconfig	  - Update current config utilising a menu based program'
++	@echo  '  xconfig	  - Update current config utilising a X-based program'
++	@echo  '  defconfig	  - New config with default answer to all options'
++	@echo  '  allmodconfig	  - New config selecting modules when possible'
++	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
++	@echo  '  allnoconfig	  - New minimal config'
+ 	@echo  ''
+ 	@echo  'Other generic targets:'
+-	@echo  '  all		- Build all targets marked with [*]'
+-	@echo  '* vmlinux	- Build the bare kernel'
+-	@echo  '* modules	- Build all modules'
+-	@echo  '  dir/file.[ois]- Build specified target only'
+-	@echo  '  rpm		- Build a kernel as an RPM package'
+-	@echo  '  tags/TAGS	- Generate tags file for editors'
++	@echo  '  all		  - Build all targets marked with [*]'
++	@echo  '* vmlinux	  - Build the bare kernel'
++	@echo  '* modules	  - Build all modules'
++	@echo  '  modules_install - Install all modules'
++	@echo  '  dir/file.[ois]  - Build specified target only'
++	@echo  '  rpm		  - Build a kernel as an RPM package'
++	@echo  '  tags/TAGS	  - Generate tags file for editors'
+ 	@echo  ''
+ 	@echo  'Documentation targets:'
+ 	@$(MAKE) --no-print-directory -f Documentation/DocBook/Makefile dochelp

@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131990AbRAXEHg>; Tue, 23 Jan 2001 23:07:36 -0500
+	id <S131214AbRAXES5>; Tue, 23 Jan 2001 23:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132197AbRAXEH0>; Tue, 23 Jan 2001 23:07:26 -0500
-Received: from quechua.inka.de ([212.227.14.2]:46371 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S131990AbRAXEHR>;
-	Tue, 23 Jan 2001 23:07:17 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Turning off ARP in linux-2.4.0 
-Message-Id: <E14LHDI-00035m-00@sites.inka.de>
-Date: Wed, 24 Jan 2001 05:07:16 +0100
+	id <S132115AbRAXESs>; Tue, 23 Jan 2001 23:18:48 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:12624 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S131214AbRAXESl>; Tue, 23 Jan 2001 23:18:41 -0500
+Message-ID: <3A6E573D.5210644C@sgi.com>
+Date: Tue, 23 Jan 2001 20:17:01 -0800
+From: Linda Walsh <law@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0 i686)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Florin Andrei <florin@sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 disk speed 66% slowdown...
+In-Reply-To: <Pine.LNX.4.10.10101231625290.11205-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101240027.QAA14665@tech1.nameservers.com> you wrote:
-> So in the setup I have, we have an ATM which gets all incoming requests
-> for the web site.  And then we have 7 other machines that get the
-> requests passed onto them by the ATM.
+Mine was actually out of a stock 2.2.17 -- I tried your patch in an attempt
+to fix a disk problem - but the disk was just going bad and the slow speeds were
+coming from the automatic sector remapping.  
 
-You can hardwire the ARP entry of your redirector to your Router. In that case
-the router will not ask the shared media about the Owner of the IP.
+pardon my ignorance, but where do you get UDMA-100-66?
 
-> Any ideas on how I can turn off the arping? 
+Here is the hdparm -i output on 2.4:
 
-why dont u use -arp as you can read it in the manual and as i written in my
-post. I dont see a reason why it should not work.
+/dev/hda:
+ 
+ Model=IBM-DARA-225000, FwRev=SHAOA54A, SerialNo=SQASQ202564
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=3(DualPortCache), BuffSize=418kB, MaxMultSect=16, MultSect=off
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=49577472
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 *mode2 mode3 mode4
+ Drive Supports : ATA/ATAPI-4 T13 1153D revision 17 : ATA-1 ATA-2 ATA-3 ATA-4 
 
-Actually:
-
-
-calista:/home/ecki# tcpdump -n -e -i eth0 arp &
-[1] 26211
-calista:/home/ecki# ping 10.0.0.7
-PING 10.0.0.7 (10.0.0.7) from 10.0.0.3 : 56(84) bytes of data.
-05:05:23.678782 0:0:c0:78:72:df ff:ff:ff:ff:ff:ff 0806 42: arp who-has 10.0.0.7 tell 10.0.0.3
-
---- 10.0.0.7 ping statistics ---
-1 packets transmitted, 0 packets received, 100% packet loss
-calista:/home/ecki# 
-calista:/home/ecki# 05:05:24.670230 0:0:c0:78:72:df ff:ff:ff:ff:ff:ff 0806 42: arp who-has 10.0.0.7 tell 10.0.0.3
-
-calista:/home/ecki# 05:05:25.670215 0:0:c0:78:72:df ff:ff:ff:ff:ff:ff 0806 42: arp who-has 10.0.0.7 tell 10.0.0.3
-
-calista:/home/ecki# ifconfig eth0 -arp
-calista:/home/ecki# 
-calista:/home/ecki# ping 10.0.0.9
-PING 10.0.0.9 (10.0.0.9) from 10.0.0.3 : 56(84) bytes of data.
-
---- 10.0.0.9 ping statistics ---
-1 packets transmitted, 0 packets received, 100% packet loss
-calista:/home/ecki# 
-
-as you can see after using -arp my kernel will no longer issue 3 arp requests
-for (not existing in my case) hosts.
-
-And i do habe 2.4.0 with 3com ethernet.
-
-Greetings
-Bernd
+UDMA mode (2) seems to be identical to before.
 
 
+Andre Hedrick wrote:
+> 
+> On Tue, 23 Jan 2001, Florin Andrei wrote:
+> 
+> > Linda Walsh wrote:
+> > >
+> > > The REAL problem was in disk performance.  The apm made no difference:
+> >
+> >       Same problem here. I had a huge HDD performance drop when upgrading
+> > from 2.2.18 to 2.4.0
+> >       It's an Intel i815 motherboard, and the HDD is Ultra-ATA.
+> 
+> ER, were you getting UDMA-100-66 out of 2.2.18 stock?
+> Now what are you getting in 2.4.0?
 
-> -------------------------------------------------------------------------------
->    Achtung: diese Newsgruppe ist eine unidirektional gegatete Mailingliste.
->      Antworten nur per Mail an die im Reply-To-Header angegebene Adresse.
->                    Fragen zum Gateway -> newsmaster@inka.de.
-> -------------------------------------------------------------------------------
+-- 
+Linda A Walsh                    | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

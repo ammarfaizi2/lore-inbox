@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTJBAEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 20:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTJBAEy
+	id S262550AbTJBASV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 20:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbTJBASV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 20:04:54 -0400
-Received: from sasami.anime.net ([208.8.184.120]:62877 "EHLO sasami.anime.net")
-	by vger.kernel.org with ESMTP id S262451AbTJBAEx (ORCPT
+	Wed, 1 Oct 2003 20:18:21 -0400
+Received: from pop.gmx.net ([213.165.64.20]:2445 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262550AbTJBASU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 20:04:53 -0400
-Date: Wed, 1 Oct 2003 17:04:52 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: linux-kernel@vger.kernel.org
-Subject: problem with IDE TCQ on 2.6.0-test6
-Message-ID: <Pine.LNX.4.44.0310011659580.32373-100000@sasami.anime.net>
+	Wed, 1 Oct 2003 20:18:20 -0400
+X-Authenticated: #271361
+Message-ID: <3F7B6EB5.78245F53@gmx.de>
+Date: Thu, 02 Oct 2003 02:17:57 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Radu Filip <socrate@infoiasi.ro>
+CC: viro@parcelfarce.linux.theplanet.co.uk,
+       Makan Pourzandi <Makan.Pourzandi@ericsson.ca>,
+       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
+       Vincent Roy <vincent.roy@ericsson.ca>,
+       David Gordon <davidgordonca@yahoo.ca>
+Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital 
+ signatureverification for binaries
+References: <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a bunch of IC35L180AVV207-1 in raid1 configuration.
+Radu Filip wrote:
+> 
+> Viro, I think you have an attitude problem here. "Don't be ridiculous",
+> "Rubbish", "<shrug>" don't sound very constructive or at least
+> encouraging.
+>[...] 
+>
+> These peoples are trying to solve a problem.
 
-If we enable IDE TCQ, we get a 'ide_dmaq_intr: stat=40, not expected' 
-every few seconds. If TCQ is disabled, the messages are gone.
+The "How do I make sure that only licensed software
+will run on my new gizmo?" problem?
 
-Replies in private email, i'm not subscribed to the list.
+Why should an open source developer encourage this?
 
--Dan
+Ciao, ET.
 
+PS: If you really meant security then browse around
+and see how the X-Box was hacked...

@@ -1,92 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268660AbRHKSUb>; Sat, 11 Aug 2001 14:20:31 -0400
+	id <S268617AbRHKS0W>; Sat, 11 Aug 2001 14:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268617AbRHKSUV>; Sat, 11 Aug 2001 14:20:21 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:25606 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268660AbRHKSUJ>; Sat, 11 Aug 2001 14:20:09 -0400
-Date: Sat, 11 Aug 2001 11:20:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8aa1
-In-Reply-To: <20010811160231.C19169@athlon.random>
-Message-ID: <Pine.LNX.4.33.0108111105470.15497-100000@penguin.transmeta.com>
+	id <S268675AbRHKS0L>; Sat, 11 Aug 2001 14:26:11 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:28432 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268617AbRHKS0F>; Sat, 11 Aug 2001 14:26:05 -0400
+Date: Sat, 11 Aug 2001 13:57:10 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
+        Zach Brown <zab@osdlab.org>, linux-mm@kvack.org
+Subject: Re: vmstats patch against 2.4.8pre7 and new userlevel hack
+In-Reply-To: <01081022333100.00293@starship>
+Message-ID: <Pine.LNX.4.21.0108111349500.17282-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrea,
- mind cleaning this up a bit and not just papering over the horridness?
 
-On Sat, 11 Aug 2001, Andrea Arcangeli wrote:
->
-> This is the same problem I mentioned yesterday to the list. Nobody
-> should ever use page->virtual directly, it's not there in -aa when
-> highmem is disabled to save memory and increase performance, if it would
-> be in C or python it would be a private field of the class to make it
-> explicit (nitpicking, in python __ just rename and it's techincally
-> still visible from the outside of the class).
->
-> page_address(page) must be used instead of page->virtual.
+On Fri, 10 Aug 2001, Daniel Phillips wrote:
 
-It would be good to instead adding the functions
+> On Thursday 09 August 2001 08:45, Marcelo Tosatti wrote:
+> > I've updated the vmstats patch to use Andrew Morton's statcount facilities
+> > (which is in initial development state). I've also removed/added some
+> > statistics due to VM changes.
+> 
+> I applied it and added some of my own statistics.  Very nice, much nicer than 
+> the traditional compile-reboot-measure-the-time cycle.
+> 
+> For one thing, it means you can watch the system in operation under a test 
+> load and see what it's really doing.  Chances are, you know right then 
+> whether it's running well or not and don't have to wait till the end of a 
+> long test run.
+> 
+> Problem: none of the statistics show up in proc until the first time the 
+> kernel hits them.  The /proc/stats entry isn't even there until the kernel 
+> hits the first statistic.  This isn't user-friendly.
 
-	unsigned long pte_to_pfn(pte_t pte)
-	{
-		.. architecture-specific in asm/pgtable.h ..
-	}
+Right. This has to be fixed.
+ 
+> I can see that this patch is going to break a lot between kernel updates, 
+> because it touches precisely the places we work on all the time - that's why 
+> the stats are there, right? 
 
-	/*
-	 * struct page -> "page frame number", ie
-	 * physical page number.
-	 */
-	unsigned long page_to_pfn(struct page *page)
-	{
-		zone_t zone = page->zone;
-		return (page - zone->zone_mem_map) + zone->zone_start_mapnr;
-	}
+Exactly. Thats why I've thought about doing the thing in an easy way to
+remove/add new statistics.
 
-	unsigned long long page_to_bus(struct page *page)
-	{
-		return (unsigned long long) phys_to_bus(page_to_pfn(page) << PAGE_SHIFT;
-	}
+Kudos goes to Andrew for the statcount code. Thanks a lot! 
 
-and using those? As it is right now, drivers that _could_ use up to 4GB of
-bus addresses simply cannot do it, because there is no good way to get the
-high physical addresses from a "struct page".
+> I'd suggest breaking it into two patchs, one with all the support and
+> a few basic statistics in stable places, and another that adds in the
+> rest of your current favorite vm stats.  It would also be nice if the
+> stats were broken up into sets that can be catted out of proc onto the
+> screen, in other words, sets of 23 or less.  This would mean that that
+> something like watch cat /proc/stats/vm is already an effective
+> interface.
+> 
+> I already learned a lot more about the what's actually happening inside the 
+> vm using this.  One thing that surprised me is how few locked pages there 
+> actually are on the inactive_dirty list.  I suppose I'd need a heavy mmap 
+> load to see more activity there.  Maybe a heavy write load would show up more 
+> there, but for now it looks like there are so few of those locked pages it 
+> won't interfere with scanning performance at all.
+> 
+> > On the userlevel side, I got zab's cpustat nice tool and transformed it
+> > into an ugly hack which allows me to easily add/remove statistic
+> > counters.
+> 
+> I didn't get that to work.  It seemed to be looking at the wrong /proc
+> file. I didn't look into it further.
 
-(You can do the above by hand, of course, but device driver writers really
-shouldn't know about the internals of page zone handling).
+The default /proc file it tries to open is "/proc/vm_stat", while the
+stats are at "/proc/stats/vm". Use the -p option to select the file to
+read the stats from. (nvmstat  -p /proc/stats/vm)
 
-The things that you changed were all
-
-	virt_to_bus( page_address (...) )
-
-which really is rather distateful in that it artificially limits itself to
-only lowmem code, and gets randomly incorrect values for anything else.
-
-> @@ -107,7 +107,7 @@
->  	if( !pmd_present( *pmd ) ) return NOPAGE_OOM;
->  	pte = pte_offset( pmd, i );
->  	if( !pte_present( *pte ) ) return NOPAGE_OOM;
-> -	physical = (unsigned long)pte_page( *pte )->virtual;
-> +	physical = (unsigned long)page_address(pte_page( *pte ));
->  	atomic_inc(&virt_to_page(physical)->count); /* Dec. by kernel */
-
-That is just too ugly for words. It's not a "physical" address at all, but
-a virtual one, and we're getting the virtual address from the struct page
-just to get back to the struct page.
-
-It should really do
-
-	struct page *page = pte_page( *pte );
-	get_page(page);
-
-instead..
-
-		Linus
+The userlevel tool will average the stats, so you can actually see whats
+happening over time, and not just see "what already happened". Its really
+really useful. 
 

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130940AbRC0JIT>; Tue, 27 Mar 2001 04:08:19 -0500
+	id <S131028AbRC0JYL>; Tue, 27 Mar 2001 04:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131020AbRC0JIJ>; Tue, 27 Mar 2001 04:08:09 -0500
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:62509 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S130940AbRC0JHs>; Tue, 27 Mar 2001 04:07:48 -0500
-Message-ID: <3AC05833.96A3127E@stud.uni-saarland.de>
-Date: Tue, 27 Mar 2001 09:06:59 +0000
-From: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>
-Reply-To: manfred@colorfullife.com
-Organization: Studierende Universitaet des Saarlandes
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
-MIME-Version: 1.0
-To: puckwork@madz.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
+	id <S131063AbRC0JYB>; Tue, 27 Mar 2001 04:24:01 -0500
+Received: from mail.n-online.net ([195.30.220.100]:48657 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S131028AbRC0JXy>; Tue, 27 Mar 2001 04:23:54 -0500
+Date: Tue, 27 Mar 2001 11:23:07 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: RE: URGENT : System hands on "Freeing unused kernel memory: "
+X-Mailer: Thomas Foerster's registered AK-Mail 3.1 publicbeta2a [ger]
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010327092358Z131028-406+4343@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 2 ideas:
-* glibc corrupted
-* did you downgrade the cpu?
+> Does it hang forever ?
 
-RH 7.0 automatically installs glibc for a Pentium Pro or later if that
-cpu is present during install.
-If you then move the hd into a computer with an AMD K6, it won't boot.
+Yes :(
 
-I'd run
+> I've noticed that my kernel (2.4.2) stalls for several minutes with the same
+> message but suddenly after that the login prompt appears (anything between,
+> like configurations and services starting messages, are gone). We've been
+> able to track it down to a change we did to /etc/lilo.conf to add support
+> for kernel prints to go out to a serial debugger. Before that everything was
+> OK, but after we added append="console=tty0 console=ttyS1,38400", this
+> problem started. We did notice however that everything that doesn't appear
+> on the console does appear on the serial debugger.
 
-#rpm -Va
+We didn't change anything on the system .. it once crashed and now it won't boot
+anymore, it always stops at "freeing unused kernel memory ..."
 
-and check if some unusual files are modified (...5.. without "c")
+Thomas
 
---
-	Manfred

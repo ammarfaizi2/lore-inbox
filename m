@@ -1,349 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290601AbSAYJdB>; Fri, 25 Jan 2002 04:33:01 -0500
+	id <S290599AbSAYJ1w>; Fri, 25 Jan 2002 04:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290617AbSAYJcx>; Fri, 25 Jan 2002 04:32:53 -0500
-Received: from pilot18.cl.msu.edu ([35.9.5.38]:46555 "EHLO pilot18.cl.msu.edu")
-	by vger.kernel.org with ESMTP id <S290601AbSAYJck>;
-	Fri, 25 Jan 2002 04:32:40 -0500
-Message-Id: <200201250932.g0P9Wef21936@pilot18.cl.msu.edu>
-Subject: ABIT BX6 Rev 2.0 and Kernel Oopses
-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 Jan 2002 04:32:40 -0500 (EST)
-From: "Marcel Kunath" <kunathma@pilot.msu.edu>
-Cc: rmaynard@nc.rr.com, chingk@ucs.orst.edu, draht@suse.de
-X-Mailer: ELM [version 2.4 PL25]
-Content-Type: text/plain
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S290601AbSAYJ1l>; Fri, 25 Jan 2002 04:27:41 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:52441 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290599AbSAYJ12>; Fri, 25 Jan 2002 04:27:28 -0500
+Date: Fri, 25 Jan 2002 15:00:00 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: lse-tech <lse-tech@lists.sourceforge.net>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Paul McKenney <Paul.McKenney@us.ibm.com>, viro@math.psu.edu,
+        anton@samba.org, andrea@suse.de, tytso@mit.edu, riel@conectiva.com.br
+Subject: Re: [RFC] Peeling off dcache_lock
+Message-ID: <20020125150000.B1782@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020121174039.D8289@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020121174039.D8289@in.ibm.com>; from maneesh@in.ibm.com on Mon, Jan 21, 2002 at 05:40:39PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug Report
-----------
-
-To:
-Linux Kernel Mailing List
-
-Cc:
-Reid rmaynard@nc.rr.com
-Kenneth chingk@ucs.orst.edu
-Roman Drahtmüller draht@suse.de
-
-I would send a copy of this to ABIT but they aren't very reachable. I don't
-know a point of contact for the macro-society known as Microsoft.
-
-
-
-The following is a collection of information and data accumulated after playing
-with a specific motherboard and a variety of operating systems (for 18 hours).
-The failure to install, run and operate some of the OS' on the board or rather
-operate them at the meant to be CPU speed.
-
-
-
-The report regards:
-
-    Abit BX6 Rev. 2   also knows as
-    Abit BX6 Rev. 2.0 also knows as
-    Abit BX6-2.0
-
-
-and contains the following sections:
-
-    1. GENERAL
-    2. HARDWARE SETUP
-    3. PROBLEM SITUATION
-    4. SUMMARY
-    5. WEB RESEARCH
-    6. MY ANALYSIS
-    7. THANK YOU
-    8. KERNEL OOPSES
-    9. LINKS
-
-
-
-GENERAL
--------
-
-The board was purchased in December 1999 (built into a machine) and came from
-the manufacturer with the BIOS 'BXR_MN.BIN'.
-
-The latest BIOS is 'BXR_QR.BIN'.
-
-The BIOS history can be found here:
-http://fae.abit.com.tw/eng/download/bios/bx620.htm
-
-The machine is filled with a Pentium III CPU 550 MHz. I tested this CPU using
-the Intel test utility and this CPU is neither overclocked or been tampered
-with.
-
-This board has been specified to work with Linux at:
-
-http://lhd.zdnet.com/db/dispproduct.php3?DISP?334
-
-Throughout my research I have been in contact with BX6-2.0 users who had no
-trouble and others who had the same trouble as I did.
-
-This board has been known to be used by a variety of overclockers. In my setup
-no overclocked CPU has been used or in other words my CPU was never intended to
-be running above its meant to be speed. The target speed of the Pentium III 550
-MHz was always 550MHz.
-
-
-During my testing I have removed all unnecessary hardware from the setup trying
-to find a hardware component that caused the problems. I could not however.
-
-
-HARDWARE SETUP
---------------
-
-Abit BX6-2.0 (SLOT 1 mobo)
-Pentium III 550 Mhz
-Kingston Valueram 256 MB PC100
-LG CD-RW CED-8042B
-NVIDIA RIVA TNT2 32 MB AGP
-IBM 30.7 GB 75GXP DTLA-307030 (brand new so its got nothing to do with the
-drive; I know this drive has been having its own bad calls in the news but it
-is not the issue here)
-Lite-ON Monitor
-
-Over the course of my testing I also tried another stick of memory, a Trident
-3Dimage 4MB AGP card and a Toshiba 24x CD-Rom. The same problem I am about to
-discuss occurred.
-
-
-PROBLEM SITUATION
------------------
-
-After the purchase in 1999 I installed SuSE 6.2 on the machine. I don't
-remember having any trouble at it and I am pretty sure it was at the CPU speed
-of 550MHz. The machine came with Win98 and has been running for 2 years with
-Win98. The SuSE install was only a test run back then and I had wiped it off
-the disk afterwards.
-
-2002: My latest goal was installing Windows XP on this new drive in the
-machine. (The drive before was a DTLA-305030). I had updated the BIOS two
-months ago to QR and Win98 ran fine.
-
-For the next few paragraphs the CPU is running at 550MHz!!!
-
-I put in the XP CD and it booted and I formatted a 6 Gig partition in NTFS. In
-the install procedure it copies over a bunch of files and then reboots to then
-drive the rest of the installation from harddisk. On this reboot I got a Blue
-Screen Of Death. It reported that there was a Stop error when a process tried
-to write to read-only memory. I therefore removed all hardware and turned of
-caching and shadowing in the BIOS to diagnose the problem. The problem
-persisted and I get either BSOD's or stalls. The BSOD's report
-(DRIVER_)IRQL_NOT_LESS_OR_EQUAL errors now. Microsoft support pages give the
-same advice I already applied but the OS won't load.
-
-I then went back and installed Win98 to check for sure something wasn't out of
-order. It installed without hitch and booted and ran fine.
-
-I went back to installing XP with the same problem occuring.
-
-I went back to older BIOS. I tried MN, KU, HJ. It didn't help.
-
-I pulled out a set of Mandrake 8.1 CDs and it booted off CD but then stalled or
-crashed. I pulled out a old set of SuSE 6.4 CDs and it booted but as soon as
-the kernel loaded it oopsed.
-
-All while doing this I was searching the web for help and gathered tips from a
-couple of mailing lists.
-
-Accidentally I set the CPU to a lower speed than 550MHz and booted the machine.
-The BIOS complained that the CPU was misconfigured and I should change the BIOS
-settings but it also gave me the option to go ahead (F1) and boot anyhow.
-
-The CPU is at 366 MHz (underclocked)!!!!!
-
-I went ahead and suddenly XP booted.
-
-Here I went and pulled out my SuSE 6.4 CD and now it wouldn't oops anymore. I
-went ahead and installed SuSE 6.4 on a second partition. I rebooted and it
-booted just fine.
-
-I went back and set the CPU back to 550Mhz and booting XP or SuSE became
-impossible again. SuSE kernel dumped a large oops onto my screen.
-
-Today I got a set of RedHat 7.2 CDs and it will not install at 550MHz. It
-stalls or suddenly reboots. I set the CPU to 366 MHz again and installed RH
-onto another partition. My setup is now:
-
-/dev/hda1 XP
-/dev/hda2 SuSE 6.4
-/dev/hda3 swap
-/dev/hda4 RH 7.2
-
-After having installed RH I rebooted and it boots fine at 366 MHz. If I set the
-CPU to 550Mhz the RH kernel oopses.
-
-
-Now many people suggested to turn off about everything in the BIOS and work my
-way upwards. I did this and only left IDE controller enabled. It booted fine at
-366 Mhz. As soon as I switched to 550 Mhz even with L2 Cache and L1 Cache
-disabled and any shadowing turned off too it would stall.
-
-
-SUMMARY
--------
-
-Original motherboard allowed for Linux installation (SuSE 6.2) and runs Win98
-fine at speed 550MHz Pentium III CPU. No problems for two years and to this
-date with Win98.
-
-The BIOS was updated in late 2001 to QR. The machine still runs Win98 fine at
-550MHz. Operating systems such as XP, RH, SuSE must be installed and run at 366
-MHz now. UNDERCLOCKED!!!
-
-
-WEB RESEARCH
-------------
-
-I have dug into google and found quite some information. This problem has been
-known but occurs very rarely and in only special cases and I think I know why.
-
-If I ran XP at 550 Mhz and chose Safe Mode it would run down a list of modules
-loaded and suddenly stall at "driver/agp440.sys".
-
-I searched google and a ton of people using 2K or XP have trouble with the
-agp440.sys problem. This doesn't mean AGP is the cause here since XP doesn't
-dump out its real module loading log when loading. agp440.sys is just the last
-module mentioned before it stalls.
-
-The agp440.sys problem occurs also for many other boards and configurations
-(e.g. Athlon, P4 and other NVIDIA cards)
-
-I figured this was not the right direction.
-
-Having remembered that I once ran Linux on this board two years ago I figured
-its either the CPU or the mobo. I remembered I flashed the BIOS recently. I
-looked up what I could find and voila people did the same as me and had the
-same trouble:
-
-Reid reports that all his mobo can run is Win98 and neither 2K, Linux or BSDs
-runs:
-
-http://groups.google.com/groups?hl=en&frame=right&th=b5b6671ee8e4a3ad&seekm=q2vZ
-6.77281%24ru2.22650002%40typhoon.southeast.rr.com#link1
-
-A reverting to the old BIOS does not help. I contacted Reid and he still has no
-fix for the situation.
-
-I got another example which is exactly like mine and Reid's:
-
-http://groups.google.com/groups?q=bx6+kernel+panic&hl=en&selm=37B6EE47.3D9A3AE5%
-40ucs.orst.edu&rnum=3
-
-Kenneth ran NT on his BX6-2. It worked wonderfully. Then he flashed his BIOS
-and it oopsed from thereon in. He went back to use his old BIOS but his OS is
-still unstable. He tried Mandrake on it then and it won't succeed but oopses.
-
-
-MY ANALYSIS
------------
-
-The board as it was manufactured was able to run all types of OS. Manypeople
-have assured me that is what they are doing.
-
-I and Reid though cannot run anything but Win9x. The thing that makes our case
-special is that we both flashed the BIOS and then tried to install XP or Linux.
-
-
-I do wonder if the BIOS installed at the plant was in some way special and any
-BIOS flashed at home and downloaded from the web are containing inconsistencies
-which break the mobo from working with NT or Linux kernels. The fact that
-others run Linux and Nt fine on their mobo but my flashed and revertedly
-flashed mobo cannot makes me wonder.
-
-
-THANK YOU
----------
-
-I would love to contact Abit about this but they don't leave a single point of
-contact on their web pages.
-
-I appreciate any comments in regards to this issue. I will now report what the
-kernel errored on and it may help the hackers in building an opinion about this
-issue.
-
-Thank you for reading this lengthy document! I could care less if Ican run a
-certain OS on this specific by today's standard's outdatedbox but it bugs me
-that there seems to have creaped in a bug intoABIT's board which makes it
-incompatible with a advanced kernel like the Linux 2.2 or 2.4 kernel and the NT
-kernel as well but gives it theability to handle the functionality of the Win9x
-kernel.
-
-I wish somebody would invest the time in researching this topic in detail.
-
-I know ABIT has their own Linux distro. I do not have a copy of it but I would
-be damn curious to know if their distro runs on their ownboard after a BIOS
-flash.
-
-Thanks for your time and if you need more info contact me,
-
-Marcel
-
-
-KERNEL OOPSES
--------------
-
-RH 7.2 default i686 kernel (I think its 2.4.7):
-
-EXT3-fs: mounted filesystem with ordered data mode.
-Freeing unused kernel memory: 220k freed.
-CPU 0: Machine Check Exception: 0000000000000004
-Bank 3: b20000000002010a
-Kernel panic: CPU context corrupt
-In interrupt handler - not syncing
-
-
-SuSE 6.4 default 2.2.14 kernel:
-
-Unable to handle kernel paging request at virtual address 05efa769.2%
-current->tss.cr3 = 00101000, %cr3 = 00101000
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c011825>]
-EFLAGS: 00010013
-eax: 000000ff ebx: c0289f24 ecx: 00008c7e edx: c0289f24
-esi: 20000001 edi: 00000000 ebp: c0289e6c esp: c0289e74
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, process nr: 0, stackpage=c0289000)
-Stack: c0289f24 24000001 0000000e c0289f24 c026ad58 00000001 c0289eacc01d43b4
-       00000001 00000695............
-Call Trace: ........................
-Code: 28 8b 45 08 c7 45 f4 00 00 00 00 c7 45 f0 00 00 00 00 89 45
-Aiee, killing interrupt handler
-Kernel panic: Attempted to kill idle task!
-In swapper task - not syncing.
-
-
-
-
-Kenneth's Mandrake 6.0 Oops:
-
-Kernel panic: LRU block list corrupted
-Unable to handle kernul NULL pointer dereference at virtual address
-00000028
-current->tss.cr3 = 00101000, %cr3 = 00101000
-*pde = 00000000
-Oops: 0000
-CPU: 0
-.
-.
-.
-
-
-LINKS
------
-
-Abit Support:
-http://fae.abit.com.tw/eng/
-
-Abit BX6 Rev. 2:
-http://fae.abit.com.tw/eng/download/bios/bx620.htm
-
+Since there has been speculation about the throughput #s for lower end,
+I have put up the comparison graph in the same page 
+(http://lse.sf.net/locking/dcache/dcache_lock.html).
+
+As http://lse.sourceforge.net/locking/dcache/results/dbench/base+dc-tpt.png
+would show, there is *no* performance degradation at the lower end or
+UP. The absolute numbers are in
+http://lse.sourceforge.net/locking/dcache/results/dbench/.
+
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+
+On Mon, Jan 21, 2002 at 05:40:39PM +0530, Maneesh Soni wrote:
+> Hi All,
+> 
+> We have been doing experiments with dcache_lock to provide some relief from it.
+> Though dcache_lock is not a very hot lock in comparision to BKL but on higher
+> end machines it becomes quite contentious. We would like to have feedbacks,
+> comments about the approach taken and guidance on how to improve this further.
+> 
+> As dcache_lock is acquired maximum number of times while doing lookup, the main
+> idea was to remove dcache_lock from d_lookup. With the help of Read Copy Update
+> it is possible to lookup the hash list of dentries without taking dcache_lock
+> but as d_lookup also updates the lru list, removing dcache_lock from d_lookup
+> was not straight forward. Various approaches were tried for that and the most
+> successful is doing lazy updation of lru list. 
+> 
+> Using this the dcache_lock contention was down from 16.5% to 0.95% on an 
+> 8-way SMP box and lock utilization was down from 5.3% to 0.89%
+> 
+> The patch for lazy lru updation using RCU can be found here:
+> 
+> http://lse.sourceforge.net/locking/dcache/patches/2.4.17/dcache_rcu-lazy_lru-2.4.17-06.patch
+> 
+> The basic conecpt for this approach is to not update the lru list in d_lookup
+> facilitating lockless d_lookup. The lru list can now have dentries with non zero
+> reference count also. The lru list is updated while pruning dentry cache. The
+> dcache_lock is kept around so that there are no changes in the update side 
+> locking.
+> 
+> The implementation details for lazy lru list updation and other approaches
+> can be found here:
+> 
+> http://lse.sourceforge.net/locking/dcache/dcache_lock.html 
+> 
+> The above patch works fine with various file systems like ext2, JFS, ext3, /procand has been tested ok with ltp-20020108, dbench, httperf. And doesnot not have
+> any adverse effects on uni processor performance.
+> 
+> 
+> Regards,
+> Maneesh
+> 
+> 
+> -- 
+> Maneesh Soni
+> IBM Linux Technology Center, 
+> IBM India Software Lab, Bangalore.
+> Phone: +91-80-5044999 email: maneesh@in.ibm.com
+> http://lse.sourceforge.net/locking/rcupdate.html
 

@@ -1,29 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136452AbREINzE>; Wed, 9 May 2001 09:55:04 -0400
+	id <S136460AbREIN7Z>; Wed, 9 May 2001 09:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136460AbREINyz>; Wed, 9 May 2001 09:54:55 -0400
-Received: from [212.115.175.146] ([212.115.175.146]:40432 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S136452AbREINyi>; Wed, 9 May 2001 09:54:38 -0400
-Message-ID: <27525795B28BD311B28D00500481B7601F12C8@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: weird
-Date: Wed, 9 May 2001 15:54:33 +0200 
+	id <S136461AbREIN7P>; Wed, 9 May 2001 09:59:15 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54401 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S136460AbREIN7F>; Wed, 9 May 2001 09:59:05 -0400
+Date: Wed, 9 May 2001 09:59:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jens Axboe <axboe@suse.de>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <20010508221643.T505@suse.de>
+Message-ID: <Pine.LNX.3.95.1010509095722.8944A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my dual pii system, I get these messages:
-May  9 15:53:18 marlboro.intranet.vanheusden.com kernel: KERNEL: assertion
-(tp->lost_out == 0) failed at tcp_input.c(1202):tcp_remove_reno_sacks
+On Tue, 8 May 2001, Jens Axboe wrote:
 
-Is this worrying?
-More info:
-marlboro:~$ uname -a
-Linux marlboro 2.4.3 #4 SMP Sun May 6 13:23:49 GMT+1 2001 i686 unknown
+> On Tue, May 08 2001, Richard B. Johnson wrote:
+> > > Use a kernel thread? If you don't need to access user space, context
+> > > switches are very cheap.
+> > > 
+> > > > So, what am I supposed to do to add a piece of driver code to the
+> > > > run queue so it gets scheduled occasionally?
+> > > 
+> > > Several, grep for kernel_thread.
+> > > 
+> > > -- 
+> > > Jens Axboe
+> > > 
+> > 
+> > Okay. Thanks. I thought I would have to do that too. No problem.
+> 
+> A small worker thread and a wait queue to sleeep on and you are all set,
+> 10 minutes tops :-)
+> 
+> > It's a "tomorrow" thing. Ten hours it too long to stare at a
+> > screen.
+> 
+> Sissy!
+> 
+
+Okay. I am now awake. I will now try the kernel thread. Looks
+simple. Got to remember to kill it before/during module removal.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

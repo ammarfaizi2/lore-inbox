@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130461AbRCDR0f>; Sun, 4 Mar 2001 12:26:35 -0500
+	id <S130486AbRCDRXp>; Sun, 4 Mar 2001 12:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130469AbRCDR0Z>; Sun, 4 Mar 2001 12:26:25 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:35062 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130461AbRCDR0K>; Sun, 4 Mar 2001 12:26:10 -0500
-Date: Sun, 4 Mar 2001 18:26:01 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Rik van Riel <riel@conectiva.com.br>, Adam Sampson <azz@gnu.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM balancing problems under 2.4.2-ac1
-Message-ID: <20010304182601.D27675@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.31.0102232120531.8568-100000@localhost.localdomain> <Pine.NEB.4.33.0103030053070.14582-100000@io.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.NEB.4.33.0103030053070.14582-100000@io.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Sat, Mar 03, 2001 at 01:03:26AM +0100
+	id <S130471AbRCDRXf>; Sun, 4 Mar 2001 12:23:35 -0500
+Received: from www.wen-online.de ([212.223.88.39]:19213 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130461AbRCDRXb>;
+	Sun, 4 Mar 2001 12:23:31 -0500
+Date: Sun, 4 Mar 2001 18:23:14 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [TINY patch] VM compromise?
+Message-ID: <Pine.LNX.4.33.0103041813280.541-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 03, 2001 at 01:03:26AM +0100, Adrian Bunk wrote:
-> > If anybody as a good idea to make this code auto-balancing,
-> > please let me know.
-> 
-> I have no idea for auto-balancing but another idea: It's one possibility
-> to let the user choose when doing "make *config" what he wants:
-> 
-> - A VM optimized for servers that swaps out applications in favor of
->   caching.
-> or
-> - A VM optimized for workstations that won't swap out applications in
->   favor of caching.
+Hi Rik,
 
-I thought about the same thing sometimes (but for other troughput
-vs. latency decisions, too).
+Thoughts on the below?
 
-But I realized, that my very own workstation is also a server,
-since it runs an httpd, mysqld, smbd, ftpd etc.
+2.4.2.ac11-virgin
+real    9m50.322s
+user    7m7.810s
+sys     0m36.020s
 
-And somtimes the servers become very busy in our LAN[1].
+2.4.2.ac11+limit kswap expectations and scan slightly heavier
+real    8m23.122s
+user    7m8.860s
+sys     0m33.960s
 
-IF we want that tuning, we should have it as a sysctl. Most of it
-is already possible with /proc/sys/vm/*, but balancing decisions
-are still missing.
+At no time do I see cache collapse as in earlier kernels, nor do I see
+cache bloat as in virgin ac >= 3.  I think this is a good compromise
+candidate.  This is almost as good as my best by fiddling with I/O..
+[8m3s] _without_ fiddling with I/O, and it only changes 2 lines instead
+of nuking a large chunk of your [damn difficult] balancing work :)
 
-And even for servers we need to reduce caching sometimes. Think
-of an httpd serving _very_ dynamic content. Or any other
-application (e.g. DMBS), that doesn't rely on file system
-caching.
+Why do I think it works?
 
-A anonymous/file-backed[2] ratio would be VERY handy ;-)
+1. kswapd attempting to fix everything in one run doesn't take
+into account that tasks not only allocate, they also free.  If
+we try to fix everything, we're usually assuring an overreaction.
 
-But maybe this will be implemented one day along the lines of QoS
-in the VM...
+2. scanning a little more agressively brings the cache shrinkage
+to swap ratio to something more realistic for this work load..
+and I strongly suspect many others as well.
 
-Regards
 
-Ingo Oeser
+--- linux-2.4.2.ac11/mm/vmscan.c.org	Sun Mar  4 17:28:54 2001
++++ linux-2.4.2.ac11/mm/vmscan.c	Sun Mar  4 17:15:23 2001
+@@ -847,7 +847,7 @@
+  * continue with its real work sooner. It also helps balancing when we
+  * have multiple processes in try_to_free_pages simultaneously.
+  */
+-#define DEF_PRIORITY (6)
++#define DEF_PRIORITY (4)
+ static int refill_inactive(unsigned int gfp_mask, int user)
+ {
+ 	int count, start_count, maxtry;
+@@ -858,7 +858,7 @@
+ 		maxtry = 6;
+ 	} else {
+ 		/* kswapd */
+-		count = inactive_shortage() + free_shortage();
++		count = (inactive_shortage() + free_shortage()) >> 2;
+ 		maxtry = 1 << DEF_PRIORITY;
+ 	}
 
-[1] >1500 possible clients for these servers.
-[2] Not counting swaps as file backed. We have a special inode
-   for the swapper anyway, right?
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+

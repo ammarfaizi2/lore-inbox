@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286893AbSAXKJr>; Thu, 24 Jan 2002 05:09:47 -0500
+	id <S286871AbSAXKZk>; Thu, 24 Jan 2002 05:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286904AbSAXKJi>; Thu, 24 Jan 2002 05:09:38 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:54431 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S286895AbSAXKJZ>; Thu, 24 Jan 2002 05:09:25 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 24 Jan 2002 02:09:22 -0800
-Message-Id: <200201241009.CAA00324@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Patch: linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c typo fixes to make it compile
+	id <S286904AbSAXKZb>; Thu, 24 Jan 2002 05:25:31 -0500
+Received: from [202.87.41.13] ([202.87.41.13]:20710 "HELO postfix.baazee.com")
+	by vger.kernel.org with SMTP id <S286871AbSAXKZ2>;
+	Thu, 24 Jan 2002 05:25:28 -0500
+Message-ID: <008301c1a4c1$a79f8fa0$3c00a8c0@baazee.com>
+Reply-To: "Anish Srivastava" <anishs@vsnl.com>
+From: "Anish Srivastava" <anishs@vsnl.com>
+To: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Cc: "Andrea Arcangeli" <andrea@suse.de>,
+        "Rik van Riel" <riel@conectiva.com.br>, <alan@lxorguk.ukuu.org.uk>
+Subject: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+Date: Thu, 24 Jan 2002 15:56:54 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c incorrectly
-contained parentheses after uses of the MOD_{INC,DEC}_USE_COUNT macros.
-This causes it to fail to compile.  It is not clear to me who
-the maintainer of this file is.  So, I apologize for not including
-that person directly in this email.
+Hi!
 
-	Here is the patch.
+I installed kernel 2.4.17 on my SMP server with 8CPU's and 8GB RAM 
+and lets just say that whenever the entire physical memory was utilised
+the box would topple over...with kswapd running a havoc on CPU utilization
+So to avoid losing control I had to reboot every 8 hours.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+But, it all changed after I applied Rik van Riels 2.4.17-rmap-11c patch
+Now, the box is happily running for the past 3 days under heavy load 
+without any problems. The RAM utilization is always at about 95% +
+but the system doesnt swap at all.....kswapd is running all the time and 
+freeing up main memory for other processes. I am quite happy with the
+performance of the box........and highly recommend Rik's patches
+for anyone else facing similar problems
 
---- linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c	Thu Jan 24 01:38:47 2002
-+++ linux/net/ipv4/netfilter/ipfwadm_core.c	Thu Jan 24 01:27:58 2002
-@@ -688,7 +688,7 @@
- 		ftmp = *chainptr;
- 		*chainptr = ftmp->fw_next;
- 		kfree(ftmp);
--		MOD_DEC_USE_COUNT();
-+		MOD_DEC_USE_COUNT;
- 	}
- 	restore_flags(flags);
- }
-@@ -732,7 +732,7 @@
- 	ftmp->fw_next = *chainptr;
-        	*chainptr=ftmp;
- 	restore_flags(flags);
--	MOD_INC_USE_COUNT();
-+	MOD_INC_USE_COUNT;
- 	return(0);
- }
- 
-@@ -783,7 +783,7 @@
- 	else
-         	*chainptr=ftmp;
- 	restore_flags(flags);
--	MOD_INC_USE_COUNT();
-+	MOD_INC_USE_COUNT;
- 	return(0);
- }
- 
-@@ -858,7 +858,7 @@
- 	}
- 	restore_flags(flags);
- 	if (was_found) {
--		MOD_DEC_USE_COUNT();
-+		MOD_DEC_USE_COUNT;
- 		return 0;
- 	} else
- 		return(EINVAL);
+Thanks to all you guys for helping me out....
+
+Best regards,
+
+Anish Srivastava
+
+Linux Rulez!!!
+
+
+

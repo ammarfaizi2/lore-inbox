@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbTEVDpD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 23:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTEVDpD
+	id S262473AbTEVDxK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 23:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTEVDxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 23:45:03 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:55937 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262470AbTEVDpC
+	Wed, 21 May 2003 23:53:10 -0400
+Received: from dyn-ctb-210-9-245-156.webone.com.au ([210.9.245.156]:60933 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262473AbTEVDxJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 23:45:02 -0400
-Date: Wed, 21 May 2003 20:57:51 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Gerrit Huizenga <gh@us.ibm.com>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>, jamesclv@us.ibm.com,
-       haveblue@us.ibm.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       johnstul@us.ibm.com, mannthey@us.ibm.com
-Subject: Re: userspace irq balancer
-Message-ID: <60830000.1053575867@[10.10.2.4]>
-In-Reply-To: <20030522020443.GN2444@holomorphy.com>
-References: <3014AAAC8E0930438FD38EBF6DCEB5640204334F@fmsmsx407.fm.intel.com> <E19Idxq-0001LD-00@w-gerrit2> <20030522020443.GN2444@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 21 May 2003 23:53:09 -0400
+Message-ID: <3ECC4C3A.9000903@cyberone.com.au>
+Date: Thu, 22 May 2003 14:04:10 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Robert White <rwhite@casabyte.com>
+CC: Rik van Riel <riel@imladris.surriel.com>,
+       David Woodhouse <dwmw2@infradead.org>, ptb@it.uc3m.es,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: recursive spinlocks. Shoot.
+References: <PEEPIDHAKMCGHDBJLHKGMEIICMAA.rwhite@casabyte.com>
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGMEIICMAA.rwhite@casabyte.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The task scheduler, the io scheduler, and memory entitlement policies
-> are very different issues. They deal entirely with managing software
-> constructs and resource allocation. 
 
-So we should expose low-level hardware stuff to userspace to manage, 
-but not higher level software constructs? I fail to see the abiding 
-logic there. If anything, the inverse ought to be true.
 
-> IMHO Linux on Pentium IV should use the TPR in conjunction with _very_
-> simplistic interrupt load accounting by default and all more
-> sophisticated logic should be punted straight to userspace as an
-> administrative API.
+Robert White wrote:
 
-I'd be happy with that - sounds to me like you're arguing for the same 
-thing. Sane default in kernel, can override from userspace if you like. 
-However, I've yet to see an implementation of the TPR usage that got
-good performance numbers ... I'd love to see that happen.
+>>From: Rik van Riel [mailto:riel@surriel.com]On Behalf Of Rik van Riel
+>>
+>
+>>So call_EE_ messes with the data structure which call_ER_
+>>has locked, unexpectedly because the recursive locking
+>>doesn't show up as an error.
+>>
+>
+>Yes and no.  It all hinges on that nonsensical use of "unexpectedly".
+>
+>(I'll be using fully abstract examples from here on out to prevent the
+>function call police from busting me again on a technicality... 8-)
+>
+Oh come on! Now I won't get into this argument, but you can't win
+by saying "if this were implemented in such a way that recursive
+locking is required, then recursive locking is required here"!!
 
-M.
+Look: I could easily reimplement your snark so it doesn't have to call
+the last "whangle" - now see how it can be done completely lockless
+with a memory barrier between a and b?
+
+Locking is an implementation issue, and as such I think you'll have
+to come up with a real problem or some real code. You must have some
+target problem in mind?
+
+Best regards,
+Nick
+

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUIERaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUIERgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUIERaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 13:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUIERaF
+	id S266891AbUIERgm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 13:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUIERgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 13:30:05 -0400
-Received: from omx3-ext.SGI.COM ([192.48.171.20]:59804 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266805AbUIER3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 13:29:54 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: New proposed DRM interface design
-Date: Sun, 5 Sep 2004 10:27:59 -0700
-User-Agent: KMail/1.7
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-References: <20040904102914.B13149@infradead.org> <9e47339104090508052850b649@mail.gmail.com> <1094398257.1251.25.camel@localhost.localdomain>
-In-Reply-To: <1094398257.1251.25.camel@localhost.localdomain>
+	Sun, 5 Sep 2004 13:36:42 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:2796 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S266891AbUIERgl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 13:36:41 -0400
+Date: Sun, 05 Sep 2004 10:36:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
+cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+Message-ID: <503530000.1094405791@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org>
+References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net><413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au> <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409051027.59244.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, September 5, 2004 8:31 am, Alan Cox wrote:
-> The only glue structure you need for most of this is
->
-> struct fb_device
-> {
->  struct fb_info *fb; /* NULL or frame buffer device */
->  struct dri_whatever *dri;  /* As yet not nicely extracted DRI
->      object */
->  atomic_t refcnt;
->  void *private
-> };
->
-> Right now the drvdata for most PCI/AGP frame buffers is set to the
-> fb_info. If that is set to the shared object then you can attach DRI and
-> or FB first and they can find and call each others methods.
->
-> It might also need a single lock just to avoid DRI deciding to go away
-> while fb is calling dri and the reverse although I think the refcnt is
-> easier and cheaper.
->
-> With that in place if X tells DRI "640x480 starting here" then DRI can
-> tell fb "640x480 starting here". Similarly fb and dri can find each
-> other for acceleration and the kernel can become a DRI client for
-> console acceleration.
->
-> Once you have this object you can start attaching memory managers and
-> mode setup pointers to the shared structure so that they live
-> independantly.
+>> Hmm, and the crowning argument for not stopping at order 3 is that if we
+>> never use higher order allocations, nothing will care about their watermarks
+>> anyway. I think I had myself confused when that question in the first place.
+>> 
+>> So yeah, stopping at a fixed number isn't required, and as you say it keeps
+>> things general and special cases minimal.
+> 
+> Hey, please refute my "you need 20% free" to get even to order-3 for most
+> cases first.
+> 
+> It's probably acceptable to have a _very_ backgrounded job that does
+> freeing if order-3 isn't available, but it had better be pretty
+> slow-moving, I suspect. On the order of "It's probably ok to try to aim
+> for up to 25% free 'overnight' if the machine is idle" but it's almost
+> certainly not ok to aggressively push things out to that degree..
 
-So then this structure would represent a merged driver?  That is, you'd have a 
-driver that attaches to display devices and creates this structure to manage 
-fb and dri?
+IIRC, the way we free pages is basically random shootdown. We don't even 
+attempt to free pages in a contiguous block, so it's unsuprising it doesn't
+work. Now we have rmap, we should be able to walk through a block, see if
+everything in it looks swappable, and then try to shoot it down. If not,
+move onto the next one. I think that'd be a damned sight more likely
+to free things up for higher order allocs if they do happen.
 
-Jesse
+M.
+

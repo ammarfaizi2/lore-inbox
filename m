@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUGCSMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUGCSrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUGCSMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 14:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUGCSMI
+	id S265222AbUGCSrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 14:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUGCSrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 14:12:08 -0400
-Received: from relay1.mail.uk.clara.net ([80.168.70.141]:5126 "EHLO
-	relay1.mail.uk.clara.net") by vger.kernel.org with ESMTP
-	id S265234AbUGCSL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 14:11:58 -0400
-From: "John Thompson" <adminREMOVE@eurofreelancers.com>
-Subject: Programmers forum
-To: linux-kernel@vger.kernel.org
-Date: Sat, 3 Jul 2004 19:11:54 +0100
-X-Clara-Relay: Message sent using Claranet Relay Service using auth code: graphicworks
-Message-Id: <S265234AbUGCSL6/20040703181158Z+332@vger.kernel.org>
+	Sat, 3 Jul 2004 14:47:23 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:65254 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265222AbUGCSrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 14:47:22 -0400
+Date: Sat, 3 Jul 2004 20:47:16 +0200 (MEST)
+Message-Id: <200407031847.i63IlGcI027349@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: jhudson@cyberspace.org, linux-kernel@vger.kernel.org
+Subject: Re: [PACH] updated patch to restore bootsect
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-Just to introduce a new forum for all your programming requirements:
+On Sat, 3 Jul 2004 13:20:11 -0400 (EDT), Joshua <jhudson@cyberspace.org> wrote:
+>diff -rup linux-2.6.7/arch/i386/boot/bootsect.S
+>linux-2.6.7c/arch/i386/boot/bootsect.S
+>--- linux-2.6.7/arch/i386/boot/bootsect.S	Tue Jun 15 22:19:23 2004
+>+++ linux-2.6.7c/arch/i386/boot/bootsect.S	Fri Jul  2 04:22:08 2004
+>@@ -5,12 +5,17 @@
+>  *	modified by Bruce Evans (bde)
+>  *	modified by Chris Noe (May 1999) (as86 -> gas)
+>  *	gutted by H. Peter Anvin (Jan 2003)
+>+ *	rewritten by Joshua Hudson (June 2004)
 
-HTML
-PHP
-MySQL
-PERL
-JAVA
-XML
-VB
-ASP
-CSS
-APACHE
-LINUX
+Why?
 
-As well as advertise your skills for hire or request a freelancers for your project.
-
-You are welcome to join our community and contribute. We are also seeking moderators.
-
-http://www.eurofreelancers.com/forum/index.php
-
-If this mail is not of interest to you, we apologise for the intrusion
-
-Regards
-JohnT
-
-http://www.eurofreelancers.com/forum/index.php
+We got rid of this code for two reasons:
+- it didn't work reliably
+- normal boot loaders like (recent versions of) syslinux do work

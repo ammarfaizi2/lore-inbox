@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319041AbSHMTPx>; Tue, 13 Aug 2002 15:15:53 -0400
+	id <S319016AbSHMTNg>; Tue, 13 Aug 2002 15:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319042AbSHMTPx>; Tue, 13 Aug 2002 15:15:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28434 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319041AbSHMTPw>; Tue, 13 Aug 2002 15:15:52 -0400
-Date: Tue, 13 Aug 2002 12:22:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Matt Dobson <colpatch@us.ibm.com>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-In-Reply-To: <2009430000.1029265102@flay>
-Message-ID: <Pine.LNX.4.44.0208131220350.7411-100000@home.transmeta.com>
+	id <S319024AbSHMTNg>; Tue, 13 Aug 2002 15:13:36 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:6111 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319016AbSHMTNf>;
+	Tue, 13 Aug 2002 15:13:35 -0400
+Date: Tue, 13 Aug 2002 21:16:52 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208131148340.7411-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208132111400.7951-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 13 Aug 2002, Martin J. Bligh wrote:
-> 
-> OK, I was being unclear, that's not really what I meant. If I may rephrase:
-> I don't like the performance hit it gives on P3 standard SMP machines (not
-> NUMA-Q) though it does work on there too, and there's no easy way for 
-> people to disable it.
+On Tue, 13 Aug 2002, Linus Torvalds wrote:
 
-Well, it makes performance _so_ much better on a P4 that it's not even 
-funny. It's basically a "P4 is unusable with SMP" without it.
+> The fact that the child doesn't want to send a signal to the parent on
+> exit is a totally different matter, and should already be supported by
+> just giving a zero signal number.
 
-		Linus
+exit signal 0 is already being used and relied on by kmod - i originally
+implemented it that way. In that case the child thread becomes a zombie
+until the parent exits, and then it gets reparented to init. I did not
+want to break any existing semantics (no matter how broken they appeared
+to me) thus i introduced CLONE_DETACHED. But thinking about it, 'a zombie
+staying around indefinitely' is not a semantics that it worth carrying too
+far? But in case, if signal 0 is the preferred interface then i'm all for
+it - this is not really a clone() property but an exit-signalling
+property.
+
+	Ingo
 

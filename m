@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSE3UDj>; Thu, 30 May 2002 16:03:39 -0400
+	id <S316860AbSE3UQ7>; Thu, 30 May 2002 16:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316861AbSE3UDi>; Thu, 30 May 2002 16:03:38 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:44301
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S316857AbSE3UDg>; Thu, 30 May 2002 16:03:36 -0400
-Date: Thu, 30 May 2002 13:03:32 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Processes stuck in D state with autofs + smbfs
-Message-ID: <20020530200332.GD1136@matchmail.com>
-Mail-Followup-To: Urban Widmark <urban@teststation.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020529172616.GB1136@matchmail.com> <Pine.LNX.4.33.0205301421540.1921-100000@cola.enlightnet.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316861AbSE3UQ6>; Thu, 30 May 2002 16:16:58 -0400
+Received: from schwerin.p4.net ([195.98.200.5]:62070 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S316860AbSE3UQ5>;
+	Thu, 30 May 2002 16:16:57 -0400
+Message-ID: <3CF6895A.2050801@p4all.de>
+Date: Thu, 30 May 2002 22:19:38 +0200
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Peter Chubb <peter@chubb.wattle.id.au>, Russel King <rmk@arm.linux.org.uk>
+Subject: Re: Strange code in ide_cdrom_register
+In-Reply-To: <15605.34861.599803.405864@wombat.chubb.wattle.id.au>	<3CF5D424.2060500@p4all.de> <15605.60268.673419.701625@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 02:36:43PM +0200, Urban Widmark wrote:
-> On Wed, 29 May 2002, Mike Fedyk wrote:
-> 
-> > I'm currently running 2.4.19-pre6-vm33 on this 2x664Mhz P3 machine, but I've
-> > also had the problem in the previous UP machine.
-> > 
-> > I'm not sure what information will be helpful in debugging this probem.
-> > Would sysrq+t run through ksymoops be helpful?
-> 
-> Yes, it could show where the process is stuck. Probably what has happened
-> is that some process is blocked while holding the smbfs semaphore (there
-> is one per mount).
-> 
-> All others will then get stuck in 'D' state trying to get that semaphore.
-> 
-> The "classic" way to get this is to have a server that is shutdown while
-> it is mounted. There are patches to help with that (and if I wasn't so
-> slow sometimes a simple fix would already be in 2.4.something, after
-> 2.4.19 I promise).
->
+Hi!
 
-Yes, the remote server was shut down and caused this problem.
+Peter Chubb wrote:
+....
+  > The cast is *wrong*, and potentially dangerous.
+  >
+  > I'll submit a patch....
 
-> > I also have this in my kernel log:
-> > May 26 06:33:16 fileserver kernel: Uhhuh. NMI received. Dazed and confused, but trying to continue
-> > May 26 06:33:16 fileserver kernel: You probably have a hardware problem with your RAM chips
-> 
-> However, this error could (but I don't really know what the effects are of
-> this) potentially stop a process at some random point. If a process
-> crashes, for example an oops, while holding the semaphore that semaphore
-> will still be held and everyone trying to get in will stop in D state.
->
+OK. Maybe my problem is this
+(in thinking - last night was definetly too short...):
 
-I will resove this issue soon, but don't forget that the processes stuck in
-D state has been happening for a while on another machine also.
+---------- from ide-cd.c ------------------
+static int ide_cdrom_register (ide_drive_t *drive, int nslots)
+{
+     struct cdrom_info *info = drive->driver_data;
+     struct cdrom_device_info *devinfo = &info->devinfo;
+     ...
+     *(int *)&devinfo->speed = CDROM_STATE_FLAGS (drive)->current_speed;
+     *(int *)&devinfo->capacity = nslots;
 
-> 
-> There are some patches here:
-> http://www.hojdpunkten.ac.se/054/samba/index.html
-> 
-> But that server appears to be down right now.
-> 
-> There is one patch that uses poll to help with the problem of a server
-> that is gone, and another that changes a lot of how smbfs sends requests
-> and additionaly makes the user processes always(?) be interruptible.
->
+---------- from ide-cd.c ------------------
 
-Do these require any changes to the samba userspace?
+As you can see there are several stages of pointers:
+Parameter "drive" is pointer to the original var,
+"info" is a pointer to "drive->driver_data",
+"devinfo" is a pointer to the address of "info->devinfo".
 
-> But if the NMIs are killing things at random points then none of those
-> patches will help.
+So we put a value into a mem-address referenced by several pointers -
+but whats the type of that address? The other values are (nearly all)
+just simply ints or pointers. Just putting a byte-value into a field
+defined as int would probably be wrong.
 
-AFAICT, no processes have been killed.  I'm going to try to reproduce this
-on another machine and I'll post the sysrq+t ksymoops output from that.
-I'll probably have to do it next week though.
+But, Russel, you're right:
+If we had to cast we would do it with the source.
+This _is_ strange code *scratch head*  :-/
 
-Mike
+ciao
+
+Michael
+
+
+

@@ -1,99 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317918AbSG2WO1>; Mon, 29 Jul 2002 18:14:27 -0400
+	id <S318069AbSG2WQn>; Mon, 29 Jul 2002 18:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318049AbSG2WO0>; Mon, 29 Jul 2002 18:14:26 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:18706 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317918AbSG2WOW>; Mon, 29 Jul 2002 18:14:22 -0400
-Date: Tue, 30 Jul 2002 00:18:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
-Message-ID: <20020729221852.GI1201@dualathlon.random>
-References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au> <20020729004942.GL1201@dualathlon.random> <3D44A2DF.F751B564@zip.com.au> <20020729205211.GB1201@dualathlon.random> <3D45AD1B.864458B@zip.com.au> <20020729213132.GG1201@dualathlon.random> <3D45B79F.D228226@zip.com.au>
+	id <S318077AbSG2WQn>; Mon, 29 Jul 2002 18:16:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54280 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318069AbSG2WQK>;
+	Mon, 29 Jul 2002 18:16:10 -0400
+Date: Mon, 29 Jul 2002 23:19:27 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [parisc-linux] 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
+Message-ID: <20020729231927.D3317@parcelfarce.linux.theplanet.co.uk>
+References: <20020729040824.GA2351@zax> <20020729100009.A23843@flint.arm.linux.org.uk> <20020729144408.GA11206@opus.bloom.county> <20020729181702.E25451@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D45B79F.D228226@zip.com.au>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020729181702.E25451@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Jul 29, 2002 at 06:17:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 02:46:07PM -0700, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > On Mon, Jul 29, 2002 at 02:01:15PM -0700, Andrew Morton wrote:
-> > > Andrea Arcangeli wrote:
-> > > >
-> > > > On Sun, Jul 28, 2002 at 07:05:19PM -0700, Andrew Morton wrote:
-> > > > > But yes, all of this is a straight speed/space tradeoff.  Probably
-> > > > > some of it should be ifdeffed.
-> > > >
-> > > > I would say so. recalculating page_address in cpu core with no cacheline
-> > > > access is one thing, deriving the index is a different thing.
-> > > >
-> > > > > The cost of the tree walk doesn't worry me much - generally we
-> > > > > walk the tree with good locality of reference, so most everything is
-> > > > > in cache anyway.
-> > > >
-> > > > well, the rbtree showedup heavily when it started growing more than a
-> > > > few steps, it has less locality of reference though.
-> > > >
-> > > > >    Good luck setting up a testcase which does this ;)
-> > > >
-> > > > a gigabit will trigger it in a millisecond. of course nobody tested it
-> > > > either I guess (I guess not many people tested the 800Gbyte offset
-> > > > either in the first place).
-> > >
-> > > There's still the mempool.
-> > 
-> > that's hiding the problem at the moment, it's global, it doesn't provide
-> > any real guarantee.
+On Mon, Jul 29, 2002 at 06:17:02PM +0100, Russell King wrote:
+> 3. /dev/ttyS*, /dev/ttySA*, /dev/ttyCL*, /dev/ttyAM*, etc
+> ---------------------------------------------------------
 > 
-> Sizing the mempool to max_cpus * max tree depth provides a guarantee,
-> provided you take care of context switches, which is pretty easy.
+> All the above are serial ports of various types.  It has been expressed
+> several times that people would like to see all of them appear as
+> /dev/ttyS* (indeed, there was an, erm, rather heated discussion about
+> it a couple of years ago.)  I'm going to be neutral on this point
+> here.
 
-I guess I still prefer the GFP_KERNEL fallback because it avoids to
-waste/reserve lots of ram, but I only care about correctness, the
-current code isn't correct, doing max_cpus * max tree depth would
-satisfy me completely too (saving ram is a lower prio), so it's up to
-you as far as it cannot fail unless it's truly oom (i.e. you need a
-GFP_KERNEL in your way).
+I'm not.  All the issues you mention below go away if we make the rule
+that _all_ serial ports are /dev/ttyS*.  Userspace can have symlinks to
+ease the transition if necessary.
 
-> 
-> > ...
-> > 
-> > so it's not too bad in terms of stack because there's not going to be
-> > more than one walk at time, thanks for doing the math btw. You'd
-> > basically need a second radix tree for the dirty pages (using the same
-> > radix tree is not an option because it would increase pdflush complexity
-> > too much with terabytes of clean pages in the tree).
-> 
-> Not sure.  If each ratnode has a 64-bit bitmap which represents
-> dirty pages if it's a leaf node, or nodes which have dirty pages
-> if it's a higher node then the "find the next 16 dirty pages above index
-> N" is a pretty efficient thing.
+> c. People with many serial ports.  We _could_ change the device number
+>    allocations such that ttyS gobbles up the ttySA, ttyCL, ttyAM, etc
+>    device numbers so we end up with the same number of port slots
+>    available for those with many many serial ports in their machines.
 
-You will have """only""" 18 layers, but scanning through 2**(6*18)
-entries will take too long time even if only entry takes 1 nanosecond to
-scan. Of course that's the extreme case, but still it should be too much
-in practice. I doubt you can avoid at least an additional infrastructure
-that tells you if any of the underlying ratnodes has any dirty page,
-which will probably save ram at least because it can be coded as a
-bitflag in each node, but that will force you an up-walk of the tree
-every time you mark a page dirty (but of course also a second tree would
-force you to do some tree every time you mark a page dirty/clean). The
-second tree probably allows you not to go into the radix-tree
-implementation details to provide the "underlying node dirty page" info,
-and it would be faster if for example only the start of the inode has
-dirty pages, that would allow the dirty page flushing to walk only a few
-levels instead of potential 18 of them even to reach the first  few
-pages. But I don't think it's a common case, so probably the best
-(but not simpler) approch is to mark each ratnode with a dirty
-cumulative information.
+Yep, there really are people with >256 serial ports.  It'd be nice to
+support them.  Does anything care about the mapping from device name
+to char minor?  I suspect the MAKEDEV maintainer will come and squash
+me if i suggest moving the mapping for the first 192 serial devices,
+but we should be able to reclaim:
 
-Andrea
+Chase serial card (major 17/18), the Cyclades (major 19/20), Digiboard
+(major 22/23), Stallion (major 24/25), Specialix (32/33), isdn4linux
+(43/44), Comtrol (46/47), SDL RISCom (48/49), Hayes (57/58), Computone
+(71/72), Specialix (75/76), PAM (78/79), Comtrol VS (105/106), ISI
+(112/113), Technology Concepts (148/149), Specialix RIO (154/155/156/157),
+Chase Research (164/165), ACM (166/167), Moxa (172/173), SmartIO
+(174/175), USB (188/189), Low-density misc serial ports (204/205),
+userspace (208/209) BlueTooth (216/217), A2232 (224/225) ... holy crap,
+that's a lot of char dev space ;-)  52 majors.. think what those must
+be worth on the open market ;-)
+
+My only real objection (and it's a problem we have at the moment!) is
+that serial ports then become like ethernet interfaces.  Add or remove a
+card and everything changes number.  Somehow we already survive with this.
+I was very careful when adding a new SIIG 4-port serial card to my console
+server the other day to notice which card was first in PCI bus scan
+order and make sure all my existing machines were hooked up to that one.
+
+The solution to this has to be to name devices by PCI bus ID, but this is
+an argument for an entirely different thread ;-)
+
+-- 
+Revolutions do not require corporate support.

@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTKZLVh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 06:21:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTKZLVh
+	id S264147AbTKZL0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 06:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTKZL0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 06:21:37 -0500
-Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:52672 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S262161AbTKZLVg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 06:21:36 -0500
-Date: Wed, 26 Nov 2003 11:21:33 +0000 (GMT)
-From: Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
-To: Chris Wright <chrisw@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: can't lockf() over NFS
-In-Reply-To: <20031125165501.A20302@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0311261120220.22074@localhost.localdomain>
-References: <Pine.LNX.4.58.0311251613230.20810@lucy.dcs.qmul.ac.uk>
- <20031125165501.A20302@build.pdx.osdl.net>
-X-URL: http://www.theBachChoir.org.uk/
+	Wed, 26 Nov 2003 06:26:20 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:63687 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S264147AbTKZL0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 06:26:19 -0500
+To: Nikita Melnikov <ku3@stud2.aanet.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: m68k & 2.6.0
+References: <20031126104641.GA11506@stud2.aanet.ru>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 26 Nov 2003 06:26:12 -0500
+In-Reply-To: <20031126104641.GA11506@stud2.aanet.ru>
+Message-ID: <yq0n0aj74mj.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Bach-Choir-Authenticated-Sender: Matt Bernstein (mb, mid 4)
-X-Auth-User: jonquil.thebachchoir.org.uk
-X-DCS-Spam-Score: -1.0
-X-clamav-result: clean (1AOxji-0003Cv-PN)
-X-uvscan-result: clean (1AOxji-0003Cv-PN)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 25 Chris Wright wrote:
+>>>>> "Nikita" == Nikita Melnikov <ku3@stud2.aanet.ru> writes:
 
->> I tried writing a trivial program to test lockf() and it returns ENOLCK 
->> over NFS, but succeeds locally. The client kernel offers some grumbles:
->> 
->> RPC: Can't bind to reserved port (13).
->> RPC: can't bind to reserved port.
->> nsm_mon_unmon: rpc failed, status=-5
->> lockd: cannot monitor a.b.c.d
->> lockd: failed to monitor a.b.c.d
+Nikita> Hello.  What is the state of 2.6 kernels on m68k architecture?
+Nikita> Is it possible to run new kernels on 68040 and other old
+Nikita> processors?
 
->Yes, can you either change your config to:
->
->CONFIG_SECURITY=n
->
->or:
->
->CONFIG_SECURITY=y
->CONFIG_SECURITY_CAPABILITIES=y
->
->or:
->
->CONFIG_SECURITY=y
->CONFIG_SECURITY_CAPABILITIES=m
->and modprobe capability
->
->Thanks, this had fallen off my radar.
+Hi Nikita,
 
-Thank you, problem solved :)
+Try asking on linux-m68k@lists.linux-m68k.org
+
+Cheers,
+Jes

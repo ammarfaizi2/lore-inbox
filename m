@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286944AbSABL3P>; Wed, 2 Jan 2002 06:29:15 -0500
+	id <S286938AbSABLZF>; Wed, 2 Jan 2002 06:25:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286945AbSABL3F>; Wed, 2 Jan 2002 06:29:05 -0500
-Received: from vitelus.com ([64.81.243.207]:60940 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S286944AbSABL2y>;
-	Wed, 2 Jan 2002 06:28:54 -0500
-Date: Wed, 2 Jan 2002 03:28:21 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102112821.GA13212@vitelus.com>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-User-Agent: Mutt/1.3.25i
+	id <S286944AbSABLY4>; Wed, 2 Jan 2002 06:24:56 -0500
+Received: from fep03.swip.net ([130.244.199.131]:39315 "EHLO
+	fep03-svc.swip.net") by vger.kernel.org with ESMTP
+	id <S286938AbSABLYo>; Wed, 2 Jan 2002 06:24:44 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel BUG at scsi_merge.c:83
+In-Reply-To: <m2zo3xr0qu.fsf@pengo.localdomain> <20020102083223.J16092@suse.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Jan 2002 12:23:37 +0100
+In-Reply-To: <20020102083223.J16092@suse.de>
+Message-ID: <m21yh93sjq.fsf@pengo.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe <axboe@suse.de> writes:
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Wed, Jan 02 2002, Peter Osterlund wrote:
+> > Hi!
+> > 
+> > While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
+> > a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
+> > problem is that scsi_alloc_sgtable fails because the request contains
+> > too many physical segments. I think this patch is the correct fix:
+> 
+> Correct, ll_rw_blk default is ok now. I missed this when killing
+> scsi_malloc/scsi_dma, thanks.
 
-On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
-> Thus=20
->    strcpy (dst, "abcdef" + 2)
-> gives
->    memcpy (dst, "abcdef" + 2, 5)
+It turns out this is still not enough to fix the problem for me,
+because ll_new_hw_segment is still allowing nr_phys_segments to become
+too large. Is the following patch the correct way to deal with this
+problem, or is that case supposed to be prevented by some other means?
+At least, this patch prevents the kernel panic during my stress test.
 
-IMHO gcc should not be touching these function calls, as they are not
-made to a standard C library, and thus have different behaviors. I'm
-suprised that gcc tries to optimize calls to these functions just
-based on their names.
-
-The gcc manpage mentions
-
-       -ffreestanding
-           Assert that compilation takes place in a freestanding
-           environment.  This implies -fno-builtin.  A freestand=AD
-           ing environment is one in which the standard library
-           may not exist, and program startup may not necessarily
-           be at "main".  The most obvious example is an OS ker=AD
-           nel.  This is equivalent to -fno-hosted.
-
-Why is Linux not using this? It sounds very appropriate. The only
-things the manpage mentions that -fno-builtin would inhibit from being
-optimized are memcpy() and alloca(). memcpy() has its own assembly
-optimization and inlining on some (most?) archs, and as for alloca(),
-I only see it being used a bit in the S/390 code, where the gcc
-optimizations could quite possibly break something. I think
--ffreestanding definately should be used by the kernel to prevent gcc
-from messing with its code in broken ways.
-
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Mu7VdtqQf66JWJkRAhUmAJ4nsHAVyUHIjpDvcG+6Efg4L54U5ACaA5HP
-hPDf4de5XmyxtfLQW0EOtBw=
-=Mkjc
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--
+--- linux-2.5.2-pre5/drivers/block/ll_rw_blk.c	Mon Dec 31 14:56:37 2001
++++ linux-2.5-packet/drivers/block/ll_rw_blk.c	Wed Jan  2 11:44:21 2002
+@@ -530,6 +530,7 @@
+ 				    struct bio *bio)
+ {
+ 	int nr_hw_segs = bio_hw_segments(q, bio);
++	int nr_phys_segs;
+ 
+ 	if (req->nr_hw_segments + nr_hw_segs > q->max_hw_segments) {
+ 		req->flags |= REQ_NOMERGE;
+@@ -537,12 +538,19 @@
+ 		return 0;
+ 	}
+ 
++	nr_phys_segs = bio_phys_segments(q, bio);
++	if (req->nr_phys_segments + nr_phys_segs > q->max_phys_segments) {
++		req->flags |= REQ_NOMERGE;
++		q->last_merge = NULL;
++		return 0;
++	}
++
+ 	/*
+ 	 * This will form the start of a new hw segment.  Bump both
+ 	 * counters.
+ 	 */
+ 	req->nr_hw_segments += nr_hw_segs;
+-	req->nr_phys_segments += bio_phys_segments(q, bio);
++	req->nr_phys_segments += nr_phys_segs;
+ 	return 1;
+ }
+ 
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

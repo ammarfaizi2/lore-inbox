@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288821AbSBMUHz>; Wed, 13 Feb 2002 15:07:55 -0500
+	id <S288830AbSBMUJp>; Wed, 13 Feb 2002 15:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288830AbSBMUHp>; Wed, 13 Feb 2002 15:07:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25350 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288821AbSBMUHh>; Wed, 13 Feb 2002 15:07:37 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: RFC: /proc key naming consistency
-Date: 13 Feb 2002 12:07:05 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a4eh19$lko$1@cesium.transmeta.com>
-In-Reply-To: <20020213030047.8B1FB2257B@www.webservicesolutions.com>
+	id <S288855AbSBMUJf>; Wed, 13 Feb 2002 15:09:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18700 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288830AbSBMUJ0>; Wed, 13 Feb 2002 15:09:26 -0500
+Subject: Re: Kernel 2.2.20 RAM requirements
+To: pitt@gmx.at (Christoph Pittracher)
+Date: Wed, 13 Feb 2002 20:23:20 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200202131947.40915@pitt4u.2y.net> from "Christoph Pittracher" at Feb 13, 2002 07:57:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16b5w1-0006Js-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020213030047.8B1FB2257B@www.webservicesolutions.com>
-By author:    Mark Swanson <swansma@yahoo.com>
-In newsgroup: linux.dev.kernel
-> 
-> Notice the space between "cpu" and "MHz", or "cpu" and "family" yet there is 
-> no space between "fdiv" and "bug" (_).
-> 
-> The reason I think NOT using a space is a good idea because it makes life 
-> easier for developers parsing /proc entries. Specifically, Java developers 
-> could use /proc/cpuinfo as a property file, but the space in the 'key' breaks 
-> java.util.Properties.load(). 
-> 
+> I wanted to boot kernel version 2.2.20 on my old Pentium 75Mhz system 
+> with 16MB RAM. After "uncompressing linux" i get a: "Out Of Memory -- 
+> System halted".
+> Kernel version 2.2.19 works without problems (same kernel 
+> configuration). I didn't tried 2.4 kernels yet, but I wonder that 
+> 2.2.20 needs so much memory?
 
-When I and Dan Quinlan submitted the cleanup for this we used _
-everywhere.  Unfortunately some other people not just added keys with
-spaces, but gracefully "corrected" our "mistakes"...
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+It doesn't. What boot loader are you using ?

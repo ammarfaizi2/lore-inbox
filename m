@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261167AbREXKTx>; Thu, 24 May 2001 06:19:53 -0400
+	id <S261173AbREXKZn>; Thu, 24 May 2001 06:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261173AbREXKTn>; Thu, 24 May 2001 06:19:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25359 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261167AbREXKTa>;
-	Thu, 24 May 2001 06:19:30 -0400
-Date: Thu, 24 May 2001 12:19:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        monkeyiq <monkeyiq@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Dying disk and filesystem choice.
-Message-ID: <20010524121936.I12470@suse.de>
-In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au> <200105240658.f4O6wEWq031945@webber.adilger.int> <20010524103145.A9521@gruyere.muc.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010524103145.A9521@gruyere.muc.suse.de>; from ak@suse.de on Thu, May 24, 2001 at 10:31:45AM +0200
+	id <S261198AbREXKZd>; Thu, 24 May 2001 06:25:33 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:16392 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S261173AbREXKZX>; Thu, 24 May 2001 06:25:23 -0400
+Date: Thu, 24 May 2001 18:25:26 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Chua <jchua@fedex.com>
+Subject: Transmeta Crusoe support?
+Message-ID: <Pine.LNX.4.33.0105241809180.1129-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24 2001, Andi Kleen wrote:
-> On Thu, May 24, 2001 at 12:58:14AM -0600, Andreas Dilger wrote:
-> > Well reiserfs is probably a very bad choice at this point.  It
-> > does not have any bad blocks support (yet), so as soon as you have
-> > a bad block you are stuck.
-> 
-> reiserfs doesn't, but the HD usually has transparently in its firmware.
-> So it hits a bad block; you see an IO error and the next time you hit
-> the block the firmware has mapped in a fresh one from its internal
-> reserves.
 
-In fact you will typically only see an I/O error if the drive _can't_
-remap the sector anymore, because it has run out. No point in reporting
-a condition that was recovered.
+This may sound stupid as Linus is working for Transmeta and
+I did see under menuconfig that crusoe is supported.
 
-I'd still say, that if you get bad block errors reported from your disk
-it's long overdue for replacement.
+Question is whether I need to recompile everything (kernel and binaries)
+on my current 586 platform in order to move to Crusoe?
 
--- 
-Jens Axboe
+I'm thinking about getting the new Toshiba Libretto L1 that comes with a
+TM5600/600MHz cpu.
+
+How does the TM5600/600MHz performs as compared to a P3/600MHz?
+
+Can someone tell me how well crusoe runs linux?
+
+Please send email to jchua@fedex.com.
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 

@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262680AbREVRbR>; Tue, 22 May 2001 13:31:17 -0400
+	id <S262683AbREVRjH>; Tue, 22 May 2001 13:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262686AbREVRbG>; Tue, 22 May 2001 13:31:06 -0400
-Received: from [213.166.15.20] ([213.166.15.20]:42254 "EHLO
-	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
-	id <S262680AbREVRa6>; Tue, 22 May 2001 13:30:58 -0400
-Message-ID: <3B0AA22D.EDFA4F9A@FreeNet.co.uk>
-Date: Tue, 22 May 2001 18:30:21 +0100
-From: Sid Boyce <sidb@FreeNet.co.uk>
-Reply-To: sidb@FreeNet.co.uk
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Strange italics with -ac kernels
+	id <S262685AbREVRir>; Tue, 22 May 2001 13:38:47 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:56532 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S262683AbREVRio>;
+	Tue, 22 May 2001 13:38:44 -0400
+Date: Tue, 22 May 2001 19:38:41 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: cacook@freedom.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: write to dvd ram
+Message-ID: <20010522193840.F12860@khan.acc.umu.se>
+In-Reply-To: <20010522164700Z262628-933+213@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010522164700Z262628-933+213@vger.kernel.org>; from cacook@freedom.net on Tue, May 22, 2001 at 10:38:49AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	In KDE and sometimes also seen in netscape, I get displays in italics
-which I don't in any non-ac kernels. All KDE menus now show up in
-discontinuous italics that are not really readable. I'm using
-XFree86-4.0.3, KDE-2.1.1 and an NVidia 32Meg TNT2 M64 card, but I've had
-the same with much earlier 2.4.x-ac kernels using a VOODO 3 card.
-	Any ideas ?
-Regards
--- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop.. Tel. 44-121 422 0375
+On Tue, May 22, 2001 at 10:38:49AM -0600, cacook@freedom.net wrote:
+> OK, I've asked this question four weeks in a row and received no response
+> whatsoever.  Linux is supposed to be the OS where you can turn to the
+> newsgroups/IRC and get able help.
+> 
+> This is to those who couldn't lift a finger to help with this compile/driver
+> problem:
+
+Ignoring your obvious attitude problem for now (you haven't ever
+considered the fact that (almost) all the people on this list develop
+Linux voluntarily, in their spare-time?!), I suggest you try
+at #kernelnewbies on irc if you want response. Or you could try to
+download a newer version of the kernel. You know, the bug might've been
+fixed since v2.4.2...
+
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

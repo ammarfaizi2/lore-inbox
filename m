@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262573AbRENXZH>; Mon, 14 May 2001 19:25:07 -0400
+	id <S262576AbRENXYH>; Mon, 14 May 2001 19:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262575AbRENXZB>; Mon, 14 May 2001 19:25:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48139 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262573AbRENXYF>; Mon, 14 May 2001 19:24:05 -0400
+	id <S262575AbRENXX5>; Mon, 14 May 2001 19:23:57 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:8646 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262573AbRENXXk>;
+	Mon, 14 May 2001 19:23:40 -0400
+Date: Mon, 14 May 2001 19:23:38 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-To: arjan@fenrus.demon.nl (Arjan van de Ven)
-Date: Tue, 15 May 2001 00:20:22 +0100 (BST)
-Cc: hpa@transmeta.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-In-Reply-To: <m14zRbL-000OdxC@amadeus.home.nl> from "Arjan van de Ven" at May 15, 2001 12:18:07 AM
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <E14zRFZ-0001dI-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0105141900420.19333-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zRdW-0001gY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > it to a device number at /sbin/lilo time.  An idiotic practice on the
-> > part of LILO, in my opinion, that ought to have been fixed a long time
-> > ago.
-> 
-> That's why you want mount-root-by-partition-label, not by device
 
-Which in itself adds the 'and how does the label tell me what modules to load'
-question..
 
-For 2.5 with a clean ramfs root / initrd / uuid scan setup I would agree
-entirely that uuid root is a good thing.
+On Mon, 14 May 2001, Alan Cox wrote:
 
-Alan
+> grep MAJOR lilo-21.4.4/*|wc -l
+>     323
+
+/me looks and barfs.
+
+Alan, had you actually looked at it? It will require massive changes
+whenever you introduce new major. And most of such areas are stuff
+that doesn't matter for new devices anyway - geometry, example.
 

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVAKDeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVAKDQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVAKDeE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVAKDa5
+	id S262501AbVAKDQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVAKDPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:30:57 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:63389 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262557AbVAKD3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:29:45 -0500
-Date: Mon, 10 Jan 2005 19:28:47 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: YhLu <YhLu@tyan.com>, Andi Kleen <ak@muc.de>,
-       "'Mikael Pettersson'" <mikpe@csd.uu.se>, Matt_Domsch@dell.com,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
-Message-ID: <20050110192846.A30630@unix-os.sc.intel.com>
-References: <3174569B9743D511922F00A0C94314230729139F@TYANWEB> <200501101642.41783.jamesclv@us.ibm.com>
+	Mon, 10 Jan 2005 22:15:03 -0500
+Received: from gprs215-170.eurotel.cz ([160.218.215.170]:129 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262501AbVAKDNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 22:13:05 -0500
+Date: Tue, 11 Jan 2005 04:12:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Bernard Blackham <bernard@blackham.com.au>, Shaw <shawv@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Screwy clock after apm suspend
+Message-ID: <20050111031252.GA4092@elf.ucw.cz>
+References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au> <20050111001426.GF1444@elf.ucw.cz> <1105405842.2941.1.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200501101642.41783.jamesclv@us.ibm.com>; from jamesclv@us.ibm.com on Mon, Jan 10, 2005 at 04:42:41PM -0800
+In-Reply-To: <1105405842.2941.1.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 04:42:41PM -0800, James Cleverdon wrote:
-> Personally, I don't have any problem with replacing the non-power-of-2 
-> code with "hweight32(c->x86_num_cores - 1)", but folks at Intel have 
-> been very insistent that it may be needed in the future.  Maybe Suresh 
-> can speak up about Intel's interests here.
+Hi!
 
-IA32 SDM vol3 section 7.7.5 talks about the recommended way of computing
-physical processor package id. Current kernel code which is doing this, 
-can definitely be made more readable. I will do that when ever I get
-a chance.
+> > If I do cli(); sleep(5 hours); sti();, system should survive that. If
+> > you do cli(); sleep(5 hours); sti() but fail to compensate for lost
+> > ticks, all sorts of funny things might happen if you are comunicating
+> > with someone who did not sleep.
+> 
+> Wouldn't a thread that did that be fundamentally broken?
 
-thanks,
-suresh
+Well, sleeping for 5 hours with interrupts off is certainly wrong
+thing to do... But what swsusp does is pretty much equivalent. Machine
+is unresponsive for hours...
+								Pavelp
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

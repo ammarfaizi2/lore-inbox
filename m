@@ -1,61 +1,231 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262212AbSIZHvs>; Thu, 26 Sep 2002 03:51:48 -0400
+	id <S262231AbSIZHwy>; Thu, 26 Sep 2002 03:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262231AbSIZHvs>; Thu, 26 Sep 2002 03:51:48 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:50123 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S262212AbSIZHvr>; Thu, 26 Sep 2002 03:51:47 -0400
-Message-ID: <3D92BDC8.8080603@metaparadigm.com>
-Date: Thu, 26 Sep 2002 15:56:56 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S262232AbSIZHwy>; Thu, 26 Sep 2002 03:52:54 -0400
+Received: from packet.digeo.com ([12.110.80.53]:51931 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262231AbSIZHws>;
+	Thu, 26 Sep 2002 03:52:48 -0400
+Message-ID: <3D92BE07.B6CDFE54@digeo.com>
+Date: Thu, 26 Sep 2002 00:57:59 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.19pre10aa4 OOPS in ext3 (get_hash_table,  unmap_underlying_metadata)
-References: <3D92A1D0.5000203@metaparadigm.com> <3D92B6F3.1428A76A@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.38-mm3
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2002 07:57:59.0242 (UTC) FILETIME=[6E428AA0:01C26532]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/26/02 15:27, Andrew Morton wrote:
-> Michael Clark wrote:
-> 
->>Hiya,
->>
->>Been having frequent (every 4-8 days) oopses with 2.4.19pre10aa4 on
->>a moderately loaded server (100 users - 0.4 load avg).
->>
->>The server is a Intel STL2 with dual P3, 1GB RAM, Intel Pro1000T
->>and Qlogic 2300 Fibre channel HBA.
->>
->>We are running qla2300, e1000 and lvm modules unmodified as present in
->>2.4.19pre10aa4. We also have quotas enabled on 1 of the ext3 fs.
->>
-> 
-> 
-> It's not familiar, sorry.
 
-Maybe I should try XFS? I've heard of people running this for
-80+ days and no downtime. I really would like to get past 8 days.
+url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.38/2.5.38-mm3/
 
-> People are saying unkind things about the qlogic driver, and
+Includes a SARD update from Rick.  The SARD disk accounting is
+pretty much final now.
 
-Yes i know. My experience seems to be bad fault recovery after
-a LIP reset although the driver in 2.4.19pre10aa4 seems okay
-(have tested loop interruption under IO heavy load).
+I moved the remaining disk accounting numbers (pgpgin, pgpgout) out of
+/proc/stat and this will confuse vmstat.  Again.  Updated versions
+are at http://surriel.com/procps, but they're not uptodate enough.
 
-> the new version in Andrea's latest patchset is definitely
-> faster than before.   Might be worth a shot.
+To get a current procps, grab the cygnus CVS (instructions are at
+Rik's site) and then apply 
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.38/2.5.38-mm3/vmstat.patch
 
-So, is possible for qlogic driver to be doing naughty things
-with bufferheads? or is it more likely in the fs?
 
-Anyone out there running a reasonably busy fileserver with
-qlogic FC HBA and using ext3 or XFS with quotas? What
-kernel/qlogic driver combo?
+Since 2.5.38-mm2:
 
-~mc
+-ide-block-fix-1.patch
 
+ Merged (Jens)
+
+-ext3-htree.patch
++ext3-dxdir.patch
+
+ Switch to Ted's ext3-htree patch.
+
+-might_sleep.patch
+-unbreak-writeback-mode.patch
+-queue-congestion.patch
+-nonblocking-ext2-preread.patch
+-nonblocking-pdflush.patch
+-nonblocking-vm.patch
+-set_page_dirty-locking-fix.patch
+-prepare_to_wait.patch
+-vm-wakeups.patch
+-sync-helper.patch
+-slabasap.patch
+
+ Merged
+
++misc.patch
+
+ A comment fix.
+
++topology_fixes.patch
+
+ Some topology API fixlets from Matthew
+
++dio-bio-add-page.patch
+
+ Convert direct-io.c to use bio_add_page().  (Badari)
+
+ It will now build BIOs as large as the device supports.
+
++dio-bio-fixes.patch
+
+ Some alterations to the above.
+
+-read-latency.patch
+
+ "I have to say, that elevator thing is the ugliest code I've seen
+  in a long while."  -- Linus
+
++deadline-update.patch
+
+ Latest deadline scheduler fixes from Jens.
+
++akpm-deadline.patch
+
+ Expose the deadline scheduler tunables into /proc/sys/vm, and set
+ the default fifo_batch to 16.
+
+
+
+linus.patch
+  cset-1.579.3.4-to-1.605.1.31.txt.gz
+
+ide-high-1.patch
+
+scsi_hack.patch
+  Fix block-highmem for scsi
+
+ext3-dxdir.patch
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+misc.patch
+  misc fixes
+
+write-deadlock.patch
+  Fix the generic_file_write-from-same-mmapped-page deadlock
+
+buddyinfo.patch
+  Add /proc/buddyinfo - stats on the free pages pool
+
+free_area.patch
+  Remove struct free_area_struct and free_area_t, use `struct free_area'
+
+per-node-kswapd.patch
+  Per-node kswapd instance
+
+topology-api.patch
+  Simple topology API
+
+topology_fixes.patch
+  topology-api cleanups
+
+radix_tree_gang_lookup.patch
+  radix tree gang lookup
+
+truncate_inode_pages.patch
+  truncate/invalidate_inode_pages rewrite
+
+proc_vmstat.patch
+  Move the vm accounting out of /proc/stat
+
+kswapd-reclaim-stats.patch
+  Add kswapd_steal to /proc/vmstat
+
+iowait.patch
+  I/O wait statistics
+
+sard.patch
+  SARD disk accounting
+
+dio-bio-add-page.patch
+  Use bio_add_page() in direct-io.c
+
+dio-bio-fixes.patch
+  dio-bio-add-page fixes
+
+remove-gfp_nfs.patch
+  remove GFP_NFS
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+swapoff-deadlock.patch
+  Fix a tmpfs swapoff deadlock
+
+dirty-and-uptodate.patch
+  page state cleanup
+
+shmem_rename.patch
+  shmem_rename() directory link count fix
+
+dirent-size.patch
+  tmpfs: show a non-zero size for directories
+
+tmpfs-trivia.patch
+  tmpfs: small fixlets
+
+per-zone-vm.patch
+  separate the kswapd and direct reclaim code paths
+
+swsusp-feature.patch
+  add shrink_all_memory() for swsusp
+
+adaptec-fix.patch
+  partial fix for aic7xxx error recovery
+
+remove-page-virtual.patch
+  remove page->virtual for !WANT_PAGE_VIRTUAL
+
+dirty-memory-clamp.patch
+  sterner dirty-memory clamping
+
+mempool-wakeup-fix.patch
+  Fix for stuck tasks in mempool_alloc()
+
+remove-write_mapping_buffers.patch
+  Remove write_mapping_buffers
+
+buffer_boundary-scheduling.patch
+  IO schduling for indirect blocks
+
+ll_rw_block-cleanup.patch
+  cleanup ll_rw_block()
+
+lseek-ext2_readdir.patch
+  remove lock_kernel() from ext2_readdir()
+
+discontig-no-contig_page_data.patch
+  undefine contif_page_data for discontigmem
+
+per-node-zone_normal.patch
+  ia32 NUMA: per-node ZONE_NORMAL
+
+alloc_pages_node-cleanup.patch
+  alloc_pages_node cleanup
+
+read_barrier_depends.patch
+  extended barrier primitives
+
+rcu_ltimer.patch
+  RCU core
+
+dcache_rcu.patch
+  Use RCU for dcache
+
+deadline-update.patch
+  deadline scheduler updates
+
+akpm-deadline.patch

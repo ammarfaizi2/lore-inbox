@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317140AbSFFTtQ>; Thu, 6 Jun 2002 15:49:16 -0400
+	id <S317142AbSFFTty>; Thu, 6 Jun 2002 15:49:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317142AbSFFTtP>; Thu, 6 Jun 2002 15:49:15 -0400
-Received: from ns.suse.de ([213.95.15.193]:785 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317140AbSFFTtO>;
-	Thu, 6 Jun 2002 15:49:14 -0400
-To: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-In-Reply-To: <OF70FD985F.A9C66B00-ONC1256BD0.0069C993@de.ibm.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Jun 2002 21:49:15 +0200
-Message-ID: <p73lm9schms.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317148AbSFFTtw>; Thu, 6 Jun 2002 15:49:52 -0400
+Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:18670 "EHLO
+	mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S317142AbSFFTti>; Thu, 6 Jun 2002 15:49:38 -0400
+Message-ID: <000001c20d93$3e430b50$66aca8c0@kpfhome>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: "Tomas Szepe" <szepe@pinerecords.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <000701c20d8a$7234b520$66aca8c0@kpfhome> <20020606191503.GH17859@louise.pinerecords.com>
+Subject: Re: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
+Date: Thu, 6 Jun 2002 12:45:16 -0700
+Organization: Laboratory Systems Group, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ulrich Weigand" <Ulrich.Weigand@de.ibm.com> writes:
+OK, my bad. I won't shoot myself in the foot again.
 
-> (*Really* ugly is s390x, because we need about twice as much stack on
-> average than on s390, but page size is still only 4K -- most other 64-bit
-> platforms have 8K page size ...)
+----- Original Message -----
+From: "Tomas Szepe" <szepe@pinerecords.com>
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, June 06, 2002 12:15 PM
+Subject: Re: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
 
-<minor detail, but perhaps still interesting>
 
-Seems to be an old myth. Actually the 4K paged 64bit platforms are in the majority.
+> > <snip>?
+> > ... and renamed Makefile to Makefile-2.4 and Makefile-2.5 to
+> > Makefile (so I don't have to keep specifying -f Makefile-2.5).
+>
+> You are not supposed to do this. The original Makefile gets grepped
+> for kernel version by kbuild 2.5. Your renaming the Makefiles is probably
+> the cause of the seemingly automated rebuild.
+>
+> T.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-64bit linux platforms:
-
-4K page: x86-64, ppc64, s390x, mips64, parisc64(?)
-8K:	 alpha, sparc64
-8-64K:   ia64
-
--Andi

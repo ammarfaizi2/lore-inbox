@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbRETJko>; Sun, 20 May 2001 05:40:44 -0400
+	id <S261505AbRETJ4Q>; Sun, 20 May 2001 05:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbRETJke>; Sun, 20 May 2001 05:40:34 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5424 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S261502AbRETJkY>; Sun, 20 May 2001 05:40:24 -0400
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <811opRpHw-B@khms.westfalen.de> <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com> <p05100316b7272cdfd50c@[207.213.214.37]> <811opRpHw-B@khms.westfalen.de> <p05100301b72a335d4b61@[10.128.7.49]> <81BywVLHw-B@khms.westfalen.de> <p0510031eb72c5f11b8c7@[207.213.214.37]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 May 2001 03:37:14 -0600
-In-Reply-To: Jonathan Lundell's message of "Sat, 19 May 2001 10:36:14 -0700"
-Message-ID: <m1wv7cgy45.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S261508AbRETJ4G>; Sun, 20 May 2001 05:56:06 -0400
+Received: from www.wen-online.de ([212.223.88.39]:57612 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261505AbRETJz4>;
+	Sun, 20 May 2001 05:55:56 -0400
+Date: Sun, 20 May 2001 11:47:33 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.21.0105200546241.5531-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0105201104090.610-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell <jlundell@pobox.com> writes:
+On Sun, 20 May 2001, Rik van Riel wrote:
 
-> At 10:42 AM +0200 2001-05-19, Kai Henningsen wrote:
-> >  > Jeff Garzik's ethtool
-> >  > extension at least tells me the PCI bus/dev/fcn, though, and from
-> >>  that I can write a userland mapping function to the physical
-> >>  location.
-> >
-> >I don't see how PCI bus/dev/fcn lets you do that.
-> 
-> I know from system documentation, or can figure out once and for all 
-> by experimentation, the correspondence between PCI bus/dev/fcn and 
-> physical locations. Jeff's extension gives me the mapping between 
-> eth# and PCI bus/dev/fcn, which is not otherwise available (outside 
-> the kernel).
+> On Sun, 20 May 2001, Mike Galbraith wrote:
+>
+> > You're right.  It should never dump too much data at once.  OTOH, if
+> > those cleaned pages are really old (front of reclaim list), there's no
+> > value in keeping them either.  Maybe there should be a slow bleed for
+> > mostly idle or lightly loaded conditions.
+>
+> If you don't think it's worthwhile keeping the oldest pages
+> in memory around, please hand me your excess DIMMS ;)
 
-Just a second let me reenumerate your pci busses, and change all of the bus
-numbers.  Not that this is a bad thought.  It is just you need to know
-the tree of PCI busses/bridges up to the root on the machine in question.
+You're welcome to the data in any of them :)  The hardware I keep.
 
-Eric
+> Remember that inactive_clean pages are always immediately
+> reclaimable by __alloc_pages(), if you measured a performance
+> difference by freeing pages in a different way I'm pretty sure
+> it's a side effect of something else.  What that something
+> else is I'm curious to find out, but I'm pretty convinced that
+> throwing away data early isn't the way to go.
+
+OK.  I'm getting a little distracted by thinking about the locking
+and some latency comments I've heard various gurus make.  I should
+probably stick to thinking about/measuring throughput.. much easier.
+
+but ;-)
+
+Looking at the locking and trying to think SMP (grunt) though, I
+don't like the thought of taking two locks for each page until
+kreclaimd gets a chance to run.  One of those locks is the
+pagecache_lock, and that makes me think it'd be better to just
+reclaim a block if I have to reclaim at all.  At that point, the
+chances of needing to lock the pagecache soon again are about
+100%.  The data in that block is toast anyway.  A big hairy SMP
+box has to feel reclaim_page(). (they probably feel the zone lock
+too.. probably would like to allocate blocks)
+
+	-Mike
+

@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279378AbRKARGe>; Thu, 1 Nov 2001 12:06:34 -0500
+	id <S279317AbRKARLp>; Thu, 1 Nov 2001 12:11:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279377AbRKARGY>; Thu, 1 Nov 2001 12:06:24 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:36750 "EHLO
-	vega.digitel2002.hu") by vger.kernel.org with ESMTP
-	id <S279372AbRKARGR>; Thu, 1 Nov 2001 12:06:17 -0500
-Date: Thu, 1 Nov 2001 18:06:03 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Message-ID: <20011101180603.B14165@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <3BE1271C.6CDF2738@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <3BE1271C.6CDF2738@mandrakesoft.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: vega Linux 2.4.12 i686
+	id <S279377AbRKARLe>; Thu, 1 Nov 2001 12:11:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19208 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279317AbRKARLX>; Thu, 1 Nov 2001 12:11:23 -0500
+Date: Thu, 1 Nov 2001 09:08:48 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stress testing 2.4.14-pre6
+In-Reply-To: <Pine.LNX.4.21.0111011340400.5912-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0111010903280.11617-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 01, 2001 at 05:42:36AM -0500, Jeff Garzik wrote:
-> >         proc(KBUILD_OBJECT, "foo", my_foo, int, 0644);
-> > 
-> > And with my previous parameter patch:
-> >         PARAM(foo, int, 0444);
-> 
-> Is this designed to replace sysctl?
-> 
-> In general we want to support using sysctl and similar features WITHOUT
-> procfs support at all (of any type).  Nice for embedded systems
-> especially.
 
-Agreed. It would be nice to have always 1:1 relation between sysctl and
-procfs interface, so you can do EVERYTHING with both of sysctl and via
-/proc ... Maybe the code should be partly common as much as possible as well.
+On Thu, 1 Nov 2001, Marcelo Tosatti wrote:
+> >
+> > There is some race somewhere - I've found one interrupt race (that
+> > actually seems to exist in the 2.2.x VM too, but is probably _much_
+> > harder to trigger where an interrupt at _just_ the right time will
+> > corrupt the per-process local page list.  That looks so unlikely that I
+> > doubt that is it, but I'm looking for others (the irq one wasn't even a
+> > SMP race - it's on UP too, surprise surprise).
+> >
+> > Working on it, in other words.
+>
+> Would you mind to describe this race?
 
-- Gabor
+Both 2.2.x and the new VM (which, through Andrea, has a lot of the same
+things) have this notion of a per-process "free pages list" that it
+replenished by any freeing that the process does itself when it gets into
+the "try_to_free_memory()" path.
+
+The trigger for refilling this list is "current->flags & PF_FREE_PAGES".
+
+The bug is that ytou can be in the middle of adding such a recently free'd
+page to the per-process list of free pages, and an interrupt comes in.
+
+The interrupt (or bottom half), in turn, might do something like
+
+	page = get_free_page(GFP_ATOMIC);
+	...
+	free_page(page);
+
+and now the free_page() inside the interrupt context will _also_ trigger
+the PF_FREE_PAGES test, and _also_ add the page to the list. Except, of
+course, the list is totally unprotected by any locks, so it may not be
+valid at this point.
+
+Fix is to only care about the PF_FREE_PAGES bit when not in an interrupt
+context.
+
+Anyway, I seriously doubt this explains any real-world bad behaviour: the
+window for the interrupt hitting a half-way updated list is something like
+two instructions long out of the whole memory freeing path. AND most
+interrupts don't actually do any allocation.
+
+		Linus
+

@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318948AbSHFAmK>; Mon, 5 Aug 2002 20:42:10 -0400
+	id <S318982AbSHFESB>; Tue, 6 Aug 2002 00:18:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318950AbSHFAmK>; Mon, 5 Aug 2002 20:42:10 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:54914 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318948AbSHFAmJ>;
-	Mon, 5 Aug 2002 20:42:09 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200208060045.g760jdr15064@eng2.beaverton.ibm.com>
-Subject: [PATCH] /proc/partitions fix for 2.5.30
+	id <S318984AbSHFESB>; Tue, 6 Aug 2002 00:18:01 -0400
+Received: from 24.213.60.123.up.mi.chartermi.net ([24.213.60.123]:50623 "EHLO
+	front1.chartermi.net") by vger.kernel.org with ESMTP
+	id <S318982AbSHFESA>; Tue, 6 Aug 2002 00:18:00 -0400
+From: Nathaniel Russell <reddog83@chartermi.net> (by way of Nathaniel
+	Russell <reddog83@chartermi.net>)
+Reply-To: reddog83@chartermi.net
+Organization: RedDog GNu/Linux
+Subject: [PATCH] trivial patch for 2.4.20-pre1 8139too.c driver
+Date: Tue, 6 Aug 2002 00:18:01 +0000
+X-Mailer: KMail [version 1.4]
 To: linux-kernel@vger.kernel.org
-Date: Mon, 5 Aug 2002 17:45:39 -0700 (PDT)
-X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_1IBEL9KKBJDQAD86XGC8"
+Message-Id: <200208060018.01472.reddog83@chartermi.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I found the problem with /proc/partitions showing wrong number of
-blocks in 2.5.30.
+--------------Boundary-00=_1IBEL9KKBJDQAD86XGC8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Here is the patch. Please apply.
+This patch removes unneeded code for the Realtek driver this patch does n=
+ot
+harm the performance of the driver at all it just removes dead code
 
-Thanks,
-Badari
 
---- linux/drivers/block/genhd.c	Mon Aug  5 17:30:36 2002
-+++ linux.new/drivers/block/genhd.c	Mon Aug  5 17:23:29 2002
-@@ -166,7 +166,7 @@
- 			continue;
- 		seq_printf(part, "%4d  %4d %10ld %s\n",
- 			sgp->major, n + sgp->first_minor,
--			sgp->part[n].nr_sects << 1,
-+			sgp->part[n].nr_sects >> 1,
- 			disk_name(sgp, n + sgp->first_minor, buf));
- 	}
- 
+--------------Boundary-00=_1IBEL9KKBJDQAD86XGC8
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="diff"
+
+diff -urN linux-2.4/drivers/net/8139too.c.tmp linux/drivers/net/8139too.c
+--- linux-2.4/drivers/net/8139too.c.tmp	Mon Aug  5 18:06:03 2002
++++ linux/drivers/net/8139.c	Tue Aug  6 00:09:20 2002
+@@ -211,7 +211,6 @@
+ 	RTL8139 = 0,
+ 	RTL8139_CB,
+ 	SMC1211TX,
+-	/*MPX5030,*/
+ 	DELTA8139,
+ 	ADDTRON8139,
+ 	DFE538TX,
+@@ -230,7 +229,6 @@
+ 	{ "RealTek RTL8139 Fast Ethernet", RTL8139_CAPS },
+ 	{ "RealTek RTL8139B PCI/CardBus", RTL8139_CAPS },
+ 	{ "SMC1211TX EZCard 10/100 (RealTek RTL8139)", RTL8139_CAPS },
+-/*	{ MPX5030, "Accton MPX5030 (RealTek RTL8139)", RTL8139_CAPS },*/
+ 	{ "Delta Electronics 8139 10/100BaseTX", RTL8139_CAPS },
+ 	{ "Addtron Technolgy 8139 10/100BaseTX", RTL8139_CAPS },
+ 	{ "D-Link DFE-538TX (RealTek RTL8139)", RTL8139_CAPS },
+@@ -245,7 +243,6 @@
+ 	{0x10ec, 0x8139, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139 },
+ 	{0x10ec, 0x8138, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139_CB },
+ 	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, SMC1211TX },
+-/*	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MPX5030 },*/
+ 	{0x1500, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DELTA8139 },
+ 	{0x4033, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ADDTRON8139 },
+ 	{0x1186, 0x1300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DFE538TX },
+
+--------------Boundary-00=_1IBEL9KKBJDQAD86XGC8--
+

@@ -1,108 +1,259 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313163AbSDIN1q>; Tue, 9 Apr 2002 09:27:46 -0400
+	id <S313166AbSDIN0b>; Tue, 9 Apr 2002 09:26:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSDIN1p>; Tue, 9 Apr 2002 09:27:45 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:63360 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S313163AbSDIN1l>; Tue, 9 Apr 2002 09:27:41 -0400
-Date: Tue, 9 Apr 2002 09:28:59 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        "T. A." <tkhoadfdsaf@hotmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: C++ and the kernel
-In-Reply-To: <20020409122622.GN612@gallifrey>
-Message-ID: <Pine.LNX.3.95.1020409085537.4291B-100000@chaos.analogic.com>
+	id <S313163AbSDIN03>; Tue, 9 Apr 2002 09:26:29 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:28944 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313166AbSDIN0Q>; Tue, 9 Apr 2002 09:26:16 -0400
+Message-ID: <3CB2DD74.30700@evision-ventures.com>
+Date: Tue, 09 Apr 2002 14:24:20 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][CFT] IDE TCQ #2
+In-Reply-To: <20020409124417.GK25984@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Apr 2002, Dr. David Alan Gilbert wrote:
+Hello.
 
-> * Richard B. Johnson (root@chaos.analogic.com) wrote:
-> > 
-> > I would like to rewrite the kernel in FORTRAN because this was
-> > one of the first languages I learned.
-> > 
-> > Seriously, the kernel MUST be written in a procedural language.
-> > It is the mechanism by which something is accomplished that defines
-> > an operating system kernel.
-> > 
-> > C++ is an object-oriented language, in fact the opposite of a
-> > procedural language. It is not suitable.
+Since I have been experimenting with your initial release
+yerstoday, please allow me some more detailed notes about the code:
+
+
+>   echo "using_tcq:0" > /proc/ide/hdX/setting
 > 
-> Bollox!
+>   will disable TCQ and revert to DMA,
 > 
-> There are many places in the kernel that are actually very OO - look at
-> filesystems for example. The super_operations sturcture is in effect a
-> virtual function table.
+>   echo "using_tcq:32" > /proc/ide/hdX/setting
 > 
+>   will set queue depth to 32, any value in between the two are of course
+>   also allowed. The driver will print enable/disable info to the kernel
+>   log.
 
-The file operations structure(s) are structures. They are not object-
-oriented in any way, and they are certainly not virtual. The code that
-manipulates them is quite physical and procedural, well defined, and
-visible to the rest of the kernel.
+Well this belongs to an ioctl or sysctl... However most
+of the /proc/ide stuff if not all will go to the sysctl quite soon.
 
-> Sure making every file an object is probably OTT; but large scale things
-> like a filesystem, a network device or the like probably actually fit
-> very well.
+> diff -urN -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.5.8-pre2/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
+> --- /opt/kernel/linux-2.5.8-pre2/drivers/block/ll_rw_blk.c	Mon Mar 18 21:37:05 2002
+> +++ linux/drivers/block/ll_rw_blk.c	Tue Apr  9 10:35:20 2002
+> @@ -857,10 +857,10 @@
+>  	spin_lock_prefetch(q->queue_lock);
+>  
+>  	generic_unplug_device(q);
+> -	add_wait_queue(&rl->wait, &wait);
+> +	add_wait_queue_exclusive(&rl->wait, &wait);
+>  	do {
+>  		set_current_state(TASK_UNINTERRUPTIBLE);
+> -		if (rl->count < batch_requests)
+> +		if (!rl->count)
+>  			schedule();
+>  		spin_lock_irq(q->queue_lock);
+>  		rq = get_request(q, rw);
+> @@ -1683,9 +1683,11 @@
+>  	 * Free request slots per queue.
+>  	 * (Half for reads, half for writes)
+>  	 */
+> -	queue_nr_requests = 64;
+> -	if (total_ram > MB(32))
+> -		queue_nr_requests = 256;
+> +	queue_nr_requests = (total_ram >> 8) & ~15;	/* One per quarter-megabyte */
+> +	if (queue_nr_requests < 32)
+> +		queue_nr_requests = 32;
+> +	if (queue_nr_requests > 256)
+> +		queue_nr_requests = 256;
 
-Err.  From the outside-in, any well-defined software functionality
-can look like an "object". In fact, any well-defined and well functioning
-software is indistinguishable from magic, therefore can be represented
-as an object in the true object-oriented sense.
-
-> 
-> Sure, there are a lot of features of C++ to stay clear of - exception
-> handling probably being one of them, and I wouldn't let the C++ stuff
-> anywhere near the memory management code.
->
-
-
-C++ is designed for user-mode programming. It expects to interface
-with a complete operating system with well-defined characteristics.
-It is not designed to be part of an operating system kernel.
-
- 
-> Point being that it is a case of using the write tool for the job.  C++
-> douesn't add any extra overhead just by calling it C++ and not using any
-> of the features; careful use of the features where appropriate does no
-> harm and might actually make the code cleaner, and possibly more
-> efficient.
-> 
-
-It is quite unlikely that a C++ compiler will make more efficient
-code than a C compiler. In fact, the code generator will likely
-be the same. The C++ compiler will end up generating some preamble
-code as part of the function-calling mechanism, that is not necessary
-in C. This means that it will generate a bit more code.
-
-Making code "cleaner" is a matter of perspective.
-
-	class A {
-        public: void func(char *st) { cout << st << endl; }
-        };
-        using A::func;
-        A a;
-        a.func("Hello World!");
+This adaptive behaviour seems to be better fitting possible
+ram sized those days indeed.
 
 
-Is not all that clean. In fact, I'm not sure I have it right. It's
-easier and clearer to write  puts("Hello World!");
+> diff -urN -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-disk.c linux/drivers/ide/ide-disk.c
+> --- /opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-disk.c	Tue Apr  9 11:41:13 2002
+> +++ linux/drivers/ide/ide-disk.c	Tue Apr  9 10:29:46 2002
+> @@ -26,9 +26,10 @@
+>   * Version 1.11		Highmem I/O support, Jens Axboe <axboe@suse.de>
+>   * Version 1.12		added 48-bit lba
+>   * Version 1.13		adding taskfile io access method
+> + * Version 1.14		Added tcq support, Jens Axboe <axboe@suse.de>
+>   */
+>  
+> -#define IDEDISK_VERSION	"1.13"
+> +#define IDEDISK_VERSION	"1.14"
+>  
+>  #include <linux/config.h>
+>  #include <linux/module.h>
+> @@ -109,53 +110,64 @@
+>  static u8 get_command(ide_drive_t *drive, int cmd)
+>  {
+>  	int lba48bit = (drive->id->cfs_enable_2 & 0x0400) ? 1 : 0;
+> +	int command = WIN_NOP;
 
-> I will agree going head in and just throwing C++ at it is a bad thing.
-> 
-> Dave
+The "incremental" usage of the command variable I think is an overoptimization.
+u8 is the proper type for it anyway. I have unwound the code below once
+to make it more obvious and you would be surprised what GCC does with it :-).
+> +
+> +	return command;
+>  }
+
+See you are returning an int entity as u8!
 
 
-Cheers,
-Dick Johnson
+> +	ide_task_t			*args = &ar->ar_task;
+> +	struct request			*rq = ar->ar_rq;
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Hints that ide_task_t and ata_request_t and struct request usage
+belong together. This could alleviate the ugly usage of the
+rq->special field if rq is struct request - which would be a GoodThin(TM).
 
-                 Windows-2000/Professional isn't.
+
+> +	args->ar = ar;
+> +	rq->special = ar;
+
+Same hint as above.
+
+>n ata_taskfile(drive,
+> -			&args.taskfile,
+> -			&args.hobfile,
+> -			args.handler,
+> -			args.prehandler,
+> +			&args->taskfile,
+> +			&args->hobfile,
+> +			args->handler,
+> +			args->prehandler,
+>  			rq);
+
+Due to the other cleanups which happened already it was now possible
+for me to collapse the arguments of the ata_taskfile function to
+use only one parameter - names ide_task_t. This will immediately allow
+to consolidate all data specific to a command into one queued structure,
+which will be named struct ata_request then. I will post the
+corresponding patch just immediately, since the integration of the
+tcq stuff will be quite involved with it.
+
+> +	ide_task_t			*args = &ar->ar_task;
+> +	struct request			*rq = ar->ar_rq;
+
+See agin they belong together.
+
+> +	args->ar = ar;
+> +	rq->special = ar;
+
+> +	ide_task_t			*args = &ar->ar_task;
+> +	struct request			*rq = ar->ar_rq;
+
+and again.
+
+> +	args->ar = ar;
+> +	rq->special = ar;
+
+and again they belong together and strcut request should not be passed
+as parameter in IDE code.
+
+
+> -		return lba48_do_request(drive, rq, block);
+> +		return lba48_do_request(drive, ar, block);
+>  
+>  	/* 28-bit LBA */
+>  	if (drive->select.b.lba)
+> -		return lba28_do_request(drive, rq, block);
+> +		return lba28_do_request(drive, ar, block);
+>  
+>  	/* 28-bit CHS */
+> -	return chs_do_request(drive, rq, block);
+> +	return chs_do_request(drive, ar, block);
+
+Didn't I tell we shouldn't be tossing request structs around? :-).
+
+> +/*
+> + * FIXME: taskfiles should be a map of pages, not a long virt address... /jens
+> + */
+
+I fully agree with you - possible it will be helpfull to just pee at
+the SCSI code to see how it should be done...
+
+> +	if (rq->flags & REQ_DRIVE_TASKFILE)
+> +		ar->ar_sg_nents = ide_raw_build_sglist(hwif, rq);
+> +	else 
+> +		ar->ar_sg_nents = ide_build_sglist(hwif, rq);
+
+Most certainly the switch should be pushed down to one sinde
+build_sglist function - we are passing the rq anyway to it.
+
+> @@ -372,10 +378,9 @@
+>  void ide_destroy_dmatable (ide_drive_t *drive)
+>  {
+>  	struct pci_dev *dev = drive->channel->pci_dev;
+> -	struct scatterlist *sg = drive->channel->sg_table;
+> -	int nents = drive->channel->sg_nents;
+> +	ata_request_t *ar = IDE_CUR_AR(drive);
+
+This looks a bit ugly and should be analogous to ata_ar_get()
+possible ata_ar_current() will fit.
+
+> +int ide_start_dma(struct ata_channel *hwif, ide_drive_t *drive, ide_dma_action_t func)
+> +{
+> +	unsigned int reading = 0, count;
+> +	unsigned long dma_base = hwif->dma_base;
+> +	ata_request_t *ar = IDE_CUR_AR(drive);
+> +
+> +	if (rq_data_dir(ar->ar_rq) == READ)
+> +		reading = 1 << 3;
+> +
+> +	if (hwif->rwproc)
+> +		hwif->rwproc(drive, func);
+> +
+> +	if (!(count = ide_build_dmatable(drive, ar->ar_rq, func)))
+> +		return 1;	/* try PIO instead of DMA */
+> +
+> +	ar->ar_flags |= ATA_AR_SETUP;
+> +	outl(ar->ar_dmatable, dma_base + 4);	/* PRD table */
+> +	outb(reading, dma_base);		/* specify r/w */
+> +	outb(inb(dma_base + 2) | 6, dma_base+2);/* clear INTR & ERROR flags */
+
+Hmmm there is one architecture which will have possbile problems with this
+namely cris. But right now I'm quite convinced that they should fix something
+there and the OUT_ IDE code specific compatibility macros should be removed
+altogether.
+
+> diff -urN -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-features.c linux/drivers/ide/ide-features.c
+> --- /opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-features.c	Tue Apr  9 11:41:13 2002
+> +++ linux/drivers/ide/ide-features.c	Thu Apr  4 08:14:18 2002
+> @@ -75,10 +75,7 @@
+>  char *ide_dmafunc_verbose (ide_dma_action_t dmafunc)
+>  {
+>  	switch (dmafunc) {
+> -		case ide_dma_read:		return("ide_dma_read");
+> -		case ide_dma_write:		return("ide_dma_write");
+>  		case ide_dma_begin:		return("ide_dma_begin");
+> -		case ide_dma_end:		return("ide_dma_end:");
+>  		case ide_dma_check:		return("ide_dma_check");
+>  		case ide_dma_on:		return("ide_dma_on");
+>  		case ide_dma_off:		return("ide_dma_off");
+This abortion will be killed by using __FUNCTION__ where apriopriate in 
+debugging code.
+
+
+> +	ata_request_t *ar = rq->special;
+> +	ide_task_t *args = &ar->ar_task;
+
+Did I mention they belong to a single entity :-).
+
+> -	ide_task_t *args	= HWGROUP(drive)->rq->special;
+> +	ata_request_t *ar	= HWGROUP(drive)->rq->special;
+> +	ide_task_t *args	= &ar->ar_task;
+
+Same comment here.
+
+> +	ata_request_t *ar = rq->special;
+> +	ide_task_t *args = &ar->ar_task;
+
+And here.
+
+OK I will just "eat" your code this evening...
 

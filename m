@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUEXSwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263937AbUEXS7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUEXSwq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 14:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUEXSwp
+	id S263937AbUEXS7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 14:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUEXS7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 14:52:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:386 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264629AbUEXSwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 14:52:44 -0400
-Date: Mon, 24 May 2004 22:54:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christian Meder <chris@onestepahead.de>
-Subject: [patch] minor sched.c cleanup, BK-curr
-Message-ID: <20040524205402.GA16710@elte.hu>
+	Mon, 24 May 2004 14:59:25 -0400
+Received: from 1002-19.lowesthosting.com ([216.127.84.7]:59109 "HELO
+	1002-19.lowesthosting.com") by vger.kernel.org with SMTP
+	id S263937AbUEXS7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 14:59:23 -0400
+Date: Mon, 24 May 2004 13:58:50 -0500
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: "shanthi kiran pendyala" <skiranp@cisco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mmap problem (VM_DENYWRITE)
+Message-Id: <20040524135850.31ac9e62.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <000a01c441bf$ccb83600$322147ab@amer.cisco.com>
+References: <20040519062044.15651.qmail@web90107.mail.scd.yahoo.com>
+	<000a01c441bf$ccb83600$322147ab@amer.cisco.com>
+X-Mailer: Sylpheed version 0.9.10cvs7 (GTK+ 1.2.10; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__24_May_2004_13_58_50_-0500_gZFL.BsIywMYTfT1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Mon__24_May_2004_13_58_50_-0500_gZFL.BsIywMYTfT1
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Linus, Andrew,
+Uttered "shanthi kiran pendyala" <skiranp@cisco.com>, spake thus:
 
-the following obviously correct patch from Christian Meder simplifies
-the DELTA() define. It's against BK-curr.
+> After mmaping in userspace any writes to the mmap region is not working. 
+> I think it is b'cos of the protection field in the vma is set to
+> VM_DENYWRITE. 
+> The complete prot flag is (VM_READ | VM_WRITE | VM_EXEC | VM_GROWSUP |
+> VM_DENYWRITE)
+> 
+> Why is this happening? I need to have both read and write access to region.
+> How do I fix this ?
 
-Signed-off-by: Christian Meder <chris@onestepahead.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Take out the VM_DENYWRITE flag. Duh.
 
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -141,8 +141,7 @@
- 	(v1) * (v2_max) / (v1_max)
- 
- #define DELTA(p) \
--	(SCALE(TASK_NICE(p), 40, MAX_USER_PRIO*PRIO_BONUS_RATIO/100) + \
--		INTERACTIVE_DELTA)
-+	(SCALE(TASK_NICE(p), 40, MAX_BONUS) + INTERACTIVE_DELTA)
- 
- #define TASK_INTERACTIVE(p) \
- 	((p)->prio <= (p)->static_prio - DELTA(p))
+Are you gonna put code in the mapped area?  No? Turn off VM_EXEC.
+
+Are you gonna place your stack in the mapped area?  No? Turn of
+VM_GROWSUP.
+
+Have you read "man mmap"?  No? Try it.
+
+Cheers!
+
+--Signature=_Mon__24_May_2004_13_58_50_-0500_gZFL.BsIywMYTfT1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAskXu/0ydqkQDlQERAglOAKCCntFmT+OGfTMMzw+8jKfrtuJmuQCbBrFW
+FJMo9amPnNEginGLrPy9Tgo=
+=xtRm
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__24_May_2004_13_58_50_-0500_gZFL.BsIywMYTfT1--

@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265523AbTF2CWA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 22:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265524AbTF2CWA
+	id S265527AbTF2Czm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 22:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbTF2Czm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 22:22:00 -0400
-Received: from h80ad25cd.async.vt.edu ([128.173.37.205]:17025 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265523AbTF2CV7 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 22:21:59 -0400
-Message-Id: <200306290236.h5T2a5Gk004076@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Justin Pryzby <justinpryzby@users.sourceforge.net>
-Cc: "Luca T." <luca-t@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: /dev/random broken? 
-In-Reply-To: Your message of "Sat, 28 Jun 2003 19:10:18 PDT."
-             <20030629021018.GA26162@andromeda> 
-From: Valdis.Kletnieks@vt.edu
-References: <E19WOvK-0001I7-00@andromeda>
-            <20030629021018.GA26162@andromeda>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1681803940P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 28 Jun 2003 22:55:42 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:24253 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265618AbTF2CxO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 22:53:14 -0400
+Date: Sat, 28 Jun 2003 20:07:06 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.73-mm2
+Message-ID: <4160000.1056856024@[10.10.2.4]>
+In-Reply-To: <20030629021809.GA26348@holomorphy.com>
+References: <20030627202130.066c183b.akpm@digeo.com> <20030628155436.GY20413@holomorphy.com> <20030628170837.A10514@infradead.org> <56960000.1056846845@[10.10.2.4]> <20030629021809.GA26348@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Sat, 28 Jun 2003 22:36:04 -0400
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1681803940P
-Content-Type: text/plain; charset=us-ascii
+--William Lee Irwin III <wli@holomorphy.com> wrote (on Saturday, June 28, 2003 19:18:09 -0700):
 
-On Sat, 28 Jun 2003 19:10:18 PDT, Justin Pryzby said:
-> /dev/urandom is what you want; it makes up its own entropy.  /dev/random
-> uses entropy from user input (low order bits I imagine).
+> On Sat, Jun 28, 2003 at 05:34:05PM -0700, Martin J. Bligh wrote:
+>> Last time I measured it, it had about a 10% overhead in kernel time.
+>> Seems like a good thing to keep as an option to me. Bill said he
+>> had some other code to alleviate the overhead, but I don't think
+>> it's merged ... I'd rather see UKVA (permanently map the pagetables
+>> on a per-process basis) merged before it becomes "not an option" -
+>> that gets rid of all the kmapping.
+> 
+> There are several orthogonal things going on here. One is dropping the
+> hooks in the right places to get various concrete tasks done. Another
+> is general resource scalability vs. raw overhead tradeoffs. The last
+> one is gathering a wide enough repertoire of core hooks that arches can
+> use "advanced" techniques like recursive pagetables when they require
+> various kinds of intervention by the kernel to use.
+> 
+> This is just another set of hooks we'll need for our end goal, with a
+> fully functional implementation. It has direct applications and is
+> completely usable now for resource scalability albeit with some
+> overhead. Things are all headed in the appropriate directions; the
+> hooks do not conflict with and do not require any core modifications
+> whatsoever in order to use in combination with recursive pagetables;
+> they can simply recover information from already-available places and
+> transparently replace the highpmd and highpte arch code.
+> 
+> I can work directly with Dave to arrange a proper demonstration of this
+> (i.e. fully functional implementation) if need be. I've largely avoided
+> interceding in recursive pagetable mechanics in order not to duplicate
+> work.
 
-Strictly speaking, urandom doesn't "make up" any entropy - it generates
-a pseudorandom stream of bits of arbitrary length using a small chunk of
-entropy from the entropy pool.  That's why it's able to generate multi-megabyte
-streams of bits even when the entropy pool is empty - it is generating a
-fixed but unpredictable stream based on the initial entropy.
+Right, I'm not against what you're doing - I'm totally for it. My only
+concern was that whilst it has some overhead, it should stay as a config
+option (which you did). That lets people make the call of overhead vs
+resource scaling.
 
-The distinction is important mostly to cryptographers - for almost all
-practical uses, the pseudorandom stream of bits produced by urandom
-is quite sufficient, much faster, and leaves the entropy pool untouched
-for those applications that *do* care about the difference....
+Your patch is fine - just the talk of removing the config option scared 
+me ;-)
 
---==_Exmh_1681803940P
-Content-Type: application/pgp-signature
+M.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+/lCUcC3lWbTT17ARAq9pAJ91EWCX4Qs6tL0ISLBd3BSUM2XGrQCg7+I/
-+6OnTN6xUMzeYBLuqT+uSsM=
-=e6ko
------END PGP SIGNATURE-----
-
---==_Exmh_1681803940P--

@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbTB1B5F>; Thu, 27 Feb 2003 20:57:05 -0500
+	id <S267429AbTB1CbJ>; Thu, 27 Feb 2003 21:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267425AbTB1B5F>; Thu, 27 Feb 2003 20:57:05 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:26202 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S261364AbTB1B5E>;
-	Thu, 27 Feb 2003 20:57:04 -0500
-Date: Thu, 27 Feb 2003 17:57:00 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, Mike Anderson <andmike@us.ibm.com>
-Subject: Re: 2.5.62-mm2 slow file system writes across multiple disks
-Message-ID: <20030227175700.A26302@beaverton.ibm.com>
-References: <20030224120304.A29472@beaverton.ibm.com> <20030224135323.28bb2018.akpm@digeo.com> <20030224174731.A31454@beaverton.ibm.com> <20030224204321.5016ded6.akpm@digeo.com> <20030225112458.A5618@beaverton.ibm.com> <20030226004454.2bfd8deb.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030226004454.2bfd8deb.akpm@digeo.com>; from akpm@digeo.com on Wed, Feb 26, 2003 at 12:44:54AM -0800
+	id <S267431AbTB1CbJ>; Thu, 27 Feb 2003 21:31:09 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:58507 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S267429AbTB1CbH>;
+	Thu, 27 Feb 2003 21:31:07 -0500
+Date: Fri, 28 Feb 2003 02:41:14 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
+Subject: VM Documentation Release Day
+Message-ID: <Pine.LNX.4.44.0302280156450.14671-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 12:44:54AM -0800, Andrew Morton wrote:
+This is a beginning of the end release of the VM documentation against
+2.4.20 as it contains information on pretty much all of the VM. A lot of
+the older chapters have been cleaned up in terms of language, font usage
+and presentation and a few new chapters are new. Please excuse if the
+swapping chapter is a bit rough, I wanted to get this done by the weekend
+so I can head away offline and not have to worry about it.
 
-> Does the other qlogic driver exhibit the same thing?
+The whole documentation is broken up into two major sets of documents.
+understand.foo is the main document describing how the VM works and
+code.foo is a fairly detailed code commentary to guide through the sticky
+parts. It can be found in PDF(preferred format), HTML or plain text at
 
-OK I finally tried out the qlogic driver on the same 10 drives, actually
-with scsi-misc-2.5 (2.5.63).
+Understand the VM
+PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
+Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/understand.txt
 
-The qlogic is OK performance wise - as Mike pointed out, it sets a lower
-queue depth; and even though it sets can_queue higher than the feral, the
-qlogic driver software queues where in the same case the feral would give
-us a host busy (i.e. queuecomand returns 1).
+Code Commentary
+PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/code.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
+Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/code.txt
 
-andmike> Well the qlogic provided driver should exhibit slightly different
-andmike> behavior as its per device queue depth is 16 and the request ring count
-andmike> is 128.
-andmike> 
-andmike> The feral driver is currently running a per device queue of 63 and a
-andmike> request ring size of 64. (if I am reading the driver correctly?). When
-andmike> the request count is exceeded I believe it should return a 1 to the call
-andmike> of queuecommand. Can you tell if scsi_queue_insert is being called.
+This is a huge milestone for me (I'm actually quite proud of myself!) It
+has come a *long* way since I wrote
+http://marc.theaimsgroup.com/?l=linux-mm&m=99907898511387&w=2 which was
+around when I first untarred the source with a view to seriously reading
+it :-) (The larger project never really got as far as I thought, I
+drastically underestimated how long this would take and it was large
+enough project as it was)
 
-As Mike implies, the feral driver is setting can_queue too high, so in
-addition to large queue depth affects, I am also hitting scsi host busy
-code paths - yes, it is calling scsi_queue_insert. The host busy code is
-not meant to be hit so often, and likely leads to lower performance.
+At this stage, I'm nearing the end of the documentation work for the
+2.4.20 VM. If I write anything for 2.5, it'll be in the shape of addendums
+where I describe the differences rather than going through all this again.
+All that I have left really is to polish it (especially the later chapters
+like swap management) and fill in some gaps (particularly filling out the
+page cache management a bit more). I'm now hoping people will read through
+it, tell me where and if I've made technical errors, suggestions for
+improvements or tell me where I've missed on topics that really should
+have been covered.
 
-So the feral driver needs lower can_queue (and/or queueing changes) and
-lower queue_depth limits.
+When the final polish is done, the whole document, LaTeX source and all
+will be uploaded to somewhere more accessible than my webpage. At this
+stage, presuming people do not start pointing out horrible mistakes I've
+made, I'm hoping that the final version is not too far away. Suggestions,
+comments and feedback are welcome.
 
-> Does writeout to a single disk exhibit the same thing?
+ --
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel
 
-No, single disk IO performance is OK (with queue depth/TCQ 63 and
-can_queue 744), so the too high can_queue with host busy's is probably
-hurting performance than the high queue_depth.
 
-> > The larger queue depths can be nice for disk arrays with lots of cache and
-> > (more) random IO patterns.
-> 
-> So says the scsi lore ;)  Have you observed this yourself?  Have you
-> any numbers handy?
 
-No and no :(
-
-I'm not sure if the disk arrays we have available have enough memory to
-show such affects (I assume standard disk caches are not large enough to
-have much of an affect).
-
--- Patrick Mansfield

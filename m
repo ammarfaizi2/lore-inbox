@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbTDKSAr (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDKSAr (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:00:47 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:55080 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id S261335AbTDKSAo convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 14:00:44 -0400
-Message-Id: <se96cd49.002@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.2
-Date: Fri, 11 Apr 2003 14:12:16 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <john@grabjohn.com>, <freesoftwaredeveloper@web.de>
-Cc: <linux-kernel@vger.kernel.org>
+	id S261323AbTDKSA1 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbTDKSA1 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:00:27 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:60908 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261323AbTDKSAZ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:00:25 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Greg KH <greg@kroah.com>
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Date: Fri, 11 Apr 2003 20:12:05 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
+       message-bus-list@redhat.com, Daniel Stekloff <dsteklof@us.ibm.com>
+References: <20030411032424.GA3688@kroah.com> <200304110837.37545.oliver@neukum.org> <20030411172011.GA1821@kroah.com>
+In-Reply-To: <20030411172011.GA1821@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200304112012.05054.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hit hit hit.
+> > - There's a race with replugging, which you can do little about
+>
+> True, but this can get smaller.
 
-Could be wrong, but I make it 1939.
+There isn't such a thing as a small race. Either there is a race or there
+is no race. 'Should usually work' is not enough, especially when security
+is concerned.
 
-Nik
+> > - Error handling. What do you do if the invocation ends in EIO ?
+>
+> Which invocation?  From /sbin/hotplug?
 
->>> Michael Buesch <freesoftwaredeveloper@web.de> 04/11/03 02:03PM >>>
-On Friday 11 April 2003 19:46, John Bradford wrote:
-> [Puzzle]
-> Say the power supply had five 5.25" drive power connecters, how many 1
-> into 3 power cable splitters would you need to connect all 4000 disks?
+Yes.
+This is a serious problem. Your scheme has very nasty failure modes.
+By implementing this in user space you are introducing additional
+failure modes.
+- You need disk access -> EIO
+- You have no control over memory allocation -> ENOMEM, EIO in swap space
+Usually I'd not care about EIO, but here security is threatened. EIO crashing
+the system under some circumstances is inevitable, EIO opening a security
+hole is not acceptable however.
 
-400 (hit me if this is wrong :)
+> > - Performance. What happens if you plug in 4000 disks at once?
+>
+> You crash your power supply :)
+>
+> Seriously, the kernel spawns 4000 instances of /sbin/hotplug just like
+> it always does.  I'm working on keeping udev from spawning anything else
+> to keep the process cound down (right now it fork/execs for mknod, but
+> that was just me being lazy.)
 
-Regards
-Michael Buesch.
+4000 spawnings is 32MB for kernel stacks alone.
+You cannot assume that resources will be sufficient for that.
 
+That again is a serious problem, because you cannot resync.
+If you lose a 'remove' event you're screwed.
 
--- 
-My homepage: http://www.8ung.at/tuxsoft 
-fighting for peace is like fu**ing for virginity
+And of course, what do you do if the driver is not yet loaded?
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
+	Regards
+		Oliver
 

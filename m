@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290725AbSAYQzx>; Fri, 25 Jan 2002 11:55:53 -0500
+	id <S290729AbSAYQ5X>; Fri, 25 Jan 2002 11:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290726AbSAYQzo>; Fri, 25 Jan 2002 11:55:44 -0500
-Received: from mail.udm.ru ([217.14.192.20]:15121 "EHLO aps.mark-itt.ru")
-	by vger.kernel.org with ESMTP id <S290725AbSAYQzg>;
-	Fri, 25 Jan 2002 11:55:36 -0500
-Date: Fri, 25 Jan 2002 20:58:22 +0400
-From: ASA <llb@udm.net.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: ASA <llb@udm.net.ru>
-Organization: LLB, LLC
-X-Priority: 3 (Normal)
-Message-ID: <1038781885.20020125205822@udm.net.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Too big EBDA issue
+	id <S290732AbSAYQ5N>; Fri, 25 Jan 2002 11:57:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8064 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290726AbSAYQ4n>; Fri, 25 Jan 2002 11:56:43 -0500
+Date: Fri, 25 Jan 2002 11:56:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: <simon@baydel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+In-Reply-To: <3C50FBAE.26883.8EF8C@localhost>
+Message-ID: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Fri, 25 Jan 2002,  wrote:
 
-My system is embedded PC/104 and has C&T 65545 videochip and DiskOnChip
-flash device. I'm developing a special linux-based application.
+> I am writing a module and would like to perform arithmetic on long 
+> long variables. When I try to do this the module does not load due
+> to the unresolved symbols __udivdi3 and __umoddi3. I notice these
+> are normally defined in libc. Is there any way I can do this in a 
+> kernel module.
+> 
+> Many Thanks
+> 
+> Simon.
 
-Today I had to upgrade DiskOnChip BIOS extender and after that I could not
-boot linux anymore. After digging hard in problem I found that EBDA was
-enlarged to 33KB so remaining conventional memory was reduced to 607KB but
-normal booting proccess bzImage loading requires at least 608 KB. After
-checking on other systems with DiskOnChip I found their EBDA have sizes
-typically of 29-31 KB.
+Normally, in modules, the granularity is such that divisions can
+be made by powers-of-two. In a 32-bit world, the modulus that you
+obtain with umoddi3 (the remainder from a long-long, division) should
+normally fit within a 32-bit variable. If you insist upon doing 64-bit
+math in a 32-bit world, then you can either make your own procedures
+and link them, of you can "appropriate" them from the 'C' runtime
+library code, include them with your source, assemble, and link them
+in.
 
-Yeah, it is very large EBDA (normal PC's I checked just have only 1 KB
-EBDA). It seems DickOnChip BIOS requires much space on irder to store own
-temporary data to implement their TrueFFS.
 
-But I guess that there will be some other BIOS extensions that will require
-another EBDA space. As far as bzImage loading model requires space of 32 K
-between 576K (0x90000) and 608K (0x98000) but almost no other place I think
-there is necessity to extend boot protocol in order to relocate 16-bit mode
-loader closer to the lowest memory bound, not to the upper one.
+Cheers,
+Dick Johnson
 
-I also reported that issue to DiskOnChip developers (www.m-sys.com) but
-there is a possibility that other hardware developers can extend EBDA also.
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-So extending boot protocol in order to move far away of cancer of growing
-EBDA would be worthly of note. As a new feature for 2.5/2.6 kernels by
-example.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
--- 
-Best regards,
- ASA                          mailto:llb@udm.net.ru
 

@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310835AbSEALnN>; Wed, 1 May 2002 07:43:13 -0400
+	id <S310769AbSEALmV>; Wed, 1 May 2002 07:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310917AbSEALnM>; Wed, 1 May 2002 07:43:12 -0400
-Received: from ns.suse.de ([213.95.15.193]:34827 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310835AbSEALnJ>;
-	Wed, 1 May 2002 07:43:09 -0400
-Date: Wed, 1 May 2002 13:43:05 +0200
-From: Dave Jones <davej@suse.de>
-To: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Cc: linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
-Subject: Re: 2.5.12 compile error ( e100, Alternate Intel driver )
-Message-ID: <20020501134305.I29327@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Seiichi Nakashima <nakasima@kumin.ne.jp>,
-	linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
-In-Reply-To: <200205011123.AA00059@prism.kumin.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310835AbSEALmU>; Wed, 1 May 2002 07:42:20 -0400
+Received: from relay1.soft.net ([164.164.128.17]:12236 "EHLO cyclops.soft.net")
+	by vger.kernel.org with ESMTP id <S310769AbSEALmT>;
+	Wed, 1 May 2002 07:42:19 -0400
+Message-ID: <91A7E7FABAF3D511824900B0D0F95D1013704C@BHISHMA>
+From: Abdij Bhat <Abdij.Bhat@kshema.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Abdij Bhat <Abdij.Bhat@kshema.com>
+Subject: Where is the inetd.conf?
+Date: Wed, 1 May 2002 17:11:53 +0530 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 01, 2002 at 08:23:11PM +0900, Seiichi Nakashima wrote:
+Hi,
+ I no longer find the inetd.conf in either /etc or /etc/inet/. In fact i do
+not find in on my whole linux box.
+ I am using Red Hat Distribution of Linux Kernel 2.4.7-10. I beleive it is
+using xinetd instead of inetd.
+ Does this have something to do with the way Linux is loaded on to the
+system? (My IT depratment does it for me :( I am not authorized! ).
+ I need to install and run tcp wrappers which demand inetd.conf. How can i
+circumvent the problem?
 
- > === compile error EtherExpressPro/100 support ( e100, Altrenate Intel driver ) ===
- > 
- > io_apic.c:221: warning: `move' defined but not used
- > drivers/net/net.o: In function `e100_diag_config_loopback':
- > drivers/net/net.o(.text+0x52ff): undefined reference to `e100_phy_reset'
- > make: *** [vmlinux] Error 1
-
-Remove the __devexit tag from e100_phy_reset()'s definition in
-drivers/net/e100/e100_phy.c around line 873
-
-I already sent Jeff a patch for this.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Thanks and Regards,
+Abdij

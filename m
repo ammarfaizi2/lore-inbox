@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314480AbSD1UD1>; Sun, 28 Apr 2002 16:03:27 -0400
+	id <S314481AbSD1UGe>; Sun, 28 Apr 2002 16:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314481AbSD1UD0>; Sun, 28 Apr 2002 16:03:26 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:19213 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S314480AbSD1UDZ>; Sun, 28 Apr 2002 16:03:25 -0400
-Date: Sun, 28 Apr 2002 22:03:22 +0200
-From: tomas szepe <kala@pinerecords.com>
-To: lkml <linux-kernel@vger.kernel.org>
+	id <S314483AbSD1UGd>; Sun, 28 Apr 2002 16:06:33 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:20744 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S314481AbSD1UGc>; Sun, 28 Apr 2002 16:06:32 -0400
+Message-ID: <3CCC5638.9A8DD129@linux-m68k.org>
+Date: Sun, 28 Apr 2002 22:06:16 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020428200322.GA20069@louise.pinerecords.com>
-In-Reply-To: <A743C0JEMJRPZWCBONROPOPKYTFC6UT.3ccc4886@kingston> <Pine.LNX.4.44.0204281221260.5090-100000@home.transmeta.com>
-Mime-Version: 1.0
+In-Reply-To: <200204271859.g3RIxHo16889@vindaloo.ras.ucalgary.ca>
+		<Pine.LNX.4.21.0204272141210.23113-100000@serv> <200204281740.g3SHeuw25285@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 6 days, 13:21)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Remember: we're not the Judean People's Front, we're the People's Front of
-> Judea. Or maybe we're the Popular Front for the Liberation of Judea. I get
-> confused.
+Hi,
 
+Richard Gooch wrote:
 
-"Listen. If you really wanted to join the People's Front of Judea,
-you'd have to really hate [BK-Usage/]."
+> OK, I'll add this link, but I'd feel more comfortable adding this if
+> there was a URL I could quote for the opposing view, and hence be more
+> balanced. But I guess no-one has bothered to write a manifesto. If
+> someone has or does, let me know.
+> 
+> The purpose of the FAQ entry isn't to support a particular view, but
+> to serve as a "State of the Community" notice.
 
-"I do!!"
+Then you should remove the "all software wants to be free (and hence all
+non-free/proprietary software is evil)" part, that was hardly demanded
+by the "Community". Read the link I gave you, it's about protecting free
+software, it's not about forcing our views onto others.
 
-"Oh yeah? How much?"
-
-"_A_ _LOT_."
-
-"Right. You're in. The only people we hate more than the ones who
-wrote the files in that damn dir are the f#@$%ing Judean People's Front!"
-
-
-
-t.
+bye, Roman

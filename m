@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264793AbUD1NxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUD1N7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264793AbUD1NxX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 09:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbUD1NxX
+	id S264788AbUD1N7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 09:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbUD1N7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 09:53:23 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30225 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264804AbUD1NxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 09:53:20 -0400
-Date: Wed, 28 Apr 2004 14:53:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [BUG] 2.6.6-rc3: make xxx_defconfig randomly sets options
-Message-ID: <20040428145316.C24948@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Linus Torvalds <torvalds@osdl.org>
+	Wed, 28 Apr 2004 09:59:36 -0400
+Received: from gonzo.one-2-one.net ([217.115.142.69]:11664 "EHLO
+	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S264788AbUD1N7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 09:59:35 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Wed, 28 Apr 2004 15:59:06 +0200
+From: stefan.eletzhofer@eletztrick.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add RTC 8564 I2C chip support
+Message-ID: <20040428135906.GA23534@gonzo.local>
+Reply-To: stefan.eletzhofer@eletztrick.de
+Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
+	linux-kernel@vger.kernel.org
+References: <20040428134122.GB23076@gonzo.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040428134122.GB23076@gonzo.local>
+User-Agent: Mutt/1.3.27i
+Organization: Eletztrick Computing
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 28, 2004 at 03:41:22PM +0200, Stefan Eletzhofer wrote:
+> Hi,
+> the attached patch adds support for the Epson 8564 RTC
+> chip. This chip is a generic real-time-clock sitting on
+> a I2C bus.
 
-If I have an ARM defconfig file which contains:
+Duh, it's against 2.6.6-rc2 :)
 
-# CONFIG_SERIO is not set
-
-with none of the other CONFIG_SERIO symbols, and I run make foo_defconfig,
-I get the following in the resulting .config:
-
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-
-This is despite not being an X86 architecture, and isn't affected by
-whether CONFIG_EMBEDDED is set or not.
-
-If I run "make oldconfig" after switching CONFIG_SERIO off and removing
-the other CONFIG_SERIO_* symbols, I get:
-
-Serial i/o support (SERIO) [Y/?] y
-i8042 PC Keyboard controller (SERIO_I8042) [Y/n/m/?] (NEW)
-
-It appears SERIO is forced on because SERIO_I8042 _may_ be wanted by
-the user, which in turn forces SERIO_I8042 to Y in the defconfig case
-because we don't accept input from the user and the default is Y.
-
-So, there is _no_ way to presently have a working defconfig file for
-a machine which does not support I8042 - I8042 will always be
-_unconditionally_ selected no matter what.
-
-Can we please take Aunt Tillie out to the firing squad?  This hacking
-around with the Kconfig files to make X86 life simple is causing _real_
-bugs for other architectures.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> 
+> Patch URL:
+> http://213.239.196.168/~seletz/patches/2.6.6-rc2/i2c-rtc8564.patch
+> 
+> Please comment,
+> 	Stefan E.
+> 
+> 

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262928AbREWAvQ>; Tue, 22 May 2001 20:51:16 -0400
+	id <S262933AbREWBJS>; Tue, 22 May 2001 21:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262931AbREWAu4>; Tue, 22 May 2001 20:50:56 -0400
-Received: from 193-153-20-111.uc.nombres.ttd.es ([193.153.20.111]:19466 "HELO
-	193-153-20-111.uc.nombres.ttd.es") by vger.kernel.org with SMTP
-	id <S262928AbREWAux>; Tue, 22 May 2001 20:50:53 -0400
-From: storage@lycos.es
-Reply-To: storage@lycos.es
-To: linux-kernel@vger.kernel.org
-Subject: REGISTRE EL SUYO AHORA
-Message-Id: <20010523005056Z262928-932+362@vger.kernel.org>
-Date: Tue, 22 May 2001 20:50:53 -0400
+	id <S262934AbREWBJJ>; Tue, 22 May 2001 21:09:09 -0400
+Received: from ns.suse.de ([213.95.15.193]:57874 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262933AbREWBI4>;
+	Tue, 22 May 2001 21:08:56 -0400
+Date: Wed, 23 May 2001 03:08:54 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: <ttel5535@artax.karlin.mff.cuni.cz>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        Martin Knoblauch <martin.knoblauch@teraport.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <Pine.LNX.4.21.0105230212050.14816-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.30.0105230307470.4030-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Si tiene una empresa en marcha, un proyecto o una idea registre su dominio en Internet AHORA, 
-tal vez mañana sea demasiado tarde. Proteja su nombre en Internet. Si tiene ya dominio y ha de renovarlo proximamente transfiera el dominio por solo 20$ lo tendra un año renovado (esta operacion no afecta al hospedaje, solo al registrador del dominio)
+On Wed, 23 May 2001, Tomas Telensky wrote:
 
-Si conoce a alguien en esta situacion y no sabe que regalarle regalele un dominio, es original y quedara bien.
+> Yes. Recently I tried to transform whole cpuid code to a userspace
+> utility. Not easy, not clean... but it worked.
 
-Vea toda la informacion referente al registro de dominios en http://ir-a.net/mark/
+See http://www.sourceforge.net/projects/x86info
+or ftp://ftp.suse.com/pub/people/davej/x86info/
 
-REGALE UN DOMINIO O REGISTRE EL SUYO
-Otros servicios: hospedaje, redireccion de dominio, ...etc
-¿HAS DE RENOVAR EL REGISTRO DE TU DOMINIO? PRECIO ESPECIAL POR TRANSFERENCIA DE DOMINIO (20$ AÑO)
-PRECIO DE HOSTING IMBATIBLE
+regards,
 
------------------------REMOVE------------------------------
-SI NO QUIERE RECIBIR MAS MENSAJES DESDE ESTA DIRECCION VAYA AL LINK 
-INDICADO
-Y SERA DADO DE BAJA INMEDIATAMENTE. DICHO LINK ES UN SERVICIO 
-INDEPENDIENTE DEL ENVIO DE ESTE EMAIL
-----------------------------------------------------------------------
-dar de baja de la lista de distribucion - remove distribution list
-http://borrame.anexos.com
-RemovingNet. Cuentas gratuitas para el control  de bajas.
-Free accounts for the control of  "unsubscribes"
-RemovingNet nada tiene que ver con este email ni con su
-contenido
-RemovingNet nothing has to do with this email nor with contained his
-----------------------------------------------------------------
-IF YOU DON'T WANT TO RECEIVE MORE MESSAGES FROM US, PLEASE CLICK ON THE LINK
-BELOW. http://borrame.anexos.com
- YOUR EMAIL ADDRESS WILL BE REMOVED FROM OUR DATA BASE IMMEDIATELY.
-REMOVING.NET IS AN INDEPENDENT SERVICE
------------------------REMOVE------------------------------
+Dave.
 
-
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

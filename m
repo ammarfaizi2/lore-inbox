@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbTIKRK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIKRK6
+	id S261417AbTIKRN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:13:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbTIKRN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:10:58 -0400
-Received: from amdext.amd.com ([139.95.251.1]:51671 "EHLO amdext.amd.com")
-	by vger.kernel.org with ESMTP id S261407AbTIKRKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:10:54 -0400
-Message-ID: <99F2150714F93F448942F9A9F112634C0638B198@txexmtae.amd.com>
-From: richard.brunner@amd.com
-To: jamie@shareable.org
-cc: linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Date: Thu, 11 Sep 2003 12:09:58 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 137E73F57704544-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Sep 2003 13:13:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:51089 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261417AbTIKRNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 13:13:19 -0400
+Date: Thu, 11 Sep 2003 18:13:16 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030911171316.GI29532@mail.jlokier.co.uk>
+References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73oexri9kx.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the program is doing lots of page faults to SEGV signals 
-intentionally, each of those transitions (exception to-> kernel ->
-process -> signal-back to user) is already pretty expensive.
-I would think that the slight overhead that is_prefetch() 
-adds in this case is pretty low in comparision because 
-the transitions themselves are very expensive in cycles. 
-Most of the time, is_prefetch should be able to tell if 
-it is a prefetch from just reading the first byte 
-(one memory access).
-
-We can measure this for such programs if need be, but, I would bet
-we won't see any difference.
-
-Having said that, I'm agnostic to whether is_prefetch() 
-gets compiled out for non-AMD processors. I defer to 
-all the kernel experts here if that is feasible or not.
-
-
-] -Rich ...
-] AMD Fellow
-] richard.brunner at amd com 
-
-> -----Original Message-----
-> From: Jamie Lokier [mailto:jamie@shareable.org] 
-> Sent: Thursday, September 11, 2003 9:55 AM
-> To: Brunner, Richard
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Andi Kleen wrote:
+> My gut feeling is to just fix the drivers to make this runtime switchable
+> and get rid of the compile time options.
 > 
-> 
-> richard.brunner@amd.com wrote:
-> > Don't worry! I am pretty certain the patch won't impact the 
-> > performance of the 2.6 kernel on processors from other vendors ;-)
-> 
-> is_prefetch() will slow down programs which depend on lots of SEGV
-> signals: those garbage collectors which use mprotect and SIGSEGV to
-> track dirty pages.
-> 
-> I wonder how much it will slow them down.
-> 
-> -- Jamie
-> 
+> This would help distributions (who normally want to build conservative
+> by default, but still allow the users easy tuning without recompilation) 
+> For that it would be nice if a standard module parameter or maybe 
+> sysfs option existed.
 
+Another way to help distributions is to compile those drivers twice,
+once for each access type.  There aren't all that many drivers that
+need it.
+
+> The overhead of checking for PIO vs mmio at runtime in the drivers
+> should be completely in the noise on any non ancient CPU (both MMIO
+> and PIO typically take hundreds or thousands of CPU cycles for the bus
+> access, having an dynamic function call or an if before that is makes
+> no difference at all)
+
+Ah, but what about the ancient CPUs?
+
+-- Jamie

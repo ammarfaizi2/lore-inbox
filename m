@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270477AbTGNQYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270584AbTGNQYc
+	id S270449AbTGNQab (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270451AbTGNQab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:24:32 -0400
-Received: from hell.org.pl ([212.244.218.42]:56330 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S270477AbTGNQYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:24:31 -0400
-Date: Mon, 14 Jul 2003 18:40:48 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Eric Valette <eric.valette@free.fr>
-Cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Linux 2.6-pre1 Does not boot on ASUS L3800C: lock up in acpi while "Executing all Devices _STA and_INIT methods"
-Message-ID: <20030714164048.GA15445@hell.org.pl>
-Mail-Followup-To: Eric Valette <eric.valette@free.fr>,
-	linux-kernel@vger.kernel.org, andrew.grover@intel.com,
-	acpi-devel@lists.sourceforge.net
-References: <3F12AF06.6080004@free.fr>
+	Mon, 14 Jul 2003 12:30:31 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:45272 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S270449AbTGNQa1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:30:27 -0400
+Date: Mon, 14 Jul 2003 18:45:07 +0200
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] XBox Gaming System subarchitecture.
+Message-ID: <20030714164507.GA30480@h55p111.delphi.afb.lu.se>
+References: <20030714124933.GB20708@h55p111.delphi.afb.lu.se> <Pine.LNX.4.44.0307140908270.4106-100000@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F12AF06.6080004@free.fr>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0307140908270.4106-100000@home.osdl.org>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19c6Rn-00008n-00*DaPOfAEe.M2*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Eric Valette:
-> I happily run 2.4.21-pre5 with ACPI enabled and everything works just 
-> fine. I tried today 2.6-pre1 with exactly the same hardware 
-> configuration as the 2.4 one and the laptop does not boot. It hangs 
-> while dispaying : "Executing all Devices _STA and_INIT methods" 
-> allthough it has already printed several '.'
+On Mon, Jul 14, 2003 at 09:12:31AM -0700, Linus Torvalds wrote:
+> Don't get me wrong: I think doing an Xbox port is fine. It's just that 
+> putting it in the standard tree is not likely a good idea. I can well 
+> imagine a number of Linux distributors who do not feel like they need the 
+> aggravation ;)
 
-I reported the same on ACPI devel several (18?) hours ago. For now, the
-solution is to compile a kernel without APIC support. No, the noapic option
-doesn't help.
+Okey. Now I know, thanks. I assumed that it was either this or that it had
+to follow the standard procedure of posting the mach-patch(/patchset) a
+hundred times to lkml before it got accepted.
 
-The problem appeared in 2.5.74, along with changes in handling a
-BIOS-disabled APIC, or so I suppose.
-
-Best regards,
+(And regarding the distros: They distributors could just rip that part out
+while doing all their patches ;). And I know that at least mandrake has a
+positive look on xbox-distro. And the mandrake devels were especially
+helpful in porting their installer to be compatible with the xbox.)
+ 
+Just to make clear: The patch does nothing that involves anything with the
+copy-protection. Not even the hdd-unlock. It is aimed to those who replace
+the bios in the xbox with the clean microsoft-free cromwell-bios, which has
+the sole purpose of booting linux.
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

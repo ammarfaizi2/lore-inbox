@@ -1,69 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264659AbSKRS2Y>; Mon, 18 Nov 2002 13:28:24 -0500
+	id <S261545AbSKRSpm>; Mon, 18 Nov 2002 13:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264620AbSKRS2X>; Mon, 18 Nov 2002 13:28:23 -0500
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:57516 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S264659AbSKRS1D>; Mon, 18 Nov 2002 13:27:03 -0500
-Date: Mon, 18 Nov 2002 19:33:59 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.48
-Message-Id: <20021118193359.6ab0ae99.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.44.0211172036590.32717-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0211172036590.32717-100000@penguin.transmeta.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.5claws156 (GTK+ 1.2.10; Linux 2.5.47)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.zw8j)MbW5Nf?Fg"
+	id <S263204AbSKRSpm>; Mon, 18 Nov 2002 13:45:42 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34504 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261545AbSKRSpl>;
+	Mon, 18 Nov 2002 13:45:41 -0500
+Message-ID: <3DD936F4.EDA4968A@digeo.com>
+Date: Mon, 18 Nov 2002 10:52:36 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Dave Hansen <haveblue@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       riel@surriel.com
+Subject: Re: unusual scheduling performance
+References: <3DD92E92.EEB9ECD6@digeo.com> <Pine.LNX.4.44.0211181031400.979-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2002 18:52:36.0177 (UTC) FILETIME=[A907F410:01C28F33]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.zw8j)MbW5Nf?Fg
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Davide Libenzi wrote:
+> 
+> On Mon, 18 Nov 2002, Andrew Morton wrote:
+> 
+> > Dave Hansen wrote:
+> > >
+> > > ...
+> > >      rwsem_down_write_failed:           133    133
+> >
+> > Possible culprit.
+> >
+> > Please stick a dump_stack() in rwsem_down_write_failed(), and add the below.
+> > Suggest you stick with 2.5.47 to diagnose this.  The loss of kksymoops
+> > is a pain.
+> >
+> >
+> >  fs/eventpoll.c |    2 ++
+> >  1 files changed, 2 insertions(+)
+> >
+> > --- 25/fs/eventpoll.c~hey     Mon Nov 18 10:13:40 2002
+> > +++ 25-akpm/fs/eventpoll.c    Mon Nov 18 10:14:01 2002
+> > @@ -328,6 +328,8 @@ void eventpoll_release(struct file *file
+> >       if (list_empty(lsthead))
+> >               return;
+> >
+> > +     printk("hey!\n");
+> > +
+> 
+> Andrew, if you don't use epoll there's no way you get there.
 
-On Sun, 17 Nov 2002 20:41:05 -0800 (PST) Linus Torvalds (LT) wrote:
+Yup.  That was a random stab based on recently-added down_write()
+calls.
 
-Hi Linus,
+However the down_write isn't there in 2.5.47 so that's a false
+lead.  We'll need that dump_stack() output.
 
-2.5.48 broke completely monolithic kernels.
-
-   ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
-arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o 
-crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-init/built-in.o(.init.text+0x684): In function `start_kernel':
-: undefined reference to `extable_init'
-make: *** [vmlinux] Error 1
-
-#
-# Loadable module support
-#
-# CONFIG_MODULES is not set
+Here's Dave's profile.  ep_notify_file_close() makes a small appearance.
+The change you made to 2.5.48 will wipe that out.  Neat.
 
 
-If module support is enabled, the thing links beautifully.
-
-Regards,
--Udo.
-
---=.zw8j)MbW5Nf?Fg
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE92TKZnhRzXSM7nSkRAqVOAJ9M6eCuF/Hisv5c3pdDByYwqzrS1QCeJDjr
-iNY9E/1SYqs0lHa7JqGh7ac=
-=DW0Y
------END PGP SIGNATURE-----
-
---=.zw8j)MbW5Nf?Fg--
+  0.058%       78 locks_remove_flock
+  0.062%       82 page_cache_readahead
+  0.062%       83 __generic_file_aio_read
+  0.065%       86 file_move
+  0.065%       87 dget_locked
+  0.066%       88 proc_pid_stat
+  0.067%       89 ep_notify_file_close
+  0.068%       91 get_pid_list
+  0.070%       93 update_atime
+  0.079%      105 get_unused_fd
+  0.085%      113 fget
+  0.090%      120 dput
+  0.091%      121 get_empty_filp
+  0.097%      129 system_call
+  0.100%      133 rwsem_down_write_failed
+  0.124%      164 vfs_follow_link
+  0.171%      227 file_read_actor
+  0.182%      241 __fput
+  0.221%      293 radix_tree_lookup
+  0.232%      307 atomic_dec_and_lock
+  0.250%      331 .text.lock.dec_and_lock
+  0.282%      374 try_to_wake_up
+  0.301%      398 kmap_atomic
+  0.309%      409 kunmap_atomic
+  0.326%      431 vfs_read
+  0.364%      482 .text.lock.namei
+  0.391%      518 __d_lookup
+  0.537%      710 link_path_walk
+  0.801%     1060 schedule
+  1.396%     1846 do_generic_mapping_read
+ 25.275%    33416 poll_idle
+ 66.319%    87678 __copy_to_user
+100.000%   132206 total

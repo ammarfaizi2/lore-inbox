@@ -1,53 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271152AbTGPWUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271174AbTGPWSK
+	id S271169AbTGPWOc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271168AbTGPWO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:18:10 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:37574 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S271171AbTGPWR2 (ORCPT
+	Wed, 16 Jul 2003 18:14:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5034 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271161AbTGPWMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:17:28 -0400
-Date: Wed, 16 Jul 2003 23:28:27 +0100
-From: backblue <backblue@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Error compiling, scsi 2.6.0-test1
-Message-Id: <20030716232827.2272eccb.backblue@netcabo.pt>
-In-Reply-To: <ODEIIOAOPGGCDIKEOPILAEBDCNAA.alan@storlinksemi.com>
-References: <Sea2-F42G9i3HGRgKuw00017dcf@hotmail.com>
-	<ODEIIOAOPGGCDIKEOPILAEBDCNAA.alan@storlinksemi.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 18:12:42 -0400
+Date: Wed, 16 Jul 2003 15:27:33 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: zanussi@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, bob@watson.ibm.com
+Subject: Re: [PATCH] relay_open const filename
+Message-Id: <20030716152733.3a9a1d02.shemminger@osdl.org>
+In-Reply-To: <20030716145508.1742d722.shemminger@osdl.org>
+References: <16148.6807.578262.720332@gargle.gargle.HOWL>
+	<20030716145508.1742d722.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jul 2003 22:27:32.0223 (UTC) FILETIME=[72D068F0:01C34BE9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have gcc 3.3, on x86 machine, i have this error, compiling the suport for my scsi card, someone know the problem?
+Since relay_open takes a pathname, it should be "const char *".
 
-...
-
-  CC      drivers/pnp/quirks.o
-  CC      drivers/pnp/names.o
-  CC      drivers/pnp/system.o
-  LD      drivers/pnp/built-in.o
-  CC      drivers/scsi/ini9100u.o
-drivers/scsi/ini9100u.c:111:2: #error Please convert me to Documentation/DMA-mapping.txt
-drivers/scsi/ini9100u.c:146: warning: initialization from incompatible pointer type
-drivers/scsi/ini9100u.c:151: warning: initialization from incompatible pointer type
-drivers/scsi/ini9100u.c:152: warning: initialization from incompatible pointer type
-drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
-drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
-drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
-drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
-drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
-drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
-drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
-make[2]: *** [drivers/scsi/ini9100u.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
-
+diff -Nru a/fs/relayfs/relay.c b/fs/relayfs/relay.c
+--- a/fs/relayfs/relay.c	Wed Jul 16 15:23:36 2003
++++ b/fs/relayfs/relay.c	Wed Jul 16 15:23:36 2003
+@@ -660,7 +660,7 @@
+  *	locking scheme can use buffers of any size, but is hardcoded at 2.
+  */
+ static struct rchan *
+-rchan_create(char *chanpath, 
++rchan_create(const char *chanpath, 
+ 	     int bufsize_lockless, 
+ 	     int nbufs_lockless, 
+ 	     int bufsize_locking,
+@@ -829,11 +829,11 @@
+  *	to create the file.
+  */
+ static int 
+-rchan_create_dir(char * chanpath, 
+-		 char **residual, 
++rchan_create_dir(const char * chanpath, 
++		 const char **residual, 
+ 		 struct dentry **topdir)
+ {
+-	char *cp = chanpath, *next;
++	const char *cp = chanpath, *next;
+ 	struct dentry *parent = NULL;
+ 	int len, err = 0;
+ 	
+@@ -867,12 +867,12 @@
+  *	Returns 0 if successful, negative otherwise.
+  */
+ static int 
+-rchan_create_file(char * chanpath, 
++rchan_create_file(const char * chanpath, 
+ 		  struct dentry **dentry, 
+ 		  struct rchan * data)
+ {
+ 	int err;
+-	char * fname;
++	const char * fname;
+ 	struct dentry *topdir;
+ 
+ 	err = rchan_create_dir(chanpath, &fname, &topdir);
+@@ -1239,7 +1239,7 @@
+  *	cause the channel to wrap around continuously.
+  */
+ int 
+-relay_open(char *chanpath,
++relay_open(const char *chanpath,
+ 	   int bufsize_lockless,
+ 	   int nbufs_lockless,
+ 	   int bufsize_locking,
+@@ -1556,7 +1556,7 @@
+ 	int err = 0;
+ 	int try_bufcount, cur_bufno = 0, include_nbufs = 1;
+ 	u32 cur_idx, buf_size;
+-	size_t avail_count, avail_in_buf;
++	size_t avail_count = 0, avail_in_buf;
+ 	int unused_bytes = 0;
+ 
+ 	if (rchan->bufs_produced < rchan->n_bufs)
+diff -Nru a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
+--- a/include/linux/relayfs_fs.h	Wed Jul 16 15:23:36 2003
++++ b/include/linux/relayfs_fs.h	Wed Jul 16 15:23:36 2003
+@@ -531,7 +531,7 @@
+  * High-level relayfs kernel API, fs/relayfs/relay.c
+  */
+ extern int
+-relay_open(char *chanpath,
++relay_open(const char *chanpath,
+ 	   int bufsize_lockless,
+ 	   int nbufs_lockless,
+ 	   int bufsize_locking,

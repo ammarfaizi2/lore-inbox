@@ -1,39 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266466AbUHUOOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUHUOnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266466AbUHUOOf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 10:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUHUOOe
+	id S266467AbUHUOnO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 10:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUHUOnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 10:14:34 -0400
-Received: from waste.org ([209.173.204.2]:23432 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266453AbUHUOOc (ORCPT
+	Sat, 21 Aug 2004 10:43:14 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:18862 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266457AbUHUOnM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 10:14:32 -0400
-Date: Sat, 21 Aug 2004 09:14:17 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] ketchup - support new -post releases
-Message-ID: <20040821141417.GR31237@waste.org>
-References: <1093021608.15662.1228.camel@nighthawk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093021608.15662.1228.camel@nighthawk>
-User-Agent: Mutt/1.3.28i
+	Sat, 21 Aug 2004 10:43:12 -0400
+Date: Sat, 21 Aug 2004 16:43:03 +0200 (MEST)
+Message-Id: <200408211443.i7LEh3aR024466@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Cc: linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 10:06:48AM -0700, Dave Hansen wrote:
-> Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
-> working, ketchup included. 
-> 
-> I'm sure this patch isn't complete, but it does work to patch from 2.6.8
-> -> 2.6.8.1 or 2.6.8.1-mm*, so it is at least a start. 
+On Fri, 20 Aug 2004 03:19:19 -0700, Andrew Morton wrote:
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm3/
+...
+> bk-scsi.patch
 
-Unfortunately, we don't yet know how deltas from x.y.z.1 to x.y.z.2
-will be handled in the archives, eg relative to x.y.z or incrementally.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+This one is broken. It causes the kernel to emit a bogus
+"program $PROG is using a deprecated SCSI ioctl, please convert it to SG_IO"
+message whenever user-space open(2)s a SCSI block device, even
+though user-space never did any ioctl() on it.

@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268975AbUIQU1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUIQU1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268975AbUIQU1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 16:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIQU1t
+	id S268972AbUIQU1r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 16:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIQU1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 16:27:49 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:14351 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S268975AbUIQU1q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 17 Sep 2004 16:27:46 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@suse.de>, "Bc. Michal Semler" <cijoml@volny.cz>
-Subject: Re: CD-ROM can't be ejected
-From: James Cloos <cloos@jhcloos.com>
-In-Reply-To: <20040917084302.GA2911@suse.de> (Jens Axboe's message of "Fri,
- 17 Sep 2004 10:43:06 +0200")
-References: <200409160025.35961.cijoml@volny.cz>
-	<20040916070906.GK2300@suse.de> <200409160918.40767.cijoml@volny.cz>
-	<20040916073616.GO2300@suse.de>
-	<m3hdpx2t4d.fsf@lugabout.cloos.reno.nv.us>
-	<20040917084302.GA2911@suse.de>
-X-Hashcash: 0:040917:linux-kernel@vger.kernel.org:074bc69b59b8fd80
-X-Hashcash: 0:040917:axboe@suse.de:bf58317903f331a3
-X-Hashcash: 0:040917:cijoml@volny.cz:fd167982a45d4f90
-Date: Fri, 17 Sep 2004 13:27:31 -0700
-Message-ID: <m34qlwvdxo.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:60295 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S268972AbUIQU1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 16:27:42 -0400
+Message-Id: <200409172027.i8HKRVwY005444@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: Eric Mudama <edmudama@gmail.com>
+Cc: David Stevens <dlstevens@us.ibm.com>, Netdev <netdev@oss.sgi.com>,
+       leonid.grossman@s2io.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The ultimate TOE design 
+In-Reply-To: Your message of "Fri, 17 Sep 2004 00:46:59 MDT."
+             <311601c90409162346184649eb@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <4148991B.9050200@pobox.com> <OF8783A4F6.D566336C-ON88256F10.006E51CE-88256F10.006EDA93@us.ibm.com>
+            <311601c90409162346184649eb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-239910029P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 17 Sep 2004 16:27:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
+--==_Exmh_-239910029P
+Content-Type: text/plain; charset=us-ascii
 
-Jens> Exactly the same issue, read the thread - your tray is locked,
-Jens> because someone else has the drive open.
+On Fri, 17 Sep 2004 00:46:59 MDT, Eric Mudama said:
+> On Wed, 15 Sep 2004 14:11:04 -0600, David Stevens <dlstevens@us.ibm.com> wrot
+e:
+> > Why don't we off-load filesystems to disks instead?
+> 
+> Disks have had file systems on them since close to the beginning...
 
-Odd, since there is no disc in it.  lsof shows nothing; manually
-looking thru /proc shows nothing.
+No, he means "offload the processing of the filesystem to the disk itself".
 
-Is there any other way to find what does?  
+IBM's MVS  systems basically did that - it used the disk's "Search Key" I/O
+opcodes to basically get the equivalent of doing namei() out on the disk itself
+(it did this for system catalog and PDS directory searches from the beginning,
+and added 'indexed VTOC' support in the mid-80s).  So you'd send out a CCW
+(channel command word) stream that basically said "Find me the dataset
+USER3.ACCTING.TESTJOBS", and when the I/O completed, you'd have the DSCB (the
+moral equiv of an inode) ready to go.
 
-Is there anything internal in the kernel that might have it open
-w/o reporting that fact to userspace?
 
--JimC
+--==_Exmh_-239910029P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBS0izcC3lWbTT17ARAoKMAJ4pA1BjsPb0sbxLDbLKM9jvox5srACeMV0V
+ZMot5U1QnkpacHYr8pIWeJM=
+=zjf/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-239910029P--

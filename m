@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263438AbTH0PTr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263442AbTH0PTr
+	id S263408AbTH0Pdx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTH0Pdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:19:47 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45536 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263438AbTH0PTq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:19:46 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Promise IDE patches
-Date: Wed, 27 Aug 2003 17:20:06 +0200
-User-Agent: KMail/1.5
-Cc: Jan Niehusmann <jan@gondor.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030826223158.GA25047@gondor.com> <200308270054.27375.bzolnier@elka.pw.edu.pl> <1061996391.22825.39.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1061996391.22825.39.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 27 Aug 2003 11:33:53 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:45487 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263408AbTH0Pds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:33:48 -0400
+Date: Wed, 27 Aug 2003 11:35:11 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp64-178.boston.redhat.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.22
+In-Reply-To: <Pine.LNX.4.53.0308261327540.229@chaos>
+Message-ID: <Pine.LNX.4.44.0308271127150.1491-100000@dhcp64-178.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308271720.06382.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 of August 2003 16:59, Alan Cox wrote:
-> On Maw, 2003-08-26 at 23:54, Bartlomiej Zolnierkiewicz wrote:
-> > Thanks Jan.
-> >
-> > Marcelo can you apply these patches?
->
-> The first one of these is wrong too. It'll stop some people from
-> being able to access existing file systems. This has to be fixed
-> properly (in both 2.4 and 2.6) to distinguish between
-> "Can PIO LBA48" "Can DMA LBA48" and "no LBA48". The latter being
-> basically non existant.
->
-> If you fail to do this then existing PIO LBA48 setups will just die
-> on boot.
 
-Alan, its not true.  Please check with ide-disk.c.
-If hwif->addressing is 1 then probe_lba_addressing() wont set
-drive->addressing to 1 and therefore you wont get LBA48
-(both PIO and DMA) because of drive->addressing check
-insided __ide_do_rw_disk().
+On Tue, 26 Aug 2003, Richard B. Johnson wrote:
 
-Its not complete fix but it doesnt break anything and stops fs corruption.
+> 
+> I configured, built and booted Linux-2.4.22. There are
+> some problems.
+> 
+> (1) `dmesg` fails to read the first part of the buffered
+> kernel log. I have attached two files, dmesg-20 (normal)
 
---bartlomiej
+sounds like the log buffer wrapped around from a lot of printks
+
+> (3)  When umounting the root file-system, the machine usually
+> hangs. The result is a long `fsck` on the next boot. The problem
+> seems to be that sendmail doesn't get killed during the `init 0`
+> sequence. It remains with a file open and the root file-system isn't
+> unmounted. A temporary work-round is to `ifconfig eth0 down` before
+> starting shutdown. Otherwise, sendmail remains stuck in the 'D' state.
+
+this is likely the unshare_files change, which has been mentioned in
+several threads as causing similar type issues...i posted a patch that
+solves the issue, and Alan included a patch in his -ac series, which 
+also addresses this issue.  
+
+-Jason
 

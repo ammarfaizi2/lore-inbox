@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUIBMzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUIBM6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268298AbUIBMzA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 08:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUIBMzA
+	id S268297AbUIBM6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 08:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUIBM6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 08:55:00 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:15006 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S268298AbUIBMy1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 08:54:27 -0400
-Message-ID: <41371702.8030704@andrew.cmu.edu>
-Date: Thu, 02 Sep 2004 08:50:10 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 2 Sep 2004 08:58:11 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:65449 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S268297AbUIBM6G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 08:58:06 -0400
+X-Sender-Authentication: net64
+Date: Thu, 2 Sep 2004 14:58:04 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: torvalds@osdl.org, kangur@polcom.net, linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+Message-Id: <20040902145804.796e561d.skraw@ithnet.com>
+In-Reply-To: <20040902112623.GA3059@janus>
+References: <20040829150231.GE9471@alias>
+	<4132205A.9080505@namesys.com>
+	<20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
+	<20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
+	<41323751.5000607@namesys.com>
+	<20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
+	<Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
+	<Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
+	<20040902125156.2dc6fe97.skraw@ithnet.com>
+	<20040902112623.GA3059@janus>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Thu, 2 Sep 2004 13:26:23 +0200
+Frank van Maarseveen <frankvm@xs4all.nl> wrote:
 
->...
->But _my_ point is, no user program is going to take _advantage_ of
->anything that only one filesystem on one system offers.
->
->So there's no point.
->
->It's much saner (from _any_ app standpoint) to roll their own database in 
->user space - that way it just works.
->
->In other words, nobody is really ever going to take advantage of this. 
->This is _not_ how technical advanncement happens. The way you get people 
->to take advantage of something is to have a nice gradual ramp-up, not a 
->sudden new feature that they can't realistically use.
->...
->
+> On Thu, Sep 02, 2004 at 12:51:56PM +0200, Stephan von Krawczynski wrote:
+> > 
+> > I therefore declare as this years hot issue:
+> > How to use more than 32 GIDs on nfs? Frank van Maarseveens' patch being
+>                        ^^
+> The limit for NFS is 16.
 
-Sure, but there are plenty of existing interfaces that you could 
-emulate.  One could make a small library to use a transactional 
-filesystem to implement the Berkely DB interface (libdb) for example.  
-So on filesystems without such support your app could use the regular 
-userspace database, but on a transactional filesystem it'd just use 
-regular files, which would simplify database management and likely 
-increase performance over the userspace-only version (libdb is pretty 
-slow).  In terms of functionality it'd just be a drop-in replacement, 
-just like math libraries that use MMX/SSE when available.
+Yes, of course. Sorry for that exaggeration ;-)
 
-    - Jim Bruce
+> > available for years I guess, but with 2.6 supporting lots of GIDs becoming
+> > very actual...
+> 
+> thank you for reminding me that I still need to port it to 2.6. The patch
+> came into existence around 2.2.17 IIRC.
 
+Oh it will be very welcome once your done, the only way to circumvent the
+situation currently is to give world-rights, which is of course _bad_.
+
+Thanks in advance for this patch,
+Stephan

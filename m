@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTI3TJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 15:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbTI3TJQ
+	id S261684AbTI3TGT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 15:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbTI3TGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 15:09:16 -0400
-Received: from codepoet.org ([166.70.99.138]:17798 "EHLO mail.codepoet.org")
-	by vger.kernel.org with ESMTP id S261670AbTI3TJK (ORCPT
+	Tue, 30 Sep 2003 15:06:19 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:10459 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261684AbTI3TGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 15:09:10 -0400
-Date: Tue, 30 Sep 2003 13:09:08 -0600
-From: Erik Andersen <andersen@codepoet.org>
+	Tue, 30 Sep 2003 15:06:12 -0400
 To: Jens Axboe <axboe@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, Andreas Steinmetz <ast@domdv.de>,
-       schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@redhat.com>, schilling@fokus.fraunhofer.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-ID: <20030930190908.GC5407@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@redhat.com>,
-	Andreas Steinmetz <ast@domdv.de>, schilling@fokus.fraunhofer.de,
-	linux-kernel@vger.kernel.org
-References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com> <20030930122832.GO2908@suse.de>
-Mime-Version: 1.0
+References: <200309301157.h8UBvOcd004345@burner.fokus.fraunhofer.de>
+	<20030930120629.GM2908@suse.de>
+	<20030930052817.0d0272df.davem@redhat.com>
+	<20030930123804.GQ2908@suse.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 30 Sep 2003 16:41:32 +0200
+In-Reply-To: <20030930123804.GQ2908@suse.de>
+Message-ID: <m3ekxycp9f.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930122832.GO2908@suse.de>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Sep 30, 2003 at 02:28:32PM +0200, Jens Axboe wrote:
-> Well then change that to 'if you include kernel headers from your user
-> apps, be prepared to pick fix the breakage'.
-> 
-> Surely the kernel doesn't move at such an accelerated pace that it's
-> impossible to keep kernel headers uptodate.
+Jens Axboe <axboe@suse.de> writes:
 
-A classic recent example is iproute, which uses kernel headers
-all over the place.  It compiled with earlier 2.4.x kernels, but
-it no longer compiles 2.4.22.  I've not bothered to try and fix
-it, but if it included its own set of sanitized kernel headers,
-it would not have had a problem.
+> This discussion has spun off on a tangent. Joerg asked why that breakage
+> has not been fixed, I point out why that is so. I usually make sure that
+> whatever headers I mess with _do_ work from user space (cdrom.h is a
+> long nasty example), however it's never been guarenteed that this would
+> be the case for all kernel headers.
 
- -Erik
+Then we should fix the broken headers so that it is guaranteed.
+That's quite trivial, isn't it?
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+I don't really understand why it's that important to duplicate
+definitions from kernel headers in libc ones.
+IMHO glibc headers should include kernel headers instead of defining
+things which are already defined by the kernel and used on kernel-user
+interface.
+
+Duplicate definitions should IMHO be removed from glibc headers.
+-- 
+Krzysztof Halasa, B*FH

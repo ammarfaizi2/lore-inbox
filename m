@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319341AbSIFTUn>; Fri, 6 Sep 2002 15:20:43 -0400
+	id <S319346AbSIFTXy>; Fri, 6 Sep 2002 15:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319343AbSIFTUn>; Fri, 6 Sep 2002 15:20:43 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:7622 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S319341AbSIFTUn>; Fri, 6 Sep 2002 15:20:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: jbradford@dial.pipex.com
-Subject: Re: ide drive dying?
-Date: Fri, 6 Sep 2002 21:22:31 +0200
-User-Agent: KMail/1.4.1
-References: <200209061722.g86HMuPp004452@darkstar.example.net>
-In-Reply-To: <200209061722.g86HMuPp004452@darkstar.example.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209062122.31597.devilkin-lkml@blindguardian.org>
+	id <S319350AbSIFTXy>; Fri, 6 Sep 2002 15:23:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40839 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319346AbSIFTXx>;
+	Fri, 6 Sep 2002 15:23:53 -0400
+Date: Fri, 06 Sep 2002 12:21:18 -0700 (PDT)
+Message-Id: <20020906.122118.52140394.davem@redhat.com>
+To: niv@us.ibm.com
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1031339954.3d78ffb257d22@imap.linux.ibm.com>
+References: <3D78E7A5.7050306@us.ibm.com>
+	<20020906202646.A2185@wotan.suse.de>
+	<1031339954.3d78ffb257d22@imap.linux.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 September 2002 19:22, jbradford@dial.pipex.com wrote:
-> > OK, I downloaded that and installed it, but well, frankly, it shows me
-> > very little useful stuff.
-> >
-> > Or i'm just not good at interpreting this.
->
-> Post the output of smartctl -a /dev/hda? to me, and I'll tell you what I
-> can, but it's best to monitor the stats from when the drive is new, (I.E.
-> every drive you buy from now on :-) ).
->
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Fri,  6 Sep 2002 12:19:14 -0700
+   
+   inet_bind() and tcp_v4_get_port() are up there because
+   we have to grab the socket lock, the tcp_portalloc_lock,
+   then the head chain lock and traverse the hash table
+   which has now many hundred entries. Also, because
+   of the varied length of the connections, the clients
+   get freed not in the same order they are allocated
+   a port, hence the fragmentation of the port space..
+   Tthere is some cacheline thrashing hurting the NUMA 
+   more than other systems here too..
+   
+There are methods to eliminate the centrality of the
+port allocation locking.
 
-Well, there were 21 ATA errors, and it showed 5 error blocks, with disk 'live' 
-times of 629 hours.
+Basically, kill tcp_portalloc_lock and make the port rover be per-cpu.
 
-Luckely I've been able to backup everything from the disk, and I'm running the 
-DFT now. The tests showed bad sectors, i'm currently running a disk erase.
+The only tricky case is the "out of ports" situation.  Because there
+is no centralized locking being used to serialize port allocation,
+it is difficult to be sure that the port space is truly exhausted.
 
-DK
--- 
-	"What's that thing?"
-	"Well, it's a highly technical, sensitive instrument we use in
-computer repair.  Being a layman, you probably can't grasp exactly what
-it does.  We call it a two-by-four."
-		-- Jeff MacNelley, "Shoe"
+Another idea, which doesn't eliminate the tcp_portalloc_lock but
+has other good SMP properties, is to apply a "cpu salt" to the
+port rover value.  For example, shift the local cpu number into
+the upper parts of a 'u16', then 'xor' that with tcp_port_rover.
 
+Alexey and I have discussed this several times but never became
+bored enough to experiment :-)

@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266790AbUIEO67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUIEPFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266790AbUIEO67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 10:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUIEO67
+	id S266758AbUIEPFe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 11:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUIEPFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 10:58:59 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:9116 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266793AbUIEO6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 10:58:53 -0400
-Subject: Re: [2.4.25] "pc_keyb: controller jammed (0xFF)" on Super
-	Micro	P5MMA98
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <6E58E82C-FEF1-11D8-82A2-000393ACC76E@mac.com>
-References: <1B6CEB06-FE2B-11D8-B9BD-000393ACC76E@mac.com>
-	 <1094316425.10555.32.camel@localhost.localdomain>
-	 <6E58E82C-FEF1-11D8-82A2-000393ACC76E@mac.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094392592.1251.0.camel@localhost.localdomain>
+	Sun, 5 Sep 2004 11:05:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:23851 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266758AbUIEPF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 11:05:29 -0400
+Message-ID: <9e47339104090508052850b649@mail.gmail.com>
+Date: Sun, 5 Sep 2004 11:05:28 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: New proposed DRM interface design
+Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+In-Reply-To: <1094386050.1081.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 05 Sep 2004 14:56:34 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040904102914.B13149@infradead.org>
+	 <4139A9F4.4040702@tungstengraphics.com>
+	 <20040904115442.GD2785@redhat.com>
+	 <4139B03A.6040706@tungstengraphics.com>
+	 <20040904122057.GC26419@redhat.com>
+	 <4139C8A3.6010603@tungstengraphics.com>
+	 <9e47339104090408362a356799@mail.gmail.com>
+	 <4139FEB4.3080303@tungstengraphics.com>
+	 <9e473391040904110354ba2593@mail.gmail.com>
+	 <1094386050.1081.33.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-05 at 05:09, Kyle Moffett wrote:
-> I've already tried both settings for "USB legacy", neither work.  I'm
-> currently attempting to update the BIOS. The update I tried a couple
-> weeks ago didn't work and gave an error, but there appears to be a new
-> one out, so I'm trying that.  Is there anything else that it could be?  
-> What
-> exactly does the keyboard code check when it generates that error?
+On Sun, 05 Sep 2004 13:07:37 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sad, 2004-09-04 at 19:03, Jon Smirl wrote:
+> > This does add some work to the BSD developers but it would make all of
+> > the new code that doesn't copy preexisting GPL code fair game. I have
+> > no problem marking any new code I write as being BSD licensed, I just
+> > don't want to rewrite 80,000 lines of fbdev code.
+> 
+> If DRI stays the way it is currently licensed no problems arise anyway
+> (beyond proprietary people reusing DRI code, which given the license is
+> presumably the intent)
+> 
+If I copy GPL pieces of fbdev in to the DRM drivers it will pollute
+the BSD license and turn it into GPL.
 
-At that point it is talking to the keyboard controller (or BIOS
-emulation of keyboard controller - not all machines have a real one any
-more and emulation is also always used for USB legacy). The error
-normally indicates the port is not responding.
 
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,345 +1,620 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbULUUoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbULUUtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbULUUoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 15:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbULUUoq
+	id S261845AbULUUtb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 15:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbULUUtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 15:44:46 -0500
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:58497 "EHLO
-	ash.lnxi.com") by vger.kernel.org with ESMTP id S261843AbULUUo0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 15:44:26 -0500
-Subject: [PATCH] initramfs_unprivileged_image_creation
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: linux-kernel@vger.kernel.org
-Cc: klibc@zytor.com, jgarzik@pobox.com, akpm@digeo.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sFBtp+3bbX1HVHPLPXvC"
-Organization: Linux Networx
-Date: Tue, 21 Dec 2004 13:18:15 -0700
-Message-Id: <1103660295.13703.52.camel@tubarao>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-6) 
+	Tue, 21 Dec 2004 15:49:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60294 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261845AbULUUr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 15:47:58 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: [PATCH] add legacy resources to sysfs
+Date: Tue, 21 Dec 2004 12:47:44 -0800
+User-Agent: KMail/1.7.1
+Cc: willy@debian.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_wvIyB+s6UBT9coc"
+Message-Id: <200412211247.44883.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_wvIyB+s6UBT9coc
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---=-sFBtp+3bbX1HVHPLPXvC
-Content-Type: multipart/mixed; boundary="=-tkBSnjPAoj4LCXMc2fv6"
+Here's a rediff against Greg's current tree.  It adds legacy_io and legacy_mem 
+files to each PCI bus directory in sysfs for use by applications that want to 
+do old school ISA style programming from userspace.
 
+I'm not sure I've got the sysfs file creation correct, Greg?  Am I passing the 
+wrong thing around?  The compile warnings in pci-sysfs.c for the new routines 
+seem to indicate that...  Basically I need to get to a pci_bus structure from 
+the read/write/mmap routines, and that should be accessible from the kobject 
+somewhere, right?
 
---=-tkBSnjPAoj4LCXMc2fv6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'll need buy in from Tony, willy, Ben, and Bjorn (and of course Greg) in 
+order to submit this for inclusion since I want to make sure that their 
+legacy needs are fulfilled.
 
-This patch makes several tweaks so that an initramfs image can be
-completely created by an unprivileged user.  It should maintain
-compatibility with previous initramfs early userspace cpio/image
-creation and it updates documentation.
+Thanks,
+Jesse
 
-There are a few very important tweaks:
+--Boundary-00=_wvIyB+s6UBT9coc
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="sysfs-legacy-resource-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sysfs-legacy-resource-2.patch"
 
-CONFIG_INITRAMFS_SOURCE is now either a single cpio archive that is
-directly used or a list of directories and files for building a cpio
-archive for the initramfs image.  Making the cpio archive listable in
-CONFIG_INITRAMFS_SOURCE makes the cpio step more official and automated
-so that it doesn't have to be copied by hand to usr/initramfs_data.cpio
-(I think this was broken anyway and would be overwritten).  The
-alternative list of directories *and* files means that files can be
-install in a "root" directory and device-special files can be listed in
-a file list.
+===== arch/ia64/pci/pci.c 1.59 vs edited =====
+--- 1.59/arch/ia64/pci/pci.c	2004-11-05 11:55:25 -08:00
++++ edited/arch/ia64/pci/pci.c	2004-12-21 12:32:35 -08:00
+@@ -6,6 +6,7 @@
+  * Copyright (C) 2002 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  *	Bjorn Helgaas <bjorn_helgaas@hp.com>
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  *
+  * Note: Above list of copyright holders is incomplete...
+  */
+@@ -518,7 +519,7 @@
+ 	 * Leave vm_pgoff as-is, the PCI space address is the physical
+ 	 * address on this platform.
+ 	 */
+-	vma->vm_flags |= (VM_SHM | VM_LOCKED | VM_IO);
++	vma->vm_flags |= (VM_SHM | VM_RESERVED | VM_IO);
+ 
+ 	if (write_combine)
+ 		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+@@ -530,6 +531,123 @@
+ 		return -EAGAIN;
+ 
+ 	return 0;
++}
++
++/**
++ * pci_mmap_legacy_page_range - map legacy memory space to userland
++ * @bus: bus whose legacy space we're mapping
++ * @vma: vma passed in by mmap
++ *
++ * Map legacy memory space for this device back to userspace using a machine
++ * vector to get the base address.
++ */
++int
++pci_mmap_legacy_page_range(struct pci_bus *bus, struct vm_area_struct *vma)
++{
++	unsigned long addr;
++	int ret;
++
++	if ((ret = pci_get_legacy_mem(bus, &addr)))
++		return ret;
++
++	vma->vm_pgoff += addr >> PAGE_SHIFT;
++
++	/*
++	 * Leave vm_pgoff as-is, the PCI space address is the physical
++	 * address on this platform.
++	 */
++	vma->vm_flags |= (VM_SHM | VM_RESERVED | VM_IO);
++
++	if (remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
++			    vma->vm_end - vma->vm_start, vma->vm_page_prot))
++		return -EAGAIN;
++
++	return 0;
++}
++
++/**
++ * ia64_pci_get_legacy_mem - generic legacy mem routine
++ * @bus: bus to get legacy memory base address for
++ * @addr: caller allocated variable for the base address
++ *
++ * Find the base of legacy memory for @dev.  This is typically the first
++ * megabyte of bus address space for @dev or is simply 0 on platforms whose
++ * chipsets support legacy I/O and memory routing.  Returns 0 on success
++ * or a standard error code on failure.
++ *
++ * This is the ia64 generic version of this routine.  Other platforms
++ * are free to override it with a machine vector.
++ */
++int ia64_pci_get_legacy_mem(struct pci_bus *bus, unsigned long *addr)
++{
++	*addr = 0;
++	return 0;
++}
++
++/**
++ * ia64_pci_legacy_read - read from legacy I/O space
++ * @bus: bus to read
++ * @port: legacy port value
++ * @val: caller allocated storage for returned value
++ * @size: number of bytes to read
++ *
++ * Simply reads @size bytes from @port and puts the result in @val.
++ *
++ * Again, this (and the write routine) are generic versions that can be
++ * overridden by the platform.  This is necessary on platforms that don't
++ * support legacy I/O routing or that hard fail on legacy I/O timeouts.
++ */
++int ia64_pci_legacy_read(struct pci_bus *bus, u16 port, u32 *val, u8 size)
++{
++	int ret = size;
++
++	switch (size) {
++	case 1:
++		*val = inb(port);
++		break;
++	case 2:
++		*val = inw(port);
++		break;
++	case 4:
++		*val = inl(port);
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	return ret;
++}
++
++/**
++ * ia64_pci_legacy_write - perform a legacy I/O write
++ * @bus: bus pointer
++ * @port: port to write
++ * @val: value to write
++ * @size: number of bytes to write from @val
++ *
++ * Simply writes @size bytes of @val to @port.
++ */
++int ia64_pci_legacy_write(struct pci_dev *bus, u16 port, u32 val, u8 size)
++{
++	int ret = 0;
++
++	switch (size) {
++	case 1:
++		outb(val, port);
++		break;
++	case 2:
++		outw(val, port);
++		break;
++	case 4:
++		outl(val, port);
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++
++	return ret;
+ }
+ 
+ /**
+===== arch/ia64/sn/pci/pci_dma.c 1.2 vs edited =====
+--- 1.2/arch/ia64/sn/pci/pci_dma.c	2004-10-20 12:00:10 -07:00
++++ edited/arch/ia64/sn/pci/pci_dma.c	2004-12-21 12:32:35 -08:00
+@@ -475,3 +475,77 @@
+ EXPORT_SYMBOL(sn_pci_free_consistent);
+ EXPORT_SYMBOL(sn_pci_dma_supported);
+ EXPORT_SYMBOL(sn_dma_mapping_error);
++
++int sn_pci_get_legacy_mem(struct pci_bus *bus, unsigned long *addr)
++{
++	if (!SN_PCIBUS_BUSSOFT(bus))
++		return -ENODEV;
++
++	*addr = SN_PCIBUS_BUSSOFT(bus)->bs_legacy_mem | __IA64_UNCACHED_OFFSET;
++
++	return 0;
++}
++
++int sn_pci_legacy_read(struct pci_bus *bus, u16 port, u32 *val, u8 size)
++{
++	int ret = size;
++	unsigned long addr;
++
++	if (!SN_PCIBUS_BUSSOFT(bus)) {
++		ret = -ENODEV;
++		goto out;
++	}
++
++	addr = SN_PCIBUS_BUSSOFT(bus)->bs_legacy_io | __IA64_UNCACHED_OFFSET;
++	addr += port;
++
++	ret = ia64_sn_probe_mem(addr, (long)size, (void *)val);
++
++	/* Read timed out, return -1 to emulate soft fail */
++	if (ret == 1)
++		*val = -1;
++
++	/* Invalid argument */
++	if (ret == 2)
++		ret = -EINVAL;
++
++ out:
++	return ret;
++}
++
++int sn_pci_legacy_write(struct pci_bus *bus, u16 port, u32 val, u8 size)
++{
++	int ret = 0;
++	unsigned long paddr;
++	unsigned long *addr;
++
++	if (!SN_PCIBUS_BUSSOFT(bus)) {
++		ret = -ENODEV;
++		goto out;
++	}
++
++	/* Put the phys addr in uncached space */
++	paddr = SN_PCIBUS_BUSSOFT(bus)->bs_legacy_io | __IA64_UNCACHED_OFFSET;
++	paddr += port;
++	addr = (unsigned long *)paddr;
++
++	switch (size) {
++	case 1:
++		*(volatile u8 *)(addr) = (u8)(val);
++		ret = 1;
++		break;
++	case 2:
++		*(volatile u16 *)(addr) = (u16)(val);
++		ret = 2;
++		break;
++	case 4:
++		*(volatile u32 *)(addr) = (u32)(val);
++		ret = 4;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++ out:
++	return ret;
++}
+===== drivers/pci/pci-sysfs.c 1.14 vs edited =====
+--- 1.14/drivers/pci/pci-sysfs.c	2004-12-21 11:28:57 -08:00
++++ edited/drivers/pci/pci-sysfs.c	2004-12-21 12:41:31 -08:00
+@@ -179,6 +179,73 @@
+ 	return count;
+ }
+ 
++#ifdef HAVE_PCI_LEGACY
++/**
++ * pci_read_legacy_io - read byte(s) from legacy I/O port space
++ * @kobj: kobject corresponding to file to read from
++ * @buf: buffer to store results
++ * @off: offset into legacy I/O port space
++ * @count: number of bytes to read
++ *
++ * Reads 1, 2, or 4 bytes from legacy I/O port space using an arch specific
++ * callback routine (pci_legacy_read).
++ */
++ssize_t
++pci_read_legacy_io(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++        struct pci_bus *bus = to_pci_bus(container_of(kobj,
++                                                      struct device, kobj));
++
++        /* Only support 1, 2 or 4 byte accesses */
++        if (count != 1 && count != 2 && count != 4)
++                return -EINVAL;
++
++        return pci_legacy_read(bus, off, (u32 *)buf, count);
++}
++
++/**
++ * pci_write_legacy_io - write byte(s) to legacy I/O port space
++ * @kobj: kobject corresponding to file to read from
++ * @buf: buffer containing value to be written
++ * @off: offset into legacy I/O port space
++ * @count: number of bytes to write
++ *
++ * Writes 1, 2, or 4 bytes from legacy I/O port space using an arch specific
++ * callback routine (pci_legacy_write).
++ */
++ssize_t
++pci_write_legacy_io(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++        struct pci_bus *bus = to_pci_bus(container_of(kobj,
++                                                      struct device, kobj));
++        /* Only support 1, 2 or 4 byte accesses */
++        if (count != 1 && count != 2 && count != 4)
++                return -EINVAL;
++
++        return pci_legacy_write(bus, off, *(u32 *)buf, count);
++}
++
++/**
++ * pci_mmap_legacy_mem - map legacy PCI memory into user memory space
++ * @kobj: kobject corresponding to device to be mapped
++ * @attr: struct bin_attribute for this file
++ * @vma: struct vm_area_struct passed to mmap
++ *
++ * Uses an arch specific callback, pci_mmap_legacy_page_range, to mmap
++ * legacy memory space (first meg of bus space) into application virtual
++ * memory space.
++ */
++int
++pci_mmap_legacy_mem(struct kobject *kobj, struct bin_attribute *attr,
++                    struct vm_area_struct *vma)
++{
++        struct pci_bus *bus = to_pci_bus(container_of(kobj,
++                                                      struct device, kobj));
++
++        return pci_mmap_legacy_page_range(bus, vma);
++}
++#endif /* HAVE_PCI_LEGACY */
++
+ #ifdef HAVE_PCI_MMAP
+ /**
+  * pci_mmap_resource - map a PCI resource into user memory space
+===== drivers/pci/probe.c 1.72 vs edited =====
+--- 1.72/drivers/pci/probe.c	2004-11-11 12:53:33 -08:00
++++ edited/drivers/pci/probe.c	2004-12-21 12:40:52 -08:00
+@@ -764,6 +764,42 @@
+ 	return max;
+ }
+ 
++#ifdef HAVE_PCI_LEGACY
++/**
++ * pci_create_legacy_files - create legacy I/O port and memory files
++ * @b: bus to create files under
++ *
++ * Some platforms allow access to legacy I/O port and ISA memory space on
++ * a per-bus basis.  This routine creates the files and ties them into
++ * their associated read, write and mmap files from pci-sysfs.c
++ */
++static void pci_create_legacy_files(struct pci_bus *b)
++{
++	b->legacy_io = kmalloc(sizeof(struct bin_attribute) * 2,
++			       GFP_ATOMIC);
++	if (b->legacy_io) {
++		b->legacy_io->attr.name = "legacy_io";
++		b->legacy_io->size = 0xffff;
++		b->legacy_io->attr.mode = S_IRUSR | S_IWUSR;
++		b->legacy_io->attr.owner = THIS_MODULE;
++		b->legacy_io->read = pci_read_legacy_io;
++		b->legacy_io->write = pci_write_legacy_io;
++		sysfs_create_bin_file(&b->bridge->kobj, b->legacy_io);
++
++		/* Allocated above after the legacy_io struct */
++		b->legacy_mem = b->legacy_io + 1;
++		b->legacy_mem->attr.name = "legacy_mem";
++		b->legacy_mem->size = 1024*1024;
++		b->legacy_mem->attr.mode = S_IRUSR | S_IWUSR;
++		b->legacy_mem->attr.owner = THIS_MODULE;
++		b->legacy_mem->mmap = pci_mmap_legacy_mem;
++		sysfs_create_bin_file(&b->bridge->kobj, b->legacy_mem);
++	}
++}
++#else /* !HAVE_PCI_LEGACY */
++static inline void pci_create_legacy_files(struct pci_bus *bus) { return; }
++#endif /* HAVE_PCI_LEGACY */
++
+ struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
+ {
+ 	int error;
+@@ -802,11 +838,15 @@
+ 	b->class_dev.class = &pcibus_class;
+ 	sprintf(b->class_dev.class_id, "%04x:%02x", pci_domain_nr(b), bus);
+ 	error = class_device_register(&b->class_dev);
++
+ 	if (error)
+ 		goto class_dev_reg_err;
+ 	error = class_device_create_file(&b->class_dev, &class_device_attr_cpuaffinity);
+ 	if (error)
+ 		goto class_dev_create_file_err;
++
++	/* Create legacy_io and legacy_mem files for this bus */
++	pci_create_legacy_files(b);
+ 
+ 	error = sysfs_create_link(&b->class_dev.kobj, &b->bridge->kobj, "bridge");
+ 	if (error)
+===== include/asm-ia64/machvec.h 1.29 vs edited =====
+--- 1.29/include/asm-ia64/machvec.h	2004-10-25 13:06:49 -07:00
++++ edited/include/asm-ia64/machvec.h	2004-12-21 12:32:37 -08:00
+@@ -20,6 +20,7 @@
+ struct irq_desc;
+ struct page;
+ struct mm_struct;
++struct pci_bus;
+ 
+ typedef void ia64_mv_setup_t (char **);
+ typedef void ia64_mv_cpu_init_t (void);
+@@ -31,6 +32,11 @@
+ typedef struct irq_desc *ia64_mv_irq_desc (unsigned int);
+ typedef u8 ia64_mv_irq_to_vector (unsigned int);
+ typedef unsigned int ia64_mv_local_vector_to_irq (u8);
++typedef int ia64_mv_pci_get_legacy_mem_t (struct pci_bus *, unsigned long *);
++typedef int ia64_mv_pci_legacy_read_t (struct pci_bus *, u16 port, u32 *val,
++				       u8 size);
++typedef int ia64_mv_pci_legacy_write_t (struct pci_bus *, u16 port, u32 val,
++					u8 size);
+ 
+ /* DMA-mapping interface: */
+ typedef void ia64_mv_dma_init (void);
+@@ -125,6 +131,9 @@
+ #  define platform_irq_desc		ia64_mv.irq_desc
+ #  define platform_irq_to_vector	ia64_mv.irq_to_vector
+ #  define platform_local_vector_to_irq	ia64_mv.local_vector_to_irq
++#  define platform_pci_get_legacy_mem	ia64_mv.pci_get_legacy_mem
++#  define platform_pci_legacy_read	ia64_mv.pci_legacy_read
++#  define platform_pci_legacy_write	ia64_mv.pci_legacy_write
+ #  define platform_inb		ia64_mv.inb
+ #  define platform_inw		ia64_mv.inw
+ #  define platform_inl		ia64_mv.inl
+@@ -172,6 +181,9 @@
+ 	ia64_mv_irq_desc *irq_desc;
+ 	ia64_mv_irq_to_vector *irq_to_vector;
+ 	ia64_mv_local_vector_to_irq *local_vector_to_irq;
++	ia64_mv_pci_get_legacy_mem_t *pci_get_legacy_mem;
++	ia64_mv_pci_legacy_read_t *pci_legacy_read;
++	ia64_mv_pci_legacy_write_t *pci_legacy_write;
+ 	ia64_mv_inb_t *inb;
+ 	ia64_mv_inw_t *inw;
+ 	ia64_mv_inl_t *inl;
+@@ -215,6 +227,9 @@
+ 	platform_irq_desc,			\
+ 	platform_irq_to_vector,			\
+ 	platform_local_vector_to_irq,		\
++	platform_pci_get_legacy_mem,		\
++	platform_pci_legacy_read,		\
++	platform_pci_legacy_write,		\
+ 	platform_inb,				\
+ 	platform_inw,				\
+ 	platform_inl,				\
+@@ -329,6 +344,15 @@
+ #endif
+ #ifndef platform_local_vector_to_irq
+ # define platform_local_vector_to_irq	__ia64_local_vector_to_irq
++#endif
++#ifndef platform_pci_get_legacy_mem
++# define platform_pci_get_legacy_mem	ia64_pci_get_legacy_mem
++#endif
++#ifndef platform_pci_legacy_read
++# define platform_pci_legacy_read	ia64_pci_legacy_read
++#endif
++#ifndef platform_pci_legacy_write
++# define platform_pci_legacy_write	ia64_pci_legacy_write
+ #endif
+ #ifndef platform_inb
+ # define platform_inb		__ia64_inb
+===== include/asm-ia64/machvec_init.h 1.8 vs edited =====
+--- 1.8/include/asm-ia64/machvec_init.h	2004-10-25 13:06:49 -07:00
++++ edited/include/asm-ia64/machvec_init.h	2004-12-21 12:32:37 -08:00
+@@ -5,6 +5,9 @@
+ extern ia64_mv_irq_desc __ia64_irq_desc;
+ extern ia64_mv_irq_to_vector __ia64_irq_to_vector;
+ extern ia64_mv_local_vector_to_irq __ia64_local_vector_to_irq;
++extern ia64_mv_pci_get_legacy_mem_t ia64_pci_get_legacy_mem;
++extern ia64_mv_pci_legacy_read_t ia64_pci_legacy_read;
++extern ia64_mv_pci_legacy_write_t ia64_pci_legacy_write;
+ 
+ extern ia64_mv_inb_t __ia64_inb;
+ extern ia64_mv_inw_t __ia64_inw;
+===== include/asm-ia64/machvec_sn2.h 1.16 vs edited =====
+--- 1.16/include/asm-ia64/machvec_sn2.h	2004-10-25 13:06:49 -07:00
++++ edited/include/asm-ia64/machvec_sn2.h	2004-12-21 12:32:37 -08:00
+@@ -43,6 +43,9 @@
+ extern ia64_mv_irq_desc sn_irq_desc;
+ extern ia64_mv_irq_to_vector sn_irq_to_vector;
+ extern ia64_mv_local_vector_to_irq sn_local_vector_to_irq;
++extern ia64_mv_pci_get_legacy_mem_t sn_pci_get_legacy_mem;
++extern ia64_mv_pci_legacy_read_t sn_pci_legacy_read;
++extern ia64_mv_pci_legacy_write_t sn_pci_legacy_write;
+ extern ia64_mv_inb_t __sn_inb;
+ extern ia64_mv_inw_t __sn_inw;
+ extern ia64_mv_inl_t __sn_inl;
+@@ -105,6 +108,9 @@
+ #define platform_irq_desc		sn_irq_desc
+ #define platform_irq_to_vector		sn_irq_to_vector
+ #define platform_local_vector_to_irq	sn_local_vector_to_irq
++#define platform_pci_get_legacy_mem	sn_pci_get_legacy_mem
++#define platform_pci_legacy_read	sn_pci_legacy_read
++#define platform_pci_legacy_write	sn_pci_legacy_write
+ #define platform_dma_init		machvec_noop
+ #define platform_dma_alloc_coherent	sn_dma_alloc_coherent
+ #define platform_dma_free_coherent	sn_dma_free_coherent
+===== include/asm-ia64/pci.h 1.27 vs edited =====
+--- 1.27/include/asm-ia64/pci.h	2004-11-03 13:36:55 -08:00
++++ edited/include/asm-ia64/pci.h	2004-12-21 12:32:38 -08:00
+@@ -85,6 +85,20 @@
+ #define HAVE_PCI_MMAP
+ extern int pci_mmap_page_range (struct pci_dev *dev, struct vm_area_struct *vma,
+ 				enum pci_mmap_state mmap_state, int write_combine);
++#define HAVE_PCI_LEGACY
++extern int pci_mmap_legacy_page_range(struct pci_bus *bus,
++				      struct vm_area_struct *vma);
++extern ssize_t pci_read_legacy_io(struct kobject *kobj, char *buf, loff_t off,
++				  size_t count);
++extern ssize_t pci_write_legacy_io(struct kobject *kobj, char *buf, loff_t off,
++				   size_t count);
++extern int pci_mmap_legacy_mem(struct kobject *kobj,
++			       struct bin_attribute *attr,
++			       struct vm_area_struct *vma);
++
++#define pci_get_legacy_mem platform_pci_get_legacy_mem
++#define pci_legacy_read platform_pci_legacy_read
++#define pci_legacy_write platform_pci_legacy_write
+ 
+ struct pci_window {
+ 	struct resource resource;
+===== include/asm-ia64/sn/sn_sal.h 1.17 vs edited =====
+--- 1.17/include/asm-ia64/sn/sn_sal.h	2004-11-03 13:41:17 -08:00
++++ edited/include/asm-ia64/sn/sn_sal.h	2004-12-21 12:32:38 -08:00
+@@ -474,6 +474,52 @@
+ 	return isrv.v0;
+ }
+ 
++/**
++ * ia64_sn_probe_mem - read from memory safely
++ * @addr: address to probe
++ * @size: number bytes to read (1,2,4,8)
++ * @data_ptr: address to store value read by probe (-1 returned if probe fails)
++ *
++ * Call into the SAL to do a memory read.  If the read generates a machine
++ * check, this routine will recover gracefully and return -1 to the caller.
++ * @addr is usually a kernel virtual address in uncached space (i.e. the
++ * address starts with 0xc), but if called in physical mode, @addr should
++ * be a physical address.
++ *
++ * Return values:
++ *  0 - probe successful
++ *  1 - probe failed (generated MCA)
++ *  2 - Bad arg
++ * <0 - PAL error
++ */
++static inline u64
++ia64_sn_probe_mem(long addr, long size, void *data_ptr)
++{
++	struct ia64_sal_retval isrv;
++
++	SAL_CALL(isrv, SN_SAL_PROBE, addr, size, 0, 0, 0, 0, 0);
++
++	if (data_ptr) {
++		switch (size) {
++		case 1:
++			*((u8*)data_ptr) = (u8)isrv.v0;
++			break;
++		case 2:
++			*((u16*)data_ptr) = (u16)isrv.v0;
++			break;
++		case 4:
++			*((u32*)data_ptr) = (u32)isrv.v0;
++			break;
++		case 8:
++			*((u64*)data_ptr) = (u64)isrv.v0;
++			break;
++		default:
++			isrv.status = 2;
++		}
++	}
++	return isrv.status;
++}
++
+ /*
+  * Retrieve the system serial number as an ASCII string.
+  */
+===== include/linux/pci.h 1.143 vs edited =====
+--- 1.143/include/linux/pci.h	2004-12-21 11:21:50 -08:00
++++ edited/include/linux/pci.h	2004-12-21 12:32:38 -08:00
+@@ -594,6 +594,8 @@
+ 	unsigned short  pad2;
+ 	struct device		*bridge;
+ 	struct class_device	class_dev;
++	struct bin_attribute	*legacy_io; /* legacy I/O for this bus */
++	struct bin_attribute	*legacy_mem; /* legacy mem */
+ };
+ 
+ #define pci_bus_b(n)	list_entry(n, struct pci_bus, node)
 
-CONFIG_ROOT_UID and CONFIG_ROOT_GID are now available for doing simple
-user/group ID translation.  That means that user ID 500, group ID 500
-can create all the files in the "root" directory, but that they can all
-be owned by user ID 0, group ID 0 in the cpio image.
-
-Various documentation updates to pull it all together.
-
-Removal of old cruft that was unused/misleading.
-
-
---=20
-Thayne Harbaugh
-Linux Networx
-
---=-tkBSnjPAoj4LCXMc2fv6
-Content-Disposition: attachment; filename=initramfs_unprivileged_image_creation.patch
-Content-Type: text/x-patch; name=initramfs_unprivileged_image_creation.patch;
-	charset=UTF-8
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdXIgbGludXgtMi42LjEwLXJjMy1tbTEvRG9jdW1lbnRhdGlvbi9lYXJseS11c2Vyc3Bh
-Y2UvUkVBRE1FIGxpbnV4LTIuNi4xMC1yYzMtbW0xLWluaXRyYW1mc19pbWFnZS9Eb2N1bWVudGF0
-aW9uL2Vhcmx5LXVzZXJzcGFjZS9SRUFETUUNCi0tLSBsaW51eC0yLjYuMTAtcmMzLW1tMS9Eb2N1
-bWVudGF0aW9uL2Vhcmx5LXVzZXJzcGFjZS9SRUFETUUJMjAwNC0xMi0yMSAxMzoxMDo1Ny4yNDkx
-MDkyNjQgLTA3MDANCisrKyBsaW51eC0yLjYuMTAtcmMzLW1tMS1pbml0cmFtZnNfaW1hZ2UvRG9j
-dW1lbnRhdGlvbi9lYXJseS11c2Vyc3BhY2UvUkVBRE1FCTIwMDQtMTItMjEgMTE6NDk6NTIuMDAw
-MDAwMDAwIC0wNzAwDQpAQCAtMSw3ICsxLDcgQEANCiBFYXJseSB1c2Vyc3BhY2Ugc3VwcG9ydA0K
-ID09PT09PT09PT09PT09PT09PT09PT09DQogDQotTGFzdCB1cGRhdGU6IDIwMDQtMTEtMTINCitM
-YXN0IHVwZGF0ZTogMjAwNC0xMi0yMCB0bGgNCiANCiANCiAiRWFybHkgdXNlcnNwYWNlIiBpcyBh
-IHNldCBvZiBsaWJyYXJpZXMgYW5kIHByb2dyYW1zIHRoYXQgcHJvdmlkZQ0KQEAgLTIxLDE5ICsy
-MSw2MiBAQA0KIA0KIFRoZSBjcGlvIGZpbGUgZm9ybWF0IHVzZWQgYnkgaW5pdHJhbWZzIGlzIHRo
-ZSAibmV3YyIgKGFrYSAiY3BpbyAtYyIpDQogZm9ybWF0LCBhbmQgaXMgZG9jdW1lbnRlZCBpbiB0
-aGUgZmlsZSAiYnVmZmVyLWZvcm1hdC50eHQiLiAgVGhlcmUgYXJlDQotdGhyZWUgd2F5cyB0byBh
-ZGQgYW4gZWFybHkgdXNlcnNwYWNlIGZpbGVzeXN0ZW06DQotDQotMSkgUHV0IHlvdXIgZ3ppcCdl
-ZCBjcGlvIGluIHVzci9pbml0cmFtZnNfZGF0YS5jcGlvLmd6Lg0KLQ0KLTIpIFNldCBDT05GSUdf
-SU5JVFJBTUZTX1NPVVJDRSB0byB0aGUgZmlsZW5hbWUgb2YgYSBnZW5faW5pdF9jcGlvDQotaW5w
-dXQgZmlsZS4gIFRoaXMgcHJvdmlkZXMgdGhlIG1vc3QgZmxleGliaWxpdHkgYW5kIGFsbG93cyBj
-cmVhdGlvbiBvZg0KLWFyY2hpdmVzIHdpdGggZmlsZXMgbm90IG93bmVkIGJ5IHRoZSBidWlsZCB1
-c2VyLiAgVGhpcyBtZWFucyB0aGF0IGFuDQotdW5wcml2aWxlZ2VkIHVzZXIgY2FuIGNyZWF0ZSBh
-biBlYXJseSB1c2Vyc3BhY2Ugd2l0aCBmaWxlcyBvd25lZCBieQ0KLXJvb3QuDQotDQotMykgU2V0
-IENPTkZJR19JTklUUkFNRlNfU09VUkNFIHRvIHBvaW50IHRvIGEgZGlyZWN0b3J5IGNvbnRhaW5p
-bmcgdGhlDQotZmlsZXMgZm9yIHlvdXIgZmlsZXN5c3RlbS4NCit0d28gd2F5cyB0byBhZGQgYW4g
-ZWFybHkgdXNlcnNwYWNlIGltYWdlOiBzcGVjaWZ5IGFuIGV4aXN0aW5nIGNwaW8NCithcmNoaXZl
-IHRvIGJlIHVzZWQgYXMgdGhlIGltYWdlIG9yIGhhdmUgdGhlIGtlcm5lbCBidWlsZCBwcm9jZXNz
-IGJ1aWxkDQordGhlIGltYWdlIGZyb20gc3BlY2lmaWNhdGlvbnMuDQorDQorQ1BJTyBBUkNISVZF
-IG1ldGhvZA0KKw0KK1lvdSBjYW4gY3JlYXRlIGEgY3BpbyBhcmNoaXZlIHRoYXQgY29udGFpbnMg
-dGhlIGVhcmx5IHVzZXJzcGFjZSBpbWFnZS4NCitZb3VyZSBjcGlvIGFyY2hpdmUgc2hvdWxkIGJl
-IHNwZWNpZmllZCBpbiBDT05GSUdfSU5JVFJBTUZTX1NPVVJDRSBhbmQgaXQNCit3aWxsIGJlIHVz
-ZWQgZGlyZWN0bHkuICBPbmx5IGEgc2luZ2xlIGNwaW8gZmlsZSBtYXkgYmUgc3BlY2lmaWVkIGlu
-DQorQ09ORklHX0lOSVRSQU1GU19TT1VSQ0UgYW5kIGRpcmVjdG9yeSBhbmQgZmlsZSBuYW1lcyBh
-cmUgbm90IGFsbG93ZWQgaW4NCitjb21iaW5hdGlvbiB3aXRoIGEgY3BpbyBhcmNoaXZlLg0KKw0K
-K0lNQUdFIEJVSUxESU5HIG1ldGhvZA0KKw0KK1RoZSBrZXJuZWwgYnVpbGQgcHJvY2VzcyBjYW4g
-YWxzbyBidWlsZCBhbiBlYXJseSB1c2Vyc3BhY2UgaW1hZ2UgZnJvbQ0KK3NvdXJjZSBwYXJ0cyBy
-YXRoZXIgdGhhbiBzdXBwbHlpbmcgYSBjcGlvIGFyY2hpdmUuICBUaGlzIG1ldGhvZCBwcm92aWRl
-cw0KK2Egd2F5IHRvIGNyZWF0ZSBpbWFnZXMgd2l0aCByb290LW93bmVkIGZpbGVzIGV2ZW4gdGhv
-dWdoIHRoZSBpbWFnZSB3YXMNCitidWlsdCBieSBhbiB1bnByaXZpbGVnZWQgdXNlci4NCisNCitU
-aGUgaW1hZ2UgaXMgc3BlY2lmaWVkIGFzIG9uZSBvciBtb3JlIHNvdXJjZXMgaW4NCitDT05GSUdf
-SU5JVFJBTUZTX1NPVVJDRS4gIFNvdXJjZXMgY2FuIGJlIGVpdGhlciBkaXJlY3RvcmllcyBvciBm
-aWxlcyAtDQorY3BpbyBhcmNoaXZlcyBhcmUgKm5vdCogYWxsb3dlZCB3aGVuIGJ1aWxkaW5nIGZy
-b20gc291cmNlcy4NCisNCitBIHNvdXJjZSBkaXJlY3Rvcnkgd2lsbCBoYXZlIGl0IGFuZCBhbGwg
-b2YgaXQncyBjb250ZW50cyBwYWNrYWdlZC4gIFRoZQ0KK3NwZWNpZmllZCBkaXJlY3RvcnkgbmFt
-ZSB3aWxsIGJlIG1hcHBlZCB0byAnLycuICBXaGVuIHBhY2thZ2luZyBhDQorZGlyZWN0b3J5LCBs
-aW1pdGVkIHVzZXIgYW5kIGdyb3VwIElEIHRyYW5zbGF0aW9uIGNhbiBiZSBwZXJmb3JtZWQuDQor
-SU5JVFJBTUZTX1JPT1RfVUlEIGNhbiBiZSBzZXQgdG8gYSB1c2VyIElEIHRoYXQgbmVlZHMgdG8g
-YmUgbWFwcGVkIHRvDQordXNlciByb290ICgwKS4gIElOSVRSQU1GU19ST09UX0dJRCBjYW4gYmUg
-c2V0IHRvIGEgZ3JvdXAgSUQgdGhhdCBuZWVkcw0KK3RvIGJlIG1hcHBlZCB0byBncm91cCByb290
-ICgwKS4NCisNCitBIHNvdXJjZSBmaWxlIG11c3QgYmUgZGlyZWN0aXZlcyBpbiB0aGUgZm9ybWF0
-IHJlcXVpcmVkIGJ5IHRoZQ0KK3Vzci9nZW5faW5pdF9jcGlvIHV0aWxpdHkgKHJ1biAndXNyL2dl
-bl9pbml0X2NwaW8gLS1oZWxwJyB0byBnZXQgdGhlDQorZmlsZSBmb3JtYXQpLiAgVGhlIGRpcmVj
-dGl2ZXMgaW4gdGhlIGZpbGUgd2lsbCBiZSBwYXNzZWQgZGlyZWN0bHkgdG8NCit1c3IvZ2VuX2lu
-aXRfY3Bpby4NCisNCitXaGVuIGEgY29tYmluYXRpb24gb2YgZGlyZWN0b3JpZXMgYW5kIGZpbGVz
-IGFyZSBzcGVjaWZpZWQgdGhlbiB0aGUNCitpbml0cmFtZnMgaW1hZ2Ugd2lsbCBiZSBhbiBhZ2dy
-ZWdhdGUgb2YgYWxsIG9mIHRoZW0uICBJbiB0aGlzIHdheSBhIHVzZXINCitjYW4gY3JlYXRlIGEg
-J3Jvb3QtaW1hZ2UnIGRpcmVjdG9yeSBhbmQgaW5zdGFsbCBhbGwgZmlsZXMgaW50byBpdC4NCitC
-ZWNhdXNlIGRldmljZS1zcGVjaWFsIGZpbGVzIGNhbm5vdCBiZSBjcmVhdGVkIGJ5IGEgdW5wcml2
-aWxlZ2VkIHVzZXIsDQorc3BlY2lhbCBmaWxlcyBjYW4gYmUgbGlzdGVkIGluIGEgJ3Jvb3QtZmls
-ZXMnIGZpbGUuICBCb3RoICdyb290LWltYWdlJw0KK2FuZCAncm9vdC1maWxlcycgY2FuIGJlIGxp
-c3RlZCBpbiBDT05GSUdfSU5JVFJBTUZTX1NPVVJDRSBhbmQgYSBjb21wbGV0ZQ0KK2Vhcmx5IHVz
-ZXJzcGFjZSBpbWFnZSBjYW4gYmUgYnVpbHQgYnkgYW4gdW5wcml2aWxlZ2VkIHVzZXIuDQorDQor
-QXMgYSB0ZWNobmljYWwgbm90ZSwgd2hlbiBkaXJlY3RvcmllcyBhbmQgZmlsZXMgYXJlIHNwZWNp
-ZmllZCwgdGhlDQorZW50aXJlIENPTkZJR19JTklUUkFNRlNfU09VUkNFIGlzIHBhc3NlZCB0bw0K
-K3NjcmlwdHMvZ2VuX2luaXRyYW1mc19saXN0LnNoLiAgVGhpcyBtZWFucyB0aGF0IENPTkZJR19J
-TklUUkFNRlNfU09VUkNFDQorY2FuIHJlYWxseSBiZSBpbnRlcnByZXRlZCBhcyBhbnkgbGVnYWwg
-YXJndW1lbnQgdG8NCitnZW5faW5pdHJhbWZzX2xpc3Quc2guICBJZiBhIGRpcmVjdG9yeSBpcyBz
-cGVjaWZpZWQgYXMgYW4gYXJndW1lbnQgdGhlbg0KK3RoZSBjb250ZW50cyBhcmUgc2Nhbm5lZCwg
-dWlkL2dpZCB0cmFuc2xhdGlvbiBpcyBwZXJmb3JtZWQsIGFuZA0KK3Vzci9nZW5faW5pdF9jcGlv
-IGZpbGUgZGlyZWN0aXZlcyBhcmUgb3V0cHV0LiAgSWYgYSBkaXJlY3RvcnkgaXMNCitzcGVjaWZp
-ZWQgYXMgYW4gYXJ1Z2VtbnQgdG8gc2NyaXB0cy9nZW5faW5pdHJhbWZzX2xpc3Quc2ggdGhlbiB0
-aGUNCitjb250ZW50cyBvZiB0aGUgZmlsZSBhcmUgc2ltcGx5IGNvcGllZCB0byB0aGUgb3V0cHV0
-LiAgQWxsIG9mIHRoZSBvdXRwdXQNCitkaXJlY3RpdmVzIGZyb20gZGlyZWN0b3J5IHNjYW5uaW5n
-IGFuZCBmaWxlIGNvbnRlbnRzIGNvcHlpbmcgYXJlDQorcHJvY2Vzc2VkIGJ5IHVzci9nZW5faW5p
-dF9jcGlvLg0KIA0KK1NlZSBhbHNvICdzY3JpcHRzL2dlbl9pbml0cmFtZnNfbGlzdC5zaCAtaCcu
-DQogDQogV2hlcmUncyB0aGlzIGFsbCBsZWFkaW5nPw0KID09PT09PT09PT09PT09PT09PT09PT09
-PT0NCmRpZmYgLXVyIGxpbnV4LTIuNi4xMC1yYzMtbW0xL2RyaXZlcnMvYmxvY2svS2NvbmZpZyBs
-aW51eC0yLjYuMTAtcmMzLW1tMS1pbml0cmFtZnNfaW1hZ2UvZHJpdmVycy9ibG9jay9LY29uZmln
-DQotLS0gbGludXgtMi42LjEwLXJjMy1tbTEvZHJpdmVycy9ibG9jay9LY29uZmlnCTIwMDQtMTIt
-MjEgMTM6MTA6NTcuNDA1MDg1NTUyIC0wNzAwDQorKysgbGludXgtMi42LjEwLXJjMy1tbTEtaW5p
-dHJhbWZzX2ltYWdlL2RyaXZlcnMvYmxvY2svS2NvbmZpZwkyMDA0LTEyLTIxIDExOjIzOjQ1LjAw
-MDAwMDAwMCAtMDcwMA0KQEAgLTM1OSwxNiArMzU5LDQ4IEBADQogCSAgZm9yIGRldGFpbHMuDQog
-DQogY29uZmlnIElOSVRSQU1GU19TT1VSQ0UNCi0Jc3RyaW5nICJTb3VyY2UgZGlyZWN0b3J5IG9m
-IGNwaW9fbGlzdCINCisJc3RyaW5nICJJbml0cmFtZnMgc291cmNlIGZpbGUocykiDQogCWRlZmF1
-bHQgIiINCiAJaGVscA0KLQkgIFRoaXMgY2FuIGJlIHNldCB0byBlaXRoZXIgYSBkaXJlY3Rvcnkg
-Y29udGFpbmluZyBmaWxlcywgZXRjIHRvIGJlDQotCSAgaW5jbHVkZWQgaW4gdGhlIGluaXRyYW1m
-cyBhcmNoaXZlLCBvciBhIGZpbGUgY29udGFpbmluZyAgZW50cmllcw0KLQkgIGFjY29yZGluZyB0
-byB0aGUgZm9ybWF0IGRlc2NyaWJlZCBieSB0aGUgInVzci9nZW5faW5pdF9jcGlvIg0KLQkgIHBy
-b2dyYW0gaW4gdGhlIGtlcm5lbCB0cmVlLg0KKwkgIFRoaXMgY2FuIGJlIGVpdGhlciBhIHNpbmds
-ZSBjcGlvIGFyY2hpdmUgd2l0aCBhIC5jcGlvIHN1ZmZpeCBvciBhDQorCSAgc3BhY2Utc2VwYXJh
-dGVkIGxpc3Qgb2YgZGlyZWN0b3JpZXMgYW5kIGZpbGVzIGZvciBidWlsZGluZyB0aGUNCisJICBp
-bml0cmFtZnMgaW1hZ2UuICBBIGNwaW8gYXJjaGl2ZSBzaG91bGQgY29udGFpbiBhIGZpbGVzeXN0
-ZW0gYXJjaGl2ZQ0KKwkgIHRvIGJlIHVzZWQgYXMgYW4gaW5pdHJhbWZzIGltYWdlLiAgRGlyZWN0
-b3JpZXMgc2hvdWxkIGNvbnRhaW4gYQ0KKwkgIGZpbGVzeXN0ZW0gbGF5b3V0IHRvIGJlIGluY2x1
-ZGVkIGluIHRoZSBpbml0cmFtZnMgaW1hZ2UuICBGaWxlcw0KKwkgIHNob3VsZCBjb250YWluIGVu
-dHJpZXMgYWNjb3JkaW5nIHRvIHRoZSBmb3JtYXQgZGVzY3JpYmVkIGJ5IHRoZQ0KKwkgICJ1c3Iv
-Z2VuX2luaXRfY3BpbyIgcHJvZ3JhbSBpbiB0aGUga2VybmVsIHRyZWUuDQorDQorCSAgV2hlbiBt
-dWx0aXBsZSBkaXJlY3RvcmllcyBhbmQgZmlsZXMgYXJlIHNwZWNpZmllZCB0aGVuIHRoZQ0KKwkg
-IGluaXRyYW1mcyBpbWFnZSB3aWxsIGJlIHRoZSBhZ2dyZWdhdGUgb2YgYWxsIG9mIHRoZW0uDQor
-DQorCSAgU2VlIDxmaWxlOkRvY3VtZW50YXRpb24vZWFybHktdXNlcnNwYWNlL1JFQURNRSBmb3Ig
-bW9yZSBkZXRhaWxzLg0KIA0KIAkgIElmIHlvdSBhcmUgbm90IHN1cmUsIGxlYXZlIGl0IGJsYW5r
-Lg0KIA0KK2NvbmZpZyBJTklUUkFNRlNfUk9PVF9VSUQNCisJaW50ICJVc2VyIElEIHRvIG1hcCB0
-byAwICh1c2VyIHJvb3QpIg0KKwlkZXBlbmRzIG9uIElOSVRSQU1GU19TT1VSQ0UhPSIiDQorCWRl
-ZmF1bHQgIjAiDQorCWhlbHANCisJICBUaGlzIHNldHRpbmcgaXMgb25seSBtZWFuaW5nZnVsIGlm
-IHRoZSBJTklUUkFNRlNfU09VUkNFIGlzDQorCSAgY29udGFpbnMgYSBkaXJlY3RvcnkuICBTZXR0
-aW5nIHRoaXMgdXNlciBJRCAoVUlEKSB0byBzb21ldGhpbmcNCisJICBvdGhlciB0aGFuICIwIiB3
-aWxsIGNhdXNlIGFsbCBmaWxlcyBvd25lZCBieSB0aGF0IFVJRCB0byBiZQ0KKwkgIG93bmVkIGJ5
-IHVzZXIgcm9vdCBpbiB0aGUgaW5pdGlhbCByYW1kaXNrIGltYWdlLg0KKw0KKwkgIElmIHlvdSBh
-cmUgbm90IHN1cmUsIGxlYXZlIGl0IHNldCB0byAiMCIuDQorDQorY29uZmlnIElOSVRSQU1GU19S
-T09UX0dJRA0KKwlpbnQgIkdyb3VwIElEIHRvIG1hcCB0byAwIChncm91cCByb290KSINCisJZGVw
-ZW5kcyBvbiBJTklUUkFNRlNfU09VUkNFIT0iIg0KKwlkZWZhdWx0ICIwIg0KKwloZWxwDQorCSAg
-VGhpcyBzZXR0aW5nIGlzIG9ubHkgbWVhbmluZ2Z1bCBpZiB0aGUgSU5JVFJBTUZTX1NPVVJDRSBp
-cw0KKwkgIGNvbnRhaW5zIGEgZGlyZWN0b3J5LiAgU2V0dGluZyB0aGlzIGdyb3VwIElEIChHSUQp
-IHRvIHNvbWV0aGluZw0KKwkgIG90aGVyIHRoYW4gIjAiIHdpbGwgY2F1c2UgYWxsIGZpbGVzIG93
-bmVkIGJ5IHRoYXQgR0lEIHRvIGJlDQorCSAgb3duZWQgYnkgZ3JvdXAgcm9vdCBpbiB0aGUgaW5p
-dGlhbCByYW1kaXNrIGltYWdlLg0KKw0KKwkgIElmIHlvdSBhcmUgbm90IHN1cmUsIGxlYXZlIGl0
-IHNldCB0byAiMCIuDQorDQogY29uZmlnIExCRA0KIAlib29sICJTdXBwb3J0IGZvciBMYXJnZSBC
-bG9jayBEZXZpY2VzIg0KIAlkZXBlbmRzIG9uIFg4NiB8fCBNSVBTMzIgfHwgUFBDMzIgfHwgQVJD
-SF9TMzkwXzMxIHx8IFNVUEVSSA0KZGlmZiAtdXIgbGludXgtMi42LjEwLXJjMy1tbTEvc2NyaXB0
-cy9nZW5faW5pdHJhbWZzX2xpc3Quc2ggbGludXgtMi42LjEwLXJjMy1tbTEtaW5pdHJhbWZzX2lt
-YWdlL3NjcmlwdHMvZ2VuX2luaXRyYW1mc19saXN0LnNoDQotLS0gbGludXgtMi42LjEwLXJjMy1t
-bTEvc2NyaXB0cy9nZW5faW5pdHJhbWZzX2xpc3Quc2gJMjAwNC0xMi0yMSAxMzoxMToxMi43MTg3
-NTc1MjAgLTA3MDANCisrKyBsaW51eC0yLjYuMTAtcmMzLW1tMS1pbml0cmFtZnNfaW1hZ2Uvc2Ny
-aXB0cy9nZW5faW5pdHJhbWZzX2xpc3Quc2gJMjAwNC0xMi0yMSAwOTozODozNC4wMDAwMDAwMDAg
-LTA3MDANCkBAIC0yLDE3ICsyLDE3IEBADQogIyBDb3B5cmlnaHQgKEMpIE1hcnRpbiBTY2hsZW1t
-ZXIgPGF6YXJhaEBub3NmZXJhdHUuemEub3JnPg0KICMgUmVsZWFzZWQgdW5kZXIgdGhlIHRlcm1z
-IG9mIHRoZSBHTlUgR1BMDQogIw0KLSMgR2VuZXJhdGUgYSBuZXdsaW5lIHNlcGFyYXRlZCBsaXN0
-IG9mIGVudHJpZXMgZnJvbSB0aGUgZmlsZS9kaXJlY3RvcnkgcG9pbnRlZA0KLSMgb3V0IGJ5IHRo
-ZSBlbnZpcm9ubWVudCB2YXJpYWJsZTogQ09ORklHX0lOSVRSQU1GU19TT1VSQ0UNCisjIEdlbmVy
-YXRlIGEgbmV3bGluZSBzZXBhcmF0ZWQgbGlzdCBvZiBlbnRyaWVzIGZyb20gdGhlIGZpbGUvZGly
-ZWN0b3J5DQorIyBzdXBwbGllZCBhcyBhbiBhcmd1bWVudC4NCiAjDQotIyBJZiBDT05GSUdfSU5J
-VFJBTUZTX1NPVVJDRSBpcyBub24tZXhpc3RpbmcgdGhlbiBnZW5lcmF0ZSBhIHNtYWxsIGR1bW15
-IGZpbGUuDQorIyBJZiBhIGZpbGUvZGlyZWN0b3J5IGlzIG5vdCBzdXBwbGllZCB0aGVuIGdlbmVy
-YXRlIGEgc21hbGwgZHVtbXkgZmlsZS4NCiAjDQotIyBUaGUgb3V0cHV0IGlzIHN1aXRhYmxlIGZv
-ciBnZW5faW5pdF9jcGlvIGFzIGZvdW5kIGluIHVzci9NYWtlZmlsZS4NCisjIFRoZSBvdXRwdXQg
-aXMgc3VpdGFibGUgZm9yIGdlbl9pbml0X2NwaW8gYnVpbHQgZnJvbSB1c3IvZ2VuX2luaXRfY3Bp
-by5jLg0KICMNCiANCi1zaW1wbGVfaW5pdHJhbWZzKCkgew0KK2RlZmF1bHRfaW5pdHJhbWZzKCkg
-ew0KIAljYXQgPDwtRU9GDQotCQkjIFRoaXMgaXMgYSB2ZXJ5IHNpbXBsZSBpbml0cmFtZnMNCisJ
-CSMgVGhpcyBpcyBhIHZlcnkgc2ltcGxlLCBkZWZhdWx0IGluaXRyYW1mcw0KIA0KIAkJZGlyIC9k
-ZXYgMDc1NSAwIDANCiAJCW5vZCAvZGV2L2NvbnNvbGUgMDYwMCAwIDAgYyA1IDENCkBAIC02Myw2
-ICs2Myw5IEBADQogCWxvY2FsIHVpZD0iJDMiDQogCWxvY2FsIGdpZD0iJDQiDQogCWxvY2FsIGZ0
-eXBlPSQoZmlsZXR5cGUgIiR7bG9jYXRpb259IikNCisJIyByZW1hcCB1aWQvZ2lkIHRvIDAgaWYg
-bmVjZXNzYXJ5DQorCVsgIiR1aWQiIC1lcSAiJHJvb3RfdWlkIiBdICYmIHVpZD0wDQorCVsgIiRn
-aWQiIC1lcSAiJHJvb3RfZ2lkIiBdICYmIGdpZD0wDQogCWxvY2FsIHN0cj0iJHttb2RlfSAke3Vp
-ZH0gJHtnaWR9Ig0KIA0KIAlbICIke2Z0eXBlfSIgPT0gImludmFsaWQiIF0gJiYgcmV0dXJuIDAN
-CkBAIC0xMDEsMzAgKzEwNCwxMDAgQEANCiAJcmV0dXJuIDANCiB9DQogDQotaWYgWyAteiAiJDEi
-IF07IHRoZW4NCi0Jc2ltcGxlX2luaXRyYW1mcw0KLWVsaWYgWyAtZiAiJDEiIF07IHRoZW4NCi0J
-cHJpbnRfbXRpbWUgIiQxIg0KLQljYXQgIiQxIg0KLWVsaWYgWyAtZCAiJDEiIF07IHRoZW4NCi0J
-c3JjZGlyPSQoZWNobyAiJDEiIHwgc2VkIC1lICdzOi8vKjovOmcnKQ0KLQlkaXJsaXN0PSQoZmlu
-ZCAiJHtzcmNkaXJ9IiAtcHJpbnRmICIlcCAlbSAlVSAlR1xuIiAyPi9kZXYvbnVsbCkNCi0NCi0J
-IyBJZiAkZGlybGlzdCBpcyBvbmx5IG9uZSBsaW5lLCB0aGVuIHRoZSBkaXJlY3RvcnkgaXMgZW1w
-dHkNCi0JaWYgWyAgIiQoZWNobyAiJHtkaXJsaXN0fSIgfCB3YyAtbCkiIC1ndCAxIF07IHRoZW4N
-Ci0JCXByaW50X210aW1lICIkMSINCit1c2FnZSgpIHsNCisJcHJpbnRmICAgICJVc2FnZTpcbiIN
-CisJcHJpbnRmICAgICIkMCBbIFstdSA8cm9vdF91aWQ+XSBbLWcgPHJvb3RfZ2lkPl0gWy1kIHwg
-PGNwaW9fc291cmNlPl0gXSAuIC4gLlxuIg0KKwlwcmludGYgICAgIlxuIg0KKwlwcmludGYgLS0g
-Ii11IDxyb290X3VpZD4gIFVzZXIgSUQgdG8gbWFwIHRvIHVzZXIgSUQgMCAocm9vdCkuXG4iDQor
-CXByaW50ZiAgICAiICAgICAgICAgICAgICAgPHJvb3RfdWlkPiBpcyBvbmx5IG1lYW5pbmdmdWwg
-aWYgPGNwaW9fc291cmNlPlxuIg0KKwlwcmludGYgICAgIiAgICAgICAgICAgICAgIGlzIGEgZGly
-ZWN0b3J5LlxuIg0KKwlwcmludGYgLS0gIi1nIDxyb290X2dpZD4gIEdyb3VwIElEIHRvIG1hcCB0
-byBncm91cCBJRCAwIChyb290KS5cbiINCisJcHJpbnRmICAgICIgICAgICAgICAgICAgICA8cm9v
-dF9naWQ+IGlzIG9ubHkgbWVhbmluZ2Z1bCBpZiA8Y3Bpb19zb3VyY2U+XG4iDQorCXByaW50ZiAg
-ICAiICAgICAgICAgICAgICAgaXMgYSBkaXJlY3RvcnkuXG4iDQorCXByaW50ZiAgICAiPGNwaW9f
-c291cmNlPiAgRmlsZSBsaXN0IG9yIGRpcmVjdG9yeSBmb3IgY3BpbyBhcmNoaXZlLlxuIg0KKwlw
-cmludGYgICAgIiAgICAgICAgICAgICAgIElmIDxjcGlvX3NvdXJjZT4gaXMgbm90IHByb3ZpZGVk
-IHRoZW4gYVxuIg0KKwlwcmludGYgICAgIiAgICAgICAgICAgICAgIGEgZGVmYXVsdCBsaXN0IHdp
-bGwgYmUgb3V0cHV0LlxuIg0KKwlwcmludGYgLS0gIi1kICAgICAgICAgICAgIE91dHB1dCB0aGUg
-ZGVmYXVsdCBjcGlvIGxpc3QuICBJZiBubyA8Y3Bpb19zb3VyY2U+XG4iDQorCXByaW50ZiAgICAi
-ICAgICAgICAgICAgICAgaXMgZ2l2ZW4gdGhlbiB0aGUgZGVmYXVsdCBjcGlvIGxpc3Qgd2lsbCBi
-ZSBvdXRwdXQuXG4iDQorCXByaW50ZiAgICAiXG4iDQorCXByaW50ZiAgICAiQWxsIG9wdGlvbnMg
-bWF5IGJlIHJlcGVhdGVkIGFuZCBhcmUgaW50ZXJwcmV0ZWQgc2VxdWVudGlhbGx5XG4iDQorCXBy
-aW50ZiAgICAiYW5kIGltbWVkaWF0ZWx5LiAgLXUgYW5kIC1nIHN0YXRlcyBhcmUgcHJlc2VydmVk
-IGFjcm9zc1xuIg0KKwlwcmludGYgICAgIjxjcGlvX3NvdXJjZT4gb3B0aW9ucyBzbyBhbiBleHBs
-aWNpdCBcIi11IDAgLWcgMFwiIGlzIHJlcXVpcmVkXG4iDQorCXByaW50ZiAgICAidG8gcmVzZXQg
-dGhlIHJvb3QvZ3JvdXAgbWFwcGluZy5cbiINCit9DQorDQorYnVpbGRfbGlzdCgpIHsNCisJcHJp
-bnRmICJcbiMjIyMjIyMjIyMjIyMjIyMjIyMjI1xuIyAkY3Bpb19zb3VyY2VcbiINCisNCisJaWYg
-WyAtZiAiJGNwaW9fc291cmNlIiBdOyB0aGVuDQorCQlwcmludF9tdGltZSAiJGNwaW9fc291cmNl
-Ig0KKwkJY2F0ICIkY3Bpb19zb3VyY2UiDQorCWVsaWYgWyAtZCAiJGNwaW9fc291cmNlIiBdOyB0
-aGVuDQorCQlzcmNkaXI9JChlY2hvICIkY3Bpb19zb3VyY2UiIHwgc2VkIC1lICdzOi8vKjovOmcn
-KQ0KKwkJZGlybGlzdD0kKGZpbmQgIiR7c3JjZGlyfSIgLXByaW50ZiAiJXAgJW0gJVUgJUdcbiIg
-Mj4vZGV2L251bGwpDQorDQorCQkjIElmICRkaXJsaXN0IGlzIG9ubHkgb25lIGxpbmUsIHRoZW4g
-dGhlIGRpcmVjdG9yeSBpcyBlbXB0eQ0KKwkJaWYgWyAgIiQoZWNobyAiJHtkaXJsaXN0fSIgfCB3
-YyAtbCkiIC1ndCAxIF07IHRoZW4NCisJCQlwcmludF9tdGltZSAiJGNwaW9fc291cmNlIg0KIAkJ
-DQotCQllY2hvICIke2Rpcmxpc3R9IiB8IFwNCi0JCXdoaWxlIHJlYWQgeDsgZG8NCi0JCQlwYXJz
-ZSAke3h9DQotCQlkb25lDQorCQkJZWNobyAiJHtkaXJsaXN0fSIgfCBcDQorCQkJd2hpbGUgcmVh
-ZCB4OyBkbw0KKwkJCQlwYXJzZSAke3h9DQorCQkJZG9uZQ0KKwkJZWxzZQ0KKwkJCSMgRmFpbHNh
-ZmUgaW4gY2FzZSBkaXJlY3RvcnkgaXMgZW1wdHkNCisJCQlkZWZhdWx0X2luaXRyYW1mcw0KKwkJ
-ZmkNCiAJZWxzZQ0KLQkJIyBGYWlsc2FmZSBpbiBjYXNlIGRpcmVjdG9yeSBpcyBlbXB0eQ0KLQkJ
-c2ltcGxlX2luaXRyYW1mcw0KKwkJZWNobyAiICAkMDogQ2Fubm90IG9wZW4gJyRjcGlvX3NvdXJj
-ZSciID4mMg0KKwkJZXhpdCAxDQogCWZpDQotZWxzZQ0KLQllY2hvICIgICQwOiBDYW5ub3Qgb3Bl
-biAnJDEnIChDT05GSUdfSU5JVFJBTUZTX1NPVVJDRSkiID4mMg0KLQlleGl0IDENCi1maQ0KK30N
-CisNCisNCityb290X3VpZD0wDQorcm9vdF9naWQ9MA0KKw0KK3doaWxlIFsgJCMgLWd0IDAgXTsg
-ZG8NCisJYXJnPSIkMSINCisJc2hpZnQNCisJY2FzZSAiJGFyZyIgaW4NCisJCSItdSIpDQorCQkJ
-cm9vdF91aWQ9IiQxIg0KKwkJCXNoaWZ0DQorCQkJOzsNCisJCSItZyIpDQorCQkJcm9vdF9naWQ9
-IiQxIg0KKwkJCXNoaWZ0DQorCQkJOzsNCisJCSItZCIpDQorCQkJZGVmYXVsdF9saXN0PSIkYXJn
-Ig0KKwkJCWRlZmF1bHRfaW5pdHJhbWZzDQorCQkJOzsNCisJCSItaCIpDQorCQkJdXNhZ2UNCisJ
-CQlleGl0IDANCisJCQk7Ow0KKwkJKikNCisJCQljYXNlICIkYXJnIiBpbg0KKwkJCQkiLSIqKQ0K
-KwkJCQkJcHJpbnRmICJFUlJPUjogdW5rbm93biBvcHRpb24gXCIkYXJnXCJcbiIgPiYyDQorCQkJ
-CQlwcmludGYgIklmIHRoZSBmaWxlbmFtZSB2YWxpZGx5IGJlZ2lucyB3aXRoICctJywgdGhlbiBp
-dCBtdXN0IGJlIHByZWZpeGVkXG4iID4mMg0KKwkJCQkJcHJpbnRmICJieSAnLi8nIHNvIHRoYXQg
-aXQgd29uJ3QgYmUgaW50ZXJwcmV0ZWQgYXMgYW4gb3B0aW9uLiIgPiYyDQorCQkJCQlwcmludGYg
-IlxuIiA+JjINCisJCQkJCXVzYWdlID4mMg0KKwkJCQkJZXhpdCAxDQorCQkJCQk7Ow0KKwkJCQkq
-KQ0KKwkJCQkJY3Bpb19zb3VyY2U9IiRhcmciDQorCQkJCQlidWlsZF9saXN0DQorCQkJCQk7Ow0K
-KwkJCWVzYWMNCisJCQk7Ow0KKwllc2FjDQorZG9uZQ0KKw0KKyMgc3BpdCBvdXQgdGhlIGRlZmF1
-bHQgY3BpbyBsaXN0IGlmIGEgc291cmNlIGhhc24ndCBiZWVuIHNwZWNpZmllZA0KK1sgLXogIiRj
-cGlvX3NvdXJjZSIgLWEgLXogIiRkZWZhdWx0X2xpc3QiIF0gJiYgZGVmYXVsdF9pbml0cmFtZnMN
-CiANCiBleGl0IDANCmRpZmYgLXVyIGxpbnV4LTIuNi4xMC1yYzMtbW0xL3Vzci9NYWtlZmlsZSBs
-aW51eC0yLjYuMTAtcmMzLW1tMS1pbml0cmFtZnNfaW1hZ2UvdXNyL01ha2VmaWxlDQotLS0gbGlu
-dXgtMi42LjEwLXJjMy1tbTEvdXNyL01ha2VmaWxlCTIwMDQtMTItMDMgMTQ6NTM6NTYuMDAwMDAw
-MDAwIC0wNzAwDQorKysgbGludXgtMi42LjEwLXJjMy1tbTEtaW5pdHJhbWZzX2ltYWdlL3Vzci9N
-YWtlZmlsZQkyMDA0LTEyLTIxIDExOjA3OjMxLjAwMDAwMDAwMCAtMDcwMA0KQEAgLTUsNDAgKzUs
-NjAgQEANCiANCiBjbGVhbi1maWxlcyA6PSBpbml0cmFtZnNfZGF0YS5jcGlvLmd6IGluaXRyYW1m
-c19saXN0DQogDQotIyBJZiB5b3Ugd2FudCBhIGRpZmZlcmVudCBsaXN0IG9mIGZpbGVzIGluIHRo
-ZSBpbml0cmFtZnNfZGF0YS5jcGlvDQotIyB0aGVuIHlvdSBjYW4gZWl0aGVyIG92ZXJ3cml0ZSB0
-aGUgY3Bpb19saXN0IGluIHRoaXMgZGlyZWN0b3J5DQotIyBvciBzZXQgSU5JVFJBTUZTX0xJU1Qg
-dG8gYW5vdGhlciBmaWxlbmFtZS4NCi1JTklUUkFNRlNfTElTVCA6PSAkKG9iaikvaW5pdHJhbWZz
-X2xpc3QNCi0NCiAjIGluaXRyYW1mc19kYXRhLm8gY29udGFpbnMgdGhlIGluaXRyYW1mc19kYXRh
-LmNwaW8uZ3ogaW1hZ2UuDQogIyBUaGUgaW1hZ2UgaXMgaW5jbHVkZWQgdXNpbmcgLmluY2Jpbiwg
-YSBkZXBlbmRlbmN5IHdoaWNoIGlzIG5vdA0KICMgdHJhY2tlZCBhdXRvbWF0aWNhbGx5Lg0KICQo
-b2JqKS9pbml0cmFtZnNfZGF0YS5vOiAkKG9iaikvaW5pdHJhbWZzX2RhdGEuY3Bpby5neiBGT1JD
-RQ0KIA0KLSMgaW5pdHJhbWZzLXkgYXJlIHRoZSBwcm9ncmFtcyB3aGljaCB3aWxsIGJlIGNvcGll
-ZCBpbnRvIHRoZSBDUElPDQotIyBhcmNoaXZlLiBDdXJyZW50bHksIHRoZSBmaWxlbmFtZXMgYXJl
-IGhhcmRjb2RlZCBpbiBnZW5faW5pdF9jcGlvLA0KLSMgYnV0IHdlIG5lZWQgdGhlIGluZm9ybWF0
-aW9uIGZvciB0aGUgYnVpbGQgYXMgd2VsbCwgc28gaXQncyBkdXBsaWNhdGVkDQotIyBoZXJlLg0K
-LQ0KLSMgQ29tbWVudGVkIG91dCBmb3Igbm93DQotIyBpbml0cmFtZnMteSA6PSAkKG9iaikvcm9v
-dC9oZWxsbw0KK2lmZGVmIENPTkZJR19JTklUUkFNRlNfUk9PVF9VSUQNCitnZW5faW5pdHJhbWZz
-X2FyZ3MgKz0gLXUgJChDT05GSUdfSU5JVFJBTUZTX1JPT1RfVUlEKQ0KK2VuZGlmDQorDQoraWZk
-ZWYgQ09ORklHX0lOSVRSQU1GU19ST09UX0dJRA0KK2dlbl9pbml0cmFtZnNfYXJncyArPSAtZyAk
-KENPTkZJR19JTklUUkFNRlNfUk9PVF9HSUQpDQorZW5kaWYNCisNCisjIFRoZSAkKHNoZWxsIGVj
-aG8gJChDT05GSUdfSU5JVFJBTUZTX1NPVVJDRSkpIGlzIHRvIHJlbW92ZSB0aGUNCisjIGdyYXR1
-aXRvdXMgYmVnaW4gYW5kIGVuZCBxdW90ZXMgZnJvbSB0aGUgS2NvbmZpZyBzdHJpbmcgdHlwZS4N
-CisjIEludGVybmFsLCBlc2NhcGVkIHF1b3RlcyBpbiB0aGUgS2NvbmZpZyBzdHJpbmcgd2lsbCBs
-b29zZSB0aGUNCisjIGVzY2FwZSBhbmQgYmVjb21lIGFjdGl2ZSBxdW90ZXMuDQorcXVvdGVmaXhl
-ZF9pbml0cmFtZnNfc291cmNlIDo9ICQoc2hlbGwgZWNobyAkKENPTkZJR19JTklUUkFNRlNfU09V
-UkNFKSkNCiANCiBmaWxlY2hrX2luaXRyYW1mc19saXN0ID0gJChDT05GSUdfU0hFTEwpIFwNCi0g
-JChzcmN0cmVlKS9zY3JpcHRzL2dlbl9pbml0cmFtZnNfbGlzdC5zaCAkKENPTkZJR19JTklUUkFN
-RlNfU09VUkNFKQ0KLQkJCSAgIA0KKyAkKHNyY3RyZWUpL3NjcmlwdHMvZ2VuX2luaXRyYW1mc19s
-aXN0LnNoICQoZ2VuX2luaXRyYW1mc19hcmdzKSAkKHF1b3RlZml4ZWRfaW5pdHJhbWZzX3NvdXJj
-ZSkNCisNCiAkKG9iaikvaW5pdHJhbWZzX2xpc3Q6IEZPUkNFDQogCSQoY2FsbCBmaWxlY2hrLGlu
-aXRyYW1mc19saXN0KQ0KIA0KIHF1aWV0X2NtZF9jcGlvID0gQ1BJTyAgICAkQA0KICAgICAgIGNt
-ZF9jcGlvID0gLi8kPCAkKG9iaikvaW5pdHJhbWZzX2xpc3QgPiAkQA0KIA0KKw0KKyMgQ2hlY2sg
-aWYgdGhlIElOSVRSQU1GU19TT1VSQ0UgaXMgYSBjcGlvIGFyY2hpdmUNCitpZm5lcSAoLCQoZmlu
-ZHN0cmluZyAuY3BpbywkKHF1b3RlZml4ZWRfaW5pdHJhbWZzX3NvdXJjZSkpKQ0KKw0KKyMgSU5J
-VFJBTUZTX1NPVVJDRSBoYXMgYSBjcGlvIGFyY2hpdmUgLSB2ZXJpZnkgdGhhdCBpdCdzIGEgc2lu
-Z2xlIGZpbGUNCitpZm5lcSAoMSwkKHdvcmRzICQocXVvdGVmaXhlZF9pbml0cmFtZnNfc291cmNl
-KSkpDQorJChlcnJvciBPbmx5IGEgc2luZ2xlIGZpbGUgbWF5IGJlIHNwZWNpZmllZCBpbiBDT05G
-SUdfSU5JVFJBTUZTX1NPVVJDRSAoPSIkKHF1b3RlZml4ZWRfaW5pdHJhbWZzX3NvdXJjZSkiKSB3
-aGVuIGEgY3BpbyBhcmNoaXZlIGlzIGRpcmVjdGx5IHNwZWNpZmllZC4pDQorZW5kaWYNCisjIE5v
-dyB1c2UgdGhlIGNwaW8gYXJjaGl2ZSBkaXJlY3RseQ0KK2luaXRyYW1mc19kYXRhX2NwaW8gPSAk
-KHF1b3RlZml4ZWRfaW5pdHJhbWZzX3NvdXJjZSkNCit0YXJnZXRzICs9ICQocXVvdGVmaXhlZF9p
-bml0cmFtZnNfc291cmNlKQ0KKw0KK2Vsc2UNCisNCisjIElOSVRSQU1GU19TT1VSQ0UgaXMgbm90
-IGEgY3BpbyBhcmNoaXZlIC0gY3JlYXRlIG9uZQ0KICQob2JqKS9pbml0cmFtZnNfZGF0YS5jcGlv
-OiAkKG9iaikvZ2VuX2luaXRfY3BpbyBcDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICQo
-aW5pdHJhbWZzLXkpICQob2JqKS9pbml0cmFtZnNfbGlzdCBGT1JDRQ0KIAkkKGNhbGwgaWZfY2hh
-bmdlZCxjcGlvKQ0KIA0KIHRhcmdldHMgKz0gaW5pdHJhbWZzX2RhdGEuY3Bpbw0KK2luaXRyYW1m
-c19kYXRhX2NwaW8gPSAkKG9iaikvaW5pdHJhbWZzX2RhdGEuY3Bpbw0KKw0KK2VuZGlmDQorDQog
-DQotJChvYmopL2luaXRyYW1mc19kYXRhLmNwaW8uZ3o6ICQob2JqKS9pbml0cmFtZnNfZGF0YS5j
-cGlvIEZPUkNFDQorJChvYmopL2luaXRyYW1mc19kYXRhLmNwaW8uZ3o6ICQoaW5pdHJhbWZzX2Rh
-dGFfY3BpbykgRk9SQ0UNCiAJJChjYWxsIGlmX2NoYW5nZWQsZ3ppcCkNCiANCiB0YXJnZXRzICs9
-IGluaXRyYW1mc19kYXRhLmNwaW8uZ3oNCg==
-
-
---=-tkBSnjPAoj4LCXMc2fv6--
-
---=-sFBtp+3bbX1HVHPLPXvC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBByIUHsYFQl3A+qS0RAkY2AJwNxS+3TqAiJL98piQG5PYpMQAT7ACfS5fD
-N9eXaaP3Un0rtFW9kUMm8bc=
-=MSZ/
------END PGP SIGNATURE-----
-
---=-sFBtp+3bbX1HVHPLPXvC--
-
+--Boundary-00=_wvIyB+s6UBT9coc--

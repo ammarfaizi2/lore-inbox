@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266864AbRGOTc5>; Sun, 15 Jul 2001 15:32:57 -0400
+	id <S266839AbRGOT22>; Sun, 15 Jul 2001 15:28:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266860AbRGOTci>; Sun, 15 Jul 2001 15:32:38 -0400
-Received: from mta8-svc.virgin.net ([62.253.164.48]:40891 "EHLO
-	mta8-svc.virgin.net") by vger.kernel.org with ESMTP
-	id <S266853AbRGOTcd>; Sun, 15 Jul 2001 15:32:33 -0400
-From: Glynn Clements <glynn.clements@virgin.net>
+	id <S266853AbRGOT2S>; Sun, 15 Jul 2001 15:28:18 -0400
+Received: from cx48762-a.cv1.sdca.home.com ([24.0.158.22]:24648 "EHLO
+	train.sweet-haven.com") by vger.kernel.org with ESMTP
+	id <S266839AbRGOT2L>; Sun, 15 Jul 2001 15:28:11 -0400
+Date: Sun, 15 Jul 2001 12:28:01 -0700 (PDT)
+From: Lew Wolfgang <wolfgang@train.sweet-haven.com>
+To: Steve VanDevender <stevev@efn.org>
+cc: George Bonser <george@gator.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Linux default IP ttl
+In-Reply-To: <15185.57310.203036.847687@tzadkiel.efn.org>
+Message-ID: <Pine.LNX.4.33.0107151211010.20532-100000@train.sweet-haven.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15185.60966.754883.694830@cerise.nosuchdomain.co.uk>
-Date: Sun, 15 Jul 2001 20:25:26 +0100
-To: "Michael H. Warfield" <mhw@wittsend.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
-        linux-admin@vger.kernel.org
-Subject: Re: ORBS blacklist is BROKEN (deliberately)...
-In-Reply-To: <20010715140723.C28197@alcove.wittsend.com>
-In-Reply-To: <10249.995101943@ocs3.ocs-net>
-	<E15LOMk-00018x-00@the-village.bc.nu>
-	<20010715140723.C28197@alcove.wittsend.com>
-X-Mailer: VM 6.92 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Jul 2001, Steve VanDevender wrote:
 
-Michael H. Warfield wrote:
+> To the extent that the Internet works today, it's because people have
+> chosen to do the right thing instead of just the thing that works.
+> Encouraging (not "bullying") other people to do the right thing is
+> always a good idea.
 
-> > > http://www.e-scrub.com/orbs/ is the key.  "Ronald F. Guilmette"
-> > > <rfg@monkeys.com> sent this message to spam lists.  Anybody still using
-> > > ORBS for lookups can expect to get random mail bounces.
-> 
-> > Yeah he's decided to solve his load problem by committing an act of criminal
-> > fraud, computer misuse and a few other violations
-> 
-> 	I can't find any crimes or violations that he's commiting.
-> His ethics may suck, but his system is being used against his explicitly
-> stated wishes.
+However, sometimes doing the right thing will cause you to loose
+the war.  I recall that early Solaris systems had a problem,
+the details of which I forget, where web browsers of a certain
+very large company would fail.  Apparently the Solaris tcp-ip stack
+was strictly adhering to the RFC's, it was the other large company's
+stack that didn't conform.  If memory serves, there was a raging
+discussion at the time about whether this non-conformance was
+intentional in an effort to target Solaris as an inferior web
+server platform.  Solaris bowed to the inevitable.
 
-Maybe you misunderstood who "he" refers to?
+Thus, we have the possibility that parameters may get modified to
+gain competitive advantage.  While it's nice to stand on principle,
+is that really what you want to do in this case?
 
-I took it as referring to the Alan Brown (the ORBS maintainer), rather
-than to to Ron Guilmette (who doesn't want his DNS server to be used). 
+Regards,
+Lew Wolfgang
 
-I know that isn't what a literal reading of the quote and Alan's reply
-suggests, but it seems to make more sense to me.
-
-Alan can you clarify this please? (I know that this isn't particularly
-on-topic, but now that it's been said ...).
-
--- 
-Glynn Clements <glynn.clements@virgin.net>

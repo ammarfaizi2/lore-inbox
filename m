@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUD2Q62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264895AbUD2Q5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264900AbUD2Q62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 12:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUD2Q61
+	id S264895AbUD2Q5R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 12:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbUD2Q5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 12:58:27 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:23199 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S264900AbUD2Q6S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 12:58:18 -0400
-Date: Thu, 29 Apr 2004 19:01:12 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.6-rc3
-Message-ID: <20040429170111.GA24184@finwe.eu.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
-Mime-Version: 1.0
+	Thu, 29 Apr 2004 12:57:17 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:23178 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264895AbUD2Q5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 12:57:14 -0400
+Date: Thu, 29 Apr 2004 09:56:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <59450000.1083257819@flay>
+In-Reply-To: <40912F15.4030300@nortelnetworks.com>
+References: <409021D3.4060305@fastclick.com><20040428170106.122fd94e.akpm@osdl.org><409047E6.5000505@pobox.com><40905127.3000001@fastclick.com><20040428180038.73a38683.akpm@osdl.org><4090595D.6050709@pobox.com> <20040428184008.226bd52d.akpm@osdl.org> <44780000.1083255853@flay> <40912F15.4030300@nortelnetworks.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm hoping to do a final 2.6.6 later this week, so I'm hoping as many 
-> people as possible will test this.
+>> The latency for interactive stuff is definitely more noticeable though, and
+>> thus arguably more important. Perhaps we should be tying the scheduler in
+>> more tightly with the VM - we've already decided there which apps are 
+>> "interactive" and thus need low latency ... shouldn't we be giving a boost
+>> to their RAM pages as well, and favour keeping those paged in over other
+>> pages (whether other apps, or cache) logically? It's all latency still ...
+> 
+> I like this idea.  Maybe make it more general though--tasks with high scheduler priority also get more of a memory priority boost.  This will factor in the static priority as well as the interactivity bonus.
 
-Just made oldconfig after 2.6.6-rc1:
+Yeah, see also my other mail in that thread - if we moved to file-object (address_space) and task anon (mm) based tracking, it should be much easier.
+Also fits in nicely with Hugh's anon_mm code.
 
-CC      drivers/char/vt_ioctl.o
-CC      drivers/char/vc_screen.o
-CC      drivers/char/consolemap.o
-CONMK   drivers/char/consolemap_deftbl.c
-CC      drivers/char/consolemap_deftbl.o
-CC      drivers/char/selection.o
-CC      drivers/char/keyboard.o
-CC      drivers/char/vt.o
-SHIPPED drivers/char/defkeymap.c
-CC      drivers/char/defkeymap.o
-CC      drivers/char/sysrq.o
-LD      drivers/char/agp/built-in.o
-CC [M]  drivers/char/agp/backend.o
-CC [M]  drivers/char/agp/frontend.o
-CC [M]  drivers/char/agp/generic.o
-make[3]: *** No rule to make target `drivers/char/agp/isoch.s', needed
-by `drivers/char/agp/isoch.o'.
-make[2]: *** [drivers/char/agp] Error 2
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
-
-mrproper cannot clean it this time...
-
-config: http://zeus.polsl.gliwice.pl/~jfk/kernel/config-2.6.6-rc3
-
-bye
-
--- 
-Jacek Kawa
+M.
+ 

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSILPhP>; Thu, 12 Sep 2002 11:37:15 -0400
+	id <S316541AbSILPlZ>; Thu, 12 Sep 2002 11:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSILPhP>; Thu, 12 Sep 2002 11:37:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38161 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316430AbSILPhP>; Thu, 12 Sep 2002 11:37:15 -0400
-Date: Thu, 12 Sep 2002 16:42:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mike Anderson <andmike@us.ibm.com>
+	id <S316542AbSILPlZ>; Thu, 12 Sep 2002 11:41:25 -0400
+Received: from 62-190-219-3.pdu.pipex.net ([62.190.219.3]:27404 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S316541AbSILPlY>; Thu, 12 Sep 2002 11:41:24 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209121553.g8CFrrEh003646@darkstar.example.net>
+Subject: Re: XFS?
+To: martin.knoblauch@mscsoftware.com
+Date: Thu, 12 Sep 2002 16:53:52 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 SCSI core bug?
-Message-ID: <20020912164201.A3121@flint.arm.linux.org.uk>
-References: <20020911221859.A17951@flint.arm.linux.org.uk> <20020912100140.A32196@flint.arm.linux.org.uk> <20020912153923.GA8295@beaverton.ibm.com>
-Mime-Version: 1.0
+In-Reply-To: <200209121727.50745.martin.knoblauch@mscsoftware.com> from "Martin Knoblauch" at Sep 12, 2002 05:27:50 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020912153923.GA8295@beaverton.ibm.com>; from andmike@us.ibm.com on Thu, Sep 12, 2002 at 08:39:23AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 08:39:23AM -0700, Mike Anderson wrote:
-> I have a cleanup patch for 2.5 scsi_error I will add this fix in.
-> scsi_send_eh_cmnd should not be retrying the command it should return to
-> the caller the status and let them decide. We also should create a
-> ?restore_scsi_cb? function that is shared so that it is done
-> consistently.
+> >> In my opinion the non-inclosure in the mainline kernel is the most 
+> >> important reason not to use XFS (or any other FS). Which in turn 
+> >> massively reduces the tester base. It is a shame, because for some 
+> type 
+> >> of applications it performs great, or better than anything else. 
+> >
+> >
+> >On the other hand, filesystem corruption bugs are one of the worst type 
+> >to suffer from. We absolutely don't want to include filesystems 
+> >without at least a reasonable proven track record in the mainline 
+> >kernel, and therefore encourage the various distributions to use them, 
+> >incase any bugs do show up. Look how long a buffer overflow existed in 
+> >Zlib unnoticed. 
+> 
+> If enclosure in "major" distribuitons defines mainline for you, I have 
+> to agree. Otherwise, how do you get "a  proven track record in 
+> mainline" without having it in the mainline kernel ? :-)
 
-I've got a patch for both of these now.  I'm working through some other
-issues at the moment though (like, why the hell requests for sectors
-after the sector in error don't have a data phase, and the drive returns
-status = GOOD, message = COMMAND COMPLETE, leading the kernel to believe
-that it did transfer data.)
+Sorry, I meant we should be wary about what is moved from being development code to non-development code in the stable kernel.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>  In any case, one could always mark XFS as "experimental" for some time.
 
+Exactly, I think we should.
+
+The distributions will 'mirror' that, by including support, but not making it obvious unless you poke around looking for it - so it gets the new feature out to the more users, but doesn't present it as just another option for newbies to select without realising what they are doing.
+
+> >EXT2 is a very capable filesystem, and has *years* of proven 
+> >reliability. That's why I'm not going to switch away from it for 
+> >critical work any time soon. 
+> 
+> sure, if you can live with the fsck time on your 200 GB (or bigger) 
+> filesystem after the occasional crash.
+
+But Linux doesn't crash...  :-)
+
+John.

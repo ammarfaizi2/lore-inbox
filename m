@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279951AbRKBCcU>; Thu, 1 Nov 2001 21:32:20 -0500
+	id <S280365AbRKBCmO>; Thu, 1 Nov 2001 21:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279946AbRKBCcL>; Thu, 1 Nov 2001 21:32:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:24570 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S279945AbRKBCby>;
-	Thu, 1 Nov 2001 21:31:54 -0500
-Message-ID: <3BE20453.22427ECB@gmx.de>
-Date: Fri, 02 Nov 2001 03:26:27 +0100
-From: Edgar Toernig <froese@gmx.de>
+	id <S280518AbRKBCmE>; Thu, 1 Nov 2001 21:42:04 -0500
+Received: from cogito.cam.org ([198.168.100.2]:4868 "EHLO cogito.cam.org")
+	by vger.kernel.org with ESMTP id <S280365AbRKBClq>;
+	Thu, 1 Nov 2001 21:41:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
+Date: Thu, 1 Nov 2001 21:37:11 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
-In-Reply-To: <Pine.LNX.4.21.0111010944050.16656-100000@deadlock.et.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011102023711.EC03D93E4D@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joris van Rantwijk wrote:
-> 
-> I'm trying to see outgoing network packets through the AF_PACKET
-> interface. This works as long as I bind the packet socket with
-> sll_protocol==htons(ETH_P_ALL).  I would expect that I can filter
-> on IP packets by binding to sll_protocol==htons(ETH_P_IP), but when
-> I try it I suddenly see only the incoming packets and no outgoing at all.
+Hi,
 
-Deja vu? :-)  See this message:
+shrink_caches can end up lying.  shrink_dcache_memory and friends do not tell 
+shrink_caches how many pages they free so nr_pages can be bogus...  Is it worth 
+fixing?  The simpliest, harmlessly racey and not too pretty, code follows.  It 
+would also not be hard to change the shrink_ calls to return the number of pages 
+shrunk, but this would hit more code...
 
----------------------
-> Subject: Re: PF_PACKET, ETH_P_IP does not catch outgoing packets.
-> From: kuznet@ms2.inr.ac.ru
-> Date: Thu, 23 Dec 1999 20:41:11 +0300 (MSK)
->
-> Hello!
->
-> > do not receive outgoing packets.  Just changing the
-> > protocol to ETH_P_ALL (or a later bind with that proto)
-> > will get all packets.  Is this intentional?  (I don't think
-> > so *g*) 
->
-> Yes, sort of. It is planned flaw in design. 8) 
->
->
-> > Any idea for a quick fix?
->
-> No, it is not very easy. If it were easy, it would be made. 8)
-> 
-> The problem is that bound to protocol sockets are not
-> checked at output at all, only ETH_P_ALL ones are checked.
-> We could check all, but it affects performance, because
-> true protocols (looking exactly as packet socket) really
-> need not it. The direction of compromise is not evident.
->
-> Someone promised to think on this and repair at the end of 2.1,
-> I even reserved sockopt PACKET_RECV_OUTPUT to switch it on/off,
-> but, alas, I did not receive any patches.
->
-> Alexey
------------------------
+Comments?
 
-Two years nobody cared.  Seems the BPF is good enough...
+Ed Tomlinson
 
-Ciao, ET.
+--- linux/mm/vmscan.c.orig	Wed Oct 31 14:11:33 2001
++++ linux/mm/vmscan.c	Wed Oct 31 14:51:58 2001
+@@ -552,6 +552,7 @@
+ static int shrink_caches(zone_t * classzone, int priority, unsigned int gfp_mask, int nr_pages)
+ {
+ 	int chunk_size = nr_pages;
++	int nr_shrunk;
+ 	unsigned long ratio;
+ 
+ 	nr_pages -= kmem_cache_reap(gfp_mask);
+@@ -567,11 +568,21 @@
+ 	if (nr_pages <= 0)
+ 		return 0;
+ 
++	nr_shrunk = nr_free_pages;
++
+ 	shrink_dcache_memory(priority, gfp_mask);
+ 	shrink_icache_memory(priority, gfp_mask);
+ #ifdef CONFIG_QUOTA
+ 	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+ #endif
++
++	/* racey - calculate how many pages we got from shrinks */
++	nr_shrunk = nr_free_pages - nr_shrunk; 
++	if (nr_shrunk > 0) {
++		nr_pages -= nr_shrunk;
++		if (nr_pages <= 0)
++			return 0;
++	}
+ 
+ 	return nr_pages;
+ }

@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTJ1AcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 19:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTJ1AcQ
+	id S263691AbTJ1Ams (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 19:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTJ1Ams
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 19:32:16 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:685 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263787AbTJ1AcP (ORCPT
+	Mon, 27 Oct 2003 19:42:48 -0500
+Received: from [213.173.228.18] ([213.173.228.18]:13841 "HELO mail.tpack.net")
+	by vger.kernel.org with SMTP id S263691AbTJ1Amr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 19:32:15 -0500
-Subject: Re: gettimeofday resolution seriously degraded in test9
-From: john stultz <johnstul@us.ibm.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, shemminger@osdl.org
-In-Reply-To: <20031027234447.GA7417@rudolph.ccur.com>
-References: <20031027234447.GA7417@rudolph.ccur.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067300966.1118.378.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 27 Oct 2003 16:29:26 -0800
+	Mon, 27 Oct 2003 19:42:47 -0500
+Message-ID: <3F9DBB7F.7030309@tpack.net>
+Date: Tue, 28 Oct 2003 01:42:39 +0100
+From: Tommy Christensen <tommy.christensen@tpack.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org, Andries.Brouwer@cwi.nl,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.6.0-test9
+References: <200310271936.WAA07348@yakov.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-27 at 15:44, Joe Korty wrote:
-> [ 2nd posting, the first seems to have been lost ]
-> 
-> Linus,
->  This bit of -test9 code reduces the resolution of gettimeofday(2) from
-> 1 microsecond to 1 millisecond whenever a negative time adjustment is
-> in progress.  This seriously damages efforts to measure time intervals
-> accurately with gettimeofday.  Please consider backing it out.
-> 
-> Joe
+kuznet@ms2.inr.ac.ru wrote:
+> Hello!
 > 
 > 
-> diff -Nura linux-2.6.0-test8/arch/i386/kernel/time.c linux-2.6.0-test9/arch/i386/kernel/time.c
-> --- linux-2.6.0-test8/arch/i386/kernel/time.c	2003-10-17 17:43:11.000000000 -0400
-> +++ linux-2.6.0-test9/arch/i386/kernel/time.c	2003-10-25 14:43:37.000000000 -0400
-> @@ -104,6 +104,15 @@
->  		lost = jiffies - wall_jiffies;
->  		if (lost)
->  			usec += lost * (1000000 / HZ);
-> +
-> +		/*
-> +		 * If time_adjust is negative then NTP is slowing the clock
-> +		 * so make sure not to go into next possible interval.
-> +		 * Better to lose some accuracy than have time go backwards..
-> +		 */
-> +		if (unlikely(time_adjust < 0) && usec > tickadj)
-> +			usec = tickadj;
-> +
->  		sec = xtime.tv_sec;
->  		usec += (xtime.tv_nsec / 1000);
->  	} while (read_seqretry(&xtime_lock, seq));
+>>And Alexey apparently tried to do the "FIXME" part, but without thinking 
+>>about the SIGURG part.
 > 
+> 
+> Actually, it was thought a lot for several linux-2.x. :-)
+> 
+> 
+> 
+>>We _need_ to stop at urgent data and we _should_ return -EINTR, and let
+>>the SIGURG handler do the URG read. Otherwise we'll lose urgent data (or
+>>we'll just read it inline without realizing that it was urgent data).
+> 
+> 
+> The patch was expected not to break this property. Alas, something
+> is overlooked yet. I still do not understand what exactly is broken,
+> I feel I have to find some rlogin to experiment in vivo.
 
-Hmm. This is the stair-step effect of capping time for NTP adjustments.
-The side effect was expected, but I didn't figure it would be so drastic
-as NTP adjustments are supposedly limited to 10%. Do you not see time
-inconsistencies when running without this patch?
+Hi Alexey
 
-Stephen, any thoughts?  
+I think the patch breaks things because it consumes (or rather skips)
+the urgent data ( in the code after the label found_ok_skb: ).
 
-thanks
--john
+Since this happens before the SIGURG handler is run, it won't find
+any urgent data.
 
+What do you think?
+
+The patch by Linus seems to be fine though.
+
+-Tommy
 

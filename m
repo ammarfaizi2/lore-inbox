@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRC0LAo>; Tue, 27 Mar 2001 06:00:44 -0500
+	id <S131219AbRC0L1m>; Tue, 27 Mar 2001 06:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbRC0LAf>; Tue, 27 Mar 2001 06:00:35 -0500
-Received: from 13dyn107.delft.casema.net ([212.64.76.107]:39435 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131191AbRC0LAS>; Tue, 27 Mar 2001 06:00:18 -0500
-Message-Id: <200103271059.MAA18765@cave.bitwizard.nl>
-Subject: OOM killer???
+	id <S131221AbRC0L1c>; Tue, 27 Mar 2001 06:27:32 -0500
+Received: from mpehp1.mpe-garching.mpg.de ([130.183.70.10]:65291 "EHLO
+	mpehp1.mpe-garching.mpg.de") by vger.kernel.org with ESMTP
+	id <S131219AbRC0L1Q>; Tue, 27 Mar 2001 06:27:16 -0500
+Message-Id: <200103271127.f2RBRO513723@robert2.mpe-garching.mpg.de>
 To: linux-kernel@vger.kernel.org
-Date: Tue, 27 Mar 2001 12:59:34 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+reply-to: robert@mpe.mpg.de
+Subject: ISSUE: very slow (factor 100) 4-way 16GByte server, with 2.4.2
+Date: Tue, 27 Mar 2001 13:27:24 +0200
+From: Robert Suetterlin <sutter@robert2.mpe-garching.mpg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Just a quick bug-report: 
+ISSUE: very slow (factor 100) 4-way 16GByte server, with 2.4.2
+DESCR: we have a Maxdata 4-way Xeon, with 16GByte RAM. If we compile a kernel (2.4.0 or 2.4.2 up to ac25) that uses all 16 GByte RAM the machine gets very slow. For example network Bandwidth of 100MBit Ethernet is about 1-50kByte/sec.  Access to harddrives seems to be equally slow.
+	I really do not know where to start looking, but I know that lots of people seem to be using n-way Xeon with 16+GByte RAM without severe performance problem.
+KEYWORDS: kernel, slow, maxdata, 16GB
+KERNEL: 2.4.0 and 2.4.2 (upto ac25)
 
-One of our machines just started spewing:
+If more information --- like /proc/cpuinfo or uname -a or versions of installed software ... --- is needed to analyse the problem, please tell me, I will gladly send it.
 
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
-Out of Memory: Killed process 117 (sendmail).
+Sincerely,
 
-What we did to run it out of memory, I don't know. But I do know that
-it shouldn't be killing one process more than once... (the process
-should not exist after one try...)
-
-Kernel 2.4.0 .
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+	Robert S.

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbSCHXOj>; Fri, 8 Mar 2002 18:14:39 -0500
+	id <S288377AbSCHXPT>; Fri, 8 Mar 2002 18:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287421AbSCHXOU>; Fri, 8 Mar 2002 18:14:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:47321 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S274862AbSCHXOK>; Fri, 8 Mar 2002 18:14:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Fri, 8 Mar 2002 18:15:02 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203081258070.1412-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0203081258070.1412-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020308231405.CADDC3FE06@smtp.linux.ibm.com>
+	id <S287862AbSCHXPK>; Fri, 8 Mar 2002 18:15:10 -0500
+Received: from ns.suse.de ([213.95.15.193]:55559 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287946AbSCHXO4>;
+	Fri, 8 Mar 2002 18:14:56 -0500
+Date: Sat, 9 Mar 2002 00:14:54 +0100
+From: Dave Jones <davej@suse.de>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PnP BIOS driver status
+Message-ID: <20020309001454.D15106@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1015628440.14518.212.camel@thanatos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1015628440.14518.212.camel@thanatos>; from jdthood@mail.com on Fri, Mar 08, 2002 at 06:00:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 March 2002 04:02 pm, Linus Torvalds wrote:
-> On Fri, 8 Mar 2002, Hubertus Franke wrote:
-> > But what about compatibility with i368, no cmpxchg or cmpxchg8b
-> > Can't we have to types and infer from the op in the kernel what
-> > the correct size in user space is.
->
-> I think the next step should be to map in one page of kernel code in a
-> user-readable location, and just do it there.
->
+On Fri, Mar 08, 2002 at 06:00:40PM -0500, Thomas Hood wrote:
+ 
+ > Current 2.5 kernels also contain the driver, but it's a bit out 
+ > of date.  There's a patch in 2.5-dj but that's also out of date. 
+ > ("Out of date" here means "missing new features and some 
+ > cleanups".)
 
-Your kidding .....
-Seriously, how can we guarantee that we correctly determine the 
-lock holder, due to memory corruption problems. If we can't do 
-it correctly all the times, why do it at all ?
+ The bits that handle ESCD ? I merged that.
+ 
+ > Once DJ releases a 2.5.6-dj I'll send him a patch 
+ > to bring his tree up to date.  Then he can pass it on to Linus. 
 
-> It's not just 386 vs later due to cmpxchg. It's also the simple issue of
-> UP vs SMP - a UP system still wants to do locking, but it doesn't need the
-> lock prefix. And that lock prefix makes a _huge_ difference
-> performance-wise.
-
-Fail to see why that matters. User level locking is mostly beneficial on SMPs.
-So, you lock the bus for the atomic update. This is UP, nothing's going on 
-on the bus anyway.
-In your experience, what is the overhead in cycles for "incl" vs "lock;incl".
-Even if its a few more cycles, still beats the heck out of using other 
-heavyweight kernel APIs
-
-> So my suggestion is: ignore i386 for now (no _relevant_ SMP boxes exist
-> anyway), and plan on solving the problem with a separate library page
-> before 2.6.x gets released.
->
-
-Any rough design.. 
-> 			Linus
+ You may have to wait a while. Most of my life just got packed
+ into boxes, and is about to go out the door to a new home.
+ It'll take a week or so to get back on my feet.
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,52 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313911AbSELSPP>; Sun, 12 May 2002 14:15:15 -0400
+	id <S314277AbSELS0O>; Sun, 12 May 2002 14:26:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSELSPO>; Sun, 12 May 2002 14:15:14 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61144 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S313911AbSELSPN>;
-	Sun, 12 May 2002 14:15:13 -0400
-Date: Sun, 12 May 2002 14:15:12 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Elladan <elladan@eskimo.com>
-cc: Jakob ?stergaard <jakob@unthought.net>,
-        Kasper Dupont <kasperd@daimi.au.dk>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-In-Reply-To: <20020512103432.A24018@eskimo.com>
-Message-ID: <Pine.GSO.4.21.0205121412160.25791-100000@weyl.math.psu.edu>
+	id <S314870AbSELS0N>; Sun, 12 May 2002 14:26:13 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:48780 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314277AbSELS0M>; Sun, 12 May 2002 14:26:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: oliver.kowalke@t-online.de (Oliver Kowalke)
+To: <linux-kernel@vger.kernel.org>
+Subject: libaio depends on libredhat-kernel.so.1 ???
+Date: Sun, 12 May 2002 19:11:32 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <176wsc-0QOQ2yC@fwd03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-On Sun, 12 May 2002, Elladan wrote:
-
-> His test was different.
-> 
-> He opened a file in a legal situation (shell can create a new file), and
-> then forked off a suid process over and over with the stdout of that
-> process set to a dup of the shell's already open fd.
-> 
-> It's perfectly legal for the shell to sit around with a file open and
-> pass it off to a child, even if the disk is full.
-> 
-> It's also perfectly legal for root to write to the fd, even if the disk
-> is full (for normal users).  
-> 
-> It just happens that the suid program wasn't the one who chose what file
-> it was going to write stdout to - the shell did.
-> 
-> Thus, the security violation.
-
-	<shrug> relying on 5% in security-sensitive setup is *dumb*.
-In that case you need properly set quota (better yet, no lusers with write
-access anywhere on that fs)..
-
-	There are worse holes problems 5% rule.  E.g. you can create a
-file with hole, mmap over that hole, dirty the pages and exit.  Guess
-who ends up writing them out?  Right, kswapd.  Which is run as root.
-No suid applications required...
-
+because the linux-aio mailing list seams to be dead I'll posting to this list 
+(maybe ot).
+I've installed kernel 2.5.15 (should include aio support) an libaio (0.3.7).
+It seams that libaio.so depends on libredhat-kernel.so.1. Why?
+Is it realy needed? 
+With best regards,
+Oliver

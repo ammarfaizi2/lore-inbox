@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262505AbTCIMfp>; Sun, 9 Mar 2003 07:35:45 -0500
+	id <S262506AbTCIMmj>; Sun, 9 Mar 2003 07:42:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbTCIMfp>; Sun, 9 Mar 2003 07:35:45 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:17421 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262505AbTCIMfo>; Sun, 9 Mar 2003 07:35:44 -0500
-Date: Sun, 9 Mar 2003 13:46:18 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org, Romain Lievin <roms@tilp.info>
-Subject: Re: [PATCH] kconfig update
-In-Reply-To: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
-Message-ID: <Pine.LNX.4.44.0303091344250.32518-100000@serv>
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
+	id <S262507AbTCIMmj>; Sun, 9 Mar 2003 07:42:39 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:33797 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S262506AbTCIMmi>; Sun, 9 Mar 2003 07:42:38 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303091255.h29Ct2aF001120@81-2-122-30.bradfords.org.uk>
+Subject: Re: PROBLEM
+To: fkosa@eposta.hu (=?ISO-8859-1?Q?K=F3sa?= Ferenc)
+Date: Sun, 9 Mar 2003 12:55:02 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1047210594.13821.37.camel@daisy> from "=?ISO-8859-1?Q?K=F3sa?= Ferenc" at Mar 09, 2003 12:49:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> 1. Newer kernels do not boot on 386
+> 
+> 2. I use linux successfully since 1997. A year ago I've tried to use
+> linux on an AMD 5x86, and I realized that newer kernels (>2.4.13) do no=
+> t
+> boot. It starts: "loading linux........" and then after a while it
+> reboots the computer, before "Ok, booting the kernel". I found the same
+> problem on a Cyrix 486SLC2 too. I tried compile kernels by myself, but
+> they did the same too, except for 2.4.13. The official Debian
+> kernel-images failed too. I use lilo-2.2, with debian 3.0 stable
+> (woody).
 
-On Sun, 9 Mar 2003, Roman Zippel wrote:
+I've used 2.4.18 extensively on an Intel 486 SX-25, without problems.
+I did notice the immediate rebooting problem using a few old 2.5.x
+trees, but that was months ago, around the 2.5.40 timeframe, more
+recent 2.5.x trees worked fine.
 
-> It took a bit longer than I wanted, but here is finally another kconfig 
-> update. There are two important changes: I included Romain's gtk front 
-> end and the support for the menuconfig keyword.
+Incidently, I haven't had time to do my usual testing on low spec
+machines recently, but intend restart that at the earliest
+opportunity.
 
-BTW here is a simple menuconfig example, if someone wants to know, how it 
-looks like:
-
---- linux-2.5/arch/i386/Kconfig	2003-03-08 22:35:23.000000000 +0100
-+++ linux-2.5-lc/arch/i386/Kconfig	2003-03-09 13:35:04.000000000 +0100
-@@ -1305,9 +1305,7 @@
- endmenu
- 
- 
--menu "SCSI device support"
--
--config SCSI
-+menuconfig SCSI
- 	tristate "SCSI device support"
- 	---help---
- 	  If you want to use a SCSI hard disk, SCSI tape drive, SCSI CD-ROM or
-@@ -1329,8 +1327,6 @@
- 
- source "drivers/scsi/Kconfig"
- 
--endmenu
--
- 
- menu "Old CD-ROM drivers (not SCSI, not IDE)"
- 	depends on ISA
-
-> The patch is at http://www.xs4all.nl/~zippel/lc/patches/kconfig-2.5.64.diff
-
-bye, Roman
-
+John.

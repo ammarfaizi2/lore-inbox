@@ -1,26 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270771AbTGNTur (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTGNTur
+	id S270760AbTGNTrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270761AbTGNTrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:50:47 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:41444 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S270771AbTGNTuh (ORCPT
+	Mon, 14 Jul 2003 15:47:35 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:45952 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S270760AbTGNTrb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:50:37 -0400
-Date: Mon, 14 Jul 2003 22:05:20 +0200
+	Mon, 14 Jul 2003 15:47:31 -0400
+Date: Mon, 14 Jul 2003 22:02:03 +0200
 From: Roger Luethi <rl@hellgate.ch>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] via-rhine 1.19-2.5: One more Rhine-I fix
-Message-ID: <20030714200520.GB4774@k3.hellgate.ch>
+Subject: [PATCH 2.4] via-rhine 1.19: One more Rhine-I fix
+Message-ID: <20030714200203.GA4774@k3.hellgate.ch>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NMuMz9nt05w80d4+"
+Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
 Content-Disposition: inline
-In-Reply-To: <20030714200203.GA4774@k3.hellgate.ch>
 X-Operating-System: Linux 2.6.0-test1 on i686
 X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
 X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
@@ -29,7 +28,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---NMuMz9nt05w80d4+
+--XsQoSWH+UP9D9v3l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -38,12 +37,12 @@ should bring Rhine-I behavior on par with the Rhine-II.
 
 Roger
 
---NMuMz9nt05w80d4+
+--XsQoSWH+UP9D9v3l
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="via-rhine-1.19-2.5.diff"
+Content-Disposition: attachment; filename="via-rhine-1.19.diff"
 
---- linux-2.5/drivers/net/via-rhine.c.org	2003-07-14 21:49:56.000000000 +0200
-+++ linux-2.5/drivers/net/via-rhine.c	2003-07-14 21:50:09.000000000 +0200
+--- linux-2.4/drivers/net/via-rhine.c.org	2003-07-14 21:49:49.000000000 +0200
++++ linux-2.4/drivers/net/via-rhine.c	2003-07-14 21:50:19.000000000 +0200
 @@ -122,11 +122,14 @@
  	- No filtering multicast in promisc mode (Edward Peng)
  	- Fix for Rhine-I Tx timeouts
@@ -54,14 +53,14 @@ Content-Disposition: attachment; filename="via-rhine-1.19-2.5.diff"
  */
  
  #define DRV_NAME	"via-rhine"
--#define DRV_VERSION	"1.1.18-2.5"
+-#define DRV_VERSION	"1.1.18"
 -#define DRV_RELDATE	"July-4-2003"
-+#define DRV_VERSION	"1.1.19-2.5"
++#define DRV_VERSION	"1.1.19"
 +#define DRV_RELDATE	"July-12-2003"
  
  
  /* A few user-configurable values.
-@@ -1664,9 +1667,13 @@
+@@ -1659,9 +1662,13 @@
  	}
  	if ((intr_status & IntrTxError) && ~( IntrTxAborted | IntrTxUnderrun |
  										   IntrTxDescRace )) {
@@ -79,4 +78,4 @@ Content-Disposition: attachment; filename="via-rhine-1.19-2.5.diff"
  	if (intr_status & ( IntrTxAborted | IntrTxUnderrun | IntrTxDescRace |
  						IntrTxError ))
 
---NMuMz9nt05w80d4+--
+--XsQoSWH+UP9D9v3l--

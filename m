@@ -1,53 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbUCOS2n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbUCOS2n
+	id S262577AbUCOSfh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUCOSfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:28:43 -0500
-Received: from ns.suse.de ([195.135.220.2]:19943 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262640AbUCOS2j (ORCPT
+	Mon, 15 Mar 2004 13:35:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59618 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262577AbUCOSf0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:28:39 -0500
-Subject: Re: aio tiobench
-From: Chris Mason <mason@suse.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040315162954.GF655@holomorphy.com>
-References: <20040315080520.GC655@holomorphy.com>
-	 <1079357322.4186.377.camel@watt.suse.com>
-	 <20040315162954.GF655@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1079375451.8748.495.camel@watt.suse.com>
+	Mon, 15 Mar 2004 13:35:26 -0500
+Date: Mon, 15 Mar 2004 10:35:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: piggin@cyberone.com.au, riel@redhat.com, marcelo.tosatti@cyclades.com,
+       j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [2.4] heavy-load under swap space shortage
+Message-Id: <20040315103510.25c955a3.akpm@osdl.org>
+In-Reply-To: <20040315145020.GC30940@dualathlon.random>
+References: <Pine.LNX.4.44.0403150822040.12895-100000@chimarrao.boston.redhat.com>
+	<4055BF90.5030806@cyberone.com.au>
+	<20040315145020.GC30940@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Mar 2004 13:30:51 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-15 at 11:29, William Lee Irwin III wrote:
-> On Mon, 2004-03-15 at 03:05, William Lee Irwin III wrote:
-> >> So I farted around for a hour or two seeing if I could get tiobench
-> >> to do aio for the general purpose of exercising codepaths, benchmarking,
-> >> etc. in simple ways. Hopefully this answers the need for regular,
-> >> simple, and easily-available methods of exercising and/or benchmarking
-> >> the aio code in some way.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Tue, Mar 16, 2004 at 01:37:04AM +1100, Nick Piggin wrote:
+> > This case I think is well worth the unfairness it causes, because it
+> > means your zone's pages can be freed quickly and without freeing pages
+> > from other zones.
 > 
-> On Mon, Mar 15, 2004 at 08:28:43AM -0500, Chris Mason wrote:
-> > You might want to check out the list of benchmarks collected at:
-> > http://lse.sourceforge.net/io/aio.html
-> > I found that adapting existing benchmarks made it hard to test some of
-> > the aio corner cases, so aio-stress is just a big state machine, with
-> > options to tweak how badly you want to abuse the aio subsystem.  
-> > There are a few other good ones on the page though.
-> 
-> Looks encouraging. What's the distro coverage like? deb doesn't have them.
-> 
+> freeing pages from other zones is perfectly fine, the classzone design
+> gets it right, you have to free memory from the other zones too or you
+> have no way to work on a 1G machine. you call the thing "unfair" when it
+> has nothing to do with fariness, your unfariness is the slowdown I
+> pointed out,
 
-I doubt anyone ships packages for them.  LTP has integrated some aio
-tests though.
+This "slowdown" is purely theoretical and has never been demonstrated.
 
--chris
+One could just as easily point at the fact that on a 32GB machine with a
+single LRU we have to send 64 highmem pages to the wrong end of the LRU for
+each scanned lowmem page, thus utterly destroying any concept of it being
+an LRU in the first place.  But this is also theoretical, and has never
+been demonstrated and is thus uninteresting.
+
+What _is_ interesting is the way in which the single LRU collapses when
+there are a huge number amount of highmem pages on the tail and then there
+is a surge in lowmem demand.  This was demonstrated, and is what prompted
+the per-zone LRU.
 
 
+
+
+Begin forwarded message:
+
+Date: Sun, 04 Aug 2002 01:35:22 -0700
+From: Andrew Morton <akpm@zip.com.au>
+To: "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: how not to write a search algorithm
+
+
+Worked out why my box is going into a 3-5 minute coma with one test.
+Think what the LRUs look like when the test first hits page reclaim
+on this 2.5G ia32 box:
+
+               head                           tail
+active_list:   <800M of ZONE_NORMAL> <200M of ZONE_HIGHMEM>
+inactive_list:          <1.5G of ZONE_HIGHMEM>
+
+now, somebody does a GFP_KERNEL allocation.
+
+uh-oh.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans 5000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 10000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 20000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 40000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 80000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 160000 pages, achieving nothing.
+
+VM calls refill_inactive.  That moves 25 ZONE_HIGHMEM pages onto
+the inactive list.  It then scans about 320000 pages, achieving nothing.
+
+The page allocation fails.  So __alloc_pages tries it all again.
+
+
+This all gets rather boring.
+
+
+Per-zone LRUs will fix it up.  We need that anyway, because a ZONE_NORMAL
+request will bogusly refile, on average, memory_size/800M pages to the
+head of the inactive list, thus wrecking page aging.
+
+Alan's kernel has a nice-looking implementation.  I'll lift that out
+next week unless someone beats me to it.
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/

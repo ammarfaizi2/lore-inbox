@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268856AbRHaSZW>; Fri, 31 Aug 2001 14:25:22 -0400
+	id <S268896AbRHaSZN>; Fri, 31 Aug 2001 14:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268861AbRHaSZN>; Fri, 31 Aug 2001 14:25:13 -0400
-Received: from colorfullife.com ([216.156.138.34]:24324 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S268856AbRHaSY7>;
-	Fri, 31 Aug 2001 14:24:59 -0400
-Message-ID: <002d01c1324a$5d9d6790$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "\"Ulrich Weigand\"" <Ulrich.Weigand@de.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: NFS deadlock explained (on S/390)
-Date: Fri, 31 Aug 2001 20:02:17 +0200
+	id <S268861AbRHaSYw>; Fri, 31 Aug 2001 14:24:52 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:48911 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S268856AbRHaSYn>; Fri, 31 Aug 2001 14:24:43 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108311824.f7VIOLT25917@wildsau.idv-edu.uni-linz.ac.at>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+To: linux-kernel@vger.kernel.org
+Date: Fri, 31 Aug 2001 20:24:21 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Specifically, what happens is that the first CPU runs the QDIO
-> bottom half (from ksoftirqd, but this is probably not important).
-> That bottom half grabs the QDIO private spinlock, and then
-> executes a bunch of code including a dev_kfree_skb_any().
->  As we are only in a softirq, not a hard irq, dev_kfree_skb_any()
-> call kfree_skb() directly, which happens to invoke the
-> udp_write_space() callback in xprt.c.  This routine then spins
-> trying to acquire the xprt_sock_lock.
 
-I think in_irq() and in_interrupt() should check the cpu interrupt flag
-and return TRUE if the per-cpu interrupts are disabled.
+From: Rik van Riel <riel@conectiva.com.br>
+> On Fri, 31 Aug 2001, Herbert Rosmanith wrote:
+> > "I contemplated about the way of Linus, and eventually I begin to
+> > understand HIS aim."
+> 
+> Understanding his aim is useful. It allows you to get
+> out of the way when he starts shooting.
 
-The current behavious is just weird:
-    spin_lock_bh();
-    in_interrupt(); --> true
-    spin_unlock_bh();
-    spin_lock_irq();
-    in_interrupt(); --> false
-    spin_unlock_irq();
+Ah, eventually I begin to understand why Linus is exercising in
+pistols with ESR.
 
-> Whether this same situation can explain the deadlocks seen on
-> other platforms depends on whether the drivers used there exhibit
-> similar locking behaviours as the QDIO driver, of course.
+> > excuse me. this is ridiculous.
+> 
+> Well, we knew that before the thread started. Can't win
+> a holy war.
 
-It should be possible to detect that automatically: if
-dev_kfree_skb_any() is called outside irq context with disabled per-cpu
-interrupts then it's probably due to a spin_lock_irq() and could
-deadlock.
+what I wanted to say is: it should not neccessary to <peter breuer>
+"seeing this discussion fly past for a week I begin to
+ understand what Linus' aim might be"
+</peter breuer>
 
---
-    Manfred
+spend a week reading lkml and maybe catch a hint about what Linus
+had in mind when introducing some code.
 

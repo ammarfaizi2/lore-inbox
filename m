@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSGHPqa>; Mon, 8 Jul 2002 11:46:30 -0400
+	id <S316043AbSGHQCq>; Mon, 8 Jul 2002 12:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSGHPq3>; Mon, 8 Jul 2002 11:46:29 -0400
-Received: from addr-mx01.addr.com ([209.249.147.145]:21765 "EHLO
-	addr-mx01.addr.com") by vger.kernel.org with ESMTP
-	id <S312938AbSGHPq2>; Mon, 8 Jul 2002 11:46:28 -0400
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Daniel Phillips <phillips@arcor.de>, Pavel Machek <pavel@ucw.cz>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0207080750510.10105-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0207080750510.10105-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 08 Jul 2002 11:48:19 -0400
-Message-Id: <1026143302.4840.4.camel@athena.fprintf.net>
-Mime-Version: 1.0
+	id <S316051AbSGHQCp>; Mon, 8 Jul 2002 12:02:45 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5590 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S316043AbSGHQCo>; Mon, 8 Jul 2002 12:02:44 -0400
+Date: Mon, 8 Jul 2002 18:05:11 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <Andries.Brouwer@cwi.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IDE, util-linux
+In-Reply-To: <UTC200207081502.g68F2I701471.aeb@smtp.cwi.nl>
+Message-ID: <Pine.SOL.4.30.0207081802001.28633-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, maybe this is a bit naive, but isn't this problem already solved? 
-Couldn't we just put a read/write lock on the module, where using is
-reading, and removing is writing?  As I understand it, this should
-impose little overhead on the use (read) case, and ensure that, when a
-context has the remove (write) lock there are no no users (readers) and
-cannot be any?
 
-Daniel
+Don't run vanilla 2.5.25, it has only IDE-93...
 
-On Mon, 2002-07-08 at 09:58, Thunder from the hill wrote:
-> Hi,
-> 
-> Still, we shouldn't lock everything. I could do awful lots of interesting 
-> things while the only thing that is being done is to remove a module. It 
-> doesn't make sense IMO to lock things that are completely unrelated to 
-> modules.
-> 
-> And BTW, what's so much of an overhead if we tell everyone who tries to 
-> mess around with a certain module that he'd better wait until we unloaded 
-> it? It could be done like your schedule hack, but cleaner in that respect 
-> that those who got nothing to do with the module can keep on running.
-> 
-> > Good point. Member usecount could be anything. A 'long' isn't the
-> > correct pad for all types, but it will probably handle everything that
-> > was intended.
-> 
-> But as I mentioned - atomic_t is changed (e.g. to long long) -> 
-> module->pad blows up, because the sizeof(struct module) is different, 
-> depending on which part of the union we're using.
-> 
-> 							Regards,
-> 							Thunder
-> -- 
-> (Use http://www.ebb.org/ungeek if you can't decode)
-> ------BEGIN GEEK CODE BLOCK------
-> Version: 3.12
-> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-> e++++ h* r--- y- 
-> ------END GEEK CODE BLOCK------
+On Mon, 8 Jul 2002 Andries.Brouwer@cwi.nl wrote:
 
--- 
-Recursion n.:
-        See Recursion.
-                        -- Random Shack Data Processing Dictionary
-
+> Yesterday util-linux 2.11t was released.
+> As always, comments are welcome.
+>
+> Wanted to continue some usb-storage work on 2.5 and
+> recklessly booted 2.5.25. It survived for several hours,
+> then deadlocked. Two filesystems turned out to be corrupted.
+> Wouldn't mind if the rock solid 2.4 handling of HPT366
+> was carefully copied to 2.5, that today quickly causes
+> corruption and quickly deadlocks or crashes.
+> [Yes, these are independent bugs. The fact that the current
+> IDE code writes to random disk sectors is much more annoying
+> than the fact that it crashes and deadlocks. This random
+> writing is observed only on disks on the HPT366 card.]
+>
+> Andries
 

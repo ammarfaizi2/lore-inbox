@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVAZXxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVAZXtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVAZXxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVAZXwN
+	id S262508AbVAZXtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVAZXs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:52:13 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:36882 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262210AbVAZT4N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:56:13 -0500
-Date: Wed, 26 Jan 2005 20:56:19 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark A. Greer" <mgreer@mvista.com>
-Cc: Greg KH <greg@kroah.com>, LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
-Message-Id: <20050126205619.4c0b41fa.khali@linux-fr.org>
-In-Reply-To: <41F6F1D5.90601@mvista.com>
-References: <41F6F1D5.90601@mvista.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jan 2005 18:48:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51921 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262134AbVAZT33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:29:29 -0500
+Date: Wed, 26 Jan 2005 11:28:44 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olh@suse.de>
+cc: Jesse Pollard <jesse@cats-chateau.net>, linux-os <linux-os@analogic.com>,
+       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
+       Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <20050126191501.GA26920@suse.de>
+Message-ID: <Pine.LNX.4.58.0501261127280.2362@ppc970.osdl.org>
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org>
+ <41F6A45D.1000804@comcast.net> <Pine.LNX.4.61.0501251542290.8986@chaos.analogic.com>
+ <05012609151500.16556@tabby> <Pine.LNX.4.58.0501260803360.2362@ppc970.osdl.org>
+ <20050126191501.GA26920@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
 
-> Marvell makes a line of host bridge for PPC and MIPS systems.  On
-> those  bridges is an i2c controller.  This patch adds the driver for
-> that i2c  controller.
+
+On Wed, 26 Jan 2005, Olaf Hering wrote:
 > 
-> Please let me know if you see any problems with this patch.
+> And, did that nice interface help at all? No, it did not.
+> Noone made seqfile mandatory in 2.6.
 
-I do not feel qualified for a full review of this code. However, I
-noticed the following minor issues:
+Sure it helped. We didn't make it mandatory, but new stuff ends up being 
+written with it, and old stuff _does_ end up being converted to it.
 
-> +config I2C_MV64XXX
-> +	tristate "Marvell mv64xxx I2C Controller"
-> +	depends on I2C && MV64X60
+> Now we have a few nice big patches to carry around because every driver
+> author had its own proc implementation. Well done...
 
-&& EXPERIMENTAL?
+Details, please?
 
-> diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
-> --- a/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
-> +++ b/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
-> @@ -200,6 +200,7 @@
->  
->  #define I2C_ALGO_SIBYTE 0x150000	/* Broadcom SiByte SOCs		*/
->  #define I2C_ALGO_SGI	0x160000        /* SGI algorithm                */
-> +#define I2C_ALGO_MV64XXX 0x170000       /* Marvell mv64xxx i2c ctlr     */
-
-0x170000 is reserved within the legacy i2c project for an USB algorithm,
-and 0x180000 for virtual busses. Could you please use 0x190000 instead,
-so as to avoid future collisions?
-
-> -#define MV64340_I2C_SLAVE_ADDR                                      0xc000
-> -#define MV64340_I2C_EXTENDED_SLAVE_ADDR                             0xc010
-> -#define MV64340_I2C_DATA                                            0xc004
-> -#define MV64340_I2C_CONTROL                                         0xc008
-> -#define MV64340_I2C_STATUS_BAUDE_RATE                               0xc00C
-> -#define MV64340_I2C_SOFT_RESET                                      0xc01c
-> +#define	MV64XXX_I2C_CTLR_NAME					"mv64xxx i2c"
-> +#define MV64XXX_I2C_OFFSET					    0xc000
-> +#define MV64XXX_I2C_REG_BLOCK_SIZE				    0x0020
-
-You have a tab instead of space before MV64XXX_I2C_CTLR_NAME, it seems.
-Also, you want to align the numerical values using only tabs, no space.
-
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+		Linus

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273646AbRIQPqc>; Mon, 17 Sep 2001 11:46:32 -0400
+	id <S273656AbRIQPsM>; Mon, 17 Sep 2001 11:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273657AbRIQPqW>; Mon, 17 Sep 2001 11:46:22 -0400
-Received: from ausxc10.us.dell.com ([143.166.98.229]:17928 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S273646AbRIQPqH>; Mon, 17 Sep 2001 11:46:07 -0400
-Message-ID: <71714C04806CD51193520090272892178BD590@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] linux-kernel-digest at http://lists.us.dell.com
-Date: Mon, 17 Sep 2001 10:45:24 -0500
+	id <S273655AbRIQPsD>; Mon, 17 Sep 2001 11:48:03 -0400
+Received: from unimur.um.es ([155.54.1.1]:8328 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S273654AbRIQPry>;
+	Mon, 17 Sep 2001 11:47:54 -0400
+Message-ID: <3BA61CC0.C9ECC8A0@ditec.um.es>
+Date: Mon, 17 Sep 2001 17:54:40 +0200
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.77 [es] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: es-ES, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Ext3 journal on its own device?
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dell is pleased to provide digest forms of the linux-kernel and linux-scsi
-mailing lists.  These lists, along with some Dell-specific lists, are hosted
-at http://lists.us.dell.com/, using the GNU Mailman list software, on a
-2x1GHz Dell PowerEdge 2450 server.
+Hi all!
 
-Two digest forms of linux-kernel are provided.
-  linux-kernel-digest - sent every 100KB as needed
-  linux-kernel-daily-digest - sent only once per day, somewhat under 1MB
-per.
+I have been browsing the Ext3 source (version 0.0.7a), and it seems
+impossible to use a block device as an Ext3 journal. Is that true?.
 
-Please direct any feedback about these lists to mailman@lists.us.dell.com.
-
-Sincerely,
-Matt Domsch
-
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
-#3 Unix provider with 18% in the US (Dataquest)!
-
+TIA.
+-- 
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index

@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUD1DEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUD1DLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264622AbUD1DEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 23:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUD1DEk
+	id S264623AbUD1DLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 23:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUD1DLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 23:04:40 -0400
-Received: from aver.com ([66.206.164.30]:29868 "EHLO www.aver.com")
-	by vger.kernel.org with ESMTP id S264622AbUD1DEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 23:04:38 -0400
-Date: Tue, 27 Apr 2004 19:54:17 -0700
-Message-Id: <200404280254.i3S2sHBv008671@www.aver.com>
-To: linux-kernel@vger.kernel.org
-From: support@aver.com
-Subject: {100-16462} Help Desk Submission
+	Tue, 27 Apr 2004 23:11:41 -0400
+Received: from www.centralpets.com ([216.15.161.2]:42935 "HELO
+	www.centralpets.com") by vger.kernel.org with SMTP id S264623AbUD1DLj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 23:11:39 -0400
+From: "rufus amadi" <r.amadi@centralpets.com>
+Importance: Normal
+Sensitivity: Normal
+Message-ID: <W2188422751228531083121904@bark.centralpets.com>
+X-Mailer: Mintersoft VisualMail, Build 4.0.111601
+X-Originating-IP: [212.100.64.69]
+Date: Wed, 28 Apr 2004 03:11:44 +0000
+Subject: WITH TRUST
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for submitting a support request.  A summary of your request is below: 
-
------------------------------------------------------------
- Details [Submitted 27-4-2004-7:54 ]
------------------------------------------------------------
-Your email has been logged as
-      ID............: 16462
-      
-
-	
-	Subject.......: Re: Re: my text
-
------------------------------------------------------------
-
-If you live in Canada, United States or Latin American your 
-email will be answered in the order it was received.  If you 
-are not in the Americas, Please contact the closest office to 
-you from the selection below.
-
-Hola,Gracias por contactar el Apoyo Tecnico de AVerMedia.  
-En este momento nosotros no tenemos apoyo en espanol.  Solo 
-podemos leer en ingles.  Lo sentimos por esto.  Pueden usar 
-un traductor de idiomas 
-
-Gracias
-
-TAIWAN OFFICE	
-7-10F, No. 135, Jian-Yu Road
-Chung-Ho City, Taipei Hsien
-Taiwan, Republic of China
-Tel: 886-22-22-63630
-Fax: 886-22-22-11250
-www.aver.com.tw
+DEAR PARTTNER,
 
 
-CHINA OFFICE
-Room 301, No. 183, Xiao Lin Road
-Kun Shan City,
-Jiang Su, China 215316
-Tel: 86-520-778-0908
-Fax: 86-520-778-0945
-www.averm.com.cn
+MY NAME IS MR. RUFUS AMADI . THE MANAGER CREDIT AND FOREIGN BILLS OF UNION BANK PLC. I AM WRITING IN RESPECT OF FOREIGN CUSTOMER OF MY BANK WHO DIED IN A PLANE CRASH (ETHIOPIAN AIRLINE 961) WITH OTHER PASSENGERS ABROAD. 
 
+SINCE THE DEATH OF THIS CUSTOMER, I PERSONALLY HAVE WATCHED WITH KEEN INTEREST TO SEE THE NEXT OF KIN BUT ALL HAS PROVED ABORTIVE AS NO ONE HAS COME TO CLAIM HIS FUNDS OF US$10.5M (TEN MILLION, FIVE HUNDRED THOUSAND UNITED STATES DOLLARS) WHICH HAS BEEN WITH MY BANK FOR A VERY LONG  TIME.ON THIS NOTE I DECIDED TO SEEK FOR WHOSE NAME SHALL BE USED AS THE NEXT OF KIN AS NO ONE HAS COME UP TO BE THE NEXT OF KIN. IN VIEW OF THIS I GOT YOUR CONTACT THROUGH MY COUNTRY`S FOREIGN TRADE MISSION AFTER I WAS CONVINCED BY PROVIDENCE THAT YOU COULD BE USED AS THE NEXT OF KIN. THE REQUEST OF THE FOREIGNER AS A NEXT OF KIN IN THIS BUSINESS IS OCCASIONED BY THE FACT THAT THE CUSTOMER WAS A FOREIGNER AND A NIGERIAN CANNOT STAND AS THE NEXT OF KIN TO FOREIGNER. I AGREED THAT 30%OF THIS MONEY WILL BE FOR YOU AS A FOREIGN PARTNER IN RESPECT OF PROVIDING AN ACCOUNT,WHILE THE REST WILL BE FOR ME, THEREAFTER,I WILL VISIT YOUR COUNTRY FOR DISBURSEMENT AS I AM ALMOST DUE FOR RETIREMENT.THEREFORE, TO FACILITATE THE IMMEDIATE TRANSFER OF THIS FUND TO YOUR ACCOUNT AS ARRANGED, YOU MUST APPLY FIRST TO THE BANK AS A RELATION TO THE DECEASED INDICATING YOUR PRIVATE TELEPHONE NUMBER, AND FAX NUMBER FOR EASY COMMUNICATION AND LOCATION WHERE THE MONEY WILL BE REMITTED. UPON THE RECEIPT OF YOUR REPLY,
 
-GERMANY OFFICE
-Hausinger Str. 6 40764
-Langenfild
-Germany MK15 8JA
-Tel: 49-2173-106360
-Fax:49-2173-1063629
-www.avermedia.de
+I WILL SEND YOU BY FAX OR E-MAIL THE NEXT STEP TO TAKE. I
+WILL NOT FAIL TO BRING TO YOUR NOTICE THAT THIS BUSINESS IS HITCH-FREE AND THAT YOU SHOULD NOT ENTERTAIN ANY FEAR AS THE WHOLE REQUIRED ARRANGEMENT HAS BEEN MADE FOR THE TRANSFER. YOU SHOULD CONTACT ME IMMEDIATELYTHROUGH THIS EMAIL: (ramadi@graffiti.net) AS SOON AS YOU RECEIVE THISLETTER TRUSTING TO HEAR FROM YOU.
 
-
-UNITED KINGDOM OFFICE
-Stratton House, 13 Vermont Place,
-Tongwell, Milton Keynes
-The United Kingdom
-Tel: 44-1908-218-800
-Fax: 44-1908-218-818
-www.averm.co.uk
+YOUR RESPECTFULLY,
+MR. RUFUS AMADI
 
 
 
-Thank you,
 
-AVerMedia Tech Support
- 
+
+---------------------------------------------
+This e-mail was sent using a CentralPets WebMail account
+Get yours at: http://mail.centralpets.com
+
+
+

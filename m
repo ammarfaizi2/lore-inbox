@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132015AbRCVNks>; Thu, 22 Mar 2001 08:40:48 -0500
+	id <S132022AbRCVNoI>; Thu, 22 Mar 2001 08:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132016AbRCVNkh>; Thu, 22 Mar 2001 08:40:37 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:40832 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132015AbRCVNkW>; Thu, 22 Mar 2001 08:40:22 -0500
-Date: Thu, 22 Mar 2001 08:39:06 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: nbecker@fred.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com>
-Message-ID: <Pine.LNX.3.95.1010322083448.20107C-100000@chaos.analogic.com>
+	id <S132023AbRCVNn7>; Thu, 22 Mar 2001 08:43:59 -0500
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:58006 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S132022AbRCVNnl>; Thu, 22 Mar 2001 08:43:41 -0500
+Date: Thu, 22 Mar 2001 07:42:31 -0600 (CST)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Kernel-mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Sound issues with m805lr motheboard
+In-Reply-To: <E14g3ub-0002Of-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103220730450.4739-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Mar 2001 nbecker@fred.net wrote:
+> That seems strange. What is realserver failing with ?
 
-> Hi.  I was wondering if there has been any discussion of kernel
-> regression testing.  Wouldn't it be great if we didn't have to depend
-> on human testers to verify every change didn't break something?
-> 
-> OK, I'll admit I haven't given this a lot of thought.  What I'm
-> wondering is whether the user-mode linux could help here (allow a way
-> to simulate controlled activity).
-> -
+It isn't so much failing as it hangs.  I don't know if you have used it
+or not.  On a startup of the realserver under a 2.2 kernel here is the
+output:
+*****************************************************************
+RealServer (c) 1995-2000 RealNetworks, Inc. All rights reserved.
+Version: RealServer 8 (8.0.0.149)
+Platform: linux-2.0-libc6-i386
 
-Regression testing __is__ what happens when 10,000 testers independently
-try to break the software!
+Creating Server Space...
+Calibrating Timers...
+Starting RealServer 8.0 Core...
+Loading RealServer License Files...
 
-Canned so-called "regression-test" schemes will fail to test at least
-90 percent of the code paths, while attempting to "test" 100 percent
-of the code!
+Detecting Number of CPUs...
+   Testing 1 CPU(s): 1 CPU Detected, Phew...
+   Testing 2 CPU(s): 2 CPUs Not Detected (96% Work Produced)
+Testing File Descriptors...
+Setting per-process descriptor capacity to 676(1010), 11...
 
+***********************************************************************
+it then goes on to load libs and stuff.  Under a 2.4 kernel it gets to the
 
-Cheers,
-Dick Johnson
+"Testing 1 CPU(s)" Line and just stops there and sits.  I have tried it on
+3 different machines and 5 different installs, all with the same results.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Brent Norris
 

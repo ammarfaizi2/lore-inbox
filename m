@@ -1,98 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVCWRAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVCWRA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVCWRAN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 12:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVCWRAM
+	id S261659AbVCWRA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 12:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVCWRA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 12:00:12 -0500
-Received: from [199.212.44.231] ([199.212.44.231]:199 "EHLO
-	cnbmail2.city.north-bay.on.ca") by vger.kernel.org with ESMTP
-	id S261653AbVCWRAB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 12:00:01 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: memory size
-Date: Wed, 23 Mar 2005 11:57:49 -0500
-Message-ID: <C6FD667B200BDF4F964C1BA77B796CE20F5E43@cnbmail2.city.north-bay.on.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: memory size
-Thread-Index: AcUvf5rbTEBXfhIyR862otDcDDQlKwASalKw
-From: "Mike Turcotte" <Mike.Turcotte@cityofnorthbay.ca>
-To: "hv" <hv@trust-mart.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Wed, 23 Mar 2005 12:00:27 -0500
+Received: from port-212-202-144-146.static.qsc.de ([212.202.144.146]:57263
+	"EHLO mail.hennerich.de") by vger.kernel.org with ESMTP
+	id S261659AbVCWRAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 12:00:09 -0500
+Date: Wed, 23 Mar 2005 17:57:45 +0100
+From: Tobias Hennerich <Tobias@Hennerich.de>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: Timo Hennerich <Timo@Hennerich.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Vladimir Saveliev <vs@namesys.com>
+Subject: Re: Strange memory leak in 2.6.x
+Message-ID: <20050323175745.A25998@bart.hennerich.de>
+References: <20050311183207.A22397@bart.hennerich.de> <1110565420.2501.12.camel@boxen> <20050312133241.A11469@bart.hennerich.de> <1110640085.2376.22.camel@boxen> <20050312214216.A24046@bart.hennerich.de> <1110661479.3360.11.camel@boxen> <026101c52891$2a618410$0404010a@hennerich.de> <1110812292.2492.21.camel@localhost.localdomain> <20050317133026.A4515@bart.hennerich.de> <1111585276.2441.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1111585276.2441.1.camel@localhost.localdomain>; from alexn@dsv.su.se on Wed, Mar 23, 2005 at 02:41:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first 800 and sum odd MB of memory are not considered high memory,
-so it will not appear in the output. By taking a quick look at your
-numbers, it seems fine
+Hello Alexander,
 
-Michael Turcotte
-Information Systems
-City of North Bay
-200 McIntyre St. E
-PO Box 360
-North Bay, Ontario
-P1B 8H8
- 
-Mike.Turcotte@cityofnorthbay.ca
-http://www.cityofnorthbay.ca 
+On Wed, Mar 23, 2005 at 02:41:15PM +0100, Alexander Nyberg wrote:
+> > > >     881397 times:
+> > > >     Page allocated via order 0
+> > > >     [0xc013962b] find_or_create_page+91
+> > > >     [0xf8aa9955] reiserfs_prepare_file_region_for_write+613
+> > > >     [0xf8aaa606] reiserfs_file_write+1366
+> > > > 
+> > > > So I guess that we have a problem with the reiser filesystem??
+> > > > We are using reiserfs 3.6...
+> > > 
+> > > The only thing that stands out is big page cache. However, looking at
+> > > the previous OOM output it shows that it is zone normal that is
+> > > completely out of memory and that highmem zone has lots of free memory.
+> > > 
+> > > Let's see if the big sharks know what is going on...
+> > 
+> > Because we suspect the problem in reiserfs and we still have to reboot
+> > the machine every other day, we will switch to ext3 now.
+> 
+> Just to follow up, did the problems go away when switching to ext3?
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> owner@vger.kernel.org] On Behalf Of hv
-> Sent: Wednesday, March 23, 2005 3:09 AM
-> To: hv
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: memory size
-> 
-> The other dell6650 with 16G ram under kernel 2.6.11-rc4-mm1 is more
-> oddness.
-> Memory: 16116752k/16777216k available (1855k kernel code, 135136k
-> reserved,
-> 702k data, 164k init, 15335296k highmem)
-> 
-> 
-> ----- Original Message -----
-> From: "hv" <hv@trust-mart.com>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, March 23, 2005 3:54 PM
-> Subject: memory size
-> 
-> 
-> > Hi,all:
-> > This is my memory status from "dmesg":
-> > Memory: 4673020k/5242880k available (1334k kernel code, 44532k
-reserved,
-> > 672k data, 156k init, 3800960k highmem)
-> >
-> >
-> > But I found that available memory size is much less than physical
-memory
-> > size.My server is Dell6650 with P4 Xeon*4 and 5G Ram.
-> > My kernel version is 2.6.12-rc1-mm1.Could any one tell my the
-> > reason?Thanks.
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-linux-kernel"
-> in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The switch has been delayed. Up to now we just reboot the machine every
+48h - the administrator responsible for the machine is on holiday... 
+
+Meanwhile, I noticed, that the latest release candidate has several
+changes which could be quite interesting for us:
+
+<andrea@suse.de>
+    [PATCH] orphaned pagecache memleak fix
+
+    Chris found that with data journaling a reiserfs pagecache may
+    be truncate while still pinned.  The truncation removes the
+    page->mapping, but the page is still listed in the VM queues
+    because it still has buffers.  Then during the journaling process,
+    a buffer is marked dirty and that sets the PG_dirty bitflag as well
+    (in mark_buffer_dirty).  After that the page is leaked because it's
+    both dirty and without a mapping.
+
+<mason@suse.com>
+    [PATCH] reiserfs: make sure data=journal buffers are cleaned on free
+
+    In data=journal mode, when blocks are freed and their buffers
+    are dirty, reiserfs can remove them from the transaction without
+    cleaning them. These buffers never get cleaned, resulting in an
+    unfreeable page.
+
+On the other side we don't want to install a rc1-kernel on a important
+system. Up to now we still plan to do the switch to ext3...
+
+If someone would recommend to install a special reiserfs-patch (*not*
+the 12mb of patch-2.6.12-rc1) we would consider that, too! So some
+feedback from "the big sharks" is still very welcome.
+
+Best regards	Tobias
+
+-- 
+T+T Hennerich GmbH --- Zettachring 12a --- 70567 Stuttgart
+Fon:+49(711)720714-0  Fax:+49(711)720714-44  Vanity:+49(700)HENNERICH
+UNIX - Linux - Java - C  Entwicklung/Beratung/Betreuung/Schulung
+http://www.hennerich.de/

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbTLBWfK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 17:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTLBWfK
+	id S264425AbTLBWa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 17:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTLBWa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 17:35:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45479 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264428AbTLBWfG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 17:35:06 -0500
-Message-ID: <3FCD1388.2020907@pobox.com>
-Date: Tue, 02 Dec 2003 17:34:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bill davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata in 2.4.24?
-References: <3FCB4506.8080305@wanadoo.es> <Pine.LNX.4.44.0312011209000.13692-100000@logos.cnet> <bqj2al$dmc$1@gatekeeper.tmr.com>
-In-Reply-To: <bqj2al$dmc$1@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 17:30:28 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25348
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264425AbTLBWa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 17:30:28 -0500
+Date: Tue, 2 Dec 2003 14:30:13 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: snpe <snpe@snpe.co.yu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202223013.GA4154@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: snpe <snpe@snpe.co.yu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <20031202063912.GD16507@lug-owl.de> <Pine.LNX.4.58.0312020956120.1519@home.osdl.org> <200312021959.53095.snpe@snpe.co.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312021959.53095.snpe@snpe.co.yu>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bill davidsen wrote:
-> Unless a miracle occurs it will take as long for 2.6 to be really stable
-> and fully functional as it did for 2.[024]. When it goes out in distros
-> and gets abused by users for a while the sharp corners will be broken off.
+On Tue, Dec 02, 2003 at 07:59:53PM +0000, snpe wrote:
+> Does anyone work on transfer linux-abi to kernel 2.6 ?
 
-
-I think that's a bit of an extremist view.
-
-The 2.6 rpms Arjan has posted have gotten good use, and most people seem 
-to think 2.6.0-test is a _lot_ more stable than 2.4.0 was at release time.
-
-It's certainly true that a raft of currently-unknown bugs will show up 
-when distros start shipping 2.6-based distros (I think the first was 
-Mandrake, as an experimental extra, soon be followed by Fedora?).  Such 
-bugs always appear.
-
-I venture to say, for the vast majority of hardware, including my 28MB 
-K6-2 laptop and my P133 firewall, 2.6 works just as well as 2.4 does 
-currently.
-
-	Jeff
-
-
+What is that supposed to be asking?

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311023AbSCLNCj>; Tue, 12 Mar 2002 08:02:39 -0500
+	id <S311171AbSCLND7>; Tue, 12 Mar 2002 08:03:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311171AbSCLNC3>; Tue, 12 Mar 2002 08:02:29 -0500
-Received: from mail.gmx.net ([213.165.64.20]:34702 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S311023AbSCLNCT>;
-	Tue, 12 Mar 2002 08:02:19 -0500
-Date: Tue, 12 Mar 2002 14:01:28 +0100 (CET)
-From: Karsten Weiss <knweiss@gmx.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet>
+	id <S311175AbSCLNDu>; Tue, 12 Mar 2002 08:03:50 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:22287 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S311171AbSCLNDr>; Tue, 12 Mar 2002 08:03:47 -0500
+Date: Tue, 12 Mar 2002 05:03:45 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: <michael@metaparadigm.com>, <bcrl@redhat.com>, <whitney@math.berkeley.edu>,
+        <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>,
+        <marcelo@conectiva.com.br>
+Subject: Re: [patch] ns83820 0.17
+In-Reply-To: <20020312.031509.53067416.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0203120457300.27360-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Marcelo Tosatti wrote:
+On Tue, 12 Mar 2002, David S. Miller wrote:
 
-> Here goes -pre3, with the new IDE code. It has been stable enough time in
+>    From: Michael Clark <michael@metaparadigm.com>
+>    Date: Tue, 12 Mar 2002 19:00:09 +0800
+>
+>    Dave, what performance do you get with the sk98 using normal size
+>    frames? (to compare apples with apples). BTW - i can't try jumbo
+>    frames due to my crappy 3com gig switch.
+>
+> Use a cross-over cable to play with Jumbo frames, that is
+> what I do :-)
 
-I´m surprised that there are no descriptions for the following
-config options (after months of fights for inclusion of this
-patch):
+you shouldn't even need a crossover cable :)  1000baseT NICs should figure
+out what the wire pairings are and adjust the DSP accordingly.  at least
+the acenic-based cards seem to work host-to-host with a regular patch
+cable or a cross-over (or a hacked up pairing i tried which crossed over
+both the two 100baseT pairs and the other 2 pairs which aren't usually
+crossed over).
 
-CONFIG_IDEDISK_STROKE
-CONFIG_IDE_TASK_IOCTL
-CONFIG_BLK_DEV_IDEDMA_FORCED
-CONFIG_IDEDMA_ONLYDISK
-CONFIG_BLK_DEV_ELEVATOR_NOOP
-
-Or did you simply forget to merge them?
-
-bye,
-  Karsten
-
--- 
-Karsten Weiss - http://www.machineroom.de/knweiss
+-dean
 

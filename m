@@ -1,48 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbTCIJaX>; Sun, 9 Mar 2003 04:30:23 -0500
+	id <S262486AbTCIJfb>; Sun, 9 Mar 2003 04:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262486AbTCIJaW>; Sun, 9 Mar 2003 04:30:22 -0500
-Received: from tag.witbe.net ([81.88.96.48]:22279 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262485AbTCIJaW>;
-	Sun, 9 Mar 2003 04:30:22 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Paul Larson'" <plars@linuxtestproject.org>,
-       "'Rusty Lynch'" <rusty@linux.co.intel.com>
-Cc: "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Available watchdog test cases
-Date: Sun, 9 Mar 2003 10:40:58 +0100
-Message-ID: <008501c2e61f$fdd0a800$2101a8c0@witbe>
+	id <S262487AbTCIJfb>; Sun, 9 Mar 2003 04:35:31 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:23474 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S262486AbTCIJf0>;
+	Sun, 9 Mar 2003 04:35:26 -0500
+Date: Sun, 9 Mar 2003 15:17:13 +0530 (IST)
+From: "praveen R-R.No.200201004" <praveen_r@students.iiit.net>
+To: linux-kernel@vger.kernel.org
+Subject: unable to boot
+Message-ID: <Pine.LNX.4.44.0303091504560.29174-100000@students.iiit.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <1046880939.26974.21.camel@plars>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a quick question : is there an easy to force the kernel to Oops,
-to make sure that the watchdog will even be working under such
-conditions ?
-
-I know people are all trying to avoid Oops... but I think the testplan
-should include that too...
-
-Regards,
-Paul
-
-> On Tue, 2003-03-04 at 15:04, Rusty Lynch wrote:
-> > The test cases that I have been using for testing my 
-> watchdog work are 
-> > available at 
-> > http://www.stinkycat.com/patches/watchdog_stuff/watchdog_test.tar.gz
-> > 
-> > The test are for both the legacy (well, current) /dev/watchdog 
-> > interface and my proposed sysfs based interface.
-> Thanks a bunch Rusty, I'll take a look at them for LTP.
+ hi,
+    when i boot  RH linux 7.2 it goes to init-2.05# prompt after the 
+message freeing kernel memory.The root partition is mounted read only and 
+none of the other partitions are mounted.Can anybody explain what is 
+happening. 
 

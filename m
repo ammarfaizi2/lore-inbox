@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUHKRTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUHKRYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268127AbUHKRTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHKRTb
+	id S268132AbUHKRYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHKRVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:19:31 -0400
-Received: from mailer.nec-labs.com ([138.15.108.3]:62779 "EHLO
-	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S268127AbUHKRT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:19:26 -0400
-Message-ID: <411A5520.9000805@nec-labs.com>
-Date: Wed, 11 Aug 2004 10:19:28 -0700
-From: Lei Yang <leiyang@nec-labs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luca Barbato <lu_zero@gentoo.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compression algorithm in cloop
-References: <411A348D.9070808@nec-labs.com> <411A50CD.3070908@gentoo.org>
-In-Reply-To: <411A50CD.3070908@gentoo.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Aug 2004 17:19:25.0736 (UTC) FILETIME=[59F05A80:01C47FC7]
+	Wed, 11 Aug 2004 13:21:41 -0400
+Received: from main.gmane.org ([80.91.224.249]:65235 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268131AbUHKRUp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:20:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: OT: Distribution for Power4 Machines
+Date: Wed, 11 Aug 2004 10:20:38 -0700
+Message-ID: <pan.2004.08.11.17.20.38.570218@triplehelix.org>
+References: <20040811055622.52917.qmail@web13911.mail.yahoo.com> <15070000.1092237689@[10.10.2.4]> <1092238482.6033.4.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 64-60-248-66.cust.telepacific.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great! That certainly should help!
+On Wed, 11 Aug 2004 08:34:42 -0700, Dave Hansen wrote:
 
-The problem is, how can I put the algorithm in the kernel? Is there a 
-forum or mailing list for this kind of work?
+> On Wed, 2004-08-11 at 08:21, Martin J. Bligh wrote:
+>> >  sorry for the most likely off-topic post. Are there any distributions
+>> > out there that support IBM Power4 systems (pSeries machines)?
+>> 
+>> RH, SuSE and Debian all do, though maybe only the expensive enterprise
+>> versions of the former 2.
+> 
+> You can install Debian, it's just a bit of a pain.  You basically have
+> to replace the installer kernel with your own, and use the debian
+> root.bin floppy as your kernel initrd.  
 
-Thanks!
-Lei
+Um. Dude. That's old.
 
-Luca Barbato wrote:
-> Lei Yang wrote:
-> 
->> Hello,
->>
->> I am trying to do some experiment on compression ratios with cloop. I 
->> know that currently cloop uses zlib. How can I change it to other 
->> algorithms? Where should I start from? Really a newbie to this, 
->> appreciate any comments!!
->>
->> TIA.
->> Lei
->>
-> I made a variation from cloop called gcloop it could use any algorithm 
-> you can put in the kernel (I use an hack to use ucl right now)
-> 
-> You can find it at dev.gentoo.org/~lu_zero/gcloop
-> 
-> I hope it helps.
-> 
-> lu
-> 
+Thanks to Sven Luther our new installer fully supports power4 (as far as
+I know, I don't personally own one.)
+
+http://gluck.debian.org/cdimage/testing/daily/powerpc/current/
+
+should contain a CD image that can boot your machine.
+
+-- 
+Joshua Kwan
+
+

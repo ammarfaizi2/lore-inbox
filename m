@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267764AbTAHHww>; Wed, 8 Jan 2003 02:52:52 -0500
+	id <S267775AbTAHHwr>; Wed, 8 Jan 2003 02:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267762AbTAHHvt>; Wed, 8 Jan 2003 02:51:49 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:64968 "EHLO
+	id <S267773AbTAHHvr>; Wed, 8 Jan 2003 02:51:47 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:63688 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267764AbTAHHvq>; Wed, 8 Jan 2003 02:51:46 -0500
+	id <S267762AbTAHHvp>; Wed, 8 Jan 2003 02:51:45 -0500
 From: Richard Stallman <rms@gnu.org>
-To: billh@gnuppy.monkey.org
-CC: mark@mark.mielke.cc, lm@bitmover.com, linux-kernel@vger.kernel.org,
-       paul@clubi.ie, riel@conectiva.com.br, billh@gnuppy.monkey.org
-In-reply-to: <20030107141758.GA10770@gnuppy.monkey.org>
-	(billh@gnuppy.monkey.org)
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+To: lm@bitmover.com
+CC: lm@bitmover.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
+In-reply-to: <20030107142612.GO17602@work.bitmover.com> (message from Larry
+	McVoy on Tue, 7 Jan 2003 06:26:13 -0800)
+Subject: Re: Nvidia and its choice to read the GPL "differently"
 Reply-to: rms@gnu.org
-References: <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org>
-Message-Id: <E18WB8O-0004jy-00@fencepost.gnu.org>
-Date: Wed, 08 Jan 2003 03:00:20 -0500
+References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <E18Vaoa-0002Pm-00@fencepost.gnu.org> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <20030107142612.GO17602@work.bitmover.com>
+Message-Id: <E18WB8R-0004k9-00@fencepost.gnu.org>
+Date: Wed, 08 Jan 2003 03:00:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    It's not Hurd that I'm criticizing as much as the over emphasis on any single
-    ideological entity and the amorphous definition of GNU in multipule
-    contexts, social, technological, etc...
+    Great.  So not only is there no legal need to cite GNU in the Linux 
+    name, there is no ethical obligation either.
 
-The definition of GNU is simple: GNU is an operating system.  In 1983
-I announced the plan to develop a Unix-like operating system that
-would be entirely free software, and I gave the system the name GNU.
+When you take part of my statement, stretch it, interpret it based on
+assumptions you know I disagree with, and present the result as
+something I said, that doesn't prove anything.  It is childish.
 
->From this concept come other derived concepts.  For instance,
-developing the system is a project.  That's the GNU Project.  Carrying
-out such a project involves writing lots of programs.  Programs that
-have been developed for GNU or contributed by their developers
-specifically to GNU are called GNU programs, GNU packages, or
-collectively GNU software.  (Those three terms are equivalent.)  The
-manuals developed for GNU or contributed specifically to GNU are GNU
-manuals.
+There is no ethical obligation to mention secondary contributions
+incorporated in a large project.  There ethical obligation is to cite
+the main developer.  In the GNU/Linux system, the GNU Project is the
+principal contributor; the system is more GNU than anything else,
+and we started it.
 
-We wrote some licenses to use on GNU programs and manuals.
-These are the GNU licenses.
 
-GNU is also associated with a movement and a philosophy, but we don't
-call them "GNU".  We call them the Free Software Movement, and its
-philosophy.  Nonetheless, the main place people come across them is in
-connection with GNU, and the success of the GNU Project is the best
-way to refute the common presupposition that idealism like ours is
-impractical.  So we want people to know of the system as GNU.
-
-We're looking for a good term to use for "programs released under GNU
-licenses", because we want to educate the community that this is not
-the same thing as free software (there are other free software
-licenses) and not the same thing as GNU software (releasing a program
-under a GNU license does not imply that you did it as part of the GNU
-Project, as witness for example Linux).  If you have a suggestion, and
-a few of your friends like it, please email it to me.
-
-Richard Stallman
-Chief GNUisance

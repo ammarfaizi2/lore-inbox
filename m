@@ -1,43 +1,53 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263764AbTEYUwJ (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTEYUwJ
+	id S263765AbTEYUzb (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTEYUzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:52:09 -0400
-Received: from crack.them.org ([146.82.138.56]:43495 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S263764AbTEYUwG (ORCPT
+	Sun, 25 May 2003 16:55:31 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:55561 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263765AbTEYUza (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:52:06 -0400
-Date: Sun, 25 May 2003 17:05:07 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-ID: <20030525210507.GA18707@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Sun, 25 May 2003 16:55:30 -0400
+Date: Sun, 25 May 2003 23:08:39 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] kbuild: Get more focus on warnings
+Message-ID: <20030525210839.GA1704@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
-References: <20030521152255.4aa32fba.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030521152255.4aa32fba.akpm@digeo.com>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 03:22:55PM -0700, Andrew Morton wrote:
-> 
-> Also at ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/
-> 
-> For verson 6 I shall go through the "late features" list and prioritise
-> things.
+The following patch put focus on warnings when compiling.
 
-Here's another one for your list: when CLONE_DETACHED threads were
-removed from /proc several approaches were suggested to let procps find
-out about them and none of them were implemented.  There's some real
-potential for badness with these mostly-invisible processes.  Something
-needs to be added so that we can display and detect them.
+Kbuild has for a long period supported a quit mode.
+The quit mode prints a single line for each file compiled,
+thus warnings becomes much more visible.
+Example:
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+  CC      kernel/uid16.o
+  CC      kernel/ksyms.o
+kernel/ksyms.c:441: warning: `__check_region' is deprecated (declared at include/linux/ioport.h:113)
+  CC      kernel/module.o
+
+The old output format can obtained like this:
+	$ make V=1
+
+or more permanent with the following assignment in .bashrc:
+	KBUILD_VERBOSE=1
+
+If one is concerned about warnings the output from a kernel
+build is redirected to a file, or make -s is used.
+The advantage of this patch is that the default settings puts focus
+on warnings while still providing the user with feedback about the
+build process.
+
+Kai Germaschewski has done most of the initial work enabling this
+feature, originally inspired from Keith Owens kbuild-2.5 patchset.
+
+	Sam

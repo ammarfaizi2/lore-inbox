@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130749AbRCEXHJ>; Mon, 5 Mar 2001 18:07:09 -0500
+	id <S130743AbRCEXIS>; Mon, 5 Mar 2001 18:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130750AbRCEXG7>; Mon, 5 Mar 2001 18:06:59 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:24079 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S130749AbRCEXGn>; Mon, 5 Mar 2001 18:06:43 -0500
-Date: Tue, 6 Mar 2001 12:06:39 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@cambridge.redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel is unstable
-Message-ID: <20010306120638.A26306@metastasis.f00f.org>
-In-Reply-To: <8165.983522444@warthog.cambridge.redhat.com> <Pine.LNX.4.10.10103020949230.25951-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S130753AbRCEXIB>; Mon, 5 Mar 2001 18:08:01 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:65501 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130743AbRCEXHm>;
+	Mon, 5 Mar 2001 18:07:42 -0500
+Message-ID: <3AA41C3C.A8DE3254@mandrakesoft.com>
+Date: Mon, 05 Mar 2001 18:07:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sergey Kubushin <ksi@cyberbills.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac12
+In-Reply-To: <Pine.LNX.4.31ksi3.0103051439250.12620-100000@nomad.cyberbills.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10103020949230.25951-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 02, 2001 at 09:52:35AM -0800
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 02, 2001 at 09:52:35AM -0800, Linus Torvalds wrote:
+Sergey Kubushin wrote:
+> === Cut ===
+> make -C aic7xxx modules
+> make[3]: Entering directory `/tmp/build-kernel/usr/src/linux-2.4.2ac12/drivers/scsi/aic7xxx'
+> make -C aicasm
+> make[4]: Entering directory `/tmp/build-kernel/usr/src/linux-2.4.2ac12/drivers/scsi/aic7xxx/aicasm'
+> gcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
+> aicasm_symbol.c:39: db1/db.h: No such file or directory
 
-    Show me numbers for real applications, and I might care. I saw
-    barely measurable speedups (and more importantly to me - real
-    simplification) by removing it.
+Amazingly you've hit one of the few problems caused by something outside
+the kernel tree.  db v1.85 has been superceded by db2 and db3.  db1 is
+where the "original" Berkeley db stuff now lives.  Apparently aicasm
+needs db 1.
 
-Do large numbers of entries hurt? I have an application that when
-running for a while ends up with over 2000 entries in /proc/$$/maps
-because of the way it works... that is paging is more efficient that
-the application swapping data out; so it continually grows until it
-can no longer at which point it falls back to using it's own poor
-LRU, typically means you get a single process of around 2.9GB.
+So, update your packages, or create the proper symlinks if you've
+already got db1 installed in some other location.
 
-Everything appears to work... but it does seem a bit clunky that
-there are so many vma chunks.
-
-Perhaps the argument here is that glibc or the application should be
-fixed?
-
-
-
-
-  --cw
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

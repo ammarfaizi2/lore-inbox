@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbTFCAkd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 20:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTFCAkd
+	id S264398AbTFCAiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 20:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbTFCAiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 20:40:33 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46892 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264454AbTFCAkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 20:40:32 -0400
-Date: Mon, 2 Jun 2003 17:54:10 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.70-mm2 with contest
-Message-Id: <20030602175410.5f198657.akpm@digeo.com>
-In-Reply-To: <3EDBEC27.9070705@cyberone.com.au>
-References: <200306030806.49885.kernel@kolivas.org>
-	<20030602151644.06252b28.akpm@digeo.com>
-	<3EDBEC27.9070705@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Jun 2003 00:53:58.0524 (UTC) FILETIME=[9DAE8BC0:01C3296A]
+	Mon, 2 Jun 2003 20:38:16 -0400
+Received: from cerafin.nivel5.cl ([200.73.9.74]:20396 "EHLO mail.inzignia.cl")
+	by vger.kernel.org with ESMTP id S264398AbTFCAiP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 20:38:15 -0400
+From: Raimundo Bilbao <rbilbao@inzignia.cl>
+Organization: Inzignia S.A.
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCO's claims seem empty
+Date: Mon, 2 Jun 2003 20:42:34 -0400
+User-Agent: KMail/1.5.2
+References: <200306020119.h521Jbdv003050@eeyore.valparaiso.cl>
+In-Reply-To: <200306020119.h521Jbdv003050@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200306022042.34319.rbilbao@inzignia.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
+El Dom 01 Jun 2003 21:19, Horst von Brand escribió:
+> Paul Rolland <rol@as2917.net> said:
 >
-> It will be interesting to see what happens if we set the
->  ext3 journal write paths as PF_SYNCWRITE. I'll try some tests
->  a bit later today.
-> 
+> [...]
+>
+> > However ..somebody must have realised, that this was nonsense and
+> > removed it from the site.
+>
+> Perhaps due to the court decision in Germany, restraining them from
+> claiming that Linux uses Unix code illegaly until the court sees into the
+> matter...
 
-OK.
+What's up doc, nice to see you here !  :-D
 
-Longer-term it would be best to lose the PF_SYNCWRITE thing and to just
-mark the BIOs as synchronous prior to submitting them.  It's a matter of
-transferring the info in writeback_control.sync_mode at the pagecache/BIO
-boundary: mpage_bio_submit(), __block_write_full_page->submit_bh(), etc.
+Honestly, I don't know what to think right now, perhaps all that SCO's stuff 
+was a mere smoke-bomb (you kown, that's M$ bombs what we seen back in the 
+90's :-D  agaisnt IBM ?, remember OS/2 --> xxxNT ?)
 
-But we can worry about that later, once it is established that the
-synchronous write detection is sufficiently useful.
+A chimp's IQ level CIO of any company don't start to sue everyone in the 
+planet if  he have a little of common sense about they possibilities to win 
+(or else they must to be prepared for the linux's strike back :-} ), and for
+this particular case they are, to say, very very wired (AFAIK they haven't 
+provide a concise probe of that _stolen-critical-olimpicus-code_ that nobody 
+else on this planet can write, except off course, SCO and their ilumminated 
+community of gurues :-D  ).
+
+
+cheers 
+mundo
 

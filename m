@@ -1,88 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317405AbSFRNar>; Tue, 18 Jun 2002 09:30:47 -0400
+	id <S317406AbSFRNcL>; Tue, 18 Jun 2002 09:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317406AbSFRNar>; Tue, 18 Jun 2002 09:30:47 -0400
-Received: from employees.nextframe.net ([212.169.100.200]:12023 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S317405AbSFRNaq>; Tue, 18 Jun 2002 09:30:46 -0400
-Date: Tue, 18 Jun 2002 15:39:24 +0200
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Getting rid of check_region()
-Message-ID: <20020618153924.H129@sexything>
-Reply-To: morten.helgesen@nextframe.net
-References: <20020618150055.E129@sexything>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020618150055.E129@sexything>
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+	id <S317407AbSFRNcK>; Tue, 18 Jun 2002 09:32:10 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:17596 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317406AbSFRNcI>; Tue, 18 Jun 2002 09:32:08 -0400
+Message-Id: <200206181332.g5IDW5r54694@westrelay01.boulder.ibm.com>
+User-Agent: Pan/0.11.2 (Unix)
+From: "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>
+To: mgross@unix-os.sc.intel.com, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] Multi-threaded core dumps for 2.5.21.
+Date: Tue, 18 Jun 2002 19:11:08 +0530
+References: <200206142310.g5ENADP23772@unix-os.sc.intel.com>
+Reply-To: vamsi_krishna@in.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok - I`ve been informed (thanks Thomas:) that William Stinson has been
-working on removing check_region() for a while now. I was not aware
-of this - I have noticed, that in recent changelogs, he has been credited
-for work done on code in relation to resource handling, but I did not
-see any check_region() stuff in there. At a closer look, I see a couple
-of check_region() entries in there. I`ll contact William and see if he could
-need assistance, if not I`ll grab another kernel/janitor project :)
+Mark,
 
-cheers for now,
+You are capturing the registers of the thread dumping core
+twice in this patch. Please apply on top of your patch:
 
-On Tue, Jun 18, 2002 at 03:00:55PM +0200, Morten Helgesen wrote:
-> Hey guys.
-> 
-> It`s time for some real janitor work :)
-> 
-> I`ve taken a clean 2.5.22 tree, and started removing
-> instances of check_region(). It has been on the kernel janitors`
-> TODO list for a long time. 
-> 
-> It struck me that it might be a good idea to see if anyone had any comments 
-> or even objections before spending X hours killing it off :-)
-> 
-> I see that there are lots of places where we can just remove
-> check_region() and instead just check the return value from
-> request_region(), but I`m also sure we have corner cases where
-> driver authors are doing 'nifty' things with check_region(), and 
-> these drivers might need a bit more surgery. I will contact
-> the driver authors and ask for their comments if I can not figure out
-> how to work around using check_region() in the specific driver.
-> 
-> When done, I`ll submit separate patches for separate directories.
-> 
-> Does this sound like a sane approach to you guys ?
-> 
-> == Morten
-> 
-> -- 
-> 
-> "Livet er ikke for nybegynnere" - sitat fra en klok person.
-> 
-> mvh
-> Morten Helgesen 
-> UNIX System Administrator & C Developer 
-> Nextframe AS
-> admin@nextframe.net / 93445641
-> http://www.nextframe.net
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- tcore/fs/binfmt_elf.c.ori	Mon Jun 17 15:02:27 2002
++++ tcore/fs/binfmt_elf.c	Mon Jun 17 15:02:49 2002
+@@ -1203,22 +1203,6 @@
+ 
+ 	}
+ 
+-	memset(&prstatus, 0, sizeof(prstatus));
+-	/*
+-	 * This transfers the registers from regs into the standard
+-	 * coredump arrangement, whatever that is.
+-	 */
+-#ifdef ELF_CORE_COPY_REGS
+-	ELF_CORE_COPY_REGS(prstatus.pr_reg, regs)
+-#else
+-	if (sizeof(elf_gregset_t) != sizeof(struct pt_regs))
+-	{
+-		printk("sizeof(elf_gregset_t) (%ld) != sizeof(struct pt_regs) (%ld)\n",
+-			(long)sizeof(elf_gregset_t), (long)sizeof(struct pt_regs));
+-	}
+-	else
+-		*(struct pt_regs *)&prstatus.pr_reg = *regs;
+-#endif
+ 
+ 	 /* capture the status of all other threads */
+ 	if (signr) {
 
--- 
 
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
+Same problem is there on the patch you posted for 2.4.18 too, the above will
+apply with a slight offset.
 
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
+Vamsi Krishna S.
+Linux Technology Center, 
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi_krishna@in.ibm.com
+
+On Sat, 15 Jun 2002 04:45:56 +0530, mgross wrote:
+
+> Attached is a re-base of the 2.5.18 patch posted last week.
+> 
+> This patch has been tested on my SMP system and seems very stable, so far. I
+> would like very much to see this feature added to the 2.5.x kernels and more
+> milage given to it.
+> 
+> For ISV's not having the ability to create core dumps for pthread applications
+> is a strong justification for not using Linux. Now is a good time for Linux
+> support the ISV's WRT core files for multi-threaded applications.
+> 
+> To use the core files from multi-threaded applications, created with this patch
+> you may need to strip the objects from /lib/libpthread. For my system 'strip
+> /lib/libpthread-0.9.so makes things good, YMMV.
+> 
+> Please apply this patch.
+> 
+> --mgross

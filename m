@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUI2Oom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUI2OsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268578AbUI2Oom (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268511AbUI2On7
+	id S268511AbUI2OsH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUI2OpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:43:59 -0400
-Received: from p5089E8E5.dip.t-dialin.net ([80.137.232.229]:2820 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S268535AbUI2On2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:43:28 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: 2.6.9-rc2-mm4 drm and XFree oopses
-Date: Wed, 29 Sep 2004 16:43:26 +0200
+	Wed, 29 Sep 2004 10:45:16 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:7317 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S268505AbUI2Olj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:41:39 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: sboyce@blueyonder.co.uk
+Subject: Re: 2.6.9-rc2-mm4 and nvidia 1.0-6111
+Date: Wed, 29 Sep 2004 07:41:44 -0700
 User-Agent: KMail/1.7
 Cc: linux-kernel@vger.kernel.org
-References: <20040929102840.GA11325@none> <200409291517.58750.petkov@uni-muenster.de> <21d7e9970409290649520a882c@mail.gmail.com>
-In-Reply-To: <21d7e9970409290649520a882c@mail.gmail.com>
+References: <415A6EE6.1090404@blueyonder.co.uk>
+In-Reply-To: <415A6EE6.1090404@blueyonder.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409291643.26259.petkov@uni-muenster.de>
+Message-Id: <200409290741.45825.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 September 2004 15:49, Dave Airlie wrote:
-> > do you mean the CONFIG_AGP_INTEL option? Because my chipset is ICH4 and
-> > the help text for that option doesn't mention support for ICH4 chipsets.
->
-> you have an i845 GMCH, so you need intel AGP support, the ICH4 is the
-> other chip if I remember my Intel chipsets correctly...
->
-> Dave.
-Right, my bad, my I/O controller is ICH4, sorry :) I'm going to recompile now 
-with CONFIG_AGP_INTEL=y..
+This is a known issue and it's releated to some changes in Andrew's tree. Not 
+to sound pesimistic but in the future expect the nvidia drivers to be broken 
+for the -mm tree, it is after an the expiremental kernel tree. 
 
-Thanks,
-Boris.
+matt 
+
+On Wednesday 29 September 2004 1:14 am, Sid Boyce wrote:
+> The usual patches applied that made it work with -mm3.
+> Changed all instances of NV_REMAP_PAGE_RANGE to NV_REMAP_PFN_RANGE and
+> nv_remap_page_range to nv_remap_pfn_range in nv.c, nv-linux.h,
+> os-agp.c and os-interface.c as redifined in
+> /usr/src/linux-2.6.9-rc2-mm4/include/linux/mm.h.
+> The module builds and installs without problems, but on init 5, I get
+> thrown back to vt1, /var/log/XFree86.0.log gives the error:-
+> (--) NVIDIA(0): Linear framebuffer at 0xD8000000
+> (--) NVIDIA(0): MMIO registers at 0xE1000000
+> (II) NVIDIA(0): NVIDIA GPU detected as: GeForce FX 5200
+> (--) NVIDIA(0): VideoBIOS: 04.34.20.42.01
+> (--) NVIDIA(0): Interlaced video modes are supported on this GPU
+> (II) NVIDIA(0): Detected AGP rate: 8X
+> (EE) NVIDIA(0): Failed to allocate config DMA context
+> (II) UnloadModule: "nvidia"
+> (II) UnloadModule: "vgahw"
+> (II) Unloading /usr/X11R6/lib/modules/libvgahw.a
+> (EE) Screen(s) found, but none have a usable configuration.
+>
+> Fatal server error:
+> no screens found
+> -------------------------------
+> Any help appreciated, also posted to nvidia forum.
+>
+> Regards
+> Sid.

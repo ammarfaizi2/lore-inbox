@@ -1,93 +1,360 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269247AbTCBBeg>; Sat, 1 Mar 2003 20:34:36 -0500
+	id <S267263AbTCBBsN>; Sat, 1 Mar 2003 20:48:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269248AbTCBBeg>; Sat, 1 Mar 2003 20:34:36 -0500
-Received: from pop017pub.verizon.net ([206.46.170.210]:55801 "EHLO
-	pop017.verizon.net") by vger.kernel.org with ESMTP
-	id <S269247AbTCBBee>; Sat, 1 Mar 2003 20:34:34 -0500
-Message-ID: <3E616196.9A47D80@verizon.net>
-Date: Sat, 01 Mar 2003 17:42:46 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.63 i686)
-X-Accept-Language: en
+	id <S267285AbTCBBsN>; Sat, 1 Mar 2003 20:48:13 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:53203 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S267263AbTCBBsH>; Sat, 1 Mar 2003 20:48:07 -0500
+Message-ID: <3E6167B1.6040206@kegel.com>
+Date: Sat, 01 Mar 2003 18:08:49 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-       aia21@cantab.net, clausen@gnu.org
-Subject: [PATCH] reduce ntfs function stack usage (take 2)
+To: Steven Cole <elenstev@mesatop.com>
+CC: Matthias Schniedermeyer <ms@citd.de>, Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+Subject: Re: [PATCH] kernel source spellchecker
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de> 	<3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com>
+In-Reply-To: <1046546305.10138.415.camel@spc1.mesatop.com>
 Content-Type: multipart/mixed;
- boundary="------------91052580460C5B81FB9A7132"
-X-Authentication-Info: Submitted using SMTP AUTH at pop017.verizon.net from [4.64.238.61] at Sat, 1 Mar 2003 19:44:53 -0600
+ boundary="------------010701040101060107000301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------91052580460C5B81FB9A7132
-Content-Type: text/plain; charset=us-ascii
+--------------010701040101060107000301
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi,
+>>I suggest we remove the entries
+>>  broken=borken
+>>  brain-damaged=dain-bramaged,dain bramaged
+>>as we're not trying to remove humor from the comments.
+>>
+>>Also, the words 'controllen' and 'callin',  are not typos, so
+>>  calling=callin
+>>should be removed, and
+>>  controller=controler,controllen
+>>should be just
+>>  controller=controler
 
-This patch to 2.5.63 reduces stack usage in the NTFS
-generate_default_upcase() function from 0x3d4 bytes to noise.
+OK, I've combined my list with the one Matthias posted,
+added all the errors that occur in three or more
+source files, more or less carefully vetted the list
+against the source code, and put together a corrections file
+(attached).
 
-Please apply.
+I noticed the spellchecker I posted a couple days ago gets confused by
+asterisks; for some reason it thinks *foo is the word 'oo'.
+I've removed all the mistaken entries in the list caused by this buglet.
 
-Thanks,
-~Randy
---------------91052580460C5B81FB9A7132
-Content-Type: text/plain; charset=us-ascii;
- name="ntfs_stack2.patch"
+This corrections file is probably good enough to actually use.
+I'm running it against linux-2.5.63-bk5 now...
+- Dan
+
+
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+
+--------------010701040101060107000301
+Content-Type: text/plain;
+ name="spell-fix-dan1.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ntfs_stack2.patch"
+ filename="spell-fix-dan1.txt"
 
-patch_name:	ntfs_stack2.patch
-patch_version:	2003-03-01.13:30:45
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	ntfs: reduce function local stack usage from 0x3d4 bytes to just noise;
-product:	Linux
-product_versions: linux-2563
-changelog:	_
-URL:		_
-requires:	_
-conflicts:	_
-maintainer:	Anton Altaparmakov <aia21@cantab.net>
-diffstat:	=
- fs/ntfs/upcase.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+accessible=accesible
+accessing=accesing
+accommodate=accomodate,acommodate
+Acknowledge=Acknowlege
+acknowledged=acknoledged
+acquire=aquire
+across=accross
+actions=actons
+adapter=adapater,adaptor,adatper
+additional=additionnal
+Additional=Addtional
+address=adddress,addresss
+Address=Adress
+Aggressive=Agressive
+aggressively=agressively
+aligned=alligned
+alignment=alignement
+already=allready
+Always=Allways
+always=allways
+amount=ammount
+appropriate=appropiate,approriate,apropriate
+arbitrarily=arbitarily,aribtrarily
+Arbitrary=Arbitary
+arbitrary=aribtrary
+around=arround
+assembler=asssembler
+associated=assosciated,assosiated
+assume=asume
+asynchronous=asyncronous
+at least=atleast
+atomically=atomicly
+Auxiliary=Auxilary
+available=availble,availible,avaliable
+Basically=Basicly
+basically=basicly
+because=becuase
+beginning=beggining
+being=beeing
+boundaries=boundries
+boundary=boundry
+cancellation=cancelation
+capabilities=capabilites
+caught=catched
+changeable=changable
+character=charater
+Characters=Characteres
+chose=choosed
+chosen=choosen
+circumstances=cirumstances
+coming=comming
+command=comamnd
+commence=commense
+committed=commited
+communication=commuication
+comparison=comparision
+compatibility=compability
+Compatibility=Compatability
+compatibility=compatibilty,compatiblity
+completely=completly
+concurrent=concurent
+configuration=configration
+consecutive=consequtive
+constants=konstants
+consumer=comsumer
+contiguous=contigious,contingous
+Continuous=Continous
+continuous=continous
+control=controll
+controller=contoller,controler
+controlling=controling
+Converted=Coverted
+corresponding=coresponding
+courtesy=curteousy
+deactivate=deactive
+Debugging=Debuging
+debugging=debuging
+decrementor=decrementer
+deferred=defered
+definitions=defintions
+dependent=dependend
+deprecated=depricated
+descendant=descendent
+descriptor=decriptor,desciptor
+developed=developped
+didn't=didnt
+differentiate=differenciate
+discipline=discpline
+discontiguous=discontigous
+distinguish=distingush
+divide=devide
+divisor=divizor
+Do not=Donot
+doesn't=doens't
+DOESN'T=DOESNT
+doesn't=doesnt
+DON'T=DONT
+don't=dont't
+dynamically=dynamicly
+efficient=efficent
+empirical=imperical
+enhancements=enhandcements
+enough=enought
+entries=entrys
+environment=enviroment
+equipped=equiped
+error=errror
+Evaluate=Evalute
+every time=everytime
+excess=execess
+execution=exection
+existence=existance
+explicitly=explicitely,explicity
+extended=extented
+extension=extention
+firmware=firware
+forward=foward
+function=fucntion,fuction,funcion,funciton,functin,funtion
+further=furthur
+guaranteed=guarenteed
+handling=handeling
+hardware=harware
+hasn't=hasnt
+haven't=havn't
+I'm=i'm
+identical=indentical
+immediately=immediatly
+implementation=implemantation,implemenation,implmentation
+Incoming=Incomming
+incoming=incomming
+index=indice
+indices=indeces
+Infinity=Inifity
+information=infomation,informatation
+initial=inital
+initialization=initalization,initilization,intialisation,intialization
+Initialize=Initalize
+initialize=initalize
+Initialize=Initialyze,Initilialyze,Initilize
+initialize=initilize,intiailize
+Initialize=Intialize
+initialize=intialize
+instance=isntance
+instruction=intruction
+interface=inteface
+interrupt=interrrupt
+Interrupt=Interupt
+interrupt=intrrupt
+interrupts=interrups
+interval=intervall
+invariant=invarient
+invocation=invokation
+isn't=is'nt
+issuing=issueing
+labeled=labelled
+Length=Lenght
+License=Licens
+Licensed=Licenced
+loosely=losely
+management=managment,manangement
+miscellaneous=miscellaneaous
+modeled=modelled
+mystery=mistery
+necessary=neccessary,necessery
+negative=negativ
+negotiated=negociated
+negotiation=negociation,neogtiation
+No-one=Noone
+nonexistent=nonexistant
+noticeable=noticable
+occurrance=occurence
+occurred=occured
+occurrences=occurances
+occurring=occuring
+original=orignal
+Originally=Originaly
+output=ouput
+outputting=outputing
+overridden=overidden,overriden
+parameter=paramter
+parameters=paramaters,paramters
+particular=paticular
+particularly=particularily
+Pending=Pendings
+Performance=Perfomance
+performance=performace,preformance
+Peripheral=Periferial
+permissible=permissable
+physical=hysical,phyiscal
+potentially=potentally
+preceded=preceeded
+preceding=preceeding
+presence=presense
+privilege=priviledge
+promiscuous=promiscous
+Propagate=Propogate
+prototypes=protoypes
+Pseudo=Psuedo
+publicly=publically
+queuing=queing
+really=realy
+reasonable=reasonnable,resonable
+receive=recevie
+Receive=Recieve
+receive=recieve
+received=recieved
+receiving=receving
+referred=refered
+regardless=regarless
+Register=Regsiter,Reigster
+registered=registred
+registration=registaration
+related=releated
+relevant=relevent
+remaining=remaing
+remember=remeber
+removable=removeable
+renewed=renewd
+requests's=requeusts
+requests=requeuing
+requeue=requests's
+requeuing=requeue
+reselection=relection
+reset=resetted
+resources=ressources
+responsibility=responsability
+retrieve=retreive
+safely=savely
+safety=saftey
+sample=smaple
+scatter=scather
+scenario=scenerio
+Separate=Seperate
+Shouldn't=Shouldnt
+shouldn't=shouldnt
+signaled=signalled
+Signaling=Signalling
+signaling=signalling
+Similarly=Similarily
+specific=specfic,specifc
+Specification=Specificiation
+specified=specifed,speficied
+specify=specifiy
+specifying=specifing
+straightforward=straighforward
+structures=stuctures
+succeeded=succeded
+success=sucess
+successful=succesful,successfull
+successfully=sucessfully
+sufficient=sufficent
+superfluous=superflous
+suppress=supress
+swapped=swaped
+synchronize=synchronyze
+synchronizing=syncronizing
+synchronous=syncronous
+threshold=threshhold
+through=throught,throuth
+timing=timming
+TORTUOUS=TORTIOUS
+transaction=transation
+transceiver=tranceiver
+transferred=trasfered
+transferring=transfering
+translation=tranlation
+transmission=transmition,transmittion
+transmitter=transmiter
+transmitting=transmiting
+triggered=tiggered,triggerred
+trigging=triggerg
+truly=truely
+ugliness=uglyness
+underrun=underrrun
+undesirable=undesireable
+Unfortunately=Unfortunatly
+unfortunately=unfortunatly
+uninitialized=unitialized
+unknown=unkown
+usable=useable,usuable
+useful=usefull
+vertices=verticies
+warranty=waranty
+wasteful=watseful
+weird=wierd
+writable=writeable
+Writing=Writting
+writing=writting
 
-
-diff -Naur ./fs/ntfs/upcase.c%NTSTK ./fs/ntfs/upcase.c
---- ./fs/ntfs/upcase.c%NTSTK	Mon Feb 24 11:05:05 2003
-+++ ./fs/ntfs/upcase.c	Sat Mar  1 13:28:07 2003
-@@ -28,7 +28,7 @@
- 
- uchar_t *generate_default_upcase(void)
- {
--	const int uc_run_table[][3] = { /* Start, End, Add */
-+static const int uc_run_table[][3] = { /* Start, End, Add */
- 	{0x0061, 0x007B,  -32}, {0x0451, 0x045D, -80}, {0x1F70, 0x1F72,  74},
- 	{0x00E0, 0x00F7,  -32}, {0x045E, 0x0460, -80}, {0x1F72, 0x1F76,  86},
- 	{0x00F8, 0x00FF,  -32}, {0x0561, 0x0587, -48}, {0x1F76, 0x1F78, 100},
-@@ -45,7 +45,7 @@
- 	{0}
- 	};
- 
--	const int uc_dup_table[][2] = { /* Start, End */
-+static const int uc_dup_table[][2] = { /* Start, End */
- 	{0x0100, 0x012F}, {0x01A0, 0x01A6}, {0x03E2, 0x03EF}, {0x04CB, 0x04CC},
- 	{0x0132, 0x0137}, {0x01B3, 0x01B7}, {0x0460, 0x0481}, {0x04D0, 0x04EB},
- 	{0x0139, 0x0149}, {0x01CD, 0x01DD}, {0x0490, 0x04BF}, {0x04EE, 0x04F5},
-@@ -55,7 +55,7 @@
- 	{0}
- 	};
- 
--	const int uc_word_table[][2] = { /* Offset, Value */
-+static const int uc_word_table[][2] = { /* Offset, Value */
- 	{0x00FF, 0x0178}, {0x01AD, 0x01AC}, {0x01F3, 0x01F1}, {0x0269, 0x0196},
- 	{0x0183, 0x0182}, {0x01B0, 0x01AF}, {0x0253, 0x0181}, {0x026F, 0x019C},
- 	{0x0185, 0x0184}, {0x01B9, 0x01B8}, {0x0254, 0x0186}, {0x0272, 0x019D},
-
---------------91052580460C5B81FB9A7132--
+--------------010701040101060107000301--
 

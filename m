@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272677AbRILHA3>; Wed, 12 Sep 2001 03:00:29 -0400
+	id <S272676AbRILHYE>; Wed, 12 Sep 2001 03:24:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272676AbRILHAU>; Wed, 12 Sep 2001 03:00:20 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:64520 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S272681AbRILHAH>; Wed, 12 Sep 2001 03:00:07 -0400
-Date: Wed, 12 Sep 2001 09:59:19 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <9184118686.20010912095919@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Duron kernel crash (i686 works)
-In-Reply-To: <E15goos-0002le-00@the-village.bc.nu>
-In-Reply-To: <E15goos-0002le-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272681AbRILHXx>; Wed, 12 Sep 2001 03:23:53 -0400
+Received: from shaker.worfie.net ([203.8.161.33]:13830 "HELO mail.worfie.net")
+	by vger.kernel.org with SMTP id <S272676AbRILHXp>;
+	Wed, 12 Sep 2001 03:23:45 -0400
+Date: Wed, 12 Sep 2001 15:24:03 +0800 (WST)
+From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
+X-X-Sender: <ender@shaker.worfie.net>
+To: Peter Horton <pdh@berserk.demon.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel
+ crash)
+In-Reply-To: <20010912072853.A479@berserk.demon.co.uk>
+Message-ID: <Pine.LNX.4.31.0109121523130.23923-100000@shaker.worfie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Today I updated the BIOS of my motherboard, a ABIT KT7A (VIA Apollo KT133A
->> chipset). The kernel I had (2.4.9) started crashing on boot with an
->> invalid page fault, usually right after starting init. I tryed a i686
->> kernel and noticed it works OK, so I recompiled my crashy kernel only
->> Anyone else experiencing this?
+Intresting. I'll try that, because it sounds exactly what I had (constant
+segfaults in 2.2.18, occasional and more random in 2.4.x).
 
-AC> Several reports. Back down the BIOS version
 
-Aha, we need to make kernel reprogram KT133A so that we won't be blamed
-for BIOS flaws. Does anybody have a clue what's exactly changed in
-chipset programming from YH to 3R BIOS? BIOSes are on
-ftp://ftp.leo.org/pub/comp/general/devices/abit/bios/kt7/
+ - Ender
 
->>         ...
->>         kernel_fpu_end();
->> +       from-=4096;
->> +       to-=4096;
->> +       if(memcmp(from,to,4096)!=0) {
->> +               printk("Athlon bug!"); //add printout of from,to,...?
->> +               memcpy(to,from,4096);
->> +       }
->> }
-
-RJD> I then get 'Athlon bug!' Still oopses.
-
-Waah! That means movntq's moved data to some other place in memory!
-memcmp detected that and memcpy fixed, but that 'other place' was
-corrupted and that's the cause of oops.
-You may change printk to see when this happens:
-    printk(KERN_ERR "Athlon bug! from=%08X to=%08X\n", from, to);
-If you do, please post from/to pairs printed to lkml.
-
->> Comparing K7 and MMX fast_copy_page...
->> 
->> Does replacing movntq->movq makes oops go avay?
-
-RJD> Yes, it does! Didn't tested exaustively, but it seems to go away!
-
-This is a check to dismiss "bad PSU/memory/..." theories.
-It is indeed CPU/chipset interaction bug fixable by chipset
-programming.
-
-RJD> As said earlier, this happens after upgrading from BIOS YH to 3R in the
-RJD> KT7A-RAID. The processor is a Duron 800 not overclocked.
--- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
-
+> A colleague purchased a number of A7V133s all of which exhibited seg faults
+> in make and gcc. make reproducibly seg faulted in vfork(). This was
+> with 2.2.18 kernels compiled for i586. We next tried a 2.4.8 kernel
+> built for i686 and the problem persisted, though less reproducibly. The
+> kernel reports 'Applying VIA southbridge workaround', but it looks
+> like we need another fix.
+>
+> Most of the BIOS options had no effect, but changing the 'PCI latency'
+> setting from 32 to 64 seems to have fixed it, fingers crossed.
+>
+> P.
+>
+> --
+> +--------------------------------------------------+
+> | Peter Horton      | pdh@colonel-panic.org        |
+> | Software Engineer | http://www.colonel-panic.org |
+> +--------------------------------------------------+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267237AbUF0AC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267239AbUF0AFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267237AbUF0AC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 20:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267239AbUF0AC2
+	id S267239AbUF0AFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 20:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUF0AFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 20:02:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12284 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267237AbUF0AC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 20:02:26 -0400
-Date: Sun, 27 Jun 2004 02:02:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove a superfluous #ifndef from net/ip.h
-Message-ID: <20040627000222.GQ18303@fs.tum.de>
+	Sat, 26 Jun 2004 20:05:48 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:30379 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267239AbUF0AFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 20:05:47 -0400
+Date: Sat, 26 Jun 2004 17:05:41 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>
+Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
+Message-ID: <20040627000541.GA13325@taniwha.stupidest.org>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org> <1088290477.3790.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1088290477.3790.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes a superfluous #ifndef from net/ip.h (snmp.h is 
-guarded by the same #ifndef).
+On Sat, Jun 26, 2004 at 11:54:38PM +0100, Alan Cox wrote:
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+> For most uses jiffies should die. If drivers could not access jiffies
+> except by a (possibly trivial) helper then it would be a huge step
+> closer to being able to run embedded linux without a continually running
+> timer.
 
-Please apply
-Adrian
-
---- linux-2.6.7-mm2-full/include/net/ip.h.old	2004-06-26 16:28:13.000000000 +0200
-+++ linux-2.6.7-mm2-full/include/net/ip.h	2004-06-26 16:28:24.000000000 +0200
-@@ -32,10 +32,7 @@
- #include <linux/in_route.h>
- #include <net/route.h>
- #include <net/arp.h>
--
--#ifndef _SNMP_H
- #include <net/snmp.h>
--#endif
- 
- struct sock;
- 
+I'm all for that, except last I counted there are about 5000 users of
+jiffies.  What do you suggest as a replacement API?
 
 
+
+  --cw

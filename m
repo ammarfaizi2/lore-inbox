@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132650AbRAKQyp>; Thu, 11 Jan 2001 11:54:45 -0500
+	id <S132610AbRAKQy4>; Thu, 11 Jan 2001 11:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132618AbRAKQyg>; Thu, 11 Jan 2001 11:54:36 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:57350 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S132610AbRAKQyV>;
-	Thu, 11 Jan 2001 11:54:21 -0500
-Date: Thu, 11 Jan 2001 16:54:14 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: <andre@linux-ide.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: IDE DMA problem in 2.4.0
-Message-ID: <Pine.LNX.4.30.0101111640120.5788-100000@svea.tellus>
+	id <S132618AbRAKQyq>; Thu, 11 Jan 2001 11:54:46 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:9226 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132610AbRAKQyg>;
+	Thu, 11 Jan 2001 11:54:36 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101111650.f0BGoLG473101@saturn.cs.uml.edu>
+Subject: Re: Subtle MM bug
+To: sct@redhat.com (Stephen C. Tweedie)
+Date: Thu, 11 Jan 2001 11:50:21 -0500 (EST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        trond.myklebust@fys.uio.no (Trond Myklebust),
+        phillips@innominate.de (Daniel Phillips), linux-kernel@vger.kernel.org,
+        sct@redhat.com (Stephen Tweedie)
+In-Reply-To: <20010111125604.A17177@redhat.com> from "Stephen C. Tweedie" at Jan 11, 2001 12:56:04 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When copying huge files from one disk to another (hda->hdc), I get the
-following error (after some hundred megabytes):
+Stephen C. Tweedie writes:
+> On Wed, Jan 10, 2001 at 12:11:16PM -0800, Linus Torvalds wrote:
 
-hdc: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hdc: irq timeout: status=0xd1 { Busy }
-hdc: DMA disabled
-ide1: reset: success
+>> That said, we can easily support the notion of CLONE_CRED if
+>> we absolutely have to (and sane people just shouldn't use it),
+>> so if somebody wants to work on this for 2.5.x...
+>
+> But is it really worth the pain?  I'd hate to have to audit the
+> entire VFS to make sure that it works if another thread changes our
+> credentials in the middle of a syscall, so we either end up having to
+> lock the credentials over every VFS syscall, or take a copy of the
+> credentials and pass it through every VFS internal call that we make.
 
-I got this using dd with a block size of 32kB, reading a large file on
-hda, writing directly to hdc1.  I tried with another disk as hdc
-(a Samsung), and I have tried two different cables.  Still no go.  Well,
-it does work, of course, but much slower since DMA has been disabled.
+1. each thread has a copy, and doesn't need to lock it
+2. threads are commanded to change their own copy
 
-I have been unable to reproduce this error using
-	dd bs=32k if=/dev/zero of=/dev/hdc1
-or
-	dd bs=32k if=/dev/hdc1 of=/dev/null
-
-Everything works fine in 2.2.16-22 from RedHat 7 (with DMA enabled using
-hdparm).
-
-Here is a relevant part of the startup log (I hope):
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c596b IDE UDMA66 controller on pci0:7.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hda: SAMSUNG SV2044D, ATA DISK drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hdc: ST38421A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 39862368 sectors (20410 MB) w/472KiB Cache, CHS=2481/255/63, UDMA(66)
-hdc: 16498944 sectors (8447 MB) w/256KiB Cache, CHS=16368/16/63, UDMA(33)
-
-Did I miss anything?
-
-/Tobias
+Credentials could be changed on syscall exit. It is a bit like
+doing signals I think, with less overhead than making userspace
+muck around with signal handlers and synchronization crud.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

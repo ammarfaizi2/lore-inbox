@@ -1,118 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289972AbSBFCiI>; Tue, 5 Feb 2002 21:38:08 -0500
+	id <S289973AbSBFDDl>; Tue, 5 Feb 2002 22:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289973AbSBFCh7>; Tue, 5 Feb 2002 21:37:59 -0500
-Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:13440 "EHLO
-	Bluesong.NET") by vger.kernel.org with ESMTP id <S289972AbSBFChp>;
-	Tue, 5 Feb 2002 21:37:45 -0500
-Message-Id: <200202060242.g162giQ01982@Bluesong.NET>
-From: "Jack F. Vogel" <jfv@trane.bluesong.net>
-Reply-To: jfv@bluesong.net
-To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH]: O(1) 2.4.17-K2 Tuneable Parameters
-Date: Tue, 5 Feb 2002 18:42:44 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: jstultz@us.ibm.com
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_8JB3ST2BCQU3J90YESO8"
+	id <S289982AbSBFDDb>; Tue, 5 Feb 2002 22:03:31 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:42684 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S289973AbSBFDDO>; Tue, 5 Feb 2002 22:03:14 -0500
+Date: Wed, 6 Feb 2002 03:02:53 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.3-dj3
+Message-ID: <20020206030252.A15192@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sync up some of the bits done in the 2.4 branch, fix up more build problems,
+and merge some bits that were hanging around. Biggest change here is the
+addition of the radix-tree patch. It looks that Linus has merged it, so
+jumping the gun is no big deal on this one.
+(Early adopters get to shake out the bugs before -pre1 appears 8-)
 
---------------Boundary-00=_8JB3ST2BCQU3J90YESO8
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Patch against 2.5.3 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-This is the resynch of the 2.4.17 version of the schedtune patch.
+ -- Davej.
 
-This version should apply to both 2.4.17 as well as the pre patches of
-2.4.18 provided Ingo's K2 patch is applied first.
+2.5.3-dj3
+o   Merge 2.4.17-pre8
+o   Merge some small bits from 2.4.18-pre7-ac3
+o   Drop sd-many patch.
+    | Not relevant for 2.5, + a better alternative
+    | is in the works from Christoph Hellwig.
+o   Merge radix tree page cache.		(Momchil Velikov)
+o   inflatefs doesn't need its own zconf.h	(Me)
+o   Add missing includes to ymfpci & opl3sa2.	(Michal Jaegermann)
+o   Fix DRM warnings on 64bit compiles.		(Michal Jaegermann)
+o   Fix highmem compile.			(Me)
+    | Ugly, needs fs.h untangling.
+o   NSC Geode recognition/support.		(Hiroshi MIURA)
+o   Hack around ZISOFS link order problem.	(Todor Todorov)
+o   Increase inline name length for the dcache.	(Andi Kleen)
+o   Reduce mount hash table size.		(Andi Kleen)
+o   cosa.c compile error fix.			(Adrian Bunk)
+o   initcall initialisation off by one fix.	(Bjorn Wesen)
+o   Unbreak compilation of iptables userspace.	(Harald Welte, Rusty Russell)
+o   Yet more reiserfs updates.			(Oleg Drokin & Namesys folks)
+o   Fix large LUNs breakage.			(Kurt Garloff)
+o   Clean up simple_strtol exports.		(Russell King)
 
-Regards,
+
+2.5.3-dj2
+o   More include file shake-ups.		(Me)
+    | Break binfmt out of sched.h
+    | Divorce fs.h from linux/capability.h
+    | fs.h fathers err.h
+o   Fix some include breakage from -dj1.	(Jarno Paananen)
+o   Fix LVM compile.				(Dave Gilbert)
+o   Numerous Lanstreamer fixes.			(Kent Yoder)
+o   Support large numbers of SCSI devices.	(Richard Gooch)
+o   CRC32 late initialisation fix.		(Petr Vandrovec)
+o   qnx4fs update.				(Anders Larsen)
+o   Iforce joystick compile fix.		(Vojtech Pavlik)
+o   Numerous NFS fixes.				(Trond Myklebust)
+o   No CONFIG_PCI compile fix.			(Adrian Bunk)
+o   NBD request size limit fix.			(Petr Vandrovec)
+o   Selectable port/irq for i8042.		(James Simmons)
+o   Improved free page accounting.		(Ed Tomlinson)
+o   Convert various strtok --> strsep.		(René Scharfe)
+
+
+2.5.3-dj1
+o   Merge 2.5.3final
+    | Drop NCR5380 changes for now. For reasons why, read
+    | http://kt.zork.net/kernel-traffic/kt20020121_151.html#4
+o   MAINTAINERS updates.				(Me, Ingo Molnar)
+o   Move IA64 perfmon init out of init/main.c		(Me)
+o   Several #include linux/malloc.h -> linux/slab.h	(Me)
+o   Remove bogus duplicate dmi_scan()			(Me)
+o   Remove duplicate code in bootsect.S			(Rob Landley)
+o   ScanLogic USB-ATAPI adapter support.		(Leif Sawyer)
+o   Shrink dqcache by priority.				(Josh MacDonald)
+o   Fix up BKL removal breakage in HFS & UFS.		(Robert Love, Me)
+o   Config.help updates for GUID partition support.	(Matt Domsch)
+o   Updated USB driverfs support.			(Greg KH)
+o   Fix modular USB build.				(Jim McDonald)
+o   Handle error case in sys_swapon()			(Andrey Panin)
+o   i810_audio build fix.				(Martin Bahlinger)
+o   text.lock->subsection improvements.			(Keith Owens)
+o   Support an extra mystery rocketport card.		(Andi Kleen)
+o   zlib_inflate build fix.				(Andi Kleen)
+o   Remove inclusion of sched.h for most of fs/		(Me)
+    | pushes CURRENT_TIME into wait.h
+    | There's still work to do here.
+o   Debug trap for vfree.				(Arjan van de Ven)
+o   Make xconfig find help texts again.			(Olaf Dietsche)
+o   Fix nbd breakage.					(Petr Vandrovec)
+o   IBM partition compile fix.				(Sergey S. Kostyliov)
+o   More reiserfs fixes.				(Oleg Drokin)
+
+
+2.5.2-dj7
+o   Merge 2.5.3pre6
+o   Remove fs.h inclusion from sched.h again.		(Christoph Hellwig)
+o   Remove some segment.h inclusions that reappeared.	(Me)
+o   Unmangle dl2k crc fix from -dj6			(Jim McDonald)
+o   Fix tsdev compile.					(Me)
+o   aty128fb & radeonfb compile fixes.			(James Simmons)
+o   Updated Config.help entries for input layer.	(Vojtech Pavlik)
+o   Input layer tweak for old IBM keyboards.		(Vojtech Pavlik)
+o   Fix USB HID feature report output.			(Vojtech Pavlik)
+o   Workaround some broken PS/2 mice.			(Vojtech Pavlik)
+o   Don't filter outgoing fields to HID defined ranges.	(Vojtech Pavlik)
+o   Disable address in scatterlist for sg.		(Douglas Gilbert)
+o   Limit NR_IRQS in no IO-APIC case.			(Brian Gerst)
+o   Sonypi driver update (C1MRX Vaio).			(Stelian Pop)
+o   Remove bogus release_region in eexpress.		(Gianluca Anzolin)
+o   Neofb compile fixes.				(James Simmons)
+o   Reiserfs update.					(all@namesys)
+o   Further reiserfs fixes.				(Oleg Drokin)
+o   Fix keyboard not working with nothing in AUX port.	(Vojtech Pavlik)
+o   Small devfs changes.				(Richard Gooch)
+o   Rage128 Pro TF identification to aty128fb.		(James Simmons)
+
+
+
 
 -- 
-Jack F. Vogel
-IBM  Linux Solutions
-jfv@us.ibm.com  (work)
-jfv@Bluesong.NET (home)
-
---------------Boundary-00=_8JB3ST2BCQU3J90YESO8
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="schedtune-O1-2.4.17-K2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="schedtune-O1-2.4.17-K2"
-
-ZGlmZiAtTmF1ciBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oIGxpbnV4Lmpmdi9pbmNsdWRl
-L2xpbnV4L3N5c2N0bC5oCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCU1vbiBOb3Yg
-MjYgMDU6Mjk6MTcgMjAwMQorKysgbGludXguamZ2L2luY2x1ZGUvbGludXgvc3lzY3RsLmgJVHVl
-IEZlYiAgNSAxNzo0NTowMCAyMDAyCkBAIC03Miw2ICs3MiwyMCBAQAogCUJVU19JU0E9MQkJLyog
-SVNBICovCiB9OwogCisvLyBUdW5lYWJsZSBzY2hlZHVsZXIgbmFtZXM6CitlbnVtCit7CisgICAg
-ICAgIE1BWF9TTElDRT0xLCAgICAvKiBUaW1lc2xpY2Ugc2NhbGluZyAqLworICAgICAgICBNSU5f
-U0xJQ0U9MiwKKyAgICAgICAgQ0hJTERfUEVOQUxUWT0zLAorICAgICAgICBQQVJFTlRfUEVOQUxU
-WT00LAorICAgICAgICBFV0VJR0hUPTUsCisgICAgICAgIEJPTlVTX1JBVElPPTYsCisgICAgICAg
-IElOVF9ERUxUQT03LAorICAgICAgICBNQVhfU0xFRVA9OCwKKyAgICAgICAgU1RBUlZFX0xJTT05
-Cit9OworCiAvKiBDVExfS0VSTiBuYW1lczogKi8KIGVudW0KIHsKZGlmZiAtTmF1ciBsaW51eC9r
-ZXJuZWwvc2NoZWQuYyBsaW51eC5qZnYva2VybmVsL3NjaGVkLmMKLS0tIGxpbnV4L2tlcm5lbC9z
-Y2hlZC5jCVR1ZSBGZWIgIDUgMTg6MDc6MzMgMjAwMgorKysgbGludXguamZ2L2tlcm5lbC9zY2hl
-ZC5jCVR1ZSBGZWIgIDUgMTY6NDg6MTkgMjAwMgpAQCAtNTUsNiArNTUsNyBAQAogICogbWF4aW11
-bSB0aW1lc2xpY2UgaXMgMzAwIG1zZWNzLiBUaW1lc2xpY2VzIGdldCByZWZpbGxlZCBhZnRlcgog
-ICogdGhleSBleHBpcmUuCiAgKi8KKyNpZmRlZiBDT05GSUdfU0NIRURUVU5FCS8vIEhlcmUganVz
-dCB0byBtYWtlIHBhdGNoIGNsZWFuCiAjZGVmaW5lIE1JTl9USU1FU0xJQ0UJCSggMTAgKiBIWiAv
-IDEwMDApCiAjZGVmaW5lIE1BWF9USU1FU0xJQ0UJCSgzMDAgKiBIWiAvIDEwMDApCiAjZGVmaW5l
-IENISUxEX1BFTkFMVFkJCTk1CkBAIC02NCw2ICs2NSwyOSBAQAogI2RlZmluZSBJTlRFUkFDVElW
-RV9ERUxUQQkyCiAjZGVmaW5lIE1BWF9TTEVFUF9BVkcJCSgyKkhaKQogI2RlZmluZSBTVEFSVkFU
-SU9OX0xJTUlUCSgyKkhaKQorI2Vsc2UJLy8gTWFrZSBwYXJhbWV0ZXJzIHR1bmVhYmxlIGF0IHJ1
-bnRpbWUKKworaW50IG1pbl90aW1lc2xpY2UgPSAoIDEwICogSFogLyAxMDAwKTsKK2ludCBtYXhf
-dGltZXNsaWNlID0gKDMwMCAqIEhaIC8gMTAwMCk7CitpbnQgY2hpbGRfcGVuYWx0eSA9IDk1Owor
-aW50IHBhcmVudF9wZW5hbHR5ID0gMTAwOworaW50IGV4aXRfd2VpZ2h0ID0gMzsKK2ludCBwcmlv
-X2JvbnVzX3JhdGlvID0gMjU7CitpbnQgaW50ZXJhY3RpdmVfZGVsdGEgPSAyOworaW50IG1heF9z
-bGVlcF9hdmcgPSAoMipIWik7CitpbnQgc3RhcnZhdGlvbl9saW1pdCA9ICgyKkhaKTsKKworI2Rl
-ZmluZSBNSU5fVElNRVNMSUNFCQkobWluX3RpbWVzbGljZSkKKyNkZWZpbmUgTUFYX1RJTUVTTElD
-RQkJKG1heF90aW1lc2xpY2UpCisjZGVmaW5lIENISUxEX1BFTkFMVFkJCShjaGlsZF9wZW5hbHR5
-KQorI2RlZmluZSBQQVJFTlRfUEVOQUxUWQkJKHBhcmVudF9wZW5hbHR5KQorI2RlZmluZSBFWElU
-X1dFSUdIVAkJKGV4aXRfd2VpZ2h0KQorI2RlZmluZSBQUklPX0JPTlVTX1JBVElPCShwcmlvX2Jv
-bnVzX3JhdGlvKQorI2RlZmluZSBJTlRFUkFDVElWRV9ERUxUQQkoaW50ZXJhY3RpdmVfZGVsdGEp
-CisjZGVmaW5lIE1BWF9TTEVFUF9BVkcJCShtYXhfc2xlZXBfYXZnKQorI2RlZmluZSBTVEFSVkFU
-SU9OX0xJTUlUCShzdGFydmF0aW9uX2xpbWl0KQorCisjZW5kaWYKIAogLyoKICAqIElmIGEgdGFz
-ayBpcyAnaW50ZXJhY3RpdmUnIHRoZW4gd2UgcmVpbnNlcnQgaXQgaW4gdGhlIGFjdGl2ZQpkaWZm
-IC1OYXVyIGxpbnV4L2tlcm5lbC9zeXNjdGwuYyBsaW51eC5qZnYva2VybmVsL3N5c2N0bC5jCi0t
-LSBsaW51eC9rZXJuZWwvc3lzY3RsLmMJRnJpIERlYyAyMSAwOTo0MjowNCAyMDAxCisrKyBsaW51
-eC5qZnYva2VybmVsL3N5c2N0bC5jCVR1ZSBGZWIgIDUgMTc6NDU6NDUgMjAwMgpAQCAtNTEsNiAr
-NTEsMTAgQEAKIGV4dGVybiBpbnQgY29yZV91c2VzX3BpZDsKIGV4dGVybiBpbnQgY2FkX3BpZDsK
-IAorZXh0ZXJuIGludCBtaW5fdGltZXNsaWNlLCBtYXhfdGltZXNsaWNlLCBjaGlsZF9wZW5hbHR5
-LCBwYXJlbnRfcGVuYWx0eTsKK2V4dGVybiBpbnQgcHJpb19ib251c19yYXRpbywgaW50ZXJhY3Rp
-dmVfZGVsdGE7CitleHRlcm4gaW50IGV4aXRfd2VpZ2h0LCBtYXhfc2xlZXBfYXZnLCBzdGFydmF0
-aW9uX2xpbWl0OworCiAvKiB0aGlzIGlzIG5lZWRlZCBmb3IgdGhlIHByb2NfZG9pbnR2ZWNfbWlu
-bWF4IGZvciBbZnNfXW92ZXJmbG93IFVJRCBhbmQgR0lEICovCiBzdGF0aWMgaW50IG1heG9sZHVp
-ZCA9IDY1NTM1Owogc3RhdGljIGludCBtaW5vbGR1aWQ7CkBAIC0xMDksNiArMTEzLDcgQEAKIAog
-c3RhdGljIGN0bF90YWJsZSBrZXJuX3RhYmxlW107CiBzdGF0aWMgY3RsX3RhYmxlIHZtX3RhYmxl
-W107CitzdGF0aWMgY3RsX3RhYmxlIHNjaGVkX3RhYmxlW107CiAjaWZkZWYgQ09ORklHX05FVAog
-ZXh0ZXJuIGN0bF90YWJsZSBuZXRfdGFibGVbXTsKICNlbmRpZgpAQCAtMTUzLDYgKzE1OCw3IEBA
-CiAJe0NUTF9GUywgImZzIiwgTlVMTCwgMCwgMDU1NSwgZnNfdGFibGV9LAogCXtDVExfREVCVUcs
-ICJkZWJ1ZyIsIE5VTEwsIDAsIDA1NTUsIGRlYnVnX3RhYmxlfSwKICAgICAgICAge0NUTF9ERVYs
-ICJkZXYiLCBOVUxMLCAwLCAwNTU1LCBkZXZfdGFibGV9LAorICAgICAgICB7Q1RMX0tFUk4sICJz
-Y2hlZCIsIE5VTEwsIDAsIDA1NTUsIHNjaGVkX3RhYmxlfSwKIAl7MH0KIH07CiAKQEAgLTI3OCw2
-ICsyODQsMjggQEAKIAl7MH0KIH07CiAKK3N0YXRpYyBjdGxfdGFibGUgc2NoZWRfdGFibGVbXSA9
-IHsKKwl7TUFYX1NMSUNFLCAiTUFYX1RJTUVTTElDRSIsCisJJm1heF90aW1lc2xpY2UsIHNpemVv
-ZihpbnQpLCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe01JTl9TTElDRSwgIk1JTl9U
-SU1FU0xJQ0UiLAorCSZtaW5fdGltZXNsaWNlLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnBy
-b2NfZG9pbnR2ZWN9LAorCXtDSElMRF9QRU5BTFRZLCAiQ0hJTERfRk9SS19QRU5BTFRZIiwKKwkm
-Y2hpbGRfcGVuYWx0eSwgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjfSwK
-Kwl7UEFSRU5UX1BFTkFMVFksICJQQVJFTlRfRk9SS19QRU5BTFRZIiwKKwkmcGFyZW50X3BlbmFs
-dHksIHNpemVvZihpbnQpLCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe0VXRUlHSFQs
-ICJFWElUX1dFSUdIVCIsCisJJmV4aXRfd2VpZ2h0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwg
-JnByb2NfZG9pbnR2ZWN9LAorCXtCT05VU19SQVRJTywgIlBSSU9fQk9OVVNfUkFUSU8iLAorCSZw
-cmlvX2JvbnVzX3JhdGlvLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9
-LAorCXtJTlRfREVMVEEsICJJTlRFUkFDVElWRV9ERUxUQSIsCisJJmludGVyYWN0aXZlX2RlbHRh
-LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAorCXtNQVhfU0xFRVAs
-ICJNQVhfU0xFRVBfQVZHIiwKKwkmbWF4X3NsZWVwX2F2Zywgc2l6ZW9mKGludCksIDA2NDQsIE5V
-TEwsICZwcm9jX2RvaW50dmVjfSwKKwl7U1RBUlZFX0xJTSwgIlNUQVJWQVRJT05fTElNSVQiLAor
-CSZzdGFydmF0aW9uX2xpbWl0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2
-ZWN9LAorCXswfQorfTsKKwogc3RhdGljIGN0bF90YWJsZSBwcm9jX3RhYmxlW10gPSB7CiAJezB9
-CiB9Owo=
-
---------------Boundary-00=_8JB3ST2BCQU3J90YESO8--
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

@@ -1,89 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264463AbTF0Ps2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 11:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTF0Ps2
+	id S264456AbTF0P7T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 11:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTF0P7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 11:48:28 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:49308 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S264455AbTF0PsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 11:48:25 -0400
-Message-ID: <3EFC6A9E.28E47F4@hp.com>
-Date: Fri, 27 Jun 2003 10:02:38 -0600
-From: Alex Williamson <alex_williamson@hp.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.21-rc8-aw-ob500 i686)
-X-Accept-Language: en
+	Fri, 27 Jun 2003 11:59:19 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:38685 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S264456AbTF0P7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 11:59:18 -0400
+Date: Fri, 27 Jun 2003 11:13:19 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.73-mm1] Make sure truncate fix has no race
+Message-ID: <69440000.1056730399@baldur.austin.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Disable sba_iommu bypass to be compatible with bio-level block 
- merging
-Content-Type: multipart/mixed;
- boundary="------------760F202770F566054DA87E2F"
+Content-Type: multipart/mixed; boundary="==========1873729384=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------760F202770F566054DA87E2F
+--==========1873729384==========
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 
-   This patch works around a problem that David Mosberger
-discovered prior to his 2.5.72 ia64 patch release.  The
-zx1 iommu driver has an optimization to allow devices that
-can DMA directly to a memory address to completely bypass
-the iommu.  For sg mappings, we skip the coalescing and
-everything.  Effectively, this looks like a mixed bus system
-and I don't see how to handle that with the current bio code.
-IMHO, this really doesn't seem like an extraordinary
-situation and I'm sure there are other platforms that might
-hit it as well.
+Paul McKenney pointed out that reading the truncate sequence number in
+do_no_page might not be entirely safe if the ->nopage callout takes no
+locks.  The simple solution is to move the read before the unlock of
+page_table_lock.  Here's a patch that does it.
 
-  For now it seems like the best way to make things happy is
-to disable the bypass feature and force all DMA to be mapped
-through the iommu.  The attached patch is against David's
-last 2.5.72 ia64 patch.  Much thanks to Grant Grundler for
-really diving into this and discovering what was happening.
-Thanks,
+Dave McCracken
 
-	Alex
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
--- 
-Alex Williamson                             HP Linux & Open Source Lab
---------------760F202770F566054DA87E2F
-Content-Type: text/plain; charset=us-ascii;
- name="sba_iommu-bypass-disable.diff"
+--==========1873729384==========
+Content-Type: text/plain; charset=us-ascii; name="trunc-2.5.73-mm1-1.diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sba_iommu-bypass-disable.diff"
+Content-Disposition: attachment; filename="trunc-2.5.73-mm1-1.diff"; size=897
 
---- linux-2.5.72-orig/include/asm-ia64/io.h	2003-06-20 14:40:35.000000000 -0600
-+++ linux-2.5.72/include/asm-ia64/io.h	2003-06-27 09:12:44.000000000 -0600
-@@ -424,6 +424,6 @@
-  * which is precisely what we want.
-  */
- extern unsigned long ia64_max_iommu_merge_mask;
--#define BIO_VMERGE_BOUNDARY	(0UL)//(ia64_max_iommu_merge_mask + 1)
-+#define BIO_VMERGE_BOUNDARY	(ia64_max_iommu_merge_mask + 1)
+--- 2.5.73-mm1/mm/memory.c	2003-06-27 10:40:48.000000000 -0500
++++ 2.5.73-mm1-trunc/mm/memory.c	2003-06-27 10:47:10.000000000 -0500
+@@ -1402,11 +1402,11 @@ do_no_page(struct mm_struct *mm, struct 
+ 		return do_anonymous_page(mm, vma, page_table,
+ 					pmd, write_access, address);
+ 	pte_unmap(page_table);
+-	spin_unlock(&mm->page_table_lock);
  
- #endif /* _ASM_IA64_IO_H */
---- linux-2.5.72-orig/arch/ia64/hp/common/sba_iommu.c	2003-06-20 14:40:31.000000000 -0600
-+++ linux-2.5.72/arch/ia64/hp/common/sba_iommu.c	2003-06-27 09:09:50.000000000 -0600
-@@ -47,8 +47,11 @@
- /*
- ** This option allows cards capable of 64bit DMA to bypass the IOMMU.  If
- ** not defined, all DMA will be 32bit and go through the TLB.
-+** The bio merge code currently expects that if we tweak that vmerge
-+** boundary that we will alway coalesce blocks on that boundary.  Enabling
-+** this optimization is therefore incompatible with tuning the boundary.
- */
--#define ALLOW_IOV_BYPASS
-+#undef ALLOW_IOV_BYPASS
+ 	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
+-retry:
+ 	sequence = atomic_read(&mapping->truncate_count);
++	spin_unlock(&mm->page_table_lock);
++retry:
+ 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, 0);
  
- /*
- ** If a device prefetches beyond the end of a valid pdir entry, it will cause
+ 	/* no page was available -- either SIGBUS or OOM */
+@@ -1441,6 +1441,7 @@ retry:
+ 	 * retry getting the page.
+ 	 */
+ 	if (unlikely(sequence != atomic_read(&mapping->truncate_count))) {
++		sequence = atomic_read(&mapping->truncate_count);
+ 		spin_unlock(&mm->page_table_lock);
+ 		page_cache_release(new_page);
+ 		goto retry;
 
---------------760F202770F566054DA87E2F--
+--==========1873729384==========--
 

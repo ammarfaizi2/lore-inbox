@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317820AbSGVVjm>; Mon, 22 Jul 2002 17:39:42 -0400
+	id <S317833AbSGVVkn>; Mon, 22 Jul 2002 17:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317828AbSGVVjm>; Mon, 22 Jul 2002 17:39:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51653 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317820AbSGVVjl>;
-	Mon, 22 Jul 2002 17:39:41 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
-Message-ID: <OF5933E2F2.D3E9CDE3-ON85256BFE.00744D4A@pok.ibm.com>
-From: "Steve Pratt" <slpratt@us.ibm.com>
-Date: Mon, 22 Jul 2002 16:42:19 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
- 28, 2002) at 07/22/2002 05:42:43 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S317842AbSGVVkn>; Mon, 22 Jul 2002 17:40:43 -0400
+Received: from cs180154.pp.htv.fi ([213.243.180.154]:660 "EHLO devil.pp.htv.fi")
+	by vger.kernel.org with ESMTP id <S317833AbSGVVkm>;
+	Mon, 22 Jul 2002 17:40:42 -0400
+Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+To: Hayden Myers <hayden@spinbox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10207221646120.4476-100000@compaq.skyline.net>
+References: <Pine.LNX.4.10.10207221646120.4476-100000@compaq.skyline.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 23 Jul 2002 00:43:49 +0300
+Message-Id: <1027374229.11240.17.camel@cs180154>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on  2002-07-22 19:07:25 Christoph Hellwig wrote:
+On Tue, 2002-07-23 at 00:13, Hayden Myers wrote: 
 
-... snip
+> I dumped the other side and it does confirm that the advertised window is
+> increasing.  This is may not be the problem.  So if I understand
+> correctly 2.4 has window scaling while 2.2 didn't and that's why the
+> window advertisement is larger initially in the 2.2 than the 2.4.
 
->> There
->> does not appear to be anything in either LVM2 or Device Mapper for
->> manipulating partition tables and resizing partitions.  User space tools
->> could be written to work with Device Mapper to make this happen, but
-such
->> tools do not yet exist, AFAIK.
+The TCP window scaling option is something else. You are correct,
+however, that 2.4 manages receiver side buffers differently and
+therefore advertises differently. This is designed to save buffer memory
+in a HTTP server and should actually be good for your application.
 
->And EVMS sucks in trucloads of fs code that already exists in userspace
->instead of using e.g. the parted library that can easily be linked to the
->LVM2 tools.
+> I 
+> still have a theory as to why this smaller window size and/or scaling
+is
+> slowing us down.
+> 
+> > 
+> > The 6432 you're seeing is the server telling the client how much the
+> > client is allowed send. Only, the client isn't sending anything. You
+> > need to look at what the client is advertising to the server.
+> The client's advertisement seems to increase as the packets keep rolling
+> in.
 
-I don't know what code you are looking at because EVMS does
-not suck in any code from existing fs utilities.  We only have enough
-code to invoke the EXISTING utilities.  The only code we have is
-simple things like version checks, superblock probes, and size
-constraints.  For example, unlike  libparted which re-implements
-resize of ext2 volumes, EVMS invokes the existing resize2fs.
-In fact, all FSIMs have been developed in collaboration with the
-filesystem owners, and in the case of JFS and EXT2/3 the FS
-utility owners actually wrote the FSIM!
+Correct. 
 
-Also, if it is so easy to link parted with LVM2 to get greater
-functionality,
-why hasn't the LVM team or Andrew done this yet?  We went down this
-road and found it was a dead end.
+> I just noticed a large number of delayed acks in /proc/net/netstat.  Do
+> you think it's possible that a lot of clients have delayed ack and are
+> holding up our connections?
 
-Steve
+Again, don't think so. Unless Alexey has changed something recently,
+Linux quickacks every full sized segment immediately during the
+slowstart phase. This means that, in the beginning, the congestion
+window is growing as fast as the specs allow. 
 
+If in doubt, you can set the TCP_NODELAY option. Just make sure your app
+is sending full sized segments if you do this, otherwise it will just
+degrade performance. 
 
+Anyway, try posting some hard data. Maybe somebody on these lists can
+figure it out.
 
+	MikaL
 

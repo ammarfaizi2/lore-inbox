@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279124AbRJ2Kho>; Mon, 29 Oct 2001 05:37:44 -0500
+	id <S279113AbRJ2KlZ>; Mon, 29 Oct 2001 05:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279113AbRJ2KhY>; Mon, 29 Oct 2001 05:37:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25363 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279146AbRJ2KhW>; Mon, 29 Oct 2001 05:37:22 -0500
-Subject: Re: Intel EEPro 100 with kernel drivers
+	id <S279142AbRJ2KlF>; Mon, 29 Oct 2001 05:41:05 -0500
+Received: from erasmus.jurri.net ([62.236.96.196]:58811 "EHLO
+	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
+	id <S279113AbRJ2KlC>; Mon, 29 Oct 2001 05:41:02 -0500
 To: linux-kernel@vger.kernel.org
-Date: Mon, 29 Oct 2001 10:44:41 +0000 (GMT)
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no> from "=?iso-8859-1?Q?Thomas_Lang=E5s?=" at Oct 29, 2001 02:13:39 AM
-X-Mailer: ELM [version 2.5 PL6]
+Subject: 2.4.13-acX: NM256 hangs at boot
+From: Samuli Suonpaa <suonpaa@iki.fi>
+Date: 29 Oct 2001 12:41:35 +0200
+Message-ID: <87y9luohi8.fsf@puck.erasmus.jurri.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15y9uL-0002F3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> directory on a machine), the network-card says "eth0: Card reports no
-> resources" to dmesg, and then the "line" appear dead for some time (one
-> minutte or more). What can be done to remove this error? NFS timesout with
-> this error (obviously)...
+I've been succesfully using NM256-soundmodule on my Dell Latitute
+CPtC400 until I upgraded from kernel 2.4.12-ac5 to 2.4.13-ac3. Now the
+system hangs at boot - or to be more precise, right after boot when
+modutils try to load nm256_audio.o as instructed in /etc/modules.
+Lockup is complete, even power-button doesn't work so I have to remove
+battery and power-cord to get the machine shut down. I have
+APM-support compiled in, no ACPI.
 
-Which kernel version, which eepro100 chip ?
+NM256 is PCI-based, so I checked whether CONFIG_HOTPLUG_PCI would have
+any effect. It didn't.
+
+Exactly the same thing happens with 2.4.13-ac4.
+
+If I compile the kernel without sound-support, everything works just
+fine.
+
+Has anyone had similar problems? What additional info should I
+produce? 
+
+Suonp‰‰...

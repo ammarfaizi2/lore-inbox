@@ -1,153 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUFBStY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbUFBSvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUFBStY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUFBStY
+	id S263365AbUFBSvk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUFBStk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:49:24 -0400
-Received: from eliassen.atmos.colostate.edu ([129.82.48.152]:40659 "EHLO
-	eliassen.atmos.colostate.edu") by vger.kernel.org with ESMTP
-	id S263820AbUFBSrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:47:37 -0400
-Date: Wed, 2 Jun 2004 12:50:54 -0600 (MDT)
-From: Saurabh Barve <sa@atmos.colostate.edu>
-To: Arthur Perry <kernel@linuxfarms.com>
-cc: Red Hat AMD64 Mailing List <amd64-list@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: GART Error 11
-In-Reply-To: <Pine.LNX.4.58.0406021355210.14337@tiamat.perryconsulting.net>
-Message-ID: <Pine.LNX.4.44.0406021249030.8448-100000@eliassen.atmos.colostate.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Jun 2004 14:49:40 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:52870 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263815AbUFBSsY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 14:48:24 -0400
+Message-Id: <200406021848.i52Im0Xn000958@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: mitya@school.ioffe.ru (Dmitry Baryshkov)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled 
+In-Reply-To: Your message of "Wed, 02 Jun 2004 21:48:10 +0400."
+             <20040602174810.GA31263@school.ioffe.ru> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040602174810.GA31263@school.ioffe.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1380173504P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 02 Jun 2004 14:48:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Arthur!
+--==_Exmh_1380173504P
+Content-Type: text/plain; charset=us-ascii
 
-The machine seems to work except for the errors. Is there a way to update 
-the drivers in the OS without having to upgrade the kernel. I guess we'll 
-first have to find out which driver is misbehaving !!
+On Wed, 02 Jun 2004 21:48:10 +0400, mitya@school.ioffe.ru (Dmitry Baryshkov)  said:
+> Hello,
+> 
+> I tried enabling SELinux on my Linux-box, using ReiserFS as /, kernel
+> 2.6.7-rc2.
+> 
+> After relabeling and rebooting in non-enforcing mode everything worked
+> well, exept the fact, that new files on reiserfs filesystems don't get
+> security attributes.
+> 
+> So I added 'fs_use_xattr reiserfs system_u:object_r:fs_t;' to the policy,
+> rebooted and found, that mount hangs during opening of /etc/mtab~<pid>
+> (even in non-enforcing mode).
 
-I'll try the 'mce=off' and 'iommu=off' options again. I'll keep you 
-posted.
+Does your .config include CONFIG_REISERFS_FS_XATTR?  Very Bad Things
+are likely to happen if not.....
 
-Thanks again,
-Saurabh.
+--==_Exmh_1380173504P
+Content-Type: application/pgp-signature
 
-On Wed, 2 Jun 2004, Arthur Perry wrote:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> Hi Saurabh,
-> 
-> Thanks. It looks like you also have true GART errors as reported by hardware, on CPU0.
-> So our common failure mode here is actual GART errors and not something else being reported as a GART error because of erroneous kernel translation.
-> 
-> It's possible that we are using a device driver somewhere that is misbehaving, which is using the GART or IOMMU improperly somehow, or my guess is that is may be the actual AGP device driver used by RedHat.
-> ie, they may have not patched in the most recent version that may contain a lot of fixes.
-> 
-> Thanks for your feedback.
-> 
-> As of making your messages go away, I would tell you to disable the GartTableWalk in MCE, but that does not seem to work on my machine.
-> I'll let you know what does work without turning off Northbridge MC* entirely once I discover it.
-> 
-> -Arthur Perry
-> 
-> 
-> 
-> On Wed, 2 Jun 2004, Saurabh Barve wrote:
-> 
-> > Sorry about the delay in my reply. Just got in to work!
-> > Here is the output:
-> >
-> > > pcitweak -r 0:18:3 0x48
-> >
-> > 0x0005001B
-> >
-> > > and
-> > > pcitweak -r 0:19:3 0x48
-> >
-> > 0x00000000
-> >
-> > > While you are at it, can you send us status high as well?
-> > >
-> > > pcitweak -r 0:18:3 0x4c
-> >
-> > 0xA4000000
-> >
-> > > and
-> > > pcitweak -r 0:19:3 0x4c
-> >
-> > 0x00000000
-> >
-> > I don't know if this would help, but below is a part of my cronwatch log:
-> >
-> > --------------------- Init Begin ------------------------
-> >
-> > **Unmatched Entries**
-> > Trying to re-exec init
-> > Trying to re-exec init
-> >
-> >  ---------------------- Init End -------------------------
-> >
-> >
-> >  --------------------- Kernel Begin ------------------------
-> >
-> >
-> > WARNING:  Kernel Errors Present
-> >      uteval-0098: *** Error: Method executio...:  4Time(s)
-> >     psparse-1121: *** Error: Method executio...:  8Time(s)
-> >    Error uncorrected...:  538Time(s)
-> >    GART error 11...:  538Time(s)
-> >    Lost an northbridge error...:  538Time(s)
-> >    NB error address 00000000...:  538Time(s)
-> >
-> >  ---------------------- Kernel End -------------------------
-> >
-> >
-> >  --------------------- ModProbe Begin ------------------------
-> >
-> >
-> > Can't locate these modules:
-> >    char-major-10-134: 4 Time(s)
-> >    sound-service-0-3: 6 Time(s)
-> >    xp0: 3 Time(s)
-> >    sound-slot-0: 6 Time(s)
-> >    char-major-188: 15 Time(s)
-> >
-> >  ---------------------- ModProbe End -------------------------
-> >
-> >
-> > Thanks,
-> > Saurabh.
-> >
-> > --
-> > ===============================================================================
-> > Saurabh Barve                                        Phone:
-> > System Administrator/Data Specialist                 970-491-7714 (voice)
-> > Montgomery Research Group,                           970-491-8449 (Fax)
-> > Atmospheric Sciences Department,
-> > Fort Collins, Colorado
-> > Colorado State University
-> >
-> > Mail : sa@atmos.colostate.edu
-> > Web  : http://fjortoft.atmos.colostate.edu/~sa
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
+iD8DBQFAviDgcC3lWbTT17ARAjUfAJ9V7/h0DZuUq5+nGueDtmn8epHI4QCgluwh
+YhAP6svfKBitmGK6knw06YI=
+=VWGH
+-----END PGP SIGNATURE-----
 
--- 
-=============================================================================                                                                                
-Saurabh Barve                                        Phone:
-System Administrator/Data Specialist                 970-491-7714 (voice)
-Montgomery Research Group,                           970-491-8449 (Fax)
-Atmospheric Sciences Department,
-Fort Collins, Colorado                             
-Colorado State University                         
-
-Mail : sa@atmos.colostate.edu
-Web  : http://fjortoft.atmos.colostate.edu/~sa 
-
+--==_Exmh_1380173504P--

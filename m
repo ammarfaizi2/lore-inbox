@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTFGS0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 14:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbTFGS0y
+	id S263322AbTFGSbn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 14:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTFGSbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 14:26:54 -0400
-Received: from zero.aec.at ([193.170.194.10]:57100 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263319AbTFGS0x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 14:26:53 -0400
-Date: Sat, 7 Jun 2003 20:40:18 +0200
-From: Andi Kleen <ak@muc.de>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@wide.ad.jp>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org, akpm@digeo.com, vojtech@suse.cz
-Subject: Re: [PATCH] Making keyboard/mouse drivers dependent on CONFIG_EMBEDDED
-Message-ID: <20030607184018.GA3473@averell>
-References: <20030607063424.GA12616@averell> <20030607.154958.108408804.yoshfuji@wide.ad.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030607.154958.108408804.yoshfuji@wide.ad.jp>
-User-Agent: Mutt/1.4i
+	Sat, 7 Jun 2003 14:31:42 -0400
+Received: from return.inphonic.com ([65.202.185.5]:28177 "HELO
+	volcano.inphonic.com") by vger.kernel.org with SMTP id S263322AbTFGSbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 14:31:38 -0400
+Date: Sat, 07 Jun 2003 14:51:47  -0400
+From: update_info@inphonic.com
+Subject: RE:Re: Your application [#764801]
+To: linux-kernel@vger.kernel.org
+Message-ID: <eGain@20318Sat07Jun200314.51.47>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 03:49:58PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> Why isn't it enough to change default to "y"?
 
-Because that won't override make oldconfig
+Dear Customer,
 
-> Not showing the config is not good.
-> I want to disable it while using standard (not embeded) PC.
+Thank you for contacting our Wireless World at Inphonic.com.
 
-You can still. That is what CONFIG_EMBEDDED is for.
+Please respond using your nine to ten digit order number or contact our Customer Relations Department at 1.888.378.6509 and we will be happy to assist you with your inquiry.  Your current email did not provide us with enough information to access your account.
 
--Andi
+
+Sincerely,
+
+Oneeda Gerald
+Customer Relations Department
+
+--Original Message--
+
+Please see the attached file.
+
+

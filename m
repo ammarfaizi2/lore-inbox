@@ -1,100 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266241AbUBQP30 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 10:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUBQP30
+	id S266249AbUBQPb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 10:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266252AbUBQPb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 10:29:26 -0500
-Received: from topaz.cx ([66.220.6.227]:8391 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S266241AbUBQP3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 10:29:20 -0500
-Date: Tue, 17 Feb 2004 10:29:19 -0500
-From: Chip Salzenberg <chip@pobox.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-rc3: USB subsystem wedged when USB keyboard is re-plugged
-Message-ID: <20040217152918.GG1696@perlsupport.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Feb 2004 10:31:56 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:52954 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S266249AbUBQPbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 10:31:55 -0500
+Message-ID: <40323395.6060803@grupopie.com>
+Date: Tue, 17 Feb 2004 15:30:29 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Nischal Saxena <nischal_saxena@da-iict.org>, linux-kernel@vger.kernel.org
+Subject: Re: transferring data through the sound card
+References: <200402161800.i1GI0ul15334@mail.da-iict.org> <20040216221130.GE18853@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a USB keyboard - a pretty darn cool one, actually: an IBM
-SpaceSaver with both a TrackPoint and a trackpad built-in.  And when I
-plugged it in to my ThinkPad A30 yesterday, it worked great.  Then I
-unplugged it and took my laptop home.
+Jamie Lokier wrote:
 
-But today when I plugged in the keyboard again, the kernel broke.
-Quoting dmesg:
+> Nischal Saxena wrote:
+> 
+>> how is it possible to transfer data across two PC using the sound card.
+>>
+> 
+> It's possible using a software modem, but it's much easier to use a
+> network card instead :)
+> 
 
-  usb 2-2: new full speed USB device using address 5
-  usb 2-2: control timeout on ep0out
 
-And after that timeout, the USB subsystem seems totally stuck.
-Nothing I do provokes any further response.  (Kind of makes me wish
-I'd built the USB drivers as modules so I could unload and reload
-them.)
+Since Nischal didn't specify which port on the sound card he was thinking about, 
+I started to think that a SPDIF digital output / input, would give much better 
+results:
 
-Is this a known issue?  I'll be glad to test any patches that might help.
+6 channels, 16 bit, 48KHz = 4.6Mbit/s
 
-Boot time messages:
+I don't know enough about the standard digital format and the maximum bandwidth 
+that we could get from a sound card, but in theory we probably could connect the 
+digital input on a sound card to digital output on another card (and vice-versa) 
+and map the whole thing as a network interface :)
 
-  drivers/usb/core/usb.c: registered new driver usbfs
-  drivers/usb/core/usb.c: registered new driver hub
-  ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-  ohci_hcd: block sizes: ed 64 td 64
-  drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.1
-  PCI: Found IRQ 11 for device 0000:00:1d.0
-  PCI: Sharing IRQ 11 with 0000:01:00.0
-  PCI: Sharing IRQ 11 with 0000:02:00.0
-  uhci_hcd 0000:00:1d.0: UHCI Host Controller
-  PCI: Setting latency timer of device 0000:00:1d.0 to 64
-  uhci_hcd 0000:00:1d.0: irq 11, io base 00001800
-  uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 1
-  hub 1-0:1.0: USB hub found
-  hub 1-0:1.0: 2 ports detected
-  PCI: Found IRQ 9 for device 0000:00:1d.1
-  uhci_hcd 0000:00:1d.1: UHCI Host Controller
-  PCI: Setting latency timer of device 0000:00:1d.1 to 64
-  uhci_hcd 0000:00:1d.1: irq 9, io base 00001820
-  uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
-  hub 2-0:1.0: USB hub found
-  hub 2-0:1.0: 2 ports detected
-  PCI: Found IRQ 9 for device 0000:00:1d.2
-  PCI: Sharing IRQ 9 with 0000:00:1f.1
-  PCI: Sharing IRQ 9 with 0000:02:02.0
-  uhci_hcd 0000:00:1d.2: UHCI Host Controller
-  PCI: Setting latency timer of device 0000:00:1d.2 to 64
-  uhci_hcd 0000:00:1d.2: irq 9, io base 00001840
-  uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 3
-  hub 3-0:1.0: USB hub found
-  hub 3-0:1.0: 2 ports detected
-
-Relevant .config entries:
-
-  CONFIG_INPUT=y
-  CONFIG_INPUT_MOUSEDEV=y
-  CONFIG_INPUT_MOUSEDEV_PSAUX=y
-  CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-  CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-  CONFIG_INPUT_EVDEV=y
-  CONFIG_INPUT_KEYBOARD=y
-  CONFIG_INPUT_MOUSE=y
-
-  CONFIG_USB=y
-  CONFIG_USB_DEVICEFS=y
-  CONFIG_USB_EHCI_HCD=y
-  CONFIG_USB_OHCI_HCD=y
-  CONFIG_USB_UHCI_HCD=y
-
-  CONFIG_USB_HID=y
-  CONFIG_USB_HIDINPUT=y
-  CONFIG_USB_HIDDEV=y
+Anyway, this is an extremely crazy, time wasting, "just do it if you have loads 
+of time to throw out the window" kind of project, because the cost of ethernet 
+NIC's is extremely low these days.
 
 -- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+Paulo Marques - www.grupopie.com
+
+"In a world without walls and fences who needs windows and gates?"
+

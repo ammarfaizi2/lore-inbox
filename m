@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132947AbRADMvI>; Thu, 4 Jan 2001 07:51:08 -0500
+	id <S132983AbRADMx2>; Thu, 4 Jan 2001 07:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132985AbRADMu6>; Thu, 4 Jan 2001 07:50:58 -0500
-Received: from p3EE3CB0E.dip.t-dialin.net ([62.227.203.14]:58372 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132947AbRADMut>; Thu, 4 Jan 2001 07:50:49 -0500
-Date: Thu, 4 Jan 2001 13:50:44 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-Subject: ext3fs 0.0.5d and reiserfs 3.5.2x mutually exclusive
-Message-ID: <20010104135044.A5097@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-Mime-Version: 1.0
+	id <S132982AbRADMxS>; Thu, 4 Jan 2001 07:53:18 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:13787 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132904AbRADMxL>; Thu, 4 Jan 2001 07:53:11 -0500
+Message-ID: <3A54739F.FB8D6F3D@uow.edu.au>
+Date: Thu, 04 Jan 2001 23:59:11 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christian Loth <chris@gidayu.max.uni-duisburg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DHCP Problems with 3com 3c905C Tornado
+In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de> <3A546F8E.ABF952F@uow.edu.au>,
+		<3A546F8E.ABF952F@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 11:41:50PM +1100 <20010104134315.C15097@gidayu.max.uni-duisburg.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tried to patch ext3fs 0.0.5d on top of a 2.2.18 that already had
-reiserfs 3.5.28 and failed, there are overlapping patches in fs/buffer.c
-that I cannot resolve for lack of knowledge how buffer.c and journalling
-are supposed to fit together.
+Christian Loth wrote:
+> 
+> >
+> > Did _both_ 3c90x and 3c59x fail, or only 3c59x?
+> >
+> 
+> Both did not work. And 3c59x from 2.2.18 didn't work
+> as well, and as far as I could judge 3c90x is not included
+> in the kernel proper, right?
 
-I reported ext3fs and reiserfs incompatibilities quite some time ago.
+Now that is wierd.  They're radically different drivers,
+and the 3com one doesn't seem to undergo many changes at
+all.
 
--- 
-Matthias Andree
+I wonder if the PCI scan order may have changed.  What
+other PCI devices did you have in that machine? Any other
+NICs?
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,127 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132664AbRDKRAv>; Wed, 11 Apr 2001 13:00:51 -0400
+	id <S132659AbRDKRBL>; Wed, 11 Apr 2001 13:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132658AbRDKRAm>; Wed, 11 Apr 2001 13:00:42 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:30610 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S132655AbRDKRA1>; Wed, 11 Apr 2001 13:00:27 -0400
-Message-ID: <3AD48CA9.CA03B85D@uow.edu.au>
-Date: Wed, 11 Apr 2001 09:56:09 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@cambridge.redhat.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-In-Reply-To: Your message of "Tue, 10 Apr 2001 08:47:34 BST."
-		             <8623.986888854@warthog.cambridge.redhat.com> <11851.986925762@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132655AbRDKRBC>; Wed, 11 Apr 2001 13:01:02 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:15744 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id <S132658AbRDKRAy>; Wed, 11 Apr 2001 13:00:54 -0400
+Date: Wed, 11 Apr 2001 12:00:44 -0500
+From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+To: Peter Rival <frival@zk3.dec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alpha "process table hang"
+Message-ID: <20010411120044.A6472@draal.physics.wisc.edu>
+In-Reply-To: <20010411104040.A8773@draal.physics.wisc.edu> <3AD489D1.D5FCCB4B@zk3.dec.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AD489D1.D5FCCB4B@zk3.dec.com>; from frival@zk3.dec.com on Wed, Apr 11, 2001 at 12:44:01PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> 
-> Here's a patch that fixes RW semaphores on the i386 architecture. It is very
-> simple in the way it works.
-> 
-> The lock counter is dealt with as two semi-independent words: the LSW is the
-> number of active (granted) locks, and the MSW, if negated, is the number of
-> active writers (0 or 1) plus the number of waiting lockers of any type.
-> 
-> The fast paths are either two or three instructions long.
-> 
-> This algorithm should also be totally fair! Contentious lockers get put on the
-> back of the wait queue, and a waker function wakes them starting at the front,
-> but only wakes either one writer or the first consecutive bundle of readers.
 
-I think that's a very good approach.  Sure, it's suboptimal when there
-are three or more waiters (and they're the right type and order).  But
-that never happens.  Nice design idea.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The disadvantage is that the maximum number of active locks is 65535, and the
-> maximum number of waiting locks is 32766 (this can be extended to 65534 by not
-> relying on the S flag).
+Peter Rival [frival@zk3.dec.com] wrote:
+> You wouldn't happen to have khttpd loaded as a module, would you?  I've s=
+een
+> this type of problem caused by that before...
 
-These numbers are infinity :)
+Nope...
 
-> I've included a revised testing module (rwsem.c) that allows read locks to be
-> obtained as well as write locks and a revised driver program (driver.c) that
-> can use rwsem.c. Try the following tests:
-> 
->         driver -200 & driver 200 # fork 200 writers and then 200 readers
->         driver 200 & driver -200 # fork 200 readers and then 200 writers
+>=20
+>  - Pete
+>=20
+> Bob McElrath wrote:
+>=20
+> > I've been experiencing a particular kind of hang for many versions
+> > (since 2.3.99 days, recently seen with 2.4.1, 2.4.2, and 2.4.2-ac4) on
+> > the alpha architecture.  The symptom is that any program that tries to
+> > access the process table will hang. (ps, w, top) The hang will go away
+> > by itself after ~10minutes - 1 hour or so.  When it hangs I run ps and
+> > see that it gets halfway through the process list and hangs.  The
+> > process that comes next in the list (after hang goes away) almost always
+> > has nonsensical memory numbers, like multi-gigabyte SIZE.
+> >
+> > Linux draal.physics.wisc.edu 2.3.99-pre5 #8 Sun Apr 23 16:21:48 CDT 2000
+> > alpha unknown
+> >
+> > Gnu C                  2.96
+> > Gnu make               3.78.1
+> > binutils               2.10.0.18
+> > util-linux             2.11a
+> > modutils               2.4.5
+> > e2fsprogs              1.18
+> > PPP                    2.3.11
+> > Linux C Library        2.2.1
+> > Dynamic linker (ldd)   2.2.1
+> > Procps                 2.0.7
+> > Net-tools              1.54
+> > Kbd                    0.94
+> > Sh-utils               2.0
+> > Modules Loaded         nfsd lockd sunrpc af_packet msdos fat pas2 sound
+> > soundcore
+> >
+> > Has anyone else seen this?  Is there a fix?
+> >
+> > -- Bob
+> >
+> > Bob McElrath (rsmcelrath@students.wisc.edu)
+> > Univ. of Wisconsin at Madison, Department of Physics
+> >
+> >   ---------------------------------------------------------------------=
+---
+> >    Part 1.2Type: application/pgp-signature
+-- Bob
 
-You need sterner testing stuff :)  I hit the BUG at the end of rwsem_wake()
-in about a second running rwsem-4.  Removed the BUG and everything stops
-in D state.
+Bob McElrath (rsmcelrath@students.wisc.edu)=20
+Univ. of Wisconsin at Madison, Department of Physics
 
-Grab rwsem-4 from
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-	http://www.uow.edu.au/~andrewm/linux/rwsem.tar.gz
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-It's very simple.  But running fully in-kernel shortens the
-code paths enormously and allows you to find those little
-timing windows.  Run rmsem-4 in two modes: one with
-the schedule() in sched() enabled, and also with it
-commented out.  If it passes that, it works.  When
-you remove the module it'll print out the number of
-read-grants versus write-grants.  If these run at 6:1
-with schedule() disabled then you've kicked butt.
+iEYEARECAAYFAjrUjbwACgkQjwioWRGe9K3fqwCfVqMj/iY22SNLWfCOGUdqvtQj
+wdwAn1TXMr8v19nIe14VQd5hYGS/s0sh
+=eXu2
+-----END PGP SIGNATURE-----
 
-Also, rwsem-4 checks that the rwsems are actually providing
-exclusion between readers and writers, and between
-writers and writers.  A useful thing to check, that.
-
-
-Some random comments:
-
-- rwsemdebug(FMT, ...) doesn't compile with egcs-1.1.2.  Need
-to remove the comma.
-
-- In include/linux/sched.h:INIT_MM() I suggest we remove the
-second arg to __RWSEM_INITIALISER().  Your code doesn't use it,
-other architectures don't use it.  __RWSEM_INITIALIZER(name.mmap_sem)
-seems appropriate.
-
-- The comments in down_write and down_read() are inaccurate.
-RWSEM_ACTIVE_WRITE_BIAS is 0xffff0001, not 0x00010001
-
-- It won't compile when WAITQUEUE_DEBUG is turned on. I
-guess you knew that.  (Good luck trying to enable
-WAITQUEUE_DEBUG in -ac kernels, BTW.  Someone added
-a config option for it (CONFIG_DEBUG_WAITK) but forgot
-to add it to the config system!)
-
-- The comments above the functions in semaphore.h need
-updating.
-
-- What on earth does __xg() do?  (And why do people write
-code like that without explaining why?  Don't answer this
-one).
-
-- May as well kill the local variable `state' in the __wake_up
-functions.  Not sure why I left that in there...
-
-- Somewhat offtopic: the `asm' statements in semaphore.c
-are really dangerous.  If you precede them with an init_module(),
-the asm code gets assembled into the .initcall section and
-gets unloaded when you least expected it. If you precede it
-with an EXPORT_SYMBOL() then the code gets assembled into the
-__ksymtab section and your kernel mysteriously explodes when
-loading modules, providing you with a fun hour working out why
-(I measured it).  If you predece the asm with a data initialiser
-then the code gets assembled into .data, etc...
-
-I think the most elegant fix for this is to wrap the asm code
-inside a dummy C function.   This way, we allow the compiler
-to put the code into whatever section gcc-of-the-day is putting
-text into.  Drawbacks of this are that the wrapper function
-will need global scope to avoid a compile-time warning, and
-it'll get dropped altogether if people are playing with
--ffunction-sections.  Alternative is, of course, to
-add `.text' to the asm itself.
+--FCuugMFkClbJLl1L--

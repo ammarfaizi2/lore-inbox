@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbUCJXzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 18:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbUCJXzS
+	id S262895AbUCJX65 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 18:58:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbUCJX65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 18:55:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4533 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262881AbUCJXzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 18:55:12 -0500
-Date: Wed, 10 Mar 2004 15:57:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Brad Laue <brad@brad-x.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ksoftirqd using mysteriously high amounts of CPU time
-Message-Id: <20040310155712.7472e31c.akpm@osdl.org>
-In-Reply-To: <404F85A6.6070505@brad-x.com>
-References: <404F85A6.6070505@brad-x.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 10 Mar 2004 18:58:57 -0500
+Received: from h-67-100-3-250.SFLDMIDN.covad.net ([67.100.3.250]:37055 "EHLO
+	morpheous.rootservices.net") by vger.kernel.org with ESMTP
+	id S262896AbUCJX5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 18:57:53 -0500
+Message-ID: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
+Date: Wed, 10 Mar 2004 18:57:53 -0500 (EST)
+Subject: nforce 2 chipset
+From: "Jeremy D. May" <jeremy@rootservices.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: jeremy@rootservices.net
+User-Agent: SquirrelMail/1.5.1 [CVS]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Laue <brad@brad-x.com> wrote:
->
-> I'm running into an issue where ksoftirqd/0 consumes a considerably 
-> larger amount of CPU time  than it should, and begins to actively 
-> consume 99% CPU time during network operations.
+Not sure if this is the right place to go for this, but maybe someone
+could point me in the right direction.
 
-Please ensure that the machine was booted with `profile=1' on
-the kernel boot command line.  The cost of this is negligible.
+system:
 
-When the problem starts happening, run:
+2500+ Athlon XP (barton)
+NFource 2 Ultra 400 + MCP chipset (is a Shuttle AN35-Ultra400(latest bios
+flash))
+1.5 gigs PC2700
+40 Gig Maxtor HD
+80 Gig Seagate HD
+CDRW
+DVD
+GF FX 5600XT
+SB Live 5.1Digital
 
-sudo readprofile -r
-sleep 10
-sudo readprofile -n -v -m /boot/System.map | sort -n +2 | tail -40
 
-(make sure that /boot/System.map refers to the currently-running kernel)
+i installed debian and a fresh compile of 2.4.25, installed the backports
+collection for XF86/gnome2 and all my software i like. it goes fine for a
+bit. but then while playing any sound (mainly streaming mp3's and my own
+mp3's(in xmms)) the machine would lockup and i would have to reboot. i
+never had this problem in windows with the box so i was wondering if
+anyone had any incite into this.
+
+--jeremy

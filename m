@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUFND10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUFNDc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUFND10 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 23:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUFND10
+	id S261724AbUFNDc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 23:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUFNDc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 23:27:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19112 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261763AbUFND0x (ORCPT
+	Sun, 13 Jun 2004 23:32:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6315 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261724AbUFNDcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 23:26:53 -0400
-Date: Sun, 13 Jun 2004 20:26:44 -0700
+	Sun, 13 Jun 2004 23:32:11 -0400
+Date: Sun, 13 Jun 2004 20:32:03 -0700
 From: Pete Zaitcev <zaitcev@redhat.com>
-To: <marcelo.tosatti@cyclades.com>, zaitcev@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Patch for USB serial in 2.4.27-pre5
-Message-Id: <20040613202644.787b447c@lembas.zaitcev.lan>
+To: <marcelo.tosatti@cyclades.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Patch for USB in 2.4 to update mct_u232
+Message-Id: <20040613203203.0a5ca0cd@lembas.zaitcev.lan>
 Organization: Red Hat, Inc.
 X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -23,541 +23,499 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Work around a situation where a line discipline attempts to write
-from an interrupt context and oopses when trying to take a semaphore.
-This includes primarily PPP and getty, but I had people with GPS
-and custom software stepping on it as well.
+This is a fairly straightforward backport from 2.6.6.
+My MCT U9 is hardly useable without it, because the 2.4 driver
+keeps forgetting to set the baud rate. Only applications which
+pre-set baud rate work (to anything other than 9600, too).
+And god forbid you run getty with this thing.
+
+This is independent from the write-from-interrupt part I posted
+before, but both are needed for getty to work.
 
 -- Pete
 
-diff -urp -X dontdiff linux-2.4.27-pre5/drivers/usb/serial/usbserial.c linux-2.4.27-pre5-usb/drivers/usb/serial/usbserial.c
---- linux-2.4.27-pre5/drivers/usb/serial/usbserial.c	2003-11-29 18:53:05.000000000 -0800
-+++ linux-2.4.27-pre5-usb/drivers/usb/serial/usbserial.c	2004-06-12 14:24:26.000000000 -0700
-@@ -297,6 +297,7 @@
- #include <linux/spinlock.h>
- #include <linux/list.h>
- #include <linux/smp_lock.h>
-+#include <linux/spinlock.h>
- #include <linux/usb.h>
+diff -urp -X dontdiff linux-2.4.27-pre5/drivers/usb/serial/mct_u232.c linux-2.4.27-pre5-usb/drivers/usb/serial/mct_u232.c
+--- linux-2.4.27-pre5/drivers/usb/serial/mct_u232.c	2004-02-26 14:09:59.000000000 -0800
++++ linux-2.4.27-pre5-usb/drivers/usb/serial/mct_u232.c	2004-06-12 14:24:26.000000000 -0700
+@@ -169,7 +169,8 @@ static struct usb_serial_device_type mct
  
- #ifdef CONFIG_USB_SERIAL_DEBUG
-@@ -347,11 +348,29 @@ static struct usb_serial_device_type gen
- };
- #endif
  
-+/*
-+ * The post kludge structures and variables.
-+ */
-+#define POST_BSIZE	100	/* little below 128 in total */
-+struct usb_serial_post_job {
-+	struct list_head link;
-+	struct usb_serial_port *port;
-+	int len;
-+	char buff[POST_BSIZE];
-+};
-+static spinlock_t post_lock = SPIN_LOCK_UNLOCKED;	/* Also covers ->ref */
-+static struct list_head post_list = LIST_HEAD_INIT(post_list);
-+static struct tq_struct post_task;
+ struct mct_u232_private {
+-	unsigned long	     control_state; /* Modem Line Setting (TIOCM) */
++	spinlock_t lock;
++	unsigned int	     control_state; /* Modem Line Setting (TIOCM) */
+ 	unsigned char        last_lcr;      /* Line Control Register */
+ 	unsigned char	     last_lsr;      /* Line Status Register */
+ 	unsigned char	     last_msr;      /* Modem Status Register */
+@@ -181,25 +182,49 @@ struct mct_u232_private {
  
- /* local function prototypes */
- static int  serial_open (struct tty_struct *tty, struct file * filp);
- static void serial_close (struct tty_struct *tty, struct file * filp);
-+static int __serial_write (struct usb_serial_port *port, int from_user, const unsigned char *buf, int count);
- static int  serial_write (struct tty_struct * tty, int from_user, const unsigned char *buf, int count);
-+static int  serial_post_job(struct usb_serial_port *port, int from_user,
-+    int gfp, const unsigned char *buf, int count);
-+static int  serial_post_one(struct usb_serial_port *port, int from_user,
-+    int gfp, const unsigned char *buf, int count);
- static int  serial_write_room (struct tty_struct *tty);
- static int  serial_chars_in_buffer (struct tty_struct *tty);
- static void serial_throttle (struct tty_struct * tty);
-@@ -448,6 +467,63 @@ static void return_serial (struct usb_se
- 	return;
- }
+ #define WDR_TIMEOUT (HZ * 5 ) /* default urb timeout */
  
 +/*
-+ * The post kludge.
-+ *
-+ * Our component drivers are hideously buggy and written by people
-+ * who have difficulty understanding the concept of spinlocks.
-+ * There were so many races and lockups that Greg K-H made a watershed
-+ * decision to provide what is essentially a single-threaded sandbox
-+ * for component drivers, protected by a semaphore. It helped a lot, but
-+ * for one little problem: when tty->low_latency is set, line disciplines
-+ * can call ->write from an interrupt, where the semaphore oopses.
-+ *
-+ * Rather than open the whole can of worms again, we just post writes
-+ * into a helper which can sleep.
-+ *
-+ * Kernel 2.6 has a proper fix. It replaces semaphores with proper locking.
++ * Later day 2.6.0-test kernels have new baud rates like B230400 which
++ * we do not know how to support. We ignore them for the moment.
++ * XXX Rate-limit the error message, it's user triggerable.
 + */
-+static void post_helper(void *arg)
-+{
-+	struct list_head *pos;
-+	struct usb_serial_post_job *job;
-+	struct usb_serial_port *port;
-+	struct usb_serial *serial;
-+	unsigned int flags;
-+
-+	spin_lock_irqsave(&post_lock, flags);
-+	pos = post_list.next;
-+	while (pos != &post_list) {
-+		job = list_entry(pos, struct usb_serial_post_job, link);
-+		port = job->port;
-+		/* get_usb_serial checks port->tty, so cannot be used */
-+		serial = port->serial;
-+		if (port->write_busy) {
-+			dbg("%s - port %d busy", __FUNCTION__, port->number);
-+			pos = pos->next;
-+			continue;
-+		}
-+		list_del(&job->link);
-+		spin_unlock_irqrestore(&post_lock, flags);
-+
-+		down(&port->sem);
-+		dbg("%s - port %d len %d backlog %d", __FUNCTION__,
-+		    port->number, job->len, port->write_backlog);
-+		if (port->tty != NULL)
-+			__serial_write(port, 0, job->buff, job->len);
-+		up(&port->sem);
-+
-+		spin_lock_irqsave(&post_lock, flags);
-+		port->write_backlog -= job->len;
-+		kfree(job);
-+		if (--serial->ref == 0)
-+			kfree(serial);
-+		/* Have to reset because we dropped spinlock */
-+		pos = post_list.next;
-+	}
-+	spin_unlock_irqrestore(&post_lock, flags);
-+}
-+
- #ifdef USES_EZUSB_FUNCTIONS
- /* EZ-USB Control and Status Register.  Bit 0 controls 8051 reset */
- #define CPUCS_REG    0x7F92
-@@ -580,23 +656,34 @@ static void serial_close(struct tty_stru
- 
- 	/* if disconnect beat us to the punch here, there's nothing to do */
- 	if (tty->driver_data) {
-+		/*
-+		 * XXX The right thing would be to wait for the output to drain.
-+		 * But we are not sufficiently daring to experiment in 2.4.
-+		 * N.B. If we do wait, no need to run post_helper here.
-+		 * Normall callback mechanism wakes it up just fine.
-+		 */
-+#if I_AM_A_DARING_HACKER
-+		tty->closing = 1;
-+		up (&port->sem);
-+		if (info->closing_wait != ASYNC_CLOSING_WAIT_NONE)
-+			tty_wait_until_sent(tty, info->closing_wait);
-+		down (&port->sem);
-+		if (!tty->driver_data) /* woopsie, disconnect, now what */ ;
-+#endif
- 		__serial_close(port, filp);
- 	}
- 
- 	up (&port->sem);
- }
- 
--static int serial_write (struct tty_struct * tty, int from_user, const unsigned char *buf, int count)
-+static int __serial_write (struct usb_serial_port *port, int from_user, const unsigned char *buf, int count)
- {
--	struct usb_serial_port *port = (struct usb_serial_port *) tty->driver_data;
- 	struct usb_serial *serial = get_usb_serial (port, __FUNCTION__);
- 	int retval = -EINVAL;
- 
- 	if (!serial)
- 		return -ENODEV;
- 
--	down (&port->sem);
--
- 	dbg("%s - port %d, %d byte(s)", __FUNCTION__, port->number, count);
- 
- 	if (!port->open_count) {
-@@ -611,10 +698,132 @@ static int serial_write (struct tty_stru
- 		retval = generic_write(port, from_user, buf, count);
- 
- exit:
--	up (&port->sem);
- 	return retval;
- }
- 
-+static int serial_write (struct tty_struct * tty, int from_user, const unsigned char *buf, int count)
-+{
-+	struct usb_serial_port *port = (struct usb_serial_port *) tty->driver_data;
-+	int rc;
-+
-+	if (!in_interrupt()) {
-+		/*
-+		 * Run post_list to reduce a possiblity of reordered writes.
-+		 * Tasks can make keventd to sleep, sometimes for a long time.
-+		 */
-+		post_helper(NULL);
-+
-+		down(&port->sem);
-+		/*
-+		 * This happens when a line discipline asks how much room
-+		 * we have, gets 64, then tries to perform two writes
-+		 * for a byte each. First write takes whole URB, second
-+		 * write hits this check.
-+		 */
-+		if (port->write_busy) {
-+			up(&port->sem);
-+			return serial_post_job(port, from_user, GFP_KERNEL,
-+			    buf, count);
-+		}
-+
-+		rc = __serial_write(port, from_user, buf, count);
-+		up(&port->sem);
-+		return rc;
-+	}
-+
-+	if (from_user) {
-+		/*
-+		 * This is a BUG-able offense because we cannot
-+		 * pagefault while in_interrupt, but we want to see
-+		 * something in dmesg rather than just blinking LEDs.
-+		 */
-+		err("user data in interrupt write");
-+		return -EINVAL;
-+	}
-+
-+	return serial_post_job(port, 0, GFP_ATOMIC, buf, count);
-+}
-+
-+static int serial_post_job(struct usb_serial_port *port, int from_user,
-+    int gfp, const unsigned char *buf, int count)
-+{
-+	int done = 0, length;
-+	int rc;
-+
-+	if (port == NULL)
-+		return -EPIPE;
-+
-+	if (count >= 512) {
-+		static int rate = 0;
-+		/*
-+		 * Data loss due to extreme circumstances.
-+		 * It's a ususal thing on serial to lose characters, isn't it?
-+		 * Neener, neener! Actually, it's probably an echo loop anyway.
-+		 * Only happens when getty starts talking to Visor.
-+		 */
-+		if (++rate % 1000 < 3) {
-+			err("too much data (%d) from %s", count,
-+			    from_user? "user": "kernel");
-+		}
-+		count = 512;
-+	}
-+
-+	while (done < count) {
-+		length = count - done;
-+		if (length > POST_BSIZE)
-+			length = POST_BSIZE;
-+		if (length > port->bulk_out_size)
-+			length = port->bulk_out_size;
-+
-+		rc = serial_post_one(port, from_user, gfp, buf + done, length);
-+		if (rc <= 0) {
-+			if (done != 0)
-+				return done;
-+			return rc;
-+		}
-+		done += rc;
-+	}
-+
-+	return done;
-+}
-+
-+static int serial_post_one(struct usb_serial_port *port, int from_user,
-+    int gfp, const unsigned char *buf, int count)
-+{
-+	struct usb_serial *serial = get_usb_serial (port, __FUNCTION__);
-+	struct usb_serial_post_job *job;
-+	unsigned long flags;
-+
-+	dbg("%s - port %d user %d count %d", __FUNCTION__, port->number, from_user, count);
-+
-+	job = kmalloc(sizeof(struct usb_serial_post_job), gfp);
-+	if (job == NULL)
-+		return -ENOMEM;
-+
-+	job->port = port;
-+	if (count >= POST_BSIZE)
-+		count = POST_BSIZE;
-+	job->len = count;
-+
-+	if (from_user) {
-+		if (copy_from_user(job->buff, buf, count)) {
-+			kfree(job);
-+			return -EFAULT;
+ static int mct_u232_calculate_baud_rate(struct usb_serial *serial, int value) {
+ 	if (serial->dev->descriptor.idProduct == MCT_U232_SITECOM_PID
+ 	  || serial->dev->descriptor.idProduct == MCT_U232_BELKIN_F5U109_PID) {
+ 		switch (value) {
+-			case    300: return 0x01;
+-			case    600: return 0x02; /* this one not tested */
+-			case   1200: return 0x03;
+-			case   2400: return 0x04;
+-			case   4800: return 0x06;
+-			case   9600: return 0x08;
+-			case  19200: return 0x09;
+-			case  38400: return 0x0a;
+-			case  57600: return 0x0b;
+-			case 115200: return 0x0c;
+-			default:     return -1; /* normally not reached */
++		case    B300: return 0x01;
++		case    B600: return 0x02; /* this one not tested */
++		case   B1200: return 0x03;
++		case   B2400: return 0x04;
++		case   B4800: return 0x06;
++		case   B9600: return 0x08;
++		case  B19200: return 0x09;
++		case  B38400: return 0x0a;
++		case  B57600: return 0x0b;
++		case B115200: return 0x0c;
++		default:
++			err("MCT USB-RS232: unsupported baudrate request 0x%x,"
++			    " using default of B9600", value);
++			return 0x08;
 +		}
 +	} else {
-+		memcpy(job->buff, buf, count);
-+	}
-+
-+	spin_lock_irqsave(&post_lock, flags);
-+	port->write_backlog += count;
-+	list_add_tail(&job->link, &post_list);
-+	serial->ref++;		/* Protect the port->sem from kfree() */
-+	schedule_task(&post_task);
-+	spin_unlock_irqrestore(&post_lock, flags);
-+
-+	return count;
-+}
-+
- static int serial_write_room (struct tty_struct *tty) 
- {
- 	struct usb_serial_port *port = (struct usb_serial_port *) tty->driver_data;
-@@ -624,6 +833,14 @@ static int serial_write_room (struct tty
- 	if (!serial)
- 		return -ENODEV;
- 
-+	if (in_interrupt()) {
-+		retval = 0;
-+		if (!port->write_busy && port->write_backlog == 0)
-+			retval = port->bulk_out_size;
-+		dbg("%s - returns %d", __FUNCTION__, retval);
-+		return retval;
-+	}
-+
- 	down (&port->sem);
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
-@@ -655,10 +872,8 @@ static int serial_chars_in_buffer (struc
- 
- 	down (&port->sem);
- 
--	dbg("%s = port %d", __FUNCTION__, port->number);
--
- 	if (!port->open_count) {
--		dbg("%s - port not open", __FUNCTION__);
-+		dbg("%s - port %d: not open", __FUNCTION__, port->number);
- 		goto exit;
- 	}
- 
-@@ -917,18 +1132,23 @@ static int generic_write (struct usb_ser
- {
- 	struct usb_serial *serial = port->serial;
- 	int result;
--
--	dbg("%s - port %d", __FUNCTION__, port->number);
-+	unsigned long flags;
- 
- 	if (count == 0) {
- 		dbg("%s - write request of 0 bytes", __FUNCTION__);
- 		return (0);
- 	}
-+	if (count < 0) {
-+		err("%s - port %d: write request of %d bytes", __FUNCTION__,
-+		    port->number, count);
-+		return (0);
-+	}
- 
- 	/* only do something if we have a bulk out endpoint */
- 	if (serial->num_bulk_out) {
--		if (port->write_urb->status == -EINPROGRESS) {
--			dbg("%s - already writing", __FUNCTION__);
-+		if (port->write_busy) {
-+			/* Happens when two threads run port_helper. Watch. */
-+			info("%s - already writing", __FUNCTION__);
- 			return (0);
++		switch (value) {
++		case    B300: value =     300;
++		case    B600: value =     600;
++		case   B1200: value =    1200;
++		case   B2400: value =    2400;
++		case   B4800: value =    4800;
++		case   B9600: value =    9600;
++		case  B19200: value =   19200;
++		case  B38400: value =   38400;
++		case  B57600: value =   57600;
++		case B115200: value =  115200;
++		default:
++			err("MCT USB-RS232: unsupported baudrate request 0x%x,"
++			    " using default of B9600", value);
++			value = 9600;
  		}
++		return 115200/value;
+ 	}
+-	else
+-		return MCT_U232_BAUD_RATE(value);
+ }
  
-@@ -937,12 +1157,10 @@ static int generic_write (struct usb_ser
- 		if (from_user) {
- 			if (copy_from_user(port->write_urb->transfer_buffer, buf, count))
- 				return -EFAULT;
--		}
--		else {
-+		} else {
- 			memcpy (port->write_urb->transfer_buffer, buf, count);
- 		}
--
--		usb_serial_debug_data (__FILE__, __FUNCTION__, count, port->write_urb->transfer_buffer);
-+		dbg("%s - port %d [%d]", __FUNCTION__, port->number, count);
- 
- 		/* set up our urb */
- 		usb_fill_bulk_urb (port->write_urb, serial->dev,
-@@ -954,10 +1172,18 @@ static int generic_write (struct usb_ser
- 				     generic_write_bulk_callback), port);
- 
- 		/* send the data out the bulk port */
-+		port->write_busy = 1;
- 		result = usb_submit_urb(port->write_urb);
--		if (result)
--			err("%s - failed submitting write urb, error %d", __FUNCTION__, result);
--		else
-+		if (result) {
-+			err("%s - port %d: failed submitting write urb (%d)",
-+			     __FUNCTION__, port->number, result);
-+			port->write_busy = 0;
-+			spin_lock_irqsave(&post_lock, flags);
-+			if (port->write_backlog != 0)
-+				schedule_task(&post_task);
-+			spin_unlock_irqrestore(&post_lock, flags);
+ static int mct_u232_set_baud_rate(struct usb_serial *serial, int value)
+@@ -207,7 +232,9 @@ static int mct_u232_set_baud_rate(struct
+ 	unsigned int divisor;
+         int rc;
+         unsigned char zero_byte = 0;
 +
-+		} else
- 			result = count;
+ 	divisor = cpu_to_le32(mct_u232_calculate_baud_rate(serial, value));
++
+         rc = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
+                              MCT_U232_SET_BAUD_RATE_REQUEST,
+ 			     MCT_U232_SET_REQUEST_TYPE,
+@@ -215,7 +242,7 @@ static int mct_u232_set_baud_rate(struct
+ 			     WDR_TIMEOUT);
+ 	if (rc < 0)
+ 		err("Set BAUD RATE %d failed (error = %d)", value, rc);
+-	dbg("set_baud_rate: value: %d, divisor: 0x%x", value, divisor);
++	dbg("set_baud_rate: value: 0x%x, divisor: 0x%x", value, divisor);
  
- 		return result;
-@@ -972,14 +1198,12 @@ static int generic_write_room (struct us
- 	struct usb_serial *serial = port->serial;
- 	int room = 0;
+ 	/* Mimic the MCT-supplied Windows driver (version 1.21P.0104), which
+ 	   always sends two extra USB 'device request' messages after the
+@@ -263,7 +290,7 @@ static int mct_u232_set_line_ctrl(struct
+ } /* mct_u232_set_line_ctrl */
  
--	dbg("%s - port %d", __FUNCTION__, port->number);
+ static int mct_u232_set_modem_ctrl(struct usb_serial *serial,
+-				   unsigned long control_state)
++				   unsigned int control_state)
+ {
+         int rc;
+ 	unsigned char mcr = MCT_U232_MCR_NONE;
+@@ -280,7 +307,7 @@ static int mct_u232_set_modem_ctrl(struc
+ 			     WDR_TIMEOUT);
+ 	if (rc < 0)
+ 		err("Set MODEM CTRL 0x%x failed (error = %d)", mcr, rc);
+-	dbg("set_modem_ctrl: state=0x%lx ==> mcr=0x%x", control_state, mcr);
++	dbg("set_modem_ctrl: state=0x%x ==> mcr=0x%x", control_state, mcr);
+ 
+         return rc;
+ } /* mct_u232_set_modem_ctrl */
+@@ -301,7 +328,7 @@ static int mct_u232_get_modem_stat(struc
+         return rc;
+ } /* mct_u232_get_modem_stat */
+ 
+-static void mct_u232_msr_to_state(unsigned long *control_state, unsigned char msr)
++static void mct_u232_msr_to_state(unsigned int *control_state, unsigned char msr)
+ {
+  	/* Translate Control Line states */
+ 	if (msr & MCT_U232_MSR_DSR)
+@@ -320,7 +347,7 @@ static void mct_u232_msr_to_state(unsign
+ 		*control_state |=  TIOCM_CD;
+ 	else
+ 		*control_state &= ~TIOCM_CD;
+- 	dbg("msr_to_state: msr=0x%x ==> state=0x%lx", msr, *control_state);
++ 	dbg("msr_to_state: msr=0x%x ==> state=0x%x", msr, *control_state);
+ } /* mct_u232_msr_to_state */
+ 
+ /*
+@@ -330,20 +357,32 @@ static void mct_u232_msr_to_state(unsign
+ static int mct_u232_startup (struct usb_serial *serial)
+ {
+ 	struct mct_u232_private *priv;
++	struct usb_serial_port *port, *rport;
+ 
+ 	/* allocate the private data structure */
+-	serial->port->private = kmalloc(sizeof(struct mct_u232_private),
+-					GFP_KERNEL);
+-	if (!serial->port->private)
+-		return (-1); /* error */
+-	priv = (struct mct_u232_private *)serial->port->private;
++	priv = kmalloc(sizeof(struct mct_u232_private), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
+ 	/* set initial values for control structures */
++	spin_lock_init(&priv->lock);
+ 	priv->control_state = 0;
+ 	priv->last_lsr = 0;
+ 	priv->last_msr = 0;
+-
++	serial->port->private = priv;
++ 
+ 	init_waitqueue_head(&serial->port->write_wait);
 -	
- 	if (serial->num_bulk_out) {
--		if (port->write_urb->status != -EINPROGRESS)
-+		if (!port->write_busy && port->write_backlog == 0)
- 			room = port->bulk_out_size;
- 	}
- 
--	dbg("%s - returns %d", __FUNCTION__, room);
-+	dbg("%s - port %d, returns %d", __FUNCTION__, port->number, room);
- 	return (room);
- }
- 
-@@ -991,8 +1215,9 @@ static int generic_chars_in_buffer (stru
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (serial->num_bulk_out) {
--		if (port->write_urb->status == -EINPROGRESS)
--			chars = port->write_urb->transfer_buffer_length;
-+		if (port->write_busy)
-+			chars += port->write_urb->transfer_buffer_length;
-+		chars += port->write_backlog;	/* spin_lock... Baah */
- 	}
- 
- 	dbg("%s - returns %d", __FUNCTION__, chars);
-@@ -1056,14 +1281,16 @@ static void generic_write_bulk_callback 
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
-+	port->write_busy = 0;
-+	wmb();
 +
- 	if (!serial) {
--		dbg("%s - bad serial pointer, exiting", __FUNCTION__);
-+		err("%s - null serial pointer, exiting", __FUNCTION__);
- 		return;
- 	}
- 
- 	if (urb->status) {
- 		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__, urb->status);
--		return;
- 	}
- 
- 	queue_task(&port->tqueue, &tq_immediate);
-@@ -1089,12 +1316,18 @@ static void port_softint(void *private)
- 	struct usb_serial_port *port = (struct usb_serial_port *)private;
- 	struct usb_serial *serial = get_usb_serial (port, __FUNCTION__);
- 	struct tty_struct *tty;
-+	unsigned long flags;
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 	
- 	if (!serial)
- 		return;
- 
-+	spin_lock_irqsave(&post_lock, flags);
-+	if (port->write_backlog != 0)
-+		schedule_task(&post_task);
-+	spin_unlock_irqrestore(&post_lock, flags);
-+
- 	tty = port->tty;
- 	if (!tty)
- 		return;
-@@ -1108,7 +1341,6 @@ static void port_softint(void *private)
- }
- 
- 
--
- static void * usb_serial_probe(struct usb_device *dev, unsigned int ifnum,
- 			       const struct usb_device_id *id)
- {
-@@ -1132,6 +1364,7 @@ static void * usb_serial_probe(struct us
- 	int num_ports;
- 	int max_endpoints;
- 	const struct usb_device_id *id_pattern = NULL;
-+	unsigned long flags;
- 
- 	/* loop through our list of known serial converters, and see if this
- 	   device matches. */
-@@ -1342,11 +1575,15 @@ static void * usb_serial_probe(struct us
- 		init_MUTEX (&port->sem);
- 	}
- 
-+	spin_lock_irqsave(&post_lock, flags);
-+	serial->ref = 1;
-+	spin_unlock_irqrestore(&post_lock, flags);
-+
- 	/* if this device type has a startup function, call it */
- 	if (type->startup) {
- 		i = type->startup (serial);
- 		if (i < 0)
--			goto probe_error;
-+			goto startup_error;
- 		if (i > 0)
- 			return serial;
- 	}
-@@ -1361,6 +1598,12 @@ static void * usb_serial_probe(struct us
- 	return serial; /* success */
- 
- 
-+startup_error:
-+	spin_lock_irqsave(&post_lock, flags);
-+	if (serial->ref != 1) {
-+		err("bug in component startup: ref %d\n", serial->ref);
++	/* Puh, that's dirty */
++	port = &serial->port[0];
++	rport = &serial->port[1];
++	if (port->read_urb) {
++		/* No unlinking, it wasn't submitted yet. */
++		usb_free_urb(port->read_urb);
 +	}
-+	spin_unlock_irqrestore(&post_lock, flags);
- probe_error:
- 	for (i = 0; i < num_bulk_in; ++i) {
- 		port = &serial->port[i];
-@@ -1396,6 +1639,7 @@ static void usb_serial_disconnect(struct
- {
- 	struct usb_serial *serial = (struct usb_serial *) ptr;
- 	struct usb_serial_port *port;
++	port->read_urb = rport->interrupt_in_urb;
++	rport->interrupt_in_urb = NULL;
++	port->read_urb->context = port;
++
+ 	return (0);
+ } /* mct_u232_startup */
+ 
+@@ -354,7 +393,6 @@ static void mct_u232_shutdown (struct us
+ 	
+ 	dbg("%s", __FUNCTION__);
+ 
+-	/* stop reads and writes on all ports */
+ 	for (i=0; i < serial->num_ports; ++i) {
+ 		/* My special items, the standard routines free my urbs */
+ 		if (serial->port[i].private)
+@@ -367,6 +405,10 @@ static int  mct_u232_open (struct usb_se
+ 	struct usb_serial *serial = port->serial;
+ 	struct mct_u232_private *priv = (struct mct_u232_private *)port->private;
+ 	int retval = 0;
++	unsigned int control_state;
 +	unsigned long flags;
- 	int i;
++	unsigned char last_lcr;
++	unsigned char last_msr;
  
- 	dbg ("%s", __FUNCTION__);
-@@ -1453,7 +1697,10 @@ static void usb_serial_disconnect(struct
- 		return_serial (serial);
+ 	dbg("%s port %d", __FUNCTION__, port->number);
  
- 		/* free up any memory that we allocated */
--		kfree (serial);
-+		spin_lock_irqsave(&post_lock, flags);
-+		if (--serial->ref == 0)
-+			kfree(serial);
-+		spin_unlock_irqrestore(&post_lock, flags);
+@@ -383,29 +425,27 @@ static int  mct_u232_open (struct usb_se
+ 	 * sure if this is really necessary. But it should not harm
+ 	 * either.
+ 	 */
++	spin_lock_irqsave(&priv->lock, flags);
+ 	if (port->tty->termios->c_cflag & CBAUD)
+ 		priv->control_state = TIOCM_DTR | TIOCM_RTS;
+ 	else
+ 		priv->control_state = 0;
+-	mct_u232_set_modem_ctrl(serial, priv->control_state);
+ 	
+ 	priv->last_lcr = (MCT_U232_DATA_BITS_8 | 
+ 			  MCT_U232_PARITY_NONE |
+ 			  MCT_U232_STOP_BITS_1);
+-	mct_u232_set_line_ctrl(serial, priv->last_lcr);
++	control_state = priv->control_state;
++	last_lcr = priv->last_lcr;
++	spin_unlock_irqrestore(&priv->lock, flags);
++	mct_u232_set_modem_ctrl(serial, control_state);
++	mct_u232_set_line_ctrl(serial, last_lcr);
  
- 	} else {
- 		info("device disconnected");
-@@ -1505,6 +1752,7 @@ static int __init usb_serial_init(void)
- 	for (i = 0; i < SERIAL_TTY_MINORS; ++i) {
- 		serial_table[i] = NULL;
+ 	/* Read modem status and update control state */
+-	mct_u232_get_modem_stat(serial, &priv->last_msr);
++	mct_u232_get_modem_stat(serial, &last_msr);
++	spin_lock_irqsave(&priv->lock, flags);
++	priv->last_msr = last_msr;
+ 	mct_u232_msr_to_state(&priv->control_state, priv->last_msr);
+-
+-	{
+-		/* Puh, that's dirty */
+-		struct usb_serial_port *rport;	
+-		rport = &serial->port[1];
+-		rport->tty = port->tty;
+-		rport->private = port->private;
+-		port->read_urb = rport->interrupt_in_urb;
+-	}
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	port->read_urb->dev = port->serial->dev;
+ 	retval = usb_submit_urb(port->read_urb);
+@@ -551,6 +591,7 @@ static void mct_u232_read_int_callback (
+ 	struct usb_serial *serial = port->serial;
+ 	struct tty_struct *tty;
+ 	unsigned char *data = urb->transfer_buffer;
++	unsigned long flags;
+ 
+         dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+@@ -587,6 +628,7 @@ static void mct_u232_read_int_callback (
+ 	 * The interrupt-in pipe signals exceptional conditions (modem line
+ 	 * signal changes and errors). data[0] holds MSR, data[1] holds LSR.
+ 	 */
++	spin_lock_irqsave(&priv->lock, flags);
+ 	priv->last_msr = data[MCT_U232_MSR_INDEX];
+ 	
+ 	/* Record Control Line states */
+@@ -617,6 +659,7 @@ static void mct_u232_read_int_callback (
+ 		}
  	}
-+	post_task.routine = post_helper;
+ #endif
++	spin_unlock_irqrestore(&priv->lock, flags);
  
- 	/* register the tty driver */
- 	serial_tty_driver.init_termios          = tty_std_termios;
-diff -urp -X dontdiff linux-2.4.27-pre5/drivers/usb/serial/usb-serial.h linux-2.4.27-pre5-usb/drivers/usb/serial/usb-serial.h
---- linux-2.4.27-pre5/drivers/usb/serial/usb-serial.h	2003-11-29 18:53:05.000000000 -0800
-+++ linux-2.4.27-pre5-usb/drivers/usb/serial/usb-serial.h	2004-06-12 14:48:13.000000000 -0700
-@@ -111,6 +111,8 @@ struct usb_serial_port {
- 	int			bulk_out_size;
- 	struct urb *		write_urb;
- 	__u8			bulk_out_endpointAddress;
-+	char			write_busy;	/* URB is active */
-+	int			write_backlog;	/* Fifo used */
+ 	/* INT urbs are automatically re-submitted */
+ } /* mct_u232_read_int_callback */
+@@ -628,125 +671,113 @@ static void mct_u232_set_termios (struct
+ 	struct usb_serial *serial = port->serial;
+ 	struct mct_u232_private *priv = (struct mct_u232_private *)port->private;
+ 	unsigned int iflag = port->tty->termios->c_iflag;
+-	unsigned int old_iflag = old_termios->c_iflag;
+ 	unsigned int cflag = port->tty->termios->c_cflag;
+ 	unsigned int old_cflag = old_termios->c_cflag;
+-	
++	unsigned long flags;
++	unsigned int control_state, new_state;
++	unsigned char last_lcr;
++
++	/* get a local copy of the current port settings */
++	spin_lock_irqsave(&priv->lock, flags);
++	control_state = priv->control_state;
++	spin_unlock_irqrestore(&priv->lock, flags);
++	last_lcr = 0;
++
+ 	/*
+-	 * Update baud rate
++	 * Update baud rate.
++	 * Do not attempt to cache old rates and skip settings,
++	 * disconnects screw such tricks up completely.
++	 * Premature optimization is the root of all evil.
+ 	 */
+-	if( (cflag & CBAUD) != (old_cflag & CBAUD) ) {
+-	        /* reassert DTR and (maybe) RTS on transition from B0 */
+-		if( (old_cflag & CBAUD) == B0 ) {
+-			dbg("%s: baud was B0", __FUNCTION__);
+-			priv->control_state |= TIOCM_DTR;
+-			/* don't set RTS if using hardware flow control */
+-			if (!(old_cflag & CRTSCTS)) {
+-				priv->control_state |= TIOCM_RTS;
+-			}
+-			mct_u232_set_modem_ctrl(serial, priv->control_state);
+-		}
+-		
+-		switch(cflag & CBAUD) {
+-		case B0: /* handled below */
+-			break;
+-		case B300: mct_u232_set_baud_rate(serial, 300);
+-			break;
+-		case B600: mct_u232_set_baud_rate(serial, 600);
+-			break;
+-		case B1200: mct_u232_set_baud_rate(serial, 1200);
+-			break;
+-		case B2400: mct_u232_set_baud_rate(serial, 2400);
+-			break;
+-		case B4800: mct_u232_set_baud_rate(serial, 4800);
+-			break;
+-		case B9600: mct_u232_set_baud_rate(serial, 9600);
+-			break;
+-		case B19200: mct_u232_set_baud_rate(serial, 19200);
+-			break;
+-		case B38400: mct_u232_set_baud_rate(serial, 38400);
+-			break;
+-		case B57600: mct_u232_set_baud_rate(serial, 57600);
+-			break;
+-		case B115200: mct_u232_set_baud_rate(serial, 115200);
+-			break;
+-		default: err("MCT USB-RS232 converter: unsupported baudrate request, using default of 9600");
+-			mct_u232_set_baud_rate(serial, 9600); break;
+-		}
+-		if ((cflag & CBAUD) == B0 ) {
+-			dbg("%s: baud is B0", __FUNCTION__);
+-			/* Drop RTS and DTR */
+-			priv->control_state &= ~(TIOCM_DTR | TIOCM_RTS);
+-        		mct_u232_set_modem_ctrl(serial, priv->control_state);
+-		}
++
++        /* reassert DTR and (maybe) RTS on transition from B0 */
++	if ((old_cflag & CBAUD) == B0) {
++		dbg("%s: baud was B0", __FUNCTION__);
++		control_state |= TIOCM_DTR;
++		/* don't set RTS if using hardware flow control */
++		if (!(old_cflag & CRTSCTS)) {
++			control_state |= TIOCM_RTS;
++		}
++		mct_u232_set_modem_ctrl(serial, control_state);
++	}
++
++	mct_u232_set_baud_rate(serial, cflag & CBAUD);
++
++	if ((cflag & CBAUD) == B0 ) {
++		dbg("%s: baud is B0", __FUNCTION__);
++		/* Drop RTS and DTR */
++		control_state &= ~(TIOCM_DTR | TIOCM_RTS);
++       		mct_u232_set_modem_ctrl(serial, control_state);
+ 	}
  
- 	wait_queue_head_t	write_wait;
- 	struct tq_struct	tqueue;
-@@ -161,6 +163,7 @@ struct usb_serial {
- 	__u16				product;
- 	struct usb_serial_port		port[MAX_NUM_PORTS];
- 	void *				private;
-+	int				ref;
- };
+ 	/*
+ 	 * Update line control register (LCR)
+ 	 */
+-	if ((cflag & (PARENB|PARODD)) != (old_cflag & (PARENB|PARODD))
+-	    || (cflag & CSIZE) != (old_cflag & CSIZE)
+-	    || (cflag & CSTOPB) != (old_cflag & CSTOPB) ) {
+-		
  
+-		priv->last_lcr = 0;
++	/* set the parity */
++	if (cflag & PARENB)
++		last_lcr |= (cflag & PARODD) ?
++			MCT_U232_PARITY_ODD : MCT_U232_PARITY_EVEN;
++	else
++		last_lcr |= MCT_U232_PARITY_NONE;
  
+-		/* set the parity */
+-		if (cflag & PARENB)
+-			priv->last_lcr |= (cflag & PARODD) ?
+-				MCT_U232_PARITY_ODD : MCT_U232_PARITY_EVEN;
+-		else
+-			priv->last_lcr |= MCT_U232_PARITY_NONE;
++	/* set the number of data bits */
++	switch (cflag & CSIZE) {
++	case CS5:
++		last_lcr |= MCT_U232_DATA_BITS_5; break;
++	case CS6:
++		last_lcr |= MCT_U232_DATA_BITS_6; break;
++	case CS7:
++		last_lcr |= MCT_U232_DATA_BITS_7; break;
++	case CS8:
++		last_lcr |= MCT_U232_DATA_BITS_8; break;
++	default:
++		err("CSIZE was not CS5-CS8, using default of 8");
++		last_lcr |= MCT_U232_DATA_BITS_8;
++		break;
++	}
+ 
+-		/* set the number of data bits */
+-		switch (cflag & CSIZE) {
+-		case CS5:
+-			priv->last_lcr |= MCT_U232_DATA_BITS_5; break;
+-		case CS6:
+-			priv->last_lcr |= MCT_U232_DATA_BITS_6; break;
+-		case CS7:
+-			priv->last_lcr |= MCT_U232_DATA_BITS_7; break;
+-		case CS8:
+-			priv->last_lcr |= MCT_U232_DATA_BITS_8; break;
+-		default:
+-			err("CSIZE was not CS5-CS8, using default of 8");
+-			priv->last_lcr |= MCT_U232_DATA_BITS_8;
+-			break;
+-		}
++	/* set the number of stop bits */
++	last_lcr |= (cflag & CSTOPB) ?
++		MCT_U232_STOP_BITS_2 : MCT_U232_STOP_BITS_1;
+ 
+-		/* set the number of stop bits */
+-		priv->last_lcr |= (cflag & CSTOPB) ?
+-			MCT_U232_STOP_BITS_2 : MCT_U232_STOP_BITS_1;
++	mct_u232_set_line_ctrl(serial, last_lcr);
+ 
+-		mct_u232_set_line_ctrl(serial, priv->last_lcr);
+-	}
+-	
+ 	/*
+ 	 * Set flow control: well, I do not really now how to handle DTR/RTS.
+ 	 * Just do what we have seen with SniffUSB on Win98.
+ 	 */
+-	if( (iflag & IXOFF) != (old_iflag & IXOFF)
+-	    || (iflag & IXON) != (old_iflag & IXON)
+-	    ||  (cflag & CRTSCTS) != (old_cflag & CRTSCTS) ) {
+-		
+-		/* Drop DTR/RTS if no flow control otherwise assert */
+-		if ((iflag & IXOFF) || (iflag & IXON) || (cflag & CRTSCTS) )
+-			priv->control_state |= TIOCM_DTR | TIOCM_RTS;
+-		else
+-			priv->control_state &= ~(TIOCM_DTR | TIOCM_RTS);
+-		mct_u232_set_modem_ctrl(serial, priv->control_state);
++	/* Drop DTR/RTS if no flow control otherwise assert */
++	new_state = control_state;
++	if ((iflag & IXOFF) || (iflag & IXON) || (cflag & CRTSCTS))
++		new_state |= TIOCM_DTR | TIOCM_RTS;
++	else
++		new_state &= ~(TIOCM_DTR | TIOCM_RTS);
++	if (new_state != control_state) {
++		mct_u232_set_modem_ctrl(serial, control_state);
++		control_state = new_state;
+ 	}
+-} /* mct_u232_set_termios */
+ 
++	/* save off the modified port settings */
++	spin_lock_irqsave(&priv->lock, flags);
++	priv->control_state = control_state;
++	priv->last_lcr = last_lcr;
++	spin_unlock_irqrestore(&priv->lock, flags);
++} /* mct_u232_set_termios */
+ 
+ static void mct_u232_break_ctl( struct usb_serial_port *port, int break_state )
+ {
+ 	struct usb_serial *serial = port->serial;
+ 	struct mct_u232_private *priv = (struct mct_u232_private *)port->private;
+-	unsigned char lcr = priv->last_lcr;
++	unsigned char lcr;
++	unsigned long flags;
+ 
+ 	dbg("%sstate=%d", __FUNCTION__, break_state);
+ 
++	spin_lock_irqsave(&priv->lock, flags);
++	lcr = priv->last_lcr;
++	spin_unlock_irqrestore(&priv->lock, flags);
++
+ 	if (break_state)
+ 		lcr |= MCT_U232_SET_BREAK;
+ 
+@@ -760,7 +791,8 @@ static int mct_u232_ioctl (struct usb_se
+ 	struct usb_serial *serial = port->serial;
+ 	struct mct_u232_private *priv = (struct mct_u232_private *)port->private;
+ 	int mask;
+-	
++	unsigned long flags;
++
+ 	dbg("%scmd=0x%x", __FUNCTION__, cmd);
+ 
+ 	/* Based on code from acm.c and others */
+@@ -775,6 +807,7 @@ static int mct_u232_ioctl (struct usb_se
+ 		if (get_user(mask, (unsigned long *) arg))
+ 			return -EFAULT;
+ 
++		spin_lock_irqsave(&priv->lock, flags);
+ 		if ((cmd == TIOCMSET) || (mask & TIOCM_RTS)) {
+ 			/* RTS needs set */
+ 			if( ((cmd == TIOCMSET) && (mask & TIOCM_RTS)) ||
+@@ -792,6 +825,7 @@ static int mct_u232_ioctl (struct usb_se
+ 			else
+ 				priv->control_state &= ~TIOCM_DTR;
+ 		}
++		spin_unlock_irqrestore(&priv->lock, flags);
+ 		mct_u232_set_modem_ctrl(serial, priv->control_state);
+ 		break;
+ 					

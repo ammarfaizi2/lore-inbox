@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVCFKTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVCFKcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVCFKTX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 05:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVCFKTW
+	id S261357AbVCFKcA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 05:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVCFKcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 05:19:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33299 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261353AbVCFKTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 05:19:17 -0500
-Date: Sun, 6 Mar 2005 10:19:12 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix for 8250.c *wrongly* detecting XScale UART(s) on x86 PC
-Message-ID: <20050306101912.A19558@flint.arm.linux.org.uk>
-Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
-	linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-References: <20050306093321.GA3040@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050306093321.GA3040@taniwha.stupidest.org>; from cw@f00f.org on Sun, Mar 06, 2005 at 01:33:21AM -0800
+	Sun, 6 Mar 2005 05:32:00 -0500
+Received: from coderock.org ([193.77.147.115]:50344 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261357AbVCFKb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 05:31:57 -0500
+Subject: [patch 1/6] cdrom/sonycd535: replace schedule_timeout() with msleep()
+To: emoenke@gwdg.de
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
+From: domen@coderock.org
+Date: Sun, 06 Mar 2005 11:31:51 +0100
+Message-Id: <20050306103152.15B771E46E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 01:33:21AM -0800, Chris Wedgwood wrote:
-> Breaks my UARTS.
-> 
-> I'm not thrilled with this patch but 8250.c has similar warts so I
-> guess it's not too bad.  Ideally we could refactor this a bit so if
-> this isn't acceptable let me know and I'll do that instead.
 
-If it breaks here (due to your ports being "embraced and extended") it
-could well break elsewhere, and wrapping it in CONFIG_ARM doesn't solve
-that.
 
-I'm not sure what the solution to this is, but unless we can autodetect
-the port "type", it rather screws the current direction of 8250, which
-has been to move away from port types to a set of port capabilities.
+Use msleep() instead of schedule_timeout() to guarantee the task
+delays as expected. Although TASK_INTERRUPTIBLE is used in the original code,
+the schedule_timeout() return conditions for such a state are not checked
+appropriately; therefore, TASK_UNINTERRUPTIBLE should be ok (and, hence,
+msleep()).
 
-I wonder if its possible to get hold of any documentation for your
-misdetected serial port...
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+ kj-domen/drivers/cdrom/sonycd535.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
+
+diff -puN drivers/cdrom/sonycd535.c~msleep-drivers_cdrom_sonycd535 drivers/cdrom/sonycd535.c
+--- kj/drivers/cdrom/sonycd535.c~msleep-drivers_cdrom_sonycd535	2005-03-05 16:10:47.000000000 +0100
++++ kj-domen/drivers/cdrom/sonycd535.c	2005-03-05 16:10:47.000000000 +0100
+@@ -129,6 +129,7 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
++#include <linux/delay.h>
+ 
+ #define REALLY_SLOW_IO
+ #include <asm/system.h>
+@@ -896,9 +897,8 @@ do_cdu535_request(request_queue_t * q)
+ 					}
+ 					if (readStatus == BAD_STATUS) {
+ 						/* Sleep for a while, then retry */
+-						set_current_state(TASK_INTERRUPTIBLE);
+ 						spin_unlock_irq(&sonycd535_lock);
+-						schedule_timeout(RETRY_FOR_BAD_STATUS*HZ/10);
++						msleep(RETRY_FOR_BAD_STATUS*100);
+ 						spin_lock_irq(&sonycd535_lock);
+ 					}
+ #if DEBUG > 0
+@@ -1478,8 +1478,7 @@ static int __init sony535_init(void)
+ 	/* look for the CD-ROM, follows the procedure in the DOS driver */
+ 	inb(select_unit_reg);
+ 	/* wait for 40 18 Hz ticks (reverse-engineered from DOS driver) */
+-	set_current_state(TASK_INTERRUPTIBLE);
+-	schedule_timeout((HZ+17)*40/18);
++	msleep(2222);
+ 	inb(result_reg);
+ 
+ 	outb(0, read_status_reg);	/* does a reset? */
+_

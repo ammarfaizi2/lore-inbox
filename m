@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263139AbUKTSbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263145AbUKTScw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263139AbUKTSbc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUKTSbc
+	id S263145AbUKTScw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:32:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbUKTScv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:31:32 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:2194 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263139AbUKTSb0 (ORCPT
+	Sat, 20 Nov 2004 13:32:51 -0500
+Received: from holomorphy.com ([207.189.100.168]:3720 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263145AbUKTSbd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:31:26 -0500
-Message-ID: <419F8D7A.1020305@colorfullife.com>
-Date: Sat, 20 Nov 2004 19:31:22 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: wait_event_interruptible() seems non-atomic
-References: <419F6DEB.6030606@colorfullife.com> <Pine.LNX.4.53.0411201718040.925@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411201718040.925@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 13:31:33 -0500
+Date: Sat, 20 Nov 2004 10:31:28 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm2
+Message-ID: <20041120183128.GW2714@holomorphy.com>
+References: <20041118021538.5764d58c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041118021538.5764d58c.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+On Thu, Nov 18, 2004 at 02:15:38AM -0800, Andrew Morton wrote:
+> +frv-kill-off-highmem_start_page.patch
+> +frv-remove-obsolete-hardirq-stuff-from-includes.patch
+> +further-nommu-changes.patch
+> +further-nommu-proc-changes.patch
+> +frv-arch-nommu-changes.patch
 
->>For example the use of down_interruptible() looks wrong to me, I'd use
->>plain down().
->>    
->>
->
->I'd like to be able to hit Ctrl+C (in the userspace application) whenever
->possible. If that's not a reason, blame the book
->http://www.xml.com/ldd/chapter/book/ch03.html#t8 ("the read method" a further
->down below)
->
->  
->
-As far as I can see BufferLock is only held for tiny sections - the 
-longest thing is a copy_to_user(), i.e. at worst a swap in. I my opinion 
-the delay for handling Ctrl+C is therefore negligible and not worth the 
-added code for handling down_interruptible().
-You have already written the code, so I'd leave it as it is and I'll 
-blame the book. They probably started from an older version of 
-fs/pipe.c, which contained _interruptible calls. There are gone now, 
-this allowed some cleanup.
+This patch converts FRV to use remap_pfn_range() in its
+io_remap_page_range() function.
 
---
-    Manfred
+
+Index: mm2-2.6.10-rc2/include/asm-frv/pgtable.h
+===================================================================
+--- mm2-2.6.10-rc2.orig/include/asm-frv/pgtable.h	2004-11-20 00:57:54.000000000 -0800
++++ mm2-2.6.10-rc2/include/asm-frv/pgtable.h	2004-11-20 10:27:32.173203883 -0800
+@@ -442,7 +442,8 @@
+ #define PageSkip(page)		(0)
+ #define kern_addr_valid(addr)	(1)
+ 
+-#define io_remap_page_range	remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY

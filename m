@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281912AbRLAWWf>; Sat, 1 Dec 2001 17:22:35 -0500
+	id <S281918AbRLAWe1>; Sat, 1 Dec 2001 17:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281914AbRLAWWZ>; Sat, 1 Dec 2001 17:22:25 -0500
-Received: from ausxc10.us.dell.com ([143.166.98.229]:9477 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S281912AbRLAWWQ>; Sat, 1 Dec 2001 17:22:16 -0500
-Message-ID: <71714C04806CD5119352009027289217022C402D@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: RE: Incremental prepatches
-Date: Sat, 1 Dec 2001 16:22:04 -0600 
+	id <S281917AbRLAWeR>; Sat, 1 Dec 2001 17:34:17 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:28428 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S281914AbRLAWeH>; Sat, 1 Dec 2001 17:34:07 -0500
+Date: Sat, 1 Dec 2001 14:44:43 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <E16AHWZ-0008IS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112011440510.1696-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have created a robot on kernel.org which makes incremental 
-> prepatches 
-> available.  It looks for standard-named prepatches in the 
-> /pub/linux/kernel/v*.*/testing directories, and creates 
-> incrementals in 
-> the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
+On Sat, 1 Dec 2001, Alan Cox wrote:
 
-Fantastic!  I was working on something similar in my spare time too, but it
-wasn't complete yet.  Good job!
-Would you be interested in setting up a kdist-like list to email out the
-changelog, diffstat, and incremental patch too as a product of the patch
-generation script?  That would increase the usefulness of comments like
-"Alan - much merging" in the changelogs.  Also, a script to update a web
-page ala www.bzimage.org would make patch browsing really easy.  I volunteer
-to help if you like.
+> > "it works/does not work for me" is not testing. Testing
+> > is _actively_ trying to break things, _very_ preferably
+> > by another person that wrote the code and to do it
+> > in documentable and reproducible way. I don't see many
+> > people doing it.
+>
+> If you want a high quality, tested supported kernel which has been through
+> extensive QA then use kernel for a reputable vendor, or do the QA work
+> yourself or with other people. We have kernel janitors, so why not kernel QA
+> projects ?
 
-Thanks,
-Matt
+I know a Co. that has its headquarters about 200 miles north of where I
+live that has the more organized development/qa cycle and still I won't change
+Linux for their kernel even under weapon menace.
 
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#1 US Linux Server provider with 24% (IDC Sept 2001)
-#2 Worldwide Linux Server provider with 17% (IDC Sept 2001)
-#3 Unix provider with 18% in the US (Dataquest)!
+
+
+- Davide
+
+

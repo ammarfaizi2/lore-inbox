@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262863AbSJLJ0W>; Sat, 12 Oct 2002 05:26:22 -0400
+	id <S262850AbSJLJXQ>; Sat, 12 Oct 2002 05:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262866AbSJLJ0W>; Sat, 12 Oct 2002 05:26:22 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:19950 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262863AbSJLJ0V>; Sat, 12 Oct 2002 05:26:21 -0400
-Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-From: Arjan van de Ven <arjanv@fenrus.demon.nl>
-To: Ole Husgaard <osh@sparre.dk>
-Cc: bidulock@openss7.org, Christoph Hellwig <hch@infradead.org>,
-       David Grothe <dave@gcom.com>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>,
-       Dave Miller <davem@redhat.com>
-In-Reply-To: <3DA78926.FB2299A@sparre.dk>
-References: <5.1.0.14.2.20021010115616.04a0de70@localhost>
-	<4386E3211F1@vcnet.vc.cvut.cz>
-	<5.1.0.14.2.20021010115616.04a0de70@localhost>
-	<20021010182740.A23908@infradead.org>
-	<5.1.0.14.2.20021010140426.0271c6a0@localhost>
-	<20021011180209.A30671@infradead.org> <20021011142657.B32421@openss7.org> 
-	<3DA78926.FB2299A@sparre.dk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-2KCdChk/P4OXXrscL9Zb"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Oct 2002 11:32:21 +0200
-Message-Id: <1034415141.2962.0.camel@localhost.localdomain>
+	id <S262860AbSJLJXQ>; Sat, 12 Oct 2002 05:23:16 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:6017 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262850AbSJLJXP>; Sat, 12 Oct 2002 05:23:15 -0400
+Message-Id: <4.3.2.7.2.20021012112824.00b4c1f0@mail.dns-host.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sat, 12 Oct 2002 11:28:52 +0200
+To: linux-kernel@vger.kernel.org
+From: Margit Schubert-While <margit@margit.com>
+Subject: Build fail 2.5.42 modules
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-2KCdChk/P4OXXrscL9Zb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2002-10-12 at 04:29, Ole Husgaard wrote:
-> "Brian F. G. Bidulock" wrote:
-> > On Fri, 11 Oct 2002, Christoph Hellwig wrote:
-> > > It is not.  Sys_call_table was exported to allow iBCS/Linux-ABI
-> >=20
-> > I don't know if it matters, but these two calls putpmsg and getpmsg
-> > are the calls used by iBCS.
->=20
-> AFAIK, iBCS use these syscalls to emulate TLI, and iBCS
-iBCS doesn't exist for 2.4 or 2.5 kernels
-it's called linux-abi now and does NOT use these syscalls
-
-
---=-2KCdChk/P4OXXrscL9Zb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9p+wkxULwo51rQBIRAosLAKCprC2k6phFFTNfuVEleV5P/GrUNACgkeQ9
-Dp2qE1M0u7WyjshO2i4FThI=
-=2lUi
------END PGP SIGNATURE-----
-
---=-2KCdChk/P4OXXrscL9Zb--
+fs/intermezzo/vfs.c: In function `presto_debug_fail_blkdev':
+fs/intermezzo/vfs.c:134: invalid initializer
+fs/intermezzo/vfs.c:136: warning: implicit declaration of function 
+`is_read_only'
+fs/intermezzo/vfs.c: In function `presto_do_rmdir':
+fs/intermezzo/vfs.c:1244: warning: implicit declaration of function 
+`double_down'
+fs/intermezzo/vfs.c:1260: warning: implicit declaration of function `double_up'
+fs/intermezzo/vfs.c: In function `presto_rename_dir':
+fs/intermezzo/vfs.c:1627: warning: implicit declaration of function 
+`triple_down'
+fs/intermezzo/vfs.c:1644: warning: implicit declaration of function `triple_up'
+fs/intermezzo/vfs.c: In function `lento_do_rename':
+fs/intermezzo/vfs.c:1755: warning: implicit declaration of function 
+`double_lock'
+fs/intermezzo/vfs.c: In function `lento_iopen':
+fs/intermezzo/vfs.c:1934: called object is not a function
+fs/intermezzo/vfs.c:1935: parse error before string constant
+make[2]: *** [fs/intermezzo/vfs.o] Error 1
+make[1]: *** [fs/intermezzo] Error 2
+make: *** [fs] Error 2
 

@@ -1,109 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbUBWUvf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUBWUvf
+	id S261874AbUBWUzv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUBWUzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:51:35 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:57254 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S261903AbUBWUvc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:51:32 -0500
-Subject: Re: [linux 2.6.3] [gcc 3.3.3] compile errors
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: MALET JL <malet.jean-luc@laposte.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <403A2ADB.9040002@laposte.net>
-References: <403911B3.10601@laposte.net>
-	 <20040223074221.5f711665.rddunlap@osdl.org>  <403A2ADB.9040002@laposte.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zvR304Iw2c/9sp5yalRe"
-Message-Id: <1077569540.19268.13.camel@nosferatu.lan>
+	Mon, 23 Feb 2004 15:55:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42956 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261874AbUBWUzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 15:55:50 -0500
+Date: Mon, 23 Feb 2004 12:57:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: torvalds@osdl.org, piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix shmat
+Message-Id: <20040223125730.18a8ed5d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0402232127250.13421-100000@dbl.q-ag.de>
+References: <Pine.LNX.4.58.0402231035280.3005@ppc970.osdl.org>
+	<Pine.LNX.4.44.0402232127250.13421-100000@dbl.q-ag.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 23 Feb 2004 22:52:20 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-zvR304Iw2c/9sp5yalRe
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2004-02-23 at 18:31, MALET JL wrote:
-> Randy.Dunlap a =C3=A9crit :
->=20
-> >On Sun, 22 Feb 2004 21:31:47 +0100 mjl <malet.jean-luc@laposte.net> wrot=
-e:
+Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+> On Mon, 23 Feb 2004, Linus Torvalds wrote:
 > >
-> >| hello please cc me since I'm not a member
-> >| all my builds fails with this error
-> >|=20
-> >| In file included from ../include/swab.h:20,
-> >|                  from ../include/misc.h:12,
-> >|                  from io.c:21:
-> >| /usr/include/linux/byteorder/swab.h:133: error: syntax error before "_=
-_u16"
-> >| /usr/include/linux/byteorder/swab.h:146: error: syntax error before "_=
-_u32"
+> > Please. Maybe it might even be worth-while renaming it to "do_sys_shmat()"
+> > to make it clear that it's not a "sys_xxx()" at all.
 > >
-> >You are using userspace headers for building the kernel.
-> >Maybe you have a symbolic link from linux/include/asm to the
-> >userspace headers.  If so, Don't Do That.
-> >In any case, don't use userspace headers to build the kernel.
-> > =20
-> >
-> the problem is that this is a part of compile log from a userspace=20
-> program....... I builded the kernel right but can't compile some=20
-> userspace programs (such as Mplayer, linux-utils.....)
-> the configuration I use :
-> copy from /usr/src/linux/include/asm to /usr/include/asm
-> copy from /usr/src/linux/include/asm-generic to /usr/include/asm-generic
-> copy from /usr/src/linux/include/linux to /usr/include/linux
->=20
-> is this wrong ? I've done this all the time (since 2.4.2 kernel) without=20
-> problem..... if i'm wrong please correct my behaviour
->=20
+> 
+> Below is a patch that renames sys_shmat to do_shmat. Additionally, I've
+> replaced the cond_syscall with a conditional inline function.
 
-Just edit offending files and take out the '__attribute_const__'s - I am
-guessing you tried to compile cdrtools ... =3D)
+It doesn't update arch/mips/kernel/scall64-64.S and
+arch/mips/kernel/scall64-n32.S?
 
-> >
-> >| make[1]: *** [io.o] Error 1
-> >| make[1]: Leaving directory `/usr/src/sorcery/reiserfsprogs-3.6.13/lib'
-> >| make: *** [all-recursive] Error 1
-> >|=20
-> >|=20
-> >| I looked into the source and  the line is
-> >|=20
-> >|=20
-> >| static __inline__ __attribute_const__ __u16 __fswab16(__u16 x)
-> >| {
-> >|=20
-> >|=20
-> >| which don't looks bad ......
-> >
-> >
-> >
-> >--
-> >~Randy
-> > =20
-> >
---=20
-Martin Schlemmer
+I'd be inclined to leave it as sys_shmat().  It is logically a syscall, and
+the fact that everyone except mips (and ia64) sticks a multiplexer in front
+of it is a sad historical note.
 
---=-zvR304Iw2c/9sp5yalRe
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAOmgEqburzKaJYLYRAsjSAJ0aLL4RWs1sNxGsJ0UndNeTB0g8fgCgjzW6
-RnRk5gw98ErmmUPqa1fwQPc=
-=b4Wp
------END PGP SIGNATURE-----
-
---=-zvR304Iw2c/9sp5yalRe--
-
+It's simply a matter of getting the appropriate prototype in scope for all
+the C callers.  For now, I'd be inclined to bung the prototype in kernel.h,
+because Randy's syscalls.h patches will fix all this for real in a week or
+two.

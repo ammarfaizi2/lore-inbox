@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUFCX4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUFCX6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUFCX4N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 19:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUFCX4N
+	id S264965AbUFCX6C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 19:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUFCX6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 19:56:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32398 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264922AbUFCXzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 19:55:47 -0400
-Date: Thu, 3 Jun 2004 16:38:28 -0700
-From: Greg KH <greg@kroah.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+	Thu, 3 Jun 2004 19:58:02 -0400
+Received: from mail021.syd.optusnet.com.au ([211.29.132.132]:35986 "EHLO
+	mail021.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264925AbUFCX4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 19:56:32 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: FabF <fabian.frederick@skynet.be>
+Subject: Re: why swap at all?
+Date: Fri, 4 Jun 2004 09:56:17 +1000
+User-Agent: KMail/1.6.1
+Cc: Valdis.Kletnieks@vt.edu, Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040603233828.GA27504@kroah.com>
-References: <20040601021539.413a7ad7.akpm@osdl.org> <20040602132654.GY2093@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net> <200406030954.25222.kernel@kolivas.org> <1086279414.2295.13.camel@localhost.localdomain>
+In-Reply-To: <1086279414.2295.13.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040602132654.GY2093@holomorphy.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406040956.17808.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 06:26:54AM -0700, William Lee Irwin III wrote:
-> On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
-> > - NFS server udpates
-> > - md updates
-> > - big x86 dmi_scan.c cleanup
-> > - merged perfctr.  No documentation though :(
-> > - cris architecture update
-> 
-> Fix warnings about various structs declared inside parameter lists and so
-> on seen while compiling compat_ioctl.c.
+On Fri, 4 Jun 2004 02:16, FabF wrote:
+> On Thu, 2004-06-03 at 01:54, Con Kolivas wrote:
+> > Try this version instead which biases it downwards.
+> I've been unhappy with this one.sw range : 19->60.
+> So I've been playing slightly with sw curve replacing nerve centre with
 
-Doesn't apply to my, or a clean -rc2 tree :(
+Are you unhappy with the numbers for swappiness it gives or the feel of it? It 
+gives a range of 0-100 in meaningful ways. Your version gives swappiness > 
+100 at times (oops). If this version does not feel good, the last linear one 
+is better and you simply dont have enough ram for it to feel good after 
+updatedb.
 
-Probably needs to be sent to Vojtech and put in his tree.
-
-thanks,
-
-greg k-h
+Con

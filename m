@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270687AbTG0HVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 03:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270689AbTG0HVm
+	id S270689AbTG0HYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 03:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270691AbTG0HYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 03:21:42 -0400
-Received: from maile.telia.com ([194.22.190.16]:29652 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S270687AbTG0HVl (ORCPT
+	Sun, 27 Jul 2003 03:24:32 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:6408 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id S270689AbTG0HYb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 03:21:41 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: David Benfell <benfell@greybeard95a.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SOLVED: touchpad doesn't work under 2.6.0-test1-ac2
-References: <bXg8.4Wg.1@gated-at.bofh.it>
-	<S270097AbTGXUNM/20030724201313Z+7864@vger.kernel.org>
-	<20030724212416.GA18141@vana.vc.cvut.cz>
-	<20030725070806.GB15819@parts-unknown.org>
-	<20030727040531.GA14776@parts-unknown.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 27 Jul 2003 09:36:38 +0200
-In-Reply-To: <20030727040531.GA14776@parts-unknown.org>
-Message-ID: <m2wue4e7zt.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 27 Jul 2003 03:24:31 -0400
+Date: Sun, 27 Jul 2003 09:39:20 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@arcor.de>,
+       ed.sweetman@wmich.edu, eugene.teo@eugeneteo.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Message-ID: <20030727073920.GG643@alpha.home.local>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271046.30318.phillips@arcor.de> <20030726113522.447578d8.akpm@osdl.org> <200307271238.37918.kernel@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307271238.37918.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Benfell <benfell@greybeard95a.com> writes:
+Hi Con,
 
-> On Fri, 25 Jul 2003 00:08:06 -0700, David Benfell wrote:
-> > Hello all,
-> > 
-> > First someone pointed me at the driver available through
-> > 
-> > http://w1.894.telia.com/~u89404340/touchpad/index.html
-> > 
-> This driver does not work on the HP ZT1180.
-> 
-> What does work is enabling CONFIG_INPUT_EVDEV in the kernel
-> configuration.  The trick then is to NOT combine this with the
-> Synaptics driver mentioned above.
+On Sun, Jul 27, 2003 at 12:38:37PM +1000, Con Kolivas wrote:
+ 
+> No, this is what I have been trying to figure out; why is it that if we put 
+> all the settings the same as 2.4 that it doesn't perform as nicely. 2.5/6 
+> with the old settings is certainly better than with the vanilla settings, but 
+> not as good as 2.4 O(1). It does not appear to be scheduler alone, but the 
+> architectural changes to 2.5 that have changed interactivity are here to 
+> stay, and improving the interactivity estimator in the scheduler does help it 
+> anyway. 
 
-I want the driver to work on as many computers as possible. Can you
-please send me the XFree86 log file you get when you try to use the
-XFree driver and CONFIG_INPUT_EVDEV at the same time.
+just a thought : have you tried to set the timer to 100Hz instead of 1kHz to
+compare with 2.4 ? It might make a difference too.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Cheers,
+Willy
+

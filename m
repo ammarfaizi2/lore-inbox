@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272972AbTGaNnK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 09:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272998AbTGaNnA
+	id S273018AbTGaNmx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 09:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272998AbTGaNlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 09:43:00 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2688 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S272972AbTGaNlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 09:41:20 -0400
-Date: Thu, 31 Jul 2003 14:51:00 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307311351.h6VDp0w3000146@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
-Subject: Re: fun or real: proc interface for module handling?
-Cc: nico-kernel@schottelius.org
+	Thu, 31 Jul 2003 09:41:00 -0400
+Received: from mtaw4.prodigy.net ([64.164.98.52]:7613 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S272972AbTGaNkz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 09:40:55 -0400
+Message-ID: <3F291B9E.10109@pacbell.net>
+Date: Thu, 31 Jul 2003 06:37:34 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <20030731094231.GA464@elf.ucw.cz>
+In-Reply-To: <20030731094231.GA464@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I was just joking around here, but what do you think about this idea:
-> >
-> > A proc interface for module handling:
-> >    /proc/mods/
-> >    /proc/mods/<module-name>/<link-to-the-modules-use-us>
-> >
-> > So we could try to load a module with
-> >    mkdir /proc/mods/ipv6
-> > and remove it and every module which uses us with
-> >    rm -r /proc/mods/ipv6
->
-> So far, so good.
->
-> > Modul options could be passed my
-> >    echo "psmouse_noext=3D1" > /proc/mods/psmouse/options
-> > which would also make it possible to change module options while runn=
-> ing..
->
-> How would options be passed when loading?  Some modules require that
-> to load properly.  Also, there are lots of options that can't be
-> changed after loading.  To enable this, I believe the whole option
-> handling would need to be modified substantially.  Instead of just
-> storing the values in static variables, there would have to be some
-> means of telling the module that its options changed.  Then there's
-> the task of hacking all modules to support this...
+Pavel Machek wrote:
 
-Or you could just cause the module to be unloaded and reloaded
-whenever options changed.
+>>All of which is a roundabout way of adding to what I
+>>said:  the PM infrastructure USB will need to rely on
+>>seems like it needs polishing yet!  :)
+> 
+> 
+> Do you need vetoing? Otherwise it should be ready, except for APM.
 
-Not that I like this idea anyway, but then I don't use modules :-).
+USB drivers don't talk suspend/resume yet, so they
+won't notice missing features there.  Regressions
+are a different story though.
 
-John.
+But I can imagine that usb-storage (or is that SCSI?)
+might want to veto suspending devices that are being
+used for some kinds of i/o.  Eventually it should exist.
+
+- Dave
+
+

@@ -1,78 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbUC3W6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUC3WwT
+	id S261528AbUC3XBz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 18:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUC3Wsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:52:19 -0500
-Received: from mail1.slu.se ([130.238.96.11]:17881 "EHLO mail1.slu.se")
-	by vger.kernel.org with ESMTP id S261601AbUC3WvY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:51:24 -0500
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	Tue, 30 Mar 2004 17:48:52 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12315 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261648AbUC3WrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:47:05 -0500
+Date: Tue, 30 Mar 2004 23:47:02 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4/6] mremap vma_relink_file
+In-Reply-To: <Pine.LNX.4.44.0403302340220.24019-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0403302346130.24019-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-ID: <16489.62887.320005.806119@robur.slu.se>
-Date: Wed, 31 Mar 2004 00:33:11 +0200
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, kuznet@ms2.inr.ac.ru,
-       dipankar@in.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Robert.Olsson@data.slu.se, paulmck@us.ibm.com, akpm@osdl.org
-Subject: Re: route cache DoS testing and softirqs
-In-Reply-To: <20040330213742.GL3808@dualathlon.random>
-References: <20040329222926.GF3808@dualathlon.random>
-	<200403302005.AAA00466@yakov.inr.ac.ru>
-	<20040330211450.GI3808@dualathlon.random>
-	<20040330133000.098761e2.davem@redhat.com>
-	<20040330213742.GL3808@dualathlon.random>
-X-Mailer: VM 7.17 under Emacs 21.3.1
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Subtle point from Rajesh Venkatasubramanian: when mremap's move_vma
+fails and so rewinds, before moving the file-based ptes back, we must
+move new_vma before old vma in the i_mmap or i_mmap_shared list,
+so that when racing against vmtruncate we cannot propagate pages
+to be truncated back from new_vma into the just cleaned old_vma.
 
-Andrea Arcangeli writes:
+--- mremap3/include/linux/mm.h	2004-03-30 21:24:48.666410384 +0100
++++ mremap4/include/linux/mm.h	2004-03-30 21:25:00.131667400 +0100
+@@ -540,6 +540,7 @@ extern void __vma_link_rb(struct mm_stru
+ 	struct rb_node **, struct rb_node *);
+ extern struct vm_area_struct *copy_vma(struct vm_area_struct *,
+ 	unsigned long addr, unsigned long len, unsigned long pgoff);
++extern void vma_relink_file(struct vm_area_struct *, struct vm_area_struct *);
+ extern void exit_mmap(struct mm_struct *);
+ 
+ extern unsigned long get_unmapped_area(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+--- mremap3/mm/mmap.c	2004-03-30 21:24:48.668410080 +0100
++++ mremap4/mm/mmap.c	2004-03-30 21:25:00.133667096 +0100
+@@ -1517,3 +1517,24 @@ struct vm_area_struct *copy_vma(struct v
+ 	}
+ 	return new_vma;
+ }
++
++/*
++ * Position vma after prev in shared file list:
++ * for mremap move error recovery racing against vmtruncate.
++ */
++void vma_relink_file(struct vm_area_struct *vma, struct vm_area_struct *prev)
++{
++	struct mm_struct *mm = vma->vm_mm;
++	struct address_space *mapping;
++
++	if (vma->vm_file) {
++		mapping = vma->vm_file->f_mapping;
++		if (mapping) {
++			down(&mapping->i_shared_sem);
++			spin_lock(&mm->page_table_lock);
++			list_move(&vma->shared, &prev->shared);
++			spin_unlock(&mm->page_table_lock);
++			up(&mapping->i_shared_sem);
++		}
++	}
++}
+--- mremap3/mm/mremap.c	2004-03-30 21:24:48.671409624 +0100
++++ mremap4/mm/mremap.c	2004-03-30 21:25:00.136666640 +0100
+@@ -187,7 +187,14 @@ static unsigned long move_vma(struct vm_
+ 		 * On error, move entries back from new area to old,
+ 		 * which will succeed since page tables still there,
+ 		 * and then proceed to unmap new area instead of old.
++		 *
++		 * Subtle point from Rajesh Venkatasubramanian: before
++		 * moving file-based ptes, move new_vma before old vma
++		 * in the i_mmap or i_mmap_shared list, so when racing
++		 * against vmtruncate we cannot propagate pages to be
++		 * truncated back from new_vma into just cleaned old.
+ 		 */
++		vma_relink_file(vma, new_vma);
+ 		move_page_tables(new_vma, old_addr, new_addr, moved_len);
+ 		vma = new_vma;
+ 		old_len = new_len;
 
- > He posted these numbers:
- > 
- > 	softirq_count, ksoftirqd_count and other_softirq_count shows -
- > 	
- > 	CPU 0 : 638240  554     637686
- > 	CPU 1 : 102316  1       102315
- > 	CPU 2 : 675696  557     675139
- > 	CPU 3 : 102305  0       102305
- > 
- > that means nothing runs in ksoftirqd for Dipankar, so he cannot be using
- > NAPI.
- > 
- > Either that or I'm misreading his numbers, or his stats results are wrong.
-
- Well we have to ask Dipankar... But I'll buy a beer if it's not on. :)
-
- Anyway w. NAPI enabled. 2 * 304 kpps DoS flows into eth0, eth2. Flows 
- are 2 * 10 Millions 64 byte pkts. 32 k buckets routehash. Full Internet
- routing means ~130 k routes. Linux 2.6.4 2*2.66 MHz XEON. 
-
-
- 26:        896          0   IO-APIC-level  eth0
- 27:      25197          0   IO-APIC-level  eth1
- 28:          8        579   IO-APIC-level  eth2
- 29:         10      26112   IO-APIC-level  eth3
-
-T-put is seen on output dev. eth1, eth3. So about 16% of incoming load,
-
-eth0   1500   0 1577468 9631270 9631270 8422828    237      0      0      0 BRU
-eth1   1500   0     42      0      0      0 1573355      0      0      0 BRU
-eth2   1500   0 1636154 9603432 9603432 8363849     41      0      0      0 BRU
-eth3   1500   0     54      0      0      0 1632274      0      0      0 BRU
-
-And lots of 
-.
-.
-printk: 1898 messages suppressed.
-dst cache overflow
-printk: 829 messages suppressed.
-dst cache overflow
-
-Cheers.
-						--ro

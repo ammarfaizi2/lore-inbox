@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUFCXGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUFCXIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUFCXGN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 19:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbUFCXGN
+	id S264652AbUFCXIh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 19:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUFCXIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 19:06:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:18358 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264629AbUFCXGM (ORCPT
+	Thu, 3 Jun 2004 19:08:37 -0400
+Received: from cantor.suse.de ([195.135.220.2]:19639 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264652AbUFCXIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 19:06:12 -0400
-Date: Fri, 4 Jun 2004 01:06:10 +0200
+	Thu, 3 Jun 2004 19:08:35 -0400
+Date: Fri, 4 Jun 2004 01:08:34 +0200
 From: Andi Kleen <ak@suse.de>
-To: Suresh Siddha <suresh.b.siddha@intel.com>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040603230610.GE868@wotan.suse.de>
-References: <20040602205025.GA21555@elte.hu> <200406031224.13319.suresh.b.siddha@intel.com> <20040603203709.GB868@wotan.suse.de> <200406031558.27495.suresh.b.siddha@intel.com>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Andi Kleen <ak@suse.de>, mingo@elte.hu, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@redhat.com,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+Message-ID: <20040603230834.GF868@wotan.suse.de>
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <20040603124448.GA28775@elte.hu> <20040603175422.4378d901.ak@suse.de> <40BFADE5.9040506@myrealbox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406031558.27495.suresh.b.siddha@intel.com>
+In-Reply-To: <40BFADE5.9040506@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 03:58:27PM -0700, Siddha, Suresh B wrote:
-> On Thursday 03 June 2004 13:37, Andi Kleen wrote:
-> > > What do you mean by "in the future"? on x86, with the current no execute 
-> > > patch, malloc() will be non-exec
-> > 
-> > On x86-64 the heap is executable right now at least.
-> > 
+On Thu, Jun 03, 2004 at 04:01:57PM -0700, Andy Lutomirski wrote:
+> Andi Kleen wrote:
+> >On Thu, 3 Jun 2004 14:44:48 +0200
+> >Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> >
+> >
+> >>- in exec.c, since address-space executability is a security-relevant
+> >>item, we must clear the personality when we exec a setuid binary. I
+> >>believe this is also a (small) security robustness fix for current
+> >>64-bit architectures.
+> >
+> >
+> >I'm not sure I like that. This means I cannot earily force an i386 uname 
+> >or 3GB address space on suid programs anymore on x86-64.
+> >
+> >While in theory it could be a small security problem I think the utility
+> >is much greater.
+> >
+> >It's hard to see how setting NX could cause a security hole. The program
+> >may crash, but it is unlikely to be exploitable.
 > 
-> oh! I see. Looks like only Ingo's exec-shield patch is doing that.
+> The whole point of NX, though, is that it prevents certain classes of 
+> exploits.  If a setuid binary is vulnerable to one of these, then Ingo's 
+> patch "fixes" it.  Your approach breaks that.
 
-Maybe adding a new ELF header flag for that would be a good idea too.
-Just not sure if gcc should set it by default or not.
+Good point.
 
-But I fear chaging it for x86-64 generically could break programs
-again.
+But that only applies to the NX personality bit. For the uname emulation
+it is not an issue.
 
--andi
+So maybe the dropping on exec should only zero a few selected 
+personality bits, but not all.
+
+> 
+> I don't like Ingo's fix either, though.  At least it should check 
+> CAP_PTRACE or some such.  A better fix would be for LSM to pass down a flag 
+> indicating a change of security context.  I'll throw that in to my 
+> caps/apply_creds cleanup, in case that ever gets applied.
+
+Don't think we should require an LSM module for that. That's 
+far overkill.
+
+-Andi

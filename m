@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTDGNlZ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTDGNlZ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:41:25 -0400
-Received: from smarthost0.mail.uk.easynet.net ([212.135.6.10]:3593 "EHLO
-	smarthost0.mail.uk.easynet.net") by vger.kernel.org with ESMTP
-	id S263434AbTDGNlY (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 09:41:24 -0400
-Date: Mon, 7 Apr 2003 14:09:30 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel support for 24-bit sound
-Message-ID: <20030407130930.GB712@pigeon.pigeonloft>
-References: <20030406162301.GA1364@pigeon.pigeonloft> <1049646540.1349.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263436AbTDGNt4 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTDGNt4 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:49:56 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9669 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S263436AbTDGNty convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 09:49:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Interactivity backport to 2.4.20-ck*
+Date: Mon, 7 Apr 2003 23:53:38 +1000
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <1049646540.1349.4.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-From: Pigeon <jah.pigeon@ukonline.co.uk>
+Message-Id: <200304072353.47664.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 05:29:01PM +0100, Alan Cox wrote:
-> On Sul, 2003-04-06 at 17:23, Pigeon wrote:
-> > I am trying to add support for the 24-bit S/PDIF input mode of my
-> > CMI8738 sound card to the cmpci.c driver of kernel 2.4.20.
-> 
-> 2.4.21pre -ac and I think now base trees have 24bit support in the
-> core code included and support for 24bit USB devices added. OSS 
-> doesn't really think happily in 24bit mode and the apps don't know
-> about it either. The ALSA layer in 2.5.x is a rather nicer replacement
-> without a lot of the limitations
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Many thanks, that is extremely useful, have downloaded
-2.4.21-pre5-ac3. Nice one!
+I've had numerous requests for a backport of the interactivity changes to the 
+O(1) scheduler for the -ck* kernels. I have resisted posting my backport 
+because people had described real problems with these patches. However it 
+seems most, if not all of the problems are related to one patch. 
 
-Pigeon
+I've posted a special split out patch 
+(001_o1_int_pe_ll_030407_ck_2.4.20.patch) for ck that includes the new 
+interactivity changes, with the one patch responsible for problems backed 
+out. No desktop tuning patch is supposed to be necessary for this so I've 
+removed it from the site.Note that the full -ck4 patch does not include this 
+update. I would like some feedback from people using it before I make a more 
+substantial update to bring out a -ck5. The patches must be applied manually 
+in order as they're desired. I've been using them for a little while without 
+any problems. 
+
+Get them here:
+
+http://kernel.kolivas.org
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+kYLlF6dfvkL3i1gRAk4+AKClVUe0bhxJKSM5rls1zEfNE9TymQCglChA
+xheK/JrNmZUnpm14LhgKMeQ=
+=/Vun
+-----END PGP SIGNATURE-----
+

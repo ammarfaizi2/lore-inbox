@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263686AbUEGQ5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUEGRJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263686AbUEGQ5D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 12:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUEGQ5D
+	id S263134AbUEGRJq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 13:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbUEGRJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 12:57:03 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28137 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263686AbUEGQ5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 12:57:02 -0400
-Date: Fri, 7 May 2004 18:57:00 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040507165700.GE18175@atrey.karlin.mff.cuni.cz>
-References: <20040506130846.GA241@elf.ucw.cz> <Pine.LNX.4.44.0405071652280.15067-100000@localhost.localdomain>
+	Fri, 7 May 2004 13:09:46 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:55561 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263134AbUEGRJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 13:09:45 -0400
+Subject: Re: Distributions vs kernel development
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net>
+References: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1083949775.1670.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0405071652280.15067-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Fri, 07 May 2004 19:09:35 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2004-05-07 at 17:53, Stephen Hemminger wrote:
+> After having being burned twice: first by Mandrake and supermount, and second
+> by SuSe and reiserfs attributes; are any of the distributions committed to
+> making sure that their distribution will run the standard kernel? (ie. 2.6.X from
+> kernel.org). When running a non-vendor kernel, I need to reasonably expect that the system
+> will boot and all the filesystems and standard devices are available.  I don't
+> expect every startup script to run clean, or every device that has a driver
+> only in the vendor kernel to work. 
 
-> > Perhaps what we really want is "swap_back_in" script? That way you
-> > could do "updatedb; swap_back_in" in cron and be happy.
-> 
-> swapoff -a; swapon -a
+Fedora Core 2 Test 3 runs beatifully with a stock kernel (I'm running
+FC2T3 with a stock 2.6.6-rc3-mm2 kernel). I suggest you to take a look
+at it.
 
-Good point... it will not bring back executable pages, through.
-
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

@@ -1,328 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUIJTdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUIJTgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267826AbUIJTdY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 15:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUIJTdY
+	id S267850AbUIJTgv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 15:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUIJTgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 15:33:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28593 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267826AbUIJT2k (ORCPT
+	Fri, 10 Sep 2004 15:36:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23263 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267830AbUIJTer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 15:28:40 -0400
-Date: Fri, 10 Sep 2004 21:29:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@Raytheon.com
-Cc: Eric St-Laurent <ericstl34@sympatico.ca>, Free Ekanayaka <free@agnula.org>,
-       free78@tin.it, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>, luke@audioslack.com,
-       nando@ccrma.stanford.edu,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-Message-ID: <20040910192918.GB18761@elte.hu>
-References: <OF9E4403BE.E78B47A0-ON86256F0B.004F80E5-86256F0B.004F80F7@raytheon.com>
+	Fri, 10 Sep 2004 15:34:47 -0400
+Date: Fri, 10 Sep 2004 12:34:45 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix sigqueue accounting for posix-timers broken by new RLIMIT_SIGPENDING tracking code
+Message-ID: <20040910123445.L1924@build.pdx.osdl.net>
+References: <20040910104228.K1924@build.pdx.osdl.net> <200409101924.i8AJOxRH029788@magilla.sf.frob.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF9E4403BE.E78B47A0-ON86256F0B.004F80E5-86256F0B.004F80F7@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200409101924.i8AJOxRH029788@magilla.sf.frob.com>; from roland@redhat.com on Fri, Sep 10, 2004 at 12:24:59PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
-
-> >does 'hdparm -X udma2 /dev/hda' work?
+* Roland McGrath (roland@redhat.com) wrote:
+> D'oh.  You are right.  I misread the code in the middle of the night.  I
+> came across the new issue of hitting the sigpending limit while verifying a
+> test case for timers leaking.  I failed to realize that it's the timer leak
+> itself that translates into a sigpending count leak.
 > 
-> Yes it does and quite well actually. For comparison
->   -R1 on September 7 - over 100 traces > 500 usec
->   -R8 on September 10 - 38 traces > 200 usec, only 3 > 500 usec
-> 
-> This was with the full test suite (latencytest active, all different
-> types of operations).
+> Indeed, ignore that patch, and wait for the posix-timers leak fix coming soon.
 
-cool. Perhaps further reducing the DMA mode (to udma0, or even mdma 
-modes?) will further reduce these latencies?
+Cool, thanks for the follow up.
 
-most of your remaining latencies seem to be get_swap_page() related -
-the attached (highly experimental) patch might fix that particular
-latency. (ontop of -S0).
-
-	Ingo
-
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="swapspace-layout-improvements-2.6.9-rc1-bk12-A1"
-
---- linux/include/linux/swap.h.orig	
-+++ linux/include/linux/swap.h	
-@@ -193,7 +193,7 @@ extern int rw_swap_page_sync(int, swp_en
- extern struct address_space swapper_space;
- #define total_swapcache_pages  swapper_space.nrpages
- extern void show_swap_cache_info(void);
--extern int add_to_swap(struct page *);
-+extern int add_to_swap(struct page *page, void *cookie, pgoff_t index);
- extern void __delete_from_swap_cache(struct page *);
- extern void delete_from_swap_cache(struct page *);
- extern int move_to_swap_cache(struct page *, swp_entry_t);
-@@ -209,7 +209,7 @@ extern long total_swap_pages;
- extern unsigned int nr_swapfiles;
- extern struct swap_info_struct swap_info[];
- extern void si_swapinfo(struct sysinfo *);
--extern swp_entry_t get_swap_page(void);
-+extern swp_entry_t get_swap_page(void *cookie, pgoff_t index);
- extern int swap_duplicate(swp_entry_t);
- extern int valid_swaphandles(swp_entry_t, unsigned long *);
- extern void swap_free(swp_entry_t);
-@@ -274,7 +274,7 @@ static inline int remove_exclusive_swap_
- 	return 0;
- }
- 
--static inline swp_entry_t get_swap_page(void)
-+static inline swp_entry_t get_swap_page(void *cookie, pgoff_t index)
- {
- 	swp_entry_t entry;
- 	entry.val = 0;
---- linux/kernel/power/swsusp.c.orig	
-+++ linux/kernel/power/swsusp.c	
-@@ -317,7 +317,7 @@ static int write_suspend_image(void)
- 	for (i=0; i<nr_copy_pages; i++) {
- 		if (!(i%100))
- 			printk( "." );
--		entry = get_swap_page();
-+		entry = get_swap_page(NULL, i);
- 		if (!entry.val)
- 			panic("\nNot enough swapspace when writing data" );
- 		
-@@ -335,7 +335,7 @@ static int write_suspend_image(void)
- 		cur = (union diskpage *)((char *) pagedir_nosave)+i;
- 		BUG_ON ((char *) cur != (((char *) pagedir_nosave) + i*PAGE_SIZE));
- 		printk( "." );
--		entry = get_swap_page();
-+		entry = get_swap_page(NULL, i);
- 		if (!entry.val) {
- 			printk(KERN_CRIT "Not enough swapspace when writing pgdir\n" );
- 			panic("Don't know how to recover");
-@@ -358,7 +358,7 @@ static int write_suspend_image(void)
- 	BUG_ON (sizeof(struct suspend_header) > PAGE_SIZE-sizeof(swp_entry_t));
- 	BUG_ON (sizeof(union diskpage) != PAGE_SIZE);
- 	BUG_ON (sizeof(struct link) != PAGE_SIZE);
--	entry = get_swap_page();
-+	entry = get_swap_page(NULL, i);
- 	if (!entry.val)
- 		panic( "\nNot enough swapspace when writing header" );
- 	if (swapfile_used[swp_type(entry)] != SWAPFILE_SUSPEND)
---- linux/kernel/power/pmdisk.c.orig	
-+++ linux/kernel/power/pmdisk.c	
-@@ -206,7 +206,7 @@ static int write_swap_page(unsigned long
- 	swp_entry_t entry;
- 	int error = 0;
- 
--	entry = get_swap_page();
-+	entry = get_swap_page(NULL, addr >> PAGE_SHIFT);
- 	if (swp_offset(entry) && 
- 	    swapfile_used[swp_type(entry)] == SWAPFILE_SUSPEND) {
- 		error = rw_swap_page_sync(WRITE, entry,
---- linux/mm/vmscan.c.orig	
-+++ linux/mm/vmscan.c	
-@@ -390,7 +390,10 @@ static int shrink_list(struct list_head 
- 		 * Try to allocate it some swap space here.
- 		 */
- 		if (PageAnon(page) && !PageSwapCache(page)) {
--			if (!add_to_swap(page))
-+			void *cookie = page->mapping;
-+			pgoff_t index = page->index;
-+
-+			if (!add_to_swap(page, cookie, index))
- 				goto activate_locked;
- 		}
- #endif /* CONFIG_SWAP */
---- linux/mm/swap_state.c.orig	
-+++ linux/mm/swap_state.c	
-@@ -137,8 +137,12 @@ void __delete_from_swap_cache(struct pag
-  *
-  * Allocate swap space for the page and add the page to the
-  * swap cache.  Caller needs to hold the page lock. 
-+ *
-+ * We attempt to lay pages out on swap to that virtually-contiguous pages are
-+ * contiguous on-disk.  To do this we utilise page->index (offset into vma) and
-+ * page->mapping (the anon_vma's address).
-  */
--int add_to_swap(struct page * page)
-+int add_to_swap(struct page *page, void *cookie, pgoff_t index)
- {
- 	swp_entry_t entry;
- 	int pf_flags;
-@@ -148,7 +152,7 @@ int add_to_swap(struct page * page)
- 		BUG();
- 
- 	for (;;) {
--		entry = get_swap_page();
-+		entry = get_swap_page(cookie, index);
- 		if (!entry.val)
- 			return 0;
- 
---- linux/mm/shmem.c.orig	
-+++ linux/mm/shmem.c	
-@@ -740,7 +740,7 @@ static int shmem_writepage(struct page *
- 	struct shmem_inode_info *info;
- 	swp_entry_t *entry, swap;
- 	struct address_space *mapping;
--	unsigned long index;
-+	pgoff_t index;
- 	struct inode *inode;
- 
- 	BUG_ON(!PageLocked(page));
-@@ -752,7 +752,7 @@ static int shmem_writepage(struct page *
- 	info = SHMEM_I(inode);
- 	if (info->flags & VM_LOCKED)
- 		goto redirty;
--	swap = get_swap_page();
-+	swap = get_swap_page(mapping, index);
- 	if (!swap.val)
- 		goto redirty;
- 
---- linux/mm/swapfile.c.orig	
-+++ linux/mm/swapfile.c	
-@@ -25,6 +25,7 @@
- #include <linux/rmap.h>
- #include <linux/security.h>
- #include <linux/backing-dev.h>
-+#include <linux/hash.h>
- 
- #include <asm/pgtable.h>
- #include <asm/tlbflush.h>
-@@ -83,71 +84,51 @@ void swap_unplug_io_fn(struct backing_de
- 	up_read(&swap_unplug_sem);
- }
- 
--static inline int scan_swap_map(struct swap_info_struct *si)
--{
--	unsigned long offset;
--	/* 
--	 * We try to cluster swap pages by allocating them
--	 * sequentially in swap.  Once we've allocated
--	 * SWAPFILE_CLUSTER pages this way, however, we resort to
--	 * first-free allocation, starting a new cluster.  This
--	 * prevents us from scattering swap pages all over the entire
--	 * swap partition, so that we reduce overall disk seek times
--	 * between swap pages.  -- sct */
--	if (si->cluster_nr) {
--		while (si->cluster_next <= si->highest_bit) {
--			offset = si->cluster_next++;
--			if (si->swap_map[offset])
--				continue;
--			si->cluster_nr--;
--			goto got_page;
--		}
--	}
--	si->cluster_nr = SWAPFILE_CLUSTER;
-+int akpm;
- 
--	/* try to find an empty (even not aligned) cluster. */
--	offset = si->lowest_bit;
-- check_next_cluster:
--	if (offset+SWAPFILE_CLUSTER-1 <= si->highest_bit)
--	{
--		unsigned long nr;
--		for (nr = offset; nr < offset+SWAPFILE_CLUSTER; nr++)
--			if (si->swap_map[nr])
--			{
--				offset = nr+1;
--				goto check_next_cluster;
--			}
--		/* We found a completly empty cluster, so start
--		 * using it.
--		 */
--		goto got_page;
--	}
--	/* No luck, so now go finegrined as usual. -Andrea */
--	for (offset = si->lowest_bit; offset <= si->highest_bit ; offset++) {
--		if (si->swap_map[offset])
-+/*
-+ * We divide the swapdev into 1024 kilobyte chunks.  We use the cookie and the
-+ * upper bits of the index to select a chunk and the rest of the index as the
-+ * offset into the selected chunk.
-+ */
-+#define CHUNK_SHIFT	(20 - PAGE_SHIFT)
-+#define CHUNK_MASK	(-1UL << CHUNK_SHIFT)
-+
-+static int
-+scan_swap_map(struct swap_info_struct *si, void *cookie, pgoff_t index)
-+{
-+	unsigned long chunk;
-+	unsigned long nchunks;
-+	unsigned long block;
-+	unsigned long scan;
-+
-+	nchunks = si->max >> CHUNK_SHIFT;
-+	chunk = 0;
-+	if (nchunks)
-+		chunk = hash_long((unsigned long)cookie + (index & CHUNK_MASK),
-+					BITS_PER_LONG) % nchunks;
-+
-+	block = (chunk << CHUNK_SHIFT) + (index & ~CHUNK_MASK);
-+
-+	for (scan = 0; scan < si->max; scan++, block++) {
-+		if (block == si->max)
-+			block = 0;
-+		if (block == 0)
- 			continue;
--		si->lowest_bit = offset+1;
--	got_page:
--		if (offset == si->lowest_bit)
--			si->lowest_bit++;
--		if (offset == si->highest_bit)
--			si->highest_bit--;
--		if (si->lowest_bit > si->highest_bit) {
--			si->lowest_bit = si->max;
--			si->highest_bit = 0;
--		}
--		si->swap_map[offset] = 1;
--		si->inuse_pages++;
-+		if (si->swap_map[block])
-+			continue;
-+		si->swap_map[block] = 1;
- 		nr_swap_pages--;
--		si->cluster_next = offset+1;
--		return offset;
-+		if (akpm)
-+			printk("cookie:%p, index:%lu, chunk:%lu nchunks:%lu "
-+				"block:%lu\n",
-+				cookie, index, chunk, nchunks, block);
-+		return block;
- 	}
--	si->lowest_bit = si->max;
--	si->highest_bit = 0;
- 	return 0;
- }
- 
--swp_entry_t get_swap_page(void)
-+swp_entry_t get_swap_page(void *cookie, pgoff_t index)
- {
- 	struct swap_info_struct * p;
- 	unsigned long offset;
-@@ -166,7 +147,7 @@ swp_entry_t get_swap_page(void)
- 		p = &swap_info[type];
- 		if ((p->flags & SWP_ACTIVE) == SWP_ACTIVE) {
- 			swap_device_lock(p);
--			offset = scan_swap_map(p);
-+			offset = scan_swap_map(p, cookie, index);
- 			swap_device_unlock(p);
- 			if (offset) {
- 				entry = swp_entry(type,offset);
-
---sm4nu43k4a2Rpi4c--
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

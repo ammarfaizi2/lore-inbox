@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSELDJC>; Sat, 11 May 2002 23:09:02 -0400
+	id <S315233AbSELFNK>; Sun, 12 May 2002 01:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315183AbSELDJB>; Sat, 11 May 2002 23:09:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7629 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315167AbSELDJA>;
-	Sat, 11 May 2002 23:09:00 -0400
-Date: Sat, 11 May 2002 19:56:34 -0700 (PDT)
-Message-Id: <20020511.195634.31204998.davem@redhat.com>
-To: ltd@cisco.com
-Cc: jgarzik@mandrakesoft.com, chen_xiangping@emc.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20020511114358.03cd6ab0@mira-sjcm-3.cisco.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315286AbSELFNJ>; Sun, 12 May 2002 01:13:09 -0400
+Received: from graze.net ([65.207.24.2]:48063 "EHLO graze.net")
+	by vger.kernel.org with ESMTP id <S315233AbSELFNJ>;
+	Sun, 12 May 2002 01:13:09 -0400
+Subject: Re: Changelogs on kernel.org
+From: "Brian C. Huffman" <sheep@graze.net>
+To: john slee <indigoid@higherplane.net>
+Cc: Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020512010959.GH3855@higherplane.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 May 2002 01:05:44 -0400
+Message-Id: <1021179952.28117.4.camel@zaphod.graze.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Lincoln Dale <ltd@cisco.com>
-   Date: Sat, 11 May 2002 11:53:33 +1000
+Generally the defense that "no one else is saying anything" is not a
+good one - especially b/c it opens up a huge space for others to agree
+with the original argument.  And yes, they are illegible.  
 
-   for example, if TOE was supported in a driver (eg. /dev/toeN) which allowed 
-   user-space to mmap() into RAM (either on the card or main memory which the 
-   TOE card DMAs into/out-of).
+In fact, I believe that when things originally moved to BK, there was
+some discussion that although it was a step in the right direction, it
+needed to be cleaned up a little bit.
 
-This is a very old concept, see UNET.
+-Brian
 
-But that is %100 outside the realm of the TCP on a card stuff.
-You don't even need firmware to do UNET, you just export the
-packet descriptor rings into userspace.  Like I said, it's a
-"been there, done that" technology.
+On Sat, 2002-05-11 at 21:09, john slee wrote:
+> On Sun, May 12, 2002 at 01:07:09AM +0100, Ian Molton wrote:
+> > I dont know who to write to about this, but the changelogs for
+> > 2.4.19-pre on kernel.org are COMPLETELY illegible.
+> 
+> you seem to be the only one publicly complaining.  go write a procmail
+> recipe to fix them up.
+> 
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+

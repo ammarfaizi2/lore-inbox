@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVCALQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVCALTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVCALQM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 06:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVCALQM
+	id S261874AbVCALTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 06:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVCALTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 06:16:12 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18637 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261873AbVCALQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 06:16:05 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       barryn@pobox.com, marado@student.dei.uc.pt,
-       acpi-devel@lists.sourceforge.net, Len Brown <len.brown@intel.com>
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-References: <20050228231721.GA1326@elf.ucw.cz>
-	<20050301015231.091b5329.akpm@osdl.org>
-	<20050301105448.GG1345@elf.ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Mar 2005 04:12:50 -0700
-In-Reply-To: <20050301105448.GG1345@elf.ucw.cz>
-Message-ID: <m1psyjr559.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 1 Mar 2005 06:19:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49678 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261874AbVCALT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 06:19:27 -0500
+Date: Tue, 1 Mar 2005 11:19:22 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: updating mtime for char/block devices?
+Message-ID: <20050301111922.B29817@flint.arm.linux.org.uk>
+Mail-Followup-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42225CEE.1030104@gmx.net> <1109576878.6298.49.camel@laptopd505.fenrus.org> <4223BB3B.4060309@gmx.net> <20050301093709.A29817@flint.arm.linux.org.uk> <42244EDD.9020204@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42244EDD.9020204@gmx.net>; from c-d.hailfinger.devel.2005@gmx.net on Tue, Mar 01, 2005 at 12:15:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+On Tue, Mar 01, 2005 at 12:15:41PM +0100, Carl-Daniel Hailfinger wrote:
+> Russell King schrieb:
+> > tty mtime updates aren't marked dirty, so aren't written back to disk.
+> > Intentionally.
+> 
+> It seems the tty mtime exception doesn't include /dev/ptmx. That's
+> probably unintentional. Is there a chance to extend the tty mtime
+> exception to all char devices or at least major 4+5?
 
-> Yes, the patch is very ugly. If something like this needs to be done,
-> then perhaps acpi should properly register into driver model and do
-> the work there. This will also mean code will be called consistently.
+It does include /dev/ptmx, at least here with 2.6.11-rc2-bk1 and 2.4
+kernels.  In fact, it's common to all tty devices since it's handled
+by the generic tty code.
 
-I totally agree.  Do you have an example of how a non-device
-can do this?
-
-In particular something that gets as close to shutting down
-the system devices as possible.  But gets called before that.
-
-Or perhaps acpi should simply be setup to be the first system device?
-
-Eric
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

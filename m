@@ -1,152 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUEZKJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265407AbUEZKJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUEZKJp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 06:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265408AbUEZKJo
+	id S265407AbUEZKJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265409AbUEZKJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 06:09:44 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:2953 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265405AbUEZKJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 06:09:19 -0400
-Date: Wed, 26 May 2004 12:08:54 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, arjanv@redhat.com,
-       benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040526100854.GA13005@wohnheim.fh-wedel.de>
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org> <20040517233515.GR5414@waste.org> <20040517165919.04edcc77.akpm@osdl.org> <20040526100615.GB12142@wohnheim.fh-wedel.de>
+	Wed, 26 May 2004 06:09:54 -0400
+Received: from grunt22.ihug.com.au ([203.109.249.142]:52895 "EHLO
+	grunt22.ihug.com.au") by vger.kernel.org with ESMTP id S265407AbUEZKJ2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 06:09:28 -0400
+Subject: Re: drivers DB and id/ info registration
+From: Zenaan Harkness <zen@freedbms.net>
+To: debian-devel@lists.debian.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200405260918.51589@fortytwo.ch>
+References: <1085542706.2908.25.camel@zen8100a.freedbms.net>
+	 <20040526065447.GA32304@dat.etsit.upm.es>  <200405260918.51589@fortytwo.ch>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1085566079.2522.54.camel@zen8100a.freedbms.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040526100615.GB12142@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 May 2004 20:07:59 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot Anton's ppc64 port in the description.
+On Wed, 2004-05-26 at 17:18, Adrian 'Dagurashibanipal' von Bidder wrote:
+> On Wednesday 26 May 2004 08.54, Javier Fernández-Sanguino Peña wrote:
+> > On Wed, May 26, 2004 at 01:38:26PM +1000, Zenaan Harkness wrote:
+> > > My biggest itch in our free software world is drivers.
+> [...]
+> > > Does it make sense to set up a centralized website/ DB where
+> 
+> I always jump when somebody wants to centralize things...
 
-Jörn
+I know how you feel, although this is more from a manufacturers point of
+view:
 
--- 
-Victory in war is not repetitious.
--- Sun Tzu
+I develop widget X.
 
-o Fix the misparsing on *.ko noticed by Andrew Morton.
-o Slightly simplify the output format.
-o Slightly simplify the code
-o Added ppc64 architecture (re by Anton Blanchard)
+I contact microsoft and have X incorporated into windows.
 
-Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+I want to get it into free software kernels ... ???
 
- checkstack.pl |   47 +++++++++++++++++++++++++----------------------
- 1 files changed, 25 insertions(+), 22 deletions(-)
+> OTOH, one place to collect the info would probably be good. Or at least 
+> (to start with) one place listing the various places where such info is 
+> currently collected. Perhaps this is a case for a Wiki, and then you'll 
+> see in what direction this develops.
 
---- linux-2.6.6mm5/scripts/checkstack.pl~checkstack	2004-05-26 00:35:53.000000000 +0200
-+++ linux-2.6.6mm5/scripts/checkstack.pl	2004-05-26 00:45:18.000000000 +0200
-@@ -9,6 +9,7 @@
- #	Mips port by Juan Quintela <quintela@mandrakesoft.com>
- #	IA64 port via Andreas Dilger
- #	Arm port by Holger Schurig
-+#	Random bits by Matt Mackall <mpm@selenic.com>
- #
- #	Usage:
- #	objdump -d vmlinux | stackcheck_ppc.pl [arch]
-@@ -16,11 +17,10 @@
- #	TODO :	Port to all architectures (one regex per arch)
- 
- # check for arch
--#
--# $re is used for three matches:
-+# 
-+# $re is used for two matches:
- # $& (whole re) matches the complete objdump line with the stack growth
--# $1 (first bracket) matches the code that will be displayed in the output
--# $2 (second bracket) matches the size of the stack growth
-+# $1 (first bracket) matches the size of the stack growth
- #
- # use anything else and feel the pain ;)
- {
-@@ -33,25 +33,28 @@
- 	$xs	= "[0-9a-f ]";	# hex character or space
- 	if ($arch =~ /^arm$/) {
- 		#c0008ffc:	e24dd064	sub	sp, sp, #100	; 0x64
--		$re = qr/.*(sub.*sp, sp, #(([0-9]{2}|[3-9])[0-9]{2}))/o;
-+		$re = qr/.*sub.*sp, sp, #(([0-9]{2}|[3-9])[0-9]{2})/o;
- 	} elsif ($arch =~ /^i[3456]86$/) {
- 		#c0105234:       81 ec ac 05 00 00       sub    $0x5ac,%esp
--		$re = qr/^.*(sub    \$(0x$x{3,5}),\%esp)$/o;
-+		$re = qr/^.*sub    \$(0x$x{3,5}),\%esp$/o;
- 	} elsif ($arch =~ /^ia64$/) {
- 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
--		$re = qr/.*(adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12)/o;
-+		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
- 	} elsif ($arch =~ /^mips64$/) {
- 		#8800402c:       67bdfff0        daddiu  sp,sp,-16
--		$re = qr/.*(daddiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2}))/o;
-+		$re = qr/.*daddiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2})/o;
- 	} elsif ($arch =~ /^mips$/) {
- 		#88003254:       27bdffe0        addiu   sp,sp,-32
--		$re = qr/.*(addiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2}))/o;
-+		$re = qr/.*addiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2})/o;
- 	} elsif ($arch =~ /^ppc$/) {
- 		#c00029f4:       94 21 ff 30     stwu    r1,-208(r1)
--		$re = qr/.*(stwu.*r1,-($x{3,5})\(r1\))/o;
-+		$re = qr/.*stwu.*r1,-($x{3,5})\(r1\)/o;
-+	} elsif ($arch =~ /^ppc64$/) {
-+		#XXX
-+		$re = qr/.*stdu.*r1,-($x{3,5})\(r1\)/o;
- 	} elsif ($arch =~ /^s390x?$/) {
- 		#   11160:       a7 fb ff 60             aghi   %r15,-160
--		$re = qr/.*(ag?hi.*\%r15,-(([0-9]{2}|[3-9])[0-9]{2}))/o;
-+		$re = qr/.*ag?hi.*\%r15,-(([0-9]{2}|[3-9])[0-9]{2})/o;
- 	} else {
- 		print("wrong or unknown architecture\n");
- 		exit
-@@ -59,10 +62,8 @@
- }
- 
- sub bysize($) {
--	($asize = $a) =~ s/$re/\2/;
--	($bsize = $b) =~ s/$re/\2/;
--	$asize = hex($asize) if ($asize =~ /^0x/);
--	$bsize = hex($bsize) if ($bsize =~ /^0x/);
-+	($asize = $a) =~ s/.*	+(.*)$/$1/;
-+	($bsize = $b) =~ s/.*	+(.*)$/$1/;
- 	$bsize <=> $asize
- }
- 
-@@ -72,12 +73,16 @@
- $funcre = qr/^$x* \<(.*)\>:$/;
- while ($line = <STDIN>) {
- 	if ($line =~ m/$funcre/) {
--		($func = $line) =~ s/$funcre/\1/;
--		chomp($func);
-+		$func = $1;
- 	}
- 	if ($line =~ m/$re/) {
--		(my $addr = $line) =~ s/^($xs{8}).*/0x\1/o;
--		chomp($addr);
-+		my $size = $1;
-+		$size = hex($size) if ($size =~ /^0x/);
-+
-+		$line =~ m/^($xs*).*/;
-+		my $addr = $1;
-+		$addr =~ s/ /0/g;
-+		$addr = "0x$addr";
- 
- 		my $intro = "$addr $func:";
- 		my $padlen = 56 - length($intro);
-@@ -85,9 +90,7 @@
- 			$intro .= '	';
- 			$padlen -= 8;
- 		}
--		(my $code = $line) =~ s/$re/\1/;
--
--		$stack[@stack] = "$intro $code";
-+		$stack[@stack] = "$intro$size\n";
- 	}
- }
+Might be a good way to start.
+
+> > > hardware manufacturers and individuals can submid hardware info,
+> > > and that is widely advertised to hardware companies around the
+> > > globe?
+> >
+> > Yes, it does. I'm not sure if it makes sense to have it
+> > distribution-independent. End-users want to see which hardware is
+> > supported by their operating system (the current release, not the
+> > development release)
+
+The primary intention here is to make it easy for the manufacturers, not
+the end users (however a nice searchable interface for users would
+assuredly be a side effect).
+
+If I have a device that has multiple connection types (eg. parallel,
+usb, ethernet), who do I contact in the free software world? It's
+currently not easy/ known.
+
+It could/ should include information (perhaps in wiki or some "user
+submissions") about which kernels/ distros currently have support too,
+since that is useful information.
+
+> I guess this depends on what this site wishes to do. Should it be a 
+> repository for end-users to get information, or should it be a resource 
+> for distribution developers to go looking for device identification 
+> information?
+
+Primarily for manufacturers to provide/ submit information to.
+Therefore the second primary target I guess would be developers.
+Thirdly is users.
+
+Thanks
+Zenaan

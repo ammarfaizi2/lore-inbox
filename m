@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271569AbRIPKwJ>; Sun, 16 Sep 2001 06:52:09 -0400
+	id <S271645AbRIPLCK>; Sun, 16 Sep 2001 07:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271645AbRIPKv7>; Sun, 16 Sep 2001 06:51:59 -0400
-Received: from a10d14hel.dial.kolumbus.fi ([212.54.29.10]:17542 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S271569AbRIPKvz>; Sun, 16 Sep 2001 06:51:55 -0400
-Message-ID: <3BA48452.653466D4@kolumbus.fi>
-Date: Sun, 16 Sep 2001 13:52:02 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Kurshev <nickols_k@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac10
-In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk>
+	id <S271672AbRIPLCB>; Sun, 16 Sep 2001 07:02:01 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:4367 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S271645AbRIPLBj>;
+	Sun, 16 Sep 2001 07:01:39 -0400
+Date: Sun, 16 Sep 2001 13:02:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, VDA@port.imtp.ilyichevsk.odessa.ua,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+Message-ID: <20010916130201.A1327@suse.cz>
+In-Reply-To: <1292125035.20010914214303@port.imtp.ilyichevsk.odessa.ua> <E15i2Bp-00017m-00@the-village.bc.nu> <20010916035207.C7542@ppc.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010916035207.C7542@ppc.vc.cvut.cz>; from vandrove@vc.cvut.cz on Sun, Sep 16, 2001 at 03:52:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Alan Cox wrote:
+On Sun, Sep 16, 2001 at 03:52:07AM +0200, Petr Vandrovec wrote:
+> > +static void __init pci_fixup_athlon_bug(struct pci_dev *d)
+> > +{ 
+> > +       u8 v; 
+> > +       pci_read_config_byte(d, 0x55, &v);
+> > +       if(v & 0x80) {
+> > +               printk(KERN_NOTICE "Stomping on Athlon bug.\n");
+> > +               v &= 0x7f; /* clear bit 55.7 */
+> > +               pci_write_config_byte(d, 0x55, v);
+> > +       }
+> > +}
+> > 
+> > Well, these are cosmetic changes anyway...
+> > What is more important now:
+> > 1) Do we have people who still see Athlon bug with the patch?
 > 
-> o       Recognize Radeon VE in radeonfb                 (Nick Kurshev)
+> Just by any chance - does anybody have KT133 (not KT133A)
+> datasheet? I just noticed at home that my KT133 has reg 55 set
+> to 0x89 and it happilly lives... So maybe some BIOS vendors
+> used KT133 instead of KT133A BIOS image?
 
-This doesn't work for me. Now the video signal goes off (and stays) at boot.
-Kernel continues booting, but I can't see anything.
-
-This is probably the same software reset thing as with XFree86 driver.
-
-Best regards,
-
-	- Jussi Laako
+Same here ...
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Vojtech Pavlik
+SuSE Labs

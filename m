@@ -1,43 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130061AbQLYDna>; Sun, 24 Dec 2000 22:43:30 -0500
+	id <S130423AbQLYD7f>; Sun, 24 Dec 2000 22:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130423AbQLYDnV>; Sun, 24 Dec 2000 22:43:21 -0500
-Received: from srv8-bnu.bnu.terra.com.br ([200.248.48.18]:51470 "EHLO
-	srv8-bnu.bnu.terra.com.br") by vger.kernel.org with ESMTP
-	id <S130061AbQLYDnI>; Sun, 24 Dec 2000 22:43:08 -0500
-Date: Mon, 25 Dec 2000 01:10:06 -0200
-From: Augusto César Radtke <radtke@conectiva.com>
-To: "Marco d'Itri" <md@linux.it>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <20001225011006.A2620@conectiva.com>
-Mail-Followup-To: Augusto César Radtke <radtke@conectiva.com>,
-	"Marco d'Itri" <md@Linux.IT>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20001224170052.A223@wonderland.linux.it> <Pine.LNX.4.10.10012240941540.3972-100000@penguin.transmeta.com> <20001225005303.A205@wonderland.linux.it>
+	id <S130467AbQLYD7Z>; Sun, 24 Dec 2000 22:59:25 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:45723 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S130423AbQLYD7L>; Sun, 24 Dec 2000 22:59:11 -0500
+Date: Sun, 24 Dec 2000 19:28:40 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Subject: Proposal: devfs names ending in %d or %u
+Message-ID: <20001224192840.A12097@adam.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001225005303.A205@wonderland.linux.it>; from md@Linux.IT on Mon, Dec 25, 2000 at 12:53:03AM +0100
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco d'Itri wrote:
 
-> And I have another problem: I'm experiencing random hangs using X[1] with
-> 2.4.0-test12. After a variable amount of time, some of the times I use X
-> (I mostly use console) it just freezes hard (no caps lock activity).
-> I'm not sure if this only happens while using X or it's just less
-> frequent in console. -test9 works fine and I used it since it has been
-> released with no ill effects.
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This is probably the run_task_queue bug fixed in test13pre3.
+	It seems that just about everything that uses devfs
+contains some logic that attempts to construct an unused
+device name with something like:
 
-	Augusto
+	static devnum = 0;
+
+	sprintf (name, "lp%d", devnum++);
+	devfs_register_device(..., name,...);
+
+	Besides duplicating a lot of logic, making devfs support
+more of a pain to add and uglier to look at, the numbering behvior
+of these drivers can be inconsistent, especially if some devices
+are being removed.  For example, as I insert and remove my PCMCIA
+flash card, it becomes /dev/discs/disc1, /dev/discs/disc2,
+/dev/discs/disc3, etc.
+
+	I propose to change the devfs registration functions
+to allow registrations of devices ending in %d or %u, in which
+case it will use the first value, starting at 0, that generates a
+string that already registered.  So, if I have disc0, disc1, and disc2,
+and I remove the device containing disc1, then disc1 will be next
+disc device name to be registered, then disc3, then disc4, etc.
+
+	Just to illustrate, I have attached a patch that should
+do it for device files, but I also want to do this for symlinks and
+possibly directories.  So, I am not suggesting that anyone should
+integrate this patch yet.
+
+	This will make it a bit simpler to add devfs support to
+the remaining drivers that do not have it, and it will make
+numbering within devfs much simpler by default.  Of course, drivers
+that want to do their own thing the current way would not be impeded
+from doing so by this change.
+
+	Anyhow, I thought I should post this suggestion to see if
+anyone has any objections, better ideas, improvements or comments.
+
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="diffs.devfs"
+
+--- linux-2.4.0-test13-pre4/fs/devfs/base.c	Fri Nov 17 11:36:27 2000
++++ linux/fs/devfs/base.c	Sun Dec 10 13:50:29 2000
+@@ -1238,6 +1253,7 @@
+ {
+     int is_new;
+     struct devfs_entry *de;
++    int numeric_suffix;
+ 
+     if (name == NULL)
+     {
+@@ -1292,8 +1308,16 @@
+ 	minor = next_devnum_block & 0xff;
+ 	++next_devnum_block;
+     }
+-    de = search_for_entry (dir, name, strlen (name), TRUE, TRUE, &is_new,
+-			   FALSE);
++    numeric_suffix = 0;
++    do {
++	char realname[strlen(name)+11]; /* max 32-bit decimal integer is 10
++					  characters, plus one for
++					  terminating null. */
++	sprintf(realname, name, numeric_suffix);
++	numeric_suffix++;
++        de = search_for_entry (dir, realname, strlen (realname), TRUE, TRUE,
++			       &is_new, FALSE);
++    } while (!is_new && de != NULL && strcmp(name+strlen(name)-2, "%d") == 0); 
+     if (de == NULL)
+     {
+ 	printk ("%s: devfs_register(): could not create entry: \"%s\"\n",
+
+--bg08WKrSYDhXBjb5--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

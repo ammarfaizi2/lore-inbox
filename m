@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTDUQ2z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 12:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbTDUQ2z
+	id S261702AbTDUQ1i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 12:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTDUQ1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 12:28:55 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:30217 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261710AbTDUQ2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 12:28:54 -0400
-Date: Mon, 21 Apr 2003 17:40:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68 oops booting with initrd
-Message-ID: <20030421174053.A8101@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Kevin P. Fleming" <kpfleming@cox.net>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org
-References: <E197OVO-0008VR-00@gondolin.me.apana.org.au> <3EA41339.3090909@cox.net>
+	Mon, 21 Apr 2003 12:27:38 -0400
+Received: from verein.lst.de ([212.34.181.86]:57359 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S261702AbTDUQ1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 12:27:37 -0400
+Date: Mon, 21 Apr 2003 18:39:35 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: 2.5.68-bk1 renames IDE disks, /dev/hda is directory
+Message-ID: <20030421183935.A27811@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org,
+	andre@linux-ide.org
+References: <Pine.LNX.4.55.0304211157430.14766@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EA41339.3090909@cox.net>; from kpfleming@cox.net on Mon, Apr 21, 2003 at 08:50:17AM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.55.0304211157430.14766@marabou.research.att.com>; from proski@gnu.org on Mon, Apr 21, 2003 at 12:08:11PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 08:50:17AM -0700, Kevin P. Fleming wrote:
-> The patch you supplied (check disk->minors != 1 before calling 
-> devfs_remove_partitions) did not apply do 2.5.68; the code in 
-> fs/partitions/check.c has changed since your base version. However, 
-> hand-editing to do the same check has solved the problem.
+On Mon, Apr 21, 2003 at 12:08:11PM -0400, Pavel Roskin wrote:
+> Hello!
 > 
-> I'll Christoph supply a patch, since he's the one that's been working in 
-> that whole devfs area.
+> After upgrading from 2.5.67-bk9 to 2.5.68-bk1 I have found that the devfs
+> names for IDE disks have changed.  Instead of the traditional
+> 2.4-compatible /dev/ide/host0/bus0/target0/lun0/part1, /dev/hda1 has now
+> become /dev/hda/disc0/part1.
+> 
+> What's really weird is that /dev/hda is now a directory.  That's going to
+> break a lot of software!
 
-And 2.5.58-bk1 is completly different again but should have fixed it.
+Hey, that wasn't intentation.  In fact it's a stupid brown-paperbag bug
+only hidden by mount-by-label :)
 
-Make sure you apply the following diff when using devfs, though:
+Here's the fix:
 
 
 --- 1.1/fs/partitions/devfs.c	Sat Apr 19 20:57:36 2003

@@ -1,91 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbTJ2Ofg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 09:35:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTJ2Off
+	id S261602AbTJ2OvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 09:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJ2OvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 09:35:35 -0500
-Received: from mail1.neceur.com ([193.116.254.3]:3487 "EHLO mail1.neceur.com")
-	by vger.kernel.org with ESMTP id S261397AbTJ2OfZ (ORCPT
+	Wed, 29 Oct 2003 09:51:06 -0500
+Received: from main.gmane.org ([80.91.224.249]:20930 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261602AbTJ2OvC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 09:35:25 -0500
-In-Reply-To: <3F9FCB1F.9080606@mcve.com>
-To: Brad House <brad@mcve.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nforce2 stability on 2.6.0-test5 and 2.6.0-test9
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Build V65_M1_04032003NP April 03, 2003
-Message-ID: <OFD0D30073.3921A657-ON80256DCE.004EDE5F-80256DCE.0050215F@uk.neceur.com>
-From: ross.alexander@uk.neceur.com
-Date: Wed, 29 Oct 2003 14:35:14 +0000
-X-MIMETrack: Serialize by Router on LDN-THOTH/E/NEC(Release 5.0.10 |March 22, 2002) at
- 10/29/2003 02:35:15 PM,
-	Serialize complete at 10/29/2003 02:35:15 PM,
-	Itemize by SMTP Server on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
- 10/29/2003 02:35:15 PM,
-	Serialize by Router on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
- 10/29/2003 02:35:15 PM
-Content-Type: text/plain; charset="US-ASCII"
+	Wed, 29 Oct 2003 09:51:02 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Christian Kapeller <the_kapeller@gmx.at>
+Subject: [2.6.0-test9] alsa intel8x0: scattered sound playback
+Date: Wed, 29 Oct 2003 15:41:55 +0100
+Message-ID: <slrnbpvkdj.845.christian.kapeller@campus14.panorama.sth.ac.at>
+Reply-To: Christian Kapeller <the_kapeller@gmx.at>
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad,
+Hi!
 
-My problem is one of the infamous nforce2 hardlockups.  You don't get any
-kernel panic or anything that useful.  The system just locks up completely
-and has to be manually reset.
+Since i'm running the 2.6.0 (2.6.0-test9-bk1 currently) kernel i encounter 
+problems with alsa sound playback.
 
-The problem is known to associate with IDE activity and is thought (as far
-as I know) to originate somewhere in the IDE driver.
+I got a Thinkpad A31 with Debian, so i use the intel8x0 driver. I compiled the 
+drivers into the kernel. The compiling works just fine, also the sound playback 
+runs without problems.
 
-Cheers,
+The sound is very scatterd and parts of the playback are repeated sometims. 
+Stopping the playback and starting it again, fixes it - somtimes, and if then 
+only for a couple of seconds.
 
-Ross
-
----------------------------------------------------------------------------------
-Ross Alexander                           "We demand clearly defined
-MIS - NEC Europe Limited            boundaries of uncertainty and
-Work ph: +44 20 8752 3394         doubt."
+I tested it with xmms (output: libALSA.so and libesdout.so), mpg123 and mplayer.
+I tried it with and without esd.
 
 
-
-
-Brad House <brad@mcve.com>
-10/29/2003 02:13 PM
- 
-        To:     ross.alexander@uk.neceur.com
-        cc:     Brad House <brad_mssw@gentoo.org>, 
-linux-kernel@vger.kernel.org
-        Subject:        Re: nforce2 stability on 2.6.0-test5 and 
-2.6.0-test9
-
-
-Hmm, interesting. The patches I submitted were strictly
-for IDE/ATA133 improvements, apparently your problems don't
-lie there.  I'd assume this was a kernel panic you had, any
-output available that would tell you where it paniced ?
-
--Brad
-
-ross.alexander@uk.neceur.com wrote:
-> Brad,
-> 
-> I'm running an ASUS A7N8X Deluxe mobo (nforce2 chipset) and still
-> getting hardlockups.  I applied your patch but my system still locked
-> up after about a day.  However 2.6.0-test5 seems to be stable.  I have
-> had my system up for over three weeks with APIC and ACPI turned on.
-> 
-> Just to let you know,
-> 
-> Ross
-> 
-> 
----------------------------------------------------------------------------------
-> Ross Alexander                           "We demand clearly defined
-> MIS - NEC Europe Limited            boundaries of uncertainty and
-> Work ph: +44 20 8752 3394         doubt."
-> 
+lspci reports:
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio Controller (rev 02)
 
 
 
+/var/log/kern.log shows the following error messages:
+
+----
+Oct 28 18:18:08 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0, delta: -1314, max jitter = 8192): wrong interrupt acknowledge?
+Oct 28 18:18:08 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0, delta: -1024, max jitter = 8192): wrong interrupt acknowledge?
+Oct 28 18:19:29 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0, delta: -1084, max jitter = 8192): wrong interrupt acknowledge?
+Oct 28 18:19:29 xxxxxxxx kernel: ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0, delta: -1024, max jitter = 8192): wrong interrupt acknowledge?
+--
+
+
+I searched the web but didn't find a similar problem.
+Does anyone have a clou?
 

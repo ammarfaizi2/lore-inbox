@@ -1,110 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267804AbUIUQYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267810AbUIUQZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267804AbUIUQYa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 12:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUIUQYa
+	id S267810AbUIUQZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 12:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUIUQZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 12:24:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56457 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267804AbUIUQYP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 12:24:15 -0400
-Date: Tue, 21 Sep 2004 17:24:10 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 1/2: device-mapper: rename emit macro
-Message-ID: <20040921162410.GE11810@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Tue, 21 Sep 2004 12:25:04 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:26825 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267810AbUIUQY4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 12:24:56 -0400
+Date: Tue, 21 Sep 2004 18:16:50 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Add on-demand cpu-freq governor as default option
+Message-ID: <20040921161650.GA8119@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <cone.1095649950.909900.10443.502@pc.kolivas.org> <20040920170216.GA7952@dominikbrodowski.de> <cone.1095720189.669330.22937.502@pc.kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <cone.1095720189.669330.22937.502@pc.kolivas.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rename EMIT macro to DMEMIT and move to header file.
---- diff/drivers/md/dm-raid1.c	2004-09-21 16:36:14.000000000 +0100
-+++ source/drivers/md/dm-raid1.c	2004-09-21 16:35:39.000000000 +0100
-@@ -1185,32 +1185,29 @@
- 	unsigned int m, sz = 0;
- 	struct mirror_set *ms = (struct mirror_set *) ti->private;
- 
--#define EMIT(x...) sz += ((sz >= maxlen) ? \
--			  0 : scnprintf(result + sz, maxlen - sz, x))
--
- 	switch (type) {
- 	case STATUSTYPE_INFO:
--		EMIT("%d ", ms->nr_mirrors);
-+		DMEMIT("%d ", ms->nr_mirrors);
- 
- 		for (m = 0; m < ms->nr_mirrors; m++) {
- 			format_dev_t(buffer, ms->mirror[m].dev->bdev->bd_dev);
--			EMIT("%s ", buffer);
-+			DMEMIT("%s ", buffer);
- 		}
- 
--		EMIT(SECTOR_FORMAT "/" SECTOR_FORMAT,
--		     ms->rh.log->type->get_sync_count(ms->rh.log),
--		     ms->nr_regions);
-+		DMEMIT(SECTOR_FORMAT "/" SECTOR_FORMAT,
-+		       ms->rh.log->type->get_sync_count(ms->rh.log),
-+		       ms->nr_regions);
- 		break;
- 
- 	case STATUSTYPE_TABLE:
--		EMIT("%s 1 " SECTOR_FORMAT " %d ",
--		     ms->rh.log->type->name, ms->rh.region_size,
--		     ms->nr_mirrors);
-+		DMEMIT("%s 1 " SECTOR_FORMAT " %d ",
-+		       ms->rh.log->type->name, ms->rh.region_size,
-+		       ms->nr_mirrors);
- 
- 		for (m = 0; m < ms->nr_mirrors; m++) {
- 			format_dev_t(buffer, ms->mirror[m].dev->bdev->bd_dev);
--			EMIT("%s " SECTOR_FORMAT " ",
--			     buffer, ms->mirror[m].offset);
-+			DMEMIT("%s " SECTOR_FORMAT " ",
-+			       buffer, ms->mirror[m].offset);
- 		}
- 	}
- 
---- diff/drivers/md/dm-stripe.c	2004-09-21 16:36:14.000000000 +0100
-+++ source/drivers/md/dm-stripe.c	2004-09-21 16:35:39.000000000 +0100
-@@ -191,20 +191,17 @@
- 	unsigned int i;
- 	char buffer[32];
- 
--#define EMIT(x...) sz += ((sz >= maxlen) ? \
--			  0 : scnprintf(result + sz, maxlen - sz, x))
--
- 	switch (type) {
- 	case STATUSTYPE_INFO:
- 		result[0] = '\0';
- 		break;
- 
- 	case STATUSTYPE_TABLE:
--		EMIT("%d " SECTOR_FORMAT, sc->stripes, sc->chunk_mask + 1);
-+		DMEMIT("%d " SECTOR_FORMAT, sc->stripes, sc->chunk_mask + 1);
- 		for (i = 0; i < sc->stripes; i++) {
- 			format_dev_t(buffer, sc->stripe[i].dev->bdev->bd_dev);
--			EMIT(" %s " SECTOR_FORMAT, buffer,
--			     sc->stripe[i].physical_start);
-+			DMEMIT(" %s " SECTOR_FORMAT, buffer,
-+			       sc->stripe[i].physical_start);
- 		}
- 		break;
- 	}
---- diff/drivers/md/dm.h	2004-09-20 20:44:03.000000000 +0100
-+++ source/drivers/md/dm.h	2004-09-21 16:35:39.000000000 +0100
-@@ -19,6 +19,9 @@
- #define DMERR(f, x...) printk(KERN_ERR DM_NAME ": " f "\n" , ## x)
- #define DMINFO(f, x...) printk(KERN_INFO DM_NAME ": " f "\n" , ## x)
- 
-+#define DMEMIT(x...) sz += ((sz >= maxlen) ? \
-+			  0 : scnprintf(result + sz, maxlen - sz, x))
-+
- /*
-  * FIXME: I think this should be with the definition of sector_t
-  * in types.h.
+Hi,
+
+On Tue, Sep 21, 2004 at 08:43:09AM +1000, Con Kolivas wrote:
+> 1. Would it be inappropriate to make it drop back to a different governor 
+> so that it can be selected?
+
+This would involve major changes to the cpufreq core, and it wouldn't make
+it easier. I'll add it to my TODO list and think about it again once more
+important issues are adressed. Agreed?
+
+> 2. Can cpu throttling be incorporated into this governor as well as a 
+> secondary mechanism for the lowest cpu frequency and as a primary 
+> mechanism for those cpus that don't support cpufreq?
+
+a) it hasn't to do anything with the _governor_. The governor works with
+whatever method is offered to him, may it be frequency scaling or
+throttling. Actually, some CPUfreq drivers actually only do throttling, and
+you can use ondemand for them [if their latency values are set correctly,
+that is].
+
+b) on-demand throttling is useless. Throttling sets the CPU to the same
+internal power state as the ACPI idle state C2 does [and C2 has quite the
+same energy consumption as C1, actually...], so lowering the time spent
+idling and increasing throttling doesn't save energy, while lowering idling
+and increasing frequency scaling does save much energy. 
+
+c) As throttling does make sense for thermal management and certain energy
+consumption requirements [e.g. the battery isn't strong enough for the CPU
+running at 100%], adapting the CPUfreq core to support loading one frequency
+scaling and one frequency throttling driver at the same time is something I
+have in my TODO list as well. Nonetheless, it will not be made available for
+"on-demand" throttling, unless I'm convinced otherwise.
+
+Thanks,
+	Dominik

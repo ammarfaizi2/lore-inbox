@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUHOSxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUHOTLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUHOSxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 14:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUHOSxY
+	id S266578AbUHOTLg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 15:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUHOTLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 14:53:24 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10675 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264791AbUHOSxX
+	Sun, 15 Aug 2004 15:11:36 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:34361 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266578AbUHOTLf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 14:53:23 -0400
-Date: Sun, 15 Aug 2004 20:49:38 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: kernel-2.6.8.1 EIP is at velocity_netdev_event+0x16/0x50
-Message-ID: <20040815184937.GA9105@electric-eye.fr.zoreil.com>
-References: <20040815095814.GA32195@trot.local> <20040815110625.GA2829@electric-eye.fr.zoreil.com> <20040815155457.GB32195@trot.local>
+	Sun, 15 Aug 2004 15:11:35 -0400
+Date: Sun, 15 Aug 2004 21:14:10 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+Cc: sam@ravnborg.org, kai@tp1.ruhr-uni-bochum.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove wildcard on KBUILD_OUTPUT
+Message-ID: <20040815191410.GC7682@mars.ravnborg.org>
+Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
+	sam@ravnborg.org, kai@tp1.ruhr-uni-bochum.de, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <411B31A5.70508@greatcn.org> <20040812172307.GA7365@mars.ravnborg.org> <411BCE4F.1060002@greatcn.org> <51248.194.237.142.13.1092343524.squirrel@194.237.142.13> <411BE105.4080203@greatcn.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040815155457.GB32195@trot.local>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <411BE105.4080203@greatcn.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Georgalis <george@galis.org> :
-[...]
-> ...that patch doesn't build
+On Fri, Aug 13, 2004 at 05:28:37AM +0800, Coywolf Qi Hunt wrote:
+> sam@ravnborg.org wrote:
 > 
->   26674 Aug 15 06:51 ../20040815-2.6.8-via-velocity-test.patch
+> >>You misunderstood me.
+> >>This patch removes unnecessary wildcard on KBUILD_OUTPUT
 
-The patch has been updated. Same location.
+Applied, thanks.
 
-[...]
-> Also note, I don't actually have one of these devices to test, I only
-> included it in case I come across one.
-
-Nobody's perfect.
-
---
-Ueimor
+	Sam

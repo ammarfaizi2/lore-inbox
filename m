@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbTGUHB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 03:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTGUHAi
+	id S269236AbTGUHDo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 03:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTGUHDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 03:00:38 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:64941 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S269269AbTGUHAg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 03:00:36 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 21 Jul 2003 09:28:53 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030721072853.GA21450@bytesex.org>
-References: <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com> <20030717120121.GA15061@bytesex.org> <20030717145749.GA5067@kroah.com> <20030717163715.GA19258@bytesex.org> <20030717214907.GA3255@kroah.com> <20030718095920.GA32558@bytesex.org> <20030718234359.GK1583@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718234359.GK1583@kroah.com>
-User-Agent: Mutt/1.5.3i
+	Mon, 21 Jul 2003 03:03:44 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:13514 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id S269236AbTGUHDm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 03:03:42 -0400
+Message-ID: <46464.203.113.198.161.1058771919.squirrel@bad-sports.com>
+In-Reply-To: <0c4e01c34f56$b2b95ce0$64ee4ca5@DIAMONDLX60>
+References: <0c1801c34f50$a9706800$64ee4ca5@DIAMONDLX60>
+    <46349.203.113.198.161.1058770320.squirrel@bad-sports.com>
+    <0c4e01c34f56$b2b95ce0$64ee4ca5@DIAMONDLX60>
+Date: Mon, 21 Jul 2003 17:18:39 +1000 (EST)
+Subject: Re: Tried to run 2.6.0-test1
+From: "Brett" <generica@email.com>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: generica@email.com
+User-Agent: SquirrelMail/1.4.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hm, it just looks like you quoted my message and didn't write anything
-> new.  Did something not go through correctly?
+Norman Diamond said:
+> "Brett" <generica@email.com> replied to one of my desperate messages
+> today.
+> I'm sending this personally and to the list.  Again I can't keep up with
+> the
+> list, so if Brett or anyone else has further advice or questions, please
+> contact me directly.
+>
+>> > By the way, the last line in that README file says that if this is all
+>> > too complicated then install the source RPM.  Gee thanks.  I already
+>> >  tried "rpm --rebuild" but it assumes an i686.
+>>
+>> you want rpmbuild
+>
+> SuSE 8.1 doesn't seem to have it.
+>
 
-:-/  ... I should learn to use my mailer correctly ...
-Should have been that one:
+ahh, jumped in halfway thru thread and didn't know you were on suse
 
-==============================[ cut here ]==============================
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-In-Reply-To: <20030717214907.GA3255@kroah.com>
+>> rpmbuild --target=i586 --rebuild modutils-*.src.rpm
+>
+> Oh, it doesn't need --target=i586-intel-linux  :-?  (By the way, the
+> reason
+> I come up with snarky questions like this one is that I RTFM.  Sigh.)
+>
 
-> > Version (1) can be done without breaking the build, with a hack along 
-> > the lines "if (no release callback) printk(KERN_WARN please fix your
-> > driver)", so the drivers can be fixed step-by-step afterwards.
-> 
-> That sounds like a nice way to start.
+[root@synapse router_firmware]# rpmbuild --target=i586 --rebuild
+/tbla/modutils-2.4.21-18.src.rpm
 
-> I don't think it will be that bad for them.  Just have them change the
-> v4l device from being a structure included in their structure, into a
-> pointer, and then create it before registering, and free it in the
-> release() callback.
+<snip>
 
-Good point.  So the mandatory ->release() callback version is also the
-more flexible one.  I like that :)
+Wrote: /usr/src/redhat/RPMS/i586/modutils-2.4.21-18.i586.rpm
 
-> Breaking the build is a very good thing to do at times, to ensure that
-> stuff gets fixed properly.  Users might go for a while without realizing
-> that there really is a problem in their driver.
-> 
-> But in the end, it's up to you...
+works for me on rh9 ... sorry i can't give suse specific help
 
-Breaking the build _right now_ with 2.6 becoming stable is IMHO not a
-good idea, I think I better try to avoid that until 2.7.
+good luck,
 
-New patch will come later today or early next week.
-
-  Gerd
-
--- 
-sigfault
-
+     / Brett

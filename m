@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTEZB4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 21:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263844AbTEZB4P
+	id S263845AbTEZCFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 22:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTEZCFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 21:56:15 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:36350 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP id S263837AbTEZB4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 21:56:14 -0400
-Message-ID: <3ED17753.5090009@acm.org>
-Date: Sun, 25 May 2003 21:09:23 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 - ipmi unresolved
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva> <3ECE246D.E3B27BCB@eyal.emu.id.au> <200305231541.43803.m.c.p@wolk-project.de>
-In-Reply-To: <200305231541.43803.m.c.p@wolk-project.de>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sun, 25 May 2003 22:05:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14471 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263845AbTEZCFj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 22:05:39 -0400
+Date: Sun, 25 May 2003 19:18:18 -0700 (PDT)
+Message-Id: <20030525.191818.48503212.davem@redhat.com>
+To: schlicht@uni-mannheim.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error during compile of 2.5.69-mm8
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305241637.07395.schlicht@uni-mannheim.de>
+References: <200305230538.38946.schlicht@uni-mannheim.de>
+	<20030522.213217.27796203.davem@redhat.com>
+	<200305241637.07395.schlicht@uni-mannheim.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
+   From: Thomas Schlichter <schlicht@uni-mannheim.de>
+   Date: Sat, 24 May 2003 16:36:59 +0200
+   
+   I also attached a patch that fixes the SET_MODULE_OWNER thing for
+   net/ipv4/ by using static initializers
 
->On Friday 23 May 2003 15:38, Eyal Lebedinsky wrote:
->
->Hi Eyal,
->
->  
->
->>The exports in ksyms are still necessary, and missing:
->>depmod: *** Unresolved symbols in
->>/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_msghandler.o
->>depmod:         panic_notifier_list
->>depmod: *** Unresolved symbols in
->>/lib/modules/2.4.21-rc3/kernel/drivers/char/ipmi/ipmi_watchdog.o
->>depmod:         panic_notifier_list
->>depmod:         panic_timeout
->>The attached snippet was part of the earlier, larger patch.
->>    
->>
->I've send this fix 3 times and I gave up after silent ignores ;)
->
-I've resent my fixes, Marcelo said earlier he would take them, but they
-didn't get into this release.
+I can't apply these patches, there are errors.  You remove
+the esp4_type->owner setting, but don't put the static initializer
+in there.
 
--Corey
-
+I suppose you do test the changes you make in your patches, right?
+What was the test you made to make sure the esp4_type module ownership
+was set correctly? :-)

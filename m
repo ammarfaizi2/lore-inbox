@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbTBCUcz>; Mon, 3 Feb 2003 15:32:55 -0500
+	id <S265409AbTBCUiO>; Mon, 3 Feb 2003 15:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbTBCUcz>; Mon, 3 Feb 2003 15:32:55 -0500
-Received: from main.gmane.org ([80.91.224.249]:34271 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S266020AbTBCUcy>;
-	Mon, 3 Feb 2003 15:32:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: John Goerzen <jgoerzen@complete.org>
-Subject: Kernel 2.4.20 panic in scheduler
-Date: Mon, 03 Feb 2003 14:33:15 -0600
-Organization: Complete.Org
-Message-ID: <87k7gh85pw.fsf@christoph.complete.org>
+	id <S265894AbTBCUiO>; Mon, 3 Feb 2003 15:38:14 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23315
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265409AbTBCUiN>; Mon, 3 Feb 2003 15:38:13 -0500
+Subject: Re: [patch] HT scheduler, sched-2.5.59-E2
+From: Robert Love <rml@tech9.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Theurer <habanero@us.ibm.com>, Erich Focht <efocht@ess.nec.de>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0302031812500.12700-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0302031812500.12700-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044305265.802.60.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@complete.org
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (powerpc-unknown-linux-gnu)
-Cancel-Lock: sha1:RRf3Nqf6o1f+R9NANRJS84cRDPk=
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 03 Feb 2003 15:47:45 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2003-02-03 at 13:23, Ingo Molnar wrote:
 
-Today I experienced a kernel panic running kernel 2.4.20 (plus the ctx
-vserver patch; otherwise vanilla) with a bcm5700 module added in.  It's
-running on a dual Xeon Dell PowerEdge 2650.  Those CPUs both feature
-hyperthreading, which is enabled, so Linux sees four virtual CPUs.
+> the attached patch (against 2.5.59 or BK-curr) has two HT-scheduler fixes
+> over the -D7 patch:
 
-This is from my handwritten notes from the screen.
+Hi, Ingo.  I am running this now, with good results. Unfortunately I do
+not have an HT-capable processor, so I am only testing the interactivity
+improvements.  They are looking very good - a step in the right
+direction.  Very nice.
 
-Text on screen (from hurriedly-handwritten notes):
+A couple bits:
 
-Scheduling in interrupt
-kernel BUG at sched.c:570!
-Invalid operand: 0000
-CPU: 0
-EIP: 0010:[<c011a201>]
+> -		wake_up_interruptible(PIPE_WAIT(*inode));
+> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+> ...
+> -		wake_up_interruptible(PIPE_WAIT(*inode));
+> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+>  ...
+> -		wake_up_interruptible(PIPE_WAIT(*inode));
+> +		wake_up_interruptible_sync(PIPE_WAIT(*inode));
 
-...
+These are not correct, right?  I believe we want normal behavior here,
+no?
 
-Stack: c02b910a 000001c5 00000286 00000000 2088a8e
-       .... some intermediate lines skipped ....
-       ffffffff c02fbf00 c02fbf00
+> --- linux/kernel/sys.c.orig	
+> +++ linux/kernel/sys.c	
+> @@ -220,7 +220,7 @@
+>  
+>  	if (error == -ESRCH)
+>  		error = 0;
+> -	if (niceval < task_nice(p) && !capable(CAP_SYS_NICE))
+> +	if (0 && niceval < task_nice(p) && !capable(CAP_SYS_NICE))
 
-Call trace: c02a510c c02a4f99 c012c12a c02882ef c027ad7d
-       .... some intermediate lines skipped ....
-            c012b419 c01208c8 c01218dc c01093ef
+What is the point of this? Left in for debugging?
 
-Running each of these addresses through ksymoops yields the following:
+> -#define MAX_SLEEP_AVG		(2*HZ)
+> -#define STARVATION_LIMIT	(2*HZ)
+> +#define MAX_SLEEP_AVG		(10*HZ)
+> +#define STARVATION_LIMIT	(30*HZ)
 
-Adhoc 00000000 Before first symbol
-Adhoc 000001c5 Before first symbol
-Adhoc 00000286 Before first symbol
-Adhoc 02088a8e Before first symbol
-Adhoc c01093ef <system_call+33/38>
-Adhoc c011a201 <schedule+501/530>
-Adhoc c01208c8 <release_task+e8/110>
-Adhoc c01218dc <sys_wait4+39c/410>
-Adhoc c01218de <sys_wait4+39e/410>
-Adhoc c012b419 <sys_release_ip_info+29/60>
-Adhoc c012c12a <.text.lock.sys+ea/190>
-Adhoc c026910a <tcp_sendpage+11a/160>
-Adhoc c027ad7d <tcp_v4_do_rcv+10d/1c0>
-Adhoc c02882ef <inet_sock_destruct+ff/1c0>
-Adhoc c02a4f99 <rwsem_down_write_failed+29/40>
-Adhoc c02a510c <rwsem_down_failed_common+5c/7e>
-Adhoc c02b910a <timer_bug_msg+912a/37b20>
-Adhoc c02fbc00 <fs_table+40/220>
-Adhoc c02fbf00 <uts_sem+8/28>
-Adhoc ffffffff <END_OF_CODE+76b8dc8/????>
+Do you really want a 30 second starvation limit?  Ouch.
+
+> +	printk("rq_idx(smp_processor_id()): %ld.\n", rq_idx(smp_processor_id()));
+
+This gives a compiler warning on UP:
+
+        kernel/sched.c: In function `sched_init':
+        kernel/sched.c:2722: warning: long int format, int arg (arg 2)
+
+Since rq_idx(), on UP, merely returns its parameter which is an int.
+
+Otherwise, looking nice :)
+
+	Robert Love
 

@@ -1,101 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUGHKxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264479AbUGHKzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUGHKxW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 06:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUGHKxW
+	id S264479AbUGHKzd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 06:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUGHKzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 06:53:22 -0400
-Received: from cm217.omega59.maxonline.com.sg ([218.186.59.217]:40836 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263893AbUGHKxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 06:53:19 -0400
-Date: Thu, 8 Jul 2004 18:53:38 +0800
-From: David Teigland <teigland@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Phillips <phillips@redhat.com>, Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040708105338.GA16115@redhat.com>
-References: <200407050209.29268.phillips@redhat.com> <200407061734.51023.phillips@redhat.com> <20040707181650.GD12255@marowsky-bree.de> <200407072114.07291.phillips@redhat.com> <20040708091043.GS12255@marowsky-bree.de>
+	Thu, 8 Jul 2004 06:55:33 -0400
+Received: from outmx022.isp.belgacom.be ([195.238.2.203]:48077 "EHLO
+	outmx022.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S264479AbUGHKzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 06:55:14 -0400
+Subject: Re: Autoregulate swappiness & inactivation
+From: FabF <fabian.frederick@skynet.be>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, nigelenki@comcast.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <cone.1089275229.304355.4554.502@pc.kolivas.org>
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>
+	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>
+	 <cone.1089268800.781084.4554.502@pc.kolivas.org>
+	 <20040708001027.7fed0bc4.akpm@osdl.org>
+	 <cone.1089273505.418287.4554.502@pc.kolivas.org>
+	 <20040708010842.2064a706.akpm@osdl.org>
+	 <cone.1089275229.304355.4554.502@pc.kolivas.org>
+Content-Type: text/plain
+Message-Id: <1089284097.3691.52.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040708091043.GS12255@marowsky-bree.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 08 Jul 2004 12:54:57 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 11:10:43AM +0200, Lars Marowsky-Bree wrote:
+On Thu, 2004-07-08 at 10:27, Con Kolivas wrote:
+> Andrew Morton writes:
+> 
+> > Con Kolivas <kernel@kolivas.org> wrote:
+> >>
+> >> Andrew Morton writes:
+> >> 
+> >> > Con Kolivas <kernel@kolivas.org> wrote:
+> >> >>
+> >> >>  Ah what the heck. They can only be knocked back to where they already are.
+> >> > 
+> >> > hm.  You get an eGrump for sending two patchs in one email.  Surprisingly
+> >> > nice numbers though.
+> >> > 
+> >> > How come vm_swappiness gets squared?  That's the mysterious "bias
+> >> > downwards", yes?  What's the theory there?
+> >> 
+> >> No real world feedback mechanism is linear. As the pressure grows the 
+> >> positive/negative feedback grows exponentially.
+> > 
+> > That takes me back.  The classic control system is PID:
+> > Proportional/Integral/Derivative - they refer to the way in which the error
+> > term (output-desired output) is fed back to the input:
+> > 
+> > Proportional: the bigger the error, the more input drive
+> > 
+> > Integral: feeding back a bit of the integral of the error prevents
+> > permanent output skew due to non-infinite forward gain.
+> > 
+> > Derivative: feeding back -(rate of change) provides damping.
+> > 
+> > You can live without I and D - the main thing is to feed back the -error.
+> > 
+> > IOW: linear works just fine :)
+> 
+> /me hides
+> 
+> Umm sorry the control systems I look at are physiological and tend to be 
+> exponential, so ignore me.
+> 
+> > Your answer didn't help me understand the design though.
+> 
+> Ok I'll just describe it. I should have just said that when mapped pages are 
+> low the best seems to be a very low swappiness, but not zero as zero seems 
+> to get bogged down easily (kswapd gets busy and basic things take longer) as 
+> occasionally slipping some pages onto swap helps. Generally it's when what I 
+> called the application pages (blush) get to around 75% that allowing things 
+> to swap at the rate equivalent to swappiness==60 is helpful. Once the mapped 
+> pages went greater than 75% the machine would start bogging down again if 
+> the swappiness remained at 60. I guess I made up the maths to fill the way 
+> the design worked best. Linear brought up the swappiness too easily and 
+> under swap thrash made things worse. It looked nicer but didn't really 
+> behave well.
+> 
+> >> > Please define this new term "application pages"?
+> >> 
+> >> errm it's fuzzy to say the least. It's the closest I can come to 
+> >> representing what end users understand as "non-cached" pages.
+> > 
+> > Isn't that mapped pages?
+> 
+> I'm all ears.
+> 
+> >> > Those si_swapinfo() and si_meminfo() calls need to come out of there.
+> >> 
+> >> I'm game. I had the idea but not the skill. Anyone wanna help me with that?
+> > 
+> > Need to work out what cen be removed first.  The freeswap/totalswap can go.
+> >  That leaves us needing what?  totalram and freeram.  If the algorithm can
+> > be flipped over to use nr_mapped, we'd be looking good.
+> 
+> Ok. I need some time to clean up this mess and try and figure out what to do 
+> then.
+Con,
+	What's interesting is try_to_free_pages comment :
 
-> Of all the cluster-subsystems, the fencing system is likely the most
-> important. If the various implementations don't step on eachothers toes
-> there, the duplication of membership/messaging/etc is only inefficient,
-> but not actively harmful.
+" the zone may be full of dirty or under-writeback pages, which this
+ * caller can't do much about.  We kick pdflush and take explicit naps
+in the
+ * hope that some of these pages can be written.  But if the allocating
+task..."
 
-I'm afraid the fencing issue has been rather misrepresented.  Here's what we're
-doing (a lot of background is necessary I'm afraid.)  We have a symmetric,
-kernel-based, stand-alone cluster manager (CMAN) that has no ties to anything
-else whatsoever.  It'll simply run and answer the question "who's in the
-cluster?" by providing a list of names/nodeids.
+	I mean do we have high activity profile of that side of the kernel when
+bringing up some big application to life ?
+	Does work consist here in 50% out, 50% in (time) ? Your anticipation
+algorithm can help the "in" side but maybe we can optimize yet the "out"
+side.btw, I'm surprised to see autoswappiness so far in fx tree:
 
-So, if that's all you want you can just run cman on all your nodes and it'll
-tell you who's in the cluster (kernel and userland api's).  CMAN will also do
-generic callbacks to tell you when the membership has changed.  Some people can
-stop reading here.
+page_reclaim
+	try_to_free_pages
+		shrink_caches
+			shrink_zone
+				refill_inactive_zone
+					auto_swap calculation
 
-In the event of network partitions you can obviously have two cman clusters
-form independently (i.e. "split-brain").  Some people care about this.  Quorum
-is a trivial true/false property of the cluster.  Every cluster member has a
-number of votes and the cluster itself has a number of expected votes.  Using
-these simple values, cman does a quick computation to tell you if the cluster
-has quorum.  It's a very standard way of doing things -- we modelled it
-directly off the VMS-cluster style.  Whether you care about this quorum value
-or what you do with it are beside the point.  Some may be interested in
-discussing how cman works and participating in further development; if so go
-ahead and ask on linux-cluster@redhat.com.  We've been developing and using
-cman for 3-4 years.  Are there other valid approaches? of course.  Is cman
-suitable for many people? yes.  Suitable for everyone? no.
 
-(see http://sources.redhat.com/cluster/ for patches and mailing list)
+IOW, does such parameter could not involve more decisions ?
 
-What about the DLM?  The DLM we've developed is again modelled exactly after
-that in VMS-clusters.  It depends on cman for the necessary clustering input.
-Note that it uses the same generic cman api's as any other system.  Again, the
-DLM is utterly symmetric; there is no server or master node involved.  Is this
-DLM suitable for many people? yes.  For everyone? no.  (Right now gfs and clvm
-are the primary dlm users simply because those are the other projects our group
-works on.  DLM is in no way specific to either of those.) 
+Regards,
+FabF
 
-What about Fencing?  Fencing is not a part of the cluster manager, not a part
-of the dlm and not a part of gfs.  It's an entirely independent system that
-runs on its own in userland.  It depends on cman for cluster information just
-like the dlm or gfs does.  I'll repeat what I said on the linux-cluster mailing
-list:
+> 
+> Con
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---
-Fencing is a service that runs on its own in a CMAN cluster; it's entirely
-independent from other services.  GFS simply checks to verify fencing is
-running before allowing a mount since it's especially dangerous for a mount to
-succeed without it.
-
-As soon as a node joins a fencing domain it will be fenced by another domain
-member if it fails.  i.e. as soon as a node runs:
-
-> cman_tool join    (joins the cluster)
-> fence_tool join   (starts fenced which joins the default fence domain)
-
-it will be fenced by another fence domain member if it fails.  So, you simply
-need to configure your nodes to run fence_tool join after joining the cluster
-if you want fencing to happen.  You can add any checks later on that you think
-are necessary to be sure that the node is in the fence domain.
-
-Running fence_tool leave will remove a node cleanly from the fence domain (it
-won't be fenced by other members.)
---
-
-This fencing system is suitable for us in our gfs/clvm work.  It's probably
-suitable for others, too.  For everyone? no.  Can be improved with further
-development? yes.  A central or difficult issue? not really.  Again, no need to
-look at the dlm or gfs or clvm to work with this fencing system.
-
--- 
-Dave Teigland  <teigland@redhat.com>

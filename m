@@ -1,168 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVAMShE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVAMSdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVAMShE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVAMSfW
+	id S261301AbVAMSdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVAMSbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:35:22 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:37286 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261394AbVAMSaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:30:52 -0500
-Message-ID: <41E6BE6B.6050400@comcast.net>
-Date: Thu, 13 Jan 2005 13:31:07 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>  <20050112185133.GA10687@kroah.com>  <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>  <20050112161227.GF32024@logos.cnet>  <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>  <20050112205350.GM24518@redhat.com>  <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>  <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>  <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>  <20050113082320.GB18685@infradead.org>  <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Jan 2005 13:31:01 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:52964 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261384AbVAMS1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 13:27:46 -0500
+Subject: Linux 2.6.10-ac9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1105636996.4644.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 17:23:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Arjan van de Ven is now building RPMS of the kernel and those can be found
+in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
+diff a little as the RPM builds and tests do take time.
 
 
+Key:	o	- only in -ac
+	*	- already fixed upstream
+	X	- discarded later as wrong
+	+	- ac specific (fix not relevant to non -ac)
 
-Linus Torvalds wrote:
-> 
-> On Thu, 13 Jan 2005, Arjan van de Ven wrote:
-> 
->>I think you are somewhat misguided on these: the randomisation done in
->>FC does NOT prohibit prelink for working, with the exception of special
->>PIE binaries. Does this destroy the randomisation? No: prelink *itself*
->>randomizes the addresses when creating it's prelink database
-> 
-> 
-> There was a kernel-based randomization patch floating around at some 
-> point, though. I think it's part of PaX. That's the one I hated. 
-> 
+2.6.10-ac9
+*	2.6.10 variant of the stack race fix		(Alan Cox)
+	| Found by Paul Staretz
+*	Stronger ELF validity checks			(Solar Designer)
+*	Add ATI SATA identifiers			(Frederick Li)
+o	Update ATI PATA/SATA support			(Frederick Li)
+*	Audit fixups				(Steve Grubb, Roger Luethi)
+*	FPU/signal handling fix				(Bodo Stroesser)
+*	nForce2 APIC/LAPIC errata fixup			(Prakash Punnoor)
+*	Swap aacraid fix in -ac with 2.6.11rc base fix	(Tom Coughlan)
+*	Connnection track/rst fix			(Martin Josefsson)
+o	Format ide printk's more nicely			(Gunther Mayer)
+o	Stallion serial resurrection (part one)		(Wayne Meissner)
+*	Fix nls_ascii					(Ogawa Hirofumi)
+*	Count writeback pages in nr_scanned		(Rik van Riel)
+	| OOM fixing
+o	Revert ac97_patch changes			(Jules Villard)
+	| with this change many users get no sound out
+o	Correct handling of some module parameter	(Rusty Russell)
+	errors
 
-PaX and Exec Shield both have them; personally I believe PaX is a more
-mature technology, since it's 1) still actively developed, and 2) been
-around since late 2000.  The rest of the community dissagrees with me of
-course, but whatever; let's not get into PMS matches on whose junk is
-better than whose.
+2.6.10-ac8
+o	I2O init/exit call fix				(Randy Dunlap)
+o	More build ia-32 on x86-64 bits			(Arjan van de Ven)
+*	NFS error path fixup				(Bill Rugolsky)
+o	Swap the coda fix in ac7 with the official	(Jan Harkes)
+	authors fix
+o	Fix some problematic ptrace/kill interactions	(Roland McGrath)
+o	Fix ptrace/coredump problems with threaded	(Roland McGrath)
+	apps
 
+2.6.10-ac7
++	Fix failure at boot with some setups and ac6	(Alan Cox)
+	| Dumb bug indeed
+o	Fix random poolsize sysctl			(Brad Spengler)
+o	Fix scsi_ioctl leak				(Brad Spengler)
+o	Fix rlimit memlock				(Brad Spengler)
+o	Fix Moxa serial					(Alan Cox)
+	| While moxa won't actually even build on 2.6 the grsecurity fix
+	| is wrong (for 2.2, 2.4 as well). Without it being CAP_SYS_RAWIO
+	| a user can insert alternative bios firmware into the card.
 
-> Although I haven't seen it in a long time, so you may well be right that 
-> that one too is fine. 
-> 
-> My point was really more about the generic issue of me being two-faced: 
-> I'll encourage people to do things that I don't actually like myself in 
-> the standard kernel. 
-> 
-> I just think that forking at some levels is _good_. I like the fact that 
-> different vendors have different objectives, and that there are things 
-> like Immunix and PaX etc around.
+2.6.10-ac6
++	Fix ide-pnp build				(Alan Cox)
+o	do_brk security fixes				(Marcelo Tosatti)
+	| slightly reworked
+o	Fixes for Coverity Inc reported bugs		(Alan Cox)
+	- coda_pioctl
+	- xfs_attrmulti_by_handle
+	- br_ioctl
+	- rose_rt_ioctl
+	- sdla_xfer 
+o	Improve the no-overcommit behaviour		(Andries Brouwer)
 
-I use the argument that the 2.6 development model being used as 'stable'
-hurts this all the time, and people (not you Linus) have fed back to me
-that "they should submit their patches to mainline then."
+2.6.10-ac5
++	Remove obsolete usb_unlink_urb in pwc		(Alan Cox)
+	| From instructions by Dwaine Garden
+*	Subset of ALSA updates to fix sound bugs in .10	(Takashi Iwai)
+	| This is the set Takashi kindly identified as being
+	| worth applying for 10-ac.
+o	First run at merging ISI and base isicom driver	(Alan Cox)
+	into a working 2.6 driver
++	IDE mode selection fixes for IT821x PIO		(Alan Cox)
+	| Bug noted by Bartlomiej
+o	Fix a 32bit compatibility error in the cmsg	(Olaf Kirch)
+	check logic
+*	Hopefully fix CD-ROM autoclose			(Stas Sergeev)
+o	Disable sidewinder debugging spew		(Michael Marineau)
+o	Openprom fixes					(Al Viro)
+o	Fix cosa module crash on load			(Jan Kasprzak)
+o	Add the build environment bits to kernel	(Kevin Fenzi)
+	make rpm output
+*	Fix megaraid unload oops			(Al Viro)
+*	Make gconfig work with current gtk 2.4		(J Magallon)
+*	Fix harmless parport overflow by one		(Alexander Nyberg)
+*	Fix drivers that put a '/' in /proc/irq/..	(Olaf Hering)
 
-> Of course, the problem that sometimes 
-> results in is the very fact that because I encourage others to have 
-> special patches, they en dup not even trying to feed back _parts_ of them.
-> 
-> In this case I really believe that was the case. There are fixes in PaX
-> that make sense for the standard kernel.
+2.6.10-ac4
+o	Initial fixes for /dev/tty v setsid() crash	(Alan Cox)
+	[/dev/tty v vhangup needs more work]
++	Fixed AGP compile on ia-32			(Arjan van de Ven)
++	PPC fixes 					(Dave Jones)
+o	Document irqpoll/irqfixup			(Alan Cox)
+o	IBM ACPI reference __exit unsafely		(Arjan van de Ven)
+o	Allow pwc to be compiled into the kernel	(Christian Hesse)
 
-Yes, there's fixes that should go in to mainline often, aside from the
-added functionality.  I think these should be split out and distributed
-*shrug*
+2.6.10-ac3
+*	Fix a pile of mmc warnings/errors		(Russell King)
+*	Fix acpi video memory corruption		(Linus Torvalds)
+*	Fix module param breakage in parport_pc		(Randy Dunlap)
+*	Intel ICH7 IDE support and $PIR support		(Jason Gaston)
+o	Intel ICH7 SATA support				(Jason Gaston)
+o	Intel ICH7 I2C support				(Jason Gaston)
+o	Fix an IDE CD-ROM crash/BUG case		(Prarit Bhargava)
+*	Swap -ac AGP annotations for head AGP fixes	(Dave Jones,
+							 Bjorn Helgaas,
+							 Masao Takahashi)
+o	Add proper delaying/sleeping ide_pci_unregister	(Alan Cox)
+o	Do the same for PCMCIA (ide_cs)	and ISA PnP	(Alan Cox)
+o	Use msleep for ide-cd and ide-cs		(Nishanth Aravamudan)
+o	Fix missing type in lapic_shutdown		(Miael Pettersson)
+o	Fix some missing build dependancies for CX88	(Adrian Bunk)
+o	Move pwc to use remap_pfn_range			(Arjan van de Ven)
 
-> But because not _all_ of PaX
-> makes sense for the standard kernel,
+2.6.10-ac2
+o	Fix printk fixes for geometry free drives	(Alan Cox)
+	| Found by Bartlomiej
+o	Bartlomiej's requested cleanups for IT8212	(Alan Cox)
+X	Drop unneeded i810 audio patch
+X	Drop useless kmalloc size patch
++	Fix proposed ide ISA v PIO change to work	(Alan Cox)
+	| Bug noted by .. everyone
+*	Backport mxser compile fix			(Al Viro)
+*	Backport via acpi irq routing fixes		(Len Brown, Shaohua Li)
+	| Replaces the old -ac fix
+*	Backport further aacraid chipset support	(Mark Haverkamp)
+*	ULi 5281 support				(Peer Chen)
+*	Backport several libata fixes notably problems	(Albert Lee)
+	with PDC20275
+o	FW_LOADER is needed by several dvb devices	(Michal Feix)
+o	Add IT8211 PCI identifiers to IT8212 and	(Alan Cox)
+	rename driver and functions it iT821x
+	| Thanks to Philipp Imhof for the IT8211 idents
+o	Clean up and merge LAN M526X support		(Clear Zhang)
+	| 2.6 port/slight tidy done on the original
 
-Personally I believe it does, for social engineering reasons (encourage
-software developers to be mindful of the more secure setting).  That
-being said, every part of PaX is an option, so even if it went mainline,
-it'd be disabled where inappropriate anyway.
+2.6.10-ac1
+o	Revert AX.25 protocol breakage			(Alan Cox)
+o	Remove bogus obsolete option junk from 2.6.10	(Alan Cox)
+	ide changes
+	| Options are often useful, so should be kept.
+	| Especially stuff like serialize
+o	Fix bogus dma_ naming in the 2.6.10 patch	(Alan Cox)
+o	Initial CS5520 fixups for VDMA and 2.6.10
+	| Must set vdma flag before command issue
+	| ?? could we just set it at boot and leave it - probably (check)
 
-> and because I will _not_ take their
-> patch whole-sale, they apparently believe (incorrectly) that I wouldn't
-> even take the non-intrusive fixes, and haven't really even tried to feed
-> them back.
-> 
-> (Yes, Brad Spengler has talked to me about PaX, but never sent me 
-> individual patches, for example. People seem to expect me to take all or 
-> nothing - and there's a _lot_ of pretty extreme people out there that 
-> expect everybody else to be as extreme as they are..)
-> 
+Forward ported from 2.6.9-ac
+o	Smbfs improved parsing fixes			(Chuck Ebbert)
+o	Fix several IDE drivers that assumed > 0 was	(Alan Cox)
+	also an error return for pci probe functions
+*	Fix sys5 semaphore wakeups			(Manfred Spraul)
+o	Suggest irqpoll when we get screaming irqs	(Alan Cox)
+o	Fix reset problems with older 3c59x/3c90x	(John Linville)
+o	Configurable 100/1Khz clock for x86		(James Bottomley)
+	| 100Hz is great for battery life
+o	Delkin cardbus IDE support			(Mark Lord)
+o	IT8212 IDE support				(Alan Cox)
+X	Add more AC97 table data
+o	Token ring locking fix
+o	Fix URL for lanana				(Alexander Stohr)
+X	Add a 1620 byte slab cache for ethernet frames	(Arjan van de Ven)
+*	EDD boot options				(Matt Domsch)
+o	Don't probe legacy ISA ide2,3,4,5 on PCI boxes	(Alan Cox)
+o	Restore PWC driver				(Luc Saillard)
+	| Please port away from remap_page_range
+o	Fix AT2701FX AMD PCnet32 on fibre		(Guido Guenther)
+*	Fix build of CS461x gameport			(Adrian Bunk)
+o	Fix crash with aacraid double complete	(Mark Salyzyn, Tom Coughlan,
+						 Alan Cox)
+*	Fix getblk_slow hang				(Chris Mason)
++	Fix SMP hang with IDE unregister		(Mark Lord)
+o	Working IDE locking				(Alan Cox)
+	| And a great deal of review by Bartlomiej
+o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
+	devices (boot with "all-generic-ide")
+o	More ATI IDE PCI identifiers			(Enrico Scholz)
+o	Initial patch for ide_abort hang		(Alan Cox)
+o	Fix serveral ide timing violations on reset	(Alan Cox)
+*	Support CSB6-R Serverworks raid			(Alan Cox)
+o	Teach ide-cd to use sense data for file system	(Alan Cox)
+	requests
+	- This means you get better diagonstics on CD errors
+	- It means a partial I/O failure will get you back the ok sectors
+	- It may fix the problem some users have with ISO copying and ide-cd
+o	Lock ide-proc against driver unload		(Alan Cox)
+	(very low severity)
+o	Fix ide /proc and legacy devices problem	(Alan Cox)
+*	Watchdog support for early cobalt ALi hardware	(Mike Waychison)
+*	Make sx8 naming follow LANANA			(Jeremy Katz)
+*	Don't warn on scsi ioctl kmalloc fail		(Arjan van de Ven)
+*	Fix Paul Laufer's email address			(Paul Laufer)
+*	Fix misleading microcode message		(Arjan van de Ven)
+o	Allow cross compile of x86_32 kernel on x86_64	(Arjan van de Ven)
+o	Kill "open failed" cdrom message.		(Alan Cox)
+	| This is a natural event from code poking around
+	| doing CD detection etc
+*	Minor typo fix in cdrom driver			(efalk@google)
+*	Add support for newer ALi AGP			(Clear Zhang)
+o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
 
-Things like PaX actually have to be taken all or nothing for a reason.
-This doesn't mean they have to come with all the GrSecurity
-enhancements; although those help as well.
+Cleanups in porting
+o	Drop ->taskfile hooks in the IDE layer 		(Alan Cox)
+	(->fixup replaces)
+o	Fix up IT8212 for 2.6.10 ide_use_dma cleanups	(Alan Cox)
+	and other 2.6.10 cleaning
 
-PaX supplies two major components:  enhanced memory protections,
-particularly using the PROT_EXEC marking (hardawer or otherwise); and
-address space layout randomization.
+Dropped for now
+o	VIA extra quirk
+o	HP Cardbus routing fixup
 
-For now I'll set aside the emulations on x86, but I'll cover that later.
-
-First, let's look at ASLR.  ASLR can be defeated if you can inject code
-to read (if I understand correctly) %efp and locate the global offset
-table.  Thus, ASLR is pretty much useless.
-
-If we look at executable space protections, the PROTECTIONS&(~PROT_EXEC)
-can be changed by returning to mprotect();  since PaX restricts
-mprotect(), you have to return to open() and write() and mmap(), but
-same deal.  Either way, the memory space protections can be defeated by
-ret2libc, so these are also pretty much useless.
-
-Examining further, you should consider deploying ASLR in conjunction
-with proper memory space protections.  In this situation, ASLR must be
-defeated before the memory protections can be defeated; and the memory
-protections must be defeated before you can defeat ASLR.  *->ASLR->NX->*
-continuous circle.
-
-This makes defeating the ASLR/NX combination a paradox; you can't have
-both at the same time, you can't have one without the other.  The only
-logical possibility is to do neither.  (it's actually possible to defeat
-it, but only by completely random guessing and one hell of a stroke of luck)
-
-Going back to the emulation, there's no NX protections without an NX
-bit; so for any of this to have any point at all on x86--the most
-popular desktop platform ATM--you need to emulate an NX bit.
-
-I can see where you wouldn't want to put in a superpatch like PaX, and
-I'm not saying you should jump up right now and go merge it with
-mainline; but I feel it's important that you understand that each part
-of PaX compliments the others to form a network of protections that
-reciprocate upon eachother.  Each piece would fail without the others to
-control their shortfallings; but together they've got everything pretty
-well covered.
-
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB5r5qhDd4aOud5P8RAmemAJ0T3Eu32QxKp7npUeMLR+pMBbriQACfb3Uv
-h7d+IiGyuaOTJkkoAfPJHX0=
-=0eSC
------END PGP SIGNATURE-----

@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSHMIMK>; Tue, 13 Aug 2002 04:12:10 -0400
+	id <S313305AbSHMIPj>; Tue, 13 Aug 2002 04:15:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSHMIMK>; Tue, 13 Aug 2002 04:12:10 -0400
-Received: from 62-190-217-138.pdu.pipex.net ([62.190.217.138]:6660 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S313070AbSHMIMJ>; Tue, 13 Aug 2002 04:12:09 -0400
-Date: Tue, 13 Aug 2002 09:22:40 +0100
-From: jbradford@dial.pipex.com
-Message-Id: <200208130822.g7D8Me92000218@darkstar.example.net>
-To: linux-kernel@vger.kernel.org
-Subject: (More about) IDE powersaving
+	id <S314078AbSHMIPj>; Tue, 13 Aug 2002 04:15:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27151 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313305AbSHMIPi>; Tue, 13 Aug 2002 04:15:38 -0400
+Message-ID: <3D58C0FB.1020503@zytor.com>
+Date: Tue, 13 Aug 2002 01:19:07 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020702
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Muli Ben-Yehuda <mulix@actcom.co.il>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] __func__ -> __FUNCTION__
+References: <3D58A45F.A7F5BDD@zip.com.au> <ajaa5h$61f$1@cesium.transmeta.com> <3D58BF90.56C75C66@zip.com.au> <20020813075944.GA2192@alhambra.actcom.co.il> <3D58BEC3.50508@zytor.com> <20020813081028.GB2192@alhambra.actcom.co.il>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Everyone,
+Muli Ben-Yehuda wrote:
+> On Tue, Aug 13, 2002 at 01:09:39AM -0700, H. Peter Anvin wrote:
+> 
+>>Muli Ben-Yehuda wrote:
+>>
+>>>How about: 
+>>>
+>>>/* early gcc compilers lose on __func__ */ 
+>>>#ifndef __func__ 
+>>>#define __func__ __FUNCTION__
+>>>#endif /* !defined __func__ */ 
+>>
+>>__func__ isn't a macro; it's a compiler token.
+> 
+> 
+> Works for me(TM). 
+> 
 
-Sorry to bring this up again, but I think that the current behavior of requiring a manual device reset, for some disks that are put to sleep with hdparm -Y is definitely wrong - I mailed Mark Lord, (the hdparm maintainer) who said:
+But it won't work on a compiler that actually *supports* __func__...
 
-> Yes, I agree:  the IDE driver should automatically
-> attempt a "device reset" at some point when trying
-> to communicate with a drive that is not responding
-> (eg. due to "hdparm -Y" or whatever).
+I think that is gcc 3.1 or higher, but I'm not the authority...
 
-Is this a known issue with some interface/drive combinations?  I can only reproduce it with a Maxtor disk on a PIIX3 interface.  After being put to sleep, the disk never responds until it is manually reset with hdparm -w.
+> ObCompleteyUnrelatedQuestions: where can I find klibc? 
 
-I know you can achieve a similar effect by putting the disk in to standby, but putting it to sleep will reduce energy consumption, (by a tiny amount).
+ftp://ftp.kernel.org/pub/linux/libs/klibc/
 
-John.
+	-hpa
+
+

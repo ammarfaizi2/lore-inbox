@@ -1,130 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbTD2Td2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 15:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTD2Td2
+	id S261580AbTD2TaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 15:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTD2TaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 15:33:28 -0400
-Received: from [63.96.239.5] ([63.96.239.5]:9168 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id S261591AbTD2Td0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 15:33:26 -0400
-Message-Id: <200304291945.PAA27684@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: rmoser <mlmoser@comcast.net>, Jae-Young Kim <jaykim@cs.purdue.edu>
-Subject: Re: kernel timer accuracy
-Date: Tue, 29 Apr 2003 14:47:54 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <20030429165427.GA5923@punch.cs.purdue.edu> <200304291511440630.0459FBDF@smtp.comcast.net>
-In-Reply-To: <200304291511440630.0459FBDF@smtp.comcast.net>
+	Tue, 29 Apr 2003 15:30:00 -0400
+Received: from adsl-63-195-13-70.dsl.chic01.pacbell.net ([63.195.13.70]:51881
+	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S261580AbTD2T36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 15:29:58 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: linux-kernel@vger.kernel.org
+Date: Tue, 29 Apr 2003 12:41:12 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Crash in vm86() on SMP boxes with vesa driver?
+Message-ID: <3EAE72E8.7176.1E3DFDF8@localhost>
+In-reply-to: <CF69933E9@vcnet.vc.cvut.cz>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the semantic of most "timer" style operations (sleep, nanosleep, timer_xxx 
-etc) are generally "not less than" or "no earlier than", i.e wait no less 
-than 50ms, so anything over 50 is ok (usually within some defined window), 
-but less than 50 is a big no no.
+"Petr Vandrovec" <VANDROVE@vc.cvut.cz> wrote:
 
-it seems that the insert mechanism probably sets "5 ticks from now" resulting 
-in 4 complete jiffie intervals plus a partial, rather than "5 complete 
-intervals plus whatever part remains of the interval I'm currently in"
+> > 8.0 box with the latest 2.4.20 kernel on it (but the problem happened 
+> > with the stock kernel and kernels lower then .20 as well). Unfortunately 
+> > I don't have access to the box (it is in Australia), but I have access to 
+> > the bug report information (and will try to configure a box soon to 
+> > reproduce it here). Anyway the folowing is the error log produced by 
+> > XFree86 when the crash occurs:
+> 
+> We told you before that you cannot trust VESA BIOS.
 
-this may be the correct and intended semantic for the mechanism he is using, 
-but it is clearly not what he expected.
+No, I do not agree with that statement at all. At present I would say 
+that there is a problem with the vm86() services, or perhaps something 
+wrong with the way we (and XFree86) are setting up the vm86 state for the 
+BIOS. The reason I say that is because we use the BIOS all the time using 
+vm86() services on OS/2 and we have not had any of these problems.  
 
-On Tuesday 29 April 2003 15:11, rmoser wrote:
-> Note:  Not much of this makes sense or is useful.  Read it, maybe
-> I'm wrong.  It's short.
->
-> *********** REPLY SEPARATOR  ***********
->
-> On 4/29/2003 at 11:54 AM Jae-Young Kim wrote:
-> >Hi, I'm developing a kernel module that enforces filtered packets to
-> >get delayed for a given short time. I'm using netfilter for packet
-> >filtering and using mod_timer() for packet delay.
-> >
-> >The kernel module holds packet buffer (skb) in a linked list and
-> >waits until the timer expires. If the timer expires, the module
-> >releases the packets.
-> >
-> >What I'm struggling is about the accuracy of timer function. Since
-> >default Linux timer interrupt frequency is set to 100 HZ, I know
-> >the smallest timer interval is 10 msec. and the one jiffy tick is
-> >also 10 msec. However, it looks like that there's a small amount of
-> >error between real-time clock and jiffy tick.
-> >
-> >In my experiment, (I set the 50msec timer for each packet and I sent
-> >one packet in every second), if I set 5 jiffies (= 50 msec) for my
-> >packet delay, the timer correctly executes the callback function
-> >after 5 jiffy ticks, however, the actual real-time measurment shows the
-> >packet delay varies between 40msec and 50msec. Even worse, the actual
-> >delay time variation has a trend. Please see the following data.
-> >
-> >pkt no.       jiffy      actual delay
-> >----------------------------------------
-> >1               5            50.2msec
-> >...            ...             ...
-> >300             5            45.1msec
-> >...            ...             ...
-> >500             5            41.6msec
-> >...            ...             ...
-> >566             5            40.6msec
-> >567             5            40.4msec
-> >568             5            50.3msec
-> >569             5            50.3msec
-> >...            ...             ...
->
-> Looks normal.  Did someone point this at 50?  Because it looks normal
-> centered at 45.  Maybe you should try centering the delay at 50?  (For a
-> start... 5 mS for 50 mS is too much for me)  At least in large lengths of
-> time, it would then balance out.  Graph this function:
->
-> f(x) = 1/(sqrt(2*pi)) * pow(e, 0.5 * pow(x,2))
->
-> That should illustrate normality.  If you make a distribution curve of
-> actual times, does it look like that?  If so, try first to make it center
-> around 50, then try to decrease the standard deviation (which is reflected
-> by having more fluctuations be closer to the mean).
->
-> >Here, the packet delay starts from around 50msec, but gradually decreased
-> >to 40msec, and then abruptly adjusted to 50msec. The same
-> >decrese-and-abruptly-
-> >adjusted trend was repeated.
-> >
-> >Is there any person have experienced the same problem?
-> >It looks like that the accuray below 10msec is not guaranteed, but I'd
-> >like to
-> >know why this kind of trend happens (I initially thought the error should
-> >be
-> >randomly distributed between 40msec to 60msec) and how the kernel adjust
-> >the timer when the error term becomes over 10msec.
->
-> That'd be impossible.  The computer is absolutely incapable of producing a
-> random number on its own, much less several [million].  :-p  It may be
-> semi- random or apparently-random though.
->
-> >- Jay
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Essentially what I am saying is that this problem is fixable somewhere 
+(either in the kernel or in our/XFree86's vm86() code).  
 
--- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-** If you would like to sponsor me for the       **
-** Mass Getaway, a 150 mile bicycle ride from    **
-** Boston to Provincetown for Multiple Sclerosis **
-** contact me to donate                          **
-**************************************************/
+> > (II) VESA(0): initializing int10
+> > (WW) VESA(0): Bad V_BIOS checksum
+> > (II) VESA(0): Primary V_BIOS segment is: 0xc000
+> 
+> Bad checksum? Sorry, your BIOS is not usable. Either XFree gets
+> checksum wrong, or there is something I would not want in my
+> computer there... 
+
+I wish we stll had access to the machine so I could debug this. It is 
+plausible that the BIOS has a bad checksum, but if it did, the system 
+BIOS would have failed to POST the card. Hence I think there is something 
+else going on here.  
+
+> > Also from debugging our own code we have a bit more information about 
+> > where the problem occurs, and it occurs on the return from the vm86() 
+> > system call when the code tries to pop the EBX register from the stack. 
+> > Which kind of indicates that the kernel screwed up the return stack of 
+> > the program for some reason:
+> 
+> No. Crash happened inside VM, and it was shown as happening on
+> return from int $0x80. But real problem is that in the VM you are
+> executing code at 0xC000:0x800F. But there is no code there, it is
+> garbage (bound bx,[bx+si]; xchg cx,ax; pusha; or dx,di ???) which
+> generated bounds check interrupt. 
+
+Ok, that makes sense. From experience with OS/2 and virtual machines, 
+this generally happens when the video BIOS is confused by the state of 
+the hardware, especially of I/O port access to certain registers has been 
+incorrectly virtualised. ATI cards have been notorious for us on OS/2 for 
+these types of problems, but the problem is solveable (most of the OS/2 
+related problems are all specific to running in a window, where access to 
+the hardware registers has to be restricted and correctly emulated).
+
+> > Any ideas? I am not sure how to start debuging this (assuming I can get 
+> > my SMP machine up and running and reproduce it) in the kernel. Also the 
+> > machine that the problem occurs on goes to the customer tomorrow, so we 
+> > won't be able to debug this much ourselves until I can get a new machine 
+> > to reproduce it. But, it would seem to me that others may well have seen 
+> > this problem already?
+> 
+> Make sure that videocard properly reports that it uses more than
+> 32kB BIOS. Maybe card reports only 32kB, while it uses 48kB. System
+> is free to do anything it wants with 32-48kB range including
+> mapping another BIOS there, or writting zeroes, or garbage there...
+> Also make sure that you have properly setup VM, that 0xC8000 is
+> mapped to physical address 0xC8000... 
+
+I will check into this. I am running into some strange problems on an 
+NVIDIA GeForce4 integrated system right now, yet that same BIOS works 
+perfectly in DOS and OS/2 so there is something up with the way the 
+vm86() services are being handled. I will try to solve the problem I am 
+seeing on this NVIDIA machine, and perhaps that will lead to a solution 
+for both problems (assuming they are actually related of course ;-).
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+

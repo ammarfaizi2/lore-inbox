@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281861AbRLDCad>; Mon, 3 Dec 2001 21:30:33 -0500
+	id <S282276AbRLDCfY>; Mon, 3 Dec 2001 21:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284350AbRLDC27>; Mon, 3 Dec 2001 21:28:59 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:5260 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S282976AbRLDC2Q>;
-	Mon, 3 Dec 2001 21:28:16 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@melbourne.sgi.com>
-To: Hiro Yoshioka <hyoshiok@miraclelinux.com>
-Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: [Linux-ia64] Announce: kdb v1.9 is available for kernel 2.4.16 
-In-Reply-To: Your message of "Tue, 04 Dec 2001 10:50:51 +0900."
-             <20011204105051A.hyoshiok@miraclelinux.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 04 Dec 2001 13:28:05 +1100
-Message-ID: <21084.1007432885@kao2.melbourne.sgi.com>
+	id <S282958AbRLDCfI>; Mon, 3 Dec 2001 21:35:08 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62336 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282992AbRLDCeD>;
+	Mon, 3 Dec 2001 21:34:03 -0500
+Date: Mon, 3 Dec 2001 21:34:01 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Donald Becker <becker@scyld.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <Pine.LNX.4.40.0112031816280.1381-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.GSO.4.21.0112032122330.17686-100000@binet.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Dec 2001 10:50:51 +0900, 
-Hiro Yoshioka <hyoshiok@miraclelinux.com> wrote:
->I have a naive question.
->Is there any chance (kdb) to be merged into Linus's linux?
->If not, why? If yes, when?
 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2000-Week-36/0575.html
-http://marc.theaimsgroup.com/?l=linux-kernel&m=96865229622167&w=2
+
+[apologies for over-the-head reply]
+
+> On Mon, 3 Dec 2001, Donald Becker wrote:
+
+> >    a SCSI device layer that isn't three half-finished clean-ups
+<nod>
+
+> >    a VFS layer that doesn't require the kernel to know a priori all of
+> >      the filesystem types that might be loaded
+
+WTF?  The only interpretation I can think of is about unions in struct
+inode and struct superblock.  _If_ you add a filesystem that
+	a) doesn't do separate allocation of fs-private parts of
+inode/superblock (i.e. doesn't use ->u.gerneric_ip and ->u.generic_sbp) and
+	b) hadn't been known at kernel compile time and
+	c) has one of these fields (member in inode->u or sb->u) bigger than
+all filesystems known at compile time
+
+- yes, you've got a problem.
+
+Solution: use ->u.generic_<...>.  Works fine.
+
+Not to mention the fact that VFS per se doesn't give a damn for fs types.
+All it needs is sizeof(struct inode) and sizeof(struct superblock).  And
+any fs using ->generic_<...> (i.e. pointer to separately allocated private
+objects) is OK, whether it was known at build time or not.
 

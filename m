@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278685AbRKXQCj>; Sat, 24 Nov 2001 11:02:39 -0500
+	id <S278800AbRKXQIj>; Sat, 24 Nov 2001 11:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278795AbRKXQC3>; Sat, 24 Nov 2001 11:02:29 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:45069 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S278685AbRKXQCQ>;
-	Sat, 24 Nov 2001 11:02:16 -0500
-Date: Sat, 24 Nov 2001 17:01:55 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Daniel Phillips <phillips@bonn-fries.net>, war <war@starband.net>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Which gcc version?
-In-Reply-To: <5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0111241659120.6855-100000@Expansa.sns.it>
+	id <S278808AbRKXQI3>; Sat, 24 Nov 2001 11:08:29 -0500
+Received: from mail110.mail.bellsouth.net ([205.152.58.50]:18011 "EHLO
+	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278800AbRKXQIU>; Sat, 24 Nov 2001 11:08:20 -0500
+Message-ID: <3BFFC5ED.71E975E7@mandrakesoft.com>
+Date: Sat, 24 Nov 2001 11:08:13 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk@arm.linux.org.uk>
+CC: ISP Client <summer@os2.ami.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: EXTRAVERSION =-greased-turkey
+In-Reply-To: <Pine.LNX.4.33.0111240858040.9212-100000@numbat.os2.ami.com.au> <20011124010705.G3141@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
+> 2.4.15 has the potential to corrupt your filesystems slightly on reboot.
+> Al provides a safe method to reboot without this corruption, but it will
+> still be a good idea to force a fsck on boot, using:
+> 
+>         shutdown -F -r now
 
+Or,
 
-On Fri, 23 Nov 2001, Anton Altaparmakov wrote:
+touch /forcefsck
 
-> At 18:30 23/11/01, Daniel Phillips wrote:
-> >On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
-> > > At 13:51 23/11/01, war wrote:
-> > > >You should use gcc-2.95.3.
-> > >
-> > > That's not true. gcc-2.96 as provided with RedHat 7.2 is perfectly fine.
-> > >
-> > > gcc-3x OTOH is not a good idea at the moment.
-> >
-> >Do you have any particular reason for saying that?
->
-> I haven't done any measurements myself but from what I have read, gcc-3.x
-> produces significantly slower code than gcc-2.96. I know I should try
-> myself some time... but if that is indeed true that is a very good reason
-> to stick with gcc-2.96.
->
-I did some serious bench.
-On all my codes, using eavilly floating point computation, binaries
-built with gcc 3.0.2 are about 5% slower that the ones built with 2.95.3
-on athlon processor with athlon optimizzations.
-On the other side, on sparclinux, same codes compiled with gcc 3.0.2 are
-really faster, about 20%, that with 2.95.3
-
-Luigi
-
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

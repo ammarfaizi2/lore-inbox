@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbTDOU2v (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTDOU2v 
+	id S264071AbTDOUbu (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTDOUbu 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 16:28:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55761 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264066AbTDOU2t (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:28:49 -0400
-Date: Tue, 15 Apr 2003 22:40:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
+	Tue, 15 Apr 2003 16:31:50 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:30480 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264071AbTDOUbs 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 16:31:48 -0400
+Date: Tue, 15 Apr 2003 22:43:38 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c
-Message-ID: <20030415204034.GT9640@fs.tum.de>
-References: <20030406125804.GW20044@fs.tum.de> <539290000.1049994210@aslan.btc.adaptec.com>
+Subject: Re: Writing modules for 2.5
+Message-ID: <20030415204338.GA1312@mars.ravnborg.org>
+Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <yw1x7k9w9flm.fsf@zaphod.guide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <539290000.1049994210@aslan.btc.adaptec.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1x7k9w9flm.fsf@zaphod.guide>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 11:03:30AM -0600, Justin T. Gibbs wrote:
-> > <--  snip  -->
-> > 
-> > gcc-2.95 -D__KERNEL__ 
-> > -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
-> > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -D__KERNEL__ 
-> > -I/home/bunk/linux/kernel-2.4/linux-2.4.21-pre7-full-nohotplug/include -e stext  
-> > aicasm/aicasm.c   -o aicasm/aicasm
-> > /usr/bin/ld: warning: cannot find entry symbol stext; defaulting to 08048760
+On Tue, Apr 15, 2003 at 01:15:17PM +0200, Måns Rullgård wrote:
 > 
-> This is probably due to the misplaced endif in the currently committed
-> drivers/scsi/aic7xxx/Makefile.  Updated versions of the Makefile/driver
-> can be found here:
-> 
-> http://people.FreeBSD.org/~gibbs/linux/SRC/
+> What magic needs to be done when writing modules for linux 2.5.x?
 
-Yes, thanks, this fixed it.
+First of all you need to follow Documentation/modules.txt when
+compiling modules.
+If you try to make your own build system you are sure to hit problems.
 
-Marcelo:
-Below is the fix by Justin, please apply.
-
-> Justin
-
-cu
-Adrian
-
---- linux-2.4.21-pre7-full/drivers/scsi/aic7xxx/Makefile.old	2003-04-15 22:31:43.000000000 +0200
-+++ linux-2.4.21-pre7-full/drivers/scsi/aic7xxx/Makefile	2003-04-15 22:31:47.000000000 +0200
-@@ -83,7 +83,7 @@
- endif
- $(aic79xx_gen): aic79xx.seq aic79xx.reg aicasm/aicasm
- 	$(aic79xx_asm_cmd)
-+endif
- 
- aicasm/aicasm: aicasm/*.[chyl]
- 	$(MAKE) -C aicasm
--endif
+	Sam

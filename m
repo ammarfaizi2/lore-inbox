@@ -1,84 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264032AbRF1TbB>; Thu, 28 Jun 2001 15:31:01 -0400
+	id <S264132AbRF1Tda>; Thu, 28 Jun 2001 15:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264071AbRF1Tau>; Thu, 28 Jun 2001 15:30:50 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:27785 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264032AbRF1Tah>;
-	Thu, 28 Jun 2001 15:30:37 -0400
-Message-ID: <3B3B8601.2FEA031E@mandrakesoft.com>
-Date: Thu, 28 Jun 2001 15:31:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Patrick Dreker <patrick@dreker.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.10.10106281224250.26067-100000@innerfire.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264215AbRF1TdU>; Thu, 28 Jun 2001 15:33:20 -0400
+Received: from secure.hostnoc.net ([66.96.192.200]:18697 "EHLO
+	secure.hostnoc.net") by vger.kernel.org with ESMTP
+	id <S264132AbRF1TdO>; Thu, 28 Jun 2001 15:33:14 -0400
+Date: Thu, 28 Jun 2001 15:32:12 -0400
+From: "J. Nick Koston" <nick@burst.net>
+To: John Cavan <johnc@damncats.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Asus CUV4X-DLS
+Message-ID: <20010628153212.A11008@burst.net>
+In-Reply-To: <20010627215304.D28795@burst.net> <3B3AA1DE.E4419FA8@damncats.org> <20010627233541.A32271@burst.net> <3B3B1F91.FBBFB588@damncats.org> <3B3B22A5.4F6BD1C1@damncats.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B3B22A5.4F6BD1C1@damncats.org>; from johnc@damncats.org on Thu, Jun 28, 2001 at 08:27:17AM -0400
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - secure.hostnoc.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1003 1004] / [1003 1004]
+X-AntiAbuse: Sender Address Domain - secure.hostnoc.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack wrote:
-> 
-> On Thu, 28 Jun 2001, Jeff Garzik wrote:
-> 
-> > Linus Torvalds wrote:
-> > > Things like version strings etc sound useful, but the fact is that the
-> > > only _real_ problem it has ever solved for anybody is when somebody thinks
-> > > they install a new kernel, and forgets to run "lilo" or something. But
-> > > even that information you really get from a simple "uname -a".
-> > >
-> > > Do we care that when you boot kernel-2.4.5 you get "net-3"? No. Do we care
-> > > that we have quota version "dquot_6.4.0"? No. Do we want to get the
-> > > version printed for every single driver we load? No.
-> > >
-> > > If people care about version printing, it (a) only makes sense for modules
-> > > and (b) should therefore maybe be done by the module loader. And modules
-> > > already have the MODULE_DESCRIPTION() thing, so they should NOT printk it
-> > > on their own.  modprobe can do it if it wants to.
-> >
-> > As Alan said, driver versions are incredibly useful.  People use update
-> > their drivers over top of kernel drivers all the time.  Vendors do it
-> > too.  "Run dmesg and e-mail me the output" is 1000 times more simple for
-> > end users.
-> 
-> Why not a generic way to query the drivers for version info from
-> userspace?
 
-For NICs at least, there's already a generic way... :)
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sigh, in my technically correct heart I know putting driver versions in
-dmesg is probably not the best thing, but it makes support -so- -much-
-easier that I am not inclined to change the existing code.
+   It seems to be ok with 2.4.5-ac19, so I guess I'll just wait for
+2.4.6 and hope that resolves it for good.
 
-FWIW, all the NIC drivers I mess with (most originated from Becker)
-should print out:
+         Nick
 
-<one line version>
-eth0: short product name, base addr, MAC addr, irq
-eth1: ...
-eth2: ...
+On Thu, Jun 28, 2001 at 08:27:17AM -0400, John Cavan wrote:
+> Envelope-to: nick@burst.net
+> Delivery-date: Thu, 28 Jun 2001 08:26:20 -0400
+> Date: Thu, 28 Jun 2001 08:27:17 -0400
+> From: John Cavan <johnc@damncats.org>
+> X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac18 i686)
+> X-Accept-Language: en
+> To: "J. Nick Koston" <nick@burst.net>, linux-kernel@vger.kernel.org
+> Subject: Re: Asus CUV4X-DLS
+>=20
+> John Cavan wrote:
+> > I have an AIC7xxxx based SCSI card in my machine as well, hooked up to a
+> > Jaz. I haven't actually used it in ages, but I'll test it to see of the
+> > problem is apparent on CUV4X-D board as well.
+>=20
+> First, I copied 640 Mb file to the jaz disk, no problem. Then I ran the
+> same commands you did, also no problem...
+>=20
+> That would imply, at least, that the SCSI drivers are not at fault here.
+>=20
+> John
 
-I grant you there are tons of exceptions even in NIC drivers, but that
-is the goal I am striving for.  One line version, plus one line per
-registered netif.
+--=20
 
-FWIW I find usb and parport messages exceptionally verbose, but some of
-that is probably related to KERN_DEBUG being set in the bootloader or
-kernel/printk.c or somewhere...
+BurstNET -  The Speed the Internet Travels
 
-	Jeff
+To place an order, or for more info, contact;
+BurstNET Technologies, Inc. - BurstNET
+Toll Free 24/7/365 Support: 1-877-BURSTNET
+Phone (570) 389-1100 - Fax (570) 389-1855=3D20
+http://www.burst.net - sales@burst.net
+P.O. Box #400  Bloomsburg, PA 17815-0400 USA
+A World Wide Leader in Web Hosting & Internet Solutions
+The Best Value For Your Dollar On The Net!
 
+Copyright 1996-2000 =A9
+BurstNET Technologies, Inc.
+All Rights Reserved.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7O4Y7T5huNxcQLWARAonxAJ9jIA6dxoesp1sheHPO5G6iRRCinQCgpNZL
+2K+rVRUGO9+7fi60GEVU9Wg=
+=vB1L
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268402AbTBNOXB>; Fri, 14 Feb 2003 09:23:01 -0500
+	id <S268401AbTBNOQS>; Fri, 14 Feb 2003 09:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268409AbTBNOXB>; Fri, 14 Feb 2003 09:23:01 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:27399 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S268402AbTBNOXA>; Fri, 14 Feb 2003 09:23:00 -0500
-Date: Fri, 14 Feb 2003 17:32:17 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EISA/sysfs update
-Message-ID: <20030214173217.A17730@jurassic.park.msu.ru>
-References: <1044241767.3924.14.camel@mulgrave> <wrp3cmrrwuf.fsf@hina.wild-wind.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <wrp3cmrrwuf.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Fri, Feb 14, 2003 at 11:16:24AM +0100
+	id <S268402AbTBNOQR>; Fri, 14 Feb 2003 09:16:17 -0500
+Received: from hugin.diku.dk ([130.225.96.144]:14596 "HELO hugin.diku.dk")
+	by vger.kernel.org with SMTP id <S268401AbTBNOPX>;
+	Fri, 14 Feb 2003 09:15:23 -0500
+Date: Fri, 14 Feb 2003 15:25:15 +0100 (MET)
+From: Peter Finderup Lund <firefly@diku.dk>
+To: Robert Dewar <dewar@gnat.com>
+cc: tjm@codegen.com, <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
+       <peter@jazz-1.trumpet.com.au>
+Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow
+ compared to 2.4 due to wrmsr (performance)
+In-Reply-To: <20030214140336.501F2F2D7B@nile.gnat.com>
+Message-ID: <Pine.LNX.4.44L0.0302141520570.4760-100000@ask.diku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 11:16:24AM +0100, Marc Zyngier wrote:
-> # - Add driver for i82375 PCI/EISA bridge.
+On Fri, 14 Feb 2003, Robert Dewar wrote:
 
-I believe this driver will work for any PCI/EISA bridge without
-any changes, not only for i82375. Probably we need to look for a
-class code rather than a device id.
+> > > The only way to get from long-mode back to legacy-mode is to reset the
+> > > processor.  It can be done in software but you will likely lose interrupts.
+> >
+> > Smartdrv.sys and triple-faults come back, all is forgiven!  ;)
+>
+> I have an idea, perhaps we can make the keyboard controller recognize a special
+> command that will reset the processor :-) :-)
 
-Also, to get rid of that x86-ism I'd suggest something like
+What if there was an undocumented instruction otherwise only used for
+testing and CPU in-circuit-emulation to load all the internal state of the
+CPU from memory?  Maybe that would work?
 
-	i82375_root.dev		     = &pdev->dev;
-	i82375_root.dev->driver_data = &i82375_root;
--	i82375_root.bus_base_addr    = 0; /* Warning, this is a x86-ism */
--	i82375_root.res		     = &ioport_resource;
-+	i82375_root.res		     = pdev->bus->resource[0];
-+	i82375_root.bus_base_addr    = pdev->bus->resource[0]->start;
-	i82375_root.slots	     = EISA_MAX_SLOTS;
+-Peter
 
-Without that you'll have resource conflicts on multi-hose alphas.
 
-Otherwise, the patch looks good to me.
 
-Ivan.
+

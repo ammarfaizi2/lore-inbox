@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbUDPFkh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 01:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDPFkh
+	id S262416AbUDPFp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 01:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUDPFp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 01:40:37 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:64434 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262398AbUDPFke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 01:40:34 -0400
-Date: Fri, 16 Apr 2004 11:14:09 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: How does ioremap() get non-cached mappings
-In-Reply-To: <407F6FF8.1020904@quark.didntduck.org>
-Message-ID: <Pine.LNX.4.44.0404161111250.17679-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Apr 2004 05:40:30.0588 (UTC) FILETIME=[544FD3C0:01C42375]
+	Fri, 16 Apr 2004 01:45:27 -0400
+Received: from smtp-out2.xs4all.nl ([194.109.24.12]:7942 "EHLO
+	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S262416AbUDPFpW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 01:45:22 -0400
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC533@exa-atlanta.se.lsil.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC533@exa-atlanta.se.lsil.com>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-8-707877079"
+Message-Id: <2E7711F2-8F69-11D8-8B4A-000A95CD704C@wagland.net>
+Content-Transfer-Encoding: 7bit
+Cc: Linux SCSI mailing list <linux-scsi@vger.kernel.org>,
+       Sreenivas Bagalkote <sreenib@lsil.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+From: Paul Wagland <paul@wagland.net>
+Subject: Re: assertion failure with new megaraid beta driver leads to sche duling failure
+Date: Fri, 16 Apr 2004 07:44:52 +0200
+To: "Mukker, Atul" <Atulm@lsil.com>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Apr 2004, Brian Gerst wrote:
 
-> Nagendra Singh Tomar wrote:
-> > ioremap() function in x86 arch code does not seem to be setting _PAGE_PCD 
-> > bit in the PTE. How then does it give non-cached mapping to MMIO mappings 
-> > for memory on some interface card. I have gone thru some old threads on 
-> > this, which have concluded that it does give non-cached mappings, and 
-> > moerover ioremap seems to work fine whenever I have used to map any PCI 
-> > card memory,
-> > Is it guaranteed thru the means of MTRR ?
-> > 
-> 
-> ioremap_nocache()
+--Apple-Mail-8-707877079
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-I'm aware of ioremap_nocache(), and the fact that it explicitly sets 
-_PAGE_PCD. My  question originated after reading this posting by Alan
+Atul,
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.0/0878.html
+On Apr 16, 2004, at 0:36, Mukker, Atul wrote:
 
-in which he explicitly states that ioremap() gives uncached mapping. If 
-you follow the thread, there is a general consensus that ioremap and 
-ioremap_nocache are functionaly the same on x86 arch (and I suppose on 
-most archs)
+> Paul,
+>
+> Random deletion has issues with this version of the driver. Sreenivas 
+> will
+> release the next version tomorrow morning with the fix.
 
-Thanx,
-tomar
-> 
-> --
-> 				Brian Gerst
-> 
+As I understand it you want this new driver to replace the one in the 
+kernel, correct?
 
--- 
+If so, would it be possible to rename the output file to megaraid.o, 
+instead of megaraid_nm.o. The reason for this is that then the various 
+vendor tools that produce initrd images would then most likely not need 
+to be changed.
 
+If not, then a new name is good ;-)
 
+Cheers,
+Paul
 
--- You have moved the mouse. Windows must be restarted for the 
-   changes to take effect.
+--Apple-Mail-8-707877079
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iD8DBQFAf3LXtch0EvEFvxURAjApAKCoXzm0reXD0RrAsthl8F/IJGTXmACgyPov
+FdMC9l/QcdGCEbkHjHOWDTE=
+=jVIJ
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-8-707877079--
 

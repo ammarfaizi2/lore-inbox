@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVAMQMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVAMQPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVAMQMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 11:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVAMQJZ
+	id S261679AbVAMQPw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 11:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVAMQJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:09:25 -0500
-Received: from orb.pobox.com ([207.8.226.5]:29577 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261683AbVAMQDu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:03:50 -0500
-Date: Thu, 13 Jan 2005 07:31:07 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113153107.GA4455@ip68-4-98-123.oc.oc.cox.net>
-References: <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050113032506.GB1212@redhat.com> <20050113035331.GC9176@beowulf.thanes.org> <20050113053807.GE4378@ip68-4-98-123.oc.oc.cox.net> <878y6xr9gr.fsf@deneb.enyo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878y6xr9gr.fsf@deneb.enyo.de>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 13 Jan 2005 11:09:10 -0500
+Received: from mail108.messagelabs.com ([216.82.255.115]:1949 "HELO
+	mail108.messagelabs.com") by vger.kernel.org with SMTP
+	id S261663AbVAMQDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:03:02 -0500
+X-VirusChecked: Checked
+X-Env-Sender: AAnthony@sbs.com
+X-Msg-Ref: server-5.tower-108.messagelabs.com!1105632179!7446850!1
+X-StarScan-Version: 5.4.5; banners=sbs.com,-,-
+X-Originating-IP: [204.255.71.6]
+Message-ID: <4F23E557A0317D45864097982DE907941A38A8@pilotmail.sbscorp.sbs.com>
+From: Adam Anthony <AAnthony@sbs.com>
+To: khc@pm.waw.pl, Francois Romieu <romieu@fr.zoreil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Linux HDLC Stack - N2 module
+Date: Thu, 13 Jan 2005 09:02:20 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 09:59:00AM +0100, Florian Weimer wrote:
-> This is the exception.  Usually, changelogs are cryptic, often
-> deliberately so.  Do you still remember Alan's DMCA protest
-> changelogs?
+Krzysztof and Ueimor,
+	Following the advice prescribed below, I've had a look at existing
+HDLC work in the kernel.  I tried firing up a Riscom/N2 adapter with the
+2.4.28 N2 module and HDLC support but was faced with a number of problems.
+It seems like the transmit buffers aren't getting emptied after transmit,
+because I can only transmit a few frames before traffic halts.  Transmit
+statistics don't increment either, but I am seeing frames on the remote end.
+	Has the N2 module been tested with recent kernels?  Is it useable?
+If not, which module will show me the genius of the Linux HDLC "stack"?
+-AA
 
-Yes, I remember. However, if I saw a BK changeset called "Security fixes"
-or "Security fixes -- details censored in accordance with the US DMCA"
-then it would obviously be a security patch worth looking at. So looking
-at linux.bkbits.net would still be an improvement over looking at a raw
-patch with everything combined (which is what was the complaint was
-about).
+-----Original Message-----
+From: Francois Romieu [mailto:romieu@fr.zoreil.com] 
+Sent: Monday, January 10, 2005 1:01 PM
+To: Adam Anthony
+Cc: netdev@oss.sgi.com; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /driver/net/wan/sbs520
 
--Barry K. Nathan <barryn@pobox.com>
+Adam Anthony <AAnthony@sbs.com> :
+[...]
+>        It would be great to receive some feedback on our work, and we hope
+> that this driver will eventually be added to the kernel.
 
+It will probably require a few extra steps:
+- read Documentation/CodingStyle (mixed case, typedef from hell, ugly
+#ifdef);
+- grep ^static
+  -> no static functions ? Uh ?
+- use non-obsolete API (pci_find_device in 2005 ?);
+- convert the os independant wrappers.
+
+Btw it would probably make sense 1) to figure out what can be merged with
+the in-tree DSCC4 driver and 2) to integrate the driver with the existing
+hdlc stack. Imho there is some duplicated work/code.
+
+--
+Ueimor
+
+***This message has been scanned for virus, spam, and undesirable
+content.***
+***For further information, contact your mail administrator.***
+
+For limitations on the use and distribution of this message, please visit www.sbs.com/emaildisclaimer.

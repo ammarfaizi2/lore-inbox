@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263457AbUESKjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUESKmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263457AbUESKjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 06:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUESKjR
+	id S263484AbUESKmH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 06:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUESKmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 06:39:17 -0400
-Received: from anor.ics.muni.cz ([147.251.4.35]:17608 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S263457AbUESKjQ (ORCPT
+	Wed, 19 May 2004 06:42:07 -0400
+Received: from stingr.net ([212.193.32.15]:718 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S263484AbUESKmE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 06:39:16 -0400
-Date: Wed, 19 May 2004 12:38:56 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendfile -EOVERFLOW on AMD64
-Message-ID: <20040519103855.GF18896@fi.muni.cz>
-References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org>
+	Wed, 19 May 2004 06:42:04 -0400
+Date: Wed, 19 May 2004 14:41:52 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: problems with ext3 fs, kernels up to 2.6.6-rc2
+Message-ID: <20040519104152.GM19183@stingr.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <m3d650wys1.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.2i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-: Jan Kasprzak <kas@informatics.muni.cz> writes:
-: >
-: > The image (FC2-i386-DVD.iso) has 4370640896 bytes. The FTP server is native
-: > x86_64 binary, not a 32-bit one.
-: 
-: sys_sendfile limits itself dumbly to 2GB even on 64bit architectures.
-: This patch should fix it on x86-64, although other 64bit ports may 
-: need a similar patch. Just removing the limit in read_write 
-: is not easy, because it would need fixes in all the 32bit emulation
-: layers.
-: 
-	It partly helped, thanks. But there is still one more problem
-- it looks like sendfile() returns 32-bit value instead of 64-bit.
-My debug info looks like this:
+Hi.
 
-sendfile(offset=0, count=4370640896)
-    = -767073160, offset=3527894136
+For a long time I'm sorta have the following problem.
 
-where I do
+I have ext3 partition with dir_index turned on. I have programs, which
+store many files on it (for example, Maildir mailboxes for 500+ users,
+about 200k files).
 
-	long val = sendfile(...); printf(...%ld..., val);
+Sometimes something going wrong. I am noticing it by rdiff-backup on
+this partition producing the following output:
+ListError goloub/Maildir/cur/1082623479.1763_0.ns:2,S [Errno 5]
+Input/output error:
++'/mnt/mail/goloub/Maildir/cur/1082623479.1763_0.ns:2,S'
 
--Yenya
+Yes, when I am doing strace ls -al (failed file), I am seeing -EIO
 
+lstat64("/mnt/mail/goloub/Maildir/cur/1082623479.1763_0.ns:2,S",
+0x806408c) = -1 EIO (Input/output error)
+
+I know, so when I will e2fsck it it will be repaired. But how I can
+help debug it?
+
+Which on-disk structs I need to examine, maybe extract, and send to
+someone?
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
- Any compiler or language that likes to hide things like memory allocations
- behind your back just isn't a good choice for a kernel.   --Linus Torvalds
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

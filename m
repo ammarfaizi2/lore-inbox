@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbRAYVgc>; Thu, 25 Jan 2001 16:36:32 -0500
+	id <S130292AbRAYVkM>; Thu, 25 Jan 2001 16:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131850AbRAYVgX>; Thu, 25 Jan 2001 16:36:23 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:56592 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S131152AbRAYVgH>; Thu, 25 Jan 2001 16:36:07 -0500
-Date: Thu, 25 Jan 2001 16:36:06 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: In kernel 2.4.0 in alloc_uhci when doing request_irq()
-Message-ID: <20010125163605.F20628@sventech.com>
-In-Reply-To: <3A709946.51505EF6@ngforever.de>
-Mime-Version: 1.0
+	id <S129906AbRAYVkC>; Thu, 25 Jan 2001 16:40:02 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:53386 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130292AbRAYVjq>;
+	Thu, 25 Jan 2001 16:39:46 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <3A709946.51505EF6@ngforever.de>; from Thunder from the hill on Thu, Jan 25, 2001 at 02:23:18PM -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <14960.40164.794066.449539@pizda.ninka.net>
+Date: Thu, 25 Jan 2001 13:38:44 -0800 (PST)
+To: Steve Whitehouse <Steve@ChyGwyn.com>
+Cc: ionut@cs.columbia.edu (Ion Badulescu), kuznet@ms2.inr.ac.ru,
+        linux-kernel@vger.kernel.org, andrewm@uow.EDU.AU (Andrew Morton)
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+In-Reply-To: <200101252129.VAA13948@gw.chygwyn.com>
+In-Reply-To: <14960.38705.859136.36297@pizda.ninka.net>
+	<200101252129.VAA13948@gw.chygwyn.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001, Thunder from the hill <thunder@ngforever.de> wrote:
-> I am using an usual VIA MPV3 onboard USB device (on a AMD K6-II 400
-> machine), and it has ever worked fine on Linux (until including
-> 2.4.0-test10). Now I wanted to use the "retail" 2.4.0-kernel, and USB
-> gets stuck while booting. Last messages are:
-> usb.c: registered new driver usbdevfs
-> usb.c: registered new driver hub
-> usb-uhci.c: $Revision: 1.251 $time 07:06:37 Jan 14 2001
-> usb-uhci.c: high bandwidth mode enabled
-> PCI: Assigned IRQ 10 for device 00:07.2
-> usb-uhci.c: USB UHCI at I/O 0xe400, IRQ 10
-> usb-uhci.c: Detected 2 ports
-> usb.c: new USB bus registered, assigned bus number 1
-> 
-> That's all.
-> I debugged a while and noticed that the error occurs beyond
-> drivers/usb/usb-uhci.c in the function alloc_uhci() after start_hc (s);
-> when calling request_irq(), the line reads:
-> 	if (request_irq (irq, uhci_interrupt, SA_SHIRQ, MODNAME, s)) {
-> The called function crashes somewhere on top, as I noticed.
-> Is there a patch avariable, or should I do further investigation?
 
-No patches that I've seen. It sounds more like you have an IRQ routing
-problem and the IRQ isn't getting acknowledged correctly and is flooding
-the machine.
+Steve Whitehouse writes:
+ > Do you mean that devices will not be able to indicate support of SG seperately
+ > from hw checksum or that the IP zerocopy will simply ignore devices which
+ > do not have both ?
 
-You can try putting a printk in uhci_interrupt to see how often it gets
-called.
+IP will ignore devices which do not have both.
 
-Also, do you have a PnP setting in your BIOS? Can you try changing it?
+ > DECnet assumes that the mac level checksum will detect all errors and does
+ > not have a checksum of its own on data, so it would only need SG to benefit
+ > from the zerocopy framework,
 
-JE
+Which is just fine.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

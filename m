@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbULCUuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbULCU4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbULCUuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 15:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbULCUuU
+	id S262349AbULCU4y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 15:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbULCU4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 15:50:20 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:25220 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262283AbULCUuK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 15:50:10 -0500
-Message-ID: <41B0D18B.3020309@didntduck.org>
-Date: Fri, 03 Dec 2004 15:50:19 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Fri, 3 Dec 2004 15:56:53 -0500
+Received: from siaag1ad.compuserve.com ([149.174.40.6]:55804 "EHLO
+	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S262349AbULCU4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 15:56:52 -0500
+Date: Fri, 3 Dec 2004 15:52:59 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Time sliced CFQ io scheduler
+To: Jens Axboe <axboe@suse.de>
+Cc: "Prakash K. Cheemplavam" <prakashkc@gmx.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Message-ID: <200412031555_MC3-1-8FF2-32E7@compuserve.com>
 MIME-Version: 1.0
-To: Sylvain <autofr@gmail.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: distinguish kernel thread / user task
-References: <64b1faec041203091654251b18@mail.gmail.com>	 <41B0BD6B.2010809@didntduck.org> <64b1faec0412031215b934a9@mail.gmail.com>
-In-Reply-To: <64b1faec0412031215b934a9@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sylvain wrote:
-> I am trying to do a tool to record task switching...separating also
-> kernel/user tasks, but I got some trouble with that last case.
-> 
-> I confused since "ps" is actually able to distinguish kernel thread
-> from user task.
-> I wouldn't had a flag if It 's not necessary
-> 
-> Sylvain
-> 
+On Fri, 3 Dec 2004 at 11:31:30 +0100 Jens Axboe wrote:
 
-Pstools doesn't really know the difference between user and kernel 
-threads.  It only shows kernel threads as swapped out (in brackets) 
-because they have an RSS of zero (since kernel threads have no mm struct).
+>> Yeas, I have linux raid (testing md1). Have appield both settings on 
+>> both drives and got a interesting new pattern: Now it alternates. My 
+>> email client is still not usale while writing though...
+>
+> Funky. It looks like another case of the io scheduler being at the wrong
+> place - if raid sends dependent reads to different drives, it screws up
+> the io scheduling. The right way to fix that would be to io scheduler
+> before raid (reverse of what we do now), but that is a lot of work. A
+> hack would be to try and tie processes to one md component for periods
+> of time, sort of like cfq slicing.
 
---
-				Brian Gerst
+ How about having the raid1 read balance code send each read to every drive
+in the mirror, and just take the first one that returns data?  It could then
+cancel the rest, or just ignore them...  ;)
+
+
+--Chuck Ebbert  03-Dec-04  15:43:54

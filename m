@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318017AbSIOLYF>; Sun, 15 Sep 2002 07:24:05 -0400
+	id <S318018AbSIOLkc>; Sun, 15 Sep 2002 07:40:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318018AbSIOLYF>; Sun, 15 Sep 2002 07:24:05 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:17316 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S318017AbSIOLYF>; Sun, 15 Sep 2002 07:24:05 -0400
-Message-ID: <3D846EEC.7070204@myrealbox.com>
-Date: Sun, 15 Sep 2002 14:28:44 +0300
-From: Andriy Rysin <arysin@myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: uk, en-us, ru
+	id <S318020AbSIOLkb>; Sun, 15 Sep 2002 07:40:31 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:56300 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318018AbSIOLkb>;
+	Sun, 15 Sep 2002 07:40:31 -0400
+Date: Sun, 15 Sep 2002 13:52:07 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] init-fix-2.5.34-A0, BK-curr
+Message-ID: <Pine.LNX.4.44.0209151350250.1525-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: turning off APIC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If APIC is compiled in the kernel (wich is the case with most 
-distributions) when I start kernel with "noapic" option, APIC is getting 
-enabled anyway and only later gets disabled. This causes problems on 
-some VAIO notebooks - it seems like BIOS gets confused if APIC was 
-turned on (particularly on my laptop when I try to reboot from Linux it 
-hangs saying that thera problems with keyboard). That would be much 
-better to have an option to turn it off in the boot options and not to 
-recompile the kernel. Could somebody comment this please?
-Please CC me on this email address.
 
-TIA,
-Andriy
+the attached patch makes all init-inherited kernel threads show up again
+in the 'ps' process list on BK-curr (including init itself). I'm not quite
+sure why CLONE_THREAD was added to CLONE_SIGNAL - is there any reason
+kernel threads should not be separate entities?
 
+	Ingo
+
+--- linux/include/linux/sched.h.orig	Sun Sep 15 13:36:29 2002
++++ linux/include/linux/sched.h	Sun Sep 15 13:36:36 2002
+@@ -51,7 +51,7 @@
+ #define CLONE_CLEARTID	0x00200000	/* clear the userspace TID */
+ #define CLONE_DETACHED	0x00400000	/* parent wants no child-exit signal */
+ 
+-#define CLONE_SIGNAL	(CLONE_SIGHAND | CLONE_THREAD)
++#define CLONE_SIGNAL	CLONE_SIGHAND
+ 
+ /*
+  * These are the constant used to fake the fixed-point load-average
 

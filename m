@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265008AbUFAMLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265010AbUFAMVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbUFAMLP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 08:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUFAMLO
+	id S265010AbUFAMVV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 08:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 08:11:14 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:33228 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S265008AbUFAMLE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 08:11:04 -0400
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       bcrl@kvack.org, "David S. Miller" <davem@redhat.com>,
-       Linux Arch list <linux-arch@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       mingo@elte.hu, Linus Torvalds <torvalds@osdl.org>,
-       wesolows@foobazco.org, willy@debian.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OFB228E20C.FF1B818B-ONC1256EA6.004258F7-C1256EA6.0042EA55@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Tue, 1 Jun 2004 14:10:53 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 01/06/2004 14:10:41
-MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+	Tue, 1 Jun 2004 08:21:21 -0400
+Received: from gprs214-199.eurotel.cz ([160.218.214.199]:10880 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265019AbUFAMUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 08:20:25 -0400
+Date: Tue, 1 Jun 2004 14:20:13 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040601122013.GA10233@elf.ucw.cz>
+References: <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040601055616.GD15492@wohnheim.fh-wedel.de> <20040601060205.GE15492@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040601060205.GE15492@wohnheim.fh-wedel.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > So effectively, it comes down to the recursive paths.  Unless someone
+> > comes up with a semantical parser that can figure out the maximum
+> > number of iterations, we have to look at them manually.
+> 
+> Linus, Andrew, would you accept patches like the one below?  With such
+> information and assuming that the comments will get maintained, it's
+> relatively simple to unroll recursions and measure stack comsumption
+> more accurately.
 
+Perhaps some other format of comment should be introduced? Will not
+this interfere with linuxdoc?
+								Pavel
 
-
-> I did the ppc64 impl, the x86 one (hope I got it right). I still need to
-> do ppc32 and I suppose s390 must be fixed now that ptep_estabish is gone
-> but I'll leave that to someone who understand something about these
-things ;)
-
-At the moment I can't access linux.bkbits.net so I can't test anything but
-as far as I can tell s390 should just work as is. ptep_establish is gone
-but it has been replaced by correct sequences: ptep_clear_flush & set_pte
-and set_pte & flush_tlb_page. The second sequence can be optimized to a
-ptep_clear_flush & set_pte if the _PAGE_RO bit has changed. Apart from
-that s390 is perfectly fine with the change.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+-- 
+934a471f20d6580d5aad759bf0d97ddc

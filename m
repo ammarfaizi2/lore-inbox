@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUC3WzY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUC3Wxg
+	id S261627AbUC3WzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUC3Wwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:53:36 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:17373
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261648AbUC3WtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:49:08 -0500
-Date: Wed, 31 Mar 2004 00:49:02 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: kuznet@ms2.inr.ac.ru, dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Robert.Olsson@data.slu.se, paulmck@us.ibm.com,
-       akpm@osdl.org
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330224902.GM3808@dualathlon.random>
-References: <20040329222926.GF3808@dualathlon.random> <200403302005.AAA00466@yakov.inr.ac.ru> <20040330211450.GI3808@dualathlon.random> <20040330133000.098761e2.davem@redhat.com> <20040330213742.GL3808@dualathlon.random> <20040330142210.080dbe38.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330142210.080dbe38.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 30 Mar 2004 17:52:54 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:33655 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261685AbUC3Wtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:49:33 -0500
+Date: Tue, 30 Mar 2004 23:49:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH 6/6] mremap rmap comment
+In-Reply-To: <Pine.LNX.4.44.0403302340220.24019-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0403302348380.24019-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 02:22:10PM -0800, David S. Miller wrote:
-> Otherwise, keep in mind what I said, and also as Robert mentioned every
-> single local_bh_enable() is going to call do_softirq() if the count falls
-> to zero.
+rmap's try_to_unmap_one comments on find_vma failure, that a page may
+temporarily be absent from a vma during mremap: no longer, though it
+is still possible for this find_vma to fail, while unmap_vmas drops
+page_table_lock (but that is no problem for file truncation).
 
-I was less concerned about the do_sofitrq in local_bh_enable, since that
-runs in a scheduler-aware context, so at least the timeslice is
-definitely accounted for and it'll schedule at some point (unlike with
-an hardirq flood). Actually the length of the default timeslice matters
-too here, lowering the max timeslice to 10msec would certainly reduce
-the effect.
+--- mremap5/mm/rmap.c	2004-03-30 13:04:19.449545248 +0100
++++ mremap6/mm/rmap.c	2004-03-30 21:25:22.961196784 +0100
+@@ -315,8 +315,7 @@ static int fastcall try_to_unmap_one(str
+ 		return SWAP_AGAIN;
+ 	}
+ 
+-
+-	/* During mremap, it's possible pages are not in a VMA. */
++	/* unmap_vmas drops page_table_lock with vma unlinked */
+ 	vma = find_vma(mm, address);
+ 	if (!vma) {
+ 		ret = SWAP_FAIL;
 
-call_rcu_bh will fix the local_bh_enable too. The only problem with
-call_rcu_bh is how to queue the tasklets in every cpu (an IPI sounds
-overkill at high frequency, because effectively here we're running the rcu
-callbacks in a potential fast path).  OTOH if we've to add a spinlock to
-queue the tasklet, then we might as well take a spinlock in the routing
-cache in the first place (at least for this workload).

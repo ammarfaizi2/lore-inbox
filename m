@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289108AbSA1EgD>; Sun, 27 Jan 2002 23:36:03 -0500
+	id <S289112AbSA1Esy>; Sun, 27 Jan 2002 23:48:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287881AbSA1Efz>; Sun, 27 Jan 2002 23:35:55 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:12040 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S285516AbSA1Efm>; Sun, 27 Jan 2002 23:35:42 -0500
-Date: Mon, 28 Jan 2002 16:02:09 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: linux-kernel@vger.kernel.org
-cc: linux-sound@vger.kernel.org, alan@redhat.com
-Subject: [PATCHLET 2.2]Doc/sound/VIBRA16
-Message-ID: <Pine.LNX.4.05.10201281554170.29762-100000@marina.lowendale.com.au>
+	id <S289110AbSA1Eso>; Sun, 27 Jan 2002 23:48:44 -0500
+Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:23687 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S287881AbSA1Esc>;
+	Sun, 27 Jan 2002 23:48:32 -0500
+Message-ID: <3C54D81C.6040604@pobox.com>
+Date: Sun, 27 Jan 2002 20:48:28 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stevie O <stevie@qrpff.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.20: pci-scan+natsemi & Device or resource busy
+In-Reply-To: <5.1.0.14.2.20020126183314.01cbb510@whisper.qrpff.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just curious, your friend is trying Linux
+for the first time, using a distro that is
+several years old?
 
-Appended patch has corrections and minor update for
-Documentation/sound/VIBRA16
+He might have a better experience using
+something a bit more recent, aside from
+the other advice that has been given...
 
-These changes are based on my experience with VIBRA16 and 2.2.21-pre2 on
-Debian Potato on a Compaq Deskpro (which seems to manage all the ISApnp
-itself :-).
+Joe
 
-Regards,
-Neale.
+Stevie O wrote:
 
---- linux-2.2.21-pre2-pristine/Documentation/sound/VIBRA16	Mon Mar 26 02:31:59 2001
-+++ linux-2.2.21-pre2-ntb/Documentation/sound/VIBRA16	Mon Jan 28 14:50:40 2002
-@@ -15,6 +15,8 @@
- (tried it with a 2.2.2-ac7), nor in the commercial OSS package (it reports
- it as half-duplex soundcard). Oh, I almost forgot, the RedHat sndconfig
- failed detecting it ;)
-+	Kernel 2.2.21pre2 also works with this card.  /proc/sound
-+reports "OSS/Free:3.8s2++-971130" and "Sound Blaster 16 (4.13) (DUPLEX)"
- 	So, the big problem still remains, because the sb module wants a
- 8-bit and a 16-bit dma, which we could not allocate for vibra... it supports
- only two 8-bit dma channels, the second one will be passed to the module
-@@ -59,6 +61,8 @@
- you may want to:
- 
- modprobe sb io=0x220 irq=5 dma=1 dma16=3
-+# do you need MIDI?
-+modprobe opl3 io=0x388
- 
- 	Or, take the hard way:
- 
-@@ -67,14 +71,18 @@
- insmod uart401
- insmod sb io=0x220 irq=5 dma=1 dma16=3
- # do you need MIDI?
--insmod opl3=0x388
-+insmod opl3 io=0x388
- 
- 	Just in case, the kernel sound support should be:
- 
- CONFIG_SOUND=m
- CONFIG_SOUND_OSS=m
- CONFIG_SOUND_SB=m
-+# do you need MIDI? YM3812 gets you opl3.o...
-+CONFIG_SOUND_YM3812=m
- 	
- 	Enjoy your new noisy Linux box! ;)
- 	
- 
-+Minor corrections and updates
-+	Neale Banks <neale@lowendale.com.au> Mon, 28 Jan 2002 15:06:35 +1100
+> My friend is trying Linux for the first time. I'm having him use the 
+> pci-scan and natsemi modules for his Netgear FA-311 card. With the 
+> initial download and compile and insmod, he got that wonderful message:
+>
+> natsemi.o: init_module: Device or resource busy
+>
+> He was using 2.2.13, so I got him to upgrade to 2.2.20 to see if that 
+> might have fixed some problem. However, the problem still hasn't gone 
+> away :(
+> No amount of googling has revealed a solution to the problem, since 
+> which I've discovered that "Device or resource busy" is an extremely 
+> vague error message.
+>
+> Please help!
+>
+>
+> -- 
+> Stevie-O
+>
+> Real programmers use COPY CON PROGRAM.EXE
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
 

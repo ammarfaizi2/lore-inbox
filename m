@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288432AbSAHVqQ>; Tue, 8 Jan 2002 16:46:16 -0500
+	id <S288402AbSAHVtQ>; Tue, 8 Jan 2002 16:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288402AbSAHVqH>; Tue, 8 Jan 2002 16:46:07 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:43205 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S288427AbSAHVpy> convert rfc822-to-8bit; Tue, 8 Jan 2002 16:45:54 -0500
-Message-ID: <13FCCC1F3509D411B1C700A0C969DEBB05E20C2C@fmsmsx91.fm.intel.com>
-From: "Gonzalez, Inaky" <inaky.gonzalez@intel.com>
-To: "'Daniel Phillips'" <phillips@bonn-fries.net>,
-        Andrew Morton <akpm@zip.com.au>
-Cc: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+	id <S288435AbSAHVtG>; Tue, 8 Jan 2002 16:49:06 -0500
+Received: from dsl-213-023-038-231.arcor-ip.net ([213.23.38.231]:22283 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288402AbSAHVsr>;
+	Tue, 8 Jan 2002 16:48:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 8 Jan 2002 22:51:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+        Andrea Arcangeli <andrea@suse.de>,
         Luigi Genoni <kernel@Expansa.sns.it>,
         Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         Robert Love <rml@tech9.net>
-Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Tue, 8 Jan 2002 13:45:35 -0800 
+In-Reply-To: <Pine.LNX.4.33L.0201081907040.2985-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201081907040.2985-100000@imladris.surriel.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16O49z-0000BD-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 8, 2002 10:08 pm, Rik van Riel wrote:
+> On Tue, 8 Jan 2002, Daniel Phillips wrote:
+> 
+> > The preemptible kernel can reschedule, on average, sooner than the
+> > scheduling-point kernel, which has to wait for a scheduling point to
+> > roll around.
+> 
+> The preemptible kernel ALSO has to wait for a scheduling point
+> to roll around, since it cannot preempt with spinlocks held.
 
-> And while I'm enumerating differences, the preemptable kernel 
-> (in this 
-> incarnation) has a slight per-spinlock cost, while the 
-> non-preemptable kernel 
-> has the fixed cost of checking for rescheduling, at intervals 
-> throughout all 
-> 'interesting' kernel code, essentially all long-running 
-> loops. 
+Think about the relative amount of time spent inside spinlocks vs regular 
+kernel.
 
-For a general case, that cost is leveraged by the improvement in scheduling,
-by filling out the IO channels better, and thus, using most resources more
-efficiently. I did some dirty tests that showed that the preemptible kernel
-performed more or less one second better than the normal one when unzipping
-and compiling a kernel [dirty general case]. The std deviation is around the
-time difference, so we can quite conclude the impact is zero -- asides from
-the improvement in responsiveness].
+> Considering this, I don't see much of an advantage to adding
+> kernel preemption.
 
-Please see my message to the mailing list at
-http://www.geocrawler.com/archives/3/14905/2001/11/0/7074067/ [the excel
-spreadsheet is available at request].
+And now?
 
-Iñaky Pérez González -- (503) 677 6807
-I do not speak for Intel Corp, opinions are my own.
+--
+Daniel

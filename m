@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262750AbTCVN04>; Sat, 22 Mar 2003 08:26:56 -0500
+	id <S262744AbTCVN0W>; Sat, 22 Mar 2003 08:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262751AbTCVN04>; Sat, 22 Mar 2003 08:26:56 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:26417 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S262750AbTCVN0y>; Sat, 22 Mar 2003 08:26:54 -0500
-From: Jos Hulzink <josh@stack.nl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.65: IRQ remapping problems
-Date: Sat, 22 Mar 2003 14:37:52 +0100
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S262750AbTCVN0W>; Sat, 22 Mar 2003 08:26:22 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38297
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262744AbTCVN0V>; Sat, 22 Mar 2003 08:26:21 -0500
+Subject: Re: 2.5.65-mm3 bad: scheduling while atomic! [SCSI]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <87el4z1sq3.fsf@lapper.ihatent.com>
+References: <20030320235821.1e4ff308.akpm@digeo.com>
+	 <87el4z1sq3.fsf@lapper.ihatent.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303221437.52499.josh@stack.nl>
+Organization: 
+Message-Id: <1048344561.8912.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Mar 2003 14:49:21 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-03-22 at 12:38, Alexander Hoogerhuis wrote:
+> Andrew Morton <akpm@digeo.com> writes:
+> > 
+> > [SNIP]
+> > 
+> 
+> Here's a few more funnies caught while burning a CD:
 
-Now 2.5.65 boots again, I'm able to confirm that the SCSI (AIC7880) issues I 
-have are caused by (disfunctional) IRQ remapping code. A BIOS without MPS 1.4 
-support enabled (which causes interrupt remapping on this P2L97-DS, Intel 440 
-LX mainboard) makes the SCSI driver run fine.
+ide-scsi is known broken in 2.5, and will stay that way for a little
+while yet I suspect. I sent Linus the infrastructure needed to fix
+it yesterday.
 
-I expected the 3Com 3c905 problems (no communication) to be fixed too, though 
-they still occur. Now updating modutils so I can do tests without rebooting.
-
-Jos 

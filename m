@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311564AbSDUJaj>; Sun, 21 Apr 2002 05:30:39 -0400
+	id <S311211AbSDUJ6T>; Sun, 21 Apr 2002 05:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311577AbSDUJai>; Sun, 21 Apr 2002 05:30:38 -0400
-Received: from mail.scram.de ([195.226.127.117]:64203 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S311564AbSDUJah>;
-	Sun, 21 Apr 2002 05:30:37 -0400
-Date: Sun, 21 Apr 2002 11:28:36 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@alpha.bocc.de
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Ian Molton <spyro@armlinux.org>, Russell King <rmk@arm.linux.org.uk>,
-        <phillips@bonn-fries.net>, <ebiederm@xmission.com>,
-        <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <20020421025654.GE2296@conectiva.com.br>
-Message-ID: <Pine.LNX.4.44.0204211123590.18496-100000@alpha.bocc.de>
+	id <S312031AbSDUJ6S>; Sun, 21 Apr 2002 05:58:18 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3849 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S311211AbSDUJ6S>; Sun, 21 Apr 2002 05:58:18 -0400
+Message-Id: <200204210955.g3L9tUX08427@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: /proc/stat weirdness
+Date: Sun, 21 Apr 2002 12:58:41 -0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I was curious about top showing unwieldy numbers for idle%
+(start top, hold down [space] and you'll see).
 
-> > We dont allow proprietary modules in the kernel, why should docs be any
-> > different?
-> 
-> The documentation being discussed is not proprietary, it only talks about a non
-> essential proprietary tool used now by lots of kernel hackers.
+top reads /proc/stat in order to get these percents.
+A little script which cats /proc/stat continually
+and greps for 'cpu  ' yield:
+cpu  39778 0 46829 337191
+cpu  39778 0 46831 337192
+cpu  39778 0 46833 337193
+cpu  39778 0 46834 337194
+cpu  39778 0 46835 337195
+cpu  39778 0 46836 337196
+cpu  39778 0 46838 337197 <<<
+cpu  39778 0 46840 337196 <<< 
+cpu  39780 0 46840 337198
+cpu  39780 0 46842 337199
+cpu  39780 0 46843 337201
+cpu  39782 0 46844 337201
+cpu  39782 0 46846 337201
+cpu  39782 0 46848 337201
+cpu  39782 0 46849 337202
+cpu  39782 0 46849 337204
+cpu  39782 0 46850 337205
+cpu  39782 0 46852 337205
+cpu  39782 0 46853 337206
+cpu  39783 0 46853 337207
+cpu  39783 0 46855 337207 <<<
+cpu  39784 0 46856 337206 <<<
+...
 
-So would Linus accept a document on how to run Linux/390 on hercules (yet 
-another proprietary emulator)? This also was a FAQ on the linux-390 
-mailing list until the documentation is available on the hercules home 
-page...
-
-Developing kernel stuff on 390 without emulator can be much fun as host 
-operators tend to get very pissed if the IPL ratio comes near to 1/min ;-)
-
---jochen
-
-
-
+Kernel: 2.4.18-pre6
+--
+vda

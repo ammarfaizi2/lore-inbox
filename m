@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129475AbQLAKZT>; Fri, 1 Dec 2000 05:25:19 -0500
+	id <S129585AbQLAKkP>; Fri, 1 Dec 2000 05:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129535AbQLAKZK>; Fri, 1 Dec 2000 05:25:10 -0500
-Received: from Unable.to.handle.kernel.NULL.pointer.dereference.de ([212.6.215.146]:50182
-	"EHLO inode.real-linux.de") by vger.kernel.org with ESMTP
-	id <S129475AbQLAKY7>; Fri, 1 Dec 2000 05:24:59 -0500
-Date: Fri, 1 Dec 2000 10:52:33 +0100
-From: Florian Heinz <sky@sysv.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Some problems with the raid-stuff in 2.4.0-test12pre3
-Message-ID: <20001201105233.D672@inode.real-linux.de>
-In-Reply-To: <20001130123322.A672@inode.real-linux.de> <14887.2273.174231.960990@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	id <S129625AbQLAKj4>; Fri, 1 Dec 2000 05:39:56 -0500
+Received: from indus-bh.indusriver.com ([63.81.64.2]:40951 "EHLO
+	post.indusriver.com") by vger.kernel.org with ESMTP
+	id <S129585AbQLAKjy>; Fri, 1 Dec 2000 05:39:54 -0500
+Message-ID: <3A277808.153AFC0C@indusriver.com>
+Date: Fri, 01 Dec 2000 05:06:00 -0500
+From: Ben McCann <bmccann@indusriver.com>
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Julian Anastasov <ja@ssi.bg>
+CC: Mike Perry <mikepery@fscked.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.17 IP masq bug
+In-Reply-To: <Pine.LNX.4.21.0012010905400.966-100000@u>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14887.2273.174231.960990@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Fri, Dec 01, 2000 at 01:11:45PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2000 at 01:11:45PM +1100, Neil Brown wrote:
-> On Thursday November 30, sky@dereference.de wrote:
-> > Hello people,
-> > 
-> > I have some trouble with the raid-stuff.
-> > My machine is a Pentium-III, 256 MB ram and 7 scsi-disks (IBM DNES-318350W
-> > 17B). I'm using raid5 for 6 of these disks (chunk-size 8).
-> > Machine boots, I do mkraid /dev/md0 and then mke2fs /dev/md0 and that's
-> > where the problems start. mkfs tries to write 684 inode-tables and after the
-> > first 30 it gets very slow. ps ax (with wchan) tells me it hangs in
-> > wakeup_bdflush.
-> > I'm rather sure it's related to the raidcode, because without raid the disks
-> > work as expected.
-> > I'm using an Adaptec 7892A with the aic7xxx-driver, I have disabled the TCQ
-> > and the extra checks for the new queueing code, but I have tried with both
-> > activated, too.
-> > No related messages from the kernel in the syslog.
-> > It worked fine with 2.2.x.
-> 
-> Is it just "very slow", but it eventually finishes, it is it so slow,
-> that it actually stops and doesn't make any progress at all?
-> 
-> raid5 in 2.4 is definately slower than in 2.2.  Could that be all that
-> you are seeing?
+I'm curious about how ICMP redirect is causing this problem.
+Would you elaborate on how ICMP is involved?
 
-It's so slow that it's unusable. Especially writing. open() and
-close()-calls often hang for 20 seconds or more.
-write-calls hang for 3-4 seconds. This has to be a bug.
-But yes, after a long time, it finishes ;)
+-Ben McCann
+
+Julian Anastasov wrote:
+> 
+>         Hello,
+> 
+> On Fri, 1 Dec 2000, Mike Perry wrote:
+> 
+> > external net, so it can IP masq the other 14 machines. The machines are on a
+> > switch, and share a semi-switched network segment with a bunch of other
+> > external IP'd machines (we are all in the same lab, actually).
+> >
+> > The bug:
+> > When I make a connection from any internal node to the one of the other
+> > externally routed machines in my lab, then close it, this external machine then
+> > becomes unreachable to successive connects from that node.
+> 
+>         This problem can be caused from the ICMP redirect. Can these
+> commands help?
+> 
+> echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
+> echo 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+> 
+> Regards
+> 
+> --
+> Julian Anastasov <ja@ssi.bg>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+-- 
+Ben McCann                              Indus River Networks
+                                        31 Nagog Park
+                                        Acton, MA, 01720
+email: bmccann@indusriver.com           web: www.indusriver.com 
+phone: (978) 266-8140                   fax: (978) 266-8111
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

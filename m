@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132107AbQLNCVG>; Wed, 13 Dec 2000 21:21:06 -0500
+	id <S130753AbQLNCas>; Wed, 13 Dec 2000 21:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132106AbQLNCUq>; Wed, 13 Dec 2000 21:20:46 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3790 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130753AbQLNCUm>;
-	Wed, 13 Dec 2000 21:20:42 -0500
-Date: Wed, 13 Dec 2000 20:48:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chris Lattner <sabre@nondot.org>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
-        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <E146Mvx-0003Zj-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0012132037110.6300-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131561AbQLNCai>; Wed, 13 Dec 2000 21:30:38 -0500
+Received: from user-137-122.jakinternet.co.uk ([212.187.137.122]:9824 "EHLO
+	linux.home") by vger.kernel.org with ESMTP id <S130753AbQLNCaS>;
+	Wed, 13 Dec 2000 21:30:18 -0500
+Date: Thu, 14 Dec 2000 02:03:14 GMT
+From: James Stevenson <mistral@stev.org>
+Message-Id: <200012140203.CAA16009@linux.home>
+To: mhaque@haque.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test12: eth0 trasmit timed out after one hour uptime
+In-Reply-To: <3A380563.72619BD@haque.net>
+In-Reply-To: <3A37FFC9.19F05305@cheek.com> <3A380238.CA7BB0B2@haque.net> <3A3802AA.1FD36245@cheek.com> <3A380563.72619BD@haque.net>
+Reply-To: mistral@stev.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
+
+i may have also had some problems with this
+when i was connected to the net though ppp (most of the night)
+so far in about 6 hours it has stoped transmitting 2 times but still
+recives it is fine after i disconnect and reconnect i will try and get it
+to stop working with heavry disk io
+BTW this is all under 2.2.18 and never had any problem with the isp
+over the past month or so.
 
 
-On Thu, 14 Dec 2000, Alan Cox wrote:
+In local.linux-kernel-list, you wrote:
+>At first I thought my lockups were HD i/o related also but then the last
+>lockup I had happened a while after I trashed my disk but while grabbing
+>email (ppp link).
+>
+>Joseph Cheek wrote:
+>> 
+>> 00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+>> (rev 30)
+>> 
+>> i've been doing a ton of compiling which has thrashed the [IDE] HD,
+>> perhaps it is related.  other than that, just normal web surfing...
+>
+>-- 
+>
+>
 
-> > Don't worry about kORBit.  Like most open source projects, it will simply
-> > die out after a while, because people don't find it interesting and there
-> > is really no place for it.  If it becomes useful, mature, and refined,
-> > however, it could be a very powerful tool for a large class of problems
-> > (like moving code OUT of the kernel).
-> 
-> I do have one sensible question. Given that corba is while flexible a 
-> relatively expensive encoding system, wouldn't it be better to keep corba
-> out of kernel space and talk something which is a simple and cleaner encoding
 
-p9fs exists.  I didn't see these patches since August, but probably I can poke
-Roman into porting it to the current tree.  9P is quite simple and unlike
-CORBA it had been designed for taking kernel stuff to userland.  Besides,
-authors definitely understand UNIX...
-
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  1:50am  up 1 day, 11:05,  7 users,  load average: 0.11, 0.09, 0.03
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

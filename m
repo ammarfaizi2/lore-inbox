@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUDKQSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 12:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUDKQSa
+	id S262391AbUDKQdE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 12:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUDKQdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 12:18:30 -0400
-Received: from paris.monnet.biz ([81.57.102.142]:41614 "EHLO
-	turbigo-2-81-57-102-142.fbx.proxad.net") by vger.kernel.org with ESMTP
-	id S262380AbUDKQS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 12:18:29 -0400
-Subject: Disabling IRQ, no one cared, Sil 3112 on nForce 2
-From: NM Lists <mlists@paris.monnet.biz>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1081700338.10793.2.camel@paris.monnet.biz>
+	Sun, 11 Apr 2004 12:33:04 -0400
+Received: from waste.org ([209.173.204.2]:39117 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262391AbUDKQdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 12:33:02 -0400
+Date: Sun, 11 Apr 2004 11:32:56 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: List of oversized inlines
+Message-ID: <20040411163255.GB6248@waste.org>
+References: <200404111905.49443.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 11 Apr 2004 18:18:58 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404111905.49443.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Sun, Apr 11, 2004 at 07:05:49PM +0300, Denis Vlasenko wrote:
+> Below you may find a list of inlines which have multiple callers
+> and which compile to more than 39 bytes.
 
-I see there is still no resolution on this problem. I tried 2.6.5,
-did'nt work, noapic doesn't do shit either. Upgrading Abit Bios to
-latest (an7_15) did'nt do anything.
+Could you perhaps subtract out the size of a null function and include
+the product of size * uses?
 
-However I found the following: the bug only triggers when I'm using both
-SATA channels. With two drives, but only one connected, no problem seems
-to occur.
+> Tool used to obtain this list will be published when
+> I will polish it a bit.
 
-HTH
+I'd obviously like to add this to the scripts in -tiny.
 
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

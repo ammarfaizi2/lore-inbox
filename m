@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVCZClV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVCZCox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVCZClV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 21:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVCZClV
+	id S261917AbVCZCox (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 21:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCZCox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 21:41:21 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28831 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261918AbVCZClR (ORCPT
+	Fri, 25 Mar 2005 21:44:53 -0500
+Received: from mail.dif.dk ([193.138.115.101]:57806 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261917AbVCZCov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 21:41:17 -0500
-Date: Fri, 25 Mar 2005 18:39:25 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: tmv@comcast.net, jengelh@linux01.gwdg.de, maillist@zuco.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Squashfs without ./..
-Message-Id: <20050325183925.79359c2e.pj@engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
-	<Pine.LNX.4.62.0503221656310.2683@dragon.hyggekrogen.localhost>
-	<200503231740.09572.maillist@zuco.org>
-	<Pine.LNX.4.61.0503231829570.1481@yvahk01.tjqt.qr>
-	<20050323174925.GA3272@zero>
-	<Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 21:44:51 -0500
+Date: Sat, 26 Mar 2005 03:46:48 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] get rid of a single else clause in cifsfs.c
+Message-ID: <Pine.LNX.4.62.0503260343330.2463@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yep, check `-noleaf' in find(1).
 
-No.
+Hi Steve,
 
-At least the copy of find that I just looked at now, in
-findutils-4.1.20, makes no such assumption that "." and ".." are the
-first two directory entries.
+Just a small patch on top of the other ones I sent you earlier for 
+cifsfs.c, I overlooked this trivial bit.
+We can get rid of the else clause in a if statement. Doesn't change 
+anything code-wise, but shortens the file a bit and seems a bit cleaner 
+(at least to me) - apply or not as you please of course.
 
-Rather what it does is allow you to suppress an optimization, on file
-systems that don't manage their directory link counts so that the link
-count on a directory is exactly two more than the number of child
-directories, which optimization avoids stat'ing every entry if you are
-using some set of find options that are only looking at names, not other
-stat data, and if by the link count on the directory, you've already
-stat'd all the child directories.  The documentation for find -noleaf
-spells this out.
 
-The find command is enabling you to adapt to differing file system
-directory link counts with this option.  It is not brokenly forcing a
-wrong assumption on you, and in any case, it is an issue of directory
-link counts, not of the opendir-readdir order of "." and ".." (if
-present).
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+--- linux-2.6.12-rc1-mm3/fs/cifs/cifsfs.c.with_patch4	2005-03-25 18:03:49.000000000 +0100
++++ linux-2.6.12-rc1-mm3/fs/cifs/cifsfs.c	2005-03-26 03:41:29.000000000 +0100
+@@ -96,9 +96,8 @@ static int cifs_read_super(struct super_
+ 	cifs_sb = CIFS_SB(sb);
+ 	if (cifs_sb == NULL)
+ 		return -ENOMEM;
+-	else
+-		memset(cifs_sb,0,sizeof(struct cifs_sb_info));
+ 
++	memset(cifs_sb,0,sizeof(struct cifs_sb_info));
+ 	rc = cifs_mount(sb, cifs_sb, data, devname);
+ 	if (rc) {
+ 		if (!silent)
+
+

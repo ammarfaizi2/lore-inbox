@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264805AbRFUEIi>; Thu, 21 Jun 2001 00:08:38 -0400
+	id <S264842AbRFUEzU>; Thu, 21 Jun 2001 00:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264842AbRFUEI2>; Thu, 21 Jun 2001 00:08:28 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:49895 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S264805AbRFUEIW>; Thu, 21 Jun 2001 00:08:22 -0400
-Message-ID: <3B3173A0.F244EF5B@kegel.com>
-Date: Wed, 20 Jun 2001 21:10:08 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Threads, inelegance, and Java
+	id <S264846AbRFUEzK>; Thu, 21 Jun 2001 00:55:10 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:31559 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S264844AbRFUEy5>;
+	Thu, 21 Jun 2001 00:54:57 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Miles Lane <miles@megapathdsl.net>
+cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.4.5-ac16 -- Still getting unresolved gameport_register_port and gameport_unregister_port symbols in joystick drivers. 
+In-Reply-To: Your message of "Wed, 20 Jun 2001 16:38:03 MST."
+             <web-26144619@back1.mail.megapathdsl.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Jun 2001 14:54:29 +1000
+Message-ID: <8127.993099269@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Leighton wrote:
-> The lack of a good operating system _dependent_ interface
-> makes running fast hard in Java when you need to do IO...
-> yes, there is always JNI so you can add a little C to mmap a file or whatever,
+On Wed, 20 Jun 2001 16:38:03 -0700, 
+Miles Lane <miles@megapathdsl.net> wrote:
+>depmod: *** Unresolved symbols in /lib/modules/2.4.5-ac16/kernel/drivers/char/joystick/cs461x.o
+>depmod: 	gameport_register_port
 
-JDK 1.4 beta comes with a way to memory-map files, and various
-other I/O improvements (like poll(); see http://www.jcp.org/jsr/detail/51.jsp).
-Chris Smith will have some nio benchmarks up on http://www.jlinux.org/
-next week or so showing how well their nonblocking network I/O performs.
+Quick and dirty fix.
 
-Sun is slowly getting their act together on the I/O front with java.
-Still, the competition from C# and for that matter gcj will probably be 
-a good thing, keep 'em on their toes.
+Index: 5.39/drivers/char/joystick/Config.in
+--- 5.39/drivers/char/joystick/Config.in Wed, 20 Jun 2001 13:07:10 +1000 kaos (linux-2.4/Y/b/35_Config.in 1.1.1.4 644)
++++ 5.39(w)/drivers/char/joystick/Config.in Thu, 21 Jun 2001 14:47:53 +1000 kaos (linux-2.4/Y/b/35_Config.in 1.1.1.4 644)
+@@ -6,7 +6,7 @@ mainmenu_option next_comment
+ comment 'Joysticks'
+ 
+ if [ "$CONFIG_INPUT" != "n" ]; then
+-   tristate 'Game port support' CONFIG_INPUT_GAMEPORT
++   dep_tristate 'Game port support' CONFIG_INPUT_GAMEPORT $CONFIG_INPUT
+       dep_tristate '  Classic ISA/PnP gameports' CONFIG_INPUT_NS558 $CONFIG_INPUT_GAMEPORT
+       dep_tristate '  PDPI Lightning 4 gamecard' CONFIG_INPUT_LIGHTNING $CONFIG_INPUT_GAMEPORT
+       dep_tristate '  Aureal Vortex and Trident 4DWave gameports' CONFIG_INPUT_PCIGAME $CONFIG_INPUT_GAMEPORT
 
-(Disclaimer: I served on the JSR-51 expert group, representing the linux 
-point of view, kinda.)
-- Dan
+There are too many cross directory dependencies and undocumented
+assumptions on input, gameport, joystick and sound options.  Vojtech,
+we need a specification on how these should interact before we make any
+more changes to the config code.  What should the dependencies be for
+input, gameport, joysticks and gameport using soundcard really be?
+

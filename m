@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUHXW06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUHXWdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268664AbUHXW06 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 18:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUHXW06
+	id S269012AbUHXWdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 18:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269009AbUHXWdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 18:26:58 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:9091 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268664AbUHXW0y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 18:26:54 -0400
-Subject: Re: missing wait_event_timeout
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1093383090.4871.8.camel@stevef95.austin.ibm.com>
-References: <1093383090.4871.8.camel@stevef95.austin.ibm.com>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1093386199.4882.11.camel@stevef95.austin.ibm.com>
+	Tue, 24 Aug 2004 18:33:33 -0400
+Received: from ctb-mesg1.saix.net ([196.25.240.73]:15596 "EHLO
+	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S269008AbUHXWd1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 18:33:27 -0400
+Subject: Re: 2.6.8.1-mm2 (nvidia breakage) [u]
+From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: Roland Dreier <roland@topspin.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Geithe <warpy@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mastergoon@gmail.com
+In-Reply-To: <20040824220307.GO1078@hygelac>
+References: <20040819092654.27bb9adf.akpm@osdl.org>
+	 <200408230930.18659.bjorn.helgaas@hp.com> <20040823190131.GC1303@hygelac>
+	 <200408240926.42665.bjorn.helgaas@hp.com> <52vff8phf5.fsf@topspin.com>
+	 <20040824220307.GO1078@hygelac>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CKR1VC2gGtZ7TnBWFgIu"
+Message-Id: <1093386902.12957.15.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 24 Aug 2004 17:23:19 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 25 Aug 2004 00:35:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe it is just safer to call wait_event with the timeout check as one
-of the conditions?
 
-On Tue, 2004-08-24 at 16:31, Steve French wrote:
-> Is there a reason why there is no wait_event_timeout function in kernel.
-> There is only the __wait_event_timeout_interruptible in wait.h
-> It seems the easiest way to fix the few remaining pieces of code which
-> call the deprecated sleep_on_timeout.
-> 
-> ie something like:
-> 
-> 
-> > #define __wait_event_timeout(wq, condition, ret)
-> > do {			
-> > 	DEFINE_WAIT(__wait);	
-> > 				
-> > 	for (;;) {		
-> > 		prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);
-> > 		if (condition)				
-> > 			break;				
-> > 		ret = schedule_timeout(ret);	
-> > 		if (!ret)			
-> > 			break;			
-> > 	}						
-> > 	finish_wait(&wq, &__wait);					
-> > } while (0)
-> 
-> 
+--=-CKR1VC2gGtZ7TnBWFgIu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2004-08-25 at 00:03, Terence Ripperda wrote:
+> On Tue, Aug 24, 2004 at 10:36:14AM -0700, roland@topspin.com wrote:
+> > Terence, correct me if I'm wrong, but the change to add
+> > pci_enable_device() goes in the part of the nvidia driver that has
+> > source available.  So users can apply this patch themselves even
+> > without another Nvidia release.
+>=20
+> correct.
+>=20
+
+Should just pass it along to minion.de ...
+
+
+--=20
+Martin Schlemmer
+
+--=-CKR1VC2gGtZ7TnBWFgIu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBK8KWqburzKaJYLYRArfmAJ9D1M7opOh7AKPnM0Lwtr2GrrOxnQCeLqZP
+k4ULEhyDT9pMjvVTnjnUFRY=
+=32gt
+-----END PGP SIGNATURE-----
+
+--=-CKR1VC2gGtZ7TnBWFgIu--
 

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310431AbSCGRce>; Thu, 7 Mar 2002 12:32:34 -0500
+	id <S310425AbSCGRmG>; Thu, 7 Mar 2002 12:42:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310430AbSCGRc0>; Thu, 7 Mar 2002 12:32:26 -0500
-Received: from gra-lx1.iram.es ([150.214.224.41]:34564 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S310425AbSCGRcJ>;
-	Thu, 7 Mar 2002 12:32:09 -0500
-Date: Thu, 7 Mar 2002 18:31:49 +0100 (CET)
-From: Gabriel Paubert <paubert@iram.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: FPU precision & signal handlers (bug?)
-In-Reply-To: <E16iOx5-0004oK-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203071820450.17751-100000@gra-lx1.iram.es>
+	id <S310427AbSCGRl5>; Thu, 7 Mar 2002 12:41:57 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:50693 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310425AbSCGRln>;
+	Thu, 7 Mar 2002 12:41:43 -0500
+Date: Thu, 7 Mar 2002 14:39:11 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: "Henning P. Schmiedehausen" <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
+ Maintainers
+In-Reply-To: <20020307122640.A813@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44L.0203071437460.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Mar 2002, Mark Mielke wrote:
 
-
-On 6 Mar 2002, Alan Cox wrote:
-
-> > > Think about MMX and hopefully it makes sense then.
-> >
-> > AFAIR MMX only mucks with tag and status words (and the exponent fields of
-> > the stack elements), but never depends on or modifies the control word.
+> > [henning@henning henning]$ bk prs -hrv2.5.0.. |  while read x
+> > while: Expression Syntax.
+> > You obviously just _underlined_ the point, Larry.
+> > ...
+> > It's tcsh; before you ask.
 >
-> Right but you don't want to end up in MMX mode by suprise in a
-> signal handler in library code. By the same argument you don't want to end
-> up in a weird maths more.
+> If you know that the above works only with [zk(ba)]sh, I don't know
+> what point you would be making by stating that it doesn't work with
+> tcsh.
 
-I agree with the second part, but actually what you want is to start with
-an empty stack. Whether the contents are FP or MMX is irrelevant.
-Actually the support of applications using MMX did not require any change
-to the kernel (Intel carefully designed it that way).
+Shhhh, you're ruining the free-software-fans-bash-Larry show.
 
-> I don't think its a bug. I think its correct (but seriously underdocumented)
-> behaviour
+cheers,
 
-Indeed.
+Rik
+-- 
+<insert bitkeeper endorsement here>
 
-	Gabriel.
+http://www.surriel.com/		http://distro.conectiva.com/
 

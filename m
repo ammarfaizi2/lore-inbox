@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTETQsS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 12:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTETQsS
+	id S263510AbTETQto (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 12:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTETQto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 12:48:18 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:50852 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP id S263418AbTETQsR
+	Tue, 20 May 2003 12:49:44 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:60065 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263510AbTETQtm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 12:48:17 -0400
-Date: Tue, 20 May 2003 19:00:54 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Milton Miller <miltonm@bga.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
-       mikpe@csd.uu.se
-Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
-Message-ID: <20030520170054.GQ32559@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-References: <3ECA05FA.6090008@gmx.net> <200305201634.h4KGY9VJ049544@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305201634.h4KGY9VJ049544@sullivan.realtime.net>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+	Tue, 20 May 2003 12:49:42 -0400
+Message-Id: <200305201702.h4KH2V615978@zeus.kernel.org>
+From: "E-mail business" <firehose@mailbox.hu>
+Date: Tue, 20 May 2003 19:02:29 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Milton Miller, Tue, May 20, 2003 18:34:09 +0200:
-> Shouldn't this just use active_mm?   Can somebody test?
 
-It helped.
+INDITSA MEG MA EL E-MAIL VALLALKOZASAT! 
 
-> by the way, I saw this with a 486 kernel compiled by
-> gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
-> 
-> on a Toshiba 2105 (aka 2100 +- sw) 486DX2/50, although I am not
-> at that computer presenlty to test.
-> 
+ELONYOK, AMELYEKRE SZERT TEHET:Kereshet masodallasban 5.000, Foallasban 10.000 dollart havonta! 
+Ugyfelei azonnal, keszpenzben fizetnek, megrendeleskor! 
+On olyan termeket forgalmaz, amelynek gyakorlatilag nincs eloallitasi koltsege!
+Egyetlen befektetese csupan az On ideje! 
+Kevesebb, mint 25 dollarral elkezdheti! 
+Tobb tizmillio potencialis ugyfel all az on rendelkezesere!
 
-Also the stability problems I mentioned before gone.
+Tovabbi informaciokhoz juthat a firehose@mailbox.hu e-mail cimen.
+A targykorben jelolje meg a "BUSINESS" jeliget.
 
--alex
+
+
+
+
+ps: Az Interneten olvastam az On cimet. Amennyiben levelemmel zavartam, kerem a REMOVE ME targgyal kuldjon ures e-mailt a firehose@mailbox.hu cimre, es elnezeset kerem. Sok sikert tovabbi munkajahoz. :-)
+
+
+
+
+START YOUR OWN E-MAIL BUSINESS TODAY!STARTING YOUR OWN E-MAIL BUSINESS WILL ENABLEYOU TO TAKE ADVANTAGE OF THE FOLLOWINGBENEFITS:1. TOP PART-TIME OWNERS HAVE EARNED $5,000+ IN ONE MONTH2. TOP FULL-TIME OWNERS HAVE EARNED $10,000+ IN ONE MONTH3. ALL CUSTOMERS PAY YOU IN CASH!!!4. YOU WILL SELL A PRODUCT WHICH COSTS NOTHING TO PRODUCE!5. YOUR MAIN OVERHEAD IS YOUR TIME!6. YOUR START UP COSTS ARE LESS THAN $257. YOU HAVE MORE THAN 40 MILLION POTENTIAL CUSTOMERSFor additional information please E-mail me at firehose@mailbox.hu, be sure to place the word "BUSINESS" in subject area.
+
+ps. Please E-mail me at firehose@mailbox.hu with REMOVE ME subject for easy removal and sorry. Have a good day :-)
+
+
 
